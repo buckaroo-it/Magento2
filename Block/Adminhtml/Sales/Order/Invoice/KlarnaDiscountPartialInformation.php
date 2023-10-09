@@ -20,7 +20,7 @@
 
 namespace Buckaroo\Magento2\Block\Adminhtml\Sales\Order\Invoice;
 
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Magento\Backend\Block\Template\Context;
 use Magento\Framework\View\Element\Template;
 use Magento\Sales\Api\Data\OrderInterface;

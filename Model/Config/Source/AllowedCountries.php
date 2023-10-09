@@ -26,7 +26,7 @@ use Magento\Framework\Data\OptionSourceInterface;
 use Magento\Framework\Locale\Bundle\RegionBundle;
 use Magento\Framework\Locale\ListsInterface;
 use Magento\Framework\Locale\ResolverInterface;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as ConfigProviderFactory;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderFactory;
 
 class AllowedCountries implements OptionSourceInterface
 {

@@ -25,7 +25,7 @@ use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Model\Order;

@@ -26,7 +26,7 @@ use Buckaroo\Magento2\Model\Config\Source\Business;
 use Buckaroo\Magento2\Service\CheckPaymentType;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Buckaroo\Magento2\Model\GroupTransaction;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Config\Model\Config\ScopeDefiner;

@@ -23,7 +23,7 @@ namespace Buckaroo\Magento2\Gateway\Request\CreditManagement;
 
 use Buckaroo\Magento2\Gateway\Request\AbstractDataBuilder;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 
 class ConfigDataBuilder extends AbstractDataBuilder
 {
