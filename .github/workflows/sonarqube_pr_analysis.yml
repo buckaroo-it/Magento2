@@ -1,10 +1,7 @@
 on:
   push:
     branches:
-      - master
       - feature/payment_provider_gateway
-      - develop
-      - 'releases/**'
   pull_request:
     types: [opened, synchronize, reopened]
 
