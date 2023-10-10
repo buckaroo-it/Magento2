@@ -28,6 +28,30 @@ class Klarnain extends AbstractConfigProvider
     public const CODE = 'buckaroo_magento2_klarnain';
 
     /**
+     * @var array
+     */
+    protected $allowedCurrencies = [
+        'EUR',
+        'GBP',
+        'DKK',
+        'SEK',
+        'NOK'
+    ];
+
+    /**
+     * @var array
+     */
+    protected $allowedCountries = [
+        'DE',
+        'AT',
+        'GB',
+        'DK',
+        'SE',
+        'NO',
+        'FI',
+    ];
+
+    /**
      * @inheritdoc
      *
      * @throws Exception
