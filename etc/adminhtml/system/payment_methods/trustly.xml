@@ -28,7 +28,7 @@
         <field id="active" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Enable Trustly</label>
             <comment><![CDATA[Enable or disable this payment method.]]></comment>
-            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <source_model>Buckaroo\Magento2\Model\Config\Source\Enablemode</source_model>
             <config_path>payment/buckaroo_magento2_trustly/active</config_path>
         </field>
 

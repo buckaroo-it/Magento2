@@ -28,7 +28,7 @@
         <field id="active" translate="label comment tooltip" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Enable credit and debit cards (Client sided)</label>
             <comment><![CDATA[Enable or disable this payment method.]]></comment>
-            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <source_model>Buckaroo\Magento2\Model\Config\Source\Enablemode</source_model>
             <config_path>payment/buckaroo_magento2_creditcards/active</config_path>
             <tooltip>
                 <![CDATA[Check with Buckaroo whether Client Side Encryption is enabled, otherwise transactions will fail. If in doubt, please contact us.]]>
