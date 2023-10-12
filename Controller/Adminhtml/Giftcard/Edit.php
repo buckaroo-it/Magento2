@@ -27,9 +27,6 @@ use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Backend\Model\View\Result\Page;
 use Magento\Framework\App\Action\HttpGetActionInterface;
-use Magento\Framework\Filesystem;
-use Magento\Framework\Image\AdapterFactory;
-use Magento\Framework\Registry;
 use Magento\Framework\View\Result\PageFactory;
 
 class Edit extends Action implements HttpGetActionInterface
