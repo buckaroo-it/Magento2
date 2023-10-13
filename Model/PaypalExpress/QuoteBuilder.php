@@ -77,7 +77,8 @@ class QuoteBuilder implements QuoteBuilderInterface
         $this->customer = $customer;
     }
 
-    public function setFormData(array $formData)
+    /** @inheritDoc */
+    public function setFormData(string $formData)
     {
         $this->formData = $this->formatFormData($formData);
     }
@@ -135,20 +136,17 @@ class QuoteBuilder implements QuoteBuilderInterface
             throw new PaypalExpressException($exceptionMessage, 1);
         }
     }
-    /**
+/**
      * Format form data
      *
-     * @param array $form_data
+     * @param string $form_data
      *
      * @return \Magento\Framework\DataObject
      */
-    protected function formatFormData(array $form_data)
+    protected function formatFormData(string $form_data)
     {
         $data = [];
-
-        foreach ($form_data as $orderKeyValue) {
-            $data[$orderKeyValue->getName()] = $orderKeyValue->getValue();
-        }
+        parse_str($form_data, $data);
         $dataObject = $this->dataObjectFactory->create();
 
         return $dataObject->setData($data);
