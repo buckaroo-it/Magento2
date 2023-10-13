@@ -125,16 +125,18 @@ class PaymentInformationManagement extends MagentoPaymentInformationManagement i
 
         $orderId = $this->savePaymentInformationAndPlaceOrder($cartId, $paymentMethod, $billingAddress);
 
-        $buckarooResponse = $this->buckarooResponseData->getResponse()->toArray();
-        $this->logger->debug(sprintf(
-            '[PLACE_ORDER] | [Webapi] | [%s:%s] - Logged In Users | buckarooResponse: %s',
-            __METHOD__,
-            __LINE__,
-            print_r($buckarooResponse, true)
-        ));
+        if ($buckarooResponse = $this->buckarooResponseData->getResponse()) {
+            $buckarooResponse = $buckarooResponse->toArray();
+            $this->logger->debug(sprintf(
+                '[PLACE_ORDER] | [Webapi] | [%s:%s] - Logged In Users | buckarooResponse: %s',
+                __METHOD__,
+                __LINE__,
+                print_r($buckarooResponse, true)
+            ));
 
-        if ($buckarooResponse) {
-            return \json_encode($buckarooResponse);
+            if ($buckarooResponse) {
+                return \json_encode($buckarooResponse);
+            }
         }
 
         return json_encode([
