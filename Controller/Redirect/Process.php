@@ -358,15 +358,23 @@ class Process extends Action implements HttpPostActionInterface
         $paymentMethod = $this->payment->getMethodInstance();
         $store = $this->order->getStore();
 
+        $isKlarnaKpReserve = ($this->redirectRequest->hasPostData('primary_service', 'KlarnaKp')
+            && $this->redirectRequest->hasAdditionalInformation('service_action_from_magento', 'reserve')
+            && !empty($this->redirectRequest->getServiceKlarnakpReservationnumber()));
+
+        if(empty($this->order->getBuckarooReservationNumber()) && $isKlarnaKpReserve)
+        {
+            $this->order->setBuckarooReservationNumber($this->redirectRequest->getServiceKlarnakpReservationnumber());
+            $this->order->save();
+        }
+
         if (!$this->order->getEmailSent()
             && (
                 $this->accountConfig->getOrderConfirmationEmail($store) === "1"
                 || $paymentMethod->getConfigData('order_email', $store) === "1"
             )
         ) {
-            $isKlarnaKpReserve = ($this->redirectRequest->hasPostData('primary_service', 'KlarnaKp')
-                && $this->redirectRequest->hasAdditionalInformation('service_action_from_magento', 'reserve')
-                && !empty($this->redirectRequest->getServiceKlarnakpReservationnumber()));
+
 
             if (!($this->redirectRequest->hasAdditionalInformation('initiated_by_magento', 1)
                 && $isKlarnaKpReserve
