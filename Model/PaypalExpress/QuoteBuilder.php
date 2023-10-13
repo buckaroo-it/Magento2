@@ -22,6 +22,7 @@
 namespace Buckaroo\Magento2\Model\PaypalExpress;
 
 use Magento\Customer\Model\Group;
+use Magento\Quote\Model\Quote\Item;
 use Magento\Quote\Model\QuoteFactory;
 use Magento\Checkout\Model\Type\Onepage;
 use Magento\Framework\DataObjectFactory;
@@ -39,7 +40,7 @@ class QuoteBuilder implements QuoteBuilderInterface
     protected $quoteFactory;
 
     /**
-     * @var \Magento\Framework\DataObjectFactory
+     * @var \Magento\Catalog\Api\ProductRepositoryInterface
      */
     protected $productRepository;
 
@@ -124,7 +125,15 @@ class QuoteBuilder implements QuoteBuilderInterface
             throw new PaypalExpressException("A product is required", 1);
         }
         $product = $this->productRepository->getById($productId);
-        $this->quote->addProduct($product, $this->formData);
+        $item = $this->quote->addProduct($product, $this->formData);
+
+        if (!$item instanceof Item) {
+            $exceptionMessage = "Cannot add product to cart";
+            if (is_string($item)) {
+                $exceptionMessage = $item;
+            }
+            throw new PaypalExpressException($exceptionMessage, 1);
+        }
     }
     /**
      * Format form data
