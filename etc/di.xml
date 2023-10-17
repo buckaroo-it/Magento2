@@ -2265,6 +2265,7 @@
                 <item name="vat_number" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\VATNumberDataBuilder</item>
                 <item name="customer" xsi:type="string">CustomerBillinkDataBuilder</item>
                 <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesDataBuilder</item>
+                <item name="skipPush" xsi:type="string">Buckaroo\Magento2\Gateway\Request\SkipPushDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
