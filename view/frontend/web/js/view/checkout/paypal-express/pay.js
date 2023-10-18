@@ -63,6 +63,13 @@ define([
      * Api events
      */
     onShippingChangeHandler(data, actions) {
+      if (
+        this.page === 'product' &&
+        $("#product_addtocart_form").valid() === false
+      ) {
+        return actions.reject();
+      }
+
       let shipping = this.setShipping(data);
       return new Promise((resolve, reject) => {
         shipping.then(
@@ -165,7 +172,7 @@ define([
     getOrderData() {
       let form = $("#product_addtocart_form");
       if (this.page === 'product') {
-        return form.serializeArray();
+                return form.serialize();
       }
     },
     /**
