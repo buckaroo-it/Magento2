@@ -227,7 +227,11 @@ class Giftcard
         try {
             $transactions = $this->groupTransaction->getGroupTransactionItems($order->getIncrementId());
             foreach ($transactions as $transaction) {
-                $this->giftcardRemoveService->remove($transaction->getTransactionId(), $order->getIncrementId());
+                $this->giftcardRemoveService->remove(
+                    $transaction->getTransactionId(),
+                    $order->getIncrementId(),
+                    $order->getPayment()
+                );
             }
         } catch (\Throwable $th) {
             $this->logger->addDebug(sprintf(
