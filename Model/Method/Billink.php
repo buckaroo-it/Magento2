@@ -20,11 +20,12 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
-use Magento\Catalog\Model\Product\Type;
-use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
-use Magento\Quote\Model\Quote\AddressFactory;
+use Magento\Tax\Model\Calculation;
+use Magento\Catalog\Model\Product\Type;
 use Magento\Store\Model\ScopeInterface;
+use Magento\Quote\Model\Quote\AddressFactory;
+use Magento\Sales\Api\Data\OrderAddressInterface;
 
 class Billink extends AbstractMethod
 {
@@ -731,7 +732,7 @@ class Billink extends AbstractMethod
                 'GroupID' => $GroupID,
             ],
             [
-                '_'    => $billingAddress->getFirstname() . ' ' .$billingAddress->getLastName(),
+                '_'    => $this->getCareOf($billingAddress),
                 'Name' => 'CareOf',
                 'Group' => 'BillingCustomer',
                 'GroupID' => $GroupID,
@@ -835,6 +836,24 @@ class Billink extends AbstractMethod
     }
 
     /**
+     * Get company name or customer name for care of field
+     *
+     * @param OrderAddressInterface $address
+     *
+     * @return string
+     */
+    private function getCareOf(OrderAddressInterface $address): string
+    {
+        $company = $address->getCompany();
+
+        if ($company !== null && strlen(trim($company)) > 0) {
+            return $company;
+        }
+
+        return $address->getFirstname() . ' ' .$address->getLastName();
+    }
+
+    /**
      * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
      *
      * @return array
@@ -876,7 +895,7 @@ class Billink extends AbstractMethod
                 'GroupID' => $GroupID,
             ],
             [
-                '_'    => $shippingAddress->getFirstname() . ' ' .$shippingAddress->getLastName(),
+                '_'    => $this->getCareOf($shippingAddress),
                 'Name' => 'CareOf',
                 'Group' => 'ShippingCustomer',
                 'GroupID' => $GroupID,
