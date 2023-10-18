@@ -163,8 +163,38 @@ class BuckarooAdapter
         /** @var Account $configProviderAccount */
         $configProviderAccount = $this->configProviderFactory->get('account');
         $storeId = $this->storeManager->getStore()->getId();
-        $clientMode = Config::TEST_MODE;
         $accountMode = $configProviderAccount->getActive($storeId);
+        $clientMode = $this->getClientMode($accountMode, $storeId, $paymentMethod);
+
+        $this->buckaroo = new BuckarooClient(new DefaultConfig(
+            $this->encryptor->decrypt($configProviderAccount->getMerchantKey()),
+            $this->encryptor->decrypt($configProviderAccount->getSecretKey()),
+            $clientMode,
+            null,
+            null,
+            null,
+            null,
+            $this->productMetadata->getName() . ' - ' . $this->productMetadata->getEdition(),
+            $this->productMetadata->getVersion(),
+            'Buckaroo',
+            'Magento2',
+            Data::BUCKAROO_VERSION,
+            str_replace('_', '-', $this->localeResolver->getLocale())
+        ));
+    }
+
+    /**
+     * Get client mode base on account mode and payment method mode
+     *
+     * @param int $accountMode
+     * @param int $storeId
+     * @param string $paymentMethod
+     * @return string
+     * @throws Exception
+     */
+    private function getClientMode(int $accountMode, int $storeId, string $paymentMethod): string
+    {
+        $clientMode = Config::TEST_MODE;
 
         if ($accountMode == Enablemode::ENABLE_OFF) {
             throw new Exception(__('The Buckaroo Module is OFF'));
@@ -187,21 +217,7 @@ class BuckarooAdapter
             }
         }
 
-        $this->buckaroo = new BuckarooClient(new DefaultConfig(
-            $this->encryptor->decrypt($configProviderAccount->getMerchantKey()),
-            $this->encryptor->decrypt($configProviderAccount->getSecretKey()),
-            $clientMode,
-            null,
-            null,
-            null,
-            null,
-            $this->productMetadata->getName() . ' - ' . $this->productMetadata->getEdition(),
-            $this->productMetadata->getVersion(),
-            'Buckaroo',
-            'Magento2',
-            Data::BUCKAROO_VERSION,
-            str_replace('_', '-', $this->localeResolver->getLocale())
-        ));
+        return $clientMode;
     }
 
     /**
