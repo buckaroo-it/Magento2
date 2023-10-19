@@ -103,13 +103,13 @@ class CapayableIn3 extends AbstractConfigProvider
         return $paymentFee ? $paymentFee : false;
     }
 
-    public function isV3($storeId = null): bool
+    public function isV2($storeId = null): bool
     {
         return $this->scopeConfig->getValue(
             self::XPATH_CAPAYABLEIN3_API_VERSION,
             ScopeInterface::SCOPE_STORE,
             $storeId
-        ) !== 'V2';
+        ) === 'V2';
     }
     public function getLogo($storeId = null): string
     {
@@ -119,8 +119,12 @@ class CapayableIn3 extends AbstractConfigProvider
             $storeId
         );
 
-        if (!is_string($logo) || !$this->isV3($storeId)) {
+        if ($this->isV2($storeId)) {
             return 'in3.svg';
+        }
+
+        if (!is_string($logo)) {
+            return 'in3-ideal.svg';
         }
 
         return $logo;
