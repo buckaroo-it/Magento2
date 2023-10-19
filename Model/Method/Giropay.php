@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -19,9 +20,6 @@
  */
 
 namespace Buckaroo\Magento2\Model\Method;
-
-use Magento\Framework\Validator\Exception;
-use Magento\Sales\Model\Order\Payment;
 
 class Giropay extends AbstractMethod
 {
@@ -45,24 +43,6 @@ class Giropay extends AbstractMethod
     /**
      * {@inheritdoc}
      */
-    public function assignData(\Magento\Framework\DataObject $data)
-    {
-        parent::assignData($data);
-        $data = $this->assignDataConvertToArray($data);
-
-        if (isset($data['additional_data']['customer_bic'])) {
-            $this->getInfoInstance()->setAdditionalInformation(
-                'customer_bic',
-                $data['additional_data']['customer_bic']
-            );
-        }
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getOrderTransactionBuilder($payment)
     {
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
@@ -71,12 +51,6 @@ class Giropay extends AbstractMethod
             'Name'             => 'giropay',
             'Action'           => 'Pay',
             'Version'          => 2,
-            'RequestParameter' => [
-                [
-                    '_'    => $payment->getAdditionalInformation('customer_bic'),
-                    'Name' => 'bic',
-                ],
-            ],
         ];
 
         /**
@@ -116,34 +90,6 @@ class Giropay extends AbstractMethod
     public function getVoidTransactionBuilder($payment)
     {
         return true;
-    }
-
-    /**
-     * Validate the extra input fields.
-     *
-     * @return $this
-     * @throws Exception
-     * @throws \Magento\Framework\Exception\LocalizedException
-     */
-    public function validate()
-    {
-        parent::validate();
-
-        $paymentInfo = $this->getInfoInstance();
-
-        $skipValidation = $paymentInfo->getAdditionalInformation('buckaroo_skip_validation');
-        if ($skipValidation) {
-            return $this;
-        }
-
-        $customerBicNumber = $paymentInfo->getAdditionalInformation('customer_bic');
-
-        if (!preg_match(static::BIC_NUMBER_REGEX, $customerBicNumber)) {
-            //phpcs:ignore:Magento2.Exceptions.DirectThrow
-            throw new Exception(__('Please enter a valid BIC number'));
-        }
-
-        return $this;
     }
 
     /**
