@@ -26,10 +26,7 @@ use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\Config\Source\InvoiceHandlingOptions;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderFactory;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
-use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Framework\DB\TransactionFactory;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
@@ -50,53 +47,43 @@ use Magento\Sales\Model\Service\InvoiceService;
 class SalesOrderShipmentAfter implements ObserverInterface
 {
     public const MODULE_ENABLED = 'sr_auto_invoice_shipment/settings/enabled';
-
-    /**
-     * @var Shipment
-     */
-    private Shipment $shipment;
-
-    /**
-     * @var Order
-     */
-    private Order $order;
-
-    /**
-     * @var OrderPaymentInterface|null
-     */
-    private ?OrderPaymentInterface $payment;
-
     /**
      * @var Data
      */
     public Data $helper;
-
     /**
      *
      * @var CollectionFactory
      */
     protected $invoiceCollectionFactory;
-
     /**
      * @var InvoiceService
      */
     protected InvoiceService $invoiceService;
-
     /**
      * @var ShipmentFactory
      */
     protected ShipmentFactory $shipmentFactory;
-
     /**
      * @var TransactionFactory
      */
     protected TransactionFactory $transactionFactory;
-
     /**
      * @var BuckarooLoggerInterface
      */
     protected BuckarooLoggerInterface $logger;
-
+    /**
+     * @var Shipment
+     */
+    private Shipment $shipment;
+    /**
+     * @var Order
+     */
+    private Order $order;
+    /**
+     * @var OrderPaymentInterface|null
+     */
+    private ?OrderPaymentInterface $payment;
     /**
      * @var ConfigProviderFactory
      */
@@ -179,7 +166,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
             && $afterpayConfig->isInvoiceCreatedAfterShipment()
             && ($paymentMethod->getConfigPaymentAction() == 'authorize')
         ) {
-            $this->createInvoice( true);
+            $this->createInvoice(true);
             return;
         }
 
@@ -260,6 +247,20 @@ class SalesOrderShipmentAfter implements ObserverInterface
     }
 
     /**
+     * Get shipped quantities
+     *
+     * @return array
+     */
+    public function getQtys(): array
+    {
+        $qtys = [];
+        foreach ($this->shipment->getItems() as $items) {
+            $qtys[$items->getOrderItemId()] = $items->getQty();
+        }
+        return $qtys;
+    }
+
+    /**
      * Create invoice after shipment for all buckaroo payment methods
      *
      * @return bool
@@ -269,11 +270,11 @@ class SalesOrderShipmentAfter implements ObserverInterface
      */
     public function createInvoiceGeneralSetting(): bool
     {
-        $this->logger->addDebug('[CREATE_INVOICE] | [Observer] | ['. __METHOD__ .':'. __LINE__ . '] - Save Invoice');
+        $this->logger->addDebug('[CREATE_INVOICE] | [Observer] | [' . __METHOD__ . ':' . __LINE__ . '] - Save Invoice');
 
         if (!$this->order->canInvoice() || $this->order->hasInvoices()) {
             $this->logger->addDebug(
-                '[CREATE_INVOICE] | [Observer] | ['. __METHOD__ .':'. __LINE__ . '] - Order can not be invoiced'
+                '[CREATE_INVOICE] | [Observer] | [' . __METHOD__ . ':' . __LINE__ . '] - Order can not be invoiced'
             );
 
             return false;
@@ -307,7 +308,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
 
             if (!$invoice->getEmailSent() && $this->configAccount->getInvoiceEmail($this->order->getStore())) {
                 $this->logger->addDebug(
-                    '[CREATE_INVOICE] | [Observer] | ['. __METHOD__ .':'. __LINE__ . '] - Send Invoice Email '
+                    '[CREATE_INVOICE] | [Observer] | [' . __METHOD__ . ':' . __LINE__ . '] - Send Invoice Email '
                 );
                 $this->invoiceSender->send($invoice, true);
             }
@@ -317,19 +318,5 @@ class SalesOrderShipmentAfter implements ObserverInterface
         $this->order->save();
 
         return true;
-    }
-
-    /**
-     * Get shipped quantities
-     *
-     * @return array
-     */
-    public function getQtys(): array
-    {
-        $qtys = [];
-        foreach ($this->shipment->getItems() as $items) {
-            $qtys[$items->getOrderItemId()] = $items->getQty();
-        }
-        return $qtys;
     }
 }
