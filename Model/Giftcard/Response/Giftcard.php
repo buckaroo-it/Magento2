@@ -106,9 +106,14 @@ class Giftcard
 
         if ($this->response->isSuccess()) {
             $this->saveGroupTransaction();
+            $order = $this->createOrderFromQuote();
         } else {
-            $this->cancelOrder();
+            $order = $this->createOrderFromQuote(false);
         }
+
+//        else {
+//            $this->cancelOrder();
+//        }
     }
 
     /**
@@ -280,7 +285,7 @@ class Giftcard
      * @return AbstractExtensibleModel|OrderInterface|object|null
      * @throws LocalizedException
      */
-    protected function createOrderFromQuote()
+    protected function createOrderFromQuote($success = true)
     {
         //fix missing email validation
         if ($this->quote->getCustomerEmail() == null) {
@@ -293,8 +298,14 @@ class Giftcard
 
         //keep the quote active but remove the canceled order from it
         $this->quote->setIsActive(true);
-        $this->quote->setOrigOrderId(null);
-        $this->quote->setReservedOrderId(null);
+        if ($success) {
+            $buckarooAlreadyPaid = $this->quote->getBaseBuckarooAlreadyPaid() + $this->response->getAmount();
+            $this->quote->setBaseBuckarooAlreadyPaid($buckarooAlreadyPaid);
+            $this->quote->setGrandTotal($this->quote->getGrandTotal() - $this->response->getAmount());
+            $this->quote->setBaseGrandTotal($this->quote->getBaseGrandTotal() - $this->response->getAmount());
+            $this->quote->setOrigOrderId(null);
+        }
+
         $this->quote->save();
         return $order;
     }
