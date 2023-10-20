@@ -133,6 +133,12 @@ class CommandInterface
             return false;
         }
 
+        // In case the order doesn't reflect the values from the database.
+        // $order = $order->loadByIncrementId($order->getIncrementId());
+        if ($order->getTotalPaid() == $order->getGrandTotal()) {
+            return false;
+        }
+
         //skip setting the status here for applepay 
         if (preg_match('/applepay/', $methodInstance->getCode())) {
             return;
