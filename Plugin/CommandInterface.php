@@ -135,6 +135,9 @@ class CommandInterface
 
         // In case the order doesn't reflect the values from the database.
         // $order = $order->loadByIncrementId($order->getIncrementId());
+        $this->logging->addDebug(__METHOD__ . '|11|' .
+            var_export(['getTotalPaid' => $order->getTotalPaid(), 'getGrandTotal' => $order->getGrandTotal()], true)
+        );
         if ($order->getTotalPaid() == $order->getGrandTotal()) {
             return false;
         }
