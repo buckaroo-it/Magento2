@@ -138,7 +138,7 @@ class CommandInterface
         $this->logging->addDebug(__METHOD__ . '|11|' .
             var_export(['getTotalPaid' => $order->getTotalPaid(), 'getGrandTotal' => $order->getGrandTotal()], true)
         );
-        if ($order->getTotalPaid() == $order->getGrandTotal()) {
+        if ($order->getGrandTotal() - $order->getTotalPaid() < 0.001) {
             return false;
         }
 
