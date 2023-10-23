@@ -176,11 +176,18 @@ define(
             {
                 type: 'buckaroo_magento2_voucher',
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/voucher'
-            }
-            ,
+            },
             {
                 type: 'buckaroo_magento2_paybybank',
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/paybybank'
+            },
+            {
+                type: 'buckaroo_magento2_multibanco',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/multibanco'
+            },
+            {
+                type: 'buckaroo_magento2_mbway',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/mbway'
             }
         );
         /**
