@@ -28,7 +28,7 @@ class MBWay extends AbstractMethod
     public $buckarooPaymentMethodCode = 'mbway';
 
     /** @var string */
-    protected $_code                    = self::PAYMENT_METHOD_CODE;
+    protected $_code = self::PAYMENT_METHOD_CODE;
 
     /**
      * {@inheritdoc}
@@ -38,9 +38,9 @@ class MBWay extends AbstractMethod
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
 
         $services = [
-            'Name'             => 'MBWay',
-            'Action'           => $this->getPayRemainder($payment, $transactionBuilder),
-            'Version'          => 0
+            'Name' => 'MBWay',
+            'Action' => $this->getPayRemainder($payment, $transactionBuilder),
+            'Version' => 0
         ];
 
         $transactionBuilder->setOrder($payment->getOrder())

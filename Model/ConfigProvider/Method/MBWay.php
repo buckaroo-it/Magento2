@@ -83,6 +83,6 @@ class MBWay extends AbstractConfigProvider
             $storeId
         );
 
-        return $paymentFee ? $paymentFee : false;
+        return $paymentFee ?: false;
     }
 }

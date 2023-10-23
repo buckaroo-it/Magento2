@@ -38,9 +38,9 @@ class Multibanco extends AbstractMethod
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
 
         $services = [
-            'Name'             => 'Multibanco',
-            'Action'           => $this->getPayRemainder($payment, $transactionBuilder),
-            'Version'          => 0
+            'Name' => 'Multibanco',
+            'Action' => $this->getPayRemainder($payment, $transactionBuilder),
+            'Version' => 0
         ];
 
         $transactionBuilder->setOrder($payment->getOrder())
