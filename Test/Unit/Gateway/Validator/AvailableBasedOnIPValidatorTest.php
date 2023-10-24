@@ -86,11 +86,6 @@ class AvailableBasedOnIPValidatorTest extends TestCase
             ->method('getLimitByIp')
             ->willReturn($limitByIp);
 
-        $validationSubject['paymentMethodInstance']->expects($this->atMost(1))
-            ->method('getConfigData')
-            ->with('limit_by_ip')
-            ->willReturn($configLimitByIp);
-
         $this->developmentHelperMock->expects($this->atMost(1))
             ->method('isDevAllowed')
             ->with($storeId)

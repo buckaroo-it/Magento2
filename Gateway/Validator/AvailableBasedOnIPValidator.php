@@ -72,9 +72,7 @@ class AvailableBasedOnIPValidator extends AbstractValidator
     {
         $isValid = true;
 
-        $paymentMethodInstance = SubjectReader::readPaymentMethodInstance($validationSubject);
-
-        if ($this->accountConfig->getLimitByIp() == 1 || $paymentMethodInstance->getConfigData('limit_by_ip') == 1) {
+        if ($this->accountConfig->getLimitByIp() == 1) {
             $storeId = SubjectReader::readQuote($validationSubject)->getStoreId() ?? null;
             $isAllowed = $this->developmentHelper->isDevAllowed($storeId);
 

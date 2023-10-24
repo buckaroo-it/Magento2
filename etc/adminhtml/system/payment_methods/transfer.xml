@@ -235,14 +235,6 @@
                     <source_model>Buckaroo\Magento2\Model\Config\Source\AllowedCurrencies::transfer</source_model>
                     <backend_model>Buckaroo\Magento2\Model\Config\Backend\AllowedCurrencies</backend_model>
                 </field>
-
-                <field id="limit_by_ip" translate="label comment tooltip" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Display only for selected IPs</label>
-                    <comment><![CDATA[Show method only to Magento set IPs.]]></comment>
-                    <tooltip>Magento developer client restrictions.</tooltip>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <config_path>payment/buckaroo_magento2_transfer/limit_by_ip</config_path>
-                </field>
             </group>
         </group>
     </group>

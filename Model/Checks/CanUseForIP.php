@@ -70,7 +70,7 @@ class CanUseForIP implements SpecificationInterface
             return false;
         }
 
-        if (!$this->isAvailableBasedOnIp($paymentMethod, $accountConfig, $quote)) {
+        if (!$this->isAvailableBasedOnIp($accountConfig, $quote)) {
             return false;
         }
 
@@ -80,19 +80,16 @@ class CanUseForIP implements SpecificationInterface
     /**
      * Check if this payment method is limited by IP.
      *
-     * @param MethodInterface $paymentMethod
      * @param Account $accountConfig
      * @param CartInterface|null $quote
      *
      * @return bool
      */
     protected function isAvailableBasedOnIp(
-        MethodInterface $paymentMethod,
         Account $accountConfig,
         CartInterface $quote = null
     ): bool {
-        $methodValue = $paymentMethod->getConfigData('limit_by_ip');
-        if ($accountConfig->getLimitByIp() == 1 || $methodValue == 1) {
+        if ($accountConfig->getLimitByIp() == 1) {
             $storeId = $quote ? $quote->getStoreId() : null;
             $isAllowed = $this->developmentHelper->isDevAllowed($storeId);
 
