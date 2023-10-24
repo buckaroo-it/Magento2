@@ -113,7 +113,6 @@ class Account extends AbstractConfigProvider
             'failure_redirect_to_checkout'      => $this->getFailureRedirectToCheckout($store),
             'cancel_on_failed'                  => $this->getCancelOnFailed($store),
             'debug_types'                       => $this->getLogLevel($store),
-            'debug_email'                       => $this->getDebugEmail($store),
             'log_handler'                       => $this->getLogHandler($store),
             'log_retention'                     => $this->getLogRetention($store),
             'limit_by_ip'                       => $this->getLimitByIp($store),
@@ -489,21 +488,6 @@ class Account extends AbstractConfigProvider
     {
         return $this->scopeConfig->getValue(
             self::XPATH_ACCOUNT_LOG_RETENTION,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * Get comma-separated emails where debug information will be sent
-     *
-     * @param null|int|string $store
-     * @return mixed
-     */
-    public function getDebugEmail($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            self::XPATH_ACCOUNT_DEBUG_EMAIL,
             ScopeInterface::SCOPE_STORE,
             $store
         );

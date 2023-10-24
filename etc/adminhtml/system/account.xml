@@ -249,13 +249,6 @@
                     <comment><![CDATA[[Decide what period will be for log retention]]></comment>
                     <config_path>buckaroo_magento2/account/log_retention</config_path>
                 </field>
-
-                <field id="debug_email" translate="label comment" type="text" sortOrder="240" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Debug email</label>
-                    <comment><![CDATA[Debug information will be sent to these comma-separated email addresses.]]></comment>
-                    <config_path>buckaroo_magento2/account/debug_email</config_path>
-                    <validate>validate-emails</validate>
-                </field>
             </group>
 
             <group id="buckaroo_magento2_miscellaneous_section" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
