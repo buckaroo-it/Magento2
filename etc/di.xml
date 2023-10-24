@@ -512,7 +512,6 @@
             <argument name="validators" xsi:type="array">
                 <item name="account_config" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\ActiveAccountValidator</item>
                 <item name="area_code" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AreaCodeValidator</item>
-                <item name="based_on_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AvailableBasedOnIPValidator</item>
                 <item name="based_on_amount" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AvailableBasedOnAmountValidator</item>
                 <item name="based_on_currency" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AvailableBasedOnCurrencyValidator</item>
                 <item name="based_on_customer_group" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AvailableBasedOnCustomerGroupValidator</item>
@@ -1039,14 +1038,6 @@
         <arguments>
             <argument name="additionalChecks" xsi:type="array">
                 <item name="ip" xsi:type="string">ip</item>
-            </argument>
-        </arguments>
-    </type>
-
-    <type name="Magento\Payment\Model\Checks\SpecificationFactory">
-        <arguments>
-            <argument name="mapping" xsi:type="array">
-                <item name="ip" xsi:type="object">Buckaroo\Magento2\Model\Checks\CanUseForIP</item>
             </argument>
         </arguments>
     </type>

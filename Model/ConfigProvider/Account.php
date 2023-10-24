@@ -115,7 +115,6 @@ class Account extends AbstractConfigProvider
             'debug_types'                       => $this->getLogLevel($store),
             'log_handler'                       => $this->getLogHandler($store),
             'log_retention'                     => $this->getLogRetention($store),
-            'limit_by_ip'                       => $this->getLimitByIp($store),
             'fee_percentage_mode'               => $this->getFeePercentageMode($store),
             'payment_fee_label'                 => $this->getPaymentFeeLabel($store),
             'order_status_new'                  => $this->getOrderStatusNew($store),
@@ -488,21 +487,6 @@ class Account extends AbstractConfigProvider
     {
         return $this->scopeConfig->getValue(
             self::XPATH_ACCOUNT_LOG_RETENTION,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * Display only for selected IPs
-     *
-     * @param null|int|string $store
-     * @return mixed
-     */
-    public function getLimitByIp($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            self::XPATH_ACCOUNT_LIMIT_BY_IP,
             ScopeInterface::SCOPE_STORE,
             $store
         );
