@@ -51,15 +51,15 @@ class Multibanco extends AbstractConfigProvider
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
-            \Buckaroo\Magento2\Model\Method\Multibanco::PAYMENT_METHOD_CODE
-        );
+//        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
+//            \Buckaroo\Magento2\Model\Method\Multibanco::PAYMENT_METHOD_CODE
+//        );
 
         return [
             'payment' => [
                 'buckaroo' => [
                     'multibanco' => [
-                        'paymentFeeLabel' => $paymentFeeLabel,
+//                        'paymentFeeLabel' => $paymentFeeLabel,
                         'subtext'   => $this->getSubtext(),
                         'subtext_style'   => $this->getSubtextStyle(),
                         'subtext_color'   => $this->getSubtextColor(),
