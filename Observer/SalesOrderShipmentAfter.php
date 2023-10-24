@@ -180,7 +180,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
             && $afterpayConfig->isInvoiceCreatedAfterShipment()
             && ($paymentMethod->getConfigPaymentAction() == 'authorize')
         ) {
-            $this->createInvoice( true);
+            $this->createInvoice(true);
             return;
         }
 
@@ -261,6 +261,20 @@ class SalesOrderShipmentAfter implements ObserverInterface
     }
 
     /**
+     * Get shipped quantities
+     *
+     * @return array
+     */
+    public function getQtys(): array
+    {
+        $qtys = [];
+        foreach ($this->shipment->getItems() as $items) {
+            $qtys[$items->getOrderItemId()] = $items->getQty();
+        }
+        return $qtys;
+    }
+
+    /**
      * Create invoice after shipment for all buckaroo payment methods
      *
      * @return bool
@@ -270,11 +284,11 @@ class SalesOrderShipmentAfter implements ObserverInterface
      */
     public function createInvoiceGeneralSetting(): bool
     {
-        $this->logger->addDebug('[CREATE_INVOICE] | [Observer] | ['. __METHOD__ .':'. __LINE__ . '] - Save Invoice');
+        $this->logger->addDebug('[CREATE_INVOICE] | [Observer] | [' . __METHOD__ . ':' . __LINE__ . '] - Save Invoice');
 
         if (!$this->order->canInvoice() || $this->order->hasInvoices()) {
             $this->logger->addDebug(
-                '[CREATE_INVOICE] | [Observer] | ['. __METHOD__ .':'. __LINE__ . '] - Order can not be invoiced'
+                '[CREATE_INVOICE] | [Observer] | [' . __METHOD__ . ':' . __LINE__ . '] - Order can not be invoiced'
             );
 
             return false;
@@ -308,7 +322,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
 
             if (!$invoice->getEmailSent() && $this->configAccount->getInvoiceEmail($this->order->getStore())) {
                 $this->logger->addDebug(
-                    '[CREATE_INVOICE] | [Observer] | ['. __METHOD__ .':'. __LINE__ . '] - Send Invoice Email '
+                    '[CREATE_INVOICE] | [Observer] | [' . __METHOD__ . ':' . __LINE__ . '] - Send Invoice Email '
                 );
                 $this->invoiceSender->send($invoice, true);
             }
@@ -318,19 +332,5 @@ class SalesOrderShipmentAfter implements ObserverInterface
         $this->order->save();
 
         return true;
-    }
-
-    /**
-     * Get shipped quantities
-     *
-     * @return array
-     */
-    public function getQtys(): array
-    {
-        $qtys = [];
-        foreach ($this->shipment->getItems() as $items) {
-            $qtys[$items->getOrderItemId()] = $items->getQty();
-        }
-        return $qtys;
     }
 }
