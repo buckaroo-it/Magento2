@@ -158,7 +158,7 @@ class BuckarooAdapter
      *
      * @throws \Exception
      */
-    private function setClientSdk($paymentMethod = null): void
+    private function setClientSdk($paymentMethod = ''): void
     {
         /** @var Account $configProviderAccount */
         $configProviderAccount = $this->configProviderFactory->get('account');
@@ -186,13 +186,13 @@ class BuckarooAdapter
     /**
      * Get client mode base on account mode and payment method mode
      *
-     * @param int $accountMode
-     * @param int $storeId
+     * @param int|string $accountMode
+     * @param int|string $storeId
      * @param string $paymentMethod
      * @return string
      * @throws Exception
      */
-    private function getClientMode(int $accountMode, int $storeId, string $paymentMethod): string
+    private function getClientMode($accountMode, $storeId, string $paymentMethod = ''): string
     {
         $clientMode = Config::TEST_MODE;
 
