@@ -26,10 +26,7 @@ use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\Config\Source\InvoiceHandlingOptions;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderFactory;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
-use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Framework\DB\TransactionFactory;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
@@ -50,21 +47,6 @@ use Magento\Sales\Model\Service\InvoiceService;
 class SalesOrderShipmentAfter implements ObserverInterface
 {
     public const MODULE_ENABLED = 'sr_auto_invoice_shipment/settings/enabled';
-
-    /**
-     * @var Shipment
-     */
-    private Shipment $shipment;
-
-    /**
-     * @var Order
-     */
-    private Order $order;
-
-    /**
-     * @var OrderPaymentInterface|null
-     */
-    private ?OrderPaymentInterface $payment;
 
     /**
      * @var Data
@@ -96,6 +78,21 @@ class SalesOrderShipmentAfter implements ObserverInterface
      * @var BuckarooLoggerInterface
      */
     protected BuckarooLoggerInterface $logger;
+
+    /**
+     * @var Shipment
+     */
+    private Shipment $shipment;
+
+    /**
+     * @var Order
+     */
+    private Order $order;
+
+    /**
+     * @var OrderPaymentInterface|null
+     */
+    private ?OrderPaymentInterface $payment;
 
     /**
      * @var ConfigProviderFactory
@@ -187,7 +184,11 @@ class SalesOrderShipmentAfter implements ObserverInterface
         $this->configAccount = $this->configProviderFactory->get('account');
         if (strpos($paymentMethodCode, 'buckaroo_magento2') !== false
             && $this->configAccount->getInvoiceHandling() == InvoiceHandlingOptions::SHIPMENT) {
-            $this->createInvoiceGeneralSetting();
+            if ($paymentMethod->getConfigPaymentAction() == 'authorize') {
+                $this->createInvoice(true);
+            } else {
+                $this->createInvoiceGeneralSetting();
+            }
         }
     }
 
@@ -315,7 +316,8 @@ class SalesOrderShipmentAfter implements ObserverInterface
 
             if ($this->groupTransaction->isGroupTransaction($this->order->getIncrementId())) {
                 $this->logger->addDebug(
-                    '[CREATE_INVOICE] | [Observer] | [' . __METHOD__ . ':' . __LINE__ . '] - Set invoice state PAID group transaction'
+                    '[CREATE_INVOICE] | [Observer] | [' . __METHOD__ . ':' . __LINE__ . ']' .
+                    ' - Set invoice state PAID group transaction'
                 );
                 $invoice->setState(Invoice::STATE_PAID);
             }
