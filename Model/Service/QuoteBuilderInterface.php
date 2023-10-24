@@ -18,11 +18,10 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace Buckaroo\Magento2\Model\PaypalExpress;
+namespace Buckaroo\Magento2\Model\Service;
 
 interface QuoteBuilderInterface
 {
-
     /**
      * Set form data
      *

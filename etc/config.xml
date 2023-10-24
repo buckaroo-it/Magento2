@@ -500,34 +500,6 @@
                 <is_gateway>1</is_gateway>
             </buckaroo_magento2_kbc>
 
-            <buckaroo_magento2_multibanco>
-                <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Multibanco</model>
-                <order_status>pending</order_status>
-                <title>Buckaroo Multibanco</title>
-                <allowspecific>0</allowspecific>
-                <sort_order>211</sort_order>
-                <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
-                <group>buckaroo_magento2</group>
-                <payment_action>order</payment_action>
-                <available_in_backend>0</available_in_backend>
-            </buckaroo_magento2_multibanco>
-
-            <buckaroo_magento2_mbway>
-                <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\MBWay</model>
-                <order_status>pending</order_status>
-                <title>Buckaroo MBWay</title>
-                <allowspecific>0</allowspecific>
-                <sort_order>212</sort_order>
-                <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
-                <group>buckaroo_magento2</group>
-                <payment_action>order</payment_action>
-                <available_in_backend>0</available_in_backend>
-            </buckaroo_magento2_mbway>
-
             <buckaroo_magento2_paylink>
                 <active>0</active>
                 <model>PayLinkFacade</model>
