@@ -44,17 +44,17 @@ define(
         return Component.extend(
             {
                 defaults: {
-                    template: 'Buckaroo_Magento2/payment/buckaroo_magento2_giropay'
+                    template: 'Buckaroo_Magento2/payment/buckaroo_magento2_mbway'
                 },
-                paymentFeeLabel : window.checkoutConfig.payment.buckaroo.giropay.paymentFeeLabel,
-                subtext : window.checkoutConfig.payment.buckaroo.giropay.subtext,
-                subTextStyle : checkoutCommon.getSubtextStyle('giropay'),
+                paymentFeeLabel : window.checkoutConfig.payment.buckaroo.mbway.paymentFeeLabel,
+                subtext : window.checkoutConfig.payment.buckaroo.mbway.subtext,
+                subTextStyle : checkoutCommon.getSubtextStyle('mbway'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
 
                 /**
-             * @override
-             */
+                 * @override
+                 */
                 initialize : function (options) {
                     if (checkoutData.getSelectedPaymentMethod() == options.index) {
                         window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
@@ -64,14 +64,14 @@ define(
                 },
 
                 /**
-             * Place order.
-             *
-             * placeOrderAction has been changed from Magento_Checkout/js/action/place-order to our own version
-             * (Buckaroo_Magento2/js/action/place-order) to prevent redirect and handle the response.
-             */
+                 * Place order.
+                 *
+                 * placeOrderAction has been changed from Magento_Checkout/js/action/place-order to our own version
+                 * (Buckaroo_Magento2/js/action/place-order) to prevent redirect and handle the response.
+                 */
                 placeOrder: function (data, event) {
                     var self = this,
-                    placeOrder;
+                        placeOrder;
 
                     if (event) {
                         event.preventDefault();
@@ -106,7 +106,7 @@ define(
                 },
 
                 payWithBaseCurrency: function () {
-                    var allowedCurrencies = window.checkoutConfig.payment.buckaroo.giropay.allowedCurrencies;
+                    var allowedCurrencies = window.checkoutConfig.payment.buckaroo.mbway.allowedCurrencies;
 
                     return allowedCurrencies.indexOf(this.currencyCode) < 0;
                 },

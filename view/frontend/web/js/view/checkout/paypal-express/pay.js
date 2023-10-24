@@ -58,56 +58,58 @@ define([
     },
     result: null,
 
-        cart_id: null,
-        /**
-         * Api events
-         */
-        onShippingChangeHandler(data, actions) {
-            let shipping = this.setShipping(data);
-            return new Promise((resolve, reject) => {
-                shipping.then(
-                    (response) => {
-                    if (!response.message) {
-                        this.options.amount = response.value;
-                        this.cart_id = response.cart_id;
-                        actions.order
-                        .patch([
-                        {
-                            op: "replace",
-                            path: "/purchase_units/@reference_id=='default'/amount",
-                            value: response,
-                            },
-                        ])
-                            .then(
-                            (resp) => resolve(resp),
-                            (err) => reject(err)
-                            );
-                    } else {
-                    reject(response.message);
-                    }
-                    },
-                    () => {
-                    reject(__("Cannot create payment"));
-                    }
-                );
-            });
-        },
-        createPaymentHandler(data) {
-            return this.createTransaction(data.orderID);
-        },
-        onSuccessCallback() {
-            if (this.result.message) {
-                this.displayErrorMessage(message);
+    cart_id: null,
+    /**
+     * Api events
+     */
+    onShippingChangeHandler(data, actions) {
+      if (
+        this.page === 'product' &&
+        $("#product_addtocart_form").valid() === false
+      ) {
+        return actions.reject();
+      }
+
+      let shipping = this.setShipping(data);
+      return new Promise((resolve, reject) => {
+        shipping.then(
+          (response) => {
+            if (!response.message) {
+              this.options.amount = response.value;
+              this.cart_id = response.cart_id;
+              actions.order.patch([
+                {
+                  op: "replace",
+                  path: "/purchase_units/@reference_id=='default'/amount",
+                  value: response,
+                },
+              ]).then((resp) => resolve(resp), (err) => reject(err));
             } else {
-                if (this.result.cart_id && this.result.cart_id.length) {
-                    window.location.replace(
-                        urlBuilder.build("checkout/onepage/success/")
-                    );
-                } else {
-                    this.displayErrorMessage(__("Cannot create payment"));
-                }
+              reject(response.message);
             }
-        },
+          },
+          () => {
+            reject(__("Cannot create payment"));
+          }
+        );
+
+      })
+
+    },
+    createPaymentHandler(data) {
+      return this.createTransaction(data.orderID);
+    },
+    onSuccessCallback() {
+      if (this.result.message) {
+        this.displayErrorMessage(message);
+      } else {
+        if (this.result.cart_id && this.result.cart_id.length) {
+          window.location.replace(urlBuilder.build('checkout/onepage/success/'));
+        } else {
+          this.displayErrorMessage(__("Cannot create payment"));
+        }
+      }
+    },
 
         onErrorCallback(reason) {
             // custom error behavior
@@ -170,7 +172,7 @@ define([
     getOrderData() {
       let form = $("#product_addtocart_form");
       if (this.page === 'product') {
-        return form.serializeArray();
+                return form.serialize();
       }
     },
     /**
@@ -196,4 +198,3 @@ define([
     },
   };
 });
-

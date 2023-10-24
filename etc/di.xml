@@ -329,6 +329,14 @@
                     <item name="type" xsi:type="string">paybybank</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\PayByBank</item>
                 </item>
+                <item name="mbway" xsi:type="array">
+                    <item name="type" xsi:type="string">mbway</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\MBWay</item>
+                </item>
+                <item name="multibanco" xsi:type="array">
+                    <item name="type" xsi:type="string">multibanco</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Multibanco</item>
+                </item>
             </argument>
         </arguments>
     </type>

@@ -38,7 +38,7 @@ class QuoteBuilder implements QuoteBuilderInterface
     protected $quoteFactory;
 
     /**
-     * @var DataObjectFactory
+     * @var \Magento\Catalog\Api\ProductRepositoryInterface
      */
     protected $productRepository;
 
@@ -89,25 +89,6 @@ class QuoteBuilder implements QuoteBuilderInterface
     }
 
     /**
-     * Format form data
-     *
-     * @param array $formData
-     *
-     * @return DataObject
-     */
-    protected function formatFormData(array $formData)
-    {
-        $data = [];
-
-        foreach ($formData as $orderKeyValue) {
-            $data[$orderKeyValue->getName()] = $orderKeyValue->getValue();
-        }
-        $dataObject = $this->dataObjectFactory->create();
-
-        return $dataObject->setData($data);
-    }
-
-    /**
      * @inheritdoc
      */
     public function build(): Quote
@@ -116,23 +97,6 @@ class QuoteBuilder implements QuoteBuilderInterface
         $this->addProduct();
         $this->setUser();
         return $this->quote;
-    }
-
-    /**
-     * Add product to quote
-     *
-     * @return void
-     * @throws AddProductException
-     * @throws LocalizedException
-     */
-    protected function addProduct()
-    {
-        $productId = $this->formData->getData('product');
-        if ($productId === null) {
-            throw new AddProductException("Product ID is required.", 1);
-        }
-        $product = $this->productRepository->getById($productId);
-        $this->quote->addProduct($product, $this->formData);
     }
 
     /**
@@ -152,5 +116,46 @@ class QuoteBuilder implements QuoteBuilderInterface
                 ->setCustomerIsGuest(true)
                 ->setCustomerGroupId(Group::NOT_LOGGED_IN_ID);
         }
+    }
+
+    /**
+     * Add product to quote
+     *
+     * @return void
+     * @throws AddProductException
+     * @throws LocalizedException
+     */
+    protected function addProduct()
+    {
+        $productId = $this->formData->getData('product');
+        if ($productId === null) {
+            throw new AddProductException("Product ID is required.", 1);
+        }
+        $product = $this->productRepository->getById($productId);
+        $item = $this->quote->addProduct($product, $this->formData);
+
+        if (!$item instanceof Item) {
+            $exceptionMessage = "Cannot add product to cart";
+            if (is_string($item)) {
+                $exceptionMessage = $item;
+            }
+            throw new PaypalExpressException($exceptionMessage, 1);
+        }
+    }
+
+    /**
+     * Format form data
+     *
+     * @param array $formData
+     *
+     * @return DataObject
+     */
+    protected function formatFormData(array $formData)
+    {
+        $data = [];
+        parse_str($form_data, $data);
+        $dataObject = $this->dataObjectFactory->create();
+
+        return $dataObject->setData($data);
     }
 }

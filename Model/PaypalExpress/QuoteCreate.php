@@ -75,10 +75,9 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
     public function execute(
         ShippingAddressRequestInterface $shippingAddress,
         string $page,
-        $orderData = null
+        string $orderData = null
     ) {
-
-        if ($page === 'product') {
+        if ($page === 'product' && is_string($orderData)) {
             $this->validateData($orderData);
             $this->quote = $this->quoteService->createQuote($orderData);
         } else {
