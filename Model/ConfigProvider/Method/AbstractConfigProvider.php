@@ -47,7 +47,6 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     public const XPATH_ACTIVE_STATUS = 'active_status';
     public const XPATH_ORDER_STATUS_SUCCESS = 'order_status_success';
     public const XPATH_ORDER_STATUS_FAILED = 'order_status_failed';
-    public const XPATH_LIMIT_BY_IP = 'limit_by_ip';
 
     public const XPATH_ALLOWED_CURRENCIES = 'allowed_currencies';
     public const XPATH_ALLOW_SPECIFIC   = 'allowspecific';
@@ -454,17 +453,6 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     public function getOrderStatusFailed($store = null)
     {
         return $this->getMethodConfigValue(static::XPATH_ORDER_STATUS_FAILED, $store);
-    }
-
-    /**
-     * Get Limit By IP
-     *
-     * @param null|int|string $store
-     * @return mixed|null
-     */
-    public function getLimitByIp($store = null)
-    {
-        return $this->getMethodConfigValue(static::XPATH_LIMIT_BY_IP, $store);
     }
 
     /**

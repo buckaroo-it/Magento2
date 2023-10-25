@@ -52,8 +52,6 @@ class Account extends AbstractConfigProvider
     public const XPATH_ACCOUNT_LOG_HANDLER                     = 'buckaroo_magento2/account/log_handler';
     public const XPATH_ACCOUNT_LOG_DBTRACE_DEPTH               = 'buckaroo_magento2/account/log_handler_db_depth';
     public const XPATH_ACCOUNT_LOG_RETENTION                   = 'buckaroo_magento2/account/log_retention';
-    public const XPATH_ACCOUNT_DEBUG_EMAIL                     = 'buckaroo_magento2/account/debug_email';
-    public const XPATH_ACCOUNT_LIMIT_BY_IP                     = 'buckaroo_magento2/account/limit_by_ip';
     public const XPATH_ACCOUNT_FEE_PERCENTAGE_MODE             = 'buckaroo_magento2/account/fee_percentage_mode';
     public const XPATH_ACCOUNT_PAYMENT_FEE_LABEL               = 'buckaroo_magento2/account/payment_fee_label';
     public const XPATH_ACCOUNT_ORDER_STATUS_NEW                = 'buckaroo_magento2/account/order_status_new';
@@ -113,10 +111,8 @@ class Account extends AbstractConfigProvider
             'failure_redirect_to_checkout'      => $this->getFailureRedirectToCheckout($store),
             'cancel_on_failed'                  => $this->getCancelOnFailed($store),
             'debug_types'                       => $this->getLogLevel($store),
-            'debug_email'                       => $this->getDebugEmail($store),
             'log_handler'                       => $this->getLogHandler($store),
             'log_retention'                     => $this->getLogRetention($store),
-            'limit_by_ip'                       => $this->getLimitByIp($store),
             'fee_percentage_mode'               => $this->getFeePercentageMode($store),
             'payment_fee_label'                 => $this->getPaymentFeeLabel($store),
             'order_status_new'                  => $this->getOrderStatusNew($store),
@@ -489,36 +485,6 @@ class Account extends AbstractConfigProvider
     {
         return $this->scopeConfig->getValue(
             self::XPATH_ACCOUNT_LOG_RETENTION,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * Get comma-separated emails where debug information will be sent
-     *
-     * @param null|int|string $store
-     * @return mixed
-     */
-    public function getDebugEmail($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            self::XPATH_ACCOUNT_DEBUG_EMAIL,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * Display only for selected IPs
-     *
-     * @param null|int|string $store
-     * @return mixed
-     */
-    public function getLimitByIp($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            self::XPATH_ACCOUNT_LIMIT_BY_IP,
             ScopeInterface::SCOPE_STORE,
             $store
         );
