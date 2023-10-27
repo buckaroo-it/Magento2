@@ -299,11 +299,21 @@ class Giftcard
         //keep the quote active but remove the canceled order from it
         $this->quote->setIsActive(true);
         if ($success) {
-            $buckarooAlreadyPaid = $this->quote->getBaseBuckarooAlreadyPaid() + $this->response->getAmount();
-            $this->quote->setBaseBuckarooAlreadyPaid($buckarooAlreadyPaid);
+            $buckarooAlreadyPaid = $this->quote->getBuckarooAlreadyPaid() + $this->response->getAmount();
+            $this->priceCurrency->getCurrencySymbol();
+            $baseBuckarooAlreadyPaid = $this->priceCurrency->convert($buckarooAlreadyPaid, $this->quote->getStoreId(), $this->response->getCurrency());
+
+            $this->quote->setBaseBuckarooAlreadyPaid($baseBuckarooAlreadyPaid);
+            $this->quote->setBuckarooAlreadyPaid($buckarooAlreadyPaid);
             $this->quote->setGrandTotal($this->quote->getGrandTotal() - $this->response->getAmount());
             $this->quote->setBaseGrandTotal($this->quote->getBaseGrandTotal() - $this->response->getAmount());
             $this->quote->setOrigOrderId(null);
+
+            $store = $this->quote->getStore();
+            $currency = $store->getCurrentCurrencyCode();
+            if ($currency != $store->getBaseCurrencyCode()) {
+                $rate = $store->getBaseCurrency()->getRate($currency);
+            }
         }
 
         $this->quote->save();
