@@ -32,6 +32,7 @@ use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Buckaroo\Magento2\Model\Giftcard\Remove as GiftcardRemove;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -75,11 +76,17 @@ class Giftcard
      */
     private CartInterface $quote;
 
+    /**
+     * @var OrderRepositoryInterface
+     */
+    protected $orderRepository;
+
     public function __construct(
         PriceCurrencyInterface $priceCurrency,
         PaymentGroupTransaction $groupTransaction,
         QuoteManagement $quoteManagement,
         OrderManagementInterface $orderManagement,
+        OrderRepositoryInterface $orderRepository,
         GiftcardRemove $giftcardRemoveService,
         BuckarooLoggerInterface $logger
     ) {
@@ -87,6 +94,7 @@ class Giftcard
         $this->groupTransaction = $groupTransaction;
         $this->quoteManagement = $quoteManagement;
         $this->orderManagement = $orderManagement;
+        $this->orderRepository = $orderRepository;
         $this->giftcardRemoveService = $giftcardRemoveService;
         $this->logger = $logger;
     }
@@ -294,26 +302,32 @@ class Giftcard
             );
         }
 
-        $order = $this->quoteManagement->submit($this->quote);
+        if($this->quote->getOrigOrderId()) {
+            $order = $this->orderRepository->get($this->quote->getOrigOrderId());
+        } else {
+            $order = $this->quoteManagement->submit($this->quote);
+        }
 
         //keep the quote active but remove the canceled order from it
         $this->quote->setIsActive(true);
         if ($success) {
-            $buckarooAlreadyPaid = $this->quote->getBuckarooAlreadyPaid() + $this->response->getAmount();
-            $this->priceCurrency->getCurrencySymbol();
-            $baseBuckarooAlreadyPaid = $this->priceCurrency->convert($buckarooAlreadyPaid, $this->quote->getStoreId(), $this->response->getCurrency());
-
-            $this->quote->setBaseBuckarooAlreadyPaid($baseBuckarooAlreadyPaid);
-            $this->quote->setBuckarooAlreadyPaid($buckarooAlreadyPaid);
-            $this->quote->setGrandTotal($this->quote->getGrandTotal() - $this->response->getAmount());
-            $this->quote->setBaseGrandTotal($this->quote->getBaseGrandTotal() - $this->response->getAmount());
-            $this->quote->setOrigOrderId(null);
-
+            $rate = 1;
             $store = $this->quote->getStore();
             $currency = $store->getCurrentCurrencyCode();
             if ($currency != $store->getBaseCurrencyCode()) {
                 $rate = $store->getBaseCurrency()->getRate($currency);
             }
+
+            $amountPaid = $this->response->getAmount();
+            $baseAmountPaid = (float)$amountPaid / (float)$rate;
+
+            $buckarooAlreadyPaid = $this->quote->getBuckarooAlreadyPaid() + $amountPaid;
+            $baseBuckarooAlreadyPaid = $this->quote->getBaseBuckarooAlreadyPaid() + $baseAmountPaid;
+
+            $this->quote->setBuckarooAlreadyPaid($buckarooAlreadyPaid);
+            $this->quote->setBaseBuckarooAlreadyPaid($baseBuckarooAlreadyPaid);
+
+            $this->quote->setOrigOrderId($order->getEntityId());
         }
 
         $this->quote->save();
