@@ -47,43 +47,53 @@ use Magento\Sales\Model\Service\InvoiceService;
 class SalesOrderShipmentAfter implements ObserverInterface
 {
     public const MODULE_ENABLED = 'sr_auto_invoice_shipment/settings/enabled';
+
     /**
      * @var Data
      */
     public Data $helper;
+
     /**
      *
      * @var CollectionFactory
      */
     protected $invoiceCollectionFactory;
+
     /**
      * @var InvoiceService
      */
     protected InvoiceService $invoiceService;
+
     /**
      * @var ShipmentFactory
      */
     protected ShipmentFactory $shipmentFactory;
+
     /**
      * @var TransactionFactory
      */
     protected TransactionFactory $transactionFactory;
+
     /**
      * @var BuckarooLoggerInterface
      */
     protected BuckarooLoggerInterface $logger;
+
     /**
      * @var Shipment
      */
     private Shipment $shipment;
+
     /**
      * @var Order
      */
     private Order $order;
+
     /**
      * @var OrderPaymentInterface|null
      */
     private ?OrderPaymentInterface $payment;
+
     /**
      * @var ConfigProviderFactory
      */
@@ -152,9 +162,10 @@ class SalesOrderShipmentAfter implements ObserverInterface
         $this->order = $this->shipment->getOrder();
         $this->payment = $this->order->getPayment();
         $paymentMethod = $this->payment->getMethodInstance();
+        $paymentMethodCode = $paymentMethod->getCode();
 
         $klarnakpConfig = $this->configProviderFactory->get('klarnakp');
-        if (($paymentMethod->getCode() == 'buckaroo_magento2_klarnakp')
+        if (($paymentMethodCode == 'buckaroo_magento2_klarnakp')
             && $klarnakpConfig->isInvoiceCreatedAfterShipment()
         ) {
             $this->createInvoice();
@@ -162,7 +173,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
         }
 
         $afterpayConfig = $this->configProviderFactory->get('afterpay20');
-        if (($paymentMethod->getCode() == 'buckaroo_magento2_afterpay20')
+        if (($paymentMethodCode == 'buckaroo_magento2_afterpay20')
             && $afterpayConfig->isInvoiceCreatedAfterShipment()
             && ($paymentMethod->getConfigPaymentAction() == 'authorize')
         ) {
@@ -171,9 +182,13 @@ class SalesOrderShipmentAfter implements ObserverInterface
         }
 
         $this->configAccount = $this->configProviderFactory->get('account');
-        if (strpos($paymentMethod->getCode(), 'buckaroo_magento2') !== false
+        if (strpos($paymentMethodCode, 'buckaroo_magento2') !== false
             && $this->configAccount->getInvoiceHandling() == InvoiceHandlingOptions::SHIPMENT) {
-            $this->createInvoiceGeneralSetting();
+            if ($paymentMethod->getConfigPaymentAction() == 'authorize') {
+                $this->createInvoice(true);
+            } else {
+                $this->createInvoiceGeneralSetting();
+            }
         }
     }
 
@@ -301,7 +316,8 @@ class SalesOrderShipmentAfter implements ObserverInterface
 
             if ($this->groupTransaction->isGroupTransaction($this->order->getIncrementId())) {
                 $this->logger->addDebug(
-                    '[CREATE_INVOICE] | [Observer] | [' . __METHOD__ . ':' . __LINE__ . '] - Set invoice state PAID group transaction'
+                    '[CREATE_INVOICE] | [Observer] | [' . __METHOD__ . ':' . __LINE__ . ']' .
+                    ' - Set invoice state PAID group transaction'
                 );
                 $invoice->setState(Invoice::STATE_PAID);
             }

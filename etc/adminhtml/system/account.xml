@@ -66,7 +66,7 @@
         </field>
 
         <field id="invoice_handling" translate="label comment tooltip" type="select" sortOrder="45" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label><![CDATA[Invoice Handling]]></label>
+            <label>Invoice Handling</label>
             <comment><![CDATA[Select the moment when the invoice should be created.]]></comment>
             <tooltip><![CDATA[Select the moment when the invoice should be created.]]></tooltip>
             <source_model>Buckaroo\Magento2\Model\Config\Source\InvoiceHandlingOptions</source_model>

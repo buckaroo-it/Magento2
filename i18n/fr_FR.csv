@@ -439,7 +439,7 @@
 "This message is shown when the payment method is hidden. Maximum 280 characters.","Ce message s'affiche lorsque le mode de paiement est masqué. Maximum 280 caractères."
 "Pay rejected: It is not allowed to specify another country for the invoice and delivery address for Afterpay transactions.","Pay rejected: Il n'est pas permis de spécifier un autre pays pour la facture et l'adresse de livraison pour les transactions Afterpay."
 "-- Please Select Your Gender--","S'il vous plait selectionnez votre genre"
-"Invoice handling","Gestion des factures"
+"Invoice Handling","Gestion des factures"
 "Create Invoice on Payment","Créer une facture lors du paiement"
 "Create Invoice on Shipment","Créer une facture lors de l'expédition"
 "Select the moment when the invoice should be created.","Sélectionnez le moment où la facture devrait être créée."
