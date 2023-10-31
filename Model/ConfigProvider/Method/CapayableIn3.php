@@ -51,6 +51,9 @@ class CapayableIn3 extends AbstractConfigProvider
 
     const XPATH_SPECIFIC_CUSTOMER_GROUP = 'payment/buckaroo_magento2_capayablein3/specificcustomergroup';
 
+    const XPATH_FINANCIAL_WARNING = 'payment/buckaroo_magento2_capayablein3/financial_warning';
+
+
     /** @var array */
     protected $allowedCurrencies = [
         'EUR'
@@ -80,7 +83,11 @@ class CapayableIn3 extends AbstractConfigProvider
                         'subtext_style'   => $this->getSubtextStyle(),
                         'subtext_color'   => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'logo' => $this->getLogo()
+                        'logo' => $this->getLogo(),
+                        'showFinancialWarning' => $this->scopeConfig->getValue(
+                            self::XPATH_FINANCIAL_WARNING,
+                            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+                        ) !== "0"
                     ],
                 ],
             ],

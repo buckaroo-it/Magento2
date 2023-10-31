@@ -54,6 +54,8 @@ class Billink extends AbstractConfigProvider
 
     const XPATH_SPECIFIC_CUSTOMER_GROUP      = 'payment/buckaroo_magento2_billink/specificcustomergroup';
     const XPATH_SPECIFIC_CUSTOMER_GROUP_B2B  = 'payment/buckaroo_magento2_billink/specificcustomergroupb2b';
+    const XPATH_FINANCIAL_WARNING            = 'payment/buckaroo_magento2_billink/financial_warning';
+
 
     private $helper;
 
@@ -106,7 +108,11 @@ class Billink extends AbstractConfigProvider
                             ['genderType' => 'female', 'genderTitle' => __('She/her')],
                             ['genderType' => 'unknown', 'genderTitle' => __('They/them')],
                             ['genderType' => 'unknown', 'genderTitle' => __('I prefer not to say')]
-                        ]
+                        ],
+                        'showFinancialWarning' => $this->scopeConfig->getValue(
+                            self::XPATH_FINANCIAL_WARNING,
+                            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+                        ) !== "0"
                     ],
                     'response' => [],
                 ],

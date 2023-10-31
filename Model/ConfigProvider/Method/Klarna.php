@@ -51,6 +51,7 @@ class Klarna extends AbstractConfigProvider
     const XPATH_KLARNA_NO_TAX                 = 'payment/buckaroo_magento2_klarna/no_tax';
     const XPATH_KLARNA_GET_INVOICE            = 'payment/buckaroo_magento2_klarna/send_invoice';
     const XPATH_SPECIFIC_CUSTOMER_GROUP       = 'payment/buckaroo_magento2_klarna/specificcustomergroup';
+    const XPATH_FINANCIAL_WARNING             = 'payment/buckaroo_magento2_klarna/financial_warning';
 
     public function getConfig()
     {
@@ -81,7 +82,11 @@ class Klarna extends AbstractConfigProvider
                         'genderList' => [
                             ['genderType' => 'male', 'genderTitle' => __('He/him')],
                             ['genderType' => 'female', 'genderTitle' => __('She/her')]
-                        ]
+                        ],
+                        'showFinancialWarning' => $this->scopeConfig->getValue(
+                            self::XPATH_FINANCIAL_WARNING,
+                            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+                        ) !== "0"
                     ],
                     'response' => [],
                 ],

@@ -252,6 +252,7 @@
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <can_capture_partial>1</can_capture_partial>
+                <financial_warning>1</financial_warning>
                 <available_in_backend>0</available_in_backend>
             </buckaroo_magento2_afterpay>
 
@@ -267,6 +268,7 @@
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <can_capture_partial>1</can_capture_partial>
+                <financial_warning>1</financial_warning>
                 <available_in_backend>0</available_in_backend>
             </buckaroo_magento2_afterpay2>
 
@@ -383,6 +385,7 @@
                 <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
+                <financial_warning>1</financial_warning>
                 <available_in_backend>0</available_in_backend>
             </buckaroo_magento2_klarna>
 
@@ -396,6 +399,7 @@
                 <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>authorize</payment_action>
+                <financial_warning>1</financial_warning>
                 <available_in_backend>0</available_in_backend>
             </buckaroo_magento2_klarnakp>
 
@@ -409,6 +413,7 @@
                 <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
+                <financial_warning>1</financial_warning>
                 <available_in_backend>0</available_in_backend>
             </buckaroo_magento2_klarnain>
 
@@ -441,6 +446,7 @@
                 <payment_action>order</payment_action>
                 <can_capture_partial>1</can_capture_partial>
                 <available_in_backend>0</available_in_backend>
+                <financial_warning>1</financial_warning>
                 <customer_type>both</customer_type>
             </buckaroo_magento2_afterpay20>
 
@@ -456,6 +462,7 @@
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <can_capture_partial>1</can_capture_partial>
+                <financial_warning>1</financial_warning>
                 <available_in_backend>0</available_in_backend>
             </buckaroo_magento2_billink>
 
@@ -567,6 +574,7 @@
                 <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
+                <financial_warning>1</financial_warning>
                 <available_in_backend>0</available_in_backend>
             </buckaroo_magento2_tinka>
 

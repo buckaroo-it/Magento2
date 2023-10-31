@@ -41,6 +41,7 @@ class Tinka extends AbstractConfigProvider
     const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_tinka/specificcountry';
     const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_tinka/specificcustomergroup';
     const XPATH_ACTIVE_SERVICE                  = 'payment/buckaroo_magento2_tinka/activeservice';
+    const XPATH_FINANCIAL_WARNING               = 'payment/buckaroo_magento2_tinka/financial_warning';
 
     /**
      * @var array
@@ -74,6 +75,10 @@ class Tinka extends AbstractConfigProvider
                         'subtext_style'   => $this->getSubtextStyle(),
                         'subtext_color'   => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
+                        'showFinancialWarning' => $this->scopeConfig->getValue(
+                            self::XPATH_FINANCIAL_WARNING,
+                            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+                        ) !== "0"
                     ],
                 ],
             ],
