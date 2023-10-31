@@ -42,7 +42,7 @@ class Installments extends Capayable
     {
         $services = parent::getCapayableService($payment);
 
-        if ($this->isV3()) {
+        if (!$this->isV2()) {
             return $services;
         }
 

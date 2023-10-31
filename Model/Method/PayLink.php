@@ -150,10 +150,7 @@ class PayLink extends AbstractMethod
         if (count($cmService) > 0) {
             $services[] = $cmService;
 
-            $payment->setAdditionalInformation(
-                'skip_push',
-                2
-            );
+            $payment->setAdditionalInformation('skip_push', 2);
         }
 
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
