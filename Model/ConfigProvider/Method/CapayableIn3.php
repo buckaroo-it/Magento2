@@ -111,6 +111,7 @@ class CapayableIn3 extends AbstractConfigProvider
             $storeId
         ) === 'V2';
     }
+
     public function getLogo($storeId = null): string
     {
         $logo = $this->scopeConfig->getValue(
