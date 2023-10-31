@@ -114,7 +114,9 @@ class Giftcard
 
         if ($this->response->isSuccess()) {
             $this->saveGroupTransaction();
-            $order = $this->createOrderFromQuote();
+            if ($this->quote->getGrandTotal() > $this->response->getAmount()) {
+                $order = $this->createOrderFromQuote();
+            }
         } else {
             $order = $this->createOrderFromQuote(false);
         }

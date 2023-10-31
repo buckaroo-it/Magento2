@@ -22,7 +22,8 @@ namespace Buckaroo\Magento2\Helper;
 
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\GroupTransactionFactory;
-use Buckaroo\Magento2\Model\ResourceModel\GroupTransaction;
+use Buckaroo\Magento2\Model\ResourceModel\GroupTransaction as GroupTransactionResource;
+use Buckaroo\Magento2\Model\GroupTransaction;
 use Buckaroo\Magento2\Model\ResourceModel\GroupTransaction\CollectionFactory as GroupTransactionCollectionFactory;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
@@ -46,7 +47,7 @@ class PaymentGroupTransaction extends AbstractHelper
     protected $grTrCollectionFactory;
 
     /**
-     * @var GroupTransaction
+     * @var GroupTransactionResource
      */
     protected $resourceModel;
 
@@ -63,7 +64,7 @@ class PaymentGroupTransaction extends AbstractHelper
      * @param DateTime $dateTime
      * @param BuckarooLoggerInterface $logger
      * @param GroupTransactionCollectionFactory $grTrCollectionFactory
-     * @param GroupTransaction $resourceModel
+     * @param GroupTransactionResource $resourceModel
      */
     public function __construct(
         Context $context,
@@ -71,7 +72,7 @@ class PaymentGroupTransaction extends AbstractHelper
         DateTime $dateTime,
         BuckarooLoggerInterface $logger,
         GroupTransactionCollectionFactory $grTrCollectionFactory,
-        GroupTransaction $resourceModel
+        GroupTransactionResource $resourceModel
     ) {
         parent::__construct($context);
 
@@ -256,20 +257,22 @@ class PaymentGroupTransaction extends AbstractHelper
      * Retrieves the group transaction item for a given transaction ID.
      *
      * @param int|string $trxId
-     * @return mixed
+     * @return GroupTransaction
      */
     public function getGroupTransactionByTrxId($trxId)
     {
-        return $this->groupTransactionFactory->create()
+        $collection = $this->groupTransactionFactory->create()
             ->getCollection()
-            ->addFieldToFilter('transaction_id', ['eq' => $trxId])->getItems();
+            ->addFieldToFilter('transaction_id', $trxId);
+
+        return $collection->getFirstItem();
     }
 
     /**
      * Get successful group transactions for orderId with giftcard label
      *
      * @param string|null $orderId
-     * @return \Buckaroo\Magento2\Model\GroupTransaction[]
+     * @return GroupTransaction[]
      */
     public function getActiveItemsWithName($orderId)
     {
@@ -300,7 +303,7 @@ class PaymentGroupTransaction extends AbstractHelper
      * Get successful group transaction dor transaction id with giftcard label
      *
      * @param string $transactionId
-     * @return \Buckaroo\Magento2\Model\GroupTransaction
+     * @return GroupTransaction
      */
     public function getByTransactionIdWithName(string $transactionId)
     {

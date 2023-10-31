@@ -98,6 +98,7 @@ class Push implements PushInterface
 
         // Validate Signature
         $store = $order->getStore();
+//        $validSignature = $this->pushRequst->validate($store);
         $validSignature = true;
 
         if (!$validSignature) {
