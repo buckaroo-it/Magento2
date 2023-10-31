@@ -159,7 +159,7 @@ class In3V3Builder
                 'id' => $item->getSku(),
                 'description'=> $item->getName(),
                 'qty' => $item->getQtyOrdered(),
-                'price' => $item->getBasePriceInclTax(),
+                'price' => floor($item->getBasePriceInclTax() * 100) / 100,
                 'vat' =>  $item->getTaxPercent(),
             ];
 
