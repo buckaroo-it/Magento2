@@ -1,943 +1,1285 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Generator: Adobe Illustrator 23.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
 <svg version="1.1" id="Calque_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 viewBox="0 0 96 72" style="enable-background:new 0 0 96 72;" xml:space="preserve">
+	 viewBox="0 0 94.45 70.92" style="enable-background:new 0 0 94.45 70.92;" xml:space="preserve">
 <style type="text/css">
-	.st0{fill-rule:evenodd;clip-rule:evenodd;}
-	.st1{fill-rule:evenodd;clip-rule:evenodd;fill:#FFFFFF;}
-	.st2{fill-rule:evenodd;clip-rule:evenodd;fill:#FAB517;}
-	.st3{clip-path:url(#SVGID_2_);fill-rule:evenodd;clip-rule:evenodd;fill:#F29120;}
-	.st4{clip-path:url(#SVGID_2_);fill-rule:evenodd;clip-rule:evenodd;fill:#F29020;}
-	.st5{clip-path:url(#SVGID_2_);fill-rule:evenodd;clip-rule:evenodd;fill:#F18F20;}
-	.st6{clip-path:url(#SVGID_2_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08F21;}
-	.st7{clip-path:url(#SVGID_2_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08E21;}
-	.st8{clip-path:url(#SVGID_2_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08D21;}
-	.st9{clip-path:url(#SVGID_2_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08C21;}
-	.st10{clip-path:url(#SVGID_2_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08A21;}
-	.st11{clip-path:url(#SVGID_2_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8B22;}
-	.st12{clip-path:url(#SVGID_2_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8922;}
-	.st13{clip-path:url(#SVGID_2_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08821;}
-	.st14{clip-path:url(#SVGID_2_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08822;}
-	.st15{clip-path:url(#SVGID_2_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8722;}
-	.st16{clip-path:url(#SVGID_2_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8522;}
-	.st17{clip-path:url(#SVGID_2_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8522;}
-	.st18{clip-path:url(#SVGID_2_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8422;}
-	.st19{clip-path:url(#SVGID_2_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED8322;}
-	.st20{clip-path:url(#SVGID_2_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED8223;}
-	.st21{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#E75B24;}
-	.st22{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#E75C25;}
-	.st23{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#E75D25;}
-	.st24{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#E75E24;}
-	.st25{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#E75D24;}
-	.st26{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#E86024;}
-	.st27{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#E86124;}
-	.st28{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#E86224;}
-	.st29{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EA6424;}
-	.st30{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EA6524;}
-	.st31{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EA6624;}
-	.st32{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EA6724;}
-	.st33{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#E96824;}
-	.st34{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB6824;}
-	.st35{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB6924;}
-	.st36{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC6A24;}
-	.st37{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#E96A24;}
-	.st38{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#E96C24;}
-	.st39{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB6D24;}
-	.st40{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC6E23;}
-	.st41{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC6F23;}
-	.st42{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB7024;}
-	.st43{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB7124;}
-	.st44{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7224;}
-	.st45{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7323;}
-	.st46{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7423;}
-	.st47{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7523;}
-	.st48{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7623;}
-	.st49{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7723;}
-	.st50{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7923;}
-	.st51{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE7823;}
-	.st52{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7A23;}
-	.st53{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7B23;}
-	.st54{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7C23;}
-	.st55{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7D23;}
-	.st56{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE7D22;}
-	.st57{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE7E22;}
-	.st58{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE7F22;}
-	.st59{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8022;}
-	.st60{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8122;}
-	.st61{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8222;}
-	.st62{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08322;}
-	.st63{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08421;}
-	.st64{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08521;}
-	.st65{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8522;}
-	.st66{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08722;}
-	.st67{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08822;}
-	.st68{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08821;}
-	.st69{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F18821;}
-	.st70{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F18921;}
-	.st71{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F18A21;}
-	.st72{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08C21;}
-	.st73{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08D21;}
-	.st74{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F18E21;}
-	.st75{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F18F20;}
-	.st76{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F29020;}
-	.st77{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F29120;}
-	.st78{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F29220;}
-	.st79{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F39320;}
-	.st80{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F3941F;}
-	.st81{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F3951F;}
-	.st82{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F3971F;}
-	.st83{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F3981F;}
-	.st84{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F4991F;}
-	.st85{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F49A1F;}
-	.st86{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F49B1E;}
-	.st87{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F49C1E;}
-	.st88{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F49D1E;}
-	.st89{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F59E1D;}
-	.st90{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F49F1E;}
-	.st91{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F59F1E;}
-	.st92{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F5A11D;}
-	.st93{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F5A31D;}
-	.st94{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F6A21D;}
-	.st95{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F5A41D;}
-	.st96{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F5A61C;}
-	.st97{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F6A81C;}
-	.st98{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F7A91B;}
-	.st99{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F6A91C;}
-	.st100{clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F6AA1B;}
-	.st101{filter:url(#Adobe_OpacityMaskFilter);}
-	.st102{fill:url(#SVGID_6_);}
-	.st103{mask:url(#SVGID_5_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB7224;}
-	.st104{fill-rule:evenodd;clip-rule:evenodd;fill:#EE8522;}
-	.st105{fill-rule:evenodd;clip-rule:evenodd;fill:#EA6624;}
-	.st106{filter:url(#Adobe_OpacityMaskFilter_1_);}
-	.st107{fill:url(#SVGID_8_);}
-	.st108{mask:url(#SVGID_7_);fill-rule:evenodd;clip-rule:evenodd;fill:#E65725;}
-	.st109{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F29120;}
-	.st110{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F29020;}
-	.st111{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F18F20;}
-	.st112{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08F21;}
-	.st113{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08E21;}
-	.st114{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08D21;}
-	.st115{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08C21;}
-	.st116{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08A21;}
-	.st117{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8B22;}
-	.st118{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8922;}
-	.st119{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08821;}
-	.st120{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08822;}
-	.st121{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8722;}
-	.st122{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8522;}
-	.st123{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8522;}
-	.st124{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8422;}
-	.st125{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED8322;}
-	.st126{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED8223;}
-	.st127{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#E75B24;}
-	.st128{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#E75C25;}
-	.st129{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#E75D25;}
-	.st130{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#E75E24;}
-	.st131{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#E75D24;}
-	.st132{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#E86024;}
-	.st133{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#E86124;}
-	.st134{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#E86224;}
-	.st135{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#EA6424;}
-	.st136{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#EA6524;}
-	.st137{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#EA6624;}
-	.st138{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#EA6724;}
-	.st139{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#E96824;}
-	.st140{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB6824;}
-	.st141{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB6924;}
-	.st142{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC6A24;}
-	.st143{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#E96A24;}
-	.st144{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#E96C24;}
-	.st145{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB6D24;}
-	.st146{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC6E23;}
-	.st147{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC6F23;}
-	.st148{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB7024;}
-	.st149{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB7124;}
-	.st150{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7224;}
-	.st151{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7323;}
-	.st152{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7423;}
-	.st153{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7523;}
-	.st154{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7623;}
-	.st155{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7723;}
-	.st156{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7923;}
-	.st157{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE7823;}
-	.st158{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7A23;}
-	.st159{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7B23;}
-	.st160{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7C23;}
-	.st161{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7D23;}
-	.st162{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE7D22;}
-	.st163{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE7E22;}
-	.st164{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE7F22;}
-	.st165{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8022;}
-	.st166{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8122;}
-	.st167{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8222;}
-	.st168{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08322;}
-	.st169{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08421;}
-	.st170{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08521;}
-	.st171{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8522;}
-	.st172{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08722;}
-	.st173{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08822;}
-	.st174{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08821;}
-	.st175{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#F18821;}
-	.st176{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#F18921;}
-	.st177{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#F18A21;}
-	.st178{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08C21;}
-	.st179{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08D21;}
-	.st180{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#F18E21;}
-	.st181{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#F18F20;}
-	.st182{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#F29020;}
-	.st183{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#F29120;}
-	.st184{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#F29220;}
-	.st185{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#F39320;}
-	.st186{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#F3941F;}
-	.st187{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#F3951F;}
-	.st188{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#F3971F;}
-	.st189{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#F3981F;}
-	.st190{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#F4991F;}
-	.st191{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#F49A1F;}
-	.st192{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#F49B1E;}
-	.st193{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#F49C1E;}
-	.st194{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#F49D1E;}
-	.st195{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#F59E1D;}
-	.st196{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#F49F1E;}
-	.st197{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#F59F1E;}
-	.st198{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#F5A11D;}
-	.st199{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#F5A31D;}
-	.st200{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#F6A21D;}
-	.st201{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#F5A41D;}
-	.st202{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#F5A61C;}
-	.st203{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#F6A81C;}
-	.st204{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#F7A91B;}
-	.st205{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#F6A91C;}
-	.st206{clip-path:url(#SVGID_12_);fill-rule:evenodd;clip-rule:evenodd;fill:#F6AA1B;}
-	.st207{filter:url(#Adobe_OpacityMaskFilter_2_);}
-	.st208{fill:url(#SVGID_14_);}
-	.st209{mask:url(#SVGID_13_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB7224;}
-	.st210{filter:url(#Adobe_OpacityMaskFilter_3_);}
-	.st211{fill:url(#SVGID_16_);}
-	.st212{mask:url(#SVGID_15_);fill-rule:evenodd;clip-rule:evenodd;fill:#E65725;}
-	.st213{fill-rule:evenodd;clip-rule:evenodd;fill:#11585A;}
-	.st214{fill:#FFFFFF;}
-	.st215{fill:#11585A;}
-	.st216{fill-rule:evenodd;clip-rule:evenodd;fill:#F9F9FA;}
-	.st217{fill:none;}
-	.st218{fill-rule:evenodd;clip-rule:evenodd;fill:#C2D830;}
-	.st219{fill-rule:evenodd;clip-rule:evenodd;fill:#115041;}
-	.st220{clip-path:url(#SVGID_18_);fill-rule:evenodd;clip-rule:evenodd;fill:#F29120;}
-	.st221{clip-path:url(#SVGID_18_);fill-rule:evenodd;clip-rule:evenodd;fill:#F29020;}
-	.st222{clip-path:url(#SVGID_18_);fill-rule:evenodd;clip-rule:evenodd;fill:#F18F20;}
-	.st223{clip-path:url(#SVGID_18_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08F21;}
-	.st224{clip-path:url(#SVGID_18_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08E21;}
-	.st225{clip-path:url(#SVGID_18_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08D21;}
-	.st226{clip-path:url(#SVGID_18_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08C21;}
-	.st227{clip-path:url(#SVGID_18_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08A21;}
-	.st228{clip-path:url(#SVGID_18_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8B22;}
-	.st229{clip-path:url(#SVGID_18_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8922;}
-	.st230{clip-path:url(#SVGID_18_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08821;}
-	.st231{clip-path:url(#SVGID_18_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08822;}
-	.st232{clip-path:url(#SVGID_18_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8722;}
-	.st233{clip-path:url(#SVGID_18_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8522;}
-	.st234{clip-path:url(#SVGID_18_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8522;}
-	.st235{clip-path:url(#SVGID_18_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8422;}
-	.st236{clip-path:url(#SVGID_18_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED8322;}
-	.st237{clip-path:url(#SVGID_18_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED8223;}
-	.st238{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#E75B24;}
-	.st239{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#E75C25;}
-	.st240{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#E75D25;}
-	.st241{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#E75E24;}
-	.st242{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#E75D24;}
-	.st243{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#E86024;}
-	.st244{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#E86124;}
-	.st245{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#E86224;}
-	.st246{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#EA6424;}
-	.st247{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#EA6524;}
-	.st248{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#EA6624;}
-	.st249{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#EA6724;}
-	.st250{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#E96824;}
-	.st251{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB6824;}
-	.st252{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB6924;}
-	.st253{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC6A24;}
-	.st254{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#E96A24;}
-	.st255{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#E96C24;}
-	.st256{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB6D24;}
-	.st257{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC6E23;}
-	.st258{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC6F23;}
-	.st259{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB7024;}
-	.st260{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB7124;}
-	.st261{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7224;}
-	.st262{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7323;}
-	.st263{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7423;}
-	.st264{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7523;}
-	.st265{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7623;}
-	.st266{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7723;}
-	.st267{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7923;}
-	.st268{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE7823;}
-	.st269{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7A23;}
-	.st270{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7B23;}
-	.st271{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7C23;}
-	.st272{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7D23;}
-	.st273{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE7D22;}
-	.st274{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE7E22;}
-	.st275{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE7F22;}
-	.st276{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8022;}
-	.st277{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8122;}
-	.st278{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8222;}
-	.st279{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08322;}
-	.st280{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08421;}
-	.st281{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08521;}
-	.st282{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8522;}
-	.st283{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08722;}
-	.st284{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08822;}
-	.st285{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08821;}
-	.st286{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#F18821;}
-	.st287{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#F18921;}
-	.st288{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#F18A21;}
-	.st289{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08C21;}
-	.st290{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08D21;}
-	.st291{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#F18E21;}
-	.st292{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#F18F20;}
-	.st293{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#F29020;}
-	.st294{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#F29120;}
-	.st295{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#F29220;}
-	.st296{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#F39320;}
-	.st297{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#F3941F;}
-	.st298{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#F3951F;}
-	.st299{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#F3971F;}
-	.st300{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#F3981F;}
-	.st301{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#F4991F;}
-	.st302{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#F49A1F;}
-	.st303{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#F49B1E;}
-	.st304{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#F49C1E;}
-	.st305{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#F49D1E;}
-	.st306{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#F59E1D;}
-	.st307{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#F49F1E;}
-	.st308{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#F59F1E;}
-	.st309{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#F5A11D;}
-	.st310{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#F5A31D;}
-	.st311{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#F6A21D;}
-	.st312{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#F5A41D;}
-	.st313{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#F5A61C;}
-	.st314{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#F6A81C;}
-	.st315{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#F7A91B;}
-	.st316{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#F6A91C;}
-	.st317{clip-path:url(#SVGID_20_);fill-rule:evenodd;clip-rule:evenodd;fill:#F6AA1B;}
-	.st318{filter:url(#Adobe_OpacityMaskFilter_4_);}
-	.st319{fill:url(#SVGID_22_);}
-	.st320{mask:url(#SVGID_21_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB7224;}
-	.st321{fill:#B5CC38;}
-	.st322{fill:#D4DE25;}
-	.st323{filter:url(#Adobe_OpacityMaskFilter_5_);}
-	.st324{fill:url(#SVGID_24_);}
-	.st325{mask:url(#SVGID_23_);fill-rule:evenodd;clip-rule:evenodd;fill:#E65725;}
+	.st0{fill:#FFFFFF;}
+	.st1{fill-rule:evenodd;clip-rule:evenodd;fill:none;stroke:#1E3A6A;stroke-width:0.5;stroke-miterlimit:10;}
+	.st2{fill:#1E3A6A;}
+	.st3{fill:#1D3A6A;}
+	.st4{fill:#5BC4EB;}
+	.st5{fill:#0E9A5A;}
+	.st6{fill-rule:evenodd;clip-rule:evenodd;fill:#517A42;}
+	.st7{fill-rule:evenodd;clip-rule:evenodd;fill:#234273;}
+	.st8{fill-rule:evenodd;clip-rule:evenodd;fill:#FFFFFF;}
+	.st9{fill:#234273;}
+	.st10{fill:#107DC1;}
+	.st11{fill:#1E3667;}
+	.st12{fill-rule:evenodd;clip-rule:evenodd;fill:#1D4484;}
+	.st13{fill-rule:evenodd;clip-rule:evenodd;fill:#B3DBF4;}
+	.st14{fill-rule:evenodd;clip-rule:evenodd;fill:#6BBCE9;}
+	.st15{fill-rule:evenodd;clip-rule:evenodd;fill:#1E4B8F;}
+	.st16{filter:url(#Adobe_OpacityMaskFilter);}
+	.st17{clip-path:url(#SVGID_2_);fill:url(#SVGID_4_);}
+	.st18{clip-path:url(#SVGID_2_);mask:url(#SVGID_3_);fill:url(#SVGID_5_);}
+	.st19{fill-rule:evenodd;clip-rule:evenodd;fill:#758EB7;}
+	.st20{fill-rule:evenodd;clip-rule:evenodd;fill:#1A4789;}
+	.st21{fill-rule:evenodd;clip-rule:evenodd;fill:#8097BC;}
+	.st22{fill-rule:evenodd;clip-rule:evenodd;fill:#3974BA;}
+	.st23{fill-rule:evenodd;clip-rule:evenodd;fill:#1F97D4;}
+	.st24{fill-rule:evenodd;clip-rule:evenodd;fill:none;stroke:url(#SVGID_6_);stroke-width:0.5;stroke-miterlimit:10;}
+	.st25{fill-rule:evenodd;clip-rule:evenodd;fill:#FAB517;}
+	.st26{clip-path:url(#SVGID_8_);fill-rule:evenodd;clip-rule:evenodd;fill:#F29120;}
+	.st27{clip-path:url(#SVGID_8_);fill-rule:evenodd;clip-rule:evenodd;fill:#F29020;}
+	.st28{clip-path:url(#SVGID_8_);fill-rule:evenodd;clip-rule:evenodd;fill:#F18F20;}
+	.st29{clip-path:url(#SVGID_8_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08F21;}
+	.st30{clip-path:url(#SVGID_8_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08E21;}
+	.st31{clip-path:url(#SVGID_8_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08D21;}
+	.st32{clip-path:url(#SVGID_8_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08C21;}
+	.st33{clip-path:url(#SVGID_8_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08A21;}
+	.st34{clip-path:url(#SVGID_8_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8B22;}
+	.st35{clip-path:url(#SVGID_8_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8922;}
+	.st36{clip-path:url(#SVGID_8_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08821;}
+	.st37{clip-path:url(#SVGID_8_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08822;}
+	.st38{clip-path:url(#SVGID_8_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8722;}
+	.st39{clip-path:url(#SVGID_8_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8522;}
+	.st40{clip-path:url(#SVGID_8_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8522;}
+	.st41{clip-path:url(#SVGID_8_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8422;}
+	.st42{clip-path:url(#SVGID_8_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED8322;}
+	.st43{clip-path:url(#SVGID_8_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED8223;}
+	.st44{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#E75B24;}
+	.st45{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#E75C25;}
+	.st46{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#E75D25;}
+	.st47{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#E75E24;}
+	.st48{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#E75D24;}
+	.st49{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#E86024;}
+	.st50{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#E86124;}
+	.st51{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#E86224;}
+	.st52{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#EA6424;}
+	.st53{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#EA6524;}
+	.st54{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#EA6624;}
+	.st55{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#EA6724;}
+	.st56{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#E96824;}
+	.st57{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB6824;}
+	.st58{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB6924;}
+	.st59{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC6A24;}
+	.st60{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#E96A24;}
+	.st61{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#E96C24;}
+	.st62{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB6D24;}
+	.st63{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC6E23;}
+	.st64{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC6F23;}
+	.st65{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB7024;}
+	.st66{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB7124;}
+	.st67{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7224;}
+	.st68{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7323;}
+	.st69{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7423;}
+	.st70{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7523;}
+	.st71{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7623;}
+	.st72{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7723;}
+	.st73{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7923;}
+	.st74{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE7823;}
+	.st75{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7A23;}
+	.st76{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7B23;}
+	.st77{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7C23;}
+	.st78{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7D23;}
+	.st79{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE7D22;}
+	.st80{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE7E22;}
+	.st81{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE7F22;}
+	.st82{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8022;}
+	.st83{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8122;}
+	.st84{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8222;}
+	.st85{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08322;}
+	.st86{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08421;}
+	.st87{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08521;}
+	.st88{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8522;}
+	.st89{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08722;}
+	.st90{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08822;}
+	.st91{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08821;}
+	.st92{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F18821;}
+	.st93{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F18921;}
+	.st94{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F18A21;}
+	.st95{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08C21;}
+	.st96{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08D21;}
+	.st97{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F18E21;}
+	.st98{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F18F20;}
+	.st99{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F29020;}
+	.st100{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F29120;}
+	.st101{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F29220;}
+	.st102{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F39320;}
+	.st103{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F3941F;}
+	.st104{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F3951F;}
+	.st105{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F3971F;}
+	.st106{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F3981F;}
+	.st107{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F4991F;}
+	.st108{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F49A1F;}
+	.st109{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F49B1E;}
+	.st110{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F49C1E;}
+	.st111{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F49D1E;}
+	.st112{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F59E1D;}
+	.st113{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F49F1E;}
+	.st114{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F59F1E;}
+	.st115{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F5A11D;}
+	.st116{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F5A31D;}
+	.st117{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F6A21D;}
+	.st118{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F5A41D;}
+	.st119{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F5A61C;}
+	.st120{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F6A81C;}
+	.st121{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F7A91B;}
+	.st122{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F6A91C;}
+	.st123{clip-path:url(#SVGID_10_);fill-rule:evenodd;clip-rule:evenodd;fill:#F6AA1B;}
+	.st124{filter:url(#Adobe_OpacityMaskFilter_1_);}
+	.st125{fill:url(#SVGID_12_);}
+	.st126{mask:url(#SVGID_11_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB7224;}
+	.st127{fill-rule:evenodd;clip-rule:evenodd;fill:#EE8522;}
+	.st128{fill-rule:evenodd;clip-rule:evenodd;fill:#EA6624;}
+	.st129{filter:url(#Adobe_OpacityMaskFilter_2_);}
+	.st130{fill:url(#SVGID_14_);}
+	.st131{mask:url(#SVGID_13_);fill-rule:evenodd;clip-rule:evenodd;fill:#E65725;}
+	.st132{fill-rule:evenodd;clip-rule:evenodd;fill:#D62128;}
+	.st133{fill-rule:evenodd;clip-rule:evenodd;fill:none;stroke:#0D6341;stroke-width:0.5;stroke-miterlimit:10;}
+	.st134{fill:#84BC41;}
+	.st135{fill:#069648;}
+	.st136{fill:#C2D42F;}
+	.st137{fill:#006341;}
+	.st138{fill:#BCD7F0;}
+	.st139{fill:#144A96;}
+	.st140{fill:#EE2738;}
+	.st141{fill-rule:evenodd;clip-rule:evenodd;fill:#582D82;}
+	.st142{fill:#E31F31;}
+	.st143{fill-rule:evenodd;clip-rule:evenodd;fill:#2E327F;}
+	.st144{fill-rule:evenodd;clip-rule:evenodd;fill:#12A260;}
+	.st145{fill-rule:evenodd;clip-rule:evenodd;fill:#EE272D;}
 </style>
-<path class="st216" d="M7.02,0.2h81.42c4.01,0,7.29,3.28,7.29,7.29v57.42c0,4.01-3.28,7.29-7.29,7.29H7.02
-	c-4.01,0-7.29-3.28-7.29-7.29V7.49C-0.27,3.48,3.01,0.2,7.02,0.2"/>
-<rect x="-2.13" class="st217" width="96" height="72"/>
-<rect x="-2.13" class="st217" width="96" height="72"/>
-<path class="st2" d="M29.36,19.87l-2.61-0.01c0.44,0.07,15.97,0.01,16.37,0.01c5.47,0,10.93,0,16.4,0c1.74,0,1.79,0.18,2.62,1.48
-	l3.99,6.24c0.76,1.21,0.38,1.88,0.08,3.36l-1.05,5.13c-0.23,1.13-0.46,2.26-0.69,3.39c-0.11,0.54-0.67,3.1-0.69,3.44
-	c0.95-0.56,1.31-0.64,2.48-1.41c0.8-0.53,1.49-1.05,2.19-1.7c4.38-4.08,5.68-10.24,4.3-16.1l-0.38-1.35
-	c-0.01-0.04-0.01-0.05-0.01-0.09c0-0.12-0.02-0.01,0.02-0.08c-0.15-0.38-1.4-2.2-1.63-2.5c-0.54-0.72-1.7-2.2-2.37-2.83l-1.04-1.05
-	c-4.08-3.72-8.5-6.18-14.66-7.23c-0.06,0.02-1.32-0.01-1.54-0.01c-0.9,0-2.21,0.09-3.06,0.23c-2.09,0.33-4.22,1.01-5.96,2.17
-	c-2.22,1.48-3.65,3.21-3.76,5.99c-0.05,1.14,0.23,2.02,0.33,2.92L29.36,19.87z"/>
+<path class="st0" d="M87.51,70.57H6.95c-3.47,0-6.28-2.81-6.28-6.28V6.92c0-3.47,2.81-6.27,6.28-6.27h80.56
+	c3.47,0,6.28,2.81,6.28,6.27v57.37C93.78,67.76,90.97,70.57,87.51,70.57z"/>
+<linearGradient id="SVGID_2_" gradientUnits="userSpaceOnUse" x1="-0.0283" y1="35.6077" x2="94.4799" y2="35.6077">
+	<stop  offset="0" style="stop-color:#E64925"/>
+	<stop  offset="1" style="stop-color:#F1BB19"/>
+</linearGradient>
+<path style="fill-rule:evenodd;clip-rule:evenodd;fill:none;stroke:url(#SVGID_2_);stroke-width:0.5;stroke-miterlimit:10;" d="
+	M6.87,0.23h80.71c3.66,0,6.65,3.02,6.65,6.7v57.34c0,3.69-2.99,6.7-6.65,6.7H6.87c-3.66,0-6.65-3.02-6.65-6.7V6.94
+	C0.22,3.25,3.21,0.23,6.87,0.23"/>
 <g>
-	<defs>
-		<path id="SVGID_17_" d="M63.76,42.9c-0.11,0.59-1.47,7.47-1.64,7.76c-0.47,0.76-1.54,0.55-2.61,0.55c-0.85,0-5.8,0.06-6.2-0.06
-			c-0.81-0.24-1.14-0.93-1.56-1.58L43.24,36.7L40.6,49.47c-0.11,0.53-0.16,1.18-0.47,1.46c-0.44,0.4-0.94,0.31-1.65,0.32
-			c0,2.13,0.91,3.96,1.88,5.19c0.27,0.6,1.64,1.78,2.19,2.21c1.18,0.94,3.31,2.08,4.79,2.45c0.43,0.11,0.73,0.24,1.15,0.32
-			c0.44,0.09,0.8,0.14,1.2,0.23c0.43,0.1,0.88,0.1,1.29,0.19c0.3,0.06,2.31,0.11,2.74,0.1l1.06,0.01c0.25-0.03,0-0.05,0.23-0.05
-			c0.51,0,0.86-0.06,1.33-0.11c0.21-0.02,0.42-0.05,0.64-0.09c0,0,1.43,0.14,1.53,0.23c0.52-0.16,1.1-0.46,1.59-0.68
-			c1.98-0.91,3.83-2.13,5.54-3.46l2.37-2.13c0.71-0.72,1.51-1.59,2.11-2.39c1.74-2.3,3.03-4.38,4.09-7.16
-			c0.18-0.48,1.11-3.05,1.06-3.46c0.01-0.01,0.02-0.04,0.02-0.03c0,0.01,0.01-0.02,0.02-0.03c0.11-0.24-0.03,0.09,0.03-0.06
-			c0.02-0.05,0.03-0.11,0.04-0.17c1.16-5.25,0.94-10.95-1-15.96c-0.41-1.05-0.9-2.24-1.43-3.23c-0.18-0.33-0.37-0.73-0.57-1.02
-			c-0.05,0.07-0.02-0.04-0.02,0.08c0,0.04,0,0.05,0.01,0.09l0.38,1.35c1.37,5.86,0.08,12.02-4.3,16.1c-0.69,0.65-1.39,1.17-2.19,1.7
-			C65.07,42.26,64.72,42.35,63.76,42.9"/>
-	</defs>
-	<clipPath id="SVGID_2_">
-		<use xlink:href="#SVGID_17_"  style="overflow:visible;"/>
-	</clipPath>
-	<polyline class="st3" points="38.48,22.13 38.56,22.13 38.56,61.95 38.48,61.95 	"/>
-	<polyline class="st3" points="38.48,22.13 38.7,22.13 38.7,61.95 38.48,61.95 	"/>
-	<polyline class="st3" points="38.63,22.13 38.85,22.13 38.85,61.95 38.63,61.95 	"/>
-	<polyline class="st3" points="38.78,22.13 39,22.13 39,61.95 38.78,61.95 	"/>
-	<polyline class="st3" points="38.92,22.13 39.15,22.13 39.15,61.95 38.92,61.95 	"/>
-	<polyline class="st3" points="39.07,22.13 39.29,22.13 39.29,61.95 39.07,61.95 	"/>
-	<polyline class="st4" points="39.22,22.13 39.44,22.13 39.44,61.95 39.22,61.95 	"/>
-	<polyline class="st4" points="39.37,22.13 39.59,22.13 39.59,61.95 39.37,61.95 	"/>
-	<polyline class="st4" points="39.51,22.13 39.73,22.13 39.73,61.95 39.51,61.95 	"/>
-	<polyline class="st4" points="39.66,22.13 39.88,22.13 39.88,61.95 39.66,61.95 	"/>
-	<polyline class="st4" points="39.81,22.13 40.03,22.13 40.03,61.95 39.81,61.95 	"/>
-	<polyline class="st4" points="39.95,22.13 40.17,22.13 40.17,61.95 39.95,61.95 	"/>
-	<polyline class="st4" points="40.1,22.13 40.32,22.13 40.32,61.95 40.1,61.95 	"/>
-	<polyline class="st4" points="40.25,22.13 40.47,22.13 40.47,61.95 40.25,61.95 	"/>
-	<polyline class="st4" points="40.39,22.13 40.61,22.13 40.61,61.95 40.39,61.95 	"/>
-	<polyline class="st4" points="40.54,22.13 40.76,22.13 40.76,61.95 40.54,61.95 	"/>
-	<polyline class="st4" points="40.69,22.13 40.91,22.13 40.91,61.95 40.69,61.95 	"/>
-	<polyline class="st5" points="40.83,22.13 41.05,22.13 41.05,61.95 40.83,61.95 	"/>
-	<polyline class="st5" points="40.98,22.13 41.2,22.13 41.2,61.95 40.98,61.95 	"/>
-	<polyline class="st5" points="41.13,22.13 41.35,22.13 41.35,61.95 41.13,61.95 	"/>
-	<polyline class="st5" points="41.27,22.13 41.49,22.13 41.49,61.95 41.27,61.95 	"/>
-	<polyline class="st5" points="41.42,22.13 41.64,22.13 41.64,61.95 41.42,61.95 	"/>
-	<polyline class="st6" points="41.57,22.13 41.79,22.13 41.79,61.95 41.57,61.95 	"/>
-	<polyline class="st6" points="41.71,22.13 41.93,22.13 41.93,61.95 41.71,61.95 	"/>
-	<polyline class="st6" points="41.86,22.13 42.08,22.13 42.08,61.95 41.86,61.95 	"/>
-	<polyline class="st6" points="42.01,22.13 42.23,22.13 42.23,61.95 42.01,61.95 	"/>
-	<polyline class="st6" points="42.15,22.13 42.38,22.13 42.38,61.95 42.15,61.95 	"/>
-	<polyline class="st6" points="42.3,22.13 42.52,22.13 42.52,61.95 42.3,61.95 	"/>
-	<polyline class="st6" points="42.45,22.13 42.67,22.13 42.67,61.95 42.45,61.95 	"/>
-	<polyline class="st7" points="42.6,22.13 42.82,22.13 42.82,61.95 42.6,61.95 	"/>
-	<polyline class="st7" points="42.74,22.13 42.96,22.13 42.96,61.95 42.74,61.95 	"/>
-	<polyline class="st7" points="42.89,22.13 43.11,22.13 43.11,61.95 42.89,61.95 	"/>
-	<polyline class="st7" points="43.04,22.13 43.26,22.13 43.26,61.95 43.04,61.95 	"/>
-	<polyline class="st7" points="43.18,22.13 43.4,22.13 43.4,61.95 43.18,61.95 	"/>
-	<polyline class="st7" points="43.33,22.13 43.55,22.13 43.55,61.95 43.33,61.95 	"/>
-	<polyline class="st7" points="43.48,22.13 43.7,22.13 43.7,61.95 43.48,61.95 	"/>
-	<polyline class="st7" points="43.62,22.13 43.84,22.13 43.84,61.95 43.62,61.95 	"/>
-	<polyline class="st7" points="43.77,22.13 43.99,22.13 43.99,61.95 43.77,61.95 	"/>
-	<polyline class="st7" points="43.92,22.13 44.14,22.13 44.14,61.95 43.92,61.95 	"/>
-	<polyline class="st7" points="44.06,22.13 44.28,22.13 44.28,61.95 44.06,61.95 	"/>
-	<polyline class="st8" points="44.21,22.13 44.43,22.13 44.43,61.95 44.21,61.95 	"/>
-	<polyline class="st8" points="44.36,22.13 44.58,22.13 44.58,61.95 44.36,61.95 	"/>
-	<polyline class="st8" points="44.5,22.13 44.72,22.13 44.72,61.95 44.5,61.95 	"/>
-	<polyline class="st8" points="44.65,22.13 44.87,22.13 44.87,61.95 44.65,61.95 	"/>
-	<polyline class="st8" points="44.8,22.13 45.02,22.13 45.02,61.95 44.8,61.95 	"/>
-	<polyline class="st8" points="44.94,22.13 45.16,22.13 45.16,61.95 44.94,61.95 	"/>
-	<polyline class="st8" points="45.09,22.13 45.31,22.13 45.31,61.95 45.09,61.95 	"/>
-	<polyline class="st8" points="45.24,22.13 45.46,22.13 45.46,61.95 45.24,61.95 	"/>
-	<polyline class="st8" points="45.38,22.13 45.61,22.13 45.61,61.95 45.38,61.95 	"/>
-	<polyline class="st8" points="45.53,22.13 45.75,22.13 45.75,61.95 45.53,61.95 	"/>
-	<polyline class="st8" points="45.68,22.13 45.9,22.13 45.9,61.95 45.68,61.95 	"/>
-	<polyline class="st9" points="45.83,22.13 46.05,22.13 46.05,61.95 45.83,61.95 	"/>
-	<polyline class="st9" points="45.97,22.13 46.19,22.13 46.19,61.95 45.97,61.95 	"/>
-	<polyline class="st9" points="46.12,22.13 46.34,22.13 46.34,61.95 46.12,61.95 	"/>
-	<polyline class="st9" points="46.27,22.13 46.49,22.13 46.49,61.95 46.27,61.95 	"/>
-	<polyline class="st9" points="46.41,22.13 46.63,22.13 46.63,61.95 46.41,61.95 	"/>
-	<polyline class="st9" points="46.56,22.13 46.78,22.13 46.78,61.95 46.56,61.95 	"/>
-	<polyline class="st9" points="46.71,22.13 46.93,22.13 46.93,61.95 46.71,61.95 	"/>
-	<polyline class="st9" points="46.85,22.13 47.07,22.13 47.07,61.95 46.85,61.95 	"/>
-	<polyline class="st9" points="47,22.13 47.22,22.13 47.22,61.95 47,61.95 	"/>
-	<polyline class="st9" points="47.15,22.13 47.37,22.13 47.37,61.95 47.15,61.95 	"/>
-	<polyline class="st9" points="47.29,22.13 47.51,22.13 47.51,61.95 47.29,61.95 	"/>
-	<polyline class="st10" points="47.44,22.13 47.66,22.13 47.66,61.95 47.44,61.95 	"/>
-	<polyline class="st10" points="47.59,22.13 47.81,22.13 47.81,61.95 47.59,61.95 	"/>
-	<polyline class="st11" points="47.73,22.13 47.95,22.13 47.95,61.95 47.73,61.95 	"/>
-	<polyline class="st11" points="47.88,22.13 48.1,22.13 48.1,61.95 47.88,61.95 	"/>
-	<polyline class="st11" points="48.03,22.13 48.25,22.13 48.25,61.95 48.03,61.95 	"/>
-	<polyline class="st11" points="48.17,22.13 48.39,22.13 48.39,61.95 48.17,61.95 	"/>
-	<polyline class="st11" points="48.32,22.13 48.54,22.13 48.54,61.95 48.32,61.95 	"/>
-	<polyline class="st11" points="48.47,22.13 48.69,22.13 48.69,61.95 48.47,61.95 	"/>
-	<polyline class="st11" points="48.61,22.13 48.83,22.13 48.83,61.95 48.61,61.95 	"/>
-	<polyline class="st11" points="48.76,22.13 48.98,22.13 48.98,61.95 48.76,61.95 	"/>
-	<polyline class="st11" points="48.91,22.13 49.13,22.13 49.13,61.95 48.91,61.95 	"/>
-	<polyline class="st12" points="49.06,22.13 49.28,22.13 49.28,61.95 49.06,61.95 	"/>
-	<polyline class="st12" points="49.2,22.13 49.42,22.13 49.42,61.95 49.2,61.95 	"/>
-	<polyline class="st12" points="49.35,22.13 49.57,22.13 49.57,61.95 49.35,61.95 	"/>
-	<polyline class="st12" points="49.5,22.13 49.72,22.13 49.72,61.95 49.5,61.95 	"/>
-	<polyline class="st12" points="49.64,22.13 49.86,22.13 49.86,61.95 49.64,61.95 	"/>
-	<polyline class="st12" points="49.79,22.13 50.01,22.13 50.01,61.95 49.79,61.95 	"/>
-	<polyline class="st12" points="49.94,22.13 50.16,22.13 50.16,61.95 49.94,61.95 	"/>
-	<polyline class="st12" points="50.08,22.13 50.3,22.13 50.3,61.95 50.08,61.95 	"/>
-	<polyline class="st12" points="50.23,22.13 50.45,22.13 50.45,61.95 50.23,61.95 	"/>
-	<polyline class="st12" points="50.38,22.13 50.6,22.13 50.6,61.95 50.38,61.95 	"/>
-	<polyline class="st12" points="50.52,22.13 50.74,22.13 50.74,61.95 50.52,61.95 	"/>
-	<polyline class="st12" points="50.67,22.13 50.89,22.13 50.89,61.95 50.67,61.95 	"/>
-	<polyline class="st13" points="50.82,22.13 51.04,22.13 51.04,61.95 50.82,61.95 	"/>
-	<polyline class="st13" points="50.96,22.13 51.18,22.13 51.18,61.95 50.96,61.95 	"/>
-	<polyline class="st13" points="51.11,22.13 51.33,22.13 51.33,61.95 51.11,61.95 	"/>
-	<polyline class="st13" points="51.26,22.13 51.48,22.13 51.48,61.95 51.26,61.95 	"/>
-	<polyline class="st13" points="51.4,22.13 51.62,22.13 51.62,61.95 51.4,61.95 	"/>
-	<polyline class="st13" points="51.55,22.13 51.77,22.13 51.77,61.95 51.55,61.95 	"/>
-	<polyline class="st13" points="51.7,22.13 51.92,22.13 51.92,61.95 51.7,61.95 	"/>
-	<polyline class="st13" points="51.84,22.13 52.06,22.13 52.06,61.95 51.84,61.95 	"/>
-	<polyline class="st13" points="51.99,22.13 52.21,22.13 52.21,61.95 51.99,61.95 	"/>
-	<polyline class="st13" points="52.14,22.13 52.36,22.13 52.36,61.95 52.14,61.95 	"/>
-	<polyline class="st13" points="52.29,22.13 52.51,22.13 52.51,61.95 52.29,61.95 	"/>
-	<polyline class="st13" points="52.43,22.13 52.65,22.13 52.65,61.95 52.43,61.95 	"/>
-	<polyline class="st13" points="52.58,22.13 52.8,22.13 52.8,61.95 52.58,61.95 	"/>
-	<polyline class="st13" points="52.73,22.13 52.95,22.13 52.95,61.95 52.73,61.95 	"/>
-	<polyline class="st13" points="52.87,22.13 53.09,22.13 53.09,61.95 52.87,61.95 	"/>
-	<polyline class="st13" points="53.02,22.13 53.24,22.13 53.24,61.95 53.02,61.95 	"/>
-	<polyline class="st13" points="53.17,22.13 53.39,22.13 53.39,61.95 53.17,61.95 	"/>
-	<polyline class="st13" points="53.31,22.13 53.53,22.13 53.53,61.95 53.31,61.95 	"/>
-	<polyline class="st13" points="53.46,22.13 53.68,22.13 53.68,61.95 53.46,61.95 	"/>
-	<polyline class="st13" points="53.61,22.13 53.83,22.13 53.83,61.95 53.61,61.95 	"/>
-	<polyline class="st13" points="53.75,22.13 53.97,22.13 53.97,61.95 53.75,61.95 	"/>
-	<polyline class="st13" points="53.9,22.13 54.12,22.13 54.12,61.95 53.9,61.95 	"/>
-	<polyline class="st14" points="54.05,22.13 54.27,22.13 54.27,61.95 54.05,61.95 	"/>
-	<polyline class="st14" points="54.19,22.13 54.41,22.13 54.41,61.95 54.19,61.95 	"/>
-	<polyline class="st14" points="54.34,22.13 54.56,22.13 54.56,61.95 54.34,61.95 	"/>
-	<polyline class="st14" points="54.49,22.13 54.71,22.13 54.71,61.95 54.49,61.95 	"/>
-	<polyline class="st14" points="54.63,22.13 54.85,22.13 54.85,61.95 54.63,61.95 	"/>
-	<polyline class="st14" points="54.78,22.13 55,22.13 55,61.95 54.78,61.95 	"/>
-	<polyline class="st14" points="54.93,22.13 55.15,22.13 55.15,61.95 54.93,61.95 	"/>
-	<polyline class="st14" points="55.07,22.13 55.29,22.13 55.29,61.95 55.07,61.95 	"/>
-	<polyline class="st14" points="55.22,22.13 55.44,22.13 55.44,61.95 55.22,61.95 	"/>
-	<polyline class="st14" points="55.37,22.13 55.59,22.13 55.59,61.95 55.37,61.95 	"/>
-	<polyline class="st14" points="55.51,22.13 55.74,22.13 55.74,61.95 55.51,61.95 	"/>
-	<polyline class="st14" points="55.66,22.13 55.88,22.13 55.88,61.95 55.66,61.95 	"/>
-	<polyline class="st14" points="55.81,22.13 56.03,22.13 56.03,61.95 55.81,61.95 	"/>
-	<polyline class="st14" points="55.96,22.13 56.18,22.13 56.18,61.95 55.96,61.95 	"/>
-	<polyline class="st14" points="56.1,22.13 56.32,22.13 56.32,61.95 56.1,61.95 	"/>
-	<polyline class="st14" points="56.25,22.13 56.47,22.13 56.47,61.95 56.25,61.95 	"/>
-	<polyline class="st14" points="56.4,22.13 56.62,22.13 56.62,61.95 56.4,61.95 	"/>
-	<polyline class="st14" points="56.54,22.13 56.76,22.13 56.76,61.95 56.54,61.95 	"/>
-	<polyline class="st14" points="56.69,22.13 56.91,22.13 56.91,61.95 56.69,61.95 	"/>
-	<polyline class="st14" points="56.84,22.13 57.06,22.13 57.06,61.95 56.84,61.95 	"/>
-	<polyline class="st15" points="56.98,22.13 57.2,22.13 57.2,61.95 56.98,61.95 	"/>
-	<polyline class="st15" points="57.13,22.13 57.35,22.13 57.35,61.95 57.13,61.95 	"/>
-	<polyline class="st15" points="57.28,22.13 57.5,22.13 57.5,61.95 57.28,61.95 	"/>
-	<polyline class="st15" points="57.42,22.13 57.64,22.13 57.64,61.95 57.42,61.95 	"/>
-	<polyline class="st15" points="57.57,22.13 57.79,22.13 57.79,61.95 57.57,61.95 	"/>
-	<polyline class="st15" points="57.72,22.13 57.94,22.13 57.94,61.95 57.72,61.95 	"/>
-	<polyline class="st15" points="57.86,22.13 58.08,22.13 58.08,61.95 57.86,61.95 	"/>
-	<polyline class="st15" points="58.01,22.13 58.23,22.13 58.23,61.95 58.01,61.95 	"/>
-	<polyline class="st15" points="58.16,22.13 58.38,22.13 58.38,61.95 58.16,61.95 	"/>
-	<polyline class="st15" points="58.3,22.13 58.52,22.13 58.52,61.95 58.3,61.95 	"/>
-	<polyline class="st15" points="58.45,22.13 58.67,22.13 58.67,61.95 58.45,61.95 	"/>
-	<polyline class="st15" points="58.6,22.13 58.82,22.13 58.82,61.95 58.6,61.95 	"/>
-	<polyline class="st15" points="58.74,22.13 58.97,22.13 58.97,61.95 58.74,61.95 	"/>
-	<polyline class="st15" points="58.89,22.13 59.11,22.13 59.11,61.95 58.89,61.95 	"/>
-	<polyline class="st15" points="59.04,22.13 59.26,22.13 59.26,61.95 59.04,61.95 	"/>
-	<polyline class="st15" points="59.19,22.13 59.41,22.13 59.41,61.95 59.19,61.95 	"/>
-	<polyline class="st15" points="59.33,22.13 59.55,22.13 59.55,61.95 59.33,61.95 	"/>
-	<polyline class="st15" points="59.48,22.13 59.7,22.13 59.7,61.95 59.48,61.95 	"/>
-	<polyline class="st15" points="59.63,22.13 59.85,22.13 59.85,61.95 59.63,61.95 	"/>
-	<polyline class="st15" points="59.77,22.13 59.99,22.13 59.99,61.95 59.77,61.95 	"/>
-	<polyline class="st15" points="59.92,22.13 60.14,22.13 60.14,61.95 59.92,61.95 	"/>
-	<polyline class="st15" points="60.07,22.13 60.29,22.13 60.29,61.95 60.07,61.95 	"/>
-	<polyline class="st15" points="60.21,22.13 60.43,22.13 60.43,61.95 60.21,61.95 	"/>
-	<polyline class="st15" points="60.36,22.13 60.58,22.13 60.58,61.95 60.36,61.95 	"/>
-	<polyline class="st15" points="60.51,22.13 60.73,22.13 60.73,61.95 60.51,61.95 	"/>
-	<polyline class="st15" points="60.65,22.13 60.87,22.13 60.87,61.95 60.65,61.95 	"/>
-	<polyline class="st16" points="60.8,22.13 61.02,22.13 61.02,61.95 60.8,61.95 	"/>
-	<polyline class="st16" points="60.95,22.13 61.17,22.13 61.17,61.95 60.95,61.95 	"/>
-	<polyline class="st16" points="61.09,22.13 61.31,22.13 61.31,61.95 61.09,61.95 	"/>
-	<polyline class="st16" points="61.24,22.13 61.46,22.13 61.46,61.95 61.24,61.95 	"/>
-	<polyline class="st16" points="61.39,22.13 61.61,22.13 61.61,61.95 61.39,61.95 	"/>
-	<polyline class="st16" points="61.53,22.13 61.75,22.13 61.75,61.95 61.53,61.95 	"/>
-	<polyline class="st16" points="61.68,22.13 61.9,22.13 61.9,61.95 61.68,61.95 	"/>
-	<polyline class="st16" points="61.83,22.13 62.05,22.13 62.05,61.95 61.83,61.95 	"/>
-	<polyline class="st16" points="61.97,22.13 62.2,22.13 62.2,61.95 61.97,61.95 	"/>
-	<polyline class="st16" points="62.12,22.13 62.34,22.13 62.34,61.95 62.12,61.95 	"/>
-	<polyline class="st16" points="62.27,22.13 62.49,22.13 62.49,61.95 62.27,61.95 	"/>
-	<polyline class="st16" points="62.42,22.13 62.64,22.13 62.64,61.95 62.42,61.95 	"/>
-	<polyline class="st16" points="62.56,22.13 62.78,22.13 62.78,61.95 62.56,61.95 	"/>
-	<polyline class="st16" points="62.71,22.13 62.93,22.13 62.93,61.95 62.71,61.95 	"/>
-	<polyline class="st16" points="62.86,22.13 63.08,22.13 63.08,61.95 62.86,61.95 	"/>
-	<polyline class="st16" points="63,22.13 63.22,22.13 63.22,61.95 63,61.95 	"/>
-	<polyline class="st16" points="63.15,22.13 63.37,22.13 63.37,61.95 63.15,61.95 	"/>
-	<polyline class="st16" points="63.3,22.13 63.52,22.13 63.52,61.95 63.3,61.95 	"/>
-	<polyline class="st16" points="63.44,22.13 63.66,22.13 63.66,61.95 63.44,61.95 	"/>
-	<polyline class="st16" points="63.59,22.13 63.81,22.13 63.81,61.95 63.59,61.95 	"/>
-	<polyline class="st16" points="63.74,22.13 63.96,22.13 63.96,61.95 63.74,61.95 	"/>
-	<polyline class="st16" points="63.88,22.13 64.1,22.13 64.1,61.95 63.88,61.95 	"/>
-	<polyline class="st16" points="64.03,22.13 64.25,22.13 64.25,61.95 64.03,61.95 	"/>
-	<polyline class="st17" points="64.18,22.13 64.4,22.13 64.4,61.95 64.18,61.95 	"/>
-	<polyline class="st17" points="64.32,22.13 64.54,22.13 64.54,61.95 64.32,61.95 	"/>
-	<polyline class="st17" points="64.47,22.13 64.69,22.13 64.69,61.95 64.47,61.95 	"/>
-	<polyline class="st17" points="64.62,22.13 64.84,22.13 64.84,61.95 64.62,61.95 	"/>
-	<polyline class="st17" points="64.76,22.13 64.98,22.13 64.98,61.95 64.76,61.95 	"/>
-	<polyline class="st17" points="64.91,22.13 65.13,22.13 65.13,61.95 64.91,61.95 	"/>
-	<polyline class="st17" points="65.06,22.13 65.28,22.13 65.28,61.95 65.06,61.95 	"/>
-	<polyline class="st17" points="65.2,22.13 65.43,22.13 65.43,61.95 65.2,61.95 	"/>
-	<polyline class="st17" points="65.35,22.13 65.57,22.13 65.57,61.95 65.35,61.95 	"/>
-	<polyline class="st17" points="65.5,22.13 65.72,22.13 65.72,61.95 65.5,61.95 	"/>
-	<polyline class="st17" points="65.65,22.13 65.87,22.13 65.87,61.95 65.65,61.95 	"/>
-	<polyline class="st17" points="65.79,22.13 66.01,22.13 66.01,61.95 65.79,61.95 	"/>
-	<polyline class="st17" points="65.94,22.13 66.16,22.13 66.16,61.95 65.94,61.95 	"/>
-	<polyline class="st17" points="66.09,22.13 66.31,22.13 66.31,61.95 66.09,61.95 	"/>
-	<polyline class="st17" points="66.23,22.13 66.45,22.13 66.45,61.95 66.23,61.95 	"/>
-	<polyline class="st17" points="66.38,22.13 66.6,22.13 66.6,61.95 66.38,61.95 	"/>
-	<polyline class="st17" points="66.53,22.13 66.75,22.13 66.75,61.95 66.53,61.95 	"/>
-	<polyline class="st17" points="66.67,22.13 66.89,22.13 66.89,61.95 66.67,61.95 	"/>
-	<polyline class="st17" points="66.82,22.13 67.04,22.13 67.04,61.95 66.82,61.95 	"/>
-	<polyline class="st17" points="66.97,22.13 67.19,22.13 67.19,61.95 66.97,61.95 	"/>
-	<polyline class="st17" points="67.11,22.13 67.33,22.13 67.33,61.95 67.11,61.95 	"/>
-	<polyline class="st17" points="67.26,22.13 67.48,22.13 67.48,61.95 67.26,61.95 	"/>
-	<polyline class="st17" points="67.41,22.13 67.63,22.13 67.63,61.95 67.41,61.95 	"/>
-	<polyline class="st18" points="67.55,22.13 67.77,22.13 67.77,61.95 67.55,61.95 	"/>
-	<polyline class="st18" points="67.7,22.13 67.92,22.13 67.92,61.95 67.7,61.95 	"/>
-	<polyline class="st18" points="67.85,22.13 68.07,22.13 68.07,61.95 67.85,61.95 	"/>
-	<polyline class="st18" points="67.99,22.13 68.21,22.13 68.21,61.95 67.99,61.95 	"/>
-	<polyline class="st18" points="68.14,22.13 68.36,22.13 68.36,61.95 68.14,61.95 	"/>
-	<polyline class="st18" points="68.29,22.13 68.51,22.13 68.51,61.95 68.29,61.95 	"/>
-	<polyline class="st18" points="68.43,22.13 68.65,22.13 68.65,61.95 68.43,61.95 	"/>
-	<polyline class="st18" points="68.58,22.13 68.8,22.13 68.8,61.95 68.58,61.95 	"/>
-	<polyline class="st18" points="68.73,22.13 68.95,22.13 68.95,61.95 68.73,61.95 	"/>
-	<polyline class="st18" points="68.88,22.13 69.1,22.13 69.1,61.95 68.88,61.95 	"/>
-	<polyline class="st18" points="69.02,22.13 69.24,22.13 69.24,61.95 69.02,61.95 	"/>
-	<polyline class="st18" points="69.17,22.13 69.39,22.13 69.39,61.95 69.17,61.95 	"/>
-	<polyline class="st18" points="69.32,22.13 69.54,22.13 69.54,61.95 69.32,61.95 	"/>
-	<polyline class="st18" points="69.46,22.13 69.68,22.13 69.68,61.95 69.46,61.95 	"/>
-	<polyline class="st18" points="69.61,22.13 69.83,22.13 69.83,61.95 69.61,61.95 	"/>
-	<polyline class="st18" points="69.76,22.13 69.98,22.13 69.98,61.95 69.76,61.95 	"/>
-	<polyline class="st18" points="69.9,22.13 70.12,22.13 70.12,61.95 69.9,61.95 	"/>
-	<polyline class="st18" points="70.05,22.13 70.27,22.13 70.27,61.95 70.05,61.95 	"/>
-	<polyline class="st18" points="70.2,22.13 70.42,22.13 70.42,61.95 70.2,61.95 	"/>
-	<polyline class="st18" points="70.34,22.13 70.56,22.13 70.56,61.95 70.34,61.95 	"/>
-	<polyline class="st18" points="70.49,22.13 70.71,22.13 70.71,61.95 70.49,61.95 	"/>
-	<polyline class="st18" points="70.64,22.13 70.86,22.13 70.86,61.95 70.64,61.95 	"/>
-	<polyline class="st19" points="70.78,22.13 71,22.13 71,61.95 70.78,61.95 	"/>
-	<polyline class="st19" points="70.93,22.13 71.15,22.13 71.15,61.95 70.93,61.95 	"/>
-	<polyline class="st19" points="71.08,22.13 71.3,22.13 71.3,61.95 71.08,61.95 	"/>
-	<polyline class="st19" points="71.22,22.13 71.44,22.13 71.44,61.95 71.22,61.95 	"/>
-	<polyline class="st19" points="71.37,22.13 71.59,22.13 71.59,61.95 71.37,61.95 	"/>
-	<polyline class="st19" points="71.52,22.13 71.74,22.13 71.74,61.95 71.52,61.95 	"/>
-	<polyline class="st19" points="71.66,22.13 71.88,22.13 71.88,61.95 71.66,61.95 	"/>
-	<polyline class="st19" points="71.81,22.13 72.03,22.13 72.03,61.95 71.81,61.95 	"/>
-	<polyline class="st19" points="71.96,22.13 72.18,22.13 72.18,61.95 71.96,61.95 	"/>
-	<polyline class="st19" points="72.11,22.13 72.33,22.13 72.33,61.95 72.11,61.95 	"/>
-	<polyline class="st19" points="72.25,22.13 72.47,22.13 72.47,61.95 72.25,61.95 	"/>
-	<polyline class="st19" points="72.4,22.13 72.62,22.13 72.62,61.95 72.4,61.95 	"/>
-	<polyline class="st19" points="72.55,22.13 72.77,22.13 72.77,61.95 72.55,61.95 	"/>
-	<polyline class="st19" points="72.69,22.13 72.91,22.13 72.91,61.95 72.69,61.95 	"/>
-	<polyline class="st19" points="72.84,22.13 73.06,22.13 73.06,61.95 72.84,61.95 	"/>
-	<polyline class="st19" points="72.99,22.13 73.21,22.13 73.21,61.95 72.99,61.95 	"/>
-	<polyline class="st19" points="73.13,22.13 73.35,22.13 73.35,61.95 73.13,61.95 	"/>
-	<polyline class="st19" points="73.28,22.13 73.5,22.13 73.5,61.95 73.28,61.95 	"/>
-	<polyline class="st19" points="73.43,22.13 73.65,22.13 73.65,61.95 73.43,61.95 	"/>
-	<polyline class="st19" points="73.57,22.13 73.79,22.13 73.79,61.95 73.57,61.95 	"/>
-	<polyline class="st19" points="73.72,22.13 73.94,22.13 73.94,61.95 73.72,61.95 	"/>
-	<polyline class="st19" points="73.87,22.13 74.09,22.13 74.09,61.95 73.87,61.95 	"/>
-	<polyline class="st19" points="74.01,22.13 74.23,22.13 74.23,61.95 74.01,61.95 	"/>
-	<polyline class="st20" points="74.16,22.13 74.38,22.13 74.38,61.95 74.16,61.95 	"/>
-	<polyline class="st20" points="74.31,22.13 74.53,22.13 74.53,61.95 74.31,61.95 	"/>
-	<polyline class="st20" points="74.45,22.13 74.67,22.13 74.67,61.95 74.45,61.95 	"/>
-	<polyline class="st20" points="74.6,22.13 74.82,22.13 74.82,61.95 74.6,61.95 	"/>
-	<polyline class="st20" points="74.75,22.13 74.97,22.13 74.97,61.95 74.75,61.95 	"/>
-	<polyline class="st20" points="74.89,22.13 75.11,22.13 75.11,61.95 74.89,61.95 	"/>
-	<polyline class="st20" points="75.04,22.13 75.26,22.13 75.26,61.95 75.04,61.95 	"/>
-	<polyline class="st20" points="75.19,22.13 75.41,22.13 75.41,61.95 75.19,61.95 	"/>
-	<polyline class="st20" points="75.34,22.13 75.56,22.13 75.56,61.95 75.34,61.95 	"/>
-	<polyline class="st20" points="75.48,22.13 75.7,22.13 75.7,61.95 75.48,61.95 	"/>
-	<polyline class="st20" points="75.63,22.13 75.85,22.13 75.85,61.95 75.63,61.95 	"/>
-	<polyline class="st20" points="75.78,22.13 76.52,22.13 76.52,61.95 75.78,61.95 	"/>
-</g>
-<g>
-	<defs>
-		<path id="SVGID_19_" d="M58.5,61.94c-0.25-0.23-1.2-0.3-1.53-0.23c-0.22,0.04-0.44,0.07-0.64,0.09c-0.47,0.05-0.82,0.11-1.33,0.11
-			c-0.23,0,0.02,0.01-0.23,0.05l-1.06-0.01c-0.43,0-2.44-0.04-2.74-0.1c-0.41-0.09-0.86-0.09-1.29-0.19
-			c-0.4-0.09-0.76-0.14-1.2-0.23c-0.41-0.09-0.71-0.22-1.15-0.32c-1.48-0.36-3.61-1.51-4.79-2.45c-0.55-0.43-1.92-1.61-2.19-2.21
-			c-0.96-1.24-1.88-3.06-1.88-5.19c-1.18-0.01-2.37,0-3.55,0c-0.5,0-1.24,0.11-1.55-0.2c-0.35-0.34-0.14-0.95-0.05-1.43
-			c0.4-1.98,0.8-3.94,1.21-5.92c0.4-1.98,0.8-3.94,1.21-5.91c0.2-0.97,0.41-1.98,0.6-2.96c0.2-1,0.45-2,0.61-3
-			c-0.91,0-1.82-0.02-2.72-0.01c-1,0.01-1.11,0.82-1.24,1.43c-0.07,0.33-2.02,11.68-2.13,11.93c-0.13-0.09,0.54-8.31,0.49-8.36
-			l-1.41-1.66c-0.14-0.18-0.19-0.19-0.26-0.27l-0.46-0.61c-0.11-0.11-0.07-0.03-0.19-0.18l-1.31-1.6c-0.11-0.12-0.08-0.03-0.19-0.18
-			l-0.32-0.37c-0.11-0.13-0.05-0.11-0.25-0.32c-0.19-0.19-0.15-0.15-0.15-0.34c-0.09,0.09-0.1,0.03-0.2-0.04
-			c0-0.28,0.13-0.39-0.07-0.58c-0.26-0.26-0.16,0.03-0.11-0.46c0.02-0.25-0.17-0.12-0.13-0.5c0.02-0.21-0.04-0.41-0.25-0.36
-			c-0.14,0.03-0.22,0.13-0.34,0.23c-0.12,0.1-0.23,0.19-0.33,0.28c-0.23,0.21-0.43,0.41-0.62,0.61c-3.23,3.47-3.93,8.81-2.91,13.42
-			c1.18,5.33,4.41,9.71,7.21,12.34c0.68,0.64,1.18,1.12,1.94,1.7c1.28,0.99,2.17,1.61,3.67,2.47c2.05,1.17,4.45,2.14,7.02,2.75
-			c2.85,0.68,5.85,0.89,8.9,0.66c1.91-0.15,4.3-0.62,6.11-1.22C57.27,62.41,58.03,62.18,58.5,61.94 M26.07,29.35
-			c0.21-0.06,0.27,0.14,0.25,0.36c-0.04,0.38,0.15,0.25,0.13,0.5c-0.05,0.48-0.15,0.2,0.11,0.46c0.2,0.2,0.07,0.31,0.07,0.58
-			c0.1,0.07,0.11,0.13,0.2,0.04c0,0.2-0.04,0.15,0.15,0.34c0.2,0.21,0.14,0.19,0.25,0.32l0.32,0.37c0.11,0.15,0.08,0.06,0.19,0.18
-			l1.31,1.6c0.12,0.15,0.08,0.07,0.19,0.18l0.46,0.61c0.07,0.09,0.12,0.09,0.26,0.27l1.41,1.66c0.05,0.05-0.54,7.91-0.41,8
-			c0.11-0.25,1.94-11.25,2.05-11.57c0.2-0.59,0.26-1.41,1.24-1.43c0.9-0.02,1.82,0.01,2.72,0.01c0.19-0.57,0.07-1.6,1-1.86
-			c0.31-0.09,4.99-0.04,5.73-0.04c2.94,0,2.73-0.24,4.02,1.75l3.45,5.2c0.13,0.28,0.44,0.68,0.62,0.96l3.12,4.73
-			c0.22,0.33,0.4,0.61,0.62,0.93c0.17,0.26,0.46,0.75,0.64,0.95c0.13-0.18,3.1-15.22,3.45-16.92c0.06-0.31,0.21-0.85,0.22-1.14
-			c-0.92-0.07-2.14-0.01-3.09-0.01c-3.21,0-21.53-0.06-21.7,0.05c-0.52-0.08-2.13,0.17-2.68,0.27c-0.82,0.14-1.66,0.34-2.4,0.59
-			c-0.77,0.26-1.4,0.53-2.08,0.87C27.49,28.36,26.21,29.11,26.07,29.35z"/>
-	</defs>
-	<clipPath id="SVGID_4_">
-		<use xlink:href="#SVGID_19_"  style="overflow:visible;"/>
-	</clipPath>
-	<polyline class="st21" points="20.86,26.33 21.52,26.33 21.52,64.06 20.86,64.06 	"/>
-	<polyline class="st21" points="21.44,26.33 21.67,26.33 21.67,64.06 21.44,64.06 	"/>
-	<polyline class="st21" points="21.59,26.33 21.82,26.33 21.82,64.06 21.59,64.06 	"/>
-	<polyline class="st22" points="21.74,26.33 21.97,26.33 21.97,64.06 21.74,64.06 	"/>
-	<polyline class="st23" points="21.89,26.33 22.12,26.33 22.12,64.06 21.89,64.06 	"/>
-	<polyline class="st24" points="22.04,26.33 22.27,26.33 22.27,64.06 22.04,64.06 	"/>
-	<polyline class="st25" points="22.19,26.33 22.42,26.33 22.42,64.06 22.19,64.06 	"/>
-	<polyline class="st24" points="22.34,26.33 22.57,26.33 22.57,64.06 22.34,64.06 	"/>
-	<polyline class="st24" points="22.49,26.33 22.72,26.33 22.72,64.06 22.49,64.06 	"/>
-	<polyline class="st26" points="22.64,26.33 22.87,26.33 22.87,64.06 22.64,64.06 	"/>
-	<polyline class="st26" points="22.79,26.33 23.02,26.33 23.02,64.06 22.79,64.06 	"/>
-	<polyline class="st26" points="22.94,26.33 23.17,26.33 23.17,64.06 22.94,64.06 	"/>
-	<polyline class="st26" points="23.09,26.33 23.32,26.33 23.32,64.06 23.09,64.06 	"/>
-	<polyline class="st27" points="23.24,26.33 23.47,26.33 23.47,64.06 23.24,64.06 	"/>
-	<polyline class="st27" points="23.39,26.33 23.62,26.33 23.62,64.06 23.39,64.06 	"/>
-	<polyline class="st28" points="23.54,26.33 23.77,26.33 23.77,64.06 23.54,64.06 	"/>
-	<polyline class="st28" points="23.69,26.33 23.92,26.33 23.92,64.06 23.69,64.06 	"/>
-	<polyline class="st29" points="23.84,26.33 24.07,26.33 24.07,64.06 23.84,64.06 	"/>
-	<polyline class="st29" points="23.99,26.33 24.22,26.33 24.22,64.06 23.99,64.06 	"/>
-	<polyline class="st29" points="24.14,26.33 24.36,26.33 24.36,64.06 24.14,64.06 	"/>
-	<polyline class="st29" points="24.29,26.33 24.51,26.33 24.51,64.06 24.29,64.06 	"/>
-	<polyline class="st30" points="24.44,26.33 24.66,26.33 24.66,64.06 24.44,64.06 	"/>
-	<polyline class="st30" points="24.59,26.33 24.81,26.33 24.81,64.06 24.59,64.06 	"/>
-	<polyline class="st31" points="24.74,26.33 24.96,26.33 24.96,64.06 24.74,64.06 	"/>
-	<polyline class="st31" points="24.89,26.33 25.11,26.33 25.11,64.06 24.89,64.06 	"/>
-	<polyline class="st32" points="25.04,26.33 25.26,26.33 25.26,64.06 25.04,64.06 	"/>
-	<polyline class="st32" points="25.19,26.33 25.41,26.33 25.41,64.06 25.19,64.06 	"/>
-	<polyline class="st33" points="25.34,26.33 25.56,26.33 25.56,64.06 25.34,64.06 	"/>
-	<polyline class="st34" points="25.49,26.33 25.71,26.33 25.71,64.06 25.49,64.06 	"/>
-	<polyline class="st35" points="25.64,26.33 25.86,26.33 25.86,64.06 25.64,64.06 	"/>
-	<polyline class="st35" points="25.79,26.33 26.01,26.33 26.01,64.06 25.79,64.06 	"/>
-	<polyline class="st36" points="25.94,26.33 26.16,26.33 26.16,64.06 25.94,64.06 	"/>
-	<polyline class="st36" points="26.09,26.33 26.31,26.33 26.31,64.06 26.09,64.06 	"/>
-	<polyline class="st37" points="26.24,26.33 26.46,26.33 26.46,64.06 26.24,64.06 	"/>
-	<polyline class="st37" points="26.39,26.33 26.61,26.33 26.61,64.06 26.39,64.06 	"/>
-	<polyline class="st38" points="26.54,26.33 26.76,26.33 26.76,64.06 26.54,64.06 	"/>
-	<polyline class="st38" points="26.69,26.33 26.91,26.33 26.91,64.06 26.69,64.06 	"/>
-	<polyline class="st39" points="26.84,26.33 27.06,26.33 27.06,64.06 26.84,64.06 	"/>
-	<polyline class="st39" points="26.99,26.33 27.21,26.33 27.21,64.06 26.99,64.06 	"/>
-	<polyline class="st40" points="27.14,26.33 27.36,26.33 27.36,64.06 27.14,64.06 	"/>
-	<polyline class="st40" points="27.29,26.33 27.51,26.33 27.51,64.06 27.29,64.06 	"/>
-	<polyline class="st40" points="27.44,26.33 27.66,26.33 27.66,64.06 27.44,64.06 	"/>
-	<polyline class="st40" points="27.59,26.33 27.81,26.33 27.81,64.06 27.59,64.06 	"/>
-	<polyline class="st40" points="27.74,26.33 27.96,26.33 27.96,64.06 27.74,64.06 	"/>
-	<polyline class="st40" points="27.89,26.33 28.11,26.33 28.11,64.06 27.89,64.06 	"/>
-	<polyline class="st40" points="28.04,26.33 28.26,26.33 28.26,64.06 28.04,64.06 	"/>
-	<polyline class="st41" points="28.19,26.33 28.41,26.33 28.41,64.06 28.19,64.06 	"/>
-	<polyline class="st41" points="28.34,26.33 28.56,26.33 28.56,64.06 28.34,64.06 	"/>
-	<polyline class="st41" points="28.49,26.33 28.71,26.33 28.71,64.06 28.49,64.06 	"/>
-	<polyline class="st41" points="28.64,26.33 28.86,26.33 28.86,64.06 28.64,64.06 	"/>
-	<polyline class="st41" points="28.79,26.33 29.01,26.33 29.01,64.06 28.79,64.06 	"/>
-	<polyline class="st41" points="28.94,26.33 29.16,26.33 29.16,64.06 28.94,64.06 	"/>
-	<polyline class="st41" points="29.09,26.33 29.31,26.33 29.31,64.06 29.09,64.06 	"/>
-	<polyline class="st42" points="29.24,26.33 29.46,26.33 29.46,64.06 29.24,64.06 	"/>
-	<polyline class="st42" points="29.39,26.33 29.61,26.33 29.61,64.06 29.39,64.06 	"/>
-	<polyline class="st42" points="29.54,26.33 29.76,26.33 29.76,64.06 29.54,64.06 	"/>
-	<polyline class="st42" points="29.69,26.33 29.91,26.33 29.91,64.06 29.69,64.06 	"/>
-	<polyline class="st42" points="29.84,26.33 30.06,26.33 30.06,64.06 29.84,64.06 	"/>
-	<polyline class="st42" points="29.99,26.33 30.21,26.33 30.21,64.06 29.99,64.06 	"/>
-	<polyline class="st42" points="30.14,26.33 30.36,26.33 30.36,64.06 30.14,64.06 	"/>
-	<polyline class="st43" points="30.29,26.33 30.51,26.33 30.51,64.06 30.29,64.06 	"/>
-	<polyline class="st43" points="30.44,26.33 30.66,26.33 30.66,64.06 30.44,64.06 	"/>
-	<polyline class="st43" points="30.59,26.33 30.81,26.33 30.81,64.06 30.59,64.06 	"/>
-	<polyline class="st43" points="30.74,26.33 30.96,26.33 30.96,64.06 30.74,64.06 	"/>
-	<polyline class="st43" points="30.89,26.33 31.11,26.33 31.11,64.06 30.89,64.06 	"/>
-	<polyline class="st43" points="31.04,26.33 31.26,26.33 31.26,64.06 31.04,64.06 	"/>
-	<polyline class="st43" points="31.19,26.33 31.41,26.33 31.41,64.06 31.19,64.06 	"/>
-	<polyline class="st44" points="31.34,26.33 31.56,26.33 31.56,64.06 31.34,64.06 	"/>
-	<polyline class="st44" points="31.49,26.33 31.71,26.33 31.71,64.06 31.49,64.06 	"/>
-	<polyline class="st44" points="31.64,26.33 31.86,26.33 31.86,64.06 31.64,64.06 	"/>
-	<polyline class="st44" points="31.79,26.33 32.01,26.33 32.01,64.06 31.79,64.06 	"/>
-	<polyline class="st44" points="31.94,26.33 32.16,26.33 32.16,64.06 31.94,64.06 	"/>
-	<polyline class="st44" points="32.09,26.33 32.31,26.33 32.31,64.06 32.09,64.06 	"/>
-	<polyline class="st44" points="32.24,26.33 32.46,26.33 32.46,64.06 32.24,64.06 	"/>
-	<polyline class="st45" points="32.39,26.33 32.61,26.33 32.61,64.06 32.39,64.06 	"/>
-	<polyline class="st45" points="32.54,26.33 32.76,26.33 32.76,64.06 32.54,64.06 	"/>
-	<polyline class="st45" points="32.69,26.33 32.91,26.33 32.91,64.06 32.69,64.06 	"/>
-	<polyline class="st45" points="32.84,26.33 33.06,26.33 33.06,64.06 32.84,64.06 	"/>
-	<polyline class="st45" points="32.99,26.33 33.21,26.33 33.21,64.06 32.99,64.06 	"/>
-	<polyline class="st45" points="33.14,26.33 33.36,26.33 33.36,64.06 33.14,64.06 	"/>
-	<polyline class="st45" points="33.29,26.33 33.51,26.33 33.51,64.06 33.29,64.06 	"/>
-	<polyline class="st46" points="33.44,26.33 33.66,26.33 33.66,64.06 33.44,64.06 	"/>
-	<polyline class="st46" points="33.59,26.33 33.81,26.33 33.81,64.06 33.59,64.06 	"/>
-	<polyline class="st46" points="33.74,26.33 33.96,26.33 33.96,64.06 33.74,64.06 	"/>
-	<polyline class="st46" points="33.89,26.33 34.11,26.33 34.11,64.06 33.89,64.06 	"/>
-	<polyline class="st46" points="34.04,26.33 34.26,26.33 34.26,64.06 34.04,64.06 	"/>
-	<polyline class="st46" points="34.19,26.33 34.41,26.33 34.41,64.06 34.19,64.06 	"/>
-	<polyline class="st46" points="34.34,26.33 34.56,26.33 34.56,64.06 34.34,64.06 	"/>
-	<polyline class="st47" points="34.49,26.33 34.71,26.33 34.71,64.06 34.49,64.06 	"/>
-	<polyline class="st47" points="34.64,26.33 34.86,26.33 34.86,64.06 34.64,64.06 	"/>
-	<polyline class="st47" points="34.79,26.33 35.01,26.33 35.01,64.06 34.79,64.06 	"/>
-	<polyline class="st47" points="34.94,26.33 35.16,26.33 35.16,64.06 34.94,64.06 	"/>
-	<polyline class="st47" points="35.09,26.33 35.31,26.33 35.31,64.06 35.09,64.06 	"/>
-	<polyline class="st47" points="35.24,26.33 35.46,26.33 35.46,64.06 35.24,64.06 	"/>
-	<polyline class="st47" points="35.39,26.33 35.61,26.33 35.61,64.06 35.39,64.06 	"/>
-	<polyline class="st47" points="35.54,26.33 35.76,26.33 35.76,64.06 35.54,64.06 	"/>
-	<polyline class="st48" points="35.69,26.33 35.91,26.33 35.91,64.06 35.69,64.06 	"/>
-	<polyline class="st48" points="35.84,26.33 36.06,26.33 36.06,64.06 35.84,64.06 	"/>
-	<polyline class="st48" points="35.99,26.33 36.21,26.33 36.21,64.06 35.99,64.06 	"/>
-	<polyline class="st48" points="36.14,26.33 36.36,26.33 36.36,64.06 36.14,64.06 	"/>
-	<polyline class="st48" points="36.29,26.33 36.51,26.33 36.51,64.06 36.29,64.06 	"/>
-	<polyline class="st48" points="36.44,26.33 36.66,26.33 36.66,64.06 36.44,64.06 	"/>
-	<polyline class="st48" points="36.59,26.33 36.81,26.33 36.81,64.06 36.59,64.06 	"/>
-	<polyline class="st49" points="36.74,26.33 36.96,26.33 36.96,64.06 36.74,64.06 	"/>
-	<polyline class="st49" points="36.89,26.33 37.11,26.33 37.11,64.06 36.89,64.06 	"/>
-	<polyline class="st49" points="37.04,26.33 37.26,26.33 37.26,64.06 37.04,64.06 	"/>
-	<polyline class="st49" points="37.19,26.33 37.41,26.33 37.41,64.06 37.19,64.06 	"/>
-	<polyline class="st49" points="37.34,26.33 37.56,26.33 37.56,64.06 37.34,64.06 	"/>
-	<polyline class="st49" points="37.49,26.33 37.71,26.33 37.71,64.06 37.49,64.06 	"/>
-	<polyline class="st49" points="37.64,26.33 37.86,26.33 37.86,64.06 37.64,64.06 	"/>
-	<polyline class="st49" points="37.79,26.33 38.01,26.33 38.01,64.06 37.79,64.06 	"/>
-	<polyline class="st49" points="37.93,26.33 38.16,26.33 38.16,64.06 37.93,64.06 	"/>
-	<polyline class="st49" points="38.08,26.33 38.31,26.33 38.31,64.06 38.08,64.06 	"/>
-	<polyline class="st49" points="38.23,26.33 38.46,26.33 38.46,64.06 38.23,64.06 	"/>
-	<polyline class="st49" points="38.38,26.33 38.61,26.33 38.61,64.06 38.38,64.06 	"/>
-	<polyline class="st49" points="38.53,26.33 38.76,26.33 38.76,64.06 38.53,64.06 	"/>
-	<polyline class="st49" points="38.68,26.33 38.91,26.33 38.91,64.06 38.68,64.06 	"/>
-	<polyline class="st50" points="38.83,26.33 39.06,26.33 39.06,64.06 38.83,64.06 	"/>
-	<polyline class="st51" points="38.98,26.33 39.21,26.33 39.21,64.06 38.98,64.06 	"/>
-	<polyline class="st51" points="39.13,26.33 39.36,26.33 39.36,64.06 39.13,64.06 	"/>
-	<polyline class="st51" points="39.28,26.33 39.51,26.33 39.51,64.06 39.28,64.06 	"/>
-	<polyline class="st51" points="39.43,26.33 39.66,26.33 39.66,64.06 39.43,64.06 	"/>
-	<polyline class="st51" points="39.58,26.33 39.81,26.33 39.81,64.06 39.58,64.06 	"/>
-	<polyline class="st51" points="39.73,26.33 39.96,26.33 39.96,64.06 39.73,64.06 	"/>
-	<polyline class="st52" points="39.88,26.33 40.11,26.33 40.11,64.06 39.88,64.06 	"/>
-	<polyline class="st52" points="40.03,26.33 40.26,26.33 40.26,64.06 40.03,64.06 	"/>
-	<polyline class="st52" points="40.18,26.33 40.41,26.33 40.41,64.06 40.18,64.06 	"/>
-	<polyline class="st52" points="40.33,26.33 40.56,26.33 40.56,64.06 40.33,64.06 	"/>
-	<polyline class="st52" points="40.48,26.33 40.71,26.33 40.71,64.06 40.48,64.06 	"/>
-	<polyline class="st52" points="40.63,26.33 40.86,26.33 40.86,64.06 40.63,64.06 	"/>
-	<polyline class="st52" points="40.78,26.33 41.01,26.33 41.01,64.06 40.78,64.06 	"/>
-	<polyline class="st52" points="40.93,26.33 41.16,26.33 41.16,64.06 40.93,64.06 	"/>
-	<polyline class="st52" points="41.08,26.33 41.31,26.33 41.31,64.06 41.08,64.06 	"/>
-	<polyline class="st52" points="41.23,26.33 41.46,26.33 41.46,64.06 41.23,64.06 	"/>
-	<polyline class="st52" points="41.38,26.33 41.61,26.33 41.61,64.06 41.38,64.06 	"/>
-	<polyline class="st52" points="41.53,26.33 41.76,26.33 41.76,64.06 41.53,64.06 	"/>
-	<polyline class="st52" points="41.68,26.33 41.91,26.33 41.91,64.06 41.68,64.06 	"/>
-	<polyline class="st52" points="41.83,26.33 42.06,26.33 42.06,64.06 41.83,64.06 	"/>
-	<polyline class="st53" points="41.98,26.33 42.21,26.33 42.21,64.06 41.98,64.06 	"/>
-	<polyline class="st53" points="42.13,26.33 42.36,26.33 42.36,64.06 42.13,64.06 	"/>
-	<polyline class="st53" points="42.28,26.33 42.51,26.33 42.51,64.06 42.28,64.06 	"/>
-	<polyline class="st53" points="42.43,26.33 42.66,26.33 42.66,64.06 42.43,64.06 	"/>
-	<polyline class="st53" points="42.58,26.33 42.81,26.33 42.81,64.06 42.58,64.06 	"/>
-	<polyline class="st53" points="42.73,26.33 42.96,26.33 42.96,64.06 42.73,64.06 	"/>
-	<polyline class="st53" points="42.88,26.33 43.11,26.33 43.11,64.06 42.88,64.06 	"/>
-	<polyline class="st54" points="43.03,26.33 43.26,26.33 43.26,64.06 43.03,64.06 	"/>
-	<polyline class="st54" points="43.18,26.33 43.41,26.33 43.41,64.06 43.18,64.06 	"/>
-	<polyline class="st54" points="43.33,26.33 43.56,26.33 43.56,64.06 43.33,64.06 	"/>
-	<polyline class="st54" points="43.48,26.33 43.71,26.33 43.71,64.06 43.48,64.06 	"/>
-	<polyline class="st54" points="43.63,26.33 43.86,26.33 43.86,64.06 43.63,64.06 	"/>
-	<polyline class="st54" points="43.78,26.33 44.01,26.33 44.01,64.06 43.78,64.06 	"/>
-	<polyline class="st54" points="43.93,26.33 44.16,26.33 44.16,64.06 43.93,64.06 	"/>
-	<polyline class="st55" points="44.08,26.33 44.31,26.33 44.31,64.06 44.08,64.06 	"/>
-	<polyline class="st55" points="44.23,26.33 44.46,26.33 44.46,64.06 44.23,64.06 	"/>
-	<polyline class="st55" points="44.38,26.33 44.61,26.33 44.61,64.06 44.38,64.06 	"/>
-	<polyline class="st55" points="44.53,26.33 44.76,26.33 44.76,64.06 44.53,64.06 	"/>
-	<polyline class="st55" points="44.68,26.33 44.91,26.33 44.91,64.06 44.68,64.06 	"/>
-	<polyline class="st56" points="44.83,26.33 45.06,26.33 45.06,64.06 44.83,64.06 	"/>
-	<polyline class="st56" points="44.98,26.33 45.21,26.33 45.21,64.06 44.98,64.06 	"/>
-	<polyline class="st57" points="45.13,26.33 45.36,26.33 45.36,64.06 45.13,64.06 	"/>
-	<polyline class="st57" points="45.28,26.33 45.51,26.33 45.51,64.06 45.28,64.06 	"/>
-	<polyline class="st57" points="45.43,26.33 45.66,26.33 45.66,64.06 45.43,64.06 	"/>
-	<polyline class="st57" points="45.58,26.33 45.81,26.33 45.81,64.06 45.58,64.06 	"/>
-	<polyline class="st57" points="45.73,26.33 45.96,26.33 45.96,64.06 45.73,64.06 	"/>
-	<polyline class="st57" points="45.88,26.33 46.11,26.33 46.11,64.06 45.88,64.06 	"/>
-	<polyline class="st57" points="46.03,26.33 46.26,26.33 46.26,64.06 46.03,64.06 	"/>
-	<polyline class="st58" points="46.18,26.33 46.41,26.33 46.41,64.06 46.18,64.06 	"/>
-	<polyline class="st58" points="46.33,26.33 46.56,26.33 46.56,64.06 46.33,64.06 	"/>
-	<polyline class="st58" points="46.48,26.33 46.71,26.33 46.71,64.06 46.48,64.06 	"/>
-	<polyline class="st58" points="46.63,26.33 46.86,26.33 46.86,64.06 46.63,64.06 	"/>
-	<polyline class="st58" points="46.78,26.33 47.01,26.33 47.01,64.06 46.78,64.06 	"/>
-	<polyline class="st58" points="46.93,26.33 47.16,26.33 47.16,64.06 46.93,64.06 	"/>
-	<polyline class="st58" points="47.08,26.33 47.31,26.33 47.31,64.06 47.08,64.06 	"/>
-	<polyline class="st59" points="47.23,26.33 47.46,26.33 47.46,64.06 47.23,64.06 	"/>
-	<polyline class="st59" points="47.38,26.33 47.61,26.33 47.61,64.06 47.38,64.06 	"/>
-	<polyline class="st59" points="47.53,26.33 47.76,26.33 47.76,64.06 47.53,64.06 	"/>
-	<polyline class="st59" points="47.68,26.33 47.91,26.33 47.91,64.06 47.68,64.06 	"/>
-	<polyline class="st60" points="47.83,26.33 48.06,26.33 48.06,64.06 47.83,64.06 	"/>
-	<polyline class="st60" points="47.98,26.33 48.21,26.33 48.21,64.06 47.98,64.06 	"/>
-	<polyline class="st61" points="48.13,26.33 48.36,26.33 48.36,64.06 48.13,64.06 	"/>
-	<polyline class="st61" points="48.28,26.33 48.51,26.33 48.51,64.06 48.28,64.06 	"/>
-	<polyline class="st62" points="48.43,26.33 48.66,26.33 48.66,64.06 48.43,64.06 	"/>
-	<polyline class="st62" points="48.58,26.33 48.81,26.33 48.81,64.06 48.58,64.06 	"/>
-	<polyline class="st63" points="48.73,26.33 48.96,26.33 48.96,64.06 48.73,64.06 	"/>
-	<polyline class="st63" points="48.88,26.33 49.11,26.33 49.11,64.06 48.88,64.06 	"/>
-	<polyline class="st64" points="49.03,26.33 49.26,26.33 49.26,64.06 49.03,64.06 	"/>
-	<polyline class="st64" points="49.18,26.33 49.41,26.33 49.41,64.06 49.18,64.06 	"/>
-	<polyline class="st65" points="49.33,26.33 49.56,26.33 49.56,64.06 49.33,64.06 	"/>
-	<polyline class="st66" points="49.48,26.33 49.71,26.33 49.71,64.06 49.48,64.06 	"/>
-	<polyline class="st66" points="49.63,26.33 49.86,26.33 49.86,64.06 49.63,64.06 	"/>
-	<polyline class="st67" points="49.78,26.33 50.01,26.33 50.01,64.06 49.78,64.06 	"/>
-	<polyline class="st68" points="49.93,26.33 50.16,26.33 50.16,64.06 49.93,64.06 	"/>
-	<polyline class="st69" points="50.08,26.33 50.31,26.33 50.31,64.06 50.08,64.06 	"/>
-	<polyline class="st69" points="50.23,26.33 50.46,26.33 50.46,64.06 50.23,64.06 	"/>
-	<polyline class="st70" points="50.38,26.33 50.61,26.33 50.61,64.06 50.38,64.06 	"/>
-	<polyline class="st70" points="50.53,26.33 50.76,26.33 50.76,64.06 50.53,64.06 	"/>
-	<polyline class="st71" points="50.68,26.33 50.91,26.33 50.91,64.06 50.68,64.06 	"/>
-	<polyline class="st71" points="50.83,26.33 51.06,26.33 51.06,64.06 50.83,64.06 	"/>
-	<polyline class="st72" points="50.98,26.33 51.21,26.33 51.21,64.06 50.98,64.06 	"/>
-	<polyline class="st73" points="51.13,26.33 51.35,26.33 51.35,64.06 51.13,64.06 	"/>
-	<polyline class="st73" points="51.28,26.33 51.5,26.33 51.5,64.06 51.28,64.06 	"/>
-	<polyline class="st74" points="51.43,26.33 51.65,26.33 51.65,64.06 51.43,64.06 	"/>
-	<polyline class="st74" points="51.58,26.33 51.8,26.33 51.8,64.06 51.58,64.06 	"/>
-	<polyline class="st75" points="51.73,26.33 51.95,26.33 51.95,64.06 51.73,64.06 	"/>
-	<polyline class="st75" points="51.88,26.33 52.1,26.33 52.1,64.06 51.88,64.06 	"/>
-	<polyline class="st76" points="52.03,26.33 52.25,26.33 52.25,64.06 52.03,64.06 	"/>
-	<polyline class="st76" points="52.18,26.33 52.4,26.33 52.4,64.06 52.18,64.06 	"/>
-	<polyline class="st77" points="52.33,26.33 52.55,26.33 52.55,64.06 52.33,64.06 	"/>
-	<polyline class="st77" points="52.48,26.33 52.7,26.33 52.7,64.06 52.48,64.06 	"/>
-	<polyline class="st78" points="52.63,26.33 52.85,26.33 52.85,64.06 52.63,64.06 	"/>
-	<polyline class="st78" points="52.78,26.33 53,26.33 53,64.06 52.78,64.06 	"/>
-	<polyline class="st79" points="52.93,26.33 53.15,26.33 53.15,64.06 52.93,64.06 	"/>
-	<polyline class="st80" points="53.08,26.33 53.3,26.33 53.3,64.06 53.08,64.06 	"/>
-	<polyline class="st80" points="53.23,26.33 53.45,26.33 53.45,64.06 53.23,64.06 	"/>
-	<polyline class="st81" points="53.38,26.33 53.6,26.33 53.6,64.06 53.38,64.06 	"/>
-	<polyline class="st81" points="53.53,26.33 53.75,26.33 53.75,64.06 53.53,64.06 	"/>
-	<polyline class="st81" points="53.68,26.33 53.9,26.33 53.9,64.06 53.68,64.06 	"/>
-	<polyline class="st81" points="53.83,26.33 54.05,26.33 54.05,64.06 53.83,64.06 	"/>
-	<polyline class="st82" points="53.98,26.33 54.2,26.33 54.2,64.06 53.98,64.06 	"/>
-	<polyline class="st82" points="54.13,26.33 54.35,26.33 54.35,64.06 54.13,64.06 	"/>
-	<polyline class="st83" points="54.28,26.33 54.5,26.33 54.5,64.06 54.28,64.06 	"/>
-	<polyline class="st84" points="54.43,26.33 54.65,26.33 54.65,64.06 54.43,64.06 	"/>
-	<polyline class="st84" points="54.58,26.33 54.8,26.33 54.8,64.06 54.58,64.06 	"/>
-	<polyline class="st85" points="54.73,26.33 54.95,26.33 54.95,64.06 54.73,64.06 	"/>
-	<polyline class="st85" points="54.88,26.33 55.1,26.33 55.1,64.06 54.88,64.06 	"/>
-	<polyline class="st86" points="55.03,26.33 55.25,26.33 55.25,64.06 55.03,64.06 	"/>
-	<polyline class="st86" points="55.18,26.33 55.4,26.33 55.4,64.06 55.18,64.06 	"/>
-	<polyline class="st87" points="55.33,26.33 55.55,26.33 55.55,64.06 55.33,64.06 	"/>
-	<polyline class="st87" points="55.48,26.33 55.7,26.33 55.7,64.06 55.48,64.06 	"/>
-	<polyline class="st88" points="55.63,26.33 55.85,26.33 55.85,64.06 55.63,64.06 	"/>
-	<polyline class="st88" points="55.78,26.33 56,26.33 56,64.06 55.78,64.06 	"/>
-	<polyline class="st89" points="55.93,26.33 56.15,26.33 56.15,64.06 55.93,64.06 	"/>
-	<polyline class="st89" points="56.08,26.33 56.3,26.33 56.3,64.06 56.08,64.06 	"/>
-	<polyline class="st90" points="56.23,26.33 56.45,26.33 56.45,64.06 56.23,64.06 	"/>
-	<polyline class="st91" points="56.38,26.33 56.6,26.33 56.6,64.06 56.38,64.06 	"/>
-	<polyline class="st91" points="56.53,26.33 56.75,26.33 56.75,64.06 56.53,64.06 	"/>
-	<polyline class="st92" points="56.68,26.33 56.9,26.33 56.9,64.06 56.68,64.06 	"/>
-	<polyline class="st92" points="56.83,26.33 57.05,26.33 57.05,64.06 56.83,64.06 	"/>
-	<polyline class="st92" points="56.98,26.33 57.2,26.33 57.2,64.06 56.98,64.06 	"/>
-	<polyline class="st92" points="57.13,26.33 57.35,26.33 57.35,64.06 57.13,64.06 	"/>
-	<polyline class="st93" points="57.28,26.33 57.5,26.33 57.5,64.06 57.28,64.06 	"/>
-	<polyline class="st94" points="57.43,26.33 57.65,26.33 57.65,64.06 57.43,64.06 	"/>
-	<polyline class="st93" points="57.58,26.33 57.8,26.33 57.8,64.06 57.58,64.06 	"/>
-	<polyline class="st93" points="57.73,26.33 57.95,26.33 57.95,64.06 57.73,64.06 	"/>
-	<polyline class="st95" points="57.88,26.33 58.1,26.33 58.1,64.06 57.88,64.06 	"/>
-	<polyline class="st96" points="58.03,26.33 58.25,26.33 58.25,64.06 58.03,64.06 	"/>
-	<polyline class="st96" points="58.18,26.33 58.4,26.33 58.4,64.06 58.18,64.06 	"/>
-	<polyline class="st96" points="58.33,26.33 58.55,26.33 58.55,64.06 58.33,64.06 	"/>
-	<polyline class="st96" points="58.48,26.33 58.7,26.33 58.7,64.06 58.48,64.06 	"/>
-	<polyline class="st97" points="58.63,26.33 58.85,26.33 58.85,64.06 58.63,64.06 	"/>
-	<polyline class="st97" points="58.78,26.33 59,26.33 59,64.06 58.78,64.06 	"/>
-	<polyline class="st98" points="58.93,26.33 59.15,26.33 59.15,64.06 58.93,64.06 	"/>
-	<polyline class="st98" points="59.08,26.33 59.3,26.33 59.3,64.06 59.08,64.06 	"/>
-	<polyline class="st99" points="59.23,26.33 59.45,26.33 59.45,64.06 59.23,64.06 	"/>
-	<polyline class="st99" points="59.38,26.33 59.6,26.33 59.6,64.06 59.38,64.06 	"/>
-	<polyline class="st100" points="59.53,26.33 59.83,26.33 59.83,64.06 59.53,64.06 	"/>
-</g>
-<defs>
-	<filter id="Adobe_OpacityMaskFilter" filterUnits="userSpaceOnUse" x="42.6" y="36.7" width="7.88" height="11.1">
-		<feColorMatrix  type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0"/>
-	</filter>
-</defs>
-<mask maskUnits="userSpaceOnUse" x="42.6" y="36.7" width="7.88" height="11.1" id="SVGID_5_">
-	<g class="st101">
-		
-			<linearGradient id="SVGID_6_" gradientUnits="userSpaceOnUse" x1="-232.8816" y1="335.7917" x2="-236.946" y2="342.5443" gradientTransform="matrix(1 0 0 1 280.3921 -295.1688)">
-			<stop  offset="0" style="stop-color:#FFFFFF"/>
-			<stop  offset="1" style="stop-color:#000000"/>
-		</linearGradient>
-		<rect x="42.6" y="36.7" class="st102" width="7.88" height="11.1"/>
+	<path class="st25" d="M28.02,19.58l-2.58-0.01c0.43,0.07,15.81,0.01,16.2,0.01c5.41,0,10.83,0,16.24,0c1.73,0,1.77,0.18,2.6,1.46
+		l3.95,6.17c0.75,1.2,0.38,1.86,0.08,3.33l-1.04,5.07c-0.23,1.12-0.45,2.24-0.69,3.36c-0.11,0.54-0.66,3.07-0.69,3.4
+		c0.94-0.55,1.3-0.63,2.45-1.4c0.79-0.52,1.48-1.04,2.16-1.68c4.34-4.04,5.62-10.14,4.26-15.94l-0.38-1.34
+		c-0.01-0.04-0.01-0.05-0.01-0.09c0-0.12-0.02-0.01,0.02-0.08c-0.15-0.38-1.39-2.18-1.61-2.48c-0.54-0.71-1.68-2.18-2.34-2.8
+		l-1.03-1.04c-4.04-3.68-8.42-6.12-14.51-7.16c-0.06,0.02-1.31-0.01-1.53-0.01c-0.89,0-2.18,0.09-3.03,0.22
+		c-2.06,0.33-4.17,1-5.9,2.15c-2.2,1.46-3.61,3.18-3.73,5.93c-0.05,1.13,0.23,2,0.33,2.9L28.02,19.58z"/>
+	<g>
+		<defs>
+			<path id="SVGID_7_" d="M62.09,42.39c-0.11,0.59-1.45,7.39-1.63,7.68c-0.47,0.76-1.53,0.54-2.58,0.54c-0.84,0-5.74,0.06-6.14-0.06
+				c-0.8-0.24-1.13-0.92-1.55-1.57l-8.43-12.75l-2.61,12.65c-0.11,0.53-0.16,1.16-0.47,1.44c-0.44,0.4-0.93,0.3-1.63,0.31
+				c0,2.11,0.91,3.92,1.86,5.14c0.27,0.6,1.62,1.76,2.16,2.19c1.17,0.93,3.28,2.06,4.74,2.42c0.43,0.11,0.73,0.23,1.13,0.32
+				c0.43,0.09,0.79,0.14,1.19,0.23c0.42,0.1,0.87,0.1,1.27,0.18c0.29,0.06,2.28,0.1,2.71,0.1l1.05,0.01c0.25-0.03,0-0.05,0.22-0.05
+				c0.51,0,0.85-0.06,1.31-0.1c0.2-0.02,0.42-0.05,0.64-0.09c0,0,1.42,0.14,1.52,0.23c0.52-0.16,1.09-0.45,1.57-0.67
+				c1.96-0.9,3.79-2.11,5.49-3.42l2.34-2.11c0.7-0.71,1.49-1.57,2.09-2.36c1.72-2.27,3-4.34,4.05-7.08c0.18-0.48,1.1-3.02,1.05-3.42
+				c0.01-0.01,0.02-0.04,0.02-0.03c0,0.01,0.01-0.02,0.02-0.03c0.11-0.24-0.03,0.09,0.03-0.06c0.02-0.05,0.03-0.11,0.04-0.17
+				c1.15-5.2,0.93-10.84-0.99-15.81c-0.4-1.04-0.89-2.21-1.42-3.2c-0.18-0.33-0.36-0.73-0.56-1.01c-0.05,0.07-0.02-0.04-0.02,0.08
+				c0,0.04,0,0.05,0.01,0.09l0.38,1.34c1.36,5.81,0.07,11.91-4.26,15.94c-0.69,0.64-1.37,1.16-2.16,1.68
+				C63.38,41.76,63.03,41.84,62.09,42.39"/>
+		</defs>
+		<clipPath id="SVGID_3_">
+			<use xlink:href="#SVGID_7_"  style="overflow:visible;"/>
+		</clipPath>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F29120;" points="37.06,21.82 37.13,21.82 
+			37.13,61.25 37.06,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F29120;" points="37.06,21.82 37.27,21.82 
+			37.27,61.25 37.06,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F29120;" points="37.2,21.82 37.42,21.82 
+			37.42,61.25 37.2,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F29120;" points="37.35,21.82 37.57,21.82 
+			37.57,61.25 37.35,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F29120;" points="37.49,21.82 37.71,21.82 
+			37.71,61.25 37.49,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F29120;" points="37.64,21.82 37.86,21.82 
+			37.86,61.25 37.64,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F29020;" points="37.78,21.82 38,21.82 
+			38,61.25 37.78,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F29020;" points="37.93,21.82 38.15,21.82 
+			38.15,61.25 37.93,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F29020;" points="38.07,21.82 38.29,21.82 
+			38.29,61.25 38.07,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F29020;" points="38.22,21.82 38.44,21.82 
+			38.44,61.25 38.22,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F29020;" points="38.36,21.82 38.58,21.82 
+			38.58,61.25 38.36,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F29020;" points="38.51,21.82 38.73,21.82 
+			38.73,61.25 38.51,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F29020;" points="38.66,21.82 38.87,21.82 
+			38.87,61.25 38.66,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F29020;" points="38.8,21.82 39.02,21.82 
+			39.02,61.25 38.8,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F29020;" points="38.95,21.82 39.16,21.82 
+			39.16,61.25 38.95,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F29020;" points="39.09,21.82 39.31,21.82 
+			39.31,61.25 39.09,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F29020;" points="39.24,21.82 39.46,21.82 
+			39.46,61.25 39.24,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F18F20;" points="39.38,21.82 39.6,21.82 
+			39.6,61.25 39.38,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F18F20;" points="39.53,21.82 39.75,21.82 
+			39.75,61.25 39.53,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F18F20;" points="39.67,21.82 39.89,21.82 
+			39.89,61.25 39.67,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F18F20;" points="39.82,21.82 40.04,21.82 
+			40.04,61.25 39.82,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F18F20;" points="39.96,21.82 40.18,21.82 
+			40.18,61.25 39.96,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08F21;" points="40.11,21.82 40.33,21.82 
+			40.33,61.25 40.11,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08F21;" points="40.25,21.82 40.47,21.82 
+			40.47,61.25 40.25,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08F21;" points="40.4,21.82 40.62,21.82 
+			40.62,61.25 40.4,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08F21;" points="40.55,21.82 40.76,21.82 
+			40.76,61.25 40.55,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08F21;" points="40.69,21.82 40.91,21.82 
+			40.91,61.25 40.69,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08F21;" points="40.84,21.82 41.05,21.82 
+			41.05,61.25 40.84,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08F21;" points="40.98,21.82 41.2,21.82 
+			41.2,61.25 40.98,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08E21;" points="41.13,21.82 41.34,21.82 
+			41.34,61.25 41.13,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08E21;" points="41.27,21.82 41.49,21.82 
+			41.49,61.25 41.27,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08E21;" points="41.42,21.82 41.64,21.82 
+			41.64,61.25 41.42,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08E21;" points="41.56,21.82 41.78,21.82 
+			41.78,61.25 41.56,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08E21;" points="41.71,21.82 41.93,21.82 
+			41.93,61.25 41.71,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08E21;" points="41.85,21.82 42.07,21.82 
+			42.07,61.25 41.85,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08E21;" points="42,21.82 42.22,21.82 
+			42.22,61.25 42,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08E21;" points="42.14,21.82 42.36,21.82 
+			42.36,61.25 42.14,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08E21;" points="42.29,21.82 42.51,21.82 
+			42.51,61.25 42.29,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08E21;" points="42.44,21.82 42.65,21.82 
+			42.65,61.25 42.44,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08E21;" points="42.58,21.82 42.8,21.82 
+			42.8,61.25 42.58,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08D21;" points="42.73,21.82 42.94,21.82 
+			42.94,61.25 42.73,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08D21;" points="42.87,21.82 43.09,21.82 
+			43.09,61.25 42.87,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08D21;" points="43.02,21.82 43.23,21.82 
+			43.23,61.25 43.02,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08D21;" points="43.16,21.82 43.38,21.82 
+			43.38,61.25 43.16,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08D21;" points="43.31,21.82 43.53,21.82 
+			43.53,61.25 43.31,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08D21;" points="43.45,21.82 43.67,21.82 
+			43.67,61.25 43.45,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08D21;" points="43.6,21.82 43.82,21.82 
+			43.82,61.25 43.6,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08D21;" points="43.74,21.82 43.96,21.82 
+			43.96,61.25 43.74,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08D21;" points="43.89,21.82 44.11,21.82 
+			44.11,61.25 43.89,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08D21;" points="44.03,21.82 44.25,21.82 
+			44.25,61.25 44.03,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08D21;" points="44.18,21.82 44.4,21.82 
+			44.4,61.25 44.18,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08C21;" points="44.32,21.82 44.54,21.82 
+			44.54,61.25 44.32,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08C21;" points="44.47,21.82 44.69,21.82 
+			44.69,61.25 44.47,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08C21;" points="44.62,21.82 44.83,21.82 
+			44.83,61.25 44.62,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08C21;" points="44.76,21.82 44.98,21.82 
+			44.98,61.25 44.76,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08C21;" points="44.91,21.82 45.12,21.82 
+			45.12,61.25 44.91,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08C21;" points="45.05,21.82 45.27,21.82 
+			45.27,61.25 45.05,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08C21;" points="45.2,21.82 45.42,21.82 
+			45.42,61.25 45.2,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08C21;" points="45.34,21.82 45.56,21.82 
+			45.56,61.25 45.34,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08C21;" points="45.49,21.82 45.71,21.82 
+			45.71,61.25 45.49,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08C21;" points="45.63,21.82 45.85,21.82 
+			45.85,61.25 45.63,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08C21;" points="45.78,21.82 46,21.82 
+			46,61.25 45.78,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08A21;" points="45.92,21.82 46.14,21.82 
+			46.14,61.25 45.92,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08A21;" points="46.07,21.82 46.29,21.82 
+			46.29,61.25 46.07,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8B22;" points="46.21,21.82 46.43,21.82 
+			46.43,61.25 46.21,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8B22;" points="46.36,21.82 46.58,21.82 
+			46.58,61.25 46.36,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8B22;" points="46.51,21.82 46.72,21.82 
+			46.72,61.25 46.51,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8B22;" points="46.65,21.82 46.87,21.82 
+			46.87,61.25 46.65,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8B22;" points="46.8,21.82 47.01,21.82 
+			47.01,61.25 46.8,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8B22;" points="46.94,21.82 47.16,21.82 
+			47.16,61.25 46.94,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8B22;" points="47.09,21.82 47.3,21.82 
+			47.3,61.25 47.09,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8B22;" points="47.23,21.82 47.45,21.82 
+			47.45,61.25 47.23,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8B22;" points="47.38,21.82 47.6,21.82 
+			47.6,61.25 47.38,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8922;" points="47.52,21.82 47.74,21.82 
+			47.74,61.25 47.52,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8922;" points="47.67,21.82 47.89,21.82 
+			47.89,61.25 47.67,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8922;" points="47.81,21.82 48.03,21.82 
+			48.03,61.25 47.81,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8922;" points="47.96,21.82 48.18,21.82 
+			48.18,61.25 47.96,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8922;" points="48.1,21.82 48.32,21.82 
+			48.32,61.25 48.1,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8922;" points="48.25,21.82 48.47,21.82 
+			48.47,61.25 48.25,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8922;" points="48.4,21.82 48.61,21.82 
+			48.61,61.25 48.4,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8922;" points="48.54,21.82 48.76,21.82 
+			48.76,61.25 48.54,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8922;" points="48.69,21.82 48.9,21.82 
+			48.9,61.25 48.69,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8922;" points="48.83,21.82 49.05,21.82 
+			49.05,61.25 48.83,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8922;" points="48.98,21.82 49.19,21.82 
+			49.19,61.25 48.98,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8922;" points="49.12,21.82 49.34,21.82 
+			49.34,61.25 49.12,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08821;" points="49.27,21.82 49.49,21.82 
+			49.49,61.25 49.27,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08821;" points="49.41,21.82 49.63,21.82 
+			49.63,61.25 49.41,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08821;" points="49.56,21.82 49.78,21.82 
+			49.78,61.25 49.56,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08821;" points="49.7,21.82 49.92,21.82 
+			49.92,61.25 49.7,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08821;" points="49.85,21.82 50.07,21.82 
+			50.07,61.25 49.85,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08821;" points="49.99,21.82 50.21,21.82 
+			50.21,61.25 49.99,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08821;" points="50.14,21.82 50.36,21.82 
+			50.36,61.25 50.14,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08821;" points="50.28,21.82 50.5,21.82 
+			50.5,61.25 50.28,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08821;" points="50.43,21.82 50.65,21.82 
+			50.65,61.25 50.43,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08821;" points="50.58,21.82 50.79,21.82 
+			50.79,61.25 50.58,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08821;" points="50.72,21.82 50.94,21.82 
+			50.94,61.25 50.72,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08821;" points="50.87,21.82 51.08,21.82 
+			51.08,61.25 50.87,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08821;" points="51.01,21.82 51.23,21.82 
+			51.23,61.25 51.01,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08821;" points="51.16,21.82 51.38,21.82 
+			51.38,61.25 51.16,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08821;" points="51.3,21.82 51.52,21.82 
+			51.52,61.25 51.3,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08821;" points="51.45,21.82 51.67,21.82 
+			51.67,61.25 51.45,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08821;" points="51.59,21.82 51.81,21.82 
+			51.81,61.25 51.59,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08821;" points="51.74,21.82 51.96,21.82 
+			51.96,61.25 51.74,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08821;" points="51.88,21.82 52.1,21.82 
+			52.1,61.25 51.88,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08821;" points="52.03,21.82 52.25,21.82 
+			52.25,61.25 52.03,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08821;" points="52.17,21.82 52.39,21.82 
+			52.39,61.25 52.17,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08821;" points="52.32,21.82 52.54,21.82 
+			52.54,61.25 52.32,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08822;" points="52.47,21.82 52.68,21.82 
+			52.68,61.25 52.47,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08822;" points="52.61,21.82 52.83,21.82 
+			52.83,61.25 52.61,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08822;" points="52.76,21.82 52.97,21.82 
+			52.97,61.25 52.76,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08822;" points="52.9,21.82 53.12,21.82 
+			53.12,61.25 52.9,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08822;" points="53.05,21.82 53.26,21.82 
+			53.26,61.25 53.05,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08822;" points="53.19,21.82 53.41,21.82 
+			53.41,61.25 53.19,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08822;" points="53.34,21.82 53.56,21.82 
+			53.56,61.25 53.34,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08822;" points="53.48,21.82 53.7,21.82 
+			53.7,61.25 53.48,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08822;" points="53.63,21.82 53.85,21.82 
+			53.85,61.25 53.63,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08822;" points="53.77,21.82 53.99,21.82 
+			53.99,61.25 53.77,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08822;" points="53.92,21.82 54.14,21.82 
+			54.14,61.25 53.92,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08822;" points="54.06,21.82 54.28,21.82 
+			54.28,61.25 54.06,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08822;" points="54.21,21.82 54.43,21.82 
+			54.43,61.25 54.21,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08822;" points="54.36,21.82 54.57,21.82 
+			54.57,61.25 54.36,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08822;" points="54.5,21.82 54.72,21.82 
+			54.72,61.25 54.5,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08822;" points="54.65,21.82 54.86,21.82 
+			54.86,61.25 54.65,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08822;" points="54.79,21.82 55.01,21.82 
+			55.01,61.25 54.79,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08822;" points="54.94,21.82 55.15,21.82 
+			55.15,61.25 54.94,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08822;" points="55.08,21.82 55.3,21.82 
+			55.3,61.25 55.08,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08822;" points="55.23,21.82 55.45,21.82 
+			55.45,61.25 55.23,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8722;" points="55.37,21.82 55.59,21.82 
+			55.59,61.25 55.37,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8722;" points="55.52,21.82 55.74,21.82 
+			55.74,61.25 55.52,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8722;" points="55.66,21.82 55.88,21.82 
+			55.88,61.25 55.66,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8722;" points="55.81,21.82 56.03,21.82 
+			56.03,61.25 55.81,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8722;" points="55.95,21.82 56.17,21.82 
+			56.17,61.25 55.95,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8722;" points="56.1,21.82 56.32,21.82 
+			56.32,61.25 56.1,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8722;" points="56.24,21.82 56.46,21.82 
+			56.46,61.25 56.24,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8722;" points="56.39,21.82 56.61,21.82 
+			56.61,61.25 56.39,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8722;" points="56.54,21.82 56.75,21.82 
+			56.75,61.25 56.54,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8722;" points="56.68,21.82 56.9,21.82 
+			56.9,61.25 56.68,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8722;" points="56.83,21.82 57.04,21.82 
+			57.04,61.25 56.83,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8722;" points="56.97,21.82 57.19,21.82 
+			57.19,61.25 56.97,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8722;" points="57.12,21.82 57.34,21.82 
+			57.34,61.25 57.12,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8722;" points="57.26,21.82 57.48,21.82 
+			57.48,61.25 57.26,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8722;" points="57.41,21.82 57.63,21.82 
+			57.63,61.25 57.41,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8722;" points="57.55,21.82 57.77,21.82 
+			57.77,61.25 57.55,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8722;" points="57.7,21.82 57.92,21.82 
+			57.92,61.25 57.7,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8722;" points="57.84,21.82 58.06,21.82 
+			58.06,61.25 57.84,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8722;" points="57.99,21.82 58.21,21.82 
+			58.21,61.25 57.99,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8722;" points="58.13,21.82 58.35,21.82 
+			58.35,61.25 58.13,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8722;" points="58.28,21.82 58.5,21.82 
+			58.5,61.25 58.28,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8722;" points="58.43,21.82 58.64,21.82 
+			58.64,61.25 58.43,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8722;" points="58.57,21.82 58.79,21.82 
+			58.79,61.25 58.57,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8722;" points="58.72,21.82 58.93,21.82 
+			58.93,61.25 58.72,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8722;" points="58.86,21.82 59.08,21.82 
+			59.08,61.25 58.86,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8722;" points="59.01,21.82 59.22,21.82 
+			59.22,61.25 59.01,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8522;" points="59.15,21.82 59.37,21.82 
+			59.37,61.25 59.15,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8522;" points="59.3,21.82 59.52,21.82 
+			59.52,61.25 59.3,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8522;" points="59.44,21.82 59.66,21.82 
+			59.66,61.25 59.44,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8522;" points="59.59,21.82 59.81,21.82 
+			59.81,61.25 59.59,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8522;" points="59.73,21.82 59.95,21.82 
+			59.95,61.25 59.73,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8522;" points="59.88,21.82 60.1,21.82 
+			60.1,61.25 59.88,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8522;" points="60.02,21.82 60.24,21.82 
+			60.24,61.25 60.02,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8522;" points="60.17,21.82 60.39,21.82 
+			60.39,61.25 60.17,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8522;" points="60.32,21.82 60.53,21.82 
+			60.53,61.25 60.32,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8522;" points="60.46,21.82 60.68,21.82 
+			60.68,61.25 60.46,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8522;" points="60.61,21.82 60.82,21.82 
+			60.82,61.25 60.61,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8522;" points="60.75,21.82 60.97,21.82 
+			60.97,61.25 60.75,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8522;" points="60.9,21.82 61.11,21.82 
+			61.11,61.25 60.9,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8522;" points="61.04,21.82 61.26,21.82 
+			61.26,61.25 61.04,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8522;" points="61.19,21.82 61.41,21.82 
+			61.41,61.25 61.19,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8522;" points="61.33,21.82 61.55,21.82 
+			61.55,61.25 61.33,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8522;" points="61.48,21.82 61.7,21.82 
+			61.7,61.25 61.48,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8522;" points="61.62,21.82 61.84,21.82 
+			61.84,61.25 61.62,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8522;" points="61.77,21.82 61.99,21.82 
+			61.99,61.25 61.77,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8522;" points="61.91,21.82 62.13,21.82 
+			62.13,61.25 61.91,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8522;" points="62.06,21.82 62.28,21.82 
+			62.28,61.25 62.06,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8522;" points="62.2,21.82 62.42,21.82 
+			62.42,61.25 62.2,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8522;" points="62.35,21.82 62.57,21.82 
+			62.57,61.25 62.35,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8522;" points="62.5,21.82 62.71,21.82 
+			62.71,61.25 62.5,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8522;" points="62.64,21.82 62.86,21.82 
+			62.86,61.25 62.64,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8522;" points="62.79,21.82 63,21.82 
+			63,61.25 62.79,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8522;" points="62.93,21.82 63.15,21.82 
+			63.15,61.25 62.93,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8522;" points="63.08,21.82 63.3,21.82 
+			63.3,61.25 63.08,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8522;" points="63.22,21.82 63.44,21.82 
+			63.44,61.25 63.22,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8522;" points="63.37,21.82 63.59,21.82 
+			63.59,61.25 63.37,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8522;" points="63.51,21.82 63.73,21.82 
+			63.73,61.25 63.51,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8522;" points="63.66,21.82 63.88,21.82 
+			63.88,61.25 63.66,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8522;" points="63.8,21.82 64.02,21.82 
+			64.02,61.25 63.8,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8522;" points="63.95,21.82 64.17,21.82 
+			64.17,61.25 63.95,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8522;" points="64.09,21.82 64.31,21.82 
+			64.31,61.25 64.09,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8522;" points="64.24,21.82 64.46,21.82 
+			64.46,61.25 64.24,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8522;" points="64.39,21.82 64.6,21.82 
+			64.6,61.25 64.39,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8522;" points="64.53,21.82 64.75,21.82 
+			64.75,61.25 64.53,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8522;" points="64.68,21.82 64.89,21.82 
+			64.89,61.25 64.68,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8522;" points="64.82,21.82 65.04,21.82 
+			65.04,61.25 64.82,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8522;" points="64.97,21.82 65.18,21.82 
+			65.18,61.25 64.97,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8522;" points="65.11,21.82 65.33,21.82 
+			65.33,61.25 65.11,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8522;" points="65.26,21.82 65.48,21.82 
+			65.48,61.25 65.26,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8522;" points="65.4,21.82 65.62,21.82 
+			65.62,61.25 65.4,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8522;" points="65.55,21.82 65.77,21.82 
+			65.77,61.25 65.55,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8522;" points="65.69,21.82 65.91,21.82 
+			65.91,61.25 65.69,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8422;" points="65.84,21.82 66.06,21.82 
+			66.06,61.25 65.84,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8422;" points="65.98,21.82 66.2,21.82 
+			66.2,61.25 65.98,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8422;" points="66.13,21.82 66.35,21.82 
+			66.35,61.25 66.13,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8422;" points="66.28,21.82 66.49,21.82 
+			66.49,61.25 66.28,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8422;" points="66.42,21.82 66.64,21.82 
+			66.64,61.25 66.42,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8422;" points="66.57,21.82 66.78,21.82 
+			66.78,61.25 66.57,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8422;" points="66.71,21.82 66.93,21.82 
+			66.93,61.25 66.71,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8422;" points="66.86,21.82 67.07,21.82 
+			67.07,61.25 66.86,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8422;" points="67,21.82 67.22,21.82 
+			67.22,61.25 67,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8422;" points="67.15,21.82 67.37,21.82 
+			67.37,61.25 67.15,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8422;" points="67.29,21.82 67.51,21.82 
+			67.51,61.25 67.29,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8422;" points="67.44,21.82 67.66,21.82 
+			67.66,61.25 67.44,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8422;" points="67.58,21.82 67.8,21.82 
+			67.8,61.25 67.58,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8422;" points="67.73,21.82 67.95,21.82 
+			67.95,61.25 67.73,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8422;" points="67.87,21.82 68.09,21.82 
+			68.09,61.25 67.87,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8422;" points="68.02,21.82 68.24,21.82 
+			68.24,61.25 68.02,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8422;" points="68.16,21.82 68.38,21.82 
+			68.38,61.25 68.16,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8422;" points="68.31,21.82 68.53,21.82 
+			68.53,61.25 68.31,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8422;" points="68.46,21.82 68.67,21.82 
+			68.67,61.25 68.46,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8422;" points="68.6,21.82 68.82,21.82 
+			68.82,61.25 68.6,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8422;" points="68.75,21.82 68.96,21.82 
+			68.96,61.25 68.75,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE8422;" points="68.89,21.82 69.11,21.82 
+			69.11,61.25 68.89,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED8322;" points="69.04,21.82 69.26,21.82 
+			69.26,61.25 69.04,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED8322;" points="69.18,21.82 69.4,21.82 
+			69.4,61.25 69.18,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED8322;" points="69.33,21.82 69.55,21.82 
+			69.55,61.25 69.33,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED8322;" points="69.47,21.82 69.69,21.82 
+			69.69,61.25 69.47,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED8322;" points="69.62,21.82 69.84,21.82 
+			69.84,61.25 69.62,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED8322;" points="69.76,21.82 69.98,21.82 
+			69.98,61.25 69.76,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED8322;" points="69.91,21.82 70.13,21.82 
+			70.13,61.25 69.91,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED8322;" points="70.05,21.82 70.27,21.82 
+			70.27,61.25 70.05,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED8322;" points="70.2,21.82 70.42,21.82 
+			70.42,61.25 70.2,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED8322;" points="70.35,21.82 70.56,21.82 
+			70.56,61.25 70.35,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED8322;" points="70.49,21.82 70.71,21.82 
+			70.71,61.25 70.49,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED8322;" points="70.64,21.82 70.85,21.82 
+			70.85,61.25 70.64,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED8322;" points="70.78,21.82 71,21.82 
+			71,61.25 70.78,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED8322;" points="70.93,21.82 71.14,21.82 
+			71.14,61.25 70.93,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED8322;" points="71.07,21.82 71.29,21.82 
+			71.29,61.25 71.07,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED8322;" points="71.22,21.82 71.44,21.82 
+			71.44,61.25 71.22,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED8322;" points="71.36,21.82 71.58,21.82 
+			71.58,61.25 71.36,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED8322;" points="71.51,21.82 71.73,21.82 
+			71.73,61.25 71.51,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED8322;" points="71.65,21.82 71.87,21.82 
+			71.87,61.25 71.65,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED8322;" points="71.8,21.82 72.02,21.82 
+			72.02,61.25 71.8,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED8322;" points="71.94,21.82 72.16,21.82 
+			72.16,61.25 71.94,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED8322;" points="72.09,21.82 72.31,21.82 
+			72.31,61.25 72.09,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED8322;" points="72.24,21.82 72.45,21.82 
+			72.45,61.25 72.24,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED8223;" points="72.38,21.82 72.6,21.82 
+			72.6,61.25 72.38,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED8223;" points="72.53,21.82 72.74,21.82 
+			72.74,61.25 72.53,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED8223;" points="72.67,21.82 72.89,21.82 
+			72.89,61.25 72.67,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED8223;" points="72.82,21.82 73.03,21.82 
+			73.03,61.25 72.82,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED8223;" points="72.96,21.82 73.18,21.82 
+			73.18,61.25 72.96,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED8223;" points="73.11,21.82 73.33,21.82 
+			73.33,61.25 73.11,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED8223;" points="73.25,21.82 73.47,21.82 
+			73.47,61.25 73.25,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED8223;" points="73.4,21.82 73.62,21.82 
+			73.62,61.25 73.4,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED8223;" points="73.54,21.82 73.76,21.82 
+			73.76,61.25 73.54,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED8223;" points="73.69,21.82 73.91,21.82 
+			73.91,61.25 73.69,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED8223;" points="73.83,21.82 74.05,21.82 
+			74.05,61.25 73.83,61.25 		"/>
+		<polyline style="clip-path:url(#SVGID_3_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED8223;" points="73.98,21.82 74.72,21.82 
+			74.72,61.25 73.98,61.25 		"/>
 	</g>
-</mask>
-<path class="st103" d="M42.6,39.81c-0.02,0.3,0.37,0.78,0.54,1.04c0.21,0.32,0.44,0.67,0.64,0.99c0.59,0.96,1.33,2.03,1.9,2.96
-	l1.6,2.49c0.09,0.14,0.25,0.35,0.32,0.5l2.84,0c0.06-0.07,0.02,0.01,0.04-0.11c-0.07-0.22-6.62-10.03-7.24-10.98
-	C43.15,36.83,42.58,39.58,42.6,39.81"/>
-<path class="st104" d="M28.28,16.7c-0.12,0.09-0.24,0.18-0.35,0.28"/>
-<path class="st104" d="M27.85,17.05c-0.16,0.15-0.45,0.49-0.56,0.62c-0.23,0.26-0.41,0.47-0.62,0.73c-0.34,0.42-1.19,1.41,0.08,1.45
-	l2.61,0.01l9.32-0.01c-0.1-0.91-0.38-1.78-0.33-2.92c0.12-2.78,1.54-4.52,3.76-5.99c1.75-1.16,3.88-1.84,5.96-2.17
-	c0.85-0.14,2.16-0.23,3.06-0.23c0.22,0,1.48,0.03,1.54,0.01c-5.3-0.85-10.07-0.19-14.63,1.55c-2.95,1.12-5.55,2.78-7.94,4.78
-	c-0.3,0.25-1.63,1.46-2.05,1.94"/>
-<path class="st105" d="M26.67,29.05c-0.37,0.05-0.62,0.27-0.76,0.39c-1.28,1.15-0.57,3.71-0.17,5.99c1.16,6.64-0.6,9.46,1.28,10.6
-	c0.99,0.6,2.5,0.44,3.38-0.25c0.64-0.51,0.8-1.19,1.07-2.5c0.22-1.05,0.62-3.5-0.13-6.9c-0.11-0.5-0.23-1.05-0.47-1.77
-	C30.1,32.3,28.3,28.84,26.67,29.05z"/>
-<defs>
-	<filter id="Adobe_OpacityMaskFilter_1_" filterUnits="userSpaceOnUse" x="30.16" y="31.81" width="6.8" height="19.22">
-		<feColorMatrix  type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0"/>
-	</filter>
-</defs>
-<mask maskUnits="userSpaceOnUse" x="30.16" y="31.81" width="6.8" height="19.22" id="SVGID_7_">
-	<g class="st106">
-		
-			<linearGradient id="SVGID_8_" gradientUnits="userSpaceOnUse" x1="-200.24" y1="321.8531" x2="-202.1093" y2="333.2168" gradientTransform="matrix(1 0 0 1 234.2443 -283.1409)">
-			<stop  offset="0" style="stop-color:#FFFFFF"/>
-			<stop  offset="1" style="stop-color:#000000"/>
-		</linearGradient>
-		<rect x="30.16" y="31.81" class="st107" width="6.8" height="19.22"/>
+	<g>
+		<defs>
+			<path id="SVGID_9_" d="M56.87,61.25c-0.25-0.22-1.19-0.3-1.52-0.23c-0.22,0.04-0.43,0.07-0.64,0.09
+				c-0.46,0.05-0.81,0.11-1.31,0.1c-0.23,0,0.02,0.01-0.22,0.05l-1.05-0.01c-0.43,0-2.42-0.04-2.71-0.1
+				c-0.4-0.09-0.85-0.09-1.27-0.18c-0.39-0.09-0.76-0.14-1.19-0.23c-0.41-0.09-0.7-0.22-1.13-0.32c-1.46-0.36-3.58-1.49-4.74-2.42
+				c-0.54-0.43-1.9-1.59-2.16-2.19c-0.95-1.22-1.86-3.03-1.86-5.14c-1.17-0.01-2.34,0-3.52,0c-0.5,0-1.23,0.11-1.54-0.2
+				c-0.34-0.34-0.14-0.94-0.05-1.41c0.39-1.96,0.8-3.9,1.19-5.86c0.4-1.96,0.79-3.9,1.19-5.85c0.2-0.96,0.41-1.96,0.6-2.93
+				c0.19-0.99,0.44-1.98,0.6-2.97c-0.9,0-1.8-0.02-2.7-0.01c-0.99,0.01-1.1,0.81-1.23,1.42c-0.07,0.33-2,11.56-2.11,11.81
+				c-0.12-0.09,0.54-8.23,0.49-8.28l-1.39-1.64c-0.14-0.18-0.19-0.19-0.26-0.27l-0.45-0.6c-0.11-0.11-0.07-0.03-0.19-0.18
+				l-1.29-1.58c-0.11-0.12-0.08-0.03-0.19-0.18l-0.32-0.37c-0.11-0.13-0.05-0.11-0.25-0.32c-0.18-0.19-0.15-0.15-0.15-0.34
+				c-0.09,0.09-0.1,0.03-0.2-0.04c0-0.27,0.13-0.38-0.07-0.58c-0.26-0.26-0.16,0.03-0.11-0.45c0.02-0.25-0.17-0.12-0.13-0.49
+				c0.02-0.21-0.04-0.41-0.24-0.35c-0.14,0.03-0.21,0.13-0.33,0.23c-0.12,0.1-0.23,0.19-0.33,0.28c-0.22,0.2-0.42,0.4-0.61,0.6
+				c-3.2,3.43-3.89,8.73-2.88,13.29c1.17,5.28,4.36,9.62,7.14,12.22c0.68,0.64,1.17,1.11,1.92,1.69c1.26,0.98,2.15,1.6,3.63,2.44
+				c2.03,1.16,4.4,2.12,6.95,2.73c2.83,0.68,5.79,0.88,8.81,0.65c1.89-0.15,4.26-0.62,6.05-1.21
+				C55.65,61.71,56.41,61.48,56.87,61.25 M24.77,28.97c0.21-0.05,0.27,0.14,0.24,0.35c-0.04,0.37,0.15,0.25,0.13,0.49
+				c-0.05,0.48-0.15,0.2,0.11,0.45c0.2,0.19,0.07,0.3,0.07,0.58c0.1,0.07,0.11,0.13,0.2,0.04c0,0.2-0.04,0.15,0.15,0.34
+				c0.2,0.21,0.13,0.19,0.25,0.32l0.32,0.37c0.11,0.15,0.08,0.06,0.19,0.18l1.29,1.58c0.11,0.15,0.07,0.07,0.19,0.18l0.45,0.6
+				c0.06,0.09,0.12,0.09,0.26,0.27L30,36.38c0.05,0.05-0.53,7.83-0.41,7.92c0.11-0.25,1.92-11.14,2.03-11.45
+				c0.2-0.59,0.26-1.4,1.23-1.42c0.89-0.02,1.8,0.01,2.7,0.01c0.19-0.57,0.07-1.58,0.99-1.84c0.31-0.09,4.94-0.04,5.67-0.04
+				c2.91,0,2.7-0.24,3.98,1.73l3.42,5.14c0.12,0.28,0.43,0.67,0.61,0.95l3.09,4.68c0.21,0.33,0.4,0.6,0.61,0.93
+				c0.17,0.25,0.45,0.74,0.64,0.94c0.13-0.18,3.07-15.07,3.41-16.75c0.06-0.3,0.2-0.84,0.22-1.12c-0.91-0.07-2.12-0.01-3.06-0.01
+				c-3.17,0-21.32-0.06-21.48,0.05c-0.51-0.08-2.11,0.17-2.66,0.26c-0.81,0.14-1.64,0.33-2.37,0.58c-0.76,0.26-1.39,0.52-2.06,0.86
+				C26.17,28,24.9,28.73,24.77,28.97z"/>
+		</defs>
+		<clipPath id="SVGID_4_">
+			<use xlink:href="#SVGID_9_"  style="overflow:visible;"/>
+		</clipPath>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#E75B24;" points="19.6,25.98 20.26,25.98 
+			20.26,63.34 19.6,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#E75B24;" points="20.18,25.98 20.4,25.98 
+			20.4,63.34 20.18,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#E75B24;" points="20.33,25.98 20.55,25.98 
+			20.55,63.34 20.33,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#E75C25;" points="20.48,25.98 20.7,25.98 
+			20.7,63.34 20.48,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#E75D25;" points="20.63,25.98 20.85,25.98 
+			20.85,63.34 20.63,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#E75E24;" points="20.78,25.98 21,25.98 
+			21,63.34 20.78,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#E75D24;" points="20.92,25.98 21.15,25.98 
+			21.15,63.34 20.92,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#E75E24;" points="21.07,25.98 21.3,25.98 
+			21.3,63.34 21.07,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#E75E24;" points="21.22,25.98 21.44,25.98 
+			21.44,63.34 21.22,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#E86024;" points="21.37,25.98 21.59,25.98 
+			21.59,63.34 21.37,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#E86024;" points="21.52,25.98 21.74,25.98 
+			21.74,63.34 21.52,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#E86024;" points="21.67,25.98 21.89,25.98 
+			21.89,63.34 21.67,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#E86024;" points="21.81,25.98 22.04,25.98 
+			22.04,63.34 21.81,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#E86124;" points="21.96,25.98 22.19,25.98 
+			22.19,63.34 21.96,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#E86124;" points="22.11,25.98 22.33,25.98 
+			22.33,63.34 22.11,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#E86224;" points="22.26,25.98 22.48,25.98 
+			22.48,63.34 22.26,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#E86224;" points="22.41,25.98 22.63,25.98 
+			22.63,63.34 22.41,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EA6424;" points="22.56,25.98 22.78,25.98 
+			22.78,63.34 22.56,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EA6424;" points="22.71,25.98 22.93,25.98 
+			22.93,63.34 22.71,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EA6424;" points="22.85,25.98 23.08,25.98 
+			23.08,63.34 22.85,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EA6424;" points="23,25.98 23.23,25.98 
+			23.23,63.34 23,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EA6524;" points="23.15,25.98 23.37,25.98 
+			23.37,63.34 23.15,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EA6524;" points="23.3,25.98 23.52,25.98 
+			23.52,63.34 23.3,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EA6624;" points="23.45,25.98 23.67,25.98 
+			23.67,63.34 23.45,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EA6624;" points="23.6,25.98 23.82,25.98 
+			23.82,63.34 23.6,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EA6724;" points="23.74,25.98 23.97,25.98 
+			23.97,63.34 23.74,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EA6724;" points="23.89,25.98 24.12,25.98 
+			24.12,63.34 23.89,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#E96824;" points="24.04,25.98 24.26,25.98 
+			24.26,63.34 24.04,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB6824;" points="24.19,25.98 24.41,25.98 
+			24.41,63.34 24.19,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB6924;" points="24.34,25.98 24.56,25.98 
+			24.56,63.34 24.34,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB6924;" points="24.49,25.98 24.71,25.98 
+			24.71,63.34 24.49,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC6A24;" points="24.64,25.98 24.86,25.98 
+			24.86,63.34 24.64,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC6A24;" points="24.78,25.98 25.01,25.98 
+			25.01,63.34 24.78,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#E96A24;" points="24.93,25.98 25.16,25.98 
+			25.16,63.34 24.93,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#E96A24;" points="25.08,25.98 25.3,25.98 
+			25.3,63.34 25.08,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#E96C24;" points="25.23,25.98 25.45,25.98 
+			25.45,63.34 25.23,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#E96C24;" points="25.38,25.98 25.6,25.98 
+			25.6,63.34 25.38,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB6D24;" points="25.53,25.98 25.75,25.98 
+			25.75,63.34 25.53,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB6D24;" points="25.67,25.98 25.9,25.98 
+			25.9,63.34 25.67,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC6E23;" points="25.82,25.98 26.05,25.98 
+			26.05,63.34 25.82,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC6E23;" points="25.97,25.98 26.19,25.98 
+			26.19,63.34 25.97,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC6E23;" points="26.12,25.98 26.34,25.98 
+			26.34,63.34 26.12,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC6E23;" points="26.27,25.98 26.49,25.98 
+			26.49,63.34 26.27,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC6E23;" points="26.42,25.98 26.64,25.98 
+			26.64,63.34 26.42,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC6E23;" points="26.57,25.98 26.79,25.98 
+			26.79,63.34 26.57,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC6E23;" points="26.71,25.98 26.94,25.98 
+			26.94,63.34 26.71,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC6F23;" points="26.86,25.98 27.09,25.98 
+			27.09,63.34 26.86,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC6F23;" points="27.01,25.98 27.23,25.98 
+			27.23,63.34 27.01,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC6F23;" points="27.16,25.98 27.38,25.98 
+			27.38,63.34 27.16,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC6F23;" points="27.31,25.98 27.53,25.98 
+			27.53,63.34 27.31,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC6F23;" points="27.46,25.98 27.68,25.98 
+			27.68,63.34 27.46,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC6F23;" points="27.6,25.98 27.83,25.98 
+			27.83,63.34 27.6,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC6F23;" points="27.75,25.98 27.98,25.98 
+			27.98,63.34 27.75,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB7024;" points="27.9,25.98 28.12,25.98 
+			28.12,63.34 27.9,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB7024;" points="28.05,25.98 28.27,25.98 
+			28.27,63.34 28.05,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB7024;" points="28.2,25.98 28.42,25.98 
+			28.42,63.34 28.2,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB7024;" points="28.35,25.98 28.57,25.98 
+			28.57,63.34 28.35,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB7024;" points="28.5,25.98 28.72,25.98 
+			28.72,63.34 28.5,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB7024;" points="28.64,25.98 28.87,25.98 
+			28.87,63.34 28.64,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB7024;" points="28.79,25.98 29.02,25.98 
+			29.02,63.34 28.79,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB7124;" points="28.94,25.98 29.16,25.98 
+			29.16,63.34 28.94,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB7124;" points="29.09,25.98 29.31,25.98 
+			29.31,63.34 29.09,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB7124;" points="29.24,25.98 29.46,25.98 
+			29.46,63.34 29.24,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB7124;" points="29.39,25.98 29.61,25.98 
+			29.61,63.34 29.39,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB7124;" points="29.53,25.98 29.76,25.98 
+			29.76,63.34 29.53,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB7124;" points="29.68,25.98 29.91,25.98 
+			29.91,63.34 29.68,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB7124;" points="29.83,25.98 30.05,25.98 
+			30.05,63.34 29.83,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7224;" points="29.98,25.98 30.2,25.98 
+			30.2,63.34 29.98,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7224;" points="30.13,25.98 30.35,25.98 
+			30.35,63.34 30.13,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7224;" points="30.28,25.98 30.5,25.98 
+			30.5,63.34 30.28,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7224;" points="30.43,25.98 30.65,25.98 
+			30.65,63.34 30.43,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7224;" points="30.57,25.98 30.8,25.98 
+			30.8,63.34 30.57,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7224;" points="30.72,25.98 30.95,25.98 
+			30.95,63.34 30.72,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7224;" points="30.87,25.98 31.09,25.98 
+			31.09,63.34 30.87,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7323;" points="31.02,25.98 31.24,25.98 
+			31.24,63.34 31.02,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7323;" points="31.17,25.98 31.39,25.98 
+			31.39,63.34 31.17,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7323;" points="31.32,25.98 31.54,25.98 
+			31.54,63.34 31.32,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7323;" points="31.46,25.98 31.69,25.98 
+			31.69,63.34 31.46,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7323;" points="31.61,25.98 31.84,25.98 
+			31.84,63.34 31.61,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7323;" points="31.76,25.98 31.98,25.98 
+			31.98,63.34 31.76,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7323;" points="31.91,25.98 32.13,25.98 
+			32.13,63.34 31.91,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7423;" points="32.06,25.98 32.28,25.98 
+			32.28,63.34 32.06,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7423;" points="32.21,25.98 32.43,25.98 
+			32.43,63.34 32.21,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7423;" points="32.36,25.98 32.58,25.98 
+			32.58,63.34 32.36,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7423;" points="32.5,25.98 32.73,25.98 
+			32.73,63.34 32.5,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7423;" points="32.65,25.98 32.88,25.98 
+			32.88,63.34 32.65,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7423;" points="32.8,25.98 33.02,25.98 
+			33.02,63.34 32.8,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7423;" points="32.95,25.98 33.17,25.98 
+			33.17,63.34 32.95,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7523;" points="33.1,25.98 33.32,25.98 
+			33.32,63.34 33.1,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7523;" points="33.25,25.98 33.47,25.98 
+			33.47,63.34 33.25,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7523;" points="33.39,25.98 33.62,25.98 
+			33.62,63.34 33.39,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7523;" points="33.54,25.98 33.77,25.98 
+			33.77,63.34 33.54,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7523;" points="33.69,25.98 33.91,25.98 
+			33.91,63.34 33.69,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7523;" points="33.84,25.98 34.06,25.98 
+			34.06,63.34 33.84,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7523;" points="33.99,25.98 34.21,25.98 
+			34.21,63.34 33.99,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7523;" points="34.14,25.98 34.36,25.98 
+			34.36,63.34 34.14,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7623;" points="34.29,25.98 34.51,25.98 
+			34.51,63.34 34.29,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7623;" points="34.43,25.98 34.66,25.98 
+			34.66,63.34 34.43,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7623;" points="34.58,25.98 34.81,25.98 
+			34.81,63.34 34.58,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7623;" points="34.73,25.98 34.95,25.98 
+			34.95,63.34 34.73,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7623;" points="34.88,25.98 35.1,25.98 
+			35.1,63.34 34.88,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7623;" points="35.03,25.98 35.25,25.98 
+			35.25,63.34 35.03,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7623;" points="35.18,25.98 35.4,25.98 
+			35.4,63.34 35.18,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7723;" points="35.32,25.98 35.55,25.98 
+			35.55,63.34 35.32,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7723;" points="35.47,25.98 35.7,25.98 
+			35.7,63.34 35.47,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7723;" points="35.62,25.98 35.84,25.98 
+			35.84,63.34 35.62,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7723;" points="35.77,25.98 35.99,25.98 
+			35.99,63.34 35.77,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7723;" points="35.92,25.98 36.14,25.98 
+			36.14,63.34 35.92,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7723;" points="36.07,25.98 36.29,25.98 
+			36.29,63.34 36.07,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7723;" points="36.22,25.98 36.44,25.98 
+			36.44,63.34 36.22,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7723;" points="36.36,25.98 36.59,25.98 
+			36.59,63.34 36.36,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7723;" points="36.51,25.98 36.74,25.98 
+			36.74,63.34 36.51,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7723;" points="36.66,25.98 36.88,25.98 
+			36.88,63.34 36.66,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7723;" points="36.81,25.98 37.03,25.98 
+			37.03,63.34 36.81,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7723;" points="36.96,25.98 37.18,25.98 
+			37.18,63.34 36.96,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7723;" points="37.11,25.98 37.33,25.98 
+			37.33,63.34 37.11,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7723;" points="37.25,25.98 37.48,25.98 
+			37.48,63.34 37.25,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EC7923;" points="37.4,25.98 37.63,25.98 
+			37.63,63.34 37.4,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE7823;" points="37.55,25.98 37.77,25.98 
+			37.77,63.34 37.55,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE7823;" points="37.7,25.98 37.92,25.98 
+			37.92,63.34 37.7,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE7823;" points="37.85,25.98 38.07,25.98 
+			38.07,63.34 37.85,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE7823;" points="38,25.98 38.22,25.98 
+			38.22,63.34 38,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE7823;" points="38.15,25.98 38.37,25.98 
+			38.37,63.34 38.15,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE7823;" points="38.29,25.98 38.52,25.98 
+			38.52,63.34 38.29,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7A23;" points="38.44,25.98 38.67,25.98 
+			38.67,63.34 38.44,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7A23;" points="38.59,25.98 38.81,25.98 
+			38.81,63.34 38.59,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7A23;" points="38.74,25.98 38.96,25.98 
+			38.96,63.34 38.74,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7A23;" points="38.89,25.98 39.11,25.98 
+			39.11,63.34 38.89,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7A23;" points="39.04,25.98 39.26,25.98 
+			39.26,63.34 39.04,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7A23;" points="39.18,25.98 39.41,25.98 
+			39.41,63.34 39.18,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7A23;" points="39.33,25.98 39.56,25.98 
+			39.56,63.34 39.33,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7A23;" points="39.48,25.98 39.7,25.98 
+			39.7,63.34 39.48,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7A23;" points="39.63,25.98 39.85,25.98 
+			39.85,63.34 39.63,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7A23;" points="39.78,25.98 40,25.98 
+			40,63.34 39.78,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7A23;" points="39.93,25.98 40.15,25.98 
+			40.15,63.34 39.93,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7A23;" points="40.08,25.98 40.3,25.98 
+			40.3,63.34 40.08,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7A23;" points="40.22,25.98 40.45,25.98 
+			40.45,63.34 40.22,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7A23;" points="40.37,25.98 40.6,25.98 
+			40.6,63.34 40.37,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7B23;" points="40.52,25.98 40.74,25.98 
+			40.74,63.34 40.52,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7B23;" points="40.67,25.98 40.89,25.98 
+			40.89,63.34 40.67,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7B23;" points="40.82,25.98 41.04,25.98 
+			41.04,63.34 40.82,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7B23;" points="40.97,25.98 41.19,25.98 
+			41.19,63.34 40.97,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7B23;" points="41.11,25.98 41.34,25.98 
+			41.34,63.34 41.11,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7B23;" points="41.26,25.98 41.49,25.98 
+			41.49,63.34 41.26,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7B23;" points="41.41,25.98 41.63,25.98 
+			41.63,63.34 41.41,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7C23;" points="41.56,25.98 41.78,25.98 
+			41.78,63.34 41.56,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7C23;" points="41.71,25.98 41.93,25.98 
+			41.93,63.34 41.71,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7C23;" points="41.86,25.98 42.08,25.98 
+			42.08,63.34 41.86,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7C23;" points="42.01,25.98 42.23,25.98 
+			42.23,63.34 42.01,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7C23;" points="42.15,25.98 42.38,25.98 
+			42.38,63.34 42.15,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7C23;" points="42.3,25.98 42.53,25.98 
+			42.53,63.34 42.3,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7C23;" points="42.45,25.98 42.67,25.98 
+			42.67,63.34 42.45,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7D23;" points="42.6,25.98 42.82,25.98 
+			42.82,63.34 42.6,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7D23;" points="42.75,25.98 42.97,25.98 
+			42.97,63.34 42.75,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7D23;" points="42.9,25.98 43.12,25.98 
+			43.12,63.34 42.9,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7D23;" points="43.04,25.98 43.27,25.98 
+			43.27,63.34 43.04,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#ED7D23;" points="43.19,25.98 43.42,25.98 
+			43.42,63.34 43.19,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE7D22;" points="43.34,25.98 43.56,25.98 
+			43.56,63.34 43.34,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE7D22;" points="43.49,25.98 43.71,25.98 
+			43.71,63.34 43.49,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE7E22;" points="43.64,25.98 43.86,25.98 
+			43.86,63.34 43.64,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE7E22;" points="43.79,25.98 44.01,25.98 
+			44.01,63.34 43.79,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE7E22;" points="43.94,25.98 44.16,25.98 
+			44.16,63.34 43.94,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE7E22;" points="44.08,25.98 44.31,25.98 
+			44.31,63.34 44.08,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE7E22;" points="44.23,25.98 44.46,25.98 
+			44.46,63.34 44.23,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE7E22;" points="44.38,25.98 44.6,25.98 
+			44.6,63.34 44.38,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE7E22;" points="44.53,25.98 44.75,25.98 
+			44.75,63.34 44.53,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE7F22;" points="44.68,25.98 44.9,25.98 
+			44.9,63.34 44.68,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE7F22;" points="44.83,25.98 45.05,25.98 
+			45.05,63.34 44.83,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE7F22;" points="44.97,25.98 45.2,25.98 
+			45.2,63.34 44.97,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE7F22;" points="45.12,25.98 45.35,25.98 
+			45.35,63.34 45.12,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE7F22;" points="45.27,25.98 45.49,25.98 
+			45.49,63.34 45.27,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE7F22;" points="45.42,25.98 45.64,25.98 
+			45.64,63.34 45.42,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EE7F22;" points="45.57,25.98 45.79,25.98 
+			45.79,63.34 45.57,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8022;" points="45.72,25.98 45.94,25.98 
+			45.94,63.34 45.72,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8022;" points="45.87,25.98 46.09,25.98 
+			46.09,63.34 45.87,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8022;" points="46.01,25.98 46.24,25.98 
+			46.24,63.34 46.01,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8022;" points="46.16,25.98 46.39,25.98 
+			46.39,63.34 46.16,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8122;" points="46.31,25.98 46.53,25.98 
+			46.53,63.34 46.31,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8122;" points="46.46,25.98 46.68,25.98 
+			46.68,63.34 46.46,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8222;" points="46.61,25.98 46.83,25.98 
+			46.83,63.34 46.61,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8222;" points="46.76,25.98 46.98,25.98 
+			46.98,63.34 46.76,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08322;" points="46.91,25.98 47.13,25.98 
+			47.13,63.34 46.91,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08322;" points="47.05,25.98 47.28,25.98 
+			47.28,63.34 47.05,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08421;" points="47.2,25.98 47.42,25.98 
+			47.42,63.34 47.2,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08421;" points="47.35,25.98 47.57,25.98 
+			47.57,63.34 47.35,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08521;" points="47.5,25.98 47.72,25.98 
+			47.72,63.34 47.5,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08521;" points="47.65,25.98 47.87,25.98 
+			47.87,63.34 47.65,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#EF8522;" points="47.8,25.98 48.02,25.98 
+			48.02,63.34 47.8,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08722;" points="47.94,25.98 48.17,25.98 
+			48.17,63.34 47.94,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08722;" points="48.09,25.98 48.32,25.98 
+			48.32,63.34 48.09,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08822;" points="48.24,25.98 48.46,25.98 
+			48.46,63.34 48.24,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08821;" points="48.39,25.98 48.61,25.98 
+			48.61,63.34 48.39,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F18821;" points="48.54,25.98 48.76,25.98 
+			48.76,63.34 48.54,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F18821;" points="48.69,25.98 48.91,25.98 
+			48.91,63.34 48.69,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F18921;" points="48.83,25.98 49.06,25.98 
+			49.06,63.34 48.83,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F18921;" points="48.98,25.98 49.21,25.98 
+			49.21,63.34 48.98,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F18A21;" points="49.13,25.98 49.35,25.98 
+			49.35,63.34 49.13,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F18A21;" points="49.28,25.98 49.5,25.98 
+			49.5,63.34 49.28,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08C21;" points="49.43,25.98 49.65,25.98 
+			49.65,63.34 49.43,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08D21;" points="49.58,25.98 49.8,25.98 
+			49.8,63.34 49.58,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F08D21;" points="49.73,25.98 49.95,25.98 
+			49.95,63.34 49.73,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F18E21;" points="49.87,25.98 50.1,25.98 
+			50.1,63.34 49.87,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F18E21;" points="50.02,25.98 50.25,25.98 
+			50.25,63.34 50.02,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F18F20;" points="50.17,25.98 50.39,25.98 
+			50.39,63.34 50.17,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F18F20;" points="50.32,25.98 50.54,25.98 
+			50.54,63.34 50.32,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F29020;" points="50.47,25.98 50.69,25.98 
+			50.69,63.34 50.47,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F29020;" points="50.62,25.98 50.84,25.98 
+			50.84,63.34 50.62,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F29120;" points="50.77,25.98 50.99,25.98 
+			50.99,63.34 50.77,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F29120;" points="50.91,25.98 51.14,25.98 
+			51.14,63.34 50.91,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F29220;" points="51.06,25.98 51.28,25.98 
+			51.28,63.34 51.06,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F29220;" points="51.21,25.98 51.43,25.98 
+			51.43,63.34 51.21,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F39320;" points="51.36,25.98 51.58,25.98 
+			51.58,63.34 51.36,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F3941F;" points="51.51,25.98 51.73,25.98 
+			51.73,63.34 51.51,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F3941F;" points="51.66,25.98 51.88,25.98 
+			51.88,63.34 51.66,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F3951F;" points="51.8,25.98 52.03,25.98 
+			52.03,63.34 51.8,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F3951F;" points="51.95,25.98 52.18,25.98 
+			52.18,63.34 51.95,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F3951F;" points="52.1,25.98 52.32,25.98 
+			52.32,63.34 52.1,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F3951F;" points="52.25,25.98 52.47,25.98 
+			52.47,63.34 52.25,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F3971F;" points="52.4,25.98 52.62,25.98 
+			52.62,63.34 52.4,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F3971F;" points="52.55,25.98 52.77,25.98 
+			52.77,63.34 52.55,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F3981F;" points="52.7,25.98 52.92,25.98 
+			52.92,63.34 52.7,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F4991F;" points="52.84,25.98 53.07,25.98 
+			53.07,63.34 52.84,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F4991F;" points="52.99,25.98 53.21,25.98 
+			53.21,63.34 52.99,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F49A1F;" points="53.14,25.98 53.36,25.98 
+			53.36,63.34 53.14,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F49A1F;" points="53.29,25.98 53.51,25.98 
+			53.51,63.34 53.29,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F49B1E;" points="53.44,25.98 53.66,25.98 
+			53.66,63.34 53.44,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F49B1E;" points="53.59,25.98 53.81,25.98 
+			53.81,63.34 53.59,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F49C1E;" points="53.73,25.98 53.96,25.98 
+			53.96,63.34 53.73,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F49C1E;" points="53.88,25.98 54.11,25.98 
+			54.11,63.34 53.88,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F49D1E;" points="54.03,25.98 54.25,25.98 
+			54.25,63.34 54.03,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F49D1E;" points="54.18,25.98 54.4,25.98 
+			54.4,63.34 54.18,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F59E1D;" points="54.33,25.98 54.55,25.98 
+			54.55,63.34 54.33,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F59E1D;" points="54.48,25.98 54.7,25.98 
+			54.7,63.34 54.48,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F49F1E;" points="54.63,25.98 54.85,25.98 
+			54.85,63.34 54.63,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F59F1E;" points="54.77,25.98 55,25.98 
+			55,63.34 54.77,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F59F1E;" points="54.92,25.98 55.14,25.98 
+			55.14,63.34 54.92,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F5A11D;" points="55.07,25.98 55.29,25.98 
+			55.29,63.34 55.07,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F5A11D;" points="55.22,25.98 55.44,25.98 
+			55.44,63.34 55.22,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F5A11D;" points="55.37,25.98 55.59,25.98 
+			55.59,63.34 55.37,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F5A11D;" points="55.52,25.98 55.74,25.98 
+			55.74,63.34 55.52,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F5A31D;" points="55.66,25.98 55.89,25.98 
+			55.89,63.34 55.66,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F6A21D;" points="55.81,25.98 56.04,25.98 
+			56.04,63.34 55.81,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F5A31D;" points="55.96,25.98 56.18,25.98 
+			56.18,63.34 55.96,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F5A31D;" points="56.11,25.98 56.33,25.98 
+			56.33,63.34 56.11,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F5A41D;" points="56.26,25.98 56.48,25.98 
+			56.48,63.34 56.26,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F5A61C;" points="56.41,25.98 56.63,25.98 
+			56.63,63.34 56.41,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F5A61C;" points="56.56,25.98 56.78,25.98 
+			56.78,63.34 56.56,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F5A61C;" points="56.7,25.98 56.93,25.98 
+			56.93,63.34 56.7,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F5A61C;" points="56.85,25.98 57.07,25.98 
+			57.07,63.34 56.85,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F6A81C;" points="57,25.98 57.22,25.98 
+			57.22,63.34 57,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F6A81C;" points="57.15,25.98 57.37,25.98 
+			57.37,63.34 57.15,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F7A91B;" points="57.3,25.98 57.52,25.98 
+			57.52,63.34 57.3,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F7A91B;" points="57.45,25.98 57.67,25.98 
+			57.67,63.34 57.45,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F6A91C;" points="57.59,25.98 57.82,25.98 
+			57.82,63.34 57.59,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F6A91C;" points="57.74,25.98 57.97,25.98 
+			57.97,63.34 57.74,63.34 		"/>
+		<polyline style="clip-path:url(#SVGID_4_);fill-rule:evenodd;clip-rule:evenodd;fill:#F6AA1B;" points="57.89,25.98 58.19,25.98 
+			58.19,63.34 57.89,63.34 		"/>
 	</g>
-</mask>
-<path class="st108" d="M33.38,51.03c-0.35-0.34-0.14-0.95-0.05-1.43c0.4-1.98,0.8-3.94,1.21-5.91c0.4-1.98,0.8-3.94,1.21-5.91
-	c0.2-0.97,0.41-1.98,0.6-2.96c0.2-1,0.45-2,0.61-3c-0.91,0-1.82-0.02-2.72-0.01c-1,0.01-1.11,0.82-1.24,1.43
-	c-0.82,4.07-2.87,10.64-2.84,14.23c0.01,1.69,0,0.63,1.71,2.18L33.38,51.03z"/>
+	<defs>
+		<filter id="Adobe_OpacityMaskFilter" filterUnits="userSpaceOnUse" x="41.13" y="36.25" width="7.8" height="10.99">
+			<feColorMatrix  type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0"/>
+		</filter>
+	</defs>
+	<mask maskUnits="userSpaceOnUse" x="41.13" y="36.25" width="7.8" height="10.99" id="SVGID_5_">
+		<g class="st16">
+			
+				<linearGradient id="SVGID_6_" gradientUnits="userSpaceOnUse" x1="-234.3986" y1="335.3033" x2="-238.4229" y2="341.9891" gradientTransform="matrix(1 0 0 1 280.3921 -295.1688)">
+				<stop  offset="0" style="stop-color:#FFFFFF"/>
+				<stop  offset="1" style="stop-color:#000000"/>
+			</linearGradient>
+			<rect x="41.13" y="36.25" style="fill:url(#SVGID_6_);" width="7.8" height="10.99"/>
+		</g>
+	</mask>
+	<path style="mask:url(#SVGID_5_);fill-rule:evenodd;clip-rule:evenodd;fill:#EB7224;" d="M41.13,39.33
+		c-0.02,0.29,0.37,0.77,0.53,1.03c0.2,0.32,0.44,0.66,0.64,0.98c0.59,0.95,1.32,2.01,1.88,2.93l1.59,2.46
+		c0.09,0.14,0.24,0.34,0.31,0.5l2.81,0c0.06-0.07,0.02,0.01,0.04-0.11c-0.07-0.22-6.56-9.93-7.17-10.88
+		C41.68,36.38,41.11,39.1,41.13,39.33"/>
+	<path class="st127" d="M26.95,16.45c-0.12,0.09-0.23,0.18-0.35,0.27"/>
+	<path class="st127" d="M26.52,16.79c-0.16,0.15-0.44,0.49-0.56,0.62c-0.23,0.25-0.41,0.47-0.61,0.72c-0.34,0.42-1.17,1.4,0.08,1.44
+		l2.58,0.01l9.23-0.01c-0.09-0.9-0.37-1.76-0.33-2.9c0.12-2.75,1.53-4.47,3.73-5.93c1.73-1.15,3.84-1.82,5.9-2.15
+		c0.84-0.13,2.14-0.22,3.03-0.22c0.22,0,1.47,0.03,1.53,0.01c-5.25-0.85-9.97-0.19-14.48,1.53c-2.93,1.11-5.5,2.75-7.86,4.73
+		c-0.29,0.25-1.62,1.44-2.03,1.92"/>
+	<path class="st128" d="M25.36,28.68c-0.36,0.05-0.61,0.26-0.75,0.38c-1.27,1.13-0.56,3.68-0.17,5.93c1.15,6.57-0.6,9.37,1.26,10.5
+		c0.98,0.59,2.48,0.44,3.34-0.25c0.63-0.5,0.79-1.18,1.06-2.48c0.22-1.04,0.61-3.46-0.12-6.83c-0.11-0.49-0.23-1.04-0.47-1.76
+		C28.75,31.89,26.98,28.47,25.36,28.68z"/>
+	<defs>
+		<filter id="Adobe_OpacityMaskFilter_1_" filterUnits="userSpaceOnUse" x="28.81" y="31.41" width="6.74" height="19.03">
+			<feColorMatrix  type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0"/>
+		</filter>
+	</defs>
+	<mask maskUnits="userSpaceOnUse" x="28.81" y="31.41" width="6.74" height="19.03" id="SVGID_8_">
+		<g class="st124">
+			
+				<linearGradient id="SVGID_10_" gradientUnits="userSpaceOnUse" x1="-201.6236" y1="321.3835" x2="-203.4744" y2="332.635" gradientTransform="matrix(1 0 0 1 234.2443 -283.1409)">
+				<stop  offset="0" style="stop-color:#FFFFFF"/>
+				<stop  offset="1" style="stop-color:#000000"/>
+			</linearGradient>
+			<rect x="28.81" y="31.41" style="fill:url(#SVGID_10_);" width="6.74" height="19.03"/>
+		</g>
+	</mask>
+	<path style="mask:url(#SVGID_8_);fill-rule:evenodd;clip-rule:evenodd;fill:#E65725;" d="M32.01,50.44
+		c-0.34-0.34-0.14-0.94-0.05-1.41c0.39-1.96,0.8-3.9,1.19-5.86c0.4-1.96,0.79-3.9,1.19-5.85c0.2-0.96,0.41-1.96,0.6-2.93
+		c0.19-0.99,0.44-1.98,0.6-2.97c-0.9,0-1.8-0.02-2.7-0.01c-0.99,0.01-1.1,0.81-1.23,1.42c-0.81,4.03-2.84,10.54-2.81,14.08
+		c0.01,1.68,0,0.63,1.69,2.16L32.01,50.44z"/>
+</g>
 </svg>
