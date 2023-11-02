@@ -330,6 +330,12 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
         return $this->paymentFeeHelper->getBuckarooPaymentFeeLabel($method);
     }
 
+    /**
+     *
+     * @param string $configKey
+     *
+     * @return boolean
+     */
     protected function canShowFinancialWarning(string $configKey): bool
     {
         return $this->scopeConfig->getValue(
