@@ -328,10 +328,9 @@ class Giftcard
 
             $this->quote->setBuckarooAlreadyPaid($buckarooAlreadyPaid);
             $this->quote->setBaseBuckarooAlreadyPaid($baseBuckarooAlreadyPaid);
-
-            $this->quote->setOrigOrderId($order->getEntityId());
         }
 
+        $this->quote->setOrigOrderId($order->getEntityId());
         $this->quote->save();
         return $order;
     }

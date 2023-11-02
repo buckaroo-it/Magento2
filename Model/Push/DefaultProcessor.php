@@ -546,7 +546,7 @@ class DefaultProcessor implements PushProcessorInterface
             $groupTransaction = $this->groupTransaction->getGroupTransactionByTrxId(
                 $this->pushRequest->getTransactions()
             );
-            if($groupTransaction->getRelatedTransaction()) {
+            if ($groupTransaction->getType() == 'partialpayment') {
                 return true;
             }
         }
@@ -858,6 +858,7 @@ class DefaultProcessor implements PushProcessorInterface
         $this->addTransactionData();
 
         if ($this->configAccount->getInvoiceHandling() == InvoiceHandlingOptions::SHIPMENT) {
+            $this->payment->save();
             return true;
         }
 

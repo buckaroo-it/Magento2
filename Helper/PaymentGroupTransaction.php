@@ -101,7 +101,8 @@ class PaymentGroupTransaction extends AbstractHelper
         $groupTransaction = $this->groupTransactionFactory->create();
         $data['order_id'] = $response['Invoice'];
         $data['transaction_id'] = $response['Key'];
-        $data['relatedtransaction'] = $response['RequiredAction']['PayRemainderDetails']['GroupTransaction'] ?? null;
+        $data['relatedtransaction'] = $response['RequiredAction']['PayRemainderDetails']['GroupTransaction'] ??
+            $response['RelatedTransactions'][0]['RelatedTransactionKey'] ?? null;
         $data['servicecode'] = $response['ServiceCode'];
         $data['currency'] = $response['Currency'];
         $data['amount'] = $response['AmountDebit'];
