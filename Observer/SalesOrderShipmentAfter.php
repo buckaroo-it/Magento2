@@ -20,16 +20,15 @@
 
 namespace Buckaroo\Magento2\Observer;
 
+use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Logging\Log;
-use Magento\Framework\Event\ObserverInterface;
-use \Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Sales\Model\Order\Invoice;
-use \Buckaroo\Magento2\Model\ConfigProvider\Account;
-use \Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp;
-use Magento\Sales\Model\ResourceModel\Order\Invoice\CollectionFactory;
-use Magento\Sales\Model\Service\InvoiceService;
-use Magento\Sales\Model\Order\ShipmentFactory;
+use Buckaroo\Magento2\Model\Config\Source\InvoiceHandlingOptions;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\Service\CreateInvoice;
 use Magento\Framework\DB\TransactionFactory;
+use Magento\Framework\Event\ObserverInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Model\ResourceModel\Order\Invoice\CollectionFactory;
 
 class SalesOrderShipmentAfter implements ObserverInterface
 {
@@ -81,6 +80,17 @@ class SalesOrderShipmentAfter implements ObserverInterface
     public $helper;
 
     protected $logger;
+
+    /**
+     * @var Account
+     */
+    private Account $configAccount;
+
+    /**
+     * @var CreateInvoice
+     */
+    private CreateInvoice $createInvoice;
+
     /**
      * @param \Magento\Sales\Model\ResourceModel\Order\Invoice\CollectionFactory $invoiceCollectionFactory
      * @param \Magento\Sales\Model\Service\InvoiceService $invoiceService
@@ -97,6 +107,8 @@ class SalesOrderShipmentAfter implements ObserverInterface
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20 $afterpayConfig,
         \Buckaroo\Magento2\Gateway\GatewayInterface $gateway,
         \Buckaroo\Magento2\Helper\Data $helper,
+        Account $configAccount,
+        CreateInvoice $createInvoice,
         Log $logger
     ) {
         $this->invoiceCollectionFactory = $invoiceCollectionFactory;
@@ -105,11 +117,18 @@ class SalesOrderShipmentAfter implements ObserverInterface
         $this->transactionFactory = $transactionFactory;
         $this->klarnakpConfig = $klarnakpConfig;
         $this->afterpayConfig = $afterpayConfig;
+        $this->configAccount = $configAccount;
+        $this->createInvoice = $createInvoice;
         $this->helper = $helper;
         $this->gateway = $gateway;
         $this->logger = $logger;
     }
 
+    /**
+     * @throws Exception
+     * @throws LocalizedException
+     * @throws \Exception
+     */
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
         /** @var \Magento\Sales\Model\Order\Shipment $shipment */
@@ -119,10 +138,12 @@ class SalesOrderShipmentAfter implements ObserverInterface
         $order = $shipment->getOrder();
 
         $payment = $order->getPayment();
+        $paymentMethod = $payment->getMethodInstance();
+        $paymentMethodCode = $paymentMethod->getCode();
 
         $this->logger->addDebug(__METHOD__ . '|1|');
 
-        if (($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_klarnakp')
+        if (($paymentMethodCode == 'buckaroo_magento2_klarnakp')
             && $this->klarnakpConfig->getCreateInvoiceAfterShipment()
         ) {
             $this->gateway->setMode(
@@ -131,16 +152,26 @@ class SalesOrderShipmentAfter implements ObserverInterface
             $this->createInvoice($order, $shipment);
         }
 
-        if (($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_afterpay20')
+        if (($paymentMethodCode == 'buckaroo_magento2_afterpay20')
             && $this->afterpayConfig->getCreateInvoiceAfterShipment()
-            && ($payment->getMethodInstance()->getConfigPaymentAction() == 'authorize')
+            && ($paymentMethod->getConfigPaymentAction() == 'authorize')
         ) {
             $this->gateway->setMode(
                 $this->helper->getMode('buckaroo_magento2_afterpay20')
             );
             $this->createInvoice($order, $shipment, true);
         }
+
+        if (strpos($paymentMethodCode, 'buckaroo_magento2') !== false
+            && $this->configAccount->getInvoiceHandling() == InvoiceHandlingOptions::SHIPMENT) {
+            if ($paymentMethod->getConfigPaymentAction() == 'authorize') {
+                $this->createInvoice($order, $shipment, true);
+            } else {
+                $this->createInvoice->createInvoiceGeneralSetting($order);
+            }
+        }
     }
+
 
     private function createInvoice($order, $shipment, $allowPartialsWithDiscount = false)
     {

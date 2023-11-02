@@ -25,6 +25,7 @@ use Buckaroo\Magento2\Api\PushInterface;
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Model\Config\Source\InvoiceHandlingOptions;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 use Buckaroo\Magento2\Model\Method\AbstractMethod;
@@ -1469,6 +1470,10 @@ class Push implements PushInterface
 
         if (!$this->isGroupTransactionInfoType()) {
             $this->addTransactionData();
+        }
+
+        if ($this->configAccount->getInvoiceHandling() == InvoiceHandlingOptions::SHIPMENT) {
+            return true;
         }
 
         /**
