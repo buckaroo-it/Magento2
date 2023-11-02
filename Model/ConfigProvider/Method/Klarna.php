@@ -83,10 +83,7 @@ class Klarna extends AbstractConfigProvider
                             ['genderType' => 'male', 'genderTitle' => __('He/him')],
                             ['genderType' => 'female', 'genderTitle' => __('She/her')]
                         ],
-                        'showFinancialWarning' => $this->scopeConfig->getValue(
-                            self::XPATH_FINANCIAL_WARNING,
-                            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-                        ) !== "0"
+                        'showFinancialWarning' => $this->canShowFinancialWarning(self::XPATH_FINANCIAL_WARNING)
                     ],
                     'response' => [],
                 ],

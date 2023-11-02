@@ -83,10 +83,7 @@ class Afterpay20 extends AbstractConfigProvider
                         'subtext_color'   => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'is_b2b'     => $this->getCustomerType() !== AfterpayCustomerType::CUSTOMER_TYPE_B2C,
-                        'showFinancialWarning' => $this->scopeConfig->getValue(
-                            self::XPATH_FINANCIAL_WARNING,
-                            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-                        ) !== "0"
+                        'showFinancialWarning' => $this->canShowFinancialWarning(self::XPATH_FINANCIAL_WARNING)
                     ],
                     'response' => [],
                 ],

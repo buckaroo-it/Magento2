@@ -79,10 +79,7 @@ class CapayablePostpay extends AbstractConfigProvider
                         'subtext_style'   => $this->getSubtextStyle(),
                         'subtext_color'   => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'showFinancialWarning' => $this->scopeConfig->getValue(
-                            self::XPATH_FINANCIAL_WARNING,
-                            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-                        ) !== "0"
+                        'showFinancialWarning' => $this->canShowFinancialWarning(self::XPATH_FINANCIAL_WARNING)
                     ],
                 ],
             ],

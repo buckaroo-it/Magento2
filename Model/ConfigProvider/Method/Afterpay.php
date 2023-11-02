@@ -88,10 +88,7 @@ class Afterpay extends AbstractConfigProvider
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'businessMethod'    => $this->getBusiness(),
                         'paymentMethod'     => $this->getPaymentMethod(),
-                        'showFinancialWarning' => $this->scopeConfig->getValue(
-                            self::XPATH_FINANCIAL_WARNING,
-                            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-                        ) !== "0"
+                        'showFinancialWarning' => $this->canShowFinancialWarning(self::XPATH_FINANCIAL_WARNING)
                     ],
                     'response' => [],
                 ],

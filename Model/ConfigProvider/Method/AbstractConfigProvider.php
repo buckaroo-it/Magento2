@@ -329,4 +329,12 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     {
         return $this->paymentFeeHelper->getBuckarooPaymentFeeLabel($method);
     }
+
+    protected function canShowFinancialWarning(string $configKey): bool
+    {
+        return $this->scopeConfig->getValue(
+            $configKey,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        ) !== "0";
+    }
 }

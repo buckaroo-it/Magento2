@@ -84,10 +84,7 @@ class CapayableIn3 extends AbstractConfigProvider
                         'subtext_color'   => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'logo' => $this->getLogo(),
-                        'showFinancialWarning' => $this->scopeConfig->getValue(
-                            self::XPATH_FINANCIAL_WARNING,
-                            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-                        ) !== "0"
+                        'showFinancialWarning' => $this->canShowFinancialWarning(self::XPATH_FINANCIAL_WARNING)
                     ],
                 ],
             ],
