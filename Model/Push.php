@@ -1344,6 +1344,13 @@ class Push implements PushInterface
 
         $this->logging->addDebug(__METHOD__ . '|8|');
 
+        if ($this->configAccount->getInvoiceHandling() == InvoiceHandlingOptions::SHIPMENT) {
+            $state = Order::STATE_NEW;
+            $newStatus = $this->configAccount->getOrderStatusPending();
+            $this->order->setState($state);
+            $this->order->setStatus($newStatus);
+        }
+
         $this->processSucceededPushAuth($payment);
 
         $this->updateOrderStatus($state, $newStatus, $description, $forceState);
@@ -1566,7 +1573,7 @@ class Push implements PushInterface
          */
         $payment = $this->order->getPayment();
 
-        $transactionKey = $transactionKey ? $transactionKey : $this->getTransactionKey();
+        $transactionKey = $transactionKey ?: $this->getTransactionKey();
 
         if (strlen($transactionKey) <= 0) {
             throw new \Buckaroo\Magento2\Exception(__('There was no transaction ID found'));
@@ -1575,7 +1582,7 @@ class Push implements PushInterface
         /**
          * Save the transaction's response as additional info for the transaction.
          */
-        $postData = $datas ? $datas : $this->postData;
+        $postData = $datas ?: $this->postData;
         $rawInfo  = $this->helper->getTransactionAdditionalInfo($postData);
 
         /**
@@ -1585,6 +1592,11 @@ class Push implements PushInterface
             Transaction::RAW_DETAILS,
             $rawInfo
         );
+
+        $rawDetails = $payment->getAdditionalInformation(Transaction::RAW_DETAILS);
+        $rawDetails = $rawDetails ?: [];
+        $rawDetails[$transactionKey] = $rawInfo;
+        $payment->setAdditionalInformation(Transaction::RAW_DETAILS, $rawDetails);
 
         /**
          * Save the payment's transaction key.
