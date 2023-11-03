@@ -128,7 +128,7 @@ class CreateInvoice
     public function addTransactionData($transactionKey = false, $datas = false)
     {
         $transactionKey = $transactionKey ?: $this->payment->getAdditionalInformation(
-            \Buckaroo\Magento2\Model\Method\AbstractMethod::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY
+            AbstractMethod::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY
         );
 
         if (strlen($transactionKey) <= 0) {
@@ -141,10 +141,10 @@ class CreateInvoice
         if(!$datas)
         {
             $rawDetails = $this->payment->getAdditionalInformation(Transaction::RAW_DETAILS);
-            $datas = $rawDetails[$transactionKey] ?? [];
+            $rawInfo = $rawDetails[$transactionKey] ?? [];
+        } else {
+            $rawInfo  = $this->helper->getTransactionAdditionalInfo($datas);
         }
-
-        $rawInfo  = $this->helper->getTransactionAdditionalInfo($datas);
 
         /**
          * @noinspection PhpUndefinedMethodInspection
@@ -158,7 +158,7 @@ class CreateInvoice
 
         $this->payment->setParentTransactionId($transactionKey);
         $this->payment->setAdditionalInformation(
-            \Buckaroo\Magento2\Model\Method\AbstractMethod::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY,
+            AbstractMethod::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY,
             $transactionKey
         );
 
