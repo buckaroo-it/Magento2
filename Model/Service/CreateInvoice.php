@@ -32,6 +32,9 @@ use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
 use Magento\Sales\Model\Order\Payment\Transaction;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class CreateInvoice
 {
     /**
