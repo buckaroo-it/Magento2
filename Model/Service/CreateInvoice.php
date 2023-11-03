@@ -20,6 +20,7 @@
 declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Service;
+
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Model\Method\AbstractMethod;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
@@ -33,9 +34,11 @@ use Magento\Sales\Model\Order\Payment\Transaction;
 
 class CreateInvoice
 {
-    private Order $order;
-
+    /**
+     * @var Order\Payment
+     */
     private Order\Payment $payment;
+
     /**
      * @var Log
      */
@@ -92,7 +95,6 @@ class CreateInvoice
      */
     public function createInvoiceGeneralSetting(Order $order): bool
     {
-        $this->order = $order;
         $this->payment = $order->getPayment();
 
         $this->addTransactionData();
@@ -107,8 +109,8 @@ class CreateInvoice
 
         //Fix for suspected fraud when the order currency does not match with the payment's currency
         $amount = ($this->payment->isSameCurrency()
-            && $this->payment->isCaptureFinal($this->order->getGrandTotal())) ?
-            $this->order->getGrandTotal() : $this->order->getBaseTotalDue();
+            && $this->payment->isCaptureFinal($order->getGrandTotal())) ?
+            $order->getGrandTotal() : $order->getBaseTotalDue();
         $this->payment->registerCaptureNotification($amount);
         $this->payment->save();
 
@@ -121,22 +123,22 @@ class CreateInvoice
         }
 
         /** @var Invoice $invoice */
-        foreach ($this->order->getInvoiceCollection() as $invoice) {
+        foreach ($order->getInvoiceCollection() as $invoice) {
             $invoice->setTransactionId($transactionKey)->save();
 
-            if ($this->groupTransaction->isGroupTransaction($this->order->getIncrementId())) {
+            if ($this->groupTransaction->isGroupTransaction($order->getIncrementId())) {
                 $this->logger->addDebug(__METHOD__ . '|3| - Set invoice state PAID group transaction');
                 $invoice->setState(Invoice::STATE_PAID);
             }
 
-            if (!$invoice->getEmailSent() && $this->configAccount->getInvoiceEmail($this->order->getStore())) {
+            if (!$invoice->getEmailSent() && $this->configAccount->getInvoiceEmail($order->getStore())) {
                 $this->logger->addDebug(__METHOD__ . '|4| - Send Invoice Email');
                 $this->invoiceSender->send($invoice, true);
             }
         }
 
-        $this->order->setIsInProcess(true);
-        $this->order->save();
+        $order->setIsInProcess(true);
+        $order->save();
 
         return true;
     }

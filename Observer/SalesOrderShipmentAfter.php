@@ -91,7 +91,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
         TransactionFactory $transactionFactory,
         ConfigProviderFactory $configProviderFactory,
         BuckarooLoggerInterface $logger,
-        CreateInvoice $createInvoiceService,
+        CreateInvoice $createInvoiceService
     ) {
         $this->invoiceService = $invoiceService;
         $this->transactionFactory = $transactionFactory;
