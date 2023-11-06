@@ -570,7 +570,7 @@ class Afterpay20 extends AbstractMethod
         $billingAddress = $order->getBillingAddress();
         $streetFormat   = $this->formatStreet($billingAddress->getStreet());
 
-        $birthDayStamp = str_replace('/', '-', $payment->getAdditionalInformation('customer_DoB'));
+        $birthDayStamp = str_replace('/', '-', (string)$payment->getAdditionalInformation('customer_DoB'));
         $identificationNumber = $payment->getAdditionalInformation('customer_identificationNumber');
         $telephone = $payment->getAdditionalInformation('customer_telephone');
         $telephone = (empty($telephone) ? $billingAddress->getTelephone() : $telephone);

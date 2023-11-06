@@ -57,6 +57,9 @@ class Afterpay2 extends AbstractConfigProvider
 
     const XPATH_SPECIFIC_CUSTOMER_GROUP          = 'payment/buckaroo_magento2_afterpay2/specificcustomergroup';
     const XPATH_SPECIFIC_CUSTOMER_GROUP_B2B      = 'payment/buckaroo_magento2_afterpay2/specificcustomergroupb2b';
+
+    const XPATH_FINANCIAL_WARNING                = 'payment/buckaroo_magento2_afterpay2/financial_warning';
+
     /**
      * @return array
      */
@@ -85,6 +88,7 @@ class Afterpay2 extends AbstractConfigProvider
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'businessMethod'    => $this->getBusiness(),
                         'paymentMethod'     => $this->getPaymentMethod(),
+                        'showFinancialWarning' => $this->canShowFinancialWarning(self::XPATH_FINANCIAL_WARNING)
                     ],
                     'response' => [],
                 ],
