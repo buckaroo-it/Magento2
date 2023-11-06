@@ -720,6 +720,13 @@ class DefaultProcessor implements PushProcessorInterface
 
         $this->processSucceededPushAuthorization();
 
+        if ($this->configAccount->getInvoiceHandling() == InvoiceHandlingOptions::SHIPMENT) {
+            $paymentDetails['state'] = Order::STATE_NEW;
+            $paymentDetails['newStatus'] = $this->configAccount->getOrderStatusPending();
+            $this->order->setState($paymentDetails['state']);
+            $this->order->setStatus($paymentDetails['newStatus']);
+        }
+
         $this->orderRequestService->updateOrderStatus(
             $paymentDetails['state'],
             $paymentDetails['newStatus'],
@@ -925,6 +932,11 @@ class DefaultProcessor implements PushProcessorInterface
             Transaction::RAW_DETAILS,
             $rawInfo
         );
+
+        $rawDetails = $this->payment->getAdditionalInformation(Transaction::RAW_DETAILS);
+        $rawDetails = $rawDetails ?: [];
+        $rawDetails[$transactionKey] = $rawInfo;
+        $this->payment->setAdditionalInformation(Transaction::RAW_DETAILS, $rawDetails);
 
         /**
          * Save the payment's transaction key.
