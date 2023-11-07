@@ -142,32 +142,35 @@ class Add
         $this->cartRepository->save($cart);        
         
         $wallet = $request->getParam('wallet');
-        $shippingAddressData = $this->applepayModel->processAddressFromWallet($wallet, 'shipping');
-        
-        
-        $shippingAddress = $this->quoteAddressFactory->create();
-        $shippingAddress->addData($shippingAddressData);
 
-        $errors = $shippingAddress->validate(); 
-                
-        try {
-            $this->shippingAddressManagement->assign($cart->getId(), $shippingAddress);
-        } catch (\Exception $e) {
-            echo $e->getMessage();
+        if (!$cart->getIsVirtual()) {
+            $shippingAddressData = $this->applepayModel->processAddressFromWallet($wallet, 'shipping');
+            
+            
+            $shippingAddress = $this->quoteAddressFactory->create();
+            $shippingAddress->addData($shippingAddressData);
+
+            $errors = $shippingAddress->validate(); 
+                    
+            try {
+                $this->shippingAddressManagement->assign($cart->getId(), $shippingAddress);
+            } catch (\Exception $e) {
+                echo $e->getMessage();
+            }
+            $this->quoteRepository->save($cart);
+            $shippingMethodsResult = [];
+            //this delivery address is already assigned to the cart
+            $shippingMethods = $this->appleShippingMethod->getAvailableMethods( $cart);
+            foreach ($shippingMethods as $index => $shippingMethod) {
+                $shippingMethodsResult[] = [
+                    'carrier_title' => $shippingMethod['carrier_title'],
+                    'price_incl_tax' => round($shippingMethod['amount'], 2),
+                    'method_code' => $shippingMethod['carrier_code'] . '_' .  $shippingMethod['method_code'],
+                    'method_title' => $shippingMethod['method_title'],
+                ];
+            }
+            $cart->getShippingAddress()->setShippingMethod($shippingMethodsResult[0]['method_code']);
         }
-        $this->quoteRepository->save($cart);
-        $shippingMethodsResult = [];
-        //this delivery address is already assigned to the cart
-        $shippingMethods = $this->appleShippingMethod->getAvailableMethods( $cart);
-        foreach ($shippingMethods as $index => $shippingMethod) {
-            $shippingMethodsResult[] = [
-                'carrier_title' => $shippingMethod['carrier_title'],
-                'price_incl_tax' => round($shippingMethod['amount'], 2),
-                'method_code' => $shippingMethod['carrier_code'] . '_' .  $shippingMethod['method_code'],
-                'method_title' => $shippingMethod['method_title'],
-            ];
-        }
-        $cart->getShippingAddress()->setShippingMethod($shippingMethodsResult[0]['method_code']);
         $cart->setTotalsCollectedFlag(false);
         $cart->collectTotals();
         $totals = $this->gatherTotals($cart->getShippingAddress(), $cart->getTotals());
@@ -177,21 +180,23 @@ class Add
 
 
 
-        $data = [
+        return [
             'shipping_methods' => $shippingMethodsResult,
             'totals' => $totals
-        ];   
-        return $data;     
+        ];
     }
     public function gatherTotals($address, $quoteTotals)
     {
-        $totals = [
+        $shippingTotalInclTax = 0;
+        if ($address !== null) {
+            $shippingTotalInclTax = $address->getData('shipping_incl_tax');
+        }
+
+        return [
             'subtotal' => $quoteTotals['subtotal']->getValue(),
             'discount' => isset($quoteTotals['discount']) ? $quoteTotals['discount']->getValue() : null,
-            'shipping' => $address->getData('shipping_incl_tax'),
+            'shipping' => $shippingTotalInclTax,
             'grand_total' => $quoteTotals['grand_total']->getValue()
         ];
-
-        return $totals;
     }
 }

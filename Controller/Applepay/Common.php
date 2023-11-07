@@ -116,14 +116,17 @@ class Common extends Action
      */
     public function gatherTotals($address, $quoteTotals)
     {
-        $totals = [
+        $shippingTotalInclTax = 0;
+        if ($address !== null) {
+            $shippingTotalInclTax = $address->getData('shipping_incl_tax');
+        }
+
+        return [
             'subtotal' => $quoteTotals['subtotal']->getValue(),
             'discount' => isset($quoteTotals['discount']) ? $quoteTotals['discount']->getValue() : null,
-            'shipping' => $address->getData('shipping_incl_tax'),
+            'shipping' => $shippingTotalInclTax,
             'grand_total' => $quoteTotals['grand_total']->getValue()
         ];
-
-        return $totals;
     }
 
     /**
@@ -236,31 +239,32 @@ class Common extends Action
 
         $quote->getPayment()->setMethod(\Buckaroo\Magento2\Model\Method\Applepay::PAYMENT_METHOD_CODE);
         $quote->getShippingAddress()->setCollectShippingRates(true);
-        $quoteRepository->save($quote);
 
-        $shippingMethods = $this->getShippingMethods2($quote, $quote->getShippingAddress());
+        if (!$quote->getIsVirtual()) {
+            $shippingMethods = $this->getShippingMethods2($quote, $quote->getShippingAddress());
 
-        if (count($shippingMethods) == 0) {
-            $errorMessage = __(
-                'Apple Pay payment failed, because no shipping methods were found for the selected address. '.
-                'Please select a different shipping address within the pop-up or within your Apple Pay Wallet.'
-            );
-            $this->messageManager->addErrorMessage($errorMessage);
+            if (count($shippingMethods) == 0) {
+                $errorMessage = __(
+                    'Apple Pay payment failed, because no shipping methods were found for the selected address. '.
+                    'Please select a different shipping address within the pop-up or within your Apple Pay Wallet.'
+                );
+                $this->messageManager->addErrorMessage($errorMessage);
 
-        } else {
+            } else {
 
-            foreach ($shippingMethods as $index => $shippingMethod) {
-                $shippingMethodsResult[] = [
-                    'carrier_title' => $shippingMethod->getCarrierTitle(),
-                    'price_incl_tax' => round($shippingMethod->getAmount(), 2),
-                    'method_code' => $shippingMethod->getCarrierCode() . '_' .  $shippingMethod->getMethodCode(),
-                    'method_title' => $shippingMethod->getMethodTitle(),
-                ];
+                foreach ($shippingMethods as $index => $shippingMethod) {
+                    $shippingMethodsResult[] = [
+                        'carrier_title' => $shippingMethod->getCarrierTitle(),
+                        'price_incl_tax' => round($shippingMethod->getAmount(), 2),
+                        'method_code' => $shippingMethod->getCarrierCode() . '_' .  $shippingMethod->getMethodCode(),
+                        'method_title' => $shippingMethod->getMethodTitle(),
+                    ];
+                }
+
+                $this->logger->addDebug(__METHOD__ . '|2|');
+
+                $quote->getShippingAddress()->setShippingMethod($shippingMethodsResult[0]['method_code']);
             }
-
-            $this->logger->addDebug(__METHOD__ . '|2|');
-
-            $quote->getShippingAddress()->setShippingMethod($shippingMethodsResult[0]['method_code']);
             $quote->setTotalsCollectedFlag(false);
             $quote->collectTotals();
             $totals = $this->gatherTotals($quote->getShippingAddress(), $quote->getTotals());

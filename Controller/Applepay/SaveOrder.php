@@ -99,7 +99,7 @@ class SaveOrder extends Common
                 $checkoutSession = $objectManager->get(\Magento\Checkout\Model\Session::class);
                 $quote = $checkoutSession->getQuote();
 
-                if (!$this->setShippingAddress($quote, $payment['shippingContact'])) {
+                if (!$quote->getIsVirtual() && !$this->setShippingAddress($quote, $payment['shippingContact'])) {
                     return $this->commonResponse(false, true);
                 }
                 if (!$this->setBillingAddress($quote, $payment['billingContact'])) {
