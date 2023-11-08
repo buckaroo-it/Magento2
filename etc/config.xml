@@ -483,7 +483,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Capayable\Installments</model>
                 <order_status>pending</order_status>
-                <title>In3 - betaal in 3 keer, 0% rente</title>
+                <title>iDEAL In3</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>250</sort_order>
                 <order_email>1</order_email>
