@@ -143,6 +143,7 @@ class Add
         
         $wallet = $request->getParam('wallet');
 
+        $shippingMethodsResult = [];
         if (!$cart->getIsVirtual()) {
             $shippingAddressData = $this->applepayModel->processAddressFromWallet($wallet, 'shipping');
             
@@ -158,7 +159,6 @@ class Add
                 echo $e->getMessage();
             }
             $this->quoteRepository->save($cart);
-            $shippingMethodsResult = [];
             //this delivery address is already assigned to the cart
             $shippingMethods = $this->appleShippingMethod->getAvailableMethods( $cart);
             foreach ($shippingMethods as $index => $shippingMethod) {
