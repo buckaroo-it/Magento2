@@ -25,7 +25,7 @@ use Magento\Framework\App\Action\Context;
 use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Customer\Model\Session as CustomerSession;
-
+use Buckaroo\Magento2\Model\Method\Applepay;
 class SaveOrder extends Common
 {
     protected $quoteManagement;
@@ -115,6 +115,10 @@ class SaveOrder extends Common
                         ->setCustomerIsGuest(true)
                         ->setCustomerGroupId(\Magento\Customer\Model\Group::NOT_LOGGED_IN_ID);
                 }
+
+                $payment = $quote->getPayment();
+                $payment->setMethod(Applepay::PAYMENT_METHOD_CODE);
+                $quote->setPayment($payment);
 
                 $quote->collectTotals()->save();
 
