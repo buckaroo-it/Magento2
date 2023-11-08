@@ -20,48 +20,9 @@
     </div>
 
     <div class="payment-method-content">
-        <!-- ko foreach: getRegion('messages') -->
-        <!-- ko template: getTemplate() --><!-- /ko -->
-        <!--/ko-->
 
         <div class="payment-method-billing-address">
             <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
-            <!-- ko template: getTemplate() --><!-- /ko -->
-            <!--/ko-->
-        </div>
-
-        <div class="payment-method-second-col billing-address-form">
-            <form data-bind="mageInit: { 'validation': [] },
-                  attr: {'data-hasrequired': $t('* Required Fields')}">
-                <fieldset class="fieldset payment">
-
-                    <div class="field required">
-                        <label for="bicnumber" class="label">
-                            <span data-bind="i18n: 'BIC Number'"> </span>
-
-                        </label>
-                        <div class="control">
-                            <input id="bicnumber" class="input-text field _error" type="text"
-                                   placeholder="AAAABBCCDDD"
-                                   data-bind="
-                                    value: bicNumber,
-                                    valueUpdate: 'keyup',
-                                    attr: {
-                                        'data-validate': JSON.stringify({ 'required': true,  'bic':true  })
-                                    },
-                                    event: { blur: validateField }
-                                   "
-                                   name="payment[buckaroo_magento2_giropay][customer_bic]">
-                        </div>
-                    </div>
-
-
-                </fieldset>
-            </form>
-        </div>
-
-        <div class="checkout-agreements-block">
-            <!-- ko foreach: $parent.getRegion('before-place-order') -->
             <!-- ko template: getTemplate() --><!-- /ko -->
             <!--/ko-->
         </div>
@@ -75,7 +36,7 @@
                         click: placeOrder,
                         attr: {title: $t('Place Order')},
                         enable: (getCode() == isChecked()),
-                        css: {disabled: !isPlaceOrderActionAllowed() || !buttoncheck()}
+                        css: {disabled: !isPlaceOrderActionAllowed() }
                         "
                         disabled>
                     <span data-bind="i18n: 'Place Order'"></span>
@@ -88,5 +49,12 @@
             <span data-bind="text: getPayWithBaseCurrencyText()"></span>
         </div>
         <!--/ko-->
+
+        <div class="checkout-agreements-block">
+            <!-- ko foreach: $parent.getRegion('before-place-order') -->
+            <!-- ko template: getTemplate() --><!-- /ko -->
+            <!--/ko-->
+        </div>
+
     </div>
 </div>

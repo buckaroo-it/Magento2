@@ -32,6 +32,41 @@ class Klarnakp extends AbstractConfigProvider
         'payment/buckaroo_magento2_klarnakp/create_invoice_after_shipment';
 
     /**
+     * @var array
+     */
+    protected $allowedCurrencies = [
+        'EUR',
+        'AUD',
+        'CAD',
+        'CHF',
+        'DKK',
+        'GBP',
+        'NOK',
+        'SEK'
+    ];
+
+    /**
+     * @var array
+     */
+    protected $allowedCountries = [
+        'NL',
+        'BE',
+        'DE',
+        'AT',
+        'FI',
+        'IT',
+        'FR',
+        'ES',
+        'AU',
+        'CA',
+        'CH',
+        'DK',
+        'GB',
+        'NO',
+        'SE'
+    ];
+
+    /**
      * @inheritdoc
      *
      * @throws Exception

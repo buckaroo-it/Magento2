@@ -353,11 +353,23 @@ class Process extends Action implements HttpPostActionInterface
      * @return void
      * @throws \Exception If an exception occurs within the called methods.
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     private function sendKlarnaKpOrderConfirmation(int $statusCode): void
     {
         $paymentMethod = $this->payment->getMethodInstance();
         $store = $this->order->getStore();
+
+        $isKlarnaKpReserve = ($this->redirectRequest->hasPostData('primary_service', 'KlarnaKp')
+            && $this->redirectRequest->hasAdditionalInformation('service_action_from_magento', 'reserve')
+            && !empty($this->redirectRequest->getServiceKlarnakpReservationnumber()));
+
+        if(empty($this->order->getBuckarooReservationNumber()) && $isKlarnaKpReserve)
+        {
+            $this->order->setBuckarooReservationNumber($this->redirectRequest->getServiceKlarnakpReservationnumber());
+            $this->order->save();
+        }
 
         if (!$this->order->getEmailSent()
             && (
@@ -365,9 +377,7 @@ class Process extends Action implements HttpPostActionInterface
                 || $paymentMethod->getConfigData('order_email', $store) === "1"
             )
         ) {
-            $isKlarnaKpReserve = ($this->redirectRequest->hasPostData('primary_service', 'KlarnaKp')
-                && $this->redirectRequest->hasAdditionalInformation('service_action_from_magento', 'reserve')
-                && !empty($this->redirectRequest->getServiceKlarnakpReservationnumber()));
+
 
             if (!($this->redirectRequest->hasAdditionalInformation('initiated_by_magento', 1)
                 && $isKlarnaKpReserve

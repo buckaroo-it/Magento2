@@ -254,6 +254,9 @@ class Data extends AbstractHelper
     public function getTransactionAdditionalInfo(array $array, array $rawInfo = [], string $keyPrefix = ''): array
     {
         foreach ($array as $key => $value) {
+            if (in_array($key, ['brq_websitekey', 'brq_signature', 'brq_payer_hash'])) {
+                continue;
+            }
             $key = $keyPrefix . $key;
 
             if (is_array($value)) {

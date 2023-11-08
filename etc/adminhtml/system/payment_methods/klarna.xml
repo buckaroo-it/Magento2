@@ -151,7 +151,7 @@
                 <field id="specificcountry" translate="label" type="multiselect" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Payment from Specific Country</label>
                     <comment><![CDATA[Only available when set to 'specific countries'.]]></comment>
-                    <source_model>Magento\Directory\Model\Config\Source\Country</source_model>
+                    <source_model>Buckaroo\Magento2\Model\Config\Source\AllowedCountries::klarna</source_model>
                     <can_be_empty>1</can_be_empty>
                     <config_path>payment/buckaroo_magento2_klarna/specificcountry</config_path>
                     <depends>
@@ -164,17 +164,9 @@
                     <comment><![CDATA[Select payment method specific currencies.]]></comment>
                     <tooltip>Your contract with Buckaroo must allow for the selected currencies to be used with this payment method.</tooltip>
                     <config_path>payment/buckaroo_magento2_klarna/allowed_currencies</config_path>
-                    <source_model>Buckaroo\Magento2\Model\Config\Source\AllowedCurrencies::ideal</source_model>
+                    <source_model>Buckaroo\Magento2\Model\Config\Source\AllowedCurrencies::klarna</source_model>
                     <backend_model>Buckaroo\Magento2\Model\Config\Backend\AllowedCurrencies</backend_model>
                 </field>
-
-                <field id="limit_by_ip" translate="label comment" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Display only for selected IPs</label>
-                    <comment><![CDATA[Show method only to Magento set IPs.]]></comment>
-                    <tooltip>Magento developer client restrictions.</tooltip>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <config_path>payment/buckaroo_magento2_klarna/limit_by_ip</config_path>
-                </field>        
             </group>
         </group>
     </group>

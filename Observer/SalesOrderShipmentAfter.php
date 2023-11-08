@@ -20,16 +20,11 @@
 
 namespace Buckaroo\Magento2\Observer;
 
-use Buckaroo\Magento2\Helper\Data;
-use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\Config\Source\InvoiceHandlingOptions;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderFactory;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp;
-use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
-use Magento\Checkout\Model\ConfigProviderInterface;
+use Buckaroo\Magento2\Model\Service\CreateInvoice;
 use Magento\Framework\DB\TransactionFactory;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
@@ -37,10 +32,8 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order;
-use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
 use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Shipment;
-use Magento\Sales\Model\Order\ShipmentFactory;
 use Magento\Sales\Model\ResourceModel\Order\Invoice\CollectionFactory;
 use Magento\Sales\Model\Service\InvoiceService;
 
@@ -62,30 +55,9 @@ class SalesOrderShipmentAfter implements ObserverInterface
     private Order $order;
 
     /**
-     * @var OrderPaymentInterface|null
-     */
-    private ?OrderPaymentInterface $payment;
-
-    /**
-     * @var Data
-     */
-    public Data $helper;
-
-    /**
-     *
-     * @var CollectionFactory
-     */
-    protected $invoiceCollectionFactory;
-
-    /**
      * @var InvoiceService
      */
     protected InvoiceService $invoiceService;
-
-    /**
-     * @var ShipmentFactory
-     */
-    protected ShipmentFactory $shipmentFactory;
 
     /**
      * @var TransactionFactory
@@ -93,61 +65,39 @@ class SalesOrderShipmentAfter implements ObserverInterface
     protected TransactionFactory $transactionFactory;
 
     /**
-     * @var BuckarooLoggerInterface
-     */
-    protected BuckarooLoggerInterface $logger;
-
-    /**
      * @var ConfigProviderFactory
      */
     private ConfigProviderFactory $configProviderFactory;
 
     /**
-     * @var Account
+     * @var BuckarooLoggerInterface
      */
-    private Account $configAccount;
+    protected BuckarooLoggerInterface $logger;
 
     /**
-     * @var PaymentGroupTransaction
+     * @var CreateInvoice
      */
-    private PaymentGroupTransaction $groupTransaction;
+    private CreateInvoice $createInvoiceService;
 
     /**
-     * @var InvoiceSender
-     */
-    private InvoiceSender $invoiceSender;
-
-    /**
-     * @param CollectionFactory $invoiceCollectionFactory
      * @param InvoiceService $invoiceService
-     * @param ShipmentFactory $shipmentFactory
      * @param TransactionFactory $transactionFactory
      * @param ConfigProviderFactory $configProviderFactory
-     * @param Data $helper
      * @param BuckarooLoggerInterface $logger
-     * @param PaymentGroupTransaction $groupTransaction
-     * @param InvoiceSender $invoiceSender
+     * @param CreateInvoice $createInvoiceService
      */
     public function __construct(
-        CollectionFactory $invoiceCollectionFactory,
         InvoiceService $invoiceService,
-        ShipmentFactory $shipmentFactory,
         TransactionFactory $transactionFactory,
         ConfigProviderFactory $configProviderFactory,
-        Data $helper,
         BuckarooLoggerInterface $logger,
-        PaymentGroupTransaction $groupTransaction,
-        InvoiceSender $invoiceSender
+        CreateInvoice $createInvoiceService
     ) {
-        $this->invoiceCollectionFactory = $invoiceCollectionFactory;
         $this->invoiceService = $invoiceService;
-        $this->shipmentFactory = $shipmentFactory;
         $this->transactionFactory = $transactionFactory;
         $this->configProviderFactory = $configProviderFactory;
-        $this->helper = $helper;
         $this->logger = $logger;
-        $this->groupTransaction = $groupTransaction;
-        $this->invoiceSender = $invoiceSender;
+        $this->createInvoiceService = $createInvoiceService;
     }
 
     /**
@@ -163,11 +113,12 @@ class SalesOrderShipmentAfter implements ObserverInterface
         $this->shipment = $observer->getEvent()->getShipment();
 
         $this->order = $this->shipment->getOrder();
-        $this->payment = $this->order->getPayment();
-        $paymentMethod = $this->payment->getMethodInstance();
+        $payment = $this->order->getPayment();
+        $paymentMethod = $payment->getMethodInstance();
+        $paymentMethodCode = $paymentMethod->getCode();
 
         $klarnakpConfig = $this->configProviderFactory->get('klarnakp');
-        if (($paymentMethod->getCode() == 'buckaroo_magento2_klarnakp')
+        if (($paymentMethodCode == 'buckaroo_magento2_klarnakp')
             && $klarnakpConfig->isInvoiceCreatedAfterShipment()
         ) {
             $this->createInvoice();
@@ -175,18 +126,22 @@ class SalesOrderShipmentAfter implements ObserverInterface
         }
 
         $afterpayConfig = $this->configProviderFactory->get('afterpay20');
-        if (($paymentMethod->getCode() == 'buckaroo_magento2_afterpay20')
+        if (($paymentMethodCode == 'buckaroo_magento2_afterpay20')
             && $afterpayConfig->isInvoiceCreatedAfterShipment()
             && ($paymentMethod->getConfigPaymentAction() == 'authorize')
         ) {
-            $this->createInvoice( true);
+            $this->createInvoice(true);
             return;
         }
 
-        $this->configAccount = $this->configProviderFactory->get('account');
-        if (strpos($paymentMethod->getCode(), 'buckaroo_magento2') !== false
-            && $this->configAccount->getInvoiceHandling() == InvoiceHandlingOptions::SHIPMENT) {
-            $this->createInvoiceGeneralSetting();
+        $configAccount = $this->configProviderFactory->get('account');
+        if (strpos($paymentMethodCode, 'buckaroo_magento2') !== false
+            && $configAccount->getInvoiceHandling() == InvoiceHandlingOptions::SHIPMENT) {
+            if ($paymentMethod->getConfigPaymentAction() == 'authorize') {
+                $this->createInvoice(true);
+            } else {
+                $this->createInvoiceService->createInvoiceGeneralSetting($this->order);
+            }
         }
     }
 
@@ -257,66 +212,6 @@ class SalesOrderShipmentAfter implements ObserverInterface
         }
 
         return $invoice;
-    }
-
-    /**
-     * Create invoice after shipment for all buckaroo payment methods
-     *
-     * @return bool
-     * @throws \Exception
-     *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     */
-    public function createInvoiceGeneralSetting(): bool
-    {
-        $this->logger->addDebug('[CREATE_INVOICE] | [Observer] | ['. __METHOD__ .':'. __LINE__ . '] - Save Invoice');
-
-        if (!$this->order->canInvoice() || $this->order->hasInvoices()) {
-            $this->logger->addDebug(
-                '[CREATE_INVOICE] | [Observer] | ['. __METHOD__ .':'. __LINE__ . '] - Order can not be invoiced'
-            );
-
-            return false;
-        }
-
-        //Fix for suspected fraud when the order currency does not match with the payment's currency
-        $amount = ($this->payment->isSameCurrency()
-            && $this->payment->isCaptureFinal($this->order->getGrandTotal())) ?
-            $this->order->getGrandTotal() : $this->order->getBaseTotalDue();
-        $this->payment->registerCaptureNotification($amount);
-        $this->payment->save();
-
-        $transactionKey = (string)$this->payment->getAdditionalInformation(
-            BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY
-        );
-
-        if (strlen($transactionKey) <= 0) {
-            return true;
-        }
-
-        /** @var Invoice $invoice */
-        foreach ($this->order->getInvoiceCollection() as $invoice) {
-            $invoice->setTransactionId($transactionKey)->save();
-
-            if ($this->groupTransaction->isGroupTransaction($this->order->getIncrementId())) {
-                $this->logger->addDebug(
-                    '[CREATE_INVOICE] | [Observer] | [' . __METHOD__ . ':' . __LINE__ . '] - Set invoice state PAID group transaction'
-                );
-                $invoice->setState(Invoice::STATE_PAID);
-            }
-
-            if (!$invoice->getEmailSent() && $this->configAccount->getInvoiceEmail($this->order->getStore())) {
-                $this->logger->addDebug(
-                    '[CREATE_INVOICE] | [Observer] | ['. __METHOD__ .':'. __LINE__ . '] - Send Invoice Email '
-                );
-                $this->invoiceSender->send($invoice, true);
-            }
-        }
-
-        $this->order->setIsInProcess(true);
-        $this->order->save();
-
-        return true;
     }
 
     /**

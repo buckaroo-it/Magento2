@@ -53,25 +53,6 @@ class DebugConfiguration extends AbstractConfigProvider
     }
 
     /**
-     * Get array of emails where debug information will be sent
-     *
-     * @return array
-     */
-    public function getDebugEmails(): array
-    {
-        $debugEmails = $this->accountConfig->getDebugEmail();
-        if (!is_scalar($debugEmails)) {
-            return [];
-        }
-
-        $debugEmails = explode(',', preg_replace('/\s+/', '', (string)$debugEmails));
-
-        return array_filter($debugEmails, function ($debugEmail) {
-            return filter_var($debugEmail, FILTER_VALIDATE_EMAIL);
-        });
-    }
-
-    /**
      * Is Logger active
      *
      * @param int|string $level

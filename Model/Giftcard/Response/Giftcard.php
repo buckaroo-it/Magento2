@@ -20,6 +20,7 @@
 
 namespace Buckaroo\Magento2\Model\Giftcard\Response;
 
+use Buckaroo\Magento2\Model\Data\BuckarooResponseData;
 use Magento\Quote\Model\QuoteManagement;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Sales\Api\OrderManagementInterface;
@@ -77,9 +78,9 @@ class Giftcard
     private CartInterface $quote;
 
     /**
-     * @var OrderRepositoryInterface
+     * @var BuckarooResponseData
      */
-    protected $orderRepository;
+    private BuckarooResponseData $buckarooResponseData;
 
     public function __construct(
         PriceCurrencyInterface $priceCurrency,
@@ -88,7 +89,8 @@ class Giftcard
         OrderManagementInterface $orderManagement,
         OrderRepositoryInterface $orderRepository,
         GiftcardRemove $giftcardRemoveService,
-        BuckarooLoggerInterface $logger
+        BuckarooLoggerInterface $logger,
+        BuckarooResponseData $buckarooResponseData
     ) {
         $this->priceCurrency = $priceCurrency;
         $this->groupTransaction = $groupTransaction;
@@ -97,6 +99,7 @@ class Giftcard
         $this->orderRepository = $orderRepository;
         $this->giftcardRemoveService = $giftcardRemoveService;
         $this->logger = $logger;
+        $this->buckarooResponseData = $buckarooResponseData;
     }
 
     /**
@@ -111,6 +114,7 @@ class Giftcard
     {
         $this->quote = $quote;
         $this->response = $response;
+        $this->buckarooResponseData->setResponse($response);
 
         if ($this->response->isSuccess()) {
             $this->saveGroupTransaction();

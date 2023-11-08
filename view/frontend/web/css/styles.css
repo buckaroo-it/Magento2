@@ -184,7 +184,9 @@
     .buckaroo_magento2_tinka .payment-method-second-col,
     .buckaroo_magento2_mrcash .payment-method-second-col,
     .buckaroo_magento2_voucher .payment-method-second-col,
-    .buckaroo_magento2_paybybank .payment-method-second-col
+    .buckaroo_magento2_paybybank .payment-method-second-col,
+    .buckaroo_magento2_mbway .payment-method-second-col,
+    .buckaroo_magento2_multibanco .payment-method-second-col
     {
         float:left;
         width: 50%;
@@ -213,7 +215,9 @@
     .buckaroo_magento2_tinka .payment-method-billing-address,
     .buckaroo_magento2_mrcash .payment-method-billing-address,
     .buckaroo_magento2_voucher .payment-method-billing-address,
-    .buckaroo_magento2_paybybank .payment-method-billing-address
+    .buckaroo_magento2_paybybank .payment-method-billing-address,
+    .buckaroo_magento2_mbway .payment-method-billing-address,
+    .buckaroo_magento2_multibanco .payment-method-billing-address
     {
         float:left;
         width: 50%;

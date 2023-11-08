@@ -28,6 +28,37 @@ class Klarna extends AbstractConfigProvider
     public const CODE = 'buckaroo_magento2_klarna';
 
     /**
+     * @var array
+     */
+    protected $allowedCurrencies = [
+        'EUR',
+        'GBP',
+        'DKK',
+        'SEK',
+        'NOK',
+        'CHF',
+    ];
+
+    /**
+     * @var array
+     */
+    protected $allowedCountries = [
+        'NL',
+        'DE',
+        'AT',
+        'GB',
+        'DK',
+        'SE',
+        'NO',
+        'FI',
+        'IT',
+        'FR',
+        'ES',
+        'CH',
+        'BE',
+    ];
+
+    /**
      * @inheritdoc
      *
      * @throws Exception
