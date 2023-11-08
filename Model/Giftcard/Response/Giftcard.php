@@ -115,15 +115,12 @@ class Giftcard
         if ($this->response->isSuccess()) {
             $this->saveGroupTransaction();
             if ($this->quote->getGrandTotal() > $this->response->getAmount()) {
-                $order = $this->createOrderFromQuote();
+                $this->createOrderFromQuote();
             }
         } else {
-            $order = $this->createOrderFromQuote(false);
+            $this->saveGroupTransaction();
+            $this->createOrderFromQuote(false);
         }
-
-//        else {
-//            $this->cancelOrder();
-//        }
     }
 
     /**
@@ -297,41 +294,75 @@ class Giftcard
      */
     protected function createOrderFromQuote($success = true)
     {
-        //fix missing email validation
-        if ($this->quote->getCustomerEmail() == null) {
-            $this->quote->setCustomerEmail(
-                $this->quote->getBillingAddress()->getEmail()
-            );
-        }
+        $this->ensureCustomerEmail();
 
-        if($this->quote->getOrigOrderId()) {
-            $order = $this->orderRepository->get($this->quote->getOrigOrderId());
-        } else {
-            $order = $this->quoteManagement->submit($this->quote);
-        }
+        $order = $this->getExistingOrder() ?? null;
 
-        //keep the quote active but remove the canceled order from it
-        $this->quote->setIsActive(true);
         if ($success) {
-            $rate = 1;
-            $store = $this->quote->getStore();
-            $currency = $store->getCurrentCurrencyCode();
-            if ($currency != $store->getBaseCurrencyCode()) {
-                $rate = $store->getBaseCurrency()->getRate($currency);
-            }
-
-            $amountPaid = $this->response->getAmount();
-            $baseAmountPaid = (float)$amountPaid / (float)$rate;
-
-            $buckarooAlreadyPaid = $this->quote->getBuckarooAlreadyPaid() + $amountPaid;
-            $baseBuckarooAlreadyPaid = $this->quote->getBaseBuckarooAlreadyPaid() + $baseAmountPaid;
-
-            $this->quote->setBuckarooAlreadyPaid($buckarooAlreadyPaid);
-            $this->quote->setBaseBuckarooAlreadyPaid($baseBuckarooAlreadyPaid);
+            $order = $order ?? $this->quoteManagement->submit($this->quote);
+//            $this->updateQuotePaymentAmounts();
         }
 
-        $this->quote->setOrigOrderId($order->getEntityId());
+        if ($order) {
+            $this->quote->setOrigOrderId($order->getEntityId());
+        }
+
+        $this->quote->setIsActive(true);
         $this->quote->save();
+
         return $order;
+    }
+
+    /**
+     * Ensure customer email is set in the quote.
+     */
+    protected function ensureCustomerEmail(): void
+    {
+        if (!$this->quote->getCustomerEmail()) {
+            $this->quote->setCustomerEmail($this->quote->getBillingAddress()->getEmail());
+        }
+    }
+
+    /**
+     * Retrieve the existing order if it exists.
+     *
+     * @return OrderInterface|null
+     */
+    protected function getExistingOrder(): ?OrderInterface
+    {
+        $orderId = $this->quote->getOrigOrderId();
+        if (!$orderId) {
+            return null;
+        }
+
+        try {
+            return $this->orderRepository->get($orderId);
+        } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Update the quote's payment amounts based on the currency rate.
+     */
+    protected function updateQuotePaymentAmounts()
+    {
+        $rate = 1.0;
+        $store = $this->quote->getStore();
+        $currency = $store->getCurrentCurrencyCode();
+        if ($currency != $store->getBaseCurrencyCode()) {
+            $rate = $store->getBaseCurrency()->getRate($currency);
+        }
+
+        $amountPaid = $this->response->getAmount();
+        $baseAmountPaid = (float)$amountPaid / (float)$rate;
+
+        $this->quote->setBuckarooAlreadyPaid(
+            $this->quote->getBuckarooAlreadyPaid() + $amountPaid
+        );
+
+        $this->quote->setBaseBuckarooAlreadyPaid(
+            $this->quote->getBaseBuckarooAlreadyPaid() + $baseAmountPaid
+        );
     }
 }

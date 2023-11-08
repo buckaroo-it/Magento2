@@ -185,7 +185,7 @@ class DefaultProcessor implements PushProcessorInterface
 
         $this->setOrderStatusMessage();
 
-        if ($this->isGroupTransactionPart()) {
+        if ($this->isGroupTransactionPart() || $this->pushRequest->getRelatedtransactionPartialpayment()) {
             $this->savePartGroupTransaction();
             $this->addGiftcardPartialPaymentToPaymentInformation();
             $this->order->save();

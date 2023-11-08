@@ -141,6 +141,18 @@ class PaymentGroupTransaction extends AbstractHelper
     }
 
     /**
+     * Check if is group transaction the order
+     *
+     * @param string|int $orderId
+     * @return bool
+     */
+    public function isAnyGroupTransaction($orderId)
+    {
+        $groupTransactions = $this->getAnyGroupTransactionItems($orderId);
+        return is_array($groupTransactions) && count($groupTransactions) > 0;
+    }
+
+    /**
      * Retrieves the group transaction items for a given order ID.
      *
      * @param string|int $orderId
@@ -157,6 +169,27 @@ class PaymentGroupTransaction extends AbstractHelper
             ->addFieldToFilter(
                 'status',
                 ['eq' => '190']
+            );
+        $items = array_values($collection->getItems());
+
+        return array_filter($items, function ($item) {
+            return $item['amount'] - (float)$item['refunded_amount'] > 0;
+        });
+    }
+
+    /**
+     * Retrieves the group transaction items for a given order ID.
+     *
+     * @param string|int $orderId
+     * @return array
+     */
+    public function getAnyGroupTransactionItems($orderId)
+    {
+        $collection = $this->groupTransactionFactory->create()
+            ->getCollection()
+            ->addFieldToFilter(
+                'order_id',
+                ['eq' => $orderId]
             );
         $items = array_values($collection->getItems());
 
@@ -235,7 +268,8 @@ class PaymentGroupTransaction extends AbstractHelper
     {
         $collection = $this->groupTransactionFactory->create()
             ->getCollection()
-            ->addFieldToFilter('order_id', ['eq' => $orderId])
+            ->addFieldToFilter('order_id', $orderId)
+            ->addFieldToFilter('status', '190')
             ->addFieldToFilter('refunded_amount', ['null' => true]);
         return array_values($collection->getItems());
     }
