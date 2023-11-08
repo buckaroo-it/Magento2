@@ -110,6 +110,15 @@ define(
                         ]
                     );
 
+                    this.showFinancialWarning = ko.computed(
+                        function () {
+                            return quote.billingAddress() !== null &&
+                            quote.billingAddress().countryId == 'NL' &&
+                            window.checkoutConfig.payment.buckaroo.tinka.showFinancialWarning
+                        },
+                        this
+                    );
+
                     this.activeAddress = ko.computed(
                         function () {
                             if (quote.billingAddress()) {

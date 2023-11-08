@@ -27,6 +27,8 @@ class Klarna extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_klarna';
 
+    public const XPATH_FINANCIAL_WARNING = 'payment/buckaroo_magento2_klarna/financial_warning';
+
     /**
      * @var array
      */
@@ -84,7 +86,8 @@ class Klarna extends AbstractConfigProvider
                         'genderList'        => [
                             ['genderType' => 'male', 'genderTitle' => __('He/him')],
                             ['genderType' => 'female', 'genderTitle' => __('She/her')]
-                        ]
+                        ],
+                        'showFinancialWarning' => $this->canShowFinancialWarning(self::XPATH_FINANCIAL_WARNING)
                     ],
                     'response' => [],
                 ],

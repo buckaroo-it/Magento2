@@ -31,6 +31,8 @@ class Klarnakp extends AbstractConfigProvider
     public const XPATH_KLARNAKP_CREATE_INVOICE_BY_SHIP =
         'payment/buckaroo_magento2_klarnakp/create_invoice_after_shipment';
 
+    public const XPATH_FINANCIAL_WARNING = 'payment/buckaroo_magento2_klarnakp/financial_warning';
+
     /**
      * @var array
      */
@@ -89,6 +91,7 @@ class Klarnakp extends AbstractConfigProvider
                         'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'paymentFee'        => $this->getPaymentFee(),
+                        'showFinancialWarning' => $this->canShowFinancialWarning(self::XPATH_FINANCIAL_WARNING)
                     ],
                     'response' => [],
                 ],

@@ -27,7 +27,8 @@ define(
         'ko',
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/action/select-payment-method',
-        'buckaroo/checkout/common'
+        'buckaroo/checkout/common',
+        'Magento_Checkout/js/model/quote'
     ],
     function (
         $,
@@ -37,7 +38,8 @@ define(
         ko,
         checkoutData,
         selectPaymentMethodAction,
-        checkoutCommon
+        checkoutCommon,
+        quote
     ) {
         'use strict';
 
@@ -71,6 +73,15 @@ define(
                         [
                             'selectedGender',
                         ]
+                    );
+
+                    this.showFinancialWarning = ko.computed(
+                        function () {
+                            return quote.billingAddress() !== null &&
+                            quote.billingAddress().countryId == 'NL' &&
+                            window.checkoutConfig.payment.buckaroo.klarnain.showFinancialWarning
+                        },
+                        this
                     );
 
                     /**
