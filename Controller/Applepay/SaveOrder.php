@@ -108,10 +108,16 @@ class SaveOrder extends Common
 
                 $this->logger->addDebug(__METHOD__.'|2|');
 
+                $emailAddress = $quote->getShippingAddress()->getEmail();
+
+                if ($quote->getIsVirtual()) {
+                    $emailAddress =  isset($payment['shippingContact']['emailAddress']) ? $payment['shippingContact']['emailAddress']: null;
+                }
+
                 if (!($this->customer->getCustomer() && $this->customer->getCustomer()->getId())) {
                     $quote->setCheckoutMethod('guest')
                         ->setCustomerId(null)
-                        ->setCustomerEmail($quote->getShippingAddress()->getEmail())
+                        ->setCustomerEmail($emailAddress)
                         ->setCustomerIsGuest(true)
                         ->setCustomerGroupId(\Magento\Customer\Model\Group::NOT_LOGGED_IN_ID);
                 }
