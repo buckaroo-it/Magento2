@@ -240,6 +240,7 @@ class Common extends Action
         $quote->getPayment()->setMethod(\Buckaroo\Magento2\Model\Method\Applepay::PAYMENT_METHOD_CODE);
         $quote->getShippingAddress()->setCollectShippingRates(true);
 
+        $shippingMethodsResult = [];
         if (!$quote->getIsVirtual()) {
             $shippingMethods = $this->getShippingMethods2($quote, $quote->getShippingAddress());
 
@@ -249,10 +250,11 @@ class Common extends Action
                     'Please select a different shipping address within the pop-up or within your Apple Pay Wallet.'
                 );
                 $this->messageManager->addErrorMessage($errorMessage);
+                return [];
 
             } else {
 
-                foreach ($shippingMethods as $index => $shippingMethod) {
+                foreach ($shippingMethods as $shippingMethod) {
                     $shippingMethodsResult[] = [
                         'carrier_title' => $shippingMethod->getCarrierTitle(),
                         'price_incl_tax' => round($shippingMethod->getAmount(), 2),
@@ -265,23 +267,23 @@ class Common extends Action
 
                 $quote->getShippingAddress()->setShippingMethod($shippingMethodsResult[0]['method_code']);
             }
-            $quote->setTotalsCollectedFlag(false);
-            $quote->collectTotals();
-            $totals = $this->gatherTotals($quote->getShippingAddress(), $quote->getTotals());
-            if ($quote->getSubtotal() != $quote->getSubtotalWithDiscount()) {
-                $totals['discount'] = round($quote->getSubtotalWithDiscount() - $quote->getSubtotal(), 2);
-            }
-            $data = [
-                'shipping_methods' => $shippingMethodsResult,
-                'totals' => $totals
-            ];
-            $quoteRepository->save($quote);
-            $this->cart->save();
-
-            $this->logger->addDebug(__METHOD__ . '|3|');
-
-            return $data;
         }
+        $quote->setTotalsCollectedFlag(false);
+        $quote->collectTotals();
+        $totals = $this->gatherTotals($quote->getShippingAddress(), $quote->getTotals());
+        if ($quote->getSubtotal() != $quote->getSubtotalWithDiscount()) {
+            $totals['discount'] = round($quote->getSubtotalWithDiscount() - $quote->getSubtotal(), 2);
+        }
+        $data = [
+            'shipping_methods' => $shippingMethodsResult,
+            'totals' => $totals
+        ];
+        $quoteRepository->save($quote);
+        $this->cart->save();
+
+        $this->logger->addDebug(__METHOD__ . '|3|');
+
+        return $data;
     }
 
     /**
