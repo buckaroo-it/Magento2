@@ -57,6 +57,9 @@ use Magento\Framework\Event\ManagerInterface as EventManager;
 
 class Capayable extends AbstractMethod
 {
+    public const DEFAULT_NAME = 'iDEAL In3';
+    public const V2_NAME = 'In3';
+    
     /** Payment Code */
     const PAYMENT_METHOD_CODE = '';
 
