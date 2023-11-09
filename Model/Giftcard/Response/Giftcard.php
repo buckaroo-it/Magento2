@@ -303,8 +303,8 @@ class Giftcard
         $order = $this->getExistingOrder() ?? null;
 
         if ($success) {
-            $order = $order ?? $this->quoteManagement->submit($this->quote);
-//            $this->updateQuotePaymentAmounts();
+            $order = $order ?? $this->createOrder();
+            $this->updateQuotePaymentAmounts();
         }
 
         if ($order) {
@@ -344,6 +344,18 @@ class Giftcard
         } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
             return null;
         }
+    }
+
+    /**
+     * Create order from quote
+     *
+     * @return AbstractExtensibleModel|OrderInterface|object|null
+     * @throws LocalizedException
+     */
+    protected function createOrder()
+    {
+        $this->quote->collectTotals();
+        return $this->quoteManagement->submit($this->quote);
     }
 
     /**
