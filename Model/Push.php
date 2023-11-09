@@ -1344,13 +1344,6 @@ class Push implements PushInterface
 
         $this->logging->addDebug(__METHOD__ . '|8|');
 
-        if ($this->configAccount->getInvoiceHandling() == InvoiceHandlingOptions::SHIPMENT) {
-            $state = Order::STATE_NEW;
-            $newStatus = $this->configAccount->getOrderStatusPending();
-            $this->order->setState($state);
-            $this->order->setStatus($newStatus);
-        }
-
         $this->processSucceededPushAuth($payment);
 
         $this->updateOrderStatus($state, $newStatus, $description, $forceState);
