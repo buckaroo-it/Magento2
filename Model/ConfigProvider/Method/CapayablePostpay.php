@@ -47,6 +47,9 @@ class CapayablePostpay extends AbstractConfigProvider
     const XPATH_SPECIFIC_COUNTRY   = 'payment/buckaroo_magento2_capayablepostpay/specificcountry';
     const XPATH_SPECIFIC_CUSTOMER_GROUP = 'payment/buckaroo_magento2_capayablepostpay/specificcustomergroup';
 
+    const XPATH_FINANCIAL_WARNING = 'payment/buckaroo_magento2_capayablepostpay/financial_warning';
+
+
     /** @var array */
     protected $allowedCurrencies = [
         'EUR'
@@ -76,6 +79,7 @@ class CapayablePostpay extends AbstractConfigProvider
                         'subtext_style'   => $this->getSubtextStyle(),
                         'subtext_color'   => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
+                        'showFinancialWarning' => $this->canShowFinancialWarning(self::XPATH_FINANCIAL_WARNING)
                     ],
                 ],
             ],
