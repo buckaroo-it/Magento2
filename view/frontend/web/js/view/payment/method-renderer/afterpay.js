@@ -169,7 +169,14 @@ define(
                         ]
                     );
 
-
+                    this.showFinancialWarning = ko.computed(
+                        function () {
+                            return quote.billingAddress() !== null &&
+                            quote.billingAddress().countryId == 'NL' &&
+                            window.checkoutConfig.payment.buckaroo.afterpay.showFinancialWarning
+                        },
+                        this
+                    );
 
 
                     this.billingName = ko.computed(

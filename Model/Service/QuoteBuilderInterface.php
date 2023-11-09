@@ -17,27 +17,24 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Service;
-
-use Magento\Quote\Model\Quote;
 
 interface QuoteBuilderInterface
 {
     /**
      * Set form data
      *
-     * @param array $formData
+     * @param string $formData
      *
      * @return void
      */
-    public function setFormData(array $formData): void;
+    public function setFormData(string $formData);
 
     /**
      * Build quote from form data and session
      *
-     * @return Quote
+     * @return \Magento\Quote\Model\Quote
      */
-    public function build(): Quote;
+    public function build();
 }

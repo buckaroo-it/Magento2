@@ -27,6 +27,32 @@ class Klarnain extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_klarnain';
 
+    public const XPATH_FINANCIAL_WARNING  = 'payment/buckaroo_magento2_klarnain/financial_warning';
+
+    /**
+     * @var array
+     */
+    protected $allowedCurrencies = [
+        'EUR',
+        'GBP',
+        'DKK',
+        'SEK',
+        'NOK'
+    ];
+
+    /**
+     * @var array
+     */
+    protected $allowedCountries = [
+        'DE',
+        'AT',
+        'GB',
+        'DK',
+        'SE',
+        'NO',
+        'FI',
+    ];
+
     /**
      * @inheritdoc
      *

@@ -32,6 +32,7 @@ class Billink extends AbstractConfigProvider
     public const CODE = 'buckaroo_magento2_billink';
 
     public const XPATH_BILLINK_BUSINESS      = 'payment/buckaroo_magento2_billink/business';
+    public const XPATH_FINANCIAL_WARNING     = 'payment/buckaroo_magento2_billink/financial_warning';
 
     /**
      * @var BuckarooHelper
@@ -85,7 +86,8 @@ class Billink extends AbstractConfigProvider
                             ['genderType' => 'unknown', 'genderTitle' => __('They/them')],
                             ['genderType' => 'unknown', 'genderTitle' => __('I prefer not to say')]
                         ],
-                        'businessMethod'    => $this->getBusiness()
+                        'businessMethod'    => $this->getBusiness(),
+                        'showFinancialWarning' => $this->canShowFinancialWarning(self::XPATH_FINANCIAL_WARNING)
                     ],
                     'response' => [],
                 ],

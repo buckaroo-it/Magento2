@@ -27,7 +27,8 @@ define(
         'ko',
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/action/select-payment-method',
-        'buckaroo/checkout/common'
+        'buckaroo/checkout/common',
+        'Magento_Checkout/js/model/quote'
     ],
     function (
         $,
@@ -37,7 +38,8 @@ define(
         ko,
         checkoutData,
         selectPaymentMethodAction,
-        checkoutCommon
+        checkoutCommon,
+        quote
     ) {
         'use strict';
 
@@ -54,7 +56,6 @@ define(
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 genderList: window.checkoutConfig.payment.buckaroo.klarna.genderList,
-
                 /**
                  * @override
                  */
@@ -74,6 +75,14 @@ define(
                         ]
                     );
 
+                    this.showFinancialWarning = ko.computed(
+                        function () {
+                            return quote.billingAddress() !== null &&
+                            quote.billingAddress().countryId == 'NL' &&
+                            window.checkoutConfig.payment.buckaroo.klarna.showFinancialWarning
+                        },
+                        this
+                    );
 
                     /**
                      * Check if the required fields are filled. If so: enable place order button (true) | if not: disable place order button (false)

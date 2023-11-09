@@ -73,11 +73,17 @@
             <frontend_model>Buckaroo\Magento2\Block\Config\Form\Field\ColorPicker</frontend_model>
         </field>
 
-
         <field id="sort_order" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Frontend sort order</label>
             <comment><![CDATA[Determines the sorting of payment methods.]]></comment>
-            <config_path>payment/buckaroo_magento2_capayablein3/sort_order</config_path>
+            <config_path>payment/buckaroo_magento2_capayablein3/sort_order</config_path>  
+        </field>
+
+        <field id="financial_warning" translate="label comment" type="select" sortOrder="35" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Consumer Financial Warning</label>
+            <comment><![CDATA[Due to the regulations for BNPL methods in The Netherlands you’ll  have to warn customers about using a BNPL plan because it can be easy to get into debt. When enabled a warning will be showed in the checkout. Please note that this setting only applies for customers in The Netherlands.]]></comment>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <config_path>payment/buckaroo_magento2_capayablein3/financial_warning</config_path>
         </field>
 
         <group id="buckaroo_magento2_advanced" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -181,14 +187,6 @@
                     <config_path>payment/buckaroo_magento2_capayablein3/allowed_currencies</config_path>
                     <source_model>Buckaroo\Magento2\Model\Config\Source\AllowedCurrencies::capayablein3</source_model>
                     <backend_model>Buckaroo\Magento2\Model\Config\Backend\AllowedCurrencies</backend_model>
-                </field>
-                
-                <field id="limit_by_ip" translate="label comment tooltip" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Display only for selected IPs</label>
-                    <comment><![CDATA[Show method only to Magento set IPs.]]></comment>
-                    <tooltip>Magento developer client restrictions.</tooltip>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <config_path>payment/buckaroo_magento2_capayablein3/limit_by_ip</config_path>
                 </field>
 
                 <group id="buckaroo_magento2_spam" translate="label" type="text" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">

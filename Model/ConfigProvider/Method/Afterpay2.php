@@ -37,6 +37,8 @@ class Afterpay2 extends AbstractConfigProvider
     public const XPATH_AFTERPAY2_ZERO_TAX        = 'payment/buckaroo_magento2_afterpay2/zero_tax';
     public const XPATH_AFTERPAY2_NO_TAX          = 'payment/buckaroo_magento2_afterpay2/no_tax';
 
+    public const XPATH_FINANCIAL_WARNING         = 'payment/buckaroo_magento2_afterpay2/financial_warning';
+
     /**
      * @inheritdoc
      *
@@ -62,6 +64,7 @@ class Afterpay2 extends AbstractConfigProvider
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'businessMethod'    => $this->getBusiness(),
                         'paymentMethod'     => $this->getPaymentMethod(),
+                        'showFinancialWarning' => $this->canShowFinancialWarning(self::XPATH_FINANCIAL_WARNING)
                     ],
                     'response'  => [],
                 ],

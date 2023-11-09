@@ -55,32 +55,6 @@ class Mail
     }
 
     /**
-     * Mail the debug message to the debug recipients
-     *
-     * @return void
-     */
-    public function mailMessage()
-    {
-        $debugEmails = $this->debugConfiguration->getDebugEmails();
-        $message = $this->getMessageAsString();
-
-        if (count($debugEmails) <= 0 || !$message) {
-            return;
-        }
-
-        $headers =  'From: ' . $this->getMailFrom() . "\r\n" .
-            'Reply-To: ' . $this->getMailFrom() . "\r\n" .
-            'X-Mailer: PHP/' . phpversion();
-
-        foreach ($debugEmails as $mailTo) {
-            //@codingStandardsIgnoreLine
-            mail($mailTo, $this->getMailSubject(), $message, $headers);
-        }
-
-        $this->resetMessage();
-    }
-
-    /**
      * Reset the message
      *
      * @return $this

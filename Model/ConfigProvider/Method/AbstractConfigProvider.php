@@ -47,7 +47,6 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     public const XPATH_ACTIVE_STATUS = 'active_status';
     public const XPATH_ORDER_STATUS_SUCCESS = 'order_status_success';
     public const XPATH_ORDER_STATUS_FAILED = 'order_status_failed';
-    public const XPATH_LIMIT_BY_IP = 'limit_by_ip';
 
     public const XPATH_ALLOWED_CURRENCIES = 'allowed_currencies';
     public const XPATH_ALLOW_SPECIFIC   = 'allowspecific';
@@ -457,17 +456,6 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     }
 
     /**
-     * Get Limit By IP
-     *
-     * @param null|int|string $store
-     * @return mixed|null
-     */
-    public function getLimitByIp($store = null)
-    {
-        return $this->getMethodConfigValue(static::XPATH_LIMIT_BY_IP, $store);
-    }
-
-    /**
      * Get subtext
      *
      * @param null|int|Store $store
@@ -498,5 +486,19 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     public function getSubtextColor($store = null)
     {
         return $this->getMethodConfigValue(static::XPATH_SUBTEXT_COLOR, $store);
+    }
+
+    /**
+     *
+     * @param string $configKey
+     *
+     * @return boolean
+     */
+    protected function canShowFinancialWarning(string $configKey): bool
+    {
+        return $this->scopeConfig->getValue(
+            $configKey,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        ) !== "0";
     }
 }

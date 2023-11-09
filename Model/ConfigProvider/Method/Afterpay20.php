@@ -34,6 +34,7 @@ class Afterpay20 extends AbstractConfigProvider
     public const XPATH_AFTERPAY20_MIN_AMOUNT_B2B         = 'payment/buckaroo_magento2_afterpay20/min_amount_b2b';
     public const XPATH_AFTERPAY20_MAX_AMOUNT_B2B         = 'payment/buckaroo_magento2_afterpay20/max_amount_b2b';
 
+    public const XPATH_FINANCIAL_WARNING                 = 'payment/buckaroo_magento2_afterpay20/financial_warning';
     /**
      * @inheritdoc
      */
@@ -55,7 +56,8 @@ class Afterpay20 extends AbstractConfigProvider
                         'subtext_style'     => $this->getSubtextStyle(),
                         'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'is_b2b'            => $this->getCustomerType() !== AfterpayCustomerType::CUSTOMER_TYPE_B2C
+                        'is_b2b'     => $this->getCustomerType() !== AfterpayCustomerType::CUSTOMER_TYPE_B2C,
+                        'showFinancialWarning' => $this->canShowFinancialWarning(self::XPATH_FINANCIAL_WARNING)
                     ],
                     'response'   => [],
                 ],
