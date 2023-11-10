@@ -234,8 +234,6 @@ class Push implements PushInterface
             return true;
         }
 
-
-
         if ($this->isGroupTransactionInfo()) {
             if($this->isCanceledGroupTransaction()) {
                 $this->cancelGroupTransactionOrder();
@@ -1344,6 +1342,19 @@ class Push implements PushInterface
         $this->logging->addDebug(__METHOD__ . '|8|');
 
         $this->processSucceededPushAuth($payment);
+
+        // Ensure that total_paid has been modified in the database.
+        $connection = $this->resourceConnection->getConnection();
+        $connection->update(
+            $connection->getTableName('sales_order'),
+            [
+                'total_due'       => $this->order->getTotalDue(),
+                'base_total_due'  => $this->order->getTotalDue(),
+                'total_paid'      => $this->order->getTotalPaid(),
+                'base_total_paid' => $this->order->getBaseTotalPaid(),
+            ],
+            $connection->quoteInto('entity_id = ?', $this->order->getId())
+        );
 
         $this->updateOrderStatus($state, $newStatus, $description, $forceState);
 

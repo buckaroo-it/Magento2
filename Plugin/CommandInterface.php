@@ -17,55 +17,67 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Plugin;
 
+use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Logging\Log;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as ConfigProviderFactory;
+use Buckaroo\Magento2\Model\Method\PayPerEmail;
 use Magento\Payment\Model\MethodInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment\State\CommandInterface as MagentoCommandInterface;
-use Buckaroo\Magento2\Helper\Data;
-use Buckaroo\Magento2\Model\Method\PayPerEmail;
 
 class CommandInterface
 {
     /**
      * @var Log $logging
      */
-    public $logging;
+    public Log $logging;
 
     /**
-     * @var Factory
+     * @var ConfigProviderFactory
      */
-    public $configProviderMethodFactory;
+    public ConfigProviderFactory $configProviderMethodFactory;
 
     /**
      * @var Data
      */
-    public $helper;
+    public Data $helper;
 
     /**
+     * @var OrderRepositoryInterface
+     */
+    private OrderRepositoryInterface $orderRepository;
+
+    /**
+     * @param ConfigProviderFactory $configProviderMethodFactory
+     * @param OrderRepositoryInterface $orderRepository
      * @param Log $logging
-     * @param Factory $configProviderMethodFactory
+     * @param Data $helper
      */
     public function __construct(
-        Factory $configProviderMethodFactory,
+        ConfigProviderFactory $configProviderMethodFactory,
+        OrderRepositoryInterface $orderRepository,
         Log $logging,
         Data $helper
     ) {
         $this->configProviderMethodFactory = $configProviderMethodFactory;
         $this->logging = $logging;
         $this->helper = $helper;
+        $this->orderRepository = $orderRepository;
     }
 
     /**
      * @param MagentoCommandInterface $commandInterface
-     * @param \Closure                $proceed
-     * @param OrderPaymentInterface   $payment
+     * @param \Closure $proceed
+     * @param OrderPaymentInterface $payment
      * @param                         $amount
-     * @param OrderInterface          $order
+     * @param OrderInterface $order
      *
      * @return mixed
      */
@@ -78,7 +90,6 @@ class CommandInterface
     ) {
         $message = $proceed($payment, $amount, $order);
 
-        /** @var MethodInterface $methodInstance */
         $methodInstance = $payment->getMethodInstance();
         $paymentAction = $methodInstance->getConfigPaymentAction();
         $paymentCode = substr($methodInstance->getCode(), 0, 18);
@@ -100,8 +111,10 @@ class CommandInterface
     }
 
     /**
-     * @param OrderInterface|Order $order
-     * @param MethodInterface      $methodInstance
+     * @param OrderInterface $order
+     * @param MethodInterface $methodInstance
+     * @return false|void
+     * @throws Exception
      */
     private function updateOrderStateAndStatus(OrderInterface $order, MethodInterface $methodInstance)
     {
@@ -133,7 +146,15 @@ class CommandInterface
             return false;
         }
 
-        //skip setting the status here for applepay 
+        $order = $this->orderRepository->get($order->getId());
+        $this->logging->addDebug(__METHOD__ . '|11|' .
+            var_export(['getTotalPaid' => $order->getTotalPaid(), 'getGrandTotal' => $order->getGrandTotal()], true)
+        );
+        if ($order->getGrandTotal() - $order->getTotalPaid() < 0.001) {
+            return false;
+        }
+
+        //skip setting the status here for applepay
         if (preg_match('/applepay/', $methodInstance->getCode())) {
             return;
         }
