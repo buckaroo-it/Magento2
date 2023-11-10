@@ -85,4 +85,6 @@
         <include path="Buckaroo_Magento2::system/payment_methods/voucher.xml"/>
 
         <include path="Buckaroo_Magento2::system/payment_methods/paybybank.xml"/>
+
+        <include path="Buckaroo_Magento2::system/payment_methods/multibanco.xml"/>
 </include>
