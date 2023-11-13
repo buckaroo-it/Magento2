@@ -210,7 +210,7 @@ class SaveOrder extends AbstractApplepay
             if (!($this->customerSession->getCustomer() && $this->customerSession->getCustomer()->getId())) {
                 $quote->setCheckoutMethod('guest')
                     ->setCustomerId(null)
-                    ->setCustomerEmail($quote->getShippingAddress()->getEmail())
+                        ->setCustomerEmail($quote->getShippingAddress()->getEmail())
                     ->setCustomerIsGuest(true)
                     ->setCustomerGroupId(Group::NOT_LOGGED_IN_ID);
             }

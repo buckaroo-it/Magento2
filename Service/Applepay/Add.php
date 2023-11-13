@@ -81,6 +81,9 @@ class Add
             // Add Shipping Address on Quote
             $this->quoteService->addAddressToQuote($shippingAddressRequest);
 
+            // Add Shipping Address on Quote
+            $this->quoteService->addAddressToQuote($shippingAddressRequest);
+
             // Get Shipping Methods
             $shippingMethods = $this->quoteService->getAvailableShippingMethods();
 

@@ -96,7 +96,7 @@ class CapayableIn3 extends AbstractConfigProvider
         }
 
         if (!is_string($logo)) {
-            return 'in3-ideal.svg';
+            return 'ideal-in3.svg';
         }
 
         return $logo;
