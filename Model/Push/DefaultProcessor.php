@@ -38,6 +38,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Transfer;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Voucher;
+use Buckaroo\Magento2\Model\GroupTransaction;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
@@ -184,17 +185,18 @@ class DefaultProcessor implements PushProcessorInterface
 
         $this->setOrderStatusMessage();
 
-        if ((!in_array($this->payment->getMethod(), [Giftcards::CODE, Voucher::CODE]))
-            && $this->isGroupTransactionPart()) {
+        if ($this->isGroupTransactionPart() || $this->pushRequest->getRelatedtransactionPartialpayment()) {
             $this->savePartGroupTransaction();
-            return true;
-        }
-
-        if (!$this->canProcessPostData()) {
+            $this->addGiftcardPartialPaymentToPaymentInformation();
+            $this->order->save();
             return true;
         }
 
         if ($this->giftcardPartialPayment()) {
+            return true;
+        }
+
+        if (!$this->canProcessPostData()) {
             return true;
         }
 
@@ -534,14 +536,19 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * Checks if the push request is a group transaction with a non-success status code.
+     * Checks if the push request is a group transaction
      *
-     * @return false|mixed
+     * @return bool
      */
     protected function isGroupTransactionPart()
     {
         if (!is_null($this->pushRequest->getTransactions())) {
-            return $this->groupTransaction->getGroupTransactionByTrxId($this->pushRequest->getTransactions());
+            $groupTransaction = $this->groupTransaction->getGroupTransactionByTrxId(
+                $this->pushRequest->getTransactions()
+            );
+            if ($groupTransaction->getType() == 'partialpayment') {
+                return true;
+            }
         }
         return false;
     }
@@ -552,15 +559,12 @@ class DefaultProcessor implements PushProcessorInterface
      * @return void
      * @throws \Exception
      */
-    protected function savePartGroupTransaction()
+    protected function savePartGroupTransaction(): void
     {
-        $items = $this->groupTransaction->getGroupTransactionByTrxId($this->pushRequest->getTransactions());
-        if (is_array($items) && count($items) > 0) {
-            foreach ($items as $item) {
-                $item2['status'] = $this->pushRequest->getStatusCode();
-                $item2['entity_id'] = $item['entity_id'];
-                $this->groupTransaction->updateGroupTransaction($item2);
-            }
+        $groupTransaction = $this->groupTransaction->getGroupTransactionByTrxId($this->pushRequest->getTransactions());
+        if ($groupTransaction instanceof GroupTransaction) {
+            $groupTransaction->setData('status', $this->pushRequest->getStatusCode());
+            $groupTransaction->save();
         }
     }
 
@@ -615,6 +619,7 @@ class DefaultProcessor implements PushProcessorInterface
         $payment = $this->order->getPayment();
 
         $transactionAmount = $this->pushRequest->getAmount();
+        $transactionStatus = $this->pushRequest->getStatusCode();
         $transactionKey = $this->pushRequest->getTransactions();
         $transactionMethod = $this->pushRequest->getTransactionMethod();
 
@@ -626,7 +631,7 @@ class DefaultProcessor implements PushProcessorInterface
         }
 
         if (!empty($transactionKey) && $transactionAmount > 0) {
-            $transactionArray[$transactionKey] = [$transactionMethod, $transactionAmount];
+            $transactionArray[$transactionKey] = [$transactionMethod, $transactionAmount, $transactionStatus];
 
             $payment->setAdditionalInformation(
                 BuckarooAdapter::BUCKAROO_ALL_TRANSACTIONS,
@@ -860,6 +865,7 @@ class DefaultProcessor implements PushProcessorInterface
         $this->addTransactionData();
 
         if ($this->configAccount->getInvoiceHandling() == InvoiceHandlingOptions::SHIPMENT) {
+            $this->payment->save();
             return true;
         }
 

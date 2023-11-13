@@ -163,17 +163,16 @@ class PayPerEmailProcessor extends LockedPushProcessor
 
             $this->setOrderStatusMessage();
 
-            if ((!in_array($this->payment->getMethod(), [Giftcards::CODE, Voucher::CODE]))
-                && $this->isGroupTransactionPart()) {
+            if ($this->isGroupTransactionPart()) {
                 $this->savePartGroupTransaction();
                 return true;
             }
 
-            if (!$this->canProcessPostData()) {
+            if ($this->giftcardPartialPayment()) {
                 return true;
             }
 
-            if ($this->giftcardPartialPayment()) {
+            if (!$this->canProcessPostData()) {
                 return true;
             }
 

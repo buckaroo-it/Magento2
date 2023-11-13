@@ -298,7 +298,7 @@ class Giftcard implements GiftcardInterface
     {
         $currency = $this->quote->getCurrency();
         if ($currency !== null) {
-            return $currency->getBaseCurrencyCode();
+            return $currency->getQuoteCurrencyCode();
         }
 
         return null;

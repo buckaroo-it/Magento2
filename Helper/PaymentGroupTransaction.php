@@ -22,7 +22,8 @@ namespace Buckaroo\Magento2\Helper;
 
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\GroupTransactionFactory;
-use Buckaroo\Magento2\Model\ResourceModel\GroupTransaction;
+use Buckaroo\Magento2\Model\ResourceModel\GroupTransaction as GroupTransactionResource;
+use Buckaroo\Magento2\Model\GroupTransaction;
 use Buckaroo\Magento2\Model\ResourceModel\GroupTransaction\CollectionFactory as GroupTransactionCollectionFactory;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
@@ -46,7 +47,7 @@ class PaymentGroupTransaction extends AbstractHelper
     protected $grTrCollectionFactory;
 
     /**
-     * @var GroupTransaction
+     * @var GroupTransactionResource
      */
     protected $resourceModel;
 
@@ -63,7 +64,7 @@ class PaymentGroupTransaction extends AbstractHelper
      * @param DateTime $dateTime
      * @param BuckarooLoggerInterface $logger
      * @param GroupTransactionCollectionFactory $grTrCollectionFactory
-     * @param GroupTransaction $resourceModel
+     * @param GroupTransactionResource $resourceModel
      */
     public function __construct(
         Context $context,
@@ -71,7 +72,7 @@ class PaymentGroupTransaction extends AbstractHelper
         DateTime $dateTime,
         BuckarooLoggerInterface $logger,
         GroupTransactionCollectionFactory $grTrCollectionFactory,
-        GroupTransaction $resourceModel
+        GroupTransactionResource $resourceModel
     ) {
         parent::__construct($context);
 
@@ -100,7 +101,8 @@ class PaymentGroupTransaction extends AbstractHelper
         $groupTransaction = $this->groupTransactionFactory->create();
         $data['order_id'] = $response['Invoice'];
         $data['transaction_id'] = $response['Key'];
-        $data['relatedtransaction'] = $response['RequiredAction']['PayRemainderDetails']['GroupTransaction'] ?? null;
+        $data['relatedtransaction'] = $response['RequiredAction']['PayRemainderDetails']['GroupTransaction'] ??
+            $response['RelatedTransactions'][0]['RelatedTransactionKey'] ?? null;
         $data['servicecode'] = $response['ServiceCode'];
         $data['currency'] = $response['Currency'];
         $data['amount'] = $response['AmountDebit'];
@@ -139,6 +141,18 @@ class PaymentGroupTransaction extends AbstractHelper
     }
 
     /**
+     * Check if is group transaction the order
+     *
+     * @param string|int $orderId
+     * @return bool
+     */
+    public function isAnyGroupTransaction($orderId)
+    {
+        $groupTransactions = $this->getAnyGroupTransactionItems($orderId);
+        return is_array($groupTransactions) && count($groupTransactions) > 0;
+    }
+
+    /**
      * Retrieves the group transaction items for a given order ID.
      *
      * @param string|int $orderId
@@ -155,6 +169,27 @@ class PaymentGroupTransaction extends AbstractHelper
             ->addFieldToFilter(
                 'status',
                 ['eq' => '190']
+            );
+        $items = array_values($collection->getItems());
+
+        return array_filter($items, function ($item) {
+            return $item['amount'] - (float)$item['refunded_amount'] > 0;
+        });
+    }
+
+    /**
+     * Retrieves the group transaction items for a given order ID.
+     *
+     * @param string|int $orderId
+     * @return array
+     */
+    public function getAnyGroupTransactionItems($orderId)
+    {
+        $collection = $this->groupTransactionFactory->create()
+            ->getCollection()
+            ->addFieldToFilter(
+                'order_id',
+                ['eq' => $orderId]
             );
         $items = array_values($collection->getItems());
 
@@ -233,7 +268,8 @@ class PaymentGroupTransaction extends AbstractHelper
     {
         $collection = $this->groupTransactionFactory->create()
             ->getCollection()
-            ->addFieldToFilter('order_id', ['eq' => $orderId])
+            ->addFieldToFilter('order_id', $orderId)
+            ->addFieldToFilter('status', '190')
             ->addFieldToFilter('refunded_amount', ['null' => true]);
         return array_values($collection->getItems());
     }
@@ -256,20 +292,22 @@ class PaymentGroupTransaction extends AbstractHelper
      * Retrieves the group transaction item for a given transaction ID.
      *
      * @param int|string $trxId
-     * @return mixed
+     * @return GroupTransaction
      */
     public function getGroupTransactionByTrxId($trxId)
     {
-        return $this->groupTransactionFactory->create()
+        $collection = $this->groupTransactionFactory->create()
             ->getCollection()
-            ->addFieldToFilter('transaction_id', ['eq' => $trxId])->getItems();
+            ->addFieldToFilter('transaction_id', $trxId);
+
+        return $collection->getFirstItem();
     }
 
     /**
      * Get successful group transactions for orderId with giftcard label
      *
      * @param string|null $orderId
-     * @return \Buckaroo\Magento2\Model\GroupTransaction[]
+     * @return GroupTransaction[]
      */
     public function getActiveItemsWithName($orderId)
     {
@@ -300,7 +338,7 @@ class PaymentGroupTransaction extends AbstractHelper
      * Get successful group transaction dor transaction id with giftcard label
      *
      * @param string $transactionId
-     * @return \Buckaroo\Magento2\Model\GroupTransaction
+     * @return GroupTransaction
      */
     public function getByTransactionIdWithName(string $transactionId)
     {

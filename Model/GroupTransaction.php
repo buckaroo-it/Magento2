@@ -131,6 +131,7 @@ class GroupTransaction extends AbstractModel implements GroupTransactionInterfac
     {
         return $this->getData('order_id');
     }
+
     /**
      * Get transaction id
      *
@@ -139,6 +140,16 @@ class GroupTransaction extends AbstractModel implements GroupTransactionInterfac
     public function getTransactionId()
     {
         return $this->getData('transaction_id');
+    }
+
+    /**
+     * Get related transaction id
+     *
+     * @return string
+     */
+    public function getRelatedTransaction(): string
+    {
+        return $this->getData('relatedtransaction');
     }
 
     /**

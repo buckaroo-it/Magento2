@@ -33,6 +33,7 @@ use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Buckaroo\Magento2\Model\Giftcard\Remove as GiftcardRemove;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -63,14 +64,17 @@ class Giftcard
      * @var OrderManagementInterface
      */
     protected $orderManagement;
+
     /**
      * @var \Buckaroo\Magento2\Model\Giftcard\Remove
      */
     protected $giftcardRemoveService;
+
     /**
-     * @var \Buckaroo\Magento2\Logging\Log
+     * @var BuckarooLoggerInterface
      */
-    protected $logger;
+    protected BuckarooLoggerInterface $logger;
+
     /**
      * @var CartInterface
      */
@@ -81,11 +85,17 @@ class Giftcard
      */
     private BuckarooResponseData $buckarooResponseData;
 
+    /**
+     * @var OrderRepositoryInterface
+     */
+    private OrderRepositoryInterface $orderRepository;
+
     public function __construct(
         PriceCurrencyInterface $priceCurrency,
         PaymentGroupTransaction $groupTransaction,
         QuoteManagement $quoteManagement,
         OrderManagementInterface $orderManagement,
+        OrderRepositoryInterface $orderRepository,
         GiftcardRemove $giftcardRemoveService,
         BuckarooLoggerInterface $logger,
         BuckarooResponseData $buckarooResponseData
@@ -94,6 +104,7 @@ class Giftcard
         $this->groupTransaction = $groupTransaction;
         $this->quoteManagement = $quoteManagement;
         $this->orderManagement = $orderManagement;
+        $this->orderRepository = $orderRepository;
         $this->giftcardRemoveService = $giftcardRemoveService;
         $this->logger = $logger;
         $this->buckarooResponseData = $buckarooResponseData;
@@ -115,8 +126,12 @@ class Giftcard
 
         if ($this->response->isSuccess()) {
             $this->saveGroupTransaction();
+            if ($this->quote->getGrandTotal() > $this->response->getAmount()) {
+                $this->createOrderFromQuote();
+            }
         } else {
-            $this->cancelOrder();
+            $this->saveGroupTransaction();
+            $this->createOrderFromQuote(false);
         }
     }
 
@@ -236,7 +251,11 @@ class Giftcard
         try {
             $transactions = $this->groupTransaction->getGroupTransactionItems($order->getIncrementId());
             foreach ($transactions as $transaction) {
-                $this->giftcardRemoveService->remove($transaction->getTransactionId(), $order->getIncrementId());
+                $this->giftcardRemoveService->remove(
+                    $transaction->getTransactionId(),
+                    $order->getIncrementId(),
+                    $order->getPayment()
+                );
             }
         } catch (\Throwable $th) {
             $this->logger->addDebug(sprintf(
@@ -285,22 +304,89 @@ class Giftcard
      * @return AbstractExtensibleModel|OrderInterface|object|null
      * @throws LocalizedException
      */
-    protected function createOrderFromQuote()
+    protected function createOrderFromQuote($success = true)
     {
-        //fix missing email validation
-        if ($this->quote->getCustomerEmail() == null) {
-            $this->quote->setCustomerEmail(
-                $this->quote->getBillingAddress()->getEmail()
-            );
+        $this->ensureCustomerEmail();
+
+        $order = $this->getExistingOrder() ?? null;
+
+        if ($success) {
+            $order = $order ?? $this->createOrder();
+            $this->updateQuotePaymentAmounts();
         }
 
-        $order = $this->quoteManagement->submit($this->quote);
+        if ($order) {
+            $this->quote->setOrigOrderId($order->getEntityId());
+        }
 
-        //keep the quote active but remove the canceled order from it
         $this->quote->setIsActive(true);
-        $this->quote->setOrigOrderId(null);
-        $this->quote->setReservedOrderId(null);
         $this->quote->save();
+
         return $order;
+    }
+
+    /**
+     * Ensure customer email is set in the quote.
+     */
+    protected function ensureCustomerEmail(): void
+    {
+        if (!$this->quote->getCustomerEmail()) {
+            $this->quote->setCustomerEmail($this->quote->getBillingAddress()->getEmail());
+        }
+    }
+
+    /**
+     * Retrieve the existing order if it exists.
+     *
+     * @return OrderInterface|null
+     */
+    protected function getExistingOrder(): ?OrderInterface
+    {
+        $orderId = $this->quote->getOrigOrderId();
+        if (!$orderId) {
+            return null;
+        }
+
+        try {
+            return $this->orderRepository->get($orderId);
+        } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Create order from quote
+     *
+     * @return AbstractExtensibleModel|OrderInterface|object|null
+     * @throws LocalizedException
+     */
+    protected function createOrder()
+    {
+        $this->quote->collectTotals();
+        return $this->quoteManagement->submit($this->quote);
+    }
+
+    /**
+     * Update the quote's payment amounts based on the currency rate.
+     */
+    protected function updateQuotePaymentAmounts()
+    {
+        $rate = 1.0;
+        $store = $this->quote->getStore();
+        $currency = $store->getCurrentCurrencyCode();
+        if ($currency != $store->getBaseCurrencyCode()) {
+            $rate = $store->getBaseCurrency()->getRate($currency);
+        }
+
+        $amountPaid = $this->response->getAmount();
+        $baseAmountPaid = (float)$amountPaid / (float)$rate;
+
+        $this->quote->setBuckarooAlreadyPaid(
+            $this->quote->getBuckarooAlreadyPaid() + $amountPaid
+        );
+
+        $this->quote->setBaseBuckarooAlreadyPaid(
+            $this->quote->getBaseBuckarooAlreadyPaid() + $baseAmountPaid
+        );
     }
 }
