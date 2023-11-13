@@ -98,8 +98,7 @@ class Push implements PushInterface
 
         // Validate Signature
         $store = $order->getStore();
-//        $validSignature = $this->pushRequst->validate($store);
-        $validSignature = true;
+        $validSignature = $this->pushRequst->validate($store);
 
         if (!$validSignature) {
             $this->logger->addDebug('[PUSH] | [Webapi] | ['. __METHOD__ .':'. __LINE__ . '] - Invalid push signature');

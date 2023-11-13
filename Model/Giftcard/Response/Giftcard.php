@@ -64,14 +64,17 @@ class Giftcard
      * @var OrderManagementInterface
      */
     protected $orderManagement;
+
     /**
      * @var \Buckaroo\Magento2\Model\Giftcard\Remove
      */
     protected $giftcardRemoveService;
+
     /**
-     * @var \Buckaroo\Magento2\Logging\Log
+     * @var BuckarooLoggerInterface
      */
-    protected $logger;
+    protected BuckarooLoggerInterface $logger;
+
     /**
      * @var CartInterface
      */
@@ -81,6 +84,11 @@ class Giftcard
      * @var BuckarooResponseData
      */
     private BuckarooResponseData $buckarooResponseData;
+
+    /**
+     * @var OrderRepositoryInterface
+     */
+    private OrderRepositoryInterface $orderRepository;
 
     public function __construct(
         PriceCurrencyInterface $priceCurrency,

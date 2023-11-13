@@ -29,6 +29,7 @@ use Magento\Framework\DataObject;
 use Magento\Framework\DataObjectFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Model\Quote;
+use Magento\Quote\Model\Quote\Item as QuoteItem;
 use Magento\Quote\Model\QuoteFactory;
 
 class QuoteBuilder implements QuoteBuilderInterface
@@ -135,7 +136,7 @@ class QuoteBuilder implements QuoteBuilderInterface
         $product = $this->productRepository->getById($productId);
         $item = $this->quote->addProduct($product, $this->formData);
 
-        if (!$item instanceof Item) {
+        if (!$item instanceof QuoteItem) {
             $exceptionMessage = "Cannot add product to cart";
             if (is_string($item)) {
                 $exceptionMessage = $item;
