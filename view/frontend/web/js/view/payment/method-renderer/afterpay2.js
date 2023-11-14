@@ -103,16 +103,15 @@ define(
                         value.substr(6, 4),
                         value.substr(3, 2) - 1,
                         value.substr(0, 2),
-                        0,
-                        0,
-                        0
+                        0, 0, 0
                     );
                     return ~~((Date.now() - birthday) / (31557600000)) >= 18;
                 }
             }
             return false;
         },
-        $.mage.__('You should be at least 18 years old.'));
+        $.mage.__('You should be at least 18 years old.')
+        );
 
         return Component.extend(
             {
@@ -180,7 +179,7 @@ define(
 
                     this.billingName = ko.computed(
                         function () {
-                            if (quote.billingAddress() !== null) {
+                            if(quote.billingAddress() !== null) {
                                 return quote.billingAddress().firstname + " " + quote.billingAddress().lastname;
                             }
                         },
@@ -189,7 +188,7 @@ define(
 
                     this.termsUrl =  ko.computed(
                         function () {
-                            if (quote.billingAddress() !== null) {
+                            if(quote.billingAddress() !== null) {
                                 let newUrl = 'https://www.afterpay.nl/nl/algemeen/betalen-met-afterpay/betalingsvoorwaarden';
                                 if (this.paymentMethod == PAYMENT_METHOD_DIGIACCEPT) {
                                     newUrl = this.getDigiacceptUrl(quote.billingAddress().countryId);
@@ -215,24 +214,24 @@ define(
                      */
                     this.bankAccountNumber.extend({ uppercase: true });
 
-                    this.dateValidate.subscribe(function () {
+                    this.dateValidate.subscribe(function() {
                         const dobId = 'buckaroo_magento2_afterpay2_DoB';
                         const isValid = $(`#${dobId}`).valid();
                         let state = this.validationState();
                         state[dobId] = isValid;
                         this.validationState(state);
-                    }, this);
+                     }, this);
 
                     this.buttoncheck = ko.computed(
                         function () {
                             const state = this.validationState();
                             const valid = this.getActiveValidationFields().map((field) => {
-                                if (state[field] !== undefined) {
+                                if(state[field] !== undefined) {
                                     return state[field];
                                 }
                                 return false;
                             }).reduce(
-                                function (prev, cur) {
+                                function(prev, cur) {
                                     return prev && cur
                                 },
                                 true
@@ -255,7 +254,7 @@ define(
                     let fields = [
                         'buckaroo_magento2_afterpay2_TermsCondition',
                     ];
-                    if (!this.hasTelephoneNumber()) {
+                    if(!this.hasTelephoneNumber()) {
                         fields.push('buckaroo_magento2_afterpay2_Telephone')
                     }
 
@@ -266,9 +265,9 @@ define(
                         )
                     ) {
                         fields.push('buckaroo_magento2_afterpay2_DoB')
-                    if (this.paymentMethod == PAYMENT_METHOD_ACCEPTGIRO) {
-                        fields.push('buckaroo_magento2_afterpay2_IBAN')
-                    }
+                        if(this.paymentMethod == PAYMENT_METHOD_ACCEPTGIRO) {
+                            fields.push('buckaroo_magento2_afterpay2_IBAN')
+                        }
                     } else {
                         fields = fields.concat(
                             [
@@ -357,7 +356,7 @@ define(
                         }
                     };
                 },
-                getDigiacceptUrl :function (country) {
+                getDigiacceptUrl :function(country) {
                     var businessMethod = this.getBusinessMethod();
                     var url = 'https://www.afterpay.nl/nl/algemeen/betalen-met-afterpay/betalingsvoorwaarden';
 
@@ -376,7 +375,7 @@ define(
                     return url;
                 },
 
-                getBusinessMethod : function () {
+                getBusinessMethod : function() {
                     var businessMethod = BUSINESS_METHOD_B2C;
 
                     if (this.businessMethod == BUSINESS_METHOD_B2B

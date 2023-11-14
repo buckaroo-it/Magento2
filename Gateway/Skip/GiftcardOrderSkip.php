@@ -47,6 +47,6 @@ class GiftcardOrderSkip implements SkipCommandInterface
     {
         $paymentDO = SubjectReader::readPayment($commandSubject);
         $orderIncrementId = $paymentDO->getPayment()->getOrder()->getIncrementId();
-        return $this->paymentGroupTransaction->isGroupTransaction($orderIncrementId);
+        return $this->paymentGroupTransaction->isAnyGroupTransaction($orderIncrementId);
     }
 }

@@ -112,7 +112,7 @@ class AvailableBasedOnPOSValidator extends AbstractValidator
     private function checkPosOtherPaymentMethods(string $paymentMethodCode): bool
     {
         $otherPaymentMethods = $this->pospaymentConfiguration->getOtherPaymentMethods();
-        if (in_array(
+        if ($otherPaymentMethods && in_array(
             $this->helper->getBuckarooMethod($paymentMethodCode),
             explode(',', $otherPaymentMethods)
         )) {
