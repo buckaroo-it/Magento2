@@ -30,9 +30,9 @@ class Type implements OptionSourceInterface
     public const DISPLAY_TYPE_BOTH = 3;
 
     /**
-     * @var array
+     * @var array|null
      */
-    protected array $options;
+    protected ?array $options = null;
 
     /**
      * @inheritdoc
