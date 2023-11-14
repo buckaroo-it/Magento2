@@ -33,9 +33,9 @@ class Calculation implements OptionSourceInterface
     /**#@-*/
 
     /**
-     * @var array
+     * @var array|null
      */
-    protected array $options;
+    protected ?array $options = null;
 
     /**
      * @inheritdoc
