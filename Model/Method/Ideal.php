@@ -74,12 +74,7 @@ class Ideal extends AbstractMethod
             'Name'             => 'ideal',
             'Action'           => $this->getPayRemainder($payment, $transactionBuilder),
             'Version'          => 2,
-            'RequestParameter' => [
-                [
-                    '_'    => $payment->getAdditionalInformation('issuer'),
-                    'Name' => 'issuer',
-                ],
-            ],
+            'RequestParameter' => $this->getOrderRequestParameters($payment),
         ];
 
         /**
@@ -90,6 +85,21 @@ class Ideal extends AbstractMethod
             ->setMethod('TransactionRequest');
 
         return $transactionBuilder;
+    }
+
+    private function getOrderRequestParameters($payment): array
+    {
+        $parameters = [];
+
+        /** @var IdealConfig $config */
+        $config = $this->objectManager->get(IdealConfig::class);
+        if ($config->canShowIssuers()) {
+            $parameters = [[
+                '_'    => $payment->getAdditionalInformation('issuer'),
+                'Name' => 'issuer',
+            ]];
+        }
+        return $parameters;
     }
 
     /**
@@ -158,7 +168,7 @@ class Ideal extends AbstractMethod
             }
         }
 
-        if (!$valid) {
+        if (!$valid && $config->canShowIssuers()) {
             throw new \Magento\Framework\Exception\LocalizedException(__('Please select a issuer from the list'));
         }
 

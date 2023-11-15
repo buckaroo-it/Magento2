@@ -81,12 +81,7 @@ class IdealProcessing extends AbstractMethod
             'Name'             => 'idealprocessing',
             'Action'           => $this->getPayRemainder($payment, $transactionBuilder),
             'Version'          => 2,
-            'RequestParameter' => [
-                [
-                    '_'    => $payment->getAdditionalInformation('issuer'),
-                    'Name' => 'issuer',
-                ],
-            ],
+            'RequestParameter' => $this->getOrderRequestParameters($payment)
         ];
 
         $transactionBuilder->setOrder($payment->getOrder())
@@ -94,6 +89,21 @@ class IdealProcessing extends AbstractMethod
             ->setMethod('TransactionRequest');
 
         return $transactionBuilder;
+    }
+
+    private function getOrderRequestParameters($payment): array
+    {
+        $parameters = [];
+
+        /** @var IdealProcessingConfig $config */
+        $config = $this->objectManager->get(IdealProcessingConfig::class);
+        if ($config->canShowIssuers()) {
+            $parameters = [[
+                '_'    => $payment->getAdditionalInformation('issuer'),
+                'Name' => 'issuer',
+            ]];
+        }
+        return $parameters;
     }
 
     /**
@@ -149,7 +159,7 @@ class IdealProcessing extends AbstractMethod
             }
         }
 
-        if (!$valid) {
+        if (!$valid && $config->canShowIssuers()) {
             throw new LocalizedException(__('Please select a issuer from the list'));
         }
 

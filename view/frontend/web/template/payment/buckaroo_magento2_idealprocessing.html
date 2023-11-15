@@ -30,6 +30,7 @@
             <!--/ko-->
         </div>
 
+        <!-- ko if: showIssuers -->
         <div class="payment-method-second-col billing-address-form" >
             <div class="fieldset payment">
                 <div class="field required" >
@@ -66,6 +67,7 @@
                 </div>
             </div>
         </div>
+        <!--/ko-->
 
         <div class="checkout-agreements-block">
             <!-- ko foreach: $parent.getRegion('before-place-order') -->
