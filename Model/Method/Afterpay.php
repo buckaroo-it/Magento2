@@ -169,13 +169,7 @@ class Afterpay extends AbstractMethod
          */
         $afterpayConfig = $this->configProviderMethodFactory->get($this->buckarooPaymentMethodCode);
 
-        $methodName = $afterpayConfig->getPaymentMethodName();
-
-        if ($payment->getAdditionalInformation('selectedBusiness')) {
-            $methodName = $afterpayConfig->getPaymentMethodName($payment->getAdditionalInformation('selectedBusiness'));
-        }
-
-        return $methodName;
+        return $afterpayConfig->getPaymentMethodName();
     }
 
     /**
