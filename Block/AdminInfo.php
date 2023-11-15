@@ -213,4 +213,38 @@ class AdminInfo extends ConfigurableInfo
         $transformedWords = array_map('ucfirst', $words);
         return __(implode(' ', $transformedWords));
     }
+
+    /**
+     * Sets data to transport
+     *
+     * @param \Magento\Framework\DataObject $transport
+     * @param string $field
+     * @param string|array $value
+     * @return void
+     */
+    protected function setDataToTransfer(
+        \Magento\Framework\DataObject $transport,
+        $field,
+        $value
+    ) {
+        if (is_array($value)) {
+            foreach ($value as $key => $val) {
+                $transport->setData(
+                    (string)$this->getLabel($key),
+                    (string)$this->getValueView(
+                        $key,
+                        $val
+                    )
+                );
+            }
+        } else {
+            $transport->setData(
+                (string)$this->getLabel($field),
+                (string)$this->getValueView(
+                    $field,
+                    $value
+                )
+            );
+        }
+    }
 }
