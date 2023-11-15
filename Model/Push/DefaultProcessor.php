@@ -725,13 +725,6 @@ class DefaultProcessor implements PushProcessorInterface
 
         $this->processSucceededPushAuthorization();
 
-        if ($this->configAccount->getInvoiceHandling() == InvoiceHandlingOptions::SHIPMENT) {
-            $paymentDetails['state'] = Order::STATE_NEW;
-            $paymentDetails['newStatus'] = $this->configAccount->getOrderStatusPending();
-            $this->order->setState($paymentDetails['state']);
-            $this->order->setStatus($paymentDetails['newStatus']);
-        }
-
         $this->orderRequestService->updateOrderStatus(
             $paymentDetails['state'],
             $paymentDetails['newStatus'],
