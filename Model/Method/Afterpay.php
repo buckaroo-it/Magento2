@@ -122,8 +122,8 @@ class Afterpay extends AbstractMethod
             if (isset($additionalData['selectedBusiness'])) {
 
                 if( $additionalData['selectedBusiness'] == self::BUSINESS_METHOD_B2B) {
-                    $this->getInfoInstance()->setAdditionalInformation('COCNumber', $additionalData['COCNumber']);
-                    $this->getInfoInstance()->setAdditionalInformation('CompanyName', $additionalData['CompanyName']);
+                    $this->getInfoInstance()->setAdditionalInformation('COCNumber', $additionalData['cOCNumber']);
+                    $this->getInfoInstance()->setAdditionalInformation('CompanyName', $additionalData['companyName']);
                 }
 
                 $this->getInfoInstance()->setAdditionalInformation(
