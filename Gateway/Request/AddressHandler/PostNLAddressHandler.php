@@ -57,7 +57,9 @@ class PostNLAddressHandler extends AbstractAddressHandler
         $postNLPakjeGemakAddress = $this->getPostNLPakjeGemakAddressInQuote($order->getQuoteId());
 
         if (!empty($postNLPakjeGemakAddress) && !empty($postNLPakjeGemakAddress->getData())) {
-            $shippingAddress = $postNLPakjeGemakAddress;
+            foreach ($postNLPakjeGemakAddress->getData() as $key => $value) {
+                $shippingAddress->setData($key, $value);
+            }
         }
 
         return $order;
