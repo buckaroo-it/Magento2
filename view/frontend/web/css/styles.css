@@ -592,6 +592,11 @@
     align-items: center;
     cursor: pointer;
 }
+
+.hidden-fieldset-legend {
+    display: none;
+}
+
 @media screen and (max-width: 768px) {
     .buckaroo_magento2_paybybank .billing-address-form
     {
