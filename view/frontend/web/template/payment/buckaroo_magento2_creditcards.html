@@ -14,7 +14,10 @@
                 </label>
             </div>
             <div class="bk-img-wrap">
-                <img data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/creditcards.svg') }" />
+                <img
+                    data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/creditcards.svg') }"
+                    alt="Creditcards Logo"
+                />
             </div>
         </div>
     </div>
@@ -30,6 +33,7 @@
             <form data-bind="mageInit: { 'validation': [] },
                   attr: {'data-hasrequired': $t('* Required Fields')}">
                 <fieldset class="fieldset bk-creditcards">
+                    <legend>Payment Details</legend>
                     <input id="buckaroo_magento2_creditcards_issuer"
                     type="hidden"
                     name="payment[buckaroo_magento2_creditcards][issuer]"
@@ -74,10 +78,12 @@
                                     event: { blur: validateCardNumber }">
                                     </div>
                                     <div class="bk-card-image">
-                                        <img class="issuer-img" data-bind="attr: {
+                                        <img class="issuer-img"
+                                             data-bind="attr: {
                                                  'src': issuerImage,
                                                  'width': 30,
                                                  'height': 32 }"
+                                             alt="Credit Card Issuer Logo"
                                         />
                                     </div>
                                 </div>

@@ -63,31 +63,31 @@ define(
             }
 
             return value.length <= 8;
-        },
+            },
         $.mage.__('Invalid COC number'));
 
         $.validator.addMethod('phoneValidation', function (value) {
-                var countryId = quote.billingAddress().countryId;
-                var lengths = {
-                    'NL': {
-                        min: 10,
-                        max: 12
-                    },
-                    'BE': {
-                        min: 9,
-                        max: 12
-                    },
-                    'DE': {
-                        min: 11,
-                        max: 14
-                    }
+            var countryId = quote.billingAddress().countryId;
+            var lengths = {
+                'NL': {
+                    min: 10,
+                    max: 12
+                },
+                'BE': {
+                    min: 9,
+                    max: 12
+                },
+                'DE': {
+                    min: 11,
+                    max: 14
+                }
             };
             if (!value) {
                 return false;
             }
 
-                value = value.replace(/^\+|(00)/, '');
-                value = value.replace(/\(0\)|\s|-/g, '');
+            value = value.replace(/^(\+|00)/, '');
+            value = value.replace(/(\(0\)|\s|-)/g, '');
 
             if (value.match(/\+/)) {
                 return false;
@@ -106,9 +106,9 @@ define(
                 }
             }
 
-                return true;
+            return true;
         },
-            $.mage.__('Phone number should be correct.'));
+        $.mage.__('Phone number should be correct.'));
 
         $.validator.addMethod('validateAge', function (value) {
             if (value && (value.length > 0)) {

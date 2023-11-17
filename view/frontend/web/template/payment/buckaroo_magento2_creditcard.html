@@ -14,7 +14,10 @@
                 </label>
             </div>
             <div class="bk-img-wrap">
-                <img data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/creditcards.svg') }" />
+                <img
+                    data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/creditcards.svg') }"
+                    alt="Credicards Logo"
+                />
             </div>
         </div>
     </div>
@@ -39,12 +42,23 @@
                         <!-- ko if: selectionType == '1' -->
                             <!-- ko foreach: creditcards -->
                                 <label class="card-types">
-                                    <img class="card-types-img" data-bind="attr: {
-                                             'src': img,
-                                             'width': 30,
-                                             'height': 20 }"
-                                            />
-                                    <input class="card-types-input" type="radio" data-bind="value: code, click: $parent.setSelectedCard" data-validate="{'validate-one-required-by-name':true}" name="card"> <!-- ko text: name --><!--/ko-->
+                                    <img
+                                        class="card-types-img"
+                                        data-bind="attr: {
+                                            'src': img,
+                                            'width': 30,
+                                            'height': 20,
+                                            'alt': name + ' Logo'
+                                        }"
+                                    />
+                                    <input
+                                        class="card-types-input"
+                                        type="radio"
+                                        data-bind="value: code, click: $parent.setSelectedCard"
+                                        data-validate="{'validate-one-required-by-name':true}"
+                                        name="card"
+                                    >
+                                    <!-- ko text: name --><!--/ko-->
                                 </label>
                             <!--/ko-->
                         <!--/ko-->

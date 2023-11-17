@@ -15,7 +15,10 @@
                 </label>
             </div>
             <div class="bk-img-wrap">
-                <img data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/giftcards.svg') }" />
+                <img
+                    data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/giftcards.svg') }"
+                    alt="Giftcards Logo"
+                />
             </div>
         </div>
     </div>
@@ -73,15 +76,15 @@
         <div class="bk-payment-wrap">
             <div class="bk-radio-wrap">
                 <input type="radio"
-                   name="payment[method]"
-                   class="radio"
-                   data-bind="attr: {'id': code, 'data-method': 'buckaroo_magento2_giftcards'}, value: code,  click: $parent.selectGiftCardPaymentMethod.bind($parent, code), checked: $parent.isCheckedGiftCardPaymentMethod.bind($parent, code), visible: $parent.isRadioButtonVisible()"/>
+                       name="payment[method]"
+                       class="radio"
+                       data-bind="attr: {'id': code, 'data-method': 'buckaroo_magento2_giftcards'}, value: code,  click: $parent.selectGiftCardPaymentMethod.bind($parent, code), checked: $parent.isCheckedGiftCardPaymentMethod.bind($parent, code), visible: $parent.isRadioButtonVisible()"/>
                 <label class="label" data-bind="attr: {'for': code}" >
                     <!-- ko text: title --><!-- /ko -->
                 </label>
             </div>
             <div class="bk-img-wrap">
-                <img data-bind="attr: { src: logo }" />
+                <img data-bind="attr: { src: logo, alt: title }" />
             </div>
         </div>
         </div>
@@ -104,7 +107,7 @@
                   mageInit: { 'validation': [] },
                   attr: {'data-hasrequired': $t('* Required Fields')}">
                 <fieldset class="fieldset payment styled">
-
+                    <legend>Payment Details</legend>
                     <div class="fieldset card_front width-100">
 
                         <div class="field required width-100" >

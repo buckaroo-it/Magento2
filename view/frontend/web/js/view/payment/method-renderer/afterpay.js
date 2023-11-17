@@ -89,7 +89,7 @@ define(
         $.validator.addMethod(
             'IBAN',
             function (value) {
-                var patternIBAN = new RegExp('^[a-zA-Z]{2}[0-9]{2}[a-zA-Z0-9]{4}[0-9]{7}([a-zA-Z0-9]?){0,16}$');
+                var patternIBAN = new RegExp('^[a-zA-Z]{2}[0-9]{2}[a-zA-Z0-9]{4}[0-9]{7}([a-zA-Z0-9]{1,16})$');
                 return (patternIBAN.test(value) && isValidIBAN(value));
             },
             $.mage.__('Enter Valid IBAN')

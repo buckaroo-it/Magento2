@@ -255,7 +255,7 @@
         float: left !important;
     }
 
-    .magento-blank .buckaroo_magento2_ideal di.fieldset > .field:not(.choice) > .control,
+    .magento-blank .buckaroo_magento2_ideal .fieldset > .field:not(.choice) > .control,
     .magento-blank .buckaroo_magento2_idealprocessing .fieldset > .field:not(.choice) > .control,
     .magento-blank .buckaroo_magento2_creditcard .fieldset > .field:not(.choice) > .control,
     .magento-blank .buckaroo_magento2_creditcards .fieldset > .field:not(.choice) > .control,
@@ -485,7 +485,7 @@
     line-height: 20px;
     color: #757575;
     content: '\e604';
-    font-family: 'luma-icons';
+    font-family: 'luma-icons', sans-serif;
     vertical-align: middle;
     display: inline-block;
     font-weight: normal;
