@@ -374,80 +374,120 @@ class PaymentFee extends AbstractHelper
         $orderId = $this->getOrderIncrementId($dataObject);
         $alreadyPayed = $this->groupTransaction->getAlreadyPaid($orderId);
 
-        if (!$dataObject instanceof Creditmemo && $alreadyPayed > 0) {
-            unset($totals['buckaroo_fee']);
-            $this->addTotalToTotals(
-                $totals,
-                'buckaroo_already_paid',
-                $alreadyPayed,
-                $alreadyPayed,
-                __('Paid with Giftcard / Voucher')
-            );
+        if ($this->isAlreadyPayedNotCreditmemo($dataObject, $alreadyPayed)) {
+            $this->handleAlreadyPayedNotCreditmemo($totals, $alreadyPayed);
             return;
         }
 
         if ($orderId !== null && $alreadyPayed > 0) {
-            $requestParams = $this->_request->getParams();
-            $items = $this->groupTransaction->getGroupTransactionItems($orderId);
-            $giftcards = [];
+            $this->processGiftcards($orderId, $totals);
+        }
+    }
 
-            if (isset($requestParams['creditmemo']['buckaroo_already_paid'])) {
-                foreach ($requestParams['creditmemo']['buckaroo_already_paid'] as $giftcardKey => $value) {
-                    $transaction = explode('|', $giftcardKey);
-                    $giftcards[$transaction[1]] = $value;
-                }
-            }
-            foreach ($items as $giftcard) {
-                $foundGiftcard = $this->giftcardCollection->getItemByColumnValue(
-                    'servicecode',
-                    $giftcard['servicecode']
-                );
+    /**
+     * Determine if the function should return early.
+     */
+    private function isAlreadyPayedNotCreditmemo($dataObject, $alreadyPayed): bool
+    {
+        return !$dataObject instanceof Creditmemo && $alreadyPayed > 0;
+    }
 
-                $label = __('Paid with Voucher');
-                if ($foundGiftcard) {
-                    $label = __('Paid with ' . $foundGiftcard['label']);
-                }
+    /**
+     * Handle the early return logic.
+     */
+    private function handleAlreadyPayedNotCreditmemo(&$totals, $alreadyPayed)
+    {
+        unset($totals['buckaroo_fee']);
+        $this->addTotalToTotals(
+            $totals,
+            'buckaroo_already_paid',
+            $alreadyPayed,
+            $alreadyPayed,
+            __('Paid with Giftcard / Voucher')
+        );
+    }
 
-                $refundedAlreadyPaidSaved = $giftcard->getRefundedAmount() ?? 0;
-                $amountValue = $giftcard['amount'];
-                $amountBaseValue = $giftcard['amount'];
+    /**
+     * Process giftcards and update totals.
+     */
+    private function processGiftcards($orderId, &$totals)
+    {
+        $requestParams = $this->_request->getParams();
+        $items = $this->groupTransaction->getGroupTransactionItems($orderId);
+        $giftcards = $this->extractGiftcardsFromRequest($requestParams);
 
-                if (!empty($foundGiftcard['is_partial_refundable'])) {
-                    $residual = floatval($giftcard['amount']) - floatval($refundedAlreadyPaidSaved);
-                    if (array_key_exists($foundGiftcard['servicecode'], $giftcards)
-                        && floatval($giftcards[$foundGiftcard['servicecode']]) <= $residual
-                    ) {
-                        $amountValue = floatval($giftcards[$foundGiftcard['servicecode']]);
-                        $amountBaseValue = floatval($giftcards[$foundGiftcard['servicecode']]);
-                    } else {
-                        $amountBaseValue = $residual;
-                        $amountValue = $residual;
-                    }
-                } else {
-                    if (!empty(floatval($refundedAlreadyPaidSaved))
-                            && floatval($refundedAlreadyPaidSaved) === floatval($amountValue)
-                    ) {
-                        $amountBaseValue = 0;
-                        $amountValue = 0;
-                    } elseif (is_array($foundGiftcard) && array_key_exists($foundGiftcard['servicecode'], $giftcards)) {
-                        if (empty(floatval($giftcards[$foundGiftcard['servicecode']]))) {
-                            $amountBaseValue = 0;
-                            $amountValue = 0;
-                        }
-                    }
-                }
+        foreach ($items as $giftcard) {
+            $this->updateTotalsWithGiftcard($giftcard, $giftcards, $totals);
+        }
+    }
 
-                $this->addTotalToTotals(
-                    $totals,
-                    'buckaroo_already_paid',
-                    -$amountValue,
-                    -$amountBaseValue,
-                    $label,
-                    'buckaroo_already_paid',
-                    $giftcard['transaction_id'] . '|' . $giftcard['servicecode'] . '|' . $giftcard['amount']
-                );
+    /**
+     * Extract giftcards from the request.
+     */
+    private function extractGiftcardsFromRequest($requestParams): array
+    {
+        $giftcards = [];
+
+        if (isset($requestParams['creditmemo']['buckaroo_already_paid'])) {
+            foreach ($requestParams['creditmemo']['buckaroo_already_paid'] as $giftcardKey => $value) {
+                $transaction = explode('|', $giftcardKey);
+                $giftcards[$transaction[1]] = $value;
             }
         }
+
+        return $giftcards;
+    }
+
+    /**
+     * Update totals based on a single giftcard.
+     */
+    private function updateTotalsWithGiftcard($giftcard, $giftcards, &$totals)
+    {
+        $foundGiftcard = $this->giftcardCollection->getItemByColumnValue('servicecode', $giftcard['servicecode']);
+
+        $label = __('Paid with Voucher');
+        if ($foundGiftcard) {
+            $label = __('Paid with ' . $foundGiftcard['label']);
+        }
+
+        $refundedAlreadyPaidSaved = $giftcard->getRefundedAmount() ?? 0;
+        $amountValue = $giftcard['amount'];
+        $amountBaseValue = $giftcard['amount'];
+
+        if (!empty($foundGiftcard['is_partial_refundable'])) {
+            $residual = floatval($giftcard['amount']) - floatval($refundedAlreadyPaidSaved);
+            if (array_key_exists($foundGiftcard['servicecode'], $giftcards)
+                && floatval($giftcards[$foundGiftcard['servicecode']]) <= $residual
+            ) {
+                $amountValue = floatval($giftcards[$foundGiftcard['servicecode']]);
+                $amountBaseValue = floatval($giftcards[$foundGiftcard['servicecode']]);
+            } else {
+                $amountBaseValue = $residual;
+                $amountValue = $residual;
+            }
+        } else {
+            if (!empty(floatval($refundedAlreadyPaidSaved))
+                && floatval($refundedAlreadyPaidSaved) === floatval($amountValue)
+            ) {
+                $amountBaseValue = 0;
+                $amountValue = 0;
+            } elseif (is_array($foundGiftcard) && array_key_exists($foundGiftcard['servicecode'], $giftcards)) {
+                if (empty(floatval($giftcards[$foundGiftcard['servicecode']]))) {
+                    $amountBaseValue = 0;
+                    $amountValue = 0;
+                }
+            }
+        }
+
+        $this->addTotalToTotals(
+            $totals,
+            'buckaroo_already_paid',
+            -$amountValue,
+            -$amountBaseValue,
+            $label,
+            'buckaroo_already_paid',
+            $giftcard['transaction_id'] . '|' . $giftcard['servicecode'] . '|' . $giftcard['amount']
+        );
     }
 
     /**

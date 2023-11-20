@@ -72,7 +72,7 @@ class SubTotalsDataBuilder extends AbstractDataBuilder
     protected function getDiscount()
     {
         $discount = abs((float)$this->getOrder()->getDiscountAmount());
-        return (-1 * round($discount, 2));
+        return -1 * round($discount, 2);
     }
 
 
