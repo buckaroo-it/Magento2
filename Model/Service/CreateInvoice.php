@@ -38,11 +38,6 @@ use Magento\Sales\Model\Order\Payment\Transaction;
 class CreateInvoice
 {
     /**
-     * @var Order\Payment
-     */
-    private Order\Payment $payment;
-
-    /**
      * @var Log
      */
     protected Log $logger;
@@ -98,9 +93,10 @@ class CreateInvoice
      */
     public function createInvoiceGeneralSetting(Order $order): bool
     {
-        $this->payment = $order->getPayment();
+        /** @var Order\Payment $payment */
+        $payment = $order->getPayment();
 
-        $this->addTransactionData($this->payment);
+        $this->addTransactionData($payment);
 
         $this->logger->addDebug(__METHOD__ . '|1| - Save Invoice');
 
@@ -111,13 +107,13 @@ class CreateInvoice
         }
 
         //Fix for suspected fraud when the order currency does not match with the payment's currency
-        $amount = ($this->payment->isSameCurrency()
-            && $this->payment->isCaptureFinal($order->getGrandTotal())) ?
+        $amount = ($payment->isSameCurrency()
+            && $payment->isCaptureFinal($order->getGrandTotal())) ?
             $order->getGrandTotal() : $order->getBaseTotalDue();
-        $this->payment->registerCaptureNotification($amount);
-        $this->payment->save();
+        $payment->registerCaptureNotification($amount);
+        $payment->save();
 
-        $transactionKey = (string)$this->payment->getAdditionalInformation(
+        $transactionKey = (string)$payment->getAdditionalInformation(
             BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY
         );
 
