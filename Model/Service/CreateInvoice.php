@@ -100,7 +100,7 @@ class CreateInvoice
     {
         $this->payment = $order->getPayment();
 
-        $this->addTransactionData();
+        $this->addTransactionData($this->payment);
 
         $this->logger->addDebug(__METHOD__ . '|1| - Save Invoice');
 
@@ -150,9 +150,9 @@ class CreateInvoice
      * @return Order\Payment
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function addTransactionData($transactionKey = false, $datas = false)
+    public function addTransactionData($payment, $transactionKey = false, $datas = false)
     {
-        $transactionKey = $transactionKey ?: $this->payment->getAdditionalInformation(
+        $transactionKey = $transactionKey ?: $payment->getAdditionalInformation(
             BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY
         );
 
@@ -165,7 +165,7 @@ class CreateInvoice
          */
         if(!$datas)
         {
-            $rawDetails = $this->payment->getAdditionalInformation(Transaction::RAW_DETAILS);
+            $rawDetails = $payment->getAdditionalInformation(Transaction::RAW_DETAILS);
             $rawInfo = $rawDetails[$transactionKey] ?? [];
         } else {
             $rawInfo  = $this->helper->getTransactionAdditionalInfo($datas);
@@ -174,19 +174,19 @@ class CreateInvoice
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
-        $this->payment->setTransactionAdditionalInfo(Transaction::RAW_DETAILS, $rawInfo);
+        $payment->setTransactionAdditionalInfo(Transaction::RAW_DETAILS, $rawInfo);
 
         /**
          * Save the payment's transaction key.
          */
-        $this->payment->setTransactionId($transactionKey . '-capture');
+        $payment->setTransactionId($transactionKey . '-capture');
 
-        $this->payment->setParentTransactionId($transactionKey);
-        $this->payment->setAdditionalInformation(
+        $payment->setParentTransactionId($transactionKey);
+        $payment->setAdditionalInformation(
             BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY,
             $transactionKey
         );
 
-        return $this->payment;
+        return $payment;
     }
 }
