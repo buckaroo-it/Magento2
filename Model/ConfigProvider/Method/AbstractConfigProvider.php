@@ -37,8 +37,9 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     CheckoutConfigProvider,
     ConfigProviderInterface
 {
-    public const CODE = 'buckaroo';
+    public const CODE = 'buckaroo_magento2_';
 
+    public const XPATH_BUCKAROO = 'payment/'. self::CODE;
     public const XPATH_ACTIVE = 'active';
     public const XPATH_AVAILABLE_IN_BACKEND = 'available_in_backend';
     public const XPATH_ORDER_EMAIL = 'order_email';

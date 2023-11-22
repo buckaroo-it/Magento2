@@ -80,38 +80,41 @@ class Idin extends AbstractConfigProvider
             'code' => 'TRIONL2U',
         ],
     ];
+
     /**
      * @var CheckoutSession
      */
-    protected $checkoutSession;
-    /**
-     * @var ScopeConfigInterface
-     */
-    protected $scopeConfig;
+    protected CheckoutSession $checkoutSession;
+
     /**
      * @var AddressFactory
      */
-    protected $addressFactory;
+    protected AddressFactory $addressFactory;
+
     /**
      * @var CustomerRepository
      */
-    protected $customerRepository;
+    protected CustomerRepository $customerRepository;
+
     /**
      * @var StoreManagerInterface
      */
-    private $storeManager;
+    private StoreManagerInterface $storeManager;
+
     /**
      * @var Account
      */
-    private $configProviderAccount;
+    private Account $configProviderAccount;
+
     /**
      * @var CustomerSession
      */
-    private $customerSession;
+    private CustomerSession $customerSession;
+
     /**
      * @var ProductFactory
      */
-    private $productFactory;
+    private ProductFactory $productFactory;
 
     /**
      * @param Account $configProviderAccount
@@ -133,12 +136,12 @@ class Idin extends AbstractConfigProvider
         AddressFactory $addressFactory,
         CustomerRepository $customerRepository
     ) {
+        parent::__construct($scopeConfig);
         $this->storeManager = $storeManager;
         $this->configProviderAccount = $configProviderAccount;
         $this->customerSession = $customerSession;
         $this->productFactory = $productFactory;
         $this->checkoutSession = $checkoutSession;
-        $this->scopeConfig = $scopeConfig;
         $this->addressFactory = $addressFactory;
         $this->customerRepository = $customerRepository;
     }
@@ -148,6 +151,8 @@ class Idin extends AbstractConfigProvider
      *
      * @param null|int|string $store
      * @return array
+     * @throws NoSuchEntityException
+     * @throws LocalizedException
      */
     public function getConfig($store = null): array
     {
@@ -191,7 +196,7 @@ class Idin extends AbstractConfigProvider
      * @return array
      * @throws NoSuchEntityException
      */
-    public function getIdinStatus(Quote $quote, CustomerInterface $customer = null)
+    public function getIdinStatus(Quote $quote, CustomerInterface $customer = null): array
     {
         if (!$this->checkCountry($customer) ||
             !$this->isIdinEnabled()
@@ -220,13 +225,12 @@ class Idin extends AbstractConfigProvider
             return true;
         }
 
-        if ($customer->getDefaultBilling()) {
-            if ($billingAddress = $this->addressFactory->create()->load($customer->getDefaultBilling())) {
-                if ($billingAddress->getCountryId()) {
-                    return strtolower($billingAddress->getCountryId()) == 'nl';
-                }
-            }
+        if ($customer->getDefaultBilling()
+            && ($billingAddress = $this->addressFactory->create()->load($customer->getDefaultBilling()))
+            && $billingAddress->getCountryId()) {
+            return strtolower($billingAddress->getCountryId()) == 'nl';
         }
+
         return true;
     }
 
@@ -252,9 +256,8 @@ class Idin extends AbstractConfigProvider
         if ($customer === null) {
             return $this->checkoutSession->getCustomerIDINIsEighteenOrOlder() === true;
         }
-        return ($customer->getCustomAttribute('buckaroo_idin_iseighteenorolder') !== null &&
-            $customer->getCustomAttribute('buckaroo_idin_iseighteenorolder')->getValue() == 1
-        );
+        return $customer->getCustomAttribute('buckaroo_idin_iseighteenorolder') !== null &&
+            $customer->getCustomAttribute('buckaroo_idin_iseighteenorolder')->getValue() == 1;
     }
 
     /**
@@ -328,7 +331,7 @@ class Idin extends AbstractConfigProvider
      * @return array
      * @throws NoSuchEntityException
      */
-    public function getIssuers()
+    public function getIssuers(): array
     {
         $all = $this->issuers;
         if ($this->configProviderAccount->getIdin($this->storeManager->getStore()) == 1) {

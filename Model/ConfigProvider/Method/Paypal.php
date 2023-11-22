@@ -31,9 +31,8 @@ class Paypal extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_paypal';
 
-    public const XPATH_PAYPAL_SELLERS_PROTECTION               = 'payment/buckaroo_magento2_paypal/sellers_protection';
-    public const XPATH_PAYPAL_SELLERS_PROTECTION_ELIGIBLE      = 'payment/' .
-        'buckaroo_magento2_paypal/sellers_protection_eligible';
+    public const XPATH_PAYPAL_SELLERS_PROTECTION           = 'payment/'. self::CODE .'/sellers_protection';
+    public const XPATH_PAYPAL_SELLERS_PROTECTION_ELIGIBLE  = self::XPATH_BUCKAROO. '/sellers_protection_eligible';
     public const XPATH_PAYPAL_SELLERS_PROTECTION_INELIGIBLE    = 'payment/' .
         'buckaroo_magento2_paypal/sellers_protection_ineligible';
     public const XPATH_PAYPAL_SELLERS_PROTECTION_ITEMNOTRECEIVED_ELIGIBLE = 'payment/' .
