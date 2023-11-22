@@ -445,11 +445,30 @@ class PaymentFee extends AbstractHelper
     {
         $foundGiftcard = $this->giftcardCollection->getItemByColumnValue('servicecode', $giftcard['servicecode']);
 
-        $label = __('Paid with Voucher');
-        if ($foundGiftcard) {
-            $label = __('Paid with ' . $foundGiftcard['label']);
-        }
+        $label = $this->getGiftcardLabel($foundGiftcard);
 
+        list($amountValue, $amountBaseValue) = $this->calculateAmountValues($giftcard, $giftcards, $foundGiftcard);
+
+        $this->addTotalToTotals(
+            $totals,
+            'buckaroo_already_paid',
+            -$amountValue,
+            -$amountBaseValue,
+            $label,
+            'buckaroo_already_paid',
+            $giftcard['transaction_id'] . '|' . $giftcard['servicecode'] . '|' . $giftcard['amount']
+        );
+    }
+
+    private function getGiftcardLabel($foundGiftcard) {
+        if ($foundGiftcard) {
+            return __('Paid with ' . $foundGiftcard['label']);
+        }
+        return __('Paid with Voucher');
+    }
+
+    private function calculateAmountValues($giftcard, $giftcards, $foundGiftcard)
+    {
         $refundedAlreadyPaidSaved = $giftcard->getRefundedAmount() ?? 0;
         $amountValue = $giftcard['amount'];
         $amountBaseValue = $giftcard['amount'];
@@ -479,15 +498,7 @@ class PaymentFee extends AbstractHelper
             }
         }
 
-        $this->addTotalToTotals(
-            $totals,
-            'buckaroo_already_paid',
-            -$amountValue,
-            -$amountBaseValue,
-            $label,
-            'buckaroo_already_paid',
-            $giftcard['transaction_id'] . '|' . $giftcard['servicecode'] . '|' . $giftcard['amount']
-        );
+        return [$amountValue, $amountBaseValue];
     }
 
     /**
