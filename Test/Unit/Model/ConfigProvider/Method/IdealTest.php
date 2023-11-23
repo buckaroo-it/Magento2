@@ -42,7 +42,7 @@ class IdealTest extends BaseTest
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
             ->with(
-                $this->getPaymentMethodConfigPath(Ideal::CODE, AbstractConfigProvider::XPATH_ACTIVE),
+                $this->getPaymentMethodConfigPath(Ideal::CODE, AbstractConfigProvider::ACTIVE),
                 ScopeInterface::SCOPE_STORE
             )
             ->willReturn(false);
@@ -68,11 +68,11 @@ class IdealTest extends BaseTest
             ->method('getValue')
             ->withConsecutive(
                 [
-                    $this->getPaymentMethodConfigPath(Ideal::CODE, AbstractConfigProvider::XPATH_ACTIVE),
+                    $this->getPaymentMethodConfigPath(Ideal::CODE, AbstractConfigProvider::ACTIVE),
                     ScopeInterface::SCOPE_STORE,
                 ],
                 [
-                    $this->getPaymentMethodConfigPath(Ideal::CODE, AbstractConfigProvider::XPATH_ALLOWED_CURRENCIES),
+                    $this->getPaymentMethodConfigPath(Ideal::CODE, AbstractConfigProvider::ALLOWED_CURRENCIES),
                     ScopeInterface::SCOPE_STORE,
                     null
                 ]
@@ -113,7 +113,7 @@ class IdealTest extends BaseTest
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
             ->with(
-                $this->getPaymentMethodConfigPath(Ideal::CODE, AbstractConfigProvider::XPATH_PAYMENT_FEE),
+                $this->getPaymentMethodConfigPath(Ideal::CODE, AbstractConfigProvider::PAYMENT_FEE),
                 ScopeInterface::SCOPE_STORE
             )
             ->willReturn(null);
@@ -135,7 +135,7 @@ class IdealTest extends BaseTest
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
             ->with(
-                $this->getPaymentMethodConfigPath(Ideal::CODE, AbstractConfigProvider::XPATH_PAYMENT_FEE),
+                $this->getPaymentMethodConfigPath(Ideal::CODE, AbstractConfigProvider::PAYMENT_FEE),
                 ScopeInterface::SCOPE_STORE
             )
             ->willReturn(10.00);
@@ -157,7 +157,7 @@ class IdealTest extends BaseTest
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
             ->with(
-                $this->getPaymentMethodConfigPath(Ideal::CODE, AbstractConfigProvider::XPATH_ACTIVE),
+                $this->getPaymentMethodConfigPath(Ideal::CODE, AbstractConfigProvider::ACTIVE),
                 ScopeInterface::SCOPE_STORE
             )
             ->willReturn('1');

@@ -40,7 +40,7 @@ class IdealProcessingTest extends BaseTest
         $scopeConfigMock->expects($this->atLeastOnce())
             ->method('getValue')
             ->withConsecutive($this->onConsecutiveCalls([[
-                $this->getPaymentMethodConfigPath(IdealProcessing::CODE, AbstractConfigProvider::XPATH_ACTIVE)
+                $this->getPaymentMethodConfigPath(IdealProcessing::CODE, AbstractConfigProvider::ACTIVE)
             ]]))
             ->willReturn(1);
 
@@ -93,7 +93,7 @@ class IdealProcessingTest extends BaseTest
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
             ->with(
-                $this->getPaymentMethodConfigPath(IdealProcessing::CODE, AbstractConfigProvider::XPATH_PAYMENT_FEE),
+                $this->getPaymentMethodConfigPath(IdealProcessing::CODE, AbstractConfigProvider::PAYMENT_FEE),
                 ScopeInterface::SCOPE_STORE
             )
             ->willReturn($fee);

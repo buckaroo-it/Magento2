@@ -24,26 +24,21 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Buckaroo\Magento2\Exception;
-use Magento\Store\Model\ScopeInterface;
-use Buckaroo\Magento2\Model\Config\Source\PaypalButtonStyle;
 
 class Paypal extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_paypal';
 
-    public const XPATH_PAYPAL_SELLERS_PROTECTION           = 'payment/'. self::CODE .'/sellers_protection';
-    public const XPATH_PAYPAL_SELLERS_PROTECTION_ELIGIBLE  = self::XPATH_BUCKAROO. '/sellers_protection_eligible';
-    public const XPATH_PAYPAL_SELLERS_PROTECTION_INELIGIBLE    = 'payment/' .
-        'buckaroo_magento2_paypal/sellers_protection_ineligible';
-    public const XPATH_PAYPAL_SELLERS_PROTECTION_ITEMNOTRECEIVED_ELIGIBLE = 'payment/' .
-        'buckaroo_magento2_paypal/sellers_protection_itemnotreceived_eligible';
-    public const XPATH_PAYPAL_SELLERS_PROTECTION_UNAUTHORIZEDPAYMENT_ELIGIBLE = 'payment/' .
-        'buckaroo_magento2_paypal/sellers_protection_unauthorizedpayment_eligible';
+    public const SELLERS_PROTECTION                              = 'sellers_protection';
+    public const SELLERS_PROTECTION_ELIGIBLE                     = 'sellers_protection_eligible';
+    public const SELLERS_PROTECTION_INELIGIBLE                   = 'sellers_protection_ineligible';
+    public const SELLERS_PROTECTION_ITEMNOTRECEIVED_ELIGIBLE     = 'sellers_protection_itemnotreceived_eligible';
+    public const SELLERS_PROTECTION_UNAUTHORIZEDPAYMENT_ELIGIBLE = 'sellers_protection_unauthorizedpayment_eligible';
 
-    public const XPATH_PAYPAL_EXPRESS_BUTTONS           = 'payment/buckaroo_magento2_paypal/available_buttons';
-    public const XPATH_PAYPAL_EXPRESS_MERCHANT_ID       = 'payment/buckaroo_magento2_paypal/express_merchant_id';
-    public const XPATH_PAYPAL_EXPRESS_BUTTON_COLOR      = 'payment/buckaroo_magento2_paypal/express_button_color';
-    public const XPATH_PAYPAL_EXPRESS_BUTTON_IS_ROUNDED = 'payment/buckaroo_magento2_paypal/express_button_rounded';
+    public const EXPRESS_BUTTONS           = 'available_buttons';
+    public const EXPRESS_MERCHANT_ID       = 'express_merchant_id';
+    public const EXPRESS_BUTTON_COLOR      = 'express_button_color';
+    public const EXPRESS_BUTTON_IS_ROUNDED = 'express_button_rounded';
 
     /**
      * @inheritdoc
@@ -77,11 +72,7 @@ class Paypal extends AbstractConfigProvider
      */
     public function getSellersProtection($store = null)
     {
-        return $this->scopeConfig->getValue(
-            static::XPATH_PAYPAL_SELLERS_PROTECTION,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->getMethodConfigValue(self::SELLERS_PROTECTION, $store);
     }
 
     /**
@@ -92,11 +83,7 @@ class Paypal extends AbstractConfigProvider
      */
     public function getSellersProtectionEligible($store = null)
     {
-        return $this->scopeConfig->getValue(
-            static::XPATH_PAYPAL_SELLERS_PROTECTION_ELIGIBLE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->getMethodConfigValue(self::SELLERS_PROTECTION_ELIGIBLE, $store);
     }
 
     /**
@@ -107,11 +94,7 @@ class Paypal extends AbstractConfigProvider
      */
     public function getSellersProtectionIneligible($store = null)
     {
-        return $this->scopeConfig->getValue(
-            static::XPATH_PAYPAL_SELLERS_PROTECTION_INELIGIBLE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->getMethodConfigValue(self::SELLERS_PROTECTION_INELIGIBLE, $store);
     }
 
     /**
@@ -122,11 +105,7 @@ class Paypal extends AbstractConfigProvider
      */
     public function getSellersProtectionItemnotreceivedEligible($store = null)
     {
-        return $this->scopeConfig->getValue(
-            static::XPATH_PAYPAL_SELLERS_PROTECTION_ITEMNOTRECEIVED_ELIGIBLE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->getMethodConfigValue(self::SELLERS_PROTECTION_ITEMNOTRECEIVED_ELIGIBLE, $store);
     }
 
     /**
@@ -137,11 +116,7 @@ class Paypal extends AbstractConfigProvider
      */
     public function getSellersProtectionUnauthorizedpaymentEligible($store = null)
     {
-        return $this->scopeConfig->getValue(
-            static::XPATH_PAYPAL_SELLERS_PROTECTION_UNAUTHORIZEDPAYMENT_ELIGIBLE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->getMethodConfigValue(self::SELLERS_PROTECTION_UNAUTHORIZEDPAYMENT_ELIGIBLE, $store);
     }
 
     /**
@@ -152,7 +127,7 @@ class Paypal extends AbstractConfigProvider
      */
     public function getExpressButtons($store = null)
     {
-        return $this->getConfigFromXpath(self::XPATH_PAYPAL_EXPRESS_BUTTONS, $store);
+        return $this->getMethodConfigValue(self::EXPRESS_BUTTONS, $store);
     }
 
     /**
@@ -163,7 +138,7 @@ class Paypal extends AbstractConfigProvider
      */
     public function getExpressMerchantId($store = null)
     {
-        return $this->getConfigFromXpath(self::XPATH_PAYPAL_EXPRESS_MERCHANT_ID, $store);
+        return $this->getMethodConfigValue(self::EXPRESS_MERCHANT_ID, $store);
     }
 
     /**
@@ -174,11 +149,7 @@ class Paypal extends AbstractConfigProvider
      */
     public function getButtonColor($store = null): string
     {
-        $color = $this->getConfigFromXpath(self::XPATH_PAYPAL_EXPRESS_BUTTON_COLOR, $store);
-        if (!is_string($color)) {
-            $color = PaypalButtonStyle::COLOR_DEFAULT;
-        }
-        return $color;
+        return $this->getMethodConfigValue(self::EXPRESS_BUTTON_COLOR, $store);
     }
 
     /**
@@ -189,11 +160,10 @@ class Paypal extends AbstractConfigProvider
      */
     public function getButtonShape($store = null): string
     {
-        return $this->getConfigFromXpath(self::XPATH_PAYPAL_EXPRESS_BUTTON_IS_ROUNDED, $store) === "1"
+        return $this->getMethodConfigValue(self::EXPRESS_BUTTON_IS_ROUNDED, $store) === "1"
             ? 'pill'
             : 'rect';
     }
-
 
     /**
      * Test if express button is enabled for the $page

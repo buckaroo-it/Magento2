@@ -33,11 +33,10 @@ class Applepay extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_applepay';
 
-    public const XPATH_APPLEPAY_AVAILABLE_BUTTONS = 'payment/buckaroo_magento2_applepay/available_buttons';
-    public const XPATH_APPLEPAY_BUTTON_STYLE = 'payment/buckaroo_magento2_applepay/button_style';
-    public const XPATH_APPLEPAY_DONT_ASK_BILLING_INFO_IN_CHECKOUT =
-        'payment/buckaroo_magento2_applepay/dont_ask_billing_info_in_checkout';
-    public const XPATH_ACCOUNT_MERCHANT_GUID = 'buckaroo_magento2/account/merchant_guid';
+    public const XPATH_APPLEPAY_AVAILABLE_BUTTONS                 = 'available_buttons';
+    public const XPATH_APPLEPAY_BUTTON_STYLE                      = 'button_style';
+    public const XPATH_APPLEPAY_DONT_ASK_BILLING_INFO_IN_CHECKOUT = 'dont_ask_billing_info_in_checkout';
+    public const XPATH_ACCOUNT_MERCHANT_GUID                      = 'buckaroo_magento2/account/merchant_guid';
 
     /**
      * @var array
@@ -50,12 +49,12 @@ class Applepay extends AbstractConfigProvider
     /**
      * @var Resolver
      */
-    private $localeResolver;
+    private Resolver $localeResolver;
 
     /**
      * @var StoreManagerInterface
      */
-    private $storeManager;
+    private StoreManagerInterface $storeManager;
 
     /**
      * @param Repository $assetRepo
@@ -99,21 +98,21 @@ class Applepay extends AbstractConfigProvider
             'payment' => [
                 'buckaroo' => [
                     'applepay' => [
-                        'subtext'   => $this->getSubtext(),
-                        'subtext_style'   => $this->getSubtextStyle(),
-                        'subtext_color'   => $this->getSubtextColor(),
+                        'subtext'           => $this->getSubtext(),
+                        'subtext_style'     => $this->getSubtextStyle(),
+                        'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'storeName' => $storeName,
-                        'currency' => $currency,
-                        'cultureCode' => $shortLocale,
-                        'country' => $this->scopeConfig->getValue(
+                        'storeName'         => $storeName,
+                        'currency'          => $currency,
+                        'cultureCode'       => $shortLocale,
+                        'country'           => $this->scopeConfig->getValue(
                             'general/country/default',
                             ScopeInterface::SCOPE_WEBSITES
                         ),
-                        'guid' => $this->getMerchantGuid(),
-                        'availableButtons' => $this->getAvailableButtons(),
-                        'buttonStyle' => $this->getButtonStyle(),
-                        'dontAskBillingInfoInCheckout' => (int) $this->getDontAskBillingInfoInCheckout()
+                        'guid'              => $this->getMerchantGuid(),
+                        'availableButtons'  => $this->getAvailableButtons(),
+                        'buttonStyle'       => $this->getButtonStyle(),
+                        'dontAskBillingInfoInCheckout' => (int)$this->getDontAskBillingInfoInCheckout()
                     ],
                 ],
             ],
@@ -127,10 +126,8 @@ class Applepay extends AbstractConfigProvider
      */
     public function getAvailableButtons()
     {
-        $availableButtons = $this->scopeConfig->getValue(
-            static::XPATH_APPLEPAY_AVAILABLE_BUTTONS,
-            ScopeInterface::SCOPE_STORE
-        );
+        $availableButtons = $this->getMethodConfigValue(self::XPATH_APPLEPAY_AVAILABLE_BUTTONS);
+
         if ($availableButtons) {
             $availableButtons = explode(',', (string)$availableButtons);
         } else {
@@ -143,7 +140,7 @@ class Applepay extends AbstractConfigProvider
     /**
      * @return array
      */
-    public function getBaseAllowedCurrencies()
+    public function getBaseAllowedCurrencies(): array
     {
         return [
             'EUR',
@@ -157,7 +154,6 @@ class Applepay extends AbstractConfigProvider
         ];
     }
 
-
     /**
      * Returns the button style configuration setting for the specified store.
      *
@@ -166,11 +162,7 @@ class Applepay extends AbstractConfigProvider
      */
     public function getButtonStyle($store = null)
     {
-        return $this->scopeConfig->getValue(
-            static::XPATH_APPLEPAY_BUTTON_STYLE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->getMethodConfigValue(self::XPATH_APPLEPAY_BUTTON_STYLE, $store);
     }
 
     /**
@@ -181,12 +173,9 @@ class Applepay extends AbstractConfigProvider
      */
     public function getDontAskBillingInfoInCheckout($store = null)
     {
-        return $this->scopeConfig->getValue(
-            static::XPATH_APPLEPAY_DONT_ASK_BILLING_INFO_IN_CHECKOUT,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->getMethodConfigValue(self::XPATH_APPLEPAY_DONT_ASK_BILLING_INFO_IN_CHECKOUT, $store);
     }
+
     /**
      * Get Merchant Guid from Buckaroo Payment Engine
      *
@@ -195,10 +184,6 @@ class Applepay extends AbstractConfigProvider
      */
     public function getMerchantGuid($store = null)
     {
-        return $this->scopeConfig->getValue(
-            self::XPATH_ACCOUNT_MERCHANT_GUID,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->getMethodConfigValue(self::XPATH_APPLEPAY_DONT_ASK_BILLING_INFO_IN_CHECKOUT, $store);
     }
 }

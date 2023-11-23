@@ -62,7 +62,7 @@ class GiropayTest extends BaseTest
         $scopeConfigMock->expects($this->atLeastOnce())
             ->method('getValue')
             ->withConsecutive(
-                [Giropay::XPATH_ALLOWED_CURRENCIES, ScopeInterface::SCOPE_STORE, null]
+                [Giropay::ALLOWED_CURRENCIES, ScopeInterface::SCOPE_STORE, null]
             )
             ->willReturnOnConsecutiveCalls('EUR');
 
@@ -127,7 +127,7 @@ class GiropayTest extends BaseTest
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
             ->with(
-                $this->getPaymentMethodConfigPath(Giropay::CODE, AbstractConfigProvider::XPATH_ACTIVE),
+                $this->getPaymentMethodConfigPath(Giropay::CODE, AbstractConfigProvider::ACTIVE),
                 ScopeInterface::SCOPE_STORE
             )
             ->willReturn($value);

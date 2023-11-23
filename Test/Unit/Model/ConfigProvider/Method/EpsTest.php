@@ -71,15 +71,15 @@ class EpsTest extends BaseTest
             ->method('getValue')
             ->withConsecutive(
                 [
-                    $this->getPaymentMethodConfigPath(Eps::CODE, AbstractConfigProvider::XPATH_ACTIVE),
+                    $this->getPaymentMethodConfigPath(Eps::CODE, AbstractConfigProvider::ACTIVE),
                     ScopeInterface::SCOPE_STORE,
                 ],
                 [
-                    $this->getPaymentMethodConfigPath(Eps::CODE, AbstractConfigProvider::XPATH_ORDER_EMAIL),
+                    $this->getPaymentMethodConfigPath(Eps::CODE, AbstractConfigProvider::ORDER_EMAIL),
                     ScopeInterface::SCOPE_STORE,
                 ],
                 [
-                    $this->getPaymentMethodConfigPath(Eps::CODE, AbstractConfigProvider::XPATH_ALLOWED_CURRENCIES),
+                    $this->getPaymentMethodConfigPath(Eps::CODE, AbstractConfigProvider::ALLOWED_CURRENCIES),
                     ScopeInterface::SCOPE_STORE,
                     null
                 ]
@@ -147,7 +147,7 @@ class EpsTest extends BaseTest
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
             ->with(
-                $this->getPaymentMethodConfigPath(Eps::CODE, AbstractConfigProvider::XPATH_PAYMENT_FEE),
+                $this->getPaymentMethodConfigPath(Eps::CODE, AbstractConfigProvider::PAYMENT_FEE),
                 ScopeInterface::SCOPE_STORE
             )
             ->willReturn($value);

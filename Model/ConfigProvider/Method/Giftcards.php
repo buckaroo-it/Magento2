@@ -27,17 +27,17 @@ use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\UrlInterface;
 use Magento\Framework\View\Asset\Repository;
-use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 class Giftcards extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_giftcards';
 
-    public const XPATH_GIFTCARDS_ALLOWED_GIFTCARDS       = 'payment/buckaroo_magento2_giftcards/allowed_giftcards';
-    public const XPATH_GIFTCARDS_GROUP_GIFTCARDS         = 'payment/buckaroo_magento2_giftcards/group_giftcards';
-    public const XPATH_GIFTCARDS_SORT                    = 'payment/buckaroo_magento2_giftcards/sorted_giftcards';
+    public const XPATH_GIFTCARDS_ALLOWED_GIFTCARDS       = 'allowed_giftcards';
+    public const XPATH_GIFTCARDS_GROUP_GIFTCARDS         = 'group_giftcards';
+    public const XPATH_GIFTCARDS_SORT                    = 'sorted_giftcards';
     public const XPATH_ACCOUNT_ADVANCED_EXPORT_GIFTCARDS = 'buckaroo_magento2/account/advanced_export_giftcards';
 
     /**
@@ -50,7 +50,7 @@ class Giftcards extends AbstractConfigProvider
     /**
      * @var StoreManagerInterface
      */
-    private $storeManager;
+    private StoreManagerInterface $storeManager;
 
     /**
      * @var ResourceConnection
@@ -84,7 +84,7 @@ class Giftcards extends AbstractConfigProvider
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @throws Exception|NoSuchEntityException
      */
-    public function getConfig()
+    public function getConfig(): array
     {
         if (!$this->getActive()) {
             return [];
@@ -113,7 +113,7 @@ class Giftcards extends AbstractConfigProvider
         $availableCards = $this->getAllowedGiftcards();
 
         $url = $this->storeManager->getStore()->getBaseUrl(
-            \Magento\Framework\UrlInterface::URL_TYPE_MEDIA
+            UrlInterface::URL_TYPE_MEDIA
         );
 
         foreach (explode(',', (string)$availableCards) as $value) {
@@ -141,9 +141,9 @@ class Giftcards extends AbstractConfigProvider
                     'avaibleGiftcards' => $cards,
                     'giftcards'        => [
                         'paymentFeeLabel'   => $paymentFeeLabel,
-                        'subtext'   => $this->getSubtext(),
-                        'subtext_style'   => $this->getSubtextStyle(),
-                        'subtext_color'   => $this->getSubtextColor(),
+                        'subtext'           => $this->getSubtext(),
+                        'subtext_style'     => $this->getSubtextStyle(),
+                        'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                     ],
                 ],
@@ -152,27 +152,25 @@ class Giftcards extends AbstractConfigProvider
     }
 
     /**
-     * @inheritdoc
+     * Get Giftcards Sort Order
+     *
+     * @param $store
+     * @return mixed|null
      */
     public function getSort($store = null)
     {
-        return $this->scopeConfig->getValue(
-            static::XPATH_GIFTCARDS_SORT,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->getMethodConfigValue(self::XPATH_GIFTCARDS_SORT, $store);
     }
 
     /**
-     * @inheritdoc
+     * Get Allowed Giftcards
+     *
+     * @param $store
+     * @return mixed|null
      */
     public function getAllowedGiftcards($store = null)
     {
-        return $this->scopeConfig->getValue(
-            static::XPATH_GIFTCARDS_ALLOWED_GIFTCARDS,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->getMethodConfigValue(self::XPATH_GIFTCARDS_ALLOWED_GIFTCARDS, $store);
     }
 
     /**
@@ -212,11 +210,7 @@ class Giftcards extends AbstractConfigProvider
      */
     public function getGroupGiftcards($store = null)
     {
-        return $this->scopeConfig->getValue(
-            static::XPATH_GIFTCARDS_GROUP_GIFTCARDS,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->getMethodConfigValue(self::XPATH_GIFTCARDS_GROUP_GIFTCARDS, $store);
     }
 
     /**
@@ -227,10 +221,6 @@ class Giftcards extends AbstractConfigProvider
      */
     public function hasAdvancedExportGiftcards($store = null): bool
     {
-        return (bool)$this->scopeConfig->getValue(
-            self::XPATH_ACCOUNT_ADVANCED_EXPORT_GIFTCARDS,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return (bool)$this->getMethodConfigValue(self::XPATH_ACCOUNT_ADVANCED_EXPORT_GIFTCARDS, $store);
     }
 }

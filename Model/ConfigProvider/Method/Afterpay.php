@@ -23,29 +23,26 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Model\Config\Source\AfterpayPaymentMethods;
 use Buckaroo\Magento2\Model\Config\Source\Business;
-use Magento\Store\Model\ScopeInterface;
 
 class Afterpay extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_afterpay';
 
-    public const XPATH_AFTERPAY_PAYMENT_METHODS = 'payment/buckaroo_magento2_afterpay/payment_method';
-    public const XPATH_AFTERPAY_BUSINESS = 'payment/buckaroo_magento2_afterpay/business';
+    public const XPATH_AFTERPAY_PAYMENT_METHODS = 'payment_method';
+    public const XPATH_AFTERPAY_BUSINESS        = 'business';
 
-    public const XPATH_AFTERPAY_HIGH_TAX = 'payment/buckaroo_magento2_afterpay/high_tax';
-    public const XPATH_AFTERPAY_MIDDLE_TAX = 'payment/buckaroo_magento2_afterpay/middle_tax';
-    public const XPATH_AFTERPAY_LOW_TAX = 'payment/buckaroo_magento2_afterpay/low_tax';
-    public const XPATH_AFTERPAY_ZERO_TAX = 'payment/buckaroo_magento2_afterpay/zero_tax';
-    public const XPATH_AFTERPAY_NO_TAX = 'payment/buckaroo_magento2_afterpay/no_tax';
-
-    const XPATH_FINANCIAL_WARNING               = 'payment/buckaroo_magento2_afterpay/financial_warning';
+    public const XPATH_AFTERPAY_HIGH_TAX   = 'high_tax';
+    public const XPATH_AFTERPAY_MIDDLE_TAX = 'middle_tax';
+    public const XPATH_AFTERPAY_LOW_TAX    = 'low_tax';
+    public const XPATH_AFTERPAY_ZERO_TAX   = 'zero_tax';
+    public const XPATH_AFTERPAY_NO_TAX     = 'no_tax';
 
     /**
      * @inheritdoc
      *
      * @throws Exception
      */
-    public function getConfig()
+    public function getConfig(): array
     {
         if (!$this->getActive()) {
             return [];
@@ -57,22 +54,21 @@ class Afterpay extends AbstractConfigProvider
             'payment' => [
                 'buckaroo' => [
                     'afterpay' => [
-                        'sendEmail'         => $this->hasOrderEmail(),
-                        'paymentFeeLabel'   => $paymentFeeLabel,
-                        'subtext'           => $this->getSubtext(),
-                        'subtext_style'     => $this->getSubtextStyle(),
-                        'subtext_color'     => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'businessMethod'    => $this->getBusiness(),
-                        'paymentMethod'     => $this->getPaymentMethod(),
-                        'showFinancialWarning' => $this->canShowFinancialWarning(self::XPATH_FINANCIAL_WARNING)
+                        'sendEmail'            => $this->hasOrderEmail(),
+                        'paymentFeeLabel'      => $paymentFeeLabel,
+                        'subtext'              => $this->getSubtext(),
+                        'subtext_style'        => $this->getSubtextStyle(),
+                        'subtext_color'        => $this->getSubtextColor(),
+                        'allowedCurrencies'    => $this->getAllowedCurrencies(),
+                        'businessMethod'       => $this->getBusiness(),
+                        'paymentMethod'        => $this->getPaymentMethod(),
+                        'showFinancialWarning' => $this->canShowFinancialWarning()
                     ],
                     'response' => [],
                 ],
             ],
         ];
     }
-
 
     /**
      * This setting determines whether you accept Riverty | Afterpay payments for B2C, B2B or both customer types
@@ -84,11 +80,7 @@ class Afterpay extends AbstractConfigProvider
      */
     public function getBusiness()
     {
-        $business = (int) $this->scopeConfig->getValue(
-            static::XPATH_AFTERPAY_BUSINESS,
-            ScopeInterface::SCOPE_STORE
-        );
-
+        $business = (int)$this->getMethodConfigValue(self::XPATH_AFTERPAY_BUSINESS);
         $paymentMethod = $this->getPaymentMethod();
 
         // Acceptgiro payment method is ALWAYS B2C
@@ -108,10 +100,7 @@ class Afterpay extends AbstractConfigProvider
      */
     public function getPaymentMethod()
     {
-        $paymentMethod = (int) $this->scopeConfig->getValue(
-            static::XPATH_AFTERPAY_PAYMENT_METHODS,
-            ScopeInterface::SCOPE_STORE
-        );
+        $paymentMethod = (int)$this->getMethodConfigValue(self::XPATH_AFTERPAY_PAYMENT_METHODS);
 
         return $paymentMethod ?: false;
     }
@@ -124,11 +113,7 @@ class Afterpay extends AbstractConfigProvider
      */
     public function getHighTaxClasses($store = null)
     {
-        $taxClasses = $this->scopeConfig->getValue(
-            static::XPATH_AFTERPAY_HIGH_TAX,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        $taxClasses = $this->getMethodConfigValue(self::XPATH_AFTERPAY_HIGH_TAX, $store);
 
         return $taxClasses ?: false;
     }
@@ -141,11 +126,7 @@ class Afterpay extends AbstractConfigProvider
      */
     public function getMiddleTaxClasses($store = null)
     {
-        $taxClasses = $this->scopeConfig->getValue(
-            static::XPATH_AFTERPAY_MIDDLE_TAX,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        $taxClasses = $this->getMethodConfigValue(self::XPATH_AFTERPAY_MIDDLE_TAX, $store);
 
         return $taxClasses ?: false;
     }
@@ -158,11 +139,7 @@ class Afterpay extends AbstractConfigProvider
      */
     public function getLowTaxClasses($store = null)
     {
-        $taxClasses = $this->scopeConfig->getValue(
-            static::XPATH_AFTERPAY_LOW_TAX,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        $taxClasses = $this->getMethodConfigValue(self::XPATH_AFTERPAY_LOW_TAX, $store);
 
         return $taxClasses ?: false;
     }
@@ -175,11 +152,7 @@ class Afterpay extends AbstractConfigProvider
      */
     public function getZeroTaxClasses($store = null)
     {
-        $taxClasses = $this->scopeConfig->getValue(
-            static::XPATH_AFTERPAY_ZERO_TAX,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        $taxClasses = $this->getMethodConfigValue(self::XPATH_AFTERPAY_ZERO_TAX, $store);
 
         return $taxClasses ?: false;
     }
@@ -192,11 +165,7 @@ class Afterpay extends AbstractConfigProvider
      */
     public function getNoTaxClasses($store = null)
     {
-        $taxClasses = $this->scopeConfig->getValue(
-            static::XPATH_AFTERPAY_NO_TAX,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        $taxClasses = $this->getMethodConfigValue(self::XPATH_AFTERPAY_NO_TAX, $store);
 
         return $taxClasses ?: false;
     }

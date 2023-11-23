@@ -40,18 +40,15 @@ class Creditcard extends AbstractConfigProvider
     private const CREDITCARD_SERVICE_CODE_NEXI          = 'nexi';
     private const CREDITCARD_SERVICE_CODE_POSTEPAY      = 'postepay';
 
-    public const XPATH_CREDITCARD_ALLOWED_CREDITCARDS = 'payment/buckaroo_magento2_creditcard/allowed_creditcards';
+    public const XPATH_CREDITCARD_ALLOWED_CREDITCARDS = 'allowed_creditcards';
 
-    public const XPATH_CREDITCARD_MASTERCARD_UNSECURE_HOLD
-        = 'payment/buckaroo_magento2_creditcard/mastercard_unsecure_hold';
-    public const XPATH_CREDITCARD_VISA_UNSECURE_HOLD
-        = 'payment/buckaroo_magento2_creditcard/visa_unsecure_hold';
-    public const XPATH_CREDITCARD_MAESTRO_UNSECURE_HOLD
-        = 'payment/buckaroo_magento2_creditcard/maestro_unsecure_hold';
+    public const XPATH_CREDITCARD_MASTERCARD_UNSECURE_HOLD = 'mastercard_unsecure_hold';
+    public const XPATH_CREDITCARD_VISA_UNSECURE_HOLD       = 'visa_unsecure_hold';
+    public const XPATH_CREDITCARD_MAESTRO_UNSECURE_HOLD    = 'maestro_unsecure_hold';
 
-    public const XPATH_CREDITCARD_SORT = 'payment/buckaroo_magento2_creditcard/sorted_creditcards';
-    public const XPATH_SELECTION_TYPE  = 'payment/buckaroo_magento2_creditcard/selection_type';
-    public const XPATH_PAYMENT_FLOW    = 'payment/buckaroo_magento2_creditcard/payment_action';
+    public const XPATH_CREDITCARD_SORT = 'sorted_creditcards';
+    public const XPATH_SELECTION_TYPE  = 'selection_type';
+    public const XPATH_PAYMENT_FLOW    = 'payment_action';
     public const DEFAULT_SORT_VALUE    = '99';
 
     /** @var array[] */
@@ -145,10 +142,7 @@ class Creditcard extends AbstractConfigProvider
 
         $selectionType = $this->getSelectionType();
 
-        $paymentFlow = $this->scopeConfig->getValue(
-            static::XPATH_PAYMENT_FLOW,
-            ScopeInterface::SCOPE_STORE
-        );
+        $paymentFlow = $this->getMethodConfigValue(self::XPATH_PAYMENT_FLOW);
 
         return [
             'payment' => [
@@ -219,11 +213,7 @@ class Creditcard extends AbstractConfigProvider
      */
     public function getSort($store = null)
     {
-        return $this->scopeConfig->getValue(
-            static::XPATH_CREDITCARD_SORT,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->getMethodConfigValue(self::XPATH_CREDITCARD_SORT, $store);
     }
 
     /**
@@ -234,11 +224,7 @@ class Creditcard extends AbstractConfigProvider
      */
     public function getAllowedCreditcards($store = null)
     {
-        return $this->scopeConfig->getValue(
-            static::XPATH_CREDITCARD_ALLOWED_CREDITCARDS,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->getMethodConfigValue(self::XPATH_CREDITCARD_ALLOWED_CREDITCARDS, $store);
     }
 
     /**
@@ -269,11 +255,7 @@ class Creditcard extends AbstractConfigProvider
      */
     public function getMastercardUnsecureHold($store = null)
     {
-        return $this->scopeConfig->getValue(
-            static::XPATH_CREDITCARD_MASTERCARD_UNSECURE_HOLD,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->getMethodConfigValue(self::XPATH_CREDITCARD_MASTERCARD_UNSECURE_HOLD, $store);
     }
 
     /**
@@ -284,11 +266,7 @@ class Creditcard extends AbstractConfigProvider
      */
     public function getVisaUnsecureHold($store = null)
     {
-        return $this->scopeConfig->getValue(
-            static::XPATH_CREDITCARD_VISA_UNSECURE_HOLD,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->getMethodConfigValue(self::XPATH_CREDITCARD_VISA_UNSECURE_HOLD, $store);
     }
 
     /**
@@ -299,11 +277,7 @@ class Creditcard extends AbstractConfigProvider
      */
     public function getMaestroUnsecureHold($store = null)
     {
-        return $this->scopeConfig->getValue(
-            static::XPATH_CREDITCARD_MAESTRO_UNSECURE_HOLD,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->getMethodConfigValue(self::XPATH_CREDITCARD_MAESTRO_UNSECURE_HOLD, $store);
     }
         
      /**
@@ -314,11 +288,7 @@ class Creditcard extends AbstractConfigProvider
       */
     public function getSelectionType($store = null)
     {
-        $methodConfig = $this->scopeConfig->getValue(
-            static::XPATH_SELECTION_TYPE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        $methodConfig = $this->getMethodConfigValue(self::XPATH_SELECTION_TYPE, $store);
 
         /** @deprecated 2.0.0 moved from main configuration to payment configuration */
         $mainConfig = $this->scopeConfig->getValue(

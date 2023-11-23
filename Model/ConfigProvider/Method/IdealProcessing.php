@@ -22,31 +22,29 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Buckaroo\Magento2\Exception;
-use Buckaroo\Magento2\Model\ConfigProvider\Account;
-use Magento\Framework\View\Asset\Repository;
-use Magento\Framework\App\Config\ScopeConfigInterface;
-use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 use Buckaroo\Magento2\Helper\PaymentFee;
+use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 use Buckaroo\Magento2\Service\Ideal\IssuersService;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\View\Asset\Repository;
 use Magento\Store\Model\ScopeInterface;
 
 class IdealProcessing extends AbstractConfigProvider
 {
+    public const CODE = 'buckaroo_magento2_idealprocessing';
+    public const XPATH_SELECTION_TYPE = 'selection_type';
+
     /**
      * @var IssuersService
      */
     protected IssuersService $issuersService;
-    
-    public const CODE = 'buckaroo_magento2_idealprocessing';
 
-    public const XPATH_SELECTION_TYPE = 'payment/buckaroo_magento2_idealprocessing/selection_type';
     /**
      * @var array
      */
     protected $allowedCurrencies = [
         'EUR'
     ];
-
 
     /**
      * @param Repository $assetRepo
@@ -113,17 +111,14 @@ class IdealProcessing extends AbstractConfigProvider
      */
     public function getSelectionType($store = null)
     {
-        $methodConfig = $this->scopeConfig->getValue(
-            static::XPATH_SELECTION_TYPE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        $methodConfig = $this->getMethodConfigValue(self::XPATH_SELECTION_TYPE, $store);
 
         /** @deprecated 2.0.0 moved from main configuration to payment configuration */
         $mainConfig = $this->scopeConfig->getValue(
             'buckaroo_magento2/account/selection_type',
             ScopeInterface::SCOPE_STORE,
         );
+
         if ($methodConfig === null) {
             return $mainConfig;
         }

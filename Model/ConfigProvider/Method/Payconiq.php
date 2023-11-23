@@ -22,32 +22,16 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Helper\PaymentFee;
+use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Data\Form\FormKey;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\View\Asset\Repository;
-use Magento\Store\Model\ScopeInterface;
-use Buckaroo\Magento2\Helper\PaymentFee;
-use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 
 class Payconiq extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_payconiq';
-
-    public const XPATH_PAYCONIQ_SUBTEXT       = 'payment/buckaroo_magento2_payconiq/subtext';
-    public const XPATH_PAYCONIQ_SUBTEXT_STYLE = 'payment/buckaroo_magento2_payconiq/subtext_style';
-    public const XPATH_PAYCONIQ_SUBTEXT_COLOR = 'payment/buckaroo_magento2_payconiq/subtext_color';
-
-    public const XPATH_PAYCONIQ_SELLERS_PROTECTION               =
-        'payment/buckaroo_magento2_payconiq/sellers_protection';
-    public const XPATH_PAYCONIQ_SELLERS_PROTECTION_ELIGIBLE      =
-        'payment/buckaroo_magento2_payconiq/sellers_protection_eligible';
-    public const XPATH_PAYCONIQ_SELLERS_PROTECTION_INELIGIBLE    =
-        'payment/buckaroo_magento2_payconiq/sellers_protection_ineligible';
-    public const XPATH_PAYCONIQ_SELLERS_PROTECTION_ITEMNOTRECEIVED_ELIGIBLE =
-        'payment/buckaroo_magento2_payconiq/sellers_protection_itemnotreceived_eligible';
-    public const XPATH_PAYCONIQ_SELLERS_PROTECTION_UNAUTHORIZEDPAYMENT_ELIGIBLE =
-        'payment/buckaroo_magento2_payconiq/sellers_protection_unauthorizedpayment_eligible';
 
     public const PAYCONIC_REDIRECT_URL = '/buckaroo/payconiq/pay';
 
@@ -55,11 +39,11 @@ class Payconiq extends AbstractConfigProvider
     private FormKey $formKey;
 
     /**
-     * @param Repository           $assetRepo
+     * @param Repository $assetRepo
      * @param ScopeConfigInterface $scopeConfig
-     * @param AllowedCurrencies    $allowedCurrencies
-     * @param PaymentFee           $paymentFeeHelper
-     * @param FormKey              $formKey
+     * @param AllowedCurrencies $allowedCurrencies
+     * @param PaymentFee $paymentFeeHelper
+     * @param FormKey $formKey
      */
     public function __construct(
         Repository $assetRepo,
@@ -71,17 +55,6 @@ class Payconiq extends AbstractConfigProvider
         parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper);
 
         $this->formKey = $formKey;
-    }
-
-    /**
-     * Get Magento Form Key
-     *
-     * @return string
-     * @throws LocalizedException
-     */
-    private function getFormKey(): string
-    {
-        return $this->formKey->getFormKey();
     }
 
     /**
@@ -98,12 +71,12 @@ class Payconiq extends AbstractConfigProvider
             'payment' => [
                 'buckaroo' => [
                     'payconiq' => [
-                        'paymentFeeLabel' => $paymentFeeLabel,
-                        'subtext'   => $this->getSubtext(),
-                        'subtext_style'   => $this->getSubtextStyle(),
-                        'subtext_color'   => $this->getSubtextColor(),
+                        'paymentFeeLabel'   => $paymentFeeLabel,
+                        'subtext'           => $this->getSubtext(),
+                        'subtext_style'     => $this->getSubtextStyle(),
+                        'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'redirecturl' => static::PAYCONIC_REDIRECT_URL . '?form_key=' . $this->getFormKey()
+                        'redirecturl'       => static::PAYCONIC_REDIRECT_URL . '?form_key=' . $this->getFormKey()
                     ],
                 ],
             ],
@@ -111,77 +84,13 @@ class Payconiq extends AbstractConfigProvider
     }
 
     /**
-     * Get Sellers Protection
+     * Get Magento Form Key
      *
-     * @param null|int|string $store
-     * @return mixed
+     * @return string
+     * @throws LocalizedException
      */
-    public function getSellersProtection($store = null)
+    private function getFormKey(): string
     {
-        return $this->scopeConfig->getValue(
-            static::XPATH_PAYCONIQ_SELLERS_PROTECTION,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * Get Sellers Protection Eligible
-     *
-     * @param null|int|string $store
-     * @return mixed
-     */
-    public function getSellersProtectionEligible($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_PAYCONIQ_SELLERS_PROTECTION_ELIGIBLE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * Get Sellers Protection Ineligible
-     *
-     * @param null|int|string $store
-     * @return mixed
-     */
-    public function getSellersProtectionIneligible($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_PAYCONIQ_SELLERS_PROTECTION_INELIGIBLE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * Get Sellers Protection Itemnotreceived Eligible
-     *
-     * @param null|int|string $store
-     * @return mixed
-     */
-    public function getSellersProtectionItemnotreceivedEligible($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_PAYCONIQ_SELLERS_PROTECTION_ITEMNOTRECEIVED_ELIGIBLE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * Get Sellers Protection Unauthorizedpayment Eligible
-     *
-     * @param null|int|string $store
-     * @return mixed
-     */
-    public function getSellersProtectionUnauthorizedpaymentEligible($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            static::XPATH_PAYCONIQ_SELLERS_PROTECTION_UNAUTHORIZEDPAYMENT_ELIGIBLE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->formKey->getFormKey();
     }
 }

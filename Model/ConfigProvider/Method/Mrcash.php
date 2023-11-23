@@ -34,7 +34,7 @@ class Mrcash extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_mrcash';
 
-    public const XPATH_MRCASH_USE_CLIENT_SIDE = 'payment/buckaroo_magento2_mrcash/client_side';
+    public const XPATH_MRCASH_USE_CLIENT_SIDE = 'client_side';
 
     public const MRCASH_REDIRECT_URL = '/buckaroo/mrcash/pay';
 
@@ -77,9 +77,9 @@ class Mrcash extends AbstractConfigProvider
                 'buckaroo' => [
                     'mrcash' => [
                         'paymentFeeLabel'   => $paymentFeeLabel,
-                        'subtext'   => $this->getSubtext(),
-                        'subtext_style'   => $this->getSubtextStyle(),
-                        'subtext_color'   => $this->getSubtextColor(),
+                        'subtext'           => $this->getSubtext(),
+                        'subtext_style'     => $this->getSubtextStyle(),
+                        'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'useClientSide'     => (int)$this->useClientSide(),
                         'redirecturl'       => self::MRCASH_REDIRECT_URL . '?form_key=' . $this->getFormKey()
@@ -97,11 +97,7 @@ class Mrcash extends AbstractConfigProvider
      */
     private function useClientSide($store = null)
     {
-        return $this->scopeConfig->getValue(
-            static::XPATH_MRCASH_USE_CLIENT_SIDE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->getMethodConfigValue(self::XPATH_MRCASH_USE_CLIENT_SIDE, $store);
     }
 
     /**

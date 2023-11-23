@@ -70,12 +70,12 @@ class BelfiusTest extends BaseTest
             ->method('getValue')
             ->withConsecutive(
                 [
-                    $this->getPaymentMethodConfigPath(Belfius::CODE, AbstractConfigProvider::XPATH_ALLOWED_CURRENCIES),
+                    $this->getPaymentMethodConfigPath(Belfius::CODE, AbstractConfigProvider::ALLOWED_CURRENCIES),
                     ScopeInterface::SCOPE_STORE,
                     null
                 ],
                 [
-                    $this->getPaymentMethodConfigPath(Belfius::CODE, AbstractConfigProvider::XPATH_PAYMENT_FEE_LABEL),
+                    $this->getPaymentMethodConfigPath(Belfius::CODE, AbstractConfigProvider::PAYMENT_FEE_LABEL),
                     ScopeInterface::SCOPE_STORE,
                     null
                 ]
@@ -146,7 +146,7 @@ class BelfiusTest extends BaseTest
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
             ->with(
-                $this->getPaymentMethodConfigPath(Belfius::CODE, AbstractConfigProvider::XPATH_PAYMENT_FEE),
+                $this->getPaymentMethodConfigPath(Belfius::CODE, AbstractConfigProvider::PAYMENT_FEE),
                 ScopeInterface::SCOPE_STORE
             )
             ->willReturn($value);

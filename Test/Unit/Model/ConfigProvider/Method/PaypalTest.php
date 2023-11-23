@@ -62,7 +62,7 @@ class PaypalTest extends BaseTest
         $scopeConfigMock->expects($this->atLeastOnce())
             ->method('getValue')
             ->withConsecutive(
-                [Paypal::XPATH_ALLOWED_CURRENCIES, ScopeInterface::SCOPE_STORE, null]
+                [Paypal::ALLOWED_CURRENCIES, ScopeInterface::SCOPE_STORE, null]
             )
             ->willReturnOnConsecutiveCalls('EUR');
 
@@ -127,7 +127,7 @@ class PaypalTest extends BaseTest
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
             ->with(
-                $this->getPaymentMethodConfigPath(Paypal::CODE, AbstractConfigProvider::XPATH_ACTIVE),
+                $this->getPaymentMethodConfigPath(Paypal::CODE, AbstractConfigProvider::ACTIVE),
                 ScopeInterface::SCOPE_STORE
             )
             ->willReturn($value);

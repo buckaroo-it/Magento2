@@ -37,7 +37,7 @@ class PayPerEmailTest extends BaseTest
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
             ->with(
-                $this->getPaymentMethodConfigPath(PayPerEmail::CODE, AbstractConfigProvider::XPATH_ACTIVE)
+                $this->getPaymentMethodConfigPath(PayPerEmail::CODE, AbstractConfigProvider::ACTIVE)
             )
             ->willReturn(0);
 
@@ -53,7 +53,7 @@ class PayPerEmailTest extends BaseTest
         $scopeConfigMock->expects($this->atLeastOnce())
             ->method('getValue')
             ->withConsecutive($this->onConsecutiveCalls([
-                [$this->getPaymentMethodConfigPath(PayPerEmail::CODE, AbstractConfigProvider::XPATH_ACTIVE)]
+                [$this->getPaymentMethodConfigPath(PayPerEmail::CODE, AbstractConfigProvider::ACTIVE)]
             ]))
             ->willReturn(1);
 
@@ -107,7 +107,7 @@ class PayPerEmailTest extends BaseTest
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
             ->with(
-                $this->getPaymentMethodConfigPath(PayPerEmail::CODE, AbstractConfigProvider::XPATH_PAYMENT_FEE),
+                $this->getPaymentMethodConfigPath(PayPerEmail::CODE, AbstractConfigProvider::PAYMENT_FEE),
                 ScopeInterface::SCOPE_STORE
             )
             ->willReturn($fee);
