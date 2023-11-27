@@ -91,15 +91,22 @@ class Ideal extends AbstractMethod
     {
         $parameters = [];
 
-        /** @var IdealConfig $config */
-        $config = $this->objectManager->get(IdealConfig::class);
-        if ($config->canShowIssuers()) {
+        if ($this->canShowIssuers()) {
             $parameters = [[
                 '_'    => $payment->getAdditionalInformation('issuer'),
                 'Name' => 'issuer',
             ]];
         }
         return $parameters;
+    }
+
+    /**
+     * Can show issuers in the checkout form
+     *
+     * @return boolean
+     */
+    private function canShowIssuers() {
+        return $this->getConfigData('show_issuers') == 1;
     }
 
     /**
@@ -168,7 +175,7 @@ class Ideal extends AbstractMethod
             }
         }
 
-        if (!$valid && $config->canShowIssuers()) {
+        if (!$valid && $this->canShowIssuers()) {
             throw new \Magento\Framework\Exception\LocalizedException(__('Please select a issuer from the list'));
         }
 

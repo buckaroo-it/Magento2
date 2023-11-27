@@ -95,15 +95,21 @@ class IdealProcessing extends AbstractMethod
     {
         $parameters = [];
 
-        /** @var IdealProcessingConfig $config */
-        $config = $this->objectManager->get(IdealProcessingConfig::class);
-        if ($config->canShowIssuers()) {
+        if ($this->canShowIssuers()) {
             $parameters = [[
                 '_'    => $payment->getAdditionalInformation('issuer'),
                 'Name' => 'issuer',
             ]];
         }
         return $parameters;
+    }
+    /**
+     * Can show issuers in the checkout form
+     *
+     * @return boolean
+     */
+    private function canShowIssuers() {
+        return $this->getConfigData('show_issuers') == 1;
     }
 
     /**
@@ -159,7 +165,7 @@ class IdealProcessing extends AbstractMethod
             }
         }
 
-        if (!$valid && $config->canShowIssuers()) {
+        if (!$valid && $this->canShowIssuers()) {
             throw new LocalizedException(__('Please select a issuer from the list'));
         }
 
