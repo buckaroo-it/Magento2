@@ -28,13 +28,6 @@ use Buckaroo\Magento2\Helper\Data as HelperData;
 class Sort extends Field
 {
     /**
-     * Template path
-     *
-     * @var string
-     */
-    protected $_template = 'Buckaroo_Magento2::giftcards_sort_widget.phtml';
-
-    /**
      * @var HelperData
      */
     private $helperData;
@@ -51,6 +44,15 @@ class Sort extends Field
     ) {
         $this->helperData = $helperData;
         parent::__construct($context, $data);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function _construct()
+    {
+        parent::_construct();
+        $this->setTemplate('Buckaroo_Magento2::giftcards_sort_widget.phtml');
     }
 
     /**

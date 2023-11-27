@@ -26,11 +26,13 @@ use Magento\Framework\Data\Form\Element\AbstractElement;
 class Sort extends Field
 {
     /**
-     * Template path
-     *
-     * @var string
+     * @inheritdoc
      */
-    protected $_template = 'Buckaroo_Magento2::creditcard_sort_widget.phtml';
+    protected function _construct()
+    {
+        parent::_construct();
+        $this->setTemplate('Buckaroo_Magento2::creditcard_sort_widget.phtml');
+    }
 
     /**
      * Return element html

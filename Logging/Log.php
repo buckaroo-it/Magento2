@@ -42,6 +42,11 @@ class Log extends Logger implements BuckarooLoggerInterface
     protected array $message = [];
 
     /**
+     * @var string
+     */
+    protected string $action = '';
+
+    /**
      * @var int
      */
     private static $processUid = 0;
@@ -128,6 +133,7 @@ class Log extends Logger implements BuckarooLoggerInterface
         }
 
         $flags = JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
+        $message = $this->action . $message;
 
         $message = json_encode([
             'uid'  => self::$processUid,
@@ -182,5 +188,14 @@ class Log extends Logger implements BuckarooLoggerInterface
     public function debug($message, array $context = []): void
     {
         $this->addRecord(Logger::DEBUG, (string) $message, $context);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setAction(string $action): BuckarooLoggerInterface
+    {
+        $this->action = $action;
+        return $this;
     }
 }

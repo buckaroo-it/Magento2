@@ -30,4 +30,6 @@ interface BuckarooLoggerInterface
     public function addWarning(string $message): bool;
 
     public function debug($message, array $context = []): void;
+
+    public function setAction(string $action): BuckarooLoggerInterface;
 }

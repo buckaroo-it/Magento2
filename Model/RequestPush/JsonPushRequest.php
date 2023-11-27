@@ -179,14 +179,6 @@ class JsonPushRequest extends AbstractPushRequest implements PushRequestInterfac
     /**
      * @inheritdoc
      */
-    public function getPayerHash(): ?string
-    {
-        return $this->request["PayerHash"] ?? null;
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function getPayment(): ?string
     {
         return $this->request["PaymentKey"] ?? null;
@@ -276,7 +268,7 @@ class JsonPushRequest extends AbstractPushRequest implements PushRequestInterfac
     /**
      * @inheritdoc
      */
-    public function setAmount($amount)
+    public function setAmount($amount): void
     {
         $this->request['AmountDebit'] = $amount;
     }

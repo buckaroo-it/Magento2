@@ -31,19 +31,14 @@ use Magento\Framework\View\Element\Template\Context;
 class Info extends \Magento\Payment\Block\Info
 {
     /**
-     * @var string
-     */
-    protected $_template = 'Buckaroo_Magento2::info/payment_method.phtml';
-
-    /**
      * @var PaymentGroupTransaction
      */
-    protected $groupTransaction;
+    protected PaymentGroupTransaction $groupTransaction;
 
     /**
      * @var GiftcardCollection
      */
-    protected $giftcardCollection;
+    protected GiftcardCollection $giftcardCollection;
 
     /**
      * @var LogoService
@@ -68,6 +63,15 @@ class Info extends \Magento\Payment\Block\Info
         $this->groupTransaction = $groupTransaction;
         $this->giftcardCollection = $giftcardCollection;
         $this->logoService = $logoService;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function _construct()
+    {
+        parent::_construct();
+        $this->setTemplate('Buckaroo_Magento2::info/payment_method.phtml');
     }
 
     /**
