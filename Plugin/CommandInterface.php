@@ -21,6 +21,7 @@ namespace Buckaroo\Magento2\Plugin;
 
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Magento\Framework\Lock\LockManagerInterface;
 use Magento\Payment\Model\MethodInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
@@ -31,6 +32,8 @@ use Buckaroo\Magento2\Model\Method\PayPerEmail;
 
 class CommandInterface
 {
+    const LOCK_PREFIX = 'buckaroo_lock_';
+
     /**
      * @var Log $logging
      */
@@ -47,17 +50,27 @@ class CommandInterface
     public $helper;
 
     /**
-     * @param Log $logging
+     * @var LockManagerInterface
+     */
+    protected LockManagerInterface $lockManager;
+
+
+    /**
      * @param Factory $configProviderMethodFactory
+     * @param Log $logging
+     * @param Data $helper
+     * @param LockManagerInterface $lockManager
      */
     public function __construct(
         Factory $configProviderMethodFactory,
         Log $logging,
-        Data $helper
+        Data $helper,
+        LockManagerInterface $lockManager
     ) {
         $this->configProviderMethodFactory = $configProviderMethodFactory;
         $this->logging = $logging;
         $this->helper = $helper;
+        $this->lockManager = $lockManager;
     }
 
     /**
@@ -78,25 +91,49 @@ class CommandInterface
     ) {
         $message = $proceed($payment, $amount, $order);
 
-        /** @var MethodInterface $methodInstance */
-        $methodInstance = $payment->getMethodInstance();
-        $paymentAction = $methodInstance->getConfigPaymentAction();
-        $paymentCode = substr($methodInstance->getCode(), 0, 18);
+        $lockName = $this->generateLockName($order);
+        $this->logging->addDebug(__METHOD__ . '|Lock Name| - ' . var_export($lockName, true));
 
-        $this->logging->addDebug(__METHOD__ . '|1|' . var_export([$methodInstance->getCode(), $paymentAction], true));
+        $lockAcquired = $this->lockManager->lock($lockName, 2);
 
-        if ($paymentCode == 'buckaroo_magento2_' && $paymentAction) {
-            if (($methodInstance->getCode() == 'buckaroo_magento2_payperemail') && ($paymentAction == 'order')) {
-                $config = $this->configProviderMethodFactory->get(PayPerEmail::PAYMENT_METHOD_CODE);
-                if ($config->getEnabledB2B()) {
-                    $this->logging->addDebug(__METHOD__ . '|5|');
-                    return $message;
-                }
-            }
-            $this->updateOrderStateAndStatus($order, $methodInstance);
+        if (!$lockAcquired) {
+            $this->logging->addError(__METHOD__ . '|lock not acquired|');
+            return $message;
         }
 
-        return $message;
+        try {
+            /** @var MethodInterface $methodInstance */
+            $methodInstance = $payment->getMethodInstance();
+            $paymentAction = $methodInstance->getConfigPaymentAction();
+            $paymentCode = substr($methodInstance->getCode(), 0, 18);
+
+            $this->logging->addDebug(
+                __METHOD__ . '|1|' . var_export([$methodInstance->getCode(), $paymentAction], true)
+            );
+
+            if ($paymentCode == 'buckaroo_magento2_' && $paymentAction) {
+                if (($methodInstance->getCode() == 'buckaroo_magento2_payperemail') && ($paymentAction == 'order')) {
+                    $config = $this->configProviderMethodFactory->get(PayPerEmail::PAYMENT_METHOD_CODE);
+                    if ($config->getEnabledB2B()) {
+                        $this->logging->addDebug(__METHOD__ . '|5|');
+                        return $message;
+                    }
+                }
+                $this->updateOrderStateAndStatus($order, $methodInstance);
+            }
+
+            return $message;
+
+        } catch (\Exception $e) {
+            $this->logging->addDebug(__METHOD__ . '|Exception|' . $e->getMessage());
+            throw $e;
+        } finally {
+            // Ensure the lock is released
+            $this->lockManager->unlock($lockName);
+            $this->logging->addDebug(__METHOD__ . '|Lock released|');
+        }
+
+        return $this->_response;
     }
 
     /**
@@ -139,5 +176,16 @@ class CommandInterface
         }
         $order->setState($orderState);
         $order->setStatus($orderStatus);
+    }
+
+    /**
+     * Generate a unique lock name for the push request.
+     *
+     * @param OrderInterface $order
+     * @return string
+     */
+    protected function generateLockName(OrderInterface $order): string
+    {
+        return self::LOCK_PREFIX . sha1($order->getIncrementId());
     }
 }
