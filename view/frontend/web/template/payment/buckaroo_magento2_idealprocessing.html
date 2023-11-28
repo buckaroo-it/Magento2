@@ -30,6 +30,7 @@
             <!--/ko-->
         </div>
 
+        <!-- ko if: showIssuers -->
         <div class="payment-method-second-col billing-address-form" >
             <form data-bind="mageInit: { 'validation': [] },
                   attr: {'data-hasrequired': $t('* Required Fields')}">
@@ -79,6 +80,7 @@
                 </fieldset>
             </form>
         </div>
+        <!--/ko-->
 
         <div class="checkout-agreements-block">
             <!-- ko foreach: $parent.getRegion('before-place-order') -->
