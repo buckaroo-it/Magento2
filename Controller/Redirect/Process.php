@@ -204,7 +204,7 @@ class Process extends \Magento\Framework\App\Action\Action
 
         $orderIncrementID = $this->getOrderIncrementId();
         $this->logger->addDebug(__METHOD__ . '|Lock Name| - ' . var_export($orderIncrementID, true));
-        $lockAcquired = $this->lockManager->lockOrder($orderIncrementID, 2);
+        $lockAcquired = $this->lockManager->lockOrder($orderIncrementID, 5);
 
         if (!$lockAcquired) {
             $this->logger->addError(__METHOD__ . '|lock not acquired|');

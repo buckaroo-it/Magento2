@@ -246,7 +246,7 @@ class Push implements PushInterface
         $this->logging->addDebug(__METHOD__ . '|1_2|');
         $orderIncrementID = $this->getOrderIncrementId();
         $this->logging->addDebug(__METHOD__ . '|Lock Name| - ' . var_export($orderIncrementID, true));
-        $lockAcquired = $this->lockManager->lockOrder($orderIncrementID, 2);
+        $lockAcquired = $this->lockManager->lockOrder($orderIncrementID, 5);
 
         if (!$lockAcquired) {
             $this->logging->addDebug(__METHOD__ . '|lock not acquired|');
@@ -268,7 +268,6 @@ class Push implements PushInterface
 
     private function pushProcess()
     {
-        $lockHandler = $this->lockPushProcessing();
         $this->logging->addDebug(__METHOD__ . '|1_3|');
 
         if ($this->isFailedGroupTransaction()) {
@@ -347,7 +346,6 @@ class Push implements PushInterface
         }
 
         if ($this->receivePushCheckDuplicates()) {
-            $this->unlockPushProcessing($lockHandler);
             throw new \Buckaroo\Magento2\Exception(__('Skipped handling this push, duplicate'));
         }
 
@@ -459,8 +457,6 @@ class Push implements PushInterface
             $this->logging->addDebug(__METHOD__ . '|5-1|');
             $this->order->save();
         }
-
-        $this->unlockPushProcessing($lockHandler);
 
         $this->logging->addDebug(__METHOD__ . '|6|');
 
@@ -1847,56 +1843,6 @@ class Push implements PushInterface
         }
 
         return $brqOrderId;
-    }
-
-    private function getLockPushProcessingFilePath()
-    {
-        if ($brqOrderId = $this->getOrderIncrementId()) {
-            return $this->dirList->getPath('tmp') . DIRECTORY_SEPARATOR . 'bk_push_ppe_' . sha1($brqOrderId);
-        } else {
-            return false;
-        }
-    }
-
-    private function lockPushProcessingCriteria()
-    {
-        $statusCodeSuccess = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS');
-        if (isset($this->postData['add_frompayperemail'])
-            || (($this->hasPostData('brq_statuscode', $statusCodeSuccess))
-                && $this->hasPostData('brq_transaction_method', 'ideal')
-                && $this->hasPostData('brq_transaction_type', self::BUCK_PUSH_IDEAL_PAY)
-            )
-        ) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    private function lockPushProcessing()
-    {
-        if ($this->lockPushProcessingCriteria()) {
-            $this->logging->addDebug(__METHOD__ . '|1|');
-            if ($path = $this->getLockPushProcessingFilePath()) {
-                if ($fp = $this->fileSystemDriver->fileOpen($path, "w+")) {
-                    $this->fileSystemDriver->fileLock($fp, LOCK_EX);
-                    $this->logging->addDebug(__METHOD__ . '|5|');
-                    return $fp;
-                }
-            }
-        }
-    }
-
-    private function unlockPushProcessing($lockHandler)
-    {
-        if ($this->lockPushProcessingCriteria()) {
-            $this->logging->addDebug(__METHOD__ . '|1|');
-            $this->fileSystemDriver->fileClose($lockHandler);
-            if (($path = $this->getLockPushProcessingFilePath()) && $this->fileSystemDriver->isExists($path)) {
-                $this->fileSystemDriver->deleteFile($path);
-                $this->logging->addDebug(__METHOD__ . '|5|');
-            }
-        }
     }
 
     private function processSucceededPushAuth($payment)
