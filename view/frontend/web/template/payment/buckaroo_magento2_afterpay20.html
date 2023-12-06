@@ -140,13 +140,14 @@
                                    name="payment[buckaroo_magento2_afterpay20][termsCondition]">
                             <span>
                                 <a target="_blank"
+                                 rel="noopener"
                                    data-bind="
                                        i18n: 'Yes, I accept the terms and condition for the use of Riverty | Afterpay.',
                                        attr: { 'href': termsUrl }
                                    ">
                                 </a>
                                 <!-- ko if: showFrenchTos -->
-                                <span data-bind="html: getFrenchTos()"></span>
+                                <span>(Or click here for the French translation: <a target="_blank" rel="noopener" href="https://documents.riverty.com/terms_conditions/payment_methods/overview/be_fr/">terms and condition</a>.)</span>
                                 <!-- /ko -->
                             </span>
                             <div for="buckaroo_magento2_afterpay20_TermsCondition" generated="true" class="mage-error" id="buckaroo_magento2_afterpay20_TermsCondition-error" style="display: none;"><span data-bind="i18n: 'This is a required field.' "></span></div>
