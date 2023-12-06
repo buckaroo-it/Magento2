@@ -60,14 +60,14 @@
             });
         }
 
-        $('#<?php echo $block->getButtonColorElement() ?>').change(function (e) {
+        $('#<?php echo $block->getButtonColorElement() ?>').change(function () {
            if($(this).val()!==color){
                color = $(this).val()
                renderButton()
            }
         })
-        $('#<?php echo $block->getButtonShapeElement() ?>').change(function (e) {
-            if($(this).val()!==color){
+        $('#<?php echo $block->getButtonShapeElement() ?>').change(function () {
+            if($(this).val()!==rounded){
                 rounded = $(this).val()
                 renderButton()
             }
