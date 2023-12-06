@@ -43,7 +43,7 @@
             <comment><![CDATA[This controls the description which the user sees during checkout.]]></comment>
             <config_path>payment/buckaroo_magento2_paypal/subtext</config_path>
         </field>
-        
+
         <field id="subtext_style" translate="label comment" type="select" sortOrder="26" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Frontend subtext style</label>
             <comment><![CDATA[Choose a font style for the subtext.]]></comment>
@@ -58,7 +58,6 @@
             <frontend_model>Buckaroo\Magento2\Block\Config\Form\Field\ColorPicker</frontend_model>
         </field>
 
-        
         <field id="sort_order" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Frontend sort order</label>
             <comment><![CDATA[Determines the sorting of payment methods.]]></comment>
@@ -94,7 +93,11 @@
                 <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 <config_path>payment/buckaroo_magento2_paypal/express_button_rounded</config_path>
             </field>
-
+             <field id="express_button_style" translate="label comment" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                 <label>Show Button Style</label>
+                 <comment><![CDATA[Set the PayPal express button to a rounded shape]]></comment>
+                 <frontend_model>Buckaroo\Magento2\Block\Config\Form\Field\ButtonStyle</frontend_model>
+             </field>
         </group>
         <group id="buckaroo_magento2_advanced" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Advanced Configuration</label>
@@ -222,7 +225,7 @@
                     <can_be_empty>1</can_be_empty>
                     <config_path>payment/buckaroo_magento2_paypal/specificcustomergroup</config_path>
                 </field>
-                
+
                 <field id="allowspecific" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Payment from applicable countries</label>
                     <source_model>Buckaroo\Magento2\Model\Config\Source\AllOrSpecificCountries</source_model>
