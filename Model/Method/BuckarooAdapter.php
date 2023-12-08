@@ -273,7 +273,7 @@ class BuckarooAdapter extends Adapter
         $title = $this->getConfigData('title');
 
         $configProvider = $this->configProviderMethodFactory
-        ->get($this->buckarooPaymentMethodCode);
+            ->get($this->buckarooPaymentMethodCode);
 
         if (!is_string($title) || strlen(trim($title)) === 0) {
             $title = DefaultTitles::get($this->buckarooPaymentMethodCode);
@@ -292,8 +292,7 @@ class BuckarooAdapter extends Adapter
             return $title;
         }
 
-        $paymentFee = trim((string)$configProvider
-            ->getPaymentFee());
+        $paymentFee = trim((string)$configProvider->getPaymentFee());
 
         if (!$paymentFee || (float)$paymentFee < 0.01) {
             return $title;
