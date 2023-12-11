@@ -48,10 +48,17 @@ class TotalBreakdown implements TotalBreakdownInterface
      */
     public function getItemTotal()
     {
-        $total = $this->getTotalsOfType('subtotal');
+        $totalObject = $this->getTotalsOfType('subtotal');
+
+        $total = 0;
+        
+        if ($totalObject !== null) {
+           $total = $totalObject->getValueExclTax() ?: $totalObject->getValue();
+        }
+
         return $this->breakdownItemFactory->create(
             [
-                "total" => $total != null ? $total->getValue() + $this->getBuckarooFeeExclTax() : 0,
+                "total" => $total,
                 "currencyCode" => $this->quote->getQuoteCurrencyCode()
             ]
         );
