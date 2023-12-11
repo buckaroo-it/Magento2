@@ -37,7 +37,7 @@ class Ideal extends AbstractConfigProvider
     protected IssuersService $issuersService;
 
     public const CODE = 'buckaroo_magento2_ideal';
-
+    public const XPATH_SHOW_ISSUERS  = 'payment/buckaroo_magento2_ideal/show_issuers';
     public const XPATH_SELECTION_TYPE = 'payment/buckaroo_magento2_ideal/selection_type';
     /**
      * @var array
@@ -97,6 +97,7 @@ class Ideal extends AbstractConfigProvider
                         'subtext_color'   => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'selectionType' => $selectionType,
+                        'showIssuers' => $this->canShowIssuers()
                     ],
                 ],
             ],
@@ -104,8 +105,21 @@ class Ideal extends AbstractConfigProvider
     }
 
     /**
-     * Selection type radio checkbox or drop down
+     * Can show issuer selection in checkout
      *
+     * @param string|null $storeId
+     *
+     * @return boolean
+     */
+    public function canShowIssuers(string $storeId = null): bool {
+        return $this->scopeConfig->getValue(
+            self::XPATH_SHOW_ISSUERS,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        ) == 1;
+    }
+
+    /**
      * @param null|int|string $store
      * @return mixed
      */
