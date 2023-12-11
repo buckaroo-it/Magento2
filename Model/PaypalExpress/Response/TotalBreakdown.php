@@ -58,7 +58,7 @@ class TotalBreakdown implements TotalBreakdownInterface
 
         return $this->breakdownItemFactory->create(
             [
-                "total" => $total,
+                "total" => $total + $this->getBuckarooFeeExclTax(),
                 "currencyCode" => $this->quote->getQuoteCurrencyCode()
             ]
         );
