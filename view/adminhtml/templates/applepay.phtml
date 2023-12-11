@@ -21,103 +21,46 @@
 //dd($block,$this);
 ?>
 <!-- Set up a container element for the button -->
-<button id="applepay-button" class="apple-pay apple-pay-button"></button>
+<div id="applepay-button-wrapper"></div>
 <script>
+    function requireApplePay(callback){
+        const e = document.createElement("script");
+        e.src = `https://applepay.cdn-apple.com/jsapi/v1.1.0/apple-pay-button.js`;
+        e.type = "text/javascript";
+        e.addEventListener("load", callback);
+        document.getElementsByTagName("head")[0].appendChild(e);
+    }
     require(['jquery'], ($) => {
-        const button = $('#applepay-button')
-        if (!("ApplePaySession" in window) || ApplePaySession === undefined){
-            button.parent().parent().hide()
-            return;
-        }
-        button.attr("lang", document.firstElementChild.lang);
-
+        let buttonHtml = customElements.get('apple-pay-button')
         let buttonStyle = "<?php echo $block->getButtonStyle();?>";
-        button.on('click',(e)=>{
-            e.preventDefault();
-        })
-        /**
-         * Initializes the Apple Pay button
-         */
-        function toggleButtonStyle() {
-            if (buttonStyle === void 0) { buttonStyle = "black"; }
-            button.attr('class','apple-pay apple-pay-button')
-            switch (buttonStyle) {
-                case "black":
-                    button.addClass("apple-pay-button-black");
-                    break;
-                case "white":
-                    button.addClass("apple-pay-button-white");
-                    break;
-                case "white-outline":
-                    button.addClass("apple-pay-button-white-with-line");
-                    break;
+
+        const buttonWrapper = $('#applepay-button-wrapper')
+        function renderButton(){
+            buttonHtml = customElements.get('apple-pay-button')
+            if(buttonHtml){
+                buttonWrapper.empty()
+                const button = new buttonHtml()
+                button.lang = document.firstElementChild.lang
+                button.buttonStyle = buttonStyle
+                button.type = "buy"
+                buttonWrapper.append(button)
             }
         }
-        toggleButtonStyle()
+        if(!buttonHtml){
+            requireApplePay(renderButton)
+        } else {
+            renderButton()
+        }
         $('#<?php echo $block->getButtonStyleElement() ?>').change(function () {
             if($(this).val()!==buttonStyle){
                 buttonStyle = $(this).val()
-                toggleButtonStyle()
+                renderButton()
             }
         })
     })
 </script>
 <style>
-/* CSS */
-@supports (-webkit-appearance: -apple-pay-button) {
-    .apple-pay-button {
-        display: inline-block;
-        -webkit-appearance: -apple-pay-button;
+    #applepay-button-wrapper > apple-pay-button {
+        display: inline;
     }
-
-    /* Button styles */
-    .apple-pay-button-black {
-        -apple-pay-button-style: black;
-    }
-
-    .apple-pay-button-white {
-        -apple-pay-button-style: white;
-    }
-
-    .apple-pay-button-white-with-line {
-        -apple-pay-button-style: white-outline;
-    }
-
-    /* Button types */
-    .apple-pay-button-type-plain {
-        -apple-pay-button-type: plain;
-    }
-}
-
-@supports not (-webkit-appearance: -apple-pay-button) {
-    .apple-pay-button {
-        display: inline-block;
-        background-size: 100% 60%;
-        background-repeat: no-repeat;
-        background-position: 50% 50%;
-        border-radius: 5px;
-        padding: 0px;
-        box-sizing: border-box;
-        min-width: 200px;
-        min-height: 32px;
-        max-height: 64px;
-    }
-
-    .apple-pay-button-black {
-        background-image: -webkit-named-image(apple-pay-logo-white);
-        background-color: black;
-    }
-
-    .apple-pay-button-white {
-        background-image: -webkit-named-image(apple-pay-logo-black);
-        background-color: white;
-    }
-
-    .apple-pay-button-white-with-line {
-        background-image: -webkit-named-image(apple-pay-logo-black);
-        background-color: white;
-        border: .5px solid black;
-    }
-}
-
 </style>
