@@ -1,0 +1,123 @@
+<?php
+
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+//dd($block,$this);
+?>
+<!-- Set up a container element for the button -->
+<button id="applepay-button" class="apple-pay apple-pay-button"></button>
+<script>
+    require(['jquery'], ($) => {
+        const button = $('#applepay-button')
+        if (!("ApplePaySession" in window) || ApplePaySession === undefined){
+            button.parent().parent().hide()
+            return;
+        }
+        button.attr("lang", document.firstElementChild.lang);
+
+        let buttonStyle = "<?php echo $block->getButtonStyle();?>";
+        button.on('click',(e)=>{
+            e.preventDefault();
+        })
+        /**
+         * Initializes the Apple Pay button
+         */
+        function toggleButtonStyle() {
+            if (buttonStyle === void 0) { buttonStyle = "black"; }
+            button.attr('class','apple-pay apple-pay-button')
+            switch (buttonStyle) {
+                case "black":
+                    button.addClass("apple-pay-button-black");
+                    break;
+                case "white":
+                    button.addClass("apple-pay-button-white");
+                    break;
+                case "white-outline":
+                    button.addClass("apple-pay-button-white-with-line");
+                    break;
+            }
+        }
+        toggleButtonStyle()
+        $('#<?php echo $block->getButtonStyleElement() ?>').change(function () {
+            if($(this).val()!==buttonStyle){
+                buttonStyle = $(this).val()
+                toggleButtonStyle()
+            }
+        })
+    })
+</script>
+<style>
+/* CSS */
+@supports (-webkit-appearance: -apple-pay-button) {
+    .apple-pay-button {
+        display: inline-block;
+        -webkit-appearance: -apple-pay-button;
+    }
+
+    /* Button styles */
+    .apple-pay-button-black {
+        -apple-pay-button-style: black;
+    }
+
+    .apple-pay-button-white {
+        -apple-pay-button-style: white;
+    }
+
+    .apple-pay-button-white-with-line {
+        -apple-pay-button-style: white-outline;
+    }
+
+    /* Button types */
+    .apple-pay-button-type-plain {
+        -apple-pay-button-type: plain;
+    }
+}
+
+@supports not (-webkit-appearance: -apple-pay-button) {
+    .apple-pay-button {
+        display: inline-block;
+        background-size: 100% 60%;
+        background-repeat: no-repeat;
+        background-position: 50% 50%;
+        border-radius: 5px;
+        padding: 0px;
+        box-sizing: border-box;
+        min-width: 200px;
+        min-height: 32px;
+        max-height: 64px;
+    }
+
+    .apple-pay-button-black {
+        background-image: -webkit-named-image(apple-pay-logo-white);
+        background-color: black;
+    }
+
+    .apple-pay-button-white {
+        background-image: -webkit-named-image(apple-pay-logo-black);
+        background-color: white;
+    }
+
+    .apple-pay-button-white-with-line {
+        background-image: -webkit-named-image(apple-pay-logo-black);
+        background-color: white;
+        border: .5px solid black;
+    }
+}
+
+</style>

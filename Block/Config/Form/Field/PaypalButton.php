@@ -20,11 +20,10 @@
 namespace Buckaroo\Magento2\Block\Config\Form\Field;
 
 use Buckaroo\Magento2\Model\Config\Source\PaypalButtonStyle;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Paypal;
 use Magento\Config\Block\System\Config\Form\Field;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 
-class ButtonStyle extends Field
+class PaypalButton extends Field
 {
     protected $_template = 'Buckaroo_Magento2::paypal.phtml';
     protected AbstractElement | null $colorElement;
@@ -41,8 +40,8 @@ class ButtonStyle extends Field
     protected function _getElementHtml(AbstractElement $element)
     {
         $elementId = $element->getId();
-        $this->colorElement = $element->getForm()->getElement( str_replace("style","color",$elementId));
-        $this->shapeElement = $element->getForm()->getElement( str_replace("style","rounded",$elementId));
+        $this->colorElement = $element->getForm()->getElement( str_replace("preview","color",$elementId));
+        $this->shapeElement = $element->getForm()->getElement( str_replace("preview","rounded",$elementId));
         return $this->_toHtml();
     }
 
