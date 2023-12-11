@@ -25,6 +25,9 @@ use Magento\Store\Model\ScopeInterface;
 
 class CapayableIn3 extends AbstractConfigProvider
 {
+    public const DEFAULT_NAME = 'iDEAL In3';
+    public const V2_NAME = 'In3';
+    
     public const CODE = 'buckaroo_magento2_capayablein3';
 
     const XPATH_CAPAYABLEIN3_API_VERSION = 'payment/buckaroo_magento2_capayablein3/api_version';
