@@ -24,8 +24,6 @@ class CapayablePostpay extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_capayablepostpay';
 
-    public const XPATH_FINANCIAL_WARNING = 'payment/buckaroo_magento2_capayablepostpay/financial_warning';
-
     /**
      * @var array
      */
@@ -55,12 +53,12 @@ class CapayablePostpay extends AbstractConfigProvider
             'payment' => [
                 'buckaroo' => [
                     'capayablepostpay' => [
-                        'paymentFeeLabel'   => $paymentFeeLabel,
-                        'subtext'           => $this->getSubtext(),
-                        'subtext_style'     => $this->getSubtextStyle(),
-                        'subtext_color'     => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'showFinancialWarning' => $this->canShowFinancialWarning(self::XPATH_FINANCIAL_WARNING)
+                        'paymentFeeLabel'      => $paymentFeeLabel,
+                        'subtext'              => $this->getSubtext(),
+                        'subtext_style'        => $this->getSubtextStyle(),
+                        'subtext_color'        => $this->getSubtextColor(),
+                        'allowedCurrencies'    => $this->getAllowedCurrencies(),
+                        'showFinancialWarning' => $this->canShowFinancialWarning()
                     ],
                 ],
             ],

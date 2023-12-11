@@ -28,7 +28,6 @@ class Tinka extends AbstractConfigProvider
     public const CODE = 'buckaroo_magento2_tinka';
 
     public const XPATH_ACTIVE_SERVICE = 'payment/buckaroo_magento2_tinka/activeservice';
-    public const XPATH_FINANCIAL_WARNING = 'payment/buckaroo_magento2_tinka/financial_warning';
 
     /**
      * @var array
@@ -53,11 +52,12 @@ class Tinka extends AbstractConfigProvider
             'payment' => [
                 'buckaroo' => [
                     'tinka' => [
-                        'paymentFeeLabel'   => $paymentFeeLabel,
-                        'subtext'           => $this->getSubtext(),
-                        'subtext_style'     => $this->getSubtextStyle(),
-                        'subtext_color'     => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
+                        'paymentFeeLabel'      => $paymentFeeLabel,
+                        'subtext'              => $this->getSubtext(),
+                        'subtext_style'        => $this->getSubtextStyle(),
+                        'subtext_color'        => $this->getSubtextColor(),
+                        'allowedCurrencies'    => $this->getAllowedCurrencies(),
+                        'showFinancialWarning' => $this->canShowFinancialWarning()
                     ],
                 ],
             ],
