@@ -60,6 +60,8 @@
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
                 <show_issuers>1</show_issuers>
+                <privateInfoKeys></privateInfoKeys>
+                <paymentInfoKeys>buckaroo_original_transaction_key</paymentInfoKeys>
             </buckaroo_magento2_ideal>
 
             <buckaroo_magento2_paybybank>

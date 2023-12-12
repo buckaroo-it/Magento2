@@ -1071,7 +1071,7 @@
         <arguments>
             <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\Ideal::CODE</argument>
             <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
-            <argument name="infoBlockType" xsi:type="string">Buckaroo\Magento2\Block\Info</argument>
+            <argument name="infoBlockType" xsi:type="string">IdealAdminInfo</argument>
             <argument name="valueHandlerPool" xsi:type="object">IdealValueHandlerPool</argument>
             <argument name="validatorPool" xsi:type="object">IdealValidatorPool</argument>
             <argument name="commandPool" xsi:type="object">IdealCommandPool</argument>
@@ -1090,6 +1090,11 @@
     <virtualType name="IdealConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
         <arguments>
             <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Ideal</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="IdealAdminInfo" type="Buckaroo\Magento2\Block\AdminInfo">
+        <arguments>
+            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Ideal</argument>
         </arguments>
     </virtualType>
     <!-- END iDEAL Value handlers infrastructure -->
