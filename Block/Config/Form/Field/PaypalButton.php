@@ -25,7 +25,6 @@ use Magento\Framework\Data\Form\Element\AbstractElement;
 
 class PaypalButton extends Field
 {
-    protected $_template = 'Buckaroo_Magento2::paypal.phtml';
     /**
      * @var AbstractElement|null
      */
