@@ -58,6 +58,8 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     public const XPATH_SUBTEXT_STYLE = 'subtext_style';
     public const XPATH_SUBTEXT_COLOR = 'subtext_color';
 
+    public const XPATH_FINANCIAL_WARNING = 'financial_warning';
+
     /**
      * The asset repository to generate the correct url to our assets.
      *
@@ -489,16 +491,13 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     }
 
     /**
+     * Get Financial Warning
      *
-     * @param string $configKey
-     *
+     * @param null|int|Store $store
      * @return boolean
      */
-    protected function canShowFinancialWarning(string $configKey): bool
+    protected function canShowFinancialWarning($store = null): bool
     {
-        return $this->scopeConfig->getValue(
-            $configKey,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        ) !== "0";
+        return $this->getMethodConfigValue(static::XPATH_FINANCIAL_WARNING, $store) !== "0";
     }
 }
