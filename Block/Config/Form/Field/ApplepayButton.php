@@ -26,9 +26,16 @@ use Magento\Framework\Data\Form\Element\AbstractElement;
 
 class ApplepayButton extends Field
 {
-    protected $_template = 'Buckaroo_Magento2::applepay.phtml';
-    protected AbstractElement | null $styleElement;
+    /**
+     * @var AbstractElement|null
+     */
+    protected ?AbstractElement $styleElement;
 
+    protected function _construct()
+    {
+        parent::_construct();
+        $this->setTemplate('Buckaroo_Magento2::applepay.phtml');
+    }
     /**
      * Return element html
      *
