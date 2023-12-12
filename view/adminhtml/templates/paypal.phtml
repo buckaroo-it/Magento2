@@ -1,0 +1,76 @@
+<?php
+
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+?>
+<!-- Set up a container element for the button -->
+<div id="paypal-button-container"></div>
+<script>
+    function requirePayPal(callback){
+        const e = document.createElement("script");
+        const clientTestIp = 'AfHztAEfaf3f76tNy8j_Z86w5y-fGbqbBt04PXppVFtJatje79gVSB27DwBENnyFgfhFvKzgJbegNpHv'
+        e.src = `https://www.paypal.com/sdk/js?client-id=${clientTestIp}`;
+        e.type = "text/javascript";
+        e.addEventListener("load", callback);
+        document.getElementsByTagName("head")[0].appendChild(e);
+    }
+    require(['jquery'], ($) => {
+        let hasRendered = false
+        let color = '<?php echo $block->getButtonColor(); ?>';
+        let rounded = '<?php echo $block->getButtonShape(); ?>';
+
+        if(!window.paypal){
+            requirePayPal(renderButton)
+        } else {
+            renderButton()
+        }
+        function renderButton() {
+            const paypalSDK = window.paypal
+            if(hasRendered) {
+                paypalSDK.Buttons().close();
+                $('#paypal-button-container').empty()
+            }
+            paypalSDK.Buttons({
+                onInit(data, actions) {
+                    // Disable the buttons
+                    actions.disable();
+                },
+                style: {
+                    color: color,
+                    shape: rounded === '1' ? 'pill' : 'rect'
+                }
+            }).render('#paypal-button-container').then(() => {
+                hasRendered = true;
+            });
+        }
+
+        $('#<?php echo $block->getButtonColorElement() ?>').change(function () {
+           if($(this).val()!==color){
+               color = $(this).val()
+               renderButton()
+           }
+        })
+        $('#<?php echo $block->getButtonShapeElement() ?>').change(function () {
+            if($(this).val()!==rounded){
+                rounded = $(this).val()
+                renderButton()
+            }
+        })
+    })
+</script>
