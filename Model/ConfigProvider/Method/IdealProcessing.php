@@ -39,6 +39,7 @@ class IdealProcessing extends AbstractConfigProvider
     
     public const CODE = 'buckaroo_magento2_idealprocessing';
 
+    public const XPATH_SHOW_ISSUERS  = 'payment/buckaroo_magento2_idealprocessing/show_issuers';
     public const XPATH_SELECTION_TYPE = 'payment/buckaroo_magento2_idealprocessing/selection_type';
     /**
      * @var array
@@ -98,11 +99,27 @@ class IdealProcessing extends AbstractConfigProvider
                         'subtext_style'     => $this->getSubtextStyle(),
                         'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'selectionType'     => $selectionType,
+                        'selectionType' => $selectionType,
+                        'showIssuers' => $this->canShowIssuers()
                     ],
                 ],
             ],
         ];
+    }
+
+    /**
+     * Can show issuer selection in checkout
+     *
+     * @param string|null $storeId
+     *
+     * @return boolean
+     */
+    public function canShowIssuers(string $storeId = null): bool {
+        return $this->scopeConfig->getValue(
+            self::XPATH_SHOW_ISSUERS,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        ) == 1;
     }
 
     /**

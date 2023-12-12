@@ -33,8 +33,13 @@ class IssuerDataBuilder implements BuilderInterface
     {
         $paymentDO = SubjectReader::readPayment($buildSubject);
 
+        $issuer =  $paymentDO->getPayment()->getAdditionalInformation('issuer');
+
+        if (empty($issuer)) {
+            return [];
+        }
         return [
-            'issuer' => $paymentDO->getPayment()->getAdditionalInformation('issuer'),
+            'issuer' => $issuer,
         ];
     }
 }

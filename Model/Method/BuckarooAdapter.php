@@ -23,23 +23,24 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Method;
 
-use Buckaroo\Magento2\Api\PushRequestInterface;
-use Buckaroo\Magento2\Exception as BuckarooException;
-use Buckaroo\Magento2\Model\ConfigProvider\Factory;
-use Magento\Framework\App\RequestInterface;
-use Magento\Framework\Event\ManagerInterface;
-use Magento\Framework\ObjectManagerInterface;
-use Magento\Framework\Pricing\Helper\Data;
-use Magento\Payment\Gateway\Command\CommandManagerInterface;
-use Magento\Payment\Gateway\Command\CommandPoolInterface;
-use Magento\Payment\Gateway\Config\ValueHandlerPoolInterface;
-use Magento\Payment\Gateway\Data\PaymentDataObjectFactory;
-use Magento\Payment\Gateway\Validator\ValidatorPoolInterface;
+use Psr\Log\LoggerInterface;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Payment\Model\Method\Adapter;
 use Magento\Quote\Api\Data\CartInterface;
+use Magento\Framework\Pricing\Helper\Data;
+use Magento\Framework\App\RequestInterface;
+use Magento\Framework\Event\ManagerInterface;
+use Magento\Framework\ObjectManagerInterface;
+use Buckaroo\Magento2\Api\PushRequestInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
-use Psr\Log\LoggerInterface;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory;
+use Buckaroo\Magento2\Exception as BuckarooException;
+use Magento\Payment\Gateway\Command\CommandPoolInterface;
+use Magento\Payment\Gateway\Data\PaymentDataObjectFactory;
+use Magento\Payment\Gateway\Command\CommandManagerInterface;
+use Magento\Payment\Gateway\Config\ValueHandlerPoolInterface;
+use Magento\Payment\Gateway\Validator\ValidatorPoolInterface;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\CapayableIn3;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -271,17 +272,27 @@ class BuckarooAdapter extends Adapter
     {
         $title = $this->getConfigData('title');
 
+        $configProvider = $this->configProviderMethodFactory
+            ->get($this->buckarooPaymentMethodCode);
+
         if (!is_string($title) || strlen(trim($title)) === 0) {
             $title = DefaultTitles::get($this->buckarooPaymentMethodCode);
+        }
+
+        if (
+            strpos($this->buckarooPaymentMethodCode, "capayable") !== false &&
+            method_exists($configProvider, 'isV2') &&
+            $configProvider->isV2() &&
+            $title === CapayableIn3::DEFAULT_NAME
+        ) {
+            $title = CapayableIn3::V2_NAME;
         }
 
         if (!$this->configProviderMethodFactory->has($this->buckarooPaymentMethodCode)) {
             return $title;
         }
 
-        $paymentFee = trim((string)$this->configProviderMethodFactory
-            ->get($this->buckarooPaymentMethodCode)
-            ->getPaymentFee());
+        $paymentFee = trim((string)$configProvider->getPaymentFee());
 
         if (!$paymentFee || (float)$paymentFee < 0.01) {
             return $title;

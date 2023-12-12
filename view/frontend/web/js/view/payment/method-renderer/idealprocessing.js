@@ -58,7 +58,7 @@ define(
                 subTextStyle : checkoutCommon.getSubtextStyle('idealprocessing'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
-
+                showIssuers :  window.checkoutConfig.payment.buckaroo.idealprocessing.showIssuers,
                 /**
              * @override
              */
@@ -76,6 +76,9 @@ define(
                     /** Check used to see form is valid **/
                     this.buttoncheck = ko.computed(
                         function () {
+                            if (this.showIssuers === false) {
+                                return true;
+                            }
                             const state = this.validationState();
                             const valid = [
                                 'issuer',

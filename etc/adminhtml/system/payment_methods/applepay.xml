@@ -29,7 +29,7 @@
             <source_model>Buckaroo\Magento2\Model\Config\Source\Enablemode</source_model>
             <config_path>payment/buckaroo_magento2_applepay/active</config_path>
         </field>
-        
+
         <field id="title" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Frontend label</label>
             <comment><![CDATA[Determines the frontend label shown.]]></comment>
@@ -41,7 +41,7 @@
             <comment><![CDATA[This controls the description which the user sees during checkout.]]></comment>
             <config_path>payment/buckaroo_magento2_applepay/subtext</config_path>
         </field>
-        
+
         <field id="subtext_style" translate="label comment" type="select" sortOrder="26" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Frontend subtext style</label>
             <comment><![CDATA[Choose a font style for the subtext.]]></comment>
@@ -86,6 +86,11 @@
                 <comment><![CDATA[What type of button you want to show.]]></comment>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\ButtonStyle</source_model>
                 <config_path>payment/buckaroo_magento2_applepay/button_style</config_path>
+            </field>
+
+            <field id="button_style_preview" translate="label comment" sortOrder="25" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Button style preview</label>
+                <frontend_model>Buckaroo\Magento2\Block\Config\Form\Field\ApplepayButton</frontend_model>
             </field>
 
             <field id="dont_ask_billing_info_in_checkout" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">

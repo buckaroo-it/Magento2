@@ -38,11 +38,6 @@ use Magento\Sales\Model\Order\Payment\Transaction;
 class CreateInvoice
 {
     /**
-     * @var Order\Payment
-     */
-    private Order\Payment $payment;
-
-    /**
      * @var Log
      */
     protected Log $logger;
@@ -98,9 +93,10 @@ class CreateInvoice
      */
     public function createInvoiceGeneralSetting(Order $order): bool
     {
-        $this->payment = $order->getPayment();
+        /** @var Order\Payment $payment */
+        $payment = $order->getPayment();
 
-        $this->addTransactionData();
+        $this->addTransactionData($payment);
 
         $this->logger->addDebug(__METHOD__ . '|1| - Save Invoice');
 
@@ -111,13 +107,13 @@ class CreateInvoice
         }
 
         //Fix for suspected fraud when the order currency does not match with the payment's currency
-        $amount = ($this->payment->isSameCurrency()
-            && $this->payment->isCaptureFinal($order->getGrandTotal())) ?
+        $amount = ($payment->isSameCurrency()
+            && $payment->isCaptureFinal($order->getGrandTotal())) ?
             $order->getGrandTotal() : $order->getBaseTotalDue();
-        $this->payment->registerCaptureNotification($amount);
-        $this->payment->save();
+        $payment->registerCaptureNotification($amount);
+        $payment->save();
 
-        $transactionKey = (string)$this->payment->getAdditionalInformation(
+        $transactionKey = (string)$payment->getAdditionalInformation(
             BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY
         );
 
@@ -150,9 +146,9 @@ class CreateInvoice
      * @return Order\Payment
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function addTransactionData($transactionKey = false, $datas = false)
+    public function addTransactionData($payment, $transactionKey = false, $datas = false)
     {
-        $transactionKey = $transactionKey ?: $this->payment->getAdditionalInformation(
+        $transactionKey = $transactionKey ?: $payment->getAdditionalInformation(
             BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY
         );
 
@@ -165,7 +161,7 @@ class CreateInvoice
          */
         if(!$datas)
         {
-            $rawDetails = $this->payment->getAdditionalInformation(Transaction::RAW_DETAILS);
+            $rawDetails = $payment->getAdditionalInformation(Transaction::RAW_DETAILS);
             $rawInfo = $rawDetails[$transactionKey] ?? [];
         } else {
             $rawInfo  = $this->helper->getTransactionAdditionalInfo($datas);
@@ -174,19 +170,19 @@ class CreateInvoice
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
-        $this->payment->setTransactionAdditionalInfo(Transaction::RAW_DETAILS, $rawInfo);
+        $payment->setTransactionAdditionalInfo(Transaction::RAW_DETAILS, $rawInfo);
 
         /**
          * Save the payment's transaction key.
          */
-        $this->payment->setTransactionId($transactionKey . '-capture');
+        $payment->setTransactionId($transactionKey . '-capture');
 
-        $this->payment->setParentTransactionId($transactionKey);
-        $this->payment->setAdditionalInformation(
+        $payment->setParentTransactionId($transactionKey);
+        $payment->setAdditionalInformation(
             BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY,
             $transactionKey
         );
 
-        return $this->payment;
+        return $payment;
     }
 }
