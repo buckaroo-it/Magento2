@@ -140,7 +140,6 @@ define(
                     country: '',
                     customerCoc:'',
                     dateValidate: null,
-                    termsUrl: 'https://www.afterpay.nl/nl/klantenservice/betalingsvoorwaarden/',
                     termsValidate: true,
                     identificationValidate: null,
                     phoneValidate: null,
@@ -450,7 +449,7 @@ define(
 
                 getTermsUrl: function (country, b2b) {
                     let lang = 'nl_nl';
-                    let url = 'https://documents.riverty.com/terms_conditions/payment_methods/invoice/';
+                    let url = 'https://documents.riverty.com/terms_conditions/payment_methods/invoice';
                     const cc = country.toLowerCase()
 
                     if ( b2b === false ) {
@@ -478,6 +477,12 @@ define(
                     }
 
                     return `${url}/${lang}/`;
+                },
+
+                getFrenchTos: function () {
+                   return $.mage
+                    .__('(Or click here for the French translation: <a target="_blank" href="%s">terms and condition</a>.)')
+                    .replace('%s', 'https://documents.riverty.com/terms_conditions/payment_methods/invoice/be_fr/');
                 },
 
                 isOsc: function () {

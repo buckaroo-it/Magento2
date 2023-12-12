@@ -196,6 +196,9 @@
                                        attr: { 'href': termsUrl }
                                    ">
                                 </a>
+                                <!-- ko if: showFrenchTos -->
+                                <span data-bind="html: getFrenchTos()"></span>
+                                <!-- /ko -->
                             </span>
                         </div>
                     </div>

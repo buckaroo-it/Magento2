@@ -205,6 +205,14 @@ define(
                         }
                     );
 
+                    this.showFrenchTos = ko.computed(
+                        function () {
+                            return quote.billingAddress() !== null &&
+                            quote.billingAddress().countryId === 'BE'
+                        },
+                        this
+                    );
+
                     /**
                      * Repair IBAN value to uppercase
                      */
@@ -386,6 +394,13 @@ define(
 
                     return `${url}/${lang}/`;
                 },
+
+                getFrenchTos: function () {
+                    return $.mage
+                     .__('(Or click here for the French translation: <a target="_blank" href="%s">terms and condition</a>.)')
+                     .replace('%s', 'https://documents.riverty.com/terms_conditions/payment_methods/invoice/be_fr/');
+                },
+
                 getBusinessMethod : function() {
                     var businessMethod = BUSINESS_METHOD_B2C;
 
