@@ -21,7 +21,9 @@
 //dd($block,$this);
 ?>
 <!-- Set up a container element for the button -->
-<div id="applepay-button-wrapper"></div>
+<div id="applepay-button-wrapper">
+    <apple-pay-button lang="en-US" buttonstyle="<?php echo $block->getButtonStyle();?>" hidden="false"></apple-pay-button>
+</div>
 <script>
     function requireApplePay(callback){
         const e = document.createElement("script");
@@ -31,22 +33,14 @@
         document.getElementsByTagName("head")[0].appendChild(e);
     }
     require(['jquery'], ($) => {
-        let buttonHtml = customElements.get('apple-pay-button')
+        const buttonElement = $('apple-pay-button');
         let buttonStyle = "<?php echo $block->getButtonStyle();?>";
-
-        const buttonWrapper = $('#applepay-button-wrapper')
         function renderButton(){
-            buttonHtml = customElements.get('apple-pay-button')
-            if(buttonHtml){
-                buttonWrapper.empty()
-                const button = new buttonHtml()
-                button.lang = document.firstElementChild.lang
-                button.buttonStyle = buttonStyle
-                button.type = "buy"
-                buttonWrapper.append(button)
-            }
+            buttonElement.attr('lang',document.firstElementChild.lang)
+            buttonElement.attr('buttonStyle',buttonStyle)
+            buttonElement.attr('type',"buy")
         }
-        if(!buttonHtml){
+        if(!customElements.get('apple-pay-button')){
             requireApplePay(renderButton)
         } else {
             renderButton()
