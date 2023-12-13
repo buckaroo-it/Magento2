@@ -267,6 +267,8 @@ class BuckarooAdapter extends Adapter
      *
      * @return string
      * @throws BuckarooException
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function getTitle(): string
     {
