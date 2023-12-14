@@ -180,7 +180,7 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
      */
     protected function addFirstShippingMethod(Address $address)
     {
-        if ($address->getShippingMethod() === null) {
+        if (empty($address->getShippingMethod())) {
             $shippingMethods = $this->shipmentEstimation->estimateByExtendedAddress(
                 $this->quote->getId(),
                 $this->quote->getShippingAddress()

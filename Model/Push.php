@@ -30,6 +30,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 use Buckaroo\Magento2\Model\Method\AbstractMethod;
 use Buckaroo\Magento2\Model\Method\Afterpay;
+use Buckaroo\Magento2\Model\LockManagerWrapper;
 use Buckaroo\Magento2\Model\Method\Afterpay2;
 use Buckaroo\Magento2\Model\Method\Afterpay20;
 use Buckaroo\Magento2\Model\Method\Creditcard;
@@ -44,6 +45,8 @@ use Buckaroo\Magento2\Model\Method\Voucher;
 use Buckaroo\Magento2\Model\Refund\Push as RefundPush;
 use Buckaroo\Magento2\Model\Validator\Push as ValidatorPush;
 use Magento\Framework\App\ResourceConnection;
+use Magento\Framework\Filesystem\DirectoryList;
+use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\Webapi\Rest\Request;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\Order;
@@ -51,6 +54,7 @@ use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Magento\Sales\Model\Order\Payment\Transaction;
 use Magento\Framework\Filesystem\Driver\File;
+
 
 class Push implements PushInterface
 {
@@ -158,6 +162,11 @@ class Push implements PushInterface
     private $fileSystemDriver;
 
     /**
+     * @var LockManagerWrapper
+     */
+    protected LockManagerWrapper $lockManager;
+
+    /**
      * @param Order $order
      * @param TransactionInterface $transaction
      * @param Request $request
@@ -170,6 +179,14 @@ class Push implements PushInterface
      * @param Log $logging
      * @param Factory $configProviderMethodFactory
      * @param OrderStatusFactory $orderStatusFactory
+     * @param PaymentGroupTransaction $groupTransaction
+     * @param ObjectManagerInterface $objectManager
+     * @param ResourceConnection $resourceConnection
+     * @param DirectoryList $dirList
+     * @param ConfigProvider\Method\Klarnakp $klarnakpConfig
+     * @param ConfigProvider\Method\Afterpay20 $afterpayConfig
+     * @param File $fileSystemDriver
+     * @param LockManagerWrapper $lockManager
      */
     public function __construct(
         Order $order,
@@ -190,7 +207,8 @@ class Push implements PushInterface
         \Magento\Framework\Filesystem\DirectoryList $dirList,
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp $klarnakpConfig,
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20 $afterpayConfig,
-        File $fileSystemDriver
+        File $fileSystemDriver,
+        LockManagerWrapper $lockManager
     ) {
         $this->order                       = $order;
         $this->transaction                 = $transaction;
@@ -212,6 +230,7 @@ class Push implements PushInterface
         $this->klarnakpConfig     = $klarnakpConfig;
         $this->afterpayConfig     = $afterpayConfig;
         $this->fileSystemDriver   = $fileSystemDriver;
+        $this->lockManager = $lockManager;
     }
 
     /**
@@ -222,20 +241,40 @@ class Push implements PushInterface
     public function receivePush()
     {
         $this->getPostData();
-
         //Start debug mailing/logging with the postdata.
         $this->logging->addDebug(__METHOD__ . '|1|' . var_export($this->originalPostData, true));
 
         $this->logging->addDebug(__METHOD__ . '|1_2|');
-        $lockHandler = $this->lockPushProcessing();
+        $orderIncrementID = $this->getOrderIncrementId();
+        $this->logging->addDebug(__METHOD__ . '|Lock Name| - ' . var_export($orderIncrementID, true));
+        $lockAcquired = $this->lockManager->lockOrder($orderIncrementID, 5);
+
+        if (!$lockAcquired) {
+            $this->logging->addDebug(__METHOD__ . '|lock not acquired|');
+            throw new \Buckaroo\Magento2\Exception(
+                __('Lock push not acquired')
+            );
+        }
+
+        try {
+            return $this->pushProcess();
+        } catch (\Throwable $e) {
+            $this->logging->addDebug(__METHOD__ . '|Exception|' . $e->getMessage());
+            throw $e;
+        } finally {
+            $this->lockManager->unlockOrder($orderIncrementID);
+            $this->logging->addDebug(__METHOD__ . '|Lock released|');
+        }
+    }
+
+    private function pushProcess()
+    {
         $this->logging->addDebug(__METHOD__ . '|1_3|');
 
         if ($this->isFailedGroupTransaction()) {
             $this->handleGroupTransactionFailed();
             return true;
         }
-
-
 
         if ($this->isGroupTransactionInfo()) {
             if($this->isCanceledGroupTransaction()) {
@@ -259,7 +298,8 @@ class Push implements PushInterface
             return true;
         }
 
-        //Check if the push can be processed and if the order can be updated IMPORTANT => use the original post data.
+        //Check if the push can be processed and if the order can be updated IMPORTANT
+        // => use the original post data.
         $validSignature = $this->validator->validateSignature(
             $this->originalPostData,
             $this->postData,
@@ -278,14 +318,16 @@ class Push implements PushInterface
         //Check if the push have PayLink
         $this->receivePushCheckPayLink($response, $validSignature);
 
-        $payment       = $this->order->getPayment();
+        $payment = $this->order->getPayment();
 
         if ($this->pushCheckPayPerEmailCancel($response, $validSignature, $payment)) {
             return true;
         }
 
         //Check second push for PayPerEmail
-        $receivePushCheckPayPerEmailResult = $this->receivePushCheckPayPerEmail($response, $validSignature, $payment);
+        $receivePushCheckPayPerEmailResult = $this->receivePushCheckPayPerEmail(
+            $response, $validSignature, $payment
+        );
 
         $skipFirstPush = $payment->getAdditionalInformation('skip_push');
 
@@ -305,7 +347,6 @@ class Push implements PushInterface
         }
 
         if ($this->receivePushCheckDuplicates()) {
-            $this->unlockPushProcessing($lockHandler);
             throw new \Buckaroo\Magento2\Exception(__('Skipped handling this push, duplicate'));
         }
 
@@ -334,7 +375,9 @@ class Push implements PushInterface
             ) {
                 //don't proceed failed refund push
                 $this->logging->addDebug(__METHOD__ . '|10|');
-                $this->setOrderNotificationNote(__('push notification for refund has no success status, ignoring.'));
+                $this->setOrderNotificationNote(
+                    __('push notification for refund has no success status, ignoring.')
+                );
                 return true;
             }
             return $this->refundPush->receiveRefundPush($this->postData, $validSignature, $this->order);
@@ -344,7 +387,8 @@ class Push implements PushInterface
         if (!$validSignature) {
             $this->logging->addDebug('Invalid push signature');
             throw new \Buckaroo\Magento2\Exception(__('Signature from push is incorrect'));
-            //If the signature is valid but the order cant be updated, try to add a notification to the order comments.
+            // If the signature is valid but the order cant be updated,
+            // try to add a notification to the order comments.
         } elseif ($validSignature && !$canUpdateOrder) {
             $this->logging->addDebug('Order can not receive updates');
             if ($receivePushCheckPayPerEmailResult) {
@@ -388,11 +432,11 @@ class Push implements PushInterface
             }
         }
 
-        if ((!in_array($payment->getMethod() ,[Giftcards::PAYMENT_METHOD_CODE, Voucher::PAYMENT_METHOD_CODE])) && $this->isGroupTransactionPart()) {
+        if ((!in_array($payment->getMethod(), [Giftcards::PAYMENT_METHOD_CODE, Voucher::PAYMENT_METHOD_CODE]))
+            && $this->isGroupTransactionPart()) {
             $this->savePartGroupTransaction();
             return true;
         }
-
 
         switch ($transactionType) {
             case self::BUCK_PUSH_TYPE_INVOICE:
@@ -414,8 +458,6 @@ class Push implements PushInterface
             $this->logging->addDebug(__METHOD__ . '|5-1|');
             $this->order->save();
         }
-
-        $this->unlockPushProcessing($lockHandler);
 
         $this->logging->addDebug(__METHOD__ . '|6|');
 
@@ -1811,56 +1853,6 @@ class Push implements PushInterface
         }
 
         return $brqOrderId;
-    }
-
-    private function getLockPushProcessingFilePath()
-    {
-        if ($brqOrderId = $this->getOrderIncrementId()) {
-            return $this->dirList->getPath('tmp') . DIRECTORY_SEPARATOR . 'bk_push_ppe_' . sha1($brqOrderId);
-        } else {
-            return false;
-        }
-    }
-
-    private function lockPushProcessingCriteria()
-    {
-        $statusCodeSuccess = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS');
-        if (isset($this->postData['add_frompayperemail'])
-            || (($this->hasPostData('brq_statuscode', $statusCodeSuccess))
-                && $this->hasPostData('brq_transaction_method', 'ideal')
-                && $this->hasPostData('brq_transaction_type', self::BUCK_PUSH_IDEAL_PAY)
-            )
-        ) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    private function lockPushProcessing()
-    {
-        if ($this->lockPushProcessingCriteria()) {
-            $this->logging->addDebug(__METHOD__ . '|1|');
-            if ($path = $this->getLockPushProcessingFilePath()) {
-                if ($fp = $this->fileSystemDriver->fileOpen($path, "w+")) {
-                    $this->fileSystemDriver->fileLock($fp, LOCK_EX);
-                    $this->logging->addDebug(__METHOD__ . '|5|');
-                    return $fp;
-                }
-            }
-        }
-    }
-
-    private function unlockPushProcessing($lockHandler)
-    {
-        if ($this->lockPushProcessingCriteria()) {
-            $this->logging->addDebug(__METHOD__ . '|1|');
-            $this->fileSystemDriver->fileClose($lockHandler);
-            if (($path = $this->getLockPushProcessingFilePath()) && $this->fileSystemDriver->isExists($path)) {
-                $this->fileSystemDriver->deleteFile($path);
-                $this->logging->addDebug(__METHOD__ . '|5|');
-            }
-        }
     }
 
     private function processSucceededPushAuth($payment)

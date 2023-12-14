@@ -190,11 +190,7 @@ define(
                     this.termsUrl =  ko.computed(
                         function () {
                             if(quote.billingAddress() !== null) {
-                                let newUrl = 'https://www.afterpay.nl/nl/algemeen/betalen-met-afterpay/betalingsvoorwaarden';
-                                if (this.paymentMethod == PAYMENT_METHOD_DIGIACCEPT) {
-                                    newUrl = this.getDigiacceptUrl(quote.billingAddress().countryId);
-                                }
-                                return newUrl;
+                                return this.getTos(quote.billingAddress().countryId);
                             }
                         },
                         this
@@ -208,6 +204,14 @@ define(
                             var telephone = quote.billingAddress() ? quote.billingAddress().telephone : null;
                             return telephone != '' && telephone != '-';
                         }
+                    );
+
+                    this.showFrenchTos = ko.computed(
+                        function () {
+                            return quote.billingAddress() !== null &&
+                            quote.billingAddress().countryId === 'BE'
+                        },
+                        this
                     );
 
                     /**
@@ -357,24 +361,46 @@ define(
                         }
                     };
                 },
-                getDigiacceptUrl :function(country) {
-                    var businessMethod = this.getBusinessMethod();
-                    var url = 'https://www.afterpay.nl/nl/algemeen/betalen-met-afterpay/betalingsvoorwaarden';
+                getTos :function(country) {
+                    const businessMethod = this.getBusinessMethod();
+                    let lang = 'nl_nl';
+                    let url = 'https://documents.riverty.com/terms_conditions/payment_methods/invoice';
+                    const cc = country.toLowerCase()
 
-                    if (country === 'BE' && businessMethod == BUSINESS_METHOD_B2C) {
-                        url = 'https://www.afterpay.be/be/footer/betalen-met-afterpay/betalingsvoorwaarden';
+                    if (businessMethod == BUSINESS_METHOD_B2C || this.paymentMethod == PAYMENT_METHOD_DIGIACCEPT) {
+                        if (country === 'BE') {
+                            lang = 'be_nl';
+                        }
+    
+                        if (['NL','DE'].indexOf(country) !== -1) {
+                            lang = `${cc}_${cc}`;
+                        }
+
+                        if (['AT','DK', 'FI', 'SE', 'CH', 'NO'].indexOf(country) !== -1) {
+                            const cc = country.toLowerCase()
+                            lang = `${cc}_en`;
+                        }
+                    }
+                   
+                    if (businessMethod == BUSINESS_METHOD_B2B && ['NL', 'DE', 'AT', 'CH'].indexOf(country) !== -1) {
+                        url = 'https://documents.riverty.com/terms_conditions/payment_methods/b2b_invoice';
+                        if (['NL', 'DE'].indexOf(country) !== -1) {
+                            lang = `${cc}_${cc}`;
+                        }
+
+                        if (['AT', 'CH'].indexOf(country) !== -1) {
+                            lang = `${cc}_en`;
+                        }
                     }
 
-                    if (country === 'NL' && businessMethod == BUSINESS_METHOD_B2C) {
-                        url = 'https://www.afterpay.nl/nl/algemeen/betalen-met-afterpay/betalingsvoorwaarden';
-                    }
-
-                    if (country === 'NL' && businessMethod == BUSINESS_METHOD_B2B) {
-                        url = 'https://www.afterpay.nl/nl/algemeen/zakelijke-partners/betalingsvoorwaarden-zakelijk';
-                    }
-
-                    return url;
+                    return `${url}/${lang}/`;
                 },
+
+                getFrenchTos: function () {
+                    return $.mage
+                     .__('(Or click here for the French translation: <a target="_blank" href="%s">terms and condition</a>.)')
+                     .replace('%s', 'https://documents.riverty.com/terms_conditions/payment_methods/invoice/be_fr/');
+                 },
 
                 getBusinessMethod : function() {
                     var businessMethod = BUSINESS_METHOD_B2C;
