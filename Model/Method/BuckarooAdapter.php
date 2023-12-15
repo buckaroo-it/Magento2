@@ -294,11 +294,7 @@ class BuckarooAdapter extends Adapter
 
         $paymentFee = trim((string)$configProvider->getPaymentFee());
 
-        if (!empty($paymentFee) && (float)$paymentFee >= 0.01) {
-            $title = $this->addPaymentFee($title, $paymentFee);
-        }
-
-        return $title;
+        return $this->addPaymentFee($title, $paymentFee);
     }
 
     /**
@@ -310,10 +306,14 @@ class BuckarooAdapter extends Adapter
      */
     protected function addPaymentFee(string $title, string $paymentFee): string
     {
-        if (strpos($paymentFee, '%') === false) {
-            return $title . ' + ' . $this->priceHelper->currency(number_format((float)$paymentFee, 2), true, false);
-        } else {
-            return $title . ' + ' . $paymentFee;
+        if (!empty($paymentFee) && (float)$paymentFee >= 0.01) {
+            if (strpos($paymentFee, '%') === false) {
+                return $title . ' + ' . $this->priceHelper->currency(number_format((float)$paymentFee, 2), true, false);
+            } else {
+                return $title . ' + ' . $paymentFee;
+            }
         }
+
+        return $title;
     }
 }
