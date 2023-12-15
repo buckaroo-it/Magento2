@@ -84,9 +84,10 @@ class OrderStatusFactory
      *
      * @param int|string $statusCode
      * @param string $paymentMethod
-     *
      * @return string|false|null
      * @throws Exception
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function getPaymentMethodStatus($statusCode, string $paymentMethod)
     {
@@ -124,9 +125,10 @@ class OrderStatusFactory
      * Get status for failed or success transaction based on account config
      *
      * @param int|string $statusCode
-     *
      * @return string|false|null
      * @throws Exception
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function getAccountStatus($statusCode)
     {

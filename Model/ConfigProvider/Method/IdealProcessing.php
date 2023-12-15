@@ -115,7 +115,7 @@ class IdealProcessing extends AbstractConfigProvider
      */
     public function canShowIssuers(string $storeId = null): bool
     {
-        return $this->getMethodConfigValue(self::XPATH_SELECTION_TYPE, $store) == 1;
+        return $this->getMethodConfigValue(self::XPATH_SELECTION_TYPE, $storeId) == 1;
     }
 
     /**
