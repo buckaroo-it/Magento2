@@ -43,6 +43,7 @@ class MBWay extends AbstractConfigProvider
             'payment' => [
                 'buckaroo' => [
                     'mbway' => [
+                        'sendEmail'         => $this->hasOrderEmail(),
                         'paymentFeeLabel'   => $paymentFeeLabel,
                         'subtext'           => $this->getSubtext(),
                         'subtext_style'     => $this->getSubtextStyle(),

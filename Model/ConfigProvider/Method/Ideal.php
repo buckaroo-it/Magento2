@@ -39,7 +39,7 @@ class Ideal extends AbstractConfigProvider
     public const CODE = 'buckaroo_magento2_ideal';
 
     public const XPATH_SELECTION_TYPE = 'selection_type';
-
+    public const XPATH_SHOW_ISSUERS   = 'show_issuers';
     /**
      * @var array
      */
@@ -98,10 +98,23 @@ class Ideal extends AbstractConfigProvider
                         'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'selectionType'     => $selectionType,
+                        'showIssuers'       => $this->canShowIssuers()
                     ],
                 ],
             ],
         ];
+    }
+
+    /**
+     * Can show issuer selection in checkout
+     *
+     * @param string|null $storeId
+     *
+     * @return boolean
+     */
+    public function canShowIssuers(string $storeId = null): bool
+    {
+        return $this->getMethodConfigValue(self::XPATH_SHOW_ISSUERS, $storeId) == 1;
     }
 
     /**

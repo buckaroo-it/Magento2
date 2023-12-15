@@ -77,7 +77,8 @@ class Klarnain extends AbstractConfigProvider
                         'genderList'        => [
                             ['genderType' => 'male', 'genderTitle' => __('He/him')],
                             ['genderType' => 'female', 'genderTitle' => __('She/her')]
-                        ]
+                        ],
+                        'showFinancialWarning' => $this->canShowFinancialWarning()
                     ],
                     'response' => [],
                 ],

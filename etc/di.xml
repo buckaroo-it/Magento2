@@ -440,6 +440,12 @@
         </arguments>
     </type>
 
+    <type name="Buckaroo\Magento2\Observer\SetTransactionOnInvoiceObserver">
+        <arguments>
+            <argument name="stateCommand" xsi:type="object">Magento\Sales\Model\Order\Payment\State\RegisterCaptureNotificationCommand</argument>
+        </arguments>
+    </type>
+
     <type name="Magento\Framework\View\Asset\Minification">
         <plugin name="my-exclude" type="Buckaroo\Magento2\Plugin\ExcludeFilesFromMinification" />
     </type>
@@ -1065,7 +1071,7 @@
         <arguments>
             <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\Ideal::CODE</argument>
             <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
-            <argument name="infoBlockType" xsi:type="string">Buckaroo\Magento2\Block\Info</argument>
+            <argument name="infoBlockType" xsi:type="string">IdealAdminInfo</argument>
             <argument name="valueHandlerPool" xsi:type="object">IdealValueHandlerPool</argument>
             <argument name="validatorPool" xsi:type="object">IdealValidatorPool</argument>
             <argument name="commandPool" xsi:type="object">IdealCommandPool</argument>
@@ -1086,6 +1092,11 @@
             <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Ideal</argument>
         </arguments>
     </virtualType>
+    <virtualType name="IdealAdminInfo" type="Buckaroo\Magento2\Block\AdminInfo">
+        <arguments>
+            <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Ideal</argument>
+        </arguments>
+    </virtualType>
     <!-- END iDEAL Value handlers infrastructure -->
 
     <!-- iDEAL validators infrastructure -->
@@ -1094,7 +1105,7 @@
             <argument name="validators" xsi:type="array">
                 <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
                 <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
-                <item name="global" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\IssuerValidator</item>
+                <item name="global" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\IdealIssuerValidator</item>
             </argument>
         </arguments>
     </virtualType>
@@ -4345,6 +4356,50 @@
     <!-- END Multibanco validators infrastructure -->
     <!-- END Multibanco Commands infrastructure -->
     <!-- END Payment Method: Multibanco -->
+
+    <!-- Payment Method: MBWay -->
+    <!-- MBWay Payment Method Facade configuration -->
+
+    <virtualType name="MBWayFacade" type="Buckaroo\Magento2\Model\Method\BuckarooAdapter">
+        <arguments>
+            <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\MBWay::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Buckaroo\Magento2\Block\Info</argument>
+            <argument name="valueHandlerPool" xsi:type="object">MBWayValueHandlerPool</argument>
+            <argument name="validatorPool" xsi:type="object">MBWayValidatorPool</argument>
+            <argument name="commandPool" xsi:type="object">BuckarooRemainderGatewayCommandPool</argument>
+            <argument name="usesRedirect" xsi:type="boolean">false</argument>
+        </arguments>
+    </virtualType>
+    <!-- MBWay Value handlers infrastructure -->
+    <virtualType name="MBWayValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">MBWayConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Configuration reader -->
+    <virtualType name="MBWayConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\MBWay</argument>
+        </arguments>
+    </virtualType>
+    <!-- END MBWay Value handlers infrastructure -->
+
+    <!-- MBWay validators infrastructure -->
+    <virtualType name="MBWayValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END MBWay validators infrastructure -->
+    <!-- END MBWay Commands infrastructure -->
+    <!-- END Payment Method: MBWay -->
+
 
     <!-- iDIN service (Age verification) -->
     <type name="Buckaroo\Magento2\Controller\Checkout\Idin">

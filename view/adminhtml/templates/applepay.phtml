@@ -1,0 +1,60 @@
+<?php
+
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+//dd($block,$this);
+?>
+<!-- Set up a container element for the button -->
+<div id="applepay-button-wrapper">
+    <apple-pay-button lang="en-US" buttonstyle="<?php echo $block->getButtonStyle();?>" hidden="false"></apple-pay-button>
+</div>
+<script>
+    function requireApplePay(callback){
+        const e = document.createElement("script");
+        e.src = `https://applepay.cdn-apple.com/jsapi/v1.1.0/apple-pay-button.js`;
+        e.type = "text/javascript";
+        e.addEventListener("load", callback);
+        document.getElementsByTagName("head")[0].appendChild(e);
+    }
+    require(['jquery'], ($) => {
+        const buttonElement = $('apple-pay-button');
+        let buttonStyle = "<?php echo $block->getButtonStyle();?>";
+        function renderButton(){
+            buttonElement.attr('lang',document.firstElementChild.lang)
+            buttonElement.attr('buttonStyle',buttonStyle)
+            buttonElement.attr('type',"buy")
+        }
+        if(!customElements.get('apple-pay-button')){
+            requireApplePay(renderButton)
+        } else {
+            renderButton()
+        }
+        $('#<?php echo $block->getButtonStyleElement() ?>').change(function () {
+            if($(this).val()!==buttonStyle){
+                buttonStyle = $(this).val()
+                renderButton()
+            }
+        })
+    })
+</script>
+<style>
+    #applepay-button-wrapper > apple-pay-button {
+        display: inline;
+    }
+</style>

@@ -52,11 +52,12 @@ class Tinka extends AbstractConfigProvider
             'payment' => [
                 'buckaroo' => [
                     'tinka' => [
-                        'paymentFeeLabel'   => $paymentFeeLabel,
-                        'subtext'           => $this->getSubtext(),
-                        'subtext_style'     => $this->getSubtextStyle(),
-                        'subtext_color'     => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
+                        'paymentFeeLabel'      => $paymentFeeLabel,
+                        'subtext'              => $this->getSubtext(),
+                        'subtext_style'        => $this->getSubtextStyle(),
+                        'subtext_color'        => $this->getSubtextColor(),
+                        'allowedCurrencies'    => $this->getAllowedCurrencies(),
+                        'showFinancialWarning' => $this->canShowFinancialWarning()
                     ],
                 ],
             ],

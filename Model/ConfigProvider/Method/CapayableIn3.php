@@ -26,6 +26,9 @@ class CapayableIn3 extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_capayablein3';
 
+    public const DEFAULT_NAME = 'iDEAL In3';
+    public const V2_NAME = 'In3';
+
     const XPATH_CAPAYABLEIN3_API_VERSION  = 'api_version';
     const XPATH_CAPAYABLEIN3_PAYMENT_LOGO = 'payment_logo';
 
@@ -60,12 +63,13 @@ class CapayableIn3 extends AbstractConfigProvider
             'payment' => [
                 'buckaroo' => [
                     'capayablein3' => [
-                        'paymentFeeLabel'   => $paymentFeeLabel,
-                        'subtext'           => $this->getSubtext(),
-                        'subtext_style'     => $this->getSubtextStyle(),
-                        'subtext_color'     => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'logo'              => $this->getLogo()
+                        'paymentFeeLabel'      => $paymentFeeLabel,
+                        'subtext'              => $this->getSubtext(),
+                        'subtext_style'        => $this->getSubtextStyle(),
+                        'subtext_color'        => $this->getSubtextColor(),
+                        'allowedCurrencies'    => $this->getAllowedCurrencies(),
+                        'logo'                 => $this->getLogo(),
+                        'showFinancialWarning' => $this->canShowFinancialWarning()
                     ],
                 ],
             ],

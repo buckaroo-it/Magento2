@@ -58,7 +58,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     public const SUBTEXT_STYLE = 'subtext_style';
     public const SUBTEXT_COLOR = 'subtext_color';
 
-    public const XPATH_FINANCIAL_WARNING = 'financial_warning';
+    public const FINANCIAL_WARNING = 'financial_warning';
 
 
     /**
@@ -496,8 +496,8 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      *
      * @return boolean
      */
-    protected function canShowFinancialWarning(): bool
+    protected function canShowFinancialWarning($store = null): bool
     {
-        return $this->getMethodConfigValue(static::XPATH_FINANCIAL_WARNING) !== "0";
+        return $this->getMethodConfigValue(static::FINANCIAL_WARNING, $store) !== "0";
     }
 }
