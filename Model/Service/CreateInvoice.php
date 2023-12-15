@@ -1,25 +1,32 @@
 <?php
 
 namespace Buckaroo\Magento2\Model\Service;
+
+use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Helper\Data;
-use Buckaroo\Magento2\Model\Method\AbstractMethod;
-use Magento\Sales\Model\Order;
-use Magento\Sales\Model\Order\Invoice;
+use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
-use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
+use Buckaroo\Magento2\Model\Method\AbstractMethod;
+use Magento\Framework\DB\TransactionFactory;
+use Magento\Framework\Registry;
+use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
+use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Payment\Transaction;
+use Magento\Sales\Model\Service\InvoiceService;
 
 class CreateInvoice
 {
-    private Order $order;
-
-    private Order\Payment $payment;
     /**
      * @var Log
      */
     protected Log $logger;
+
+    /**
+     * @var Registry
+     */
+    protected $registry;
 
     /**
      * @var Account
@@ -42,10 +49,23 @@ class CreateInvoice
     private Data $helper;
 
     /**
+     * @var InvoiceService
+     */
+    private InvoiceService $invoiceService;
+
+    /**
+     * @var TransactionFactory
+     */
+    private TransactionFactory $transactionFactory;
+
+    /**
      * @param Account $configAccount
      * @param Log $logger
      * @param PaymentGroupTransaction $groupTransaction
      * @param InvoiceSender $invoiceSender
+     * @param InvoiceService $invoiceService
+     * @param TransactionFactory $transactionFactory
+     * @param Registry $registry
      * @param Data $helper
      */
     public function __construct(
@@ -53,13 +73,19 @@ class CreateInvoice
         Log $logger,
         PaymentGroupTransaction $groupTransaction,
         InvoiceSender $invoiceSender,
+        InvoiceService $invoiceService,
+        TransactionFactory $transactionFactory,
+        Registry $registry,
         Data $helper
     ) {
         $this->logger = $logger;
         $this->groupTransaction = $groupTransaction;
         $this->invoiceSender = $invoiceSender;
         $this->configAccount = $configAccount;
+        $this->invoiceService = $invoiceService;
         $this->helper = $helper;
+        $this->transactionFactory = $transactionFactory;
+        $this->registry = $registry;
     }
 
     /**
@@ -72,27 +98,36 @@ class CreateInvoice
      */
     public function createInvoiceGeneralSetting(Order $order): bool
     {
-        $this->order = $order;
-        $this->payment = $order->getPayment();
+        $invoiceItems = $this->getInvoiceItems($order);
+        $data['capture_case'] = 'offline';
 
-        $this->addTransactionData();
+        $invoice = $this->invoiceService->prepareInvoice($order, $invoiceItems);
 
-        $this->logger->addDebug(__METHOD__ . '|1| - Save Invoice');
-
-        if (!$order->canInvoice() || $order->hasInvoices()) {
-            $this->logger->addDebug(__METHOD__ . '|2| - Order can not be invoiced');
-
-            return false;
+        if (!$invoice->getTotalQty()) {
+            throw new LocalizedException(
+                __("The invoice can't be created without products. Add products and try again.")
+            );
         }
 
-        //Fix for suspected fraud when the order currency does not match with the payment's currency
-        $amount = ($this->payment->isSameCurrency()
-            && $this->payment->isCaptureFinal($this->order->getGrandTotal())) ?
-            $this->order->getGrandTotal() : $this->order->getBaseTotalDue();
-        $this->payment->registerCaptureNotification($amount);
-        $this->payment->save();
+        $this->registry->register('current_invoice', $invoice);
+        if (!empty($data['capture_case'])) {
+            $invoice->setRequestedCaptureCase($data['capture_case']);
+        }
 
-        $transactionKey = (string)$this->payment->getAdditionalInformation(
+        $invoice->register();
+
+        $invoice->getOrder()->setCustomerNoteNotify(!empty($data['send_email']));
+        $invoice->getOrder()->setIsInProcess(true);
+
+        $transactionSave = $this->transactionFactory->create()
+            ->addObject($invoice)
+            ->addObject($invoice->getOrder());
+
+        $transactionSave->save();
+
+        $payment = $invoice->getOrder()->getPayment();
+
+        $transactionKey = (string)$payment->getAdditionalInformation(
             AbstractMethod::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY
         );
 
@@ -101,67 +136,83 @@ class CreateInvoice
         }
 
         /** @var Invoice $invoice */
-        foreach ($this->order->getInvoiceCollection() as $invoice) {
+        foreach ($order->getInvoiceCollection() as $invoice) {
             $invoice->setTransactionId($transactionKey)->save();
 
-            if ($this->groupTransaction->isGroupTransaction($this->order->getIncrementId())) {
+            if ($this->groupTransaction->isGroupTransaction($order->getIncrementId())) {
                 $this->logger->addDebug(__METHOD__ . '|3| - Set invoice state PAID group transaction');
                 $invoice->setState(Invoice::STATE_PAID);
             }
 
-            if (!$invoice->getEmailSent() && $this->configAccount->getInvoiceEmail($this->order->getStore())) {
+            if (!$invoice->getEmailSent() && $this->configAccount->getInvoiceEmail($order->getStore())) {
                 $this->logger->addDebug(__METHOD__ . '|4| - Send Invoice Email');
                 $this->invoiceSender->send($invoice, true);
             }
         }
 
-        $this->order->setIsInProcess(true);
-        $this->order->save();
 
         return true;
+    }
+
+    /**
+     * Get Order Items that are not invoiced
+     *
+     * @param Order $order
+     * @return array
+     */
+    public function getInvoiceItems(Order $order): array
+    {
+        $invoiceItems = [];
+
+        foreach ($order->getAllItems() as $item) {
+            if ($item->getQtyToInvoice() > 0 && !$item->getLockedDoInvoice()) {
+                $invoiceItems[$item->getItemId()] = $item->getQtyToInvoice();
+            }
+        }
+
+        return $invoiceItems;
     }
 
     /**
      * @return Order\Payment
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function addTransactionData($transactionKey = false, $datas = false)
+    public function addTransactionData($payment, $transactionKey = false, $datas = false)
     {
-        $transactionKey = $transactionKey ?: $this->payment->getAdditionalInformation(
+        $transactionKey = $transactionKey ?: $payment->getAdditionalInformation(
             AbstractMethod::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY
         );
 
         if (strlen($transactionKey) <= 0) {
-            throw new \Buckaroo\Magento2\Exception(__('There was no transaction ID found'));
+            throw new Exception(__('There was no transaction ID found'));
         }
 
         /**
          * Save the transaction's response as additional info for the transaction.
          */
-        if(!$datas)
-        {
-            $rawDetails = $this->payment->getAdditionalInformation(Transaction::RAW_DETAILS);
+        if (!$datas) {
+            $rawDetails = $payment->getAdditionalInformation(Transaction::RAW_DETAILS);
             $rawInfo = $rawDetails[$transactionKey] ?? [];
         } else {
-            $rawInfo  = $this->helper->getTransactionAdditionalInfo($datas);
+            $rawInfo = $this->helper->getTransactionAdditionalInfo($datas);
         }
 
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
-        $this->payment->setTransactionAdditionalInfo(Transaction::RAW_DETAILS, $rawInfo);
+        $payment->setTransactionAdditionalInfo(Transaction::RAW_DETAILS, $rawInfo);
 
         /**
          * Save the payment's transaction key.
          */
-        $this->payment->setTransactionId($transactionKey . '-capture');
+        $payment->setTransactionId($transactionKey . '-capture');
 
-        $this->payment->setParentTransactionId($transactionKey);
-        $this->payment->setAdditionalInformation(
+        $payment->setParentTransactionId($transactionKey);
+        $payment->setAdditionalInformation(
             AbstractMethod::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY,
             $transactionKey
         );
 
-        return $this->payment;
+        return $payment;
     }
 }

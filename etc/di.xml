@@ -433,6 +433,12 @@
         </arguments>
     </type>
 
+    <type name="Buckaroo\Magento2\Observer\SetTransactionOnInvoiceObserver">
+        <arguments>
+            <argument name="stateCommand" xsi:type="object">Magento\Sales\Model\Order\Payment\State\RegisterCaptureNotificationCommand</argument>
+        </arguments>
+    </type>
+
     <type name="Magento\Framework\Webapi\Rest\Request\DeserializerFactory">
         <arguments>
             <argument name="deserializers" xsi:type="array">
