@@ -79,11 +79,11 @@ class ApplepayTest extends BaseTest
             ->method('getValue')
             ->withConsecutive(
                 [
-                    $this->getPaymentMethodConfigPath(Applepay::CODE, AbstractConfigProvider::XPATH_ACTIVE),
+                    $this->getPaymentMethodConfigPath(Applepay::CODE, AbstractConfigProvider::ACTIVE),
                     ScopeInterface::SCOPE_STORE
                 ],
                 [
-                    $this->getPaymentMethodConfigPath(Applepay::CODE, AbstractConfigProvider::XPATH_ALLOWED_CURRENCIES),
+                    $this->getPaymentMethodConfigPath(Applepay::CODE, AbstractConfigProvider::ALLOWED_CURRENCIES),
                     ScopeInterface::SCOPE_STORE, null
                 ]
             )

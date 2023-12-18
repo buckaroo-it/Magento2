@@ -27,6 +27,7 @@ use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Backend\Model\View\Result\Page;
 use Magento\Framework\App\Action\HttpGetActionInterface;
+use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\View\Result\PageFactory;
 
 class Edit extends Action implements HttpGetActionInterface
@@ -68,7 +69,7 @@ class Edit extends Action implements HttpGetActionInterface
     /**
      * Edit Giftcard
      *
-     * @return Page|void
+     * @return ResponseInterface|Page
      */
     public function execute()
     {
@@ -83,8 +84,7 @@ class Edit extends Action implements HttpGetActionInterface
             $model->load($giftcardId);
             if (!$model->getId()) {
                 $this->messageManager->addErrorMessage(__('This giftcard no longer exists.'));
-                $this->_redirect('*/*/');
-                return;
+                return $this->_redirect('*/*/');
             }
         }
 

@@ -28,6 +28,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Buckaroo\Magento2\Model\GroupTransaction;
+use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Config\Model\Config\ScopeDefiner;
 use Magento\Customer\Api\CustomerRepositoryInterface;
@@ -512,53 +513,80 @@ class Data extends AbstractHelper
      * @return bool
      * @throws BuckarooException
      * @throws LocalizedException
-     *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function checkCustomerGroup(string $paymentMethod, bool $forceB2C = false): bool
     {
-        if ($this->checkPaymentType->isBuckarooMethod($paymentMethod)) {
-            $paymentMethodCode = $this->getBuckarooMethod($paymentMethod);
-            $configProvider = $this->configProviderMethodFactory->get($paymentMethodCode);
-            $configCustomerGroup = $configProvider->getSpecificCustomerGroup();
-
-            if (!$forceB2C
-                && (
-                    ($paymentMethodCode == 'billink')
-                    || (
-                        (($paymentMethodCode == 'afterpay') || ($paymentMethodCode == 'afterpay2'))
-                        && ($configProvider->getBusiness() == Business::BUSINESS_B2B)
-                    )
-                    || (
-                        ($paymentMethodCode == 'payperemail') && ($configProvider->isEnabledB2B())
-                    )
-                )
-            ) {
-                $configCustomerGroup = $configProvider->getSpecificCustomerGroupB2B();
-            }
-
-            if ($configCustomerGroup === null) {
-                return true;
-            }
-
-            if ($configCustomerGroup == -1) {
-                return false;
-            }
-
-            if ($configCustomerGroup == Group::CUST_GROUP_ALL) {
-                return true;
-            }
-
-            $configCustomerGroupArr = explode(',', $configCustomerGroup);
-
-            if ($this->state->getAreaCode() == Area::AREA_ADMINHTML) {
-                return $this->checkCustomerGroupAdminArea($configCustomerGroupArr);
-            } else {
-                return $this->checkCustomerGroupFrontArea($configCustomerGroupArr);
-            }
+        if (!$this->checkPaymentType->isBuckarooMethod($paymentMethod)) {
+            return true;
         }
 
-        return true;
+        $paymentMethodCode = $this->getBuckarooMethod($paymentMethod);
+        $configProvider = $this->configProviderMethodFactory->get($paymentMethodCode);
+
+        $configCustomerGroup = $this->determineCustomerGroup($paymentMethodCode, $configProvider, $forceB2C);
+
+        if ($configCustomerGroup === null || $configCustomerGroup == Group::CUST_GROUP_ALL) {
+            return true;
+        }
+
+        if ($configCustomerGroup == -1) {
+            return false;
+        }
+
+        $configCustomerGroupArr = explode(',', $configCustomerGroup);
+
+        return $this->checkCustomerGroupArea($configCustomerGroupArr);
+    }
+
+    /**
+     * Determine the appropriate customer group configuration.
+     *
+     * @param string $paymentMethodCode
+     * @param ConfigProviderInterface $configProvider
+     * @param bool $forceB2C
+     * @return int|null
+     */
+    private function determineCustomerGroup(
+        string $paymentMethodCode,
+        ConfigProviderInterface $configProvider,
+        bool $forceB2C
+    ): ?int {
+        if (!$forceB2C && $this->isSpecialPaymentMethod($paymentMethodCode, $configProvider)) {
+            return $configProvider->getSpecificCustomerGroupB2B();
+        }
+
+        return $configProvider->getSpecificCustomerGroup();
+    }
+
+    /**
+     * Check if the payment method is one of the special cases.
+     *
+     * @param string $paymentMethodCode
+     * @param ConfigProviderInterface $configProvider
+     * @return bool
+     */
+    private function isSpecialPaymentMethod(string $paymentMethodCode, ConfigProviderInterface $configProvider): bool
+    {
+        return ($paymentMethodCode == 'billink')
+            || (($paymentMethodCode == 'afterpay' || $paymentMethodCode == 'afterpay2')
+                && $configProvider->getBusiness() == Business::BUSINESS_B2B)
+            || ($paymentMethodCode == 'payperemail' && $configProvider->isEnabledB2B());
+    }
+
+    /**
+     * Check if the customer group is allowed based on the area (admin or front).
+     *
+     * @param array $configCustomerGroupArr
+     * @return bool
+     * @throws LocalizedException
+     */
+    private function checkCustomerGroupArea(array $configCustomerGroupArr): bool
+    {
+        if ($this->state->getAreaCode() == Area::AREA_ADMINHTML) {
+            return $this->checkCustomerGroupAdminArea($configCustomerGroupArr);
+        } else {
+            return $this->checkCustomerGroupFrontArea($configCustomerGroupArr);
+        }
     }
 
     /**

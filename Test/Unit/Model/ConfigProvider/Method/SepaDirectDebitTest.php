@@ -62,7 +62,7 @@ class SepaDirectDebitTest extends BaseTest
         $scopeConfigMock->expects($this->atLeastOnce())
             ->method('getValue')
             ->withConsecutive(
-                [SepaDirectDebit::XPATH_ALLOWED_CURRENCIES, ScopeInterface::SCOPE_STORE, null]
+                [SepaDirectDebit::ALLOWED_CURRENCIES, ScopeInterface::SCOPE_STORE, null]
             )
             ->willReturnOnConsecutiveCalls('EUR');
 
@@ -127,7 +127,7 @@ class SepaDirectDebitTest extends BaseTest
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
             ->with(
-                $this->getPaymentMethodConfigPath(SepaDirectDebit::CODE, AbstractConfigProvider::XPATH_PAYMENT_FEE),
+                $this->getPaymentMethodConfigPath(SepaDirectDebit::CODE, AbstractConfigProvider::PAYMENT_FEE),
                 ScopeInterface::SCOPE_STORE
             )
             ->willReturn($value);

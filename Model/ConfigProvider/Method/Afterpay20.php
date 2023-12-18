@@ -21,18 +21,16 @@
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Buckaroo\Magento2\Model\Config\Source\AfterpayCustomerType;
-use Magento\Store\Model\ScopeInterface;
 
 class Afterpay20 extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_afterpay20';
 
-    public const XPATH_AFTERPAY20_CREATE_INVOICE_BY_SHIP =
-        'payment/buckaroo_magento2_afterpay20/create_invoice_after_shipment';
+    public const XPATH_AFTERPAY20_CREATE_INVOICE_BY_SHIP = 'create_invoice_after_shipment';
 
-    public const XPATH_AFTERPAY20_CUSTOMER_TYPE          = 'payment/buckaroo_magento2_afterpay20/customer_type';
-    public const XPATH_AFTERPAY20_MIN_AMOUNT_B2B         = 'payment/buckaroo_magento2_afterpay20/min_amount_b2b';
-    public const XPATH_AFTERPAY20_MAX_AMOUNT_B2B         = 'payment/buckaroo_magento2_afterpay20/max_amount_b2b';
+    public const XPATH_AFTERPAY20_CUSTOMER_TYPE  = 'customer_type';
+    public const XPATH_AFTERPAY20_MIN_AMOUNT_B2B = 'min_amount_b2b';
+    public const XPATH_AFTERPAY20_MAX_AMOUNT_B2B = 'max_amount_b2b';
 
     /**
      * @inheritdoc
@@ -65,23 +63,6 @@ class Afterpay20 extends AbstractConfigProvider
     }
 
     /**
-     * Create invoice after shipment
-     *
-     * @param null|int|string $storeId
-     * @return bool
-     */
-    public function isInvoiceCreatedAfterShipment($storeId = null): bool
-    {
-        $createInvoiceAfterShipment = (bool)$this->scopeConfig->getValue(
-            static::XPATH_AFTERPAY20_CREATE_INVOICE_BY_SHIP,
-            ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
-
-        return $createInvoiceAfterShipment ?: false;
-    }
-
-    /**
      * Get customer type
      *
      * @param null|int $storeId
@@ -89,10 +70,19 @@ class Afterpay20 extends AbstractConfigProvider
      */
     public function getCustomerType($storeId = null)
     {
-        return $this->scopeConfig->getValue(
-            self::XPATH_AFTERPAY20_CUSTOMER_TYPE,
-            ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
+        return $this->getMethodConfigValue(self::XPATH_AFTERPAY20_CUSTOMER_TYPE, $storeId);
+    }
+
+    /**
+     * Create invoice after shipment
+     *
+     * @param null|int|string $storeId
+     * @return bool
+     */
+    public function isInvoiceCreatedAfterShipment($storeId = null): bool
+    {
+        $createInvoiceAfterShipment = $this->getMethodConfigValue(self::XPATH_AFTERPAY20_CUSTOMER_TYPE, $storeId);
+
+        return $createInvoiceAfterShipment ?: false;
     }
 }

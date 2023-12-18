@@ -22,12 +22,12 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Buckaroo\Magento2\Gateway\Request\SaveIssuerDataBuilder;
-use Buckaroo\Magento2\Model\ConfigProvider\Account;
-use Magento\Framework\View\Asset\Repository;
 use Buckaroo\Magento2\Helper\PaymentFee;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
-use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\View\Asset\Repository;
 use Magento\Store\Model\ScopeInterface;
 
 class PayByBank extends AbstractConfigProvider
@@ -38,43 +38,43 @@ class PayByBank extends AbstractConfigProvider
 
     protected array $issuers = [
         [
-            'name' => 'ABN AMRO',
-            'code' => 'ABNANL2A',
+            'name'    => 'ABN AMRO',
+            'code'    => 'ABNANL2A',
             'imgName' => 'abnamro'
         ],
         [
-            'name' => 'ASN Bank',
-            'code' => 'ASNBNL21',
+            'name'    => 'ASN Bank',
+            'code'    => 'ASNBNL21',
             'imgName' => 'asnbank'
         ],
         [
-            'name' => 'ING',
-            'code' => 'INGBNL2A',
+            'name'    => 'ING',
+            'code'    => 'INGBNL2A',
             'imgName' => 'ing'
         ],
         [
-            'name' => 'Knab Bank',
-            'code' => 'KNABNL2H',
+            'name'    => 'Knab Bank',
+            'code'    => 'KNABNL2H',
             'imgName' => 'knab'
         ],
         [
-            'name' => 'Rabobank',
-            'code' => 'RABONL2U',
+            'name'    => 'Rabobank',
+            'code'    => 'RABONL2U',
             'imgName' => 'rabobank'
         ],
         [
-            'name' => 'RegioBank',
-            'code' => 'RBRBNL21',
+            'name'    => 'RegioBank',
+            'code'    => 'RBRBNL21',
             'imgName' => 'regiobank'
         ],
         [
-            'name' => 'SNS Bank',
-            'code' => 'SNSBNL2A',
+            'name'    => 'SNS Bank',
+            'code'    => 'SNSBNL2A',
             'imgName' => 'sns'
         ],
         [
-            'name' => 'N26',
-            'code' => 'NTSBDEB1',
+            'name'    => 'N26',
+            'code'    => 'NTSBDEB1',
             'imgName' => 'n26'
         ]
     ];
@@ -83,6 +83,12 @@ class PayByBank extends AbstractConfigProvider
      * @var CustomerSession
      */
     protected CustomerSession $customerSession;
+    /**
+     * @var array
+     */
+    protected $allowedCurrencies = [
+        'EUR'
+    ];
 
     /**
      * @param Repository $assetRepo
@@ -101,13 +107,6 @@ class PayByBank extends AbstractConfigProvider
         parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper);
         $this->customerSession = $customerSession;
     }
-
-    /**
-     * @var array
-     */
-    protected $allowedCurrencies = [
-        'EUR'
-    ];
 
     /**
      * @return array
@@ -137,26 +136,6 @@ class PayByBank extends AbstractConfigProvider
                 ],
             ],
         ];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getPaymentFee($store = null)
-    {
-        return 0;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getPaymentFeeLabel($store = null)
-    {
-        return  $this->scopeConfig->getValue(
-            Account::XPATH_ACCOUNT_PAYMENT_FEE_LABEL,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
     }
 
     /**
@@ -191,5 +170,25 @@ class PayByBank extends AbstractConfigProvider
         }
 
         return $issuers;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getPaymentFee($store = null)
+    {
+        return 0;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getPaymentFeeLabel($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            Account::XPATH_ACCOUNT_PAYMENT_FEE_LABEL,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
     }
 }

@@ -129,7 +129,7 @@ class LockedPushProcessor extends DefaultProcessor
      */
     protected function generateLockName(): string
     {
-        return self::LOCK_PREFIX . sha1($this->getOrderIncrementId());
+        return self::LOCK_PREFIX . hash('sha256', $this->getOrderIncrementId());
     }
 
     /**

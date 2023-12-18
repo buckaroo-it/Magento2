@@ -294,14 +294,24 @@ class BuckarooAdapter extends Adapter
 
         $paymentFee = trim((string)$configProvider->getPaymentFee());
 
-        if (!$paymentFee || (float)$paymentFee < 0.01) {
-            return $title;
-        }
+        return $this->addPaymentFee($title, $paymentFee);
+    }
 
-        if (strpos($paymentFee, '%') === false) {
-            $title .= ' + ' . $this->priceHelper->currency(number_format((float)$paymentFee, 2), true, false);
-        } else {
-            $title .= ' + ' . $paymentFee;
+    /**
+     * Add payment fee to the given title
+     *
+     * @param string $title
+     * @param string $paymentFee
+     * @return string
+     */
+    protected function addPaymentFee(string $title, string $paymentFee): string
+    {
+        if (!empty($paymentFee) && (float)$paymentFee >= 0.01) {
+            if (strpos($paymentFee, '%') === false) {
+                return $title . ' + ' . $this->priceHelper->currency(number_format((float)$paymentFee, 2), true, false);
+            } else {
+                return $title . ' + ' . $paymentFee;
+            }
         }
 
         return $title;

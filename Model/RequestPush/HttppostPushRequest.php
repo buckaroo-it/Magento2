@@ -180,14 +180,6 @@ class HttppostPushRequest extends AbstractPushRequest implements PushRequestInte
     /**
      * @inheritdoc
      */
-    public function getPayerHash(): ?string
-    {
-        return $this->request['brq_payer_hash'] ?? null;
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function getPayment(): ?string
     {
         return $this->request['brq_payment'] ?? null;
@@ -268,7 +260,7 @@ class HttppostPushRequest extends AbstractPushRequest implements PushRequestInte
     /**
      * @inheritdoc
      */
-    public function setAmount($amount)
+    public function setAmount($amount): void
     {
         $this->request['brq_amount'] = $amount;
     }

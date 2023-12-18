@@ -21,7 +21,7 @@
 namespace Buckaroo\Magento2\Controller\Pos;
 
 use Buckaroo\Magento2\Exception;
-use Buckaroo\Magento2\Helper\Data;
+use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Customer\Model\Session;
@@ -43,42 +43,37 @@ class CheckOrderStatus extends Action implements HttpPostActionInterface
     /**
      * @var Order $order
      */
-    protected $order;
+    protected Order $order;
 
     /**
      * @var JsonFactory
      */
-    protected $resultJsonFactory;
+    protected JsonFactory $resultJsonFactory;
 
     /**
      * @var ConfigProviderInterface
      */
-    protected $accountConfig;
+    protected ConfigProviderInterface $accountConfig;
 
     /**
      * @var StoreManagerInterface
      */
-    private $storeManager;
+    private StoreManagerInterface $storeManager;
 
     /**
      * @var UrlInterface
      */
-    private $urlBuilder;
+    private UrlInterface $urlBuilder;
 
     /**
      * @var FormKey
      */
-    private $formKey;
-
-    /**
-     * @var Data
-     */
-    private $helper;
+    private FormKey $formKey;
 
     /**
      * @var Session
      */
-    private $customerSession;
+    private Session $customerSession;
 
     /**
      * @param Context $context
@@ -88,7 +83,6 @@ class CheckOrderStatus extends Action implements HttpPostActionInterface
      * @param StoreManagerInterface $storeManager
      * @param UrlInterface $urlBuilder
      * @param FormKey $formKey
-     * @param Data $helper
      * @param Session $customerSession
      * @throws Exception
      *
@@ -102,7 +96,6 @@ class CheckOrderStatus extends Action implements HttpPostActionInterface
         StoreManagerInterface $storeManager,
         UrlInterface $urlBuilder,
         FormKey $formKey,
-        Data $helper,
         Session $customerSession
     ) {
         parent::__construct($context);
@@ -112,7 +105,6 @@ class CheckOrderStatus extends Action implements HttpPostActionInterface
         $this->storeManager = $storeManager;
         $this->urlBuilder = $urlBuilder;
         $this->formKey = $formKey;
-        $this->helper = $helper;
         $this->customerSession = $customerSession;
     }
 
@@ -143,7 +135,7 @@ class CheckOrderStatus extends Action implements HttpPostActionInterface
                     $extraData = [
                         'brq_invoicenumber' => $params['orderId'],
                         'brq_ordernumber'   => $params['orderId'],
-                        'brq_statuscode'    => $this->helper->getStatusCode('BUCKAROO_MAGENTO2_ORDER_FAILED'),
+                        'brq_statuscode'    => BuckarooStatusCode::ORDER_FAILED,
                     ];
 
                     $url = $url . '&' . http_build_query($extraData);

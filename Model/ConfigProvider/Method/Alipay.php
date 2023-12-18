@@ -35,10 +35,10 @@ class Alipay extends AbstractConfigProvider
             'payment' => [
                 'buckaroo' => [
                     'alipay' => [
-                        'paymentFeeLabel' => $paymentFeeLabel,
-                        'subtext'   => $this->getSubtext(),
-                        'subtext_style'   => $this->getSubtextStyle(),
-                        'subtext_color'   => $this->getSubtextColor(),
+                        'paymentFeeLabel'   => $paymentFeeLabel,
+                        'subtext'           => $this->getSubtext(),
+                        'subtext_style'     => $this->getSubtextStyle(),
+                        'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                     ],
                 ],
@@ -49,7 +49,7 @@ class Alipay extends AbstractConfigProvider
     /**
      * @return array
      */
-    public function getBaseAllowedCurrencies()
+    public function getBaseAllowedCurrencies(): array
     {
         return [
             'EUR',

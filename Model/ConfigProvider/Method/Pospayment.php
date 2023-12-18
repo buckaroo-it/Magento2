@@ -21,13 +21,11 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use Magento\Store\Model\ScopeInterface;
-
 class Pospayment extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_pospayment';
 
-    public const XPATH_POSPAYMENT_OTHER_PAYMENT_METHODS = 'payment/buckaroo_magento2_pospayment/other_payment_methods';
+    public const XPATH_POSPAYMENT_OTHER_PAYMENT_METHODS = 'other_payment_methods';
 
     /**
      * @var array
@@ -63,14 +61,13 @@ class Pospayment extends AbstractConfigProvider
     }
 
     /**
-     * @inheritdoc
+     * Get Other payment methods for POS
+     *
+     * @param $store
+     * @return mixed|null
      */
     public function getOtherPaymentMethods($store = null)
     {
-        return $this->scopeConfig->getValue(
-            static::XPATH_POSPAYMENT_OTHER_PAYMENT_METHODS,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->getMethodConfigValue(self::XPATH_POSPAYMENT_OTHER_PAYMENT_METHODS, $store);
     }
 }

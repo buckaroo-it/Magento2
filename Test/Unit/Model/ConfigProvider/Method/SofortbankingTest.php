@@ -62,7 +62,7 @@ class SofortbankingTest extends BaseTest
         $scopeConfigMock->expects($this->atLeastOnce())
             ->method('getValue')
             ->withConsecutive(
-                [Sofortbanking::XPATH_ALLOWED_CURRENCIES, ScopeInterface::SCOPE_STORE, null]
+                [Sofortbanking::ALLOWED_CURRENCIES, ScopeInterface::SCOPE_STORE, null]
             )
             ->willReturnOnConsecutiveCalls('EUR');
 
@@ -127,7 +127,7 @@ class SofortbankingTest extends BaseTest
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
             ->with(
-                $this->getPaymentMethodConfigPath(Sofortbanking::CODE, AbstractConfigProvider::XPATH_PAYMENT_FEE),
+                $this->getPaymentMethodConfigPath(Sofortbanking::CODE, AbstractConfigProvider::PAYMENT_FEE),
                 ScopeInterface::SCOPE_STORE
             )
             ->willReturn($value);

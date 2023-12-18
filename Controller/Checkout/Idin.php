@@ -82,7 +82,7 @@ class Idin extends Action implements HttpPostActionInterface
     {
         $data = $this->getRequest()->getParams();
 
-        if (!isset($data['issuer']) || empty($data['issuer'])) {
+        if (empty($data['issuer'])) {
             return $this->json(
                 ['error' => 'Issuer not valid']
             );

@@ -123,7 +123,7 @@ class ConvertToCsv extends \Magento\Ui\Model\Export\ConvertToCsv
     {
         $component = $this->filter->getComponent();
 
-        $name = sha1(microtime());
+        $name = uniqid();
         $file = 'export/' . $component->getName() . $name . '.csv';
 
         $this->filter->prepareComponent($component);

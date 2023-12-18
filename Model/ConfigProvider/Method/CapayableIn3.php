@@ -21,18 +21,16 @@
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Buckaroo\Magento2\Exception;
-use Magento\Store\Model\ScopeInterface;
 
 class CapayableIn3 extends AbstractConfigProvider
 {
-    public const DEFAULT_NAME = 'iDEAL In3';
-    public const V2_NAME = 'In3';
-    
     public const CODE = 'buckaroo_magento2_capayablein3';
 
-    const XPATH_CAPAYABLEIN3_API_VERSION = 'payment/buckaroo_magento2_capayablein3/api_version';
-    const XPATH_CAPAYABLEIN3_PAYMENT_LOGO = 'payment/buckaroo_magento2_capayablein3/payment_logo';
+    public const DEFAULT_NAME = 'iDEAL In3';
+    public const V2_NAME = 'In3';
 
+    const XPATH_CAPAYABLEIN3_API_VERSION  = 'api_version';
+    const XPATH_CAPAYABLEIN3_PAYMENT_LOGO = 'payment_logo';
 
     /**
      * @var array
@@ -78,22 +76,15 @@ class CapayableIn3 extends AbstractConfigProvider
         ];
     }
 
-    public function isV2($storeId = null): bool
-    {
-        return $this->scopeConfig->getValue(
-            self::XPATH_CAPAYABLEIN3_API_VERSION,
-            ScopeInterface::SCOPE_STORE,
-            $storeId
-        ) === 'V2';
-    }
-
+    /**
+     * Get Logo based on API version
+     *
+     * @param $storeId
+     * @return string
+     */
     public function getLogo($storeId = null): string
     {
-        $logo = $this->scopeConfig->getValue(
-            self::XPATH_CAPAYABLEIN3_PAYMENT_LOGO,
-            ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
+        $logo = $this->getMethodConfigValue(self::XPATH_CAPAYABLEIN3_PAYMENT_LOGO, $storeId);
 
         if ($this->isV2($storeId)) {
             return 'in3.svg';
@@ -104,5 +95,16 @@ class CapayableIn3 extends AbstractConfigProvider
         }
 
         return $logo;
+    }
+
+    /**
+     * Check if API Version is V2
+     *
+     * @param $storeId
+     * @return bool
+     */
+    public function isV2($storeId = null): bool
+    {
+        return $this->getMethodConfigValue(self::XPATH_CAPAYABLEIN3_API_VERSION, $storeId) === 'V2';
     }
 }

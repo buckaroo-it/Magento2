@@ -17,6 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Block\Config\Form\Field;
 
 use \Magento\Config\Block\System\Config\Form\Field;
@@ -27,12 +28,14 @@ use Magento\Framework\View\Helper\SecureHtmlRenderer;
 
 class LogoSelector extends Field
 {
-    protected $_template = 'Buckaroo_Magento2::in3_logo.phtml';
-
+    /**
+     * @var Repository
+     */
     protected Repository $assetRepo;
 
     /**
      * @param Context $context
+     * @param Repository $assetRepo
      * @param array $data
      * @param SecureHtmlRenderer|null $secureRenderer
      */
@@ -44,6 +47,15 @@ class LogoSelector extends Field
     ) {
         $this->assetRepo = $assetRepo;
         parent::__construct($context, $data, $secureRenderer);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function _construct()
+    {
+        parent::_construct();
+        $this->setTemplate('Buckaroo_Magento2::in3_logo.phtml');
     }
 
     /**

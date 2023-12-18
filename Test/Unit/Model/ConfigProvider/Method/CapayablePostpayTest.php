@@ -38,7 +38,7 @@ class CapayablePostpayTest extends BaseTest
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
             ->with(
-                $this->getPaymentMethodConfigPath(CapayablePostpay::CODE, AbstractConfigProvider::XPATH_ACTIVE)
+                $this->getPaymentMethodConfigPath(CapayablePostpay::CODE, AbstractConfigProvider::ACTIVE)
             )
             ->willReturn(0);
 
@@ -59,14 +59,14 @@ class CapayablePostpayTest extends BaseTest
                 [
                     $this->getPaymentMethodConfigPath(
                         CapayablePostpay::CODE,
-                        AbstractConfigProvider::XPATH_ACTIVE
+                        AbstractConfigProvider::ACTIVE
                     ),
                     ScopeInterface::SCOPE_STORE
                 ],
                 [
                     $this->getPaymentMethodConfigPath(
                         CapayablePostpay::CODE,
-                        AbstractConfigProvider::XPATH_ALLOWED_CURRENCIES
+                        AbstractConfigProvider::ALLOWED_CURRENCIES
                     ),
                     ScopeInterface::SCOPE_STORE,
                     null
@@ -120,7 +120,7 @@ class CapayablePostpayTest extends BaseTest
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
             ->with(
-                $this->getPaymentMethodConfigPath(CapayablePostpay::CODE, AbstractConfigProvider::XPATH_PAYMENT_FEE),
+                $this->getPaymentMethodConfigPath(CapayablePostpay::CODE, AbstractConfigProvider::PAYMENT_FEE),
                 ScopeInterface::SCOPE_STORE
             )
             ->willReturn($fee);

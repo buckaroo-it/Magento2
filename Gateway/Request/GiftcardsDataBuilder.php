@@ -23,23 +23,21 @@ namespace Buckaroo\Magento2\Gateway\Request;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards as GiftcardsConfig;
-use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Payment\Gateway\Request\BuilderInterface;
-use Magento\Store\Model\ScopeInterface;
 
 class GiftcardsDataBuilder implements BuilderInterface
 {
     /**
-     * @var ScopeConfigInterface
+     * @var GiftcardsConfig
      */
-    protected ScopeConfigInterface $scopeConfig;
+    protected GiftcardsConfig $giftcardsConfig;
 
     /**
-     * @param ScopeConfigInterface $scopeConfig
+     * @param GiftcardsConfig $giftcardsConfig
      */
-    public function __construct(ScopeConfigInterface $scopeConfig)
+    public function __construct(GiftcardsConfig $giftcardsConfig)
     {
-        $this->scopeConfig = $scopeConfig;
+        $this->giftcardsConfig = $giftcardsConfig;
     }
 
     /**
@@ -50,15 +48,11 @@ class GiftcardsDataBuilder implements BuilderInterface
         $paymentDO = SubjectReader::readPayment($buildSubject);
         $order = $paymentDO->getOrder()->getOrder();
 
-        $availableCards = $this->scopeConfig->getValue(
-            GiftcardsConfig::XPATH_GIFTCARDS_ALLOWED_GIFTCARDS,
-            ScopeInterface::SCOPE_STORE,
-            $order->getStore()
-        );
+        $availableCards = $this->giftcardsConfig->getAllowedGiftcards($order->getStore());
 
         $availableCards = $paymentDO->getPayment()->getAdditionalInformation('giftcard_method')
             ? $paymentDO->getPayment()->getAdditionalInformation('giftcard_method')
-            : $availableCards.',ideal';
+            : $availableCards . ',ideal';
 
         return [
             'servicesSelectableByClient' => $availableCards,

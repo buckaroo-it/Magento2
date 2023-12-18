@@ -20,6 +20,7 @@
 
 namespace Buckaroo\Magento2\Block\Checkout;
 
+use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Helper\PaymentFee;
 use Magento\Checkout\Block\Total\DefaultTotal;
 use Magento\Checkout\Model\Session as CheckoutSession;
@@ -30,18 +31,11 @@ use Magento\Sales\Model\Config;
 class Totals extends DefaultTotal
 {
     /**
-     * Template file path.
-     *
-     * @var string
-     */
-    protected $_template = 'checkout/totals.phtml';
-
-    /**
      * Buckaroo fee helper.
      *
      * @var PaymentFee
      */
-    protected $helper;
+    protected PaymentFee $helper;
 
     /**
      * @param Context $context
@@ -67,9 +61,19 @@ class Totals extends DefaultTotal
     }
 
     /**
+     * @inheritdoc
+     */
+    protected function _construct()
+    {
+        parent::_construct();
+        $this->setTemplate('Buckaroo_Magento2::checkout/totals.phtml');
+    }
+
+    /**
      * Return information for showing.
      *
      * @return array
+     * @throws Exception
      */
     public function getValues()
     {

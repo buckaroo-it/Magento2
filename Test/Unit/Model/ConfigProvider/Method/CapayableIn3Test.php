@@ -37,7 +37,7 @@ class CapayableIn3Test extends BaseTest
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
             ->with(
-                $this->getPaymentMethodConfigPath(CapayableIn3::CODE, AbstractConfigProvider::XPATH_ACTIVE)
+                $this->getPaymentMethodConfigPath(CapayableIn3::CODE, AbstractConfigProvider::ACTIVE)
             )
             ->willReturn(0);
 
@@ -56,13 +56,13 @@ class CapayableIn3Test extends BaseTest
             ->method('getValue')
             ->withConsecutive(
                 [
-                    $this->getPaymentMethodConfigPath(CapayableIn3::CODE, AbstractConfigProvider::XPATH_ACTIVE),
+                    $this->getPaymentMethodConfigPath(CapayableIn3::CODE, AbstractConfigProvider::ACTIVE),
                     ScopeInterface::SCOPE_STORE
                 ],
                 [
                     $this->getPaymentMethodConfigPath(
                         CapayableIn3::CODE,
-                        AbstractConfigProvider::XPATH_ALLOWED_CURRENCIES
+                        AbstractConfigProvider::ALLOWED_CURRENCIES
                     ),
                     ScopeInterface::SCOPE_STORE,
                     null
@@ -116,7 +116,7 @@ class CapayableIn3Test extends BaseTest
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
             ->with(
-                $this->getPaymentMethodConfigPath(CapayableIn3::CODE, AbstractConfigProvider::XPATH_PAYMENT_FEE),
+                $this->getPaymentMethodConfigPath(CapayableIn3::CODE, AbstractConfigProvider::PAYMENT_FEE),
                 ScopeInterface::SCOPE_STORE
             )->willReturn($fee);
 

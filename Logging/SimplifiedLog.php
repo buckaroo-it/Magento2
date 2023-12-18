@@ -39,6 +39,11 @@ class SimplifiedLog extends Logger implements BuckarooLoggerInterface
     protected array $message = [];
 
     /**
+     * @var string
+     */
+    protected string $action = '';
+
+    /**
      * Log constructor.
      *
      * @param DebugConfiguration $debugConfiguration
@@ -69,6 +74,8 @@ class SimplifiedLog extends Logger implements BuckarooLoggerInterface
         if (!$this->debugConfiguration->canLog($level)) {
             return false;
         }
+
+        $message = $this->action . $message;
 
         return parent::addRecord($level, $message, $context);
     }
@@ -112,5 +119,14 @@ class SimplifiedLog extends Logger implements BuckarooLoggerInterface
     public function debug($message, array $context = []): void
     {
         $this->addRecord(Logger::DEBUG, (string) $message, $context);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setAction(string $action): BuckarooLoggerInterface
+    {
+        $this->action = $action;
+        return $this;
     }
 }

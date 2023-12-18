@@ -60,58 +60,72 @@ class DefaultProcessor implements PushProcessorInterface
 {
     public const BUCKAROO_RECEIVED_TRANSACTIONS          = 'buckaroo_received_transactions';
     public const BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES = 'buckaroo_received_transactions_statuses';
+
     /**
      * @var Account
      */
     public Account $configAccount;
+
     /**
      * @var PushRequestInterface
      */
     protected PushRequestInterface $pushRequest;
+
     /**
      * @var PushTransactionType
      */
     protected PushTransactionType $pushTransactionType;
+
     /**
      * @var OrderRequestService
      */
     protected OrderRequestService $orderRequestService;
+
     /**
      * @var Order|OrderPayment $order
      */
     protected $order;
+
     /**
      * @var OrderPayment|null
      */
     protected ?OrderPayment $payment;
+
     /**
      * @var BuckarooLoggerInterface $logger
      */
     protected BuckarooLoggerInterface $logger;
+
     /**
      * @var Data
      */
     protected Data $helper;
+
     /**
      * @var Transaction
      */
     protected Transaction $transaction;
+
     /**
      * @var PaymentGroupTransaction
      */
     protected PaymentGroupTransaction $groupTransaction;
+
     /**
      * @var bool
      */
     protected bool $forceInvoice = false;
+
     /**
      * @var bool
      */
     protected bool $dontSaveOrderUponSuccessPush = false;
+
     /**
      * @var BuckarooStatusCode
      */
     protected BuckarooStatusCode $buckarooStatusCode;
+
     /**
      * @var OrderStatusFactory
      */
@@ -142,6 +156,7 @@ class DefaultProcessor implements PushProcessorInterface
         $this->pushTransactionType = $pushTransactionType;
         $this->orderRequestService = $orderRequestService;
         $this->logger = $logger;
+        $this->logger->setAction('[PUSH] | [Webapi] | ');
         $this->helper = $helper;
         $this->transaction = $transaction;
         $this->groupTransaction = $groupTransaction;
@@ -171,9 +186,7 @@ class DefaultProcessor implements PushProcessorInterface
 
         // Check if the order can be updated
         if (!$this->canUpdateOrderStatus()) {
-            $this->logger->addDebug(
-                '[PUSH] | [Webapi] | ['. __METHOD__ .':'. __LINE__ . '] - Order can not receive updates'
-            );
+            $this->logger->addDebug('['. __METHOD__ .':'. __LINE__ . '] - Order can not receive updates');
 
             $this->orderRequestService->setOrderNotificationNote(__('The order has already been processed.'));
             throw new BuckarooException(
@@ -290,9 +303,7 @@ class DefaultProcessor implements PushProcessorInterface
     protected function skipFirstPush(): bool
     {
         $skipFirstPush = $this->payment->getAdditionalInformation('skip_push');
-        $this->logger->addDebug(
-            '[PUSH] | [Webapi] | [' . __METHOD__ . ':' . __LINE__ . '] - Skip First Push: ' . $skipFirstPush,
-        );
+        $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Skip First Push: ' . $skipFirstPush);
 
         if ($skipFirstPush > 0) {
             $this->payment->setAdditionalInformation('skip_push', (int)$skipFirstPush - 1);
@@ -346,8 +357,7 @@ class DefaultProcessor implements PushProcessorInterface
                 self::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES
             );
 
-            $this->logger->addDebug(sprintf(
-                '[PUSH] | [Webapi] | [%s:%s] - Check for duplicate transaction pushes | order: %s',
+            $this->logger->addDebug(sprintf('[%s:%s] - Check for duplicate transaction pushes | order: %s',
                 __METHOD__,
                 __LINE__,
                 var_export([
@@ -366,16 +376,13 @@ class DefaultProcessor implements PushProcessorInterface
                     && ($this->order->getStatus() == $orderStatus)
                     && ($receivedStatusCode == BuckarooStatusCode::SUCCESS)
                 ) {
-                    $this->logger->addDebug(
-                        '[PUSH] | [Webapi] | [' . __METHOD__ . ':' . __LINE__ . '] - allow duplicated pushes '
+                    $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - allow duplicated pushes '
                         . 'for 190 statuses in case if order stills to be new/pending',
                     );
                     return false;
                 }
 
-                $this->logger->addDebug(
-                    '[PUSH] | [Webapi] | [' . __METHOD__ . ':' . __LINE__ . '] - Skip Push the request is duplicate '
-                );
+                $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Skip Push the request is duplicate');
                 return true;
             }
             if ($save) {
@@ -432,7 +439,7 @@ class DefaultProcessor implements PushProcessorInterface
          */
         $currentStateAndStatus = [$this->order->getState(), $this->order->getStatus()];
         $this->logger->addDebug(sprintf(
-            '[PUSH] | [Webapi] | [%s:%s] - Checks if the order can be updated | currentStateAndStatus: %s',
+            '[%s:%s] - Checks if the order can be updated | currentStateAndStatus: %s',
             __METHOD__,
             __LINE__,
             var_export($currentStateAndStatus, true)
@@ -455,7 +462,7 @@ class DefaultProcessor implements PushProcessorInterface
             && $this->pushRequest->getRelatedtransactionPartialpayment() == null
         ) {
             $this->logger->addDebug(sprintf(
-                '[PUSH] | [Webapi] | [%s:%s] - Resetting from CANCELED to STATE_NEW/PENDING',
+                '[%s:%s] - Resetting from CANCELED to STATE_NEW/PENDING',
                 __METHOD__,
                 __LINE__
             ));
@@ -693,7 +700,7 @@ class DefaultProcessor implements PushProcessorInterface
     public function processSucceededPush(string $newStatus, string $message): bool
     {
         $this->logger->addDebug(sprintf(
-            '[PUSH] | [Webapi] | [%s:%s] - Process the successful push response from Buckaroo | newStatus: %s',
+            '[%s:%s] - Process the successful push response from Buckaroo | newStatus: %s',
             __METHOD__,
             __LINE__,
             var_export($newStatus, true)
@@ -752,24 +759,23 @@ class DefaultProcessor implements PushProcessorInterface
             Klarnakp::CODE
         ];
 
-        if (in_array($this->payment->getMethod(), $authPpaymentMethods)) {
-            if ((($this->payment->getMethod() == Klarnakp::CODE)
+        if (in_array($this->payment->getMethod(), $authPpaymentMethods)
+            && (($this->payment->getMethod() == Klarnakp::CODE
                     || (
                         !empty($this->pushRequest->getTransactionType())
                         && in_array($this->pushRequest->getTransactionType(), ['I038', 'I880'])
                     )
-                ) && !empty($this->pushRequest->getStatusCode())
-                && ($this->pushRequest->getStatusCode() == 190)
-            ) {
-                $this->logger->addDebug(sprintf(
-                    '[PUSH] | [Webapi] | [%s:%s] - Process succeeded push authorization | paymentMethod: %s',
-                    __METHOD__,
-                    __LINE__,
-                    var_export($this->payment->getMethod(), true)
-                ));
-                $this->order->setState(Order::STATE_PROCESSING);
-                $this->order->save();
-            }
+                ) && ($this->pushRequest->getStatusCode() == 190))
+        ) {
+            $this->logger->addDebug(sprintf(
+                '[%s:%s] - Process succeeded push authorization | paymentMethod: %s',
+                __METHOD__,
+                __LINE__,
+                var_export($this->payment->getMethod(), true)
+            ));
+
+            $this->order->setState(Order::STATE_PROCESSING);
+            $this->order->save();
         }
     }
 
@@ -777,11 +783,6 @@ class DefaultProcessor implements PushProcessorInterface
     {
         return false;
     }
-
-
-    /**
-     * @todo GIFTCARD PARTIAL PAYMENT TO BE MOVED in a separate class
-     */
 
     /**
      * Send Order email if was not sent
@@ -800,7 +801,7 @@ class DefaultProcessor implements PushProcessorInterface
             )
         ) {
             $this->logger->addDebug(sprintf(
-                '[PUSH] | [Webapi] | [%s:%s] - Send Order Email | orderConfirmationEmail: %s',
+                '[%s:%s] - Send Order Email | orderConfirmationEmail: %s',
                 __METHOD__,
                 __LINE__,
                 var_export($this->configAccount->getOrderConfirmationEmail($store), true)
@@ -844,13 +845,11 @@ class DefaultProcessor implements PushProcessorInterface
      */
     protected function saveInvoice(): bool
     {
-        $this->logger->addDebug('[PUSH] | [Webapi] | ['. __METHOD__ .':'. __LINE__ . '] - Save Invoice');
+        $this->logger->addDebug('['. __METHOD__ .':'. __LINE__ . '] - Save Invoice');
 
         if (!$this->forceInvoice
             && (!$this->order->canInvoice() || $this->order->hasInvoices())) {
-            $this->logger->addDebug(
-                '[PUSH] | [Webapi] | ['. __METHOD__ .':'. __LINE__ . '] - Order can not be invoiced'
-            );
+            $this->logger->addDebug('['. __METHOD__ .':'. __LINE__ . '] - Order can not be invoiced');
 
             return false;
         }
@@ -882,15 +881,13 @@ class DefaultProcessor implements PushProcessorInterface
             if (!empty($this->pushRequest->getInvoiceNumber())
                 && $this->groupTransaction->isGroupTransaction($this->pushRequest->getInvoiceNumber())) {
                 $this->logger->addDebug(
-                    '[PUSH] | [Webapi] | ['. __METHOD__ .':'. __LINE__ . '] - Set invoice state PAID group transaction'
+                    '['. __METHOD__ .':'. __LINE__ . '] - Set invoice state PAID group transaction'
                 );
                 $invoice->setState(Invoice::STATE_PAID);
             }
 
             if (!$invoice->getEmailSent() && $this->configAccount->getInvoiceEmail($this->order->getStore())) {
-                $this->logger->addDebug(
-                    '[PUSH] | [Webapi] | ['. __METHOD__ .':'. __LINE__ . '] - Send Invoice Email '
-                );
+                $this->logger->addDebug('['. __METHOD__ .':'. __LINE__ . '] - Send Invoice Email ');
                 $this->orderRequestService->sendInvoiceEmail($invoice, true);
             }
         }
@@ -964,7 +961,7 @@ class DefaultProcessor implements PushProcessorInterface
     public function processFailedPush(string $newStatus, string $message): bool
     {
         $this->logger->addDebug(sprintf(
-            '[PUSH] | [Webapi] | [%s:%s] - Process the failed push response from Buckaroo | newStatus: %s',
+            '[%s:%s] - Process the failed push response from Buckaroo | newStatus: %s',
             __METHOD__,
             __LINE__,
             var_export($newStatus, true)
@@ -973,9 +970,7 @@ class DefaultProcessor implements PushProcessorInterface
         if (($this->order->getState() === Order::STATE_PROCESSING)
             && ($this->order->getStatus() === Order::STATE_PROCESSING)
         ) {
-            $this->logger->addDebug(
-                '[PUSH] | [Webapi] | ['. __METHOD__ .':'. __LINE__ . '] - Do not update to failed if we had a success'
-            );
+            $this->logger->addDebug('['. __METHOD__ .':'. __LINE__ . '] - Do not update to failed if we had a success');
             return false;
         }
 
@@ -995,7 +990,7 @@ class DefaultProcessor implements PushProcessorInterface
 
         if ($buckarooCancelOnFailed && $this->order->canCancel()) {
             $this->logger->addDebug(sprintf(
-                '[PUSH] | [Webapi] | [%s:%s] - Process the failed push response from Buckaroo. Cancel Order: %s',
+                '[%s:%s] - Process the failed push response from Buckaroo. Cancel Order: %s',
                 __METHOD__,
                 __LINE__,
                 $message
@@ -1021,7 +1016,7 @@ class DefaultProcessor implements PushProcessorInterface
                 $this->order->cancel()->save();
             } catch (\Throwable $th) {
                 $this->logger->addError(sprintf(
-                    '[PUSH] | [Webapi] | [%s:%s] - Process failed push from Buckaroo. Cancel Order| [ERROR]: %s',
+                    '[%s:%s] - Process failed push from Buckaroo. Cancel Order| [ERROR]: %s',
                     __METHOD__,
                     __LINE__,
                     $th->getMessage()
@@ -1055,9 +1050,7 @@ class DefaultProcessor implements PushProcessorInterface
             return true;
         }
 
-        $this->logger->addDebug(
-            '[PUSH] | [Webapi] | [' . __METHOD__ . ':' . __LINE__ . '] - Process Pending Push'
-        );
+        $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Process Pending Push');
 
         $store = $this->order->getStore();
         $paymentMethod = $this->payment->getMethodInstance();
@@ -1068,9 +1061,7 @@ class DefaultProcessor implements PushProcessorInterface
                 || $paymentMethod->getConfigData('order_email', $store)
             )
         ) {
-            $this->logger->addDebug(
-                '[PUSH] | [Webapi] | [' . __METHOD__ . ':' . __LINE__ . '] - Process Pending Push - SEND EMAIL'
-            );
+            $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Process Pending Push - SEND EMAIL');
             $this->orderRequestService->sendOrderEmail($this->order);
         }
 

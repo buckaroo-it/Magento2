@@ -68,11 +68,11 @@ class CreditcardsTest extends BaseTest
                 [Creditcards::XPATH_CREDITCARDS_ALLOWED_ISSUERS, ScopeInterface::SCOPE_STORE],
                 [Creditcards::XPATH_USE_CARD_DESIGN, ScopeInterface::SCOPE_STORE, null],
                 [
-                    $this->getPaymentMethodConfigPath(Creditcards::CODE, AbstractConfigProvider::XPATH_ALLOWED_CURRENCIES),
+                    $this->getPaymentMethodConfigPath(Creditcards::CODE, AbstractConfigProvider::ALLOWED_CURRENCIES),
                     ScopeInterface::SCOPE_STORE,
                     null
                 ],
-                [AbstractConfigProvider::XPATH_ALLOWED_CURRENCIES, ScopeInterface::SCOPE_STORE, null]
+                [AbstractConfigProvider::ALLOWED_CURRENCIES, ScopeInterface::SCOPE_STORE, null]
             )
             ->willReturnOnConsecutiveCalls('', '1', 'EUR');
 
@@ -145,7 +145,7 @@ class CreditcardsTest extends BaseTest
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
             ->with(
-                $this->getPaymentMethodConfigPath(Creditcards::CODE, AbstractConfigProvider::XPATH_PAYMENT_FEE),
+                $this->getPaymentMethodConfigPath(Creditcards::CODE, AbstractConfigProvider::PAYMENT_FEE),
                 ScopeInterface::SCOPE_STORE
             )
             ->willReturn($value);

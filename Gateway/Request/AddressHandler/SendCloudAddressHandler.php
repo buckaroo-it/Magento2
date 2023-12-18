@@ -59,26 +59,36 @@ class SendCloudAddressHandler extends AbstractAddressHandler
     protected function updateShippingAddressBySendcloud(Order $order, array &$requestData)
     {
         if ($order->getSendcloudServicePointId() > 0) {
+            $mapping = $this->getAddressMapping($order);
             foreach ($requestData as $key => $value) {
                 if ($requestData[$key]['Group'] == 'ShippingCustomer') {
-                    $mapping = [
-                        ['Street', $order->getSendcloudServicePointStreet()],
-                        ['PostalCode', $order->getSendcloudServicePointZipCode()],
-                        ['City', $order->getSendcloudServicePointCity()],
-                        ['Country', $order->getSendcloudServicePointCountry()],
-                        ['StreetNumber', $order->getSendcloudServicePointHouseNumber()],
-                    ];
-                    foreach ($mapping as $mappingItem) {
-                        if (($requestData[$key]['Name'] == $mappingItem[0]) && !empty($mappingItem[1])) {
-                            $requestData[$key]['_'] = $mappingItem[1];
-                        }
-                    }
-
-                    if ($requestData[$key]['Name'] == 'StreetNumberAdditional') {
-                        unset($requestData[$key]);
-                    }
+                    $this->updateAddressData($requestData[$key], $mapping);
                 }
             }
+        }
+    }
+
+    private function getAddressMapping(Order $order): array
+    {
+        return [
+            ['Street', $order->getSendcloudServicePointStreet()],
+            ['PostalCode', $order->getSendcloudServicePointZipCode()],
+            ['City', $order->getSendcloudServicePointCity()],
+            ['Country', $order->getSendcloudServicePointCountry()],
+            ['StreetNumber', $order->getSendcloudServicePointHouseNumber()],
+        ];
+    }
+
+    private function updateAddressData(array &$addressData, array $mapping): void
+    {
+        foreach ($mapping as $mappingItem) {
+            if (($addressData['Name'] == $mappingItem[0]) && !empty($mappingItem[1])) {
+                $addressData['_'] = $mappingItem[1];
+            }
+        }
+
+        if ($addressData['Name'] == 'StreetNumberAdditional') {
+            unset($addressData);
         }
     }
 }
