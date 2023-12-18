@@ -86,7 +86,6 @@ class BuilderComposite implements BuilderInterface
         if ($this->isCreditManagementActive($buildSubject)
             || $this->hasCreditManagementTransaction($buildSubject)) {
             foreach ($this->builders as $builder) {
-                // @TODO implement exceptions catching
                 $result = $this->merge($result, [$this->type => $builder->build($buildSubject)]);
             }
         }

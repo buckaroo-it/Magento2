@@ -64,7 +64,7 @@ class AddressHandlerPool
                 $order = $addressHandler->handle($order, $shippingAddress);
             }
         } catch (\Throwable $th) {
-            throw new \Exception($th->getMessage(), 0, $th);
+            throw new \Buckaroo\Magento2\Exception($th->getMessage(), 0, $th);
         }
 
         return $shippingAddress;

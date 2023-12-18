@@ -52,24 +52,4 @@ class AfterpayHandler extends AbstractArticlesHandler
             'price' => $articleUnitPrice
         ];
     }
-
-    /**
-     * @inheritdoc
-     */
-    public function getArticleArrayLine(
-        ?string $articleDescription,
-        $articleId,
-        $articleQuantity,
-        $articleUnitPrice,
-        $articleVat = ''
-    ): array {
-        return [
-            'refundType' => 'Return',
-            'identifier' => $articleId,
-            'description' => $articleDescription,
-            'vatPercentage' => $articleVat,
-            'quantity' => $articleQuantity,
-            'price' => $articleUnitPrice
-        ];
-    }
 }

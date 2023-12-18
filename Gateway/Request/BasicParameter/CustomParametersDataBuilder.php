@@ -273,7 +273,7 @@ class CustomParametersDataBuilder implements BuilderInterface
                 $format['housenumber'] = trim($matches[2]);
                 $format['street'] = trim($matches[3]);
             } else {
-                if (preg_match('#^(.*?)([0-9]+)(.*)#s', $street, $matches)) {
+                if (preg_match('#^(.*?)(\d+)(.*)#s', $street, $matches)) {
                     $format['street'] = trim($matches[1]);
                     $format['housenumber'] = trim($matches[2]);
                     $format['houseadditionalnumber'] = trim($matches[3]);

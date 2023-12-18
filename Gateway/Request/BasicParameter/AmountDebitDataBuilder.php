@@ -2,6 +2,7 @@
 
 namespace Buckaroo\Magento2\Gateway\Request\BasicParameter;
 
+use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Service\DataBuilderService;
 use Magento\Payment\Gateway\Request\BuilderInterface;
@@ -49,7 +50,7 @@ class AmountDebitDataBuilder implements BuilderInterface
                 self::AMOUNT_DEBIT => $this->getAmount($order)
             ];
         } else {
-            throw new \Exception(__('Total of the order can not be empty.'));
+            throw new BuckarooException(__('Total of the order can not be empty.'));
         }
     }
 

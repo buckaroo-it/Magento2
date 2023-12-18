@@ -124,14 +124,13 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
     /**
      * Redirect Process Payconiq
      *
-     * @return ResponseInterface|void
+     * @return ResponseInterface
      * @throws Exception
      */
     public function execute()
     {
         if (!$this->getTransactionKey()) {
-            $this->_forward('defaultNoRoute');
-            return;
+            return $this->_redirect('defaultNoRoute');
         }
 
         $transaction = $this->getTransaction();

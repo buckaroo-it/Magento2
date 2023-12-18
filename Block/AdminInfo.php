@@ -33,11 +33,6 @@ use Magento\Payment\Gateway\ConfigInterface;
 class AdminInfo extends ConfigurableInfo
 {
     /**
-     * @var string
-     */
-    protected $_template = 'Buckaroo_Magento2::info/payment_method.phtml';
-
-    /**
      * @var PaymentGroupTransaction
      */
     protected $groupTransaction;
@@ -72,6 +67,15 @@ class AdminInfo extends ConfigurableInfo
         $this->groupTransaction = $groupTransaction;
         $this->giftcardCollection = $giftcardCollection;
         $this->logoService = $logoService;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function _construct()
+    {
+        parent::_construct();
+        $this->setTemplate('Buckaroo_Magento2::info/payment_method.phtml');
     }
 
     /**
