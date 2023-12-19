@@ -25,6 +25,7 @@ use Buckaroo\Magento2\Model\Config\Source\InvoiceHandlingOptions;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderFactory;
 use Buckaroo\Magento2\Model\Service\CreateInvoice;
+use Magento\Framework\App\RequestInterface;
 use Magento\Framework\DB\TransactionFactory;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
@@ -80,6 +81,11 @@ class SalesOrderShipmentAfter implements ObserverInterface
     private CreateInvoice $createInvoiceService;
 
     /**
+     * @var RequestInterface
+     */
+    private RequestInterface $request;
+
+    /**
      * @param InvoiceService $invoiceService
      * @param TransactionFactory $transactionFactory
      * @param ConfigProviderFactory $configProviderFactory
@@ -91,13 +97,15 @@ class SalesOrderShipmentAfter implements ObserverInterface
         TransactionFactory $transactionFactory,
         ConfigProviderFactory $configProviderFactory,
         BuckarooLoggerInterface $logger,
-        CreateInvoice $createInvoiceService
+        CreateInvoice $createInvoiceService,
+        RequestInterface $request
     ) {
         $this->invoiceService = $invoiceService;
         $this->transactionFactory = $transactionFactory;
         $this->configProviderFactory = $configProviderFactory;
         $this->logger = $logger;
         $this->createInvoiceService = $createInvoiceService;
+        $this->request = $request;
     }
 
     /**
@@ -111,6 +119,9 @@ class SalesOrderShipmentAfter implements ObserverInterface
     public function execute(Observer $observer)
     {
         $this->shipment = $observer->getEvent()->getShipment();
+
+        $invoiceData = $this->request->getParam('shipment', []);
+        $invoiceItems = isset($invoiceData['items']) ? $invoiceData['items'] : [];
 
         $this->order = $this->shipment->getOrder();
         $payment = $this->order->getPayment();
@@ -140,7 +151,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
             if ($paymentMethod->getConfigPaymentAction() == 'authorize') {
                 $this->createInvoice(true);
             } else {
-                $this->createInvoiceService->createInvoiceGeneralSetting($this->order);
+                $this->createInvoiceService->createInvoiceGeneralSetting($this->order, $invoiceItems);
             }
         }
     }

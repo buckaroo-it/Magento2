@@ -115,15 +115,21 @@ class CreateInvoice
      * Create invoice after shipment for all buckaroo payment methods
      *
      * @param Order $order
+     * @param array $invoiceItems
      * @return bool
-     * @throws \Exception
+     * @throws LocalizedException
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
-    public function createInvoiceGeneralSetting(Order $order): bool
+    public function createInvoiceGeneralSetting(Order $order, array $invoiceItems): bool
     {
-        $invoiceItems = $this->getInvoiceItems($order);
-        $data['capture_case'] = 'offline';
+        if (!$order->canInvoice()) {
+            return true;
+        }
 
+        $data['capture_case'] = 'offline';
+        if (empty($invoiceItems)) {
+            $invoiceItems = $this->getInvoiceItems($order);
+        }
         $invoice = $this->invoiceService->prepareInvoice($order, $invoiceItems);
 
         if (!$invoice->getTotalQty()) {
