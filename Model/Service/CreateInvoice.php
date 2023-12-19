@@ -9,6 +9,7 @@ use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\Method\AbstractMethod;
 use Magento\Framework\DB\TransactionFactory;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Registry;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
@@ -92,13 +93,22 @@ class CreateInvoice
      * Create invoice after shipment for all buckaroo payment methods
      *
      * @param Order $order
+     * @param array $invoiceItems
      * @return bool
-     * @throws \Exception
+     * @throws LocalizedException
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
-    public function createInvoiceGeneralSetting(Order $order): bool
+    public function createInvoiceGeneralSetting(Order $order, array $invoiceItems): bool
     {
-        $invoiceItems = $this->getInvoiceItems($order);
+        if (!$order->canInvoice()) {
+            return true;
+        }
+
+        $data['capture_case'] = 'offline';
+        if (empty($invoiceItems)) {
+            $invoiceItems = $this->getInvoiceItems($order);
+        }
+
         $data['capture_case'] = 'offline';
 
         $invoice = $this->invoiceService->prepareInvoice($order, $invoiceItems);

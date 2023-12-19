@@ -92,6 +92,11 @@ class SalesOrderShipmentAfter implements ObserverInterface
     private CreateInvoice $createInvoiceService;
 
     /**
+     * @var RequestInterface
+     */
+    private RequestInterface $request;
+
+    /**
      * @param InvoiceService $invoiceService
      * @param TransactionFactory $transactionFactory
      * @param Klarnakp $klarnakpConfig
@@ -111,7 +116,8 @@ class SalesOrderShipmentAfter implements ObserverInterface
         Data $helper,
         Account $configAccount,
         CreateInvoice $createInvoiceService,
-        Log $logger
+        Log $logger,
+        RequestInterface $request
     ) {
         $this->invoiceService = $invoiceService;
         $this->transactionFactory = $transactionFactory;
@@ -122,6 +128,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
         $this->helper = $helper;
         $this->gateway = $gateway;
         $this->logger = $logger;
+        $this->request = $request;
     }
 
     /**
@@ -136,6 +143,9 @@ class SalesOrderShipmentAfter implements ObserverInterface
 
         /** @var \Magento\Sales\Model\Order $order */
         $order = $shipment->getOrder();
+
+        $invoiceData = $this->request->getParam('shipment', []);
+        $invoiceItems = isset($invoiceData['items']) ? $invoiceData['items'] : [];
 
         $payment = $order->getPayment();
         $paymentMethod = $payment->getMethodInstance();
@@ -167,7 +177,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
             if ($paymentMethod->getConfigPaymentAction() == 'authorize') {
                 $this->createInvoice($order, $shipment, true);
             } else {
-                $this->createInvoiceService->createInvoiceGeneralSetting($order);
+                $this->createInvoiceService->createInvoiceGeneralSetting($order, $invoiceItems);
             }
         }
     }
