@@ -40,7 +40,8 @@ class Ideal extends AbstractConfigProvider
     const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_ideal/specificcountry';
     const XPATH_IDEAL_SELECTION_TYPE            = 'buckaroo_magento2/account/selection_type';
     const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_ideal/specificcustomergroup';
-    const XPATH_SHOW_ISSUERS                   = 'payment/buckaroo_magento2_ideal/show_issuers';
+    const XPATH_SHOW_ISSUERS                    = 'payment/buckaroo_magento2_ideal/show_issuers';
+    const XPATH_SORTED_ISSUERS                  = 'payment/buckaroo_magento2_ideal/sorted_issuers';
 
     /**
      * @var array
@@ -118,5 +119,18 @@ class Ideal extends AbstractConfigProvider
         );
 
         return $paymentFee ? $paymentFee : false;
+    }
+
+    /**
+     * @param $storeId
+     * @return mixed
+     */
+    public function getSortedIssuers($storeId = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_SORTED_ISSUERS,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
     }
 }

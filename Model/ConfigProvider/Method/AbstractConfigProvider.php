@@ -189,7 +189,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      *
      * @return array
      */
-    protected function formatIssuers()
+    public function formatIssuers()
     {
         return array_map(
             function ($issuer) {
