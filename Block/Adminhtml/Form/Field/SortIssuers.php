@@ -42,6 +42,11 @@ class SortIssuers extends Field
     protected array $configuration = [];
 
     /**
+     * @var array
+     */
+    protected array $issuers = [];
+
+    /**
      * @var ConfigProviderFactory
      */
     protected ConfigProviderFactory $configProviderFactory;
@@ -99,25 +104,32 @@ class SortIssuers extends Field
      */
     public function getIssuers(): array
     {
+        if (!empty($this->issuers)) {
+            return $this->issuers;
+        }
+
         if ($this->configProvider && method_exists($this->configProvider, 'formatIssuers')) {
             return $this->configProvider->formatIssuers();
         }
+
         return [];
     }
 
     public function getSortedIssuers()
     {
-        $issuers = [];
+        if (!empty($this->issuers)) {
+            return $this->issuers;
+        }
 
         if ($this->configProvider && method_exists($this->configProvider, 'getSortedIssuers')) {
-            $issuers = $this->configProvider->getSortedIssuers();
+            $this->issuers = $this->configProvider->getSortedIssuers();
         }
 
-        if(empty($issuers)) {
-            $issuers = $this->getIssuers();
+        if(empty($this->issuers)) {
+            $this->issuers = $this->getIssuers();
         }
 
-        return $issuers;
+        return $this->issuers;
     }
 
     public function getSortedIssuerCodes()

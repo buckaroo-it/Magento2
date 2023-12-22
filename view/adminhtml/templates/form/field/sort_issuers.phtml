@@ -19,6 +19,7 @@
  */
 // @codingStandardsIgnoreFile
 $paymentMethod = $block->getConfiguration('providerType');
+$issuers = $block->getIssuers();
 ?>
 <div class="issuers_sort_wrapper">
     <input type="hidden" name="<?= $block->getConfiguration('name') ?>" id="sort_<?= $paymentMethod ?>"
@@ -43,7 +44,7 @@ $paymentMethod = $block->getConfiguration('providerType');
 
         console.log("TEST");
         let ccInherit = $('input[name="<?= $block->getConfiguration('ccInherit') ?>"]');
-        let selector = 'select[name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_giftcards][fields][allowed_giftcards][value][]"]';
+        let selector = 'select[name="<?= $block->getConfiguration('selector') ?>[]"]';
         let inputText = $('#sort_<?= $paymentMethod ?>').val();
         let selectorWrapper = '.<?= $paymentMethod ?>_sort_wrapper';
 
@@ -53,6 +54,10 @@ $paymentMethod = $block->getConfiguration('providerType');
                 let p = document.createElement("p");
                 p.innerHTML = item;
                 p.classList.add('sort_issuer');
+
+                let img = document.createElement("img");
+                img.alt = 'Description of image';
+
                 $(listSelector).append(p);
             });
         } else {
