@@ -73,7 +73,7 @@
         </field>
 
         <field id="sort_creditcards" translate="label comment" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Sort credit and debit cards</label>
+            <label>Sort Credit-debitcard issuers</label>
             <frontend_model>Buckaroo\Magento2\Block\Adminhtml\Creditcard\Sort</frontend_model>
             <comment><![CDATA[Select sort order on credit and debit card.]]></comment>
             <config_path>payment/buckaroo_magento2_creditcard/sorted_creditcards</config_path>

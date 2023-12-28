@@ -76,7 +76,7 @@
             </field>
 
             <field id="sorted_issuers" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Sort Issuers</label>
+                <label>Sort PayByBank Banks</label>
                 <frontend_model>Buckaroo\Magento2\Block\Adminhtml\Form\Field\SortIssuers</frontend_model>
                 <comment><![CDATA[Select sort order PayByBank Issuers.]]></comment>
                 <config_path>payment/buckaroo_magento2_paybybank/sorted_issuers</config_path>
