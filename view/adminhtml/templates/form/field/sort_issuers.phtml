@@ -42,7 +42,6 @@ $issuers = $block->getIssuers();
             items: 'p'
         });
 
-        console.log("TEST");
         let ccInherit = $('input[name="<?= $block->getConfiguration('ccInherit') ?>"]');
         let selector = 'select[name="<?= $block->getConfiguration('selector') ?>[]"]';
         let inputText = $('#sort_<?= $paymentMethod ?>').val();
@@ -50,48 +49,41 @@ $issuers = $block->getIssuers();
 
         var issuers = <?php echo json_encode($issuers); ?>;
 
+        function createParagraphElement(code) {
+            if (!issuers[code]) {
+                console.error('Issuer not found for code:', code);
+                return;
+            }
+
+            let p = document.createElement("p");
+            p.classList.add('sort_issuer');
+            p.dataset.code = code;
+
+            let img = document.createElement("img");
+            img.alt = issuers[code]['name'];
+            img.src = issuers[code]['img'];
+
+            let textNode = document.createTextNode(issuers[code]['name']);
+
+            p.appendChild(img);
+            p.appendChild(textNode);
+            $(listSelector).append(p);
+        }
+
         if (inputText !== '') {
             let cardSortedArray = inputText.split(',');
-            cardSortedArray.forEach(function (item, index) {
-                // Create paragraph element
-                let p = document.createElement("p");
-                p.classList.add('sort_issuer');
-
-                // Set a data attribute to the paragraph
-                p.dataset.code = item;
-
-                // Create image element
-                let img = document.createElement("img");
-                img.alt = issuers[item]['name'];
-                img.src = issuers[item]['img']; // Set the source of the image
-
-                // Append the image to the paragraph
-                p.appendChild(img);
-
-                // Add text to the paragraph
-                let textNode = document.createTextNode(issuers[item]['name']);
-                p.appendChild(textNode);
-
-                // Append the paragraph to your list
-                $(listSelector).append(p);
-            });
+            cardSortedArray.forEach(createParagraphElement);
         } else {
             $(selector + ' option:selected').each(function () {
-                let p = document.createElement("p");
-                p.innerHTML = $(this).text();
-                p.classList.add('sort_issuer');
-                $(listSelector).append(p);
+                createParagraphElement($(this).val());
             });
         }
 
         $(selector).change(function () {
-            $(listSelector +' p').remove();
+            $(listSelector + ' p').remove();
 
             $(selector + ' option:selected').each(function () {
-                let p = document.createElement("p");
-                p.innerHTML = $(this).text();
-                p.classList.add('sort_issuer');
-                $(listSelector).append(p);
+                createParagraphElement($(this).val());
             });
         });
 
@@ -104,26 +96,26 @@ $issuers = $block->getIssuers();
             $('#sort_<?= $paymentMethod ?>').val(cardList);
         });
 
-        function sortableOnOff(status){
-            if(status == 'disable'){
+        function sortableOnOff(status) {
+            if (status == 'disable') {
                 $(listSelector).sortable("disable");
                 $(selectorWrapper).addClass('sortable_disable');
-            }else{
+            } else {
                 $(listSelector).sortable("enable");
                 $(selectorWrapper).removeClass('sortable_disable');
             }
         }
 
-        $(document).ready(function() {
-            if(ccInherit.is(":checked")){
+        $(document).ready(function () {
+            if (ccInherit.is(":checked")) {
                 sortableOnOff('disable');
             }
         });
 
-        $('body').on('click', ccInherit, function() {
-            if(ccInherit.is(":checked")){
+        $('body').on('click', ccInherit, function () {
+            if (ccInherit.is(":checked")) {
                 sortableOnOff('disable');
-            }else{
+            } else {
                 sortableOnOff();
             }
         });

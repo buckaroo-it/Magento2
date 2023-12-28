@@ -18,6 +18,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 // @codingStandardsIgnoreStart
+$issuers = $block->getIssuers();
 ?>
 <div class="creditcard_sort_wrapper">
     <input type="hidden"
@@ -45,8 +46,10 @@
         });
 
         let inputText = $('#sort_cards').val();
-        let selector = 'select[name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_creditcard][fields][allowed_creditcards][value][]"]';
+        let selector = 'select[name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_creditcard][fields][allowed_issuers][value][]"]';
         let selectorWrapper = '.creditcard_sort_wrapper';
+
+        var issuers = <?php echo json_encode($issuers); ?>;
 
         if (inputText !== '') {
             let cardSortedArray = inputText.split(',');

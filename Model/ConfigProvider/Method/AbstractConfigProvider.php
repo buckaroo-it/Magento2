@@ -361,4 +361,21 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         ) !== "0";
     }
+
+    /**
+     * Get all issuers not sorted
+     *
+     * @return array
+     */
+    public function getAllIssuers(): array
+    {
+        $issuers = $this->getIssuers();
+        $issuersPrepared = [];
+        foreach ($issuers as $issuer) {
+            $issuer['img'] = $this->getImageUrl($issuer['imgName']);
+            $issuersPrepared[$issuer['code']] = $issuer;
+        }
+
+        return $issuersPrepared;
+    }
 }
