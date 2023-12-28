@@ -373,8 +373,15 @@
 
 .sort_giftcards,
 .sort_issuer{
+    display: flex;
+    align-items: center;
     margin: 0.5rem 1rem;
     padding: 0.5rem;
+}
+
+.sort_issuer img {
+    height: 25px;
+    margin-right: 10px;
 }
 
 .sort_giftcards:hover,

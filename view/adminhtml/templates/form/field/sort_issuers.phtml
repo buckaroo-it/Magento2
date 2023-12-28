@@ -48,16 +48,31 @@ $issuers = $block->getIssuers();
         let inputText = $('#sort_<?= $paymentMethod ?>').val();
         let selectorWrapper = '.<?= $paymentMethod ?>_sort_wrapper';
 
+        var issuers = <?php echo json_encode($issuers); ?>;
+
         if (inputText !== '') {
             let cardSortedArray = inputText.split(',');
             cardSortedArray.forEach(function (item, index) {
+                // Create paragraph element
                 let p = document.createElement("p");
-                p.innerHTML = item;
                 p.classList.add('sort_issuer');
 
-                let img = document.createElement("img");
-                img.alt = 'Description of image';
+                // Set a data attribute to the paragraph
+                p.dataset.code = item;
 
+                // Create image element
+                let img = document.createElement("img");
+                img.alt = issuers[item]['name'];
+                img.src = issuers[item]['img']; // Set the source of the image
+
+                // Append the image to the paragraph
+                p.appendChild(img);
+
+                // Add text to the paragraph
+                let textNode = document.createTextNode(issuers[item]['name']);
+                p.appendChild(textNode);
+
+                // Append the paragraph to your list
                 $(listSelector).append(p);
             });
         } else {
@@ -83,7 +98,7 @@ $issuers = $block->getIssuers();
         $('#save').click(function () {
             let cardList = '';
             $(listSelector + ' p').each(function () {
-                cardList += $(this).text() + ',';
+                cardList += $(this).data('code') + ',';
             });
             cardList = cardList.slice(0, -1);
             $('#sort_<?= $paymentMethod ?>').val(cardList);

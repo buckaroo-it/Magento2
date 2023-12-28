@@ -194,15 +194,16 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
         $issuers = $this->getIssuers();
 
         $codeToIssuerMap = [];
-        foreach ($issuers as $issuer) {
-            $codeToIssuerMap[$issuer['code']] = $issuer;
+        foreach ($issuers as &$issuer) {
             if(isset($issuer['imgName'])) {
-                $issuer['img'] = $this->getImageUrl("ideal/{$issuer['imgName']}", "svg");
+                $issuer['img'] = $this->getImageUrl($issuer['imgName']);
             }
+            $codeToIssuerMap[$issuer['code']] = $issuer;
         }
 
         if(method_exists($this, 'getSortedIssuers')) {
-            $sortedCodes = explode(',',$this->getSortedIssuers());
+            $sortedCodes = $this->getSortedIssuers() ?? '';
+            $sortedCodes = $sortedCodes ? explode(',',$sortedCodes) : [];
             if(!empty($sortedCodes)) {
                 $sortedIssuers = [];
                 foreach ($sortedCodes as $code) {
@@ -212,11 +213,11 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
                 }
             }
 
-            return $sortedIssuers ?? $codeToIssuerMap;
+            return $sortedIssuers ?? $issuers;
 
         }
 
-        return $codeToIssuerMap;
+        return $issuers;
     }
 
     public function getCreditcardLogo(string $code): string

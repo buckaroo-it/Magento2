@@ -79,6 +79,8 @@ class SortIssuers extends Field
      */
     protected function _getElementHtml(AbstractElement $element)
     {
+        $this->configuration = [];
+        $this->issuers = [];
         $this->configuration['name'] = $element->getName();
         $this->configuration['ccInherit'] = str_replace('value', 'inherit', $element->getName());
         $this->configuration['selector'] = $this->getSelector($element->getName());
@@ -104,6 +106,21 @@ class SortIssuers extends Field
      */
     public function getIssuers(): array
     {
+        $this->issuers = $this->getSortedIssuers();
+
+        $issuers = [];
+        foreach ($this->issuers as $item) {
+            $issuers[$item['code']] = $item;
+        }
+
+        return $issuers;
+    }
+
+    /**
+     * @return array
+     */
+    public function getSortedIssuers(): array
+    {
         if (!empty($this->issuers)) {
             return $this->issuers;
         }
@@ -115,29 +132,10 @@ class SortIssuers extends Field
         return [];
     }
 
-    public function getSortedIssuers()
-    {
-        if (!empty($this->issuers)) {
-            return $this->issuers;
-        }
-
-        if ($this->configProvider && method_exists($this->configProvider, 'getSortedIssuers')) {
-            $this->issuers = $this->configProvider->getSortedIssuers();
-        }
-
-        if(empty($this->issuers)) {
-            $this->issuers = $this->getIssuers();
-        }
-
-        return $this->issuers;
-    }
-
     public function getSortedIssuerCodes()
     {
         $sortedIssuers = $this->getSortedIssuers();
-        if (is_string($sortedIssuers)) {
-            return $sortedIssuers;
-        }
+
         return implode(',', array_column($sortedIssuers, 'code'));
     }
 
