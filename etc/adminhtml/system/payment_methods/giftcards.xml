@@ -69,7 +69,7 @@
 
             <field id="allowed_giftcards" translate="label comment" type="multiselect" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Allowed giftcards</label>
-                <comment><![CDATA[Select which giftcards are available to the customer. You can add new cards in Stores > Buckaroo giftcards.]]></comment>
+                <comment><![CDATA[Select which giftcards are available in the checkout. You can add new giftcards within Magento at → Stores → Buckaroo Giftcards.]]></comment>
                 <tooltip>These options will be presented to the customer after Buckaroo has received the order. If left blank, the available options will be based on which Buckaroo payment options you have enabled.</tooltip>
                 <config_path>payment/buckaroo_magento2_giftcards/allowed_giftcards</config_path>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\Giftcards</source_model>
@@ -83,8 +83,8 @@
             </field>
 
             <field id="group_giftcards" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>GiftCard handling</label>
-                <comment><![CDATA[Giftcards option to show in checkout <br/><strong>Inline:</strong> giftcards are show seperate in checkout<br/><strong>Redirect:</strong> giftcards get redirected to the buckaroo checkout. <br/><strong>Important:</strong> Group giftcards can only be refunded from the Buckaroo Plaza.]]></comment>
+                <label>Giftcard handling</label>
+                <comment><![CDATA[How to show the giftcard payment method in the checkout. <br/><strong>Inline:</strong> giftcards are show seperate in checkout<br/><strong>Redirect:</strong> giftcards get redirected to the buckaroo checkout. <br/><strong>Important:</strong> Group giftcards can only be refunded from the Buckaroo Plaza.]]></comment>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\InlineOrRedirect</source_model>
                 <config_path>payment/buckaroo_magento2_giftcards/group_giftcards</config_path>
             </field>
