@@ -106,6 +106,10 @@ class SortIssuers extends Field
      */
     public function getIssuers(): array
     {
+        if (!empty($this->issuers)) {
+            return $this->issuers;
+        }
+
         if ($this->configProvider && method_exists($this->configProvider, 'getAllIssuers')) {
             $this->issuers = $this->configProvider->getAllIssuers();
         }
@@ -131,11 +135,17 @@ class SortIssuers extends Field
 
     public function getSortedIssuerCodes()
     {
+        $sortedIssuerCodes = '';
+
         if ($this->configProvider && method_exists($this->configProvider, 'getSortedIssuers')) {
-            return $this->configProvider->getSortedIssuers();
+            $sortedIssuerCodes = $this->configProvider->getSortedIssuers();
         }
 
-        return '';
+        if (empty($sortedIssuerCodes)) {
+            $sortedIssuerCodes = implode(',', array_column($this->getIssuers(), 'code'));
+        }
+
+        return $sortedIssuerCodes;
     }
 
     private function getSelector($elementName)
