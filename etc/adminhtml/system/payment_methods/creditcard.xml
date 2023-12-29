@@ -65,6 +65,13 @@
             <config_path>payment/buckaroo_magento2_creditcard/sort_order</config_path>
         </field>
 
+        <field id="group_creditcards" translate="label comment" type="select" sortOrder="35" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Group Creditcards</label>
+            <comment><![CDATA[Creditcards option to show in checkout <br/><strong>Separate:</strong> Creditcards are show seperate in checkout<br/><strong>Grouped:</strong> Creditcards get redirected to the buckaroo checkout.]]></comment>
+            <source_model>Buckaroo\Magento2\Model\Config\Source\SeparateOrGrouped</source_model>
+            <config_path>payment/buckaroo_magento2_creditcard/group_creditcards</config_path>
+        </field>
+
         <field id="allowed_issuers" translate="label comment" type="multiselect" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Allowed credit and debit cards</label>
             <comment><![CDATA[Select payment method specific Credit and debit card.]]></comment>

@@ -49,6 +49,7 @@ define(
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_creditcard'
                 },
                 creditcards: [],
+                groupCreditcards: false,
                 redirectAfterPlaceOrder: false,
                 creditcardIssuer: null,
                 selectedBank: null,
@@ -107,6 +108,10 @@ define(
                     return this;
                 },
 
+                getCreditcardType: ko.observable(function () {
+                    return this.creditcardIssuer;
+                }),
+
                 setSelectedBankDropDown: function() {
                     var el = document.getElementById("buckaroo_magento2_creditcard_issuer");
                     this.selectedCard(el.options[el.selectedIndex].value);
@@ -147,12 +152,37 @@ define(
                     checkoutCommon.redirectHandle(response);
                 },
 
+                isCheckedCreditCardPaymentMethod: function (code) {
+                    return ((this.creditcardIssuer !== undefined) && this.creditcardIssuer == code);
+                },
+
+                selectCreditCardPaymentMethod: function (code) {
+                    this.setSelectedCard(code);
+                    this.getCreditcardType(code);
+                    this.item.method = 'buckaroo_magento2_creditcard';
+                    this.paymentMethod = this.item.method;
+                    window.checkoutConfig.buckarooFee.title('Fee');
+                    selectPaymentMethodAction({
+                        "method": this.item.method,
+                        "po_number": null,
+                        "additional_data": {
+                            "card_type" : code
+                        }
+                    });
+                    checkoutData.setSelectedPaymentMethod(this.item.method);
+                    return true;
+                },
+
                 selectPaymentMethod: function () {
                     window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
 
                     selectPaymentMethodAction(this.getData());
                     checkoutData.setSelectedPaymentMethod(this.item.method);
                     return true;
+                },
+
+                isCredicardGroupMode: function () {
+                    return window.checkoutConfig.payment.buckaroo.creditcard.groupCreditcards !== undefined && window.checkoutConfig.payment.buckaroo.creditcard.groupCreditcards == 1 ? true : false;
                 },
 
                 getData: function () {

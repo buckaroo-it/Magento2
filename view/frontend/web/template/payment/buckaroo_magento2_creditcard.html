@@ -1,3 +1,4 @@
+<!-- ko if: isCredicardGroupMode() -->
 <div class="buckaroo_magento2_creditcard payment-method" data-bind="css: {'_active': (getCode() == isChecked()), 'buckaroo_magento2_flow_authorize': paymentFlow == 'authorize'}">
     <div class="payment-method-title field choice bk-payment">
         <div class="bk-payment-wrap">
@@ -97,3 +98,8 @@
         <!--/ko-->
     </div>
 </div>
+
+<!-- ko ifnot: isCredicardGroupMode() -->
+<div class="buckaroo_magento2_all_creditcards">HELLLOOO</div>
+
+<!-- /ko -->
