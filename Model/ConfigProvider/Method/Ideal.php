@@ -22,12 +22,12 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Buckaroo\Magento2\Exception;
-use Magento\Store\Model\ScopeInterface;
-use Magento\Framework\View\Asset\Repository;
-use Magento\Framework\App\Config\ScopeConfigInterface;
-use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 use Buckaroo\Magento2\Helper\PaymentFee;
+use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 use Buckaroo\Magento2\Service\Ideal\IssuersService;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\View\Asset\Repository;
+use Magento\Store\Model\ScopeInterface;
 
 class Ideal extends AbstractConfigProvider
 {
@@ -37,8 +37,9 @@ class Ideal extends AbstractConfigProvider
     protected IssuersService $issuersService;
 
     public const CODE = 'buckaroo_magento2_ideal';
-    public const XPATH_SHOW_ISSUERS  = 'payment/buckaroo_magento2_ideal/show_issuers';
-    public const XPATH_SELECTION_TYPE = 'payment/buckaroo_magento2_ideal/selection_type';
+
+    public const XPATH_SELECTION_TYPE = 'selection_type';
+    public const XPATH_SHOW_ISSUERS   = 'show_issuers';
     /**
      * @var array
      */
@@ -90,14 +91,14 @@ class Ideal extends AbstractConfigProvider
             'payment' => [
                 'buckaroo' => [
                     'ideal' => [
-                        'banks' => $issuers,
-                        'paymentFeeLabel' => $paymentFeeLabel,
-                        'subtext'   => $this->getSubtext(),
-                        'subtext_style'   => $this->getSubtextStyle(),
-                        'subtext_color'   => $this->getSubtextColor(),
+                        'banks'             => $issuers,
+                        'paymentFeeLabel'   => $paymentFeeLabel,
+                        'subtext'           => $this->getSubtext(),
+                        'subtext_style'     => $this->getSubtextStyle(),
+                        'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'selectionType' => $selectionType,
-                        'showIssuers' => $this->canShowIssuers()
+                        'selectionType'     => $selectionType,
+                        'showIssuers'       => $this->canShowIssuers()
                     ],
                 ],
             ],
@@ -111,31 +112,27 @@ class Ideal extends AbstractConfigProvider
      *
      * @return boolean
      */
-    public function canShowIssuers(string $storeId = null): bool {
-        return $this->scopeConfig->getValue(
-            self::XPATH_SHOW_ISSUERS,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
-        ) == 1;
+    public function canShowIssuers(string $storeId = null): bool
+    {
+        return $this->getMethodConfigValue(self::XPATH_SHOW_ISSUERS, $storeId) == 1;
     }
 
     /**
+     * Selection type radio checkbox or drop down
+     *
      * @param null|int|string $store
      * @return mixed
      */
     public function getSelectionType($store = null)
     {
-        $methodConfig = $this->scopeConfig->getValue(
-            static::XPATH_SELECTION_TYPE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        $methodConfig = $this->getMethodConfigValue(self::XPATH_SELECTION_TYPE, $store);
 
         /** @deprecated 2.0.0 moved from main configuration to payment configuration */
         $mainConfig = $this->scopeConfig->getValue(
             'buckaroo_magento2/account/selection_type',
             ScopeInterface::SCOPE_STORE,
         );
+
         if ($methodConfig === null) {
             return $mainConfig;
         }

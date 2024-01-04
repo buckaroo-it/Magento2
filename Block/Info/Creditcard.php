@@ -46,11 +46,6 @@ class Creditcard extends Info
     protected ConfigProviderCreditcard $configProvider;
 
     /**
-     * @var string
-     */
-    protected $_template = 'Buckaroo_Magento2::info/creditcard.phtml';
-
-    /**
      * @param Context $context
      * @param PaymentGroupTransaction $groupTransaction
      * @param GiftcardCollection $giftcardCollection
@@ -68,6 +63,15 @@ class Creditcard extends Info
     ) {
         parent::__construct($context, $groupTransaction, $giftcardCollection, $logoService, $data);
         $this->configProvider = $configProvider;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function _construct()
+    {
+        parent::_construct();
+        $this->setTemplate('Buckaroo_Magento2::info/creditcard.phtml');
     }
 
     /**

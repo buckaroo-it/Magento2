@@ -15,7 +15,10 @@
                 </label>
             </div>
             <div class="bk-img-wrap">
-                <img data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/klarna.svg') }" />
+                <img
+                    data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/klarna.svg') }"
+                    alt="Klarna Logo"
+                />
             </div>
         </div>
     </div>
@@ -33,6 +36,7 @@
             <form data-bind="mageInit: { 'validation': [] },
                   attr: {'data-hasrequired': $t('* Required Fields')}">
                 <fieldset class="fieldset">
+                    <legend class="hidden-fieldset-legend">Payment Details</legend>
                     <div class="field required">
                         <label class="label" for="buckaroo_magento2_klarna_genderSelect"> <span data-bind="i18n: 'Salutation:'"> </span> </label>
                         <div class="control addon">

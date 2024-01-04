@@ -28,8 +28,7 @@ class Klarnakp extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_klarnakp';
 
-    public const XPATH_KLARNAKP_CREATE_INVOICE_BY_SHIP =
-        'payment/buckaroo_magento2_klarnakp/create_invoice_after_shipment';
+    public const XPATH_KLARNAKP_CREATE_INVOICE_BY_SHIP = 'create_invoice_after_shipment';
 
     /**
      * @var array
@@ -105,9 +104,8 @@ class Klarnakp extends AbstractConfigProvider
      */
     public function isInvoiceCreatedAfterShipment($store = null): bool
     {
-        $createInvoiceAfterShipment = (bool)$this->scopeConfig->getValue(
-            static::XPATH_KLARNAKP_CREATE_INVOICE_BY_SHIP,
-            ScopeInterface::SCOPE_STORE,
+        $createInvoiceAfterShipment = (bool)$this->getMethodConfigValue(
+            self::XPATH_KLARNAKP_CREATE_INVOICE_BY_SHIP,
             $store
         );
 

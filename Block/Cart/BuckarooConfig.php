@@ -29,19 +29,14 @@ use Magento\Framework\Json\Encoder as JsonEncoder;
 class BuckarooConfig extends Template
 {
     /**
-     * @var bool
-     */
-    protected $_isScopePrivate = false;
-
-    /**
      * @var Factory
      */
-    protected $configProviderFactory;
+    protected Factory $configProviderFactory;
 
     /**
      * @var JsonEncoder
      */
-    protected $jsonEncoder;
+    protected JsonEncoder $jsonEncoder;
 
     /**
      * @param Context $context

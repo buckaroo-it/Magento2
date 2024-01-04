@@ -14,7 +14,7 @@
                 </label>
             </div>
             <div class="bk-img-wrap">
-                <img style="width:40px;" data-bind="attr: { src: logo() }" />
+                <img style="width:40px;" data-bind="attr: { src: logo() }" alt="PayByBank Logo"/>
             </div>
         </div>
     </div>
@@ -52,10 +52,11 @@
                                         <img data-bind="attr: {
                                                 'src': img,
                                                 'width': 40,
-                                                'height': 30 }"
-                                            />
-                                            <!--/ko-->
-                                            
+                                                'height': 30,
+                                                'alt': name
+                                             }"
+                                        />
+                                        <!--/ko-->
                                         <strong><!-- ko text: name --><!--/ko--></strong>
                                     </label>
                                 </div>

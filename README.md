@@ -4,8 +4,6 @@
 
 # Buckaroo Magento 2 Payments Plugin
 
-### SonarQube
-
 ### Index
 - [About](#about)
 - [Requirements](#requirements)

@@ -14,7 +14,10 @@
                 </label>
             </div>
             <div class="bk-img-wrap">
-                <img data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/sepa-directdebit.svg') }" />
+                <img
+                    data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/sepa-directdebit.svg') }"
+                    alt="SEPA Direct Debit Logo"
+                />
             </div>
         </div>
     </div>
@@ -34,7 +37,7 @@
             <form data-bind="mageInit: { 'validation': [] },
                   attr: {'data-hasrequired': $t('* Required Fields')}">
                 <fieldset class="fieldset payment">
-
+                    <legend class="hidden-fieldset-legend">Payment Details</legend>
                     <div class="field required">
                         <label for="bankaccountholder" class="label">
                             <span data-bind="i18n: 'Bank account holder'"> </span>

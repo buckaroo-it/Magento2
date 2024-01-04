@@ -32,7 +32,10 @@
                 </label>
             </div>
             <div class="bk-img-wrap">
-                <img data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/' + logo) }" />
+                <img
+                    data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/' + logo) }"
+                    alt="In3 Logo"
+                />
             </div>
         </div>
     </div>
@@ -49,7 +52,7 @@
             <form data-bind="mageInit: { 'validation': [] },
                   attr: {'data-hasrequired': $t('* Required Fields')}">
                 <fieldset class="fieldset payment">
-
+                    <legend class="hidden-fieldset-legend">Payment Details</legend>
                     <div class="field required">
                         <label class="label" for="buckaroo_magento2_capayablein3_BillingName"> <span data-bind="i18n: 'Billing Name:'"> </span> </label>
                         <div class="control">

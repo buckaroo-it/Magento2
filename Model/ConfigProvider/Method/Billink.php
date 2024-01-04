@@ -31,7 +31,7 @@ class Billink extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_billink';
 
-    public const XPATH_BILLINK_BUSINESS = 'payment/buckaroo_magento2_billink/business';
+    public const XPATH_BILLINK_BUSINESS  = 'business';
 
     /**
      * @var BuckarooHelper
@@ -103,10 +103,7 @@ class Billink extends AbstractConfigProvider
      */
     public function getBusiness()
     {
-        $business = (int) $this->scopeConfig->getValue(
-            static::XPATH_BILLINK_BUSINESS,
-            ScopeInterface::SCOPE_STORE
-        );
+        $business = (int)$this->getMethodConfigValue(self::XPATH_BILLINK_BUSINESS);
 
         return $business ?: false;
     }

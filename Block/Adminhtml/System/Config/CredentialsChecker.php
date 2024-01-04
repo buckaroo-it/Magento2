@@ -28,9 +28,13 @@ use Magento\Framework\Exception\LocalizedException;
 class CredentialsChecker extends Field
 {
     /**
-     * @var string
+     * @inheritdoc
      */
-    protected $_template = 'Buckaroo_Magento2::credentials_checker.phtml';
+    protected function _construct()
+    {
+        parent::_construct();
+        $this->setTemplate('Buckaroo_Magento2::credentials_checker.phtml');
+    }
 
     /**
      * @inheritdoc
@@ -63,7 +67,7 @@ class CredentialsChecker extends Field
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function _getElementHtml(AbstractElement $element)
+    public function _getElementHtml(AbstractElement $element): string
     {
         return $this->_toHtml();
     }

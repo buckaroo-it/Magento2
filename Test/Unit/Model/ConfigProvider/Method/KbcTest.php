@@ -61,11 +61,11 @@ class KbcTest extends BaseTest
             ->method('getValue')
             ->withConsecutive(
                 [
-                    $this->getPaymentMethodConfigPath(Kbc::CODE, AbstractConfigProvider::XPATH_ACTIVE),
+                    $this->getPaymentMethodConfigPath(Kbc::CODE, AbstractConfigProvider::ACTIVE),
                     ScopeInterface::SCOPE_STORE,
                 ],
                 [
-                    $this->getPaymentMethodConfigPath(Kbc::CODE, AbstractConfigProvider::XPATH_ALLOWED_CURRENCIES),
+                    $this->getPaymentMethodConfigPath(Kbc::CODE, AbstractConfigProvider::ALLOWED_CURRENCIES),
                     ScopeInterface::SCOPE_STORE,
                     null
                 ]
@@ -133,7 +133,7 @@ class KbcTest extends BaseTest
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
             ->with(
-                $this->getPaymentMethodConfigPath(Kbc::CODE, AbstractConfigProvider::XPATH_PAYMENT_FEE),
+                $this->getPaymentMethodConfigPath(Kbc::CODE, AbstractConfigProvider::PAYMENT_FEE),
                 ScopeInterface::SCOPE_STORE
             )
             ->willReturn($value);

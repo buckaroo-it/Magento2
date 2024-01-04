@@ -90,13 +90,6 @@ interface PushRequestInterface
     public function getOrderNumber(): ?string;
 
     /**
-     * Get payer hash
-     *
-     * @return string|null
-     */
-    public function getPayerHash(): ?string;
-
-    /**
      * Get payment key
      *
      * @return string|null
@@ -166,7 +159,7 @@ interface PushRequestInterface
      * @param float|string|null $amount
      * @return void
      */
-    public function setAmount($amount);
+    public function setAmount($amount): void;
 
     /**
      * Get property from additional information

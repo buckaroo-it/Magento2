@@ -56,119 +56,87 @@ class Options extends Column
      *
      * @param array $dataSource
      * @return array
-     * @throws \Zend_Db_Statement_Exception
-     *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function prepareDataSource(array $dataSource): array
     {
         if (isset($dataSource['data']['items'])) {
-            $incrementIds = [];
-            foreach ($dataSource['data']['items'] as &$item) {
-                $incrementIds[] = $item['increment_id'];
+            $incrementIds = array_column($dataSource['data']['items'], 'increment_id');
+
+            if (!empty($incrementIds)) {
+                $additionalOptions = $this->getGroupTransactionData($incrementIds);
+                $additionalOptions2 = $this->getPayPerEmailData($incrementIds);
+
+                $dataSource = $this->updateDataSourceItems($dataSource, $additionalOptions);
+                $dataSource = $this->updateDataSourceItems($dataSource, $additionalOptions2);
             }
-            if ($incrementIds) {
-                $db = $this->resourceConnection->getConnection();
-                /**
-                 * converting this to zend db is part of another ticket
-                 */
-                $result = $db->query(
-                    '
-                SELECT
-                method,
-                group_concat(distinct(' .
-                    $this->resourceConnection->getTableName(
-                        'buckaroo_magento2_group_transaction'
-                    ) .
-                    '.servicecode) SEPARATOR "-") as giftcard_codes,
+        }
+
+        return $dataSource;
+    }
+
+    private function getGroupTransactionData(array $incrementIds): array
+    {
+        $db = $this->resourceConnection->getConnection();
+
+        $orderTable = $this->resourceConnection->getTableName('sales_order');
+        $paymentTable = $this->resourceConnection->getTableName('sales_order_payment');
+        $groupTransactionTable = $this->resourceConnection->getTableName('buckaroo_magento2_group_transaction');
+
+        $result = $db->query(
+            'SELECT method,
+                group_concat(distinct(' . $groupTransactionTable . '.servicecode) SEPARATOR "-") as giftcard_codes,
                 increment_id
-                from ' .
-                    $this->resourceConnection->getTableName('sales_order_payment') .
-                    '
-                inner join ' .
-                    $this->resourceConnection->getTableName('sales_order') .
-                    ' on ' .
-                    $this->resourceConnection->getTableName('sales_order') .
-                    '.entity_id = ' .
-                    $this->resourceConnection->getTableName('sales_order_payment') .
-                    '.parent_id
-                inner join ' .
-                    $this->resourceConnection->getTableName(
-                        'buckaroo_magento2_group_transaction'
-                    ) .
-                    ' on ' .
-                    $this->resourceConnection->getTableName(
-                        'buckaroo_magento2_group_transaction'
-                    ) .
-                    '.order_id=' .
-                    $this->resourceConnection->getTableName('sales_order') .
-                    '.increment_id
-                where ' .
-                    $this->resourceConnection->getTableName('sales_order') .
-                    '.increment_id in ("' .
-                    join('","', $incrementIds) .
-                    '")
-                group by ' .
-                    $this->resourceConnection->getTableName('sales_order') .
-                    '.increment_id
-                                '
-                );
+             FROM ' . $paymentTable .
+            ' INNER JOIN ' . $orderTable . ' ON ' . $orderTable . '.entity_id = ' . $paymentTable . '.parent_id' .
+            ' INNER JOIN ' . $groupTransactionTable .
+            ' ON ' . $groupTransactionTable . '.order_id=' . $orderTable . '.increment_id' .
+            ' WHERE ' . $orderTable . '.increment_id IN ("' . join('","', $incrementIds) . '")
+             GROUP BY ' . $orderTable . '.increment_id'
+        );
 
-                $additionalOptions = [];
-                while ($row = $result->fetch()) {
-                    $additionalOptions[$row['increment_id']] = $row['method'] . '-' . $row['giftcard_codes'];
-                }
+        $additionalOptions = [];
+        while ($row = $result->fetch()) {
+            $additionalOptions[$row['increment_id']] = $row['method'] . '-' . $row['giftcard_codes'];
+        }
 
-                if ($additionalOptions) {
-                    foreach ($dataSource['data']['items'] as &$item) {
-                        if (isset($additionalOptions[$item['increment_id']])) {
-                            $item[$this->getData('name')] = $additionalOptions[$item['increment_id']];
-                        }
-                    }
-                }
+        return $additionalOptions;
+    }
 
-                $result2 = $db->query(
-                    'SELECT
-                            method,
-                            increment_id
-                            from ' .
-                    $this->resourceConnection->getTableName('sales_order_payment') .
-                    '
-                            inner join ' .
-                    $this->resourceConnection->getTableName('sales_order') .
-                    ' on ' .
-                    $this->resourceConnection->getTableName('sales_order') .
-                    '.entity_id = ' .
-                    $this->resourceConnection->getTableName('sales_order_payment') .
-                    '.parent_id
-                            where ' .
-                    $this->resourceConnection->getTableName('sales_order') .
-                    '.increment_id in ("' .
-                    join('","', $incrementIds) .
-                    '")
-                            AND additional_information like "%isPayPerEmail%"
-                            group by ' .
-                    $this->resourceConnection->getTableName('sales_order') .
-                    '.increment_id
-                    '
-                );
+    private function getPayPerEmailData(array $incrementIds): array
+    {
+        $db = $this->resourceConnection->getConnection();
+        $orderTable = $this->resourceConnection->getTableName('sales_order');
+        $paymentTable = $this->resourceConnection->getTableName('sales_order_payment');
 
-                $additionalOptions2 = [];
-                while ($row = $result2->fetch()) {
-                    $additionalOptions2[$row['increment_id']] =
-                        'buckaroo_magento2_payperemail-' .
-                        str_replace('buckaroo_magento2_', '', $row['method']);
-                }
+        $result2 = $db->query(
+            'SELECT ' . $paymentTable . '.method,
+                    ' . $orderTable . '.increment_id
+             FROM ' . $paymentTable .
+            ' INNER JOIN ' . $orderTable . ' ON ' . $orderTable . '.entity_id = ' . $paymentTable . '.parent_id' .
+            ' WHERE ' . $orderTable . '.increment_id in ("' . join('","', $incrementIds) . '")
+                AND ' . $paymentTable . '.additional_information like "%isPayPerEmail%"
+             GROUP BY ' . $orderTable . '.increment_id'
+        );
 
-                if ($additionalOptions2) {
-                    foreach ($dataSource['data']['items'] as &$item) {
-                        if (isset($additionalOptions2[$item['increment_id']])) {
-                            $item[$this->getData('name')] = $additionalOptions2[$item['increment_id']];
-                        }
-                    }
+        $additionalOptions2 = [];
+        while ($row = $result2->fetch()) {
+            $additionalOptions2[$row['increment_id']] =
+                'buckaroo_magento2_payperemail-' .
+                str_replace('buckaroo_magento2_', '', $row['method']);
+        }
+
+        return $additionalOptions2;
+    }
+
+    private function updateDataSourceItems(array $dataSource, array $additionalOptions): array
+    {
+        if (!empty($additionalOptions)) {
+            foreach ($dataSource['data']['items'] as &$item) {
+                if (isset($additionalOptions[$item['increment_id']])) {
+                    $item[$this->getData('name')] = $additionalOptions[$item['increment_id']];
                 }
             }
+            unset($item);
         }
 
         return $dataSource;

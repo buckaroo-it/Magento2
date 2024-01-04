@@ -37,28 +37,29 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     CheckoutConfigProvider,
     ConfigProviderInterface
 {
-    public const CODE = 'buckaroo';
+    public const CODE = 'buckaroo_magento2_';
 
-    public const XPATH_ACTIVE = 'active';
-    public const XPATH_AVAILABLE_IN_BACKEND = 'available_in_backend';
-    public const XPATH_ORDER_EMAIL = 'order_email';
-    public const XPATH_PAYMENT_FEE = 'payment_fee';
-    public const XPATH_PAYMENT_FEE_LABEL = 'payment_fee_label';
-    public const XPATH_ACTIVE_STATUS = 'active_status';
-    public const XPATH_ORDER_STATUS_SUCCESS = 'order_status_success';
-    public const XPATH_ORDER_STATUS_FAILED = 'order_status_failed';
+    public const ACTIVE               = 'active';
+    public const AVAILABLE_IN_BACKEND = 'available_in_backend';
+    public const ORDER_EMAIL          = 'order_email';
+    public const PAYMENT_FEE          = 'payment_fee';
+    public const PAYMENT_FEE_LABEL    = 'payment_fee_label';
+    public const ACTIVE_STATUS        = 'active_status';
+    public const ORDER_STATUS_SUCCESS = 'order_status_success';
+    public const ORDER_STATUS_FAILED  = 'order_status_failed';
 
-    public const XPATH_ALLOWED_CURRENCIES = 'allowed_currencies';
-    public const XPATH_ALLOW_SPECIFIC   = 'allowspecific';
-    public const XPATH_SPECIFIC_COUNTRY = 'specificcountry';
-    public const XPATH_SPECIFIC_CUSTOMER_GROUP     = 'specificcustomergroup';
-    public const XPATH_SPECIFIC_CUSTOMER_GROUP_B2B = 'specificcustomergroupb2b';
+    public const ALLOWED_CURRENCIES          = 'allowed_currencies';
+    public const ALLOW_SPECIFIC              = 'allowspecific';
+    public const SPECIFIC_COUNTRY            = 'specificcountry';
+    public const SPECIFIC_CUSTOMER_GROUP     = 'specificcustomergroup';
+    public const SPECIFIC_CUSTOMER_GROUP_B2B = 'specificcustomergroupb2b';
 
-    public const XPATH_SUBTEXT       = 'subtext';
-    public const XPATH_SUBTEXT_STYLE = 'subtext_style';
-    public const XPATH_SUBTEXT_COLOR = 'subtext_color';
+    public const SUBTEXT       = 'subtext';
+    public const SUBTEXT_STYLE = 'subtext_style';
+    public const SUBTEXT_COLOR = 'subtext_color';
 
-    public const XPATH_FINANCIAL_WARNING = 'financial_warning';
+    public const FINANCIAL_WARNING = 'financial_warning';
+
 
     /**
      * The asset repository to generate the correct url to our assets.
@@ -247,7 +248,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     public function getAllowedCurrencies($store = null)
     {
         $configuredAllowedCurrencies = trim((string)$this->getMethodConfigValue(
-            static::XPATH_ALLOWED_CURRENCIES,
+            static::ALLOWED_CURRENCIES,
             $store
         ));
         if (empty($configuredAllowedCurrencies)) {
@@ -306,12 +307,12 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      */
     public function getSpecificCountry($store = null)
     {
-        $configuredSpecificCountry = trim((string)$this->getConfigFromXpath(static::XPATH_SPECIFIC_COUNTRY, $store));
+        $configuredSpecificCountry = trim((string)$this->getConfigFromXpath(static::SPECIFIC_COUNTRY, $store));
 
         //if the country config is null in the store get the config value from the global('default') settings
         if (empty($configuredSpecificCountry)) {
             $configuredSpecificCountry = $this->scopeConfig->getValue(
-                static::XPATH_SPECIFIC_COUNTRY
+                static::SPECIFIC_COUNTRY
             );
         }
 
@@ -330,7 +331,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      */
     public function getAllowSpecific($store = null)
     {
-        return $this->getConfigFromXpath(static::XPATH_ALLOW_SPECIFIC, $store);
+        return $this->getConfigFromXpath(static::ALLOW_SPECIFIC, $store);
     }
 
     /**
@@ -341,7 +342,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      */
     public function getSpecificCustomerGroup($store = null)
     {
-        return $this->getMethodConfigValue(static::XPATH_SPECIFIC_CUSTOMER_GROUP, $store);
+        return $this->getMethodConfigValue(static::SPECIFIC_CUSTOMER_GROUP, $store);
     }
 
     /**
@@ -352,7 +353,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      */
     public function getSpecificCustomerGroupB2B($store = null)
     {
-        return $this->getMethodConfigValue(static::XPATH_SPECIFIC_CUSTOMER_GROUP_B2B, $store);
+        return $this->getMethodConfigValue(static::SPECIFIC_CUSTOMER_GROUP_B2B, $store);
     }
 
     /**
@@ -375,7 +376,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      */
     public function getActive($store = null)
     {
-        return $this->getMethodConfigValue(static::XPATH_ACTIVE, $store);
+        return $this->getMethodConfigValue(static::ACTIVE, $store);
     }
 
     /**
@@ -386,7 +387,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      */
     public function getAvailableInBackend($store = null)
     {
-        return $this->getMethodConfigValue(static::XPATH_AVAILABLE_IN_BACKEND, $store);
+        return $this->getMethodConfigValue(static::AVAILABLE_IN_BACKEND, $store);
     }
 
     /**
@@ -397,7 +398,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      */
     public function hasOrderEmail($store = null): bool
     {
-        return (bool)$this->getMethodConfigValue(static::XPATH_ORDER_EMAIL, $store);
+        return (bool)$this->getMethodConfigValue(static::ORDER_EMAIL, $store);
     }
 
     /**
@@ -409,7 +410,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      */
     public function getPaymentFee($store = null)
     {
-        $paymentFee = $this->getMethodConfigValue(static::XPATH_PAYMENT_FEE, $store);
+        $paymentFee = $this->getMethodConfigValue(static::PAYMENT_FEE, $store);
         return $paymentFee ? (float)$paymentFee : false;
     }
 
@@ -421,7 +422,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      */
     public function getPaymentFeeLabel($store = null)
     {
-        return $this->getMethodConfigValue(static::XPATH_PAYMENT_FEE_LABEL, $store);
+        return $this->getMethodConfigValue(static::PAYMENT_FEE_LABEL, $store);
     }
 
     /**
@@ -432,7 +433,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      */
     public function getActiveStatus($store = null)
     {
-        return $this->getMethodConfigValue(static::XPATH_ACTIVE_STATUS, $store);
+        return $this->getMethodConfigValue(static::ACTIVE_STATUS, $store);
     }
 
     /**
@@ -443,7 +444,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      */
     public function getOrderStatusSuccess($store = null)
     {
-        return $this->getMethodConfigValue(static::XPATH_ORDER_STATUS_SUCCESS, $store);
+        return $this->getMethodConfigValue(static::ORDER_STATUS_SUCCESS, $store);
     }
 
     /**
@@ -454,7 +455,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      */
     public function getOrderStatusFailed($store = null)
     {
-        return $this->getMethodConfigValue(static::XPATH_ORDER_STATUS_FAILED, $store);
+        return $this->getMethodConfigValue(static::ORDER_STATUS_FAILED, $store);
     }
 
     /**
@@ -465,7 +466,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      */
     public function getSubtext($store = null)
     {
-        return $this->getMethodConfigValue(static::XPATH_SUBTEXT, $store);
+        return $this->getMethodConfigValue(static::SUBTEXT, $store);
     }
 
     /**
@@ -476,7 +477,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      */
     public function getSubtextStyle($store = null)
     {
-        return $this->getMethodConfigValue(static::XPATH_SUBTEXT_STYLE, $store);
+        return $this->getMethodConfigValue(static::SUBTEXT_STYLE, $store);
     }
 
     /**
@@ -487,17 +488,16 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      */
     public function getSubtextColor($store = null)
     {
-        return $this->getMethodConfigValue(static::XPATH_SUBTEXT_COLOR, $store);
+        return $this->getMethodConfigValue(static::SUBTEXT_COLOR, $store);
     }
 
     /**
-     * Get Financial Warning
+     * Can Show Financial Warning
      *
-     * @param null|int|Store $store
      * @return boolean
      */
     protected function canShowFinancialWarning($store = null): bool
     {
-        return $this->getMethodConfigValue(static::XPATH_FINANCIAL_WARNING, $store) !== "0";
+        return $this->getMethodConfigValue(static::FINANCIAL_WARNING, $store) !== "0";
     }
 }

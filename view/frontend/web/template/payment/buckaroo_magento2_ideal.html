@@ -14,7 +14,10 @@
                 </label>
             </div>
             <div class="bk-img-wrap">
-                <img data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/'+getCode().replace('buckaroo_magento2_','')+'.svg') }" />
+                <img
+                    data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/'+getCode().replace('buckaroo_magento2_','')+'.svg') }"
+                    alt="iDEAL Logo"
+                />
             </div>
         </div>
     </div>
@@ -42,19 +45,22 @@
                             <!-- ko foreach: bankTypes -->
                             <label class="bank-types">
                                 <!-- ko if: logo !== null -->
-                                <img class="bank-types-img" data-bind="attr: {
-                                        'src': logo,
-                                        'width': 30,
-                                        'height': 23 }"
+                                    <img class="bank-types-img"
+                                         data-bind="attr: {
+                                            'src': logo,
+                                            'width': 30,
+                                            'height': 23,
+                                            'alt': name
+                                         }"
                                     />
-                                    <!--/ko-->
-                                    <input class="bank-types-input"
-                                        type="radio"
-                                        data-bind="value: id, checked: $parent.selectedBank,
-                                        event: { change: $parent.validateField.bind($parent) }"
-                                        data-validate="{'validate-one-required-by-name':true}"
-                                        name="bank"
-                                    >
+                                <!--/ko-->
+                                <input class="bank-types-input"
+                                    type="radio"
+                                    data-bind="value: id, checked: $parent.selectedBank,
+                                    event: { change: $parent.validateField.bind($parent) }"
+                                    data-validate="{'validate-one-required-by-name':true}"
+                                    name="bank"
+                                >
                                 <!-- ko text: name --><!--/ko-->
                             </label>
                             <!--/ko-->

@@ -20,6 +20,7 @@
 
 namespace Buckaroo\Magento2\Block\Catalog\Product\View;
 
+use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Model\ConfigProvider\Account as AccountConfig;
 use Magento\Catalog\Model\Product;
 use Magento\Checkout\Model\Cart;
@@ -120,34 +121,34 @@ class Idin extends Template
      */
     public function canShowProductIdin()
     {
-        if ($this->idinConfigProvider->getIdin() == 0) {
-            return false;
-        }
-
         $idinMode = $this->idinConfigProvider->getIdinMode();
-        $product = $this->getProduct();
+        $result = false;
 
-        if ($idinMode === 1) {
-            $customAttribute = $product->getCustomAttribute('buckaroo_product_idin');
-            return $customAttribute !== null && $customAttribute->getValue() == 1;
-        }
+        if ($idinMode !== 0) {
+            $product = $this->getProduct();
 
-        if ($idinMode === 2) {
-            $idinCategories = explode(',', (string)$this->idinConfigProvider->getIdinCategory());
-            foreach ($product->getCategoryIds() as $category) {
-                if (in_array($category, $idinCategories)) {
-                    return true;
+            if ($idinMode === 1) {
+                $customAttribute = $product->getCustomAttribute('buckaroo_product_idin');
+                $result = $customAttribute !== null && $customAttribute->getValue() == 1;
+            } elseif ($idinMode === 2) {
+                $idinCategories = explode(',', (string)$this->idinConfigProvider->getIdinCategory());
+                foreach ($product->getCategoryIds() as $category) {
+                    if (in_array($category, $idinCategories)) {
+                        $result = true;
+                        break;
+                    }
                 }
             }
         }
 
-        return false;
+        return $result;
     }
 
     /**
      * Get idin account config
      *
      * @return false|string
+     * @throws Exception
      */
     public function getAccountConfig()
     {

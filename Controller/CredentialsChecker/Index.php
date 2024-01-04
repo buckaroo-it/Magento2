@@ -88,37 +88,36 @@ class Index extends Action implements HttpPostActionInterface
      */
     public function execute()
     {
-        if ($params = $this->getRequest()->getParams()) {
-            if (!empty($params['secretKey']) && !empty($params['merchantKey'])) {
-                if (preg_match('/[^\*]/', $params['secretKey'])) {
-                    $secretKey = $params['secretKey'];
-                } else {
-                    $secretKey = $this->encryptor->decrypt($this->configProviderAccount->getSecretKey());
-                }
+        if (($params = $this->getRequest()->getParams())
+            && (!empty($params['secretKey']) && !empty($params['merchantKey']))) {
+            if (preg_match('/[^\*]/', $params['secretKey'])) {
+                $secretKey = $params['secretKey'];
+            } else {
+                $secretKey = $this->encryptor->decrypt($this->configProviderAccount->getSecretKey());
+            }
 
-                if (preg_match('/[^\*]/', $params['merchantKey'])) {
-                    $merchantKey = $params['merchantKey'];
-                } else {
-                    $merchantKey = $this->encryptor->decrypt($this->configProviderAccount->getMerchantKey());
-                }
+            if (preg_match('/[^\*]/', $params['merchantKey'])) {
+                $merchantKey = $params['merchantKey'];
+            } else {
+                $merchantKey = $this->encryptor->decrypt($this->configProviderAccount->getMerchantKey());
+            }
 
-                $mode = $params['mode'] ?? Data::MODE_TEST;
+            $mode = $params['mode'] ?? Data::MODE_TEST;
 
-                if (!$this->testJson($mode, $merchantKey, $secretKey, $message)) {
-                    return $this->doResponse([
-                        'success'       => false,
-                        'error_message' => $message
-                    ]);
-                }
-
+            if (!$this->testJson($mode, $merchantKey, $secretKey, $message)) {
                 return $this->doResponse([
-                    'success' => true
+                    'success'       => false,
+                    'error_message' => $message
                 ]);
             }
+
+            return $this->doResponse([
+                'success' => true
+            ]);
         }
 
         return $this->doResponse([
-            'success' => false,
+            'success'       => false,
             'error_message' => __('Failed to start validation process due to lack of data')
         ]);
     }

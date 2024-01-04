@@ -704,7 +704,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             break;
         }
 
-        if (count($articles) > 0 && !$payment->getOrder()->hasCreditmemos()) {
+        if (!empty($articles) && !$payment->getOrder()->hasCreditmemos()) {
             $serviceLine = $this->getServiceCostLine($creditmemo, $itemsTotalAmount, true);
             if (!empty($serviceLine)) {
                 $articles = array_merge_recursive($articles, $serviceLine);

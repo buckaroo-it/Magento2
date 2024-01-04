@@ -376,21 +376,18 @@ class Process extends Action implements HttpPostActionInterface
                 $this->accountConfig->getOrderConfirmationEmail($store) === "1"
                 || $paymentMethod->getConfigData('order_email', $store) === "1"
             )
-        ) {
-
-
-            if (!($this->redirectRequest->hasAdditionalInformation('initiated_by_magento', 1)
+            && (!($this->redirectRequest->hasAdditionalInformation('initiated_by_magento', 1)
                 && $isKlarnaKpReserve
                 && $statusCode == BuckarooStatusCode::SUCCESS)
-            ) {
-                $this->logger->addDebug(sprintf(
-                    '[REDIRECT - %s] | [Controller] | [%s:%s] - Send Klarna Reservation Mail',
-                    $this->payment->getMethod(),
-                    __METHOD__,
-                    __LINE__
-                ));
-                $this->orderRequestService->sendOrderEmail($this->order, true);
-            }
+            )
+        ) {
+            $this->logger->addDebug(sprintf(
+                '[REDIRECT - %s] | [Controller] | [%s:%s] - Send Klarna Reservation Mail',
+                $this->payment->getMethod(),
+                __METHOD__,
+                __LINE__
+            ));
+            $this->orderRequestService->sendOrderEmail($this->order, true);
         }
     }
 

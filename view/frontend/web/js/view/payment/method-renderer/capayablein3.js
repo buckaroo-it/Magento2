@@ -68,8 +68,8 @@ define(
                 return false;
             }
 
-            value = value.replace(/^\+|(00)/, '');
-            value = value.replace(/\(0\)|\s|-/g, '');
+            value = value.replace(/^(\+|00)/, '');
+            value = value.replace(/(\(0\)|\s|-)/g, '');
 
             if (value.match(/\+/)) {
                 return false;

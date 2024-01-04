@@ -70,11 +70,11 @@ class Afterpay20Test extends BaseTest
         $scopeConfigMock->expects($this->atLeastOnce())
             ->method('getValue')
             ->withConsecutive(
-                [$this->getPaymentMethodConfigPath(Afterpay20::CODE, AbstractConfigProvider::XPATH_ACTIVE),
+                [$this->getPaymentMethodConfigPath(Afterpay20::CODE, AbstractConfigProvider::ACTIVE),
                     ScopeInterface::SCOPE_STORE],
-                [$this->getPaymentMethodConfigPath(Afterpay20::CODE, AbstractConfigProvider::XPATH_ORDER_EMAIL),
+                [$this->getPaymentMethodConfigPath(Afterpay20::CODE, AbstractConfigProvider::ORDER_EMAIL),
                     ScopeInterface::SCOPE_STORE],
-                [$this->getPaymentMethodConfigPath(Afterpay20::CODE, AbstractConfigProvider::XPATH_ALLOWED_CURRENCIES),
+                [$this->getPaymentMethodConfigPath(Afterpay20::CODE, AbstractConfigProvider::ALLOWED_CURRENCIES),
                     ScopeInterface::SCOPE_STORE],
             )
             ->willReturnOnConsecutiveCalls($active, '1', 'EUR');
@@ -140,7 +140,7 @@ class Afterpay20Test extends BaseTest
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
             ->with(
-                $this->getPaymentMethodConfigPath(Afterpay20::CODE, AbstractConfigProvider::XPATH_PAYMENT_FEE),
+                $this->getPaymentMethodConfigPath(Afterpay20::CODE, AbstractConfigProvider::PAYMENT_FEE),
                 ScopeInterface::SCOPE_STORE
             )
             ->willReturn($value);

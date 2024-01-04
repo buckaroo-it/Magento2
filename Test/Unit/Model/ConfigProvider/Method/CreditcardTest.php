@@ -48,7 +48,7 @@ class CreditcardTest extends BaseTest
                 [
                     $this->getPaymentMethodConfigPath(
                         Creditcard::CODE,
-                        AbstractConfigProvider::XPATH_ALLOWED_CURRENCIES
+                        AbstractConfigProvider::ALLOWED_CURRENCIES
                     ),
                     ScopeInterface::SCOPE_STORE,
                     null
@@ -76,7 +76,7 @@ class CreditcardTest extends BaseTest
             ->getMockForAbstractClass();
         $scopeConfigMock->method('getValue')
             ->with(
-                $this->getPaymentMethodConfigPath(Creditcard::CODE, AbstractConfigProvider::XPATH_ACTIVE),
+                $this->getPaymentMethodConfigPath(Creditcard::CODE, AbstractConfigProvider::ACTIVE),
                 ScopeInterface::SCOPE_STORE,
                 null
             )

@@ -20,38 +20,29 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
+use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Helper\PaymentFee;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\View\Asset\Repository;
-use Magento\Store\Model\ScopeInterface;
 
 class Creditcards extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_creditcards';
 
-    protected array $issuers;
+    public const XPATH_CREDITCARDS_ALLOWED_ISSUERS = 'allowed_creditcards';
+    public const XPATH_USE_CARD_DESIGN             = 'card_design';
 
-    public const XPATH_CREDITCARDS_SELLERS_PROTECTION = 'payment/buckaroo_magento2_creditcards/sellers_protection';
-    public const XPATH_CREDITCARDS_SELLERS_PROTECTION_ELIGIBLE =
-        'payment/buckaroo_magento2_creditcards/sellers_protection_eligible';
-    public const XPATH_CREDITCARDS_SELLERS_PROTECTION_INELIGIBLE =
-        'payment/buckaroo_magento2_creditcards/sellers_protection_ineligible';
-    public const XPATH_CREDITCARDS_SELLERS_PROTECTION_ITEMNOTRECEIVED_ELIGIBLE =
-        'payment/buckaroo_magento2_creditcards/sellers_protection_itemnotreceived_eligible';
-    public const XPATH_CREDITCARDS_SELLERS_PROTECTION_UNAUTHORIZEDPAYMENT_ELIGIBLE =
-        'payment/buckaroo_magento2_creditcards/sellers_protection_unauthorizedpayment_eligible';
-    public const XPATH_CREDITCARDS_ALLOWED_ISSUERS = 'payment/buckaroo_magento2_creditcards/allowed_creditcards';
-    public const XPATH_USE_CARD_DESIGN = 'payment/buckaroo_magento2_creditcards/card_design';
+    protected array $issuers;
 
     /**
      * Creditcards constructor.
      *
-     * @param Repository           $assetRepo
+     * @param Repository $assetRepo
      * @param ScopeConfigInterface $scopeConfig
-     * @param AllowedCurrencies    $allowedCurrencies
-     * @param PaymentFee           $paymentFeeHelper
-     * @param Creditcard           $creditcardConfigProvider
+     * @param AllowedCurrencies $allowedCurrencies
+     * @param PaymentFee $paymentFeeHelper
+     * @param Creditcard $creditcardConfigProvider
      */
     public function __construct(
         Repository $assetRepo,
@@ -67,6 +58,8 @@ class Creditcards extends AbstractConfigProvider
 
     /**
      * @inheritdoc
+     *
+     * @throws Exception
      */
     public function getConfig(): array
     {
@@ -96,7 +89,7 @@ class Creditcards extends AbstractConfigProvider
      *
      * @return array
      */
-    public function formatIssuers()
+    public function formatIssuers(): array
     {
         $allowed = explode(',', (string)$this->getAllowedIssuers());
 
@@ -110,81 +103,6 @@ class Creditcards extends AbstractConfigProvider
     }
 
     /**
-     * Get Sellers Protection
-     *
-     * @param null|int|string $store
-     * @return mixed
-     */
-    public function getSellersProtection($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            self::XPATH_CREDITCARDS_SELLERS_PROTECTION,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * Get Sellers Protection Eligible
-     *
-     * @param null|int|string $store
-     * @return mixed
-     */
-    public function getSellersProtectionEligible($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            self::XPATH_CREDITCARDS_SELLERS_PROTECTION_ELIGIBLE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * Get Sellers Protection Ineligible
-     *
-     * @param null|int|string $store
-     * @return mixed
-     */
-    public function getSellersProtectionIneligible($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            self::XPATH_CREDITCARDS_SELLERS_PROTECTION_INELIGIBLE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * Get Sellers Protection Itemnotreceived Eligible
-     *
-     * @param null|int|string $store
-     * @return mixed
-     */
-    public function getSellersProtectionItemnotreceivedEligible($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            self::XPATH_CREDITCARDS_SELLERS_PROTECTION_ITEMNOTRECEIVED_ELIGIBLE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * Get Sellers Protection Unauthorizedpayment Eligible
-     *
-     * @param null|int|string $store
-     * @return mixed
-     */
-    public function getSellersProtectionUnauthorizedpaymentEligible($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            self::XPATH_CREDITCARDS_SELLERS_PROTECTION_UNAUTHORIZEDPAYMENT_ELIGIBLE,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
      * Get Allowed Issuers
      *
      * @param null|int|string $store
@@ -192,11 +110,7 @@ class Creditcards extends AbstractConfigProvider
      */
     public function getAllowedIssuers($store = null)
     {
-        return $this->scopeConfig->getValue(
-            self::XPATH_CREDITCARDS_ALLOWED_ISSUERS,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
+        return $this->getMethodConfigValue(self::XPATH_CREDITCARDS_ALLOWED_ISSUERS, $store);
     }
 
     /**
