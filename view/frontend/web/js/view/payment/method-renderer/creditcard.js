@@ -188,9 +188,10 @@ define(
                 getData: function () {
                     var selectedCardCode = null;
                     if (this.selectedCard()) {
-                        selectedCardCode = this.selectedCard().code;
+                        selectedCardCode = typeof this.selectedCard() === 'object' ?
+                            this.selectedCard().code :
+                            this.selectedCard();
                     }
-
 
                     if(this.creditcardIssuer){
                         selectedCardCode = this.creditcardIssuer;
