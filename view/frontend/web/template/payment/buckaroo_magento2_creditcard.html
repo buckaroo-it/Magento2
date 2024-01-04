@@ -128,7 +128,7 @@
             <!--/ko-->
 
             <div class="payment-method-billing-address">
-                <!-- ko foreach: $parent.getRegion($parent.getBillingAddressFormName()) -->
+                <!-- ko foreach: $parents[1].getRegion($parent.getBillingAddressFormName()) -->
                 <!-- ko template: getTemplate()--><!-- /ko -->
                 <!--/ko-->
             </div>
