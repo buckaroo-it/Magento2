@@ -103,7 +103,7 @@
 
 <!-- ko ifnot: isCredicardGroupMode() -->
 <div class="buckaroo_magento2_all_creditcards" data-bind="foreach: { data: creditcards, as: 'creditcard', noChildContext: false }">
-    <div data-bind="attr: { 'class': 'buckaroo_magento2_all_creditcards payment-method buckaroo_magento2_' + code }, css: {'_active': ($parent.getCode() == $parent.isChecked() && $parent.getCreditcardType() == code)}">
+    <div data-bind="attr: { 'class': 'buckaroo_magento2_all_creditcard payment-method buckaroo_magento2_' + code }, css: {'_active': ($parent.getCode() == $parent.isChecked() && $parent.getCreditcardType() == code)}">
 
         <div class="payment-method-title field choice bk-payment">
             <div class="bk-payment-wrap">
