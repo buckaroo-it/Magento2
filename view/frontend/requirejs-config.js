@@ -22,6 +22,9 @@ var config = {
             'Buckaroo_Magento2/js/action/place-order': {
                 'Buckaroo_Magento2/js/action/amasty-place-order-mixin': true
             },
+            'Magento_Checkout/js/action/set-payment-information-extended': {
+                'Buckaroo_Magento2/js/action/set-payment-information-extended-mixin': true
+            }
         },
     },
     map: {
