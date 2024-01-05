@@ -5,7 +5,7 @@ define([
 
     return function (setPaymentInformationExtended) {
         return wrapper.wrap(setPaymentInformationExtended, function (originalSetPaymentInformationExtended, messageContainer, paymentData, skipBilling) {
-            if (paymentData.method.startsWith('buckaroo_magento2_')) {
+            if (paymentData.method?.startsWith('buckaroo_magento2_')) {
                 skipBilling = false;
             }
             originalSetPaymentInformationExtended(messageContainer, paymentData, skipBilling);
