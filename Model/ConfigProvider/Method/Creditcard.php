@@ -280,15 +280,15 @@ class Creditcard extends AbstractConfigProvider
 
     /**
      * @param $storeId
-     * @return string
+     * @return ?string
      */
-    public function getSortedIssuers($storeId = null): string
+    public function getSortedIssuers($storeId = null): ?string
     {
-        return (string)$this->scopeConfig->getValue(
+        return $this->scopeConfig->getValue(
             self::XPATH_SORTED_ISSUERS,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $storeId
-        ) ?? '';
+        );
     }
 
     /**
