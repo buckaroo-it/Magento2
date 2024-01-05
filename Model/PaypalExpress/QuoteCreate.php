@@ -106,11 +106,9 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
     public function execute(
         ShippingAddressRequestInterface $shipping_address,
         string $page,
-        $form_data = null
+        string $form_data = null
     ) {
-
-        if ($page === 'product') {
-            $this->validateData($form_data);
+        if ($page === 'product' && is_string($form_data)) {
             $this->quote = $this->createQuote($form_data);
         } else {
             $this->quote = $this->checkoutSession->getQuote();
@@ -182,7 +180,7 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
      */
     protected function addFirstShippingMethod(Address $address)
     {
-        if ($address->getShippingMethod() === null) {
+        if (empty($address->getShippingMethod())) {
             $shippingMethods = $this->shipmentEstimation->estimateByExtendedAddress(
                 $this->quote->getId(),
                 $this->quote->getShippingAddress()
@@ -267,12 +265,12 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
     /**
      * Create quote if in product page
      *
-     * @param array $form_data
+     * @param string $form_data
      * @param ShippingAddressRequestInterface $shipping_address
      *
      * @return Quote
      */
-    protected function createQuote(array $form_data)
+    protected function createQuote(string $form_data)
     {
         try {
             $quoteBuilder = $this->quoteBuilderInterfaceFactory->create();
@@ -281,12 +279,6 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
         } catch (\Throwable $th) {
             $this->logger->addDebug(__METHOD__.$th->getMessage());
             throw new PaypalExpressException(__("Failed to create quote"), 1, $th);
-        }
-    }
-    protected function validateData($form_data)
-    {
-        if (!is_array($form_data)) {
-            throw new PaypalExpressException(__("Invalid order data"), 1);
         }
     }
 }

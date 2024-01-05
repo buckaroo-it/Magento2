@@ -654,6 +654,15 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     {
         $title = $this->getConfigData('title');
 
+        if (
+            strpos($this->buckarooPaymentMethodCode, "capayable") !== false &&
+            method_exists($this, 'isV2') &&
+            $this->isV2() &&
+            $title === Capayable::DEFAULT_NAME
+        ) {
+            $title = Capayable::V2_NAME;
+        }
+
         if (!$this->configProviderMethodFactory->has($this->buckarooPaymentMethodCode)) {
             return $title;
         }

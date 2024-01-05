@@ -122,8 +122,8 @@ class Afterpay extends AbstractMethod
             if (isset($additionalData['selectedBusiness'])) {
 
                 if( $additionalData['selectedBusiness'] == self::BUSINESS_METHOD_B2B) {
-                    $this->getInfoInstance()->setAdditionalInformation('COCNumber', $additionalData['COCNumber']);
-                    $this->getInfoInstance()->setAdditionalInformation('CompanyName', $additionalData['CompanyName']);
+                    $this->getInfoInstance()->setAdditionalInformation('COCNumber', $additionalData['cOCNumber']);
+                    $this->getInfoInstance()->setAdditionalInformation('CompanyName', $additionalData['companyName']);
                 }
 
                 $this->getInfoInstance()->setAdditionalInformation(
@@ -169,13 +169,7 @@ class Afterpay extends AbstractMethod
          */
         $afterpayConfig = $this->configProviderMethodFactory->get($this->buckarooPaymentMethodCode);
 
-        $methodName = $afterpayConfig->getPaymentMethodName();
-
-        if ($payment->getAdditionalInformation('selectedBusiness')) {
-            $methodName = $afterpayConfig->getPaymentMethodName($payment->getAdditionalInformation('selectedBusiness'));
-        }
-
-        return $methodName;
+        return $afterpayConfig->getPaymentMethodName();
     }
 
     /**

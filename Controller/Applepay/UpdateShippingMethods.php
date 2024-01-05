@@ -38,25 +38,26 @@ class UpdateShippingMethods extends Common
                 $checkoutSession = $objectManager->get(\Magento\Checkout\Model\Session::class);
                 $quoteRepository = $objectManager->get(\Magento\Quote\Model\QuoteRepository::class);
                 $quote = $checkoutSession->getQuote();
+                if (!$quote->getIsVirtual()) {
+                    ////shipping
+                    $quote->getShippingAddress()->setCollectShippingRates(true);
+                    $quote->getShippingAddress()->setShippingMethod($wallet['identifier']);
 
-                ////shipping
-                $quote->getShippingAddress()->setCollectShippingRates(true);
-                $quote->getShippingAddress()->setShippingMethod($wallet['identifier']);
+                    $quote->setTotalsCollectedFlag(false);
+                    $quote->collectTotals();
+                    $totals = $this->gatherTotals($quote->getShippingAddress(), $quote->getTotals());
+                    $quoteRepository->save($quote);
+                    $data = [
+                        'shipping_methods' => [
+                            'code' => $wallet['identifier']
+                        ],
+                        'totals' => $totals
+                    ];
 
-                $quote->setTotalsCollectedFlag(false);
-                $quote->collectTotals();
-                $totals = $this->gatherTotals($quote->getShippingAddress(), $quote->getTotals());
-                $quoteRepository->save($quote);
-                $data = [
-                    'shipping_methods' => [
-                        'code' => $wallet['identifier']
-                    ],
-                    'totals' => $totals
-                ];
-
-                //resave proper method
-                $quote->getShippingAddress()->setShippingMethod($wallet['identifier']);
-                $quote->getShippingAddress()->save();
+                    //resave proper method
+                    $quote->getShippingAddress()->setShippingMethod($wallet['identifier']);
+                    $quote->getShippingAddress()->save();
+                }
             }
         }
 

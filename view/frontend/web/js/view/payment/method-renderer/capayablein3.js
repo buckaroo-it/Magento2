@@ -133,6 +133,15 @@ define(
                         'validationState'
                     ]);
 
+                    this.showFinancialWarning = ko.computed(
+                        function () {
+                            return quote.billingAddress() !== null &&
+                            quote.billingAddress().countryId == 'NL' &&
+                            window.checkoutConfig.payment.buckaroo.capayablein3.showFinancialWarning
+                        },
+                        this
+                    );
+
                     this.showPhone = ko.computed(
                         function () {
                             return quote.billingAddress() === undefined ||

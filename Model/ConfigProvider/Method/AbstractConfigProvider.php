@@ -106,7 +106,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
             'imgName' => 'triodos'
         ],
         [
-            'name' => 'Van Lanschot',
+            'name' => 'Van Lanschot Kempen',
             'code' => 'FVLBNL22',
             'imgName' => 'vanlanschot'
         ],
@@ -125,6 +125,11 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
             'code' => 'NTSBDEB1',
             'imgName' => 'n26'
         ],
+        [
+            'name' => 'Nationale Nederlanden',
+            'code' => 'NNBANL2G',
+            'imgName' => 'nn'
+        ]
     ];
 
     /**
@@ -323,5 +328,19 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     public function getBuckarooPaymentFeeLabel($method = false)
     {
         return $this->paymentFeeHelper->getBuckarooPaymentFeeLabel($method);
+    }
+
+    /**
+     *
+     * @param string $configKey
+     *
+     * @return boolean
+     */
+    protected function canShowFinancialWarning(string $configKey): bool
+    {
+        return $this->scopeConfig->getValue(
+            $configKey,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        ) !== "0";
     }
 }
