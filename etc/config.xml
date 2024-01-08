@@ -280,7 +280,7 @@
                 <active>0</active>
                 <model>MrcashFacade</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Bancontact/Mister Cash</title>
+                <title>Buckaroo Bancontact</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>140</sort_order>
                 <order_email>1</order_email>
