@@ -347,38 +347,15 @@ class DefaultProcessor implements PushProcessorInterface
             Giftcards::CODE,
             Transfer::CODE
         ];
-        if ($this->payment
-            && $this->payment->getMethod()
-            && $receivedStatusCode
+
+        if ($receivedStatusCode
             && ($this->pushTransactionType->getPushType() == PushTransactionType::BUCK_PUSH_TYPE_TRANSACTION)
+            && $this->payment && $this->payment->getMethod()
             && (!in_array($this->payment->getMethod(), $ignoredPaymentMethods))
         ) {
-            $receivedTrxStatuses = $this->payment->getAdditionalInformation(
-                self::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES
-            );
-
-            $this->logger->addDebug(sprintf('[%s:%s] - Check for duplicate transaction pushes | order: %s',
-                __METHOD__,
-                __LINE__,
-                var_export([
-                    'receivedTrxStatuses' => $receivedTrxStatuses,
-                    'receivedStatusCode'  => $receivedStatusCode
-                ], true)
-            ));
-
-            if ($receivedTrxStatuses
-                && is_array($receivedTrxStatuses)
-                && isset($receivedTrxStatuses[$trxId])
-                && ($receivedTrxStatuses[$trxId] == $receivedStatusCode)
+            if ($this->isDuplicateTransaction($receivedStatusCode,$trxId)
             ) {
-                $orderStatus = $this->helper->getOrderStatusByState($this->order, Order::STATE_NEW);
-                if (($this->order->getState() == Order::STATE_NEW)
-                    && ($this->order->getStatus() == $orderStatus)
-                    && ($receivedStatusCode == BuckarooStatusCode::SUCCESS)
-                ) {
-                    $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - allow duplicated pushes '
-                        . 'for 190 statuses in case if order stills to be new/pending',
-                    );
+                if ($this->isNewOrderAndReceivedSuccess($receivedStatusCode)) {
                     return false;
                 }
 
@@ -389,6 +366,56 @@ class DefaultProcessor implements PushProcessorInterface
                 $this->setReceivedTransactionStatuses();
                 $this->payment->save();
             }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if transaction was already processed based on transaction statuses from payment additional information
+     *
+     * @param string $trxId
+     * @param int $receivedStatusCode
+     * @return bool
+     */
+    private function isDuplicateTransaction(int $receivedStatusCode, string $trxId): bool
+    {
+        $receivedTrxStatuses = $this->payment->getAdditionalInformation(
+            self::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES
+        );
+
+        $this->logger->addDebug(sprintf('[%s:%s] - Check for duplicate transaction pushes | order: %s',
+            __METHOD__,
+            __LINE__,
+            var_export([
+                'receivedTrxStatuses' => $receivedTrxStatuses,
+                'receivedStatusCode'  => $receivedStatusCode
+            ], true)
+        ));
+
+        return $receivedTrxStatuses
+            && is_array($receivedTrxStatuses)
+            && isset($receivedTrxStatuses[$trxId])
+            && ($receivedTrxStatuses[$trxId] == $receivedStatusCode);
+    }
+
+    /**
+     * If the order has status new/pending and received status success then we skip from duplication transaction check
+     *
+     * @param int $receivedStatusCode
+     * @return bool
+     */
+    private function isNewOrderAndReceivedSuccess(int $receivedStatusCode): bool
+    {
+        $orderStatus = $this->helper->getOrderStatusByState($this->order, Order::STATE_NEW);
+        if (($this->order->getState() == Order::STATE_NEW)
+            && ($this->order->getStatus() == $orderStatus)
+            && ($receivedStatusCode == BuckarooStatusCode::SUCCESS)
+        ) {
+            $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - allow duplicated pushes '
+                . 'for 190 statuses in case if order stills to be new/pending',
+            );
+            return true;
         }
 
         return false;

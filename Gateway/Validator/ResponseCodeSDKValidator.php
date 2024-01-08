@@ -25,6 +25,7 @@ use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Transaction\Response\TransactionResponse;
 use Magento\Framework\App\Request\Http;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
@@ -68,6 +69,7 @@ class ResponseCodeSDKValidator extends AbstractValidator
      * @return ResultInterface
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @throws LocalizedException
      */
     public function validate(array $validationSubject)
     {
@@ -106,12 +108,10 @@ class ResponseCodeSDKValidator extends AbstractValidator
                     [__("Invalid Buckaroo status code received: %1.")],
                     [$statusCode]
                 );
-                //phpcs:ignore:Squiz.PHP.NonExecutableCode
-                break;
         }
 
         if ($success) {
-            return $this->createResult(
+            $response = $this->createResult(
                 true,
                 [__('Transaction Success')],
                 [$statusCode]
@@ -127,12 +127,14 @@ class ResponseCodeSDKValidator extends AbstractValidator
             $message = !empty($this->transaction->getSomeError()) ?
                 $this->transaction->getSomeError()
                 : 'Gateway rejected the transaction.';
-            return $this->createResult(
+            $response = $this->createResult(
                 false,
                 [__($message)],
                 [$statusCode]
             );
         }
+
+        return $response;
     }
 
     /**

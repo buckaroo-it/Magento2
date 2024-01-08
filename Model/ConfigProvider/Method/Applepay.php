@@ -184,6 +184,6 @@ class Applepay extends AbstractConfigProvider
      */
     public function getMerchantGuid($store = null)
     {
-        return $this->getMethodConfigValue(self::XPATH_APPLEPAY_DONT_ASK_BILLING_INFO_IN_CHECKOUT, $store);
+        return $this->getMethodConfigValue(self::XPATH_ACCOUNT_MERCHANT_GUID, $store);
     }
 }
