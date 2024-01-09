@@ -46,10 +46,6 @@ define(
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/ideal'
             },
             {
-                type: 'buckaroo_magento2_idealprocessing',
-                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/idealprocessing'
-            },
-            {
                 type: 'buckaroo_magento2_afterpay',
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/afterpay'
             },

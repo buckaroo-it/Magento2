@@ -38,8 +38,9 @@ class Ideal extends AbstractConfigProvider
 
     public const CODE = 'buckaroo_magento2_ideal';
 
-    public const XPATH_SELECTION_TYPE = 'selection_type';
-    public const XPATH_SHOW_ISSUERS   = 'show_issuers';
+    public const XPATH_SELECTION_TYPE   = 'selection_type';
+    public const XPATH_SHOW_ISSUERS     = 'show_issuers';
+    public const XPATH_GATEWAY_SETTINGS = 'gateway_settings';
     /**
      * @var array
      */
@@ -137,5 +138,17 @@ class Ideal extends AbstractConfigProvider
             return $mainConfig;
         }
         return $methodConfig;
+    }
+
+    /**
+     * Get gateway setting ideal/idealprocessing
+     *
+     * @param null|int|string $storeId
+     * @return string
+     */
+    public function getGatewaySettings($storeId = null): string
+    {
+        return $this->getMethodConfigValue(self::XPATH_GATEWAY_SETTINGS, $storeId) ??
+            str_replace('buckaroo_magento2_', '', self::CODE);
     }
 }

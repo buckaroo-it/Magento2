@@ -197,10 +197,6 @@
                     <item name="type" xsi:type="string">ideal</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Ideal</item>
                 </item>
-                <item name="idealprocessing" xsi:type="array">
-                    <item name="type" xsi:type="string">idealprocessing</item>
-                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\IdealProcessing</item>
-                </item>
                 <item name="creditcard" xsi:type="array">
                     <item name="type" xsi:type="string">creditcard</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard</item>
@@ -1137,6 +1133,7 @@
             <argument name="builders" xsi:type="array">
                 <item name="order" xsi:type="string">BuckarooOrderRequest</item>
                 <item name="payRemainder" xsi:type="string">BuckarooPayRemainderRequest</item>
+                <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\GatewaySettingDataBuilder</item>
                 <item name="issuer" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\IssuerDataBuilder</item>
             </argument>
         </arguments>

@@ -483,7 +483,6 @@ class Data extends AbstractHelper
             ['value' => 'giftcards',       'label' => __('Giftcards')],
             ['value' => 'giropay',       'label' => __('Giropay')],
             ['value' => 'ideal',       'label' => __('iDEAL')],
-            ['value' => 'idealprocessing',       'label' => __('iDEAL Processing')],
             ['value' => 'kbc',       'label' => __('KBC')],
             ['value' => 'klarna',       'label' => __('Klarna Pay later (pay)')],
             ['value' => 'klarnain',       'label' => __('Klarna Slice it')],

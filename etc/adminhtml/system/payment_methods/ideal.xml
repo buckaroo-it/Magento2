@@ -32,7 +32,14 @@
             <config_path>payment/buckaroo_magento2_ideal/active</config_path>
         </field>
 
-        <field id="show_issuers" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+        <field id="gateway_settings" translate="label comment" type="select" sortOrder="12" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Gateway Settings</label>
+            <comment><![CDATA[Choose whether you have a subscription for iDEAL Collecting (default) or a iDEAL Processing subscription directly to your bank.]]></comment>
+            <source_model>Buckaroo\Magento2\Model\Config\Source\IdealGatewayOptions</source_model>
+            <config_path>payment/buckaroo_magento2_ideal/gateway_settings</config_path>
+        </field>
+
+        <field id="show_issuers" translate="label comment" type="select" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Show Issuer Selection in the Checkout</label>
             <comment><![CDATA[When the "NO" option is selected, the issuer selection for iDEAL will not be displayed in the checkout. Instead, customers will be redirected to a separate page where they can choose their iDEAL issuer (i.e., their bank). On the other hand, selecting the "Enable" option will display the issuer selection directly in the checkout. It's important to note that enabling this option will incur additional costs from Buckaroo, estimated at around €0.002 for each transaction. 
 For precise cost details, please reach out to <a href="mailto:wecare@buckaroo.nl">Buckaroo</a> directly.]]></comment>
