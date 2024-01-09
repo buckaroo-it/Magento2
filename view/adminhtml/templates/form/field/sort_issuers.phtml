@@ -39,7 +39,10 @@ $issuers = $block->getIssuers();
         $(listSelector).sortable({
             axis: 'y',
             tolerance: 'pointer',
-            items: 'p'
+            items: 'p',
+            update: function(event, ui) {
+                updateSortedList();
+            }
         });
 
         let ccInherit = $('input[name="<?= $block->getConfiguration('ccInherit') ?>"]');
@@ -55,19 +58,10 @@ $issuers = $block->getIssuers();
                 return;
             }
 
-            let p = document.createElement("p");
-            p.classList.add('sort_issuer');
-            p.dataset.code = code;
-
-            let img = document.createElement("img");
-            img.alt = issuers[code]['name'];
-            img.src = issuers[code]['img'];
-
-            let textNode = document.createTextNode(issuers[code]['name']);
-
-            p.appendChild(img);
-            p.appendChild(textNode);
-            $(listSelector).append(p);
+            $(listSelector).append(
+                '<p class="sort_issuer" data-code="' + code + '">' +
+                '<img src="' + issuers[code]['img'] + '">' + issuers[code]['name'] + '</p>'
+            );
         }
 
         if (inputText !== '') {
@@ -87,23 +81,19 @@ $issuers = $block->getIssuers();
             });
         });
 
-        $('#save').click(function () {
+        function updateSortedList() {
             let cardList = '';
             $(listSelector + ' p').each(function () {
                 cardList += $(this).data('code') + ',';
             });
             cardList = cardList.slice(0, -1);
             $('#sort_<?= $paymentMethod ?>').val(cardList);
-        });
+        }
 
         function sortableOnOff(status) {
-            if (status == 'disable') {
-                $(listSelector).sortable("disable");
-                $(selectorWrapper).addClass('sortable_disable');
-            } else {
-                $(listSelector).sortable("enable");
-                $(selectorWrapper).removeClass('sortable_disable');
-            }
+            let isDisabled = status == 'disable';
+            $(listSelector).sortable(isDisabled  ? "disable": "enable");
+            $(selectorWrapper).toggleClass('sortable_disable', isDisabled);
         }
 
         $(document).ready(function () {
