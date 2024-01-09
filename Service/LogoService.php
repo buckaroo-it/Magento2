@@ -56,7 +56,7 @@ class LogoService
             "creditcard" => "svg/creditcards.svg",
             "creditcards" => "svg/creditcards.svg",
             "giftcards" => "svg/giftcards.svg",
-            "idealprocessing" => "svg/ideal.svg",
+            "ideal" => "svg/ideal.svg",
             "klarnain" => "svg/klarna.svg",
             "klarnakp" => "svg/klarna.svg",
             "mrcash" => "svg/bancontact.svg",

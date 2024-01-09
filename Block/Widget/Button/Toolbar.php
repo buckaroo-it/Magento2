@@ -40,7 +40,6 @@ class Toolbar
         'buckaroo_magento2_creditcard',
         'buckaroo_magento2_creditcards',
         'buckaroo_magento2_ideal',
-        'buckaroo_magento2_idealprocessing',
         'buckaroo_magento2_mrcash',
         'buckaroo_magento2_paypal',
         'buckaroo_magento2_payconiq',

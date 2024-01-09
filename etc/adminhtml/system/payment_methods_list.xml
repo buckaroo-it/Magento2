@@ -22,8 +22,6 @@
 <include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
         <include path="Buckaroo_Magento2::system/payment_methods/ideal.xml"/>
 
-        <include path="Buckaroo_Magento2::system/payment_methods/idealprocessing.xml"/>
-
         <include path="Buckaroo_Magento2::system/payment_methods/creditcard.xml"/>
 
         <include path="Buckaroo_Magento2::system/payment_methods/creditcards.xml"/>

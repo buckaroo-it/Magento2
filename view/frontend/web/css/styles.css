@@ -164,7 +164,6 @@
     }
 
     .buckaroo_magento2_ideal .payment-method-second-col,
-    .buckaroo_magento2_idealprocessing .payment-method-second-col,
     .buckaroo_magento2_creditcard .payment-method-second-col,
     .buckaroo_magento2_creditcards .payment-method-second-col,
     .buckaroo_magento2_transfer .payment-method-second-col,
@@ -195,7 +194,6 @@
     }
 
     .buckaroo_magento2_ideal .payment-method-billing-address,
-    .buckaroo_magento2_idealprocessing .payment-method-billing-address,
     .buckaroo_magento2_creditcard .payment-method-billing-address,
     .buckaroo_magento2_creditcards .payment-method-billing-address,
     .buckaroo_magento2_transfer .payment-method-billing-address,
@@ -229,7 +227,6 @@
 
 @media screen and (min-width: 768px){
     .magento-blank .buckaroo_magento2_ideal .fieldset > .field:not(.choice) > .label,
-    .magento-blank .buckaroo_magento2_idealprocessing .fieldset > .field:not(.choice) > .label,
     .magento-blank .buckaroo_magento2_creditcard .fieldset > .field:not(.choice) > .label,
     .magento-blank .buckaroo_magento2_creditcards .fieldset > .field:not(.choice) > .label,
     .magento-blank .buckaroo_magento2_transfer .fieldset > .field:not(.choice) > .label,
@@ -256,7 +253,6 @@
     }
 
     .magento-blank .buckaroo_magento2_ideal .fieldset > .field:not(.choice) > .control,
-    .magento-blank .buckaroo_magento2_idealprocessing .fieldset > .field:not(.choice) > .control,
     .magento-blank .buckaroo_magento2_creditcard .fieldset > .field:not(.choice) > .control,
     .magento-blank .buckaroo_magento2_creditcards .fieldset > .field:not(.choice) > .control,
     .magento-blank .buckaroo_magento2_transfer .fieldset > .field:not(.choice) > .control,
@@ -281,7 +277,6 @@
     }
 
     .magento-blank .buckaroo_magento2_ideal .fieldset > .field.choice:before,
-    .magento-blank .buckaroo_magento2_idealprocessing .fieldset > .field.choice:before,
     .magento-blank .buckaroo_magento2_creditcard .fieldset > .field.choice:before,
     .magento-blank .buckaroo_magento2_creditcards .fieldset > .field.choice:before,
     .magento-blank .buckaroo_magento2_transfer .fieldset > .field.choice:before,
@@ -315,15 +310,13 @@
     content: '*';
 }
 /* ===================== iDeal ================================ */
-.buckaroo_magento2_ideal .payment-method-second-col .bank-types,
-.buckaroo_magento2_idealprocessing .payment-method-second-col .bank-types {
+.buckaroo_magento2_ideal .payment-method-second-col .bank-types {
     display: flex;
     align-items: center;
     margin-top: 10px;
     flex:1 1 100%;
 }
-.buckaroo_magento2_ideal .payment-method-second-col .bank-types-img,
-.buckaroo_magento2_idealprocessing .payment-method-second-col .bank-types-img {
+.buckaroo_magento2_ideal .payment-method-second-col .bank-types-img {
     margin-right:10px;
 }
 
@@ -332,8 +325,7 @@
     flex-wrap: wrap;
 }
 
-.buckaroo_magento2_ideal .payment-method-second-col .bank-types input,
-.buckaroo_magento2_idealprocessing .payment-method-second-col .bank-types input {
+.buckaroo_magento2_ideal .payment-method-second-col .bank-types input {
     flex: 0;
     order: 0;
     margin: 0;

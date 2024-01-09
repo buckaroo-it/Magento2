@@ -53,9 +53,6 @@ class PayPerEmailTest extends BaseTest
                 ['value' => 'ideal',              'label' => 'iDEAL']
             ],
             [
-                ['value' => 'idealprocessing',    'label' => 'iDEAL Processing']
-            ],
-            [
                 ['value' => 'mastercard',         'label' => 'Mastercard']
             ],
             [

@@ -43,7 +43,6 @@ class AfterExpiry implements OptionSourceInterface
             ['value' => 'giftcard',               'label' => __('Giftcards')],
             ['value' => 'giropay',                'label' => __('Giropay')],
             ['value' => 'ideal',                  'label' => __('iDEAL')],
-            ['value' => 'idealprocessing',        'label' => __('iDEAL Processing')],
             ['value' => 'maestro',                'label' => __('Maestro')],
             ['value' => 'mastercard',             'label' => __('Mastercard')],
             ['value' => 'nexi',                   'label' => __('Nexi')],
