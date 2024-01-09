@@ -51,6 +51,7 @@ class Klarnain extends AbstractConfigProvider
     const XPATH_KLARNAIN_NO_TAX                 = 'payment/buckaroo_magento2_klarnain/no_tax';
     const XPATH_KLARNAIN_GET_INVOICE            = 'payment/buckaroo_magento2_klarnain/send_invoice';
     const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_klarnain/specificcustomergroup';
+    const XPATH_FINANCIAL_WARNING               = 'payment/buckaroo_magento2_klarnain/financial_warning';
 
     public function getConfig()
     {
@@ -81,7 +82,8 @@ class Klarnain extends AbstractConfigProvider
                         'genderList' => [
                             ['genderType' => 'male', 'genderTitle' => __('He/him')],
                             ['genderType' => 'female', 'genderTitle' => __('She/her')]
-                        ]
+                        ],
+                        'showFinancialWarning' => $this->canShowFinancialWarning(self::XPATH_FINANCIAL_WARNING)
                     ],
                     'response' => [],
                 ],

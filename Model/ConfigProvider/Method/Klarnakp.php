@@ -52,6 +52,7 @@ class Klarnakp extends AbstractConfigProvider
     const XPATH_KLARNAKP_GET_INVOICE            = 'payment/buckaroo_magento2_klarnakp/send_invoice';
     const XPATH_KLARNAKP_CREATE_INVOICE_BY_SHIP = 'payment/buckaroo_magento2_klarnakp/create_invoice_after_shipment';
     const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_klarnakp/specificcustomergroup';
+    const XPATH_FINANCIAL_WARNING               = 'payment/buckaroo_magento2_klarnakp/financial_warning';
 
     public function getConfig()
     {
@@ -79,6 +80,7 @@ class Klarnakp extends AbstractConfigProvider
                         'businessMethod'    => $this->getBusiness(),
                         'paymentMethod'     => $this->getPaymentMethod(),
                         'paymentFee'        => $this->getPaymentFee(),
+                        'showFinancialWarning' => $this->canShowFinancialWarning(self::XPATH_FINANCIAL_WARNING)
                     ],
                     'response' => [],
                 ],
