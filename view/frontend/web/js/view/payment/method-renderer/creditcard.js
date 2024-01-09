@@ -161,14 +161,7 @@ define(
                     this.getCreditcardType(code);
                     this.item.method = 'buckaroo_magento2_creditcard';
                     this.paymentMethod = this.item.method;
-                    window.checkoutConfig.buckarooFee.title('Fee');
-                    selectPaymentMethodAction({
-                        "method": this.item.method,
-                        "po_number": null,
-                        "additional_data": {
-                            "card_type" : code
-                        }
-                    });
+                    this.selectPaymentMethod();
                     checkoutData.setSelectedPaymentMethod(this.item.method);
                     return true;
                 },
@@ -188,7 +181,9 @@ define(
                 getData: function () {
                     var selectedCardCode = null;
                     if (this.selectedCard()) {
-                        selectedCardCode = this.selectedCard();
+                        selectedCardCode = typeof this.selectedCard() === 'object' ?
+                            this.selectedCard().code :
+                            this.selectedCard();
                     }
 
                     if(this.creditcardIssuer){
