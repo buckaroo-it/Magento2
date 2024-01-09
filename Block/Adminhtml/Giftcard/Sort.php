@@ -40,6 +40,7 @@ class Sort extends Field
 
     /**
      * @param Context $context
+     * @param HelperData $helperData
      * @param array $data
      */
     public function __construct(

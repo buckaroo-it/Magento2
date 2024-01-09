@@ -371,17 +371,27 @@
     list-style: 'none'
 }
 
-.sort_giftcards {
+.sort_giftcards,
+.sort_issuer{
+    display: flex;
+    align-items: center;
     margin: 0.5rem 1rem;
     padding: 0.5rem;
 }
 
-.sort_giftcards:hover {
+.sort_issuer img {
+    height: 25px;
+    margin-right: 10px;
+}
+
+.sort_giftcards:hover,
+.sort_issuer:hover{
     cursor: pointer;
     background-color: #c8c8c8;
 }
 
-.giftcards_sort_wrapper {
+.giftcards_sort_wrapper,
+.issuers_sort_wrapper{
     width: 100%;
     border: 1px solid #adadad;
     list-style: 'none'
