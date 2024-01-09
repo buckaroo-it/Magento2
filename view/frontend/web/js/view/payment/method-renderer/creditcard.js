@@ -182,15 +182,13 @@ define(
                 },
 
                 isCredicardGroupMode: function () {
-                    return window.checkoutConfig.payment.buckaroo.creditcard.groupCreditcards !== undefined && window.checkoutConfig.payment.buckaroo.creditcard.groupCreditcards == 1 ? true : false;
+                    return window.checkoutConfig.payment.buckaroo.creditcard.groupCreditcards === 1;
                 },
 
                 getData: function () {
                     var selectedCardCode = null;
                     if (this.selectedCard()) {
-                        selectedCardCode = typeof this.selectedCard() === 'object' ?
-                            this.selectedCard().code :
-                            this.selectedCard();
+                        selectedCardCode = this.selectedCard();
                     }
 
                     if(this.creditcardIssuer){
