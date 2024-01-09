@@ -50,7 +50,6 @@
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
                 <show_issuers>1</show_issuers>
-                <sorted_issuers>INGBNL2A,ABNANL2A,RABONL2U,KNABNL2H,BUNQNL2A,SNSBNL2A,RBRBNL21,ASNBNL21,TRIONL2U,FVLBNL22,REVOLT21,NTSBDEB1,NNBANL2G,BITSNL2A</sorted_issuers>
             </buckaroo_magento2_ideal>
 
             <buckaroo_magento2_paybybank>
