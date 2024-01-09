@@ -108,10 +108,6 @@ define(
                     return this;
                 },
 
-                getCreditcardType: ko.observable(function () {
-                    return this.creditcardIssuer;
-                }),
-
                 setSelectedBankDropDown: function() {
                     var el = document.getElementById("buckaroo_magento2_creditcard_issuer");
                     this.selectedCard(el.options[el.selectedIndex].value);
@@ -158,7 +154,6 @@ define(
 
                 selectCreditCardPaymentMethod: function (code) {
                     this.setSelectedCard(code);
-                    this.getCreditcardType(code);
                     this.item.method = 'buckaroo_magento2_creditcard';
                     this.paymentMethod = this.item.method;
                     this.selectPaymentMethod();
