@@ -157,7 +157,6 @@ define(
                     this.item.method = 'buckaroo_magento2_creditcard';
                     this.paymentMethod = this.item.method;
                     this.selectPaymentMethod();
-                    checkoutData.setSelectedPaymentMethod(this.item.method);
                     return true;
                 },
 
