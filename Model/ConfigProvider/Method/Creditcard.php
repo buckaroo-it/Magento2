@@ -69,7 +69,8 @@ class Creditcard extends AbstractConfigProvider
     const XPATH_PAYMENT_FLOW                    = 'payment/buckaroo_magento2_creditcard/payment_action';
     const DEFAULT_SORT_VALUE                    = '99';
 
-    const XPATH_SPECIFIC_CUSTOMER_GROUP            = 'payment/buckaroo_magento2_creditcard/specificcustomergroup';
+    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_creditcard/specificcustomergroup';
+    const XPATH_CREDITCARD_GROUP_CREDITCARD     = 'payment/buckaroo_magento2_creditcard/group_creditcards';
 
     protected $issuers = [
         [
@@ -197,6 +198,7 @@ class Creditcard extends AbstractConfigProvider
                 'buckaroo' => [
                     'creditcard' => [
                         'cards' => $issuers,
+                        'groupCreditcards' => $this->isGroupCreditcards(),
                         'paymentFeeLabel' => $paymentFeeLabel,
                         'subtext'   => $this->getSubtext(),
                         'subtext_style'   => $this->getSubtextStyle(),
@@ -321,5 +323,20 @@ class Creditcard extends AbstractConfigProvider
         }
 
         return $issuersPrepared;
+    }
+
+    /**
+     * Credit cards are displayed separately in the checkout.
+     *
+     * @param $storeId
+     * @return string
+     */
+    public function isGroupCreditcards($storeId = null): string
+    {
+        return (bool)$this->scopeConfig->getValue(
+            self::XPATH_CREDITCARD_GROUP_CREDITCARD,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
     }
 }
