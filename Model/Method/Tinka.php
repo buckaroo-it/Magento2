@@ -70,13 +70,6 @@ class Tinka extends AbstractMethod
             );
         }
 
-        if (isset($data['additional_data']['buckaroo_skip_validation'])) {
-            $this->getInfoInstance()->setAdditionalInformation(
-                'buckaroo_skip_validation',
-                $data['additional_data']['buckaroo_skip_validation']
-            );
-        }
-
         return $this;
     }
 
