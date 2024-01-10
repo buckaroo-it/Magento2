@@ -1514,14 +1514,17 @@ class Push implements PushInterface
             $this->addTransactionData();
         }
 
-        if ($this->configAccount->getInvoiceHandling() == InvoiceHandlingOptions::SHIPMENT) {
-            return true;
-        }
-
         /**
          * @var \Magento\Sales\Model\Order\Payment $payment
          */
         $payment = $this->order->getPayment();
+        $invoiceHandlingConfig = $this->configAccount->getInvoiceHandling();
+
+        if ($invoiceHandlingConfig == InvoiceHandlingOptions::SHIPMENT) {
+            $payment->setAdditionalInformation(InvoiceHandlingOptions::INVOICE_HANDLING, $invoiceHandlingConfig);
+            $payment->save();
+            return true;
+        }
 
         $invoiceAmount = 0;
         if (!empty($this->postData['brq_amount'])) {

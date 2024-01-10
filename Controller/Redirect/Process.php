@@ -21,8 +21,8 @@
 namespace Buckaroo\Magento2\Controller\Redirect;
 
 use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Model\Config\Source\InvoiceHandlingOptions;
 use Magento\Framework\App\Request\Http as Http;
-use Magento\Framework\Lock\LockManagerInterface;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Buckaroo\Magento2\Model\Method\AbstractMethod;
@@ -293,7 +293,7 @@ class Process extends \Magento\Framework\App\Action\Action
                 ];
                 $this->logger->addDebug(__METHOD__ . '|3|' . var_export($debugInfo, true));
 
-                if ($this->order->canInvoice()) {
+                if ($this->order->canInvoice() && $this->isInvoiceCreatedAfterShipment($payment)) {
                     $this->logger->addDebug(__METHOD__ . '|31|');
                     if ($statusCode == $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')) {
                         //do nothing - push will change a status
@@ -834,5 +834,18 @@ class Process extends \Magento\Framework\App\Action\Action
                 return;
             }
         }
+    }
+
+    /**
+     * Is the invoice for the current order is created after shipment
+     *
+     * @param OrderPaymentInterface $payment
+     * @return bool
+     */
+    private function isInvoiceCreatedAfterShipment(OrderPaymentInterface $payment): bool
+    {
+        return $payment->getAdditionalInformation(
+                InvoiceHandlingOptions::INVOICE_HANDLING
+            ) != InvoiceHandlingOptions::SHIPMENT;
     }
 }

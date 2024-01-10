@@ -35,6 +35,7 @@ use Magento\Framework\DB\TransactionFactory;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\ResourceModel\Order\Invoice\CollectionFactory;
 use Magento\Sales\Model\Service\InvoiceService;
 
@@ -174,7 +175,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
         }
 
         if (strpos($paymentMethodCode, 'buckaroo_magento2') !== false
-            && $this->configAccount->getInvoiceHandling() == InvoiceHandlingOptions::SHIPMENT) {
+            && $this->isInvoiceCreatedAfterShipment($payment)) {
             if ($paymentMethod->getConfigPaymentAction() == 'authorize') {
                 $this->createInvoice($order, $shipment, true);
             } else {
@@ -243,5 +244,18 @@ class SalesOrderShipmentAfter implements ObserverInterface
             $qtys[$items->getOrderItemId()] = $items->getQty();
         }
         return $qtys;
+    }
+
+    /**
+     * Is the invoice for the current order is created after shipment
+     *
+     * @param OrderPaymentInterface $payment
+     * @return bool
+     */
+    private function isInvoiceCreatedAfterShipment(OrderPaymentInterface $payment): bool
+    {
+        return $payment->getAdditionalInformation(
+                InvoiceHandlingOptions::INVOICE_HANDLING
+            ) != InvoiceHandlingOptions::SHIPMENT;
     }
 }
