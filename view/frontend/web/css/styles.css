@@ -219,7 +219,8 @@
     .buckaroo_magento2_voucher .payment-method-billing-address,
     .buckaroo_magento2_paybybank .payment-method-billing-address,
     .buckaroo_magento2_mbway .payment-method-billing-address,
-    .buckaroo_magento2_multibanco .payment-method-billing-address
+    .buckaroo_magento2_multibanco .payment-method-billing-address,
+    .buckaroo_magento2_all_creditcard .payment-method-billing-address
     {
         float:left;
         width: 50%;
@@ -562,7 +563,7 @@
     margin-bottom: 10px;
 }
 
-.buckaroo_magento2_all_giftcards{
+.buckaroo_magento2_all_giftcards, .buckaroo_magento2_all_creditcards{
     border-top: 1px solid #ccc;
     border-bottom: 1px solid #ccc;
 }

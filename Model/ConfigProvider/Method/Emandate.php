@@ -145,4 +145,17 @@ class Emandate extends AbstractConfigProvider
 
         return $paymentFee ? $paymentFee : false;
     }
+
+    /**
+     * Generate the url to the desired asset.
+     *
+     * @param string $imgName
+     * @param string $extension
+     *
+     * @return string
+     */
+    public function getImageUrl($imgName, string $extension = 'png')
+    {
+        return parent::getImageUrl("ideal/{$imgName}", "svg");
+    }
 }

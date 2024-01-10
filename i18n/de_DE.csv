@@ -457,3 +457,6 @@
 "Create Invoice on Payment","Rechnung erstellen bei Zahlung"
 "Create Invoice on Shipment","Rechnung erstellen bei Versand"
 "Select the moment when the invoice should be created.","Wählen Sie den Zeitpunkt aus, zu dem die Rechnung erstellt werden soll."
+"Sort iDEAL banks","Die Reihenfolge der iDEAL-Anbieter"
+"Sort PayByBank Banks","Die Reihenfolge der PayByBank-Anbieter"
+"Sort Credit-debitcard issuers","Die Reihenfolge der Kredit- und Debitkartenherausgeber"

@@ -143,7 +143,7 @@ class Account extends AbstractConfigProvider
             'order_status_failed'               => $this->getOrderStatusFailed($store),
             'create_order_before_transaction'   => $this->getCreateOrderBeforeTransaction($store),
             'ip_header'                         => $this->getIpHeader($store),
-            'cart_keep_alive'                   => $this->getCartKeepAlive($store),
+            'cart_keep_alive'                   => $this->getCartKeepAlive($store),//can be changed from cli/db only
             'selection_type'                    => $this->getSelectionType($store),
             'customer_additional_info'          => $this->getCustomerAdditionalInfo($store),
             'idin'                              => $this->getIdin($store),
