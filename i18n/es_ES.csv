@@ -316,7 +316,7 @@
 "Giftcards","Tarjetas regalo"
 "Enable Giftcards","Activar Tarjetas regalo"
 "Allowed giftcards","Tarjetas regalo permitidas"
-"Select which giftcards are available to the customer. You can add new cards in Stores > Buckaroo giftcards.","Seleccione las tarjetas regalo disponibles para el cliente. Puede añadir nuevas tarjetas en Tiendas > Tarjetas regalo de Buckaroo."
+"Select which giftcards are available in the checkout. You can add new giftcards within Magento at → Stores → Buckaroo Giftcards.","Seleccione las tarjetas regalo disponibles para el cliente. Puede añadir nuevas tarjetas en Tiendas > Tarjetas regalo de Buckaroo."
 "These options will be presented to the customer after Buckaroo has received the order. If left blank","Estas opciones se ofrecerán al cliente cuando Buckaroo haya recibido el pedido. Si se deja en blanco, las opciones disponibles se basarán en las opciones de pago de Buckaroo que tenga activadas."
 "You have not yet added any giftcards","No ha añadido ninguna tarjeta regalo"
 "Add New Giftcard","Añadir nueva tarjeta regalo"

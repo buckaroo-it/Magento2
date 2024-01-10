@@ -312,7 +312,7 @@
 "Giftcards","Cadeaukaarten"
 "Enable Giftcards","Cadeaukaarten inschakelen"
 "Allowed giftcards","Geaccepteerde cadeaukaarten"
-"Select which giftcards are available to the customer. You can add new cards in Stores > Buckaroo giftcards.","Selecteer welke cadeaukaarten beschikbaar zijn voor de consument. Nieuwe cadeaukaarten kunnen via Stores > Buckaroo giftcards worden toegevoegd."
+"Select which giftcards are available in the checkout. You can add new giftcards within Magento at → Stores → Buckaroo Giftcards.","Selecteer welke cadeaukaarten beschikbaar zijn voor de consument. Nieuwe cadeaukaarten kunnen via Stores > Buckaroo giftcards worden toegevoegd."
 "These options will be presented to the customer after Buckaroo has received the order. If left blank, the available options will be based on which Buckaroo payment options you have enabled.","Deze opties zullen aan de klant voorgelegd worden nadat Buckaroo de bestelling ontvangen heeft. Als deze leeg gelaten wordt, dan zullen de beschikbare opties gebaseerd worden op welke Buckaroo betaalopties je ingeschakeld hebt."
 "You have not yet added any giftcards","Er zijn geen giftcards toegevoegd"
 "Add New Giftcard","Nieuwe cadeaukaart toevoegen"

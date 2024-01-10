@@ -308,7 +308,7 @@
 "Giftcards","Geschenkkarten"
 "Enable Giftcards","Geschenkkarten aktivieren"
 "Allowed giftcards","Akzeptierte Geschenkkarten"
-"Select which giftcards are available to the customer. You can add new cards in Stores > Buckaroo giftcards.","Wählen Sie aus, welche Geschenkkarten für den Kunden verfügbar sind. Sie können neue Karten unter 'Stores > Buckaroo-Geschenkkarten' hinzufügen."
+"Select which giftcards are available in the checkout. You can add new giftcards within Magento at → Stores → Buckaroo Giftcards.","Wählen Sie aus, welche Geschenkkarten für den Kunden verfügbar sind. Sie können neue Karten unter 'Stores > Buckaroo-Geschenkkarten' hinzufügen."
 "These options will be presented to the customer after Buckaroo has received the order. If left blank, the available options will be based on which Buckaroo payment options you have enabled.","Diese Optionen werden dem Kunden nach Eingang der Bestellung bei Buckaroo präsentiert. Wenn Sie das Feld leer lassen, basieren die verfügbaren Optionen darauf, welche Buckaroo-Zahlungsoptionen Sie aktiviert haben."
 "You have not yet added any giftcards","Es wurden noch keine Geschenkkarten hinzugefügt"
 "Add New Giftcard","Neuen Geschenkgutschein hinzufügen"
