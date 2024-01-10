@@ -82,11 +82,11 @@ $issuers = $block->getIssuers();
         });
 
         function updateSortedList() {
-            let cardList = '';
+            let codes = [];
             $(listSelector + ' p').each(function () {
-                cardList += $(this).data('code') + ',';
+                codes.push($(this).data('code'));
             });
-            cardList = cardList.slice(0, -1);
+            let cardList = codes.join(',');
             $('#sort_<?= $paymentMethod ?>').val(cardList);
         }
 
