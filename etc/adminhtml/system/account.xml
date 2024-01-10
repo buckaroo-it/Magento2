@@ -264,14 +264,6 @@
                 <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 <config_path>buckaroo_magento2/account/advanced_export_giftcards</config_path>
             </field>
-
-            <field id="cart_keep_alive" translate="label" type="select" sortOrder="220" showInDefault="1" showInWebsite="0" showInStore="0">
-              <label>Cart keep alive</label>
-              <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-              <comment><![CDATA[Optional will restore the cart when consumer use back button]]></comment>
-              <config_path>buckaroo_magento2/account/cart_keep_alive</config_path>
-            </field>
-
         </group>
     </group>
 </include>
