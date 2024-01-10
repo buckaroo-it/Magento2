@@ -1,5 +1,4 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
@@ -18,30 +17,28 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+namespace Buckaroo\Magento2\Model\Config\Source;
 
-namespace Buckaroo\Magento2\Block\Adminhtml\Creditcard;
+use Magento\Framework\Data\OptionSourceInterface;
 
-use Magento\Backend\Block\Template\Context;
-use Magento\Config\Block\System\Config\Form\Field;
-use Magento\Framework\Data\Form\Element\AbstractElement;
-
-class Sort extends Field
+class SeparateOrGrouped implements OptionSourceInterface
 {
     /**
-     * Template path
+     * Options getter
      *
-     * @var string
+     * @return array
      */
-    protected $_template = 'Buckaroo_Magento2::creditcard_sort_widget.phtml';
-
-    /**
-     * Return element html
-     *
-     * @param  AbstractElement $element
-     * @return string
-     */
-    protected function _getElementHtml(AbstractElement $element)
+    public function toOptionArray(): array
     {
-        return $this->_toHtml();
+        return [
+            [
+                'value' => 0,
+                'label' => __("Separate")
+            ],
+            [
+                'value' => 1,
+                'label' => __("Grouped"),
+            ],
+        ];
     }
 }

@@ -61,29 +61,14 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      */
     protected $issuers = [
         [
-            'name' => 'ABN AMRO',
-            'code' => 'ABNANL2A',
-            'imgName' => 'abnamro'
-        ],
-        [
-            'name' => 'ASN Bank',
-            'code' => 'ASNBNL21',
-            'imgName' => 'asnbank'
-        ],
-        [
-            'name' => 'Bunq Bank',
-            'code' => 'BUNQNL2A',
-            'imgName' => 'bunq'
-        ],
-        [
             'name' => 'ING',
             'code' => 'INGBNL2A',
             'imgName' => 'ing'
         ],
         [
-            'name' => 'Knab Bank',
-            'code' => 'KNABNL2H',
-            'imgName' => 'knab'
+            'name' => 'ABN AMRO',
+            'code' => 'ABNANL2A',
+            'imgName' => 'abnamro'
         ],
         [
             'name' => 'Rabobank',
@@ -91,14 +76,29 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
             'imgName' => 'rabobank'
         ],
         [
-            'name' => 'RegioBank',
-            'code' => 'RBRBNL21',
-            'imgName' => 'regiobank'
+            'name' => 'Knab Bank',
+            'code' => 'KNABNL2H',
+            'imgName' => 'knab'
+        ],
+        [
+            'name' => 'Bunq Bank',
+            'code' => 'BUNQNL2A',
+            'imgName' => 'bunq'
         ],
         [
             'name' => 'SNS Bank',
             'code' => 'SNSBNL2A',
             'imgName' => 'sns'
+        ],
+        [
+            'name' => 'RegioBank',
+            'code' => 'RBRBNL21',
+            'imgName' => 'regiobank'
+        ],
+        [
+            'name' => 'ASN Bank',
+            'code' => 'ASNBNL21',
+            'imgName' => 'asnbank'
         ],
         [
             'name' => 'Triodos Bank',
@@ -115,11 +115,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
             'code' => 'REVOLT21',
             'imgName' => 'revolut'
         ],
-        [
-            'name' => 'Yoursafe',
-            'code' => 'BITSNL2A',
-            'imgName' => 'yoursafe'
-        ],
+
         [
             'name' => 'N26',
             'code' => 'NTSBDEB1',
@@ -129,6 +125,11 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
             'name' => 'Nationale Nederlanden',
             'code' => 'NNBANL2G',
             'imgName' => 'nn'
+        ],
+        [
+            'name' => 'Yoursafe',
+            'code' => 'BITSNL2A',
+            'imgName' => 'yoursafe'
         ]
     ];
 
@@ -189,17 +190,35 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      *
      * @return array
      */
-    protected function formatIssuers()
+    public function formatIssuers()
     {
-        return array_map(
-            function ($issuer) {
-                if(isset($issuer['imgName'])) {
-                    $issuer['img'] = $this->getImageUrl("ideal/{$issuer['imgName']}", "svg");
+        $issuers = $this->getIssuers();
+
+        $codeToIssuerMap = [];
+        foreach ($issuers as &$issuer) {
+            if(isset($issuer['imgName'])) {
+                $issuer['img'] = $this->getImageUrl($issuer['imgName']);
+            }
+            $codeToIssuerMap[$issuer['code']] = $issuer;
+        }
+
+        if(method_exists($this, 'getSortedIssuers')) {
+            $sortedCodes = $this->getSortedIssuers() ?? '';
+            $sortedCodes = $sortedCodes ? explode(',',$sortedCodes) : [];
+            if(!empty($sortedCodes)) {
+                $sortedIssuers = [];
+                foreach ($sortedCodes as $code) {
+                    if (isset($codeToIssuerMap[$code])) {
+                        $sortedIssuers[] = $codeToIssuerMap[$code];
+                    }
                 }
-                return $issuer;
-            },
-            $this->getIssuers()
-        );
+            }
+
+            return $sortedIssuers ?? $issuers;
+
+        }
+
+        return $issuers;
     }
 
     public function getCreditcardLogo(string $code): string
@@ -342,5 +361,22 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
             $configKey,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         ) !== "0";
+    }
+
+    /**
+     * Get all issuers not sorted
+     *
+     * @return array
+     */
+    public function getAllIssuers(): array
+    {
+        $issuers = $this->getIssuers();
+        $issuersPrepared = [];
+        foreach ($issuers as $issuer) {
+            $issuer['img'] = $this->getImageUrl($issuer['imgName']);
+            $issuersPrepared[$issuer['code']] = $issuer;
+        }
+
+        return $issuersPrepared;
     }
 }
