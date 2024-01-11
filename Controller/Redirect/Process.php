@@ -514,7 +514,7 @@ class Process extends Action implements HttpPostActionInterface
      */
     private function processPendingRedirect($statusCode): ResponseInterface
     {
-        if ($this->order->canInvoice()) {
+        if ($this->order->canInvoice() && $this->isInvoiceCreatedAfterShipment($payment)) {
             $pendingStatus = $this->orderStatusFactory->get(
                 BuckarooStatusCode::PENDING_PROCESSING,
                 $this->order
@@ -871,5 +871,18 @@ class Process extends Action implements HttpPostActionInterface
         $this->setCustomerAndRestoreQuote('success');
 
         return $this->handleProcessedResponse('checkout', ['_query' => ['bk_e' => 1]]);
+    }
+
+    /**
+     * Is the invoice for the current order is created after shipment
+     *
+     * @param OrderPaymentInterface $payment
+     * @return bool
+     */
+    private function isInvoiceCreatedAfterShipment(OrderPaymentInterface $payment): bool
+    {
+        return $payment->getAdditionalInformation(
+                InvoiceHandlingOptions::INVOICE_HANDLING
+            ) != InvoiceHandlingOptions::SHIPMENT;
     }
 }

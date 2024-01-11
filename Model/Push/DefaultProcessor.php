@@ -856,7 +856,10 @@ class DefaultProcessor implements PushProcessorInterface
 
         $this->addTransactionData();
 
-        if ($this->configAccount->getInvoiceHandling() == InvoiceHandlingOptions::SHIPMENT) {
+        $invoiceHandlingConfig = $this->configAccount->getInvoiceHandling();
+
+        if ($invoiceHandlingConfig == InvoiceHandlingOptions::SHIPMENT) {
+            $this->payment->setAdditionalInformation(InvoiceHandlingOptions::INVOICE_HANDLING, $invoiceHandlingConfig);
             $this->payment->save();
             return true;
         }

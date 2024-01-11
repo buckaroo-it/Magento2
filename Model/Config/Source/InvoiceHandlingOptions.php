@@ -25,6 +25,8 @@ use Magento\Framework\Data\OptionSourceInterface;
 
 class InvoiceHandlingOptions implements OptionSourceInterface
 {
+    public const INVOICE_HANDLING = 'invoice_handling';
+
     public const PAYMENT = 1;
     public const SHIPMENT = 2;
 

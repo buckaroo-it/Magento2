@@ -147,7 +147,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
 
         $configAccount = $this->configProviderFactory->get('account');
         if (strpos($paymentMethodCode, 'buckaroo_magento2') !== false
-            && $configAccount->getInvoiceHandling() == InvoiceHandlingOptions::SHIPMENT) {
+            && $this->isInvoiceCreatedAfterShipment($payment)) {
             if ($paymentMethod->getConfigPaymentAction() == 'authorize') {
                 $this->createInvoice(true);
             } else {
@@ -237,5 +237,18 @@ class SalesOrderShipmentAfter implements ObserverInterface
             $qtys[$items->getOrderItemId()] = $items->getQty();
         }
         return $qtys;
+    }
+
+    /**
+     * Is the invoice for the current order is created after shipment
+     *
+     * @param OrderPaymentInterface $payment
+     * @return bool
+     */
+    private function isInvoiceCreatedAfterShipment(OrderPaymentInterface $payment): bool
+    {
+        return $payment->getAdditionalInformation(
+                InvoiceHandlingOptions::INVOICE_HANDLING
+            ) != InvoiceHandlingOptions::SHIPMENT;
     }
 }

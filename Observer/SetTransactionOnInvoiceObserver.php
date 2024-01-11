@@ -86,7 +86,7 @@ class SetTransactionOnInvoiceObserver implements ObserverInterface
         $amount = $invoice->getGrandTotal();
         $paymentMethod = $payment->getMethod();
         if ($this->checkPaymentType->isBuckarooMethod($paymentMethod) &&
-            $this->configAccount->getInvoiceHandling() == InvoiceHandlingOptions::SHIPMENT &&
+            $this->isInvoiceCreatedAfterShipment($payment) &&
             empty($invoice->getTransactionId()) &&
             empty($payment->getTransactionId())
         ) {
@@ -104,5 +104,18 @@ class SetTransactionOnInvoiceObserver implements ObserverInterface
         }
 
         return $this;
+    }
+
+    /**
+     * Is the invoice for the current order is created after shipment
+     *
+     * @param OrderPaymentInterface $payment
+     * @return bool
+     */
+    private function isInvoiceCreatedAfterShipment(OrderPaymentInterface $payment): bool
+    {
+        return $payment->getAdditionalInformation(
+                InvoiceHandlingOptions::INVOICE_HANDLING
+            ) != InvoiceHandlingOptions::SHIPMENT;
     }
 }
