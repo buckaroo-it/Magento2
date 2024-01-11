@@ -78,6 +78,9 @@ class Fieldset extends MagentoFieldset
      */
     protected function _getFrontendClass($element): string
     {
+        if ($element->getGroup()['id'] === 'buckaroo_magento2_klarna_group') {
+            return parent::_getFrontendClass($element);
+        }
         $value = $this->getElementValue($element);
         $class = 'payment_method_';
 
@@ -159,10 +162,22 @@ class Fieldset extends MagentoFieldset
             return parent::_getHeaderTitleHtml($element);
         }
 
+       
+
+        $element->setLegend($this->getTabImgAndLink($element));
+        return parent::_getHeaderTitleHtml($element);
+    }
+
+    /**
+     * @param AbstractElement $element
+     * @return string
+     */
+    private function getTabImgAndLink($element) {
         $method = str_replace("buckaroo_magento2_", "", $element->getGroup()['id']);
         $logo = $this->getPaymentLogo($method);
-
-        return parent::_getHeaderTitleHtml($element) . '<img class="bk-ad-payment-logo" src="' . $logo . '">';
+        return '<div class="bk-tab-title"><img class="bk-ad-payment-logo" src="' . $logo . '">'.
+         $element->getLegend().
+         "</div>";
     }
 
     /**
@@ -175,6 +190,10 @@ class Fieldset extends MagentoFieldset
     {
         if ($method == "voucher") {
             $method = "buckaroovoucher";
+        }
+
+        if ($method == "klarna_group") {
+            $method = "klarna";
         }
 
         return $this->logoService->getPayment($method, true);
