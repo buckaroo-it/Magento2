@@ -293,7 +293,7 @@ class Process extends \Magento\Framework\App\Action\Action
                 ];
                 $this->logger->addDebug(__METHOD__ . '|3|' . var_export($debugInfo, true));
 
-                if ($this->order->canInvoice() && $this->isInvoiceCreatedAfterShipment($payment)) {
+                if ($this->order->canInvoice() && !$this->isInvoiceCreatedAfterShipment($payment)) {
                     $this->logger->addDebug(__METHOD__ . '|31|');
                     if ($statusCode == $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')) {
                         //do nothing - push will change a status
@@ -846,6 +846,6 @@ class Process extends \Magento\Framework\App\Action\Action
     {
         return $payment->getAdditionalInformation(
                 InvoiceHandlingOptions::INVOICE_HANDLING
-            ) != InvoiceHandlingOptions::SHIPMENT;
+            ) == InvoiceHandlingOptions::SHIPMENT;
     }
 }
