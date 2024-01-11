@@ -99,7 +99,8 @@ class Ideal extends AbstractConfigProvider
                         'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'selectionType'     => $selectionType,
-                        'showIssuers'       => $this->canShowIssuers()
+                        'showIssuers'       => $this->canShowIssuers(),
+                        'isTestMode'        => $this->isTestMode()
                     ],
                 ],
             ],

@@ -56,6 +56,7 @@ define(
                 subtext : window.checkoutConfig.payment.buckaroo.applepay.subtext,
                 subTextStyle : checkoutCommon.getSubtextStyle('applepay'),
                 submit: false,
+                isTestMode: window.checkoutConfig.payment.buckaroo.applepay.isTestMode,
 
                 /**
                  * @override

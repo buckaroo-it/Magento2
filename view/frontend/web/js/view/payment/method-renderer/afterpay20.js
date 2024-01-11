@@ -157,6 +157,7 @@ define(
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 isCustomerLoggedIn: customer.isLoggedIn,
                 isB2B: window.checkoutConfig.payment.buckaroo.afterpay20.is_b2b,
+                isTestMode: window.checkoutConfig.payment.buckaroo.afterpay20.isTestMode,
                 dp: datePicker,
                 /**
                  * @override

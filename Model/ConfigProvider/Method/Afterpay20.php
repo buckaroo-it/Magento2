@@ -54,7 +54,8 @@ class Afterpay20 extends AbstractConfigProvider
                         'subtext_color'        => $this->getSubtextColor(),
                         'allowedCurrencies'    => $this->getAllowedCurrencies(),
                         'is_b2b'               => $this->getCustomerType() !== AfterpayCustomerType::CUSTOMER_TYPE_B2C,
-                        'showFinancialWarning' => $this->canShowFinancialWarning()
+                        'showFinancialWarning' => $this->canShowFinancialWarning(),
+                        'isTestMode'           => $this->isTestMode()
                     ],
                     'response'   => [],
                 ],

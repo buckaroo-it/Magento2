@@ -132,6 +132,7 @@ class PayByBank extends AbstractConfigProvider
                         'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'selectionType'     => $selectionType,
+                        'isTestMode'        => $this->isTestMode()
                     ],
                 ],
             ],

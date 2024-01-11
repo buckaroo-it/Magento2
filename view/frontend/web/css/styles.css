@@ -5,15 +5,32 @@
     align-items: center;
 }
 .bk-img-wrap {
-    min-width: 40px;
+    width: 50px;
     margin-right:10px;
     align-items: center;
     display: flex;
+}
+
+.bk-mode-and-img {
+    display: flex;
+    align-items: stretch;
 }
 .bk-radio-wrap {
     flex: auto;
     display: flex;
     align-items: center;
+}
+.bk-test-mode {
+    background-color:#ff6200;
+    border-radius: 5px;
+    margin-right: 10px;
+    display: flex;
+    align-items: center;
+}
+.bk-test-text {
+    text-transform: uppercase;
+    color: #fff;
+    padding: 0 10px;
 }
 .bk-description {
     margin:0;

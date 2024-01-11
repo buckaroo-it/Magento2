@@ -156,6 +156,7 @@ class Creditcard extends AbstractConfigProvider
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'selectionType'     => $selectionType,
                         'paymentFlow'       => $paymentFlow,
+                        'isTestMode'        => $this->isTestMode()
                     ],
                 ],
             ],

@@ -500,4 +500,14 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     {
         return $this->getMethodConfigValue(static::FINANCIAL_WARNING, $store) !== "0";
     }
+
+    /**
+     * Is test mode
+     *
+     * @return boolean
+     */
+    protected function isTestMode($store = null): bool
+    {
+        return $this->getActive($store) == "1";
+    }
 }

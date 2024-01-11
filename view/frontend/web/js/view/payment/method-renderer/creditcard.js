@@ -60,6 +60,7 @@ define(
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 paymentFlow : window.checkoutConfig.payment.buckaroo.creditcard.paymentFlow,
+                isTestMode: window.checkoutConfig.payment.buckaroo.creditcard.isTestMode,
 
                 /**
                  * @override

@@ -94,6 +94,7 @@ define(
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 currentGiftcard : false,
                 alreadyPayed : false,
+                isTestMode: window.checkoutConfig.payment.buckaroo.giftcards.isTestMode,
 
                 /**
              * @override

@@ -88,7 +88,8 @@ class Klarnakp extends AbstractConfigProvider
                         'subtext_color'        => $this->getSubtextColor(),
                         'allowedCurrencies'    => $this->getAllowedCurrencies(),
                         'paymentFee'           => $this->getPaymentFee(),
-                        'showFinancialWarning' => $this->canShowFinancialWarning()
+                        'showFinancialWarning' => $this->canShowFinancialWarning(),
+                        'isTestMode'        => $this->isTestMode()
                     ],
                     'response' => [],
                 ],
