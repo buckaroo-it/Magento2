@@ -297,6 +297,10 @@ a.bk-plugin-zone {
     cursor: not-allowed;
 }
 
+.bk-payment-method {
+    margin-left: 0!important;
+}
+
 .bk-payment-method .entry-edit-head {
     display: flex;
     align-items: center;
