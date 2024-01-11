@@ -913,9 +913,7 @@ class Afterpay20 extends AbstractMethod
      * @return $this
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function validate()
-    {
-        parent::validate();
+    public function validateAdditionalData() {
 
         $paymentInfo = $this->getInfoInstance();
 

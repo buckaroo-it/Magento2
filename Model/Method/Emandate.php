@@ -262,9 +262,7 @@ class Emandate extends AbstractMethod
      * @return $this
      * @throws LocalizedException
      */
-    public function validate()
-    {
-        parent::validate();
+    public function validateAdditionalData() {
 
         $paymentInfo = $this->getInfoInstance();
   

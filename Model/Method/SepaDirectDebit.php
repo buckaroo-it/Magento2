@@ -327,9 +327,7 @@ class SepaDirectDebit extends AbstractMethod
     /**
      * {@inheritdoc}
      */
-    public function validate()
-    {
-        parent::validate();
+    public function validateAdditionalData() {
 
         $paymentInfo = $this->getInfoInstance();
 

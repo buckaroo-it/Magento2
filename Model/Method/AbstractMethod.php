@@ -702,6 +702,10 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             );
         }
 
+        if (method_exists($this, 'validateAdditionalData')) {
+            $this->validateAdditionalData();
+        }
+
         parent::order($payment, $amount);
 
         $activeMode = $this->getConfigData('active', $payment->getOrder()->getStore());
@@ -937,6 +941,10 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
                 'Buckaroo requires the payment to be an instance of "\Magento\Sales\Api\Data\OrderPaymentInterface"' .
                 ' and "\Magento\Payment\Model\InfoInterface".'
             );
+        }
+
+        if (method_exists($this, 'validateAdditionalData')) {
+            $this->validateAdditionalData();
         }
 
         parent::authorize($payment, $amount);

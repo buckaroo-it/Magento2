@@ -252,9 +252,7 @@ class PayByBank extends AbstractMethod
      * @return $this
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function validate()
-    {
-        parent::validate();
+    public function validateAdditionalData() {
 
         $paymentInfo = $this->getInfoInstance();
         $chosenIssuer = $paymentInfo->getAdditionalInformation('issuer');

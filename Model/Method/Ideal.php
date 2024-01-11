@@ -132,9 +132,7 @@ class Ideal extends AbstractMethod
      * @return $this
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function validate()
-    {
-        parent::validate();
+    public function validateAdditionalData() {
 
         /**
          * @var IdealConfig $config

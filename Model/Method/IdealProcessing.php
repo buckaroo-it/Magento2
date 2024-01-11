@@ -134,9 +134,7 @@ class IdealProcessing extends AbstractMethod
      *
      * {@inheritdoc}
      */
-    public function validate()
-    {
-        parent::validate();
+    public function validateAdditionalData() {
 
         /** @var IdealProcessingConfig $config */
         $config = $this->objectManager->get(IdealProcessingConfig::class);
