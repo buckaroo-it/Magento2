@@ -249,6 +249,6 @@ class SalesOrderShipmentAfter implements ObserverInterface
     {
         return $payment->getAdditionalInformation(
                 InvoiceHandlingOptions::INVOICE_HANDLING
-            ) != InvoiceHandlingOptions::SHIPMENT;
+            ) == InvoiceHandlingOptions::SHIPMENT;
     }
 }

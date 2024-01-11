@@ -24,6 +24,7 @@ namespace Buckaroo\Magento2\Controller\Redirect;
 use Buckaroo\Magento2\Api\PushRequestInterface;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
+use Buckaroo\Magento2\Model\Config\Source\InvoiceHandlingOptions;
 use Buckaroo\Magento2\Model\ConfigProvider\Account as AccountConfig;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
@@ -514,7 +515,7 @@ class Process extends Action implements HttpPostActionInterface
      */
     private function processPendingRedirect($statusCode): ResponseInterface
     {
-        if ($this->order->canInvoice() && $this->isInvoiceCreatedAfterShipment($payment)) {
+        if ($this->order->canInvoice() && !$this->isInvoiceCreatedAfterShipment()) {
             $pendingStatus = $this->orderStatusFactory->get(
                 BuckarooStatusCode::PENDING_PROCESSING,
                 $this->order
@@ -876,13 +877,12 @@ class Process extends Action implements HttpPostActionInterface
     /**
      * Is the invoice for the current order is created after shipment
      *
-     * @param OrderPaymentInterface $payment
      * @return bool
      */
-    private function isInvoiceCreatedAfterShipment(OrderPaymentInterface $payment): bool
+    private function isInvoiceCreatedAfterShipment(): bool
     {
-        return $payment->getAdditionalInformation(
+        return $this->payment->getAdditionalInformation(
                 InvoiceHandlingOptions::INVOICE_HANDLING
-            ) != InvoiceHandlingOptions::SHIPMENT;
+            ) == InvoiceHandlingOptions::SHIPMENT;
     }
 }

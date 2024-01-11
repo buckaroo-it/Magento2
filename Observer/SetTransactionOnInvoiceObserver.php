@@ -28,6 +28,7 @@ use Buckaroo\Magento2\Service\CheckPaymentType;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Payment\State\CommandInterface;
@@ -116,6 +117,6 @@ class SetTransactionOnInvoiceObserver implements ObserverInterface
     {
         return $payment->getAdditionalInformation(
                 InvoiceHandlingOptions::INVOICE_HANDLING
-            ) != InvoiceHandlingOptions::SHIPMENT;
+            ) == InvoiceHandlingOptions::SHIPMENT;
     }
 }
