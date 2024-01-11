@@ -5,10 +5,10 @@
     align-items: center;
 }
 .bk-img-wrap {
-    min-width: 40px;
-    margin-right:10px;
-    align-items: center;
+    width: 50px;
+    margin-right: 10px;
     display: flex;
+    align-items: center;
 }
 .bk-radio-wrap {
     flex: auto;
