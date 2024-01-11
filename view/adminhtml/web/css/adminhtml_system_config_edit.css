@@ -297,8 +297,8 @@ a.bk-plugin-zone {
     cursor: not-allowed;
 }
 
-.bk-payment-method {
-    margin-left: 0!important;
+.buckaroo_magento2-section .bk-payment-method {
+    margin-left: 0;
 }
 
 .bk-payment-method .entry-edit-head {
