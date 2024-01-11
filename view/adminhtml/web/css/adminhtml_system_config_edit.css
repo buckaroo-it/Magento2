@@ -303,10 +303,18 @@ a.bk-plugin-zone {
     justify-content: space-between;
 }
 
+.bk-payment-method > .entry-edit-head > a:before
+{
+    top: 25px;
+}
+
 .bk-ad-payment-logo {
-    max-width: 50px;
-    padding: 10px 0;
+    width: 50px;
     padding-right: 10px;
+}
+.bk-tab-title {
+    display: flex;
+    align-items: center;
 }
 
 .bk-ad-payment-wrap a{
