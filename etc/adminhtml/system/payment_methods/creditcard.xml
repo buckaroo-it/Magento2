@@ -144,11 +144,18 @@
             </group>
         </group>
 
+        <field id="group_creditcards" translate="label comment" type="select" sortOrder="54" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Group Creditcards</label>
+            <comment><![CDATA[Creditcards option to show in checkout <br/><strong>Separate:</strong> Creditcards are show seperate in checkout<br/><strong>Grouped:</strong> Creditcards get redirected to the buckaroo checkout.]]></comment>
+            <source_model>Buckaroo\Magento2\Model\Config\Source\SeparateOrGrouped</source_model>
+            <config_path>payment/buckaroo_magento2_creditcard/group_creditcards</config_path>
+        </field>
+
         <field id="selection_type" translate="label" type="select" sortOrder="55" showInDefault="1" showInWebsite="0" showInStore="0">
             <label>Use selection</label>
             <source_model>Buckaroo\Magento2\Model\Config\Source\SelectionType</source_model>
             <comment><![CDATA[Display the bank issuers as a select or as a list of radio buttons]]></comment>
-            <config_path>payment/buckaroo_magento2_creditcards/selection_type</config_path>
+            <config_path>payment/buckaroo_magento2_creditcard/selection_type</config_path>
         </field>
 
         <field id="allowed_issuers" translate="label comment" type="multiselect" sortOrder="56" showInDefault="1" showInWebsite="1" showInStore="1">
