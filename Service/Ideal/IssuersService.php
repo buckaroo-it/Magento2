@@ -87,7 +87,6 @@ class IssuersService
     public function get(): array
     {
         $issuers = $this->getCachedIssuers();
-        $issuers = null;
         if ($issuers === null) {
             return $this->updateCacheIssuers();
         }

@@ -175,4 +175,16 @@ class Ideal extends AbstractConfigProvider
     {
         return parent::getImageUrl("ideal/{$imgName}", "svg");
     }
+
+    public function getAllIssuers(): array
+    {
+        $issuers = $this->getIssuers();
+        $issuersPrepared = [];
+        foreach ($issuers as $issuer) {
+            $issuer['img'] = $issuer['logo'];
+            $issuersPrepared[$issuer['code']] = $issuer;
+        }
+
+        return $issuersPrepared;
+    }
 }
