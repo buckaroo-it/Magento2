@@ -24,6 +24,8 @@ namespace Buckaroo\Magento2\Model\PaypalExpress\Response;
 use Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterface;
 use Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterfaceFactory;
 use Buckaroo\Magento2\Api\Data\PaypalExpress\TotalBreakdownInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Quote\Api\CartTotalRepositoryInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\Quote\Address\Total;
 
@@ -40,19 +42,19 @@ class TotalBreakdown implements TotalBreakdownInterface
     protected Quote $quote;
 
     /**
-     * @var CartTotalRepository
+     * @var CartTotalRepositoryInterface
      */
-    protected CartTotalRepository $cartTotalRepository;
+    protected CartTotalRepositoryInterface $cartTotalRepository;
 
     /**
      * @param Quote $quote
      * @param BreakdownItemInterfaceFactory $breakdownItemFactory
-     * @param CartTotalRepository $cartTotalRepository
+     * @param CartTotalRepositoryInterface $cartTotalRepository
      */
     public function __construct(
         Quote $quote,
         BreakdownItemInterfaceFactory $breakdownItemFactory,
-        CartTotalRepository $cartTotalRepository
+        CartTotalRepositoryInterface $cartTotalRepository
     ) {
         $this->breakdownItemFactory = $breakdownItemFactory;
         $this->quote = $quote;
@@ -124,6 +126,7 @@ class TotalBreakdown implements TotalBreakdownInterface
      * @param string $type
      *
      * @return float
+     * @throws NoSuchEntityException
      */
     protected function getTotalsOfType(string $type)
     {

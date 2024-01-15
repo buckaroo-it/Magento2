@@ -41,7 +41,7 @@ class Ideal extends AbstractConfigProvider
     public const XPATH_SELECTION_TYPE   = 'selection_type';
     public const XPATH_SHOW_ISSUERS     = 'show_issuers';
     public const XPATH_GATEWAY_SETTINGS = 'gateway_settings';
-    const XPATH_SORTED_ISSUERS          = 'payment/buckaroo_magento2_ideal/sorted_issuers';
+    public const XPATH_SORTED_ISSUERS   = 'sorted_issuers';
 
     /**
      * @var array
@@ -85,7 +85,7 @@ class Ideal extends AbstractConfigProvider
             return [];
         }
 
-        $issuers = $this->issuersService->get();
+        $issuers = $this->formatIssuers();
         $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
 
         $selectionType = $this->getSelectionType();
@@ -110,6 +110,16 @@ class Ideal extends AbstractConfigProvider
     }
 
     /**
+     * Retrieve the list of issuers.
+     *
+     * @return array
+     */
+    public function getIssuers()
+    {
+        return $this->issuersService->get();
+    }
+
+    /**
      * Can show issuer selection in checkout
      *
      * @param string|null $storeId
@@ -129,18 +139,7 @@ class Ideal extends AbstractConfigProvider
      */
     public function getSelectionType($store = null)
     {
-        $methodConfig = $this->getMethodConfigValue(self::XPATH_SELECTION_TYPE, $store);
-
-        /** @deprecated 2.0.0 moved from main configuration to payment configuration */
-        $mainConfig = $this->scopeConfig->getValue(
-            'buckaroo_magento2/account/selection_type',
-            ScopeInterface::SCOPE_STORE,
-        );
-
-        if ($methodConfig === null) {
-            return $mainConfig;
-        }
-        return $methodConfig;
+        return $this->getMethodConfigValue(self::XPATH_SELECTION_TYPE, $store);
     }
 
     /**
@@ -157,15 +156,11 @@ class Ideal extends AbstractConfigProvider
 
     /**
      * @param $storeId
-     * @return mixed
+     * @return string
      */
-    public function getSortedIssuers($storeId = null)
+    public function getSortedIssuers($storeId = null): string
     {
-        return $this->scopeConfig->getValue(
-            self::XPATH_SORTED_ISSUERS,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
-        ) ?? '';
+        return $this->getMethodConfigValue(self::XPATH_SORTED_ISSUERS, $storeId) ?? '';
     }
 
     /**

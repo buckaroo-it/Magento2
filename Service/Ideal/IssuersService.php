@@ -87,6 +87,7 @@ class IssuersService
     public function get(): array
     {
         $issuers = $this->getCachedIssuers();
+        $issuers = null;
         if ($issuers === null) {
             return $this->updateCacheIssuers();
         }
@@ -164,6 +165,7 @@ class IssuersService
                     $logo = $this->getImageUrl("ideal/{$name}");
                 }
                 $issuer['logo'] = $logo;
+                $issuer['code'] = $issuer['id'];
                 return $issuer;
             },
             $issuers

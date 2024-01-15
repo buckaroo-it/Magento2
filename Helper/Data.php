@@ -376,23 +376,6 @@ class Data extends AbstractHelper
     }
 
     /**
-     * Retrieve the sorted order of the credit card types to display on the checkout page
-     *
-     * @return mixed
-     * @throws NoSuchEntityException
-     */
-    public function getConfigCardSort()
-    {
-        return $this->scopeConfig->getValue(
-            'payment/buckaroo_magento2_creditcard/sorted_creditcards',
-            $this->scopeDefiner->getScope(),
-            ($this->scopeDefiner->getScope() == ScopeInterface::SCOPE_WEBSITES) ?
-                $this->storeManager->getStore() :
-                null
-        );
-    }
-
-    /**
      * Get current store
      *
      * @return StoreInterface|null

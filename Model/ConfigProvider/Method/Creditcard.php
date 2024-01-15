@@ -25,6 +25,7 @@ use Magento\Store\Model\ScopeInterface;
 class Creditcard extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_creditcard';
+
     /**
      * Creditcard service codes.
      */
@@ -40,18 +41,16 @@ class Creditcard extends AbstractConfigProvider
     private const CREDITCARD_SERVICE_CODE_NEXI          = 'nexi';
     private const CREDITCARD_SERVICE_CODE_POSTEPAY      = 'postepay';
 
-    public const XPATH_CREDITCARD_ALLOWED_CREDITCARDS = 'allowed_creditcards';
-
     public const XPATH_CREDITCARD_MASTERCARD_UNSECURE_HOLD = 'mastercard_unsecure_hold';
     public const XPATH_CREDITCARD_VISA_UNSECURE_HOLD       = 'visa_unsecure_hold';
     public const XPATH_CREDITCARD_MAESTRO_UNSECURE_HOLD    = 'maestro_unsecure_hold';
 
-    public const XPATH_CREDITCARD_SORT = 'sorted_creditcards';
-    public const XPATH_SELECTION_TYPE  = 'selection_type';
-    public const XPATH_PAYMENT_FLOW    = 'payment_action';
-    public const DEFAULT_SORT_VALUE    = '99';
-
-    const XPATH_CREDITCARD_GROUP_CREDITCARD     = 'payment/buckaroo_magento2_creditcard/group_creditcards';
+    public const XPATH_CREDITCARD_ALLOWED_CREDITCARDS = 'allowed_issuers';
+    public const XPATH_SORTED_ISSUERS                 = 'sorted_issuers';
+    public const XPATH_CREDITCARD_GROUP_CREDITCARD    = 'group_creditcards';
+    public const XPATH_SELECTION_TYPE                 = 'selection_type';
+    public const XPATH_PAYMENT_FLOW                   = 'payment_action';
+    public const DEFAULT_SORT_VALUE                   = '99';
 
     /** @var array[] */
     protected array $issuers = [
@@ -113,28 +112,6 @@ class Creditcard extends AbstractConfigProvider
     ];
 
     /**
-     * Get card name by card type
-     *
-     * @param string $cardType
-     * @return string
-     *
-     * @throws \InvalidArgumentException
-     */
-    public function getCardName($cardType)
-    {
-        $config = $this->getConfig();
-
-        foreach ($config['payment']['buckaroo']['creditcard']['cards'] as $card) {
-            if ($card['code'] == $cardType) {
-                return $card['name'];
-            }
-        }
-
-        throw new \InvalidArgumentException("No card found for card type: {$cardType}");
-    }
-
-
-    /**
      * @inheritdoc
      */
     public function getConfig()
@@ -151,7 +128,7 @@ class Creditcard extends AbstractConfigProvider
                 'buckaroo' => [
                     'creditcard' => [
                         'cards'             => $issuers,
-                        'groupCreditcards' => $this->isGroupCreditcards(),
+                        'groupCreditcards'  => $this->isGroupCreditcards(),
                         'paymentFeeLabel'   => $paymentFeeLabel,
                         'subtext'           => $this->getSubtext(),
                         'subtext_style'     => $this->getSubtextStyle(),
@@ -170,6 +147,24 @@ class Creditcard extends AbstractConfigProvider
     {
         return $this->issuers;
     }
+
+    /**
+     * Get all issuers not sorted
+     *
+     * @return array
+     */
+    public function getAllIssuers(): array
+    {
+        $issuers = $this->getIssuers();
+        $issuersPrepared = [];
+        foreach ($issuers as $issuer) {
+            $issuer['img'] = $this->getImageUrl($issuer['code']);
+            $issuersPrepared[$issuer['code']] = $issuer;
+        }
+
+        return $issuersPrepared;
+    }
+
     /**
      * Add the active flag to the creditcard list. This is used in the checkout process.
      *
@@ -178,7 +173,7 @@ class Creditcard extends AbstractConfigProvider
     public function formatIssuers(): array
     {
         $sorted = $this->getSortedIssuers();
-        $sorted = $sorted ? explode(',',$sorted) : [];
+        $sorted = $sorted ? explode(',', $sorted) : [];
 
         if (!empty($sorted)) {
             $sortedPosition = 1;
@@ -211,25 +206,41 @@ class Creditcard extends AbstractConfigProvider
     }
 
     /**
-     * Get the order of credit cards
+     * Generate the url to the desired asset.
      *
-     * @param null|int|string $store
-     * @return mixed
+     * @param string $imgName
+     * @param string $extension
+     *
+     * @return string
      */
-    public function getSort($store = null)
+    public function getImageUrl($imgName, string $extension = 'png')
     {
-        return $this->getMethodConfigValue(self::XPATH_CREDITCARD_SORT, $store);
+        if ($imgName === 'cartebleuevisa') {
+            $imgName = 'cartebleue';
+        }
+
+        return parent::getImageUrl("creditcards/{$imgName}", "svg");
     }
 
     /**
-     * Get the list with allowed credit cards
+     * Get card name by card type
      *
-     * @param null|int|string $store
-     * @return mixed
+     * @param string $cardType
+     * @return string
+     *
+     * @throws \InvalidArgumentException
      */
-    public function getAllowedCreditcards($store = null)
+    public function getCardName($cardType)
     {
-        return $this->getMethodConfigValue(self::XPATH_CREDITCARD_ALLOWED_CREDITCARDS, $store);
+        $config = $this->getConfig();
+
+        foreach ($config['payment']['buckaroo']['creditcard']['cards'] as $card) {
+            if ($card['code'] == $cardType) {
+                return $card['name'];
+            }
+        }
+
+        throw new \InvalidArgumentException("No card found for card type: {$cardType}");
     }
 
     /**
@@ -250,6 +261,50 @@ class Creditcard extends AbstractConfigProvider
         }
 
         throw new \InvalidArgumentException("No card found for card type: {$cardType}");
+    }
+
+    /**
+     * Retrieve the sorted order of the credit card types to display on the checkout page
+     *
+     * @param $storeId
+     * @return ?string
+     */
+    public function getSortedIssuers($storeId = null): ?string
+    {
+        return $this->getMethodConfigValue(self::XPATH_SORTED_ISSUERS, $storeId);
+    }
+
+    /**
+     * Get the list with allowed credit cards
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getAllowedCreditcards($store = null)
+    {
+        return $this->getMethodConfigValue(self::XPATH_CREDITCARD_ALLOWED_CREDITCARDS, $store);
+    }
+
+    /**
+     * Selection type radio checkbox or drop down
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getSelectionType($store = null)
+    {
+        return $this->getMethodConfigValue(self::XPATH_SELECTION_TYPE, $store);
+    }
+
+    /**
+     * Credit cards are displayed separately in the checkout.
+     *
+     * @param $storeId
+     * @return string
+     */
+    public function isGroupCreditcards($storeId = null): string
+    {
+        return (bool)$this->getMethodConfigValue(self::XPATH_CREDITCARD_GROUP_CREDITCARD, $storeId);
     }
 
     /**
@@ -283,99 +338,5 @@ class Creditcard extends AbstractConfigProvider
     public function getMaestroUnsecureHold($store = null)
     {
         return $this->getMethodConfigValue(self::XPATH_CREDITCARD_MAESTRO_UNSECURE_HOLD, $store);
-    }
-
-     /**
-      * Selection type radio checkbox or drop down
-      *
-      * @param null|int|string $store
-      * @return mixed
-      */
-    public function getSelectionType($store = null)
-    {
-        $methodConfig = $this->getMethodConfigValue(self::XPATH_SELECTION_TYPE, $store);
-
-        /** @deprecated 2.0.0 moved from main configuration to payment configuration */
-        $mainConfig = $this->scopeConfig->getValue(
-            'buckaroo_magento2/account/selection_type',
-            ScopeInterface::SCOPE_STORE,
-        );
-        if ($methodConfig === null) {
-            return $mainConfig;
-        }
-        return $methodConfig;
-    }
-
-        public function getConfigCardSort()
-    {
-        $configValue = $this->scopeConfig->getValue(
-            'payment/buckaroo_magento2_creditcard/sorted_issuers',
-            $this->scopeDefiner->getScope(),
-            ($this->scopeDefiner->getScope() == ScopeInterface::SCOPE_WEBSITES) ? $this->storeManager->getStore() : null
-        );
-
-        return $configValue;
-    }
-
-        /**
-         * @param $storeId
-         * @return ?string
-         */
-        public function getSortedIssuers($storeId = null): ?string
-    {
-        return $this->scopeConfig->getValue(
-            self::XPATH_SORTED_ISSUERS,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
-    }
-
-        /**
-         * Generate the url to the desired asset.
-         *
-         * @param string $imgName
-         * @param string $extension
-         *
-         * @return string
-         */
-        public function getImageUrl($imgName, string $extension = 'png')
-    {
-        if($imgName === 'cartebleuevisa') {
-            $imgName = 'cartebleue';
-        }
-
-        return parent::getImageUrl("creditcards/{$imgName}", "svg");
-    }
-
-        /**
-         * Get all issuers not sorted
-         *
-         * @return array
-         */
-        public function getAllIssuers(): array
-    {
-        $issuers = $this->getIssuers();
-        $issuersPrepared = [];
-        foreach ($issuers as $issuer) {
-            $issuer['img'] = $this->getImageUrl($issuer['code']);
-            $issuersPrepared[$issuer['code']] = $issuer;
-        }
-
-        return $issuersPrepared;
-    }
-
-        /**
-         * Credit cards are displayed separately in the checkout.
-         *
-         * @param $storeId
-         * @return string
-         */
-        public function isGroupCreditcards($storeId = null): string
-    {
-        return (bool)$this->scopeConfig->getValue(
-            self::XPATH_CREDITCARD_GROUP_CREDITCARD,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
     }
 }
