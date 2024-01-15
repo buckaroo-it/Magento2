@@ -114,6 +114,7 @@ define(
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 logo:  window.checkoutConfig.payment.buckaroo.capayablein3.logo,
                 dp: datePicker,
+                isTestMode: window.checkoutConfig.payment.buckaroo.capayablein3.isTestMode,
 
                 /**
                  * @override

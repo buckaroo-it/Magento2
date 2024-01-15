@@ -59,6 +59,8 @@ define(
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 showIssuers :  window.checkoutConfig.payment.buckaroo.ideal.showIssuers,
+                isTestMode: window.checkoutConfig.payment.buckaroo.ideal.isTestMode,
+                showIssuers :  window.checkoutConfig.payment.buckaroo.ideal.showIssuers,
 
                 /**
              * @override

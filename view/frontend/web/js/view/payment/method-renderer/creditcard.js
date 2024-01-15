@@ -49,6 +49,7 @@ define(
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_creditcard'
                 },
                 creditcards: [],
+                groupCreditcards: false,
                 redirectAfterPlaceOrder: false,
                 creditcardIssuer: null,
                 selectedBank: null,
@@ -60,6 +61,7 @@ define(
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 paymentFlow : window.checkoutConfig.payment.buckaroo.creditcard.paymentFlow,
+                isTestMode: window.checkoutConfig.payment.buckaroo.creditcard.isTestMode,
 
                 /**
                  * @override
@@ -147,6 +149,18 @@ define(
                     checkoutCommon.redirectHandle(response);
                 },
 
+                isCheckedCreditCardPaymentMethod: function (code) {
+                    return ((this.creditcardIssuer !== undefined) && this.creditcardIssuer == code);
+                },
+
+                selectCreditCardPaymentMethod: function (code) {
+                    this.setSelectedCard(code);
+                    this.item.method = 'buckaroo_magento2_creditcard';
+                    this.paymentMethod = this.item.method;
+                    this.selectPaymentMethod();
+                    return true;
+                },
+
                 selectPaymentMethod: function () {
                     window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
 
@@ -155,12 +169,17 @@ define(
                     return true;
                 },
 
+                isCredicardGroupMode: function () {
+                    return window.checkoutConfig.payment.buckaroo.creditcard.groupCreditcards === 1;
+                },
+
                 getData: function () {
                     var selectedCardCode = null;
                     if (this.selectedCard()) {
-                        selectedCardCode = this.selectedCard().code;
+                        selectedCardCode = typeof this.selectedCard() === 'object' ?
+                            this.selectedCard().code :
+                            this.selectedCard();
                     }
-
 
                     if (this.creditcardIssuer) {
                         selectedCardCode = this.creditcardIssuer;

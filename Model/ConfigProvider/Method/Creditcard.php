@@ -25,6 +25,7 @@ use Magento\Store\Model\ScopeInterface;
 class Creditcard extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_creditcard';
+
     /**
      * Creditcard service codes.
      */
@@ -40,16 +41,16 @@ class Creditcard extends AbstractConfigProvider
     private const CREDITCARD_SERVICE_CODE_NEXI          = 'nexi';
     private const CREDITCARD_SERVICE_CODE_POSTEPAY      = 'postepay';
 
-    public const XPATH_CREDITCARD_ALLOWED_CREDITCARDS = 'allowed_creditcards';
-
     public const XPATH_CREDITCARD_MASTERCARD_UNSECURE_HOLD = 'mastercard_unsecure_hold';
     public const XPATH_CREDITCARD_VISA_UNSECURE_HOLD       = 'visa_unsecure_hold';
     public const XPATH_CREDITCARD_MAESTRO_UNSECURE_HOLD    = 'maestro_unsecure_hold';
 
-    public const XPATH_CREDITCARD_SORT = 'sorted_creditcards';
-    public const XPATH_SELECTION_TYPE  = 'selection_type';
-    public const XPATH_PAYMENT_FLOW    = 'payment_action';
-    public const DEFAULT_SORT_VALUE    = '99';
+    public const XPATH_CREDITCARD_ALLOWED_CREDITCARDS = 'allowed_issuers';
+    public const XPATH_SORTED_ISSUERS                 = 'sorted_issuers';
+    public const XPATH_CREDITCARD_GROUP_CREDITCARD    = 'group_creditcards';
+    public const XPATH_SELECTION_TYPE                 = 'selection_type';
+    public const XPATH_PAYMENT_FLOW                   = 'payment_action';
+    public const DEFAULT_SORT_VALUE                   = '99';
 
     /** @var array[] */
     protected array $issuers = [
@@ -111,6 +112,117 @@ class Creditcard extends AbstractConfigProvider
     ];
 
     /**
+     * @inheritdoc
+     */
+    public function getConfig()
+    {
+        $issuers = $this->formatIssuers();
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
+
+        $selectionType = $this->getSelectionType();
+
+        $paymentFlow = $this->getMethodConfigValue(self::XPATH_PAYMENT_FLOW);
+
+        return [
+            'payment' => [
+                'buckaroo' => [
+                    'creditcard' => [
+                        'cards'             => $issuers,
+                        'groupCreditcards'  => $this->isGroupCreditcards(),
+                        'paymentFeeLabel'   => $paymentFeeLabel,
+                        'subtext'           => $this->getSubtext(),
+                        'subtext_style'     => $this->getSubtextStyle(),
+                        'subtext_color'     => $this->getSubtextColor(),
+                        'allowedCurrencies' => $this->getAllowedCurrencies(),
+                        'selectionType'     => $selectionType,
+                        'paymentFlow'       => $paymentFlow,
+                        'isTestMode'        => $this->isTestMode()
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    public function getIssuers(): array
+    {
+        return $this->issuers;
+    }
+
+    /**
+     * Get all issuers not sorted
+     *
+     * @return array
+     */
+    public function getAllIssuers(): array
+    {
+        $issuers = $this->getIssuers();
+        $issuersPrepared = [];
+        foreach ($issuers as $issuer) {
+            $issuer['img'] = $this->getImageUrl($issuer['code']);
+            $issuersPrepared[$issuer['code']] = $issuer;
+        }
+
+        return $issuersPrepared;
+    }
+
+    /**
+     * Add the active flag to the creditcard list. This is used in the checkout process.
+     *
+     * @return array
+     */
+    public function formatIssuers(): array
+    {
+        $sorted = $this->getSortedIssuers();
+        $sorted = $sorted ? explode(',', $sorted) : [];
+
+        if (!empty($sorted)) {
+            $sortedPosition = 1;
+            foreach ($sorted as $cardCode) {
+                $sorted_array[$cardCode] = $sortedPosition++;
+            }
+        }
+
+        foreach ($this->getIssuers() as $item) {
+            $item['sort'] = isset($sorted_array[$item['code']]) ?
+                $sorted_array[$item['code']] : self::DEFAULT_SORT_VALUE;
+            $item['img'] = $this->getImageUrl($item['code']);
+            $allCreditcard[$item['code']] = $item;
+        }
+
+        $allowed = explode(',', (string)$this->getAllowedCreditcards());
+
+        $cards = [];
+        foreach ($allowed as $key => $value) {
+            if (isset($allCreditcard[$value])) {
+                $cards[] = $allCreditcard[$value];
+            }
+        }
+
+        usort($cards, function ($cardA, $cardB) {
+            return $cardA['sort'] - $cardB['sort'];
+        });
+
+        return $cards;
+    }
+
+    /**
+     * Generate the url to the desired asset.
+     *
+     * @param string $imgName
+     * @param string $extension
+     *
+     * @return string
+     */
+    public function getImageUrl($imgName, string $extension = 'png')
+    {
+        if ($imgName === 'cartebleuevisa') {
+            $imgName = 'cartebleue';
+        }
+
+        return parent::getImageUrl("creditcards/{$imgName}", "svg");
+    }
+
+    /**
      * Get card name by card type
      *
      * @param string $cardType
@@ -131,102 +243,6 @@ class Creditcard extends AbstractConfigProvider
         throw new \InvalidArgumentException("No card found for card type: {$cardType}");
     }
 
-
-    /**
-     * @inheritdoc
-     */
-    public function getConfig()
-    {
-        $issuers = $this->formatIssuers();
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
-
-        $selectionType = $this->getSelectionType();
-
-        $paymentFlow = $this->getMethodConfigValue(self::XPATH_PAYMENT_FLOW);
-
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'creditcard' => [
-                        'cards'             => $issuers,
-                        'paymentFeeLabel'   => $paymentFeeLabel,
-                        'subtext'           => $this->getSubtext(),
-                        'subtext_style'     => $this->getSubtextStyle(),
-                        'subtext_color'     => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'selectionType'     => $selectionType,
-                        'paymentFlow'       => $paymentFlow,
-                    ],
-                ],
-            ],
-        ];
-    }
-
-    public function getIssuers(): array
-    {
-        return $this->issuers;
-    }
-    /**
-     * Add the active flag to the creditcard list. This is used in the checkout process.
-     *
-     * @return array
-     */
-    public function formatIssuers(): array
-    {
-        $sort = $this->getSort();
-
-        if (!empty($sort)) {
-            $sorted = explode(',', trim($sort));
-            $sortedPosition = 1;
-            foreach ($sorted as $cardName) {
-                $sortedArray[$cardName] = $sortedPosition++;
-            }
-        }
-
-        foreach ($this->getIssuers() as $item) {
-            $item['sort'] = $sortedArray[$item['name']] ?? self::DEFAULT_SORT_VALUE;
-            $item['img'] = $this->getCreditcardLogo($item['code']);
-            $allCreditcard[$item['code']] = $item;
-        }
-
-        $allowed = explode(',', (string)$this->getAllowedCreditcards());
-
-        $cards = [];
-        foreach ($allowed as $value) {
-            if (isset($allCreditcard[$value])) {
-                $cards[] = $allCreditcard[$value];
-            }
-        }
-
-        usort($cards, function ($cardA, $cardB) {
-            return $cardA['sort'] - $cardB['sort'];
-        });
-
-        return $cards;
-    }
-
-    /**
-     * Get the order of credit cards
-     *
-     * @param null|int|string $store
-     * @return mixed
-     */
-    public function getSort($store = null)
-    {
-        return $this->getMethodConfigValue(self::XPATH_CREDITCARD_SORT, $store);
-    }
-
-    /**
-     * Get the list with allowed credit cards
-     *
-     * @param null|int|string $store
-     * @return mixed
-     */
-    public function getAllowedCreditcards($store = null)
-    {
-        return $this->getMethodConfigValue(self::XPATH_CREDITCARD_ALLOWED_CREDITCARDS, $store);
-    }
-
     /**
      * Get card code by card type
      *
@@ -245,6 +261,50 @@ class Creditcard extends AbstractConfigProvider
         }
 
         throw new \InvalidArgumentException("No card found for card type: {$cardType}");
+    }
+
+    /**
+     * Retrieve the sorted order of the credit card types to display on the checkout page
+     *
+     * @param $storeId
+     * @return ?string
+     */
+    public function getSortedIssuers($storeId = null): ?string
+    {
+        return $this->getMethodConfigValue(self::XPATH_SORTED_ISSUERS, $storeId);
+    }
+
+    /**
+     * Get the list with allowed credit cards
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getAllowedCreditcards($store = null)
+    {
+        return $this->getMethodConfigValue(self::XPATH_CREDITCARD_ALLOWED_CREDITCARDS, $store);
+    }
+
+    /**
+     * Selection type radio checkbox or drop down
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getSelectionType($store = null)
+    {
+        return $this->getMethodConfigValue(self::XPATH_SELECTION_TYPE, $store);
+    }
+
+    /**
+     * Credit cards are displayed separately in the checkout.
+     *
+     * @param $storeId
+     * @return string
+     */
+    public function isGroupCreditcards($storeId = null): string
+    {
+        return (bool)$this->getMethodConfigValue(self::XPATH_CREDITCARD_GROUP_CREDITCARD, $storeId);
     }
 
     /**
@@ -278,26 +338,5 @@ class Creditcard extends AbstractConfigProvider
     public function getMaestroUnsecureHold($store = null)
     {
         return $this->getMethodConfigValue(self::XPATH_CREDITCARD_MAESTRO_UNSECURE_HOLD, $store);
-    }
-        
-     /**
-      * Selection type radio checkbox or drop down
-      *
-      * @param null|int|string $store
-      * @return mixed
-      */
-    public function getSelectionType($store = null)
-    {
-        $methodConfig = $this->getMethodConfigValue(self::XPATH_SELECTION_TYPE, $store);
-
-        /** @deprecated 2.0.0 moved from main configuration to payment configuration */
-        $mainConfig = $this->scopeConfig->getValue(
-            'buckaroo_magento2/account/selection_type',
-            ScopeInterface::SCOPE_STORE,
-        );
-        if ($methodConfig === null) {
-            return $mainConfig;
-        }
-        return $methodConfig;
     }
 }

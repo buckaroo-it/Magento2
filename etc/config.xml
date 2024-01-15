@@ -62,6 +62,7 @@
                 <show_issuers>1</show_issuers>
                 <privateInfoKeys></privateInfoKeys>
                 <paymentInfoKeys>buckaroo_original_transaction_key</paymentInfoKeys>
+                <show_issuers>1</show_issuers>
             </buckaroo_magento2_ideal>
 
             <buckaroo_magento2_paybybank>
@@ -280,7 +281,7 @@
                 <active>0</active>
                 <model>MrcashFacade</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Bancontact/Mister Cash</title>
+                <title>Buckaroo Bancontact</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>140</sort_order>
                 <order_email>1</order_email>

@@ -51,7 +51,8 @@ class Afterpay2 extends Afterpay
                         'allowedCurrencies'    => $this->getAllowedCurrencies(),
                         'businessMethod'       => $this->getBusiness(),
                         'paymentMethod'        => $this->getPaymentMethod(),
-                        'showFinancialWarning' => $this->canShowFinancialWarning()
+                        'showFinancialWarning' => $this->canShowFinancialWarning(),
+                        'isTestMode'           => $this->isTestMode()
                     ],
                     'response'  => [],
                 ],

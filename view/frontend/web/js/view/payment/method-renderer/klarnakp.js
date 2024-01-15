@@ -55,6 +55,7 @@ define(
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 showFinancialWarning: window.checkoutConfig.payment.buckaroo.klarnakp.showFinancialWarning || true,
+                isTestMode: window.checkoutConfig.payment.buckaroo.klarnakp.isTestMode,
 
                 initObservable: function () {
                     this.showFinancialWarning = ko.computed(

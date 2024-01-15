@@ -2,8 +2,8 @@
 "Name on card:","Cardholder:"
 "Bank account holder","Account holder name:"
 "Bank account number","Account number (IBAN):"
-"Buckaroo Bancontact/Mister Cash","Buckaroo Bancontact"
-"Bancontact/Mister Cash","Buckaroo Bancontact"
+"Buckaroo Bancontact","Buckaroo Bancontact"
+"Bancontact","Buckaroo Bancontact"
 "Billing Name:","Billing name:"
 "Business Model:","Business model:"
 "COC Number:","CoC number:",
@@ -19,7 +19,6 @@
 "Create Invoice on Payment","Create Invoice on Payment"
 "Create Invoice on Shipment","Create Invoice on Shipment"
 "Select the moment when the invoice should be created.","Select the moment when the invoice should be created."
-
 "Consumer Iban","Customer IBAN"
 "Consumer Name","Customer Account Holder Name"
 "Customer Account Name","Customer Account Holder Name"

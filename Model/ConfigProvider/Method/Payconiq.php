@@ -76,7 +76,8 @@ class Payconiq extends AbstractConfigProvider
                         'subtext_style'     => $this->getSubtextStyle(),
                         'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'redirecturl'       => static::PAYCONIC_REDIRECT_URL . '?form_key=' . $this->getFormKey()
+                        'redirecturl'       => static::PAYCONIC_REDIRECT_URL . '?form_key=' . $this->getFormKey(),
+                        'isTestMode'        => $this->isTestMode()
                     ],
                 ],
             ],

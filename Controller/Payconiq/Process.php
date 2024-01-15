@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Controller\Payconiq;
 
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
+use Buckaroo\Magento2\Model\LockManagerWrapper;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\ConfigProvider\Account as AccountConfig;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
@@ -66,6 +67,11 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
     protected TransactionRepositoryInterface $transactionRepository;
 
     /**
+     * @var LockManagerWrapper
+     */
+    protected LockManagerWrapper $lockManager;
+
+    /**
      * @param Context $context
      * @param BuckarooLoggerInterface $logger
      * @param Quote $quote
@@ -99,7 +105,8 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
         Recreate $quoteRecreate,
         RequestPushFactory $requestPushFactory,
         SearchCriteriaBuilder $searchCriteriaBuilder,
-        TransactionRepositoryInterface $transactionRepository
+        TransactionRepositoryInterface $transactionRepository,
+        LockManagerWrapper $lockManagerWrapper
     ) {
         parent::__construct(
             $context,
@@ -114,7 +121,8 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
             $orderService,
             $eventManager,
             $quoteRecreate,
-            $requestPushFactory
+            $requestPushFactory,
+            $lockManagerWrapper
         );
 
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;

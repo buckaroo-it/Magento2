@@ -376,23 +376,6 @@ class Data extends AbstractHelper
     }
 
     /**
-     * Retrieve the sorted order of the credit card types to display on the checkout page
-     *
-     * @return mixed
-     * @throws NoSuchEntityException
-     */
-    public function getConfigCardSort()
-    {
-        return $this->scopeConfig->getValue(
-            'payment/buckaroo_magento2_creditcard/sorted_creditcards',
-            $this->scopeDefiner->getScope(),
-            ($this->scopeDefiner->getScope() == ScopeInterface::SCOPE_WEBSITES) ?
-                $this->storeManager->getStore() :
-                null
-        );
-    }
-
-    /**
      * Get current store
      *
      * @return StoreInterface|null
@@ -483,12 +466,11 @@ class Data extends AbstractHelper
             ['value' => 'giftcards',       'label' => __('Giftcards')],
             ['value' => 'giropay',       'label' => __('Giropay')],
             ['value' => 'ideal',       'label' => __('iDEAL')],
-            ['value' => 'idealprocessing',       'label' => __('iDEAL Processing')],
             ['value' => 'kbc',       'label' => __('KBC')],
             ['value' => 'klarna',       'label' => __('Klarna Pay later (pay)')],
             ['value' => 'klarnain',       'label' => __('Klarna Slice it')],
             ['value' => 'klarnakp',       'label' => __('Klarna Pay later (authorize/capture)')],
-            ['value' => 'mrcash',       'label' => __('Bancontact / Mister Cash')],
+            ['value' => 'mrcash',       'label' => __('Bancontact')],
             ['value' => 'p24',       'label' => __('Przelewy24')],
             ['value' => 'payconiq',       'label' => __('Payconiq')],
             ['value' => 'paylink',       'label' => __('PayLink')],

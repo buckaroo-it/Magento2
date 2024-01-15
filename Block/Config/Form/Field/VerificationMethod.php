@@ -82,10 +82,20 @@ class VerificationMethod extends MagentoFieldset
             return parent::_getHeaderTitleHtml($element);
         }
 
+        $element->setLegend($this->getTabImgAndLink($element));
+        return parent::_getHeaderTitleHtml($element);
+    }
+
+    /**
+     * @param AbstractElement $element
+     * @return string
+     */
+    private function getTabImgAndLink($element) {
         $code = str_replace("buckaroo_magento2_", "", $element->getGroup()['id']);
         $logo = $this->getLogo($code);
-
-        return parent::_getHeaderTitleHtml($element) . '<img class="bk-ad-payment-logo" src="' . $logo . '">';
+        return '<div class="bk-tab-title"><img class="bk-ad-payment-logo" src="' . $logo . '">'.
+         $element->getLegend().
+         "</div>";
     }
 
     /**

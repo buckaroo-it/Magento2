@@ -112,7 +112,8 @@ class Applepay extends AbstractConfigProvider
                         'guid'              => $this->getMerchantGuid(),
                         'availableButtons'  => $this->getAvailableButtons(),
                         'buttonStyle'       => $this->getButtonStyle(),
-                        'dontAskBillingInfoInCheckout' => (int)$this->getDontAskBillingInfoInCheckout()
+                        'dontAskBillingInfoInCheckout' => (int)$this->getDontAskBillingInfoInCheckout(),
+                        'isTestMode'        => $this->isTestMode()
                     ],
                 ],
             ],

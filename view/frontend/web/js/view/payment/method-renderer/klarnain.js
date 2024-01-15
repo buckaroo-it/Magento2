@@ -56,6 +56,7 @@ define(
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 genderList: window.checkoutConfig.payment.buckaroo.klarnain.genderList,
+                isTestMode: window.checkoutConfig.payment.buckaroo.klarnain.isTestMode,
 
                 /**
                  * @override

@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Controller\Redirect;
 
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Account as AccountConfig;
+use Buckaroo\Magento2\Model\LockManagerWrapper;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Model\RequestPush\RequestPushFactory;
 use Buckaroo\Magento2\Model\Service\Order as OrderService;
@@ -81,6 +82,7 @@ class IdinProcess extends Process implements HttpPostActionInterface
         ManagerInterface $eventManager,
         Recreate $quoteRecreate,
         RequestPushFactory $requestPushFactory,
+        LockManagerWrapper $lockManager,
         CustomerFactory $customerFactory
     ) {
         parent::__construct(
@@ -96,7 +98,8 @@ class IdinProcess extends Process implements HttpPostActionInterface
             $orderService,
             $eventManager,
             $quoteRecreate,
-            $requestPushFactory
+            $requestPushFactory,
+            $lockManager
         );
 
         $this->customerResourceFactory = $customerFactory;

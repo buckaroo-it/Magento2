@@ -69,7 +69,8 @@ class PayPerEmail extends AbstractConfigProvider
                             ['genderType' => 2, 'genderTitle' => __('She/her')],
                             ['genderType' => 0, 'genderTitle' => __('They/them')],
                             ['genderType' => 9, 'genderTitle' => __('I prefer not to say')]
-                        ]
+                        ],
+                        'isTestMode'        => $this->isTestMode()
                     ],
                     'response'    => [],
                 ],
