@@ -58,6 +58,11 @@ class Push implements PushInterface
     private PushTransactionType $pushTransactionType;
 
     /**
+     * @var LockManagerWrapper
+     */
+    protected LockManagerWrapper $lockManager;
+
+    /**
      * @param BuckarooLoggerInterface $logger
      * @param RequestPushFactory $requestPushFactory
      * @param PushProcessorsFactory $pushProcessorsFactory
@@ -76,6 +81,7 @@ class Push implements PushInterface
         $this->pushProcessorsFactory = $pushProcessorsFactory;
         $this->orderRequestService = $orderRequestService;
         $this->pushTransactionType = $pushTransactionType;
+        $this->lockManager = $lockManager;
     }
 
     /**
@@ -96,20 +102,39 @@ class Push implements PushInterface
         // Load Order
         $order = $this->orderRequestService->getOrderByRequest($this->pushRequst);
 
-        // Validate Signature
-        $store = $order->getStore();
-        $validSignature = $this->pushRequst->validate($store);
+        $orderIncrementID = $order->getIncrementId();
+        $this->logging->addDebug(__METHOD__ . '|Lock Name| - ' . var_export($orderIncrementID, true));
+        $lockAcquired = $this->lockManager->lockOrder($orderIncrementID, 5);
 
-        if (!$validSignature) {
-            $this->logger->addDebug('[PUSH] | [Webapi] | ['. __METHOD__ .':'. __LINE__ . '] - Invalid push signature');
-            throw new BuckarooException(__('Signature from push is incorrect'));
+        if (!$lockAcquired) {
+            $this->logging->addDebug(__METHOD__ . '|lock not acquired|');
+            throw new \Buckaroo\Magento2\Exception(
+                __('Lock push not acquired')
+            );
         }
 
-        // Get Push Transaction Type
-        $pushTransactionType = $this->pushTransactionType->getPushTransactionType($this->pushRequst, $order);
+        try {
+            // Validate Signature
+            $store = $order->getStore();
+            $validSignature = $this->pushRequst->validate($store);
 
-        // Process Push
-        $pushProcessor = $this->pushProcessorsFactory->get($pushTransactionType);
-        return $pushProcessor->processPush($this->pushRequst);
+            if (!$validSignature) {
+                $this->logger->addDebug('[PUSH] | [Webapi] | ['. __METHOD__ .':'. __LINE__ . '] - Invalid push signature');
+                throw new BuckarooException(__('Signature from push is incorrect'));
+            }
+
+            // Get Push Transaction Type
+            $pushTransactionType = $this->pushTransactionType->getPushTransactionType($this->pushRequst, $order);
+
+            // Process Push
+            $pushProcessor = $this->pushProcessorsFactory->get($pushTransactionType);
+            return $pushProcessor->processPush($this->pushRequst);
+        } catch (\Throwable $e) {
+            $this->logging->addDebug(__METHOD__ . '|Exception|' . $e->getMessage());
+            throw $e;
+        } finally {
+            $this->lockManager->unlockOrder($orderIncrementID);
+            $this->logging->addDebug(__METHOD__ . '|Lock released|');
+        }
     }
 }

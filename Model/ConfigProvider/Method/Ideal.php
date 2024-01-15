@@ -41,6 +41,8 @@ class Ideal extends AbstractConfigProvider
     public const XPATH_SELECTION_TYPE   = 'selection_type';
     public const XPATH_SHOW_ISSUERS     = 'show_issuers';
     public const XPATH_GATEWAY_SETTINGS = 'gateway_settings';
+    const XPATH_SORTED_ISSUERS          = 'payment/buckaroo_magento2_ideal/sorted_issuers';
+
     /**
      * @var array
      */
@@ -151,5 +153,31 @@ class Ideal extends AbstractConfigProvider
     {
         return $this->getMethodConfigValue(self::XPATH_GATEWAY_SETTINGS, $storeId) ??
             str_replace('buckaroo_magento2_', '', self::CODE);
+    }
+
+    /**
+     * @param $storeId
+     * @return mixed
+     */
+    public function getSortedIssuers($storeId = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_SORTED_ISSUERS,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        ) ?? '';
+    }
+
+    /**
+     * Generate the url to the desired asset.
+     *
+     * @param string $imgName
+     * @param string $extension
+     *
+     * @return string
+     */
+    public function getImageUrl($imgName, string $extension = 'png')
+    {
+        return parent::getImageUrl("ideal/{$imgName}", "svg");
     }
 }

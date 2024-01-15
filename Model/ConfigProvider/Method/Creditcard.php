@@ -51,6 +51,8 @@ class Creditcard extends AbstractConfigProvider
     public const XPATH_PAYMENT_FLOW    = 'payment_action';
     public const DEFAULT_SORT_VALUE    = '99';
 
+    const XPATH_CREDITCARD_GROUP_CREDITCARD     = 'payment/buckaroo_magento2_creditcard/group_creditcards';
+
     /** @var array[] */
     protected array $issuers = [
         [
@@ -149,6 +151,7 @@ class Creditcard extends AbstractConfigProvider
                 'buckaroo' => [
                     'creditcard' => [
                         'cards'             => $issuers,
+                        'groupCreditcards' => $this->isGroupCreditcards(),
                         'paymentFeeLabel'   => $paymentFeeLabel,
                         'subtext'           => $this->getSubtext(),
                         'subtext_style'     => $this->getSubtextStyle(),
@@ -174,26 +177,27 @@ class Creditcard extends AbstractConfigProvider
      */
     public function formatIssuers(): array
     {
-        $sort = $this->getSort();
+        $sorted = $this->getSortedIssuers();
+        $sorted = $sorted ? explode(',',$sorted) : [];
 
-        if (!empty($sort)) {
-            $sorted = explode(',', trim($sort));
+        if (!empty($sorted)) {
             $sortedPosition = 1;
-            foreach ($sorted as $cardName) {
-                $sortedArray[$cardName] = $sortedPosition++;
+            foreach ($sorted as $cardCode) {
+                $sorted_array[$cardCode] = $sortedPosition++;
             }
         }
 
         foreach ($this->getIssuers() as $item) {
-            $item['sort'] = $sortedArray[$item['name']] ?? self::DEFAULT_SORT_VALUE;
-            $item['img'] = $this->getCreditcardLogo($item['code']);
+            $item['sort'] = isset($sorted_array[$item['code']]) ?
+                $sorted_array[$item['code']] : self::DEFAULT_SORT_VALUE;
+            $item['img'] = $this->getImageUrl($item['code']);
             $allCreditcard[$item['code']] = $item;
         }
 
         $allowed = explode(',', (string)$this->getAllowedCreditcards());
 
         $cards = [];
-        foreach ($allowed as $value) {
+        foreach ($allowed as $key => $value) {
             if (isset($allCreditcard[$value])) {
                 $cards[] = $allCreditcard[$value];
             }
@@ -280,7 +284,7 @@ class Creditcard extends AbstractConfigProvider
     {
         return $this->getMethodConfigValue(self::XPATH_CREDITCARD_MAESTRO_UNSECURE_HOLD, $store);
     }
-        
+
      /**
       * Selection type radio checkbox or drop down
       *
@@ -300,5 +304,78 @@ class Creditcard extends AbstractConfigProvider
             return $mainConfig;
         }
         return $methodConfig;
+    }
+
+        public function getConfigCardSort()
+    {
+        $configValue = $this->scopeConfig->getValue(
+            'payment/buckaroo_magento2_creditcard/sorted_issuers',
+            $this->scopeDefiner->getScope(),
+            ($this->scopeDefiner->getScope() == ScopeInterface::SCOPE_WEBSITES) ? $this->storeManager->getStore() : null
+        );
+
+        return $configValue;
+    }
+
+        /**
+         * @param $storeId
+         * @return ?string
+         */
+        public function getSortedIssuers($storeId = null): ?string
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_SORTED_ISSUERS,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+    }
+
+        /**
+         * Generate the url to the desired asset.
+         *
+         * @param string $imgName
+         * @param string $extension
+         *
+         * @return string
+         */
+        public function getImageUrl($imgName, string $extension = 'png')
+    {
+        if($imgName === 'cartebleuevisa') {
+            $imgName = 'cartebleue';
+        }
+
+        return parent::getImageUrl("creditcards/{$imgName}", "svg");
+    }
+
+        /**
+         * Get all issuers not sorted
+         *
+         * @return array
+         */
+        public function getAllIssuers(): array
+    {
+        $issuers = $this->getIssuers();
+        $issuersPrepared = [];
+        foreach ($issuers as $issuer) {
+            $issuer['img'] = $this->getImageUrl($issuer['code']);
+            $issuersPrepared[$issuer['code']] = $issuer;
+        }
+
+        return $issuersPrepared;
+    }
+
+        /**
+         * Credit cards are displayed separately in the checkout.
+         *
+         * @param $storeId
+         * @return string
+         */
+        public function isGroupCreditcards($storeId = null): string
+    {
+        return (bool)$this->scopeConfig->getValue(
+            self::XPATH_CREDITCARD_GROUP_CREDITCARD,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
     }
 }

@@ -40,13 +40,23 @@ class TotalBreakdown implements TotalBreakdownInterface
     protected Quote $quote;
 
     /**
+     * @var CartTotalRepository
+     */
+    protected CartTotalRepository $cartTotalRepository;
+
+    /**
      * @param Quote $quote
      * @param BreakdownItemInterfaceFactory $breakdownItemFactory
+     * @param CartTotalRepository $cartTotalRepository
      */
-    public function __construct(Quote $quote, BreakdownItemInterfaceFactory $breakdownItemFactory)
-    {
+    public function __construct(
+        Quote $quote,
+        BreakdownItemInterfaceFactory $breakdownItemFactory,
+        CartTotalRepository $cartTotalRepository
+    ) {
         $this->breakdownItemFactory = $breakdownItemFactory;
         $this->quote = $quote;
+        $this->cartTotalRepository = $cartTotalRepository;
     }
 
     /**
@@ -56,31 +66,12 @@ class TotalBreakdown implements TotalBreakdownInterface
      */
     public function getItemTotal(): BreakdownItemInterface
     {
-        $total = $this->getTotalsOfType('subtotal');
         return $this->breakdownItemFactory->create(
             [
-                "total" => $total != null ? $total->getValue() + $this->getBuckarooFeeExclTax() : 0,
+                "total" => number_format($this->quote->getGrandTotal(), 2) - $this->getTotalsOfType('shipping') - $this->getTotalsOfType('tax'),
                 "currencyCode" => $this->quote->getQuoteCurrencyCode()
             ]
         );
-    }
-
-    /**
-     * Get total from quote of type
-     *
-     * @param string $type
-     *
-     * @return Total|null
-     */
-    protected function getTotalsOfType(string $type): ?Total
-    {
-        $totals = $this->quote->getTotals();
-
-        if (isset($totals[$type])) {
-            return $totals[$type];
-        }
-
-        return null;
     }
 
     /**
@@ -104,11 +95,9 @@ class TotalBreakdown implements TotalBreakdownInterface
      */
     public function getShipping(): BreakdownItemInterface
     {
-        $totals = $this->quote->getShippingAddress()->getTotals();
-        $total = $totals['shipping'] ?? null;
         return $this->breakdownItemFactory->create(
             [
-                "total"        => $total !== null ? $total->getValue() : 0,
+                "total" => $this->getTotalsOfType('shipping'),
                 "currencyCode" => $this->quote->getQuoteCurrencyCode()
             ]
         );
@@ -121,12 +110,29 @@ class TotalBreakdown implements TotalBreakdownInterface
      */
     public function getTaxTotal(): BreakdownItemInterface
     {
-        $total = $this->getTotalsOfType('tax');
         return $this->breakdownItemFactory->create(
             [
-                "total"        => $total !== null ? $total->getValue() : 0,
+                "total" =>  $this->getTotalsOfType('tax'),
                 "currencyCode" => $this->quote->getQuoteCurrencyCode()
             ]
         );
+    }
+
+    /**
+     * Get total from quote of type
+     *
+     * @param string $type
+     *
+     * @return float
+     */
+    protected function getTotalsOfType(string $type)
+    {
+        $totals = $this->cartTotalRepository->get($this->quote->getId())->getTotalSegments();
+
+        if (!isset($totals[$type])) {
+            return 0;
+        }
+
+        return round($totals[$type]->getValue(), 2);
     }
 }
