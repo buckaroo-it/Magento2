@@ -42,6 +42,7 @@ class CreditClick extends AbstractConfigProvider
                     'creditclick' => [
                         'paymentFeeLabel'   => $paymentFeeLabel,
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
+                        'isTestMode'        => $this->isTestMode()
                     ],
                 ],
             ],

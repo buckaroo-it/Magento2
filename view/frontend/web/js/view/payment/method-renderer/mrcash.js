@@ -91,6 +91,7 @@ define(
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 useClientSide : window.checkoutConfig.payment.buckaroo.mrcash.useClientSide,
+                isTestMode: window.checkoutConfig.payment.buckaroo.mrcash.isTestMode,
 
                 /**
                 * @override

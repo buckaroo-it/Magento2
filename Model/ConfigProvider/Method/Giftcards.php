@@ -145,6 +145,7 @@ class Giftcards extends AbstractConfigProvider
                         'subtext_style'     => $this->getSubtextStyle(),
                         'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
+                        'isTestMode'        => $this->isTestMode()
                     ],
                 ],
             ],

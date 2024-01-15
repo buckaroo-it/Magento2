@@ -102,6 +102,7 @@ define(
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 creditcards : window.checkoutConfig.payment.buckaroo.creditcards.creditcards,
                 defaultCardImage : window.checkoutConfig.payment.buckaroo.creditcards.defaultCardImage,
+                isTestMode: window.checkoutConfig.payment.buckaroo.creditcards.isTestMode,
 
                 /**
                  * @override

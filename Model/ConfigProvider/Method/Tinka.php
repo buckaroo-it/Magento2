@@ -57,7 +57,8 @@ class Tinka extends AbstractConfigProvider
                         'subtext_style'        => $this->getSubtextStyle(),
                         'subtext_color'        => $this->getSubtextColor(),
                         'allowedCurrencies'    => $this->getAllowedCurrencies(),
-                        'showFinancialWarning' => $this->canShowFinancialWarning()
+                        'showFinancialWarning' => $this->canShowFinancialWarning(),
+                        'isTestMode'           => $this->isTestMode()
                     ],
                 ],
             ],

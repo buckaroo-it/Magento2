@@ -69,7 +69,8 @@ class CapayableIn3 extends AbstractConfigProvider
                         'subtext_color'        => $this->getSubtextColor(),
                         'allowedCurrencies'    => $this->getAllowedCurrencies(),
                         'logo'                 => $this->getLogo(),
-                        'showFinancialWarning' => $this->canShowFinancialWarning()
+                        'showFinancialWarning' => $this->canShowFinancialWarning(),
+                        'isTestMode'           => $this->isTestMode()
                     ],
                 ],
             ],

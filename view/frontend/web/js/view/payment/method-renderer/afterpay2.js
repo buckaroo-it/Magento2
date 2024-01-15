@@ -141,6 +141,7 @@ define(
                 dp: datePicker,
                 businessMethod : window.checkoutConfig.payment.buckaroo.afterpay2.businessMethod,
                 paymentMethod : window.checkoutConfig.payment.buckaroo.afterpay2.paymentMethod,
+                isTestMode: window.checkoutConfig.payment.buckaroo.afterpay2.isTestMode,
                 /**
                  * @override
                  */
