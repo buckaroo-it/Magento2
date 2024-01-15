@@ -107,6 +107,7 @@ define(
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 creditcards : window.checkoutConfig.payment.buckaroo.creditcards.creditcards,
                 defaultCardImage : window.checkoutConfig.payment.buckaroo.creditcards.defaultCardImage,
+                isTestMode: window.checkoutConfig.payment.buckaroo.creditcards.isTestMode,
 
                 /**
                  * @override
@@ -133,6 +134,7 @@ define(
                         ]
                     );
 
+                    this.setTestParameters()
                     this.formatedCardNumber = ko.computed({
                         read: function () {
                             let cardNumber = this.cardNumber();
@@ -179,7 +181,7 @@ define(
                     this.issuerImage = ko.computed(
                         function () {
                             var cardLogo = this.defaultCardImage;
-
+                            
                             var issuer = this.creditcards.find(o => o.code === this.cardIssuer());
                             if (issuer) {
                                 cardLogo = issuer.img;
@@ -346,6 +348,15 @@ define(
                                 })
                             });
                     }.bind(this))
+                },
+                setTestParameters() {
+                    if (this.isTestMode) {
+                        this.cardNumber('4563550000000005')
+                        this.cardIssuer('visa')
+                        this.cardHolderName('Test Acceptation')
+                        this.expireDate('01/' + (new Date(new Date().setFullYear(new Date().getFullYear() + 1)).getFullYear().toString().substr(-2)))
+                        this.cvc('123')
+                    }
                 }
             }
         );

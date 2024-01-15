@@ -103,6 +103,7 @@ class Creditcards extends AbstractConfigProvider
                         'creditcards' => $issuers,
                         'defaultCardImage' => $this->getImageUrl('svg/creditcards', 'svg'),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
+                        'isTestMode' => $this->isTestMode()
                     ],
                 ],
             ],

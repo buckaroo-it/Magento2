@@ -92,10 +92,11 @@ define(
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 currentGiftcard : false,
                 alreadyPayed : false,
+                isTestMode: window.checkoutConfig.payment.buckaroo.giftcards.isTestMode,
 
                 /**
-             * @override
-             */
+                 * @override
+                 */
                 initialize : function (options) {
                     if (checkoutData.getSelectedPaymentMethod() == options.index) {
                         window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
@@ -112,6 +113,7 @@ define(
                     var self = this;
                     this.setCurrentGiftcard = function (value) {
                         self.currentGiftcard = value;
+                        this.setTestParameters(value)
                         return true;
                     };
 
@@ -346,6 +348,19 @@ define(
                             submitBtn.classList.add("disabled");
                         }
                         return false;
+                    }
+                },
+                setTestParameters(giftcardCode) {
+                    if (this.isTestMode && !this.isGiftcardsRedirectMode()) {
+                        if (["boekenbon","vvvgiftcard","yourgift","customgiftcard","customgiftcard1","customgiftcard2"].indexOf(giftcardCode)) {
+                            this.CardNumber('0000000000000000001')
+                            this.Pin('1000')
+                        }
+
+                        if (giftcardCode === 'fashioncheque') {
+                            this.CardNumber('1000001000')
+                            this.Pin('2000')
+                        }
                     }
                 }
             }

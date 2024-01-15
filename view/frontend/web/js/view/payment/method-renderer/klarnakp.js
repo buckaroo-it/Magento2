@@ -57,6 +57,7 @@ define(
                 showFinancialWarning: window.checkoutConfig.payment.buckaroo.klarnakp.showFinancialWarning || true,
 
                 initObservable: function () {
+                    this._super();
                     this.showFinancialWarning = ko.computed(
                         function () {
                             return quote.billingAddress() !== null &&
