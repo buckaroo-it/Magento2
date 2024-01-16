@@ -117,7 +117,6 @@ class Creditcard extends AbstractConfigProvider
     public function getConfig()
     {
         $issuers = $this->formatIssuers();
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
 
         $selectionType = $this->getSelectionType();
 
@@ -129,7 +128,7 @@ class Creditcard extends AbstractConfigProvider
                     'creditcard' => [
                         'cards'             => $issuers,
                         'groupCreditcards'  => $this->isGroupCreditcards(),
-                        'paymentFeeLabel'   => $paymentFeeLabel,
+                        'paymentFeeLabel'   => $this->getBuckarooPaymentFeeLabel(),
                         'subtext'           => $this->getSubtext(),
                         'subtext_style'     => $this->getSubtextStyle(),
                         'subtext_color'     => $this->getSubtextColor(),

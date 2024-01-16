@@ -100,8 +100,6 @@ class Giftcards extends AbstractConfigProvider
             }
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
-
         $connection = $this->resourceConnection->getConnection();
         $tableName = $this->resourceConnection->getTableName('buckaroo_magento2_giftcard');
         $result = $connection->fetchAll("SELECT * FROM " . $tableName);
@@ -140,7 +138,7 @@ class Giftcards extends AbstractConfigProvider
                     'groupGiftcards'   => $this->getGroupGiftcards(),
                     'avaibleGiftcards' => $cards,
                     'giftcards'        => [
-                        'paymentFeeLabel'   => $paymentFeeLabel,
+                        'paymentFeeLabel'   => $this->getBuckarooPaymentFeeLabel(),
                         'subtext'           => $this->getSubtext(),
                         'subtext_style'     => $this->getSubtextStyle(),
                         'subtext_color'     => $this->getSubtextColor(),

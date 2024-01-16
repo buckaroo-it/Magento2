@@ -47,16 +47,14 @@ class Paypal extends AbstractConfigProvider
      */
     public function getConfig(): array
     {
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
-
         return [
             'payment' => [
                 'buckaroo' => [
                     'paypal' => [
-                        'paymentFeeLabel' => $paymentFeeLabel,
-                        'subtext'   => $this->getSubtext(),
-                        'subtext_style'   => $this->getSubtextStyle(),
-                        'subtext_color'   => $this->getSubtextColor(),
+                        'paymentFeeLabel'   => $this->getBuckarooPaymentFeeLabel(),
+                        'subtext'           => $this->getSubtext(),
+                        'subtext_style'     => $this->getSubtextStyle(),
+                        'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'isTestMode'        => $this->isTestMode()
                     ],

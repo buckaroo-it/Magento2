@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Helper\PaymentFee;
 use Buckaroo\Magento2\Model\ConfigProvider\AbstractConfigProvider as BaseAbstractConfigProvider;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 use Magento\Checkout\Model\ConfigProviderInterface as CheckoutConfigProvider;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -377,13 +378,21 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     /**
      * Get buckaroo payment fee
      *
-     * @param string|bool $method
-     * @return string
-     * @throws Exception
+     * @return string|null
      */
-    public function getBuckarooPaymentFeeLabel($method = false)
+    public function getBuckarooPaymentFeeLabel(): ?string
     {
-        return $this->paymentFeeHelper->getBuckarooPaymentFeeLabel($method);
+        $paymentFeeLabel = $this->getPaymentFeeLabel();
+
+        if (!$paymentFeeLabel) {
+            $paymentFeeLabel = $this->getAccoutPaymentFeeLabel();
+        }
+
+        if (!$paymentFeeLabel) {
+            $paymentFeeLabel = __('Buckaroo Fee');
+        }
+
+        return $paymentFeeLabel;
     }
 
     /**
@@ -441,6 +450,21 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     public function getPaymentFeeLabel($store = null)
     {
         return $this->getMethodConfigValue(static::PAYMENT_FEE_LABEL, $store);
+    }
+
+    /**
+     * Get Account Payment fee frontend label
+     *
+     * @param null|int|string $store
+     * @return mixed|null
+     */
+    protected function getAccoutPaymentFeeLabel($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            Account::XPATH_ACCOUNT_PAYMENT_FEE_LABEL,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
     }
 
     /**
