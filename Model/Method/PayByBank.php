@@ -158,14 +158,6 @@ class PayByBank extends AbstractMethod
     {
         parent::assignData($data);
         $data = $this->assignDataConvertToArray($data);
-
-        if (isset($data['additional_data']['buckaroo_skip_validation'])) {
-            $this->getInfoInstance()->setAdditionalInformation(
-                'buckaroo_skip_validation',
-                $data['additional_data']['buckaroo_skip_validation']
-            );
-        }
-
         if (isset($data['additional_data']['issuer'])) {
             $this->getInfoInstance()->setAdditionalInformation('issuer', $data['additional_data']['issuer']);
         }
@@ -260,17 +252,9 @@ class PayByBank extends AbstractMethod
      * @return $this
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function validate()
-    {
-        parent::validate();
+    public function validateAdditionalData() {
 
         $paymentInfo = $this->getInfoInstance();
-
-        $skipValidation = $paymentInfo->getAdditionalInformation('buckaroo_skip_validation');
-        if ($skipValidation) {
-            return $this;
-        }
-
         $chosenIssuer = $paymentInfo->getAdditionalInformation('issuer');
 
         if (!$chosenIssuer) {

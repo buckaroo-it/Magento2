@@ -56,13 +56,6 @@ class IdealProcessing extends AbstractMethod
         parent::assignData($data);
         $data = $this->assignDataConvertToArray($data);
 
-        if (isset($data['additional_data']['buckaroo_skip_validation'])) {
-            $this->getInfoInstance()->setAdditionalInformation(
-                'buckaroo_skip_validation',
-                $data['additional_data']['buckaroo_skip_validation']
-            );
-        }
-
         if (isset($data['additional_data']['issuer'])) {
             $this->getInfoInstance()->setAdditionalInformation('issuer', $data['additional_data']['issuer']);
         }
@@ -141,19 +134,12 @@ class IdealProcessing extends AbstractMethod
      *
      * {@inheritdoc}
      */
-    public function validate()
-    {
-        parent::validate();
+    public function validateAdditionalData() {
 
         /** @var IdealProcessingConfig $config */
         $config = $this->objectManager->get(IdealProcessingConfig::class);
 
         $paymentInfo = $this->getInfoInstance();
-
-        $skipValidation = $paymentInfo->getAdditionalInformation('buckaroo_skip_validation');
-        if ($skipValidation) {
-            return $this;
-        }
 
         $chosenIssuer = $paymentInfo->getAdditionalInformation('issuer');
 

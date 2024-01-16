@@ -354,17 +354,10 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     {
         if ($data instanceof \Magento\Framework\DataObject) {
             $additionalSkip = $data->getAdditionalData();
-            $skipValidation = $data->getBuckarooSkipValidation();
-
-            if ($skipValidation === null && isset($additionalSkip['buckaroo_skip_validation'])) {
-                $skipValidation = $additionalSkip['buckaroo_skip_validation'];
-            }
-
+            
             if (isset($additionalSkip[self::PAYMENT_FROM])) {
                 $this->getInfoInstance()->setAdditionalInformation(self::PAYMENT_FROM, $additionalSkip[self::PAYMENT_FROM]);
             }
-
-            $this->getInfoInstance()->setAdditionalInformation('buckaroo_skip_validation', $skipValidation);
         }
         return $this;
     }
@@ -709,6 +702,10 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             );
         }
 
+        if (method_exists($this, 'validateAdditionalData')) {
+            $this->validateAdditionalData();
+        }
+
         parent::order($payment, $amount);
 
         $activeMode = $this->getConfigData('active', $payment->getOrder()->getStore());
@@ -944,6 +941,10 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
                 'Buckaroo requires the payment to be an instance of "\Magento\Sales\Api\Data\OrderPaymentInterface"' .
                 ' and "\Magento\Payment\Model\InfoInterface".'
             );
+        }
+
+        if (method_exists($this, 'validateAdditionalData')) {
+            $this->validateAdditionalData();
         }
 
         parent::authorize($payment, $amount);
