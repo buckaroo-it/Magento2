@@ -234,7 +234,7 @@ define(
                         function () {
                             return !this.showCOC() &&
                             (
-                                (this.country() === 'NL' || this.country() === 'BE') ||
+                                ['NL','BE', 'DE'].indexOf(this.country()) != -1 ||
                                 (!this.isCustomerLoggedIn() && this.isOsc())
                             );
                         },
