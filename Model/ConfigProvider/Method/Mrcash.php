@@ -95,7 +95,8 @@ class Mrcash extends AbstractConfigProvider
                         'subtext_color'   => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'useClientSide' => (int) $this->useClientSide(),
-                        'redirecturl' => self::MRCASH_REDIRECT_URL . '?form_key=' . $this->getFormKey()
+                        'redirecturl' => self::MRCASH_REDIRECT_URL . '?form_key=' . $this->getFormKey(),
+                        'isTestMode' => $this->isTestMode()
                     ],
                 ],
             ],
