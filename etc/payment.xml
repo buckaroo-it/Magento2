@@ -30,9 +30,6 @@
         <method name="buckaroo_magento2_ideal">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
-        <method name="buckaroo_magento2_idealprocessing">
-            <allow_multiple_address>0</allow_multiple_address>
-        </method>
         <method name="buckaroo_magento2_sepadirectdebit">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
@@ -102,9 +99,6 @@
         <method name="buckaroo_magento2_klarnain">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
-        <method name="buckaroo_magento2_emandate">
-            <allow_multiple_address>0</allow_multiple_address>
-        </method>
         <method name="buckaroo_magento2_applepay">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
@@ -130,6 +124,15 @@
             <allow_multiple_address>0</allow_multiple_address>
         </method>
         <method name="buckaroo_magento2_tinka">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="buckaroo_magento2_paybybank">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="buckaroo_magento2_multibanco">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="buckaroo_magento2_mbway">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
     </methods>

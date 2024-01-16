@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,25 +17,15 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
+
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 class Pospayment extends AbstractConfigProvider
 {
-    const XPATH_POSPAYMENT_PAYMENT_FEE           = 'payment/buckaroo_magento2_pospayment/payment_fee';
-    const XPATH_POSPAYMENT_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_pospayment/payment_fee_label';
-    const XPATH_POSPAYMENT_ACTIVE                = 'payment/buckaroo_magento2_pospayment/active';
-    const XPATH_POSPAYMENT_ACTIVE_STATUS         = 'payment/buckaroo_magento2_pospayment/active_status';
-    const XPATH_POSPAYMENT_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_pospayment/order_status_success';
-    const XPATH_POSPAYMENT_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_pospayment/order_status_failed';
-    const XPATH_POSPAYMENT_ORDER_EMAIL           = 'payment/buckaroo_magento2_pospayment/order_email';
-    const XPATH_POSPAYMENT_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_pospayment/available_in_backend';
-    const XPATH_POSPAYMENT_OTHER_PAYMENT_METHODS = 'payment/buckaroo_magento2_pospayment/other_payment_methods';
+    public const CODE = 'buckaroo_magento2_pospayment';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_pospayment/allowed_currencies';
-
-    const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_pospayment/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_pospayment/specificcountry';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_pospayment/specificcustomergroup';
+    public const XPATH_POSPAYMENT_OTHER_PAYMENT_METHODS = 'other_payment_methods';
 
     /**
      * @var array
@@ -45,27 +35,26 @@ class Pospayment extends AbstractConfigProvider
     ];
 
     /**
-     * @return array
+     * @inheritdoc
      */
     public function getConfig()
     {
-        if (!$this->scopeConfig->getValue(
-            self::XPATH_POSPAYMENT_ACTIVE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        )) {
+        if (!$this->getActive()) {
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
-            \Buckaroo\Magento2\Model\Method\Pospayment::PAYMENT_METHOD_CODE
-        );
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
 
         return [
             'payment' => [
                 'buckaroo' => [
                     'pospayment' => [
-                        'paymentFeeLabel' => $paymentFeeLabel,
+                        'paymentFeeLabel'   => $paymentFeeLabel,
+                        'subtext'           => $this->getSubtext(),
+                        'subtext_style'     => $this->getSubtextStyle(),
+                        'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
+                        'isTestMode'        => $this->isTestMode()
                     ]
                 ]
             ]
@@ -73,18 +62,13 @@ class Pospayment extends AbstractConfigProvider
     }
 
     /**
-     * @param null|int $storeId
+     * Get Other payment methods for POS
      *
-     * @return float
+     * @param $store
+     * @return mixed|null
      */
-    public function getPaymentFee($storeId = null)
+    public function getOtherPaymentMethods($store = null)
     {
-        $paymentFee = $this->scopeConfig->getValue(
-            self::XPATH_POSPAYMENT_PAYMENT_FEE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
-
-        return $paymentFee ? $paymentFee : false;
+        return $this->getMethodConfigValue(self::XPATH_POSPAYMENT_OTHER_PAYMENT_METHODS, $store);
     }
 }

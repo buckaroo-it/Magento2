@@ -26,7 +26,8 @@ define(
         'Buckaroo_Magento2/js/action/place-order',
         'ko',
         'Magento_Checkout/js/checkout-data',
-        'Magento_Checkout/js/action/select-payment-method'
+        'Magento_Checkout/js/action/select-payment-method',
+        'buckaroo/checkout/common'
     ],
     function (
         $,
@@ -35,7 +36,8 @@ define(
         placeOrderAction,
         ko,
         checkoutData,
-        selectPaymentMethodAction
+        selectPaymentMethodAction,
+        checkoutCommon
     ) {
         'use strict';
 
@@ -45,8 +47,11 @@ define(
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_transfer'
                 },
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.transfer.paymentFeeLabel,
+                subtext : window.checkoutConfig.payment.buckaroo.transfer.subtext,
+                subTextStyle : checkoutCommon.getSubtextStyle('transfer'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
+                isTestMode: window.checkoutConfig.payment.buckaroo.transfer.isTestMode,
 
                 /**
                  * @override

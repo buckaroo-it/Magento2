@@ -29,7 +29,8 @@ define(
         'Magento_Checkout/js/action/select-payment-method',
         'Magento_Ui/js/modal/alert',
         'mage/url',
-        'mage/translate'
+        'mage/translate',
+        'buckaroo/checkout/common'
     ],
     function (
         $,
@@ -41,7 +42,8 @@ define(
         selectPaymentMethodAction,
         alert,
         url,
-        $t
+        $t,
+        checkoutCommon
     ) {
         'use strict';
 
@@ -53,8 +55,11 @@ define(
                     isFormValid: false
                 },
                 paymentFeeLabel: window.checkoutConfig.payment.buckaroo.voucher.paymentFeeLabel,
+                subtext : window.checkoutConfig.payment.buckaroo.voucher.subtext,
+                subTextStyle : checkoutCommon.getSubtextStyle('voucher'),
                 currencyCode: window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode: window.checkoutConfig.quoteData.base_currency_code,
+                isTestMode: window.checkoutConfig.payment.buckaroo.voucher.isTestMode,
 
 
                 /**
@@ -81,15 +86,13 @@ define(
                         const voucherCode = this.code();
                         let self = this;
                         $.ajax({
-                            url: url.build(`rest/default/V1/buckaroo/voucher/apply`),
+                            url: url.build(`rest/V1/buckaroo/voucher/apply`),
                             type: 'POST',
                             dataType: 'json',
-                            showLoader: true, //use for display loader 
-                            data: { voucherCode: voucherCode }
+                            showLoader: true, //use for display loader
+                            data: {voucherCode: voucherCode}
                         }).done(function (data) {
                             self.code(null);
-                            self.selectPaymentMethod();
-
                             if (data.remainder_amount == 0) {
                                 self.placeOrder(null, null);
                             }
@@ -114,10 +117,9 @@ define(
                                 }
                                 self.messageContainer.addSuccessMessage({ 'message': $t(data.message) });
                             }
-                        }).error((err) => {
+                        }).fail((err) => {
                             if (err.responseJSON && err.responseJSON.message) {
                                 self.displayErrorModal(self, err.responseJSON.message);
-                                self.selectPaymentMethod();
                             }
                         });
                     }

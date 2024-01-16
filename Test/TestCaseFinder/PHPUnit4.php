@@ -20,6 +20,6 @@
  */
 namespace Buckaroo\Magento2\Test;
 
-class TestCaseFinder extends \PHPUnit_Framework_TestCase
+class TestCaseFinder extends \PHPUnit\Framework\TestCase
 {
 }

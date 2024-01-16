@@ -13,105 +13,138 @@
         </div>
     </div>
 
-    <div id="block">
-        <div class="block-version">
-            <h3 ><?= $block->escapeHtml(__('Magento version compatibility'));?></h3>
-            <div>
-                <ul class="version-compatibility">
-                    <li>
-                        <span class="text">
-                            <?= $block->escapeHtml(__('Magento Commerce'));?>:
-                        </span>
-                        <span class="version"> 2.3.7-p2, 2.4.3-p1, 2.4.4 </span>
-                    </li>
-                    <li>
-                        <span class="text">
-                            <?= $block->escapeHtml(__('Magento Open Source'));?>:
-                        </span>
-                        <span class="version"> 2.3.7-p2, 2.4.3-p1, 2.4.4 </span>
-                    </li>
 
-                    <li>
-                        <span class="text"><?= $block->escapeHtml(__('Your PHP version'));?>:</span>
-                        <span class="version">
-                            <a href="http://devdocs.magento.com/guides/v<?= $block->getMagentoVersionTidyString() ;?>/install-gde/system-requirements-tech.html"
-                               target="_blank">
-                                <?= $block->escapeHtml(implode('.', $block->getPhpVersionArray())); ?>
-                                </a>
-                                <?php switch ($block->phpVersionCheck()) {
-                                    case 1:
-                                        echo '<img class="php-check-icon" src="' . $block->getViewFileUrl(
-                                            'Buckaroo_Magento2::images/green-ok.png'
-                                        ) . '" alt="">';
-                                              break;
-                                    case 0:
-                                        echo '<img class="php-check-icon" src="' . $block->getViewFileUrl(
-                                            'Buckaroo_Magento2::images/red-nok.png'
-                                        ) . '" alt="">';
-                                              break;
-                                    default:
-                                        echo '<img class="php-check-icon" src="' . $block->getViewFileUrl(
-                                            'Buckaroo_Magento2::images/orange-unknown.png'
-                                        ) . '" alt="">';
-                                              break;
-                                }
-                                ?>
-                        </span>
-                    </li>
-                    <li>
-                        <span class="text"><?= $block->escapeHtml(__('Buckaroo version'));?>:</span>
-                        <span class="version"><?= $block->escapeHtml($block->getVersionNumber()); ?></span>
-                    </li>
-                </ul>
+    <div class="bk-installed-version">
+        <h3 class="bk-h3"><?= $block->escapeHtml(__('Installed version:'));?></h3>
+        <div class="bk-flex-between bk-mb-5px">
+            <div class="bk-flex-basis-66 bk-flex-between">
+                <p><?= $block->escapeHtml(__('Current Buckaroo version'));?>:</p>
+                <p><b>v<?= $block->escapeHtml($block->getVersionNumber()); ?></b></p>
+            </div>
+        </div>
+        <div class="bk-flex-between bk-mb-5px">
+            <div class="bk-flex-basis-66 bk-flex-between">
+                <p><?= $block->escapeHtml(__('New version available'));?>:</p>
+                <p><b><a href="https://github.com/buckaroo-it/Magento2/tree/<?= $block->escapeHtml($block->getLatestPluginVersion()); ?>"><?= $block->escapeHtml($block->getLatestPluginVersion()); ?></a></b></p>
+            </div>
+            <div class="bk-flex-basis-33">
+                <a href="https://github.com/buckaroo-it/Magento2#upgrade" target="_blank" rel="noopener" class="bk-btn bk-ml-10px"><?= $block->escapeHtml(__('How to update?'));?></a>
             </div>
         </div>
     </div>
 
-    <div id="section">
-        <div class="collapse-title" data-role="title">
-            <h3 data-role="trigger"><?= $block->escapeHtml(__('Support'));?></h3>
+
+    <div class="bk-supported-versions">
+        <h3 class="bk-h3"><?= $block->escapeHtml(__('Supported versions:'));?></h3>
+        <div class="bk-flex-between bk-mb-5px">
+            <p><?= $block->escapeHtml(__('Magento versions'));?>:</p>
+            <p><b>2.4.4, 2.4.5, 2.4.6</b></p>
         </div>
-        <div class="collapse-content support-buck-magento2" data-role="content" style="display:none;">
-            <ul>
-                <h4 style="margin-top:5px"><?= $block->escapeHtml(__('Extension basic configuration and account information'));?></h4>
-                <p>
-                    <?= $block->escapeHtml(__(
-                        'Before contacting Buckaroo technical support, please retrieve your (Merchant) key, ' .
-                        'Secret key, certificate and certificate thumbprint.'
-                    ));?>
-                </p>
-            </ul>
-            <ul>
-                <li class="buckaroo_logo">
-                    <a href="<?= $block->escapeHtml(__('https://buckaroo.nl/'));?>"
-                       target="_blank">
-                        <img style="width:180px;" src="<?= $block->getViewFileUrl(
-                            'Buckaroo_Magento2::images/buckaroo_config_logo_black.png'
-                        ); ?>"
-                             alt="" />
-                    </a>
-                </li>
-                <li class="first"><?= $block->escapeHtml(__('Buckaroo Payment Plaza:'));?></li>
-                <li class="last"><a target="_blank" href="https://plaza.buckaroo.nl/">plaza.buckaroo.nl</a></li>
-            </ul>
-            <ul>
-                <li class="first"><?= $block->escapeHtml(__('Phone:'));?></li>
-                <li class="last">+31(0)30-711 50 50</li>
-            </ul>
-            <ul>
-                <li class="first"><?= $block->escapeHtml(__('E-mail:'));?></li>
-                <li class="last"><a href="mailto:support@buckaroo.nl">support@buckaroo.nl</a></li>
-            </ul>
-            <ul>
-                <li class="first"><?= $block->escapeHtml(__('Website:'));?></li>
-                <li class="last">
-                    <a href="<?= $block->escapeHtml(__('https://buckaroo.nl/'));?>"
-                       target="_blank">
-                        <?= $block->escapeHtml(__('buckaroo.nl'));?>
-                    </a>
-                </li>
-            </ul>
+        <div class="bk-flex-between bk-mb-5px">
+            <p><?= $block->escapeHtml(__('PHP versions'));?>:</p>
+            <p class="bk-flex">
+                <b><?= $block->escapeHtml($block->getPhpVersions());?></b>
+                <?php switch ($block->phpVersionCheck()) {
+                    case 1:
+                        echo '<img class="bk-php-compatibility" src="' . $block->getViewFileUrl(
+                            'Buckaroo_Magento2::images/green-ok.png'
+                        ) . '" alt="">';
+                                break;
+                    case 0:
+                        echo '<img class="bk-php-compatibility" src="' . $block->getViewFileUrl(
+                            'Buckaroo_Magento2::images/red-nok.png'
+                        ) . '" alt="">';
+                                break;
+                    default:
+                        echo '<img class="bk-php-compatibility" src="' . $block->getViewFileUrl(
+                            'Buckaroo_Magento2::images/orange-unknown.png'
+                        ) . '" alt="">';
+                                break;
+                }
+                ?>
+            </p>
         </div>
     </div>
 
+
+    <hr class="bk-hr-line">
+    <h3 class="bk-h3"><?= $block->escapeHtml(__('Documentation:'));?></h3>
+    <div class="bk-flex bk-mb-5px">
+        <a href="https://docs.buckaroo.io/docs/magento-2" target="_blank" rel="noopener" class="bk-btn">
+            <?= $block->escapeHtml(__('Magento Documentation'));?>
+        </a>
+
+        <a href="https://github.com/buckaroo-it/Magento2" target="_blank" rel="noopener" class="bk-btn bk-ml-10px">
+            <?= $block->escapeHtml(__('Github'));?>
+        </a>
+
+        <a href="https://docs.buckaroo.io/v1/docs/magento-2-releases" target="_blank" rel="noopener" class="bk-btn bk-ml-10px">
+            <?= $block->escapeHtml(__('Changelog'));?>
+        </a>
+    </div>
+
+
+    <hr class="bk-hr-line">
+    <h3 class="bk-h3"><?= $block->escapeHtml(__('Additional plugins:'));?></h3>
+    <div class="bk-flex bk-mb-5px bk-flex-wrap">
+        <div class="bk-flex bk-mb-5px bk-plugin-zone-wrap">
+            <a href="https://github.com/buckaroo-it/Magento2_SecondChance" target="_blank" rel="noopener" class="bk-plugin-zone bk-flex-basis-50">
+                <img src="https://github.com/buckaroo-it/Magento2/assets/105488705/68ba0c08-1162-44c6-a18a-8734692b8b02" alt="<?= $block->escapeHtml('Second chance module');?>">
+            </a>
+            <p class="bk-flex-basis-50"><?= $block->escapeHtml(__('The Second Chance module makes it possible to follow up unpaid orders with one or two reminder emails. This extension to the Buckaroo Payment module ensures a higher conversion rate.'));?></p>
+        </div>
+
+        <div class="bk-flex bk-mb-5px bk-plugin-zone-wrap">
+            <a href="https://docs.buckaroo.io/docs/magento-old-hyva-checkout-module" target="_blank" rel="noopener" class="bk-plugin-zone bk-flex-basis-50">
+                <img src="https://github.com/buckaroo-it/Magento2/assets/105488705/b00d2fcd-2458-4a8b-ab1f-e85d678a0008" alt="<?= $block->escapeHtml('Hyvä Checkout module');?>">
+            </a>
+            <p class="bk-flex-basis-50"><?= $block->escapeHtml(__('We have seamlessly incorporated support for Hyvä Checkout, enhancing your payment experience with Buckaroo while enjoying quicker loading times.'));?></p>
+        </div>
+
+        <div class="bk-flex bk-mb-5px bk-plugin-zone-wrap">
+            <a href="https://docs.buckaroo.io/v1/docs/google-analytics-module" target="_blank" rel="noopener" class="bk-plugin-zone bk-flex-basis-50">
+                <img src="https://www.buckaroo.nl/media/3478/magento2_googleanalytics_icon.png" alt="<?= $block->escapeHtml('Analytics module');?>">
+            </a>
+            <p class="bk-flex-basis-50"><?= $block->escapeHtml(__('Improves tracking allocation across various devices and browsers'));?></p>
+        </div>
+
+        <div class="bk-flex bk-mb-5px bk-plugin-zone-wrap">
+            <a href="https://docs.buckaroo.io/docs/hyva-react-checkout-module" target="_blank" rel="noopener" class="bk-plugin-zone bk-flex-basis-50">
+                <img src="https://github.com/buckaroo-it/Magento2/assets/105488705/11953f16-3f5d-4c10-bb6b-f9a949a97a7a" alt="<?= $block->escapeHtml('Hyvä React Checkout module');?>">
+            </a>
+            <p class="bk-flex-basis-50"><?= $block->escapeHtml(__('Hyvä offers the best performance and user experience, without the cost and overhead of a PWA.'));?></p>
+        </div>
+
+        <div class="bk-flex bk-mb-5px bk-plugin-zone-wrap">
+            <a href="https://docs.buckaroo.io/docs/graphql-module" target="_blank" rel="noopener" class="bk-plugin-zone bk-flex-basis-50">
+                <img src="https://github.com/buckaroo-it/Magento2/assets/105488705/8611dfeb-bb84-4ba6-ab72-7b6459143dff" alt="<?= $block->escapeHtml('GraphQL');?>">
+            </a>
+            <p class="bk-flex-basis-50"><?= $block->escapeHtml(__('Buckaroo GraphQL module adds GraphQL to provide an alternative to REST and SOAP web APIs for frontend development.'));?></p>
+        </div>
+    </div>
+
+    <hr class="bk-hr-line">
+    <h3 class="bk-h3"><?= $block->escapeHtml(__('Account:'));?></h3>
+    <p class="bk-mb-5px"><?= $block->escapeHtml(__('No Buckaroo account yet? No problem. Click on the attached button to sign up for a (live) account.
+'));?></p>
+    <a href="https://www.buckaroo.nl/start" target="_blank" rel="noopener" class="bk-btn">
+        <?= $block->escapeHtml(__('Get account'));?>
+    </a>
+
+
+    <hr class="bk-hr-line">
+    <h3 class="bk-h3"><?= $block->escapeHtml(__('Contact:'));?></h3>
+    <p class="bk-mb-5px"><?= $block->escapeHtml(__('Questions about Buckaroo, Magento 2 or the plugin? Do not hesitate to contact us via <a href="mailto:support@buckaroo.nl">support@buckaroo.nl</a> or call <a href="tel:+31 (0)30 711 50 50">+31 (0)30 711 50 50</a>'), ['a']);?></p>
+
+    <a href="mailto:support@buckaroo.nl" target="_blank" class="bk-btn">
+        <?= $block->escapeHtml(__('Contact us'));?>
+    </a>
+
+    <hr class="bk-hr-line">
+    <h3 class="bk-h3"><?= $block->escapeHtml(__('Contribute:'));?></h3>
+    <p class="bk-mb-5px"><?= $block->escapeHtml(__('Do you see room for improvement? We look forward to your input! Via Github you can submit a feature request or submit a pull request yourself with your proposed adjustments.'));?></p>
+
+    <a href="https://github.com/buckaroo-it/Magento2/blob/master/CONTRIBUTING.md" target="_blank" rel="noopener" class="bk-btn">
+        <?= $block->escapeHtml(__('Contribute'));?>
+    </a>
 </div>

@@ -1,42 +1,47 @@
 <?php
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
+
 namespace Buckaroo\Magento2\Block\Cart;
 
-use Magento\Checkout\Model\Layout\AbstractTotalsProcessor;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Magento\Checkout\Block\Checkout\LayoutProcessorInterface;
+use Magento\Checkout\Model\Layout\AbstractTotalsProcessor;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 
 class CartTotalsProcessor extends AbstractTotalsProcessor implements LayoutProcessorInterface
 {
     /**
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory
+     * @var Factory
      */
     protected $configProviderFactory;
 
     /**
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory         $configProviderFactory
+     * @param ScopeConfigInterface $scopeConfig
+     * @param Factory $configProviderFactory
      *
      * @codeCoverageIgnore
      */
     public function __construct(
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory
+        ScopeConfigInterface $scopeConfig,
+        Factory $configProviderFactory
     ) {
         parent::__construct($scopeConfig);
         $this->configProviderFactory = $configProviderFactory;
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function process($jsLayout)
     {
         /**
-        * @var \Buckaroo\Magento2\Model\ConfigProvider\Account $configProvider
-        */
+         * @var Account $configProvider
+         */
         $configProvider = $this->configProviderFactory->get('account');
         $paymentFeeLabel = $configProvider->getPaymentFeeLabel();
 

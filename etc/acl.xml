@@ -30,6 +30,12 @@
                         </resource>
                     </resource>
                 </resource>
+                <resource id="Buckaroo_Magento2::Log" title="Log" sortOrder="10">
+                    <resource id="Buckaroo_Magento2::Log_save" title="Save Log" sortOrder="10"/>
+                    <resource id="Buckaroo_Magento2::Log_delete" title="Delete Log" sortOrder="20"/>
+                    <resource id="Buckaroo_Magento2::Log_update" title="Update Log" sortOrder="30"/>
+                    <resource id="Buckaroo_Magento2::Log_view" title="View Log" sortOrder="40"/>
+                </resource>
             </resource>
         </resources>
     </acl>

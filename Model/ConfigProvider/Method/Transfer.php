@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -20,61 +20,44 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-/**
- * @method getDueDate()
- * @method getActiveStatusCm3()
- * @method getSchemeKey()
- * @method getMaxStepIndex()
- * @method getCm3DueDate()
- * @method getPaymentMethodAfterExpiry()
- */
+use Buckaroo\Magento2\Exception;
+
 class Transfer extends AbstractConfigProvider
 {
-    const XPATH_TRANSFER_ACTIVE                 = 'payment/buckaroo_magento2_transfer/active';
-    const XPATH_TRANSFER_PAYMENT_FEE            = 'payment/buckaroo_magento2_transfer/payment_fee';
-    const XPATH_TRANSFER_PAYMENT_FEE_LABEL      = 'payment/buckaroo_magento2_transfer/payment_fee_label';
-    const XPATH_TRANSFER_SEND_EMAIL             = 'payment/buckaroo_magento2_transfer/send_email';
-    const XPATH_TRANSFER_ACTIVE_STATUS          = 'payment/buckaroo_magento2_transfer/active_status';
-    const XPATH_TRANSFER_ORDER_STATUS_SUCCESS   = 'payment/buckaroo_magento2_transfer/order_status_success';
-    const XPATH_TRANSFER_ORDER_STATUS_FAILED    = 'payment/buckaroo_magento2_transfer/order_status_failed';
-    const XPATH_TRANSFER_AVAILABLE_IN_BACKEND   = 'payment/buckaroo_magento2_transfer/available_in_backend';
-    const XPATH_TRANSFER_DUE_DATE               = 'payment/buckaroo_magento2_transfer/due_date';
+    public const CODE = 'buckaroo_magento2_transfer';
 
-    const XPATH_TRANSFER_ACTIVE_STATUS_CM3           = 'payment/buckaroo_magento2_transfer/active_status_cm3';
-    const XPATH_TRANSFER_SCHEME_KEY                  = 'payment/buckaroo_magento2_transfer/scheme_key';
-    const XPATH_TRANSFER_MAX_STEP_INDEX              = 'payment/buckaroo_magento2_transfer/max_step_index';
-    const XPATH_TRANSFER_CM3_DUE_DATE                = 'payment/buckaroo_magento2_transfer/cm3_due_date';
-    const XPATH_TRANSFER_PAYMENT_METHOD_AFTER_EXPIRY = 'payment/buckaroo_magento2_transfer/payment_method_after_expiry';
-
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_transfer/allowed_currencies';
-
-    const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_transfer/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_transfer/specificcountry';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_transfer/specificcustomergroup';
+    public const XPATH_TRANSFER_DUE_DATE                    = 'due_date';
+    
+    public const XPATH_TRANSFER_ACTIVE_STATUS_CM3           = 'active_status_cm3';
+    public const XPATH_TRANSFER_SCHEME_KEY                  = 'scheme_key';
+    public const XPATH_TRANSFER_MAX_STEP_INDEX              = 'max_step_index';
+    public const XPATH_TRANSFER_CM3_DUE_DATE                = 'cm3_due_date';
+    public const XPATH_TRANSFER_PAYMENT_METHOD_AFTER_EXPIRY = 'payment_method_after_expiry';
 
     /**
-     * @return array
+     * @inheritdoc
+     *
+     * @throws Exception
      */
-    public function getConfig()
+    public function getConfig(): array
     {
-        if (!$this->scopeConfig->getValue(
-            self::XPATH_TRANSFER_ACTIVE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        )) {
+        if (!$this->getActive()) {
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
-            \Buckaroo\Magento2\Model\Method\Transfer::PAYMENT_METHOD_CODE
-        );
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
 
         return [
             'payment' => [
                 'buckaroo' => [
                     'transfer' => [
-                        'sendEmail' => (bool) $this->getSendEmail(),
-                        'paymentFeeLabel' => $paymentFeeLabel,
+                        'sendEmail'         => $this->hasOrderEmail(),
+                        'paymentFeeLabel'   => $paymentFeeLabel,
+                        'subtext'           => $this->getSubtext(),
+                        'subtext_style'     => $this->getSubtextStyle(),
+                        'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
+                        'isTestMode'        => $this->isTestMode()
                     ]
                 ]
             ]
@@ -82,31 +65,83 @@ class Transfer extends AbstractConfigProvider
     }
 
     /**
+     * Get Due Date Y-m-d
+     *
+     * @param $store
      * @return string
      */
-    public function getSendEmail()
+    public function getDueDateFormated($store = null): string
     {
-        $sendMail = $this->scopeConfig->getValue(
-            self::XPATH_TRANSFER_SEND_EMAIL,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
+        $dueDays = (float)$this->getDueDate($store);
 
-        return $sendMail ? 'true' : 'false';
+        return (new \DateTime())
+            ->modify("+{$dueDays} day")
+            ->format('Y-m-d');
     }
 
     /**
-     * @param null|int $storeId
+     * Get due date until order will be cancelled, amount of days after the order date
      *
-     * @return float
+     * @param null|int|string $store
+     * @return mixed
      */
-    public function getPaymentFee($storeId = null)
+    public function getDueDate($store = null)
     {
-        $paymentFee = $this->scopeConfig->getValue(
-            self::XPATH_TRANSFER_PAYMENT_FEE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
+        return $this->getMethodConfigValue(self::XPATH_TRANSFER_DUE_DATE, $store);
+    }
 
-        return $paymentFee ? $paymentFee : false;
+    /**
+     * Check if Credit Management is enabled
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getActiveStatusCm3($store = null)
+    {
+        return $this->getMethodConfigValue(self::XPATH_TRANSFER_ACTIVE_STATUS_CM3, $store);
+    }
+
+    /**
+     * Credit Management Scheme Key
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getSchemeKey($store = null)
+    {
+        return $this->getMethodConfigValue(self::XPATH_TRANSFER_SCHEME_KEY, $store);
+    }
+
+    /**
+     * Get Max level of the Credit Management steps
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getMaxStepIndex($store = null)
+    {
+        return $this->getMethodConfigValue(self::XPATH_TRANSFER_MAX_STEP_INDEX, $store);
+    }
+
+    /**
+     * Get credit managment due date, amount of days after the order date
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getCm3DueDate($store = null)
+    {
+        return $this->getMethodConfigValue(self::XPATH_TRANSFER_CM3_DUE_DATE, $store);
+    }
+
+    /**
+     * Get payment method which can be used after the payment due date.
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getPaymentMethodAfterExpiry($store = null)
+    {
+        return $this->getMethodConfigValue(self::XPATH_TRANSFER_PAYMENT_METHOD_AFTER_EXPIRY, $store);
     }
 }

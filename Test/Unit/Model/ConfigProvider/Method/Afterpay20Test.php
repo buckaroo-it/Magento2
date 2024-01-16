@@ -20,9 +20,9 @@
  */
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
+use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\PaymentFee;
-use Buckaroo\Magento2\Model\Method\Afterpay20 as Afterpay20Method;
 use Buckaroo\Magento2\Test\BaseTest;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
@@ -70,14 +70,17 @@ class Afterpay20Test extends BaseTest
         $scopeConfigMock->expects($this->atLeastOnce())
             ->method('getValue')
             ->withConsecutive(
-                [Afterpay20::XPATH_AFTERPAY20_ACTIVE, ScopeInterface::SCOPE_STORE],
-                [Afterpay20::XPATH_AFTERPAY20_SEND_EMAIL, ScopeInterface::SCOPE_STORE],
-                [Afterpay20::XPATH_ALLOWED_CURRENCIES, ScopeInterface::SCOPE_STORE, null]
+                [$this->getPaymentMethodConfigPath(Afterpay20::CODE, AbstractConfigProvider::ACTIVE),
+                    ScopeInterface::SCOPE_STORE],
+                [$this->getPaymentMethodConfigPath(Afterpay20::CODE, AbstractConfigProvider::ORDER_EMAIL),
+                    ScopeInterface::SCOPE_STORE],
+                [$this->getPaymentMethodConfigPath(Afterpay20::CODE, AbstractConfigProvider::ALLOWED_CURRENCIES),
+                    ScopeInterface::SCOPE_STORE],
             )
             ->willReturnOnConsecutiveCalls($active, '1', 'EUR');
 
         $paymentFeeMock = $this->getFakeMock(PaymentFee::class)->setMethods(['getBuckarooPaymentFeeLabel'])->getMock();
-        $paymentFeeMock->method('getBuckarooPaymentFeeLabel')->with(Afterpay20Method::PAYMENT_METHOD_CODE)->willReturn('Fee');
+        $paymentFeeMock->method('getBuckarooPaymentFeeLabel')->with(Afterpay20::CODE)->willReturn('Fee');
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock, 'paymentFeeHelper' => $paymentFeeMock]);
         $result = $instance->getConfig();
@@ -136,7 +139,10 @@ class Afterpay20Test extends BaseTest
             ->getMockForAbstractClass();
         $scopeConfigMock->expects($this->once())
             ->method('getValue')
-            ->with(Afterpay20::XPATH_AFTERPAY20_PAYMENT_FEE, ScopeInterface::SCOPE_STORE)
+            ->with(
+                $this->getPaymentMethodConfigPath(Afterpay20::CODE, AbstractConfigProvider::PAYMENT_FEE),
+                ScopeInterface::SCOPE_STORE
+            )
             ->willReturn($value);
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);

@@ -19,7 +19,7 @@
  -->
 <include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
     <!-- Capayable Postpay Payment method group -->
-    <group id="buckaroo_magento2_capayablepostpay" translate="label" type="text" sortOrder="250" showInDefault="1" showInWebsite="1" showInStore="1">
+    <group id="buckaroo_magento2_capayablepostpay" translate="label" type="text" sortOrder="235" showInDefault="1" showInWebsite="1" showInStore="1">
         <label>Capayable Postpay</label>
         <frontend_model>Buckaroo\Magento2\Block\Config\Form\Field\Fieldset</frontend_model>
 
@@ -36,10 +36,38 @@
             <config_path>payment/buckaroo_magento2_capayablepostpay/title</config_path>
         </field>
 
+        <field id="subtext" translate="label comment" type="text" sortOrder="25" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Frontend subtext</label>
+            <comment><![CDATA[This controls the description which the user sees during checkout.]]></comment>
+            <config_path>payment/buckaroo_magento2_capayablepostpay/subtext</config_path>
+        </field>
+        
+        <field id="subtext_style" translate="label comment" type="select" sortOrder="26" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Frontend subtext style</label>
+            <comment><![CDATA[Choose a font style for the subtext.]]></comment>
+            <source_model>Buckaroo\Magento2\Model\Config\Source\SubtextStyle</source_model>
+            <config_path>payment/buckaroo_magento2_capayablepostpay/subtext_style</config_path>
+        </field>
+
+        <field id="subtext_color" translate="label comment" sortOrder="27" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Frontend subtext color</label>
+            <comment><![CDATA[Choose a font color for the subtext.]]></comment>
+            <config_path>payment/buckaroo_magento2_capayablepostpay/subtext_color</config_path>
+            <frontend_model>Buckaroo\Magento2\Block\Config\Form\Field\ColorPicker</frontend_model>
+        </field>
+
+
         <field id="sort_order" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Frontend sort order</label>
             <comment><![CDATA[Determines the sorting of payment methods.]]></comment>
             <config_path>payment/buckaroo_magento2_capayablepostpay/sort_order</config_path>
+        </field>
+
+        <field id="financial_warning" translate="label comment" type="select" sortOrder="35" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Consumer Financial Warning</label>
+            <comment><![CDATA[Due to the regulations for BNPL methods in The Netherlands you’ll  have to warn customers about using a BNPL plan because it can be easy to get into debt. When enabled a warning will be showed in the checkout. Please note that this setting only applies for customers in The Netherlands.]]></comment>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <config_path>payment/buckaroo_magento2_capayablepostpay/financial_warning</config_path>
         </field>
 
         <group id="buckaroo_magento2_advanced" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -135,19 +163,31 @@
                 </depends>
             </field>
 
-            <field id="limit_by_ip" translate="label comment tooltip" type="select" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Display only for selected IPs</label>
-                <comment><![CDATA[Show method only to Magento set IPs.]]></comment>
-                <tooltip>Magento developer client restrictions.</tooltip>
-                <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                <config_path>payment/buckaroo_magento2_capayablepostpay/limit_by_ip</config_path>
-            </field>
-
             <field id="specificcustomergroup" translate="label" type="multiselect" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Allow customer groups</label>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\SpecificCustomerGroups</source_model>
                 <can_be_empty>1</can_be_empty>
                 <config_path>payment/buckaroo_magento2_capayablepostpay/specificcustomergroup</config_path>
+            </field>
+
+            <field id="spam_prevention" translate="label comment" type="select" sortOrder="150" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Spam prevention</label>
+                <comment><![CDATA[Enabling this feature adds the option to hide this payment method after a certain number of failed attempts.]]></comment>
+                <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                <config_path>payment/buckaroo_magento2_capayablepostpay/spam_prevention</config_path>
+            </field>
+
+            <field id="spam_attempts" translate="label comment" type="text" sortOrder="160" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Number of attempts</label>
+                <comment><![CDATA[When this number is exceeded, the payment method will be hidden. Minimum 1, maximum 10.]]></comment>
+                <config_path>payment/buckaroo_magento2_capayablepostpay/spam_attempts</config_path>
+                <validate>validate-not-negative-number</validate>
+            </field>
+
+            <field id="spam_message" translate="label comment" type="text" sortOrder="160" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Consumer notification</label>
+                <comment><![CDATA[This message is shown when the payment method is hidden. Maximum 280 characters.]]></comment>
+                <config_path>payment/buckaroo_magento2_capayablepostpay/spam_message</config_path>
             </field>
         </group>
     </group>

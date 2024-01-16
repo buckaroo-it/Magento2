@@ -1,4 +1,4 @@
-<div class="buckaroo_magento2_billink payment-method" data-bind="click: magentoTerms(), css: {'_active': (getCode() == isChecked())}">
+<div class="buckaroo_magento2_billink payment-method" data-bind="css: {'_active': (getCode() == isChecked())}">
     <div class="payment-method-title field choice bk-payment">
         <div class="bk-payment-wrap">
             <div class="bk-radio-wrap">
@@ -7,11 +7,22 @@
                        class="radio"
                        data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
                 <label class="label" data-bind="attr: {'for': getCode()}" >
-                    <!-- ko text: getTitle() --><!-- /ko -->
+                        <!-- ko text: getTitle() --><!-- /ko -->
+                        <!-- ko if: subtext !== null && subtext.length > 0 -->
+                       <p class="bk-description" data-bind="text: subtext, style: subTextStyle"></p>
+                        <!-- /ko -->
                 </label>
             </div>
-            <div class="bk-img-wrap">
-                <img data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/'+getCode().replace('buckaroo_magento2_','')+'.svg') }" />
+            <div class="bk-mode-and-img">
+                <!-- ko if: isTestMode -->
+                <div class="bk-test-mode"><div class="bk-test-text" data-bind="i18n: 'Test Mode'"></div></div>
+                <!-- /ko -->
+                <div class="bk-img-wrap">
+                    <img
+                        data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/'+getCode().replace('buckaroo_magento2_','')+'.svg') }"
+                        alt="Billink Logo"
+                    />
+                </div>
             </div>
         </div>
     </div>
@@ -29,21 +40,17 @@
                   attr: {'data-hasrequired': $t('* Required Fields')}">
                 <fieldset class="fieldset payment">
 
-                    <!-- ko if: showNLBEFields -->
+                    <!-- ko if: !isB2B -->
                     <div class="field required">
                         <label class="label" for="buckaroo_magento2_payperemail_genderSelect"> <span data-bind="i18n: 'Salutation:'"> </span> </label>
                         <div class="control">
-                            <select id="buckaroo_magento2_bilink_genderSelect"
-                                    class="select"
-                                    name="payment[buckaroo_magento2_bilink][customer_gender]"
-                                    data-bind="
-                                    options: gendersList(),
-                                    optionsText: $t('genderTitle'),
-                                    optionsValue: 'genderType',
-                                    optionsCaption: $t('-- Please Select Your Gender--'),
-                                    value: getSelectedGender,
-                                    event: { change: setSelectedGender }"
-                                    data-validate="{required:true}"/>
+                        <select id="buckaroo_magento2_bilink_genderSelect" name="payment[buckaroo_magento2_bilink][customer_gender]" class="select"
+                        data-bind="options: genderList,
+                            optionsText: $t('genderTitle'),
+                            optionsValue: 'genderType',
+                            optionsCaption: $t('-- Please Select Your Gender--'),
+                            value: selectedGender, attr: { 'data-validate': JSON.stringify({ 'required': true })},
+                            event: { blur: validateField }">
                             </select>
                         </div>
                     </div>
@@ -55,11 +62,11 @@
                             <input id="buckaroo_magento2_billink_BillingName"
                                    class="input-text field"
                                    type="text"
-                                   name="payment[buckaroo_magento2_billink][customer_billingName]"
                                    data-bind="
-                                   value: BillingName,
-                                   textInput: CustomerName()"
-                                   disabled/>
+                                   value: billingName,
+                                   event: { blur: validateField }"
+                                   name="payment[buckaroo_magento2_billink][customer_billingName]"
+                                   disabled >
                         </div>
                     </div>
 
@@ -68,34 +75,31 @@
                         <label class="label" for="buckaroo_magento2_billink_Telephone"> <span data-bind="i18n: 'Telephone:'"> </span> </label>
                         <div class="control">
                             <input id="buckaroo_magento2_billink_Telephone"
-                                   class="input-text field"
                                    type="text"
-                                   name="payment[buckaroo_magento2_billink][customer_telephone]"
+                                   class="input-text field"
                                    data-bind="
-                                   checked: phoneValidate
+                                   attr: { 'data-validate': JSON.stringify({ 'required': true, phoneValidation: true }) },
                                    valueUpdate: 'blur',
-                                   value: phoneValidate"
-                                   data-validate="{required:true}"/>
-                            <div for="buckaroo_magento2_billink_Telephone" generated="true" class="mage-error" id="buckaroo_magento2_billink_Telephone-error" style="display: none;">
-                                <span data-bind="i18n: 'Phone number should be correct.' "></span>
-                            </div>
+                                   value: phone,
+                                   event: { blur: validateField }"
+                                   name="payment[buckaroo_magento2_billink][customer_telephone]">
                         </div>
                     </div>
                     <!-- /ko -->
 
-                    <!-- ko if: showNLBEFields -->
+                    <!-- ko if: !isB2B -->
                     <div class="field required">
                         <label class="label" for="buckaroo_magento2_billink_DoB"> <span data-bind="i18n: 'Date of Birth:'"> </span> </label>
-                        <span><sup data-bind="i18n: '(DD/MM/YYYY)' "></sup></span>
-                        <div class="control">
+                        <div class="control addon">
                             <input id="buckaroo_magento2_billink_DoB"
                                    class="field"
                                    type="text"
-                                   name="payment[buckaroo_magento2_billink][customer_DoB]"
                                    data-bind="
                                    datepicker: {
-                                        storage: dateValidate,
+                                        storage: dob,
                                         options: {
+                                            beforeShow: dp.addPickerClass,
+                                            onClose: dp.removePickerClass,
                                             changeMonth: true,
                                             changeYear: true,
                                             yearRange: ((new Date()).getFullYear()-120) + ':' + (new Date()).getFullYear(),
@@ -103,14 +107,17 @@
                                         }
                                    },
                                    valueUpdate: 'change',
-                                   value: dateValidate"
-                                   data-validate="{required:true, 'validate-date-au':true}"/>
-                            <div for="buckaroo_magento2_billink_DoB" generated="true" class="mage-error" id="buckaroo_magento2_billink_DoB-error" style="display: none;"><span data-bind="i18n: 'You should be at least 18 years old.' "></span></div>
+                                   value: dob,
+                                   attr: {
+                                    'data-validate': JSON.stringify({ 'required': true, 'validate-date-au': true, validateAge: true }),
+                                    placeholder: $t('DD/MM/YYYY')
+                                   }"
+                                   name="payment[buckaroo_magento2_billink][customer_DoB]">
                         </div>
                     </div>
                     <!-- /ko -->
 
-                    <!-- ko if: showСhamberOfCommerce -->
+                    <!-- ko if: showB2B -->
                     <div class="field required">
                         <legend class="label"> <span data-bind="i18n: 'Chamber of Commerce number:'"> </span> </legend>
                         <div class="control">
@@ -119,15 +126,14 @@
                                    type="text"
                                    name="payment[buckaroo_magento2_billink][buckaroo_chamberOfCommerce]"
                                    data-bind="
-                                   checked: chamberOfCommerceValidate
+                                   attr: { 'data-validate': JSON.stringify({ 'required': true }) },
                                    valueUpdate: 'blur',
-                                   value: chamberOfCommerceValidate"
-                                   data-validate="{required:true}"/>
+                                   value: cocNumber,
+                                   event: { blur: validateField }
+                                   ">
                         </div>
                     </div>
-                    <!-- /ko -->
-
-                    <!-- ko if: showVATNumber -->
+          
                     <div class="field">
                         <legend class="label"> <span data-bind="i18n: 'VAT number:'"> </span> </legend>
                         <div class="control">
@@ -137,8 +143,8 @@
                                    name="payment[buckaroo_magento2_billink][buckaroo_VATNumber]"
                                    data-bind="
                                    valueUpdate: 'blur',
-                                   value: VATNumberValidate"
-                                   data-validate="{required:true}"/>
+                                   value: vatNumber
+                                   ">
                         </div>
                     </div>
                     <!-- /ko -->
@@ -150,11 +156,11 @@
                             <input id="buckaroo_magento2_billink_TermsCondition"
                                    class="field"
                                    type="checkbox"
-                                   name="payment[buckaroo_magento2_billink][termsCondition]"
                                    data-bind="
-                                   checked: termsValidate,
-                                   event: { change: selectPaymentMethod }"
-                                   data-validate="{required:true}"/>
+                                   checked: tos,
+                                   attr: { 'data-validate': JSON.stringify({ 'required': true})},
+                                   event: { change: validateField }"
+                                   name="payment[buckaroo_magento2_billink][termsCondition]">
                             <span>
                                 <a target="_blank"
                                    data-bind="
@@ -162,14 +168,15 @@
                                        attr: { 'href': 'https://www.billink.nl/app/uploads/2021/05/Gebruikersvoorwaarden-Billink_V11052021.pdf' }
                                    ">
                                 </a>
-                                <!-- ko if: showFrenchTos -->
-                                <span data-bind="html: getFrenchTos()"></span>
-                                <!-- /ko -->
                             </span>
                             <div for="buckaroo_magento2_billink_TermsCondition" generated="true" class="mage-error" id="buckaroo_magento2_billink_TermsCondition-error" style="display: none;"><span data-bind="i18n: 'This is a required field.' "></span></div>
                         </div>
                     </div>
 
+                    <!-- ko if: showFinancialWarning  -->
+                        <span data-bind="i18n: `Je moet minimaal 18+ zijn om deze dienst te gebruiken. Als je op tijd betaalt, voorkom je extra kosten en zorg je dat je in de toekomst nogmaals gebruik kunt maken van de diensten van ${getTitle()}. Door verder te gaan, accepteer je de Algemene Voorwaarden en bevestig je dat je de Privacyverklaring en Cookieverklaring hebt gelezen.`">  </span>
+                    <!-- /ko -->
+                    
                     <div class="field">
                         <span data-bind="i18n: 'Please make sure all fields are filled in correctly before proceeding.' ">  </span>
                     </div>

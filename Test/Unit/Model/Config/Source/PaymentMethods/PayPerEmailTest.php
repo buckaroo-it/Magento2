@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Test\Unit\Model\Config\Source\PayPerEmail;
 
 use Buckaroo\Magento2\Model\Config\Source\PaymentMethods\PayPerEmail;
@@ -49,9 +51,6 @@ class PayPerEmailTest extends BaseTest
             ],
             [
                 ['value' => 'ideal',              'label' => 'iDEAL']
-            ],
-            [
-                ['value' => 'idealprocessing',    'label' => 'iDEAL Processing']
             ],
             [
                 ['value' => 'mastercard',         'label' => 'Mastercard']

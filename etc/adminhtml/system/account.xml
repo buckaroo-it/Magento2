@@ -24,6 +24,7 @@
     <group id="buckaroo_magento2_account_section" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
         <label>General configuration and account information</label>
         <fieldset_css>buckaroo_magento2-section</fieldset_css>
+        <attribute type="expanded">1</attribute>
 
         <field id="active" translate="label comment tooltip" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Enabled</label>
@@ -33,7 +34,15 @@
             <config_path>buckaroo_magento2/account/active</config_path>
         </field>
 
-        <field id="secret_key" translate="label comment tooltip" type="obscure" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+        <field id="merchant_key" translate="label comment tooltip" type="obscure" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>(Website) key</label>
+            <comment><![CDATA[Enter your Buckaroo merchant/website key.]]></comment>
+            <tooltip>The (Website) key can be retrieved in Payment Plaza under My Buckaroo > Websites. For support contact Buckaroo.</tooltip>
+            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+            <config_path>buckaroo_magento2/account/merchant_key</config_path>
+        </field>
+
+        <field id="secret_key" translate="label comment tooltip" type="obscure" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Secret key</label>
             <comment><![CDATA[Enter your Buckaroo Secret Key.]]></comment>
             <tooltip>The Secret Key can be retrieved in Payment Plaza under Configuration > Security > Secret Key. For support contact Buckaroo.</tooltip>
@@ -41,26 +50,11 @@
             <config_path>buckaroo_magento2/account/secret_key</config_path>
         </field>
 
-        <field id="merchant_key" translate="label comment tooltip" type="obscure" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>(Merchant) key</label>
-            <comment><![CDATA[Enter your Buckaroo merchant/website key.]]></comment>
-            <tooltip>The (Merchant) Key can be retrieved in Payment Plaza under My Buckaroo > Websites. For support contact Buckaroo.</tooltip>
-            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-            <config_path>buckaroo_magento2/account/merchant_key</config_path>
-        </field>
-
-        <field id="credentials_checker" translate="label comment" type="button" sortOrder="32" showInDefault="1" showInWebsite="1" showInStore="1">
+        <field id="credentials_checker" translate="label comment" type="button" sortOrder="35" showInDefault="1" showInWebsite="1" showInStore="1">
             <frontend_model>Buckaroo\Magento2\Block\Adminhtml\System\Config\CredentialsChecker</frontend_model>
             <depends>
                 <field id="active" separator=",">1,2</field>
             </depends>
-        </field>
-
-        <field id="merchant_guid" translate="label comment tooltip" type="text" sortOrder="35" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>(Merchant) guid</label>
-            <comment><![CDATA[Enter your Buckaroo merchant guid.]]></comment>
-            <tooltip>The (Merchant) Guid can be retrieved in Payment Plaza under My Buckaroo > Details > Guid. For support contact Buckaroo.</tooltip>
-            <config_path>buckaroo_magento2/account/merchant_guid</config_path>
         </field>
 
         <field id="transaction_label" translate="label comment tooltip" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -71,207 +65,230 @@
             <config_path>buckaroo_magento2/account/transaction_label</config_path>
         </field>
 
-        <field id="certificate_label" translate="label comment" type="text" sortOrder="50" showInDefault="1" showInWebsite="0" showInStore="0">
-            <label>Certificate label</label>
-            <comment><![CDATA[Enter a name for the certificate. This is purely administrative.]]></comment>
-            <backend_model>Buckaroo\Magento2\Model\Config\Backend\CertificateLabel</backend_model>
+        <field id="invoice_handling" translate="label comment tooltip" type="select" sortOrder="45" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Invoice Handling</label>
+            <comment><![CDATA[Select the moment when the invoice should be created.]]></comment>
+            <tooltip><![CDATA[Select the moment when the invoice should be created.]]></tooltip>
+            <source_model>Buckaroo\Magento2\Model\Config\Source\InvoiceHandlingOptions</source_model>
+            <config_path>buckaroo_magento2/account/invoice_handling</config_path>
         </field>
 
-        <field id="certificate_upload" translate="label" type="file" sortOrder="60" showInDefault="1" showInWebsite="0" showInStore="0">
-            <label>Upload your Buckaroo private key certificate</label>
-            <backend_model>Buckaroo\Magento2\Model\Config\Backend\Certificate</backend_model>
-            <config_path>buckaroo_magento2/account/certificate_upload</config_path>
-        </field>
+        <group id="buckaroo_magento2_refund_section" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="0" showInStore="0">
+            <label>Refunding</label>
+            <fieldset_css>buckaroo_magento2-section</fieldset_css>
 
-        <field id="certificate_file" translate="label tooltip" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Certificate file</label>
-            <tooltip>The certificate can be retrieved in Payment Plaza under Configuration > Security > Certificates. For support contact Buckaroo.</tooltip>
-            <source_model>Buckaroo\Magento2\Model\Config\Source\Certificates</source_model>
-            <config_path>buckaroo_magento2/account/certificate_file</config_path>
-        </field>
-
-        <field id="idin" translate="label comment tooltip" type="select" sortOrder="70" showInDefault="1" showInWebsite="0" showInStore="0">
-            <label>Enabled iDIN verification</label>
-            <comment><![CDATA[Enabled iDIN verification]]></comment>
-            <source_model>Buckaroo\Magento2\Model\Config\Source\Enablemode</source_model>
-            <config_path>buckaroo_magento2/account/idin</config_path>
-        </field>
-
-        <field id="idin_mode" translate="label comment tooltip" type="select" sortOrder="70" showInDefault="1" showInWebsite="0" showInStore="0">
-            <label>iDIN mode</label>
-            <comment><![CDATA[iDIN mode]]></comment>
-            <source_model>Buckaroo\Magento2\Model\Config\Source\Idinmode</source_model>
-            <config_path>buckaroo_magento2/account/idin_mode</config_path>
-            <depends>
-                <field id="idin" separator=",">1,2</field>
-            </depends>
-        </field>
-
-        <field id="idin_category" translate="label" type="multiselect" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Select Categorys for iDIN verification</label>
-            <source_model>Buckaroo\Magento2\Model\Config\Source\Categorylist</source_model>
-            <config_path>buckaroo_magento2/account/idin_category</config_path>
-            <depends>
-                <field id="idin_mode">2</field>
-            </depends>
-        </field>
-
-        <group id="buckaroo_magento2_advanced" translate="label comment" type="text" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Advanced Configuration</label>
-            <comment><![CDATA[These options are only intended for expert users. Tampering with the default settings may negatively affect the workflow and performance of all Buckaroo payment methods. Use at your own risk.]]></comment>
-
-            <field id="order_status_new" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>New status</label>
-                <comment><![CDATA[This status will be given to new orders.]]></comment>
-                <source_model>Buckaroo\Magento2\Model\Config\Source\StatusesNew</source_model>
-                <config_path>buckaroo_magento2/account/order_status_new</config_path>
-            </field>
-
-            <field id="order_status_pending" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Pending payment status</label>
-                <comment><![CDATA[This status will be given to orders pending payment.]]></comment>
-                <source_model>Buckaroo\Magento2\Model\Config\Source\StatusesPending</source_model>
-                <config_path>buckaroo_magento2/account/order_status_pending</config_path>
-            </field>
-
-            <field id="order_status_success" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Payment success status</label>
-                <comment><![CDATA[This status will be given to orders paid.]]></comment>
-                <source_model>Buckaroo\Magento2\Model\Config\Source\StatusesSuccess</source_model>
-                <config_path>buckaroo_magento2/account/order_status_success</config_path>
-            </field>
-
-            <field id="order_status_failed" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Payment failed status</label>
-                <comment><![CDATA[This status will be given to unsuccessful orders.]]></comment>
-                <source_model>Buckaroo\Magento2\Model\Config\Source\StatusesFailed</source_model>
-                <config_path>buckaroo_magento2/account/order_status_failed</config_path>
-            </field>
-
-            <field id="order_confirmation_email" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Send order confirmation email</label>
-                <comment><![CDATA[Send a mail after successful creating the order.]]></comment>
+            <field id="active" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Enabled</label>
+                <comment><![CDATA[Enable or disable refunding.]]></comment>
+                <tooltip>Set to 'No' refunds must be done manualy in Payment Plaza.</tooltip>
                 <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                <config_path>buckaroo_magento2/account/order_confirmation_email</config_path>
+                <config_path>buckaroo_magento2/refund/enabled</config_path>
             </field>
 
-            <field id="order_confirmation_email_sync" translate="label comment" type="select" sortOrder="55" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Send order confirmation email in sync mode</label>
-                <comment><![CDATA[Helps to prevent order status conflicts between cron based (async) processing of emails and order status handling. Redefines "General Settings / Asynchronous sending" setting.]]></comment>
+            <field id="allow_push" translate="label comment tooltip" type="select" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Push Payment Plaza refunds to Magento</label>
+                <comment><![CDATA[Allow 2-way refunding from Magento and Payment Plaza.]]></comment>
                 <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                <config_path>buckaroo_magento2/account/order_confirmation_email_sync</config_path>
+                <config_path>buckaroo_magento2/refund/allow_push</config_path>
+                <depends>
+                    <field id="active">1</field>
+                </depends>
             </field>
 
-            <field id="invoice_email" translate="label comment" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Send transactional invoice email</label>
-                <comment><![CDATA[Send a mail after successful payment.]]></comment>
-                <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                <config_path>buckaroo_magento2/account/invoice_email</config_path>
-            </field>
-
-            <field id="success_redirect" translate="label comment" type="text" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Redirect url after 'Success'</label>
-                <comment><![CDATA[Redirect after successful payments.]]></comment>
-                <config_path>buckaroo_magento2/account/success_redirect</config_path>
-            </field>
-
-            <field id="failure_redirect" translate="label comment" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Redirect url after 'Failure'</label>
-                <comment><![CDATA[Redirect after failed payments.]]></comment>
-                <config_path>buckaroo_magento2/account/failure_redirect</config_path>
-            </field>
-
-            <field id="failure_redirect_to_checkout" translate="label comment" type="select" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Redirect to checkout payment section after 'Failure'</label>
-                <comment><![CDATA[Redirect after failed payments.]]></comment>
-                <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                <config_path>buckaroo_magento2/account/failure_redirect_to_checkout</config_path>
-            </field>
-
-            <field id="cancel_on_failed" translate="label comment" type="select" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>'Canceled' state on failed payment</label>
-                <comment><![CDATA[Orders will stay open after failed payments.]]></comment>
-                <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                <config_path>buckaroo_magento2/account/cancel_on_failed</config_path>
-            </field>
-
-            <field id="debug_types" translate="label comment" type="multiselect" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
-                <label>Debugging</label>
-                <comment><![CDATA[Decide what to debug. Log files will be created within the var/log/Buckaroo/ directory.]]></comment>
-                <source_model>Buckaroo\Magento2\Model\Config\Source\DebugTypes</source_model>
-                <config_path>buckaroo_magento2/account/debug_types</config_path>
-            </field>
-
-            <field id="debug_email" translate="label comment" type="text" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Debug email</label>
-                <comment><![CDATA[Debug information will be sent to these comma-separated email addresses.]]></comment>
-                <config_path>buckaroo_magento2/account/debug_email</config_path>
-                <validate>validate-emails</validate>
-            </field>
-
-            <field id="limit_by_ip" translate="label comment" type="select" sortOrder="140" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Display only for selected IPs</label>
-                <comment><![CDATA[Show method only to Magento set IPs.]]></comment>
-                <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                <config_path>buckaroo_magento2/account/limit_by_ip</config_path>
-            </field>
-
-            <field id="fee_percentage_mode" translate="label comment" type="select" sortOrder="150" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Fee percentage mode</label>
-                <comment><![CDATA[This setting only applies to percentage-based Buckaroo fees.<br />Please choose over which amount the fee percentage is calculated.]]></comment>
-                <source_model>Buckaroo\Magento2\Model\Config\Source\FeePercentageMode</source_model>
-                <config_path>buckaroo_magento2/account/fee_percentage_mode</config_path>
-            </field>
-
-            <field id="payment_fee_label" translate="label comment" type="text" sortOrder="160" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Payment fee frontend label</label>
-                <comment><![CDATA[This label will be displayed next to the fee on the checkout, order, invoice and creditmemo pages and pdfs.]]></comment>
-                <config_path>buckaroo_magento2/account/payment_fee_label</config_path>
-            </field>
-
-            <field id="create_order_before_transaction" translate="label comment" type="select" sortOrder="170" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Create order before transaction</label>
-                <comment><![CDATA[This will create an order before setting up the transaction with Buckaroo.]]></comment>
-                <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                <config_path>buckaroo_magento2/account/create_order_before_transaction</config_path>
-            </field>
-
-            <field id="ip_header" translate="label comment" type="text" sortOrder="180" showInDefault="1" showInWebsite="0" showInStore="0">
-                <label>Client IP detection headers</label>
-                <comment><![CDATA[Optional HTTP headers what will be taken into account for client IP detection. Comma separated list of multiple values is allowed.]]></comment>
-                <tooltip>Example: "X-Forwarded-For,CF-Connecting-IP". If "X-Forwarded-For" is empty then "CF-Connecting-IP" will be checked.</tooltip>
-                <config_path>buckaroo_magento2/account/ip_header</config_path>
-            </field>
-
-            <field id="selection_type" translate="label" type="select" sortOrder="185" showInDefault="1" showInWebsite="0" showInStore="0">
-              <label>Use selection</label>
-              <source_model>Buckaroo\Magento2\Model\Config\Source\SelectionType</source_model>
-              <comment><![CDATA[Optional use selection for iDEAL bank and CreditCard]]></comment>
-              <config_path>buckaroo_magento2/account/selection_type</config_path>
-            </field>
-
-            <field id="customer_additional_info" translate="label comment" type="multiselect" sortOrder="200" showInDefault="1" showInWebsite="0" showInStore="0">
-              <label>Add customer data to request</label>
-              <source_model>Buckaroo\Magento2\Model\Config\Source\CustomerAdditionalInfo</source_model>
-              <comment><![CDATA[When adding custom fields to your transaction request you have to also add them to your Buckaroo <a href = "https://plaza.buckaroo.nl/Configuration/Merchant/CustomFields" target="_blank"> Plaza </a> account. Click on <a href="https://support.buckaroo.nl/categorie%C3%ABn/plugins/magento-2/faq-magento-2/add-custom-fields-to-transaction-requests" target="_blank"> read more </a> for additional information about adding this fields to the Plaza.]]></comment>
-              <config_path>buckaroo_magento2/account/customer_additional_info</config_path>
-              <can_be_empty>1</can_be_empty>
-            </field>
-
-            <field id="advanced_export_giftcards" translate="label comment" type="select" sortOrder="210" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Advanced order export for giftcards</label>
-                <comment><![CDATA[Advanced order export, added used gitcards]]></comment>
-                <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                <config_path>buckaroo_magento2/account/advanced_export_giftcards</config_path>
-            </field>
-
-            <field id="cart_keep_alive" translate="label" type="select" sortOrder="220" showInDefault="1" showInWebsite="0" showInStore="0">
-              <label>Cart keep alive</label>
-              <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-              <comment><![CDATA[Optional will restore the cart when consumer use back button]]></comment>
-              <config_path>buckaroo_magento2/account/cart_keep_alive</config_path>
+            <field id="retudn_label" translate="label comment tooltip" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Refund label</label>
+                <comment><![CDATA[The refund description, shown in Buckaroo plaza and visible on bank account of consumers.]]></comment>
+                <tooltip><![CDATA[Available substitutions: <code>{order_number}</code>, <code>{shop_name}</code>, <code>{product_name}</code>(first product name)]]></tooltip>
+                <backend_model>Buckaroo\Magento2\Model\Config\Backend\TransactionLabel</backend_model>
+                <config_path>buckaroo_magento2/account/refund_label</config_path>
+                <depends>
+                    <field id="active">1</field>
+                </depends>
             </field>
 
         </group>
+
     </group>
+    <group id="buckaroo_magento2_advanced" translate="label comment" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Advanced Configuration</label>
+            <comment><![CDATA[These options are only intended for expert users. Tampering with the default settings may negatively affect the workflow and performance of all Buckaroo payment methods. Use at your own risk.]]></comment>
+
+            <group id="buckaroo_magento2_status" translate="label comment" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Adjust default order statuses</label>
+                <field id="order_status_new" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>New status</label>
+                    <comment><![CDATA[This status will be given to new orders.]]></comment>
+                    <source_model>Buckaroo\Magento2\Model\Config\Source\StatusesNew</source_model>
+                    <config_path>buckaroo_magento2/account/order_status_new</config_path>
+                </field>
+
+                <field id="order_status_pending" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Pending payment status</label>
+                    <comment><![CDATA[This status will be given to orders pending payment.]]></comment>
+                    <source_model>Buckaroo\Magento2\Model\Config\Source\StatusesPending</source_model>
+                    <config_path>buckaroo_magento2/account/order_status_pending</config_path>
+                </field>
+
+                <field id="order_status_success" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Payment success status</label>
+                    <comment><![CDATA[This status will be given to orders paid.]]></comment>
+                    <source_model>Buckaroo\Magento2\Model\Config\Source\StatusesSuccess</source_model>
+                    <config_path>buckaroo_magento2/account/order_status_success</config_path>
+                </field>
+
+                <field id="order_status_failed" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Payment failed status</label>
+                    <comment><![CDATA[This status will be given to unsuccessful orders.]]></comment>
+                    <source_model>Buckaroo\Magento2\Model\Config\Source\StatusesFailed</source_model>
+                    <config_path>buckaroo_magento2/account/order_status_failed</config_path>
+                </field>
+
+                 <field id="cancel_on_failed" translate="label comment" type="select" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>'Canceled' state on failed payment</label>
+                    <comment><![CDATA[Orders will stay open after failed payments.]]></comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>buckaroo_magento2/account/cancel_on_failed</config_path>
+                </field>
+
+
+            </group>
+
+
+
+            <group id="buckaroo_magento2_redirects" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Redirect after payment attempt</label>
+                    <field id="success_redirect" translate="label comment" type="text" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Redirect url after 'Success'</label>
+                    <comment><![CDATA[Redirect after successful payments.]]></comment>
+                    <config_path>buckaroo_magento2/account/success_redirect</config_path>
+                </field>
+
+                <field id="failure_redirect_to_checkout" translate="label comment" type="select" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Redirect to checkout payment section after 'Failure'</label>
+                    <comment><![CDATA[Redirect after failed payments.]]></comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>buckaroo_magento2/account/failure_redirect_to_checkout</config_path>
+                </field>
+
+                <field id="failure_redirect" translate="label comment" type="text" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Redirect url after 'Failure'</label>
+                    <comment><![CDATA[Redirect after failed payments.]]></comment>
+                    <config_path>buckaroo_magento2/account/failure_redirect</config_path>
+                </field>
+            </group>
+
+
+            <group id="buckaroo_magento2_fee" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Payment Fees</label>
+                    <field id="fee_percentage_mode" translate="label comment" type="select" sortOrder="150" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Fee percentage mode</label>
+                    <comment><![CDATA[This setting only applies to percentage-based Buckaroo fees.<br />Please choose over which amount the fee percentage is calculated.]]></comment>
+                    <source_model>Buckaroo\Magento2\Model\Config\Source\FeePercentageMode</source_model>
+                    <config_path>buckaroo_magento2/account/fee_percentage_mode</config_path>
+                </field>
+
+                <field id="payment_fee_label" translate="label comment" type="text" sortOrder="160" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Payment fee frontend label</label>
+                    <comment><![CDATA[This label will be displayed next to the fee on the checkout, order, invoice and creditmemo pages and pdfs.]]></comment>
+                    <config_path>buckaroo_magento2/account/payment_fee_label</config_path>
+                </field>
+            </group>
+
+            <group id="buckaroo_magento2_email" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Email settings</label>
+                <field id="order_confirmation_email" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Send order confirmation email</label>
+                    <comment><![CDATA[Send a mail after successful creating the order.]]></comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>buckaroo_magento2/account/order_confirmation_email</config_path>
+                </field>
+
+                <field id="order_confirmation_email_sync" translate="label comment" type="select" sortOrder="55" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Send order confirmation email in sync mode</label>
+                    <comment><![CDATA[Helps to prevent order status conflicts between cron based (async) processing of emails and order status handling. Redefines "General Settings / Asynchronous sending" setting.]]></comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>buckaroo_magento2/account/order_confirmation_email_sync</config_path>
+                </field>
+
+                <field id="invoice_email" translate="label comment" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Send transactional invoice email</label>
+                    <comment><![CDATA[Send a mail after successful payment.]]></comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>buckaroo_magento2/account/invoice_email</config_path>
+                </field>
+
+            </group>
+              <!-- Logging section -->
+            <group id="buckaroo_magento2_logging_section" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Logging</label>
+                <fieldset_css>buckaroo_magento2-section</fieldset_css>
+
+                <field id="log_level" translate="label comment" type="multiselect" sortOrder="220" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Log level</label>
+                    <source_model>Buckaroo\Magento2\Model\Config\Source\LogLevel</source_model>
+                    <comment><![CDATA[Decide what to debug. Log files will be created within the var/log/Buckaroo/ directory.]]></comment>
+                    <config_path>buckaroo_magento2/account/debug_types</config_path>
+                </field>
+
+                <field id="log_handler" translate="label" type="select" sortOrder="250" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Handler</label>
+                    <source_model>Buckaroo\Magento2\Model\Config\Source\LogHandler</source_model>
+                    <comment><![CDATA[Decide what Logging Handler used]]></comment>
+                    <config_path>buckaroo_magento2/account/log_handler</config_path>
+                </field>
+
+                <field id="log_handler_db_depth" translate="label" type="text" sortOrder="255" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Debug backtrace logging depth</label>
+                    <comment><![CDATA[Depth for debug backtrace. Default 10]]></comment>
+                    <config_path>buckaroo_magento2/account/log_handler_db_depth</config_path>
+                </field>
+
+                <field id="log_retention" translate="label" type="multiselect" sortOrder="260" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Log retention period</label>
+                    <source_model>Buckaroo\Magento2\Model\Config\Source\LogRetention</source_model>
+                    <comment><![CDATA[[Decide what period will be for log retention]]></comment>
+                    <config_path>buckaroo_magento2/account/log_retention</config_path>
+                </field>
+            </group>
+
+            <group id="buckaroo_magento2_miscellaneous_section" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Miscellaneous</label>
+
+                <field id="create_order_before_transaction" translate="label comment" type="select" sortOrder="170" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Create order before transaction</label>
+                    <comment><![CDATA[This will create an order before setting up the transaction with Buckaroo.]]></comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>buckaroo_magento2/account/create_order_before_transaction</config_path>
+                </field>
+
+                <field id="ip_header" translate="label comment" type="text" sortOrder="180" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Client IP detection headers</label>
+                    <comment><![CDATA[Optional HTTP headers what will be taken into account for client IP detection. Comma separated list of multiple values is allowed.]]></comment>
+                    <tooltip>Example: "X-Forwarded-For,CF-Connecting-IP". If "X-Forwarded-For" is empty then "CF-Connecting-IP" will be checked.</tooltip>
+                    <config_path>buckaroo_magento2/account/ip_header</config_path>
+                </field>
+
+                <field id="customer_additional_info" translate="label comment" type="multiselect" sortOrder="200" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Add customer data to request</label>
+                    <source_model>Buckaroo\Magento2\Model\Config\Source\CustomerAdditionalInfo</source_model>
+                    <comment><![CDATA[When adding custom fields to your transaction request you have to also add them to your Buckaroo <a href = "https://plaza.buckaroo.nl/Configuration/Merchant/CustomFields" target="_blank"> Plaza </a> account. Click on <a href="https://support.buckaroo.nl/categorie%C3%ABn/plugins/magento-2/faq-magento-2/add-custom-fields-to-transaction-requests" target="_blank"> read more </a> for additional information about adding this fields to the Plaza.]]></comment>
+                    <config_path>buckaroo_magento2/account/customer_additional_info</config_path>
+                    <can_be_empty>1</can_be_empty>
+                </field>
+
+                <field id="cart_keep_alive" translate="label" type="select" sortOrder="205" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Cart keep alive</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[Optional will restore the cart when consumer use back button]]></comment>
+                    <config_path>buckaroo_magento2/account/cart_keep_alive</config_path>
+                </field>
+
+                <field id="advanced_export_giftcards" translate="label comment" type="select" sortOrder="210" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Advanced order export for giftcards</label>
+                    <comment><![CDATA[Advanced order export, added used gitcards]]></comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>buckaroo_magento2/account/advanced_export_giftcards</config_path>
+                </field>
+            </group>
+        </group>
 </include>

@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,32 +17,43 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
+
 namespace Buckaroo\Magento2\Service\Software;
 
-use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Module\ModuleListInterface;
+use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Framework\App\ProductMetadataInterface;
 
 class Data
 {
     /**
      * Module supplier name
      */
-    const MODULE_SUPPLIER = 'Buckaroo';
+    public const MODULE_SUPPLIER = 'Buckaroo';
 
     /**
      * Module supplier code
      */
-    const MODULE_CODE = 'Buckaroo_Magento2';
+    public const MODULE_CODE = 'Buckaroo_Magento2';
 
     /** Version of Module */
-    const BUCKAROO_VERSION = '1.44.0';
+    public const BUCKAROO_VERSION = '2.0.0-rc1';
 
-    /** @var ProductMetadataInterface */
-    private $productMetadata;
+    /**
+     * @var ProductMetadataInterface
+     */
+    private ProductMetadataInterface $productMetadata;
 
-    /** @var ModuleListInterface */
-    private $moduleList;
+    /**
+     * @var ModuleListInterface
+     */
+    private ModuleListInterface $moduleList;
 
+    /**
+     * @param ProductMetadataInterface $productMetadata
+     * @param ModuleListInterface $moduleList
+     */
     public function __construct(
         ProductMetadataInterface $productMetadata,
         ModuleListInterface $moduleList
@@ -52,62 +63,72 @@ class Data
     }
 
     /**
+     * Returns an array containing the software data for both the platform and the module.
+     *
      * @return array
      */
-    public function get()
+    public function get(OrderPaymentInterface $payment = null)
     {
-        $platformData = $this->getPlatformData();
+        $platformData = $this->getPlatformData($payment);
         $moduleData = $this->getModuleData();
 
-        $softwareData = array_merge($platformData, $moduleData);
-
-        return $softwareData;
+        return array_merge($platformData, $moduleData);
     }
 
     /**
+     * Retrieves and returns an array containing the platform data.
+     *
+     * @return array
+     */
+    private function getPlatformData(OrderPaymentInterface $payment = null): array
+    {
+        $platformName = $this->getProductMetaData()->getName() . ' - ' . $this->getProductMetaData()->getEdition();
+
+        $platformInfo = $payment !== null ? $payment->getAdditionalInformation('buckaroo_platform_info') : null;
+        if ($platformInfo !== null)
+        {
+            $platformName.= $platformInfo;
+        }
+
+        return [
+            'PlatformName'    => $platformName,
+            'PlatformVersion' => $this->productMetadata->getVersion()
+        ];
+    }
+
+    /**
+     * Returns the product metadata object for the platform.
+     *
      * @return ProductMetadataInterface
      */
-    public function getProductMetaData()
+    public function getProductMetaData(): ProductMetadataInterface
     {
         return $this->productMetadata;
     }
 
     /**
-     * @return string
-     */
-    public function getModuleVersion()
-    {
-        return self::BUCKAROO_VERSION;
-    }
-
-    /**
+     * Retrieves and returns an array containing the module data.
+     *
      * @return array
      */
-    private function getPlatformData()
-    {
-        $platformName = $this->getProductMetaData()->getName() . ' - ' . $this->getProductMetaData()->getEdition();
-
-        $platformData = [
-            'PlatformName' => $platformName,
-            'PlatformVersion' => $this->productMetadata->getVersion()
-        ];
-
-        return $platformData;
-    }
-
-    /**
-     * @return array
-     */
-    private function getModuleData()
+    private function getModuleData(): array
     {
         $module = $this->moduleList->getOne(self::MODULE_CODE);
 
-        $moduleData = [
-            'ModuleSupplier'    => self::MODULE_SUPPLIER,
-            'ModuleName'        => $module['name'],
-            'ModuleVersion'     => $this->getModuleVersion()
+        return [
+            'ModuleSupplier' => self::MODULE_SUPPLIER,
+            'ModuleName'     => $module['name'],
+            'ModuleVersion'  => $this->getModuleVersion()
         ];
+    }
 
-        return $moduleData;
+    /**
+     * Returns the module version as a string.
+     *
+     * @return string
+     */
+    public function getModuleVersion(): string
+    {
+        return self::BUCKAROO_VERSION;
     }
 }

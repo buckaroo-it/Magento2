@@ -5,15 +5,43 @@
     align-items: center;
 }
 .bk-img-wrap {
-    width: 40px;
+    width: 50px;
     margin-right:10px;
     align-items: center;
     display: flex;
+    align-items: center;
+}
+
+.bk-mode-and-img {
+    display: flex;
+    align-items: stretch;
 }
 .bk-radio-wrap {
     flex: auto;
+    display: flex;
+    align-items: center;
 }
-
+.bk-test-mode {
+    background-color:#ff6200;
+    border-radius: 5px;
+    margin-right: 10px;
+    display: flex;
+    align-items: center;
+}
+.bk-test-text {
+    text-transform: uppercase;
+    color: #fff;
+    padding: 0 10px;
+}
+.bk-description {
+    margin:0;
+    color:#757575;
+    display: block;
+    font-size: 1.35rem;
+}
+.bk-mrcash {
+    margin-top: 10px;
+}
 .checkout-payment-method .payment-method-title.bk-payment {
     padding: 15px 0;
 }
@@ -24,6 +52,39 @@
     .checkout-payment-method .payment-method-title.bk-payment {
         padding: 15px;
     }
+}
+
+#ui-datepicker-div.bk-datepicker {
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 0 2px 0px rgba(0,0,0,.35);
+    padding: 10px;
+    width: 240px;
+}
+#ui-datepicker-div.bk-datepicker table,
+#ui-datepicker-div.bk-datepicker th,
+#ui-datepicker-div.bk-datepicker thead tr {
+    background:none;
+    border: none;
+    text-transform: capitalize;
+    text-align: center;
+}
+#ui-datepicker-div.bk-datepicker .ui-state-disabled,
+#ui-datepicker-div.bk-datepicker tbody td {
+    background:#f2f4f5;
+    border: 1px solid #fff;
+    border-radius:5px;
+}
+
+#ui-datepicker-div.bk-datepicker tbody td a {
+  text-align:center;
+}
+
+
+#ui-datepicker-div.bk-datepicker .ui-datepicker-header {
+    padding: 0;
+    margin: 5px 0;
 }
 
 /* ===================== Default / Overwrite Styling ============================= */
@@ -57,6 +118,11 @@
     font-weight: normal;
 }
 
+.payment-method-second-col input:disabled {
+    background-color: #e3e3e3;
+    color: #6e6e6e;
+    opacity: 1;
+}
 .payment-method-second-col input,
 .payment-method-second-col select {
     border-radius: 5px;
@@ -85,15 +151,15 @@
     margin-top: 20px;
 }
 
-.payment-method-second-col input::placeholder { 
+.payment-method-second-col input::placeholder {
     color: #c0c0c0;
-    opacity: 1; 
+    opacity: 1;
 }
-  
+
 .payment-method-second-col input:-ms-input-placeholder {
     color: #c0c0c0;
 }
-  
+
 .payment-method-second-col input::-ms-input-placeholder {
     color: #c0c0c0;
 }
@@ -116,7 +182,6 @@
     }
 
     .buckaroo_magento2_ideal .payment-method-second-col,
-    .buckaroo_magento2_idealprocessing .payment-method-second-col,
     .buckaroo_magento2_creditcard .payment-method-second-col,
     .buckaroo_magento2_creditcards .payment-method-second-col,
     .buckaroo_magento2_transfer .payment-method-second-col,
@@ -130,13 +195,15 @@
     .buckaroo_magento2_klarna .payment-method-second-col,
     .buckaroo_magento2_klarnakp .payment-method-second-col,
     .buckaroo_magento2_klarnain .payment-method-second-col,
-    .buckaroo_magento2_emandate .payment-method-second-col,
     .buckaroo_magento2_applepay .payment-method-second-col,
     .buckaroo_magento2_capayablein3 .payment-method-second-col,
     .buckaroo_magento2_capayablepostpay .payment-method-second-col,
     .buckaroo_magento2_tinka .payment-method-second-col,
     .buckaroo_magento2_mrcash .payment-method-second-col,
-    .buckaroo_magento2_voucher .payment-method-second-col
+    .buckaroo_magento2_voucher .payment-method-second-col,
+    .buckaroo_magento2_paybybank .payment-method-second-col,
+    .buckaroo_magento2_mbway .payment-method-second-col,
+    .buckaroo_magento2_multibanco .payment-method-second-col
     {
         float:left;
         width: 50%;
@@ -145,7 +212,6 @@
     }
 
     .buckaroo_magento2_ideal .payment-method-billing-address,
-    .buckaroo_magento2_idealprocessing .payment-method-billing-address,
     .buckaroo_magento2_creditcard .payment-method-billing-address,
     .buckaroo_magento2_creditcards .payment-method-billing-address,
     .buckaroo_magento2_transfer .payment-method-billing-address,
@@ -159,13 +225,16 @@
     .buckaroo_magento2_klarna .payment-method-billing-address,
     .buckaroo_magento2_klarnakp .payment-method-billing-address,
     .buckaroo_magento2_klarnain .payment-method-billing-address,
-    .buckaroo_magento2_emandate .payment-method-billing-address,
     .buckaroo_magento2_applepay .payment-method-billing-address,
     .buckaroo_magento2_capayablein3 .payment-method-billing-address,
     .buckaroo_magento2_capayablepostpay .payment-method-billing-address,
     .buckaroo_magento2_tinka .payment-method-billing-address,
     .buckaroo_magento2_mrcash .payment-method-billing-address,
-    .buckaroo_magento2_voucher .payment-method-billing-address
+    .buckaroo_magento2_voucher .payment-method-billing-address,
+    .buckaroo_magento2_paybybank .payment-method-billing-address,
+    .buckaroo_magento2_mbway .payment-method-billing-address,
+    .buckaroo_magento2_multibanco .payment-method-billing-address,
+    .buckaroo_magento2_all_creditcard .payment-method-billing-address
     {
         float:left;
         width: 50%;
@@ -177,7 +246,6 @@
 
 @media screen and (min-width: 768px){
     .magento-blank .buckaroo_magento2_ideal .fieldset > .field:not(.choice) > .label,
-    .magento-blank .buckaroo_magento2_idealprocessing .fieldset > .field:not(.choice) > .label,
     .magento-blank .buckaroo_magento2_creditcard .fieldset > .field:not(.choice) > .label,
     .magento-blank .buckaroo_magento2_creditcards .fieldset > .field:not(.choice) > .label,
     .magento-blank .buckaroo_magento2_transfer .fieldset > .field:not(.choice) > .label,
@@ -191,7 +259,6 @@
     .magento-blank .buckaroo_magento2_klarna .fieldset > .field:not(.choice) > .label,
     .magento-blank .buckaroo_magento2_klarnakp .fieldset > .field:not(.choice) > .label,
     .magento-blank .buckaroo_magento2_klarnain .fieldset > .field:not(.choice) > .label,
-    .magento-blank .buckaroo_magento2_emandate .fieldset > .field:not(.choice) > .label,
     .magento-blank .buckaroo_magento2_applepay .fieldset > .field:not(.choice) > .label,
     .magento-blank .buckaroo_magento2_capayablein3 .fieldset > .field:not(.choice) > .label,
     .magento-blank .buckaroo_magento2_capayablepostpay .fieldset > .field:not(.choice) > .label,
@@ -204,8 +271,7 @@
         float: left !important;
     }
 
-    .magento-blank .buckaroo_magento2_ideal di.fieldset > .field:not(.choice) > .control,
-    .magento-blank .buckaroo_magento2_idealprocessing .fieldset > .field:not(.choice) > .control,
+    .magento-blank .buckaroo_magento2_ideal .fieldset > .field:not(.choice) > .control,
     .magento-blank .buckaroo_magento2_creditcard .fieldset > .field:not(.choice) > .control,
     .magento-blank .buckaroo_magento2_creditcards .fieldset > .field:not(.choice) > .control,
     .magento-blank .buckaroo_magento2_transfer .fieldset > .field:not(.choice) > .control,
@@ -219,7 +285,6 @@
     .magento-blank .buckaroo_magento2_klarna .fieldset > .field:not(.choice) > .control,
     .magento-blank .buckaroo_magento2_klarnakp .fieldset > .field:not(.choice) > .control,
     .magento-blank .buckaroo_magento2_klarnain .fieldset > .field:not(.choice) > .control,
-    .magento-blank .buckaroo_magento2_emandate .fieldset > .field:not(.choice) > .control,
     .magento-blank .buckaroo_magento2_applepay .fieldset > .field:not(.choice) > .control,
     .magento-blank .buckaroo_magento2_capayablein3 .fieldset > .field:not(.choice) > .control,
     .magento-blank .buckaroo_magento2_capayablepostpay .fieldset > .field:not(.choice) > .control
@@ -231,7 +296,6 @@
     }
 
     .magento-blank .buckaroo_magento2_ideal .fieldset > .field.choice:before,
-    .magento-blank .buckaroo_magento2_idealprocessing .fieldset > .field.choice:before,
     .magento-blank .buckaroo_magento2_creditcard .fieldset > .field.choice:before,
     .magento-blank .buckaroo_magento2_creditcards .fieldset > .field.choice:before,
     .magento-blank .buckaroo_magento2_transfer .fieldset > .field.choice:before,
@@ -245,7 +309,6 @@
     .magento-blank .buckaroo_magento2_klarna .fieldset > .field.choice:before,
     .magento-blank .buckaroo_magento2_klarnakp .fieldset > .field.choice:before,
     .magento-blank .buckaroo_magento2_klarnain .fieldset > .field.choice:before,
-    .magento-blank .buckaroo_magento2_emandate .fieldset > .field.choice:before,
     .magento-blank .buckaroo_magento2_applepay .fieldset > .field.choice:before,
     .magento-blank .buckaroo_magento2_capayablein3 .fieldset > .field.choice:before,
     .magento-blank .buckaroo_magento2_capayablepostpay .fieldset > .field.choice:before
@@ -266,17 +329,27 @@
     content: '*';
 }
 /* ===================== iDeal ================================ */
-.buckaroo_magento2_ideal .payment-method-second-col .bank-types,
-.buckaroo_magento2_emandate .payment-method-second-col .bank-types,
-.buckaroo_magento2_idealprocessing .payment-method-second-col .bank-types {
+.buckaroo_magento2_ideal .payment-method-second-col .bank-types {
     display: flex;
     align-items: center;
     margin-top: 10px;
+    flex:1 1 100%;
 }
-.buckaroo_magento2_ideal .payment-method-second-col .bank-types-img,
-.buckaroo_magento2_emandate .payment-method-second-col .bank-types-img,
-.buckaroo_magento2_idealprocessing .payment-method-second-col .bank-types-img {
+.buckaroo_magento2_ideal .payment-method-second-col .bank-types-img {
     margin-right:10px;
+}
+
+.fieldset > .field .bk-issuer-list.addon {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.buckaroo_magento2_ideal .payment-method-second-col .bank-types input {
+    flex: 0;
+    order: 0;
+    margin: 0;
+    padding: 0;
+    margin-right: 5px;
 }
 
 /* ===================== Credit Card =========================== */
@@ -397,7 +470,7 @@
     right: 5px;
     top: 5px;
 }
-
+.bk-card-date-wrap,
 .bk-cvc-date-wrap {
     display: flex;
     justify-content: space-between;
@@ -408,13 +481,22 @@
 .bk-cvc {
     margin-left: 5px;
 }
+
+.bk-card-date-wrap .bk-date {
+    margin: 0 0 0 5px;
+    flex: 4;
+}
+.bk-card-number {
+    margin-right: 5px;
+    flex: 6;
+}
 /*======================end creditcards======================================*/
 .giftcard-delete:before {
     font-size: 18px;
     line-height: 20px;
     color: #757575;
     content: '\e604';
-    font-family: 'luma-icons';
+    font-family: 'luma-icons', sans-serif;
     vertical-align: middle;
     display: inline-block;
     font-weight: normal;
@@ -499,7 +581,91 @@
     margin-bottom: 10px;
 }
 
-.buckaroo_magento2_all_giftcards{
+.buckaroo_magento2_all_giftcards, .buckaroo_magento2_all_creditcards{
     border-top: 1px solid #ccc;
     border-bottom: 1px solid #ccc;
+}
+
+/* paybybank */
+
+.bk-toggle-down {
+    background-image: url("data:image/svg+xml,%3Csvg width='20px' height='20px' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5.293 9.293a1 1 0 0 1 1.414 0L12 14.586l5.293-5.293a1 1 0 1 1 1.414 1.414l-6 6a1 1 0 0 1-1.414 0l-6-6a1 1 0 0 1 0-1.414z' fill='%230D0D0D'/%3E%3C/svg%3E%0A");
+}
+.bk-toggle-up {
+    background-image: url("data:image/svg+xml,%3Csvg width='20px' height='20px' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11.293 7.293a1 1 0 0 1 1.414 0l6 6a1 1 0 0 1-1.414 1.414L12 9.414l-5.293 5.293a1 1 0 0 1-1.414-1.414l6-6z' fill='%230D0D0D'/%3E%3C/svg%3E%0A");
+}
+.bk-toggle {
+    height: 20px;
+    width: 20px;
+}
+.bk-toggle-wrap {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.hidden-fieldset-legend {
+    display: none;
+}
+
+@media screen and (max-width: 768px) {
+    .buckaroo_magento2_paybybank .billing-address-form
+    {
+        max-width: 100%;
+    }
+}
+
+@media screen and (min-width: 768px) {
+    .bk-paybybank-toggle-list {
+        display: flex;
+        justify-content: center;
+        height: 20px;
+        margin:10px 0;
+        width: 100%;
+    }
+
+    .bk-toggle-text {
+        margin-left: 10px;
+        font-weight: bold;
+    }
+    .bk-paybybank-selector {
+        display: flex;
+        flex-wrap: wrap;
+        width: 100%;
+    }
+    .bk-paybybank-selector .radio-group-required {
+        display: flex;
+        flex-wrap: wrap;
+        margin-top: 10px;
+    }
+    .bk-paybybank-selector .bank-control {
+        flex: 25% 0;
+        min-width: 55px;
+    }
+    .bk-paybybank-selector .bank-method-label.bk-bank-selected {
+        background-color: #EDEDED;
+        color: #000;
+        border-radius: 5px;
+    }
+    .bk-paybybank-selector .bank-method-label {
+        padding-bottom: 5px;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        padding-top: 5px;
+        align-items: center;
+    }
+    .bk-paybybank-selector .bank-method-label strong {
+            display: block;
+            text-align: center;
+            font-size: 12px;
+            flex: 100% 0 0;
+    }
+    .bk-paybybank-selector .bank-method-label img {
+        padding: 10px 20px;
+    }
+
+    .fieldset > .field .addon .bk-paybybank-selector .bank-method-input {
+        display:none;
+    }
 }

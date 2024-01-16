@@ -28,7 +28,8 @@ define(
         'ko',
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/action/select-payment-method',
-        'buckaroo/checkout/common'
+        'buckaroo/checkout/common',
+        'buckaroo/checkout/datepicker'
     ],
     function (
         $,
@@ -39,14 +40,16 @@ define(
         ko,
         checkoutData,
         selectPaymentMethodAction,
-        checkoutCommon
+        checkoutCommon,
+        datePicker
     ) {
         'use strict';
 
-        const validPhone = function (value, countryId = null) {
-           if (countryId === null) {
-               countryId = quote.billingAddress().countryId;
-           }
+        const validPhone = function (value) {
+            if (quote.billingAddress() === null) {
+                return false;
+            }
+            let countryId = quote.billingAddress().countryId;
             var lengths = {
                 'NL': {
                     min: 10,
@@ -65,8 +68,8 @@ define(
                 return false;
             }
 
-            value = value.replace(/^\+|(00)/, '');
-            value = value.replace(/\(0\)|\s|-/g, '');
+            value = value.replace(/^(\+|00)/, '');
+            value = value.replace(/(\(0\)|\s|-)/g, '');
 
             if (value.match(/\+/)) {
                 return false;
@@ -87,26 +90,31 @@ define(
 
             return true;
         };
-        $.validator.addMethod('phoneValidation', validPhone ,
-        $.mage.__('Phone number should be correct.')
-    );
+        $.validator.addMethod(
+            'in3phoneValidation',
+            validPhone ,
+            $.mage.__('Phone number should be correct.')
+        );
 
         return Component.extend(
             {
                 defaults: {
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_capayablein3',
-                    firstname : '',
-                    lastname : '',
-                    CustomerName : null,
-                    BillingName : null,
+                    billingName : null,
                     dateValidate : '',
                     value: '',
-                    phone: null
+                    phone: null,
+                    validationState : {},
                 },
                 redirectAfterPlaceOrder: false,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.capayablein3.paymentFeeLabel,
+                subtext : window.checkoutConfig.payment.buckaroo.capayablein3.subtext,
+                subTextStyle : checkoutCommon.getSubtextStyle('capayablein3'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
+                logo:  window.checkoutConfig.payment.buckaroo.capayablein3.logo,
+                dp: datePicker,
+                isTestMode: window.checkoutConfig.payment.buckaroo.capayablein3.isTestMode,
 
                 /**
                  * @override
@@ -121,77 +129,87 @@ define(
 
                 initObservable: function () {
                     this._super().observe([
-                        'firstname',
-                        'lastname',
-                        'CustomerName',
-                        'BillingName',
+                        'billingName',
                         'dateValidate',
                         'value',
-                        'phone'
+                        'phone',
+                        'validationState'
                     ]);
 
-                    this.showPhone = ko.computed(
+                    this.showFinancialWarning = ko.computed(
                         function () {
-                            return quote.shippingAddress() === undefined ||
-                            quote.shippingAddress() === null ||
-                            validPhone(quote.shippingAddress().telephone, quote.shippingAddress().countryId) === false
+                            return quote.billingAddress() !== null &&
+                            quote.billingAddress().countryId == 'NL' &&
+                            window.checkoutConfig.payment.buckaroo.capayablein3.showFinancialWarning
                         },
                         this
                     );
 
-                    /**
-                     * Observe customer first & lastname and bind them together, so they could appear in the frontend
-                     */
-                    this.updateBillingName = function(firstname, lastname) {
-                        this.firstName = firstname;
-                        this.lastName = lastname;
-
-                        this.CustomerName = ko.computed(
-                            function () {
-                                return this.firstName + " " + this.lastName;
-                            },
-                            this
-                        );
-
-                        this.BillingName(this.CustomerName());
-                    };
-
-                    if (quote.billingAddress()) {
-                        this.updateBillingName(quote.billingAddress().firstname, quote.billingAddress().lastname);
-                    }
-
-                    quote.billingAddress.subscribe(
-                        function(newAddress) {
-                            if (this.getCode() === this.isChecked() &&
-                                newAddress &&
-                                newAddress.getKey() &&
-                                (newAddress.firstname !== this.firstName || newAddress.lastname !== this.lastName)
-                            ) {
-                                this.updateBillingName(newAddress.firstname, newAddress.lastname);
-                            }
-                        }.bind(this)
+                    this.showPhone = ko.computed(
+                        function () {
+                            return quote.billingAddress() === undefined ||
+                            quote.billingAddress() === null ||
+                            validPhone(quote.billingAddress().telephone) === false
+                        },
+                        this
                     );
 
-                    /**
-                     * Validation on the input fields
-                     */
-                    var runValidation = function () {
-                        $('.' + this.getCode() + ' .payment [data-validate]').filter(':not([name*="agreement"])').valid();
-                        this.selectPaymentMethod();
-                    };
-
-                    this.dateValidate.subscribe(runValidation,this);
-
-                    this.buttoncheck = ko.computed(function () {
-                        var validation = 
-                            this.BillingName() !== null &&
-                            this.dateValidate() !== null;
+                    this.billingName = ko.computed(
+                        function () {
+                            if (quote.billingAddress() !== null) {
+                                return quote.billingAddress().firstname + " " + quote.billingAddress().lastname
+                            }
+                            return '';
+                        },
+                        this
+                    );
 
 
-                        return (validation && this.validate());
+                    /** Check used to see form is valid **/
+                    this.buttoncheck = ko.computed(
+                        function () {
+                            const state = this.validationState();
+                            const valid =this.getActiveFields().map((field) => {
+                                if (state[field] !== undefined) {
+                                    return state[field];
+                                }
+                                return false;
+                            }).reduce(
+                                function (prev, cur) {
+                                    return prev && cur
+                                },
+                                true
+                            )
+                            return valid;
+                        },
+                        this
+                    );
+
+                    this.dateValidate.subscribe(function () {
+                        const id = 'buckaroo_magento2_capayablein3_DoB';
+                        const isValid = $(`#${id}`).valid();
+                        let state = this.validationState();
+                        state[id] = isValid;
+                        this.validationState(state);
                     }, this);
 
                     return this;
+                },
+                getActiveFields() {
+                    let fields = [
+                        'buckaroo_magento2_capayablein3_DoB',
+                    ];
+                    if (this.showPhone()) {
+                        fields.push('buckaroo_magento2_capayablein3_Telephone');
+                    }
+                    return fields;
+                },
+
+                validateField(data, event) {
+                    const isValid = $(event.target).valid();
+                    let state = this.validationState();
+                    state[event.target.id] = isValid;
+                    this.validationState(state);
                 },
 
                 /**
@@ -232,11 +250,6 @@ define(
 
                     selectPaymentMethodAction(this.getData());
                     checkoutData.setSelectedPaymentMethod(this.item.method);
-
-                    if (quote.billingAddress()) {
-                        this.updateBillingName(quote.billingAddress().firstname, quote.billingAddress().lastname);
-                    }
-
                     return true;
                 },
 
@@ -253,22 +266,18 @@ define(
                 },
 
                 validate: function () {
-                    let fieldsToValidate = $('.' + this.getCode() + ' .payment [data-validate]:not([name*="agreement"])');
-                    if (fieldsToValidate.length) {
-                        return fieldsToValidate.valid();
-                    }
-                    return true;
+                    return $('.' + this.getCode() + ' .payment-method-second-col form').valid();
                 },
 
-                getData : function() {
-                    let telephone = quote.shippingAddress().telephone;
-                    if (validPhone(this.phone(), quote.shippingAddress().countryId)) {
+                getData : function () {
+                    let telephone = quote.billingAddress().telephone;
+                    if (validPhone(this.phone())) {
                         telephone = this.phone();
                     }
                     return {
                         "method" : this.item.method,
                         "additional_data": {
-                            "customer_billingName" : this.BillingName(),
+                            "customer_billingName" : this.billingName(),
                             "customer_DoB" : this.dateValidate(),
                             "customer_telephone" : telephone
                         }

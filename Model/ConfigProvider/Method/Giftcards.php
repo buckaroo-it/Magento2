@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,33 +17,28 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
+
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
+use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Helper\PaymentFee;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\ResourceConnection;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\UrlInterface;
 use Magento\Framework\View\Asset\Repository;
 use Magento\Store\Model\StoreManagerInterface;
 
 class Giftcards extends AbstractConfigProvider
 {
-    const XPATH_GIFTCARDS_PAYMENT_FEE          = 'payment/buckaroo_magento2_giftcards/payment_fee';
-    const XPATH_GIFTCARDS_PAYMENT_FEE_LABEL    = 'payment/buckaroo_magento2_giftcards/payment_fee_label';
-    const XPATH_GIFTCARDS_ACTIVE               = 'payment/buckaroo_magento2_giftcards/active';
-    const XPATH_GIFTCARDS_ACTIVE_STATUS        = 'payment/buckaroo_magento2_giftcards/active_status';
-    const XPATH_GIFTCARDS_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_giftcards/order_status_success';
-    const XPATH_GIFTCARDS_ORDER_STATUS_FAILED  = 'payment/buckaroo_magento2_giftcards/order_status_failed';
-    const XPATH_GIFTCARDS_ORDER_EMAIL          = 'payment/buckaroo_magento2_giftcards/order_email';
-    const XPATH_GIFTCARDS_AVAILABLE_IN_BACKEND = 'payment/buckaroo_magento2_giftcards/available_in_backend';
-    const XPATH_GIFTCARDS_ALLOWED_GIFTCARDS    = 'payment/buckaroo_magento2_giftcards/allowed_giftcards';
-    const XPATH_GIFTCARDS_GROUP_GIFTCARDS      = 'payment/buckaroo_magento2_giftcards/group_giftcards';
-    const XPATH_GIFTCARDS_SORT                 = 'payment/buckaroo_magento2_giftcards/sorted_giftcards';
+    public const CODE = 'buckaroo_magento2_giftcards';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_giftcards/allowed_currencies';
-
-    const XPATH_ALLOW_SPECIFIC   = 'payment/buckaroo_magento2_giftcards/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY = 'payment/buckaroo_magento2_giftcards/specificcountry';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP = 'payment/buckaroo_magento2_giftcards/specificcustomergroup';
+    public const XPATH_GIFTCARDS_ALLOWED_GIFTCARDS       = 'allowed_giftcards';
+    public const XPATH_GIFTCARDS_GROUP_GIFTCARDS         = 'group_giftcards';
+    public const XPATH_GIFTCARDS_SORT                    = 'sorted_giftcards';
+    public const XPATH_ACCOUNT_ADVANCED_EXPORT_GIFTCARDS = 'buckaroo_magento2/account/advanced_export_giftcards';
 
     /**
      * @var array
@@ -52,78 +47,86 @@ class Giftcards extends AbstractConfigProvider
         'EUR',
     ];
 
-    /** @var StoreManagerInterface */
-    private $storeManager;
+    /**
+     * @var StoreManagerInterface
+     */
+    private StoreManagerInterface $storeManager;
 
+    /**
+     * @var ResourceConnection
+     */
+    private ResourceConnection $resourceConnection;
+
+    /**
+     * @param Repository $assetRepo
+     * @param ScopeConfigInterface $scopeConfig
+     * @param AllowedCurrencies $allowedCurrencies
+     * @param PaymentFee $paymentFeeHelper
+     * @param StoreManagerInterface $storeManager
+     * @param ResourceConnection $resourceConnection
+     */
     public function __construct(
         Repository $assetRepo,
         ScopeConfigInterface $scopeConfig,
         AllowedCurrencies $allowedCurrencies,
         PaymentFee $paymentFeeHelper,
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
+        ResourceConnection $resourceConnection
     ) {
         parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper);
         $this->storeManager = $storeManager;
+        $this->resourceConnection = $resourceConnection;
     }
 
     /**
-     * @return array
+     * @inheritdoc
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @throws Exception|NoSuchEntityException
      */
-    public function getConfig()
+    public function getConfig(): array
     {
-        if (!$this->scopeConfig->getValue(
-            static::XPATH_GIFTCARDS_ACTIVE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        )) {
+        if (!$this->getActive()) {
             return [];
         }
 
-        $sorted = explode(',', (string)$this->scopeConfig->getValue(
-            self::XPATH_GIFTCARDS_SORT,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        ));
+        $sort = (string)$this->getSort();
 
-        if (!empty($sorted)) {
+        if (!empty($sort)) {
+            $sorted = explode(',', (string)$this->getSort());
             $sortedPosition = 1;
             foreach ($sorted as $cardName) {
-                $sorted_array[$cardName] = $sortedPosition++;
+                $sortedArray[$cardName] = $sortedPosition++;
             }
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
-            \Buckaroo\Magento2\Model\Method\Giftcards::PAYMENT_METHOD_CODE
-        );
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
 
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $resource      = $objectManager->get(\Magento\Framework\App\ResourceConnection::class);
-        $connection    = $resource->getConnection();
-        $tableName     = $resource->getTableName('buckaroo_magento2_giftcard');
-        $result        = $connection->fetchAll("SELECT * FROM " . $tableName);
+        $connection = $this->resourceConnection->getConnection();
+        $tableName = $this->resourceConnection->getTableName('buckaroo_magento2_giftcard');
+        $result = $connection->fetchAll("SELECT * FROM " . $tableName);
         foreach ($result as $item) {
-            $item['sort'] = isset($sorted_array[$item['label']]) ? $sorted_array[$item['label']] : '99';
+            $item['sort'] = $sortedArray[$item['label']] ?? '99';
             $allGiftCards[$item['servicecode']] = $item;
         }
 
-        $availableCards = $this->scopeConfig->getValue(
-            static::XPATH_GIFTCARDS_ALLOWED_GIFTCARDS,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
+        $availableCards = $this->getAllowedGiftcards();
 
         $url = $this->storeManager->getStore()->getBaseUrl(
-            \Magento\Framework\UrlInterface::URL_TYPE_MEDIA
+            UrlInterface::URL_TYPE_MEDIA
         );
 
-        foreach (explode(',', (string)$availableCards) as $key => $value) {
+        foreach (explode(',', (string)$availableCards) as $value) {
             $logo = $this->getLogo($value);
-            if(isset($allGiftCards[$value]['logo'])) {
+            if (isset($allGiftCards[$value]['logo'])) {
                 $logo = $url . $allGiftCards[$value]['logo'];
             }
 
             $cards[] = [
                 'code'  => $value,
-                'title' => isset($allGiftCards[$value]['label']) ? $allGiftCards[$value]['label'] : '',
+                'title' => $allGiftCards[$value]['label'] ?? '',
                 'logo'  => $logo,
-                'sort'  => isset($allGiftCards[$value]['sort']) ? $allGiftCards[$value]['sort'] : '99',
+                'sort'  => $allGiftCards[$value]['sort'] ?? '99',
             ];
         }
 
@@ -134,14 +137,15 @@ class Giftcards extends AbstractConfigProvider
         return [
             'payment' => [
                 'buckaroo' => [
-                    'groupGiftcards'   => $this->scopeConfig->getValue(
-                        static::XPATH_GIFTCARDS_GROUP_GIFTCARDS,
-                        \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-                    ),
+                    'groupGiftcards'   => $this->getGroupGiftcards(),
                     'avaibleGiftcards' => $cards,
                     'giftcards'        => [
                         'paymentFeeLabel'   => $paymentFeeLabel,
+                        'subtext'           => $this->getSubtext(),
+                        'subtext_style'     => $this->getSubtextStyle(),
+                        'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
+                        'isTestMode'        => $this->isTestMode()
                     ],
                 ],
             ],
@@ -149,50 +153,75 @@ class Giftcards extends AbstractConfigProvider
     }
 
     /**
-     * @param null|int $storeId
+     * Get Giftcards Sort Order
      *
-     * @return bool|float
+     * @param $store
+     * @return mixed|null
      */
-    public function getPaymentFee($storeId = null)
+    public function getSort($store = null)
     {
-        $paymentFee = $this->scopeConfig->getValue(
-            self::XPATH_GIFTCARDS_PAYMENT_FEE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
-
-        return $paymentFee ? $paymentFee : false;
+        return $this->getMethodConfigValue(self::XPATH_GIFTCARDS_SORT, $store);
     }
 
-    public function getAllowedCards($storeId = null)
+    /**
+     * Get Allowed Giftcards
+     *
+     * @param $store
+     * @return mixed|null
+     */
+    public function getAllowedGiftcards($store = null)
     {
-        return $this->scopeConfig->getValue(
-            self::XPATH_GIFTCARDS_ALLOWED_GIFTCARDS,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
+        return $this->getMethodConfigValue(self::XPATH_GIFTCARDS_ALLOWED_GIFTCARDS, $store);
     }
 
+    /**
+     * Get giftcard logo image
+     *
+     * @param string $code
+     * @return string
+     */
     protected function getLogo(string $code): string
     {
         $mappings = [
-            "ajaxgiftcard" => "ajaxgiftcard",
-            "boekenbon" => "boekenbon",
-            "cjpbetalen" => "cjp",
-            "digitalebioscoopbon" => "nationaletuinbon",
-            "fashioncheque" => "fashioncheque",
-            "fashionucadeaukaart" => "fashiongiftcard",
-            "nationaletuinbon" => "nationalebioscoopbon",
+            "ajaxgiftcard"               => "ajaxgiftcard",
+            "boekenbon"                  => "boekenbon",
+            "cjpbetalen"                 => "cjp",
+            "digitalebioscoopbon"        => "nationaletuinbon",
+            "fashioncheque"              => "fashioncheque",
+            "fashionucadeaukaart"        => "fashiongiftcard",
+            "nationaletuinbon"           => "nationalebioscoopbon",
             "nationaleentertainmentcard" => "nationaleentertainmentcard",
-            "podiumcadeaukaart" => "podiumcadeaukaart",
-            "sportfitcadeau" => "sport-fitcadeau",
-            "vvvgiftcard" => "vvvgiftcard"
+            "podiumcadeaukaart"          => "podiumcadeaukaart",
+            "sportfitcadeau"             => "sport-fitcadeau",
+            "vvvgiftcard"                => "vvvgiftcard"
         ];
 
-        if(isset($mappings[$code])) {
-            return  $this->getImageUrl("giftcards/{$mappings[$code]}", "svg");
+        if (isset($mappings[$code])) {
+            return $this->getImageUrl("giftcards/{$mappings[$code]}", "svg");
         }
 
-        return $this->getImageUrl("svg/giftcards","svg");
+        return $this->getImageUrl("svg/giftcards", "svg");
+    }
+
+    /**
+     * Type of the giftcard inline/redirect
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getGroupGiftcards($store = null)
+    {
+        return $this->getMethodConfigValue(self::XPATH_GIFTCARDS_GROUP_GIFTCARDS, $store);
+    }
+
+    /**
+     * Get Advanced order export for giftcards
+     *
+     * @param null|int|string $store
+     * @return bool
+     */
+    public function hasAdvancedExportGiftcards($store = null): bool
+    {
+        return (bool)$this->getMethodConfigValue(self::XPATH_ACCOUNT_ADVANCED_EXPORT_GIFTCARDS, $store);
     }
 }

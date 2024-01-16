@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,86 +17,65 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\PaypalExpress\Response;
 
-use Magento\Quote\Model\Quote;
-use Buckaroo\Magento2\Api\Data\PaypalExpress\TotalBreakdownInterface;
+use Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterface;
 use Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterfaceFactory;
+use Buckaroo\Magento2\Api\Data\PaypalExpress\TotalBreakdownInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Quote\Api\CartTotalRepositoryInterface;
+use Magento\Quote\Model\Quote;
+use Magento\Quote\Model\Quote\Address\Total;
 
 class TotalBreakdown implements TotalBreakdownInterface
 {
+    /**
+     * @var BreakdownItemInterfaceFactory
+     */
+    protected BreakdownItemInterfaceFactory $breakdownItemFactory;
 
     /**
-     *  @var \Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterfaceFactory
+     * @var Quote
      */
-    protected $breakdownItemFactory;
+    protected Quote $quote;
 
     /**
-     *  @var \Magento\Quote\Model\Quote
+     * @var CartTotalRepositoryInterface
      */
-    protected $quote;
+    protected CartTotalRepositoryInterface $cartTotalRepository;
 
-    public function __construct(Quote $quote, BreakdownItemInterfaceFactory $breakdownItemFactory)
-    {
+    /**
+     * @param Quote $quote
+     * @param BreakdownItemInterfaceFactory $breakdownItemFactory
+     * @param CartTotalRepositoryInterface $cartTotalRepository
+     */
+    public function __construct(
+        Quote $quote,
+        BreakdownItemInterfaceFactory $breakdownItemFactory,
+        CartTotalRepositoryInterface $cartTotalRepository
+    ) {
         $this->breakdownItemFactory = $breakdownItemFactory;
         $this->quote = $quote;
+        $this->cartTotalRepository = $cartTotalRepository;
     }
-    /**
-     * @return \Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterface
-     */
-    public function getItemTotal()
-    {
-        $total = $this->getTotalsOfType('subtotal');
-        return $this->breakdownItemFactory->create(
-            [
-                "total" => $total != null ? $total->getValueExclTax() + $this->getBuckarooFeeExclTax() : 0,
-                "currencyCode" => $this->quote->getQuoteCurrencyCode()
-            ]
-        );
-    }
-    /**
-     * @return \Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterface
-     */
-    public function getShipping()
-    {
-        $totals = $this->quote->getShippingAddress()->getTotals();
-        $total = isset($totals['shipping']) ? $totals['shipping'] : null;
-        return $this->breakdownItemFactory->create(
-            [
-                "total" => $total !== null ? $total->getValue() : 0,
-                "currencyCode" => $this->quote->getQuoteCurrencyCode()
-            ]
-        );
-    }
-    /**
-     * @return \Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterface
-     */
-    public function getTaxTotal()
-    {
-        $total = $this->getTotalsOfType('tax');
-        return $this->breakdownItemFactory->create(
-            [
-                "total" => $total !== null ? $total->getValue() : 0,
-                "currencyCode" => $this->quote->getQuoteCurrencyCode()
-            ]
-        );
-    }
-    /**
-     * Get total from quote of type
-     *
-     * @param string $type
-     *
-     * @return \Magento\Quote\Model\Quote\Address\Total|null
-     */
-    protected function getTotalsOfType(string $type)
-    {
-        $totals = $this->quote->getTotals();
 
-        if (isset($totals[$type])) {
-            return $totals[$type];
-        }
+    /**
+     * Get subtotal
+     *
+     * @return BreakdownItemInterface
+     */
+    public function getItemTotal(): BreakdownItemInterface
+    {
+        return $this->breakdownItemFactory->create(
+            [
+                "total" => number_format($this->quote->getGrandTotal(), 2) - $this->getTotalsOfType('shipping') - $this->getTotalsOfType('tax'),
+                "currencyCode" => $this->quote->getQuoteCurrencyCode()
+            ]
+        );
     }
+
     /**
      * Get buckaroo fee without tax
      *
@@ -110,5 +88,54 @@ class TotalBreakdown implements TotalBreakdownInterface
             return (float)$fee->getData('buckaroo_fee');
         }
         return 0;
+    }
+
+    /**
+     * Get shipping price
+     *
+     * @return BreakdownItemInterface
+     */
+    public function getShipping(): BreakdownItemInterface
+    {
+        return $this->breakdownItemFactory->create(
+            [
+                "total" => $this->getTotalsOfType('shipping'),
+                "currencyCode" => $this->quote->getQuoteCurrencyCode()
+            ]
+        );
+    }
+
+    /**
+     * Get taxes
+     *
+     * @return BreakdownItemInterface
+     */
+    public function getTaxTotal(): BreakdownItemInterface
+    {
+        return $this->breakdownItemFactory->create(
+            [
+                "total" =>  $this->getTotalsOfType('tax'),
+                "currencyCode" => $this->quote->getQuoteCurrencyCode()
+            ]
+        );
+    }
+
+    /**
+     * Get total from quote of type
+     *
+     * @param string $type
+     *
+     * @return float
+     * @throws NoSuchEntityException
+     */
+    protected function getTotalsOfType(string $type)
+    {
+        $totals = $this->cartTotalRepository->get($this->quote->getId())->getTotalSegments();
+
+        if (!isset($totals[$type])) {
+            return 0;
+        }
+
+        return round($totals[$type]->getValue(), 2);
     }
 }

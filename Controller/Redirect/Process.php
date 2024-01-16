@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,147 +17,167 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Controller\Redirect;
 
-use Buckaroo\Magento2\Logging\Log;
-use Magento\Framework\App\Request\Http as Http;
-use Magento\Sales\Api\Data\TransactionInterface;
-use Magento\Sales\Api\Data\OrderPaymentInterface;
-use Buckaroo\Magento2\Model\Method\AbstractMethod;
+use Buckaroo\Magento2\Api\PushRequestInterface;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
+use Buckaroo\Magento2\Model\BuckarooStatusCode;
+use Buckaroo\Magento2\Model\ConfigProvider\Account as AccountConfig;
+use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
+use Buckaroo\Magento2\Model\OrderStatusFactory;
+use Buckaroo\Magento2\Model\RequestPush\RequestPushFactory;
 use Buckaroo\Magento2\Model\Service\Order as OrderService;
+use Buckaroo\Magento2\Service\Push\OrderRequestService;
+use Buckaroo\Magento2\Service\Sales\Quote\Recreate;
+use Magento\Checkout\Model\Session as CheckoutSession;
+use Magento\Customer\Api\CustomerRepositoryInterface;
+use Magento\Customer\Model\ResourceModel\CustomerFactory;
+use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Framework\App\Action\Action;
+use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\Action\HttpPostActionInterface;
+use Magento\Framework\App\Request\Http as Http;
+use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\Event\ManagerInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Phrase;
+use Magento\Quote\Model\Quote;
+use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Model\Order;
+use Buckaroo\Magento2\Model\LockManagerWrapper;
 
-class Process extends \Magento\Framework\App\Action\Action
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
+class Process extends Action implements HttpPostActionInterface
 {
+    private const GENERAL_ERROR_MESSAGE = 'Unfortunately an error occurred while processing your payment. ' .
+    'Please try again. If this error persists, please choose a different payment method.';
+
     /**
-     * @var array
+     * @var Order $order
      */
-    protected $response;
+    protected Order $order;
 
     /**
-     * @var \Magento\Sales\Model\Order $order
+     * @var Quote $quote
      */
-    protected $order;
+    protected Quote $quote;
 
     /**
-     * @var \Magento\Quote\Model\Quote $quote
+     * @var OrderPaymentInterface|null
      */
-    protected $quote;
-
-    /** @var TransactionInterface */
-    private $transaction;
+    protected ?OrderPaymentInterface $payment;
 
     /**
-     * @var \Buckaroo\Magento2\Helper\Data $helper
+     * @var AccountConfig
      */
-    protected $helper;
+    protected AccountConfig $accountConfig;
 
     /**
-     * @var \Magento\Checkout\Model\Cart
+     * @var OrderRequestService
      */
-    protected $cart;
+    protected OrderRequestService $orderRequestService;
 
     /**
-     * @var \Magento\Checkout\Model\ConfigProviderInterface
+     * @var OrderStatusFactory
      */
-    protected $accountConfig;
+    protected OrderStatusFactory $orderStatusFactory;
 
     /**
-     * @var \Magento\Sales\Model\Order\Email\Sender\OrderSender
+     * @var BuckarooLoggerInterface
      */
-    protected $orderSender;
+    protected BuckarooLoggerInterface $logger;
 
     /**
-     * @var \Buckaroo\Magento2\Model\OrderStatusFactory
+     * @var CheckoutSession
      */
-    protected $orderStatusFactory;
+    protected CheckoutSession $checkoutSession;
 
     /**
-     * @var Log
+     * @var CustomerSession
      */
-    protected $logger;
+    protected CustomerSession $customerSession;
 
     /**
-     * @var \Magento\Checkout\Model\Session
+     * @var CustomerRepositoryInterface
      */
-    protected $checkoutSession;
+    protected CustomerRepositoryInterface $customerRepository;
 
     /**
-     * @var  \Magento\Customer\Model\Session
+     * @var OrderService
      */
-    public $customerSession;
-    protected $customerRepository;
-    protected $_sessionFactory;
-
-    protected $customerModel;
-    protected $customerResourceFactory;
-
-    protected $orderService;
+    protected OrderService $orderService;
 
     /**
-     * @var EventManager
+     * @var ManagerInterface
      */
-    private $eventManager;
-
-    private $quoteRecreate;
+    protected ManagerInterface $eventManager;
 
     /**
-     * @param \Magento\Framework\App\Action\Context               $context
-     * @param \Buckaroo\Magento2\Helper\Data                           $helper
-     * @param \Magento\Checkout\Model\Cart                        $cart
-     * @param \Magento\Sales\Model\Order                          $order
-     * @param \Magento\Quote\Model\Quote                          $quote
-     * @param TransactionInterface        $transaction
-     * @param Log                                                 $logger
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory          $configProviderFactory
-     * @param \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender
-     * @param \Buckaroo\Magento2\Model\OrderStatusFactory              $orderStatusFactory
-     *
-     * @throws \Buckaroo\Magento2\Exception
+     * @var Recreate
+     */
+    protected Recreate $quoteRecreate;
+
+    /**
+     * @var PushRequestInterface
+     */
+    protected PushRequestInterface $redirectRequest;
+
+    /**
+     * @var LockManagerWrapper
+     */
+    protected LockManagerWrapper $lockManager;
+
+    /**
+     * @param Context $context
+     * @param BuckarooLoggerInterface $logger
+     * @param Quote $quote
+     * @param AccountConfig $accountConfig
+     * @param OrderRequestService $orderRequestService
+     * @param OrderStatusFactory $orderStatusFactory
+     * @param CheckoutSession $checkoutSession
+     * @param CustomerSession $customerSession
+     * @param CustomerRepositoryInterface $customerRepository
+     * @param OrderService $orderService
+     * @param ManagerInterface $eventManager
+     * @param Recreate $quoteRecreate
+     * @param RequestPushFactory $requestPushFactory
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        \Buckaroo\Magento2\Helper\Data $helper,
-        \Magento\Checkout\Model\Cart $cart,
-        \Magento\Sales\Model\Order $order,
-        \Magento\Quote\Model\Quote $quote,
-        TransactionInterface $transaction,
-        Log $logger,
-        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory,
-        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
-        \Buckaroo\Magento2\Model\OrderStatusFactory $orderStatusFactory,
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Customer\Model\Session $customerSession,
-        \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository,
-        \Magento\Customer\Model\SessionFactory $sessionFactory,
-        \Magento\Customer\Model\Customer $customerModel,
-        \Magento\Customer\Model\ResourceModel\CustomerFactory $customerFactory,
+        Context $context,
+        BuckarooLoggerInterface $logger,
+        Quote $quote,
+        AccountConfig $accountConfig,
+        OrderRequestService $orderRequestService,
+        OrderStatusFactory $orderStatusFactory,
+        CheckoutSession $checkoutSession,
+        CustomerSession $customerSession,
+        CustomerRepositoryInterface $customerRepository,
         OrderService $orderService,
-        \Magento\Framework\Event\ManagerInterface $eventManager,
-        \Buckaroo\Magento2\Service\Sales\Quote\Recreate $quoteRecreate
+        ManagerInterface $eventManager,
+        Recreate $quoteRecreate,
+        RequestPushFactory $requestPushFactory,
+        LockManagerWrapper $lockManager
     ) {
         parent::__construct($context);
-        $this->helper             = $helper;
-        $this->cart               = $cart;
-        $this->order              = $order;
-        $this->quote              = $quote;
-        $this->transaction        = $transaction;
-        $this->logger             = $logger;
-        $this->orderSender        = $orderSender;
+        $this->logger = $logger;
+        $this->orderRequestService = $orderRequestService;
         $this->orderStatusFactory = $orderStatusFactory;
-        $this->checkoutSession    = $checkoutSession;
-        $this->customerSession    = $customerSession;
+        $this->checkoutSession = $checkoutSession;
+        $this->customerSession = $customerSession;
         $this->customerRepository = $customerRepository;
-        $this->_sessionFactory    = $sessionFactory;
-
-        $this->customerModel           = $customerModel;
-        $this->customerResourceFactory = $customerFactory;
-
-        $this->accountConfig = $configProviderFactory->get('account');
-
-        $this->orderService           = $orderService;
-        $this->eventManager           = $eventManager;
-        $this->quoteRecreate          = $quoteRecreate;
+        $this->accountConfig = $accountConfig;
+        $this->orderService = $orderService;
+        $this->eventManager = $eventManager;
+        $this->quoteRecreate = $quoteRecreate;
+        $this->quote = $quote;
+        $this->lockManager = $lockManager;
 
         // @codingStandardsIgnoreStart
         if (interface_exists("\Magento\Framework\App\CsrfAwareActionInterface")) {
@@ -168,194 +188,83 @@ class Process extends \Magento\Framework\App\Action\Action
             }
         }
         // @codingStandardsIgnoreEnd
+        $this->redirectRequest = $requestPushFactory->create();
     }
 
     /**
      * Process action
      *
-     * @return \Magento\Framework\App\ResponseInterface
+     * @return ResponseInterface|void
      * @throws \Exception
      */
     public function execute()
     {
-        $this->logger->addDebug(__METHOD__ . '|' . var_export($this->getRequest()->getParams(), true));
+        $this->logger->addDebug(sprintf(
+            '[REDIRECT] | [Controller] | [%s:%s] - Original Request | originalRequest: %s',
+            __METHOD__,
+            __LINE__,
+            var_export($this->redirectRequest->getOriginalRequest(), true)
+        ));
 
-        $this->response = $this->getRequest()->getParams();
-        $this->response = array_change_key_case($this->response, CASE_LOWER);
-
-        /**
-         * Check if there is a valid response. If not, redirect to home.
-         */
-        if (count($this->response) === 0 || !array_key_exists('brq_statuscode', $this->response)) {
+        if (count($this->redirectRequest->getData()) === 0 || empty($this->redirectRequest->getStatusCode())) {
             return $this->handleProcessedResponse('/');
         }
 
-        if ($this->hasPostData('brq_primary_service', 'IDIN')) {
-            if ($this->setCustomerIDIN()) {
-                $this->addSuccessMessage(__('Your iDIN verified succesfully!'));
+        $this->order = $this->orderRequestService->getOrderByRequest($this->redirectRequest);
+
+        $orderIncrementID = $this->order->getIncrementId();
+        $this->logger->addDebug(__METHOD__ . '|Lock Name| - ' . var_export($orderIncrementID, true));
+        $lockAcquired = $this->lockManager->lockOrder($orderIncrementID, 5);
+
+        if (!$lockAcquired) {
+            $this->logger->addError(__METHOD__ . '|lock not acquired|');
+            return $this->handleProcessedResponse('/');
+        }
+
+        try {
+            $statusCode = (int)$this->redirectRequest->getStatusCode();
+            if (!$this->order->getId()) {
+                $statusCode = BuckarooStatusCode::ORDER_FAILED;
             } else {
-                $this->addErrorMessage(
-                    __(
-                        'Unfortunately iDIN not verified!'
-                    )
-                );
+                $this->quote->load($this->order->getQuoteId());
             }
 
-            return $this->redirectToCheckout();
+            $this->payment = $this->order->getPayment();
+            if ($this->payment) {
+                $this->setPaymentOutOfTransit($this->payment);
+            }
+
+            $this->checkoutSession->setRestoreQuoteLastOrder(false);
+
+            if ($this->skipWaitingOnConsumerForProcessingOrder()) {
+                return $this->handleProcessedResponse('/');
+            }
+
+            if (($this->payment->getMethodInstance()->getCode() == 'buckaroo_magento2_paypal')
+                && ($statusCode == BuckarooStatusCode::PENDING_PROCESSING)
+            ) {
+                $statusCode = BuckarooStatusCode::CANCELLED_BY_USER;
+            }
+
+            $this->logger->addDebug(sprintf(
+                '[REDIRECT - %s] | [Controller] | [%s:%s] - Status Code | statusCode: %s',
+                $this->payment->getMethod(),
+                __METHOD__,
+                __LINE__,
+                $statusCode
+            ));
+
+        } catch (\Exception $e) {
+            $this->addErrorMessage('Could not process the request.');
+            $this->logger->addError(__METHOD__ . '|Exception|' . $e->getMessage());
+        } finally {
+            $this->lockManager->unlockOrder($orderIncrementID);
+            $this->logger->addDebug(__METHOD__ . '|Lock released|');
         }
 
-        $statusCode = (int) $this->response['brq_statuscode'];
-
-        $this->loadOrder();
-        $this->helper->setRestoreQuoteLastOrder(false);
-
-        if (!$this->order->getId()) {
-            $statusCode = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_ORDER_FAILED');
-        } else {
-            $this->quote->load($this->order->getQuoteId());
-        }
-
-        $payment = $this->order->getPayment();
-
-        if($payment) {
-            $this->setPaymentOutOfTransit($payment);
-        }
-
-        if (!method_exists($payment->getMethodInstance(), 'canProcessPostData')) {
-            return $this->handleProcessedResponse('/');
-        }
-
-        if (!$payment->getMethodInstance()->canProcessPostData($payment, $this->response)) {
-            return $this->handleProcessedResponse('/');
-        }
-
-        $this->logger->addDebug(__METHOD__ . '|2|' . var_export($statusCode, true));
-
-        if (($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_paypal')
-            && ($statusCode == $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING'))
-        ) {
-            $statusCode = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER');
-            $this->logger->addDebug(__METHOD__ . '|22|' . var_export($statusCode, true));
-        }
-
-        switch ($statusCode) {
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'):
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING'):
-                $debugInfo = [
-                    $this->order->getStatus(),
-                    $this->orderStatusFactory->get(
-                        $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'),
-                        $this->order
-                    ),
-                ];
-                $this->logger->addDebug(__METHOD__ . '|3|' . var_export($debugInfo, true));
-
-                if ($this->order->canInvoice()) {
-                    $this->logger->addDebug(__METHOD__ . '|31|');
-                    if ($statusCode == $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')) {
-                        //do nothing - push will change a status
-                        $this->logger->addDebug(__METHOD__ . '|32|');
-                    } else {
-                        $this->logger->addDebug(__METHOD__ . '|33|');
-                        // Set the 'Pending payment status' here
-                        $pendingStatus = $this->orderStatusFactory->get(
-                            $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING'),
-                            $this->order
-                        );
-                        if ($pendingStatus) {
-                            $this->logger->addDebug(__METHOD__ . '|34|' . var_export($pendingStatus, true));
-                            $this->order->setStatus($pendingStatus);
-                            $this->order->save();
-                        }
-                    }
-
-                }
-
-                $payment->getMethodInstance()->processCustomPostData($payment, $this->response);
-
-                /** @var \Magento\Payment\Model\MethodInterface $paymentMethod */
-                $paymentMethod = $this->order->getPayment()->getMethodInstance();
-                $store         = $this->order->getStore();
-
-                // Send order confirmation mail if we're supposed to
-                /**
-                 * @noinspection PhpUndefinedMethodInspection
-                 */
-                if (!$this->order->getEmailSent()
-                    && ($this->accountConfig->getOrderConfirmationEmail($store) === "1"
-                        || $paymentMethod->getConfigData('order_email', $store) === "1"
-                    )
-                ) {
-                    if (!($this->hasPostData('add_initiated_by_magento', 1) &&
-                        $this->hasPostData('brq_primary_service', 'KlarnaKp') &&
-                        $this->hasPostData('add_service_action_from_magento', 'reserve') &&
-                        !empty($this->response['brq_service_klarnakp_reservationnumber'])
-                    )) {
-                        if ($statusCode == $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')) {
-                            $this->logger->addDebug(__METHOD__ . '|sendemail|');
-                            $this->orderSender->send($this->order, true);
-                        }
-                    }
-                }
-
-                $pendingCode = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING');
-                if (($statusCode == $pendingCode)
-                    && !$this->hasPostData('brq_payment_method', 'sofortueberweisung')
-                ) {
-                    $this->addErrorMessage(
-                        __(
-                            'Unfortunately an error occurred while processing your payment. Please try again. If this' .
-                            ' error persists, please choose a different payment method.'
-                        )
-                    );
-                    $this->logger->addDebug(__METHOD__ . '|5|');
-
-                    $this->removeAmastyGiftcardOnFailed();
-
-                    return $this->handleProcessedResponse('/');
-                }
-
-                $this->logger->addDebug(__METHOD__ . '|51|' . var_export([
-                    $this->checkoutSession->getLastSuccessQuoteId(),
-                    $this->checkoutSession->getLastQuoteId(),
-                    $this->checkoutSession->getLastOrderId(),
-                    $this->checkoutSession->getLastRealOrderId(),
-                    $this->order->getQuoteId(),
-                    $this->order->getId(),
-                    $this->order->getIncrementId(),
-                ], true));
-
-                if (!$this->checkoutSession->getLastSuccessQuoteId() && $this->order->getQuoteId()) {
-                    $this->logger->addDebug(__METHOD__ . '|52|');
-                    $this->checkoutSession->setLastSuccessQuoteId($this->order->getQuoteId());
-                }
-                if (!$this->checkoutSession->getLastQuoteId() && $this->order->getQuoteId()) {
-                    $this->logger->addDebug(__METHOD__ . '|53|');
-                    $this->checkoutSession->setLastQuoteId($this->order->getQuoteId());
-                }
-                if (!$this->checkoutSession->getLastOrderId() && $this->order->getId()) {
-                    $this->logger->addDebug(__METHOD__ . '|54|');
-                    $this->checkoutSession->setLastOrderId($this->order->getId());
-                }
-                if (!$this->checkoutSession->getLastRealOrderId() && $this->order->getIncrementId()) {
-                    $this->logger->addDebug(__METHOD__ . '|55|');
-                    $this->checkoutSession->setLastRealOrderId($this->order->getIncrementId());
-                }
-                $this->logger->addDebug(__METHOD__ . '|6|');
-                // Redirect to success page
-                return $this->redirectSuccess();
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_ORDER_FAILED'):
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED'):
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_REJECTED'):
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER'):
-                return $this->handleFailed($statusCode);
-                break;
-                //no default
-        }
-
-        $this->logger->addDebug(__METHOD__ . '|9|');
-        return $this->_response;
+        return $this->processRedirectByStatus($statusCode);
     }
+
     /**
      * Handle final response
      *
@@ -364,190 +273,198 @@ class Process extends \Magento\Framework\App\Action\Action
      *
      * @return ResponseInterface
      */
-    public function handleProcessedResponse($path, $arguments = [])
+    public function handleProcessedResponse(string $path, array $arguments = []): ResponseInterface
     {
-        $this->logger->addDebug(__METHOD__ . '|15|');
         return $this->_redirect($path, $arguments);
     }
-    /**
-     * Get order
-     *
-     * @return \Magento\Sales\Api\Data\OrderInterface
-     */
-    public function getOrder()
-    {
-        return $this->order;
-    }
-    /**
-     * Add error message to be displayed to the user
-     *
-     * @param string $message
-     *
-     * @return void
-     */
-    public function addErrorMessage(string $message)
-    {
-        $this->messageManager->addErrorMessage($message);
-    }
-    /**
-     * Add success message to be displayed to the user
-     *
-     * @param string $message
-     *
-     * @return void
-     */
-    public function addSuccessMessage(string $message)
-    {
-        $this->messageManager->addSuccessMessage($message);
-    }
 
-    /**
-     * Get response parameters
-     *
-     * @return array
-     */
-    public function getResponseParameters()
-    {
-        return $this->response;
-    }
     /**
      * Set flag if user is on the payment provider page
      *
      * @param OrderPaymentInterface $payment
-     *
      * @return void
+     * @throws \Exception
      */
-    protected function setPaymentOutOfTransit(OrderPaymentInterface $payment)
+    protected function setPaymentOutOfTransit(OrderPaymentInterface $payment): void
     {
-        $payment
-        ->setAdditionalInformation(AbstractMethod::BUCKAROO_PAYMENT_IN_TRANSIT, false)
-        ->save();
+        $payment->setAdditionalInformation(BuckarooAdapter::BUCKAROO_PAYMENT_IN_TRANSIT, false);
     }
-    protected function handleFailed($statusCode)
+
+    /**
+     * Skip process redirect for Processing Order when the status of the request is WaitingOnConsumer
+     *
+     * @return bool
+     */
+    public function skipWaitingOnConsumerForProcessingOrder(): bool
     {
-        $this->logger->addDebug(__METHOD__ . '|7|');
+        if (in_array(
+            $this->payment->getMethod(),
+            [
+                'buckaroo_magento2_creditcards',
+                'buckaroo_magento2_paylink',
+                'buckaroo_magento2_payperemail',
+                'buckaroo_magento2_transfer'
+            ]
+        )) {
+            if ($this->payment->getAdditionalInformation(BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY)
+                != $this->redirectRequest->getTransactions()) {
+                return true;
+            }
 
-        $this->eventManager->dispatch('buckaroo_process_handle_failed_before');
-
-        $this->removeAmastyGiftcardOnFailed();
-
-        if (!$this->getSkipHandleFailedRecreate()) {
-            if (!$this->quoteRecreate->recreate($this->quote)) {
-                $this->logging->addError('Could not recreate the quote.');
+            $orderState = $this->order->getState();
+            if ($orderState == Order::STATE_PROCESSING
+                && $this->redirectRequest->getStatusCode() == BuckarooStatusCode::WAITING_ON_CONSUMER) {
+                return true;
             }
         }
 
-        /*
-         * Something went wrong, so we're going to have to
-         * 1) recreate the quote for the user
-         * 2) cancel the order we had to create to even get here
-         * 3) redirect back to the checkout page to offer the user feedback & the option to try again
-         */
-
-        // StatusCode specified error messages
-        $statusCodeAddErrorMessage                                                                 = [];
-        $statusCodeAddErrorMessage[$this->helper->getStatusCode('BUCKAROO_MAGENTO2_ORDER_FAILED')] =
-            'Unfortunately an error occurred while processing your payment. Please try again. If this' .
-            ' error persists, please choose a different payment method.';
-        $statusCodeAddErrorMessage[$this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED')] =
-            'Unfortunately an error occurred while processing your payment. Please try again. If this' .
-            ' error persists, please choose a different payment method.';
-        $statusCodeAddErrorMessage[$this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_REJECTED')] =
-            'Unfortunately an error occurred while processing your payment. Please try again. If this' .
-            ' error persists, please choose a different payment method.';
-        $statusCodeAddErrorMessage[
-            $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER')
-        ] = 'According to our system, you have canceled the payment. If this' .
-            ' is not the case, please contact us.';
-
-        $this->addErrorMessage(
-            __(
-                $statusCodeAddErrorMessage[$statusCode]
-            )
-        );
-
-        //skip cancel order for PPE
-        if (isset($this->response['add_frompayperemail'])) {
-            return $this->redirectFailure();
-        }
-
-        if (!$this->cancelOrder($statusCode)) {
-            $this->logger->addError('Could not cancel the order.');
-        }
-        $this->logger->addDebug(__METHOD__ . '|8|');
-        return $this->redirectFailure();
+        return false;
     }
 
     /**
-     * @throws \Buckaroo\Magento2\Exception
+     * Processes a redirect based on the given status code.
+     *
+     * @param int $statusCode
+     * @return ResponseInterface
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
-    private function loadOrder()
+    private function processRedirectByStatus(int $statusCode): ResponseInterface
     {
-        $brqOrderId = false;
-
-        if (isset($this->response['brq_invoicenumber']) && !empty($this->response['brq_invoicenumber'])) {
-            $brqOrderId = $this->response['brq_invoicenumber'];
+        if ($statusCode == BuckarooStatusCode::SUCCESS) {
+            return $this->processSucceededRedirect($statusCode);
+        } elseif ($statusCode == BuckarooStatusCode::PENDING_PROCESSING) {
+            return $this->processPendingRedirect($statusCode);
+        } elseif (in_array($statusCode, [
+            BuckarooStatusCode::ORDER_FAILED,
+            BuckarooStatusCode::FAILED,
+            BuckarooStatusCode::REJECTED,
+            BuckarooStatusCode::CANCELLED_BY_USER
+        ])) {
+            return $this->handleFailed($statusCode);
         }
 
-        if (isset($this->response['brq_ordernumber']) && !empty($this->response['brq_ordernumber'])) {
-            $brqOrderId = $this->response['brq_ordernumber'];
-        }
-
-        $this->order->loadByIncrementId($brqOrderId);
-
-        if (!$this->order->getId()) {
-            $this->logger->addDebug('Order could not be loaded by brq_invoicenumber or brq_ordernumber');
-            $this->order = $this->getOrderByTransactionKey();
-        }
+        return $this->_response;
     }
 
     /**
-     * @return bool
-     * @throws \Buckaroo\Magento2\Exception
-     */
-    private function getOrderByTransactionKey()
-    {
-        $trxId = '';
-
-        if (isset($this->response['brq_transactions']) && !empty($this->response['brq_transactions'])) {
-            $trxId = $this->response['brq_transactions'];
-        }
-
-        if (isset($this->response['brq_datarequest']) && !empty($this->response['brq_datarequest'])) {
-            $trxId = $this->response['brq_datarequest'];
-        }
-
-        $this->transaction->load($trxId, 'txn_id');
-        $order = $this->transaction->getOrder();
-
-        if (!$order) {
-            throw new \Buckaroo\Magento2\Exception(__('There was no order found by transaction Id'));
-        }
-
-        return $order;
-    }
-
-    /**
-     * If possible, cancel the order
+     * Processes a successful redirect based on the given status code.
+     *
+     *  - Sends a Klarna KP order confirmation using the status code.
+     *  - Sets the last quote and order.
+     *  - Returns a successful redirect response.
      *
      * @param $statusCode
-     *
-     * @return bool
+     * @return ResponseInterface
+     * @throws \Exception
      */
-    protected function cancelOrder($statusCode)
+    private function processSucceededRedirect($statusCode): ResponseInterface
     {
-        return $this->orderService->cancel($this->order, $statusCode);
+        $this->sendKlarnaKpOrderConfirmation($statusCode);
+        $this->setLastQuoteOrder();
+
+        return $this->redirectSuccess();
+    }
+
+    /**
+     * Sends a Klarna KP order confirmation based on the given status code.
+     *
+     * - Retrieves the payment method and store from the order object.
+     * - Checks if the order confirmation email has not been sent and if the order confirmation email
+     *   setting is enabled either globally or specifically for the payment method.
+     * - Validates if the redirect request contains specific post data and additional information related to Klarna KP
+     * - If all conditions are met, and the status code is SUCCESS, sends the order confirmation email.
+     *
+     * @param int $statusCode The status code representing the result of a payment or related process.
+     * @return void
+     * @throws \Exception If an exception occurs within the called methods.
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     */
+    private function sendKlarnaKpOrderConfirmation(int $statusCode): void
+    {
+        $paymentMethod = $this->payment->getMethodInstance();
+        $store = $this->order->getStore();
+
+        $isKlarnaKpReserve = ($this->redirectRequest->hasPostData('primary_service', 'KlarnaKp')
+            && $this->redirectRequest->hasAdditionalInformation('service_action_from_magento', 'reserve')
+            && !empty($this->redirectRequest->getServiceKlarnakpReservationnumber()));
+
+        if(empty($this->order->getBuckarooReservationNumber()) && $isKlarnaKpReserve)
+        {
+            $this->order->setBuckarooReservationNumber($this->redirectRequest->getServiceKlarnakpReservationnumber());
+            $this->order->save();
+        }
+
+        if (!$this->order->getEmailSent()
+            && (
+                $this->accountConfig->getOrderConfirmationEmail($store) === "1"
+                || $paymentMethod->getConfigData('order_email', $store) === "1"
+            )
+            && (!($this->redirectRequest->hasAdditionalInformation('initiated_by_magento', 1)
+                && $isKlarnaKpReserve
+                && $statusCode == BuckarooStatusCode::SUCCESS)
+            )
+        ) {
+            $this->logger->addDebug(sprintf(
+                '[REDIRECT - %s] | [Controller] | [%s:%s] - Send Klarna Reservation Mail',
+                $this->payment->getMethod(),
+                __METHOD__,
+                __LINE__
+            ));
+            $this->orderRequestService->sendOrderEmail($this->order, true);
+        }
+    }
+
+    /**
+     * Sets the last quote and order information in the checkout session.
+     *
+     *  - Logs the current status of the last successful quote ID, last quote ID, last order ID
+     *  - If the last successful quote ID, last quote ID, last order ID, or last real order ID is not set
+     *    in the checkout session, it updates them with the corresponding information from the order object.
+     *
+     * @return void
+     */
+    private function setLastQuoteOrder(): void
+    {
+        $this->logger->addDebug(sprintf(
+            '[REDIRECT - %s] | [Controller] | [%s:%s] - Set Last Quote Order | currentQuoteOrder: %s',
+            $this->payment->getMethod(),
+            __METHOD__,
+            __LINE__,
+            var_export([
+                $this->checkoutSession->getLastSuccessQuoteId(),
+                $this->checkoutSession->getLastQuoteId(),
+                $this->checkoutSession->getLastOrderId(),
+                $this->checkoutSession->getLastRealOrderId(),
+                $this->order->getQuoteId(),
+                $this->order->getId(),
+                $this->order->getIncrementId(),
+            ], true)
+        ));
+
+        if (!$this->checkoutSession->getLastSuccessQuoteId() && $this->order->getQuoteId()) {
+            $this->checkoutSession->setLastSuccessQuoteId($this->order->getQuoteId());
+        }
+        if (!$this->checkoutSession->getLastQuoteId() && $this->order->getQuoteId()) {
+            $this->checkoutSession->setLastQuoteId($this->order->getQuoteId());
+        }
+        if (!$this->checkoutSession->getLastOrderId() && $this->order->getId()) {
+            $this->checkoutSession->setLastOrderId($this->order->getId());
+        }
+        if (!$this->checkoutSession->getLastRealOrderId() && $this->order->getIncrementId()) {
+            $this->checkoutSession->setLastRealOrderId($this->order->getIncrementId());
+        }
     }
 
     /**
      * Redirect to Success url, which means everything seems to be going fine
      *
-     * @return \Magento\Framework\App\ResponseInterface
+     * @return ResponseInterface
      */
-    protected function redirectSuccess()
+    protected function redirectSuccess(): ResponseInterface
     {
-        $this->logger->addDebug(__METHOD__ . '|1|');
-
         $this->eventManager->dispatch('buckaroo_process_redirect_success_before');
 
         $store = $this->order->getStore();
@@ -561,166 +478,145 @@ class Process extends \Magento\Framework\App\Action\Action
 
         $this->quote->setReservedOrderId(null);
 
-        if (!empty($this->response['brq_payment_method'])
-            &&
-            ($this->response['brq_payment_method'] == 'applepay')
-            &&
-            !empty($this->response['brq_statuscode'])
-            &&
-            ($this->response['brq_statuscode'] == '190')
-            &&
-            !empty($this->response['brq_test'])
-            &&
-            ($this->response['brq_test'] == 'true')
-        ) {
-            $this->redirectSuccessApplePay();
-        }
+        $this->redirectSuccessApplePay();
 
-        $this->logger->addDebug(__METHOD__ . '|2|' . var_export($url, true));
+        $this->logger->addDebug(sprintf(
+            '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect Success | redirectURL: %s',
+            $this->payment->getMethod(),
+            __METHOD__,
+            __LINE__,
+            $url,
+        ));
 
         return $this->handleProcessedResponse($url);
     }
 
-    protected function redirectSuccessApplePay()
-    {
-        $this->logger->addDebug(__METHOD__);
-
-        $this->checkoutSession
-            ->setLastQuoteId($this->order->getQuoteId())
-            ->setLastSuccessQuoteId($this->order->getQuoteId())
-            ->setLastOrderId($this->order->getId())
-            ->setLastRealOrderId($this->order->getIncrementId())
-            ->setLastOrderStatus($this->order->getStatus());
-    }
-
     /**
-     * Redirect to Failure url, which means we've got a problem
+     * Add success message to be displayed to the user
      *
-     * @return \Magento\Framework\App\ResponseInterface
+     * @param string|Phrase $message
+     *
+     * @return void
      */
-    protected function redirectFailure()
+    public function addSuccessMessage($message): void
     {
-        $store = $this->order->getStore();
-        $this->logger->addDebug('start redirectFailure');
-        if ($this->accountConfig->getFailureRedirectToCheckout($store)) {
-            $this->logger->addDebug('getFailureRedirectToCheckout');
-            if (!$this->customerSession->isLoggedIn() && ($this->order->getCustomerId() > 0)) {
-                $this->logger->addDebug('not isLoggedIn');
-                $this->logger->addDebug('getCustomerId > 0');
-                try {
-                    $customer = $this->customerRepository->getById($this->order->getCustomerId());
-                    $this->customerSession->setCustomerDataAsLoggedIn($customer);
-
-                    if (!$this->checkoutSession->getLastRealOrderId() && $this->order->getIncrementId()) {
-                        $this->checkoutSession->setLastRealOrderId($this->order->getIncrementId());
-                        $this->logger->addDebug(__METHOD__ . '|setLastRealOrderId|');
-                        if (!$this->getSkipHandleFailedRecreate()) {
-                            $this->checkoutSession->restoreQuote();
-                            $this->logger->addDebug(__METHOD__ . '|restoreQuote|');
-                        }
-                    }
-                    $this->setSkipHandleFailedRecreate(false);
-                } catch (\Exception $e) {
-                    $this->logger->addError('Could not load customer');
-                }
-            }
-            $this->logger->addDebug('ready for redirect');
-            return $this->handleProcessedResponse('checkout', ['_fragment' => 'payment', '_query' => ['bk_e' => 1]]);
-        }
-
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $url = $this->accountConfig->getFailureRedirect($store);
-
-        return $this->handleProcessedResponse($url);
-    }
-
-    protected function redirectToCheckout()
-    {
-        $store = $this->order->getStore();
-        $this->logger->addDebug('start redirectToCheckout');
-        if (!$this->customerSession->isLoggedIn()) {
-            $this->logger->addDebug('not isLoggedIn');
-            if ($this->order->getCustomerId() > 0) {
-                $this->logger->addDebug('getCustomerId > 0');
-                try {
-                    $customer = $this->customerRepository->getById($this->order->getCustomerId());
-                    $this->customerSession->setCustomerDataAsLoggedIn($customer);
-
-                    if (!$this->checkoutSession->getLastRealOrderId() && $this->order->getIncrementId()) {
-                        $this->checkoutSession->setLastRealOrderId($this->order->getIncrementId());
-                        $this->logger->addDebug(__METHOD__ . '|setLastRealOrderId|');
-                        $this->checkoutSession->restoreQuote();
-                        $this->logger->addDebug(__METHOD__ . '|restoreQuote|');
-                    } elseif ($this->hasPostData('brq_primary_service', 'IDIN')) {
-                        $this->checkoutSession->restoreQuote();
-                    }
-
-                } catch (\Exception $e) {
-                    $this->logger->addError('Could not load customer');
-                }
-            }
-        }
-        $this->logger->addDebug('ready for redirect');
-        return $this->handleProcessedResponse('checkout', ['_query' => ['bk_e' => 1]]);
+        $this->messageManager->addSuccessMessage($message);
     }
 
     /**
-     * @param $name
-     * @param $value
-     * @return bool
+     * Redirect if the transaction is of the success Apple Pay type
+     *
+     * @return void
      */
-    private function hasPostData($name, $value)
+    protected function redirectSuccessApplePay(): void
     {
-        if (is_array($value) &&
-            isset($this->response[$name]) &&
-            in_array($this->response[$name], $value)
+        if ($this->redirectRequest->hasPostData('payment_method', 'applepay')
+            && $this->redirectRequest->hasPostData('status_code', '190')
+            && $this->redirectRequest->hasPostData('test', 'true')
         ) {
-            return true;
+            $this->checkoutSession
+                ->setLastQuoteId($this->order->getQuoteId())
+                ->setLastSuccessQuoteId($this->order->getQuoteId())
+                ->setLastOrderId($this->order->getId())
+                ->setLastRealOrderId($this->order->getIncrementId())
+                ->setLastOrderStatus($this->order->getStatus());
         }
-
-        if (isset($this->response[$name]) &&
-            $this->response[$name] == $value
-        ) {
-            return true;
-        }
-
-        return false;
     }
 
-    private function setCustomerIDIN()
+    /**
+     * Processes a pending redirect based on the given status code.
+     *
+     *  - If the order can be invoiced, it sets the 'Pending payment status' and saves the order.
+     *  - Sends a Klarna KP order confirmation using the status code.
+     *  - If the redirect request does not contain specific post data for the 'sofortueberweisung' payment method,
+     *    it adds an error message, removes an Amasty gift card if failed, and redirect to home.
+     *  - Sets the last quote and order.
+     *  - Returns a successful redirect response.
+     *
+     * @param $statusCode
+     * @return ResponseInterface
+     * @throws LocalizedException
+     * @throws \Exception
+     */
+    private function processPendingRedirect($statusCode): ResponseInterface
     {
-        if (isset($this->response['brq_service_idin_consumerbin'])
-            && !empty($this->response['brq_service_idin_consumerbin'])
-            && isset($this->response['brq_service_idin_iseighteenorolder'])
-            && $this->response['brq_service_idin_iseighteenorolder'] == 'True'
-        ) {
-            $this->checkoutSession->setCustomerIDIN($this->response['brq_service_idin_consumerbin']);
-            $this->checkoutSession->setCustomerIDINIsEighteenOrOlder(true);
-            if (isset($this->response['add_idin_cid']) && !empty($this->response['add_idin_cid'])) {
-                $customerNew  = $this->customerModel->load((int) $this->response['add_idin_cid']);
-                $customerData = $customerNew->getDataModel();
-                $customerData->setCustomAttribute('buckaroo_idin', $this->response['brq_service_idin_consumerbin']);
-                $customerData->setCustomAttribute('buckaroo_idin_iseighteenorolder', 1);
-                $customerNew->updateData($customerData);
-                $customerResource = $this->customerResourceFactory->create();
-                $customerResource->saveAttribute($customerNew, 'buckaroo_idin');
-                $customerResource->saveAttribute($customerNew, 'buckaroo_idin_iseighteenorolder');
+        if ($this->order->canInvoice()) {
+            $pendingStatus = $this->orderStatusFactory->get(
+                BuckarooStatusCode::PENDING_PROCESSING,
+                $this->order
+            );
+            if ($pendingStatus) {
+                $this->logger->addDebug(sprintf(
+                    '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect Pending Set Status | pendingStatus: %s',
+                    $this->payment->getMethod(),
+                    __METHOD__,
+                    __LINE__,
+                    var_export($pendingStatus, true),
+                ));
+                $this->order->setStatus($pendingStatus);
+                $this->order->save();
             }
-            return true;
         }
-        return false;
+
+        $this->sendKlarnaKpOrderConfirmation($statusCode);
+
+        if (!$this->redirectRequest->hasPostData('payment_method', 'sofortueberweisung')) {
+            $this->addErrorMessage(__(self::GENERAL_ERROR_MESSAGE));
+
+            $this->logger->addDebug(sprintf(
+                '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect Pending NOT Sofort - Remove Coupon & Giftcard',
+                $this->payment->getMethod(),
+                __METHOD__,
+                __LINE__
+            ));
+
+            $this->removeCoupon();
+            $this->removeAmastyGiftcardOnFailed();
+
+            return $this->handleProcessedResponse('/');
+        }
+
+        $this->setLastQuoteOrder();
+
+        return $this->redirectSuccess();
     }
 
-    public function getSkipHandleFailedRecreate()
+    /**
+     * Add error message to be displayed to the user
+     *
+     * @param string|Phrase $message
+     *
+     * @return void
+     */
+    public function addErrorMessage($message): void
     {
-        return false;
+        $this->messageManager->addErrorMessage($message);
     }
 
-    public function setSkipHandleFailedRecreate($value)
+    /**
+     * Remove coupon from failed order if magento enterprise
+     *
+     * @return void
+     */
+    protected function removeCoupon()
     {
-        return true;
+        if (method_exists($this->order, 'getCouponCode')) {
+            $couponCode = $this->order->getCouponCode();
+            $couponFactory = $this->_objectManager->get(\Magento\SalesRule\Model\CouponFactory::class);
+            if (!(is_object($couponFactory) && method_exists($couponFactory, 'load'))) {
+                return;
+            }
+
+            $coupon = $couponFactory->load($couponCode, 'code');
+            $resourceModel = $this->_objectManager->get(\Magento\SalesRule\Model\Spi\CouponResourceInterface::class);
+            if (!(is_object($resourceModel) && method_exists($resourceModel, 'delete'))) {
+                return;
+            }
+
+            if (is_int($coupon->getCouponId())) {
+                $resourceModel->delete($coupon);
+            }
+        }
     }
 
     /**
@@ -728,13 +624,16 @@ class Process extends \Magento\Framework\App\Action\Action
      *
      * @return void
      */
-    protected function removeAmastyGiftcardOnFailed()
+    protected function removeAmastyGiftcardOnFailed(): void
     {
-        $class = \Amasty\GiftCardAccount\Model\GiftCardAccount\Repository::class;
-        if (class_exists($class)) {
+        if (class_exists(\Amasty\GiftCardAccount\Model\GiftCardAccount\Repository::class)) {
+            $giftcardAccountRepository = $this->_objectManager->get(
+                \Amasty\GiftCardAccount\Model\GiftCardAccount\Repository::class
+            );
 
-            $giftcardAccountRepository = $this->_objectManager->get($class);
-            $giftcardOrderRepository = $this->_objectManager->get(\Amasty\GiftCardAccount\Model\GiftCardExtension\Order\Repository::class);
+            $giftcardOrderRepository = $this->_objectManager->get(
+                \Amasty\GiftCardAccount\Model\GiftCardExtension\Order\Repository::class/** @phpstan-ignore-line */
+            );
 
             try {
                 $giftcardOrder = $giftcardOrderRepository->getByOrderId($this->order->getId());
@@ -748,9 +647,255 @@ class Process extends \Magento\Framework\App\Action\Action
                     $giftcardAccountRepository->save($giftcard);
                 }
             } catch (\Throwable $th) {
-                $this->logger->addDebug($th->getMessage());
+                $this->logger->addError(sprintf(
+                    '[REDIRECT - %s] | [Controller] | [%s:%s] - Remove Amasty Giftcard | [ERROR]: %s',
+                    $this->payment->getMethod(),
+                    __METHOD__,
+                    __LINE__,
+                    $th->getMessage()
+                ));
                 return;
             }
         }
+    }
+
+    /**
+     * Handle failed transactions
+     *
+     * @param int|null $statusCode
+     * @return ResponseInterface
+     * @throws \Magento\Framework\Exception\NoSuchEntityException|\Exception
+     */
+    protected function handleFailed($statusCode): ResponseInterface
+    {
+        $this->eventManager->dispatch('buckaroo_process_handle_failed_before');
+
+        $this->removeAmastyGiftcardOnFailed();
+
+        if (!$this->getSkipHandleFailedRecreate()
+            && (!$this->quoteRecreate->recreate($this->quote))) {
+            $this->logger->addError(sprintf(
+                '[REDIRECT - %s] | [Controller] | [%s:%s] - Could not Recreate Quote on Failed ',
+                $this->payment->getMethod(),
+                __METHOD__,
+                __LINE__
+            ));
+        }
+
+        /*
+         * Something went wrong, so we're going to have to
+         * 1) recreate the quote for the user
+         * 2) cancel the order we had to create to even get here
+         * 3) redirect back to the checkout page to offer the user feedback & the option to try again
+         */
+        $this->addErrorMessageByStatus($statusCode);
+
+        //skip cancel order for PPE
+        if (!empty($this->redirectRequest->getAdditionalInformation('frompayperemail'))) {
+            return $this->redirectFailure();
+        }
+
+        if (!$this->cancelOrder($statusCode)) {
+            $this->logger->addError(sprintf(
+                '[REDIRECT - %s] | [Controller] | [%s:%s] - Could not Cancel the Order.',
+                $this->payment->getMethod(),
+                __METHOD__,
+                __LINE__
+            ));
+        }
+
+        $this->logger->addDebug(sprintf(
+            '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect Failure',
+            $this->payment->getMethod(),
+            __METHOD__,
+            __LINE__
+        ));
+
+        return $this->redirectFailure();
+    }
+
+    /**
+     * Function used by external plugins to skip recreate quote
+     *
+     * @return false
+     */
+    public function getSkipHandleFailedRecreate()
+    {
+        return false;
+    }
+
+    /**
+     * Adds an error message to the session based on the given status code.
+     *
+     * @param int $statusCode
+     * @return void
+     */
+    public function addErrorMessageByStatus(int $statusCode): void
+    {
+        $statusCodeAddErrorMessage = [];
+        $statusCodeAddErrorMessage[BuckarooStatusCode::ORDER_FAILED] = __(self::GENERAL_ERROR_MESSAGE);
+        $statusCodeAddErrorMessage[BuckarooStatusCode::FAILED] = __(self::GENERAL_ERROR_MESSAGE);
+        $statusCodeAddErrorMessage[BuckarooStatusCode::REJECTED] = __(self::GENERAL_ERROR_MESSAGE);
+        $statusCodeAddErrorMessage[BuckarooStatusCode::CANCELLED_BY_USER]
+            = __('According to our system, you have canceled the payment. If this is not the case, please contact us.');
+
+        $this->addErrorMessage(__($statusCodeAddErrorMessage[$statusCode]));
+    }
+
+    /**
+     * Redirect to Failure url, which means we've got a problem
+     *
+     * @return ResponseInterface
+     * @throws \Exception
+     */
+    protected function redirectFailure(): ResponseInterface
+    {
+        $store = $this->order->getStore();
+        if ($this->accountConfig->getFailureRedirectToCheckout($store)) {
+            return $this->redirectOnCheckoutForFailedTransaction();
+        }
+
+        $url = $this->accountConfig->getFailureRedirect($store);
+
+        return $this->handleProcessedResponse($url);
+    }
+
+    /**
+     * Redirects to the checkout page for a failed transaction.
+     *
+     * - Logs the attempt to redirect to checkout for a failed transaction.
+     * - If the customer is not logged in, and there's an associated customer ID with the order,
+     *   it attempts to retrieve the customer, log them in, and set necessary session data.
+     * - If the last real order ID is not set in the checkout session, and the order has an increment ID,
+     *   it sets the last real order ID and may restore the quote.
+     * - Finally, it handles the processed response for a redirect to the checkout page, specifically
+     *   to the payment section, with a query parameter indicating an error.
+     *
+     * @return ResponseInterface
+     * @throws \Exception
+     */
+    private function redirectOnCheckoutForFailedTransaction(): ResponseInterface
+    {
+        $this->setCustomerAndRestoreQuote('failed');
+
+        $this->logger->addDebug(sprintf(
+            '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect Failure To Checkout',
+            $this->payment->getMethod(),
+            __METHOD__,
+            __LINE__
+        ));
+
+        return $this->handleProcessedResponse('checkout', ['_fragment' => 'payment', '_query' => ['bk_e' => 1]]);
+    }
+
+    /**
+     * Set customer if it is set on order and not on session and restore quote
+     *
+     * @param string $status
+     * @return void
+     */
+    protected function setCustomerAndRestoreQuote(string $status): void
+    {
+        if (!$this->customerSession->isLoggedIn() && $this->order->getCustomerId() > 0) {
+            $this->logger->addDebug(sprintf(
+                '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect %s To Checkout - Customer is not logged in',
+                $this->payment->getMethod(),
+                __METHOD__,
+                __LINE__,
+                $status
+            ));
+            try {
+                $customer = $this->customerRepository->getById($this->order->getCustomerId());
+                $this->customerSession->setCustomerDataAsLoggedIn($customer);
+
+                if (!$this->checkoutSession->getLastRealOrderId() && $this->order->getIncrementId()) {
+                    $this->checkoutSession->setLastRealOrderId($this->order->getIncrementId());
+                    if ($status == 'success' || !$this->getSkipHandleFailedRecreate()) {
+                        $this->checkoutSession->restoreQuote();
+                        $this->logger->addDebug(sprintf(
+                            '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect %s To Checkout - Restore Quote',
+                            $this->payment->getMethod(),
+                            __METHOD__,
+                            __LINE__,
+                            $status
+                        ));
+                    }
+                    if ($status == 'failed') {
+                        $this->setSkipHandleFailedRecreate();
+                    }
+                }
+            } catch (\Exception $e) {
+                $this->logger->addError(sprintf(
+                    '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect %s To Checkout ' .
+                    '- Could not load customer | [ERROR]: %s',
+                    $this->payment->getMethod(),
+                    __METHOD__,
+                    __LINE__,
+                    $status,
+                    $e->getMessage()
+                ));
+            }
+        }
+    }
+
+    /**
+     * Set skip recreating quote on failed transaction
+     *
+     * @return true
+     */
+    public function setSkipHandleFailedRecreate()
+    {
+        return true;
+    }
+
+    /**
+     * If possible, cancel the order
+     *
+     * @param int|null $statusCode
+     * @return bool
+     * @throws LocalizedException
+     */
+    protected function cancelOrder(?int $statusCode): bool
+    {
+        return $this->orderService->cancel($this->order, $statusCode);
+    }
+
+    /**
+     * Get order
+     *
+     * @return OrderInterface
+     */
+    public function getOrder()
+    {
+        return $this->order;
+    }
+
+    /**
+     * Get Response Parameters
+     *
+     * @return array
+     */
+    public function getResponseParameters()
+    {
+        return $this->redirectRequest->getData();
+    }
+
+    /**
+     * Create redirect response
+     *
+     * @return ResponseInterface
+     */
+    protected function redirectToCheckout(): ResponseInterface
+    {
+        $this->logger->addDebug(sprintf(
+            '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect To Checkout',
+            $this->payment->getMethod(),
+            __METHOD__,
+            __LINE__
+        ));
+
+        $this->setCustomerAndRestoreQuote('success');
+
+        return $this->handleProcessedResponse('checkout', ['_query' => ['bk_e' => 1]]);
     }
 }

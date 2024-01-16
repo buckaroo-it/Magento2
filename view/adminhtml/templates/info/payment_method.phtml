@@ -23,13 +23,13 @@
  * @var $block \Buckaroo\Magento2\Block\Info
  */
 ?>
-<?php /** @var \Buckaroo\Magento2\Model\Method\AbstractMethod $method */ ?>
+<?php /** @var \Buckaroo\Magento2\Model\Method\BuckarooAdapter $method */ ?>
 <?php
 if ($giftCards = $block->getGiftCards()) {
     foreach ($giftCards as $giftCard) { ?>
         <div class="bk-payment-wrap">
             <div class="bk-img-wrap">
-                <img src=" <?php echo $block->escapeHtml($block->getGifcardLogo($giftCard['code'])) ?>" alt=""/>
+                <img src=" <?php echo $block->escapeHtml($block->getGiftcardLogo($giftCard['code'])) ?>" alt=""/>
             </div>
             <div class="bk-label-wrap">
             <?php echo $block->escapeHtml($giftCard['label']) ?>
@@ -58,3 +58,24 @@ if ($method = $block->getPayPerEmailMethod()) {?>
         <?php echo $block->escapeHtml($block->getMethod()->getTitle()) ?>
     </div>
 </div>
+
+<?php if ($specificPaymentDetails = $block->getSpecificPaymentDetails()) : ?>
+    <div class="bk-payment-wrap">
+        <?php foreach ($specificPaymentDetails as $label => $value) : ?>
+            <?= $block->escapeHtml($label) ?>:
+            <?= $block->escapeHtml(implode(' ', $block->getValueAsArray($value))) ?>
+            <br>
+        <?php endforeach; ?>
+    </div>
+<?php endif; ?>
+
+<?php if ($specificPaymentDetails = $block->getSpecificInformation()) : ?>
+    <div class="bk-payment-wrap">
+        <?php foreach ($specificPaymentDetails as $label => $value) : ?>
+            <?= $block->escapeHtml($label) ?>:
+            <?= $block->escapeHtml(implode(' ', $block->getValueAsArray($value))) ?>
+            <br>
+        <?php endforeach; ?>
+    </div>
+<?php endif; ?>
+

@@ -39,7 +39,7 @@
         <payment>
             <buckaroo_magento2_ideal>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Ideal</model>
+                <model>IdealFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo iDEAL</title>
                 <allowspecific>0</allowspecific>
@@ -49,25 +49,49 @@
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
+                <can_authorize>0</can_authorize>
+                <can_capture>0</can_capture>
+                <can_capture_partial>0</can_capture_partial>
+                <can_order>1</can_order>
+                <can_void>1</can_void>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_use_internal>1</can_use_internal>
+                <can_use_checkout>1</can_use_checkout>
+                <is_gateway>1</is_gateway>
+                <show_issuers>1</show_issuers>
+                <privateInfoKeys></privateInfoKeys>
+                <paymentInfoKeys>buckaroo_original_transaction_key</paymentInfoKeys>
+                <show_issuers>1</show_issuers>
             </buckaroo_magento2_ideal>
 
-            <buckaroo_magento2_idealprocessing>
+            <buckaroo_magento2_paybybank>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\IdealProcessing</model>
+                <model>PayByBankFacade</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo iDEAL Processing</title>
+                <title>Buckaroo PayByBank</title>
                 <allowspecific>0</allowspecific>
-                <sort_order>10</sort_order>
+                <sort_order>350</sort_order>
                 <order_email>1</order_email>
                 <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
-            </buckaroo_magento2_idealprocessing>
+                <can_authorize>0</can_authorize>
+                <can_capture>0</can_capture>
+                <can_capture_partial>0</can_capture_partial>
+                <can_order>1</can_order>
+                <can_void>1</can_void>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_use_internal>1</can_use_internal>
+                <can_use_checkout>1</can_use_checkout>
+                <is_gateway>1</is_gateway>
+            </buckaroo_magento2_paybybank>
 
             <buckaroo_magento2_sepadirectdebit>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\SepaDirectDebit</model>
+                <model>SepaDirectDebitFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo SEPA Direct Debit</title>
                 <allowspecific>0</allowspecific>
@@ -79,11 +103,21 @@
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
                 <payment_method_after_expiry>amex,bancontactmrcash,cartebancaire,cartebleuevisa,nexi,postepay,dankort,eps,giftcard,giropay,ideal,mastercard,paypal,sofortueberweisung,transfer,visa,maestro,visaelectron,vpay,alipay,wechatpay,p24,trustly,tinka,belfius</payment_method_after_expiry>
+                <can_authorize>0</can_authorize>
+                <can_capture>0</can_capture>
+                <can_capture_partial>0</can_capture_partial>
+                <can_order>1</can_order>
+                <can_void>1</can_void>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_use_internal>1</can_use_internal>
+                <can_use_checkout>1</can_use_checkout>
+                <is_gateway>1</is_gateway>
             </buckaroo_magento2_sepadirectdebit>
 
             <buckaroo_magento2_paypal>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Paypal</model>
+                <model>PaypalFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo PayPal</title>
                 <allowspecific>0</allowspecific>
@@ -93,16 +127,28 @@
                 <sellers_protection_itemnotreceived_eligible>processing</sellers_protection_itemnotreceived_eligible>
                 <sellers_protection_unauthorizedpayment_eligible>processing</sellers_protection_unauthorizedpayment_eligible>
                 <sellers_protection_ineligible>processing</sellers_protection_ineligible>
+                <express_button_color>gold</express_button_color>
+                <express_button_rounded>0</express_button_rounded>
                 <order_email>1</order_email>
                 <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
+                <can_authorize>0</can_authorize>
+                <can_capture>0</can_capture>
+                <can_capture_partial>0</can_capture_partial>
+                <can_order>1</can_order>
+                <can_void>1</can_void>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_use_internal>1</can_use_internal>
+                <can_use_checkout>1</can_use_checkout>
+                <is_gateway>1</is_gateway>
             </buckaroo_magento2_paypal>
 
             <buckaroo_magento2_payconiq>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Payconiq</model>
+                <model>PayconiqFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Payconiq</title>
                 <allowspecific>0</allowspecific>
@@ -112,11 +158,21 @@
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
+                <can_authorize>0</can_authorize>
+                <can_capture>0</can_capture>
+                <can_capture_partial>0</can_capture_partial>
+                <can_order>1</can_order>
+                <can_void>1</can_void>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_use_internal>1</can_use_internal>
+                <can_use_checkout>1</can_use_checkout>
+                <is_gateway>1</is_gateway>
             </buckaroo_magento2_payconiq>
 
             <buckaroo_magento2_creditcard>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Creditcard</model>
+                <model>CreditcardFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Creditcard and Debit Card</title>
                 <allowspecific>0</allowspecific>
@@ -132,11 +188,21 @@
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
+                <can_authorize>1</can_authorize>
+                <can_capture>1</can_capture>
+                <can_capture_partial>0</can_capture_partial>
+                <can_order>1</can_order>
+                <can_void>1</can_void>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_use_internal>1</can_use_internal>
+                <can_use_checkout>1</can_use_checkout>
+                <is_gateway>1</is_gateway>
             </buckaroo_magento2_creditcard>
 
             <buckaroo_magento2_creditcards>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Creditcards</model>
+                <model>CreditcardEncryptedFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Creditcards</title>
                 <sort_order>35</sort_order>
@@ -146,16 +212,26 @@
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
+                <can_authorize>1</can_authorize>
+                <can_capture>1</can_capture>
+                <can_capture_partial>1</can_capture_partial>
+                <can_order>1</can_order>
+                <can_void>1</can_void>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_use_internal>1</can_use_internal>
+                <can_use_checkout>1</can_use_checkout>
+                <is_gateway>1</is_gateway>
             </buckaroo_magento2_creditcards>
 
             <buckaroo_magento2_transfer>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Transfer</model>
+                <model>TransferFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Transfer</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>100</sort_order>
-                <send_email>1</send_email>
+                <order_email>1</order_email>
                 <due_date>7</due_date>
                 <due_date_invoice>0</due_date_invoice>
                 <reminder_level>4</reminder_level>
@@ -165,11 +241,21 @@
                 <payment_action>order</payment_action>
                 <available_in_backend>1</available_in_backend>
                 <payment_method_after_expiry>amex,bancontactmrcash,cartebancaire,cartebleuevisa,nexi,postepay,dankort,eps,giftcard,giropay,ideal,mastercard,paypal,sofortueberweisung,transfer,visa,maestro,visaelectron,vpay,alipay,wechatpay,p24,trustly,tinka,belfius</payment_method_after_expiry>
+                <can_authorize>0</can_authorize>
+                <can_capture>0</can_capture>
+                <can_capture_partial>0</can_capture_partial>
+                <can_order>1</can_order>
+                <can_void>1</can_void>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_use_internal>1</can_use_internal>
+                <can_use_checkout>1</can_use_checkout>
+                <is_gateway>1</is_gateway>
             </buckaroo_magento2_transfer>
 
             <buckaroo_magento2_giropay>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Giropay</model>
+                <model>GiropayFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Giropay</title>
                 <allowspecific>0</allowspecific>
@@ -179,13 +265,23 @@
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
+                <can_authorize>0</can_authorize>
+                <can_capture>0</can_capture>
+                <can_capture_partial>0</can_capture_partial>
+                <can_order>1</can_order>
+                <can_void>1</can_void>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_use_internal>1</can_use_internal>
+                <can_use_checkout>1</can_use_checkout>
+                <is_gateway>1</is_gateway>
             </buckaroo_magento2_giropay>
 
             <buckaroo_magento2_mrcash>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Mrcash</model>
+                <model>MrcashFacade</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Bancontact/Mister Cash</title>
+                <title>Buckaroo Bancontact</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>140</sort_order>
                 <order_email>1</order_email>
@@ -196,11 +292,21 @@
                 <refund_extra_fields_labels>customer iban,customer account name,customer bic</refund_extra_fields_labels>
                 <available_in_backend>0</available_in_backend>
                 <client_side>0</client_side>
+                <can_authorize>0</can_authorize>
+                <can_capture>0</can_capture>
+                <can_capture_partial>0</can_capture_partial>
+                <can_order>1</can_order>
+                <can_void>1</can_void>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_use_internal>1</can_use_internal>
+                <can_use_checkout>1</can_use_checkout>
+                <is_gateway>1</is_gateway>
             </buckaroo_magento2_mrcash>
 
             <buckaroo_magento2_sofortbanking>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Sofortbanking</model>
+                <model>SofortbankingFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Sofort</title>
                 <allowspecific>0</allowspecific>
@@ -210,11 +316,21 @@
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
+                <can_authorize>0</can_authorize>
+                <can_capture>0</can_capture>
+                <can_capture_partial>0</can_capture_partial>
+                <can_order>1</can_order>
+                <can_void>1</can_void>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_use_internal>1</can_use_internal>
+                <can_use_checkout>1</can_use_checkout>
+                <is_gateway>1</is_gateway>
             </buckaroo_magento2_sofortbanking>
 
             <buckaroo_magento2_belfius>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Belfius</model>
+                <model>BelfiusFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Belfius</title>
                 <allowspecific>0</allowspecific>
@@ -224,11 +340,21 @@
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
+                <can_authorize>0</can_authorize>
+                <can_capture>0</can_capture>
+                <can_capture_partial>0</can_capture_partial>
+                <can_order>1</can_order>
+                <can_void>1</can_void>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_use_internal>1</can_use_internal>
+                <can_use_checkout>1</can_use_checkout>
+                <is_gateway>1</is_gateway>
             </buckaroo_magento2_belfius>
 
             <buckaroo_magento2_afterpay>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Afterpay</model>
+                <model>AfterpayOldFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Riverty | Afterpay</title>
                 <allowspecific>0</allowspecific>
@@ -238,12 +364,24 @@
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <can_capture_partial>1</can_capture_partial>
+                <financial_warning>1</financial_warning>
                 <available_in_backend>0</available_in_backend>
+                <can_authorize>1</can_authorize>
+                <can_capture>1</can_capture>
+                <can_capture_partial>1</can_capture_partial>
+                <can_order>1</can_order>
+                <can_void>1</can_void>
+                <can_cancel>1</can_cancel>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_use_internal>1</can_use_internal>
+                <can_use_checkout>1</can_use_checkout>
+                <is_gateway>1</is_gateway>
             </buckaroo_magento2_afterpay>
 
             <buckaroo_magento2_afterpay2>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Afterpay2</model>
+                <model>AfterpayOldFacade2</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Riverty | Afterpay 2</title>
                 <allowspecific>0</allowspecific>
@@ -253,12 +391,23 @@
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <can_capture_partial>1</can_capture_partial>
+                <financial_warning>1</financial_warning>
                 <available_in_backend>0</available_in_backend>
+                <can_authorize>1</can_authorize>
+                <can_capture>1</can_capture>
+                <can_capture_partial>1</can_capture_partial>
+                <can_order>1</can_order>
+                <can_void>1</can_void>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_use_internal>1</can_use_internal>
+                <can_use_checkout>1</can_use_checkout>
+                <is_gateway>1</is_gateway>
             </buckaroo_magento2_afterpay2>
 
             <buckaroo_magento2_payperemail>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\PayPerEmail</model>
+                <model>PayPerEmailFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo PayPerEmail</title>
                 <allowspecific>0</allowspecific>
@@ -274,11 +423,21 @@
                 <payment_method_after_expiry>amex,bancontactmrcash,cartebancaire,cartebleuevisa,nexi,postepay,dankort,eps,giftcard,giropay,ideal,mastercard,paypal,sofortueberweisung,transfer,visa,maestro,visaelectron,vpay,alipay,wechatpay,p24,trustly,tinka,belfius</payment_method_after_expiry>
                 <expire_days>7</expire_days>
                 <cron_cancel_ppe>1</cron_cancel_ppe>
+                <can_authorize>0</can_authorize>
+                <can_capture>0</can_capture>
+                <can_capture_partial>0</can_capture_partial>
+                <can_order>1</can_order>
+                <can_void>1</can_void>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>0</can_refund_partial_per_invoice>
+                <can_use_internal>1</can_use_internal>
+                <can_use_checkout>1</can_use_checkout>
+                <is_gateway>1</is_gateway>
             </buckaroo_magento2_payperemail>
 
             <buckaroo_magento2_eps>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Eps</model>
+                <model>EpsFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo EPS</title>
                 <allowspecific>0</allowspecific>
@@ -288,11 +447,21 @@
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
+                <can_authorize>0</can_authorize>
+                <can_capture>0</can_capture>
+                <can_capture_partial>0</can_capture_partial>
+                <can_order>1</can_order>
+                <can_void>1</can_void>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_use_internal>1</can_use_internal>
+                <can_use_checkout>1</can_use_checkout>
+                <is_gateway>1</is_gateway>
             </buckaroo_magento2_eps>
 
             <buckaroo_magento2_giftcards>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Giftcards</model>
+                <model>GiftcardsFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Giftcards</title>
                 <sort_order>190</sort_order>
@@ -301,11 +470,21 @@
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
+                <can_authorize>1</can_authorize>
+                <can_capture>1</can_capture>
+                <can_capture_partial>1</can_capture_partial>
+                <can_order>1</can_order>
+                <can_void>1</can_void>
+                <can_refund>0</can_refund>
+                <can_refund_partial_per_invoice>0</can_refund_partial_per_invoice>
+                <can_use_internal>0</can_use_internal>
+                <can_use_checkout>1</can_use_checkout>
+                <is_gateway>1</is_gateway>
             </buckaroo_magento2_giftcards>
 
             <buckaroo_magento2_kbc>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Kbc</model>
+                <model>KbcFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo KBC</title>
                 <allowspecific>0</allowspecific>
@@ -315,11 +494,21 @@
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
+                <can_authorize>0</can_authorize>
+                <can_capture>0</can_capture>
+                <can_capture_partial>0</can_capture_partial>
+                <can_order>1</can_order>
+                <can_void>1</can_void>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_use_internal>1</can_use_internal>
+                <can_use_checkout>1</can_use_checkout>
+                <is_gateway>1</is_gateway>
             </buckaroo_magento2_kbc>
 
             <buckaroo_magento2_paylink>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\PayLink</model>
+                <model>PayLinkFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo PayLink</title>
                 <allowspecific>0</allowspecific>
@@ -329,11 +518,22 @@
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>1</available_in_backend>
+                <can_authorize>0</can_authorize>
+                <can_capture>0</can_capture>
+                <can_capture_partial>0</can_capture_partial>
+                <can_order>1</can_order>
+                <can_void>1</can_void>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_use_internal>1</can_use_internal>
+                <can_use_checkout>1</can_use_checkout>
+                <is_gateway>1</is_gateway>
             </buckaroo_magento2_paylink>
 
             <buckaroo_magento2_klarna>
+                <debug>1</debug>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Klarna\PayLater</model>
+                <model>KlarnaFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Klarna: Pay later</title>
                 <sort_oder>220</sort_oder>
@@ -341,12 +541,23 @@
                 <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
+                <financial_warning>1</financial_warning>
                 <available_in_backend>0</available_in_backend>
+                <can_authorize>0</can_authorize>
+                <can_capture>0</can_capture>
+                <can_capture_partial>0</can_capture_partial>
+                <can_order>1</can_order>
+                <can_void>1</can_void>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_use_internal>1</can_use_internal>
+                <can_use_checkout>1</can_use_checkout>
+                <is_gateway>1</is_gateway>
             </buckaroo_magento2_klarna>
 
             <buckaroo_magento2_klarnakp>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Klarnakp</model>
+                <model>KlarnaKpFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Klarna: Pay later</title>
                 <sort_oder>220</sort_oder>
@@ -354,12 +565,24 @@
                 <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>authorize</payment_action>
+                <financial_warning>1</financial_warning>
                 <available_in_backend>0</available_in_backend>
+                <can_authorize>1</can_authorize>
+                <can_capture>1</can_capture>
+                <can_capture_partial>1</can_capture_partial>
+                <can_order>0</can_order>
+                <can_void>1</can_void>
+                <can_cancel>1</can_cancel>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_use_internal>1</can_use_internal>
+                <can_use_checkout>1</can_use_checkout>
+                <is_gateway>1</is_gateway>
             </buckaroo_magento2_klarnakp>
 
             <buckaroo_magento2_klarnain>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Klarna\Klarnain</model>
+                <model>KlarnaInFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Klarna: Slice it</title>
                 <sort_oder>220</sort_oder>
@@ -367,28 +590,23 @@
                 <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
+                <financial_warning>1</financial_warning>
                 <available_in_backend>0</available_in_backend>
+                <can_authorize>1</can_authorize>
+                <can_capture>1</can_capture>
+                <can_capture_partial>1</can_capture_partial>
+                <can_order>1</can_order>
+                <can_void>1</can_void>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_use_internal>1</can_use_internal>
+                <can_use_checkout>1</can_use_checkout>
+                <is_gateway>1</is_gateway>
             </buckaroo_magento2_klarnain>
-
-            <buckaroo_magento2_emandate>
-                <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Emandate</model>
-                <order_status>pending</order_status>
-                <title>Buckaroo Digitale Incassomachtiging</title>
-                <sequence_type>1</sequence_type>
-                <language>nl</language>
-                <allowspecific>0</allowspecific>
-                <sort_order>230</sort_order>
-                <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
-                <group>buckaroo_magento2</group>
-                <payment_action>order</payment_action>
-                <available_in_backend>0</available_in_backend>
-            </buckaroo_magento2_emandate>
 
             <buckaroo_magento2_afterpay20>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Afterpay20</model>
+                <model>AfterpayFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Riverty | Afterpay</title>
                 <allowspecific>0</allowspecific>
@@ -399,12 +617,25 @@
                 <payment_action>order</payment_action>
                 <can_capture_partial>1</can_capture_partial>
                 <available_in_backend>0</available_in_backend>
+                <financial_warning>1</financial_warning>
                 <customer_type>both</customer_type>
+                <can_authorize>1</can_authorize>
+                <can_capture>1</can_capture>
+                <can_capture_partial>1</can_capture_partial>
+                <can_order>1</can_order>
+                <can_void>1</can_void>
+                <can_cancel>1</can_cancel>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_use_internal>1</can_use_internal>
+                <can_use_checkout>1</can_use_checkout>
+                <is_gateway>1</is_gateway>
+
             </buckaroo_magento2_afterpay20>
 
             <buckaroo_magento2_billink>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Billink</model>
+                <model>BillinkFacade</model>
                 <order_status>pending</order_status>
                 <title>Billink - achteraf betalen</title>
                 <allowspecific>0</allowspecific>
@@ -414,12 +645,23 @@
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <can_capture_partial>1</can_capture_partial>
+                <financial_warning>1</financial_warning>
                 <available_in_backend>0</available_in_backend>
+                <can_authorize>1</can_authorize>
+                <can_capture>1</can_capture>
+                <can_capture_partial>1</can_capture_partial>
+                <can_order>1</can_order>
+                <can_void>1</can_void>
+                <can_cancel>1</can_cancel>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_use_internal>0</can_use_internal>
+                <can_use_checkout>1</can_use_checkout>
             </buckaroo_magento2_billink>
 
             <buckaroo_magento2_applepay>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Applepay</model>
+                <model>ApplepayFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Apple Pay</title>
                 <allowspecific>0</allowspecific>
@@ -428,13 +670,22 @@
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
+                <can_authorize>0</can_authorize>
+                <can_capture>0</can_capture>
+                <can_capture_partial>0</can_capture_partial>
+                <can_order>1</can_order>
+                <can_void>1</can_void>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_use_internal>1</can_use_internal>
+                <can_use_checkout>1</can_use_checkout>
             </buckaroo_magento2_applepay>
 
             <buckaroo_magento2_capayablein3>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Capayable\Installments</model>
+                <model>CapayableFacade</model>
                 <order_status>pending</order_status>
-                <title>In3 - betaal in 3 keer, 0% rente</title>
+                <title>iDEAL In3</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>250</sort_order>
                 <order_email>1</order_email>
@@ -442,11 +693,20 @@
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
+                <can_authorize>0</can_authorize>
+                <can_capture>0</can_capture>
+                <can_capture_partial>0</can_capture_partial>
+                <can_order>1</can_order>
+                <can_void>1</can_void>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_use_internal>0</can_use_internal>
+                <can_use_checkout>1</can_use_checkout>
             </buckaroo_magento2_capayablein3>
 
             <buckaroo_magento2_alipay>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Alipay</model>
+                <model>AlipayFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Alipay</title>
                 <allowspecific>0</allowspecific>
@@ -456,11 +716,20 @@
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
+                <can_authorize>0</can_authorize>
+                <can_capture>0</can_capture>
+                <can_capture_partial>0</can_capture_partial>
+                <can_order>1</can_order>
+                <can_void>1</can_void>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_use_internal>1</can_use_internal>
+                <can_use_checkout>1</can_use_checkout>
             </buckaroo_magento2_alipay>
 
             <buckaroo_magento2_wechatpay>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Wechatpay</model>
+                <model>WechatpayFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo WeChatPay</title>
                 <allowspecific>0</allowspecific>
@@ -470,11 +739,20 @@
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
+                <can_authorize>0</can_authorize>
+                <can_capture>0</can_capture>
+                <can_capture_partial>0</can_capture_partial>
+                <can_order>1</can_order>
+                <can_void>1</can_void>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_use_internal>1</can_use_internal>
+                <can_use_checkout>1</can_use_checkout>
             </buckaroo_magento2_wechatpay>
 
             <buckaroo_magento2_p24>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\P24</model>
+                <model>Przelewy24Facade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Przelewy24</title>
                 <allowspecific>0</allowspecific>
@@ -484,11 +762,20 @@
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
+                <can_authorize>0</can_authorize>
+                <can_capture>0</can_capture>
+                <can_capture_partial>0</can_capture_partial>
+                <can_order>1</can_order>
+                <can_void>1</can_void>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_use_internal>1</can_use_internal>
+                <can_use_checkout>1</can_use_checkout>
             </buckaroo_magento2_p24>
 
             <buckaroo_magento2_trustly>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Trustly</model>
+                <model>TrustlyFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Trustly</title>
                 <allowspecific>0</allowspecific>
@@ -498,11 +785,20 @@
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
+                <can_authorize>0</can_authorize>
+                <can_capture>0</can_capture>
+                <can_capture_partial>0</can_capture_partial>
+                <can_order>1</can_order>
+                <can_void>1</can_void>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_use_internal>1</can_use_internal>
+                <can_use_checkout>1</can_use_checkout>
             </buckaroo_magento2_trustly>
 
             <buckaroo_magento2_pospayment>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Pospayment</model>
+                <model>PospaymentFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Point of Sale</title>
                 <allowspecific>0</allowspecific>
@@ -512,11 +808,20 @@
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
+                <can_authorize>0</can_authorize>
+                <can_capture>0</can_capture>
+                <can_capture_partial>0</can_capture_partial>
+                <can_order>1</can_order>
+                <can_void>0</can_void>
+                <can_refund>0</can_refund>
+                <can_refund_partial_per_invoice>0</can_refund_partial_per_invoice>
+                <can_use_internal>1</can_use_internal>
+                <can_use_checkout>1</can_use_checkout>
             </buckaroo_magento2_pospayment>
 
             <buckaroo_magento2_tinka>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Tinka</model>
+                <model>TinkaFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Tinka</title>
                 <allowspecific>0</allowspecific>
@@ -525,13 +830,46 @@
                 <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
+                <financial_warning>1</financial_warning>
                 <available_in_backend>0</available_in_backend>
+                <can_authorize>0</can_authorize>
+                <can_capture>0</can_capture>
+                <can_capture_partial>0</can_capture_partial>
+                <can_order>1</can_order>
+                <can_void>1</can_void>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_use_internal>1</can_use_internal>
+                <can_use_checkout>1</can_use_checkout>
             </buckaroo_magento2_tinka>
 
+             <buckaroo_magento2_creditclick>
+                <active>0</active>
+                <model>CreditClickFacade</model>
+                <order_status>pending</order_status>
+                <title>Buckaroo CreditClick</title>
+                <allowspecific>0</allowspecific>
+                <sort_order>330</sort_order>
+                <order_email>1</order_email>
+                <payment_fee_label>Fee</payment_fee_label>
+                <group>buckaroo_magento2</group>
+                <payment_action>order</payment_action>
+                <available_in_backend>0</available_in_backend>
+                <can_authorize>0</can_authorize>
+                <can_capture>0</can_capture>
+                <can_capture_partial>0</can_capture_partial>
+                <can_order>1</can_order>
+                <can_void>1</can_void>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_use_internal>1</can_use_internal>
+                <can_use_checkout>1</can_use_checkout>
+                <is_gateway>1</is_gateway>
+            </buckaroo_magento2_creditclick>
 
             <buckaroo_magento2_voucher>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Voucher</model>
+                <model>VoucherFacade</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Voucher</title>
                 <allowspecific>0</allowspecific>
@@ -541,7 +879,65 @@
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
+                <can_authorize>0</can_authorize>
+                <can_capture>0</can_capture>
+                <can_capture_partial>0</can_capture_partial>
+                <can_order>0</can_order>
+                <can_void>0</can_void>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_use_internal>1</can_use_internal>
+                <can_use_checkout>1</can_use_checkout>
+                <is_gateway>1</is_gateway>
             </buckaroo_magento2_voucher>
+
+            <buckaroo_magento2_multibanco>
+                <active>0</active>
+                <model>MultibancoFacade</model>
+                <order_status>pending</order_status>
+                <title>Buckaroo Multibanco</title>
+                <allowspecific>0</allowspecific>
+                <sort_order>350</sort_order>
+                <order_email>1</order_email>
+                <payment_fee_label>Fee</payment_fee_label>
+                <group>buckaroo_magento2</group>
+                <payment_action>order</payment_action>
+                <available_in_backend>0</available_in_backend>
+                <can_authorize>0</can_authorize>
+                <can_capture>0</can_capture>
+                <can_capture_partial>0</can_capture_partial>
+                <can_order>1</can_order>
+                <can_void>1</can_void>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>0</can_refund_partial_per_invoice>
+                <can_use_internal>1</can_use_internal>
+                <can_use_checkout>1</can_use_checkout>
+                <is_gateway>1</is_gateway>
+            </buckaroo_magento2_multibanco>
+
+            <buckaroo_magento2_mbway>
+                <active>0</active>
+                <model>MBWayFacade</model>
+                <order_status>pending</order_status>
+                <title>Buckaroo MBWay</title>
+                <allowspecific>0</allowspecific>
+                <sort_order>360</sort_order>
+                <order_email>1</order_email>
+                <payment_fee_label>Fee</payment_fee_label>
+                <group>buckaroo_magento2</group>
+                <payment_action>order</payment_action>
+                <available_in_backend>0</available_in_backend>
+                <can_authorize>0</can_authorize>
+                <can_capture>0</can_capture>
+                <can_capture_partial>0</can_capture_partial>
+                <can_order>1</can_order>
+                <can_void>1</can_void>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>0</can_refund_partial_per_invoice>
+                <can_use_internal>1</can_use_internal>
+                <can_use_checkout>1</can_use_checkout>
+                <is_gateway>1</is_gateway>
+            </buckaroo_magento2_mbway>
         </payment>
 
         <buckaroo_magento2>
@@ -562,8 +958,12 @@
                 <order_status_failed>canceled</order_status_failed>
                 <create_order_before_transaction>1</create_order_before_transaction>
                 <debug_types>300,400,500,550,600</debug_types>
+                <log_handler>1</log_handler>
+                <log_handler_db_depth>10</log_handler_db_depth>
+                <log_retention>604800</log_retention>
                 <cart_keep_alive>1</cart_keep_alive>
                 <selection_type>1</selection_type>
+                <invoice_handling>1</invoice_handling>
             </account>
 
             <refund>
@@ -578,13 +978,6 @@
                 <order_state_failed>canceled</order_state_failed>
                 <order_state_incorrect>holded</order_state_incorrect>
             </states>
-
-            <predefined>
-                <location_live_web>https://checkout.buckaroo.nl/soap/Soap.svc</location_live_web>
-                <location_test_web>https://testcheckout.buckaroo.nl/soap/Soap.svc</location_test_web>
-                <wsdl_live_web>https://checkout.buckaroo.nl/soap/soap.svc?singleWsdl</wsdl_live_web>
-                <wsdl_test_web>https://testcheckout.buckaroo.nl/soap/soap.svc?singleWsdl</wsdl_test_web>
-            </predefined>
         </buckaroo_magento2>
 
     </default>

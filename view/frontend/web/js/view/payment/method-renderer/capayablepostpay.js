@@ -28,7 +28,8 @@ define(
         'ko',
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/action/select-payment-method',
-        'buckaroo/checkout/common'
+        'buckaroo/checkout/common',
+        'buckaroo/checkout/datepicker'
     ],
     function (
         $,
@@ -39,7 +40,8 @@ define(
         ko,
         checkoutData,
         selectPaymentMethodAction,
-        checkoutCommon
+        checkoutCommon,
+        datePicker
     ) {
         'use strict';
 
@@ -61,9 +63,13 @@ define(
                 },
                 redirectAfterPlaceOrder: true,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.capayablepostpay.paymentFeeLabel,
+                subtext : window.checkoutConfig.payment.buckaroo.capayablepostpay.subtext,
+                subTextStyle : checkoutCommon.getSubtextStyle('capayablepostpay'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
-
+                dp: datePicker,
+                isTestMode: window.checkoutConfig.payment.buckaroo.capayablepostpay.isTestMode,
+                
                 /**
                  * @override
                  */
@@ -90,6 +96,16 @@ define(
                         'value'
                     ]);
 
+                    this.showFinancialWarning = ko.computed(
+                        function () {
+                            return quote.billingAddress() !== null &&
+                            quote.billingAddress().countryId == 'NL' &&
+                            window.checkoutConfig.payment.buckaroo.capayablepostpay.showFinancialWarning
+                        },
+                        this
+                    );
+
+
                     // Observe and store the selected gender
                     var self = this;
                     this.setSelectedGender = function (value) {
@@ -100,7 +116,7 @@ define(
                     /**
                      * Observe customer first & lastname and bind them together, so they could appear in the frontend
                      */
-                    this.updateBillingName = function(firstname, lastname) {
+                    this.updateBillingName = function (firstname, lastname) {
                         this.firstName = firstname;
                         this.lastName = lastname;
 
@@ -119,7 +135,7 @@ define(
                     }
 
                     quote.billingAddress.subscribe(
-                        function(newAddress) {
+                        function (newAddress) {
                             if (this.getCode() === this.isChecked() &&
                                 newAddress &&
                                 newAddress.getKey() &&
@@ -135,7 +151,6 @@ define(
                      */
                     var runValidation = function () {
                         $('.' + this.getCode() + ' .payment [data-validate]').filter(':not([name*="agreement"])').valid();
-                        this.selectPaymentMethod();
                     };
 
                     this.genderValidate.subscribe(runValidation,this);
@@ -222,7 +237,7 @@ define(
                     return $('.' + this.getCode() + ' .payment [data-validate]:not([name*="agreement"])').valid();
                 },
 
-                getData : function() {
+                getData : function () {
                     return {
                         "method" : this.item.method,
                         "additional_data": {

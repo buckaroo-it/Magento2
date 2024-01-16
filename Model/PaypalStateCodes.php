@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,19 +17,19 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model;
 
 class PaypalStateCodes
 {
-
     /**
      * Contains all state codes and the relevant full names for the countries paypal supports (or requires) state codes
      * for.
      *
      * @var array
      */
-    private $_codes = [
+    private array $codes = [
         'CA' => [
             'AB' => ['Alberta'],
             'BC' => ['British Columbia'],
@@ -167,29 +167,29 @@ class PaypalStateCodes
         ],
         'AR' => [
             'CIUDAD AUTÓNOMA DE BUENOS AIRES' => ['Buenos Aires (Ciudad)'],
-            'BUENOS AIRES' => ['Buenos Aires (Provincia)'],
-            'CATAMARCA' => ['Catamarca'],
-            'CHACO' => ['Chaco'],
-            'CHUBUT' => ['Chubut'],
-            'CORRIENTES' => ['Corrientes'],
-            'CÓRDOBA' => ['Córdoba'],
-            'ENTRE RÍOS' => ['Entre Ríos'],
-            'FORMOSA' => ['Formosa'],
-            'JUJUY' => ['Jujuy'],
-            'LA PAMPA' => ['La Pampa'],
-            'LA RIOJA' => ['La Rioja'],
-            'MENDOZA' => ['Mendoza'],
-            'MISIONES' => ['Misiones'],
-            'NEUQUÉN' => ['Neuquén'],
-            'RÍO NEGRO' => ['Río Negro'],
-            'SALTA' => ['Salta'],
-            'SAN JUAN' => ['San Juan'],
-            'SAN LUIS' => ['San Luis'],
-            'SANTA CRUZ' => ['Santa Cruz'],
-            'SANTA FE' => ['Santa Fe'],
-            'SANTIAGO DEL ESTERO' => ['Santiago del Estero'],
-            'TIERRA DEL FUEGO' => ['Tierra del Fuego'],
-            'TUCUMÁN' => ['Tucumán'],
+            'BUENOS AIRES'                    => ['Buenos Aires (Provincia)'],
+            'CATAMARCA'                       => ['Catamarca'],
+            'CHACO'                           => ['Chaco'],
+            'CHUBUT'                          => ['Chubut'],
+            'CORRIENTES'                      => ['Corrientes'],
+            'CÓRDOBA'                         => ['Córdoba'],
+            'ENTRE RÍOS'                      => ['Entre Ríos'],
+            'FORMOSA'                         => ['Formosa'],
+            'JUJUY'                           => ['Jujuy'],
+            'LA PAMPA'                        => ['La Pampa'],
+            'LA RIOJA'                        => ['La Rioja'],
+            'MENDOZA'                         => ['Mendoza'],
+            'MISIONES'                        => ['Misiones'],
+            'NEUQUÉN'                         => ['Neuquén'],
+            'RÍO NEGRO'                       => ['Río Negro'],
+            'SALTA'                           => ['Salta'],
+            'SAN JUAN'                        => ['San Juan'],
+            'SAN LUIS'                        => ['San Luis'],
+            'SANTA CRUZ'                      => ['Santa Cruz'],
+            'SANTA FE'                        => ['Santa Fe'],
+            'SANTIAGO DEL ESTERO'             => ['Santiago del Estero'],
+            'TIERRA DEL FUEGO'                => ['Tierra del Fuego'],
+            'TUCUMÁN'                         => ['Tucumán'],
         ],
         'BR' => [
             'AC' => ['Acre'],
@@ -222,42 +222,42 @@ class PaypalStateCodes
         ],
         'IN' => [
             'Andaman and Nicobar Islands' => ['Andaman and Nicobar Islands'],
-            'Andhra Pradesh' => ['Andhra Pradesh'],
-            'APO' => ['Army Post Office'],
-            'Arunachal Pradesh' => ['Arunachal Pradesh'],
-            'Assam' => ['Assam'],
-            'Bihar' => ['Bihar'],
-            'Chandigarh' => ['Chandigarh'],
-            'Chhattisgarh' => ['Chhattisgarh'],
-            'Dadra and Nagar Haveli' => ['Dadra and Nagar Haveli'],
-            'Daman and Diu' => ['Daman and Diu'],
-            'Delhi (NCT)' => ['Delhi'],
-            'Goa' => ['Goa'],
-            'Gujarat' => ['Gujarat'],
-            'Haryana' => ['Haryana'],
-            'Himachal Pradesh' => ['Himachal Pradesh'],
-            'Jammu and Kashmir' => ['Jammu and Kashmir'],
-            'Jharkhand' => ['Jharkhand'],
-            'Karnataka' => ['Karnataka'],
-            'Kerala' => ['Kerala'],
-            'Lakshadweep' => ['Lakshadweep'],
-            'Madhya Pradesh' => ['Madhya Pradesh'],
-            'Maharashtra' => ['Maharashtra'],
-            'Manipur' => ['Manipur'],
-            'Meghalaya' => ['Meghalaya'],
-            'Mizoram' => ['Mizoram'],
-            'Nagaland' => ['Nagaland'],
-            'Odisha' => ['Odisha'],
-            'Puducherry' => ['Puducherry'],
-            'Punjab' => ['Punjab'],
-            'Rajasthan' => ['Rajasthan'],
-            'Sikkim' => ['Sikkim'],
-            'Tamil Nadu' => ['Tamil Nadu'],
-            'Telangana' => ['Telangana'],
-            'Tripura' => ['Tripura'],
-            'Uttar Pradesh' => ['Uttar Pradesh'],
-            'Uttarakhand' => ['Uttarakhand'],
-            'West Bengal' => ['West Bengal'],
+            'Andhra Pradesh'              => ['Andhra Pradesh'],
+            'APO'                         => ['Army Post Office'],
+            'Arunachal Pradesh'           => ['Arunachal Pradesh'],
+            'Assam'                       => ['Assam'],
+            'Bihar'                       => ['Bihar'],
+            'Chandigarh'                  => ['Chandigarh'],
+            'Chhattisgarh'                => ['Chhattisgarh'],
+            'Dadra and Nagar Haveli'      => ['Dadra and Nagar Haveli'],
+            'Daman and Diu'               => ['Daman and Diu'],
+            'Delhi (NCT)'                 => ['Delhi'],
+            'Goa'                         => ['Goa'],
+            'Gujarat'                     => ['Gujarat'],
+            'Haryana'                     => ['Haryana'],
+            'Himachal Pradesh'            => ['Himachal Pradesh'],
+            'Jammu and Kashmir'           => ['Jammu and Kashmir'],
+            'Jharkhand'                   => ['Jharkhand'],
+            'Karnataka'                   => ['Karnataka'],
+            'Kerala'                      => ['Kerala'],
+            'Lakshadweep'                 => ['Lakshadweep'],
+            'Madhya Pradesh'              => ['Madhya Pradesh'],
+            'Maharashtra'                 => ['Maharashtra'],
+            'Manipur'                     => ['Manipur'],
+            'Meghalaya'                   => ['Meghalaya'],
+            'Mizoram'                     => ['Mizoram'],
+            'Nagaland'                    => ['Nagaland'],
+            'Odisha'                      => ['Odisha'],
+            'Puducherry'                  => ['Puducherry'],
+            'Punjab'                      => ['Punjab'],
+            'Rajasthan'                   => ['Rajasthan'],
+            'Sikkim'                      => ['Sikkim'],
+            'Tamil Nadu'                  => ['Tamil Nadu'],
+            'Telangana'                   => ['Telangana'],
+            'Tripura'                     => ['Tripura'],
+            'Uttar Pradesh'               => ['Uttar Pradesh'],
+            'Uttarakhand'                 => ['Uttarakhand'],
+            'West Bengal'                 => ['West Bengal'],
         ],
         'ID' => [
             'ID-BA' => ['Bali'],
@@ -296,88 +296,88 @@ class PaypalStateCodes
             'ID-SU' => ['Sumatera Utara'],
         ],
         'JP' => [
-            'AICHI-KEN' => ['Aichi'],
-            'AKITA-KEN' => ['Akita'],
-            'AOMORI-KEN' => ['Aomori'],
-            'CHIBA-KEN' => ['Chiba'],
-            'EHIME-KEN' => ['Ehime'],
-            'FUKUI-KEN' => ['Fukui'],
-            'FUKUOKA-KEN' => ['Fukuoka'],
+            'AICHI-KEN'     => ['Aichi'],
+            'AKITA-KEN'     => ['Akita'],
+            'AOMORI-KEN'    => ['Aomori'],
+            'CHIBA-KEN'     => ['Chiba'],
+            'EHIME-KEN'     => ['Ehime'],
+            'FUKUI-KEN'     => ['Fukui'],
+            'FUKUOKA-KEN'   => ['Fukuoka'],
             'FUKUSHIMA-KEN' => ['Fukushima'],
-            'GIFU-KEN' => ['Gifu'],
-            'GUNMA-KEN' => ['Gunma'],
+            'GIFU-KEN'      => ['Gifu'],
+            'GUNMA-KEN'     => ['Gunma'],
             'HIROSHIMA-KEN' => ['Hiroshima'],
-            'HOKKAIDO' => ['Hokkaido'],
-            'HYOGO-KEN' => ['Hyogo'],
-            'IBARAKI-KEN' => ['Ibaraki'],
-            'ISHIKAWA-KEN' => ['Ishikawa'],
-            'IWATE-KEN' => ['Iwate'],
-            'KAGAWA-KEN' => ['Kagawa'],
+            'HOKKAIDO'      => ['Hokkaido'],
+            'HYOGO-KEN'     => ['Hyogo'],
+            'IBARAKI-KEN'   => ['Ibaraki'],
+            'ISHIKAWA-KEN'  => ['Ishikawa'],
+            'IWATE-KEN'     => ['Iwate'],
+            'KAGAWA-KEN'    => ['Kagawa'],
             'KAGOSHIMA-KEN' => ['Kagoshima'],
-            'KANAGAWA-KEN' => ['Kanagawa'],
-            'KOCHI-KEN' => ['Kochi'],
-            'KUMAMOTO-KEN' => ['Kumamoto'],
-            'KYOTO-FU' => ['Kyoto'],
-            'MIE-KEN' => ['Mie'],
-            'MIYAGI-KEN' => ['Miyagi'],
-            'MIYAZAKI-KEN' => ['Miyazaki'],
-            'NAGANO-KEN' => ['Nagano'],
-            'NAGASAKI-KEN' => ['Nagasaki'],
-            'NARA-KEN' => ['Nara'],
-            'NIIGATA-KEN' => ['Niigata'],
-            'OITA-KEN' => ['Oita'],
-            'OKAYAMA-KEN' => ['Okayama'],
-            'OKINAWA-KEN' => ['Okinawa'],
-            'OSAKA-FU' => ['Osaka'],
-            'SAGA-KEN' => ['Saga'],
-            'SAITAMA-KEN' => ['Saitama'],
-            'SHIGA-KEN' => ['Shiga'],
-            'SHIMANE-KEN' => ['Shimane'],
-            'SHIZUOKA-KEN' => ['Shizuoka'],
-            'TOCHIGI-KEN' => ['Tochigi'],
+            'KANAGAWA-KEN'  => ['Kanagawa'],
+            'KOCHI-KEN'     => ['Kochi'],
+            'KUMAMOTO-KEN'  => ['Kumamoto'],
+            'KYOTO-FU'      => ['Kyoto'],
+            'MIE-KEN'       => ['Mie'],
+            'MIYAGI-KEN'    => ['Miyagi'],
+            'MIYAZAKI-KEN'  => ['Miyazaki'],
+            'NAGANO-KEN'    => ['Nagano'],
+            'NAGASAKI-KEN'  => ['Nagasaki'],
+            'NARA-KEN'      => ['Nara'],
+            'NIIGATA-KEN'   => ['Niigata'],
+            'OITA-KEN'      => ['Oita'],
+            'OKAYAMA-KEN'   => ['Okayama'],
+            'OKINAWA-KEN'   => ['Okinawa'],
+            'OSAKA-FU'      => ['Osaka'],
+            'SAGA-KEN'      => ['Saga'],
+            'SAITAMA-KEN'   => ['Saitama'],
+            'SHIGA-KEN'     => ['Shiga'],
+            'SHIMANE-KEN'   => ['Shimane'],
+            'SHIZUOKA-KEN'  => ['Shizuoka'],
+            'TOCHIGI-KEN'   => ['Tochigi'],
             'TOKUSHIMA-KEN' => ['Tokushima'],
-            'TOKYO-TO' => ['Tokyo'],
-            'TOTTORI-KEN' => ['Tottori'],
-            'TOYAMA-KEN' => ['Toyama'],
-            'WAKAYAMA-KEN' => ['Wakayama'],
-            'YAMAGATA-KEN' => ['Yamagata'],
+            'TOKYO-TO'      => ['Tokyo'],
+            'TOTTORI-KEN'   => ['Tottori'],
+            'TOYAMA-KEN'    => ['Toyama'],
+            'WAKAYAMA-KEN'  => ['Wakayama'],
+            'YAMAGATA-KEN'  => ['Yamagata'],
             'YAMAGUCHI-KEN' => ['Yamaguchi'],
             'YAMANASHI-KEN' => ['Yamanashi'],
         ],
         'MX' => [
-            'AGS' => ['Aguascalientes'],
-            'BC' => ['Baja California'],
-            'BCS' => ['Baja California Sur'],
-            'CAMP' => ['Campeche'],
-            'CHIS' => ['Chiapas'],
-            'CHIH' => ['Chihuahua'],
-            'CDMX' => ['Ciudad de México'],
-            'COAH' => ['Coahuila'],
-            'COL' => ['Colima'],
-            'DF' => ['Distrito Federal'],
-            'DGO' => ['Durango'],
-            'MEX' => ['Estado de México'],
-            'GTO' => ['Guanajuato'],
-            'GRO' => ['Guerrero'],
-            'HGO' => ['Hidalgo'],
-            'JAL' => ['Jalisco'],
-            'MICH' => ['Michoacán'],
-            'MOR' => ['Morelos'],
-            'NAY' => ['Nayarit'],
-            'NL' => ['Nuevo León'],
-            'OAX' => ['Oaxaca'],
-            'PUE' => ['Puebla'],
-            'QRO' => ['Querétaro'],
+            'AGS'   => ['Aguascalientes'],
+            'BC'    => ['Baja California'],
+            'BCS'   => ['Baja California Sur'],
+            'CAMP'  => ['Campeche'],
+            'CHIS'  => ['Chiapas'],
+            'CHIH'  => ['Chihuahua'],
+            'CDMX'  => ['Ciudad de México'],
+            'COAH'  => ['Coahuila'],
+            'COL'   => ['Colima'],
+            'DF'    => ['Distrito Federal'],
+            'DGO'   => ['Durango'],
+            'MEX'   => ['Estado de México'],
+            'GTO'   => ['Guanajuato'],
+            'GRO'   => ['Guerrero'],
+            'HGO'   => ['Hidalgo'],
+            'JAL'   => ['Jalisco'],
+            'MICH'  => ['Michoacán'],
+            'MOR'   => ['Morelos'],
+            'NAY'   => ['Nayarit'],
+            'NL'    => ['Nuevo León'],
+            'OAX'   => ['Oaxaca'],
+            'PUE'   => ['Puebla'],
+            'QRO'   => ['Querétaro'],
             'Q ROO' => ['Quintana Roo'],
-            'SLP' => ['San Luis Potosí'],
-            'SIN' => ['Sinaloa'],
-            'SON' => ['Sonora'],
-            'TAB' => ['Tabasco'],
+            'SLP'   => ['San Luis Potosí'],
+            'SIN'   => ['Sinaloa'],
+            'SON'   => ['Sonora'],
+            'TAB'   => ['Tabasco'],
             'TAMPS' => ['Tamaulipas'],
-            'TLAX' => ['Tlaxcala'],
-            'VER' => ['Veracruz'],
-            'YUC' => ['Yucatán'],
-            'ZAC' => ['Zacatecas'],
+            'TLAX'  => ['Tlaxcala'],
+            'VER'   => ['Veracruz'],
+            'YUC'   => ['Yucatán'],
+            'ZAC'   => ['Zacatecas'],
         ],
         'CN' => [
             'CN-AH' => ['Anhui Sheng'],
@@ -392,17 +392,21 @@ class PaypalStateCodes
             'CN-HB' => ['Hubei Sheng'],
             'CN-HE' => ['Hebei Sheng'],
             'CN-HI' => ['Hainan Sheng'],
-            'CN-HK' => ['Xianggang Tebiexingzhengqu',
-                             'Hong Kong SAR'],
+            'CN-HK' => [
+                'Xianggang Tebiexingzhengqu',
+                'Hong Kong SAR'
+            ],
             'CN-HL' => ['Heilongjiang Sheng'],
             'CN-HN' => ['Hunan Sheng'],
             'CN-JL' => ['Jilin Sheng'],
             'CN-JS' => ['Jiangsu Sheng'],
             'CN-JX' => ['Jiangxi Sheng'],
             'CN-LN' => ['Liaoning Sheng'],
-            'CN-MO' => ['Aomen Tebiexingzhengqu',
-                             'Macao SAR',
-                             'Macau SAR'],
+            'CN-MO' => [
+                'Aomen Tebiexingzhengqu',
+                'Macao SAR',
+                'Macau SAR'
+            ],
             'CN-NM' => ['Nei Mongol Zizhiqu'],
             'CN-NX' => ['Ningxia Huizu Zizhiqu'],
             'CN-QH' => ['Qinghai Sheng'],
@@ -488,105 +492,105 @@ class PaypalStateCodes
             'WY' => ['Wyoming'],
         ],
         'TH' => [
-            'Amnat Charoen' => ['Amnat Charoen'],
-            'Ang Thong' => ['Ang Thong'],
-            'Bangkok' => ['Bangkok'],
-            'Bueng Kan' => ['Bueng Kan'],
-            'Buri Ram' => ['Buri Ram'],
-            'Chachoengsao' => ['Chachoengsao'],
-            'Chai Nat' => ['Chai Nat'],
-            'Chaiyaphum' => ['Chaiyaphum'],
-            'Chanthaburi' => ['Chanthaburi'],
-            'Chiang Mai' => ['Chiang Mai'],
-            'Chiang Rai' => ['Chiang Rai'],
-            'Chon Buri' => ['Chon Buri'],
-            'Chumphon' => ['Chumphon'],
-            'Kalasin' => ['Kalasin'],
-            'Kamphaeng Phet' => ['Kamphaeng Phet'],
-            'Kanchanaburi' => ['Kanchanaburi'],
-            'Khon Kaen' => ['Khon Kaen'],
-            'Krabi' => ['Krabi'],
-            'Lampang' => ['Lampang'],
-            'Lamphun' => ['Lamphun'],
-            'Loei' => ['Loei'],
-            'Lop Buri' => ['Lop Buri'],
-            'Mae Hong Son' => ['Mae Hong Son'],
-            'Maha Sarakham' => ['Maha Sarakham'],
-            'Mukdahan' => ['Mukdahan'],
-            'Nakhon Nayok' => ['Nakhon Nayok'],
-            'Nakhon Pathom' => ['Nakhon Pathom'],
-            'Nakhon Phanom' => ['Nakhon Phanom'],
-            'Nakhon Ratchasima' => ['Nakhon Ratchasima'],
-            'Nakhon Sawan' => ['Nakhon Sawan'],
-            'Nakhon Si Thammarat' => ['Nakhon Si Thammarat'],
-            'Nan' => ['Nan'],
-            'Narathiwat' => ['Narathiwat'],
-            'Nong Bua Lamphu' => ['Nong Bua Lamphu'],
-            'Nong Khai' => ['Nong Khai'],
-            'Nonthaburi' => ['Nonthaburi'],
-            'Pathum Thani' => ['Pathum Thani'],
-            'Pattani' => ['Pattani'],
-            'Phang Nga' => ['Phang Nga'],
-            'Phatthalung' => ['Phatthalung'],
-            'Phatthaya' => ['Phatthaya'],
-            'Phayao' => ['Phayao'],
-            'Phetchabun' => ['Phetchabun'],
-            'Phetchaburi' => ['Phetchaburi'],
-            'Phichit' => ['Phichit'],
-            'Phitsanulok' => ['Phitsanulok'],
+            'Amnat Charoen'            => ['Amnat Charoen'],
+            'Ang Thong'                => ['Ang Thong'],
+            'Bangkok'                  => ['Bangkok'],
+            'Bueng Kan'                => ['Bueng Kan'],
+            'Buri Ram'                 => ['Buri Ram'],
+            'Chachoengsao'             => ['Chachoengsao'],
+            'Chai Nat'                 => ['Chai Nat'],
+            'Chaiyaphum'               => ['Chaiyaphum'],
+            'Chanthaburi'              => ['Chanthaburi'],
+            'Chiang Mai'               => ['Chiang Mai'],
+            'Chiang Rai'               => ['Chiang Rai'],
+            'Chon Buri'                => ['Chon Buri'],
+            'Chumphon'                 => ['Chumphon'],
+            'Kalasin'                  => ['Kalasin'],
+            'Kamphaeng Phet'           => ['Kamphaeng Phet'],
+            'Kanchanaburi'             => ['Kanchanaburi'],
+            'Khon Kaen'                => ['Khon Kaen'],
+            'Krabi'                    => ['Krabi'],
+            'Lampang'                  => ['Lampang'],
+            'Lamphun'                  => ['Lamphun'],
+            'Loei'                     => ['Loei'],
+            'Lop Buri'                 => ['Lop Buri'],
+            'Mae Hong Son'             => ['Mae Hong Son'],
+            'Maha Sarakham'            => ['Maha Sarakham'],
+            'Mukdahan'                 => ['Mukdahan'],
+            'Nakhon Nayok'             => ['Nakhon Nayok'],
+            'Nakhon Pathom'            => ['Nakhon Pathom'],
+            'Nakhon Phanom'            => ['Nakhon Phanom'],
+            'Nakhon Ratchasima'        => ['Nakhon Ratchasima'],
+            'Nakhon Sawan'             => ['Nakhon Sawan'],
+            'Nakhon Si Thammarat'      => ['Nakhon Si Thammarat'],
+            'Nan'                      => ['Nan'],
+            'Narathiwat'               => ['Narathiwat'],
+            'Nong Bua Lamphu'          => ['Nong Bua Lamphu'],
+            'Nong Khai'                => ['Nong Khai'],
+            'Nonthaburi'               => ['Nonthaburi'],
+            'Pathum Thani'             => ['Pathum Thani'],
+            'Pattani'                  => ['Pattani'],
+            'Phang Nga'                => ['Phang Nga'],
+            'Phatthalung'              => ['Phatthalung'],
+            'Phatthaya'                => ['Phatthaya'],
+            'Phayao'                   => ['Phayao'],
+            'Phetchabun'               => ['Phetchabun'],
+            'Phetchaburi'              => ['Phetchaburi'],
+            'Phichit'                  => ['Phichit'],
+            'Phitsanulok'              => ['Phitsanulok'],
             'Phra Nakhon Si Ayutthaya' => ['Phra Nakhon Si Ayutthaya'],
-            'Phrae' => ['Phrae'],
-            'Phuket' => ['Phuket'],
-            'Prachin Buri' => ['Prachin Buri'],
-            'Prachuap Khiri Khan' => ['Prachuap Khiri Khan'],
-            'Ranong' => ['Ranong'],
-            'Ratchaburi' => ['Ratchaburi'],
-            'Rayong' => ['Rayong'],
-            'Roi Et' => ['Roi Et'],
-            'Sa Kaeo' => ['Sa Kaeo'],
-            'Sakon Nakhon' => ['Sakon Nakhon'],
-            'Samut Prakan' => ['Samut Prakan'],
-            'Samut Sakhon' => ['Samut Sakhon'],
-            'Samut Songkhram' => ['Samut Songkhram'],
-            'Saraburi' => ['Saraburi'],
-            'Satun' => ['Satun'],
-            'Si Sa Ket' => ['Si Sa Ket'],
-            'Sing Buri' => ['Sing Buri'],
-            'Songkhla' => ['Songkhla'],
-            'Sukhothai' => ['Sukhothai'],
-            'Suphan Buri' => ['Suphan Buri'],
-            'Surat Thani' => ['Surat Thani'],
-            'Surin' => ['Surin'],
-            'Tak' => ['Tak'],
-            'Trang' => ['Trang'],
-            'Trat' => ['Trat'],
-            'Ubon Ratchathani' => ['Ubon Ratchathani'],
-            'Udon Thani' => ['Udon Thani'],
-            'Uthai Thani' => ['Uthai Thani'],
-            'Uttaradit' => ['Uttaradit'],
-            'Yala' => ['Yala'],
-            'Yasothon' => ['Yasothon'],
+            'Phrae'                    => ['Phrae'],
+            'Phuket'                   => ['Phuket'],
+            'Prachin Buri'             => ['Prachin Buri'],
+            'Prachuap Khiri Khan'      => ['Prachuap Khiri Khan'],
+            'Ranong'                   => ['Ranong'],
+            'Ratchaburi'               => ['Ratchaburi'],
+            'Rayong'                   => ['Rayong'],
+            'Roi Et'                   => ['Roi Et'],
+            'Sa Kaeo'                  => ['Sa Kaeo'],
+            'Sakon Nakhon'             => ['Sakon Nakhon'],
+            'Samut Prakan'             => ['Samut Prakan'],
+            'Samut Sakhon'             => ['Samut Sakhon'],
+            'Samut Songkhram'          => ['Samut Songkhram'],
+            'Saraburi'                 => ['Saraburi'],
+            'Satun'                    => ['Satun'],
+            'Si Sa Ket'                => ['Si Sa Ket'],
+            'Sing Buri'                => ['Sing Buri'],
+            'Songkhla'                 => ['Songkhla'],
+            'Sukhothai'                => ['Sukhothai'],
+            'Suphan Buri'              => ['Suphan Buri'],
+            'Surat Thani'              => ['Surat Thani'],
+            'Surin'                    => ['Surin'],
+            'Tak'                      => ['Tak'],
+            'Trang'                    => ['Trang'],
+            'Trat'                     => ['Trat'],
+            'Ubon Ratchathani'         => ['Ubon Ratchathani'],
+            'Udon Thani'               => ['Udon Thani'],
+            'Uthai Thani'              => ['Uthai Thani'],
+            'Uttaradit'                => ['Uttaradit'],
+            'Yala'                     => ['Yala'],
+            'Yasothon'                 => ['Yasothon'],
         ],
     ];
 
     /**
      * Returns array of values based on country & state codes, or everything if only country code given
      *
-     * @param string $countryCode
-     * @param null $stateCode
+     * @param string|null $countryCode
+     * @param string|null $stateCode
      *
      * @return bool|array
      */
-    public function getValuesFromCodes($countryCode = null, $stateCode = null)
+    public function getValuesFromCodes(string $countryCode = null, string $stateCode = null)
     {
-        // We need a countryCode + stateCode and for it to exist in _codes
-        if (!$countryCode || !$stateCode || !isset($this->_codes[$countryCode])) {
+        // We need a countryCode + stateCode and for it to exist in codes
+        if (!$countryCode || !$stateCode || !isset($this->codes[$countryCode])) {
             return false;
         }
 
-        // If statecode is both given and exists in _codes, return its array value
-        if (isset($this->_codes[$countryCode][$stateCode])) {
-            return $this->_codes[$countryCode][$stateCode];
+        // If statecode is both given and exists in codes, return its array value
+        if (isset($this->codes[$countryCode][$stateCode])) {
+            return $this->codes[$countryCode][$stateCode];
         }
 
         // Nothing found, return false instead
@@ -596,20 +600,19 @@ class PaypalStateCodes
     /**
      * Returns code string based on country code and value, or false if not found. Also returns an array if
      *
-     * @param null $countryCode
-     * @param null $value
-     *
+     * @param string|null $countryCode
+     * @param string|null $value
      * @return false|string
      */
-    public function getCodeFromValue($countryCode = null, $value = null)
+    public function getCodeFromValue(string $countryCode = null, string $value = null)
     {
-        // We need a countryCode + value and for it to exist in _codes
-        if (!$countryCode || !$value || !isset($this->_codes[$countryCode])) {
+        // We need a countryCode + value and for it to exist in codes
+        if (!$countryCode || !$value || !isset($this->codes[$countryCode])) {
             return false;
         }
 
         // Loop through and do an in_array search (some state codes have multiple names)
-        foreach ($this->_codes[$countryCode] as $stateCode => $stateValues) {
+        foreach ($this->codes[$countryCode] as $stateCode => $stateValues) {
             if (in_array($value, $stateValues)) {
                 // As soon as we find one, return the code
                 return $stateCode;
@@ -623,21 +626,20 @@ class PaypalStateCodes
     /**
      * Returns all codes or all codes by countryCode. False if countryCode given but non-existant
      *
-     * @param null $countryCode
-     *
+     * @param string|int|null $countryCode
      * @return array|bool
      */
     public function getCodes($countryCode = null)
     {
         if (!$countryCode) {
-            return $this->_codes;
+            return $this->codes;
         }
 
-        if (isset($this->_codes[$countryCode])) {
-            return $this->_codes[$countryCode];
+        if (isset($this->codes[$countryCode])) {
+            return $this->codes[$countryCode];
         }
 
-        // Nothing found based on countryCode but it was given, return false instead
+        // Nothing found based on countryCode, but it was given, return false instead
         return false;
     }
 }

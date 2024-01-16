@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -20,37 +20,38 @@
 
 namespace Buckaroo\Magento2\Block\Checkout;
 
-class Totals extends \Magento\Checkout\Block\Total\DefaultTotal
+use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Helper\PaymentFee;
+use Magento\Checkout\Block\Total\DefaultTotal;
+use Magento\Checkout\Model\Session as CheckoutSession;
+use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Framework\View\Element\Template\Context;
+use Magento\Sales\Model\Config;
+
+class Totals extends DefaultTotal
 {
     /**
-     * Template file path
+     * Buckaroo fee helper.
      *
-     * @var string
+     * @var PaymentFee
      */
-    protected $_template = 'checkout/totals.phtml';
+    protected PaymentFee $helper;
 
     /**
-     * Buckaroo fee helper
-     *
-     * @var \Buckaroo\Magento2\Helper\PaymentFee
-     */
-    protected $helper;
-
-    /**
-     * @param \Magento\Framework\View\Element\Template\Context $context
-     * @param \Magento\Customer\Model\Session                  $customerSession
-     * @param \Magento\Checkout\Model\Session                  $checkoutSession
-     * @param \Magento\Sales\Model\Config                      $salesConfig
-     * @param \Buckaroo\Magento2\Helper\PaymentFee                  $helper
-     * @param array                                            $layoutProcessors
-     * @param array                                            $data
+     * @param Context $context
+     * @param CustomerSession $customerSession
+     * @param CheckoutSession $checkoutSession
+     * @param Config $salesConfig
+     * @param PaymentFee $helper
+     * @param array $layoutProcessors
+     * @param array $data
      */
     public function __construct(
-        \Magento\Framework\View\Element\Template\Context $context,
-        \Magento\Customer\Model\Session $customerSession,
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Sales\Model\Config $salesConfig,
-        \Buckaroo\Magento2\Helper\PaymentFee $helper,
+        Context $context,
+        CustomerSession $customerSession,
+        CheckoutSession $checkoutSession,
+        Config $salesConfig,
+        PaymentFee $helper,
         array $layoutProcessors = [],
         array $data = []
     ) {
@@ -60,15 +61,26 @@ class Totals extends \Magento\Checkout\Block\Total\DefaultTotal
     }
 
     /**
-     * Return information for showing
+     * @inheritdoc
+     */
+    protected function _construct()
+    {
+        parent::_construct();
+        $this->setTemplate('Buckaroo_Magento2::checkout/totals.phtml');
+    }
+
+    /**
+     * Return information for showing.
      *
      * @return array
+     * @throws Exception
      */
     public function getValues()
     {
         $values = [];
         /**
          * @noinspection PhpUndefinedMethodInspection
+         * @phpstan-ignore-next-line
          */
         $total = $this->getTotal();
         $totals = $this->helper->getTotals($total);
@@ -76,6 +88,7 @@ class Totals extends \Magento\Checkout\Block\Total\DefaultTotal
             $label = (string)$total['label'];
             $values[$label] = $total['value'];
         }
+
         return $values;
     }
 }

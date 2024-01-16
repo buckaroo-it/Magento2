@@ -17,6 +17,13 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 var config = {
+    config: {
+        mixins: {
+            'Buckaroo_Magento2/js/action/place-order': {
+                'Buckaroo_Magento2/js/action/amasty-place-order-mixin': true
+            },
+        },
+    },
     map: {
         '*': {
             "BuckarooSDK": "//checkout.buckaroo.nl/api/buckaroosdk/script",
@@ -31,6 +38,7 @@ var config = {
             "buckaroo/mrcash/pay": "Buckaroo_Magento2/js/view/checkout/mrcash/pay",
             "BuckarooClientSideEncryption": "//static.buckaroo.nl/script/ClientSideEncryption001.js",
             "buckaroo/checkout/common": "Buckaroo_Magento2/js/view/checkout/common",
+            "buckaroo/checkout/datepicker": "Buckaroo_Magento2/js/view/checkout/datepicker",
             "buckaroo/paypal-express/pay": "Buckaroo_Magento2/js/view/checkout/paypal-express/pay",
             "buckaroo/paypal-express/button": "Buckaroo_Magento2/js/view/checkout/paypal-express/button"
         }

@@ -39,7 +39,7 @@ define(
                             if (messagesComponent && messagesComponent.cookieMessages) {
                                 messagesComponent.cookieMessages.forEach(function (message) {
                                     if (message.type == 'error') {
-                                        messageList.addErrorMessage({message: $.mage.__($("<textarea/>").html(message.text).text())});
+                                        messageList.addErrorMessage({message: $.mage.__($("<textarea></textarea>").html(message.text).text())});
                                     }
                                 });
                             }
@@ -131,7 +131,7 @@ define(
                              */
                             getTotals([]);
                         }
-                    ).error(
+                    ).fail(
                         function () {
                             totals.isLoading(false);
                         }

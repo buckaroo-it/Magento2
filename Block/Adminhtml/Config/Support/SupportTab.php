@@ -1,12 +1,13 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -20,59 +21,68 @@
 
 namespace Buckaroo\Magento2\Block\Adminhtml\Config\Support;
 
+use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 use Magento\Framework\Data\Form\Element\Renderer\RendererInterface;
-use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
+use Magento\Framework\HTTP\Client\Curl;
+use Magento\Framework\View\Element\Template;
+use Magento\Framework\View\Element\Template\Context;
 
-class SupportTab extends \Magento\Framework\View\Element\Template implements RendererInterface
+class SupportTab extends Template implements RendererInterface
 {
-    protected $_template = 'supportTab.phtml';
-
-    /** @var array  */
-    private $phpVersionSupport = [
-        '2.3' => ['7.3' => ['+'], '7.4' => ['+']],
-        '2.4' => ['7.4' => ['+'], '8.1' => ['+']],
-    ];
+    /**
+     * @var string
+     */
+    protected $_template = 'Buckaroo_Magento2::supportTab.phtml';
 
     /**
-     * @var \Magento\Framework\Setup\ModuleContextInterface
+     * @var array
      */
-    private $moduleContext;
+    private array $phpVersionSupport = [
+        '2.4' => ['7.4' => ['+'], '8.1' => ['+'], '8.2' => ['+']],
+    ];
 
     /**
      * @var SoftwareData
      */
-    private $softwareData;
+    private SoftwareData $softwareData;
+
+    /**
+     * @var Curl
+     */
+    private Curl $curl;
 
     /**
      * Override the parent constructor to require our own dependencies.
      *
-     * @param \Magento\Framework\View\Element\Template\Context $context
-     * @param \Magento\Framework\Module\ModuleResource         $moduleContext
-     * @param SoftwareData                                     $softwareData
-     * @param array                                            $data
+     * @param Context $context
+     * @param SoftwareData $softwareData
+     * @param Curl $curl
+     * @param array $data
      */
     public function __construct(
-        \Magento\Framework\View\Element\Template\Context $context,
-        \Magento\Framework\Module\ModuleResource $moduleContext,
+        Context $context,
         SoftwareData $softwareData,
+        Curl $curl,
         array $data = []
     ) {
         parent::__construct($context, $data);
 
-        $this->moduleContext = $moduleContext;
         $this->softwareData = $softwareData;
+        $this->curl = $curl;
     }
 
     /**
-     * @param AbstractElement $element
+     * Render form element as HTML
      *
+     * @param AbstractElement $element
      * @return string
      */
-    public function render(AbstractElement $element)
+    public function render(AbstractElement $element): string
     {
         /**
          * @noinspection PhpUndefinedMethodInspection
+         * @phpstan-ignore-next-line
          */
         $this->setElement($element);
 
@@ -82,54 +92,87 @@ class SupportTab extends \Magento\Framework\View\Element\Template implements Ren
     /**
      * Retrieve the version number from constant
      *
-     * @return bool|false|string
+     * @return string
      */
-    public function getVersionNumber()
+    public function getVersionNumber(): string
     {
-        $version = $this->softwareData->getModuleVersion();
-
-        return $version;
+        return $this->softwareData->getModuleVersion();
     }
 
     /**
-     * @return bool|int
+     * PHP Version Check
+     *
+     * @return int
      */
-    public function phpVersionCheck()
+    public function phpVersionCheck(): int
     {
+        $result = -1;
+
         $magentoVersion = $this->getMagentoVersionArray();
         $phpVersion = $this->getPhpVersionArray();
 
-        if (!is_array($magentoVersion) || !is_array($phpVersion)) {
-            return -1;
-        }
+        if (!empty($magentoVersion) && !empty($phpVersion)) {
+            $magentoMajorMinor = $magentoVersion[0] . '.' . $magentoVersion[1];
+            $phpMajorMinor = $phpVersion[0] . '.' . $phpVersion[1];
+            $phpPatch = (int)$phpVersion[2];
 
-        $magentoMajorMinor = $magentoVersion[0] . '.' . $magentoVersion[1];
-        $phpMajorMinor = $phpVersion[0] . '.' . $phpVersion[1];
-        $phpPatch = (int) $phpVersion[2];
-
-        if (!isset($this->phpVersionSupport[$magentoMajorMinor]) ||
-            !isset($this->phpVersionSupport[$magentoMajorMinor][$phpMajorMinor])) {
-            return 0;
-        }
-
-        $currentVersion = $this->phpVersionSupport[$magentoMajorMinor][$phpMajorMinor];
-        if (isset($currentVersion)) {
-
-            if (in_array($phpPatch, $currentVersion)) {
-                return true;
-            } elseif (in_array('+', $currentVersion) && $phpPatch >= max($currentVersion)) {
-                return true;
+            if (isset($this->phpVersionSupport[$magentoMajorMinor][$phpMajorMinor])) {
+                $currentVersion = $this->phpVersionSupport[$magentoMajorMinor][$phpMajorMinor];
+                $result = $this->checkPhpCompatibility($currentVersion, $phpPatch);
             } else {
-                return false;
+                $result = 0;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Check PHP Compatibility
+     *
+     * @param $currentVersion
+     * @param $phpPatch
+     * @return int
+     */
+    private function checkPhpCompatibility($currentVersion, $phpPatch): int
+    {
+        if (!empty($currentVersion)) {
+            if (in_array($phpPatch, $currentVersion) ||
+                (in_array('+', $currentVersion) && $phpPatch >= max($currentVersion))) {
+                return 1;
+            } else {
+                return 0;
             }
         }
 
         return -1;
     }
 
-    public function getPhpVersionArray()
+    /**
+     * Get Magento Versions
+     *
+     * @return array
+     */
+    private function getMagentoVersionArray(): array
     {
-        $version = false;
+        $version = [];
+        $currentVersion = $this->softwareData->getProductMetaData()->getVersion();
+
+        if (!empty($currentVersion)) {
+            $version = explode('.', $currentVersion);
+        }
+
+        return $version;
+    }
+
+    /**
+     * Get PHP Versions
+     *
+     * @return string[]
+     */
+    private function getPhpVersionArray(): array
+    {
+        $version = [];
         if (defined('PHP_VERSION')) {
             $version = explode('.', PHP_VERSION);
         } elseif (function_exists('phpversion')) {
@@ -140,31 +183,37 @@ class SupportTab extends \Magento\Framework\View\Element\Template implements Ren
     }
 
     /**
-     * @return array|bool
+     * Get latest tag from GitHub repository
+     *
+     * @return string
      */
-    public function getMagentoVersionArray()
+    public function getLatestPluginVersion(): string
     {
-        $version = false;
-        $currentVersion = $this->softwareData->getProductMetaData()->getVersion();
+        $url = "https://api.github.com/repos/buckaroo-it/Magento2/tags";
+        $this->curl->addHeader('User-Agent', 'Magento 2 Buckaroo Plugin');
+        $this->curl->get($url);
+        $result = json_decode($this->curl->getBody(), true);
 
-        if (isset($currentVersion)) {
-            $version = explode('.', $currentVersion);
+        if (is_array($result) && isset($result[0]['name'])) {
+            return $result[0]['name'];
         }
-
-        return $version;
+        return "v" . $this->getVersionNumber();
     }
 
     /**
-     * @return array|bool
+     * Get all php compatible versions
+     *
+     * @return string
      */
-    public function getMagentoVersionTidyString()
+    public function getPhpVersions(): string
     {
         $magentoVersion = $this->getMagentoVersionArray();
-
-        if (is_array($magentoVersion)) {
-            return $magentoVersion[0] . '.' . $magentoVersion[1];
+        if (empty($magentoVersion)) {
+            return __('Cannot determine compatible PHP versions');
         }
 
-        return false;
+        $magentoMajorMinor = $magentoVersion[0] . '.' . $magentoVersion[1];
+        $versions = array_keys($this->phpVersionSupport[$magentoMajorMinor]);
+        return implode(', ', $versions);
     }
 }

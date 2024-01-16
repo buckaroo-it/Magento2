@@ -27,7 +27,8 @@ define(
         'ko',
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/action/select-payment-method',
-        'buckaroo/checkout/common'
+        'buckaroo/checkout/common',
+        'Magento_Checkout/js/model/quote'
     ],
     function (
         $,
@@ -37,7 +38,8 @@ define(
         ko,
         checkoutData,
         selectPaymentMethodAction,
-        checkoutCommon
+        checkoutCommon,
+        quote
     ) {
         'use strict';
 
@@ -48,9 +50,25 @@ define(
                 },
                 redirectAfterPlaceOrder: false,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.klarnakp.paymentFeeLabel,
+                subtext : window.checkoutConfig.payment.buckaroo.klarnakp.subtext,
+                subTextStyle : checkoutCommon.getSubtextStyle('klarnakp'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
+                showFinancialWarning: window.checkoutConfig.payment.buckaroo.klarnakp.showFinancialWarning || true,
+                isTestMode: window.checkoutConfig.payment.buckaroo.klarnakp.isTestMode,
 
+                initObservable: function () {
+                    this.showFinancialWarning = ko.computed(
+                        function () {
+                            return quote.billingAddress() !== null &&
+                            quote.billingAddress().countryId == 'NL' &&
+                            window.checkoutConfig.payment.buckaroo.klarnakp.showFinancialWarning
+                        },
+                        this
+                    );
+
+                    return this;
+                },
                 /**
                  * @override
                  */

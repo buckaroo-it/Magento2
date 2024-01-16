@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,44 +17,38 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\Data\Form\FormKey;
-use Magento\Framework\View\Asset\Repository;
+use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Helper\PaymentFee;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Data\Form\FormKey;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\View\Asset\Repository;
+use Magento\Store\Model\ScopeInterface;
 
 class Mrcash extends AbstractConfigProvider
 {
-    const XPATH_MRCASH_PAYMENT_FEE              = 'payment/buckaroo_magento2_mrcash/payment_fee';
-    const XPATH_MRCASH_PAYMENT_FEE_LABEL        = 'payment/buckaroo_magento2_mrcash/payment_fee_label';
-    const XPATH_MRCASH_ACTIVE                   = 'payment/buckaroo_magento2_mrcash/active';
-    const XPATH_MRCASH_ACTIVE_STATUS            = 'payment/buckaroo_magento2_mrcash/active_status';
-    const XPATH_MRCASH_ORDER_STATUS_SUCCESS     = 'payment/buckaroo_magento2_mrcash/order_status_success';
-    const XPATH_MRCASH_ORDER_STATUS_FAILED      = 'payment/buckaroo_magento2_mrcash/order_status_failed';
-    const XPATH_MRCASH_AVAILABLE_IN_BACKEND     = 'payment/buckaroo_magento2_mrcash/available_in_backend';
+    public const CODE = 'buckaroo_magento2_mrcash';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_mrcash/allowed_currencies';
+    public const XPATH_MRCASH_USE_CLIENT_SIDE = 'client_side';
 
-    const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_mrcash/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_mrcash/specificcountry';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_mrcash/specificcustomergroup';
-
-    const XPATH_MRCASH_USE_CLIENT_SIDE          = 'payment/buckaroo_magento2_mrcash/client_side';
-
-    const MRCASH_REDIRECT_URL = '/buckaroo/mrcash/pay';
-
-    /** @var FormKey */
-    private $formKey;
+    public const MRCASH_REDIRECT_URL = '/buckaroo/mrcash/pay';
 
     /**
-     * @param Repository           $assetRepo
+     * @var FormKey
+     */
+    private FormKey $formKey;
+
+    /**
+     * @param Repository $assetRepo
      * @param ScopeConfigInterface $scopeConfig
-     * @param AllowedCurrencies    $allowedCurrencies
-     * @param PaymentFee           $paymentFeeHelper
-     * @param FormKey              $formKey
+     * @param AllowedCurrencies $allowedCurrencies
+     * @param PaymentFee $paymentFeeHelper
+     * @param FormKey $formKey
      */
     public function __construct(
         Repository $assetRepo,
@@ -68,28 +62,28 @@ class Mrcash extends AbstractConfigProvider
         $this->formKey = $formKey;
     }
 
-    private function getFormKey()
-    {
-        return $this->formKey->getFormKey();
-    }
-
     /**
-     * @return array|void
+     * @inheritdoc
+     *
+     * @throws Exception
+     * @throws LocalizedException
      */
     public function getConfig()
     {
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
-            \Buckaroo\Magento2\Model\Method\Mrcash::PAYMENT_METHOD_CODE
-        );
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
 
         return [
             'payment' => [
                 'buckaroo' => [
                     'mrcash' => [
-                        'paymentFeeLabel' => $paymentFeeLabel,
+                        'paymentFeeLabel'   => $paymentFeeLabel,
+                        'subtext'           => $this->getSubtext(),
+                        'subtext_style'     => $this->getSubtextStyle(),
+                        'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'useClientSide' => (int) $this->useClientSide(),
-                        'redirecturl' => self::MRCASH_REDIRECT_URL . '?form_key=' . $this->getFormKey()
+                        'useClientSide'     => (int)$this->useClientSide(),
+                        'redirecturl'       => self::MRCASH_REDIRECT_URL . '?form_key=' . $this->getFormKey(),
+                        'isTestMode'        => $this->isTestMode()
                     ],
                 ],
             ],
@@ -97,29 +91,24 @@ class Mrcash extends AbstractConfigProvider
     }
 
     /**
-     * @param null|int $storeId
+     * Get Use Client Side
      *
-     * @return float
+     * @param null|int|string $store
+     * @return mixed
      */
-    public function getPaymentFee($storeId = null)
+    private function useClientSide($store = null)
     {
-        $paymentFee = $this->scopeConfig->getValue(
-            self::XPATH_MRCASH_PAYMENT_FEE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
-
-        return $paymentFee ? $paymentFee : false;
+        return $this->getMethodConfigValue(self::XPATH_MRCASH_USE_CLIENT_SIDE, $store);
     }
 
     /**
-     * @return bool
+     * Get Magento Form Key
+     *
+     * @return string
+     * @throws LocalizedException
      */
-    private function useClientSide()
+    private function getFormKey(): string
     {
-        return $this->scopeConfig->getValue(
-            self::XPATH_MRCASH_USE_CLIENT_SIDE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
+        return $this->formKey->getFormKey();
     }
 }

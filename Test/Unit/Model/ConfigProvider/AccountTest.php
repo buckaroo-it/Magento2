@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider;
 
 use Magento\Sales\Model\Order;
@@ -38,22 +40,21 @@ class AccountTest extends BaseTest
             'This test needs to be reviewed.'
         );
         $expectedKeys = [
-            'active', 'secret_key', 'merchant_key', 'merchant_guid', 'transaction_label', 'certificate_file',
+            'active', 'secret_key', 'merchant_key', 'merchant_guid', 'transaction_label',
             'order_confirmation_email', 'invoice_email', 'success_redirect', 'failure_redirect', 'cancel_on_failed',
-            'digital_signature', 'debug_email', 'limit_by_ip', 'fee_percentage_mode',
-            'payment_fee_label', 'order_status_new', 'order_status_pending', 'order_status_success',
-            'order_status_failed', 'create_order_before_transaction'
+            'debug_email', 'limit_by_ip', 'fee_percentage_mode', 'payment_fee_label', 'order_status_new',
+            'order_status_pending', 'order_status_success', 'order_status_failed', 'create_order_before_transaction'
         ];
 
         $instance = $this->getInstance();
         $result = $instance->getConfig();
 
-        $this->assertInternalType('array', $result);
+        $this->assertIsArray($result);
 
         $resultKeys = array_keys($result);
         $this->assertEmpty(array_merge(array_diff($expectedKeys, $resultKeys), array_diff($resultKeys, $expectedKeys)));
     }
-    public function test_parsed_label_all()
+    public function testParsedLabelAll()
     {
         $orderNumber = '000000099';
         $productName = 'Product name';

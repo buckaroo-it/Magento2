@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -20,48 +20,92 @@
 
 namespace Buckaroo\Magento2\Block\Info;
 
-use Magento\Framework\View\Asset\Repository;
+use Buckaroo\Magento2\Block\Info;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard as ConfigProviderCreditcard;
 use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
+use Buckaroo\Magento2\Service\LogoService;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\View\Element\Template\Context;
 
-class Creditcard extends \Buckaroo\Magento2\Block\Info
+class Creditcard extends Info
 {
     /**
-     * @var string
+     * @var string|null
      */
-    protected $cardType;
+    protected ?string $cardType = null;
 
     /**
-     * @var array
+     * @var array|null
      */
-    protected $mpiStatus;
+    protected ?array $mpiStatus = null;
 
     /**
-     * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard
+     * @var ConfigProviderCreditcard
      */
-    protected $configProvider;
+    protected ConfigProviderCreditcard $configProvider;
 
     /**
-     * @var string
+     * @param Context $context
+     * @param PaymentGroupTransaction $groupTransaction
+     * @param GiftcardCollection $giftcardCollection
+     * @param LogoService $logoService
+     * @param array $data
+     * @param ConfigProviderCreditcard|null $configProvider
      */
-    protected $_template = 'Buckaroo_Magento2::info/creditcard.phtml';
-
     public function __construct(
-        \Magento\Framework\View\Element\Template\Context $context,
+        Context $context,
         PaymentGroupTransaction $groupTransaction,
         GiftcardCollection $giftcardCollection,
-        Repository $assetRepo,
+        LogoService $logoService,
         array $data = [],
-        \Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard $configProvider = null
+        ConfigProviderCreditcard $configProvider = null
     ) {
-        parent::__construct($context, $groupTransaction, $giftcardCollection, $assetRepo, $data);
+        parent::__construct($context, $groupTransaction, $giftcardCollection, $logoService, $data);
         $this->configProvider = $configProvider;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function _construct()
+    {
+        parent::_construct();
+        $this->setTemplate('Buckaroo_Magento2::info/creditcard.phtml');
+    }
+
+    /**
+     * Get the order's MPI status.
+     *
+     * @return array
+     * @throws LocalizedException
+     */
+    public function getMpiStatus()
+    {
+        if ($this->mpiStatus === null) {
+            $this->mpiStatus = $this->getInfo()->getAdditionalInformation('buckaroo_mpi_status');
+        }
+        return $this->mpiStatus;
+    }
+
+    /**
+     * Get card code
+     *
+     * @return string
+     * @throws LocalizedException
+     */
+    public function getCardCode()
+    {
+        $cardType = $this->getCardType();
+
+        return $this->configProvider->getCardCode($cardType);
     }
 
     /**
      * Get the selected creditcard for this order.
      *
      * @return string
+     * @throws LocalizedException
      */
     public function getCardType()
     {
@@ -74,29 +118,8 @@ class Creditcard extends \Buckaroo\Magento2\Block\Info
     }
 
     /**
-     * Get the order's MPI status.
+     * Render as PDF
      *
-     * @return array
-     */
-    public function getMpiStatus()
-    {
-        if ($this->mpiStatus === null) {
-            $this->mpiStatus = $this->getInfo()->getAdditionalInformation('buckaroo_mpi_status');
-        }
-        return $this->mpiStatus;
-    }
-
-    /**
-     * @return string
-     */
-    public function getCardCode()
-    {
-        $cardType = $this->getCardType();
-
-        return $this->configProvider->getCardCode($cardType);
-    }
-
-    /**
      * @return string
      */
     public function toPdf()

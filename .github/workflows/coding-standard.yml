@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: extdn/github-actions-m2/magento-coding-standard/8.1@master
         with:
           phpcs_severity: 10
@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: extdn/github-actions-m2/magento-mess-detector@master
 
   phpstan:
@@ -26,7 +26,47 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v2
-      - uses: extdn/github-actions-m2/magento-phpstan@master
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
-          composer_name: buckaroo/magento2
+          php-version: 8.1
+          tools: composer:v2
+
+      - uses: actions/checkout@v3
+
+      - name: Validate composer json
+        run: composer validate
+
+      - name: Clear Composer cache
+        run: composer clear-cache
+
+      - name: Setup Magento
+        run: |
+          pull_number=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
+          url="https://api.github.com/repos/buckaroo-it/Magento2/pulls/$pull_number/files"
+          echo $url
+          curl $url > files_changed
+          cat files_changed | grep '"filename"' | sed 's/\"filename\"\: \"//' | sed 's/\",//' | xargs ls
+          echo '{"http-basic": {"repo.magento.com": {"username": "${{ secrets.REPO_USERNAME }}","password": "${{ secrets.REPO_PASS }}"}}}' > auth.json
+          composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition=2.4.6-p2 ~/m246
+          mkdir -p ~/m246/app/code/Buckaroo/Magento2/
+          rsync -r --exclude='m246' ./ ~/m246/app/code/Buckaroo/Magento2/
+          cd ~/m246
+          bin/magento module:enable --all
+          bin/magento setup:di:compile
+
+      - name: Install PHPStan
+        run: |
+          cd ~/m246
+          composer require --dev phpstan/phpstan:^1.10
+          ls -la vendor/bin/
+
+      - name: Install Buckaroo SDK
+        run: |
+          cd ~/m246
+          composer require buckaroo/sdk
+
+      - name: Run PHPStan
+        run: |
+          cd ~/m246
+          vendor/bin/phpstan analyse --level 1 app/code/Buckaroo/Magento2/ -c dev/tests/static/testsuite/Magento/Test/Php/_files/phpstan/phpstan.neon

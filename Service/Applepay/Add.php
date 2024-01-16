@@ -1,153 +1,113 @@
 <?php
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Service\Applepay;
 
-use Magento\Framework\App\ObjectManager;
-use Magento\Quote\Api\CartRepositoryInterface;
-use Magento\Quote\Api\Data\CartInterface;
-use Magento\Quote\Model\MaskedQuoteIdToQuoteIdInterface;
-use Magento\Catalog\Api\ProductRepositoryInterface;
-use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Quote\Model\Cart\Data\CartItem;
-use Magento\Quote\Model\Cart\BuyRequest\BuyRequestBuilder;
-use Buckaroo\Magento2\Model\Applepay as ApplepayModel;
-use Magento\Quote\Model\Quote\Address as QuoteAddress;
-use Magento\Quote\Model\Quote\AddressFactory as BaseQuoteAddressFactory;
-use Magento\Quote\Model\ShippingAddressManagementInterface;
-use Magento\Quote\Model\QuoteRepository;
-use Buckaroo\Magento2\Service\Applepay\ShippingMethod as AppleShippingMethod;
-class Add 
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay;
+use Buckaroo\Magento2\Model\Service\ApplePayFormatData;
+use Buckaroo\Magento2\Model\Service\QuoteService;
+
+class Add
 {
     /**
-     * @var CartRepositoryInterface
+     * @var BuckarooLoggerInterface
      */
-    private $cartRepository;
+    private BuckarooLoggerInterface $logger;
 
-    private $cart;
-
-    private $maskedQuoteIdToQuoteId;
     /**
-     * @param CartRepositoryInterface $cartRepository
-     * @param CartInterface $cart
-     * @param MaskedQuoteIdToQuoteIdInterface $maskedQuoteIdToQuoteId
-     * @param ProductRepositoryInterface $productRepository
-     * @param BuyRequestBuilder $buyRequestBuilder
-     * @param ApplepayModel $applepayModel
-     * @param QuoteAddressFactory $quoteAddressFactory
+     * @var QuoteService
      */
-     
+    private QuoteService $quoteService;
+
+    /**
+     * @var ApplePayFormatData
+     */
+    private ApplePayFormatData $applePayFormatData;
+
+    /**
+     * @param BuckarooLoggerInterface $logger
+     * @param QuoteService $quoteService
+     * @param ApplePayFormatData $applePayFormatData
+     */
     public function __construct(
-        CartRepositoryInterface $cartRepository,
-        CartInterface $cart,
-        MaskedQuoteIdToQuoteIdInterface $maskedQuoteIdToQuoteId,
-        ProductRepositoryInterface $productRepository,
-        BuyRequestBuilder $requestBuilder,
-        ApplepayModel $applepayModel,
-        BaseQuoteAddressFactory $quoteAddressFactory,
-        ShippingAddressManagementInterface $shippingAddressManagement,
-        QuoteRepository $quoteRepository = null,
-        AppleShippingMethod $appleShippingMethod
-
-    )
-    {
-        $this->cartRepository = $cartRepository;
-        $this->cart = $cart;
-        $this->maskedQuoteIdToQuoteId = $maskedQuoteIdToQuoteId;
-        $this->productRepository = $productRepository;
-        $this->requestBuilder = $requestBuilder;
-        $this->applepayModel = $applepayModel;
-        $this->quoteAddressFactory = $quoteAddressFactory;
-        $this->shippingAddressManagement = $shippingAddressManagement;
-        $this->quoteRepository = $quoteRepository
-        ?? ObjectManager::getInstance()->get(QuoteRepository::class);
-        $this->appleShippingMethod = $appleShippingMethod;
-
+        BuckarooLoggerInterface $logger,
+        QuoteService $quoteService,
+        ApplePayFormatData $applePayFormatData
+    ) {
+        $this->logger = $logger;
+        $this->quoteService = $quoteService;
+        $this->applePayFormatData = $applePayFormatData;
     }
 
-    public function process($request,$context)
+    /**
+     * Add Product to Cart on Apple Pay
+     *
+     * @param array $request
+     * @return array|false
+     */
+    public function process(array $request)
     {
-        
-        $cart_hash = $request->getParam('id');
-        
-        if($cart_hash) {
-            $cartId = $this->maskedQuoteIdToQuoteId->execute($cart_hash);
-            $cart = $this->cartRepository->get($cartId);            
-        } else {
-            //get cart from session scenario
-        }
-
-        $product = $request->getParam('product');
-        $cart->removeAllItems();
-        
         try {
-            $productToBeAdded = $this->productRepository->getById($product['id']);
-        } catch (NoSuchEntityException $e) {
-            throw new NoSuchEntityException(__('Could not find a product with ID "%id"', ['id' => $product['id']]));
-        }
-       
-        $cartItem = new CartItem(
-            $productToBeAdded->getSku(),
-            $product['qty']            
-        );
+            // Get Cart
+            $cartHash = $request['id'] ?? null;
+            $this->quoteService->getEmptyQuote($cartHash);
 
-        if(isset($product['selected_options'])) {
-            $cartItem->setSelectedOptions($product['selected_options']);
-        }
+            // Add product to cart
+            $product = $this->applePayFormatData->getProductObject($request['product']);
+            $this->quoteService->addProductToCart($product);
 
-        $cart->addProduct($productToBeAdded, $this->requestBuilder->build($cartItem));        
-        $this->cartRepository->save($cart);        
-        
-        $wallet = $request->getParam('wallet');
-        $shippingAddressData = $this->applepayModel->processAddressFromWallet($wallet, 'shipping');
-        
-        
-        $shippingAddress = $this->quoteAddressFactory->create();
-        $shippingAddress->addData($shippingAddressData);
+            // Get Shipping Address From Request
+            $shippingAddressRequest = $this->applePayFormatData->getShippingAddressObject($request['wallet']);
 
-        $errors = $shippingAddress->validate(); 
-                
-        try {
-            $this->shippingAddressManagement->assign($cart->getId(), $shippingAddress);
-        } catch (\Exception $e) {
-            echo $e->getMessage();
-        }
-        $this->quoteRepository->save($cart);
-        $shippingMethodsResult = [];
-        //this delivery address is already assigned to the cart
-        $shippingMethods = $this->appleShippingMethod->getAvailableMethods( $cart);
-        foreach ($shippingMethods as $index => $shippingMethod) {
-            $shippingMethodsResult[] = [
-                'carrier_title' => $shippingMethod['carrier_title'],
-                'price_incl_tax' => round($shippingMethod['amount'], 2),
-                'method_code' => $shippingMethod['carrier_code'] . '_' .  $shippingMethod['method_code'],
-                'method_title' => $shippingMethod['method_title'],
+            // Add Shipping Address on Quote
+            $this->quoteService->addAddressToQuote($shippingAddressRequest);
+
+            // Add Shipping Address on Quote
+            $this->quoteService->addAddressToQuote($shippingAddressRequest);
+
+            // Get Shipping Methods
+            $shippingMethods = $this->quoteService->getAvailableShippingMethods();
+
+            //Set Payment Method
+            $this->quoteService->setPaymentMethod(Applepay::CODE);
+
+            // Calculate Quote Totals
+            $this->quoteService->calculateQuoteTotals();
+
+            // Get Totals
+            $totals = $this->quoteService->gatherTotals();
+
+            return [
+                'shipping_methods' => $shippingMethods,
+                'totals'           => $totals
             ];
+        } catch (\Exception $exception) {
+            $this->logger->addError(sprintf(
+                '[ApplePay] | [Controller] | [%s:%s] - Add Product to Cart on Apple Pay | [ERROR]: %s',
+                __METHOD__,
+                __LINE__,
+                $exception->getMessage()
+            ));
+            return false;
         }
-        $cart->getShippingAddress()->setShippingMethod($shippingMethodsResult[0]['method_code']);
-        $cart->setTotalsCollectedFlag(false);
-        $cart->collectTotals();
-        $totals = $this->gatherTotals($cart->getShippingAddress(), $cart->getTotals());
-        if ($cart->getSubtotal() != $cart->getSubtotalWithDiscount()) {
-            $totals['discount'] = round($cart->getSubtotalWithDiscount() - $cart->getSubtotal(), 2);
-        }
-
-
-
-        $data = [
-            'shipping_methods' => $shippingMethodsResult,
-            'totals' => $totals
-        ];   
-        return $data;     
-    }
-    public function gatherTotals($address, $quoteTotals)
-    {
-        $totals = [
-            'subtotal' => $quoteTotals['subtotal']->getValue(),
-            'discount' => isset($quoteTotals['discount']) ? $quoteTotals['discount']->getValue() : null,
-            'shipping' => $address->getData('shipping_incl_tax'),
-            'grand_total' => $quoteTotals['grand_total']->getValue()
-        ];
-
-        return $totals;
     }
 }

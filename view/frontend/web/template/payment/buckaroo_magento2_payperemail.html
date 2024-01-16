@@ -7,11 +7,22 @@
                        class="radio"
                        data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
                 <label class="label" data-bind="attr: {'for': getCode()}" >
-                    <!-- ko text: getTitle() --><!-- /ko -->
+                        <!-- ko text: getTitle() --><!-- /ko -->
+                        <!-- ko if: subtext !== null && subtext.length > 0 -->
+                       <p class="bk-description" data-bind="text: subtext, style: subTextStyle"></p>
+                        <!-- /ko -->
                 </label>
             </div>
-            <div class="bk-img-wrap">
-                <img data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/'+getCode().replace('buckaroo_magento2_','')+'.svg') }" />
+            <div class="bk-mode-and-img">
+                <!-- ko if: isTestMode -->
+                <div class="bk-test-mode"><div class="bk-test-text" data-bind="i18n: 'Test Mode'"></div></div>
+                <!-- /ko -->
+                <div class="bk-img-wrap">
+                    <img
+                        data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/'+getCode().replace('buckaroo_magento2_','')+'.svg') }"
+                        alt="Pay Per Email Logo"
+                    />
+                </div>
             </div>
         </div>
     </div>
@@ -31,27 +42,19 @@
             <form data-bind="mageInit: { 'validation': [] },
                   attr: {'data-hasrequired': $t('* Required Fields')}">
                 <fieldset class="fieldset payment">
-
+                    <legend class="hidden-fieldset-legend">Payment Details</legend>
                     <div class="field required">
-                        <legend class="label"> <span data-bind="i18n: 'Salutation:'"> </span> </legend>
+                        <label class="label" for="buckaroo_magento2_payperemail_genderSelect"> <span data-bind="i18n: 'Salutation:'"> </span> </label>
                         <div class="control">
-                            <ul id="Saluation">
-                                <li>
-                                    <select id="buckaroo_magento2_payperemail_genderSelect"
-                                            class="field select"
-                                            name="payment[buckaroo_magento2_payperemail[customer_gender]"
-                                            data-bind="
-                                            options: gendersList(),
-                                            optionsText: $t('genderTitle'),
-                                            optionsValue: 'genderType',
-                                            optionsCaption: $t('-- Please Select Your Gender--'),
-                                            value: getSelectedGender,
-                                            event: { change: setSelectedGender }"
-                                            data-validate="{required:true}">
-                                     </select>
-                                </li>
-                            </ul>
-                            <div for="gender" generated="true" class="mage-error" id="gender-error" style="display: none;"><span data-bind="i18n: 'This is a required field.'"></span> </div>
+                            <select id="buckaroo_magento2_payperemail_genderSelect" name="payment[buckaroo_magento2_payperemail[customer_gender]" class="field"
+                                data-bind="options: genderList,
+                                    optionsText: $t('genderTitle'),
+                                    optionsValue: 'genderType',
+                                    optionsCaption: $t('-- Please Select Your Gender--'),
+                                    value: selectedGender,
+                                    attr: { 'data-validate': JSON.stringify({ 'required': true }) },
+                                    event: { blur: validateField }" class="select">
+                            </select>
                         </div>
                     </div>
 
@@ -61,26 +64,28 @@
                             <input id="buckaroo_magento2_payperemail_BillingFirstName"
                                    class="input-text field"
                                    type="text"
-                                   name="payment[buckaroo_magento2_payperemail][customer_billingFirstName]"
+                                   placeholder="John"
                                    data-bind="
-                                   valueUpdate: 'keyup',
-                                   value: BillingFirstName,
-                                   textInput: CustomerFirstName()"
-                                   data-validate="{required:true}"/>
+                                       valueUpdate: 'keyup',
+                                       value: firstName,
+                                       attr: { 'data-validate': JSON.stringify({ 'required': true }) },
+                                       event: { blur: validateField }"
+                                   name="payment[buckaroo_magento2_payperemail][customer_billingFirstName]"
+                                   >
                         </div>
                     </div>
 
-                    <div class="field required">
+                    <div class="field">
                         <label class="label" for="buckaroo_magento2_payperemail_BillingMiddleName"> <span data-bind="i18n: 'Billing Middle Name:'"> </span> </label>
                         <div class="control">
                             <input id="buckaroo_magento2_payperemail_BillingMiddleName"
                                    class="input-text field"
                                    type="text"
-                                   name="payment[buckaroo_magento2_payperemail][customer_billingMiddleName]"
                                    data-bind="
-                                   valueUpdate: 'keyup',
-                                   value: BillingMiddleName,
-                                   textInput: CustomerMiddleName()"/>
+                                       valueUpdate: 'keyup',
+                                       value: middleName"
+                                   name="payment[buckaroo_magento2_payperemail][customer_billingMiddleName]"
+                                   >
                         </div>
                     </div>
                     <div class="field required">
@@ -89,26 +94,29 @@
                             <input id="buckaroo_magento2_payperemail_BillingLastName"
                                    class="input-text field"
                                    type="text"
-                                   name="payment[buckaroo_magento2_payperemail][customer_billingLastName]"
+                                   placeholder="Doe"
                                    data-bind="
-                                   valueUpdate: 'keyup',
-                                   value: BillingLastName,
-                                   textInput: CustomerLastName()"
-                                   data-validate="{required:true}"/>
+                                       valueUpdate: 'keyup',
+                                       value: lastName,
+                                       attr: { 'data-validate': JSON.stringify({ 'required': true }) },
+                                       event: { blur: validateField }"
+                                   name="payment[buckaroo_magento2_payperemail][customer_billingLastName]"
+                            >
                         </div>
                     </div>
                     <div class="field required" >
-                        <label class="label" for="buckaroo_magento2_payperemail_Email"> <span data-bind="i18n: 'Email:'"> </span> </label>
+                        <label class="label" for="buckaroo_magento2_payperemail_Email"> <span data-bind="i18n: 'E-mail:'"> </span> </label>
                         <div class="control">
                             <input id="buckaroo_magento2_payperemail_Email"
-                                   class="input-text field"
                                    type="text"
-                                   name="payment[buckaroo_magento2_payperemail][customer_email]"
+                                   class="input-text field"
+                                   placeholder="email@example.com"
                                    data-bind="
-                                   valueUpdate: 'keyup',
-                                   value: BillingEmail,
-                                   textInput: CustomerEmail()"
-                                   data-validate="{required:true, 'validate-email':true}"/>
+                                       valueUpdate: 'keyup',
+                                       value: email,
+                                       attr: { 'data-validate': JSON.stringify({ 'required': true, 'validate-email': true })},
+                                       event: { blur: validateField }"
+                                   name="payment[buckaroo_magento2_payperemail][customer_email]">
                         </div>
                     </div>
 

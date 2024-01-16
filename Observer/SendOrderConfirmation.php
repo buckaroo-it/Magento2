@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -20,52 +20,58 @@
 
 namespace Buckaroo\Magento2\Observer;
 
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Model\Order\Email\Sender\OrderSender;
+use Magento\Sales\Model\Order\Payment;
 
-class SendOrderConfirmation implements \Magento\Framework\Event\ObserverInterface
+class SendOrderConfirmation implements ObserverInterface
 {
     /**
-     * @var \Buckaroo\Magento2\Model\ConfigProvider\Account
+     * @var BuckarooLoggerInterface
+     */
+    public BuckarooLoggerInterface $logger;
+    /**
+     * @var Account
      */
     protected $accountConfig;
-
     /**
-     * @var \Magento\Sales\Model\Order\Email\Sender\OrderSender
+     * @var OrderSender
      */
     protected $orderSender;
 
     /**
-     * @var Log $logging
-     */
-    public $logging;
-
-    /**
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Account          $accountConfig
-     * @param \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender
-     * @param \Buckaroo\Magento2\Logging\Log $logging
+     * @param Account $accountConfig
+     * @param OrderSender $orderSender
+     * @param BuckarooLoggerInterface $logger
      */
     public function __construct(
-        \Buckaroo\Magento2\Model\ConfigProvider\Account $accountConfig,
-        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
-        Log $logging
+        Account $accountConfig,
+        OrderSender $orderSender,
+        BuckarooLoggerInterface $logger
     ) {
-        $this->accountConfig    = $accountConfig;
-        $this->orderSender      = $orderSender;
-        $this->logging = $logging;
+        $this->accountConfig = $accountConfig;
+        $this->orderSender = $orderSender;
+        $this->logger = $logger;
     }
 
     /**
-     * @param \Magento\Framework\Event\Observer $observer
+     * Send order confirmation on email using sales_order_payment_place_end event
      *
+     * @param Observer $observer
      * @return void
+     * @throws LocalizedException
      */
-    public function execute(\Magento\Framework\Event\Observer $observer)
+    public function execute(Observer $observer)
     {
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
         /**
-         * @var $payment \Magento\Sales\Model\Order\Payment
+         * @var Payment $payment
          */
         $payment = $observer->getPayment();
 
@@ -74,7 +80,6 @@ class SendOrderConfirmation implements \Magento\Framework\Event\ObserverInterfac
         }
 
         $order = $payment->getOrder();
-        $order->save();
 
         $methodInstance = $payment->getMethodInstance();
         $sendOrderConfirmationEmail = $this->accountConfig->getOrderConfirmationEmail($order->getStore())
@@ -91,7 +96,12 @@ class SendOrderConfirmation implements \Magento\Framework\Event\ObserverInterfac
             && $order->getIncrementId()
             && !$createOrderBeforeTransaction
         ) {
-            $this->logging->addDebug(__METHOD__ . '|sendemail|');
+            $this->logger->addDebug(sprintf(
+                '[SEND_MAIL] | [Observer] | [%s:%s] - Send order confirmation on email | order: %s',
+                __METHOD__,
+                __LINE__,
+                $order->getId()
+            ));
             $this->orderSender->send($order, true);
         }
     }

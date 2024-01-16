@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Test\Unit\Controller\Redirect;
 
 use Magento\Checkout\Model\ConfigProviderInterface;
@@ -35,6 +37,9 @@ use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\RequestInterface;
 use Magento\Checkout\Model\Cart;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class ProcessTest extends BaseTest
 {
     protected $instanceClass = Process::class;
@@ -150,7 +155,7 @@ class ProcessTest extends BaseTest
         $transactionMock->expects($this->once())->method('load')->with(null, 'txn_id');
         $transactionMock->expects($this->once())->method('getOrder')->willReturn($orderMock);
 
-        $instance = $this->getInstance([
+        $this->getInstance([
             'context' => $contextMock,
             'configProviderFactory' => $configProviderFactoryMock,
             'cart' => $cartMock,
@@ -390,7 +395,8 @@ class ProcessTest extends BaseTest
             $transactionResult = false;
 
             $exceptionMessage = 'There was no order found by transaction Id';
-            $this->setExpectedException(\Buckaroo\Magento2\Exception::class, $exceptionMessage);
+            $this->expectException(\Buckaroo\Magento2\Exception::class);
+            $this->expectExceptionMessage($exceptionMessage);
         }
 
         $transactionMock = $this->getFakeMock(TransactionInterface::class)

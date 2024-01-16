@@ -29,6 +29,7 @@ define(
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/action/select-payment-method',
         'buckaroo/checkout/common',
+        'buckaroo/checkout/datepicker',
         'Magento_Ui/js/lib/knockout/bindings/datepicker'
         /*,
          'jquery/validate'*/
@@ -42,7 +43,8 @@ define(
         ko,
         checkoutData,
         selectPaymentMethodAction,
-        checkoutCommon
+        checkoutCommon,
+        datePicker
     ) {
         'use strict';
 
@@ -54,15 +56,16 @@ define(
                         value.substr(6, 4),
                         value.substr(3, 2) - 1,
                         value.substr(0, 2),
-                        0, 0, 0
+                        0,
+                        0,
+                        0
                     );
                     return ~~((Date.now() - birthday) / (31557600000)) >= 18;
                 }
             }
             return false;
         },
-        $.mage.__('You should be at least 18 years old.')
-        );
+        $.mage.__('You should be at least 18 years old.'));
 
         return Component.extend(
             {
@@ -80,8 +83,12 @@ define(
                 },
                 redirectAfterPlaceOrder : true,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.tinka.paymentFeeLabel,
+                subtext : window.checkoutConfig.payment.buckaroo.tinka.subtext,
+                subTextStyle : checkoutCommon.getSubtextStyle('tinka'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
+                dp: datePicker,
+                isTestMode: window.checkoutConfig.payment.buckaroo.tinka.isTestMode,
 
                 /**
                  * @override
@@ -104,9 +111,18 @@ define(
                         ]
                     );
 
+                    this.showFinancialWarning = ko.computed(
+                        function () {
+                            return quote.billingAddress() !== null &&
+                            quote.billingAddress().countryId == 'NL' &&
+                            window.checkoutConfig.payment.buckaroo.tinka.showFinancialWarning
+                        },
+                        this
+                    );
+
                     this.activeAddress = ko.computed(
-                        function() {
-                            if(quote.billingAddress()) {
+                        function () {
+                            if (quote.billingAddress()) {
                                 return quote.billingAddress();
                             }
                             return quote.shippingAddress();
@@ -114,7 +130,7 @@ define(
                     );
                     
                     this.country = ko.computed(
-                        function() {
+                        function () {
                             return this.activeAddress().countryId;
                         },
                         this
@@ -147,12 +163,12 @@ define(
                         function () {
                             const state = this.validationState();
                             const valid = this.getActiveValidationFields().map((field) => {
-                                if(state[field] !== undefined) {
+                                if (state[field] !== undefined) {
                                     return state[field];
                                 }
                                 return false;
                             }).reduce(
-                                function(prev, cur) {
+                                function (prev, cur) {
                                     return prev && cur
                                 },
                                 true
@@ -162,7 +178,14 @@ define(
                         this
                     );
 
-                   
+                    this.dateValidate.subscribe(function () {
+                        const dobId = 'buckaroo_magento2_tinka_DoB';
+                        const isValid = $(`#${dobId}`).valid();
+                        let state = this.validationState();
+                        state[dobId] = isValid;
+                        this.validationState(state);
+                    }, this);
+
                     return this;
                 },
 
@@ -174,25 +197,13 @@ define(
                     this.validationState(state);
                 },
 
-                validateDob(data, event) {
-                    if(event.originalEvent) {
-                        //jquery date picker triggers on load blur event, will trigger validation only if a user event is called
-                        const dobId = 'buckaroo_magento2_tinka_DoB';
-                        
-                        const isValid = $(`#${dobId}`).valid();
-                        let state = this.validationState();
-                        state[dobId] = isValid;
-                        this.validationState(state);
-                    }
-                },
-
                 getActiveValidationFields() {
                     let fields = [];
-                    if(this.showPhone()) {
+                    if (this.showPhone()) {
                         fields.push('buckaroo_magento2_tinka_Telephone')
                     }
 
-                    if(this.showNLBEFields()) {
+                    if (this.showNLBEFields()) {
                         fields.push('buckaroo_magento2_tinka_DoB')
                     }
                     return fields;

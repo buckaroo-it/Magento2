@@ -49,15 +49,19 @@ define(
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_creditcard'
                 },
                 creditcards: [],
+                groupCreditcards: false,
                 redirectAfterPlaceOrder: false,
                 creditcardIssuer: null,
                 selectedBank: null,
                 selectedBankDropDown: null,
                 selectionType: null,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.creditcard.paymentFeeLabel,
+                subtext : window.checkoutConfig.payment.buckaroo.creditcard.subtext,
+                subTextStyle : checkoutCommon.getSubtextStyle('creditcard'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 paymentFlow : window.checkoutConfig.payment.buckaroo.creditcard.paymentFlow,
+                isTestMode: window.checkoutConfig.payment.buckaroo.creditcard.isTestMode,
 
                 /**
                  * @override
@@ -83,7 +87,6 @@ define(
                     var self = this;
                     this.setSelectedCard = function (value) {
                         self.selectedCard(value);
-                        self.selectPaymentMethod();
                         return true;
                     };
 
@@ -97,8 +100,8 @@ define(
                         this
                     );
 
-                    $('.iosc-place-order-button').on('click', function(e){
-                        if(self.selectedCard() == null){
+                    $('.iosc-place-order-button').on('click', function (e) {
+                        if (self.selectedCard() == null) {
                             self.messageContainer.addErrorMessage({'message': $t('You need select a card')});
                         }
                     });
@@ -106,10 +109,9 @@ define(
                     return this;
                 },
 
-                setSelectedBankDropDown: function() {
+                setSelectedBankDropDown: function () {
                     var el = document.getElementById("buckaroo_magento2_creditcard_issuer");
                     this.selectedCard(el.options[el.selectedIndex].value);
-                    this.selectPaymentMethod();
                     return true;
                 },
 
@@ -147,6 +149,18 @@ define(
                     checkoutCommon.redirectHandle(response);
                 },
 
+                isCheckedCreditCardPaymentMethod: function (code) {
+                    return ((this.creditcardIssuer !== undefined) && this.creditcardIssuer == code);
+                },
+
+                selectCreditCardPaymentMethod: function (code) {
+                    this.setSelectedCard(code);
+                    this.item.method = 'buckaroo_magento2_creditcard';
+                    this.paymentMethod = this.item.method;
+                    this.selectPaymentMethod();
+                    return true;
+                },
+
                 selectPaymentMethod: function () {
                     window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
 
@@ -155,14 +169,19 @@ define(
                     return true;
                 },
 
+                isCredicardGroupMode: function () {
+                    return window.checkoutConfig.payment.buckaroo.creditcard.groupCreditcards === 1;
+                },
+
                 getData: function () {
                     var selectedCardCode = null;
                     if (this.selectedCard()) {
-                        selectedCardCode = this.selectedCard().code;
+                        selectedCardCode = typeof this.selectedCard() === 'object' ?
+                            this.selectedCard().code :
+                            this.selectedCard();
                     }
 
-
-                    if(this.creditcardIssuer){
+                    if (this.creditcardIssuer) {
                         selectedCardCode = this.creditcardIssuer;
                     }
 

@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,126 +17,141 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model;
 
-use Buckaroo\Magento2\Helper\Data;
+use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
+use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Model\Order;
 
 class OrderStatusFactory
 {
     /**
      * @var Account
      */
-    protected $account;
+    protected Account $account;
 
     /**
      * @var Factory
      */
-    protected $configProviderMethodFactory;
-
-    /**
-     * @var Data
-     */
-    protected $helper;
+    protected Factory $configProviderMethodFactory;
 
     /**
      * @param Account $account
      * @param Factory $configProviderMethodFactory
-     * @param Data    $helper
      */
     public function __construct(
         Account $account,
-        Factory $configProviderMethodFactory,
-        Data $helper
+        Factory $configProviderMethodFactory
     ) {
         $this->account = $account;
         $this->configProviderMethodFactory = $configProviderMethodFactory;
-        $this->helper = $helper;
     }
 
     /**
-     * @param int                        $statusCode
-     * @param \Magento\Sales\Model\Order $order
+     * Get status by order and status code
+     *
+     * @param int|string $statusCode
+     * @param Order $order
      *
      * @return string|false|null
+     * @throws LocalizedException
      */
-    public function get($statusCode, $order)
+    public function get($statusCode, Order $order)
     {
-        $status = false;
-
         /**
-         * @var \Buckaroo\Magento2\Model\Method\AbstractMethod $paymentMethodInstance
+         * @var BuckarooAdapter $paymentMethodInstance
          */
         $paymentMethodInstance = $order->getPayment()->getMethodInstance();
-        $paymentMethod = $paymentMethodInstance->buckarooPaymentMethodCode;
+        $paymentMethod = $paymentMethodInstance->getCode();
 
-        if ($this->configProviderMethodFactory->has($paymentMethod)) {
-            /**
-             * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider $configProvider
-             */
-            $configProvider = $this->configProviderMethodFactory->get($paymentMethod);
-
-            if ($configProvider->getActiveStatus()) {
-                $status = $this->getPaymentMethodStatus($statusCode, $configProvider);
-            }
-        }
+        $status = $this->getPaymentMethodStatus($statusCode, $paymentMethod);
 
         if ($status) {
             return $status;
         }
 
-        switch ($statusCode) {
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_REJECTED'):
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_TECHNICAL_ERROR'):
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_VALIDATION_FAILURE'):
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_MERCHANT'):
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER'):
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED'):
-                $status = $this->account->getOrderStatusFailed();
-                break;
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'):
-                $status = $this->account->getOrderStatusSuccess();
-                break;
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PAYMENT_ON_HOLD'):
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_WAITING_ON_CONSUMER'):
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING'):
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_WAITING_ON_USER_INPUT'):
-                $status = $this->account->getOrderStatusPending();
-                break;
+        return $this->getAccountStatus($statusCode);
+    }
+
+    /**
+     * Get status for failed or success transaction based on payment method
+     *
+     * @param int|string $statusCode
+     * @param string $paymentMethod
+     * @return string|false|null
+     * @throws Exception
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     */
+    public function getPaymentMethodStatus($statusCode, string $paymentMethod)
+    {
+        $status = false;
+
+        if ($this->configProviderMethodFactory->has($paymentMethod)) {
+            /**
+             * @var AbstractConfigProvider $configProvider
+             */
+            $configProvider = $this->configProviderMethodFactory->get($paymentMethod);
+
+            if ($configProvider->getActiveStatus()) {
+                switch ($statusCode) {
+                    case BuckarooStatusCode::TECHNICAL_ERROR:
+                    case BuckarooStatusCode::VALIDATION_FAILURE:
+                    case BuckarooStatusCode::CANCELLED_BY_MERCHANT:
+                    case BuckarooStatusCode::CANCELLED_BY_USER:
+                    case BuckarooStatusCode::FAILED:
+                    case BuckarooStatusCode::REJECTED:
+                        $status = $configProvider->getOrderStatusFailed();
+                        break;
+                    case BuckarooStatusCode::SUCCESS:
+                        $status = $configProvider->getOrderStatusSuccess();
+                        break;
+                    default:
+                        return false;
+                }
+            }
         }
 
         return $status;
     }
 
     /**
-     * @param int                                                               $statusCode
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface $configProvider
+     * Get status for failed or success transaction based on account config
      *
+     * @param int|string $statusCode
      * @return string|false|null
+     * @throws Exception
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
-    public function getPaymentMethodStatus(
-        $statusCode,
-        \Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface $configProvider
-    ) {
-        /**
-         * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider $configProvider
-         */
-        $status = false;
-
+    public function getAccountStatus($statusCode)
+    {
         switch ($statusCode) {
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_TECHNICAL_ERROR'):
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_VALIDATION_FAILURE'):
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_MERCHANT'):
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER'):
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED'):
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_REJECTED'):
-                $status = $configProvider->getOrderStatusFailed();
+            case BuckarooStatusCode::REJECTED:
+            case BuckarooStatusCode::TECHNICAL_ERROR:
+            case BuckarooStatusCode::VALIDATION_FAILURE:
+            case BuckarooStatusCode::CANCELLED_BY_MERCHANT:
+            case BuckarooStatusCode::CANCELLED_BY_USER:
+            case BuckarooStatusCode::FAILED:
+                $status = $this->account->getOrderStatusFailed();
                 break;
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'):
-                $status = $configProvider->getOrderStatusSuccess();
+            case BuckarooStatusCode::SUCCESS:
+                $status = $this->account->getOrderStatusSuccess();
                 break;
+            case BuckarooStatusCode::PAYMENT_ON_HOLD:
+            case BuckarooStatusCode::WAITING_ON_CONSUMER:
+            case BuckarooStatusCode::PENDING_PROCESSING:
+            case BuckarooStatusCode::WAITING_ON_USER_INPUT:
+                $status = $this->account->getOrderStatusPending();
+                break;
+            default:
+                return false;
         }
 
         return $status;

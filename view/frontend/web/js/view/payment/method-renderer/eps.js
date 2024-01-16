@@ -47,8 +47,11 @@ define(
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_eps'
                 },
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.eps.paymentFeeLabel,
+                subtext : window.checkoutConfig.payment.buckaroo.eps.subtext,
+                subTextStyle : checkoutCommon.getSubtextStyle('eps'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
+                isTestMode: window.checkoutConfig.payment.buckaroo.eps.isTestMode,
 
                 /**
              * @override

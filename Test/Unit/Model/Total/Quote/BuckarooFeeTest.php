@@ -28,8 +28,8 @@ use Magento\Quote\Model\Quote\Address\Total;
 use Buckaroo\Magento2\Model\Config\Source\TaxClass\Calculation;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee as ConfigProviderBuckarooFee;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
-use Buckaroo\Magento2\Model\Method\AbstractMethod;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory;
+use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\Total\Quote\BuckarooFee;
 
 class BuckarooFeeTest extends \Buckaroo\Magento2\Test\BaseTest
@@ -42,7 +42,7 @@ class BuckarooFeeTest extends \Buckaroo\Magento2\Test\BaseTest
         $paymentCode = 'buckaroo_magento2_ideal';
         $taxIncl = Calculation::DISPLAY_TYPE_INCLUDING_TAX;
 
-        $paymentMethodMock = $this->getFakeMock(AbstractMethod::class)->getMock();
+        $paymentMethodMock = $this->getFakeMock(BuckarooAdapter::class)->getMock();
         $paymentMethodMock->buckarooPaymentMethodCode = $paymentCode;
 
         $quoteMock = $this->getFakeMock(Quote::class)->getMock();
@@ -77,7 +77,7 @@ class BuckarooFeeTest extends \Buckaroo\Magento2\Test\BaseTest
     {
         $paymentCode = 'buckaroo_magento2_non_existing';
 
-        $paymentMethodMock = $this->getFakeMock(AbstractMethod::class)->getMock();
+        $paymentMethodMock = $this->getFakeMock(BuckarooAdapter::class)->getMock();
         $paymentMethodMock->buckarooPaymentMethodCode = $paymentCode;
 
         $quoteMock = $this->getFakeMock(Quote::class)->getMock();
@@ -96,7 +96,7 @@ class BuckarooFeeTest extends \Buckaroo\Magento2\Test\BaseTest
         $paymentCode = 'buckaroo_magento2_ideal';
         $invalidFee = 'invalid';
 
-        $paymentMethodMock = $this->getFakeMock(AbstractMethod::class)->getMock();
+        $paymentMethodMock = $this->getFakeMock(BuckarooAdapter::class)->getMock();
         $paymentMethodMock->buckarooPaymentMethodCode = $paymentCode;
 
         $quoteMock = $this->getFakeMock(Quote::class)->getMock();
@@ -132,7 +132,7 @@ class BuckarooFeeTest extends \Buckaroo\Magento2\Test\BaseTest
         $quoteAmount,
         $expectedValue
     ) {
-        $paymentMethodMock = $this->getFakeMock(AbstractMethod::class)->getMock();
+        $paymentMethodMock = $this->getFakeMock(BuckarooAdapter::class)->getMock();
         $paymentMethodMock->buckarooPaymentMethodCode = $paymentCode;
 
         $quoteMock = $this->getFakeMock(Quote::class)
@@ -204,7 +204,7 @@ class BuckarooFeeTest extends \Buckaroo\Magento2\Test\BaseTest
         $quoteAmount,
         $expectedValue
     ) {
-        $paymentMethodMock = $this->getFakeMock(AbstractMethod::class)->getMock();
+        $paymentMethodMock = $this->getFakeMock(BuckarooAdapter::class)->getMock();
         $paymentMethodMock->buckarooPaymentMethodCode = $paymentCode;
 
         $quoteMock = $this->getFakeMock(Quote::class)
@@ -345,7 +345,7 @@ class BuckarooFeeTest extends \Buckaroo\Magento2\Test\BaseTest
         $expectedFee = 0;
         $paymentCode = 'buckaroo_magento2_ideal';
 
-        $paymentMethodMock = $this->getFakeMock(AbstractMethod::class)->getMock();
+        $paymentMethodMock = $this->getFakeMock(BuckarooAdapter::class)->getMock();
         $paymentMethodMock->buckarooPaymentMethodCode = $paymentCode;
 
         $quoteMock = $this->getFakeMock(Quote::class)
@@ -419,8 +419,6 @@ class BuckarooFeeTest extends \Buckaroo\Magento2\Test\BaseTest
     {
         $paymentCode = 'buckaroo_magento2_ideal';
         $fee = 1.1;
-        $grandTotal = 45.0000;
-        $baseGrandTotal = 45.0000;
         $taxIncl = Calculation::DISPLAY_TYPE_INCLUDING_TAX;
         $store = 1;
 
@@ -445,7 +443,7 @@ class BuckarooFeeTest extends \Buckaroo\Magento2\Test\BaseTest
         $catalogHelperMock = $this->getFakeMock(Data::class)->setMethods(['getTaxPrice'])->getMock();
         $catalogHelperMock->expects($this->once())->method('getTaxPrice')->willReturn($fee);
 
-        $paymentMethodMock = $this->getFakeMock(AbstractMethod::class, true);
+        $paymentMethodMock = $this->getFakeMock(BuckarooAdapter::class, true);
         $paymentMethodMock->buckarooPaymentMethodCode = $paymentCode;
 
         $quoteMock = $this->getFakeMock(Quote::class)

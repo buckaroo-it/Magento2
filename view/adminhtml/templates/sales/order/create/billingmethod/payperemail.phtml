@@ -22,10 +22,8 @@
 
 <?php $code = $block->escapeHtml($block->getMethodCode()); ?>
 
-<fieldset class="admin__fieldset payment-method"
-          id="payment_form_<?= $code; ?>"
-          style="display:none">
-
+<fieldset class="admin__fieldset payment-method" id="payment_form_<?= $code; ?>" style="display:block">
+    <legend>Billing address</legend>
     <div class="admin__field _required">
         <label class="label admin__field-label" for="buckaroo_magento2_payperemail_genderSelect">
             <span><?= $block->escapeHtml(__('Salutation:')); ?></span>
@@ -40,7 +38,7 @@
         </div>
     </div>
 
-    <?php $customerDetails = $block->getMethod()->helper->getPPeCustomerDetails(); ?>
+    <?php $customerDetails = $block->getPpeCustomerDetails()->getPPeCustomerDetails(); ?>
     <div class="admin__field _required">
         <label class="label admin__field-label" for="buckaroo_magento2_payperemail_BillingFirstName">
             <span><?= $block->escapeHtml(__('Billing First Name:')); ?></span>
@@ -52,6 +50,20 @@
                    value="<?= $customerDetails ? $block->escapeHtml($customerDetails['firstName']) : ''; ?>"
                    data-bind="valueUpdate: 'keyup', attr: { 'data-validate': JSON.stringify({ 'required': true }) }"
                    name="payment[customer_billingFirstName]"
+            >
+        </div>
+    </div>
+
+    <div class="admin__field">
+        <label class="label admin__field-label" for="buckaroo_magento2_payperemail_BillingMiddleName">
+            <span><?= $block->escapeHtml(__('Billing Middle Name:')); ?></span>
+        </label>
+        <div class="admin__field-control control">
+            <input id="buckaroo_magento2_payperemail_BillingMiddleName"
+                   class="input-text field"
+                   type="text"
+                   value="<?= $customerDetails ? $block->escapeHtml($customerDetails['middleName']) : ''; ?>"
+                   name="payment[customer_billingMiddleName]"
             >
         </div>
     </div>
@@ -95,9 +107,9 @@
         ['email', 'buckaroo_magento2_payperemail_Email'],
         ['order-billing_address_firstname', 'buckaroo_magento2_payperemail_BillingFirstName'],
         ['order-billing_address_lastname', 'buckaroo_magento2_payperemail_BillingLastName'],
+        ['order-billing_address_middlename', 'buckaroo_magento2_payperemail_BillingFirstName'],
     ].forEach(function (item) {
-        if (
-            document.getElementById(item[1]) && (document.getElementById(item[1]).value.length == 0) &&
+        if (document.getElementById(item[1]) && (document.getElementById(item[1]).value.length == 0) &&
             document.getElementById(item[0]) && (document.getElementById(item[0]).value.length > 0)
         ) {
             document.getElementById(item[1]).value = document.getElementById(item[0]).value;
@@ -107,8 +119,7 @@
     [
         ['order-billing_address_prefix', 'buckaroo_magento2_payperemail_genderSelect']
     ].forEach(function (item) {
-        if (
-            document.getElementById(item[1]) &&
+        if (document.getElementById(item[1]) &&
             document.getElementById(item[0]) && (document.getElementById(item[0]).value.length > 0)
         ) {
             document.getElementById(item[1]).value = 1;

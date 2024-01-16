@@ -27,7 +27,8 @@ define(
         'ko',
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/action/select-payment-method',
-        'buckaroo/checkout/common'
+        'buckaroo/checkout/common',
+        'Magento_Checkout/js/model/quote'
     ],
     function (
         $,
@@ -37,7 +38,8 @@ define(
         ko,
         checkoutData,
         selectPaymentMethodAction,
-        checkoutCommon
+        checkoutCommon,
+        quote
     ) {
         'use strict';
 
@@ -46,12 +48,15 @@ define(
                 defaults: {
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_klarnain',
                     selectedGender: null,
-                    genderList: null
                 },
                 redirectAfterPlaceOrder: false,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.klarnain.paymentFeeLabel,
+                subtext : window.checkoutConfig.payment.buckaroo.klarnain.subtext,
+                subTextStyle : checkoutCommon.getSubtextStyle('klarnain'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
+                genderList: window.checkoutConfig.payment.buckaroo.klarnain.genderList,
+                isTestMode: window.checkoutConfig.payment.buckaroo.klarnain.isTestMode,
 
                 /**
                  * @override
@@ -68,44 +73,34 @@ define(
                     this._super().observe(
                         [
                             'selectedGender',
-                            'genderList'
                         ]
                     );
 
-                    this.gendersList = function() {
+                    this.showFinancialWarning = ko.computed(
+                        function () {
+                            return quote.billingAddress() !== null &&
+                            quote.billingAddress().countryId == 'NL' &&
+                            window.checkoutConfig.payment.buckaroo.klarnain.showFinancialWarning
+                        },
+                        this
+                    );
 
-                        return window.checkoutConfig.payment.buckaroo.klarnain.genderList;
-                    }
-                    
-                    /**
-                     * observe radio buttons
-                     * check if selected
-                     */
-                    var self = this;
-                    this.setSelectedGender = function () {
-                        var el = document.getElementById("buckaroo_magento2_klarnain_genderSelect");
-                        this.selectedGender(el.options[el.selectedIndex].value);
-                        this.selectPaymentMethod();
-                        return true;
-                    };
-
-                    this.getSelectedGender = function () {
-                        return this.selectedGender;
-                    }
-                    
                     /**
                      * Check if the required fields are filled. If so: enable place order button (true) | if not: disable place order button (false)
                      */
                     this.buttoncheck = ko.computed(
-                    function () {
-                        var result = (this.selectedGender != null);
-                        return result;
+                        function () {
+                            return this.selectedGender() != null;
                         },
                         this
                     );
 
                     return this;
                 },
+                validateField(data, event) {
+                    $(event.target).valid();
+                },
+
 
                 /**
                  * Place order.

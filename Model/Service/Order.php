@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,30 +17,84 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Service;
 
+use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as MethodFactory;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory as MethodFactory;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
-use Buckaroo\Magento2\Model\Method\Transfer;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Transfer;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Api\StoreRepositoryInterface;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\Sales\Model\ResourceModel\Order\CollectionFactory;
 use Buckaroo\Magento2\Helper\Data;
 use Magento\Framework\App\ResourceConnection;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class Order
 {
+    /**
+     * @var Account
+     */
     protected $accountConfig;
+
+    /**
+     * @var MethodFactory
+     */
     protected $configProviderMethodFactory;
+
+    /**
+     * @var StoreRepositoryInterface
+     */
     protected $storeRepository;
+
+    /**
+     * @var CollectionFactory
+     */
     protected $orderFactory;
+
+    /**
+     * @var OrderStatusFactory
+     */
     protected $orderStatusFactory;
+
+    /**
+     * @var Data
+     */
     protected $helper;
-    protected $logging;
+
+    /**
+     * @var BuckarooLoggerInterface
+     */
+    protected BuckarooLoggerInterface $logger;
+
+    /**
+     * @var ResourceConnection
+     */
     protected $resourceConnection;
 
+    /**
+     * @var Factory
+     */
+    private Factory $configProviderFactory;
+
+    /**
+     * @param Account $accountConfig
+     * @param MethodFactory $configProviderMethodFactory
+     * @param Factory $configProviderFactory
+     * @param StoreRepositoryInterface $storeRepository
+     * @param CollectionFactory $orderFactory
+     * @param OrderStatusFactory $orderStatusFactory
+     * @param Data $helper
+     * @param BuckarooLoggerInterface $logger
+     * @param ResourceConnection $resourceConnection
+     */
     public function __construct(
         Account $accountConfig,
         MethodFactory $configProviderMethodFactory,
@@ -49,7 +103,7 @@ class Order
         CollectionFactory $orderFactory,
         OrderStatusFactory $orderStatusFactory,
         Data $helper,
-        Log $logging,
+        BuckarooLoggerInterface $logger,
         ResourceConnection $resourceConnection
     ) {
         $this->accountConfig = $accountConfig;
@@ -59,10 +113,16 @@ class Order
         $this->orderFactory = $orderFactory;
         $this->orderStatusFactory = $orderStatusFactory;
         $this->helper = $helper;
-        $this->logging = $logging;
+        $this->logger = $logger;
         $this->resourceConnection = $resourceConnection;
     }
 
+    /**
+     * Cancel expired transfer orders for all stores.
+     *
+     * @return $this
+     * @throws BuckarooException
+     */
     public function cancelExpiredTransferOrders()
     {
         if ($stores = $this->storeRepository->getList()) {
@@ -73,14 +133,19 @@ class Order
         return $this;
     }
 
-    protected function cancelExpiredTransferOrdersPerStore($store)
+    /**
+     * Cancel expired transfer orders for the specified store.
+     *
+     * @param StoreInterface $store
+     * @return void
+     * @throws BuckarooException
+     */
+    protected function cancelExpiredTransferOrdersPerStore(StoreInterface $store)
     {
-        $this->logging->addDebug(__METHOD__ . '|1|' . var_export($store->getId(), true));
         $statesConfig = $this->configProviderFactory->get('states');
         $state = $statesConfig->getOrderStateNew($store);
         if ($transferConfig = $this->configProviderMethodFactory->get('transfer')) {
             if ($dueDays = abs($transferConfig->getDueDate())) {
-                $this->logging->addDebug(__METHOD__ . '|5|' . var_export($dueDays, true));
                 $orderCollection = $this->orderFactory->create()->addFieldToSelect(['*']);
                 $orderCollection
                     ->addFieldToFilter(
@@ -106,9 +171,18 @@ class Order
                         'main_table.entity_id = p.parent_id',
                         ['method']
                     )
-                    ->where('p.method = ?', Transfer::PAYMENT_METHOD_CODE);
+                    ->where('p.method = ?', Transfer::CODE);
 
-                $this->logging->addDebug(__METHOD__ . '|10|' . var_export($orderCollection->count(), true));
+                $this->logger->addDebug(sprintf(
+                    '[CANCEL_ORDER - Transfer] | [Service] | [%s:%s] - Cancel Expired Transfer Orders Per Store |'
+                    . 'storeId:%s | dueDays: %s | orderCollectionCount: %s',
+                    __METHOD__,
+                    __LINE__,
+                    var_export($store->getId(), true),
+                    var_export($dueDays, true),
+                    var_export($orderCollection->count(), true)
+                ));
+
 
                 if ($orderCollection->count()) {
                     foreach ($orderCollection as $order) {
@@ -122,7 +196,13 @@ class Order
         }
     }
 
-    public function cancelExpiredPPEOrders()
+    /**
+     * Cancel expired Pay Per Email orders for all stores.
+     *
+     * @return $this
+     * @throws BuckarooException
+     */
+    public function cancelExpiredPPEOrders(): Order
     {
         if ($stores = $this->storeRepository->getList()) {
             foreach ($stores as $store) {
@@ -132,15 +212,20 @@ class Order
         return $this;
     }
 
-    protected function cancelExpiredPPEOrdersPerStore($store)
+    /**
+     * Cancel expired Pay Per Email orders for the specified store.
+     *
+     * @param StoreInterface $store
+     * @return void
+     * @throws BuckarooException
+     */
+    protected function cancelExpiredPPEOrdersPerStore(StoreInterface $store)
     {
-        $this->logging->addDebug(__METHOD__ . '|1|' . var_export($store->getId(), true));
         $statesConfig = $this->configProviderFactory->get('states');
         $state = $statesConfig->getOrderStateNew($store);
         if ($ppeConfig = $this->configProviderMethodFactory->get('payperemail')) {
             if ($ppeConfig->getEnabledCronCancelPPE()) {
                 if ($dueDays = abs($ppeConfig->getExpireDays())) {
-                    $this->logging->addDebug(__METHOD__ . '|5|' . var_export($dueDays, true));
                     $orderCollection = $this->orderFactory->create()->addFieldToSelect(['*']);
                     $orderCollection
                         ->addFieldToFilter(
@@ -169,11 +254,15 @@ class Order
                         ->where('p.additional_information like "%isPayPerEmail%"'
                             . ' OR p.method ="buckaroo_magento2_payperemail"');
 
-                    $this->logging->addDebug(
-                        __METHOD__ . '|PPEOrders query|' . $orderCollection->getSelect()->__toString()
-                    );
-
-                    $this->logging->addDebug(__METHOD__ . '|10|' . var_export($orderCollection->count(), true));
+                    $this->logger->addDebug(sprintf(
+                        '[CANCEL_ORDER - PayPerEmail] | [Service] | [%s:%s] - Cancel Expired PayPerEmail Orders |'
+                        . 'storeId:%s | dueDays: %s | orderCollectionCount: %s',
+                        __METHOD__,
+                        __LINE__,
+                        var_export($store->getId(), true),
+                        var_export($dueDays, true),
+                        var_export($orderCollection->count(), true)
+                    ));
 
                     if ($orderCollection->count()) {
                         foreach ($orderCollection as $order) {
@@ -188,45 +277,60 @@ class Order
         }
     }
 
-    public function cancel($order, $statusCode)
+    /**
+     * Cancel the given order with the specified status code.
+     *
+     * @param \Magento\Sales\Model\Order $order
+     * @param int|null $statusCode
+     * @return bool
+     * @throws LocalizedException
+     */
+    public function cancel(\Magento\Sales\Model\Order $order, ?int $statusCode)
     {
-        $this->logging->addDebug(__METHOD__ . '|1|' . var_export($order->getIncrementId(), true));
+        $paymentMethodCode = $order->getPayment()->getMethod();
+        $paymentMethodName = str_replace('buckaroo_magento2_', '', $paymentMethodCode);
 
-        // Mostly the push api already canceled the order, so first check in wich state the order is.
+        $this->logger->addDebug(sprintf(
+            '[CANCEL_ORDER - %s] | [Service] | [%s:%s] - Cancel Order | orderIncrementId: %s',
+            $paymentMethodName,
+            __METHOD__,
+            __LINE__,
+            var_export($order->getIncrementId(), true)
+        ));
+
         if ($order->getState() == \Magento\Sales\Model\Order::STATE_CANCELED) {
-            $this->logging->addDebug(__METHOD__ . '|5|');
+            $this->logger->addDebug(sprintf(
+                '[CANCEL_ORDER - %s] | [Service] | [%s:%s] - Cancel Order - already canceled',
+                $paymentMethodName,
+                __METHOD__,
+                __LINE__
+            ));
             return true;
         }
 
         $store = $order->getStore();
 
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
         if (!$this->accountConfig->getCancelOnFailed($store)) {
-            $this->logging->addDebug(__METHOD__ . '|10|');
             return true;
         }
 
-        $this->logging->addDebug(__METHOD__ . '|15|');
-
-        if ($order->canCancel()
-            || in_array($order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode, ['payperemail'])) {
-            $this->logging->addDebug(__METHOD__ . '|20|');
-
-            if (in_array($order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode, ['klarnakp'])) {
-                $methodInstanceClass                 = get_class($order->getPayment()->getMethodInstance());
+        if ($order->canCancel() || $paymentMethodName == 'payperemail') {
+            if ($paymentMethodName == 'klarnakp') {
+                $methodInstanceClass = get_class($order->getPayment()->getMethodInstance());
                 $methodInstanceClass::$requestOnVoid = false;
             }
 
             $order->cancel();
 
-            $this->logging->addDebug(__METHOD__ . '|30|');
+            $failedStatus = $this->orderStatusFactory->get($statusCode, $order);
 
-            $failedStatus = $this->orderStatusFactory->get(
-                $statusCode,
-                $order
-            );
+            $this->logger->addDebug(sprintf(
+                '[CANCEL_ORDER - %s] | [Service] | [%s:%s] - Cancel Order - set status to: %s',
+                $paymentMethodName,
+                __METHOD__,
+                __LINE__,
+                $failedStatus
+            ));
 
             if ($failedStatus) {
                 $order->setStatus($failedStatus);
@@ -234,8 +338,6 @@ class Order
             $order->save();
             return true;
         }
-
-        $this->logging->addDebug(__METHOD__ . '|40|');
 
         return false;
     }

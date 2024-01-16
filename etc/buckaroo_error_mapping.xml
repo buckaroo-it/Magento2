@@ -1,0 +1,15 @@
+<mapping xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Payment:etc/error_mapping.xsd">
+    <message_list>
+        <message code="190" translate="true">Succes: The transaction was successful and the payment has been received/approved.</message>
+        <message code="490" translate="true">Failed: The transaction has failed.</message>
+        <message code="491" translate="true">Validation failed: The transaction request contains errors and therefore could not be processed properly.</message>
+        <message code="492" translate="true">Technical error: The transaction could not be completed due to a technical error.</message>
+        <message code="690" translate="true">Unfortunately the transaction was unsuccessful. Please try again or choose a different payment method.</message>
+        <message code="790" translate="true">Pending input: The transaction is put on hold while the payment engine is waiting for the consumer’s input.</message>
+        <message code="791" translate="true">Pending processing: The transaction is being processed. The reason is often that the consumer still has to return from a third-party website before being able to complete the transaction.</message>
+        <message code="792" translate="true">Pending consumer: The consumer still has to take action, for example in case of a Transfer: transfer money manually from his banking environment.</message>
+        <message code="793" translate="true">The transaction is put on hold.</message>
+        <message code="890" translate="true">Cancelled by User: The client has cancelled the transaction.</message>
+        <message code="891" translate="true">Cancelled by the Merchant: The Merchant has cancelled the transaction.</message>
+    </message_list>
+</mapping>

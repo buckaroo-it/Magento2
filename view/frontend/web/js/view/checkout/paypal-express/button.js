@@ -16,7 +16,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
- define(
+define(
     [
         'uiComponent',
         'buckaroo/paypal-express/pay',
@@ -30,11 +30,10 @@
         return Component.extend({
             initialize: function (config) {
                 this._super();
-                paypalExpressPay.setConfig(config.data);
+                paypalExpressPay.setConfig(config.data, 'product');
             },
 
             showPayButton: function () {
-                paypalExpressPay.setPage('product');
                 paypalExpressPay.init();
             }
         });

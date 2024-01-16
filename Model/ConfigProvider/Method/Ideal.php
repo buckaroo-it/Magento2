@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,26 +17,31 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
+use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Helper\PaymentFee;
+use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
+use Buckaroo\Magento2\Service\Ideal\IssuersService;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\View\Asset\Repository;
+use Magento\Store\Model\ScopeInterface;
+
 class Ideal extends AbstractConfigProvider
 {
-    const XPATH_IDEAL_PAYMENT_FEE           = 'payment/buckaroo_magento2_ideal/payment_fee';
-    const XPATH_IDEAL_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_ideal/payment_fee_label';
-    const XPATH_IDEAL_ACTIVE                = 'payment/buckaroo_magento2_ideal/active';
-    const XPATH_IDEAL_ACTIVE_STATUS         = 'payment/buckaroo_magento2_ideal/active_status';
-    const XPATH_IDEAL_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_ideal/order_status_success';
-    const XPATH_IDEAL_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_ideal/order_status_failed';
-    const XPATH_IDEAL_ORDER_EMAIL           = 'payment/buckaroo_magento2_ideal/order_email';
-    const XPATH_IDEAL_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_ideal/available_in_backend';
+    /**
+     * @var IssuersService
+     */
+    protected IssuersService $issuersService;
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_ideal/allowed_currencies';
+    public const CODE = 'buckaroo_magento2_ideal';
 
-    const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_ideal/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_ideal/specificcountry';
-    const XPATH_IDEAL_SELECTION_TYPE            = 'buckaroo_magento2/account/selection_type';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_ideal/specificcustomergroup';
+    public const XPATH_SELECTION_TYPE   = 'selection_type';
+    public const XPATH_SHOW_ISSUERS     = 'show_issuers';
+    public const XPATH_GATEWAY_SETTINGS = 'gateway_settings';
+    public const XPATH_SORTED_ISSUERS   = 'sorted_issuers';
 
     /**
      * @var array
@@ -46,35 +51,58 @@ class Ideal extends AbstractConfigProvider
     ];
 
     /**
-     * @return array|void
+     * @param Repository $assetRepo
+     * @param ScopeConfigInterface $scopeConfig
+     * @param AllowedCurrencies $allowedCurrencies
+     * @param PaymentFee $paymentFeeHelper
+     * @param IssuersService $issuersService
      */
-    public function getConfig()
+    public function __construct(
+        Repository $assetRepo,
+        ScopeConfigInterface $scopeConfig,
+        AllowedCurrencies $allowedCurrencies,
+        PaymentFee $paymentFeeHelper,
+        IssuersService $issuersService
+    ) {
+        $this->issuersService = $issuersService;
+
+        parent::__construct(
+            $assetRepo,
+            $scopeConfig,
+            $allowedCurrencies,
+            $paymentFeeHelper
+        );
+    }
+
+    /**
+     * @inheritdoc
+     *
+     * @throws Exception
+     */
+    public function getConfig(): array
     {
-        if (!$this->scopeConfig->getValue(
-            static::XPATH_IDEAL_ACTIVE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        )) {
+        if (!$this->getActive()) {
             return [];
         }
 
         $issuers = $this->formatIssuers();
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
-            \Buckaroo\Magento2\Model\Method\Ideal::PAYMENT_METHOD_CODE
-        );
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
 
-        $selectionType = $this->scopeConfig->getValue(
-            self::XPATH_IDEAL_SELECTION_TYPE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
+        $selectionType = $this->getSelectionType();
 
         return [
             'payment' => [
                 'buckaroo' => [
                     'ideal' => [
-                        'banks' => $issuers,
-                        'paymentFeeLabel' => $paymentFeeLabel,
+                        'banks'             => $issuers,
+                        'paymentFeeLabel'   => $paymentFeeLabel,
+                        'subtext'           => $this->getSubtext(),
+                        'subtext_style'     => $this->getSubtextStyle(),
+                        'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'selectionType' => $selectionType,
+                        'selectionType'     => $selectionType,
+                        'showIssuers'       => $this->canShowIssuers(),
+                        'isTestMode'        => $this->isTestMode()
                     ],
                 ],
             ],
@@ -82,18 +110,81 @@ class Ideal extends AbstractConfigProvider
     }
 
     /**
-     * @param null|int $storeId
+     * Retrieve the list of issuers.
      *
-     * @return float
+     * @return array
      */
-    public function getPaymentFee($storeId = null)
+    public function getIssuers()
     {
-        $paymentFee = $this->scopeConfig->getValue(
-            self::XPATH_IDEAL_PAYMENT_FEE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
+        return $this->issuersService->get();
+    }
 
-        return $paymentFee ? $paymentFee : false;
+    /**
+     * Can show issuer selection in checkout
+     *
+     * @param string|null $storeId
+     *
+     * @return boolean
+     */
+    public function canShowIssuers(string $storeId = null): bool
+    {
+        return $this->getMethodConfigValue(self::XPATH_SHOW_ISSUERS, $storeId) == 1;
+    }
+
+    /**
+     * Selection type radio checkbox or drop down
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getSelectionType($store = null)
+    {
+        return $this->getMethodConfigValue(self::XPATH_SELECTION_TYPE, $store);
+    }
+
+    /**
+     * Get gateway setting ideal/idealprocessing
+     *
+     * @param null|int|string $storeId
+     * @return string
+     */
+    public function getGatewaySettings($storeId = null): string
+    {
+        return $this->getMethodConfigValue(self::XPATH_GATEWAY_SETTINGS, $storeId) ??
+            str_replace('buckaroo_magento2_', '', self::CODE);
+    }
+
+    /**
+     * @param $storeId
+     * @return string
+     */
+    public function getSortedIssuers($storeId = null): string
+    {
+        return $this->getMethodConfigValue(self::XPATH_SORTED_ISSUERS, $storeId) ?? '';
+    }
+
+    /**
+     * Generate the url to the desired asset.
+     *
+     * @param string $imgName
+     * @param string $extension
+     *
+     * @return string
+     */
+    public function getImageUrl($imgName, string $extension = 'png')
+    {
+        return parent::getImageUrl("ideal/{$imgName}", "svg");
+    }
+
+    public function getAllIssuers(): array
+    {
+        $issuers = $this->getIssuers();
+        $issuersPrepared = [];
+        foreach ($issuers as $issuer) {
+            $issuer['img'] = $issuer['logo'];
+            $issuersPrepared[$issuer['code']] = $issuer;
+        }
+
+        return $issuersPrepared;
     }
 }

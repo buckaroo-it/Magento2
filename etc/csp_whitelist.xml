@@ -8,6 +8,7 @@ list.xsd">
                 <value id="buckaroo-checkout" type="host">https://checkout.buckaroo.nl</value>
                 <value id="buckaroo-checkout-test" type="host">https://testcheckout.buckaroo.nl</value>
                 <value id="buckaroo" type="host">https://buckaroo.nl</value>
+                <value id="applepay" type="host">https://applepay.cdn-apple.com</value>
             </values>
         </policy>
         <policy id="style-src">

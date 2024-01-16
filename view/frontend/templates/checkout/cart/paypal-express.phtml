@@ -19,7 +19,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 ?>
-<?php if ($block->canShowCartButton()) : ?>
+<?php if ($block->canShowCartButton()): ?>
     <div class="box-tocart">
         <div class="fieldset">
             <div class="actions">
@@ -32,8 +32,7 @@
     <script>
         showPaypalExpressButton = function() {
             require(['jquery', 'buckaroo/paypal-express/pay'], function(jQuery, paypalExpressPay) {
-                paypalExpressPay.setConfig(<?= /* @noEscape */ json_encode($block->getConfig()); ?>);
-                paypalExpressPay.setPage('cart');
+                paypalExpressPay.setConfig(<?= /* @noEscape */ json_encode($block->getConfig()); ?>, 'cart');
                 paypalExpressPay.init();
             });
         }

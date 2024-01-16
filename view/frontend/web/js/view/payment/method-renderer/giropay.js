@@ -41,28 +41,17 @@ define(
     ) {
         'use strict';
 
-        /**
-         * Add validation methods
-         * */
-
-        $.validator.addMethod(
-            'BIC',
-            function (value) {
-                var patternBIC = new RegExp('^([a-zA-Z]){4}([a-zA-Z]){2}([0-9a-zA-Z]){2}([0-9a-zA-Z]{3})?$');
-                return patternBIC.test(value);
-            },
-            $.mage.__('Enter Valid BIC number')
-        );
-
         return Component.extend(
             {
                 defaults: {
-                    template: 'Buckaroo_Magento2/payment/buckaroo_magento2_giropay',
-                    bicnumber: ''
+                    template: 'Buckaroo_Magento2/payment/buckaroo_magento2_giropay'
                 },
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.giropay.paymentFeeLabel,
+                subtext : window.checkoutConfig.payment.buckaroo.giropay.subtext,
+                subTextStyle : checkoutCommon.getSubtextStyle('giropay'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
+                isTestMode: window.checkoutConfig.payment.buckaroo.giropay.isTestMode,
 
                 /**
              * @override
@@ -73,55 +62,6 @@ define(
                     }
 
                     return this._super(options);
-                },
-
-                initObservable: function () {
-                    this._super().observe(['bicnumber']);
-
-                    /**
-                 * Bind this values to the input field.
-                 */
-                    this.bicnumber.subscribe(
-                        function () {
-                            $('.' + this.getCode() + ' .payment [data-validate]').valid();
-                            this.selectPaymentMethod();
-                        },
-                        this
-                    );
-
-
-                    /**
-                 * Run validation on the inputfield
-                 */
-                    this.bicnumber.subscribe(
-                        function () {
-                            $('.' + this.getCode() + ' .payment [data-validate]').valid();
-                            this.selectPaymentMethod();
-                        },
-                        this
-                    );
-
-
-                    /**
-                 * Check if the required fields are filled. If so: enable place order button | if not: disable place order button
-                 */
-
-                    this.buttoncheck = ko.computed(
-                        function () {
-                            return this.bicnumber().length > 0 && this.validate();
-                        },
-                        this
-                    );
-
-                    return this;
-                },
-
-                /**
-             * Run function
-             */
-
-                validate: function () {
-                    return $('.' + this.getCode() + ' .payment [data-validate]').valid();
                 },
 
                 /**
@@ -164,16 +104,6 @@ define(
                     selectPaymentMethodAction(this.getData());
                     checkoutData.setSelectedPaymentMethod(this.item.method);
                     return true;
-                },
-
-                getData: function () {
-                    return {
-                        "method": this.item.method,
-                        "po_number": null,
-                        "additional_data": {
-                            "customer_bic": this.bicnumber()
-                        }
-                    };
                 },
 
                 payWithBaseCurrency: function () {

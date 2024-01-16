@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -20,55 +20,40 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-/**
- * @method getPaymentFeeLabel();
- * @method getMaestroUnsecureHold()
- * @method getMastercardUnsecureHold()
- * @method getVisaUnsecureHold()
- * @method getAllowedCreditcards()
- */
+use Magento\Store\Model\ScopeInterface;
+
 class Creditcard extends AbstractConfigProvider
 {
-    /**#@+
+    public const CODE = 'buckaroo_magento2_creditcard';
+
+    /**
      * Creditcard service codes.
      */
-    const CREDITCARD_SERVICE_CODE_MASTERCARD    = 'mastercard';
-    const CREDITCARD_SERVICE_CODE_VISA          = 'visa';
-    const CREDITCARD_SERVICE_CODE_AMEX          = 'amex';
-    const CREDITCARD_SERVICE_CODE_MAESTRO       = 'maestro';
-    const CREDITCARD_SERVICE_CODE_VPAY          = 'vpay';
-    const CREDITCARD_SERVICE_CODE_VISAELECTRON  = 'visaelectron';
-    const CREDITCARD_SERVICE_CODE_CARTEBLEUE    = 'cartebleuevisa';
-    const CREDITCARD_SERVICE_CODE_CARTEBANCAIRE = 'cartebancaire';
-    const CREDITCARD_SERVICE_CODE_DANKORT       = 'dankort';
-    const CREDITCARD_SERVICE_CODE_NEXI          = 'nexi';
-    const CREDITCARD_SERVICE_CODE_POSTEPAY      = 'postepay';
-    /**#@-*/
+    private const CREDITCARD_SERVICE_CODE_MASTERCARD    = 'mastercard';
+    private const CREDITCARD_SERVICE_CODE_VISA          = 'visa';
+    private const CREDITCARD_SERVICE_CODE_AMEX          = 'amex';
+    private const CREDITCARD_SERVICE_CODE_MAESTRO       = 'maestro';
+    private const CREDITCARD_SERVICE_CODE_VPAY          = 'vpay';
+    private const CREDITCARD_SERVICE_CODE_VISAELECTRON  = 'visaelectron';
+    private const CREDITCARD_SERVICE_CODE_CARTEBLEUE    = 'cartebleuevisa';
+    private const CREDITCARD_SERVICE_CODE_CARTEBANCAIRE = 'cartebancaire';
+    private const CREDITCARD_SERVICE_CODE_DANKORT       = 'dankort';
+    private const CREDITCARD_SERVICE_CODE_NEXI          = 'nexi';
+    private const CREDITCARD_SERVICE_CODE_POSTEPAY      = 'postepay';
 
-    const XPATH_CREDITCARD_PAYMENT_FEE          = 'payment/buckaroo_magento2_creditcard/payment_fee';
-    const XPATH_CREDITCARD_PAYMENT_FEE_LABEL    = 'payment/buckaroo_magento2_creditcard/payment_fee_label';
-    const XPATH_CREDITCARD_ACTIVE               = 'payment/buckaroo_magento2_creditcard/active';
-    const XPATH_CREDITCARD_ACTIVE_STATUS        = 'payment/buckaroo_magento2_creditcard/active_status';
-    const XPATH_CREDITCARD_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_creditcard/order_status_success';
-    const XPATH_CREDITCARD_ORDER_STATUS_FAILED  = 'payment/buckaroo_magento2_creditcard/order_status_failed';
-    const XPATH_CREDITCARD_ALLOWED_CREDITCARDS  = 'payment/buckaroo_magento2_creditcard/allowed_creditcards';
+    public const XPATH_CREDITCARD_MASTERCARD_UNSECURE_HOLD = 'mastercard_unsecure_hold';
+    public const XPATH_CREDITCARD_VISA_UNSECURE_HOLD       = 'visa_unsecure_hold';
+    public const XPATH_CREDITCARD_MAESTRO_UNSECURE_HOLD    = 'maestro_unsecure_hold';
 
-    const XPATH_CREDITCARD_MASTERCARD_UNSECURE_HOLD = 'payment/buckaroo_magento2_creditcard/mastercard_unsecure_hold';
-    const XPATH_CREDITCARD_VISA_UNSECURE_HOLD       = 'payment/buckaroo_magento2_creditcard/visa_unsecure_hold';
-    const XPATH_CREDITCARD_MAESTRO_UNSECURE_HOLD    = 'payment/buckaroo_magento2_creditcard/maestro_unsecure_hold';
+    public const XPATH_CREDITCARD_ALLOWED_CREDITCARDS = 'allowed_issuers';
+    public const XPATH_SORTED_ISSUERS                 = 'sorted_issuers';
+    public const XPATH_CREDITCARD_GROUP_CREDITCARD    = 'group_creditcards';
+    public const XPATH_SELECTION_TYPE                 = 'selection_type';
+    public const XPATH_PAYMENT_FLOW                   = 'payment_action';
+    public const DEFAULT_SORT_VALUE                   = '99';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_creditcard/allowed_currencies';
-
-    const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_creditcard/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_creditcard/specificcountry';
-    const XPATH_CREDITCARD_SORT                 = 'payment/buckaroo_magento2_creditcard/sorted_creditcards';
-    const XPATH_SELECTION_TYPE                  = 'buckaroo_magento2/account/selection_type';
-    const XPATH_PAYMENT_FLOW                    = 'payment/buckaroo_magento2_creditcard/payment_action';
-    const DEFAULT_SORT_VALUE                    = '99';
-
-    const XPATH_SPECIFIC_CUSTOMER_GROUP            = 'payment/buckaroo_magento2_creditcard/specificcustomergroup';
-
-    protected $issuers = [
+    /** @var array[] */
+    protected array $issuers = [
         [
             'name' => 'American Express',
             'code' => self::CREDITCARD_SERVICE_CODE_AMEX,
@@ -127,35 +112,84 @@ class Creditcard extends AbstractConfigProvider
     ];
 
     /**
+     * @inheritdoc
+     */
+    public function getConfig()
+    {
+        $issuers = $this->formatIssuers();
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
+
+        $selectionType = $this->getSelectionType();
+
+        $paymentFlow = $this->getMethodConfigValue(self::XPATH_PAYMENT_FLOW);
+
+        return [
+            'payment' => [
+                'buckaroo' => [
+                    'creditcard' => [
+                        'cards'             => $issuers,
+                        'groupCreditcards'  => $this->isGroupCreditcards(),
+                        'paymentFeeLabel'   => $paymentFeeLabel,
+                        'subtext'           => $this->getSubtext(),
+                        'subtext_style'     => $this->getSubtextStyle(),
+                        'subtext_color'     => $this->getSubtextColor(),
+                        'allowedCurrencies' => $this->getAllowedCurrencies(),
+                        'selectionType'     => $selectionType,
+                        'paymentFlow'       => $paymentFlow,
+                        'isTestMode'        => $this->isTestMode()
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    public function getIssuers(): array
+    {
+        return $this->issuers;
+    }
+
+    /**
+     * Get all issuers not sorted
+     *
+     * @return array
+     */
+    public function getAllIssuers(): array
+    {
+        $issuers = $this->getIssuers();
+        $issuersPrepared = [];
+        foreach ($issuers as $issuer) {
+            $issuer['img'] = $this->getImageUrl($issuer['code']);
+            $issuersPrepared[$issuer['code']] = $issuer;
+        }
+
+        return $issuersPrepared;
+    }
+
+    /**
      * Add the active flag to the creditcard list. This is used in the checkout process.
      *
      * @return array
      */
-    public function formatIssuers()
+    public function formatIssuers(): array
     {
-        $sorted = explode(',', (string)$this->scopeConfig->getValue(
-            self::XPATH_CREDITCARD_SORT,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        ));
+        $sorted = $this->getSortedIssuers();
+        $sorted = $sorted ? explode(',', $sorted) : [];
 
         if (!empty($sorted)) {
             $sortedPosition = 1;
-            foreach ($sorted as $cardName) {
-                $sorted_array[$cardName] = $sortedPosition++;
+            foreach ($sorted as $cardCode) {
+                $sorted_array[$cardCode] = $sortedPosition++;
             }
         }
 
         foreach ($this->getIssuers() as $item) {
-            $item['sort'] = isset($sorted_array[$item['name']]) ?
-                $sorted_array[$item['name']] : self::DEFAULT_SORT_VALUE;
-            $item['img'] = $this->getCreditcardLogo($item['code']);
+            $item['sort'] = isset($sorted_array[$item['code']]) ?
+                $sorted_array[$item['code']] : self::DEFAULT_SORT_VALUE;
+            $item['img'] = $this->getImageUrl($item['code']);
             $allCreditcard[$item['code']] = $item;
         }
 
-        $allowed = explode(',', (string)$this->scopeConfig->getValue(
-            self::XPATH_CREDITCARD_ALLOWED_CREDITCARDS,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        ));
+        $allowed = explode(',', (string)$this->getAllowedCreditcards());
 
         $cards = [];
         foreach ($allowed as $key => $value) {
@@ -172,59 +206,26 @@ class Creditcard extends AbstractConfigProvider
     }
 
     /**
-     * @return array|void
-     */
-    public function getConfig()
-    {
-        $issuers = $this->formatIssuers();
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
-            \Buckaroo\Magento2\Model\Method\Creditcard::PAYMENT_METHOD_CODE
-        );
-
-        $selectionType = $this->scopeConfig->getValue(
-            self::XPATH_SELECTION_TYPE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
-
-        $paymentFlow = $this->scopeConfig->getValue(
-            self::XPATH_PAYMENT_FLOW,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
-
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'creditcard' => [
-                        'cards' => $issuers,
-                        'paymentFeeLabel' => $paymentFeeLabel,
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'selectionType' => $selectionType,
-                        'paymentFlow' => $paymentFlow,
-                    ],
-                ],
-            ],
-        ];
-    }
-
-    /**
-     * @param null|int $storeId
+     * Generate the url to the desired asset.
      *
-     * @return float
+     * @param string $imgName
+     * @param string $extension
+     *
+     * @return string
      */
-    public function getPaymentFee($storeId = null)
+    public function getImageUrl($imgName, string $extension = 'png')
     {
-        $paymentFee = $this->scopeConfig->getValue(
-            self::XPATH_CREDITCARD_PAYMENT_FEE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
+        if ($imgName === 'cartebleuevisa') {
+            $imgName = 'cartebleue';
+        }
 
-        return $paymentFee ? $paymentFee : false;
+        return parent::getImageUrl("creditcards/{$imgName}", "svg");
     }
 
     /**
+     * Get card name by card type
+     *
      * @param string $cardType
-     *
      * @return string
      *
      * @throws \InvalidArgumentException
@@ -243,8 +244,9 @@ class Creditcard extends AbstractConfigProvider
     }
 
     /**
-     * @param string $cardType
+     * Get card code by card type
      *
+     * @param string $cardType
      * @return string
      *
      * @throws \InvalidArgumentException
@@ -259,5 +261,82 @@ class Creditcard extends AbstractConfigProvider
         }
 
         throw new \InvalidArgumentException("No card found for card type: {$cardType}");
+    }
+
+    /**
+     * Retrieve the sorted order of the credit card types to display on the checkout page
+     *
+     * @param $storeId
+     * @return ?string
+     */
+    public function getSortedIssuers($storeId = null): ?string
+    {
+        return $this->getMethodConfigValue(self::XPATH_SORTED_ISSUERS, $storeId);
+    }
+
+    /**
+     * Get the list with allowed credit cards
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getAllowedCreditcards($store = null)
+    {
+        return $this->getMethodConfigValue(self::XPATH_CREDITCARD_ALLOWED_CREDITCARDS, $store);
+    }
+
+    /**
+     * Selection type radio checkbox or drop down
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getSelectionType($store = null)
+    {
+        return $this->getMethodConfigValue(self::XPATH_SELECTION_TYPE, $store);
+    }
+
+    /**
+     * Credit cards are displayed separately in the checkout.
+     *
+     * @param $storeId
+     * @return string
+     */
+    public function isGroupCreditcards($storeId = null): string
+    {
+        return (bool)$this->getMethodConfigValue(self::XPATH_CREDITCARD_GROUP_CREDITCARD, $storeId);
+    }
+
+    /**
+     * Hold orders which have no MasterCard SecureCode.
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getMastercardUnsecureHold($store = null)
+    {
+        return $this->getMethodConfigValue(self::XPATH_CREDITCARD_MASTERCARD_UNSECURE_HOLD, $store);
+    }
+
+    /**
+     * Hold orders which have no Visa SecureCode.
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getVisaUnsecureHold($store = null)
+    {
+        return $this->getMethodConfigValue(self::XPATH_CREDITCARD_VISA_UNSECURE_HOLD, $store);
+    }
+
+    /**
+     * Hold orders which have no Maestro SecureCode.
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getMaestroUnsecureHold($store = null)
+    {
+        return $this->getMethodConfigValue(self::XPATH_CREDITCARD_MAESTRO_UNSECURE_HOLD, $store);
     }
 }
