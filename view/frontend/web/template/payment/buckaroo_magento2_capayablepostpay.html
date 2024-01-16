@@ -92,10 +92,8 @@
                                            },
                                            valueUpdate: 'blur',
                                            value: dateValidate,
-                                           attr: {
-                                            'data-validate': JSON.stringify({ 'required': true, 'validate-date-au': true }),
-                                            placeholder: $t('DD/MM/YYYY')
-                                           }"
+                                           attr: { placeholder: $t('DD/MM/YYYY') }"
+                                   data-validate="{required: true, 'validate-date-au': true}"
                                    name="payment[buckaroo_magento2_capayablepostpay][customer_DoB]">
                         </div>
                         <div for="buckaroo_magento2_capayablepostpay_DoB" generated="true" class="mage-error" id="dob-error" style="display: none;"><span data-bind="i18n: 'This is a required field.'"></span> </div>
@@ -124,8 +122,8 @@
                                    type="text"
                                    data-bind="
                                        valueUpdate: 'keyup',
-                                       value: CocNumber,
-                                       attr: { 'data-validate': JSON.stringify({'required': true, 'minlength': 8}) }">
+                                       value: CocNumber"
+                                   data-validate="{required: true, minlength: 8}">
                         </div>
                     </div>
 
@@ -138,8 +136,8 @@
                                    type="text"
                                    data-bind="
                                        valueUpdate: 'keyup',
-                                       value: CompanyName,
-                                       attr: { 'data-validate': JSON.stringify({'required': true, 'min-words': 1 })}">
+                                       value: CompanyName"
+                                   data-validate="{required: true, 'min-words': 1}">
                         </div>
                     </div>
                     <!-- /ko -->

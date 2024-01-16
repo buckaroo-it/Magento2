@@ -49,8 +49,9 @@
                             optionsText: $t('genderTitle'),
                             optionsValue: 'genderType',
                             optionsCaption: $t('-- Please Select Your Gender--'),
-                            value: selectedGender, attr: { 'data-validate': JSON.stringify({ 'required': true })},
-                            event: { blur: validateField }">
+                            value: selectedGender,
+                            event: { blur: validateField }"
+                            data-validate="{required:true}">
                             </select>
                         </div>
                     </div>
@@ -78,10 +79,10 @@
                                    type="text"
                                    class="input-text field"
                                    data-bind="
-                                   attr: { 'data-validate': JSON.stringify({ 'required': true, phoneValidation: true }) },
                                    valueUpdate: 'blur',
                                    value: phone,
                                    event: { blur: validateField }"
+                                   data-validate="{required:true, phoneValidation: true}"
                                    name="payment[buckaroo_magento2_billink][customer_telephone]">
                         </div>
                     </div>
@@ -108,10 +109,8 @@
                                    },
                                    valueUpdate: 'change',
                                    value: dob,
-                                   attr: {
-                                    'data-validate': JSON.stringify({ 'required': true, 'validate-date-au': true, validateAge: true }),
-                                    placeholder: $t('DD/MM/YYYY')
-                                   }"
+                                   attr: { placeholder: $t('DD/MM/YYYY') }"
+                                   data-validate="{required:true, 'validate-date-au': true, validateAge: true}"
                                    name="payment[buckaroo_magento2_billink][customer_DoB]">
                         </div>
                     </div>
@@ -126,11 +125,11 @@
                                    type="text"
                                    name="payment[buckaroo_magento2_billink][buckaroo_chamberOfCommerce]"
                                    data-bind="
-                                   attr: { 'data-validate': JSON.stringify({ 'required': true }) },
                                    valueUpdate: 'blur',
                                    value: cocNumber,
                                    event: { blur: validateField }
-                                   ">
+                                   "
+                                   data-validate="{required:true}">
                         </div>
                     </div>
           
@@ -158,8 +157,8 @@
                                    type="checkbox"
                                    data-bind="
                                    checked: tos,
-                                   attr: { 'data-validate': JSON.stringify({ 'required': true})},
                                    event: { change: validateField }"
+                                   data-validate="{required:true}"
                                    name="payment[buckaroo_magento2_billink][termsCondition]">
                             <span>
                                 <a target="_blank"
