@@ -62,8 +62,8 @@
                                    data-bind="
                                    valueUpdate: 'blur',
                                    value: phone,
-                                   attr: { 'data-validate': JSON.stringify({ 'required': true })},
                                    event: { blur: validateField }"
+                                   data-validate="{required:true}"
                                    name="payment[buckaroo_magento2_tinka][customer_telephone]">
                         </div>
                     </div>
@@ -90,10 +90,8 @@
                                    },
                                    valueUpdate: 'change',
                                    value: dateValidate,
-                                   attr: {
-                                    'data-validate': JSON.stringify({ 'required': true, 'validate-date-au': true, 'validateAge': true }),
-                                    placeholder: $t('DD/MM/YYYY')
-                                   }"
+                                   attr: { placeholder: $t('DD/MM/YYYY') }"
+                                   data-validate="{required:true, 'validate-date-au':true, 'validateAge':true}"
                                    name="payment[buckaroo_magento2_tinka][customer_DoB]">
                         </div>
                     </div>

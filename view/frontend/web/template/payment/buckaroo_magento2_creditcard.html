@@ -72,8 +72,8 @@
                         <!-- ko if: selectionType == '2' -->
                             <select id="buckaroo_magento2_creditcard_issuer" class="field"
                                     data-bind="value: creditcardIssuer,
-                                    event: { change: setSelectedBankDropDown },
-                                    attr: { 'data-validate': JSON.stringify({ 'required-entry': true }) }"
+                                    event: { change: setSelectedBankDropDown }"
+                                    data-validate="{required:true}"
                                     name="card">
                                 <option data-bind="i18n: 'Select a Credit Card or Debit Card', 'value': ''"></option>
                                 <!-- ko foreach: creditcards -->

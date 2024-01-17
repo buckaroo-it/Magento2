@@ -78,10 +78,10 @@
                                    type="text"
                                    class="input-text field"
                                    data-bind="
-                                   attr: { 'data-validate': JSON.stringify({ 'in3phoneValidation': true, 'required': true }) },
                                    valueUpdate: 'blur',
                                    value: phone,
                                    event: { blur: validateField }"
+                                   data-validate="{required: true, 'in3phoneValidation': true}"
                                    name="payment[buckaroo_magento2_capayablein3][customer_telephone]">
                         </div>
                     </div>
@@ -107,10 +107,8 @@
                                            },
                                            valueUpdate: 'blur',
                                            value: dateValidate,
-                                           attr: {
-                                            'data-validate': JSON.stringify({ 'required': true, 'validate-date-au': true }),
-                                            placeholder: $t('DD/MM/YYYY')
-                                           }"
+                                           attr: { placeholder: $t('DD/MM/YYYY') }"
+                                   data-validate="{required: true, 'validate-date-au': true}"
                                    name="payment[buckaroo_magento2_capayablein3][customer_DoB]">
                         </div>
                     </div>

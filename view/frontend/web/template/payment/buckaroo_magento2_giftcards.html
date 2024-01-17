@@ -130,7 +130,10 @@
                             valueUpdate: 'blur',
                             value: $parent.CardNumber,
                             textInput: $parent.CardNumber(),
-                            attr: { 'data-card': code, 'id': 'buckaroo_magento2_giftcards_cardnumber_' + code, 'data-validate': JSON.stringify({ 'required': true, '$parent.validateCardNumber': true }) },
+                            attr: {
+                                'data-card': code, 'id': 'buckaroo_magento2_giftcards_cardnumber_' + code,
+                                'data-validate': JSON.stringify({ 'required': true, '$parent.validateCardNumber': true })
+                            },
                             event: { blur: $parent.checkValidness }">
                             </div>
                         </div>
@@ -149,7 +152,10 @@
                             valueUpdate: 'blur',
                             value: $parent.Pin,
                             textInput: $parent.Pin(),
-                            attr: { 'id': 'buckaroo_magento2_giftcards_pin_' + code, 'data-validate': JSON.stringify({ 'required': true, '$parent.validatePin': true }) },
+                            attr: {
+                                'id': 'buckaroo_magento2_giftcards_pin_' + code,
+                                'data-validate': JSON.stringify({ 'required': true, '$parent.validatePin': true })
+                            },
                             event: { blur: $parent.checkValidness }">
                             </div>
                             <div class="card_info width-10">
