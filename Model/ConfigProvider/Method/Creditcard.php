@@ -20,8 +20,6 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use Magento\Store\Model\ScopeInterface;
-
 class Creditcard extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_creditcard';
@@ -114,7 +112,7 @@ class Creditcard extends AbstractConfigProvider
     /**
      * @inheritdoc
      */
-    public function getConfig()
+    public function getConfig(): array
     {
         $issuers = $this->formatIssuers();
         $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
@@ -192,7 +190,7 @@ class Creditcard extends AbstractConfigProvider
         $allowed = explode(',', (string)$this->getAllowedCreditcards());
 
         $cards = [];
-        foreach ($allowed as $key => $value) {
+        foreach ($allowed as $value) {
             if (isset($allCreditcard[$value])) {
                 $cards[] = $allCreditcard[$value];
             }

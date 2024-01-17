@@ -196,6 +196,8 @@ class Process extends Action implements HttpPostActionInterface
      *
      * @return ResponseInterface|void
      * @throws \Exception
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function execute()
     {
@@ -378,7 +380,6 @@ class Process extends Action implements HttpPostActionInterface
      * @param int $statusCode The status code representing the result of a payment or related process.
      * @return void
      * @throws \Exception If an exception occurs within the called methods.
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
