@@ -313,7 +313,7 @@ class Billink extends AbstractMethod
                 $item->getSku(),
                 $bundleProductQty ?: $item->getQty(),
                 $this->calculateProductPrice($item, $includesTax),
-                $item->getTaxPercent()
+                $item->getTaxPercent() ?: 0
             );
 
             // @codingStandardsIgnoreStart
@@ -389,7 +389,7 @@ class Billink extends AbstractMethod
                 $item->getSku(),
                 $item->getQty(),
                 $this->calculateProductPrice($item, $includesTax),
-                $item->getOrderItem()->getTaxPercent()
+                $item->getOrderItem()->getTaxPercent() ?: 0
             );
 
             // @codingStandardsIgnoreStart
@@ -405,7 +405,7 @@ class Billink extends AbstractMethod
                     $item->getSku(),
                     1,
                     number_format(($item->getDiscountAmount()*-1), 2),
-                    $item->getOrderItem()->getTaxPercent()
+                    $item->getOrderItem()->getTaxPercent() ?: 0
                 );
                 // @codingStandardsIgnoreStart
                 $articles = array_merge($articles, $article);
