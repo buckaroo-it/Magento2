@@ -52,13 +52,11 @@
                                        class="input-text field"
                                        name="payment[buckaroo_magento2_creditcards][cardholdername]"
                                        data-bind="
-                            valueUpdate: 'blur',
-                            value: cardHolderName,
-                            attr: {
-                                'data-validate': JSON.stringify({ 'required': true, 'validateCardHolderName': true }),
-                                'placeholder': 'John Doe'
-                             },
-                            event: { blur: validateField }">
+                                       valueUpdate: 'blur',
+                                       value: cardHolderName,
+                                       attr: {'placeholder': 'John Doe'},
+                                       event: { blur: validateField }"
+                                       data-validate="{'required': true, 'validateCardHolderName': true}"/>
                             </div>
                         </div>
 
@@ -69,18 +67,18 @@
                                 <div class="bk-card-number-input-wrap">
                                     <div class="control">
                                         <input id="buckaroo_magento2_creditcards_cardnumber"
-                                               type="text"
                                                class="input-text field"
+                                               type="text"
                                                name="payment[buckaroo_magento2_creditcards][cardnumber]"
                                                data-bind="
-                                    valueUpdate: 'input',
-                                    value: formatedCardNumber,
-                                    attr: {
-                                        'data-validate': JSON.stringify({ 'required': true, 'validateCardNumber': true }),
-                                        'maxlength': 23,
-                                        'placeholder': '0000 0000 0000 0000'
-                                    },
-                                    event: { blur: validateCardNumber }">
+                                               valueUpdate: 'input',
+                                               value: formatedCardNumber,
+                                               attr: {
+                                                   'maxlength': 23,
+                                                   'placeholder': '0000 0000 0000 0000'
+                                               },
+                                               event: { blur: validateCardNumber }"
+                                               data-validate="{'required': true, 'validateCardHolderName': true}"/>
                                     </div>
                                     <div class="bk-card-image">
                                         <img class="issuer-img"
@@ -100,20 +98,18 @@
                                 </label>
                                 <div class="control">
                                     <input id="buckaroo_magento2_creditcards_expireDate"
-                                           type="text"
                                            class="input-text field"
+                                           type="text"
                                            name="payment[buckaroo_magento2_creditcards][expireDate]"
                                            data-bind="
-                                valueUpdate: 'input',
-                                value: formatedExpirationDate,
-                                attr: { 
-                                    'data-validate': JSON.stringify(
-                                        { 'required': true,  'bkValidateMonth': true, 'bkValidateYear': true }
-                                    ),
-                                    'maxlength': 5,
-                                    'placeholder': 'MM/YY'
-                                },
-                                event: { blur: validateField }">
+                                           valueUpdate: 'input',
+                                           value: formatedExpirationDate,
+                                           attr: {
+                                               'maxlength': 5,
+                                               'placeholder': 'MM/YY'
+                                           },
+                                           event: { blur: validateField }"
+                                           data-validate="{'required':true,  'bkValidateMonth':true, 'bkValidateYear':true}">
                                 </div>
                             </div>
                             <div class="field required bk-cvc">
@@ -122,20 +118,19 @@
                                 </label>
                                 <div class="control">
                                     <input id="buckaroo_magento2_creditcards_cvc"
-                                           type="text"
                                            class="input-text field"
+                                           type="text"
                                            name="payment[buckaroo_magento2_creditcards][cvc]"
                                            data-bind="
-                                    valueUpdate: 'blur',
-                                    value: cvc,
-                                    attr: {
-                                        'data-validate': JSON.stringify({ 'required': true, 'validateCvc': true }),
-                                        'maxlength': 4,
-                                        'placeholder': '123'
-                                    },
-                                    event: { blur: validateField }">
+                                           valueUpdate: 'blur',
+                                           value: cvc,
+                                           attr: {
+                                               'maxlength': 4,
+                                               'placeholder': '123'
+                                           },
+                                           event: { blur: validateField }"
+                                           data-validate="{'required':true, 'validateCvc':true}">
                                 </div>
-                               
                             </div>
                         </div>
                         </div>

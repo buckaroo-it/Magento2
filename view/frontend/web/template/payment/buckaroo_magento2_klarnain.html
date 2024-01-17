@@ -50,9 +50,8 @@
                             optionsValue: 'genderType',
                             optionsCaption: $t('-- Please Select Your Gender--'),
                             value: selectedGender,
-                            attr: { 'data-validate': JSON.stringify({ 'required': true })},
-                            event: { change: validateField }
-                            ">
+                            event: { change: validateField }"
+                            data-validate="{required:true}">
                             </select>
                         </div>
                     </div>

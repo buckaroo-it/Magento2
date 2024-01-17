@@ -74,7 +74,8 @@ class Push implements PushInterface
         RequestPushFactory $requestPushFactory,
         PushProcessorsFactory $pushProcessorsFactory,
         OrderRequestService $orderRequestService,
-        PushTransactionType $pushTransactionType
+        PushTransactionType $pushTransactionType,
+        LockManagerWrapper $lockManager
     ) {
         $this->logger = $logger;
         $this->pushRequst = $requestPushFactory->create();
@@ -103,11 +104,11 @@ class Push implements PushInterface
         $order = $this->orderRequestService->getOrderByRequest($this->pushRequst);
 
         $orderIncrementID = $order->getIncrementId();
-        $this->logging->addDebug(__METHOD__ . '|Lock Name| - ' . var_export($orderIncrementID, true));
+        $this->logger->addDebug(__METHOD__ . '|Lock Name| - ' . var_export($orderIncrementID, true));
         $lockAcquired = $this->lockManager->lockOrder($orderIncrementID, 5);
 
         if (!$lockAcquired) {
-            $this->logging->addDebug(__METHOD__ . '|lock not acquired|');
+            $this->logger->addDebug(__METHOD__ . '|lock not acquired|');
             throw new \Buckaroo\Magento2\Exception(
                 __('Lock push not acquired')
             );
@@ -130,11 +131,11 @@ class Push implements PushInterface
             $pushProcessor = $this->pushProcessorsFactory->get($pushTransactionType);
             return $pushProcessor->processPush($this->pushRequst);
         } catch (\Throwable $e) {
-            $this->logging->addDebug(__METHOD__ . '|Exception|' . $e->getMessage());
+            $this->logger->addDebug(__METHOD__ . '|Exception|' . $e->getMessage());
             throw $e;
         } finally {
             $this->lockManager->unlockOrder($orderIncrementID);
-            $this->logging->addDebug(__METHOD__ . '|Lock released|');
+            $this->logger->addDebug(__METHOD__ . '|Lock released|');
         }
     }
 }
