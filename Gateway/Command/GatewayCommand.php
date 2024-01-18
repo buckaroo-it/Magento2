@@ -198,10 +198,12 @@ class GatewayCommand implements CommandInterface
                 return;
             }
 
+
             $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
 
             /** @var \Magento\Sales\Api\OrderRepositoryInterface */
             $orderRepository = $objectManager->get(OrderRepositoryInterface::class);
+            // Order State is not set it on $order object this is why we needed to reload using repository
             $order = $orderRepository->get((int)$orderId);
 
             if($order->getState() === Order::STATE_NEW && $order->getId() == $orderId) {
