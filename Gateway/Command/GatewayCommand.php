@@ -27,6 +27,7 @@ use Buckaroo\Magento2\Model\Method\LimitReachException;
 use Buckaroo\Magento2\Service\SpamLimitService;
 use Magento\Payment\Gateway\Command\CommandException;
 use Magento\Payment\Gateway\CommandInterface;
+use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Payment\Gateway\ErrorMapper\ErrorMessageMapperInterface;
 use Magento\Payment\Gateway\Http\ClientException;
 use Magento\Payment\Gateway\Http\ClientInterface;
@@ -36,6 +37,10 @@ use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Payment\Gateway\Response\HandlerInterface;
 use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ValidatorInterface;
+use Magento\Payment\Model\InfoInterface;
+use Magento\Sales\Api\OrderManagementInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Model\Order;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -138,6 +143,8 @@ class GatewayCommand implements CommandInterface
     {
         $paymentDO = SubjectReader::readPayment($commandSubject);
 
+        $this->cancelPreviousPendingOrder($paymentDO);
+
         if ($this->client instanceof TransactionPayRemainder) {
             $orderIncrementId = $paymentDO->getOrder()->getOrder()->getIncrementId();
             $commandSubject['action'] = $this->client->setServiceAction($orderIncrementId);
@@ -173,6 +180,46 @@ class GatewayCommand implements CommandInterface
                 $response
             );
         }
+    }
+
+    /**
+     * Cancel previous order that comes from a restored quote
+     *
+     * @param PaymentDataObjectInterface $paymentDO
+     * @return void
+     */
+    private function cancelPreviousPendingOrder(PaymentDataObjectInterface $paymentDO)
+    {
+        try {
+            $payment = $paymentDO->getPayment();
+            $orderId = $payment->getAdditionalInformation('buckaroo_cancel_order_id');
+
+            if (is_null($orderId)) {
+                return;
+            }
+
+            $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+
+            /** @var \Magento\Sales\Api\OrderRepositoryInterface */
+            $orderRepository = $objectManager->get(OrderRepositoryInterface::class);
+            $order = $orderRepository->get((int)$orderId);
+
+            if($order->getState() === Order::STATE_NEW && $order->getId() == $orderId) {
+                $orderManagement = $objectManager->get(OrderManagementInterface::class);
+                $orderManagement->cancel($order->getEntityId());
+                $order->addCommentToStatusHistory(
+                    __('Canceled on browser back button')
+                )
+                    ->setIsCustomerNotified(false)
+                    ->setEntityName('invoice')
+                    ->save();
+            }
+
+
+        } catch (\Throwable $th) {
+            $this->logger->addError(__METHOD__." ".(string)$th);
+        }
+
     }
 
     /**

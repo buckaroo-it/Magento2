@@ -197,7 +197,7 @@ class OrderRequestService
     {
         $note = 'Buckaroo attempted to update this order, but failed: ' . $message;
         try {
-            $this->order->addStatusToHistory($note);
+            $this->order->addStatusToHistory($this->order->getStatus(), $note);
             $this->order->save();
         } catch (\Exception $e) {
             $this->logger->addError(sprintf(
