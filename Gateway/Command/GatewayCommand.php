@@ -24,6 +24,7 @@ namespace Buckaroo\Magento2\Gateway\Command;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRemainder;
 use Buckaroo\Magento2\Model\Method\LimitReachException;
+use Buckaroo\Magento2\Model\Service\CancelOrder;
 use Buckaroo\Magento2\Service\SpamLimitService;
 use Magento\Payment\Gateway\Command\CommandException;
 use Magento\Payment\Gateway\CommandInterface;
@@ -98,6 +99,11 @@ class GatewayCommand implements CommandInterface
     private SpamLimitService $spamLimitService;
 
     /**
+     * @var CancelOrder
+     */
+    private CancelOrder $cancelOrder;
+
+    /**
      * @param BuilderInterface $requestBuilder
      * @param TransferFactoryInterface $transferFactory
      * @param ClientInterface $client
@@ -114,6 +120,7 @@ class GatewayCommand implements CommandInterface
         ClientInterface             $client,
         LoggerInterface             $logger,
         SpamLimitService            $spamLimitService,
+        CancelOrder                 $cancelOrder,
         HandlerInterface            $handler = null,
         ValidatorInterface          $validator = null,
         ErrorMessageMapperInterface $errorMessageMapper = null,
@@ -128,6 +135,7 @@ class GatewayCommand implements CommandInterface
         $this->errorMessageMapper = $errorMessageMapper;
         $this->skipCommand = $skipCommand;
         $this->spamLimitService = $spamLimitService;
+        $this->cancelOrder = $cancelOrder;
     }
 
     /**
@@ -143,7 +151,7 @@ class GatewayCommand implements CommandInterface
     {
         $paymentDO = SubjectReader::readPayment($commandSubject);
 
-        $this->cancelPreviousPendingOrder($paymentDO);
+        $this->cancelOrder->cancelPreviousPendingOrder($paymentDO);
 
         if ($this->client instanceof TransactionPayRemainder) {
             $orderIncrementId = $paymentDO->getOrder()->getOrder()->getIncrementId();
@@ -180,48 +188,6 @@ class GatewayCommand implements CommandInterface
                 $response
             );
         }
-    }
-
-    /**
-     * Cancel previous order that comes from a restored quote
-     *
-     * @param PaymentDataObjectInterface $paymentDO
-     * @return void
-     */
-    private function cancelPreviousPendingOrder(PaymentDataObjectInterface $paymentDO)
-    {
-        try {
-            $payment = $paymentDO->getPayment();
-            $orderId = $payment->getAdditionalInformation('buckaroo_cancel_order_id');
-
-            if (is_null($orderId)) {
-                return;
-            }
-
-
-            $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-
-            /** @var \Magento\Sales\Api\OrderRepositoryInterface */
-            $orderRepository = $objectManager->get(OrderRepositoryInterface::class);
-            // Order State is not set it on $order object this is why we needed to reload using repository
-            $order = $orderRepository->get((int)$orderId);
-
-            if($order->getState() === Order::STATE_NEW && $order->getId() == $orderId) {
-                $orderManagement = $objectManager->get(OrderManagementInterface::class);
-                $orderManagement->cancel($order->getEntityId());
-                $order->addCommentToStatusHistory(
-                    __('Canceled on browser back button')
-                )
-                    ->setIsCustomerNotified(false)
-                    ->setEntityName('invoice')
-                    ->save();
-            }
-
-
-        } catch (\Throwable $th) {
-            $this->logger->addError(__METHOD__." ".(string)$th);
-        }
-
     }
 
     /**
