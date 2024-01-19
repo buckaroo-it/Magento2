@@ -134,7 +134,7 @@ class Giftcard
             }
         } else {
             $this->saveGroupTransaction();
-            $this->createOrderFromQuote(false);
+            $this->createOrderFromQuote();
         }
     }
 
@@ -154,7 +154,7 @@ class Giftcard
      * @return AbstractExtensibleModel|OrderInterface|object|null
      * @throws LocalizedException
      */
-    protected function createOrderFromQuote($success = true)
+    protected function createOrderFromQuote()
     {
         $this->logger->addDebug('
           [Giftcard] | [Response] | [' . __METHOD__ . ':' . __LINE__ . '] - Create Order From Quote'
@@ -164,9 +164,9 @@ class Giftcard
 
         $order = $this->getExistingOrder() ?? null;
 
-        if ($success || ($order instanceof OrderInterface && $order->getStatus() == Order::STATE_CANCELED)) {
+        if ($this->response->isSuccess()
+            || ($order instanceof OrderInterface && $order->getStatus() == Order::STATE_CANCELED)) {
             $order = $order ?? $this->createOrder();
-            $this->updateQuotePaymentAmounts();
         }
 
         if ($order) {
@@ -226,30 +226,6 @@ class Giftcard
     {
         $this->quote->collectTotals();
         return $this->quoteManagement->submit($this->quote);
-    }
-
-    /**
-     * Update the quote's payment amounts based on the currency rate.
-     */
-    protected function updateQuotePaymentAmounts()
-    {
-        $rate = 1.0;
-        $store = $this->quote->getStore();
-        $currency = $store->getCurrentCurrencyCode();
-        if ($currency != $store->getBaseCurrencyCode()) {
-            $rate = $store->getBaseCurrency()->getRate($currency);
-        }
-
-        $amountPaid = $this->response->getAmount();
-        $baseAmountPaid = (float)$amountPaid / (float)$rate;
-
-        $this->quote->setBuckarooAlreadyPaid(
-            $this->quote->getBuckarooAlreadyPaid() + $amountPaid
-        );
-
-        $this->quote->setBaseBuckarooAlreadyPaid(
-            $this->quote->getBaseBuckarooAlreadyPaid() + $baseAmountPaid
-        );
     }
 
     /**

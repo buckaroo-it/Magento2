@@ -569,7 +569,7 @@ class DefaultProcessor implements PushProcessorInterface
     protected function savePartGroupTransaction(): void
     {
         $groupTransaction = $this->groupTransaction->getGroupTransactionByTrxId($this->pushRequest->getTransactions());
-        if ($groupTransaction instanceof GroupTransaction) {
+        if ($groupTransaction instanceof GroupTransaction && !empty($groupTransaction->getTransactionId())) {
             $groupTransaction->setData('status', $this->pushRequest->getStatusCode());
             $groupTransaction->save();
         }
