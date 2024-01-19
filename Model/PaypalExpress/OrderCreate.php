@@ -21,6 +21,7 @@
 
 namespace Buckaroo\Magento2\Model\PaypalExpress;
 
+use Magento\Quote\Model\Quote;
 use Buckaroo\Magento2\Logging\Log;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Sales\Api\Data\OrderInterface;
@@ -137,7 +138,7 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
         
         $quote = $this->getQuote($cart_id);
         $quote->getPayment()->setAdditionalInformation('express_order_id', $paypal_order_id);
-
+        $this->ignoreAddressValidation($quote);
         $this->checkQuoteBelongsToLoggedUser($quote);
         $orderId = $this->quoteManagement->placeOrder($quote->getId());
 
@@ -146,6 +147,18 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
         $this->setLastOrderToSession($order);
         return $order->getIncrementId();
     }
+
+     /**
+     * Make sure addresses will be saved without validation errors
+     *
+     * @return void
+     */
+    private function ignoreAddressValidation(Quote $quote)
+    {
+        $quote->getBillingAddress()->setShouldIgnoreValidation(true);
+        $quote->getShippingAddress()->setShouldIgnoreValidation(true);
+    }
+
     protected function updateOrderShipping(OrderInterface $order)
     {
         $orderUpdateShipping = $this->orderUpdateShippingFactory->create(["shippingAddress" => $order->getShippingAddress()]);
@@ -188,7 +201,7 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
      *
      * @param string $cart_id
      *
-     * @return \Magento\Quote\Model\Quote
+     * @return Quote
      */
     protected function getQuote($cart_id)
     {

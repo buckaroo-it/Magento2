@@ -59,11 +59,12 @@ class Order
     ) {
         $sellersProtectionActive = (bool) $this->configProviderPaypal->getSellersProtection();
 
-        if (!$sellersProtectionActive) {
+        $payment = $paymentMethod->payment;
+        $isPaypalExpress = $payment->getAdditionalInformation('express_order_id')!== null;
+        if (!$sellersProtectionActive || $isPaypalExpress) {
             return $result;
         }
 
-        $payment = $paymentMethod->payment;
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
