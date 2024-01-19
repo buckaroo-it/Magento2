@@ -21,10 +21,21 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Plugin;
 
+use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Magento\Quote\Model\Quote;
 
 class QuotePlugin
 {
+    /**
+     * @var PaymentGroupTransaction
+     */
+    protected PaymentGroupTransaction $groupTransaction;
+
+    public function __construct(PaymentGroupTransaction $groupTransaction)
+    {
+        $this->groupTransaction = $groupTransaction;
+    }
+
     /**
      * Around plugin for reserveOrderId method.
      *
@@ -34,21 +45,10 @@ class QuotePlugin
      */
     public function aroundReserveOrderId(Quote $subject, \Closure $proceed)
     {
-        if ($this->isGroupTransaction($subject)) {
+        if ($this->groupTransaction->isGroupTransaction($subject->getReservedOrderId())) {
             return $subject;
         }
 
         return $proceed();
-    }
-
-    /**
-     * Check if is group transaction and order was already created
-     *
-     * @param Quote $quote
-     * @return bool
-     */
-    private function isGroupTransaction(Quote $quote): bool
-    {
-        return $quote->getReservedOrderId() && $quote->getBaseBuckarooAlreadyPaid() > 0;
     }
 }

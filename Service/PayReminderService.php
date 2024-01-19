@@ -111,7 +111,7 @@ class PayReminderService
             $alreadyPaid = $this->getAlreadyPaid($order->getIncrementId());
 
             if ($alreadyPaid > 0) {
-                $this->setPayRemainder($this->getPayRemainderAmount($order->getGrandTotal(), $alreadyPaid));
+                $this->setPayRemainder($this->getPayRemainderAmount((float)$order->getGrandTotal(), $alreadyPaid));
             }
         }
 
