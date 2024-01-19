@@ -13,11 +13,16 @@
                         <!-- /ko -->
                 </label>
             </div>
-            <div class="bk-img-wrap">
-                <img
-                    data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/bancontact.svg') }"
-                    alt="Mr. Cash Logo"
-                />
+            <div class="bk-mode-and-img">
+                <!-- ko if: isTestMode -->
+                <div class="bk-test-mode"><div class="bk-test-text" data-bind="i18n: 'Test Mode'"></div></div>
+                <!-- /ko -->
+                <div class="bk-img-wrap">
+                    <img
+                        data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/bancontact.svg') }"
+                        alt="Mr. Cash Logo"
+                    />
+                </div>
             </div>
         </div>
     </div>
@@ -52,10 +57,10 @@
                                        class="input-text field"
                                        name="payment[buckaroo_magento2_mrcash][cardholdername]"
                                        data-bind="
-                            valueUpdate: 'blur',
-                            value: cardHolderName,
-                            attr: { 'data-validate': JSON.stringify({ 'required': true, 'validateCardHolderName': true }) },
-                            event: { blur: validateField }">
+                                        valueUpdate: 'blur',
+                                        value: cardHolderName,
+                                        event: { blur: validateField }"
+                                       data-validate="{'required': true, 'validateCardHolderName': true}">
                             </div>
                         </div>
 
@@ -71,11 +76,11 @@
                                         valueUpdate: 'input',
                                         value: formatedCardNumber,
                                         attr: {
-                                            'data-validate': JSON.stringify({ 'required': true, 'validateCardNumber': true }),
                                             'maxlength': 23,
                                             'placeholder': '0000 0000 0000 0000'
                                         },
-                                        event: { blur: validateField }">
+                                        event: { blur: validateField }"
+                                        data-validate="{'required': true, 'validateCardHolderName': true}">
                                 </div>
                             </div>
 
@@ -89,16 +94,14 @@
                                         class="input-text field"
                                         name="payment[buckaroo_magento2_mrcash][expireDate]"
                                         data-bind="
-                                valueUpdate: 'input',
-                                value: formatedExpirationDate,
-                                attr: { 
-                                    'data-validate': JSON.stringify(
-                                        { 'required': true,  'bkValidateMonth': true, 'bkValidateYear': true }
-                                    ),
-                                    'maxlength': 5,
-                                    'placeholder': 'MM/YY'
-                                },
-                                event: { blur: validateField }">
+                                            valueUpdate: 'input',
+                                            value: formatedExpirationDate,
+                                            attr: {
+                                                'maxlength': 5,
+                                                'placeholder': 'MM/YY'
+                                            },
+                                            event: { blur: validateField }"
+                                        data-validate="{'required':true,  'bkValidateMonth':true, 'bkValidateYear':true}">
                                 </div>
                             </div>
                         </div>

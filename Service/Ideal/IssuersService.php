@@ -164,6 +164,7 @@ class IssuersService
                     $logo = $this->getImageUrl("ideal/{$name}");
                 }
                 $issuer['logo'] = $logo;
+                $issuer['code'] = $issuer['id'];
                 return $issuer;
             },
             $issuers

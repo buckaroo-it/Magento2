@@ -29,17 +29,16 @@ class Belfius extends AbstractConfigProvider
      */
     public function getConfig()
     {
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
-
         return [
             'payment' => [
                 'buckaroo' => [
                     'belfius' => [
-                        'paymentFeeLabel'   => $paymentFeeLabel,
+                        'paymentFeeLabel'   => $this->getBuckarooPaymentFeeLabel(),
                         'subtext'           => $this->getSubtext(),
                         'subtext_style'     => $this->getSubtextStyle(),
                         'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
+                        'isTestMode'        => $this->isTestMode()
                     ],
                 ],
             ],

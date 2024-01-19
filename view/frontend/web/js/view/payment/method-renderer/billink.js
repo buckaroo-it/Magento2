@@ -148,6 +148,7 @@ define(
                 genderList: window.checkoutConfig.payment.buckaroo.billink.genderList,
                 dp: datePicker,
                 isB2B: window.checkoutConfig.payment.buckaroo.billink.b2b == true,
+                isTestMode: window.checkoutConfig.payment.buckaroo.billink.isTestMode,
 
                 /**
                  * @override

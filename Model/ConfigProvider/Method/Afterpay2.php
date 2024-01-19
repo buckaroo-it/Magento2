@@ -37,21 +37,20 @@ class Afterpay2 extends Afterpay
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
-
         return [
             'payment' => [
                 'buckaroo' => [
                     'afterpay2' => [
                         'sendEmail'            => $this->hasOrderEmail(),
-                        'paymentFeeLabel'      => $paymentFeeLabel,
+                        'paymentFeeLabel'      => $this->getBuckarooPaymentFeeLabel(),
                         'subtext'              => $this->getSubtext(),
                         'subtext_style'        => $this->getSubtextStyle(),
                         'subtext_color'        => $this->getSubtextColor(),
                         'allowedCurrencies'    => $this->getAllowedCurrencies(),
                         'businessMethod'       => $this->getBusiness(),
                         'paymentMethod'        => $this->getPaymentMethod(),
-                        'showFinancialWarning' => $this->canShowFinancialWarning()
+                        'showFinancialWarning' => $this->canShowFinancialWarning(),
+                        'isTestMode'           => $this->isTestMode()
                     ],
                     'response'  => [],
                 ],

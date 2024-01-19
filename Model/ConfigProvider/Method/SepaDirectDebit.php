@@ -39,17 +39,16 @@ class SepaDirectDebit extends AbstractConfigProvider
      */
     public function getConfig(): array
     {
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
-
         return [
             'payment' => [
                 'buckaroo' => [
                     'sepadirectdebit' => [
-                        'paymentFeeLabel'   => $paymentFeeLabel,
+                        'paymentFeeLabel'   => $this->getBuckarooPaymentFeeLabel(),
                         'subtext'           => $this->getSubtext(),
                         'subtext_style'     => $this->getSubtextStyle(),
                         'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
+                        'isTestMode'        => $this->isTestMode()
                     ],
                 ],
             ],

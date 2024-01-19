@@ -68,6 +68,7 @@ define(
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 dp: datePicker,
+                isTestMode: window.checkoutConfig.payment.buckaroo.capayablepostpay.isTestMode,
                 
                 /**
                  * @override

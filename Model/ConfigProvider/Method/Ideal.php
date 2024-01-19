@@ -41,6 +41,8 @@ class Ideal extends AbstractConfigProvider
     public const XPATH_SELECTION_TYPE   = 'selection_type';
     public const XPATH_SHOW_ISSUERS     = 'show_issuers';
     public const XPATH_GATEWAY_SETTINGS = 'gateway_settings';
+    public const XPATH_SORTED_ISSUERS   = 'sorted_issuers';
+
     /**
      * @var array
      */
@@ -83,27 +85,33 @@ class Ideal extends AbstractConfigProvider
             return [];
         }
 
-        $issuers = $this->issuersService->get();
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
-
-        $selectionType = $this->getSelectionType();
-
         return [
             'payment' => [
                 'buckaroo' => [
                     'ideal' => [
-                        'banks'             => $issuers,
-                        'paymentFeeLabel'   => $paymentFeeLabel,
+                        'banks'             => $this->formatIssuers(),
+                        'paymentFeeLabel'   => $this->getBuckarooPaymentFeeLabel(),
                         'subtext'           => $this->getSubtext(),
                         'subtext_style'     => $this->getSubtextStyle(),
                         'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'selectionType'     => $selectionType,
-                        'showIssuers'       => $this->canShowIssuers()
+                        'selectionType'     => $this->getSelectionType(),
+                        'showIssuers'       => $this->canShowIssuers(),
+                        'isTestMode'        => $this->isTestMode()
                     ],
                 ],
             ],
         ];
+    }
+
+    /**
+     * Retrieve the list of issuers.
+     *
+     * @return array
+     */
+    public function getIssuers()
+    {
+        return $this->issuersService->get();
     }
 
     /**
@@ -126,18 +134,7 @@ class Ideal extends AbstractConfigProvider
      */
     public function getSelectionType($store = null)
     {
-        $methodConfig = $this->getMethodConfigValue(self::XPATH_SELECTION_TYPE, $store);
-
-        /** @deprecated 2.0.0 moved from main configuration to payment configuration */
-        $mainConfig = $this->scopeConfig->getValue(
-            'buckaroo_magento2/account/selection_type',
-            ScopeInterface::SCOPE_STORE,
-        );
-
-        if ($methodConfig === null) {
-            return $mainConfig;
-        }
-        return $methodConfig;
+        return $this->getMethodConfigValue(self::XPATH_SELECTION_TYPE, $store);
     }
 
     /**
@@ -150,5 +147,39 @@ class Ideal extends AbstractConfigProvider
     {
         return $this->getMethodConfigValue(self::XPATH_GATEWAY_SETTINGS, $storeId) ??
             str_replace('buckaroo_magento2_', '', self::CODE);
+    }
+
+    /**
+     * @param $storeId
+     * @return string
+     */
+    public function getSortedIssuers($storeId = null): string
+    {
+        return $this->getMethodConfigValue(self::XPATH_SORTED_ISSUERS, $storeId) ?? '';
+    }
+
+    /**
+     * Generate the url to the desired asset.
+     *
+     * @param string $imgName
+     * @param string $extension
+     *
+     * @return string
+     */
+    public function getImageUrl($imgName, string $extension = 'png')
+    {
+        return parent::getImageUrl("ideal/{$imgName}", "svg");
+    }
+
+    public function getAllIssuers(): array
+    {
+        $issuers = $this->getIssuers();
+        $issuersPrepared = [];
+        foreach ($issuers as $issuer) {
+            $issuer['img'] = $issuer['logo'];
+            $issuersPrepared[$issuer['code']] = $issuer;
+        }
+
+        return $issuersPrepared;
     }
 }

@@ -53,7 +53,7 @@ class In3V3DataBuilder implements BuilderInterface
 
         $data = [];
 
-        if ($this->capayableIn3Config->isV3()) {
+        if (!$this->capayableIn3Config->isV2()) {
             $payment->setAdditionalInformation("buckaroo_in3_v3", true);
             $data['payment_method'] = 'in3';
         }

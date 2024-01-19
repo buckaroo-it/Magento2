@@ -70,19 +70,18 @@ class Mrcash extends AbstractConfigProvider
      */
     public function getConfig()
     {
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
-
         return [
             'payment' => [
                 'buckaroo' => [
                     'mrcash' => [
-                        'paymentFeeLabel'   => $paymentFeeLabel,
+                        'paymentFeeLabel'   => $this->getBuckarooPaymentFeeLabel(),
                         'subtext'           => $this->getSubtext(),
                         'subtext_style'     => $this->getSubtextStyle(),
                         'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'useClientSide'     => (int)$this->useClientSide(),
-                        'redirecturl'       => self::MRCASH_REDIRECT_URL . '?form_key=' . $this->getFormKey()
+                        'redirecturl'       => self::MRCASH_REDIRECT_URL . '?form_key=' . $this->getFormKey(),
+                        'isTestMode'        => $this->isTestMode()
                     ],
                 ],
             ],

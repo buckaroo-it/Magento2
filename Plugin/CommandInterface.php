@@ -31,6 +31,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Eps;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
+use Buckaroo\Magento2\Model\LockManagerWrapper;
 use Magento\Payment\Model\MethodInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
@@ -58,18 +59,26 @@ class CommandInterface
     public Data $helper;
 
     /**
+     * @var LockManagerWrapper
+     */
+    protected LockManagerWrapper $lockManager;
+
+    /**
      * @param Factory $configProviderMethodFactory
      * @param BuckarooLoggerInterface $logger
      * @param Data $helper
+     * @param LockManagerWrapper $lockManager
      */
     public function __construct(
         Factory $configProviderMethodFactory,
         BuckarooLoggerInterface $logger,
-        Data $helper
+        Data $helper,
+        LockManagerWrapper $lockManager
     ) {
         $this->configProviderMethodFactory = $configProviderMethodFactory;
         $this->logger = $logger;
         $this->helper = $helper;
+        $this->lockManager = $lockManager;
     }
 
     /**
@@ -95,8 +104,19 @@ class CommandInterface
     ) {
         $message = $proceed($payment, $amount, $order);
 
-        $methodInstance = $payment->getMethodInstance();
-        $paymentAction = $methodInstance->getConfigPaymentAction();
+        $orderIncrementID = $order->getIncrementId();
+        $this->logger->addDebug(__METHOD__ . '|Lock Name| - ' . var_export($orderIncrementID, true));
+        $lockAcquired = $this->lockManager->lockOrder($orderIncrementID, 5);
+
+        if (!$lockAcquired) {
+            $this->logger->addError(__METHOD__ . '|lock not acquired|');
+            return $message;
+        }
+
+        try {
+            /** @var MethodInterface $methodInstance */
+            $methodInstance = $payment->getMethodInstance();
+            $paymentAction = $methodInstance->getConfigPaymentAction();
         $paymentCode = $methodInstance->getCode();
         $buckarooPaymentCode = substr($paymentCode, 0, 18);
 
@@ -109,7 +129,7 @@ class CommandInterface
             $paymentAction
         ));
 
-        if ($buckarooPaymentCode == 'buckaroo_magento2_' && $paymentAction) {
+        if ($buckarooPaymentCode == 'buckaroo_magento2_' && $paymentAction && $order->canInvoice()) {
             $orderState = Order::STATE_NEW;
             $orderStatus = $this->helper->getOrderStatusByState($order, $orderState);
 
@@ -128,9 +148,18 @@ class CommandInterface
 
             $order->setState($orderState);
             $order->setStatus($orderStatus);
-        }
+            }
 
-        return $message;
+            return $message;
+
+        } catch (\Exception $e) {
+            $this->logger->addDebug(__METHOD__ . '|Exception|' . $e->getMessage());
+            throw $e;
+        } finally {
+            // Ensure the lock is released
+            $this->lockManager->unlockOrder($orderIncrementID);
+            $this->logger->addDebug(__METHOD__ . '|Lock released|');
+        }
     }
 
     /**

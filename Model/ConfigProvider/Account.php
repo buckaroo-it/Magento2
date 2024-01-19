@@ -125,7 +125,7 @@ class Account extends AbstractConfigProvider
             'customer_additional_info'          => $this->getCustomerAdditionalInfo($store),
             'idin'                              => $this->getIdin($store),
             'idin_mode'                         => $this->getIdinMode($store),
-            'idin_category'                     => $this->getIdinCategory($store),
+            'idin_category'                     => $this->getIdinCategory($store)
         ];
     }
 

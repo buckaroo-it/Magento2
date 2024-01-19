@@ -53,13 +53,11 @@ class PayPerEmail extends AbstractConfigProvider
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
-
         return [
             'payment' => [
                 'buckaroo' => [
                     'payperemail' => [
-                        'paymentFeeLabel'   => $paymentFeeLabel,
+                        'paymentFeeLabel'   => $this->getBuckarooPaymentFeeLabel(),
                         'subtext'           => $this->getSubtext(),
                         'subtext_style'     => $this->getSubtextStyle(),
                         'subtext_color'     => $this->getSubtextColor(),
@@ -69,7 +67,8 @@ class PayPerEmail extends AbstractConfigProvider
                             ['genderType' => 2, 'genderTitle' => __('She/her')],
                             ['genderType' => 0, 'genderTitle' => __('They/them')],
                             ['genderType' => 9, 'genderTitle' => __('I prefer not to say')]
-                        ]
+                        ],
+                        'isTestMode'        => $this->isTestMode()
                     ],
                     'response'    => [],
                 ],

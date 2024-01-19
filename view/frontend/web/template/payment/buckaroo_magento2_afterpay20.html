@@ -13,11 +13,16 @@
                         <!-- /ko -->
                 </label>
             </div>
-            <div class="bk-img-wrap">
-                <img
-                    data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/afterpay.svg') }"
-                    alt="Riverty Logo"
-                />
+            <div class="bk-mode-and-img">
+                <!-- ko if: isTestMode -->
+                <div class="bk-test-mode"><div class="bk-test-text" data-bind="i18n: 'Test Mode'"></div></div>
+                <!-- /ko -->
+                <div class="bk-img-wrap">
+                    <img
+                        data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/afterpay.svg') }"
+                        alt="Riverty Logo"
+                    />
+                </div>
             </div>
         </div>
     </div>
@@ -44,10 +49,11 @@
                                    type="text"
                                    name="payment[buckaroo_magento2_afterpay20][buckaroo_identification_number]"
                                    data-bind="
-                                   attr: { 'data-validate': JSON.stringify({ 'required': true }) },
-                                   valueUpdate: 'blur',
-                                   value: identificationValidate
-                                   ">
+                                       valueUpdate: 'blur',
+                                       value: identificationValidate
+                                   "
+                                   data-validate="{required:true}"
+                            >
                         </div>
                     </div>
                     <!-- /ko -->
@@ -62,10 +68,10 @@
                                    name="payment[buckaroo_magento2_afterpay20][customer_coc]"
                                    maxlength="8"
                                    data-bind="
-                                   attr: { 'data-validate': JSON.stringify({ 'required': true, 'validateCOC': true }) },
-                                   valueUpdate: 'blur',
-                                   value: customerCoc
-                                   ">
+                                       valueUpdate: 'blur',
+                                       value: customerCoc
+                                   "
+                                   data-validate="{required:true, 'validateCOC': true}" >
                         </div>
                     </div>
                     <!-- /ko -->
@@ -90,10 +96,10 @@
                                    type="text"
                                    class="input-text field"
                                    data-bind="
-                                   attr: { 'data-validate': JSON.stringify({ 'phoneValidation': true, 'required': true }) },
                                    checked: phoneValidate,
                                    valueUpdate: 'blur',
                                    value: phoneValidate"
+                                   data-validate="{required:true, 'phoneValidation': true}"
                                    name="payment[buckaroo_magento2_afterpay20][customer_telephone]">
                         </div>
                     </div>
@@ -120,10 +126,8 @@
                                    },
                                    valueUpdate: 'change',
                                    value: dateValidate,
-                                   attr: {
-                                    'data-validate': JSON.stringify({ 'required': true, 'validate-date-au': true, 'validateAge': true }),
-                                    placeholder: $t('DD/MM/YYYY')
-                                   }"
+                                   attr: {placeholder: $t('DD/MM/YYYY')}"
+                                   data-validate="{'required': true, 'validate-date-au': true, 'validateAge': true}"
                                    name="payment[buckaroo_magento2_afterpay20][customer_DoB]">
 
                         </div>
@@ -137,12 +141,12 @@
                             <input id="buckaroo_magento2_afterpay20_TermsCondition"
                                    class="field"
                                    type="checkbox"
-                                   data-bind="
-                                   checked: termsValidate,
-                                   attr: { 'data-validate': JSON.stringify({ 'required': true})}"
+                                   data-bind="checked: termsValidate"
+                                   data-validate="{required:true}"
                                    name="payment[buckaroo_magento2_afterpay20][termsCondition]">
                             <span>
                                 <a target="_blank"
+                                 rel="noopener"
                                    data-bind="
                                        i18n: 'Yes, I accept the terms and condition for the use of Riverty | Afterpay.',
                                        attr: { 'href': termsUrl }

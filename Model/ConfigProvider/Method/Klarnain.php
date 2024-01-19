@@ -62,13 +62,11 @@ class Klarnain extends AbstractConfigProvider
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
-
         return [
             'payment' => [
                 'buckaroo' => [
                     'klarnain' => [
-                        'paymentFeeLabel'   => $paymentFeeLabel,
+                        'paymentFeeLabel'   => $this->getBuckarooPaymentFeeLabel(),
                         'subtext'           => $this->getSubtext(),
                         'subtext_style'     => $this->getSubtextStyle(),
                         'subtext_color'     => $this->getSubtextColor(),
@@ -78,7 +76,8 @@ class Klarnain extends AbstractConfigProvider
                             ['genderType' => 'male', 'genderTitle' => __('He/him')],
                             ['genderType' => 'female', 'genderTitle' => __('She/her')]
                         ],
-                        'showFinancialWarning' => $this->canShowFinancialWarning()
+                        'showFinancialWarning' => $this->canShowFinancialWarning(),
+                        'isTestMode'        => $this->isTestMode()
                     ],
                     'response' => [],
                 ],

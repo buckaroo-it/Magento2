@@ -89,10 +89,6 @@
         <plugin name="add_custom_variable_to_invoice" type="Buckaroo\Magento2\Plugin\InvoicePlugin" />
     </type>
 
-    <type name="Magento\Quote\Model\QuoteManagement">
-        <plugin name="gift_card_partial_payment" type="Buckaroo\Magento2\Plugin\GiftcardUsageIncrement" sortOrder="30"/>
-    </type>
-
     <type name="Magento\Quote\Model\Quote">
         <plugin name="buckaroo_reserve_order_id" type="Buckaroo\Magento2\Plugin\QuotePlugin"/>
     </type>

@@ -65,18 +65,17 @@ class Payconiq extends AbstractConfigProvider
      */
     public function getConfig(): array
     {
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
-
         return [
             'payment' => [
                 'buckaroo' => [
                     'payconiq' => [
-                        'paymentFeeLabel'   => $paymentFeeLabel,
+                        'paymentFeeLabel'   => $this->getBuckarooPaymentFeeLabel(),
                         'subtext'           => $this->getSubtext(),
                         'subtext_style'     => $this->getSubtextStyle(),
                         'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'redirecturl'       => static::PAYCONIC_REDIRECT_URL . '?form_key=' . $this->getFormKey()
+                        'redirecturl'       => static::PAYCONIC_REDIRECT_URL . '?form_key=' . $this->getFormKey(),
+                        'isTestMode'        => $this->isTestMode()
                     ],
                 ],
             ],

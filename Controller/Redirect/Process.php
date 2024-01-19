@@ -37,6 +37,7 @@ use Magento\Customer\Model\ResourceModel\CustomerFactory;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\Request\Http as Http;
 use Magento\Framework\App\ResponseInterface;
@@ -48,11 +49,12 @@ use Magento\Quote\Model\Quote;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order;
+use Buckaroo\Magento2\Model\LockManagerWrapper;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
-class Process extends Action implements HttpPostActionInterface
+class Process extends Action implements HttpPostActionInterface, HttpGetActionInterface
 {
     private const GENERAL_ERROR_MESSAGE = 'Unfortunately an error occurred while processing your payment. ' .
     'Please try again. If this error persists, please choose a different payment method.';
@@ -128,6 +130,11 @@ class Process extends Action implements HttpPostActionInterface
     protected PushRequestInterface $redirectRequest;
 
     /**
+     * @var LockManagerWrapper
+     */
+    protected LockManagerWrapper $lockManager;
+
+    /**
      * @param Context $context
      * @param BuckarooLoggerInterface $logger
      * @param Quote $quote
@@ -156,7 +163,8 @@ class Process extends Action implements HttpPostActionInterface
         OrderService $orderService,
         ManagerInterface $eventManager,
         Recreate $quoteRecreate,
-        RequestPushFactory $requestPushFactory
+        RequestPushFactory $requestPushFactory,
+        LockManagerWrapper $lockManager
     ) {
         parent::__construct($context);
         $this->logger = $logger;
@@ -170,6 +178,7 @@ class Process extends Action implements HttpPostActionInterface
         $this->eventManager = $eventManager;
         $this->quoteRecreate = $quoteRecreate;
         $this->quote = $quote;
+        $this->lockManager = $lockManager;
 
         // @codingStandardsIgnoreStart
         if (interface_exists("\Magento\Framework\App\CsrfAwareActionInterface")) {
@@ -188,6 +197,8 @@ class Process extends Action implements HttpPostActionInterface
      *
      * @return ResponseInterface|void
      * @throws \Exception
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function execute()
     {
@@ -204,37 +215,55 @@ class Process extends Action implements HttpPostActionInterface
 
         $this->order = $this->orderRequestService->getOrderByRequest($this->redirectRequest);
 
-        $statusCode = (int)$this->redirectRequest->getStatusCode();
-        if (!$this->order->getId()) {
-            $statusCode = BuckarooStatusCode::ORDER_FAILED;
-        } else {
-            $this->quote->load($this->order->getQuoteId());
-        }
+        $orderIncrementID = $this->order->getIncrementId();
+        $this->logger->addDebug(__METHOD__ . '|Lock Name| - ' . var_export($orderIncrementID, true));
+        $lockAcquired = $this->lockManager->lockOrder($orderIncrementID, 5);
 
-        $this->payment = $this->order->getPayment();
-        if ($this->payment) {
-            $this->setPaymentOutOfTransit($this->payment);
-        }
-
-        $this->checkoutSession->setRestoreQuoteLastOrder(false);
-
-        if ($this->skipWaitingOnConsumerForProcessingOrder()) {
+        if (!$lockAcquired) {
+            $this->logger->addError(__METHOD__ . '|lock not acquired|');
             return $this->handleProcessedResponse('/');
         }
 
-        if (($this->payment->getMethodInstance()->getCode() == 'buckaroo_magento2_paypal')
-            && ($statusCode == BuckarooStatusCode::PENDING_PROCESSING)
-        ) {
-            $statusCode = BuckarooStatusCode::CANCELLED_BY_USER;
-        }
+        try {
+            $statusCode = (int)$this->redirectRequest->getStatusCode();
+            if (!$this->order->getId()) {
+                $statusCode = BuckarooStatusCode::ORDER_FAILED;
+            } else {
+                $this->quote->load($this->order->getQuoteId());
+            }
 
-        $this->logger->addDebug(sprintf(
-            '[REDIRECT - %s] | [Controller] | [%s:%s] - Status Code | statusCode: %s',
-            $this->payment->getMethod(),
-            __METHOD__,
-            __LINE__,
-            $statusCode
-        ));
+            $this->payment = $this->order->getPayment();
+            if ($this->payment) {
+                $this->setPaymentOutOfTransit($this->payment);
+            }
+
+            $this->checkoutSession->setRestoreQuoteLastOrder(false);
+
+            if ($this->skipWaitingOnConsumerForProcessingOrder()) {
+                return $this->handleProcessedResponse('/');
+            }
+
+            if (($this->payment->getMethodInstance()->getCode() == 'buckaroo_magento2_paypal')
+                && ($statusCode == BuckarooStatusCode::PENDING_PROCESSING)
+            ) {
+                $statusCode = BuckarooStatusCode::CANCELLED_BY_USER;
+            }
+
+            $this->logger->addDebug(sprintf(
+                '[REDIRECT - %s] | [Controller] | [%s:%s] - Status Code | statusCode: %s',
+                $this->payment->getMethod(),
+                __METHOD__,
+                __LINE__,
+                $statusCode
+            ));
+
+        } catch (\Exception $e) {
+            $this->addErrorMessage('Could not process the request.');
+            $this->logger->addError(__METHOD__ . '|Exception|' . $e->getMessage());
+        } finally {
+            $this->lockManager->unlockOrder($orderIncrementID);
+            $this->logger->addDebug(__METHOD__ . '|Lock released|');
+        }
 
         return $this->processRedirectByStatus($statusCode);
     }
@@ -352,7 +381,6 @@ class Process extends Action implements HttpPostActionInterface
      * @param int $statusCode The status code representing the result of a payment or related process.
      * @return void
      * @throws \Exception If an exception occurs within the called methods.
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */

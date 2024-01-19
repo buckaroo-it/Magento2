@@ -13,13 +13,19 @@
                         <!-- /ko -->
                 </label>
             </div>
-            <div class="bk-img-wrap">
-                <img
-                    data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/vouchers.svg') }"
-                    alt="Buckaroo Voucher Logo"
-                />
+            <div class="bk-mode-and-img">
+                <!-- ko if: isTestMode -->
+                <div class="bk-test-mode"><div class="bk-test-text" data-bind="i18n: 'Test Mode'"></div></div>
+                <!-- /ko -->
+                <div class="bk-img-wrap">
+                    <img
+                        data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/vouchers.svg') }"
+                        alt="Buckaroo Voucher Logo"
+                    />
+                </div>
             </div>
         </div>
+    </div>
 
     <div class="payment-method-content">
         <div class="payment-method-billing-address">
@@ -45,9 +51,8 @@
                                 placeholder="1A2B-3C4D-6E7F-8G9H-1I2J"
                                 data-bind="
                                        valueUpdate: 'keyup',
-                                       value: code,
-                                       attr: { 'data-validate': JSON.stringify({ 'required': true })
-                                        }">
+                                       value: code"
+                                data-validate="{required:true}">
                         </div>
                     </div>
 

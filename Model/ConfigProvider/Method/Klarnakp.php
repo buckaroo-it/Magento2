@@ -76,19 +76,18 @@ class Klarnakp extends AbstractConfigProvider
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
-
         return [
             'payment' => [
                 'buckaroo' => [
                     'klarnakp' => [
-                        'paymentFeeLabel'      => $paymentFeeLabel,
+                        'paymentFeeLabel'      => $this->getBuckarooPaymentFeeLabel(),
                         'subtext'              => $this->getSubtext(),
                         'subtext_style'        => $this->getSubtextStyle(),
                         'subtext_color'        => $this->getSubtextColor(),
                         'allowedCurrencies'    => $this->getAllowedCurrencies(),
                         'paymentFee'           => $this->getPaymentFee(),
-                        'showFinancialWarning' => $this->canShowFinancialWarning()
+                        'showFinancialWarning' => $this->canShowFinancialWarning(),
+                        'isTestMode'        => $this->isTestMode()
                     ],
                     'response' => [],
                 ],

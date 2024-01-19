@@ -66,14 +66,12 @@ class Billink extends AbstractConfigProvider
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
-
         return [
             'payment' => [
                 'buckaroo' => [
                     'billink' => [
                         'sendEmail'         => $this->hasOrderEmail(),
-                        'paymentFeeLabel'   => $paymentFeeLabel,
+                        'paymentFeeLabel'   => $this->getBuckarooPaymentFeeLabel(),
                         'subtext'           => $this->getSubtext(),
                         'subtext_style'     => $this->getSubtextStyle(),
                         'subtext_color'     => $this->getSubtextColor(),
@@ -86,7 +84,8 @@ class Billink extends AbstractConfigProvider
                             ['genderType' => 'unknown', 'genderTitle' => __('I prefer not to say')]
                         ],
                         'businessMethod'    => $this->getBusiness(),
-                        'showFinancialWarning' => $this->canShowFinancialWarning()
+                        'showFinancialWarning' => $this->canShowFinancialWarning(),
+                        'isTestMode'        => $this->isTestMode()
                     ],
                     'response' => [],
                 ],

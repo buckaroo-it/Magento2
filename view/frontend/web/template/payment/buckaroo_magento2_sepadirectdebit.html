@@ -13,11 +13,16 @@
                         <!-- /ko -->
                 </label>
             </div>
-            <div class="bk-img-wrap">
-                <img
-                    data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/sepa-directdebit.svg') }"
-                    alt="SEPA Direct Debit Logo"
-                />
+            <div class="bk-mode-and-img">
+                <!-- ko if: isTestMode -->
+                <div class="bk-test-mode"><div class="bk-test-text" data-bind="i18n: 'Test Mode'"></div></div>
+                <!-- /ko -->
+                <div class="bk-img-wrap">
+                    <img
+                        data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/sepa-directdebit.svg') }"
+                        alt="SEPA Direct Debit Logo"
+                    />
+                </div>
             </div>
         </div>
     </div>
@@ -48,11 +53,9 @@
                                    data-bind="
                                     value: bankaccountholder,
                                     valueUpdate: 'keyup',
-                                    attr: {
-                                        'data-validate': JSON.stringify({ 'required': true, 'min-words': 2 })
-                                    },
                                     event: { blur: validateField }
                                    "
+                                   data-validate="{required: true, 'min-words': 2 }"
                                    name="payment[buckaroo_magento2_sepadirectdebit][customer_account_name]">
                         </div>
                     </div>
@@ -67,11 +70,9 @@
                                    data-bind="
                                     value: bankaccountnumber,
                                     valueUpdate: 'keyup',
-                                    attr: {
-                                        'data-validate': JSON.stringify({ 'required': true, 'IBAN':true })
-                                    },
                                     event: { blur: validateField }
                                    "
+                                   data-validate="{required:true, IBAN: true}"
                                    name="payment[buckaroo_magento2_sepadirectdebit][customer_iban]">
                         </div>
                     </div>
@@ -87,11 +88,9 @@
                                    data-bind="
                                     value: bicnumber,
                                     valueUpdate: 'keyup',
-                                    attr: {
-                                        'data-validate': JSON.stringify({ 'required': true, 'BIC':true })
-                                    },
                                     event: { blur: validateField }
                                    "
+                                   data-validate="{required:true, 'BIC':true}"
                                    name="payment[buckaroo_magento2_sepadirectdebit][customer_bic]">
                         </div>
                     </div>
