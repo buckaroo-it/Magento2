@@ -129,7 +129,7 @@ class CommandInterface
             $paymentAction
         ));
 
-        if ($buckarooPaymentCode == 'buckaroo_magento2_' && $paymentAction) {
+        if ($buckarooPaymentCode == 'buckaroo_magento2_' && $paymentAction && $order->canInvoice()) {
             $orderState = Order::STATE_NEW;
             $orderStatus = $this->helper->getOrderStatusByState($order, $orderState);
 

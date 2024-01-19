@@ -38,6 +38,7 @@ use Magento\Customer\Model\ResourceModel\CustomerFactory;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\Request\Http as Http;
 use Magento\Framework\App\ResponseInterface;
@@ -54,7 +55,7 @@ use Buckaroo\Magento2\Model\LockManagerWrapper;
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
-class Process extends Action implements HttpPostActionInterface
+class Process extends Action implements HttpPostActionInterface, HttpGetActionInterface
 {
     private const GENERAL_ERROR_MESSAGE = 'Unfortunately an error occurred while processing your payment. ' .
     'Please try again. If this error persists, please choose a different payment method.';

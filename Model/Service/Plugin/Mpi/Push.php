@@ -74,13 +74,13 @@ class Push
         $authenticationFunction = 'getService' . ucfirst($card) . 'Authentication';
         $enrolledFunction = 'getService' . ucfirst($card) . 'Enrolled';
 
-        if (empty($push->pushRequst->$authenticationFunction())
-            || empty($push->pushRequst->$enrolledFunction())
+        if (empty($push->pushRequest->$authenticationFunction())
+            || empty($push->pushRequest->$enrolledFunction())
         ) {
             return $result;
         }
 
-        $authentication = $push->pushRequst->$authenticationFunction();
+        $authentication = $push->pushRequest->$authenticationFunction();
 
         if ($authentication == 'U' || $authentication == 'N') {
             switch ($card) {
@@ -112,8 +112,8 @@ class Push
         $paymentMethodInstance->getInfoInstance()->setAdditionalInformation(
             'buckaroo_mpi_status',
             [
-                'enrolled'       => $push->pushRequst->$enrolledFunction(),
-                'authentication' => $push->pushRequst->$authenticationFunction(),
+                'enrolled'       => $push->pushRequest->$enrolledFunction(),
+                'authentication' => $push->pushRequest->$authenticationFunction(),
             ]
         );
 
