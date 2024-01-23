@@ -62,4 +62,10 @@ interface GiftcardRepositoryInterface
      * @throws NoSuchEntityException
      */
     public function deleteById($giftcardId);
+
+    /**
+     * @param string $serviceCode
+     * @return GiftcardInterface
+     */
+    public function getByServiceCode(string $serviceCode);
 }

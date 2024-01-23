@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model;
 
 use Magento\Framework\Api\SearchCriteria;
@@ -193,5 +195,21 @@ class GiftcardRepository implements GiftcardRepositoryInterface
         $giftcard = $this->getById($giftcardId);
 
         return $this->delete($giftcard);
+    }
+
+    /**
+     * @param string $serviceCode
+     * @return GiftcardInterface
+     */
+    public function getByServiceCode(string $serviceCode)
+    {
+        /** @var GiftcardCollection $collection */
+        $collection = $this->giftcardCollectionFactory->create();
+
+        return $collection->addFieldToFilter(
+            'servicecode',
+            ['eq' => $serviceCode]
+        )
+            ->getLastItem();
     }
 }
