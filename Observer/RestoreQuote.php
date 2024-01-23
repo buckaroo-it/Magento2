@@ -148,6 +148,7 @@ class RestoreQuote implements ObserverInterface
                         $previousOrderId
                     ));
 
+                    $this->checkoutSession->getQuote()->setOrigOrderId(0);
                     $this->checkoutSession->restoreQuote();
                     $this->rollbackPartialPayment($lastRealOrder->getIncrementId(), $payment);
                     $this->setOrderToCancel($previousOrderId);
