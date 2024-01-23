@@ -173,7 +173,7 @@ class PaymentGroupTransaction extends AbstractHelper
         $items = array_values($collection->getItems());
 
         return array_filter($items, function ($item) {
-            return $item['amount'] - (float)$item['refunded_amount'] > 0;
+            return (float)$item['amount'] - (float)$item['refunded_amount'] > 0;
         });
     }
 
