@@ -111,4 +111,14 @@ class CapayableDataBuilder extends AbstractRecipientDataBuilder
 
         return $phoneData['clean'];
     }
+
+    /**
+     * Returns the date format used to format the customer's birthdate.
+     *
+     * @return string
+     */
+    protected function getFormatDate(): string
+    {
+        return 'Y-m-d';
+    }
 }
