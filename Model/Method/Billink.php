@@ -311,14 +311,30 @@ class Billink extends AbstractMethod
                 $count,
                 $item->getName(),
                 $item->getSku(),
-                $bundleProductQty ? $bundleProductQty : $item->getQty(),
+                $bundleProductQty ?: $item->getQty(),
                 $this->calculateProductPrice($item, $includesTax),
-                $item->getTaxPercent()
+                $item->getTaxPercent() ?: 0
             );
 
             // @codingStandardsIgnoreStart
             $articles = array_merge($articles, $article);
             // @codingStandardsIgnoreStart
+
+            // Capture calculates discount per order line
+            if ($item->getDiscountAmount() > 0) {
+                $count++;
+                $article = $this->getArticleArrayLine(
+                    $count,
+                    'Korting op ' . $item->getName(),
+                    $item->getSku(),
+                    1,
+                    number_format(($item->getDiscountAmount()*-1), 2),
+                    $item->getTaxPercent() ?: 0
+                );
+                // @codingStandardsIgnoreStart
+                $articles = array_merge($articles, $article);
+                // @codingStandardsIgnoreEnd
+            }
 
             if ($count < self::BILLINK_MAX_ARTICLE_COUNT) {
                 $count++;
@@ -329,7 +345,6 @@ class Billink extends AbstractMethod
         }
 
         $serviceLine = $this->getServiceCostLine($count, $payment->getOrder());
-
         if (!empty($serviceLine)) {
             $articles = array_merge($articles, $serviceLine);
             $count++;
@@ -340,13 +355,6 @@ class Billink extends AbstractMethod
 
         if (!empty($shippingCosts)) {
             $articles = array_merge($articles, $shippingCosts);
-            $count++;
-        }
-
-        $discountline = $this->getDiscountLine($count, $payment);
-
-        if (!empty($discountline)) {
-            $articles = array_merge($articles, $discountline);
         }
 
         return $articles;
@@ -381,7 +389,7 @@ class Billink extends AbstractMethod
                 $item->getSku(),
                 $item->getQty(),
                 $this->calculateProductPrice($item, $includesTax),
-                $item->getOrderItem()->getTaxPercent()
+                $item->getOrderItem()->getTaxPercent() ?: 0
             );
 
             // @codingStandardsIgnoreStart
@@ -397,7 +405,7 @@ class Billink extends AbstractMethod
                     $item->getSku(),
                     1,
                     number_format(($item->getDiscountAmount()*-1), 2),
-                    0
+                    $item->getOrderItem()->getTaxPercent() ?: 0
                 );
                 // @codingStandardsIgnoreStart
                 $articles = array_merge($articles, $article);
@@ -561,35 +569,6 @@ class Billink extends AbstractMethod
         $itemsTotalAmount += $shippingAmount;
 
         return $shippingCostsArticle;
-    }
-
-    /**
-     * Get the discount cost lines
-     *
-     * @param (int)                                                                              $latestKey
-     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
-     *
-     * @return array
-     */
-    public function getDiscountLine($latestKey, $payment)
-    {
-        $article = [];
-        $discount = $this->getDiscountAmount($payment);
-
-        if ($discount >= 0) {
-            return $article;
-        }
-
-        $article = $this->getArticleArrayLine(
-            $latestKey,
-            'Korting',
-            1,
-            1,
-            round($discount, 2),
-            0
-        );
-
-        return $article;
     }
 
     /**
