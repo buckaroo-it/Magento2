@@ -23,8 +23,10 @@ namespace Buckaroo\Magento2\Gateway\Validator;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Helper\Data;
+use Buckaroo\Magento2\Model\Transaction\Status\Response;
 use Buckaroo\Transaction\Response\TransactionResponse;
 use Magento\Framework\App\Request\Http;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
@@ -68,6 +70,7 @@ class ResponseCodeSDKValidator extends AbstractValidator
      * @return ResultInterface
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @throws LocalizedException
      */
     public function validate(array $validationSubject)
     {
@@ -84,20 +87,20 @@ class ResponseCodeSDKValidator extends AbstractValidator
         $statusCode = $this->getStatusCode();
 
         switch ($statusCode) {
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'):
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING'):
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_WAITING_ON_USER_INPUT'):
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_WAITING_ON_CONSUMER'):
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PAYMENT_ON_HOLD'):
+            case Response::STATUSCODE_SUCCESS:
+            case Response::STATUSCODE_PENDING_PROCESSING:
+            case Response::STATUSCODE_WAITING_ON_USER_INPUT:
+            case Response::STATUSCODE_WAITING_ON_CONSUMER:
+            case Response::STATUSCODE_PAYMENT_ON_HOLD:
                 $success = true;
                 break;
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_ORDER_FAILED'):
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_VALIDATION_FAILURE'):
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_TECHNICAL_ERROR'):
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED'):
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_REJECTED'):
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER'):
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_MERCHANT'):
+            case Response::ORDER_FAILED:
+            case Response::STATUSCODE_VALIDATION_FAILURE:
+            case Response::STATUSCODE_TECHNICAL_ERROR:
+            case Response::STATUSCODE_FAILED:
+            case Response::STATUSCODE_REJECTED:
+            case Response::STATUSCODE_CANCELLED_BY_USER:
+            case Response::STATUSCODE_CANCELLED_BY_MERCHANT:
                 $success = false;
                 break;
             default:
@@ -106,16 +109,10 @@ class ResponseCodeSDKValidator extends AbstractValidator
                     [__("Invalid Buckaroo status code received: %1.")],
                     [$statusCode]
                 );
-                //phpcs:ignore:Squiz.PHP.NonExecutableCode
-                break;
         }
 
         if ($success) {
-            return $this->createResult(
-                true,
-                [__('Transaction Success')],
-                [$statusCode]
-            );
+            return $this->createResult(true, [__('Transaction Success')], [$statusCode]);
         } else {
             $payment = SubjectReader::readPayment($validationSubject)->getPayment();
             $methodInstanceClass = $payment->getMethodInstance();
@@ -127,11 +124,8 @@ class ResponseCodeSDKValidator extends AbstractValidator
             $message = !empty($this->transaction->getSomeError()) ?
                 $this->transaction->getSomeError()
                 : 'Gateway rejected the transaction.';
-            return $this->createResult(
-                false,
-                [__($message)],
-                [$statusCode]
-            );
+
+            return $this->createResult(false, [__($message)], [$statusCode]);
         }
     }
 
@@ -145,13 +139,13 @@ class ResponseCodeSDKValidator extends AbstractValidator
         $statusCode = $this->transaction->getStatusCode();
 
         if ((!isset($statusCode) || $statusCode == null) && $this->transaction->isCanceled()) {
-            $statusCode = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS');
+            $statusCode = Response::STATUSCODE_SUCCESS;
         }
 
         if ((!isset($statusCode) || $statusCode == null)
             && $this->request->getParam('cancel')
         ) {
-            $statusCode = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER');
+            $statusCode = Response::STATUSCODE_CANCELLED_BY_USER;
         }
 
         return $statusCode;
