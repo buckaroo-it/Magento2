@@ -343,6 +343,9 @@ class DefaultProcessor implements PushProcessorInterface
             $trxId = $this->pushRequest->getTransactions();
         }
 
+
+        $isRefund = $this->pushRequest->hasAdditionalInformation('service_action_from_magento', 'refund');
+
         $ignoredPaymentMethods = [
             Giftcards::CODE,
             Transfer::CODE
@@ -351,7 +354,7 @@ class DefaultProcessor implements PushProcessorInterface
             && $this->payment->getMethod()
             && $receivedStatusCode
             && ($this->pushTransactionType->getPushType() == PushTransactionType::BUCK_PUSH_TYPE_TRANSACTION)
-            && (!in_array($this->payment->getMethod(), $ignoredPaymentMethods))
+            && (!in_array($this->payment->getMethod(), $ignoredPaymentMethods) || $isRefund)
         ) {
             $receivedTrxStatuses = $this->payment->getAdditionalInformation(
                 self::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES
