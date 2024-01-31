@@ -99,7 +99,7 @@ class IdealProcessing extends AbstractMethod
 
     protected function getRefundTransactionBuilderVersion()
     {
-        return 2;
+        return null;
     }
 
     /**
