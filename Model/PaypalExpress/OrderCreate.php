@@ -186,14 +186,6 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
         $quote->getShippingAddress()->setShouldIgnoreValidation(true);
     }
 
-
-    protected function updateOrderShipping(OrderInterface $order)
-    {
-        return $this->quoteRepository->get(
-            $this->maskedQuoteIdToQuoteId->execute($cartId)
-        );
-    }
-
     /**
      * Check if quote belongs to the current logged in user
      *

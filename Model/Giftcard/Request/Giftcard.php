@@ -20,6 +20,7 @@
 
 namespace Buckaroo\Magento2\Model\Giftcard\Request;
 
+use Buckaroo\Magento2\Api\GiftcardRepositoryInterface;
 use Buckaroo\Magento2\Gateway\Http\SDKTransferFactory;
 use Buckaroo\Magento2\Helper\Data as HelperData;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
@@ -143,8 +144,8 @@ class Giftcard implements GiftcardInterface
      * @param ClientInterface $clientInterface
      * @param RequestInterface $httpRequest
      * @param PaymentGroupTransaction $groupTransaction
+     * @param GiftcardRepositoryInterface $giftcardRepository
      * @throws NoSuchEntityException
-     *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -479,5 +480,12 @@ class Giftcard implements GiftcardInterface
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
         return ($active == HelperData::MODE_LIVE) ? HelperData::MODE_LIVE : HelperData::MODE_TEST;
+    }
+
+    private function getAcquirer()
+    {
+        return $this->giftcardRepository
+            ->getByServiceCode($this->cardId)
+            ->getAcquirer();
     }
 }

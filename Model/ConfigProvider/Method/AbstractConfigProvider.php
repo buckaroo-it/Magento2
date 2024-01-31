@@ -569,13 +569,4 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
 
         return $issuersPrepared;
     }
-    /**
-     * Is test mode
-     *
-     * @return boolean
-     */
-    protected function isTestMode($store = null): bool
-    {
-        return $this->getActive($store) == "1";
-    }
 }
