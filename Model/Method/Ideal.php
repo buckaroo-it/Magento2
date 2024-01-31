@@ -93,6 +93,11 @@ class Ideal extends AbstractMethod
         return $parameters;
     }
 
+    protected function getRefundTransactionBuilderVersion()
+    {
+        return null;
+    }
+
     /**
      * Can show issuers in the checkout form
      *
