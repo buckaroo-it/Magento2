@@ -22,13 +22,17 @@
 <schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
     <table name="buckaroo_magento2_giftcard" resource="default" engine="innodb" comment="Buckaroo Giftcard">
-        <column xsi:type="int" name="entity_id" padding="10" unsigned="true" nullable="false" identity="true" comment="Entity ID"/>
-        <column xsi:type="text" name="servicecode" nullable="true" comment="Servicecode"/>
-        <column xsi:type="text" name="label" nullable="true" comment="Label"/>
-        <column xsi:type="boolean" name="is_partial_refundable" nullable="true" comment="Giftcard partial refund"/>
-        <column xsi:type="text" name="logo" nullable="true" comment="Giftcard logo"/>
+            <column name="entity_id" xsi:type="int" padding="10" unsigned="true" nullable="false" identity="true" comment="Entity ID"/>
+            <column name="servicecode" xsi:type="varchar" nullable="true" comment="Servicecode"/>
+            <column name="label" xsi:type="text" nullable="true" comment="Label"/>
+            <column name="is_partial_refundable" xsi:type="tinyint" padding="5" nullable="true" comment="Customer id"/>
+            <column name="logo" xsi:type="text" nullable="true" comment="Giftcard logo"/>
+            <column name="acquirer" xsi:type="varchar" nullable="true" comment="Giftcard acquirer"/>
         <index referenceId="BUCKAROO_MAGENTO2_GIFTCARD_ENTITY_ID" indexType="btree">
             <column name="entity_id"/>
+            </index>
+            <index referenceId="BUCKAROO_MAGENTO2_GIFTCARD_SERVICE_CODE" indexType="btree">
+                <column name="servicecode"/>
         </index>
     </table>
 

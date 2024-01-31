@@ -46,6 +46,9 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class Giftcard implements GiftcardInterface
 {
+
+    public const TCS_ACQUIRER = 'tcs';
+    public const FASHIONCHEQUE_ACQUIRER = 'fashioncheque';
     /**
      * @var StoreInterface
      */
@@ -98,11 +101,11 @@ class Giftcard implements GiftcardInterface
      * @var array
      */
     protected $cardTypes = [
-        'fashioncheque' => [
+        self::FASHIONCHEQUE_ACQUIRER => [
             'number' => 'fashionChequeCardNumber',
             'pin'    => 'fashionChequePin',
         ],
-        'tcs'           => [
+        self::TCS_ACQUIRER           => [
             'number' => 'tcsCardnumber',
             'pin'    => 'tcsValidationCode',
         ]
@@ -123,6 +126,11 @@ class Giftcard implements GiftcardInterface
      * @var FormKey
      */
     private FormKey $formKey;
+
+    /**
+     * @var GiftcardRepositoryInterface
+     */
+    private GiftcardRepositoryInterface $giftcardRepository;
 
     /**
      * @param ScopeConfigInterface $scopeConfig
@@ -149,7 +157,8 @@ class Giftcard implements GiftcardInterface
         SDKTransferFactory $transferFactory,
         ClientInterface $clientInterface,
         RequestInterface $httpRequest,
-        PaymentGroupTransaction $groupTransaction
+        PaymentGroupTransaction $groupTransaction,
+        GiftcardRepositoryInterface $giftcardRepository
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->configProviderAccount = $configProviderAccount;
@@ -161,6 +170,7 @@ class Giftcard implements GiftcardInterface
         $this->clientInterface = $clientInterface;
         $this->httpRequest = $httpRequest;
         $this->groupTransaction = $groupTransaction;
+        $this->giftcardRepository = $giftcardRepository;
     }
 
     /**
@@ -336,6 +346,10 @@ class Giftcard implements GiftcardInterface
      */
     protected function getParameterNameCardNumber(): string
     {
+        if ($this->getAcquirer() !== null) {
+            return $this->cardTypes[$this->getAcquirer()]['number'];
+        }
+
         if (isset($this->cardTypes[$this->cardId])) {
             return $this->cardTypes[$this->cardId]['number'];
         }
@@ -364,6 +378,9 @@ class Giftcard implements GiftcardInterface
      */
     protected function getParameterNameCardPin(): string
     {
+        if ($this->getAcquirer() !== null) {
+            return $this->cardTypes[$this->getAcquirer()]['pin'];
+        }
 
         if (isset($this->cardTypes[$this->cardId])) {
             return $this->cardTypes[$this->cardId]['pin'];
