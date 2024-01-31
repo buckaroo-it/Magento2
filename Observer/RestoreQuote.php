@@ -106,7 +106,7 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
      */
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
-        $this->helper->addDebug(__METHOD__ . '|1|');
+        $this->helper->addDebug(__METHOD__ . '|1|' . var_export($this->checkoutSession->getData(), true));
 
         $lastRealOrder = $this->checkoutSession->getLastRealOrder();
         $previousOrderId = $lastRealOrder->getId();
