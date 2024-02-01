@@ -22,13 +22,14 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Gateway\Validator;
 
 use Buckaroo\Magento2\Exception;
-use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Service\Formatter\Address\StreetFormatter;
 use Magento\Framework\Phrase;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
 use Magento\Quote\Model\Quote\Address;
+use Magento\Quote\Model\Quote\Payment as QuotePayment;
+use Magento\Sales\Model\Order\Payment as OrderPayment;
 
 class HouseNumberValidator extends AbstractValidator
 {
@@ -57,13 +58,17 @@ class HouseNumberValidator extends AbstractValidator
      */
     public function validate(array $validationSubject): ResultInterface
     {
-        $quote = SubjectReader::readQuote($validationSubject);
+        /** @var QuotePayment|OrderPayment $paymentInfo */
+        $paymentInfo = $validationSubject['payment'];
+        if ($paymentInfo instanceof QuotePayment) {
+            $quote = $paymentInfo->getQuote();
 
-        try {
-            $this->validateHouseNumber($quote->getBillingAddress());
-            $this->validateHouseNumber($quote->getShippingAddress());
-        } catch (Exception $exception) {
-            $this->createResult(false, [$exception->getMessage()]);
+            try {
+                $this->validateHouseNumber($quote->getBillingAddress());
+                $this->validateHouseNumber($quote->getShippingAddress());
+            } catch (Exception $exception) {
+                return $this->createResult(false, [$exception->getMessage()]);
+            }
         }
 
         return $this->createResult(true);
@@ -82,8 +87,7 @@ class HouseNumberValidator extends AbstractValidator
             return;
         }
 
-        if (!isset($streetFormat['house_number'])
-            || empty(trim($streetFormat['house_number']))
+        if (empty(trim($streetFormat['house_number']))
             || !is_string($streetFormat['house_number'])
         ) {
             throw new Exception(
