@@ -53,7 +53,6 @@ class HouseNumberValidator extends AbstractValidator
      *
      * @param array $validationSubject
      * @return ResultInterface
-     * @throws Exception
      */
     public function validate(array $validationSubject): ResultInterface
     {
