@@ -24,6 +24,7 @@ namespace Buckaroo\Magento2\Gateway\Validator;
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Service\Formatter\Address\StreetFormatter;
+use Magento\Framework\Phrase;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
@@ -85,8 +86,8 @@ class HouseNumberValidator extends AbstractValidator
             || empty(trim($streetFormat['house_number']))
             || !is_string($streetFormat['house_number'])
         ) {
-            throw new \Buckaroo\Magento2\Exception(
-                new \Magento\Framework\Phrase(
+            throw new Exception(
+                new Phrase(
                     'A valid address is required, cannot find street number'
                 )
             );
