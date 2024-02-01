@@ -38,7 +38,7 @@
         </div>
     </div>
 
-    <?php $customerDetails = $block->getPpeCustomerDetails()->getPPeCustomerDetails(); ?>
+    <?php $customerDetails = $block->getPPeCustomerDetails(); ?>
     <div class="admin__field _required">
         <label class="label admin__field-label" for="buckaroo_magento2_payperemail_BillingFirstName">
             <span><?= $block->escapeHtml(__('Billing First Name:')); ?></span>
