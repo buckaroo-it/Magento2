@@ -188,6 +188,10 @@ define(
             {
                 type: 'buckaroo_magento2_mbway',
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/mbway'
+            },
+            {
+                type: 'buckaroo_magento2_knaken',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/knaken'
             }
         );
         /**
