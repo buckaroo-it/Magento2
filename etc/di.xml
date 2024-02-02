@@ -502,6 +502,7 @@
                 <item name="sofortbanking" xsi:type="string">sofortueberweisung</item>
                 <item name="creditcards" xsi:type="string">creditcard</item>
                 <item name="mrcash" xsi:type="string">bancontactmrcash</item>
+                <item name="paylink" xsi:type="string">payperemail</item>
             </argument>
         </arguments>
     </type>
@@ -3165,30 +3166,6 @@
     <!-- END Giftcards Commands infrastructure -->
     <!-- END Payment Method: Giftcards -->
 
-    <!-- Payment Method: PayLink -->
-    <virtualType name="PayLinkFacade" type="PayPerEmailFacade">
-        <arguments>
-            <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\PayLink::CODE</argument>
-            <argument name="valueHandlerPool" xsi:type="object">PayLinkValueHandlerPool</argument>
-        </arguments>
-    </virtualType>
-    <!-- PayLink Value handlers infrastructure -->
-    <virtualType name="PayLinkValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
-        <arguments>
-            <argument name="handlers" xsi:type="array">
-                <item name="default" xsi:type="string">PayLinkConfigValueHandler</item>
-            </argument>
-        </arguments>
-    </virtualType>
-    <!-- Configuration reader -->
-    <virtualType name="PayLinkConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
-        <arguments>
-            <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\PayLink</argument>
-        </arguments>
-    </virtualType>
-    <!-- END PayPerEmail Value handlers infrastructure -->
-    <!-- END Payment Method: PayLink -->
-
     <!-- Payment Method: PayPerEmail -->
     <!-- PayPerEmail Payment Method Facade configuration -->
     <virtualType name="PayPerEmailFacade" type="Buckaroo\Magento2\Model\Method\BuckarooAdapter">
@@ -3264,14 +3241,51 @@
         </arguments>
     </virtualType>
     <!-- END PayPerEmail Order Command -->
-    <!-- PayPerEmail PayLink Command -->
+    <!-- END PayPerEmail Commands infrastructure -->
+    <!-- END Payment Method: PayPerEmail -->
+
+    <!-- Payment Method: PayLink -->
+    <virtualType name="PayLinkFacade" type="PayPerEmailFacade">
+        <arguments>
+            <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\PayLink::CODE</argument>
+            <argument name="valueHandlerPool" xsi:type="object">PayLinkValueHandlerPool</argument>
+            <argument name="commandPool" xsi:type="object">PayLinkGatewayCommandPool</argument>
+        </arguments>
+    </virtualType>
+    <!-- PayLink Value handlers infrastructure -->
+    <virtualType name="PayLinkValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">PayLinkConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Configuration reader -->
+    <virtualType name="PayLinkConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\PayLink</argument>
+        </arguments>
+    </virtualType>
+    <!-- END PayLink Value handlers infrastructure -->
+
+    <!-- PayLink Commands infrastructure -->
+    <virtualType name="PayLinkGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="order" xsi:type="string">PayLinkCommand</item>
+                <item name="refund" xsi:type="string">BuckarooRefundCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- PayLink Command -->
     <virtualType name="PayLinkCommand" type="PayPerEmailOrderCommand">
         <arguments>
             <argument name="requestBuilder" xsi:type="object">PayLinkRequest</argument>
             <argument name="handler" xsi:type="object">PayLinkResponseHandler</argument>
         </arguments>
     </virtualType>
-    <!-- PayPerEmail PayLink Command - Request Builder -->
+    <!-- PayLink Command - Request Builder -->
     <virtualType name="PayLinkRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
@@ -3291,10 +3305,9 @@
             </argument>
         </arguments>
     </virtualType>
-    <!-- END PayPerEmail PayLink Command -->
-
-    <!-- END PayPerEmail Commands infrastructure -->
-    <!-- END Payment Method: PayPerEmail -->
+    <!-- END PayLink Command -->
+    <!-- END PayLink Commands infrastructure -->
+    <!-- END Payment Method: PayLink -->
 
     <!-- Payment Method: Transfer-->
     <!-- Transfer Payment Method Facade configuration -->
