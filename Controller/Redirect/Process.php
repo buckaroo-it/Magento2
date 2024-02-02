@@ -309,8 +309,8 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
                 'buckaroo_magento2_transfer'
             ]
         )) {
-            if ($this->payment->getAdditionalInformation(BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY)
-                != $this->redirectRequest->getTransactions()) {
+            $transactionKey = (string)$this->payment->getAdditionalInformation(BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY);
+            if (strpos($this->redirectRequest->getTransactions(), $transactionKey) === false) {
                 return true;
             }
 
