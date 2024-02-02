@@ -148,6 +148,7 @@
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
+                <group_creditcards>1</group_creditcards>
             </buckaroo_magento2_creditcard>
 
             <buckaroo_magento2_creditcards>
