@@ -944,6 +944,7 @@
             <account>
                 <active>0</active>
                 <transaction_label>Magento Buckaroo</transaction_label>
+                <invoice_handling>1</invoice_handling>
                 <order_confirmation_email>1</order_confirmation_email>
                 <order_confirmation_email_sync>0</order_confirmation_email_sync>
                 <invoice_email>1</invoice_email>

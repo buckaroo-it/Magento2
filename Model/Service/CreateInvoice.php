@@ -159,12 +159,11 @@ class CreateInvoice
         /**
          * Save the transaction's response as additional info for the transaction.
          */
-        if(!$datas)
-        {
+        if (!$datas) {
             $rawDetails = $payment->getAdditionalInformation(Transaction::RAW_DETAILS);
             $rawInfo = $rawDetails[$transactionKey] ?? [];
         } else {
-            $rawInfo  = $this->helper->getTransactionAdditionalInfo($datas);
+            $rawInfo = $this->helper->getTransactionAdditionalInfo($datas);
         }
 
         /**
