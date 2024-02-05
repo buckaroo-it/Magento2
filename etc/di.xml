@@ -374,6 +374,10 @@
                     <item name="type" xsi:type="string">multibanco</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Multibanco</item>
                 </item>
+                <item name="knaken" xsi:type="array">
+                    <item name="type" xsi:type="string">knaken</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Knaken</item>
+                </item>
             </argument>
         </arguments>
     </type>

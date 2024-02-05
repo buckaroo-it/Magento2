@@ -335,6 +335,20 @@
                 <available_in_backend>0</available_in_backend>
             </buckaroo_magento2_kbc>
 
+            <buckaroo_magento2_knaken>
+                <active>0</active>
+                <model>Buckaroo\Magento2\Model\Method\Knaken</model>
+                <order_status>pending</order_status>
+                <title>Buckaroo Knaken</title>
+                <allowspecific>0</allowspecific>
+                <sort_order>300</sort_order>
+                <order_email>1</order_email>
+                <payment_fee_label>Fee</payment_fee_label>
+                <group>buckaroo_magento2</group>
+                <payment_action>order</payment_action>
+                <available_in_backend>0</available_in_backend>
+            </buckaroo_magento2_knaken>
+
             <buckaroo_magento2_multibanco>
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Multibanco</model>
@@ -580,7 +594,6 @@
                 <available_in_backend>0</available_in_backend>
             </buckaroo_magento2_tinka>
 
-
             <buckaroo_magento2_voucher>
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Voucher</model>
@@ -594,6 +607,7 @@
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
             </buckaroo_magento2_voucher>
+
         </payment>
 
         <buckaroo_magento2>
