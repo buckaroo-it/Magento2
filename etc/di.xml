@@ -1986,10 +1986,7 @@
     <virtualType name="CapayableShippingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
-                <item name="recipient" xsi:type="string">CapayableShippingRecipientDataBuilder</item>
                 <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\ShippingAddressDataBuilder</item>
-                <item name="phone" xsi:type="string">PhoneShippingDataBuilder</item>
-                <item name="email" xsi:type="string">EmailAddressShippingDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
