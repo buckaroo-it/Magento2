@@ -53,6 +53,37 @@ class Klarna extends AbstractConfigProvider
     const XPATH_SPECIFIC_CUSTOMER_GROUP       = 'payment/buckaroo_magento2_klarna/specificcustomergroup';
     const XPATH_FINANCIAL_WARNING             = 'payment/buckaroo_magento2_klarna/financial_warning';
 
+    /**
+     * @var array
+     */
+    protected $allowedCurrencies = [
+        'EUR',
+        'GBP',
+        'DKK',
+        'SEK',
+        'NOK',
+        'CHF',
+    ];
+
+    /**
+     * @var array
+     */
+    protected $allowedCountries = [
+        'NL',
+        'DE',
+        'AT',
+        'GB',
+        'DK',
+        'SE',
+        'NO',
+        'FI',
+        'IT',
+        'FR',
+        'ES',
+        'CH',
+        'BE',
+    ];
+
     public function getConfig()
     {
         if (!$this->scopeConfig->getValue(

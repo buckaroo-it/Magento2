@@ -54,6 +54,41 @@ class Klarnakp extends AbstractConfigProvider
     const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_klarnakp/specificcustomergroup';
     const XPATH_FINANCIAL_WARNING               = 'payment/buckaroo_magento2_klarnakp/financial_warning';
 
+    /**
+     * @var array
+     */
+    protected $allowedCurrencies = [
+        'EUR',
+        'AUD',
+        'CAD',
+        'CHF',
+        'DKK',
+        'GBP',
+        'NOK',
+        'SEK'
+    ];
+
+    /**
+     * @var array
+     */
+    protected $allowedCountries = [
+        'NL',
+        'BE',
+        'DE',
+        'AT',
+        'FI',
+        'IT',
+        'FR',
+        'ES',
+        'AU',
+        'CA',
+        'CH',
+        'DK',
+        'GB',
+        'NO',
+        'SE'
+    ];
+
     public function getConfig()
     {
         if (!$this->scopeConfig->getValue(

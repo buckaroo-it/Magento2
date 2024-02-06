@@ -53,6 +53,30 @@ class Klarnain extends AbstractConfigProvider
     const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_klarnain/specificcustomergroup';
     const XPATH_FINANCIAL_WARNING               = 'payment/buckaroo_magento2_klarnain/financial_warning';
 
+    /**
+     * @var array
+     */
+    protected $allowedCurrencies = [
+        'EUR',
+        'GBP',
+        'DKK',
+        'SEK',
+        'NOK'
+    ];
+
+    /**
+     * @var array
+     */
+    protected $allowedCountries = [
+        'DE',
+        'AT',
+        'GB',
+        'DK',
+        'SE',
+        'NO',
+        'FI',
+    ];
+
     public function getConfig()
     {
         if (!$this->scopeConfig->getValue(
