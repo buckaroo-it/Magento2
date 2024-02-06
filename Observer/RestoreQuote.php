@@ -141,14 +141,15 @@ class RestoreQuote implements ObserverInterface
                 ) {
                     $this->logger->addDebug(sprintf(
                         '[RESTORE_QUOTE] | [Observer] | [%s:%s] - Restore Quote | ' .
-                        'lastRealOrder: %s | previousOrderId: %s',
+                        'lastRealOrder: %s - %s| previousOrderId: %s',
                         __METHOD__,
                         __LINE__,
-                        $lastRealOrder->getIncrementId(),
+                        $lastRealOrder->getIncrementId(), $lastRealOrder->getEntityId(),
                         $previousOrderId
                     ));
 
                     $this->checkoutSession->restoreQuote();
+                    $this->checkoutSession->getQuote()->setOrigOrderId(null);
                     $this->rollbackPartialPayment($lastRealOrder->getIncrementId(), $payment);
                     $this->setOrderToCancel($previousOrderId);
                 }

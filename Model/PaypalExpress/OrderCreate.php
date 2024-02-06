@@ -165,7 +165,7 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
 
         $quote = $this->getQuote($cartId);
         $quote->getPayment()->setAdditionalInformation('express_order_id', $paypalOrderId);
-
+        $this->ignoreAddressValidation($quote);
         $this->checkQuoteBelongsToLoggedUser($quote);
         $orderId = $this->quoteManagement->placeOrder($quote->getId());
 
@@ -176,17 +176,14 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
     }
 
     /**
-     * Get quote from masked quote/cart id
+     * Make sure addresses will be saved without validation errors
      *
-     * @param string $cartId
-     * @return Quote
-     * @throws NoSuchEntityException
+     * @return void
      */
-    protected function getQuote($cartId)
+    private function ignoreAddressValidation(Quote $quote)
     {
-        return $this->quoteRepository->get(
-            $this->maskedQuoteIdToQuoteId->execute($cartId)
-        );
+        $quote->getBillingAddress()->setShouldIgnoreValidation(true);
+        $quote->getShippingAddress()->setShouldIgnoreValidation(true);
     }
 
     /**
@@ -233,5 +230,19 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
             ->setLastOrderId($order->getEntityId())
             ->setLastRealOrderId($order->getIncrementId())
             ->setLastOrderStatus($order->getStatus());
+    }
+
+    /**
+     * Get quote from masked quote/cart id
+     *
+     * @param string $cartId
+     * @return Quote
+     * @throws NoSuchEntityException
+     */
+    protected function getQuote($cartId)
+    {
+        return $this->quoteRepository->get(
+            $this->maskedQuoteIdToQuoteId->execute($cartId)
+        );
     }
 }

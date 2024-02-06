@@ -58,6 +58,7 @@ define(
                 isTestMode: window.checkoutConfig.payment.buckaroo.klarnakp.isTestMode,
 
                 initObservable: function () {
+                    this._super();
                     this.showFinancialWarning = ko.computed(
                         function () {
                             return quote.billingAddress() !== null &&

@@ -20,6 +20,7 @@
 
 namespace Buckaroo\Magento2\Model\Giftcard\Request;
 
+use Buckaroo\Magento2\Api\GiftcardRepositoryInterface;
 use Buckaroo\Magento2\Gateway\Http\SDKTransferFactory;
 use Buckaroo\Magento2\Helper\Data as HelperData;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
@@ -46,6 +47,9 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class Giftcard implements GiftcardInterface
 {
+
+    public const TCS_ACQUIRER = 'tcs';
+    public const FASHIONCHEQUE_ACQUIRER = 'fashioncheque';
     /**
      * @var StoreInterface
      */
@@ -98,11 +102,11 @@ class Giftcard implements GiftcardInterface
      * @var array
      */
     protected $cardTypes = [
-        'fashioncheque' => [
+        self::FASHIONCHEQUE_ACQUIRER => [
             'number' => 'fashionChequeCardNumber',
             'pin'    => 'fashionChequePin',
         ],
-        'tcs'           => [
+        self::TCS_ACQUIRER           => [
             'number' => 'tcsCardnumber',
             'pin'    => 'tcsValidationCode',
         ]
@@ -125,6 +129,11 @@ class Giftcard implements GiftcardInterface
     private FormKey $formKey;
 
     /**
+     * @var GiftcardRepositoryInterface
+     */
+    private GiftcardRepositoryInterface $giftcardRepository;
+
+    /**
      * @param ScopeConfigInterface $scopeConfig
      * @param Account $configProviderAccount
      * @param UrlInterface $urlBuilder
@@ -135,8 +144,8 @@ class Giftcard implements GiftcardInterface
      * @param ClientInterface $clientInterface
      * @param RequestInterface $httpRequest
      * @param PaymentGroupTransaction $groupTransaction
+     * @param GiftcardRepositoryInterface $giftcardRepository
      * @throws NoSuchEntityException
-     *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -149,7 +158,8 @@ class Giftcard implements GiftcardInterface
         SDKTransferFactory $transferFactory,
         ClientInterface $clientInterface,
         RequestInterface $httpRequest,
-        PaymentGroupTransaction $groupTransaction
+        PaymentGroupTransaction $groupTransaction,
+        GiftcardRepositoryInterface $giftcardRepository
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->configProviderAccount = $configProviderAccount;
@@ -161,6 +171,7 @@ class Giftcard implements GiftcardInterface
         $this->clientInterface = $clientInterface;
         $this->httpRequest = $httpRequest;
         $this->groupTransaction = $groupTransaction;
+        $this->giftcardRepository = $giftcardRepository;
     }
 
     /**
@@ -336,6 +347,10 @@ class Giftcard implements GiftcardInterface
      */
     protected function getParameterNameCardNumber(): string
     {
+        if ($this->getAcquirer() !== null) {
+            return $this->cardTypes[$this->getAcquirer()]['number'];
+        }
+
         if (isset($this->cardTypes[$this->cardId])) {
             return $this->cardTypes[$this->cardId]['number'];
         }
@@ -364,6 +379,9 @@ class Giftcard implements GiftcardInterface
      */
     protected function getParameterNameCardPin(): string
     {
+        if ($this->getAcquirer() !== null) {
+            return $this->cardTypes[$this->getAcquirer()]['pin'];
+        }
 
         if (isset($this->cardTypes[$this->cardId])) {
             return $this->cardTypes[$this->cardId]['pin'];
@@ -462,5 +480,12 @@ class Giftcard implements GiftcardInterface
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
         return ($active == HelperData::MODE_LIVE) ? HelperData::MODE_LIVE : HelperData::MODE_TEST;
+    }
+
+    private function getAcquirer()
+    {
+        return $this->giftcardRepository
+            ->getByServiceCode($this->cardId)
+            ->getAcquirer();
     }
 }

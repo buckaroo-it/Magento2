@@ -38,6 +38,11 @@ class Response implements TransactionResponseInterface
     public const STATUSCODE_CANCELLED_BY_MERCHANT = 891;
 
     /**
+     * Codes below are created by dev, not by Buckaroo.
+     */
+    public const ORDER_FAILED = 11014;
+
+    /**
      * Array that will keep the transaction response
      *
      * @var array

@@ -9,6 +9,7 @@
         <message code="791" translate="true">Pending processing: The transaction is being processed. The reason is often that the consumer still has to return from a third-party website before being able to complete the transaction.</message>
         <message code="792" translate="true">Pending consumer: The consumer still has to take action, for example in case of a Transfer: transfer money manually from his banking environment.</message>
         <message code="793" translate="true">The transaction is put on hold.</message>
+        <message code="794" translate="true">Refund has been initiated, but it needs to be approved, so you need to wait for an approval</message>
         <message code="890" translate="true">Cancelled by User: The client has cancelled the transaction.</message>
         <message code="891" translate="true">Cancelled by the Merchant: The Merchant has cancelled the transaction.</message>
     </message_list>
