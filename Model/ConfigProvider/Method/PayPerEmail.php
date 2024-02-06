@@ -27,7 +27,7 @@ class PayPerEmail extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_payperemail';
 
-    public const XPATH_PAYPEREMAIL_SEND_MAIL = 'payment/buckaroo_magento2_payperemail/send_mail';
+    public const XPATH_PAYPEREMAIL_SEND_MAIL = 'send_mail';
 
     public const XPATH_PAYPEREMAIL_ACTIVE_STATUS_CM3           = 'active_status_cm3';
     public const XPATH_PAYPEREMAIL_SCHEME_KEY                  = 'scheme_key';
