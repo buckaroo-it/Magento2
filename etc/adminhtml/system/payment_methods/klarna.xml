@@ -145,7 +145,7 @@
                 <comment><![CDATA[Select payment method specific currencies.]]></comment>
                 <tooltip>Your contract with Buckaroo must allow for the selected currencies to be used with this payment method.</tooltip>
                 <config_path>payment/buckaroo_magento2_klarna/allowed_currencies</config_path>
-                <source_model>Buckaroo\Magento2\Model\Config\Source\AllowedCurrencies::ideal</source_model>
+                <source_model>Buckaroo\Magento2\Model\Config\Source\AllowedCurrencies::klarna</source_model>
                 <backend_model>Buckaroo\Magento2\Model\Config\Backend\AllowedCurrencies</backend_model>
             </field>
 
@@ -158,7 +158,7 @@
             <field id="specificcountry" translate="label" type="multiselect" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="0">
                 <label>Payment from Specific Country</label>
                 <comment><![CDATA[Only available when set to 'specific countries'.]]></comment>
-                <source_model>Magento\Directory\Model\Config\Source\Country</source_model>
+                <source_model>Buckaroo\Magento2\Model\Config\Source\AllowedCountries::klarna</source_model>
                 <can_be_empty>1</can_be_empty>
                 <config_path>payment/buckaroo_magento2_klarna/specificcountry</config_path>
                 <depends>
