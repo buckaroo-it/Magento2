@@ -91,6 +91,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
      * @param ConfigProviderFactory $configProviderFactory
      * @param BuckarooLoggerInterface $logger
      * @param CreateInvoice $createInvoiceService
+     * @param RequestInterface $request
      */
     public function __construct(
         InvoiceService $invoiceService,
@@ -115,6 +116,8 @@ class SalesOrderShipmentAfter implements ObserverInterface
      * @return void
      * @throws LocalizedException
      * @throws \Exception
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function execute(Observer $observer)
     {
@@ -145,7 +148,6 @@ class SalesOrderShipmentAfter implements ObserverInterface
             return;
         }
 
-        $configAccount = $this->configProviderFactory->get('account');
         if (strpos($paymentMethodCode, 'buckaroo_magento2') !== false
             && $this->isInvoiceCreatedAfterShipment($payment)) {
             if ($paymentMethod->getConfigPaymentAction() == 'authorize') {

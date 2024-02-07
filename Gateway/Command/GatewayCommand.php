@@ -109,10 +109,13 @@ class GatewayCommand implements CommandInterface
      * @param ClientInterface $client
      * @param LoggerInterface $logger
      * @param SpamLimitService $spamLimitService
+     * @param CancelOrder $cancelOrder
      * @param HandlerInterface|null $handler
      * @param ValidatorInterface|null $validator
      * @param ErrorMessageMapperInterface|null $errorMessageMapper
      * @param SkipCommandInterface|null $skipCommand
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         BuilderInterface            $requestBuilder,

@@ -126,10 +126,9 @@ class CreateInvoice
             return true;
         }
 
+        $invoiceItems = $this->prepareInvoiceItems($order, $invoiceItems);
+
         $data['capture_case'] = 'offline';
-        if (empty($invoiceItems)) {
-            $invoiceItems = $this->getInvoiceItems($order);
-        }
         $invoice = $this->invoiceService->prepareInvoice($order, $invoiceItems);
 
         if (!$invoice->getTotalQty()) {
@@ -243,5 +242,10 @@ class CreateInvoice
         );
 
         return $payment;
+    }
+
+    private function prepareInvoiceItems(Order $order, array $invoiceItems): array
+    {
+        return empty($invoiceItems) ? $this->getInvoiceItems($order) : $invoiceItems;
     }
 }
