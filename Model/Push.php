@@ -591,6 +591,12 @@ class Push implements PushInterface
             return false;
         }
 
+        $statusCodePendingProcessing = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING');
+        if ($this->hasPostData('brq_statuscode', $statusCodePendingProcessing)
+            && $this->hasPostData('brq_transaction_method', 'payconiq')) {
+            return false;
+        }
+
         return true;
     }
 
