@@ -95,7 +95,7 @@ class ReturnUrlDataBuilder implements BuilderInterface
     {
         if ($this->returnUrl === null) {
             $url = $this->urlBuilder->setScope($order->getStoreId());
-            $url = $url->getRouteUrl('buckaroo/redirect/process') . '?form_key=' . $this->getFormKey();
+            $url = $url->getDirectUrl('buckaroo/redirect/process') . '?form_key=' . $this->getFormKey();
 
             $this->setReturnUrl($url);
         }
