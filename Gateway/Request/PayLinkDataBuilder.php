@@ -95,6 +95,6 @@ class PayLinkDataBuilder extends AbstractDataBuilder
             }
             $methods = join(',', $methods);
         }
-        return $methods;
+        return $methods ?? '';
     }
 }

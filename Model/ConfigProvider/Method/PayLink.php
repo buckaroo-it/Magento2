@@ -28,7 +28,7 @@ class PayLink extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_paylink';
 
-    public const XPATH_PAYLINK_PAYMENT_METHOD = 'payment/buckaroo_magento2_paylink/payment_method';
+    public const XPATH_PAYLINK_PAYMENT_METHOD = 'payment_method';
 
     /**
      * @inheritdoc
