@@ -359,3 +359,7 @@ a.bk-plugin-zone {
 .bk-in3-main-wrap {
     border: 1px solid #adadad;
 }
+
+#buckaroo_magento2_payment_methods_buckaroo_magento2_payment_section_buckaroo_magento2_klarna_group {
+    padding: 20px 0 20px 20px;
+}
