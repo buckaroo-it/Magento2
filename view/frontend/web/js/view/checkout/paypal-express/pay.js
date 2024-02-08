@@ -118,7 +118,7 @@ define([
     onInitCallback() {
     },
     onCancelCallback() {
-      this.displayErrorMessage(__("You have canceled the payment request"));
+      this.displayErrorMessage(__("You have canceled the payment request."));
     },
     onClickCallback() {
       //reset any previous payment response;
