@@ -220,7 +220,6 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
         if ($address->getId() === null) {
             $address->setFirstname('unknown');
             $address->setLastname('unknown');
-            $address->setTelephone('unknown');
             $address->setEmail('no-reply@example.com');
             $address->setStreet('unknown');
         }
@@ -240,7 +239,6 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
         if ($address->getId() === null) {
             $address->setFirstname('unknown');
             $address->setLastname('unknown');
-            $address->setTelephone('unknown');
             $address->setEmail('no-reply@example.com');
             $address->setStreet('unknown');
             $address->setCountryId($shipping_address->getCountryCode());

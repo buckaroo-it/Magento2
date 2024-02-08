@@ -34,7 +34,7 @@ use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Buckaroo\Magento2\Api\PaypalExpressOrderCreateInterface;
 use Buckaroo\Magento2\Model\PaypalExpress\PaypalExpressException;
-use Buckaroo\Magento2\Model\PaypalExpress\OrderUpdateShippingFactory;
+use Buckaroo\Magento2\Model\PaypalExpress\OrderUpdateFactory;
 use Buckaroo\Magento2\Api\Data\PaypalExpress\OrderCreateResponseInterfaceFactory;
 
 class OrderCreate implements PaypalExpressOrderCreateInterface
@@ -74,9 +74,9 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
     protected $orderRepository;
 
     /**
-     * @var \Buckaroo\Magento2\Model\PaypalExpress\OrderUpdateShippingFactory
+     * @var \Buckaroo\Magento2\Model\PaypalExpress\OrderUpdateFactory
      */
-    protected $orderUpdateShippingFactory;
+    protected $orderUpdateFactory;
 
     /**
      * @var \Buckaroo\Magento2\Logging\Log
@@ -91,7 +91,7 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
         CheckoutSession $checkoutSession,
         CartRepositoryInterface $quoteRepository,
         OrderRepositoryInterface $orderRepository,
-        OrderUpdateShippingFactory $orderUpdateShippingFactory,
+        OrderUpdateFactory $orderUpdateFactory,
         Log $logger
     ) {
         $this->responseFactory = $responseFactory;
@@ -101,7 +101,7 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
         $this->checkoutSession = $checkoutSession;
         $this->quoteRepository = $quoteRepository;
         $this->orderRepository = $orderRepository;
-        $this->orderUpdateShippingFactory = $orderUpdateShippingFactory;
+        $this->orderUpdateFactory = $orderUpdateFactory;
         $this->logger = $logger;
     }
     
@@ -143,7 +143,7 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
         $orderId = $this->quoteManagement->placeOrder($quote->getId());
 
         $order = $this->orderRepository->get($orderId);
-        $this->updateOrderShipping($order);
+        $this->updateOrder($order);
         $this->setLastOrderToSession($order);
         return $order->getIncrementId();
     }
@@ -159,10 +159,12 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
         $quote->getShippingAddress()->setShouldIgnoreValidation(true);
     }
 
-    protected function updateOrderShipping(OrderInterface $order)
+    protected function updateOrder(OrderInterface $order)
     {
-        $orderUpdateShipping = $this->orderUpdateShippingFactory->create(["shippingAddress" => $order->getShippingAddress()]);
-        $orderUpdateShipping->update();
+        $orderUpdateService = $this->orderUpdateFactory->create();
+        $orderUpdateService->updateAddress($order->getShippingAddress());
+        $orderUpdateService->updateAddress($order->getBillingAddress());
+        $orderUpdateService->updateEmail($order);
         $this->orderRepository->save($order);
     }
     /**

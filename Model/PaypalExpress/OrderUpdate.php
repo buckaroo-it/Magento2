@@ -23,8 +23,9 @@ namespace Buckaroo\Magento2\Model\PaypalExpress;
 
 use Magento\Framework\Registry;
 use Magento\Sales\Api\Data\OrderAddressInterface;
+use Magento\Sales\Api\Data\OrderInterface;
 
-class OrderUpdateShipping
+class OrderUpdate
 {
     /**
      * @var stdClass|null
@@ -35,36 +36,52 @@ class OrderUpdateShipping
     /**
      * @var \Magento\Sales\Api\Data\OrderAddressInterface
      */
-    protected $shippingAddress;
+    protected $address;
 
     public function __construct(
-        OrderAddressInterface $shippingAddress,
         Registry $registry
     ) {
-        $this->shippingAddress = $shippingAddress;
         $this->responseAddressInfo = $this->getAddressInfoFromPayRequest($registry);
     }
     /**
-     * Update order shipping address with pay response data
+     * Update order address with pay response data
      *
+     * @param \Magento\Sales\Api\Data\OrderAddressInterface
      * @return \Magento\Sales\Api\Data\OrderAddressInterface
      */
-    public function update()
+    public function updateAddress($address)
     {
-        $this->updateShippingItem(OrderAddressInterface::FIRSTNAME, 'payerFirstname');
-        $this->updateShippingItem(OrderAddressInterface::LASTNAME, 'payerLastname');
-        $this->updateShippingItem(OrderAddressInterface::STREET, 'address_line_1');
-        $this->updateShippingItem(OrderAddressInterface::EMAIL, 'payerEmail');
-        return $this->shippingAddress;
+        $this->updateItem($address, OrderAddressInterface::FIRSTNAME, 'payerFirstname');
+        $this->updateItem($address, OrderAddressInterface::LASTNAME, 'payerLastname');
+        $this->updateItem($address, OrderAddressInterface::STREET, 'address_line_1');
+        $this->updateItem($address, OrderAddressInterface::EMAIL, 'payerEmail');
+        return $address;
     }
-    protected function updateShippingItem($addressField, $responseField)
+    protected function updateItem($address, $addressField, $responseField)
     {
-        if (isset($this->responseAddressInfo[$responseField])) {
-            $this->shippingAddress->setData(
+        if ($this->valueExists($responseField)) {
+            $address->setData(
                 $addressField,
                 $this->responseAddressInfo[$responseField]
             );
         }
+    }
+
+    private function valueExists($key): bool
+    {
+        return isset($this->responseAddressInfo[$key]) && is_string($this->responseAddressInfo[$key]);
+    }
+
+    /**
+     *
+     * @param OrderInterface $order
+     *
+     * @return void
+     */
+    public function updateEmail(OrderInterface $order) {
+        if ($this->valueExists('payerEmail')) {
+            $order->setCustomerEmail($this->responseAddressInfo['payerEmail']);
+        };
     }
     /**
      * Get payment response
