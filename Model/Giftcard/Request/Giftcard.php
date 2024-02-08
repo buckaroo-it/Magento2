@@ -245,7 +245,7 @@ class Giftcard implements GiftcardInterface
         if ($originalTransactionKey !== null) {
             $body['originalTransactionKey'] = $originalTransactionKey;
         }
-        $body['payment_method'] = 'giftcard';
+        $body['payment_method'] = 'giftcards';
 
         return $body;
     }
