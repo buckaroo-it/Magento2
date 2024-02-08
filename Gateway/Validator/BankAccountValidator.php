@@ -21,12 +21,12 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Validator;
 
+use Laminas\Validator\Iban;
 use Magento\Framework\Exception\NotFoundException;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
 use Magento\Sales\Model\Order\Payment;
-use Zend\Validator\Iban;
 
 /**
  * Class IssuerValidator
