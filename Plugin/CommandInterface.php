@@ -21,7 +21,6 @@ namespace Buckaroo\Magento2\Plugin;
 
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
-use Buckaroo\Magento2\Model\LockManagerWrapper;
 use Magento\Payment\Model\MethodInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
@@ -47,27 +46,20 @@ class CommandInterface
      */
     public $helper;
 
-    /**
-     * @var LockManagerWrapper
-     */
-    protected LockManagerWrapper $lockManager;
 
     /**
      * @param Factory $configProviderMethodFactory
      * @param Log $logging
      * @param Data $helper
-     * @param LockManagerWrapper $lockManager
      */
     public function __construct(
         Factory $configProviderMethodFactory,
         Log $logging,
-        Data $helper,
-        LockManagerWrapper $lockManager
+        Data $helper
     ) {
         $this->configProviderMethodFactory = $configProviderMethodFactory;
         $this->logging = $logging;
         $this->helper = $helper;
-        $this->lockManager = $lockManager;
     }
 
     /**
@@ -88,14 +80,6 @@ class CommandInterface
     ) {
         $message = $proceed($payment, $amount, $order);
 
-        $orderIncrementID = $order->getIncrementId();
-        $this->logging->addDebug(__METHOD__ . '|Lock Name| - ' . var_export($orderIncrementID, true));
-        $lockAcquired = $this->lockManager->lockOrder($orderIncrementID, 5);
-
-        if (!$lockAcquired) {
-            $this->logging->addError(__METHOD__ . '|lock not acquired|');
-            return $message;
-        }
 
         try {
             /** @var MethodInterface $methodInstance */
@@ -123,10 +107,6 @@ class CommandInterface
         } catch (\Exception $e) {
             $this->logging->addDebug(__METHOD__ . '|Exception|' . $e->getMessage());
             throw $e;
-        } finally {
-            // Ensure the lock is released
-            $this->lockManager->unlockOrder($orderIncrementID);
-            $this->logging->addDebug(__METHOD__ . '|Lock released|');
         }
     }
 
