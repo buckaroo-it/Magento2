@@ -249,7 +249,7 @@ define(
                 },
 
                 validate: function () {
-                    return this.useClientSide  == false || $('.' + this.getCode() + ' .payment-method-second-col form').valid();
+                    return this.isMobileMode || this.useClientSide  == false || $('.' + this.getCode() + ' .payment-method-second-col form').valid();
                 },
 
                 afterPlaceOrder: function () {
