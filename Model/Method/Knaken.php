@@ -82,6 +82,6 @@ class Knaken extends AbstractMethod
      */
     public function getPaymentMethodName($payment)
     {
-        return 'Knaken';
+        return 'Knaken Settle';
     }
 }
