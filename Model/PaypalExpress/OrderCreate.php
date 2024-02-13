@@ -138,6 +138,7 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
         
         $quote = $this->getQuote($cart_id);
         $quote->getPayment()->setAdditionalInformation('express_order_id', $paypal_order_id);
+        $quote->reserveOrderId();
         $this->ignoreAddressValidation($quote);
         $this->checkQuoteBelongsToLoggedUser($quote);
         $orderId = $this->quoteManagement->placeOrder($quote->getId());
