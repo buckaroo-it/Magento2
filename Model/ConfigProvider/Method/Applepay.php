@@ -160,7 +160,13 @@ class Applepay extends AbstractConfigProvider
             'NOK',
             'SEK',
             'CHF',
-            'PLN'
+            'PLN',
+            'HUF',
+            'ISK',
+            'JPY',
+            'NZD',
+            'RUB',
+            'ZAR',
         ];
     }
 

@@ -47,6 +47,12 @@ class AllowedCurrencies extends AbstractConfigProvider
         'PLN',
         'CHF',
         'CZK',
+        'HUF',
+        'ISK',
+        'JPY',
+        'NZD',
+        'RUB',
+        'ZAR'
     ];
 
     /**
