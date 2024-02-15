@@ -352,7 +352,7 @@ define(
                 },
                 setTestParameters(giftcardCode) {
                     if (this.isTestMode && !this.isGiftcardsRedirectMode()) {
-                        if (["boekenbon","vvvgiftcard","yourgift","customgiftcard","customgiftcard1","customgiftcard2"].indexOf(giftcardCode)) {
+                        if (["boekenbon","vvvgiftcard","yourgift","customgiftcard","customgiftcard1","customgiftcard2"].indexOf(giftcardCode) !== -1) {
                             this.CardNumber('0000000000000000001')
                             this.Pin('1000')
                         }
