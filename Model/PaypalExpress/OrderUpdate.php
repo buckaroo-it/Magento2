@@ -23,9 +23,9 @@ namespace Buckaroo\Magento2\Model\PaypalExpress;
 use Buckaroo\Magento2\Api\Data\BuckarooResponseDataInterface;
 use Magento\Framework\Registry;
 use Magento\Sales\Api\Data\OrderAddressInterface;
-use stdClass;
+use Magento\Sales\Api\Data\OrderInterface;
 
-class OrderUpdateShipping
+class OrderUpdate
 {
     /**
      * @var stdClass|null
@@ -35,7 +35,7 @@ class OrderUpdateShipping
     /**
      * @var OrderAddressInterface
      */
-    protected $shippingAddress;
+    protected $address;
 
     /**
      * @var BuckarooResponseDataInterface
@@ -48,11 +48,26 @@ class OrderUpdateShipping
      */
     public function __construct(
         OrderAddressInterface $shippingAddress,
-        BuckarooResponseDataInterface $buckarooResponseData
+        BuckarooResponseDataInterface $buckarooResponseData,
+        Registry $registry
     ) {
         $this->shippingAddress = $shippingAddress;
         $this->buckarooResponseData = $buckarooResponseData;
-        $this->responseAddressInfo = $this->getAddressInfoFromPayRequest();
+        $this->responseAddressInfo = $this->getAddressInfoFromPayRequest($registry);
+    }
+    /**
+     * Update order address with pay response data
+     *
+     * @param \Magento\Sales\Api\Data\OrderAddressInterface
+     * @return \Magento\Sales\Api\Data\OrderAddressInterface
+     */
+    public function updateAddress($address)
+    {
+        $this->updateItem($address, OrderAddressInterface::FIRSTNAME, 'payerFirstname');
+        $this->updateItem($address, OrderAddressInterface::LASTNAME, 'payerLastname');
+        $this->updateItem($address, OrderAddressInterface::STREET, 'address_line_1');
+        $this->updateItem($address, OrderAddressInterface::EMAIL, 'payerEmail');
+        return $address;
     }
 
     /**
@@ -94,17 +109,18 @@ class OrderUpdateShipping
     }
 
     /**
-     * Update order shipping address with pay response data
+     * Update order address with pay response data
      *
-     * @return OrderAddressInterface
+     * @param \Magento\Sales\Api\Data\OrderAddressInterface
+     * @return \Magento\Sales\Api\Data\OrderAddressInterface
      */
-    public function update(): OrderAddressInterface
+    public function updateAddress($address)
     {
-        $this->updateShippingItem(OrderAddressInterface::FIRSTNAME, 'payerFirstname');
-        $this->updateShippingItem(OrderAddressInterface::LASTNAME, 'payerLastname');
-        $this->updateShippingItem(OrderAddressInterface::STREET, 'address_line_1');
-        $this->updateShippingItem(OrderAddressInterface::EMAIL, 'payerEmail');
-        return $this->shippingAddress;
+        $this->updateItem($address, OrderAddressInterface::FIRSTNAME, 'payerFirstname');
+        $this->updateItem($address, OrderAddressInterface::LASTNAME, 'payerLastname');
+        $this->updateItem($address, OrderAddressInterface::STREET, 'address_line_1');
+        $this->updateItem($address, OrderAddressInterface::EMAIL, 'payerEmail');
+        return $address;
     }
 
     /**
@@ -122,5 +138,32 @@ class OrderUpdateShipping
                 $this->responseAddressInfo[$responseField]
             );
         }
+    }
+
+    protected function updateItem($address, $addressField, $responseField)
+    {
+        if ($this->valueExists($responseField)) {
+            $address->setData(
+                $addressField,
+                $this->responseAddressInfo[$responseField]
+            );
+        }
+    }
+
+    private function valueExists($key): bool
+    {
+        return isset($this->responseAddressInfo[$key]) && is_string($this->responseAddressInfo[$key]);
+    }
+
+    /**
+     *
+     * @param OrderInterface $order
+     *
+     * @return void
+     */
+    public function updateEmail(OrderInterface $order) {
+        if ($this->valueExists('payerEmail')) {
+            $order->setCustomerEmail($this->responseAddressInfo['payerEmail']);
+        };
     }
 }

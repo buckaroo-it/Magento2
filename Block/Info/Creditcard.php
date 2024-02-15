@@ -21,6 +21,8 @@
 namespace Buckaroo\Magento2\Block\Info;
 
 use Buckaroo\Magento2\Block\Info;
+use Magento\Framework\View\Asset\Repository;
+use Magento\Framework\UrlInterface;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard as ConfigProviderCreditcard;
 use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
@@ -58,10 +60,12 @@ class Creditcard extends Info
         PaymentGroupTransaction $groupTransaction,
         GiftcardCollection $giftcardCollection,
         LogoService $logoService,
+        Repository $assetRepo,
+        UrlInterface $baseUrl,
         array $data = [],
         ConfigProviderCreditcard $configProvider = null
     ) {
-        parent::__construct($context, $groupTransaction, $giftcardCollection, $logoService, $data);
+        parent::__construct($context, $groupTransaction, $giftcardCollection, $logoService, $assetRepo, $baseUrl, $data);
         $this->configProvider = $configProvider;
     }
 

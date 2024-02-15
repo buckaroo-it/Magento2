@@ -82,7 +82,8 @@ define(
                     expireDate      : '',
                     validationState : {},
                     clientSideMode  : 'cc',
-                    isMobileMode    : false
+                    isMobileMode    : false,
+                    encryptedCardData : null
                 },
                 redirectAfterPlaceOrder: false,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.mrcash.paymentFeeLabel,
@@ -188,13 +189,21 @@ define(
                 },
 
                 getData: function () {
+                    return {
+                        "method":  this.item.method,
+                        "po_number": null,
+                        "additional_data": {
+                            "customer_encrypteddata" : this.encryptedCardData,
+                            "client_side_mode" : this.clientSideMode()
+                        }
+                    }
+                },
+
+                encryptCardData: function () {
                     return new Promise(function (resolve) {
                         const parts = this.expireDate().split("/");
                         const month = parts[0];
                         const year = parts[1];
-                        const method = this.item.method;
-                        const clientSideMode =  this.clientSideMode();
-
 
                         BuckarooClientSideEncryption.V001.encryptCardData(
                             this.cardNumber(),
@@ -203,16 +212,9 @@ define(
                             '',
                             this.cardHolderName(),
                             function (encryptedCardData) {
-                                resolve({
-                                    "method": method,
-                                    "po_number": null,
-                                    "additional_data": {
-                                        "customer_encrypteddata" : encryptedCardData,
-                                        "client_side_mode" :clientSideMode
-                                    }
-                                })
-                            }
-                        );
+                                this.encryptedCardData = encryptedCardData;
+                                resolve()
+                            }.bind(this));
                     }.bind(this))
                 },
 
@@ -235,8 +237,8 @@ define(
 
                     if (this.validate() && additionalValidators.validate()) {
                         this.isPlaceOrderActionAllowed(false);
-                        this.getData().then(function (data) {
-                            placeOrder = placeOrderAction(data, self.redirectAfterPlaceOrder, self.messageContainer);
+                        this.encryptCardData().then(function() {
+                            placeOrder = placeOrderAction(self.getData(), self.redirectAfterPlaceOrder, self.messageContainer);
 
                             $.when(placeOrder).fail(
                                 function () {
@@ -250,7 +252,7 @@ define(
                 },
 
                 validate: function () {
-                    return $('.' + this.getCode() + ' .payment-method-second-col form').valid();
+                    return this.isMobileMode() || this.useClientSide  == false || $('.' + this.getCode() + ' .payment-method-second-col form').valid();
                 },
 
                 afterPlaceOrder: function () {
@@ -305,11 +307,3 @@ define(
         );
     }
 );
-
-
-
-
-
-
-
-

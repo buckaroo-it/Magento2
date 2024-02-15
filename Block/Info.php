@@ -20,6 +20,8 @@
 
 namespace Buckaroo\Magento2\Block;
 
+use Magento\Framework\View\Asset\Repository;
+use Magento\Framework\UrlInterface;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
 use Buckaroo\Magento2\Service\LogoService;
@@ -40,6 +42,8 @@ class Info extends \Magento\Payment\Block\Info
      */
     protected GiftcardCollection $giftcardCollection;
 
+    protected UrlInterface $baseUrl;
+
     /**
      * @var LogoService
      */
@@ -57,12 +61,16 @@ class Info extends \Magento\Payment\Block\Info
         PaymentGroupTransaction $groupTransaction,
         GiftcardCollection $giftcardCollection,
         LogoService $logoService,
+        Repository $assetRepo,
+        UrlInterface $baseUrl,
         array $data = []
     ) {
         parent::__construct($context, $data);
         $this->groupTransaction = $groupTransaction;
         $this->giftcardCollection = $giftcardCollection;
         $this->logoService = $logoService;
+        $this->assetRepo = $assetRepo;
+        $this->baseUrl = $baseUrl;
     }
 
     /**
@@ -93,6 +101,7 @@ class Info extends \Magento\Payment\Block\Info
                     $result[] = [
                         'code'  => $giftcard['servicecode'],
                         'label' => $foundGiftcard['label'],
+                        'logo' => $foundGiftcard['logo']
                     ];
                 }
 

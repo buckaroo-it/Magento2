@@ -23,7 +23,7 @@ define([
   "Magento_Customer/js/customer-data",
   "BuckarooSDK",
   'mage/translate',
-], function ($, ko, urlBuilder, customerData, sdk, __) {
+], function ($, ko, urlBuilder, customerData, sdk, $t) {
   // 'use strict';
   return {
     setConfig(config, page) {
@@ -89,7 +89,7 @@ define([
             }
           },
           () => {
-            reject(__("Cannot create payment"));
+            reject($t("Cannot create payment"));
           }
         );
 
@@ -106,7 +106,7 @@ define([
         if (this.result.cart_id && this.result.cart_id.length) {
           window.location.replace(urlBuilder.build('checkout/onepage/success/'));
         } else {
-          this.displayErrorMessage(__("Cannot create payment"));
+          this.displayErrorMessage($t("Cannot create payment"));
         }
       }
     },
@@ -118,7 +118,7 @@ define([
         onInitCallback() {
         },
         onCancelCallback() {
-            this.displayErrorMessage(__("You have canceled the payment request"));
+      this.displayErrorMessage($t("You have canceled the payment request."));
         },
         onClickCallback() {
             //reset any previous payment response;
@@ -182,9 +182,9 @@ define([
     displayErrorMessage(message) {
       if (typeof message === "object") {
         if (message.responseJSON && message.responseJSON.message) {
-          message = __(message.responseJSON.message);
+          message = $t(message.responseJSON.message);
         } else {
-          message = __("Cannot create payment");
+          message = $t("Cannot create payment");
         }
 
       }

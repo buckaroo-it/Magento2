@@ -90,7 +90,7 @@ define(
                     cvc             : '',
                     cardHolderName  : '',
                     expireDate      : '',
-                    EncryptedData   : null,
+                    encryptedCardData : null,
                     cardIssuer      : null,
                     validationState : {},
                     issuerImage     : window.checkoutConfig.payment.buckaroo.creditcards.defaultCardImage
@@ -264,9 +264,7 @@ define(
                 selectPaymentMethod: function () {
                     window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
 
-                    this.getData().then(function (data) {
-                        selectPaymentMethodAction(data);
-                    })
+                    selectPaymentMethodAction(this.getData());
                     checkoutData.setSelectedPaymentMethod(this.item.method);
                     return true;
                 },
@@ -300,8 +298,8 @@ define(
 
                     if (this.validate() && additionalValidators.validate()) {
                         this.isPlaceOrderActionAllowed(false);
-                        this.getData().then(function (data) {
-                            placeOrder = placeOrderAction(data, self.redirectAfterPlaceOrder, self.messageContainer);
+                        this.encryptCardData().then(function() {
+                            placeOrder = placeOrderAction(self.getData(), self.redirectAfterPlaceOrder, self.messageContainer);
     
                             $.when(placeOrder).fail(
                                 function () {
@@ -320,18 +318,27 @@ define(
                     checkoutCommon.redirectHandle(response);
                 },
 
-                getData: function () {
+                getData: function() {
+                    let cardIssuer = this.cardIssuer();
+
+                    if(cardIssuer == null) {
+                        cardIssuer = this.determineIssuer(this.cardNumber());
+                    }
+                    return {
+                        "method":  this.item.method,
+                        "po_number": null,
+                        "additional_data": {
+                            "customer_encrypteddata" : this.encryptedCardData,
+                            "customer_creditcardcompany" : cardIssuer
+                        }
+                    }
+                },
+
+                encryptCardData: function () {
                     return new Promise(function (resolve) {
                         const parts = this.expireDate().split("/");
                         const month = parts[0];
                         const year = parts[1];
-                        const method = this.item.method;
-                        let cardIssuer = this.cardIssuer();
-
-                        if (cardIssuer == null) {
-                            cardIssuer = this.determineIssuer(this.cardNumber());
-                        }
-
 
                         BuckarooClientSideEncryption.V001.encryptCardData(
                             this.cardNumber(),
@@ -340,16 +347,9 @@ define(
                             this.cvc(),
                             this.cardHolderName(),
                             function (encryptedCardData) {
-                                resolve({
-                                    "method": method,
-                                    "po_number": null,
-                                    "additional_data": {
-                                        "customer_encrypteddata" : encryptedCardData,
-                                        "card_type" : cardIssuer
-                                    }
-                                })
-                            }
-                        );
+                                this.encryptedCardData = encryptedCardData;
+                                resolve()
+                            }.bind(this));
                     }.bind(this))
                 },
                 setTestParameters() {

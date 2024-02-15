@@ -47,7 +47,7 @@
 
         <field id="subtext" translate="label comment" type="text" sortOrder="25" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Frontend subtext</label>
-            <comment><![CDATA[This controls the description which the user sees during checkout.]]></comment>
+            <comment><![CDATA[This controls the description which the user sees during checkout. Please note that the subtext is not supported when the cards are showed separately instead of grouped.]]></comment>
             <config_path>payment/buckaroo_magento2_creditcard/subtext</config_path>
         </field>
 
@@ -146,7 +146,7 @@
 
         <field id="group_creditcards" translate="label comment" type="select" sortOrder="54" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Group Creditcards</label>
-            <comment><![CDATA[Creditcards option to show in checkout <br/><strong>Separate:</strong> Creditcards are show seperate in checkout<br/><strong>Grouped:</strong> Creditcards get redirected to the buckaroo checkout.]]></comment>
+            <comment><![CDATA[Creditcards option to show in checkout <br/><strong>Separate:</strong> Creditcards are show seperate in checkout. A frontend subtext is not supported when the separate option is chosen.<br/><strong>Grouped:</strong> Creditcards get redirected to the buckaroo checkout.]]></comment>
             <source_model>Buckaroo\Magento2\Model\Config\Source\SeparateOrGrouped</source_model>
             <config_path>payment/buckaroo_magento2_creditcard/group_creditcards</config_path>
         </field>
