@@ -509,7 +509,6 @@
 
             <buckaroo_magento2_knaken>
                 <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Knaken</model>
                 <order_status>pending</order_status>
                 <title>Buckaroo Knaken Settle</title>
                 <allowspecific>0</allowspecific>

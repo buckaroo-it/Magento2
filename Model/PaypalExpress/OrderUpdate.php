@@ -45,6 +45,7 @@ class OrderUpdate
     /**
      * @param OrderAddressInterface $shippingAddress
      * @param BuckarooResponseDataInterface $buckarooResponseData
+     * @param Registry $registry
      */
     public function __construct(
         OrderAddressInterface $shippingAddress,
@@ -108,37 +109,6 @@ class OrderUpdate
         return $data;
     }
 
-    /**
-     * Update order address with pay response data
-     *
-     * @param \Magento\Sales\Api\Data\OrderAddressInterface
-     * @return \Magento\Sales\Api\Data\OrderAddressInterface
-     */
-    public function updateAddress($address)
-    {
-        $this->updateItem($address, OrderAddressInterface::FIRSTNAME, 'payerFirstname');
-        $this->updateItem($address, OrderAddressInterface::LASTNAME, 'payerLastname');
-        $this->updateItem($address, OrderAddressInterface::STREET, 'address_line_1');
-        $this->updateItem($address, OrderAddressInterface::EMAIL, 'payerEmail');
-        return $address;
-    }
-
-    /**
-     * Update shipping address field
-     *
-     * @param string|array $addressField
-     * @param mixed $responseField
-     * @return void
-     */
-    protected function updateShippingItem($addressField, $responseField)
-    {
-        if (isset($this->responseAddressInfo[$responseField])) {
-            $this->shippingAddress->setData(
-                $addressField,
-                $this->responseAddressInfo[$responseField]
-            );
-        }
-    }
 
     protected function updateItem($address, $addressField, $responseField)
     {
