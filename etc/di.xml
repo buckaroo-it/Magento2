@@ -477,6 +477,10 @@
     <type name="Buckaroo\Magento2\Model\RefundFieldsFactory">
     </type>
 
+    <type name="Magento\Quote\Api\CouponManagementInterface">
+        <plugin name="buckaroo_magento2_coupon_managment" type="Buckaroo\Magento2\Plugin\CouponManagement" />
+    </type>
+
     <type name="Magento\Quote\Model\Cart\CartTotalRepository">
         <plugin name="buckaroo_magento2_fee_total" type="Buckaroo\Magento2\Plugin\CartTotalRepository" />
     </type>
