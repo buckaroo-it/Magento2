@@ -148,12 +148,12 @@ class Info extends \Magento\Payment\Block\Info
     /**
      * Get giftcard logo url by code
      *
-     * @param string $code
+     * @param array $code
      * @return string
      */
-    public function getGiftcardLogo(string $code): string
+    public function getGiftcardLogo(array $code): string
     {
-        return $this->logoService->getGiftcard($code);
+        return $this->logoService->getGiftcardLogo($code);
     }
 
     /**
