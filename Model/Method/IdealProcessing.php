@@ -81,6 +81,10 @@ class IdealProcessing extends AbstractMethod
             ->setServices($services)
             ->setMethod('TransactionRequest');
 
+        if (!$this->canShowIssuers()) {
+            $transactionBuilder->setCustomVars(['ContinueOnIncomplete' => 'RedirectToHTML']);
+        }
+        
         return $transactionBuilder;
     }
 
