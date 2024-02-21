@@ -27,7 +27,6 @@ use Buckaroo\Magento2\Api\Data\PaypalExpress\TotalBreakdownInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Api\CartTotalRepositoryInterface;
 use Magento\Quote\Model\Quote;
-use Magento\Quote\Model\Quote\Address\Total;
 
 class TotalBreakdown implements TotalBreakdownInterface
 {

@@ -123,7 +123,6 @@ define(
                             'cvc',
                             'cardHolderName',
                             'expireDate',
-                            'EncryptedData',
                             'cardIssuer',
                             'validationState'
                         ]

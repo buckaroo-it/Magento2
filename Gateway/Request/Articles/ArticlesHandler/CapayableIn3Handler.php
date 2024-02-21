@@ -37,7 +37,7 @@ class CapayableIn3Handler extends AbstractArticlesHandler
             'identifier' => $articleId,
             'description' => $articleDescription,
             'quantity' => $articleQuantity,
-            'price' => $articleUnitPrice,
+            'price' => floor($articleUnitPrice * 100) / 100,
             'vatPercentage' => $articleVat
         ];
     }
