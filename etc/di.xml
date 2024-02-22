@@ -508,6 +508,7 @@
                 <item name="klarna" xsi:type="string">Buckaroo\Magento2\Model\Push\KlarnaProcessor</item>
                 <item name="klarnakp" xsi:type="string">Buckaroo\Magento2\Model\Push\KlarnaKpProcessor</item>
                 <item name="payperemail" xsi:type="string">Buckaroo\Magento2\Model\Push\PayPerEmailProcessor</item>
+                <item name="payconiq" xsi:type="string">Buckaroo\Magento2\Model\Push\PayconiqProcessor</item>
                 <item name="transfer" xsi:type="string">Buckaroo\Magento2\Model\Push\TransferProcessor</item>
             </argument>
         </arguments>
