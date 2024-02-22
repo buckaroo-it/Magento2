@@ -71,7 +71,6 @@ class IssuerValidatorTest extends TestCase
         $infoInterface->expects($this->atMost(2))
             ->method('getAdditionalInformation')
             ->willReturnMap([
-                ['buckaroo_skip_validation', $skipValidation],
                 ['issuer', $chosenIssuer]
             ]);
         $paymentDataObjectInterface->expects($this->once())

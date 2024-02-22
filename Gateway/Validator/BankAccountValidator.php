@@ -71,11 +71,6 @@ class BankAccountValidator extends AbstractValidator
     {
         $paymentInfo = $validationSubject['payment'];
 
-        $skipValidation = $paymentInfo->getAdditionalInformation('buckaroo_skip_validation');
-        if ($skipValidation) {
-            return $this->createResult(true);
-        }
-
         $customerBic = $paymentInfo->getAdditionalInformation('customer_bic');
         $customerIban = $paymentInfo->getAdditionalInformation('customer_iban');
         $customerAccountName = $paymentInfo->getAdditionalInformation('customer_account_name');

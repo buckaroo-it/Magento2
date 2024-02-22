@@ -80,11 +80,6 @@ class IssuerValidator extends AbstractValidator
         /** @var Payment $paymentInfo */
         $paymentInfo = $validationSubject['payment'];
 
-//        $skipValidation = $paymentInfo->getAdditionalInformation('buckaroo_skip_validation');
-//        if ($skipValidation) {
-//            return $this->createResult(true);
-//        }
-
         $chosenIssuer = $paymentInfo->getAdditionalInformation('issuer');
 
         if (!$chosenIssuer && $content = $this->request->getContent()) {

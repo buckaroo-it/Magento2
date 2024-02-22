@@ -58,13 +58,6 @@ class AllowedGiftcardsValidator extends AbstractValidator
     {
         $isValid = true;
 
-        $paymentInfo = $validationSubject['payment']->getPayment();
-
-        $skipValidation = $paymentInfo->getAdditionalInformation('buckaroo_skip_validation');
-        if ($skipValidation) {
-            return $this->createResult($isValid);
-        }
-
         /**
          * If there are no giftcards chosen, we can't be available
          */

@@ -28,7 +28,6 @@ use Magento\Quote\Api\Data\PaymentInterface;
 
 class DataAssignObserver extends AbstractDataAssignObserver
 {
-    public const SKIP_VALIDATION               = 'buckaroo_skip_validation';
     public const PAYMENT_FROM                  = 'buckaroo_payment_from';
     public const PAYMENT_ISSUER                = 'issuer';
     public const TERMS_CONDITION               = 'termsCondition';
@@ -63,7 +62,6 @@ class DataAssignObserver extends AbstractDataAssignObserver
      * @var array
      */
     private array $additionalInformationList = [
-        self::SKIP_VALIDATION,
         self::PAYMENT_ISSUER,
         self::PAYMENT_FROM,
         self::TERMS_CONDITION,
