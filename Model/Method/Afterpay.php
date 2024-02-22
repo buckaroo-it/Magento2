@@ -109,10 +109,6 @@ class Afterpay extends AbstractMethod
         if (isset($data['additional_data']['termsCondition'])) {
             $additionalData = $data['additional_data'];
             $this->getInfoInstance()->setAdditionalInformation('termsCondition', $additionalData['termsCondition']);
-            $this->getInfoInstance()->setAdditionalInformation(
-                'customer_billingName',
-                $additionalData['customer_billingName']
-            );
             $this->getInfoInstance()->setAdditionalInformation('customer_iban', $additionalData['customer_iban']);
 
             $dobDate = \DateTime::createFromFormat('d/m/Y', $additionalData['customer_DoB']);

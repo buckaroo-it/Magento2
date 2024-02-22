@@ -385,7 +385,9 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         if (isset($data['additional_data']['termsCondition'])) {
             $this->getInfoInstance()->setAdditionalInformation('termsCondition', $additionalData['termsCondition']);
-            $this->getInfoInstance()->setAdditionalInformation('customer_billingName', $additionalData['customer_billingName']);
+            if (isset($additionalData['customer_billingName'])) {
+                $this->getInfoInstance()->setAdditionalInformation('customer_billingName', $additionalData['customer_billingName']);
+            }
             $this->getInfoInstance()->setAdditionalInformation('customer_identificationNumber', $additionalData['customer_identificationNumber']);
 
             $dobDate = \DateTime::createFromFormat('d/m/Y', $additionalData['customer_DoB']);
