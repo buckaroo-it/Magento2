@@ -21,7 +21,6 @@
 
 namespace Buckaroo\Magento2\Model\Giftcard\Request;
 
-use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Model\Quote;
 use Magento\Framework\UrlInterface;
 use Magento\Framework\Data\Form\FormKey;
@@ -33,12 +32,16 @@ use Buckaroo\Magento2\Gateway\Http\Client\Json;
 use Buckaroo\Magento2\Helper\Data as HelperData;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
+use Buckaroo\Magento2\Api\GiftcardRepositoryInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
 
 class Giftcard implements GiftcardInterface
 {
 
+    public const TCS_ACQUIRER = 'tcs';
+    public const FASHIONCHEQUE_ACQUIRER = 'fashioncheque';
     /**
      * @var \Magento\Store\Api\Data\StoreInterface
      */
@@ -106,11 +109,11 @@ class Giftcard implements GiftcardInterface
      * @var array
      */
     protected $cardTypes = [
-        'fashioncheque' => [
+        self::FASHIONCHEQUE_ACQUIRER => [
             'number' => 'FashionChequeCardNumber',
             'pin' => 'FashionChequePin',
         ],
-        'tcs' => [
+        self::TCS_ACQUIRER => [
             'number' => 'TCSCardnumber',
             'pin' => 'TCSValidationCode',
         ]
@@ -132,6 +135,11 @@ class Giftcard implements GiftcardInterface
     private FormKey $formKey;
 
     /**
+     * @var GiftcardRepositoryInterface
+     */
+    private GiftcardRepositoryInterface $giftcardRepository;
+
+    /**
      * @param ScopeConfigInterface $scopeConfig
      * @param Account $configProviderAccount
      * @param UrlInterface $urlBuilder
@@ -151,7 +159,8 @@ class Giftcard implements GiftcardInterface
         StoreManagerInterface $storeManager,
         Json $client,
         RequestInterface $httpRequest,
-        PaymentGroupTransaction $groupTransaction
+        PaymentGroupTransaction $groupTransaction,
+        GiftcardRepositoryInterface $giftcardRepository
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->configProviderAccount = $configProviderAccount;
@@ -162,6 +171,7 @@ class Giftcard implements GiftcardInterface
         $this->client = $client;
         $this->httpRequest = $httpRequest;
         $this->groupTransaction = $groupTransaction;
+        $this->giftcardRepository = $giftcardRepository;
     }
     /**
      * Send giftcard request
@@ -199,7 +209,7 @@ class Giftcard implements GiftcardInterface
         if ($originalTransactionKey !== null) {
             $this->action = 'PayRemainder';
         }
-        
+
         $ip = $this->getIp($this->store);
         $body = [
             "Currency" => $this->getCurrency(),
@@ -368,6 +378,9 @@ class Giftcard implements GiftcardInterface
      */
     protected function getParameterNameCardNumber()
     {
+        if ($this->getAcquirer() !== null) {
+            return $this->cardTypes[$this->getAcquirer()]['number'];
+        }
         if (isset($this->cardTypes[$this->cardId])) {
             return $this->cardTypes[$this->cardId]['number'];
         }
@@ -385,6 +398,9 @@ class Giftcard implements GiftcardInterface
      */
     protected function getParameterNameCardPin()
     {
+        if ($this->getAcquirer() !== null) {
+            return $this->cardTypes[$this->getAcquirer()]['pin'];
+        }
 
         if (isset($this->cardTypes[$this->cardId])) {
             return $this->cardTypes[$this->cardId]['pin'];
@@ -427,5 +443,12 @@ class Giftcard implements GiftcardInterface
         );
 
         return $remoteAddress->getRemoteAddress();
+    }
+
+    private function getAcquirer()
+    {
+        return $this->giftcardRepository
+            ->getByServiceCode($this->cardId)
+            ->getAcquirer();
     }
 }

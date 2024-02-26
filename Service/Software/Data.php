@@ -19,8 +19,9 @@
  */
 namespace Buckaroo\Magento2\Service\Software;
 
-use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Module\ModuleListInterface;
+use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Framework\App\ProductMetadataInterface;
 
 class Data
 {
@@ -35,7 +36,7 @@ class Data
     const MODULE_CODE = 'Buckaroo_Magento2';
 
     /** Version of Module */
-    const BUCKAROO_VERSION = '1.46.1';
+    const BUCKAROO_VERSION = '1.47.0';
 
     /** @var ProductMetadataInterface */
     private $productMetadata;
@@ -54,9 +55,9 @@ class Data
     /**
      * @return array
      */
-    public function get()
+    public function get(OrderPaymentInterface $payment = null)
     {
-        $platformData = $this->getPlatformData();
+        $platformData = $this->getPlatformData($payment);
         $moduleData = $this->getModuleData();
 
         $softwareData = array_merge($platformData, $moduleData);
@@ -83,9 +84,15 @@ class Data
     /**
      * @return array
      */
-    private function getPlatformData()
+    private function getPlatformData(OrderPaymentInterface $payment = null)
     {
         $platformName = $this->getProductMetaData()->getName() . ' - ' . $this->getProductMetaData()->getEdition();
+        
+        $platformInfo = $payment !== null ? $payment->getAdditionalInformation('buckaroo_platform_info') : null;
+        if ($platformInfo !== null)
+        {
+            $platformName.= $platformInfo;
+        }
 
         $platformData = [
             'PlatformName' => $platformName,

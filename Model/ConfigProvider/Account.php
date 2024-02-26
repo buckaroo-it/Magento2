@@ -24,6 +24,7 @@ use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as MethodFactory;
 use Exception;
+use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\Store;
 
 /**
@@ -59,6 +60,7 @@ class Account extends AbstractConfigProvider
     const XPATH_ACCOUNT_MERCHANT_KEY                    = 'buckaroo_magento2/account/merchant_key';
     const XPATH_ACCOUNT_MERCHANT_GUID                   = 'buckaroo_magento2/account/merchant_guid';
     const XPATH_ACCOUNT_TRANSACTION_LABEL               = 'buckaroo_magento2/account/transaction_label';
+    const XPATH_ACCOUNT_INVOICE_HANDLING                = 'buckaroo_magento2/account/invoice_handling';
     const XPATH_ACCOUNT_CERTIFICATE_FILE                = 'buckaroo_magento2/account/certificate_file';
     const XPATH_ACCOUNT_ORDER_CONFIRMATION_EMAIL        = 'buckaroo_magento2/account/order_confirmation_email';
     const XPATH_ACCOUNT_ORDER_CONFIRMATION_EMAIL_SYNC   = 'buckaroo_magento2/account/order_confirmation_email_sync';
@@ -141,7 +143,7 @@ class Account extends AbstractConfigProvider
             'order_status_failed'               => $this->getOrderStatusFailed($store),
             'create_order_before_transaction'   => $this->getCreateOrderBeforeTransaction($store),
             'ip_header'                         => $this->getIpHeader($store),
-            'cart_keep_alive'                   => $this->getCartKeepAlive($store),
+            'cart_keep_alive'                   => $this->getCartKeepAlive($store),//can be changed from cli/db only
             'selection_type'                    => $this->getSelectionType($store),
             'customer_additional_info'          => $this->getCustomerAdditionalInfo($store),
             'idin'                              => $this->getIdin($store),
@@ -259,5 +261,20 @@ class Account extends AbstractConfigProvider
             $label = preg_replace('/\{product_name\}/', array_values($products)[0]->getName(), $label);
         }
         return mb_substr($label, 0, 244);
+    }
+
+    /**
+     * Create Invoice on Payment or on Shipment
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getInvoiceHandling($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_ACCOUNT_INVOICE_HANDLING,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
     }
 }

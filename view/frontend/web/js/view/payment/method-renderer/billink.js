@@ -171,6 +171,15 @@ define(
                             'value'
                         ]
                     );
+
+                    this.showFinancialWarning = ko.computed(
+                        function () {
+                            return quote.billingAddress() !== null &&
+                            quote.billingAddress().countryId == 'NL' &&
+                            window.checkoutConfig.payment.buckaroo.billink.showFinancialWarning
+                        },
+                        this
+                    );
                     this.billingName = ko.computed(
                         function () {
                             if(this.isB2B && quote.billingAddress() !== null) {

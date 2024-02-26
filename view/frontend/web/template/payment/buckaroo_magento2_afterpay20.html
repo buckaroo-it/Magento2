@@ -140,6 +140,7 @@
                                    name="payment[buckaroo_magento2_afterpay20][termsCondition]">
                             <span>
                                 <a target="_blank"
+                                 rel="noopener"
                                    data-bind="
                                        i18n: 'Yes, I accept the terms and condition for the use of Riverty | Afterpay.',
                                        attr: { 'href': termsUrl }
@@ -152,6 +153,10 @@
                             <div for="buckaroo_magento2_afterpay20_TermsCondition" generated="true" class="mage-error" id="buckaroo_magento2_afterpay20_TermsCondition-error" style="display: none;"><span data-bind="i18n: 'This is a required field.' "></span></div>
                         </div>
                     </div>
+
+                    <!-- ko if: showFinancialWarning  -->
+                    <span data-bind="i18n: `Je moet minimaal 18+ zijn om deze dienst te gebruiken. Als je op tijd betaalt, voorkom je extra kosten en zorg je dat je in de toekomst nogmaals gebruik kunt maken van de diensten van ${getTitle()}. Door verder te gaan, accepteer je de Algemene Voorwaarden en bevestig je dat je de Privacyverklaring en Cookieverklaring hebt gelezen.`">  </span>
+                    <!-- /ko -->
 
                     <div class="field">
                         <span data-bind="i18n: 'Please make sure all fields are filled in correctly before proceeding.' ">  </span>

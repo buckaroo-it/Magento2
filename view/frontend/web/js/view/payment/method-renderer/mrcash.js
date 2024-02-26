@@ -86,7 +86,8 @@ define(
                     expireDate      : '',
                     validationState : {},
                     clientSideMode  : 'cc',
-                    isMobileMode    : false
+                    isMobileMode    : false,
+                    encryptedCardData : null
                 },
                 redirectAfterPlaceOrder: false,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.mrcash.paymentFeeLabel,
@@ -95,6 +96,7 @@ define(
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 useClientSide : window.checkoutConfig.payment.buckaroo.mrcash.useClientSide,
+                isTestMode: window.checkoutConfig.payment.buckaroo.mrcash.isTestMode,
 
                 /**
                 * @override
@@ -122,7 +124,7 @@ define(
                             'clientSideMode'
                         ]
                     );
-
+                    this.setTestParameters()
                     this.isMobileMode = ko.computed(
                         function () {
                             return this.useClientSide && this.clientSideMode() == 'mobile';
@@ -172,32 +174,6 @@ define(
                         owner: this
                     });
 
-                    this.buttoncheck = ko.computed(
-                        function () {
-                            if(this.isMobileMode() || this.useClientSide == false) {
-                                return true;
-                            }
-                            const state = this.validationState();
-                            const valid = [
-                                'buckaroo_magento2_mrcash_cardholdername',
-                                'buckaroo_magento2_mrcash_cardnumber',
-                                'buckaroo_magento2_mrcash_expireDate',
-                            ].map((field) => {
-                                if(state[field] !== undefined) {
-                                    return state[field];
-                                }
-                                return false;
-                            }).reduce(
-                                function(prev, cur) {
-                                    return prev && cur
-                                },
-                                true
-                            )
-                            return valid;
-                        },
-                        this
-                    );
-                    
                     return this;
                 },
 
@@ -210,13 +186,21 @@ define(
                 },
 
                 getData: function () {
+                    return {
+                        "method":  this.item.method,
+                        "po_number": null,
+                        "additional_data": {
+                            "customer_encrypteddata" : this.encryptedCardData,
+                            "client_side_mode" : this.clientSideMode()
+                        }
+                    }
+                },
+
+                encryptCardData: function () {
                     return new Promise(function(resolve) {
                         const parts = this.expireDate().split("/");
                         const month = parts[0];
                         const year = parts[1];
-                        const method = this.item.method;
-                        const clientSideMode =  this.clientSideMode();
-
 
                         BuckarooClientSideEncryption.V001.encryptCardData(
                             this.cardNumber(),
@@ -225,15 +209,9 @@ define(
                             '',
                             this.cardHolderName(),
                             function(encryptedCardData) {
-                                resolve({
-                                    "method": method,
-                                    "po_number": null,
-                                    "additional_data": {
-                                        "customer_encrypteddata" : encryptedCardData,
-                                        "client_side_mode" :clientSideMode
-                                    }
-                                })
-                            });
+                                this.encryptedCardData = encryptedCardData;
+                                resolve()
+                            }.bind(this));
                     }.bind(this))
                 },
 
@@ -254,10 +232,10 @@ define(
                         event.preventDefault();
                     }
 
-                    if (additionalValidators.validate()) {
+                    if (this.validate() && additionalValidators.validate()) {
                         this.isPlaceOrderActionAllowed(false);
-                        this.getData().then(function(data) {
-                            placeOrder = placeOrderAction(data, self.redirectAfterPlaceOrder, self.messageContainer);
+                        this.encryptCardData().then(function() {
+                            placeOrder = placeOrderAction(self.getData(), self.redirectAfterPlaceOrder, self.messageContainer);
     
                             $.when(placeOrder).fail(
                                 function () {
@@ -268,6 +246,10 @@ define(
                         return true;
                     }
                     return false;
+                },
+
+                validate: function () {
+                    return this.isMobileMode() || this.useClientSide  == false || $('.' + this.getCode() + ' .payment-method-second-col form').valid();
                 },
 
                 afterPlaceOrder: function () {
@@ -310,17 +292,15 @@ define(
 
                     return text.replace('%s', this.baseCurrencyCode);
                 },
-
+                setTestParameters() {
+                        if (this.useClientSide && this.isTestMode) {
+                        this.cardNumber('67034200554565015')
+                        this.cardHolderName('Test Acceptation')
+                        this.expireDate('01/' + (new Date(new Date().setFullYear(new Date().getFullYear() + 1)).getFullYear().toString().substr(-2)))
+                    }
+                }
                 
             }
         );
     }
 );
-
-
-
-
-
-
-
-

@@ -49,6 +49,7 @@
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
+                <show_issuers>1</show_issuers>
             </buckaroo_magento2_ideal>
 
             <buckaroo_magento2_paybybank>
@@ -77,6 +78,7 @@
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
+                <show_issuers>1</show_issuers>
             </buckaroo_magento2_idealprocessing>
 
             <buckaroo_magento2_sepadirectdebit>
@@ -146,6 +148,7 @@
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
+                <group_creditcards>1</group_creditcards>
             </buckaroo_magento2_creditcard>
 
             <buckaroo_magento2_creditcards>
@@ -252,6 +255,7 @@
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <can_capture_partial>1</can_capture_partial>
+                <financial_warning>1</financial_warning>
                 <available_in_backend>0</available_in_backend>
             </buckaroo_magento2_afterpay>
 
@@ -267,6 +271,7 @@
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <can_capture_partial>1</can_capture_partial>
+                <financial_warning>1</financial_warning>
                 <available_in_backend>0</available_in_backend>
             </buckaroo_magento2_afterpay2>
 
@@ -331,6 +336,48 @@
                 <available_in_backend>0</available_in_backend>
             </buckaroo_magento2_kbc>
 
+            <buckaroo_magento2_knaken>
+                <active>0</active>
+                <model>Buckaroo\Magento2\Model\Method\Knaken</model>
+                <order_status>pending</order_status>
+                <title>Buckaroo Knaken Settle</title>
+                <allowspecific>0</allowspecific>
+                <sort_order>300</sort_order>
+                <order_email>1</order_email>
+                <payment_fee_label>Fee</payment_fee_label>
+                <group>buckaroo_magento2</group>
+                <payment_action>order</payment_action>
+                <available_in_backend>0</available_in_backend>
+            </buckaroo_magento2_knaken>
+
+            <buckaroo_magento2_multibanco>
+                <active>0</active>
+                <model>Buckaroo\Magento2\Model\Method\Multibanco</model>
+                <order_status>pending</order_status>
+                <title>Buckaroo Multibanco</title>
+                <allowspecific>0</allowspecific>
+                <sort_order>211</sort_order>
+                <order_email>1</order_email>
+                <payment_fee_label>Fee</payment_fee_label>
+                <group>buckaroo_magento2</group>
+                <payment_action>order</payment_action>
+                <available_in_backend>0</available_in_backend>
+            </buckaroo_magento2_multibanco>
+
+            <buckaroo_magento2_mbway>
+                <active>0</active>
+                <model>Buckaroo\Magento2\Model\Method\MBWay</model>
+                <order_status>pending</order_status>
+                <title>Buckaroo MBWay</title>
+                <allowspecific>0</allowspecific>
+                <sort_order>212</sort_order>
+                <order_email>1</order_email>
+                <payment_fee_label>Fee</payment_fee_label>
+                <group>buckaroo_magento2</group>
+                <payment_action>order</payment_action>
+                <available_in_backend>0</available_in_backend>
+            </buckaroo_magento2_mbway>
+
             <buckaroo_magento2_paylink>
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\PayLink</model>
@@ -355,6 +402,7 @@
                 <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
+                <financial_warning>1</financial_warning>
                 <available_in_backend>0</available_in_backend>
             </buckaroo_magento2_klarna>
 
@@ -368,6 +416,7 @@
                 <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>authorize</payment_action>
+                <financial_warning>1</financial_warning>
                 <available_in_backend>0</available_in_backend>
             </buckaroo_magento2_klarnakp>
 
@@ -381,6 +430,7 @@
                 <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
+                <financial_warning>1</financial_warning>
                 <available_in_backend>0</available_in_backend>
             </buckaroo_magento2_klarnain>
 
@@ -413,6 +463,7 @@
                 <payment_action>order</payment_action>
                 <can_capture_partial>1</can_capture_partial>
                 <available_in_backend>0</available_in_backend>
+                <financial_warning>1</financial_warning>
                 <customer_type>both</customer_type>
             </buckaroo_magento2_afterpay20>
 
@@ -428,6 +479,7 @@
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <can_capture_partial>1</can_capture_partial>
+                <financial_warning>1</financial_warning>
                 <available_in_backend>0</available_in_backend>
             </buckaroo_magento2_billink>
 
@@ -448,7 +500,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Capayable\Installments</model>
                 <order_status>pending</order_status>
-                <title>In3 - betaal in 3 keer, 0% rente</title>
+                <title>iDEAL In3</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>250</sort_order>
                 <order_email>1</order_email>
@@ -539,9 +591,9 @@
                 <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
+                <financial_warning>1</financial_warning>
                 <available_in_backend>0</available_in_backend>
             </buckaroo_magento2_tinka>
-
 
             <buckaroo_magento2_voucher>
                 <active>0</active>
@@ -556,12 +608,14 @@
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
             </buckaroo_magento2_voucher>
+
         </payment>
 
         <buckaroo_magento2>
             <account>
                 <active>0</active>
                 <transaction_label>Magento Buckaroo</transaction_label>
+                <invoice_handling>1</invoice_handling>
                 <order_confirmation_email>1</order_confirmation_email>
                 <order_confirmation_email_sync>0</order_confirmation_email_sync>
                 <invoice_email>1</invoice_email>

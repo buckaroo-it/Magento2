@@ -80,8 +80,8 @@
                                                     <item name="children" xsi:type="array">
                                                         <item name="payments-list" xsi:type="array">
                                                             <item name="children" xsi:type="array">
-                                                                <item name="order-buckaroo-payment" xsi:type="array">
-                                                                    <item name="component" xsi:type="string">Buckaroo_Magento2/js/view/payment/save-payment</item>
+                                                                <item name="order-buckaroo-display-messages" xsi:type="array">
+                                                                    <item name="component" xsi:type="string">Buckaroo_Magento2/js/view/checkout/display-messages</item>
                                                                     <item name="displayArea" xsi:type="string">before-place-order</item>
                                                                     <item name="provider" xsi:type="string">checkoutProvider</item>
                                                                 </item>
@@ -201,6 +201,15 @@
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
                                                                         <item name="buckaroo_magento2_paybybank" xsi:type="array">
+                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
+                                                                        </item>
+                                                                        <item name="buckaroo_magento2_multibanco" xsi:type="array">
+                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
+                                                                        </item>
+                                                                        <item name="buckaroo_magento2_mbway" xsi:type="array">
+                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
+                                                                        </item>
+                                                                        <item name="buckaroo_magento2_knaken" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
                                                                     </item>

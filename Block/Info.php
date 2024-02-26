@@ -20,6 +20,7 @@
 
 namespace Buckaroo\Magento2\Block;
 
+use Magento\Framework\UrlInterface;
 use Magento\Framework\View\Asset\Repository;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
@@ -35,6 +36,8 @@ class Info extends \Magento\Payment\Block\Info
 
     protected  Repository $assetRepo;
 
+    protected UrlInterface $baseUrl;
+
     /**
      * @param \Magento\Framework\View\Element\Template\Context     $context
      * @param array                                                $data
@@ -45,12 +48,14 @@ class Info extends \Magento\Payment\Block\Info
         PaymentGroupTransaction $groupTransaction,
         GiftcardCollection $giftcardCollection,
         Repository $assetRepo,
+        UrlInterface $baseUrl,
         array $data = []
     ) {
         parent::__construct($context, $data);
         $this->groupTransaction = $groupTransaction;
         $this->giftcardCollection = $giftcardCollection;
         $this->assetRepo = $assetRepo;
+        $this->baseUrl = $baseUrl;
     }
 
     public function getGiftCards()
@@ -66,6 +71,7 @@ class Info extends \Magento\Payment\Block\Info
                     $result[] = [
                         'code' => $giftcard['servicecode'],
                         'label' => $foundGiftcard['label'],
+                        'logo' => $foundGiftcard['logo']
                     ];
                 }
             }
@@ -116,8 +122,22 @@ class Info extends \Magento\Payment\Block\Info
 
         return $this->assetRepo->getUrl("Buckaroo_Magento2::images/{$name}");
     }
-    public function getGifcardLogo(string $code): string
+    public function getGiftcardLogo(array $giftcard): string
     {
+        if (
+            isset($giftcard['logo']) &&
+            is_string($giftcard['logo']) &&
+            strlen(trim($giftcard['logo']))
+        ) {
+            return $this->baseUrl->getDirectUrl(
+                $giftcard['logo'],
+                ['_type' => UrlInterface::URL_TYPE_MEDIA]
+            );
+        }
+
+        return $this->getGiftcardLogoDefaults($giftcard['code']);
+    }
+    private function getGiftcardLogoDefaults(string $code) {
         $name = "svg/giftcards.svg";
 
         $mappings = [

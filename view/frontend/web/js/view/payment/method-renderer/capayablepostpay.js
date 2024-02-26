@@ -95,6 +95,16 @@ define(
                         'value'
                     ]);
 
+                    this.showFinancialWarning = ko.computed(
+                        function () {
+                            return quote.billingAddress() !== null &&
+                            quote.billingAddress().countryId == 'NL' &&
+                            window.checkoutConfig.payment.buckaroo.capayablepostpay.showFinancialWarning
+                        },
+                        this
+                    );
+
+
                     // Observe and store the selected gender
                     var self = this;
                     this.setSelectedGender = function (value) {

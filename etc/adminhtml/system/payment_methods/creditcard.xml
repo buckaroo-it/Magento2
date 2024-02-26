@@ -40,7 +40,7 @@
 
         <field id="subtext" translate="label comment" type="text" sortOrder="25" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Frontend subtext</label>
-            <comment><![CDATA[This controls the description which the user sees during checkout.]]></comment>
+            <comment><![CDATA[This controls the description which the user sees during checkout. Please note that the subtext is not supported when the cards are showed separately instead of grouped.]]></comment>
             <config_path>payment/buckaroo_magento2_creditcard/subtext</config_path>
         </field>
         
@@ -65,18 +65,25 @@
             <config_path>payment/buckaroo_magento2_creditcard/sort_order</config_path>
         </field>
 
-        <field id="allowed_creditcards" translate="label comment" type="multiselect" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+        <field id="group_creditcards" translate="label comment" type="select" sortOrder="35" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Group Creditcards</label>
+            <comment><![CDATA[Creditcards option to show in checkout <br/><strong>Separate:</strong> Creditcards are show seperate in checkout. A frontend subtext is not supported when the separate option is chosen.<br/><strong>Grouped:</strong> Creditcards get redirected to the buckaroo checkout.]]></comment>
+            <source_model>Buckaroo\Magento2\Model\Config\Source\SeparateOrGrouped</source_model>
+            <config_path>payment/buckaroo_magento2_creditcard/group_creditcards</config_path>
+        </field>
+
+        <field id="allowed_issuers" translate="label comment" type="multiselect" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Allowed credit and debit cards</label>
             <comment><![CDATA[Select payment method specific Credit and debit card.]]></comment>
-            <config_path>payment/buckaroo_magento2_creditcard/allowed_creditcards</config_path>
+            <config_path>payment/buckaroo_magento2_creditcard/allowed_issuers</config_path>
             <source_model>Buckaroo\Magento2\Model\Config\Source\Creditcard</source_model>
         </field>
 
-        <field id="sort_creditcards" translate="label comment" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Sort credit and debit cards</label>
-            <frontend_model>Buckaroo\Magento2\Block\Adminhtml\Creditcard\Sort</frontend_model>
+        <field id="sorted_issuers" translate="label comment" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Sort Credit-debitcard issuers</label>
+            <frontend_model>Buckaroo\Magento2\Block\Adminhtml\Form\Field\SortIssuers</frontend_model>
             <comment><![CDATA[Select sort order on credit and debit card.]]></comment>
-            <config_path>payment/buckaroo_magento2_creditcard/sorted_creditcards</config_path>
+            <config_path>payment/buckaroo_magento2_creditcard/sorted_issuers</config_path>
         </field>
 
         <group id="buckaroo_magento2_advanced" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">

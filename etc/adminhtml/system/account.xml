@@ -71,6 +71,14 @@
             <config_path>buckaroo_magento2/account/transaction_label</config_path>
         </field>
 
+        <field id="invoice_handling" translate="label comment tooltip" type="select" sortOrder="45" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Invoice Handling</label>
+            <comment><![CDATA[Select the moment when the invoice should be created.]]></comment>
+            <tooltip><![CDATA[Select the moment when the invoice should be created.]]></tooltip>
+            <source_model>Buckaroo\Magento2\Model\Config\Source\InvoiceHandlingOptions</source_model>
+            <config_path>buckaroo_magento2/account/invoice_handling</config_path>
+        </field>
+
         <field id="certificate_label" translate="label comment" type="text" sortOrder="50" showInDefault="1" showInWebsite="0" showInStore="0">
             <label>Certificate label</label>
             <comment><![CDATA[Enter a name for the certificate. This is purely administrative.]]></comment>
@@ -264,14 +272,6 @@
                 <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 <config_path>buckaroo_magento2/account/advanced_export_giftcards</config_path>
             </field>
-
-            <field id="cart_keep_alive" translate="label" type="select" sortOrder="220" showInDefault="1" showInWebsite="0" showInStore="0">
-              <label>Cart keep alive</label>
-              <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-              <comment><![CDATA[Optional will restore the cart when consumer use back button]]></comment>
-              <config_path>buckaroo_magento2/account/cart_keep_alive</config_path>
-            </field>
-
         </group>
     </group>
 </include>

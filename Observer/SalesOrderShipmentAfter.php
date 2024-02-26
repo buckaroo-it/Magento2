@@ -20,97 +20,125 @@
 
 namespace Buckaroo\Magento2\Observer;
 
+use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Gateway\GatewayInterface;
+use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Model\Config\Source\InvoiceHandlingOptions;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp;
+use Buckaroo\Magento2\Model\Service\CreateInvoice;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\RequestInterface;
+use Magento\Framework\DB\TransactionFactory;
+use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
-use \Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Sales\Model\Order\Invoice;
-use \Buckaroo\Magento2\Model\ConfigProvider\Account;
-use \Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\ResourceModel\Order\Invoice\CollectionFactory;
 use Magento\Sales\Model\Service\InvoiceService;
-use Magento\Sales\Model\Order\ShipmentFactory;
-use Magento\Framework\DB\TransactionFactory;
 
 class SalesOrderShipmentAfter implements ObserverInterface
 {
-
     const MODULE_ENABLED = 'sr_auto_invoice_shipment/settings/enabled';
 
-    /** @var Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp */
-    private $klarnakpConfig;
-
-    private $afterpayConfig;
-
     /**
-     * @var \Magento\Framework\App\Config\ScopeConfigInterface
+     * @var Data
      */
-    protected $scopeConfig;
+    public Data $helper;
 
     /**
-     *
-     * @var \Magento\Sales\Model\ResourceModel\Order\Invoice\CollectionFactory
+     * @var ScopeConfigInterface
      */
-    protected $invoiceCollectionFactory;
+    protected ScopeConfigInterface $scopeConfig;
 
     /**
-     *
-     * @var \Magento\Sales\Model\Service\InvoiceService
+     * @var InvoiceService
      */
-    protected $invoiceService;
+    protected InvoiceService $invoiceService;
 
     /**
-     *
-     * @var \Magento\Sales\Model\Order\ShipmentFactory
+     * @var TransactionFactory
      */
-    protected $shipmentFactory;
+    protected TransactionFactory $transactionFactory;
 
     /**
-     *
-     * @var \Magento\Framework\DB\TransactionFactory
+     * @var GatewayInterface
      */
-    protected $transactionFactory;
+    protected GatewayInterface $gateway;
 
     /**
-     * @var \Buckaroo\Magento2\Gateway\GatewayInterface
+     * @var Log
      */
-    protected $gateway;
+    protected Log $logger;
 
     /**
-     * @var \Buckaroo\Magento2\Helper\Data
+     * @var Klarnakp
      */
-    public $helper;
+    private Klarnakp $klarnakpConfig;
 
-    protected $logger;
     /**
-     * @param \Magento\Sales\Model\ResourceModel\Order\Invoice\CollectionFactory $invoiceCollectionFactory
-     * @param \Magento\Sales\Model\Service\InvoiceService $invoiceService
-     * @param \Magento\Sales\Model\Order\ShipmentFactory $shipmentFactory
-     * @param \Magento\Framework\DB\TransactionFactory $transactionFactory
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp $klarnakpConfig
+     * @var Afterpay20
+     */
+    private Afterpay20 $afterpayConfig;
+
+    /**
+     * @var Account
+     */
+    private Account $configAccount;
+
+    /**
+     * @var CreateInvoice
+     */
+    private CreateInvoice $createInvoiceService;
+
+    /**
+     * @var RequestInterface
+     */
+    private RequestInterface $request;
+
+    /**
+     * @param InvoiceService $invoiceService
+     * @param TransactionFactory $transactionFactory
+     * @param Klarnakp $klarnakpConfig
+     * @param Afterpay20 $afterpayConfig
+     * @param GatewayInterface $gateway
+     * @param Data $helper
+     * @param Account $configAccount
+     * @param CreateInvoice $createInvoiceService
+     * @param Log $logger
      */
     public function __construct(
-        \Magento\Sales\Model\ResourceModel\Order\Invoice\CollectionFactory $invoiceCollectionFactory,
-        \Magento\Sales\Model\Service\InvoiceService $invoiceService,
-        \Magento\Sales\Model\Order\ShipmentFactory $shipmentFactory,
-        \Magento\Framework\DB\TransactionFactory $transactionFactory,
-        \Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp $klarnakpConfig,
-        \Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20 $afterpayConfig,
-        \Buckaroo\Magento2\Gateway\GatewayInterface $gateway,
-        \Buckaroo\Magento2\Helper\Data $helper,
-        Log $logger
+        InvoiceService $invoiceService,
+        TransactionFactory $transactionFactory,
+        Klarnakp $klarnakpConfig,
+        Afterpay20 $afterpayConfig,
+        GatewayInterface $gateway,
+        Data $helper,
+        Account $configAccount,
+        CreateInvoice $createInvoiceService,
+        Log $logger,
+        RequestInterface $request
     ) {
-        $this->invoiceCollectionFactory = $invoiceCollectionFactory;
         $this->invoiceService = $invoiceService;
-        $this->shipmentFactory = $shipmentFactory;
         $this->transactionFactory = $transactionFactory;
         $this->klarnakpConfig = $klarnakpConfig;
         $this->afterpayConfig = $afterpayConfig;
+        $this->configAccount = $configAccount;
+        $this->createInvoiceService = $createInvoiceService;
         $this->helper = $helper;
         $this->gateway = $gateway;
         $this->logger = $logger;
+        $this->request = $request;
     }
 
-    public function execute(\Magento\Framework\Event\Observer $observer)
+    /**
+     * @throws Exception
+     * @throws LocalizedException
+     * @throws \Exception
+     */
+    public function execute(Observer $observer)
     {
         /** @var \Magento\Sales\Model\Order\Shipment $shipment */
         $shipment = $observer->getEvent()->getShipment();
@@ -118,11 +146,16 @@ class SalesOrderShipmentAfter implements ObserverInterface
         /** @var \Magento\Sales\Model\Order $order */
         $order = $shipment->getOrder();
 
+        $invoiceData = $this->request->getParam('shipment', []);
+        $invoiceItems = isset($invoiceData['items']) ? $invoiceData['items'] : [];
+
         $payment = $order->getPayment();
+        $paymentMethod = $payment->getMethodInstance();
+        $paymentMethodCode = $paymentMethod->getCode();
 
         $this->logger->addDebug(__METHOD__ . '|1|');
 
-        if (($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_klarnakp')
+        if (($paymentMethodCode == 'buckaroo_magento2_klarnakp')
             && $this->klarnakpConfig->getCreateInvoiceAfterShipment()
         ) {
             $this->gateway->setMode(
@@ -131,16 +164,26 @@ class SalesOrderShipmentAfter implements ObserverInterface
             $this->createInvoice($order, $shipment);
         }
 
-        if (($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_afterpay20')
+        if (($paymentMethodCode == 'buckaroo_magento2_afterpay20')
             && $this->afterpayConfig->getCreateInvoiceAfterShipment()
-            && ($payment->getMethodInstance()->getConfigPaymentAction() == 'authorize')
+            && ($paymentMethod->getConfigPaymentAction() == 'authorize')
         ) {
             $this->gateway->setMode(
                 $this->helper->getMode('buckaroo_magento2_afterpay20')
             );
             $this->createInvoice($order, $shipment, true);
         }
+
+        if (strpos($paymentMethodCode, 'buckaroo_magento2') !== false
+            && $this->isInvoiceCreatedAfterShipment($payment)) {
+            if ($paymentMethod->getConfigPaymentAction() == 'authorize') {
+                $this->createInvoice($order, $shipment, true);
+            } else {
+                $this->createInvoiceService->createInvoiceGeneralSetting($order, $invoiceItems);
+            }
+        }
     }
+
 
     private function createInvoice($order, $shipment, $allowPartialsWithDiscount = false)
     {
@@ -182,7 +225,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
 
             $this->logger->addDebug(__METHOD__ . '|4|');
         } catch (\Exception $e) {
-            $order->addStatusHistoryComment('Exception message: '.$e->getMessage(), false);
+            $order->addStatusHistoryComment('Exception message: ' . $e->getMessage(), false);
             $order->save();
             return null;
         }
@@ -201,5 +244,18 @@ class SalesOrderShipmentAfter implements ObserverInterface
             $qtys[$items->getOrderItemId()] = $items->getQty();
         }
         return $qtys;
+    }
+
+    /**
+     * Is the invoice for the current order is created after shipment
+     *
+     * @param OrderPaymentInterface $payment
+     * @return bool
+     */
+    private function isInvoiceCreatedAfterShipment(OrderPaymentInterface $payment): bool
+    {
+        return $payment->getAdditionalInformation(
+                InvoiceHandlingOptions::INVOICE_HANDLING
+            ) == InvoiceHandlingOptions::SHIPMENT;
     }
 }

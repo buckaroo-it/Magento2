@@ -62,6 +62,9 @@
                 <item name="buckaroo_config_provider_tinka" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Tinka</item>
                 <item name="buckaroo_config_provider_voucher" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Voucher</item>
                 <item name="buckaroo_config_provider_paybybank" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\PayByBank</item>
+                <item name="buckaroo_config_provider_mbway" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\MBWay</item>
+                <item name="buckaroo_config_provider_multibanco" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Multibanco</item>
+                <item name="buckaroo_config_provider_knaken" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Knaken</item>
             </argument>
         </arguments>
     </type>

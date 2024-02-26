@@ -22,6 +22,7 @@
 namespace Buckaroo\Magento2\Model\PaypalExpress\Response;
 
 use Magento\Quote\Model\Quote;
+use Magento\Quote\Model\Cart\CartTotalRepository;
 use Buckaroo\Magento2\Api\Data\PaypalExpress\TotalBreakdownInterface;
 use Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterfaceFactory;
 
@@ -38,20 +39,26 @@ class TotalBreakdown implements TotalBreakdownInterface
      */
     protected $quote;
 
-    public function __construct(Quote $quote, BreakdownItemInterfaceFactory $breakdownItemFactory)
+    protected $cartTotalRepository;
+
+    public function __construct(
+        Quote $quote,
+        BreakdownItemInterfaceFactory $breakdownItemFactory,
+        CartTotalRepository $cartTotalRepository
+    )
     {
         $this->breakdownItemFactory = $breakdownItemFactory;
         $this->quote = $quote;
+        $this->cartTotalRepository = $cartTotalRepository;
     }
     /**
      * @return \Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterface
      */
     public function getItemTotal()
     {
-        $total = $this->getTotalsOfType('subtotal');
         return $this->breakdownItemFactory->create(
             [
-                "total" => $total != null ? $total->getValueExclTax() + $this->getBuckarooFeeExclTax() : 0,
+                "total" => number_format($this->quote->getGrandTotal(), 2) - $this->getTotalsOfType('shipping') - $this->getTotalsOfType('tax'),
                 "currencyCode" => $this->quote->getQuoteCurrencyCode()
             ]
         );
@@ -61,11 +68,9 @@ class TotalBreakdown implements TotalBreakdownInterface
      */
     public function getShipping()
     {
-        $totals = $this->quote->getShippingAddress()->getTotals();
-        $total = isset($totals['shipping']) ? $totals['shipping'] : null;
         return $this->breakdownItemFactory->create(
             [
-                "total" => $total !== null ? $total->getValue() : 0,
+                "total" => $this->getTotalsOfType('shipping'),
                 "currencyCode" => $this->quote->getQuoteCurrencyCode()
             ]
         );
@@ -75,10 +80,9 @@ class TotalBreakdown implements TotalBreakdownInterface
      */
     public function getTaxTotal()
     {
-        $total = $this->getTotalsOfType('tax');
         return $this->breakdownItemFactory->create(
             [
-                "total" => $total !== null ? $total->getValue() : 0,
+                "total" =>  $this->getTotalsOfType('tax'),
                 "currencyCode" => $this->quote->getQuoteCurrencyCode()
             ]
         );
@@ -88,27 +92,17 @@ class TotalBreakdown implements TotalBreakdownInterface
      *
      * @param string $type
      *
-     * @return \Magento\Quote\Model\Quote\Address\Total|null
+     * @return float
      */
     protected function getTotalsOfType(string $type)
     {
-        $totals = $this->quote->getTotals();
+        $totals = $this->cartTotalRepository->get($this->quote->getId())->getTotalSegments();
 
-        if (isset($totals[$type])) {
-            return $totals[$type];
+        if (!isset($totals[$type])) {
+            return 0;
         }
+
+        return round($totals[$type]->getValue(), 2);
     }
-    /**
-     * Get buckaroo fee without tax
-     *
-     * @return float
-     */
-    protected function getBuckarooFeeExclTax()
-    {
-        $fee = $this->getTotalsOfType('buckaroo_fee');
-        if ($fee !== null) {
-            return (float)$fee->getData('buckaroo_fee');
-        }
-        return 0;
-    }
+   
 }

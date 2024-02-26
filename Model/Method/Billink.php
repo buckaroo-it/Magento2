@@ -20,11 +20,12 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
-use Magento\Catalog\Model\Product\Type;
-use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
-use Magento\Quote\Model\Quote\AddressFactory;
+use Magento\Tax\Model\Calculation;
+use Magento\Catalog\Model\Product\Type;
 use Magento\Store\Model\ScopeInterface;
+use Magento\Quote\Model\Quote\AddressFactory;
+use Magento\Sales\Api\Data\OrderAddressInterface;
 
 class Billink extends AbstractMethod
 {
@@ -310,14 +311,30 @@ class Billink extends AbstractMethod
                 $count,
                 $item->getName(),
                 $item->getSku(),
-                $bundleProductQty ? $bundleProductQty : $item->getQty(),
+                $bundleProductQty ?: $item->getQty(),
                 $this->calculateProductPrice($item, $includesTax),
-                $item->getTaxPercent()
+                $item->getTaxPercent() ?: 0
             );
 
             // @codingStandardsIgnoreStart
             $articles = array_merge($articles, $article);
             // @codingStandardsIgnoreStart
+
+            // Capture calculates discount per order line
+            if ($item->getDiscountAmount() > 0) {
+                $count++;
+                $article = $this->getArticleArrayLine(
+                    $count,
+                    'Korting op ' . $item->getName(),
+                    $item->getSku(),
+                    1,
+                    number_format(($item->getDiscountAmount()*-1), 2),
+                    $item->getTaxPercent() ?: 0
+                );
+                // @codingStandardsIgnoreStart
+                $articles = array_merge($articles, $article);
+                // @codingStandardsIgnoreEnd
+            }
 
             if ($count < self::BILLINK_MAX_ARTICLE_COUNT) {
                 $count++;
@@ -328,7 +345,6 @@ class Billink extends AbstractMethod
         }
 
         $serviceLine = $this->getServiceCostLine($count, $payment->getOrder());
-
         if (!empty($serviceLine)) {
             $articles = array_merge($articles, $serviceLine);
             $count++;
@@ -339,13 +355,6 @@ class Billink extends AbstractMethod
 
         if (!empty($shippingCosts)) {
             $articles = array_merge($articles, $shippingCosts);
-            $count++;
-        }
-
-        $discountline = $this->getDiscountLine($count, $payment);
-
-        if (!empty($discountline)) {
-            $articles = array_merge($articles, $discountline);
         }
 
         return $articles;
@@ -380,7 +389,7 @@ class Billink extends AbstractMethod
                 $item->getSku(),
                 $item->getQty(),
                 $this->calculateProductPrice($item, $includesTax),
-                $item->getOrderItem()->getTaxPercent()
+                $item->getOrderItem()->getTaxPercent() ?: 0
             );
 
             // @codingStandardsIgnoreStart
@@ -396,7 +405,7 @@ class Billink extends AbstractMethod
                     $item->getSku(),
                     1,
                     number_format(($item->getDiscountAmount()*-1), 2),
-                    0
+                    $item->getOrderItem()->getTaxPercent() ?: 0
                 );
                 // @codingStandardsIgnoreStart
                 $articles = array_merge($articles, $article);
@@ -563,35 +572,6 @@ class Billink extends AbstractMethod
     }
 
     /**
-     * Get the discount cost lines
-     *
-     * @param (int)                                                                              $latestKey
-     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
-     *
-     * @return array
-     */
-    public function getDiscountLine($latestKey, $payment)
-    {
-        $article = [];
-        $discount = $this->getDiscountAmount($payment);
-
-        if ($discount >= 0) {
-            return $article;
-        }
-
-        $article = $this->getArticleArrayLine(
-            $latestKey,
-            'Korting',
-            1,
-            1,
-            round($discount, 2),
-            0
-        );
-
-        return $article;
-    }
-
-    /**
      * @param $latestKey
      * @param $articleDescription
      * @param $articleId
@@ -731,7 +711,7 @@ class Billink extends AbstractMethod
                 'GroupID' => $GroupID,
             ],
             [
-                '_'    => $billingAddress->getFirstname() . ' ' .$billingAddress->getLastName(),
+                '_'    => $this->getCareOf($billingAddress),
                 'Name' => 'CareOf',
                 'Group' => 'BillingCustomer',
                 'GroupID' => $GroupID,
@@ -835,6 +815,24 @@ class Billink extends AbstractMethod
     }
 
     /**
+     * Get company name or customer name for care of field
+     *
+     * @param OrderAddressInterface $address
+     *
+     * @return string
+     */
+    private function getCareOf(OrderAddressInterface $address): string
+    {
+        $company = $address->getCompany();
+
+        if ($company !== null && strlen(trim($company)) > 0) {
+            return $company;
+        }
+
+        return $address->getFirstname() . ' ' .$address->getLastName();
+    }
+
+    /**
      * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
      *
      * @return array
@@ -876,7 +874,7 @@ class Billink extends AbstractMethod
                 'GroupID' => $GroupID,
             ],
             [
-                '_'    => $shippingAddress->getFirstname() . ' ' .$shippingAddress->getLastName(),
+                '_'    => $this->getCareOf($shippingAddress),
                 'Name' => 'CareOf',
                 'Group' => 'ShippingCustomer',
                 'GroupID' => $GroupID,

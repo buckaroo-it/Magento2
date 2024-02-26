@@ -42,13 +42,6 @@ class Applepay extends AbstractMethod
         parent::assignData($data);
         $data = $this->assignDataConvertToArray($data);
 
-        if (isset($data['additional_data']['buckaroo_skip_validation'])) {
-            $this->getInfoInstance()->setAdditionalInformation(
-                'buckaroo_skip_validation',
-                $data['additional_data']['buckaroo_skip_validation']
-            );
-        }
-
         if (isset($data['additional_data']['applepayTransaction'])) {
             $applepayEncoded = base64_encode($data['additional_data']['applepayTransaction']);
 

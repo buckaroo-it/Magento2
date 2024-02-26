@@ -195,6 +195,9 @@ class Data extends AbstractHelper
     public function getTransactionAdditionalInfo(array $array, $rawInfo = [], $keyPrefix = '')
     {
         foreach ($array as $key => $value) {
+            if (in_array($key, ['brq_websitekey', 'brq_signature', 'brq_payer_hash'])) {
+                continue;
+            }
             $key = $keyPrefix . $key;
 
             if (is_array($value)) {
@@ -295,7 +298,7 @@ class Data extends AbstractHelper
     public function getConfigCardSort()
     {
         $configValue = $this->scopeConfig->getValue(
-            'payment/buckaroo_magento2_creditcard/sorted_creditcards',
+            'payment/buckaroo_magento2_creditcard/sorted_issuers',
             $this->scopeDefiner->getScope(),
             ($this->scopeDefiner->getScope() == ScopeInterface::SCOPE_WEBSITES) ? $this->storeManager->getStore() : null
         );

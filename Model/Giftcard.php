@@ -79,4 +79,23 @@ class Giftcard extends AbstractModel implements GiftcardInterface
     {
         return $this->setData('label', $label);
     }
+
+    /**
+     * @param string|null $acquirer
+     *
+     * @return $this
+     */
+    public function setAcquirer(string $acquirer = null)
+    {
+        return $this->setData('acquirer', $acquirer);
+    }
+
+    /**
+     *
+     * @return string|null
+     */
+    public function getAcquirer()
+    {
+        return $this->getData('acquirer');
+    }
 }

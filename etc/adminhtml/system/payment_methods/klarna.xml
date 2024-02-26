@@ -72,6 +72,13 @@
             <config_path>payment/buckaroo_magento2_klarna/order_email</config_path>
         </field>
 
+        <field id="financial_warning" translate="label comment" type="select" sortOrder="35" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Consumer Financial Warning</label>
+            <comment><![CDATA[Due to the regulations for BNPL methods in The Netherlands you’ll  have to warn customers about using a BNPL plan because it can be easy to get into debt. When enabled a warning will be showed in the checkout. Please note that this setting only applies for customers in The Netherlands.]]></comment>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <config_path>payment/buckaroo_magento2_klarna/financial_warning</config_path>
+        </field>
+
         <group id="buckaroo_magento2_advanced" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Advanced Configuration</label>
 
@@ -138,7 +145,7 @@
                 <comment><![CDATA[Select payment method specific currencies.]]></comment>
                 <tooltip>Your contract with Buckaroo must allow for the selected currencies to be used with this payment method.</tooltip>
                 <config_path>payment/buckaroo_magento2_klarna/allowed_currencies</config_path>
-                <source_model>Buckaroo\Magento2\Model\Config\Source\AllowedCurrencies::ideal</source_model>
+                <source_model>Buckaroo\Magento2\Model\Config\Source\AllowedCurrencies::klarna</source_model>
                 <backend_model>Buckaroo\Magento2\Model\Config\Backend\AllowedCurrencies</backend_model>
             </field>
 
@@ -151,7 +158,7 @@
             <field id="specificcountry" translate="label" type="multiselect" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="0">
                 <label>Payment from Specific Country</label>
                 <comment><![CDATA[Only available when set to 'specific countries'.]]></comment>
-                <source_model>Magento\Directory\Model\Config\Source\Country</source_model>
+                <source_model>Buckaroo\Magento2\Model\Config\Source\AllowedCountries::klarna</source_model>
                 <can_be_empty>1</can_be_empty>
                 <config_path>payment/buckaroo_magento2_klarna/specificcountry</config_path>
                 <depends>

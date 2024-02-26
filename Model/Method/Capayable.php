@@ -57,6 +57,9 @@ use Magento\Framework\Event\ManagerInterface as EventManager;
 
 class Capayable extends AbstractMethod
 {
+    public const DEFAULT_NAME = 'iDEAL In3';
+    public const V2_NAME = 'In3';
+    
     /** Payment Code */
     const PAYMENT_METHOD_CODE = '';
 
@@ -244,7 +247,7 @@ class Capayable extends AbstractMethod
     public function getCapayableService($payment)
     {
 
-        if ($this->isV3()) {
+        if (!$this->isV2()) {
             $payment->setAdditionalInformation("buckaroo_in3_v3", true);
             return $this->v3Builder->build($payment);
         }
@@ -263,8 +266,8 @@ class Capayable extends AbstractMethod
         return $services;
     }
 
-    protected function isV3() {
-        return $this->configProviderMethodFactory->get('capayablein3')->isV3();
+    protected function isV2() {
+        return $this->configProviderMethodFactory->get('capayablein3')->isV2();
     }
 
     /**

@@ -5,7 +5,7 @@
     align-items: center;
 }
 .bk-img-wrap {
-    min-width: 40px;
+    width: 40px;
     margin-right:10px;
     align-items: center;
     display: flex;
@@ -185,7 +185,10 @@
     .buckaroo_magento2_tinka .payment-method-second-col,
     .buckaroo_magento2_mrcash .payment-method-second-col,
     .buckaroo_magento2_voucher .payment-method-second-col,
-    .buckaroo_magento2_paybybank .payment-method-second-col
+    .buckaroo_magento2_paybybank .payment-method-second-col,
+    .buckaroo_magento2_mbway .payment-method-second-col,
+    .buckaroo_magento2_multibanco .payment-method-second-col,
+    .buckaroo_magento2_knaken .payment-method-second-col
     {
         float:left;
         width: 50%;
@@ -215,7 +218,11 @@
     .buckaroo_magento2_tinka .payment-method-billing-address,
     .buckaroo_magento2_mrcash .payment-method-billing-address,
     .buckaroo_magento2_voucher .payment-method-billing-address,
-    .buckaroo_magento2_paybybank .payment-method-billing-address
+    .buckaroo_magento2_paybybank .payment-method-billing-address,
+    .buckaroo_magento2_mbway .payment-method-billing-address,
+    .buckaroo_magento2_multibanco .payment-method-billing-address,
+    .buckaroo_magento2_all_creditcard .payment-method-billing-address,
+    .buckaroo_magento2_knaken .payment-method-billing-address
     {
         float:left;
         width: 50%;
@@ -558,7 +565,7 @@
     margin-bottom: 10px;
 }
 
-.buckaroo_magento2_all_giftcards{
+.buckaroo_magento2_all_giftcards, .buckaroo_magento2_all_creditcards{
     border-top: 1px solid #ccc;
     border-bottom: 1px solid #ccc;
 }

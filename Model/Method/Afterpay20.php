@@ -569,8 +569,9 @@ class Afterpay20 extends AbstractMethod
         $order = $payment->getOrder();
         $billingAddress = $order->getBillingAddress();
         $streetFormat   = $this->formatStreet($billingAddress->getStreet());
+        $this->validateHouseNumber($streetFormat['house_number'], $billingAddress->getCountryId());
 
-        $birthDayStamp = str_replace('/', '-', $payment->getAdditionalInformation('customer_DoB'));
+        $birthDayStamp = str_replace('/', '-', (string)$payment->getAdditionalInformation('customer_DoB'));
         $identificationNumber = $payment->getAdditionalInformation('customer_identificationNumber');
         $telephone = $payment->getAdditionalInformation('customer_telephone');
         $telephone = (empty($telephone) ? $billingAddress->getTelephone() : $telephone);
@@ -737,6 +738,7 @@ class Afterpay20 extends AbstractMethod
         }
 
         $streetFormat    = $this->formatStreet($shippingAddress->getStreet());
+        $this->validateHouseNumber($streetFormat['house_number'], $shippingAddress->getCountryId());
         $category = 'Person';
 
         if (
@@ -913,21 +915,24 @@ class Afterpay20 extends AbstractMethod
      * @return $this
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function validate()
-    {
-        parent::validate();
+    public function validateAdditionalData() {
 
         $paymentInfo = $this->getInfoInstance();
+
+        $shippingCompany = null;
 
         if ($paymentInfo instanceof Payment) {
             $storeId = $paymentInfo->getOrder()->getStoreId();
             $billingCompany = $paymentInfo->getOrder()->getBillingAddress()->getCompany();
-            $shippingCompany = $paymentInfo->getOrder()->getShippingAddress()->getCompany();
-            
+            $shippingAddress = $paymentInfo->getOrder()->getShippingAddress();
         } else {
             $storeId = $paymentInfo->getQuote() !== null? $paymentInfo->getQuote()->getStoreId(): null;
             $billingCompany = $paymentInfo->getQuote()->getBillingAddress()->getCompany();
-            $shippingCompany = $paymentInfo->getQuote()->getShippingAddress()->getCompany();
+            $shippingAddress = $paymentInfo->getQuote()->getShippingAddress();
+        }
+
+        if ($shippingAddress !== null) {
+            $shippingCompany = $shippingAddress->getCompany();
         }
 
         if (
@@ -984,5 +989,20 @@ class Afterpay20 extends AbstractMethod
              return "Pay rejected: It is not allowed to specify another country for the invoice and delivery address for Afterpay transactions.";
         }
         return parent::getFailureMessage($response);
+    }
+
+    private function validateHouseNumber($street, $country)
+    {
+        if ($country !== "DE") {
+            return;
+        }
+        
+        if (!is_string($street) || empty(trim($street))) {
+            throw new \Buckaroo\Magento2\Exception(
+                new \Magento\Framework\Phrase(
+                    'A valid address is required, cannot find street number'
+                )
+            );
+        }
     }
 }

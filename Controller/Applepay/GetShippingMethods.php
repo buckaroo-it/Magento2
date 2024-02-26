@@ -80,7 +80,6 @@ class GetShippingMethods extends Common
 
         $errorMessage = false;
         $data = [];
-        $shippingMethodsResult = [];
         if ($isPost) {
             if (($wallet = $this->getRequest()->getParam('wallet'))
             ) {
@@ -89,15 +88,14 @@ class GetShippingMethods extends Common
                 
                 if($cart_hash) {
                     $cartId = $this->maskedQuoteIdToQuoteId->execute($cart_hash);
-                    $quote = $this->cartRepository->get($cartId);            
+                    $quote = $this->cartRepository->get($cartId);
                 } else {
                     
                     $checkoutSession = $objectManager->get(\Magento\Checkout\Model\Session::class);
-                    $quote = $checkoutSession->getQuote();    
+                    $quote = $checkoutSession->getQuote();
                 }
         
-
-                if (!$this->setShippingAddress($quote, $wallet)) {
+                if (!$quote->getIsVirtual() && !$this->setShippingAddress($quote, $wallet)) {
                     return $this->commonResponse(false, true);
                 }
 

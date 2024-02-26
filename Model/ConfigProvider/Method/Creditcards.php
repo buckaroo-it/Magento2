@@ -55,7 +55,7 @@ class Creditcards extends AbstractConfigProvider
         'buckaroo_magento2_creditcards/sellers_protection_itemnotreceived_eligible';
     const XPATH_CREDITCARDS_SELLERS_PROTECTION_UNAUTHORIZEDPAYMENT_ELIGIBLE = 'payment/'.
         'buckaroo_magento2_creditcards/sellers_protection_unauthorizedpayment_eligible';
-    const XPATH_CREDITCARDS_ALLOWED_ISSUERS = 'payment/buckaroo_magento2_creditcards/allowed_creditcards';
+    const XPATH_CREDITCARDS_ALLOWED_ISSUERS = 'payment/buckaroo_magento2_creditcards/allowed_issuers';
     const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_creditcards/allowed_currencies';
     const XPATH_ALLOW_SPECIFIC = 'payment/buckaroo_magento2_creditcards/allowspecific';
     const XPATH_SPECIFIC_COUNTRY = 'payment/buckaroo_magento2_creditcards/specificcountry';
@@ -103,6 +103,7 @@ class Creditcards extends AbstractConfigProvider
                         'creditcards' => $issuers,
                         'defaultCardImage' => $this->getImageUrl('svg/creditcards', 'svg'),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
+                        'isTestMode' => $this->isTestMode()
                     ],
                 ],
             ],

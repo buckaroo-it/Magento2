@@ -23,17 +23,21 @@ define([
   "Magento_Customer/js/customer-data",
   "BuckarooSDK",
   'mage/translate',
-  'Magento_Checkout/js/model/quote',
-], function ($, ko, urlBuilder, customerData, sdk, __, quote) {
+], function ($, ko, urlBuilder, customerData, sdk, $t) {
   // 'use strict';
   return {
-    setConfig(config) {
-      quote.totals.subscribe((totalData) => {
-        if (this.page === 'cart') {
-          this.options.amount = (totalData.grand_total + totalData.tax_amount).toFixed(2);
-          this.options.currency = totalData.quote_currency_code;
-        }
-      })
+    setConfig(config, page) {
+      this.page = page;
+      if (this.page === 'cart') {
+        const self = this;
+        require(["Magento_Checkout/js/model/quote"], function (quote) {
+          quote.totals.subscribe((totalData) => {
+            self.options.amount = (totalData.grand_total + totalData.tax_amount).toFixed(2);
+            self.options.currency = totalData.quote_currency_code;
+          })
+        })
+      }
+
       this.options = Object.assign(
         {
           containerSelector: ".buckaroo-paypal-express",
@@ -52,10 +56,6 @@ define([
         config
       );
     },
-    setPage(page) {
-      this.page = page;
-    },
-
     result: null,
 
     cart_id: null,
@@ -63,6 +63,13 @@ define([
      * Api events
      */
     onShippingChangeHandler(data, actions) {
+      if (
+        this.page === 'product' &&
+        $("#product_addtocart_form").valid() === false
+      ) {
+        return actions.reject();
+      }
+
       let shipping = this.setShipping(data);
       return new Promise((resolve, reject) => {
         shipping.then(
@@ -82,7 +89,7 @@ define([
             }
           },
           () => {
-            reject(__("Cannot create payment"));
+            reject($t("Cannot create payment"));
           }
         );
 
@@ -99,7 +106,7 @@ define([
         if (this.result.cart_id && this.result.cart_id.length) {
           window.location.replace(urlBuilder.build('checkout/onepage/success/'));
         } else {
-          this.displayErrorMessage(__("Cannot create payment"));
+          this.displayErrorMessage($t("Cannot create payment"));
         }
       }
     },
@@ -111,7 +118,7 @@ define([
     onInitCallback() {
     },
     onCancelCallback() {
-      this.displayErrorMessage(__("You have canceled the payment request"));
+      this.displayErrorMessage($t("You have canceled the payment request."));
     },
     onClickCallback() {
       //reset any previous payment response;
@@ -132,7 +139,7 @@ define([
     createTransaction(orderId) {
       const cart_id = this.cart_id;
       return new Promise((resolve, reject) => {
-        $.post(urlBuilder.build("rest/default/V1/buckaroo/paypal-express/order/create"),
+        $.post(urlBuilder.build("rest/V1/buckaroo/paypal-express/order/create"),
           {
             paypal_order_id: orderId,
             cart_id
@@ -152,7 +159,7 @@ define([
      * @returns
      */
     setShipping(data) {
-      return $.post(urlBuilder.build("rest/default/V1/buckaroo/paypal-express/quote/create"), {
+      return $.post(urlBuilder.build("rest/V1/buckaroo/paypal-express/quote/create"), {
         shipping_address: data.shipping_address,
         order_data: this.getOrderData(),
         page: this.page,
@@ -165,7 +172,7 @@ define([
     getOrderData() {
       let form = $("#product_addtocart_form");
       if (this.page === 'product') {
-        return form.serializeArray();
+                return form.serialize();
       }
     },
     /**
@@ -175,9 +182,9 @@ define([
     displayErrorMessage(message) {
       if (typeof message === "object") {
         if (message.responseJSON && message.responseJSON.message) {
-          message = __(message.responseJSON.message);
+          message = $t(message.responseJSON.message);
         } else {
-          message = __("Cannot create payment");
+          message = $t("Cannot create payment");
         }
 
       }

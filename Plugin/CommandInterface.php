@@ -46,9 +46,11 @@ class CommandInterface
      */
     public $helper;
 
+
     /**
-     * @param Log $logging
      * @param Factory $configProviderMethodFactory
+     * @param Log $logging
+     * @param Data $helper
      */
     public function __construct(
         Factory $configProviderMethodFactory,
@@ -78,25 +80,34 @@ class CommandInterface
     ) {
         $message = $proceed($payment, $amount, $order);
 
-        /** @var MethodInterface $methodInstance */
-        $methodInstance = $payment->getMethodInstance();
-        $paymentAction = $methodInstance->getConfigPaymentAction();
-        $paymentCode = substr($methodInstance->getCode(), 0, 18);
 
-        $this->logging->addDebug(__METHOD__ . '|1|' . var_export([$methodInstance->getCode(), $paymentAction], true));
+        try {
+            /** @var MethodInterface $methodInstance */
+            $methodInstance = $payment->getMethodInstance();
+            $paymentAction = $methodInstance->getConfigPaymentAction();
+            $paymentCode = substr($methodInstance->getCode(), 0, 18);
 
-        if ($paymentCode == 'buckaroo_magento2_' && $paymentAction) {
-            if (($methodInstance->getCode() == 'buckaroo_magento2_payperemail') && ($paymentAction == 'order')) {
-                $config = $this->configProviderMethodFactory->get(PayPerEmail::PAYMENT_METHOD_CODE);
-                if ($config->getEnabledB2B()) {
-                    $this->logging->addDebug(__METHOD__ . '|5|');
-                    return $message;
+            $this->logging->addDebug(
+                __METHOD__ . '|1|' . var_export([$methodInstance->getCode(), $paymentAction], true)
+            );
+
+            if ($paymentCode == 'buckaroo_magento2_' && $paymentAction) {
+                if (($methodInstance->getCode() == 'buckaroo_magento2_payperemail') && ($paymentAction == 'order')) {
+                    $config = $this->configProviderMethodFactory->get(PayPerEmail::PAYMENT_METHOD_CODE);
+                    if ($config->getEnabledB2B()) {
+                        $this->logging->addDebug(__METHOD__ . '|5|');
+                        return $message;
+                    }
                 }
+                $this->updateOrderStateAndStatus($order, $methodInstance);
             }
-            $this->updateOrderStateAndStatus($order, $methodInstance);
-        }
 
-        return $message;
+            return $message;
+
+        } catch (\Exception $e) {
+            $this->logging->addDebug(__METHOD__ . '|Exception|' . $e->getMessage());
+            throw $e;
+        }
     }
 
     /**

@@ -114,5 +114,11 @@
 
         <include path="Buckaroo_Magento2::system/payment_methods/paybybank.xml"/>
 
+        <include path="Buckaroo_Magento2::system/payment_methods/mbway.xml"/>
+
+        <include path="Buckaroo_Magento2::system/payment_methods/multibanco.xml"/>
+
+        <include path="Buckaroo_Magento2::system/payment_methods/knaken.xml"/>
+
     </group>
 </include>
