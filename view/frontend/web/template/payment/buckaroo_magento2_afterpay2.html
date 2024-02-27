@@ -31,20 +31,6 @@
             <form data-bind="mageInit: { 'validation': [] },
                   attr: {'data-hasrequired': $t('* Required Fields')}">
                 <fieldset class="fieldset payment">
-
-                    <div class="field required">
-                        <label class="label" for="buckaroo_magento2_afterpay2_BillingName"> <span data-bind="i18n: 'Billing Name:'"> </span> </label>
-                        <div class="control">
-                            <input id="buckaroo_magento2_afterpay2_BillingName"
-                                   class="input-text field"
-                                   type="text"
-                                   data-bind="
-                                   value: billingName"
-                                   name="payment[buckaroo_magento2_afterpay2][customer_billingName]"
-                                   disabled >
-                        </div>
-                    </div>
-
                     <!-- Default | Hide this field if phone number is already filled in. Show this field if phone number is empty -->
 
                     <!-- ko ifnot: hasTelephoneNumber -->
