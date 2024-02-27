@@ -49,4 +49,9 @@ class TransactionResponse extends DataObject implements TransactionResponseInter
     {
         return $this->getData('currency');
     }
+
+    public function getCode()
+    {
+        return $this->getData('servicecode');
+    }
 }
