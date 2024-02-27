@@ -21,6 +21,7 @@
 
 namespace Buckaroo\Magento2\Model\PaypalExpress;
 
+use Magento\Quote\Model\Quote;
 use Buckaroo\Magento2\Logging\Log;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Sales\Api\Data\OrderInterface;
@@ -33,7 +34,7 @@ use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Buckaroo\Magento2\Api\PaypalExpressOrderCreateInterface;
 use Buckaroo\Magento2\Model\PaypalExpress\PaypalExpressException;
-use Buckaroo\Magento2\Model\PaypalExpress\OrderUpdateShippingFactory;
+use Buckaroo\Magento2\Model\PaypalExpress\OrderUpdateFactory;
 use Buckaroo\Magento2\Api\Data\PaypalExpress\OrderCreateResponseInterfaceFactory;
 
 class OrderCreate implements PaypalExpressOrderCreateInterface
@@ -73,9 +74,9 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
     protected $orderRepository;
 
     /**
-     * @var \Buckaroo\Magento2\Model\PaypalExpress\OrderUpdateShippingFactory
+     * @var \Buckaroo\Magento2\Model\PaypalExpress\OrderUpdateFactory
      */
-    protected $orderUpdateShippingFactory;
+    protected $orderUpdateFactory;
 
     /**
      * @var \Buckaroo\Magento2\Logging\Log
@@ -90,7 +91,7 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
         CheckoutSession $checkoutSession,
         CartRepositoryInterface $quoteRepository,
         OrderRepositoryInterface $orderRepository,
-        OrderUpdateShippingFactory $orderUpdateShippingFactory,
+        OrderUpdateFactory $orderUpdateFactory,
         Log $logger
     ) {
         $this->responseFactory = $responseFactory;
@@ -100,7 +101,7 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
         $this->checkoutSession = $checkoutSession;
         $this->quoteRepository = $quoteRepository;
         $this->orderRepository = $orderRepository;
-        $this->orderUpdateShippingFactory = $orderUpdateShippingFactory;
+        $this->orderUpdateFactory = $orderUpdateFactory;
         $this->logger = $logger;
     }
     
@@ -137,19 +138,34 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
         
         $quote = $this->getQuote($cart_id);
         $quote->getPayment()->setAdditionalInformation('express_order_id', $paypal_order_id);
-
+        $quote->reserveOrderId();
+        $this->ignoreAddressValidation($quote);
         $this->checkQuoteBelongsToLoggedUser($quote);
         $orderId = $this->quoteManagement->placeOrder($quote->getId());
 
         $order = $this->orderRepository->get($orderId);
-        $this->updateOrderShipping($order);
+        $this->updateOrder($order);
         $this->setLastOrderToSession($order);
         return $order->getIncrementId();
     }
-    protected function updateOrderShipping(OrderInterface $order)
+
+     /**
+     * Make sure addresses will be saved without validation errors
+     *
+     * @return void
+     */
+    private function ignoreAddressValidation(Quote $quote)
     {
-        $orderUpdateShipping = $this->orderUpdateShippingFactory->create(["shippingAddress" => $order->getShippingAddress()]);
-        $orderUpdateShipping->update();
+        $quote->getBillingAddress()->setShouldIgnoreValidation(true);
+        $quote->getShippingAddress()->setShouldIgnoreValidation(true);
+    }
+
+    protected function updateOrder(OrderInterface $order)
+    {
+        $orderUpdateService = $this->orderUpdateFactory->create();
+        $orderUpdateService->updateAddress($order->getShippingAddress());
+        $orderUpdateService->updateAddress($order->getBillingAddress());
+        $orderUpdateService->updateEmail($order);
         $this->orderRepository->save($order);
     }
     /**
@@ -188,7 +204,7 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
      *
      * @param string $cart_id
      *
-     * @return \Magento\Quote\Model\Quote
+     * @return Quote
      */
     protected function getQuote($cart_id)
     {

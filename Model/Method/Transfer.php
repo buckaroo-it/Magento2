@@ -139,10 +139,7 @@ class Transfer extends AbstractMethod
         if (count($cmService) > 0) {
             $services[] = $cmService;
 
-            $payment->setAdditionalInformation(
-                'skip_push',
-                2
-            );
+            $payment->setAdditionalInformation('skip_push', 2);
         }
 
         /** @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Transfer $transferConfig */

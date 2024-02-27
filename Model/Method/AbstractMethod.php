@@ -354,17 +354,10 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     {
         if ($data instanceof \Magento\Framework\DataObject) {
             $additionalSkip = $data->getAdditionalData();
-            $skipValidation = $data->getBuckarooSkipValidation();
-
-            if ($skipValidation === null && isset($additionalSkip['buckaroo_skip_validation'])) {
-                $skipValidation = $additionalSkip['buckaroo_skip_validation'];
-            }
-
+            
             if (isset($additionalSkip[self::PAYMENT_FROM])) {
                 $this->getInfoInstance()->setAdditionalInformation(self::PAYMENT_FROM, $additionalSkip[self::PAYMENT_FROM]);
             }
-
-            $this->getInfoInstance()->setAdditionalInformation('buckaroo_skip_validation', $skipValidation);
         }
         return $this;
     }
@@ -654,6 +647,15 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     {
         $title = $this->getConfigData('title');
 
+        if (
+            strpos($this->buckarooPaymentMethodCode, "capayable") !== false &&
+            method_exists($this, 'isV2') &&
+            $this->isV2() &&
+            $title === Capayable::DEFAULT_NAME
+        ) {
+            $title = Capayable::V2_NAME;
+        }
+
         if (!$this->configProviderMethodFactory->has($this->buckarooPaymentMethodCode)) {
             return $title;
         }
@@ -698,6 +700,10 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
                 'Buckaroo requires the payment to be an instance of "\Magento\Sales\Api\Data\OrderPaymentInterface"' .
                 ' and "\Magento\Payment\Model\InfoInterface".'
             );
+        }
+
+        if (method_exists($this, 'validateAdditionalData')) {
+            $this->validateAdditionalData();
         }
 
         parent::order($payment, $amount);
@@ -935,6 +941,10 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
                 'Buckaroo requires the payment to be an instance of "\Magento\Sales\Api\Data\OrderPaymentInterface"' .
                 ' and "\Magento\Payment\Model\InfoInterface".'
             );
+        }
+
+        if (method_exists($this, 'validateAdditionalData')) {
+            $this->validateAdditionalData();
         }
 
         parent::authorize($payment, $amount);

@@ -135,13 +135,6 @@ class SepaDirectDebit extends AbstractMethod
         parent::assignData($data);
         $data = $this->assignDataConvertToArray($data);
 
-        if (isset($data['additional_data']['buckaroo_skip_validation'])) {
-            $this->getInfoInstance()->setAdditionalInformation(
-                'buckaroo_skip_validation',
-                $data['additional_data']['buckaroo_skip_validation']
-            );
-        }
-
         if (isset($data['additional_data']['customer_bic'])) {
             $this->getInfoInstance()->setAdditionalInformation(
                 'customer_bic',
@@ -334,16 +327,10 @@ class SepaDirectDebit extends AbstractMethod
     /**
      * {@inheritdoc}
      */
-    public function validate()
-    {
-        parent::validate();
+    public function validateAdditionalData() {
 
         $paymentInfo = $this->getInfoInstance();
 
-        $skipValidation = $paymentInfo->getAdditionalInformation('buckaroo_skip_validation');
-        if ($skipValidation) {
-            return $this;
-        }
 
         $customerBic = $paymentInfo->getAdditionalInformation('customer_bic');
         $customerIban = $paymentInfo->getAdditionalInformation('customer_iban');

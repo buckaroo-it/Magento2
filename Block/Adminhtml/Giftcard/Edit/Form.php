@@ -20,6 +20,8 @@
 
 namespace Buckaroo\Magento2\Block\Adminhtml\Giftcard\Edit;
 
+use Buckaroo\Magento2\Model\Giftcard\Request\Giftcard;
+
 class Form extends \Magento\Backend\Block\Widget\Form\Generic
 {
     /**
@@ -82,6 +84,22 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
                 'label'    => __('Label'),
                 'required' => true,
                 'value'    => $model->getLabel()
+            ]
+        );
+
+        $fieldset->addField(
+            'acquirer',
+            'select',
+            [
+                'name'     => 'acquirer',
+                'label'    => __('Giftcard acquirer'),
+                'description' => __('Select your giftcard supplier'),
+                'value'    => $model->getAcquirer(),
+                'options' => [
+                    '' => __('Intersolve'),
+                    Giftcard::FASHIONCHEQUE_ACQUIRER => __('FashionCheque'),
+                    Giftcard::TCS_ACQUIRER => __('TCS'),
+                ]
             ]
         );
 

@@ -131,6 +131,10 @@
         <plugin name="buckaroo_magento2_plugin_commandInterface" type="Buckaroo\Magento2\Plugin\CommandInterface" />
     </type>
 
+    <type name="Magento\Quote\Api\CartManagementInterface">
+        <plugin name="buckaroo_magento2_plugin_cart_managment" type="Buckaroo\Magento2\Plugin\CartManagement" />
+    </type>
+
     <type name="Buckaroo\Magento2\Model\PaymentInformationManagement">
         <arguments>
             <argument name="registry" xsi:type="object">Magento\Framework\Registry</argument>
@@ -366,6 +370,18 @@
                     <item name="type" xsi:type="string">paybybank</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\PayByBank</item>
                 </item>
+                <item name="mbway" xsi:type="array">
+                    <item name="type" xsi:type="string">mbway</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\MBWay</item>
+                </item>
+                <item name="multibanco" xsi:type="array">
+                    <item name="type" xsi:type="string">multibanco</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Multibanco</item>
+                </item>
+                <item name="knaken" xsi:type="array">
+                    <item name="type" xsi:type="string">knaken</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Knaken</item>
+                </item>
             </argument>
         </arguments>
     </type>
@@ -422,6 +438,12 @@
     <type name="Buckaroo\Magento2\Block\Adminhtml\Sales\Order\Creditmemo\Create\BankFields">
         <arguments>
             <argument name="refundFieldsFactory" xsi:type="object">Buckaroo\Magento2\Model\RefundFieldsFactory</argument>
+        </arguments>
+    </type>
+
+    <type name="Buckaroo\Magento2\Observer\SetTransactionOnInvoiceObserver">
+        <arguments>
+            <argument name="stateCommand" xsi:type="object">Magento\Sales\Model\Order\Payment\State\RegisterCaptureNotificationCommand</argument>
         </arguments>
     </type>
 
@@ -503,14 +525,6 @@
 
     <type name="Magento\CatalogInventory\Model\Configuration">
         <plugin name="buckarooCatalogInventoryConfiguration" type="Buckaroo\Magento2\Plugin\CatalogInventory\Model\Configuration" />
-    </type>
-
-    <type name="Magento\Checkout\Api\PaymentInformationManagementInterface">
-        <plugin name="buckarooPaymentInformationManagement" type="Buckaroo\Magento2\Plugin\PaymentMethodManagement"/>
-    </type>
-
-    <type name="Magento\Checkout\Api\GuestPaymentInformationManagementInterface">
-        <plugin name="buckarooGuestPaymentInformationManagement" type="Buckaroo\Magento2\Plugin\GuestPaymentMethodManagement"/>
     </type>
 
     <type name="Magento\Framework\Console\CommandListInterface">

@@ -22,27 +22,24 @@ jobs:
       - name: Copy payment method icons
         run: |
             cd "${{ github.workspace }}/Media/Payment methods/SVG/"
-            rm -f ideal-qr.svg knaken.svg paylink.svg paybybank.svg
+            rm -f ideal-qr.svg knaken.svg paylink.svg paybybank.svg pos-nfc.svg riverty.svg
             cd ${{ github.workspace }}/Media
-            cp -R "Payment methods/SVG/." ${{ github.workspace }}/view/adminhtml/web/images/svg/
-            cp -R "Payment methods/SVG/." ${{ github.workspace }}/view/frontend/web/images/svg/
+            cp -R "Payment methods/SVG/." ${{ github.workspace }}/view/base/web/images/svg/
       - name: Copy creditcards icons
         run: |
             cd Media
-            cp -R "Creditcard issuers/SVG/." ${{ github.workspace }}/view/adminhtml/web/images/creditcards/
-            cp -R "Creditcard issuers/SVG/." ${{ github.workspace }}/view/frontend/web/images/creditcards/
+            cp -R "Creditcard issuers/SVG/." ${{ github.workspace }}/view/base/web/images/creditcards/
       - name: Copy giftcards icons
         run: |
             cd "${{ github.workspace }}/Media/Giftcards/SVG/"
             rm -f vvvlekkerweg.svg vvvshopchill.svg
             cd ${{ github.workspace }}/Media
-            cp -R "Giftcards/SVG/." ${{ github.workspace }}/view/adminhtml/web/images/giftcards/
-            cp -R "Giftcards/SVG/." ${{ github.workspace }}/view/frontend/web/images/giftcards/
+            cp -R "Giftcards/SVG/." ${{ github.workspace }}/view/base/web/images/giftcards/
             
       - name: Copy payment issuers icons
         run: |
             cd Media
-            cp -R "iDEAL bank issuers/SVG/." ${{ github.workspace }}/view/frontend/web/images/ideal/
+            cp -R "iDEAL bank issuers/SVG/." ${{ github.workspace }}/view/base/web/images/ideal/
       - name: Cleanup
         run: |
             rm -rd Media

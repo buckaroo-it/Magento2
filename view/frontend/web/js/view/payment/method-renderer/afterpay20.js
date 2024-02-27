@@ -140,7 +140,6 @@ define(
                     country: '',
                     customerCoc:'',
                     dateValidate: null,
-                    termsUrl: 'https://www.afterpay.nl/nl/klantenservice/betalingsvoorwaarden/',
                     termsValidate: true,
                     identificationValidate: null,
                     phoneValidate: null,
@@ -181,6 +180,15 @@ define(
                             'value',
                             'validationState'
                         ]
+                    );
+
+                    this.showFinancialWarning = ko.computed(
+                        function () {
+                            return quote.billingAddress() !== null &&
+                            quote.billingAddress().countryId == 'NL' &&
+                            window.checkoutConfig.payment.buckaroo.afterpay20.showFinancialWarning
+                        },
+                        this
                     );
 
                     this.activeAddress = ko.computed(
@@ -226,7 +234,7 @@ define(
                         function () {
                             return !this.showCOC() &&
                             (
-                                (this.country() === 'NL' || this.country() === 'BE') ||
+                                ['NL','BE', 'DE'].indexOf(this.country()) != -1 ||
                                 (!this.isCustomerLoggedIn() && this.isOsc())
                             );
                         },
@@ -249,14 +257,24 @@ define(
 
                     this.billingName = ko.computed(
                         function () {
-                            return this.activeAddress().firstname + " " + this.activeAddress().lastname;
+                            let firstname = this.activeAddress().firstname;
+                            if (firstname === undefined) {
+                                firstname = '';
+                            }
+
+
+                            let lastname = this.activeAddress().lastname;
+                            if (lastname === undefined) {
+                                lastname = '';
+                            }
+                            return firstname + " " + lastname;
                         },
                         this
                     );
 
                     this.termsUrl = ko.computed(
                         function () {
-                            return this.getTermsUrl(this.country());
+                            return this.getTermsUrl(this.country(), this.showCOC());
                         },
                         this
                     );
@@ -429,49 +447,42 @@ define(
                     };
                 },
 
-                getTermsUrl: function (tosCountry = false) {
-                    var tosUrl = 'https://documents.myafterpay.com/consumer-terms-conditions/';
+                getTermsUrl: function (country, b2b) {
+                    let lang = 'nl_nl';
+                    let url = 'https://documents.riverty.com/terms_conditions/payment_methods/invoice';
+                    const cc = country.toLowerCase()
 
-                    if (tosCountry !== false) {
-                        tosUrl += tosCountry + '/';
-                        return tosUrl;
+                    if ( b2b === false ) {
+                        if (country === 'BE') {
+                            lang = 'be_nl';
+                        }
+    
+                        if (['NL','DE'].indexOf(country) !== -1) {
+                            lang = `${cc}_${cc}`;
+                        }
+
+                        if (['AT','DK', 'FI', 'SE', 'CH', 'NO'].indexOf(country) !== -1) {
+                            const cc = country.toLowerCase()
+                            lang = `${cc}_en`;
+                        }
+                    } else {
+                        url = 'https://documents.riverty.com/terms_conditions/payment_methods/b2b_invoice';
+                        if (['NL','DE'].indexOf(country) !== -1) {
+                            lang = `${cc}_${cc}`;
+                        }
+
+                        if (['AT','CH'].indexOf(country) !== -1) {
+                            lang = `${cc}_en`;
+                        }
                     }
 
-                    switch (this.country) {
-                        case 'DE':
-                            tosCountry = 'de_de';
-                            break;
-                        case 'AT':
-                            tosCountry = 'de_at';
-                            break;
-                        case 'NL':
-                            tosCountry = 'nl_nl';
-                            break;
-                        case 'BE':
-                            tosCountry = 'nl_be';
-                            break;
-                        case 'FI':
-                            tosCountry = 'fi_fi';
-                            break;
-                        default:
-                            tosCountry = 'en_nl';
-                            break;
-                    }
-
-                    tosUrl += tosCountry + '/';
-
-                    return tosUrl;
+                    return `${url}/${lang}/`;
                 },
 
                 getFrenchTos: function () {
-                    var tosUrl = this.getTermsUrl('fr_be');
-                    var tosText = '(Or click here for the French translation: '
-                        + '<a target="_blank" href="%s">terms and condition</a>.)';
-
-                    tosText = $.mage.__(tosText);
-                    tosText = tosText.replace('%s', tosUrl);
-
-                    return tosText;
+                   return $.mage
+                    .__('(Or click here for the French translation: <a target="_blank" href="%s">terms and condition</a>.)')
+                    .replace('%s', 'https://documents.riverty.com/terms_conditions/payment_methods/invoice/be_fr/');
                 },
 
                 isOsc: function () {

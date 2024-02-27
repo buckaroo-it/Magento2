@@ -56,13 +56,6 @@ class IdealProcessing extends AbstractMethod
         parent::assignData($data);
         $data = $this->assignDataConvertToArray($data);
 
-        if (isset($data['additional_data']['buckaroo_skip_validation'])) {
-            $this->getInfoInstance()->setAdditionalInformation(
-                'buckaroo_skip_validation',
-                $data['additional_data']['buckaroo_skip_validation']
-            );
-        }
-
         if (isset($data['additional_data']['issuer'])) {
             $this->getInfoInstance()->setAdditionalInformation('issuer', $data['additional_data']['issuer']);
         }
@@ -81,19 +74,45 @@ class IdealProcessing extends AbstractMethod
             'Name'             => 'idealprocessing',
             'Action'           => $this->getPayRemainder($payment, $transactionBuilder),
             'Version'          => 2,
-            'RequestParameter' => [
-                [
-                    '_'    => $payment->getAdditionalInformation('issuer'),
-                    'Name' => 'issuer',
-                ],
-            ],
+            'RequestParameter' => $this->getOrderRequestParameters($payment)
         ];
 
         $transactionBuilder->setOrder($payment->getOrder())
             ->setServices($services)
             ->setMethod('TransactionRequest');
 
+        if (!$this->canShowIssuers()) {
+            $transactionBuilder->setCustomVars(['ContinueOnIncomplete' => 'RedirectToHTML']);
+        }
+        
         return $transactionBuilder;
+    }
+
+    private function getOrderRequestParameters($payment): array
+    {
+        $parameters = [];
+
+        if ($this->canShowIssuers()) {
+            $parameters = [[
+                '_'    => $payment->getAdditionalInformation('issuer'),
+                'Name' => 'issuer',
+            ]];
+        }
+        return $parameters;
+    }
+
+    protected function getRefundTransactionBuilderVersion()
+    {
+        return null;
+    }
+
+    /**
+     * Can show issuers in the checkout form
+     *
+     * @return boolean
+     */
+    private function canShowIssuers() {
+        return $this->getConfigData('show_issuers') == 1;
     }
 
     /**
@@ -125,19 +144,12 @@ class IdealProcessing extends AbstractMethod
      *
      * {@inheritdoc}
      */
-    public function validate()
-    {
-        parent::validate();
+    public function validateAdditionalData() {
 
         /** @var IdealProcessingConfig $config */
         $config = $this->objectManager->get(IdealProcessingConfig::class);
 
         $paymentInfo = $this->getInfoInstance();
-
-        $skipValidation = $paymentInfo->getAdditionalInformation('buckaroo_skip_validation');
-        if ($skipValidation) {
-            return $this;
-        }
 
         $chosenIssuer = $paymentInfo->getAdditionalInformation('issuer');
 
@@ -149,7 +161,7 @@ class IdealProcessing extends AbstractMethod
             }
         }
 
-        if (!$valid) {
+        if (!$valid && $this->canShowIssuers()) {
             throw new LocalizedException(__('Please select a issuer from the list'));
         }
 

@@ -59,6 +59,7 @@ define(
                 subTextStyle : checkoutCommon.getSubtextStyle('ideal'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
+                showIssuers :  window.checkoutConfig.payment.buckaroo.ideal.showIssuers,
 
                 /**
              * @override
@@ -93,7 +94,7 @@ define(
                  */
                     this.buttoncheck = ko.computed(
                         function () {
-                            return this.selectedBank() !== null;
+                            return this.selectedBank() !== null || !this.showIssuers;
                         },
                         this
                     );

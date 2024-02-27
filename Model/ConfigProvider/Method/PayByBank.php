@@ -46,6 +46,8 @@ class PayByBank extends AbstractConfigProvider
     public const XPATH_SPECIFIC_COUNTRY         = 'payment/buckaroo_magento2_paybybank/specificcountry';
     public const XPATH_PAYBYBANK_SELECTION_TYPE = 'buckaroo_magento2/account/selection_type';
     public const XPATH_SPECIFIC_CUSTOMER_GROUP  = 'payment/buckaroo_magento2_paybybank/specificcustomergroup';
+    public const XPATH_SORTED_ISSUERS           = 'payment/buckaroo_magento2_paybybank/sorted_issuers';
+
 
     protected $issuers = [
         [
@@ -208,5 +210,31 @@ class PayByBank extends AbstractConfigProvider
         }
 
         return $issuers;
+    }
+
+    /**
+     * @param $storeId
+     * @return mixed
+     */
+    public function getSortedIssuers($storeId = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_SORTED_ISSUERS,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        ) ?? '';
+    }
+
+    /**
+     * Generate the url to the desired asset.
+     *
+     * @param string $imgName
+     * @param string $extension
+     *
+     * @return string
+     */
+    public function getImageUrl($imgName, string $extension = 'png')
+    {
+        return parent::getImageUrl("ideal/{$imgName}", "svg");
     }
 }

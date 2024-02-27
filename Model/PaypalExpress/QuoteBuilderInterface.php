@@ -27,11 +27,11 @@ interface QuoteBuilderInterface
     /**
      * Set form data
      *
-     * @param array $formData
+     * @param string $formData
      *
      * @return void
      */
-    public function setFormData(array $formData);
+    public function setFormData(string $formData);
 
     /**
      * Build quote from form data and session

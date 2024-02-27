@@ -135,5 +135,14 @@
         <method name="buckaroo_magento2_paybybank">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
+        <method name="buckaroo_magento2_multibanco">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="buckaroo_magento2_mbway">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="buckaroo_magento2_knaken">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
     </methods>
 </payment>

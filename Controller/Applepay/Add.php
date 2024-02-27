@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,10 +18,10 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Controller\Applepay;
 
 use Buckaroo\Magento2\Logging\Log;
-use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
@@ -51,7 +52,7 @@ class Add extends Common
         \Magento\Quote\Model\Quote\TotalsCollector $totalsCollector,
         \Magento\Quote\Model\Cart\ShippingMethodConverter $converter,
         CustomerSession $customerSession = null
-        
+
     ) {
         parent::__construct(
             $context,
@@ -76,12 +77,9 @@ class Add extends Common
      */
     public function execute()
     {
-                
-        $data = $this->addService->process(
-            $this->getRequest(),
-            $this->context
+        return $this->commonResponse(
+            $this->addService->process($this->getRequest()),
+            false
         );
-        
-        return $this->commonResponse($data, false);
     }
 }

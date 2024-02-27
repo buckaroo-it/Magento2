@@ -491,6 +491,8 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
             $localeCountry = str_replace('_', '-', $localeCountry);
 
             $merchantKey = $this->encryptor->decrypt($this->configProviderAccount->getMerchantKey($store));
+
+            $payment = $this->getOrder()->getPayment();
         }
 
         $headers[] = new \SoapHeader(
@@ -502,7 +504,7 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
                 'Culture' => $localeCountry ?? 'en-US',
                 'TimeStamp' => time(),
                 'Channel' => $this->channel,
-                'Software' => $this->softwareData->get()
+                'Software' => $this->softwareData->get($payment ?? null)
             ],
             false
         );

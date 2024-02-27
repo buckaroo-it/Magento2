@@ -85,7 +85,7 @@ define(
                         const voucherCode = this.code();
                         let self = this;
                         $.ajax({
-                            url: url.build(`rest/default/V1/buckaroo/voucher/apply`),
+                            url: url.build(`rest/V1/buckaroo/voucher/apply`),
                             type: 'POST',
                             dataType: 'json',
                             showLoader: true, //use for display loader 

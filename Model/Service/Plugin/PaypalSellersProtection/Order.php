@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -58,11 +59,12 @@ class Order
     ) {
         $sellersProtectionActive = (bool) $this->configProviderPaypal->getSellersProtection();
 
-        if (!$sellersProtectionActive) {
+        $payment = $paymentMethod->payment;
+        $isPaypalExpress = $payment->getAdditionalInformation('express_order_id')!== null;
+        if (!$sellersProtectionActive || $isPaypalExpress) {
             return $result;
         }
 
-        $payment = $paymentMethod->payment;
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
@@ -70,7 +72,7 @@ class Order
          * @var \Magento\Sales\Model\Order $order
          */
         $order = $payment->getOrder();
-        $shippingAddress = $order->getShippingAddress();
+        $address = $order->getShippingAddress();
 
         $services = $result->getServices();
 
@@ -78,8 +80,16 @@ class Order
             return $result;
         }
 
+        if ($address === null) {
+            $address = $order->getBillingAddress();
+        }
+
+        if ($address === null) {
+            return $result;
+        }
+
         // Build ExtraInfo Request Parameter
-        $extraInfoRequestParameter = $this->getRequestParameter($shippingAddress);
+        $extraInfoRequestParameter = $this->getRequestParameter($address);
 
         // Build ExtraInfo Service
         $services = [
@@ -97,28 +107,27 @@ class Order
         return $result;
     }
 
-    private function getRequestParameter($shippingAddress)
+    private function getRequestParameter($address)
     {
-
         $extraInfoRequestParameter = [
             [
-                '_' => mb_substr($shippingAddress->getName(), 0, 32),
+                '_' => mb_substr($address->getName(), 0, 32),
                 'Name' => 'Name',
             ],
             [
-                '_' => mb_substr($shippingAddress->getStreetLine(1), 0, 100),
+                '_' => mb_substr($address->getStreetLine(1), 0, 100),
                 'Name' => 'Street1',
             ],
             [
-                '_' => mb_substr($shippingAddress->getCity(), 0, 40),
+                '_' => mb_substr($address->getCity(), 0, 40),
                 'Name' => 'CityName',
             ],
             [
-                '_' => mb_substr($shippingAddress->getPostcode(), 0, 20),
+                '_' => mb_substr($address->getPostcode(), 0, 20),
                 'Name' => 'PostalCode',
             ],
             [
-                '_' => $shippingAddress->getCountryId(),
+                '_' => $address->getCountryId(),
                 'Name' => 'Country',
             ],
             [
@@ -127,12 +136,12 @@ class Order
             ],
         ];
 
-        $shippingRegion = $shippingAddress->getRegion();
+        $shippingRegion = $address->getRegion();
         if (isset($shippingRegion) && !empty($shippingRegion)) {
 
             $twoCharacterShippingRegion = $this->paypalStateCodes->getCodeFromValue(
-                $shippingAddress->getCountryId(),
-                $shippingAddress->getRegion()
+                $address->getCountryId(),
+                $address->getRegion()
             );
 
             if ($twoCharacterShippingRegion) {
