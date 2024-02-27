@@ -4436,6 +4436,47 @@
     <!-- END MBWay Commands infrastructure -->
     <!-- END Payment Method: MBWay -->
 
+    <!-- Payment Method: Knaken -->
+    <!-- Knaken Payment Method Facade configuration -->
+
+    <virtualType name="KnakenFacade" type="Buckaroo\Magento2\Model\Method\BuckarooAdapter">
+        <arguments>
+            <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\Knaken::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Buckaroo\Magento2\Block\Info</argument>
+            <argument name="valueHandlerPool" xsi:type="object">KnakenValueHandlerPool</argument>
+            <argument name="validatorPool" xsi:type="object">KnakenValidatorPool</argument>
+            <argument name="commandPool" xsi:type="object">BuckarooRemainderGatewayCommandPool</argument>
+        </arguments>
+    </virtualType>
+    <!-- Knaken Value handlers infrastructure -->
+    <virtualType name="KnakenValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">KnakenConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Configuration reader -->
+    <virtualType name="KnakenConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Knaken</argument>
+        </arguments>
+    </virtualType>
+    <!-- END Knaken Value handlers infrastructure -->
+
+    <!-- Knaken validators infrastructure -->
+    <virtualType name="KnakenValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END Knaken validators infrastructure -->
+    <!-- END Knaken Commands infrastructure -->
+    <!-- END Payment Method: Knaken -->
 
     <!-- iDIN service (Age verification) -->
     <type name="Buckaroo\Magento2\Controller\Checkout\Idin">
