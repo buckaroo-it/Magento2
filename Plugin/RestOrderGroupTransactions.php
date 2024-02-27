@@ -35,13 +35,19 @@ class RestOrderGroupTransactions
         OrderRepositoryInterface $subject,
         OrderInterface $entity
     ) {
-        $ourCustomData = $this->dataFactory->create(["orderIncrementId" => $entity->getIncrementId()]);
 
-        $extensionAttributes = $entity->getExtensionAttributes(); /** get current extension attributes from entity **/
-
-        $extensionAttributes->setBuckaroo($ourCustomData);
-        $entity->setExtensionAttributes($extensionAttributes);
+        if ($this->isBuckaroo($entity)) {
+            $ourCustomData = $this->dataFactory->create(["orderIncrementId" => $entity->getIncrementId()]);
+    
+            $extensionAttributes = $entity->getExtensionAttributes(); /** get current extension attributes from entity **/
+    
+            $extensionAttributes->setBuckaroo($ourCustomData);
+            $entity->setExtensionAttributes($extensionAttributes);
+        }
 
         return $entity;
+    }
+    private function isBuckaroo(OrderInterface $entity) {
+        return strpos($entity->getPayment()->getMethod(), "buckaroo_magento2_") !== false;
     }
 }
