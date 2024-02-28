@@ -83,6 +83,12 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
      */
     protected function getCareOf(): string
     {
+        $company = $this->getAddress()->getCompany();
+
+        if ($company !== null && strlen(trim($company)) > 0) {
+            return $company;
+        }
+
         return $this->getFirstname() . ' ' . $this->getLastName();
     }
 
