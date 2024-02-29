@@ -125,6 +125,13 @@ class ResponseCodeSDKValidator extends AbstractValidator
                 $this->transaction->getSomeError()
                 : 'Gateway rejected the transaction.';
 
+            if ($statusCode === 690
+                && strpos($message, "deliveryCustomer.address.countryCode") !== false
+            ) {
+                $message = "Pay rejected: It is not allowed to specify another country ".
+                 "for the invoice and delivery address for Afterpay transactions.";
+            }
+
             return $this->createResult(false, [__($message)], [$statusCode]);
         }
     }
