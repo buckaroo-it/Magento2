@@ -38,6 +38,7 @@ class DataAssignObserver extends AbstractDataAssignObserver
     public const CUSTOMER_TELEPHONE            = 'customer_telephone';
     public const CUSTOMER_BILLINGFIRSTNAME     = 'customer_billingFirstName';
     public const CUSTOMER_BILLINGLASTNAME      = 'customer_billingLastName';
+    public const CUSTOMER_BILLING_MIDDLENAME   = 'customer_billingMiddleName';
     public const CUSTOMER_EMAIL                = 'customer_email';
     public const CUSTOMER_IBAN                 = 'customer_iban';
     public const SELECTEDBUSINESS              = 'selectedBusiness';
@@ -72,6 +73,7 @@ class DataAssignObserver extends AbstractDataAssignObserver
         self::CUSTOMER_TELEPHONE,
         self::CUSTOMER_BILLINGFIRSTNAME,
         self::CUSTOMER_BILLINGLASTNAME,
+        self::CUSTOMER_BILLING_MIDDLENAME,
         self::CUSTOMER_EMAIL,
         self::CUSTOMER_IBAN,
         self::SELECTEDBUSINESS,
