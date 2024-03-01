@@ -17,6 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Block\Config\Form\Field;
 
 use Buckaroo\Magento2\Model\Config\Source\PaypalButtonStyle;
@@ -26,16 +27,13 @@ use Magento\Framework\Data\Form\Element\AbstractElement;
 
 class ApplepayButton extends Field
 {
+    protected $_template = 'Buckaroo_Magento2::applepay.phtml';
+
     /**
      * @var AbstractElement|null
      */
-    protected ?AbstractElement $styleElement;
+    protected ?AbstractElement $styleElement = null;
 
-    protected function _construct()
-    {
-        parent::_construct();
-        $this->setTemplate('Buckaroo_Magento2::applepay.phtml');
-    }
     /**
      * Return element html
      *
@@ -46,7 +44,7 @@ class ApplepayButton extends Field
      */
     protected function _getElementHtml(AbstractElement $element)
     {
-        $elementId = str_replace("_preview","",$element->getId());
+        $elementId = str_replace('_preview', '', $element->getId());
         $this->styleElement = $element->getForm()->getElement($elementId);
         return $this->_toHtml();
     }
@@ -55,7 +53,8 @@ class ApplepayButton extends Field
     {
         return $this->styleElement->getDataByKey('value');
     }
-    public function getButtonStyleElement():string
+
+    public function getButtonStyleElement(): string
     {
         return $this->styleElement->getId();
     }
