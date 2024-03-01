@@ -305,6 +305,10 @@
                     <item name="type" xsi:type="string">capayablein3</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\CapayableIn3</item>
                 </item>
+                <item name="in3" xsi:type="array">
+                    <item name="type" xsi:type="string">in3</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\CapayableIn3</item>
+                </item>
                 <item name="capayablepostpay" xsi:type="array">
                     <item name="type" xsi:type="string">capayablepostpay</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\CapayablePostpay</item>
