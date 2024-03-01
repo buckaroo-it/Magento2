@@ -772,6 +772,7 @@
                 <item name="tinka" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\TinkaHandler</item>
                 <item name="capayablein3" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\CapayableIn3Handler</item>
                 <item name="billink" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\BillinkHandler</item>
+                <item name="klarnakp" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\KlarnaKpHandler</item>
             </argument>
         </arguments>
     </type>
