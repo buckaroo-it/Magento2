@@ -883,6 +883,7 @@
                 <item name="payment_in_transit" xsi:type="string">Buckaroo\Magento2\Gateway\Response\PaymentInTransitHandler</item>
                 <item name="skip_push" xsi:type="string">Buckaroo\Magento2\Gateway\Response\SkipPushHandler</item>
                 <item name="restore_quote" xsi:type="string">Buckaroo\Magento2\Gateway\Response\RestoreQuoteHandler</item>
+                <item name="test_notification" xsi:type="string">Buckaroo\Magento2\Gateway\Response\TestNotificationHandler</item>
                 <item name="dispatch_event" xsi:type="string">OrderDispatchEventHandler</item>
             </argument>
         </arguments>
@@ -890,7 +891,7 @@
     <!-- END Buckaroo Order Command -->
 
     <!-- Buckaroo Authorize Command - Response Handler -->
-    <virtualType name="AuthorizeDispatchEventHandler"  type="Buckaroo\Magento2\Gateway\Response\DispatchEventHandler">
+    <virtualType name="AuthorizeDispatchEventHandler" type="Buckaroo\Magento2\Gateway\Response\DispatchEventHandler">
         <arguments>
             <argument name="command" xsi:type="string">authorize</argument>
         </arguments>
@@ -904,6 +905,7 @@
                 <item name="payment_in_transit" xsi:type="string">Buckaroo\Magento2\Gateway\Response\PaymentInTransitHandler</item>
                 <item name="skip_push" xsi:type="string">Buckaroo\Magento2\Gateway\Response\SkipPushHandler</item>
                 <item name="restore_quote" xsi:type="string">Buckaroo\Magento2\Gateway\Response\RestoreQuoteHandler</item>
+                <item name="test_notification" xsi:type="string">Buckaroo\Magento2\Gateway\Response\TestNotificationHandler</item>
                 <item name="dispatch_event" xsi:type="string">AuthorizeDispatchEventHandler</item>
             </argument>
         </arguments>
