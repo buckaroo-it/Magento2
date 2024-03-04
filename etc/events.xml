@@ -66,4 +66,8 @@
     <event name="sales_order_payment_transaction_html_txn_id">
         <observer name="paypal_transaction_html" instance="Buckaroo\Magento2\Observer\HtmlTransactionIdObserver"/>
     </event>
+
+    <event name="sales_quote_merge_before">
+        <observer name="prevent_merge_quote" instance="Buckaroo\Magento2\Observer\PreventMergeQuoteObserver"/>
+    </event>
 </config>
