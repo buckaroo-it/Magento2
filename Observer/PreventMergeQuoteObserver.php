@@ -45,14 +45,23 @@ class PreventMergeQuoteObserver implements \Magento\Framework\Event\ObserverInte
      */
     public function execute(Observer $observer): void
     {
-
         $quote = $observer->getEvent()->getQuote();
 
-        $isGroupTransaction = $this->groupTransaction->isGroupTransaction($quote->getReserveOrderId());
+        $isGroupTransaction = $this->groupTransaction->isGroupTransaction($quote->getReservedOrderId());
+
+        $sourceQuote = $observer->getEvent()->getData('source');
 
         if ($isGroupTransaction) {
-            throw new Exception(__("Prevent Merge Quote"));
+            $this->removeAllItems($sourceQuote);
         }
+    }
 
+    private function removeAllItems($quote): void
+    {
+        $items = $quote->getItemsCollection();
+        foreach ($items as $item)
+        {
+            $quote->removeItem($item->getId());
+        }
     }
 }
