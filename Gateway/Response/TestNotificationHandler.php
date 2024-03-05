@@ -39,7 +39,7 @@ class TestNotificationHandler implements HandlerInterface
         /** @var TransactionResponse $transaction */
         $transactionResponse = SubjectReader::readTransactionResponse($response);
 
-        $isTest = $transactionResponse->get('isTest');
+        $isTest = $transactionResponse->get('IsTest');
 
         if ($isTest) {
             $payment->setAdditionalInformation(
