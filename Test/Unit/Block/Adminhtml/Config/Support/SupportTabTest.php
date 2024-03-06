@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * NOTICE OF LICENSE
@@ -24,6 +25,7 @@ namespace Buckaroo\Magento2\Test\Unit\Block\Adminhtml\Config\Support;
 use Buckaroo\Magento2\Block\Adminhtml\Config\Support\SupportTab;
 use Buckaroo\Magento2\Service\Software\Data;
 use Buckaroo\Magento2\Test\BaseTest;
+use Magento\Framework\App\ProductMetadataInterface;
 
 class SupportTabTest extends BaseTest
 {
@@ -32,10 +34,43 @@ class SupportTabTest extends BaseTest
     public function testGetVersionNumber()
     {
         $softwareDataMock = $this->getFakeMock(Data::class)->setMethods(null)->getMock();
-
         $instance = $this->getInstance(['softwareData' => $softwareDataMock]);
         $result = $instance->getVersionNumber();
 
         $this->assertEquals(Data::BUCKAROO_VERSION, $result);
+    }
+
+    public function testPhpVersionCheckIfNothingIsWorking()
+    {
+        /** @var SupportTab $instance */
+        $instance = $this->getInstance();
+        $result = $instance->phpVersionCheck();
+        $this->assertEquals(-1, $result);
+    }
+
+    /**
+     * @dataProvider getVersionsDataProvider
+     * @return void
+     */
+    public function testWithDifferentMagentoVersionsAndPhpVersions(string $version, string $phpVersions, int $returnValue)
+    {
+        $productMetaDataMock = $this->getFakeMock(ProductMetadataInterface::class)->getMock();
+        $productMetaDataMock->method('getVersion')->willReturn($version);
+
+        $softwareDataMock = $this->getFakeMock(Data::class)->getMock();
+        $softwareDataMock->method('getProductMetaData')->willReturn($productMetaDataMock);
+
+        /** @var SupportTab $instance */
+        $instance = $this->getInstance(['softwareData' => $softwareDataMock]);
+        $this->assertEquals($phpVersions, $instance->getPhpVersions());
+        $this->assertEquals($returnValue, $instance->phpVersionCheck());
+    }
+
+    public function getVersionsDataProvider(): array
+    {
+        return [
+            ['2.4.5', '7.4, 8.1, 8.2', 1],
+            ['6.6.6', 'Cannot determine compatible PHP versions', 0]
+        ];
     }
 }
