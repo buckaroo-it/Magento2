@@ -30,13 +30,11 @@ use Magento\Framework\Exception\CouldNotSaveException;
 
 class CartManagement
 {
-
     /**
      * @var CartRepositoryInterface
      */
-    protected $quoteRepository;
+    protected CartRepositoryInterface $quoteRepository;
 
-    
     /**
      * @var LockManagerWrapper
      */
@@ -60,6 +58,8 @@ class CartManagement
      * @param PaymentInterface|null $paymentMethod
      * @throws \Magento\Framework\Exception\CouldNotSaveException
      * @return int Order ID.
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function aroundPlaceOrder(
         CartManagementInterface $cardManagement,

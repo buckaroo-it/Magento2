@@ -72,68 +72,24 @@ class ResponseCodeSDKValidator extends AbstractValidator
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @throws LocalizedException
      */
-    public function validate(array $validationSubject)
+    public function validate(array $validationSubject): ResultInterface
     {
         $response = $validationSubject['response']['object'] ?? null;
 
-        if ($response === null && !($response instanceof TransactionResponse)) {
-            return $this->createResult(
-                false,
-                [__('Data must be an instance of "TransactionResponse"')]
-            );
+        if (!$response instanceof TransactionResponse) {
+            return $this->createResult(false, [__('Data must be an instance of "TransactionResponse"')]);
         }
 
         $this->transaction = $response;
         $statusCode = $this->getStatusCode();
 
-        switch ($statusCode) {
-            case Response::STATUSCODE_SUCCESS:
-            case Response::STATUSCODE_PENDING_PROCESSING:
-            case Response::STATUSCODE_WAITING_ON_USER_INPUT:
-            case Response::STATUSCODE_WAITING_ON_CONSUMER:
-            case Response::STATUSCODE_PAYMENT_ON_HOLD:
-                $success = true;
-                break;
-            case Response::ORDER_FAILED:
-            case Response::STATUSCODE_VALIDATION_FAILURE:
-            case Response::STATUSCODE_TECHNICAL_ERROR:
-            case Response::STATUSCODE_FAILED:
-            case Response::STATUSCODE_REJECTED:
-            case Response::STATUSCODE_CANCELLED_BY_USER:
-            case Response::STATUSCODE_CANCELLED_BY_MERCHANT:
-                $success = false;
-                break;
-            default:
-                return $this->createResult(
-                    false,
-                    [__("Invalid Buckaroo status code received: %1.")],
-                    [$statusCode]
-                );
-        }
-
-        if ($success) {
+        if ($this->isSuccessStatusCode($statusCode)) {
             return $this->createResult(true, [__('Transaction Success')], [$statusCode]);
-        } else {
-            $payment = SubjectReader::readPayment($validationSubject)->getPayment();
-            $methodInstanceClass = $payment->getMethodInstance();
-
-            if ($methodInstanceClass->getCode() == 'buckaroo_magento2_klarnakp') {
-                $methodInstanceClass::$requestOnVoid = false;
-            }
-
-            $message = !empty($this->transaction->getSomeError()) ?
-                $this->transaction->getSomeError()
-                : 'Gateway rejected the transaction.';
-
-            if ($statusCode === 690
-                && strpos($message, "deliveryCustomer.address.countryCode") !== false
-            ) {
-                $message = "Pay rejected: It is not allowed to specify another country ".
-                 "for the invoice and delivery address for Afterpay transactions.";
-            }
-
-            return $this->createResult(false, [__($message)], [$statusCode]);
+        } elseif ($this->isFailedStatusCode($statusCode)) {
+            return $this->handleFailureStatusCode($validationSubject, $statusCode);
         }
+
+        return $this->createResult(false, [__("Invalid Buckaroo status code received: %1.")], [$statusCode]);
     }
 
     /**
@@ -141,7 +97,7 @@ class ResponseCodeSDKValidator extends AbstractValidator
      *
      * @return int|null
      */
-    public function getStatusCode()
+    public function getStatusCode(): ?int
     {
         $statusCode = $this->transaction->getStatusCode();
 
@@ -156,5 +112,55 @@ class ResponseCodeSDKValidator extends AbstractValidator
         }
 
         return $statusCode;
+    }
+
+    private function isSuccessStatusCode(int $statusCode): bool
+    {
+        return in_array($statusCode, [
+            Response::STATUSCODE_SUCCESS,
+            Response::STATUSCODE_PENDING_PROCESSING,
+            Response::STATUSCODE_WAITING_ON_USER_INPUT,
+            Response::STATUSCODE_WAITING_ON_CONSUMER,
+            Response::STATUSCODE_PAYMENT_ON_HOLD,
+        ]);
+    }
+
+    private function isFailedStatusCode(int $statusCode): bool
+    {
+        return in_array($statusCode, [
+            Response::ORDER_FAILED,
+            Response::STATUSCODE_VALIDATION_FAILURE,
+            Response::STATUSCODE_TECHNICAL_ERROR,
+            Response::STATUSCODE_FAILED,
+            Response::STATUSCODE_REJECTED,
+            Response::STATUSCODE_CANCELLED_BY_USER,
+            Response::STATUSCODE_CANCELLED_BY_MERCHANT,
+        ]);
+    }
+
+    /**
+     * @throws LocalizedException
+     */
+    private function handleFailureStatusCode(array $validationSubject, ?int $statusCode): ResultInterface
+    {
+        $payment = SubjectReader::readPayment($validationSubject)->getPayment();
+        $methodInstanceClass = $payment->getMethodInstance();
+
+        if ($methodInstanceClass->getCode() == 'buckaroo_magento2_klarnakp') {
+            $methodInstanceClass::$requestOnVoid = false;
+        }
+
+        $message = !empty($this->transaction->getSomeError()) ?
+            $this->transaction->getSomeError()
+            : 'Gateway rejected the transaction.';
+
+        if ($statusCode === 690
+            && strpos($message, "deliveryCustomer.address.countryCode") !== false
+        ) {
+            $message = "Pay rejected: It is not allowed to specify another country " .
+                "for the invoice and delivery address for Afterpay transactions.";
+        }
+
+        return $this->createResult(false, [__($message)], [$statusCode]);
     }
 }
