@@ -487,11 +487,14 @@ class Push implements PushInterface
             Giftcards::PAYMENT_METHOD_CODE,
             Transfer::PAYMENT_METHOD_CODE
         ];
+
+        $isRefund = isset($this->postData['brq_amount_credit']) && $this->postData['brq_amount_credit'] > 0;
+
         if ($payment
             && $payment->getMethod()
             && $receivedStatusCode
             && ($this->getTransactionType() == self::BUCK_PUSH_TYPE_TRANSACTION)
-            && (!in_array($payment->getMethod(), $ignoredPaymentMethods))
+            && (!in_array($payment->getMethod(), $ignoredPaymentMethods) || $isRefund)
         ) {
             $this->logging->addDebug(__METHOD__ . '|5|');
 
