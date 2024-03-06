@@ -33,11 +33,6 @@ class OrderUpdate
     protected $responseAddressInfo;
 
     /**
-     * @var OrderAddressInterface
-     */
-    protected $address;
-
-    /**
      * @var BuckarooResponseDataInterface
      */
     private BuckarooResponseDataInterface $buckarooResponseData;
@@ -48,11 +43,9 @@ class OrderUpdate
      * @param Registry $registry
      */
     public function __construct(
-        OrderAddressInterface $shippingAddress,
         BuckarooResponseDataInterface $buckarooResponseData,
         Registry $registry
     ) {
-        $this->shippingAddress = $shippingAddress;
         $this->buckarooResponseData = $buckarooResponseData;
         $this->responseAddressInfo = $this->getAddressInfoFromPayRequest($registry);
     }

@@ -78,7 +78,6 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
         string $orderData = null
     ) {
         if ($page === 'product' && is_string($orderData)) {
-            $this->validateData($orderData);
             $this->quote = $this->quoteService->createQuote($orderData);
         } else {
             $this->quote = $this->quoteService->getQuote();
@@ -101,19 +100,5 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
         $this->quoteService->calculateQuoteTotals();
 
         return $this->responseFactory->create(["quote" => $this->quoteService->getQuoteObject()]);
-    }
-
-    /**
-     * Validate form data
-     *
-     * @param mixed $formData
-     * @return void
-     * @throws PaypalExpressException
-     */
-    protected function validateData($formData)
-    {
-        if (!is_array($formData)) {
-            throw new PaypalExpressException(__("Invalid order data"), 1);
-        }
     }
 }

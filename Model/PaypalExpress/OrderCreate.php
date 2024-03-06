@@ -94,7 +94,7 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
      * @param CheckoutSession $checkoutSession
      * @param CartRepositoryInterface $quoteRepository
      * @param OrderRepositoryInterface $orderRepository
-     * @param OrderUpdateShippingFactory $orderUpdateShippingFactory
+     * @param OrderUpdateFactory $orderUpdateFactory
      * @param BuckarooLoggerInterface $logger
      */
     public function __construct(
@@ -209,21 +209,6 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
         if ($this->customerSession->getCustomerId() !== $quote->getCustomer()->getId()) {
             throw new PaypalExpressException(__('Cannot create order for this user'));
         }
-    }
-
-    /**
-     * Update shipping address
-     *
-     * @param OrderInterface $order
-     * @return void
-     */
-    protected function updateOrderShipping(OrderInterface $order)
-    {
-        $orderUpdateShipping = $this->orderUpdateShippingFactory->create([
-            "shippingAddress" => $order->getShippingAddress()
-        ]);
-        $orderUpdateShipping->update();
-        $this->orderRepository->save($order);
     }
 
     /**
