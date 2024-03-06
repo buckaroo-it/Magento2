@@ -172,7 +172,7 @@ define([
     getOrderData() {
       let form = $("#product_addtocart_form");
       if (this.page === 'product') {
-                return form.serialize();
+        return form.serialize();
       }
     },
     /**

@@ -139,7 +139,6 @@ class QuoteAddressService
         if ($address->getId() === null) {
             $address->setFirstname('unknown');
             $address->setLastname('unknown');
-            $address->setTelephone('unknown');
             $address->setEmail('no-reply@example.com');
             $address->setStreet('unknown');
             $quote->setShippingAddress($address);
@@ -253,7 +252,6 @@ class QuoteAddressService
         if ($address->getId() === null) {
             $address->setFirstname('unknown');
             $address->setLastname('unknown');
-            $address->setTelephone('unknown');
             $address->setEmail('no-reply@example.com');
             $address->setStreet('unknown');
             $address->setCountryId($shippingAddress->getCountryCode());

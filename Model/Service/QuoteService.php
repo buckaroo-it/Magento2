@@ -156,12 +156,12 @@ class QuoteService
     /**
      * Create quote if in product page
      *
-     * @param array $formData
+     * @param string $formData
      *
      * @return Quote
      * @throws QuoteException
      */
-    public function createQuote(array $formData): Quote
+    public function createQuote(string $formData): Quote
     {
         try {
             /** @var QuoteBuilderInterface $quoteBuilder */

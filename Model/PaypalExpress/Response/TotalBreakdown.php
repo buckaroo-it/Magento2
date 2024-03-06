@@ -76,20 +76,6 @@ class TotalBreakdown implements TotalBreakdownInterface
     }
 
     /**
-     * Get buckaroo fee without tax
-     *
-     * @return float
-     */
-    protected function getBuckarooFeeExclTax()
-    {
-        $fee = $this->getTotalsOfType('buckaroo_fee');
-        if ($fee !== null) {
-            return (float)$fee->getData('buckaroo_fee');
-        }
-        return 0;
-    }
-
-    /**
      * Get shipping price
      *
      * @return BreakdownItemInterface
