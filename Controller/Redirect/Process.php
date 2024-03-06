@@ -629,9 +629,10 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
      */
     protected function removeAmastyGiftcardOnFailed(): void
     {
-        $class = \Amasty\GiftCardAccount\Model\GiftCardAccount\Repository::class;
-        if (class_exists($class)) {
-            $giftcardAccountRepository = $this->_objectManager->get($class);
+        if (class_exists(\Amasty\GiftCardAccount\Model\GiftCardAccount\Repository::class)) {
+            $giftcardAccountRepository = $this->_objectManager->get(
+                \Amasty\GiftCardAccount\Model\GiftCardAccount\Repository::class
+            );
 
             $giftcardOrderRepository = $this->_objectManager->get(
                 \Amasty\GiftCardAccount\Model\GiftCardExtension\Order\Repository::class/** @phpstan-ignore-line */
