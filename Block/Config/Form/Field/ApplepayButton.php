@@ -53,10 +53,10 @@ class ApplepayButton extends Field
 
     public function getButtonStyle(): string
     {
-        return $this->styleElement->getDataByKey('value');
+        return (string) $this->styleElement->getDataByKey('value');
     }
     public function getButtonStyleElement():string
     {
-        return $this->styleElement->getId();
+        return (string) $this->styleElement->getId();
     }
 }
