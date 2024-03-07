@@ -21,6 +21,7 @@
  -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
     <preference for="Magento\Payment\Gateway\Data\Order\OrderAdapter" type="Buckaroo\Magento2\Gateway\Data\Order\OrderAdapter"/>
+    <preference for="Buckaroo\Magento2\Api\Data\BuckarooRestOrderDataInterface" type="Buckaroo\Magento2\Model\BuckarooRestOrderData"/>
     <preference for="Buckaroo\Magento2\Api\InvoiceRepositoryInterface" type="Buckaroo\Magento2\Model\InvoiceRepository"/>
     <preference for="Buckaroo\Magento2\Api\GiftcardRepositoryInterface" type="Buckaroo\Magento2\Model\GiftcardRepository"/>
     <preference for="Buckaroo\Magento2\Api\GroupTransactionRepositoryInterface" type="Buckaroo\Magento2\Model\GroupTransactionRepository"/>

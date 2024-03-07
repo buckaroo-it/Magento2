@@ -66,7 +66,10 @@ define(
             },
         $.mage.__('Invalid COC number'));
 
-        $.validator.addMethod('phoneValidation', function (value) {
+        const bkIsPhoneValid = function (value) {
+            if (quote.billingAddress() === null) {
+                return false;
+            }
             var countryId = quote.billingAddress().countryId;
             var lengths = {
                 'NL': {
@@ -107,8 +110,13 @@ define(
             }
 
             return true;
-        },
-        $.mage.__('Phone number should be correct.'));
+        }
+
+        $.validator.addMethod(
+            'phoneValidation',
+            bkIsPhoneValid,
+            $.mage.__('Phone number should be correct.')
+        );
 
         $.validator.addMethod('validateAge', function (value) {
             if (value && (value.length > 0)) {
@@ -297,8 +305,8 @@ define(
                         this
                     )
                     
-                    this.activeAddress.subscribe(function (address) {
-                        if (address.phone) {
+                    this.activeAddress.subscribe(function(address) {
+                        if(address.phone) {
                             this.phoneValidate(address.phone)
                         }
                     }, this)
@@ -315,7 +323,7 @@ define(
                     this.identificationValidate.subscribe(function () {
                         this.validateField('Identificationnumber');
                     }, this);
-                    this.phoneValidate.subscribe(function () {
+                    this.phoneValidate.subscribe(function() {
                         this.validateField('Telephone');
                     }, this);
 
