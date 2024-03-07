@@ -120,7 +120,6 @@ define(
                     template : 'Buckaroo_Magento2/payment/buckaroo_magento2_afterpay',
                     telephoneNumber: null,
                     selectedBusiness: 1,
-                    billingName: '',
                     country: '',
                     dateValidate: null,
                     cocNumber: null,
@@ -179,15 +178,6 @@ define(
                         this
                     );
 
-
-                    this.billingName = ko.computed(
-                        function () {
-                            if (quote.billingAddress() !== null) {
-                                return quote.billingAddress().firstname + " " + quote.billingAddress().lastname;
-                            }
-                        },
-                        this
-                    );
 
                     this.termsUrl =  ko.computed(
                         function () {
@@ -353,7 +343,6 @@ define(
                         "po_number": null,
                         "additional_data": {
                             "customer_telephone" : this.telephoneNumber(),
-                            "customer_billingName" : this.billingName(),
                             "customer_DoB" : this.dateValidate(),
                             "customer_iban": this.bankAccountNumber(),
                             "termsCondition" : this.termsValidate(),

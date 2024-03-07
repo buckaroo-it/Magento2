@@ -51,6 +51,12 @@ interface TransactionResponseInterface
     public function getCurrency(): string;
 
     /**
+     * Get giftcard code
+     *
+     * @return string
+     */
+    public function getCode();
+    /**
      * Set data
      *
      * @param array $data

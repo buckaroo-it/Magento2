@@ -75,19 +75,6 @@
                         </div>
                     </div>
                     <!-- /ko -->
-
-                    <div class="field required">
-                        <label class="label" for="buckaroo_magento2_afterpay20_BillingName"> <span data-bind="i18n: 'Billing Name:'"> </span> </label>
-                        <div class="control">
-                            <input id="buckaroo_magento2_afterpay20_BillingName"
-                                   class="input-text field"
-                                   type="text"
-                                   data-bind="value: billingName"
-                                   name="payment[buckaroo_magento2_afterpay20][customer_billingName]"
-                                   disabled >
-                        </div>
-                    </div>
-
                     <!-- ko if: showPhone -->
                     <div class="field required" >
                         <label class="label" for="buckaroo_magento2_afterpay20_Telephone"> <span data-bind="i18n: 'Telephone:'"> </span> </label>
@@ -96,9 +83,8 @@
                                    type="text"
                                    class="input-text field"
                                    data-bind="
-                                   checked: phoneValidate,
                                    valueUpdate: 'blur',
-                                   value: phoneValidate"
+                                   value: phone"
                                    data-validate="{required:true, 'phoneValidation': true}"
                                    name="payment[buckaroo_magento2_afterpay20][customer_telephone]">
                         </div>
