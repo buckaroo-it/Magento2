@@ -143,13 +143,12 @@ define(
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_afterpay20',
                     activeAddress: null,
                     identificationNumber: null,
-                    billingName: null,
                     country: '',
                     customerCoc:'',
                     dateValidate: null,
                     termsValidate: true,
                     identificationValidate: null,
-                    phoneValidate: null,
+                    phone: null,
                     showIdentification: false,
                     showCOC: false,
                     value:"",
@@ -183,7 +182,7 @@ define(
                             'dateValidate',
                             'termsValidate',
                             'identificationValidate',
-                            'phoneValidate',
+                            'phone',
                             'customerCoc',
                             'value',
                             'validationState'
@@ -232,8 +231,8 @@ define(
 
                     this.showPhone = ko.computed(function () {
                             return  (!this.isCustomerLoggedIn() && this.isOsc()) ||
-                            (this.country() === 'NL' || this.country() === 'BE') ||
-                            this.phoneValidate()
+                            quote.billingAddress() === null ||
+                            (['NL','BE'].indexOf(quote.billingAddress().countryId) !== -1 && !bkIsPhoneValid( quote.billingAddress().telephone))
                     },
                         this);
 
@@ -258,23 +257,6 @@ define(
                     this.showFrenchTos = ko.computed(
                         function () {
                             return this.country() === 'BE'
-                        },
-                        this
-                    );
-
-                    this.billingName = ko.computed(
-                        function () {
-                            let firstname = this.activeAddress().firstname;
-                            if (firstname === undefined) {
-                                firstname = '';
-                            }
-
-
-                            let lastname = this.activeAddress().lastname;
-                            if (lastname === undefined) {
-                                lastname = '';
-                            }
-                            return firstname + " " + lastname;
                         },
                         this
                     );
@@ -304,12 +286,6 @@ define(
                         },
                         this
                     )
-                    
-                    this.activeAddress.subscribe(function(address) {
-                        if(address.phone) {
-                            this.phoneValidate(address.phone)
-                        }
-                    }, this)
 
                     this.dateValidate.subscribe(function () {
                         this.validateField('DoB');
@@ -323,7 +299,7 @@ define(
                     this.identificationValidate.subscribe(function () {
                         this.validateField('Identificationnumber');
                     }, this);
-                    this.phoneValidate.subscribe(function() {
+                    this.phone.subscribe(function() {
                         this.validateField('Telephone');
                     }, this);
 
@@ -444,9 +420,8 @@ define(
                         "method": this.item.method,
                         "po_number": null,
                         "additional_data": {
-                            "customer_telephone": this.phoneValidate(),
+                            "customer_telephone": this.phone(),
                             "customer_identificationNumber": this.identificationValidate(),
-                            "customer_billingName": this.billingName(),
                             "customer_DoB": this.dateValidate(),
                             "termsCondition": this.termsValidate(),
                             "customer_coc": this.customerCoc(),
