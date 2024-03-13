@@ -782,6 +782,12 @@
         </arguments>
     </type>
 
+    <virtualType name="ServiceVersion2DataBuilder" type="Buckaroo\Magento2\Gateway\Request\BasicParameter\ServiceVersionDataBuilder">
+        <arguments>
+            <argument name="defaultServiceVersion" xsi:type="number">2</argument>
+        </arguments>
+    </virtualType>
+
     <!-- Buckaroo Commands infrastructure -->
     <virtualType name="BuckarooWithIdBuilderComposite" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
@@ -844,6 +850,7 @@
                 <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ClientIPDataBuilder</item>
                 <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ReturnUrlDataBuilder</item>
                 <item name="save_order" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\SaveOrderBeforeDataBuilder</item>
+                <item name="service_version" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ServiceVersionDataBuilder</item>
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersPayDataBuilder</item>
             </argument>
         </arguments>
@@ -859,6 +866,7 @@
                 <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ClientIPDataBuilder</item>
                 <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ReturnUrlDataBuilder</item>
                 <item name="save_order" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\SaveOrderBeforeDataBuilder</item>
+                <item name="service_version" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ServiceVersionDataBuilder</item>
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersPayDataBuilder</item>
                 <item name="amount" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PayReminder\AmountDataBuilder</item>
                 <item name="original_transaction_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PayReminder\OriginalTransactionKeyDataBuilder</item>
@@ -959,6 +967,7 @@
                 <item name="amountDebit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Invoice\AmountInvoicedDataBuilder</item>
                 <item name="original_transactio_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Invoice\OriginalTransactionKeyDataBuilder</item>
                 <item name="order" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\OrderNumberDataBuilder</item>
+                <item name="service_version" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ServiceVersionDataBuilder</item>
                 <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\InvoicedArticlesDataBuilder</item>
             </argument>
         </arguments>
@@ -987,6 +996,7 @@
                 <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ReturnUrlDataBuilder</item>
                 <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ClientIPDataBuilder</item>
                 <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\RefundDescriptionDataBuilder</item>
+                <item name="service_version" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ServiceVersionDataBuilder</item>
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersRefundDataBuilder</item>
             </argument>
         </arguments>
@@ -1003,6 +1013,7 @@
                 <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ReturnUrlDataBuilder</item>
                 <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ClientIPDataBuilder</item>
                 <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\RefundDescriptionDataBuilder</item>
+                <item name="service_version" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ServiceVersionDataBuilder</item>
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersRefundDataBuilder</item>
             </argument>
         </arguments>
@@ -1063,6 +1074,7 @@
                 <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ReturnUrlDataBuilder</item>
                 <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ClientIPDataBuilder</item>
                 <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\DescriptionDataBuilder</item>
+                <item name="service_version" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ServiceVersionDataBuilder</item>
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersCancelDataBuilder</item>
             </argument>
         </arguments>
@@ -1170,6 +1182,7 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order" xsi:type="string">BuckarooOrderRequest</item>
+                <item name="serviceVersion" xsi:type="string">ServiceVersion2DataBuilder</item>
                 <item name="payRemainder" xsi:type="string">BuckarooPayRemainderRequest</item>
                 <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\GatewaySettingDataBuilder</item>
                 <item name="issuer" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\IssuerDataBuilder</item>
@@ -1473,6 +1486,7 @@
                 <item name="amountDebit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Invoice\AmountInvoicedDataBuilder</item>
                 <item name="reservation_number" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReservationNumberDataBuilder</item>
                 <item name="order" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\OrderNumberDataBuilder</item>
+                <item name="service_version" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ServiceVersionDataBuilder</item>
                 <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\InvoicedArticlesDataBuilder</item>
             </argument>
         </arguments>
@@ -1508,6 +1522,7 @@
                 <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ClientIPDataBuilder</item>
                 <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ReturnUrlDataBuilder</item>
                 <item name="reservation_number" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReservationNumberDataBuilder</item>
+                <item name="service_version" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ServiceVersionDataBuilder</item>
                 <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\InvoiceDataBuilder</item>
             </argument>
         </arguments>
@@ -1632,6 +1647,7 @@
                 <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ClientIPDataBuilder</item>
                 <item name="use_mobile_view" xsi:type="string">Buckaroo\Magento2\Gateway\Request\UseMobileViewDataBuilder</item>
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersPayDataBuilder</item>
+                <item name="service_version" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ServiceVersionDataBuilder</item>
                 <item name="payRemainder" xsi:type="string">BuckarooPayRemainderRequest</item>
             </argument>
         </arguments>
@@ -3799,6 +3815,7 @@
                 <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ReturnUrlDataBuilder</item>
                 <item name="original_transactio_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Invoice\OriginalTransactionKeyDataBuilder</item>
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersCaptureDataBuilder</item>
+                <item name="service_version" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ServiceVersionDataBuilder</item>
                 <item name="creditcard_type" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\CreditcardTypeDataBuilder</item>
             </argument>
         </arguments>
@@ -3957,6 +3974,7 @@
                 <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ReturnUrlDataBuilder</item>
                 <item name="original_transactio_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Invoice\OriginalTransactionKeyDataBuilder</item>
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersCaptureDataBuilder</item>
+                <item name="service_version" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ServiceVersionDataBuilder</item>
                 <item name="creditcard_type" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\CreditcardEncryptedDataBuilder</item>
             </argument>
         </arguments>
@@ -4485,6 +4503,7 @@
                 <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ReturnUrlDataBuilder</item>
                 <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ClientIPDataBuilder</item>
                 <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\DescriptionDataBuilder</item>
+                <item name="service_version" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ServiceVersionDataBuilder</item>
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersRefundDataBuilder</item>
             </argument>
         </arguments>

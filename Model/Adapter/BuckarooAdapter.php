@@ -140,6 +140,11 @@ class BuckarooAdapter
                 return $this->createCreditNote($data, BuilderComposite::TYPE_VOID);
             }
 
+            if (isset($data['serviceVersion'])) {
+                $payment->setServiceVersion($data['serviceVersion']);
+                unset($data['serviceVersion']);
+            }
+
             return $payment->{$action}($data);
         } catch (\Throwable $th) {
             $this->logger->addError(sprintf(
