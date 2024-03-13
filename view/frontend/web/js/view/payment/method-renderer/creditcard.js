@@ -169,7 +169,7 @@ define(
                 },
 
                 isCredicardGroupMode: function () {
-                    return window.checkoutConfig.payment.buckaroo.creditcard.groupCreditcards === 1;
+                    return window.checkoutConfig.payment.buckaroo.creditcard.groupCreditcards === '1';
                 },
 
                 getData: function () {
