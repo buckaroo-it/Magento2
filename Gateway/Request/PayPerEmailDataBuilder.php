@@ -66,7 +66,8 @@ class PayPerEmailDataBuilder extends AbstractDataBuilder
             'customer'              => [
                 'gender'    => $payment->getAdditionalInformation('customer_gender') ?? Gender::UNKNOWN,
                 'firstName' => $payment->getAdditionalInformation('customer_billingFirstName'),
-                'lastName'  => $payment->getAdditionalInformation('customer_billingLastName')
+                'lastName'  => $payment->getAdditionalInformation('customer_billingMiddleName')
+                    . ' ' . $payment->getAdditionalInformation('customer_billingLastName')
             ]
         ];
 

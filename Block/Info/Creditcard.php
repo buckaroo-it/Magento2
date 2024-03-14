@@ -52,6 +52,7 @@ class Creditcard extends Info
      * @param PaymentGroupTransaction $groupTransaction
      * @param GiftcardCollection $giftcardCollection
      * @param LogoService $logoService
+     * @param UrlInterface $baseUrl
      * @param array $data
      * @param ConfigProviderCreditcard|null $configProvider
      */
@@ -60,12 +61,11 @@ class Creditcard extends Info
         PaymentGroupTransaction $groupTransaction,
         GiftcardCollection $giftcardCollection,
         LogoService $logoService,
-        Repository $assetRepo,
         UrlInterface $baseUrl,
         array $data = [],
         ConfigProviderCreditcard $configProvider = null
     ) {
-        parent::__construct($context, $groupTransaction, $giftcardCollection, $logoService, $assetRepo, $baseUrl, $data);
+        parent::__construct($context, $groupTransaction, $giftcardCollection, $logoService, $baseUrl, $data);
         $this->configProvider = $configProvider;
     }
 

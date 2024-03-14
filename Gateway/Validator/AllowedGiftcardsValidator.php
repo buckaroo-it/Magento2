@@ -22,7 +22,6 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Gateway\Validator;
 
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards as GiftcardsConfig;
-use Magento\Framework\Exception\NotFoundException;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
@@ -50,9 +49,8 @@ class AllowedGiftcardsValidator extends AbstractValidator
      * Validates the payment information for Buckaroo gateway.
      *
      * @param array $validationSubject
-     * @return bool|ResultInterface
-     * @throws NotFoundException
-     * @throws \Exception
+     * @return ResultInterface
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function validate(array $validationSubject): ResultInterface
     {

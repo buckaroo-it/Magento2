@@ -530,6 +530,7 @@
                 <item name="capayablein3" xsi:type="string">in3old</item>
                 <item name="afterpay20" xsi:type="string">afterpay</item>
                 <item name="afterpay" xsi:type="string">afterpaydigiaccept</item>
+                <item name="afterpay2" xsi:type="string">afterpaydigiaccept</item>
                 <item name="giftcards" xsi:type="string">giftcard</item>
                 <item name="sofortbanking" xsi:type="string">sofortueberweisung</item>
                 <item name="creditcards" xsi:type="string">creditcard</item>
@@ -776,6 +777,7 @@
                 <item name="tinka" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\TinkaHandler</item>
                 <item name="capayablein3" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\CapayableIn3Handler</item>
                 <item name="billink" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\BillinkHandler</item>
+                <item name="klarnakp" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\KlarnaKpHandler</item>
             </argument>
         </arguments>
     </type>
@@ -886,6 +888,7 @@
                 <item name="payment_in_transit" xsi:type="string">Buckaroo\Magento2\Gateway\Response\PaymentInTransitHandler</item>
                 <item name="skip_push" xsi:type="string">Buckaroo\Magento2\Gateway\Response\SkipPushHandler</item>
                 <item name="restore_quote" xsi:type="string">Buckaroo\Magento2\Gateway\Response\RestoreQuoteHandler</item>
+                <item name="test_notification" xsi:type="string">Buckaroo\Magento2\Gateway\Response\TestNotificationHandler</item>
                 <item name="dispatch_event" xsi:type="string">OrderDispatchEventHandler</item>
             </argument>
         </arguments>
@@ -893,7 +896,7 @@
     <!-- END Buckaroo Order Command -->
 
     <!-- Buckaroo Authorize Command - Response Handler -->
-    <virtualType name="AuthorizeDispatchEventHandler"  type="Buckaroo\Magento2\Gateway\Response\DispatchEventHandler">
+    <virtualType name="AuthorizeDispatchEventHandler" type="Buckaroo\Magento2\Gateway\Response\DispatchEventHandler">
         <arguments>
             <argument name="command" xsi:type="string">authorize</argument>
         </arguments>
@@ -907,6 +910,7 @@
                 <item name="payment_in_transit" xsi:type="string">Buckaroo\Magento2\Gateway\Response\PaymentInTransitHandler</item>
                 <item name="skip_push" xsi:type="string">Buckaroo\Magento2\Gateway\Response\SkipPushHandler</item>
                 <item name="restore_quote" xsi:type="string">Buckaroo\Magento2\Gateway\Response\RestoreQuoteHandler</item>
+                <item name="test_notification" xsi:type="string">Buckaroo\Magento2\Gateway\Response\TestNotificationHandler</item>
                 <item name="dispatch_event" xsi:type="string">AuthorizeDispatchEventHandler</item>
             </argument>
         </arguments>
@@ -1135,7 +1139,7 @@
             <argument name="validators" xsi:type="array">
                 <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
                 <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
-                <item name="global" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\IdealIssuerValidator</item>
+                <item name="global" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\IssuerValidator</item>
             </argument>
         </arguments>
     </virtualType>
@@ -1169,6 +1173,7 @@
                 <item name="payRemainder" xsi:type="string">BuckarooPayRemainderRequest</item>
                 <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\GatewaySettingDataBuilder</item>
                 <item name="issuer" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\IssuerDataBuilder</item>
+                <item name="continueOnIncomplete" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ContinueOnIncompleteDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -1645,7 +1650,7 @@
             <argument name="infoBlockType" xsi:type="string">Buckaroo\Magento2\Block\Info</argument>
             <argument name="valueHandlerPool" xsi:type="object">GiropayValueHandlerPool</argument>
             <argument name="validatorPool" xsi:type="object">GiropayValidatorPool</argument>
-            <argument name="commandPool" xsi:type="object">GiropayGatewayCommandPool</argument>
+            <argument name="commandPool" xsi:type="object">BuckarooGatewayCommandPool</argument>
         </arguments>
     </virtualType>
     <!-- Giropay Value handlers infrastructure -->
@@ -1674,43 +1679,6 @@
         </arguments>
     </virtualType>
     <!-- END Giropay validators infrastructure -->
-
-    <!-- Giropay Commands infrastructure -->
-    <virtualType name="GiropayGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
-        <arguments>
-            <argument name="commands" xsi:type="array">
-                <item name="order" xsi:type="string">GiropayOrderCommand</item>
-                <item name="refund" xsi:type="string">BuckarooRefundCommand</item>
-            </argument>
-        </arguments>
-    </virtualType>
-    <!-- Giropay Order Command -->
-    <virtualType name="GiropayOrderCommand" type="Buckaroo\Magento2\Gateway\Command\GatewayCommand">
-        <arguments>
-            <argument name="requestBuilder" xsi:type="object">GiropayOrderRequest</argument>
-            <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">TransactionPay</argument>
-            <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
-            <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
-        </arguments>
-    </virtualType>
-    <!-- Giropay Order Command - Request Builder -->
-    <virtualType name="GiropayOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
-        <arguments>
-            <argument name="builders" xsi:type="array">
-                <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\PaymentMethodDataBuilder</item>
-                <item name="currency" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\CurrencyDataBuilder</item>
-                <item name="amount_debit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\AmountDebitDataBuilder</item>
-                <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\InvoiceDataBuilder</item>
-                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ReturnUrlDataBuilder</item>
-                <item name="custom_parameters" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\CustomParametersDataBuilder</item>
-                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ClientIPDataBuilder</item>
-            </argument>
-        </arguments>
-    </virtualType>
-    <!-- END Giropay Order Command -->
-    <!-- END Giropay Commands infrastructure -->
     <!-- END Payment Method: Giropay -->
 
     <!-- Payment Method: Trustly -->

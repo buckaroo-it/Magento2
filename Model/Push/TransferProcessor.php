@@ -139,4 +139,14 @@ class TransferProcessor extends DefaultProcessor
             'customer_iban' => $this->pushRequest->getServiceTransferCustomeriban()
         ];
     }
+
+    /**
+     * @return void
+     */
+    protected function setOrderStatusMessage(): void
+    {
+        if (!empty($this->pushRequest->getStatusmessage())) {
+            $this->order->addStatusHistoryComment($this->pushRequest->getStatusmessage());
+        }
+    }
 }

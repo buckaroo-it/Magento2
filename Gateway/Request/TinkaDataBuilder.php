@@ -21,7 +21,10 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request;
 
+use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
+use Buckaroo\Magento2\Model\Config\Source\TinkaActiveService;
 use Magento\Payment\Gateway\Request\BuilderInterface;
+use Magento\Payment\Model\MethodInterface;
 
 class TinkaDataBuilder implements BuilderInterface
 {
@@ -32,9 +35,28 @@ class TinkaDataBuilder implements BuilderInterface
      */
     public function build(array $buildSubject): array
     {
+        $paymentDO = SubjectReader::readPayment($buildSubject);
+        $paymentMethod = $paymentDO->getPayment()->getMethodInstance();
+
         return [
-            'paymentMethod'  => 'Credit',
+            'paymentMethod'  => $this->getActiveService($paymentMethod),
             'deliveryMethod' => 'ShippingPartner'
         ];
+    }
+
+    /**
+     * Get Active service
+     *
+     * @param MethodInterface $paymentMethod
+     * @return string
+     */
+    public function getActiveService(MethodInterface $paymentMethod): string
+    {
+        $activeService = $paymentMethod->getConfigData('activeservice', $paymentMethod->getStore());
+
+        if (!in_array($activeService, TinkaActiveService::LIST)) {
+            return TinkaActiveService::CREDIT;
+        }
+        return $activeService;
     }
 }
