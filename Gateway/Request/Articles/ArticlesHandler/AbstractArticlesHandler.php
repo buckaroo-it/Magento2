@@ -769,11 +769,12 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      */
     protected function getCreditmemoArticleDataPayRemainder(): array
     {
+        $payRemainderAmount = round($this->payReminderService->getPayRemainder($this->getOrder()), 2);
         return $this->getArticleRefundArrayLine(
             'PayRemainder',
             1,
             1,
-            round($this->payReminderService->getPayRemainder($this->getOrder()), 2),
+            $payRemainderAmount,
             $this->getTaxCategory($this->getOrder())
         );
     }
