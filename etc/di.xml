@@ -782,12 +782,6 @@
         </arguments>
     </type>
 
-    <virtualType name="ServiceVersion2DataBuilder" type="Buckaroo\Magento2\Gateway\Request\BasicParameter\ServiceVersionDataBuilder">
-        <arguments>
-            <argument name="defaultServiceVersion" xsi:type="number">2</argument>
-        </arguments>
-    </virtualType>
-
     <!-- Buckaroo Commands infrastructure -->
     <virtualType name="BuckarooWithIdBuilderComposite" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
@@ -1176,7 +1170,6 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order" xsi:type="string">BuckarooOrderRequest</item>
-                <item name="serviceVersion" xsi:type="string">ServiceVersion2DataBuilder</item>
                 <item name="payRemainder" xsi:type="string">BuckarooPayRemainderRequest</item>
                 <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\GatewaySettingDataBuilder</item>
                 <item name="issuer" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\IssuerDataBuilder</item>
@@ -2452,7 +2445,7 @@
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
                 <item name="payRemainder" xsi:type="string">BuckarooPayRemainderRequest</item>
                 <item name="customer" xsi:type="string">CustomerAfterpayDataBuilder</item>
-                <item name="service_version" xsi:type="string">ServiceVersion2DataBuilder</item>
+                <item name="service_version" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AfterpaySCADataBuilder</item>
                 <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesDataBuilder</item>
                 <item name="skipPush" xsi:type="string">Buckaroo\Magento2\Gateway\Request\SkipPushDataBuilder</item>
             </argument>
@@ -2540,7 +2533,7 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="refund_request" xsi:type="string">BuckarooPartialRefundRequest</item>
-                <item name="service_version" xsi:type="string">ServiceVersion2DataBuilder</item>
+                <item name="service_version" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AfterpaySCADataBuilder</item>
                 <item name="creditmemmo_articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\CreditmemoArticlesDataBuilder</item>
             </argument>
         </arguments>

@@ -21,7 +21,6 @@
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Buckaroo\Magento2\Model\Config\Source\AfterpayCustomerType;
-use Magento\Tests\NamingConvention\true\bool;
 
 class Afterpay20 extends AbstractConfigProvider
 {
