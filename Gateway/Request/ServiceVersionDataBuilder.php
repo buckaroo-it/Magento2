@@ -19,9 +19,10 @@
  */
 declare(strict_types=1);
 
-namespace Buckaroo\Magento2\Gateway\Request\BasicParameter;
+namespace Buckaroo\Magento2\Gateway\Request;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 
 class ServiceVersionDataBuilder implements BuilderInterface
@@ -47,10 +48,15 @@ class ServiceVersionDataBuilder implements BuilderInterface
     public function build(array $buildSubject): array
     {
         $paymentDO = SubjectReader::readPayment($buildSubject);
-        $payment = $paymentDO->getPayment();
+        $payment = $paymentDO->getPayment();;
 
         $serviceVersion = $payment->getAdditionalInformation(self::BUCKAROO_SERVICE_VERSION_KEY);
         if (empty($serviceVersion)) {
+            $paymentInstance = $payment->getMethodInstance();
+            if ($paymentInstance->getCode() == Afterpay20::CODE
+                && !$paymentInstance->getConfigData(Afterpay20::XPATH_AFTERPAY20_SCA)) {
+                return [];
+            }
             $serviceVersion = $this->defaultServiceVersion;
             $payment->setAdditionalInformation(self::BUCKAROO_SERVICE_VERSION_KEY, $serviceVersion);
         }
