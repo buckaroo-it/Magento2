@@ -75,17 +75,30 @@ class Add
             $product = $this->applePayFormatData->getProductObject($request['product']);
             $this->quoteService->addProductToCart($product);
 
-            // Get Shipping Address From Request
-            $shippingAddressRequest = $this->applePayFormatData->getShippingAddressObject($request['wallet']);
+            $shippingMethodsResult = [];
+            if($this->quoteService->getQuote()->getIsVirtual()) {
+                // Get Shipping Address From Request
+                $shippingAddressRequest = $this->applePayFormatData->getShippingAddressObject($request['wallet']);
 
-            // Add Shipping Address on Quote
-            $this->quoteService->addAddressToQuote($shippingAddressRequest);
+                // Add Shipping Address on Quote
+                $this->quoteService->addAddressToQuote($shippingAddressRequest);
 
-            // Add Shipping Address on Quote
-            $this->quoteService->addAddressToQuote($shippingAddressRequest);
+                // Add Shipping Address on Quote
+                $this->quoteService->addAddressToQuote($shippingAddressRequest);
 
-            // Get Shipping Methods
-            $shippingMethods = $this->quoteService->getAvailableShippingMethods();
+                // Get Shipping Methods
+                $shippingMethods = $this->quoteService->getAvailableShippingMethods();
+
+                foreach ($shippingMethods as $shippingMethod) {
+                    $shippingMethodsResult[] = [
+                        'carrier_title' => $shippingMethod['carrier_title'],
+                        'price_incl_tax' => round($shippingMethod['amount'], 2),
+                        'method_code' => $shippingMethod['carrier_code'] . '_' .  $shippingMethod['method_code'],
+                        'method_title' => $shippingMethod['method_title'],
+                    ];
+                }
+                $this->quoteService->setShippingMethod($shippingMethodsResult[0]['method_code']);
+            }
 
             //Set Payment Method
             $this->quoteService->setPaymentMethod(Applepay::CODE);
@@ -97,7 +110,7 @@ class Add
             $totals = $this->quoteService->gatherTotals();
 
             return [
-                'shipping_methods' => $shippingMethods,
+                'shipping_methods' => $shippingMethodsResult,
                 'totals'           => $totals
             ];
         } catch (\Exception $exception) {
