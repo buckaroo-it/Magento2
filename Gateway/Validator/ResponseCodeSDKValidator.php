@@ -161,6 +161,23 @@ class ResponseCodeSDKValidator extends AbstractValidator
                 "for the invoice and delivery address for Afterpay transactions.";
         }
 
+        $fraudMessage = $this->getFailureMessageOnFraud();
+        if ($fraudMessage !== null) {
+            $message = $fraudMessage;
+        }
+
         return $this->createResult(false, [__($message)], [$statusCode]);
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getFailureMessageOnFraud(): ?string
+    {
+        if ($this->transaction->getSubStatusCode() == 'S103') {
+            return 'An anti-fraud rule has blocked this transaction automatically. Please contact the webshop.';
+        }
+
+        return null;
     }
 }
