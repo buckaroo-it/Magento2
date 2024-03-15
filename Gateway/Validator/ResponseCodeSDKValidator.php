@@ -161,8 +161,8 @@ class ResponseCodeSDKValidator extends AbstractValidator
                 "for the invoice and delivery address for Afterpay transactions.";
         }
 
-        $fraudMessage = $this->getFailureMessageOnFraud($transactionResponse);
-        if ($fraudMessage === null) {
+        $fraudMessage = $this->getFailureMessageOnFraud();
+        if ($fraudMessage !== null) {
             $message = $fraudMessage;
         }
 
@@ -172,7 +172,7 @@ class ResponseCodeSDKValidator extends AbstractValidator
     /**
      * @return string|null
      */
-    public function getFailureMessageOnFraud()
+    public function getFailureMessageOnFraud(): ?string
     {
         if ($this->transaction->getSubStatusCode() == 'S103') {
             return 'An anti-fraud rule has blocked this transaction automatically. Please contact the webshop.';
