@@ -63,22 +63,14 @@ class Creditcards extends AbstractConfigProvider
      */
     public function getConfig(): array
     {
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'creditcards' => [
-                        'paymentFeeLabel'   => $this->getBuckarooPaymentFeeLabel(),
-                        'subtext'           => $this->getSubtext(),
-                        'subtext_style'     => $this->getSubtextStyle(),
-                        'subtext_color'     => $this->getSubtextColor(),
-                        'creditcards'       => $this->formatIssuers(),
-                        'defaultCardImage'  => $this->getImageUrl('svg/creditcards', 'svg'),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'isTestMode'        => $this->isTestMode()
-                    ],
-                ],
-            ],
-        ];
+        if (!$this->getActive()) {
+            return [];
+        }
+
+        return $this->fullConfig([
+            'creditcards'       => $this->formatIssuers(),
+            'defaultCardImage'  => $this->getImageUrl('svg/creditcards', 'svg'),
+        ]);
     }
 
     /**

@@ -26,32 +26,4 @@ use Buckaroo\Magento2\Exception;
 class Multibanco extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_multibanco';
-
-    /**
-     * @inheritdoc
-     *
-     * @throws Exception
-     */
-    public function getConfig(): array
-    {
-        if (!$this->getActive()) {
-            return [];
-        }
-
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'multibanco' => [
-                        'paymentFeeLabel'   => $this->getBuckarooPaymentFeeLabel(),
-                        'subtext'           => $this->getSubtext(),
-                        'subtext_style'     => $this->getSubtextStyle(),
-                        'subtext_color'     => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'isTestMode'        => $this->isTestMode()
-                    ],
-                ],
-            ],
-        ];
-    }
-
 }

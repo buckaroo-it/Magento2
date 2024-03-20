@@ -26,27 +26,4 @@ use Buckaroo\Magento2\Exception;
 class Sofortbanking extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_sofortbanking';
-
-    /**
-     * @inheritdoc
-     *
-     * @throws Exception
-     */
-    public function getConfig(): array
-    {
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'sofortbanking' => [
-                        'paymentFeeLabel'   => $this->getBuckarooPaymentFeeLabel(),
-                        'subtext'           => $this->getSubtext(),
-                        'subtext_style'     => $this->getSubtextStyle(),
-                        'subtext_color'     => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'isTestMode'        => $this->isTestMode()
-                    ],
-                ],
-            ],
-        ];
-    }
 }

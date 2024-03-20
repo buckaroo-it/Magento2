@@ -21,10 +21,9 @@
 define(
     [
         'jquery',
-        'buckaroo/checkout/payment/parent',
+        'Magento_Checkout/js/view/payment/default',
         'Magento_Checkout/js/model/payment/additional-validators',
         'Buckaroo_Magento2/js/action/place-order',
-        'ko',
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/action/select-payment-method',
         'buckaroo/checkout/common'
@@ -34,7 +33,6 @@ define(
         Component,
         additionalValidators,
         placeOrderAction,
-        ko,
         checkoutData,
         selectPaymentMethodAction,
         checkoutCommon
@@ -44,15 +42,11 @@ define(
         return Component.extend(
             {
                 defaults: {
-                    template: 'Buckaroo_Magento2/payment/buckaroo_magento2_trustly'
+                    template: 'Buckaroo_Magento2/payment/common'
                 },
-                redirectAfterPlaceOrder: false,
-                paymentFeeLabel : window.checkoutConfig.payment.buckaroo.trustly.paymentFeeLabel,
-                subtext : window.checkoutConfig.payment.buckaroo.trustly.subtext,
-                subTextStyle : checkoutCommon.getSubtextStyle('trustly'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
-                isTestMode: window.checkoutConfig.payment.buckaroo.trustly.isTestMode,
+                config: null, 
 
                 /**
                  * @override
@@ -62,7 +56,9 @@ define(
                         window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
                     }
 
-                    return this._super(options);
+                    const init = this._super(options);
+
+                    return init;
                 },
 
                 /**
@@ -108,7 +104,7 @@ define(
                 },
 
                 payWithBaseCurrency: function () {
-                    var allowedCurrencies = window.checkoutConfig.payment.buckaroo.trustly.allowedCurrencies;
+                    var allowedCurrencies = this.buckaroo.allowedCurrencies;
 
                     return allowedCurrencies.indexOf(this.currencyCode) < 0;
                 },
@@ -117,16 +113,40 @@ define(
                     var text = $.mage.__('The transaction will be processed using %s.');
 
                     return text.replace('%s', this.baseCurrencyCode);
+                },
+
+                validate: function () {
+                    const form = $('.' + this.getCode() + ' .payment-method-second-col form');
+                    if (form.length) {
+                        return form.valid();
+                    }
+                    return true;
+                },
+
+                validateField(data, event) {
+                    $(event.target).valid();
+                },
+
+                getSubtextStyle: function () {
+                    let config = this.buckaroo;
+                    if (config === undefined) {
+                        return;
+                    }
+                    let subtextColor = config.subtext_color || '#757575';
+                    let subtextStyle = config.subtext_style || 'regular';
+    
+                    let style = { color: subtextColor }
+                    if (subtextStyle == 'bold') {
+                        style.fontWeight = 'bold';
+                    }
+    
+                    if (subtextStyle == 'italic') {
+                        style.fontStyle = 'italic';
+                    }
+                    return style;
                 }
+                
             }
         );
     }
 );
-
-
-
-
-
-
-
-

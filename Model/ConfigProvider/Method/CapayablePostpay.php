@@ -46,21 +46,9 @@ class CapayablePostpay extends AbstractConfigProvider
         if (!$this->getActive()) {
             return [];
         }
-
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'capayablepostpay' => [
-                        'paymentFeeLabel'      => $this->getBuckarooPaymentFeeLabel(),
-                        'subtext'              => $this->getSubtext(),
-                        'subtext_style'        => $this->getSubtextStyle(),
-                        'subtext_color'        => $this->getSubtextColor(),
-                        'allowedCurrencies'    => $this->getAllowedCurrencies(),
-                        'showFinancialWarning' => $this->canShowFinancialWarning(),
-                        'isTestMode'           => $this->isTestMode()
-                    ],
-                ],
-            ],
-        ];
+        
+        return $this->fullConfig([
+            'showFinancialWarning' => $this->canShowFinancialWarning(),
+        ]);
     }
 }

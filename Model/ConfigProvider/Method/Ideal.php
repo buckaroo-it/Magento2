@@ -85,23 +85,11 @@ class Ideal extends AbstractConfigProvider
             return [];
         }
 
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'ideal' => [
-                        'banks'             => $this->formatIssuers(),
-                        'paymentFeeLabel'   => $this->getBuckarooPaymentFeeLabel(),
-                        'subtext'           => $this->getSubtext(),
-                        'subtext_style'     => $this->getSubtextStyle(),
-                        'subtext_color'     => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'selectionType'     => $this->getSelectionType(),
-                        'showIssuers'       => $this->canShowIssuers(),
-                        'isTestMode'        => $this->isTestMode()
-                    ],
-                ],
-            ],
-        ];
+        return $this->fullConfig([
+            'banks'             => $this->formatIssuers(),
+            'selectionType'     => $this->getSelectionType(),
+            'showIssuers'       => $this->canShowIssuers(),
+        ]);
     }
 
     /**

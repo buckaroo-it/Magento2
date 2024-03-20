@@ -21,7 +21,7 @@
 define(
     [
         'jquery',
-        'Magento_Checkout/js/view/payment/default',
+        'buckaroo/checkout/payment/parent',
         'Magento_Checkout/js/model/payment/additional-validators',
         'Buckaroo_Magento2/js/action/place-order',
         'Magento_Checkout/js/model/quote',
@@ -133,16 +133,9 @@ define(
                     }
                 },
                 redirectAfterPlaceOrder : true,
-                paymentFeeLabel : window.checkoutConfig.payment.buckaroo.afterpay.paymentFeeLabel,
-                subtext : window.checkoutConfig.payment.buckaroo.afterpay.subtext,
-                subTextStyle : checkoutCommon.getSubtextStyle('afterpay'),
-
-                currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
-                baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 dp: datePicker,
-                businessMethod : window.checkoutConfig.payment.buckaroo.afterpay.businessMethod,
-                paymentMethod : window.checkoutConfig.payment.buckaroo.afterpay.paymentMethod,
-                isTestMode: window.checkoutConfig.payment.buckaroo.afterpay.isTestMode,
+                businessMethod : buckaroo.businessMethod,
+                paymentMethod : buckaroo.paymentMethod,
                 /**
                  * @override
                  */
@@ -173,7 +166,7 @@ define(
                         function () {
                             return quote.billingAddress() !== null &&
                             quote.billingAddress().countryId == 'NL' &&
-                            window.checkoutConfig.payment.buckaroo.afterpay.showFinancialWarning
+                            buckaroo.showFinancialWarning
                         },
                         this
                     );
@@ -281,7 +274,7 @@ define(
                  * Place order.
                  *
                  * @todo To override the script used for placeOrderAction, we need to override the placeOrder method
-                 *          on our parent class (Magento_Checkout/js/view/payment/default) so we can
+                 *          on our parent class (buckaroo/checkout/payment/parent) so we can
                  *
                  *          placeOrderAction has been changed from Magento_Checkout/js/action/place-order to our own
                  *          version (Buckaroo_Magento2/js/action/place-order) to prevent redirect and handle the response.

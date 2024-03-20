@@ -132,22 +132,11 @@ class Giftcards extends AbstractConfigProvider
             return $cardA['sort'] - $cardB['sort'];
         });
 
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'groupGiftcards'   => $this->getGroupGiftcards(),
-                    'avaibleGiftcards' => $cards,
-                    'giftcards'        => [
-                        'paymentFeeLabel'   => $this->getBuckarooPaymentFeeLabel(),
-                        'subtext'           => $this->getSubtext(),
-                        'subtext_style'     => $this->getSubtextStyle(),
-                        'subtext_color'     => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'isTestMode'        => $this->isTestMode()
-                    ],
-                ],
-            ],
-        ];
+        
+        return $this->fullConfig([
+            'groupGiftcards'   => $this->getGroupGiftcards(),
+            'availableGiftcards' => $cards,
+        ]);
     }
 
     /**

@@ -66,31 +66,18 @@ class Billink extends AbstractConfigProvider
             return [];
         }
 
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'billink' => [
-                        'sendEmail'         => $this->hasOrderEmail(),
-                        'paymentFeeLabel'   => $this->getBuckarooPaymentFeeLabel(),
-                        'subtext'           => $this->getSubtext(),
-                        'subtext_style'     => $this->getSubtextStyle(),
-                        'subtext_color'     => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'b2b'               => $this->helper->checkCustomerGroup('buckaroo_magento2_billink'),
-                        'genderList'        => [
-                            ['genderType' => 'male', 'genderTitle' => __('He/him')],
-                            ['genderType' => 'female', 'genderTitle' => __('She/her')],
-                            ['genderType' => 'unknown', 'genderTitle' => __('They/them')],
-                            ['genderType' => 'unknown', 'genderTitle' => __('I prefer not to say')]
-                        ],
-                        'businessMethod'    => $this->getBusiness(),
-                        'showFinancialWarning' => $this->canShowFinancialWarning(),
-                        'isTestMode'        => $this->isTestMode()
-                    ],
-                    'response' => [],
-                ],
+        return $this->fullConfig([
+            'sendEmail'         => $this->hasOrderEmail(),
+            'b2b'               => $this->helper->checkCustomerGroup('buckaroo_magento2_billink'),
+            'genderList'        => [
+                ['genderType' => 'male', 'genderTitle' => __('He/him')],
+                ['genderType' => 'female', 'genderTitle' => __('She/her')],
+                ['genderType' => 'unknown', 'genderTitle' => __('They/them')],
+                ['genderType' => 'unknown', 'genderTitle' => __('I prefer not to say')]
             ],
-        ];
+            'businessMethod'    => $this->getBusiness(),
+            'showFinancialWarning' => $this->canShowFinancialWarning(),
+        ]);
     }
 
     /**

@@ -114,30 +114,23 @@ class Creditcard extends AbstractConfigProvider
      */
     public function getConfig(): array
     {
+        if (!$this->getActive()) {
+            return [];
+        }
+        
         $issuers = $this->formatIssuers();
+
 
         $selectionType = $this->getSelectionType();
 
         $paymentFlow = $this->getMethodConfigValue(self::XPATH_PAYMENT_FLOW);
 
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'creditcard' => [
-                        'cards'             => $issuers,
-                        'groupCreditcards'  => $this->isGroupCreditcards(),
-                        'paymentFeeLabel'   => $this->getBuckarooPaymentFeeLabel(),
-                        'subtext'           => $this->getSubtext(),
-                        'subtext_style'     => $this->getSubtextStyle(),
-                        'subtext_color'     => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'selectionType'     => $selectionType,
-                        'paymentFlow'       => $paymentFlow,
-                        'isTestMode'        => $this->isTestMode()
-                    ],
-                ],
-            ],
-        ];
+        return $this->fullConfig([
+            'cards'             => $issuers,
+            'groupCreditcards'  => $this->isGroupCreditcards(),
+            'selectionType'     => $selectionType,
+            'paymentFlow'       => $paymentFlow,
+        ]);
     }
 
     public function getIssuers(): array

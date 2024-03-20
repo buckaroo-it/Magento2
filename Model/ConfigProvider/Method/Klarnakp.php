@@ -76,23 +76,9 @@ class Klarnakp extends AbstractConfigProvider
             return [];
         }
 
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'klarnakp' => [
-                        'paymentFeeLabel'      => $this->getBuckarooPaymentFeeLabel(),
-                        'subtext'              => $this->getSubtext(),
-                        'subtext_style'        => $this->getSubtextStyle(),
-                        'subtext_color'        => $this->getSubtextColor(),
-                        'allowedCurrencies'    => $this->getAllowedCurrencies(),
-                        'paymentFee'           => $this->getPaymentFee(),
-                        'showFinancialWarning' => $this->canShowFinancialWarning(),
-                        'isTestMode'        => $this->isTestMode()
-                    ],
-                    'response' => [],
-                ],
-            ],
-        ];
+        return $this->fullConfig([
+            'showFinancialWarning' => $this->canShowFinancialWarning(),
+        ]);
     }
 
     /**

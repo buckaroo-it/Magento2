@@ -41,24 +41,11 @@ class Afterpay20 extends AbstractConfigProvider
             return [];
         }
 
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'afterpay20' => [
-                        'sendEmail'            => $this->hasOrderEmail(),
-                        'paymentFeeLabel'      => $this->getBuckarooPaymentFeeLabel(),
-                        'subtext'              => $this->getSubtext(),
-                        'subtext_style'        => $this->getSubtextStyle(),
-                        'subtext_color'        => $this->getSubtextColor(),
-                        'allowedCurrencies'    => $this->getAllowedCurrencies(),
-                        'is_b2b'               => $this->getCustomerType() !== AfterpayCustomerType::CUSTOMER_TYPE_B2C,
-                        'showFinancialWarning' => $this->canShowFinancialWarning(),
-                        'isTestMode'           => $this->isTestMode()
-                    ],
-                    'response'   => [],
-                ],
-            ],
-        ];
+        return  $this->fullConfig([
+            'sendEmail'            => $this->hasOrderEmail(),
+            'is_b2b'               => $this->getCustomerType() !== AfterpayCustomerType::CUSTOMER_TYPE_B2C,
+            'showFinancialWarning' => $this->canShowFinancialWarning(),
+        ]);
     }
 
     /**

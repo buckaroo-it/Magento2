@@ -20,26 +20,10 @@
 /*global define*/
 define(
     [
-        'jquery',
-        'Magento_Checkout/js/view/payment/default',
-        'Magento_Checkout/js/model/payment/additional-validators',
-        'Buckaroo_Magento2/js/action/place-order',
-        'ko',
-        'mage/translate',
-        'Magento_Checkout/js/checkout-data',
-        'Magento_Checkout/js/action/select-payment-method',
-        'buckaroo/checkout/common'
+        'buckaroo/checkout/payment/parent',
     ],
     function (
-        $,
         Component,
-        additionalValidators,
-        placeOrderAction,
-        ko,
-        $t,
-        checkoutData,
-        selectPaymentMethodAction,
-        checkoutCommon
     ) {
         'use strict';
 
@@ -48,164 +32,27 @@ define(
                 defaults: {
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_creditcard'
                 },
-                creditcards: [],
-                groupCreditcards: false,
+                selectedCard: null,
                 redirectAfterPlaceOrder: false,
-                creditcardIssuer: null,
-                selectedBank: null,
-                selectedBankDropDown: null,
-                selectionType: null,
-                paymentFeeLabel : window.checkoutConfig.payment.buckaroo.creditcard.paymentFeeLabel,
-                subtext : window.checkoutConfig.payment.buckaroo.creditcard.subtext,
-                subTextStyle : checkoutCommon.getSubtextStyle('creditcard'),
-                currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
-                baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
-                paymentFlow : window.checkoutConfig.payment.buckaroo.creditcard.paymentFlow,
-                isTestMode: window.checkoutConfig.payment.buckaroo.creditcard.isTestMode,
-
-                /**
-                 * @override
-                 */
-                initialize : function (options) {
-                    if (checkoutData.getSelectedPaymentMethod() == options.index) {
-                        window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-                    }
-                    return this._super(options);
-                },
-
                 initObservable: function () {
-                    this._super().observe(['selectedCard', 'creditcards', 'selectionType']);
-
-                    this.creditcards = ko.observableArray(window.checkoutConfig.payment.buckaroo.creditcard.cards);
-
-                    this.selectionType  = window.checkoutConfig.payment.buckaroo.creditcard.selectionType;
-
-                    /**
-                     * observe radio buttons
-                     * check if selected
-                     */
-                    var self = this;
-                    this.setSelectedCard = function (value) {
-                        self.selectedCard(value);
-                        return true;
-                    };
-
-                    /**
-                     * Check if the required fields are filled. If so: enable place order button (true) | ifnot: disable place order button (false)
-                     */
-                    this.buttoncheck = ko.computed(
-                        function () {
-                            return this.selectedCard();
-                        },
-                        this
-                    );
-
-                    $('.iosc-place-order-button').on('click', function (e) {
-                        if (self.selectedCard() == null) {
-                            self.messageContainer.addErrorMessage({'message': $t('You need select a card')});
-                        }
-                    });
-
+                    this._super().observe(['selectedCard']);
                     return this;
-                },
-
-                setSelectedBankDropDown: function () {
-                    var el = document.getElementById("buckaroo_magento2_creditcard_issuer");
-                    this.selectedCard(el.options[el.selectedIndex].value);
-                    return true;
-                },
-
-                /**
-                 * Place order.
-                 *
-                 * placeOrderAction has been changed from Magento_Checkout/js/action/place-order to our own version
-                 * (Buckaroo_Magento2/js/action/place-order) to prevent redirect and handle the response.
-                 */
-                placeOrder: function (data, event) {
-                    var self = this,
-                        placeOrder;
-
-                    if (event) {
-                        event.preventDefault();
-                    }
-
-                    if (this.validate() && additionalValidators.validate()) {
-                        this.isPlaceOrderActionAllowed(false);
-                        placeOrder = placeOrderAction(this.getData(), this.redirectAfterPlaceOrder, this.messageContainer);
-
-                        $.when(placeOrder).fail(
-                            function () {
-                                self.isPlaceOrderActionAllowed(true);
-                            }
-                        ).done(this.afterPlaceOrder.bind(this));
-                        return true;
-                    }
-                    return false;
-                },
-
-                afterPlaceOrder: function () {
-                    var response = window.checkoutConfig.payment.buckaroo.response;
-                    response = $.parseJSON(response);
-                    checkoutCommon.redirectHandle(response);
-                },
-
-                isCheckedCreditCardPaymentMethod: function (code) {
-                    return ((this.creditcardIssuer !== undefined) && this.creditcardIssuer == code);
                 },
 
                 selectCreditCardPaymentMethod: function (code) {
                     this.setSelectedCard(code);
-                    this.item.method = 'buckaroo_magento2_creditcard';
-                    this.paymentMethod = this.item.method;
                     this.selectPaymentMethod();
-                    return true;
-                },
-
-                selectPaymentMethod: function () {
-                    window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-
-                    selectPaymentMethodAction(this.getData());
-                    checkoutData.setSelectedPaymentMethod(this.item.method);
-                    return true;
-                },
-
-                isCredicardGroupMode: function () {
-                    return window.checkoutConfig.payment.buckaroo.creditcard.groupCreditcards === 1;
                 },
 
                 getData: function () {
-                    var selectedCardCode = null;
-                    if (this.selectedCard()) {
-                        selectedCardCode = typeof this.selectedCard() === 'object' ?
-                            this.selectedCard().code :
-                            this.selectedCard();
-                    }
-
-                    if (this.creditcardIssuer) {
-                        selectedCardCode = this.creditcardIssuer;
-                    }
-
                     return {
                         "method": this.item.method,
                         "po_number": null,
                         "additional_data": {
-                            "card_type" : selectedCardCode
+                            "card_type": this.selectedCard()
                         }
                     };
                 },
-
-                payWithBaseCurrency: function () {
-                    var allowedCurrencies = window.checkoutConfig.payment.buckaroo.creditcard.allowedCurrencies;
-
-                    return allowedCurrencies.indexOf(this.currencyCode) < 0;
-                },
-
-                getPayWithBaseCurrencyText: function () {
-                    var text = $.mage.__('The transaction will be processed using %s.');
-
-                    return text.replace('%s', this.baseCurrencyCode);
-                }
-
             }
         );
     }

@@ -569,4 +569,35 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
 
         return $issuersPrepared;
     }
+
+    public function getConfig()
+    {
+        return $this->fullConfig();
+    }
+
+    protected function fullConfig(array $additonal = []): array
+    {
+
+        if (!$this->getActive()) {
+            return [];
+        }
+
+        return [
+            'payment' => [
+                'buckaroo' => [
+                    static::CODE => array_merge_recursive(
+                        [
+                            'paymentFeeLabel'   => $this->getBuckarooPaymentFeeLabel(),
+                            'subtext'           => $this->getSubtext(),
+                            'subtext_style'     => $this->getSubtextStyle(),
+                            'subtext_color'     => $this->getSubtextColor(),
+                            'allowedCurrencies' => $this->getAllowedCurrencies(),
+                            'isTestMode'        => $this->isTestMode()
+                        ],
+                        $additonal
+                    )
+                ],
+            ]
+        ];
+    }
 }

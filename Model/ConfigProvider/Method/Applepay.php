@@ -86,7 +86,7 @@ class Applepay extends AbstractConfigProvider
         if (!$this->getActive()) {
             return [];
         }
-
+        
         $store = $this->storeManager->getStore();
         $storeName = $store->getName();
         $currency = $store->getCurrentCurrency()->getCode();
@@ -94,30 +94,19 @@ class Applepay extends AbstractConfigProvider
         $localeCode = $this->localeResolver->getLocale();
         $shortLocale = explode('_', $localeCode)[0];
 
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'applepay' => [
-                        'subtext'           => $this->getSubtext(),
-                        'subtext_style'     => $this->getSubtextStyle(),
-                        'subtext_color'     => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'storeName'         => $storeName,
-                        'currency'          => $currency,
-                        'cultureCode'       => $shortLocale,
-                        'country'           => $this->scopeConfig->getValue(
-                            'general/country/default',
-                            ScopeInterface::SCOPE_WEBSITES
-                        ),
-                        'guid'              => $this->getMerchantGuid(),
-                        'availableButtons'  => $this->getAvailableButtons(),
-                        'buttonStyle'       => $this->getButtonStyle(),
-                        'dontAskBillingInfoInCheckout' => (int)$this->getDontAskBillingInfoInCheckout(),
-                        'isTestMode'        => $this->isTestMode()
-                    ],
-                ],
-            ],
-        ];
+        return $this->fullConfig([
+            'storeName'         => $storeName,
+            'currency'          => $currency,
+            'cultureCode'       => $shortLocale,
+            'country'           => $this->scopeConfig->getValue(
+                'general/country/default',
+                ScopeInterface::SCOPE_WEBSITES
+            ),
+            'guid'              => $this->getMerchantGuid(),
+            'availableButtons'  => $this->getAvailableButtons(),
+            'buttonStyle'       => $this->getButtonStyle(),
+            'dontAskBillingInfoInCheckout' => (int)$this->getDontAskBillingInfoInCheckout(),
+        ]);
     }
 
     /**

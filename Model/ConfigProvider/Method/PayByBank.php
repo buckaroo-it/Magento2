@@ -124,21 +124,10 @@ class PayByBank extends AbstractConfigProvider
             ScopeInterface::SCOPE_STORE
         );
 
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'paybybank' => [
-                        'banks'             => $this->getIssuersWithSelected(),
-                        'subtext'           => $this->getSubtext(),
-                        'subtext_style'     => $this->getSubtextStyle(),
-                        'subtext_color'     => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'selectionType'     => $selectionType,
-                        'isTestMode'        => $this->isTestMode()
-                    ],
-                ],
-            ],
-        ];
+        return $this->fullConfig([
+            'banks'             => $this->getIssuersWithSelected(),
+            'selectionType'     => $selectionType,
+        ]);
     }
 
     /**
