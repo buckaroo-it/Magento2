@@ -1144,9 +1144,11 @@
     <!-- END iDEAL Value handlers infrastructure -->
 
     <!-- iDEAL validators infrastructure -->
-    <virtualType name="IdealValidatorPool" type="BuckarooValidatorPool">
+    <virtualType name="IdealValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
                 <item name="global" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\IssuerValidator</item>
             </argument>
         </arguments>
@@ -2246,9 +2248,11 @@
     <!-- END Afterpay Value handlers infrastructure -->
 
     <!-- Afterpay's validators infrastructure -->
-    <virtualType name="AfterpayValidatorPool" type="BuckarooValidatorPool">
+    <virtualType name="AfterpayValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
                 <item name="global" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\HouseNumberValidator</item>
             </argument>
         </arguments>
@@ -2869,9 +2873,11 @@
     <!-- END Giftcards Value handlers infrastructure -->
 
     <!-- Giftcards validators infrastructure -->
-    <virtualType name="GiftcardsValidatorPool" type="BuckarooValidatorPool">
+    <virtualType name="GiftcardsValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
                 <item name="availability" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AllowedGiftcardsValidator</item>
             </argument>
         </arguments>
@@ -2992,9 +2998,11 @@
     <!-- END PayPerEmail Value handlers infrastructure -->
 
     <!-- PayPerEmail validators infrastructure -->
-    <virtualType name="PayPerEmailValidatorPool" type="BuckarooValidatorPool">
+    <virtualType name="PayPerEmailValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
                 <item name="availability" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AreaCodeValidator</item>
             </argument>
         </arguments>
@@ -3725,9 +3733,11 @@
     <!-- END Pospayment Value handlers infrastructure -->
 
     <!-- Pospayment validators infrastructure -->
-    <virtualType name="PospaymentValidatorPool" type="BuckarooValidatorPool">
+    <virtualType name="PospaymentValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
                 <item name="availability" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\PosPaymentValidator</item>
             </argument>
         </arguments>
@@ -3799,9 +3809,11 @@
     <!-- END SepaDirectDebit Value handlers infrastructure -->
 
     <!-- SepaDirectDebit validators infrastructure -->
-    <virtualType name="SepaDirectDebitValidatorPool" type="BuckarooValidatorPool">
+    <virtualType name="SepaDirectDebitValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
                 <item name="bankAccount" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\BankAccountValidator</item>
             </argument>
         </arguments>
@@ -3988,9 +4000,11 @@
     <!-- END PayByBank Value handlers infrastructure -->
 
     <!-- PayByBank validators infrastructure -->
-    <virtualType name="PayByBankValidatorPool" type="BuckarooValidatorPool">
+    <virtualType name="PayByBankValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
                 <item name="global" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\IssuerValidator</item>
             </argument>
         </arguments>
