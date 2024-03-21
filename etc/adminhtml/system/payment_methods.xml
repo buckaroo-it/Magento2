@@ -49,6 +49,7 @@
         <frontend_model>Buckaroo\Magento2\Block\Adminhtml\System\Config\Fieldset\Payment</frontend_model>
 
         <include path="Buckaroo_Magento2::system/payment_methods/ideal.xml"/>
+        <include path="Buckaroo_Magento2::system/payment_methods/ideal2.xml"/>
 
         <include path="Buckaroo_Magento2::system/payment_methods/idealprocessing.xml"/>
 

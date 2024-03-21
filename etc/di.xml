@@ -237,6 +237,10 @@
                     <item name="type" xsi:type="string">ideal</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Ideal</item>
                 </item>
+                <item name="ideal2" xsi:type="array">
+                    <item name="type" xsi:type="string">ideal2</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Ideal2</item>
+                </item>
                 <item name="idealprocessing" xsi:type="array">
                     <item name="type" xsi:type="string">idealprocessing</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\IdealProcessing</item>

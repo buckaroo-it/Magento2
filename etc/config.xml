@@ -52,6 +52,21 @@
                 <show_issuers>1</show_issuers>
             </buckaroo_magento2_ideal>
 
+            <buckaroo_magento2_ideal2>
+                <active>0</active>
+                <model>Buckaroo\Magento2\Model\Method\Ideal2</model>
+                <order_status>pending</order_status>
+                <title>Buckaroo iDEAL</title>
+                <allowspecific>0</allowspecific>
+                <sort_order>11</sort_order>
+                <order_email>1</order_email>
+                <payment_fee_label>Fee</payment_fee_label>
+                <group>buckaroo_magento2</group>
+                <payment_action>order</payment_action>
+                <available_in_backend>0</available_in_backend>
+                <show_issuers>1</show_issuers>
+            </buckaroo_magento2_ideal2>
+
             <buckaroo_magento2_paybybank>
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\PayByBank</model>
