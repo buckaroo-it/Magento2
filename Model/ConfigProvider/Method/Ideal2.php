@@ -22,23 +22,23 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 class Ideal2 extends AbstractConfigProvider
 {
-    const XPATH_IDEAL_PAYMENT_FEE           = 'payment/buckaroo_magento2_ideal2/payment_fee';
-    const XPATH_IDEAL_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_ideal2/payment_fee_label';
-    const XPATH_IDEAL_ACTIVE                = 'payment/buckaroo_magento2_ideal2/active';
-    const XPATH_IDEAL_SUBTEXT               = 'payment/buckaroo_magento2_ideal2/subtext';
-    const XPATH_IDEAL_SUBTEXT_STYLE         = 'payment/buckaroo_magento2_ideal2/subtext_style';
-    const XPATH_IDEAL_SUBTEXT_COLOR         = 'payment/buckaroo_magento2_ideal2/subtext_color';
-    const XPATH_IDEAL_ACTIVE_STATUS         = 'payment/buckaroo_magento2_ideal2/active_status';
-    const XPATH_IDEAL_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_ideal2/order_status_success';
-    const XPATH_IDEAL_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_ideal2/order_status_failed';
-    const XPATH_IDEAL_ORDER_EMAIL           = 'payment/buckaroo_magento2_ideal2/order_email';
-    const XPATH_IDEAL_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_ideal2/available_in_backend';
+    const XPATH_IDEAL2_PAYMENT_FEE           = 'payment/buckaroo_magento2_ideal2/payment_fee';
+    const XPATH_IDEAL2_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_ideal2/payment_fee_label';
+    const XPATH_IDEAL2_ACTIVE                = 'payment/buckaroo_magento2_ideal2/active';
+    const XPATH_IDEAL2_SUBTEXT               = 'payment/buckaroo_magento2_ideal2/subtext';
+    const XPATH_IDEAL2_SUBTEXT_STYLE         = 'payment/buckaroo_magento2_ideal2/subtext_style';
+    const XPATH_IDEAL2_SUBTEXT_COLOR         = 'payment/buckaroo_magento2_ideal2/subtext_color';
+    const XPATH_IDEAL2_ACTIVE_STATUS         = 'payment/buckaroo_magento2_ideal2/active_status';
+    const XPATH_IDEAL2_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_ideal2/order_status_success';
+    const XPATH_IDEAL2_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_ideal2/order_status_failed';
+    const XPATH_IDEAL2_ORDER_EMAIL           = 'payment/buckaroo_magento2_ideal2/order_email';
+    const XPATH_IDEAL2_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_ideal2/available_in_backend';
 
     const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_ideal2/allowed_currencies';
 
     const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_ideal2/allowspecific';
     const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_ideal2/specificcountry';
-    const XPATH_IDEAL_SELECTION_TYPE            = 'buckaroo_magento2/account/selection_type';
+    const XPATH_IDEAL2_SELECTION_TYPE            = 'buckaroo_magento2/account/selection_type';
     const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_ideal2/specificcustomergroup';
     const XPATH_SHOW_ISSUERS                    = 'payment/buckaroo_magento2_ideal2/show_issuers';
     const XPATH_SORTED_ISSUERS                  = 'payment/buckaroo_magento2_ideal2/sorted_issuers';
@@ -56,7 +56,7 @@ class Ideal2 extends AbstractConfigProvider
     public function getConfig()
     {
         if (!$this->scopeConfig->getValue(
-            static::XPATH_IDEAL_ACTIVE,
+            static::XPATH_IDEAL2_ACTIVE,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         )) {
             return [];
@@ -68,7 +68,7 @@ class Ideal2 extends AbstractConfigProvider
         );
 
         $selectionType = $this->scopeConfig->getValue(
-            self::XPATH_IDEAL_SELECTION_TYPE,
+            self::XPATH_IDEAL2_SELECTION_TYPE,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
 
@@ -113,7 +113,7 @@ class Ideal2 extends AbstractConfigProvider
     public function getPaymentFee($storeId = null)
     {
         $paymentFee = $this->scopeConfig->getValue(
-            self::XPATH_IDEAL_PAYMENT_FEE,
+            self::XPATH_IDEAL2_PAYMENT_FEE,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $storeId
         );

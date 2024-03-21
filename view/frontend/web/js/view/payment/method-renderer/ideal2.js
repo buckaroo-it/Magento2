@@ -56,7 +56,7 @@ define(
                 selectionType: null,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.ideal2.paymentFeeLabel,
                 subtext : window.checkoutConfig.payment.buckaroo.ideal2.subtext,
-                subTextStyle : checkoutCommon.getSubtextStyle('ideal'),
+                subTextStyle : checkoutCommon.getSubtextStyle('ideal2'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 showIssuers :  window.checkoutConfig.payment.buckaroo.ideal2.showIssuers,
