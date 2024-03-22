@@ -21,7 +21,7 @@
 define(
     [
         'jquery',
-        'buckaroo/checkout/payment/parent',
+        'buckaroo/checkout/payment/default',
     ],
     function (
         $,

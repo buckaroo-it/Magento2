@@ -42,7 +42,7 @@ define(
         return Component.extend(
             {
                 defaults: {
-                    template: 'Buckaroo_Magento2/payment/common'
+                    template: 'Buckaroo_Magento2/payment/default'
                 },
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
@@ -117,6 +117,8 @@ define(
 
                 validate: function () {
                     const form = $('.' + this.getCode() + ' .payment-method-second-col form');
+
+                    console.log(form.valid());
                     if (form.length) {
                         return form.valid();
                     }

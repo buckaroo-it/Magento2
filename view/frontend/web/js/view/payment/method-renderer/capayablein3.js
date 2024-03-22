@@ -21,7 +21,7 @@
 define(
     [
         'jquery',
-        'buckaroo/checkout/payment/parent',
+        'buckaroo/checkout/payment/default',
         'Magento_Checkout/js/model/payment/additional-validators',
         'Buckaroo_Magento2/js/action/place-order',
         'Magento_Checkout/js/model/quote',

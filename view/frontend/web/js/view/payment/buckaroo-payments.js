@@ -73,7 +73,7 @@ define(
             },
             {
                 type: 'buckaroo_magento2_sepadirectdebit',
-                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/buckaroo_magento2_sepadirectdebit',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/sepadirectdebit',
                 config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_sepadirectdebit}
             },
             {

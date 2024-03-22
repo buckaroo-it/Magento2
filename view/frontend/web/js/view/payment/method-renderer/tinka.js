@@ -21,7 +21,7 @@
 define(
     [
         'jquery',
-        'buckaroo/checkout/payment/parent',
+        'buckaroo/checkout/payment/default',
         'Magento_Checkout/js/model/payment/additional-validators',
         'Buckaroo_Magento2/js/action/place-order',
         'Magento_Checkout/js/model/quote',
@@ -216,7 +216,7 @@ define(
                  * Place order.
                  *
                  * @todo To override the script used for placeOrderAction, we need to override the placeOrder method
-                 *          on our parent class (buckaroo/checkout/payment/parent) so we can
+                 *          on our parent class (buckaroo/checkout/payment/default) so we can
                  *
                  *          placeOrderAction has been changed from Magento_Checkout/js/action/place-order to our own
                  *          version (Buckaroo_Magento2/js/action/place-order) to prevent redirect and handle the response.

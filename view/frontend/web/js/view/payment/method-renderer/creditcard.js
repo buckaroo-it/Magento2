@@ -20,7 +20,7 @@
 /*global define*/
 define(
     [
-        'buckaroo/checkout/payment/parent',
+        'buckaroo/checkout/payment/default',
     ],
     function (
         Component,

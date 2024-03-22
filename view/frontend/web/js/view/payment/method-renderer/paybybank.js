@@ -20,18 +20,12 @@
 /*global define*/
 define([
   "jquery",
-  "buckaroo/checkout/payment/parent",
-
+  "buckaroo/checkout/payment/default",
+  "ko"
 ], function (
     $,
     Component,
-    additionalValidators,
-    placeOrderAction,
     ko,
-    $t,
-    checkoutData,
-    selectPaymentMethodAction,
-    checkoutCommon
 ) {
     "use strict";
 
@@ -44,7 +38,6 @@ define([
             logo: require.toUrl('Buckaroo_Magento2/images/paybybank.gif')
         },
         redirectAfterPlaceOrder: false,
-        isTestMode: window.checkoutConfig.payment.buckaroo.paybybank.isTestMode,
       /**
        * @override
        */
@@ -101,10 +94,6 @@ define([
             if (found !== undefined) {
                 this.selectedBank(found.code);
             }
-        },
-
-        validateField(data, event) {
-            $(event.target).valid()
         },
 
         toggleShow: function () {

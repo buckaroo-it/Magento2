@@ -667,7 +667,7 @@
         padding: 10px 20px;
     }
 
-    .fieldset > .field .addon .bk-paybybank-selector .bank-method-input {
-        display:none;
+    .bk-paybybank-selector .bank-method-input {
+        visibility: hidden;
     }
 }
