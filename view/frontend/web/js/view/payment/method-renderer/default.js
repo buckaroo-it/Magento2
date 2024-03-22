@@ -117,8 +117,6 @@ define(
 
                 validate: function () {
                     const form = $('.' + this.getCode() + ' .payment-method-second-col form');
-
-                    console.log(form.valid());
                     if (form.length) {
                         return form.valid();
                     }

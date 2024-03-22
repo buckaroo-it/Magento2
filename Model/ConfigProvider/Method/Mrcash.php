@@ -22,13 +22,14 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Buckaroo\Magento2\Exception;
-use Buckaroo\Magento2\Helper\PaymentFee;
-use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
-use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\Data\Form\FormKey;
-use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\View\Asset\Repository;
 use Magento\Store\Model\ScopeInterface;
+use Buckaroo\Magento2\Helper\PaymentFee;
+use Magento\Framework\Data\Form\FormKey;
+use Buckaroo\Magento2\Service\LogoService;
+use Magento\Framework\View\Asset\Repository;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 
 class Mrcash extends AbstractConfigProvider
 {
@@ -55,9 +56,10 @@ class Mrcash extends AbstractConfigProvider
         ScopeConfigInterface $scopeConfig,
         AllowedCurrencies $allowedCurrencies,
         PaymentFee $paymentFeeHelper,
+        LogoService $logoService,
         FormKey $formKey
     ) {
-        parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper);
+        parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper, $logoService);
 
         $this->formKey = $formKey;
     }

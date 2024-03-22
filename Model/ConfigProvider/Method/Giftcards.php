@@ -22,14 +22,15 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Buckaroo\Magento2\Exception;
-use Buckaroo\Magento2\Helper\PaymentFee;
-use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
-use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\App\ResourceConnection;
-use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\UrlInterface;
+use Buckaroo\Magento2\Helper\PaymentFee;
+use Buckaroo\Magento2\Service\LogoService;
 use Magento\Framework\View\Asset\Repository;
+use Magento\Framework\App\ResourceConnection;
 use Magento\Store\Model\StoreManagerInterface;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 
 class Giftcards extends AbstractConfigProvider
 {
@@ -70,10 +71,11 @@ class Giftcards extends AbstractConfigProvider
         ScopeConfigInterface $scopeConfig,
         AllowedCurrencies $allowedCurrencies,
         PaymentFee $paymentFeeHelper,
+        LogoService $logoService,
         StoreManagerInterface $storeManager,
         ResourceConnection $resourceConnection
     ) {
-        parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper);
+        parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper, $logoService);
         $this->storeManager = $storeManager;
         $this->resourceConnection = $resourceConnection;
     }
@@ -117,7 +119,7 @@ class Giftcards extends AbstractConfigProvider
             );
 
             foreach (explode(',', (string)$availableCards) as $value) {
-                $logo = $this->getLogo($value);
+                $logo = $this->getGiftcardLogo($value);
                 if (isset($allGiftCards[$value]['logo'])) {
                     $logo = $url . $allGiftCards[$value]['logo'];
                 }
@@ -170,7 +172,7 @@ class Giftcards extends AbstractConfigProvider
      * @param string $code
      * @return string
      */
-    protected function getLogo(string $code): string
+    protected function getGiftcardLogo(string $code): string
     {
         $mappings = [
             "ajaxgiftcard"               => "ajaxgiftcard",

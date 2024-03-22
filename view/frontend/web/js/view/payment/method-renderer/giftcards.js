@@ -73,9 +73,6 @@ define(
 
                 initObservable: function () {
                     this._super().observe(['alreadyFullPayed','cardNumber','pin', 'currentGiftcard']);
-                    this.currentGiftcard.subscribe(function(code) {
-                        this.setTestParameters(code);
-                    }.bind(this));
                     return this;
                 },
 
@@ -87,7 +84,6 @@ define(
                  */
 
                 placeOrder: function (data, event) {
-
                     var self = this,
                     placeOrder;
 
@@ -116,6 +112,13 @@ define(
                     return false;
                 },
 
+                afterPlaceOrder: function () {
+                    this._super();
+                    if (this.alreadyFullPayed()) {
+                        window.location.replace(url.build('checkout/onepage/success/'));
+                    }
+                },
+
                 validate: function() {
                     return this.alreadyFullPayed() === true;
                 },
@@ -124,6 +127,11 @@ define(
                     return $('.buckaroo_magento2_' + this.currentGiftcard() + ' .payment-method-second-col form').valid();
                 },
 
+                selectGiftCardPaymentMethod: function (code) {
+                    this.selectPaymentMethod();
+                    this.setTestParameters(code);
+                },
+                    
                 getData: function () {
                     return {
                         "method": this.item.method,
@@ -159,6 +167,7 @@ define(
                                 self.alreadyFullPayed(true);
                                 self.placeOrder(null, null);
                             }
+                            checkPayments();
                         }
                         if (data.error) {
                                 alert({
@@ -169,6 +178,7 @@ define(
                                 self.messageContainer.addErrorMessage({'message': $t(data.error)});
                         } else {
                             if (data.RemainderAmount != 0) {
+                                checkPayments();
                                 alert({
                                     title: $t('Success'),
                                     content: $t(data.message),
@@ -187,22 +197,22 @@ define(
                     });
 
                 },
-                checkForPayments: function () {
-                    checkPayments();
-                },
-
                 setTestParameters(giftcardCode) {
+                    let cardNumber =''
+                    let pin = '';
                     if (this.buckaroo.isTestMode && !this.buckaroo.groupGiftcards) {
                         if (["boekenbon","vvvgiftcard","yourgift","customgiftcard","customgiftcard1","customgiftcard2"].indexOf(giftcardCode) !== -1) {
-                            this.cardNumber('0000000000000000001')
-                            this.pin('1000')
+                            cardNumber = '0000000000000000001';
+                            pin = '1000';
                         }
 
                         if (giftcardCode === 'fashioncheque') {
-                            this.cardNumber('1000001000')
-                            this.pin('2000')
+                            cardNumber = '1000001000';
+                            pin = '2000';
                         }
                     }
+                    this.cardNumber(cardNumber);
+                    this.pin(pin);
                 }
             }
         );

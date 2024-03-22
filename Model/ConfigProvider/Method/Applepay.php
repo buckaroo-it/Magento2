@@ -20,13 +20,14 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\Locale\Resolver;
-use Magento\Framework\View\Asset\Repository;
-use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\Store;
-use Magento\Store\Model\StoreManagerInterface;
+use Magento\Framework\Locale\Resolver;
+use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\PaymentFee;
+use Buckaroo\Magento2\Service\LogoService;
+use Magento\Framework\View\Asset\Repository;
+use Magento\Store\Model\StoreManagerInterface;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 
 class Applepay extends AbstractConfigProvider
@@ -69,10 +70,11 @@ class Applepay extends AbstractConfigProvider
         ScopeConfigInterface $scopeConfig,
         AllowedCurrencies $allowedCurrencies,
         PaymentFee $paymentFeeHelper,
+        LogoService $logoService,
         StoreManagerInterface $storeManager,
         Resolver $localeResolver
     ) {
-        parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper);
+        parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper, $logoService);
 
         $this->storeManager = $storeManager;
         $this->localeResolver = $localeResolver;

@@ -120,7 +120,6 @@ class Creditcard extends AbstractConfigProvider
         
         $issuers = $this->formatIssuers();
 
-
         $selectionType = $this->getSelectionType();
 
         $paymentFlow = $this->getMethodConfigValue(self::XPATH_PAYMENT_FLOW);
@@ -180,7 +179,6 @@ class Creditcard extends AbstractConfigProvider
         }
 
         $allowed = explode(',', (string)$this->getAllowedCreditcards());
-
         $cards = [];
         foreach ($allowed as $value) {
             if (isset($allCreditcard[$value])) {

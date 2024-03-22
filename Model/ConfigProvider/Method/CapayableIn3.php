@@ -58,7 +58,6 @@ class CapayableIn3 extends AbstractConfigProvider
         }
 
         return $this->fullConfig([
-            'logo'                 => $this->getLogo(),
             'showFinancialWarning' => $this->canShowFinancialWarning(),
         ]);
     }
@@ -81,7 +80,7 @@ class CapayableIn3 extends AbstractConfigProvider
             return 'ideal-in3.svg';
         }
 
-        return $logo;
+        return $this->logoService->getLogoUrl("images/svg/".$logo);
     }
 
     /**

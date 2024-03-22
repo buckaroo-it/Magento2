@@ -1,4 +1,4 @@
-<div class="buckaroo_magento2_klarna payment-method" data-bind="css: {'_active': (getCode() == isChecked())}">
+<div data-bind="class: getCode()+' payment-method', css: {'_active': (getCode() == isChecked())}">
     
     <div class="payment-method-title field choice bk-payment">
         <div class="bk-payment-wrap">
@@ -20,7 +20,7 @@
                 <!-- /ko -->
                 <div class="bk-img-wrap">
                     <img
-                        data-bind="alt: getTitle(), attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/klarna.svg') }"
+                        data-bind="alt: getTitle(), attr: { src: buckaroo.logo }"
                     />
                 </div>
             </div>
@@ -42,10 +42,10 @@
                 <fieldset class="fieldset">
                     <legend class="hidden-fieldset-legend">Payment Details</legend>
                     <div class="field required">
-                        <label class="label" for="buckaroo_magento2_klarna_genderSelect"> <span data-bind="i18n: 'Salutation:'"> </span> </label>
+                        <label class="label" data-bind="attr:{ 'for': getCode()+'_genderSelect' }"> <span data-bind="i18n: 'Salutation:'"> </span> </label>
                         <div class="control addon">
-                            <select id="buckaroo_magento2_klarna_genderSelect" name="payment[buckaroo_magento2_klarna][customer_gender]" class="select"
-                            data-bind="options: buckaroo.genderList,
+                            <select name="payment[buckaroo_magento2_klarna][customer_gender]" class="select"
+                            data-bind="options: buckaroo.genderList, attr: {'id': getCode()+'_genderSelect'},
                             optionsText: $t('genderTitle'),
                             optionsValue: 'genderType',
                             optionsCaption: $t('-- Please Select Your Gender--'),
@@ -65,8 +65,7 @@
         
         <div class="actions-toolbar">
             <div class="primary">
-                <button id="button-action-checkout-klarna"
-                        class="action primary checkout"
+                <button class="action primary checkout"
                         data-bind="
                         click: placeOrder,
                         attr: {title: $t('Place Order')},

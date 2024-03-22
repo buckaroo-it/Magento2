@@ -22,9 +22,10 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Helper\PaymentFee;
-use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
-use Magento\Framework\App\Config\ScopeConfigInterface;
+use Buckaroo\Magento2\Service\LogoService;
 use Magento\Framework\View\Asset\Repository;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 
 class Creditcards extends AbstractConfigProvider
 {
@@ -49,9 +50,10 @@ class Creditcards extends AbstractConfigProvider
         ScopeConfigInterface $scopeConfig,
         AllowedCurrencies $allowedCurrencies,
         PaymentFee $paymentFeeHelper,
+        LogoService $logoService,
         Creditcard $creditcardConfigProvider
     ) {
-        parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper);
+        parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper, $logoService);
 
         $this->issuers = $creditcardConfigProvider->getIssuers();
     }

@@ -76,6 +76,7 @@ class LogoService
             "pospayment"       => "svg/pos.svg",
             "transfer"         => "svg/sepa-credittransfer.svg",
             "buckaroovoucher"  => "svg/vouchers.svg",
+            "voucher"          => "svg/vouchers.svg",
             "paybybank"        => "paybybank.gif"
         ];
 
@@ -92,6 +93,11 @@ class LogoService
         }
 
         return $this->assetRepo->getUrl("Buckaroo_Magento2::images/{$name}");
+    }
+
+    public function getLogoUrl(string $path): string
+    {
+        return $this->assetRepo->getUrl("Buckaroo_Magento2::{$path}");
     }
 
     public function getGiftcardLogo(array $giftcard): string
