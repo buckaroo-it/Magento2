@@ -22,28 +22,16 @@ define(
     [
         'jquery',
         'buckaroo/checkout/payment/default',
-        'Magento_Checkout/js/model/payment/additional-validators',
-        'Buckaroo_Magento2/js/action/place-order',
         'Magento_Checkout/js/model/quote',
         'ko',
-        'Magento_Checkout/js/checkout-data',
-        'Magento_Checkout/js/action/select-payment-method',
-        'buckaroo/checkout/common',
         'buckaroo/checkout/datepicker',
         'Magento_Ui/js/lib/knockout/bindings/datepicker'
-        /*,
-         'jquery/validate'*/
     ],
     function (
         $,
         Component,
-        additionalValidators,
-        placeOrderAction,
         quote,
         ko,
-        checkoutData,
-        selectPaymentMethodAction,
-        checkoutCommon,
         datePicker
     ) {
         'use strict';
@@ -126,26 +114,11 @@ define(
                     companyName:null,
                     bankAccountNumber: '',
                     termsUrl: 'https://www.afterpay.nl/nl/klantenservice/betalingsvoorwaarden/',
-                    termsValidate: true,
+                    termsSelected: true,
                     value:"",
-                    validationState: {
-                        'buckaroo_magento2_afterpay_TermsCondition': true
-                    }
                 },
                 redirectAfterPlaceOrder : true,
                 dp: datePicker,
-                businessMethod : buckaroo.businessMethod,
-                paymentMethod : buckaroo.paymentMethod,
-                /**
-                 * @override
-                 */
-                initialize : function (options) {
-                    if (checkoutData.getSelectedPaymentMethod() == options.index) {
-                        window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-                    }
-
-                    return this._super(options);
-                },
 
                 initObservable: function () {
                     this._super().observe(
@@ -156,9 +129,8 @@ define(
                             'cocNumber',
                             'companyName',
                             'bankAccountNumber',
-                            'termsValidate',
-                            'value',
-                            'validationState'
+                            'termsSelected',
+                            'value'
                         ]
                     );
 
@@ -166,7 +138,7 @@ define(
                         function () {
                             return quote.billingAddress() !== null &&
                             quote.billingAddress().countryId == 'NL' &&
-                            buckaroo.showFinancialWarning
+                            this.buckaroo.showFinancialWarning
                         },
                         this
                     );
@@ -181,9 +153,7 @@ define(
                         this
                     );
 
-                    /**
-                     * Check if TelephoneNumber is filled in. If not - show field
-                     */
+                   
                     this.hasTelephoneNumber = ko.computed(
                         function () {
                             var telephone = quote.billingAddress() ? quote.billingAddress().telephone : null;
@@ -204,128 +174,13 @@ define(
                      */
                     this.bankAccountNumber.extend({ uppercase: true });
 
-                    this.dateValidate.subscribe(function () {
-                        const dobId = 'buckaroo_magento2_afterpay_DoB';
-                        const isValid = $(`#${dobId}`).valid();
-                        let state = this.validationState();
-                        state[dobId] = isValid;
-                        this.validationState(state);
-                    }, this);
-
-                    this.buttoncheck = ko.computed(
-                        function () {
-                            const state = this.validationState();
-                            const valid = this.getActiveValidationFields().map((field) => {
-                                if (state[field] !== undefined) {
-                                    return state[field];
-                                }
-                                return false;
-                            }).reduce(
-                                function (prev, cur) {
-                                    return prev && cur
-                                },
-                                true
-                            )
-                            return valid;
-                        },
-                        this
-                    );
-
                     return this;
                 },
-                validateField(data, event) {
-                    const isValid = $(event.target).valid();
-                    let state = this.validationState();
-                    state[event.target.id] = isValid;
-                    this.validationState(state);
-                },
-
-                getActiveValidationFields() {
-                    let fields = [
-                        'buckaroo_magento2_afterpay_TermsCondition',
-                    ];
-                    if (!this.hasTelephoneNumber()) {
-                        fields.push('buckaroo_magento2_afterpay_Telephone')
-                    }
-
-                    if (this.businessMethod == BUSINESS_METHOD_B2C
-                        || (
-                            this.businessMethod == BUSINESS_METHOD_BOTH &&
-                            this.selectedBusiness() == BUSINESS_METHOD_B2C
-                        )
-                    ) {
-                        fields.push('buckaroo_magento2_afterpay_DoB')
-                    if (this.paymentMethod == PAYMENT_METHOD_ACCEPTGIRO) {
-                        fields.push('buckaroo_magento2_afterpay_IBAN')
-                    }
-                    } else {
-                        fields = fields.concat(
-                            [
-                                'buckaroo_magento2_afterpay_COCNumber',
-                                'buckaroo_magento2_afterpay_CompanyName'
-                            ]
-                        )
-                    }
-
-                    return fields;
-                },
-
-                /**
-                 * Place order.
-                 *
-                 * @todo To override the script used for placeOrderAction, we need to override the placeOrder method
-                 *          on our parent class (buckaroo/checkout/payment/default) so we can
-                 *
-                 *          placeOrderAction has been changed from Magento_Checkout/js/action/place-order to our own
-                 *          version (Buckaroo_Magento2/js/action/place-order) to prevent redirect and handle the response.
-                 */
-                placeOrder: function (data, event) {
-                    var self = this,
-                        placeOrder;
-
-                    if (event) {
-                        event.preventDefault();
-                    }
-
-                    if (this.validate() && additionalValidators.validate()) {
-                        this.isPlaceOrderActionAllowed(false);
-                        placeOrder = placeOrderAction(this.getData(), this.redirectAfterPlaceOrder, this.messageContainer);
-
-                        $.when(placeOrder).fail(
-                            function () {
-                                self.isPlaceOrderActionAllowed(true);
-                            }
-                        ).done(this.afterPlaceOrder.bind(this));
-                        return true;
-                    }
-                    return false;
-                },
-
-                afterPlaceOrder: function () {
-                    var response = window.checkoutConfig.payment.buckaroo.response;
-                    response = $.parseJSON(response);
-                    checkoutCommon.redirectHandle(response);
-                },
-
-                selectPaymentMethod: function () {
-                    window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-
-                    selectPaymentMethodAction(this.getData());
-                    checkoutData.setSelectedPaymentMethod(this.item.method);
-
-                    return true;
-                },
-
-                /**
-                 * Run validation function
-                 */
-
-                validate: function () {
-                    return $('.' + this.getCode() + ' .payment-method-second-col form').valid();
-                },
+                
+            
 
                 getData: function () {
-                    var business = this.businessMethod;
+                    var business = this.buckaroo.businessMethod;
 
                     if (business == BUSINESS_METHOD_BOTH) {
                         business = this.selectedBusiness();
@@ -338,7 +193,7 @@ define(
                             "customer_telephone" : this.telephoneNumber(),
                             "customer_DoB" : this.dateValidate(),
                             "customer_iban": this.bankAccountNumber(),
-                            "termsCondition" : this.termsValidate(),
+                            "termsCondition" : this.termsSelected(),
                             "companyName" : this.companyName(),
                             "cOCNumber" : this.cocNumber(),
                             "selectedBusiness" : business
@@ -351,7 +206,7 @@ define(
                     let url = 'https://documents.riverty.com/terms_conditions/payment_methods/invoice';
                     const cc = country.toLowerCase()
 
-                    if (businessMethod == BUSINESS_METHOD_B2C || this.paymentMethod == PAYMENT_METHOD_DIGIACCEPT) {
+                    if (businessMethod == BUSINESS_METHOD_B2C || this.buckaroo.paymentMethod == PAYMENT_METHOD_DIGIACCEPT) {
                         if (country === 'BE') {
                             lang = 'be_nl';
                         }
@@ -389,8 +244,8 @@ define(
                 getBusinessMethod : function () {
                     var businessMethod = BUSINESS_METHOD_B2C;
 
-                    if (this.businessMethod == BUSINESS_METHOD_B2B
-                        || (this.businessMethod == BUSINESS_METHOD_BOTH && this.selectedBusiness() == BUSINESS_METHOD_B2B)
+                    if (this.buckaroo.businessMethod == BUSINESS_METHOD_B2B
+                        || (this.buckaroo.businessMethod == BUSINESS_METHOD_BOTH && this.selectedBusiness() == BUSINESS_METHOD_B2B)
                     ) {
                         businessMethod = BUSINESS_METHOD_B2B;
                     }

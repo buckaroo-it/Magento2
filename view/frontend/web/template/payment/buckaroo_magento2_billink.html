@@ -40,12 +40,12 @@
                   attr: {'data-hasrequired': $t('* Required Fields')}">
                 <fieldset class="fieldset payment">
 
-                    <!-- ko if: !isB2B -->
+                    <!-- ko if: buckaroo.b2b != true -->
                     <div class="field required">
                         <label class="label" for="buckaroo_magento2_payperemail_genderSelect"> <span data-bind="i18n: 'Salutation:'"> </span> </label>
                         <div class="control">
                         <select id="buckaroo_magento2_bilink_genderSelect" name="payment[buckaroo_magento2_bilink][customer_gender]" class="select"
-                        data-bind="options: genderList,
+                        data-bind="options: buckaroo.genderList,
                             optionsText: $t('genderTitle'),
                             optionsValue: 'genderType',
                             optionsCaption: $t('-- Please Select Your Gender--'),
@@ -88,7 +88,7 @@
                     </div>
                     <!-- /ko -->
 
-                    <!-- ko if: !isB2B -->
+                    <!-- ko if: buckaroo.b2b != true -->
                     <div class="field required">
                         <label class="label" for="buckaroo_magento2_billink_DoB"> <span data-bind="i18n: 'Date of Birth:'"> </span> </label>
                         <div class="control addon">
@@ -192,7 +192,7 @@
                         click: placeOrder,
                         attr: {title: $t('Place Order')},
                         enable: (getCode() == isChecked()),
-                        css: {disabled: !isPlaceOrderActionAllowed() || !buttoncheck() }
+                        css: {disabled: !isPlaceOrderActionAllowed() }
                         "
                         disabled>
                     <span data-bind="i18n: 'Place Order'"></span>

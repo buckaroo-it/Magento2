@@ -64,9 +64,9 @@
                 <button id="button-action-checkout-voucher" class="action primary checkout" type="submit" data-bind="
                         click: applyVoucher,
                         attr: {title: $t('Apply Voucher')},
-                        enable:  isFormValid ,
-                        css: {disabled: !isFormValid }
-                        " disabled>
+                        disabled:  isSubmitting ,
+                        css: {disabled: !isSubmitting }
+                        ">
                     <span data-bind="i18n: 'Apply Voucher'"></span>
                 </button>
             </div>

@@ -38,7 +38,6 @@ define(
                 redirectAfterPlaceOrder: false,
 
                 initObservable: function () {
-                    console.log(this.buckaroo);
                     this._super().observe(['selectedBank']);
                     return this;
                 },

@@ -20,8 +20,7 @@
                 <!-- /ko -->
                 <div class="bk-img-wrap">
                     <img
-                        data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/klarna.svg') }"
-                        alt="Klarna Logo"
+                        data-bind="alt: getTitle(), attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/klarna.svg') }"
                     />
                 </div>
             </div>
@@ -46,7 +45,7 @@
                         <label class="label" for="buckaroo_magento2_klarna_genderSelect"> <span data-bind="i18n: 'Salutation:'"> </span> </label>
                         <div class="control addon">
                             <select id="buckaroo_magento2_klarna_genderSelect" name="payment[buckaroo_magento2_klarna][customer_gender]" class="select"
-                            data-bind="options: genderList,
+                            data-bind="options: buckaroo.genderList,
                             optionsText: $t('genderTitle'),
                             optionsValue: 'genderType',
                             optionsCaption: $t('-- Please Select Your Gender--'),
@@ -72,7 +71,7 @@
                         click: placeOrder,
                         attr: {title: $t('Place Order')},
                         enable: (getCode() == isChecked()),
-                        css: {disabled: !isPlaceOrderActionAllowed() || !buttoncheck() }
+                        css: {disabled: !isPlaceOrderActionAllowed() }
                         "
                         disabled
                         type="submit">

@@ -37,7 +37,7 @@
                 <!-- /ko -->
                 <div class="bk-img-wrap">
                     <img
-                        data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/' + logo) }"
+                        data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/' + buckaroo.logo) }"
                         alt="In3 Logo"
                     />
                 </div>
@@ -133,7 +133,7 @@
                         click: placeOrder,
                         attr: {title: $t('Place Order')},
                         enable: (getCode() == isChecked()),
-                        css: {disabled: !isPlaceOrderActionAllowed() || !buttoncheck() }
+                        css: {disabled: !isPlaceOrderActionAllowed() }
                         "
                         disabled>
                     <span data-bind="i18n: 'Place Order'"></span>

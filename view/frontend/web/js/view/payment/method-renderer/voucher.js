@@ -22,28 +22,16 @@ define(
     [
         'jquery',
         'buckaroo/checkout/payment/default',
-        'Magento_Checkout/js/model/payment/additional-validators',
-        'Buckaroo_Magento2/js/action/place-order',
-        'ko',
-        'Magento_Checkout/js/checkout-data',
-        'Magento_Checkout/js/action/select-payment-method',
         'Magento_Ui/js/modal/alert',
         'mage/url',
         'mage/translate',
-        'buckaroo/checkout/common'
     ],
     function (
         $,
         Component,
-        additionalValidators,
-        placeOrderAction,
-        ko,
-        checkoutData,
-        selectPaymentMethodAction,
         alert,
         url,
         $t,
-        checkoutCommon
     ) {
         'use strict';
 
@@ -52,37 +40,21 @@ define(
                 defaults: {
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_voucher',
                     code: '',
-                    isFormValid: false
-                },
-                paymentFeeLabel: window.checkoutConfig.payment.buckaroo.voucher.paymentFeeLabel,
-                subtext : window.checkoutConfig.payment.buckaroo.voucher.subtext,
-                subTextStyle : checkoutCommon.getSubtextStyle('voucher'),
-                currencyCode: window.checkoutConfig.quoteData.quote_currency_code,
-                baseCurrencyCode: window.checkoutConfig.quoteData.base_currency_code,
-                isTestMode: window.checkoutConfig.payment.buckaroo.voucher.isTestMode,
-
-
-                /**
-                 * @override
-                 */
-                initialize: function (options) {
-                    if (checkoutData.getSelectedPaymentMethod() == options.index) {
-                        window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-                    }
-                    return this._super(options);
+                    isSubmitting: false
                 },
 
                 initObservable: function () {
-                    this._super().observe(['code', 'isFormValid']);
+                    this._super().observe(['code', 'isSubmitting']);
 
-                    this.code.subscribe(function (code) {
-                        this.isFormValid($('.' + this.getCode() + ' .payment [data-validate]').valid());
-                    }.bind(this))
                     return this;
                 },
 
+                validateForm: function() {
+                    return $('.' + this.getCode() + ' .payment [data-validate]').valid();
+                },
                 applyVoucher: function () {
-                    if (this.isFormValid()) {
+                    if (this.validateForm()) {
+                        this.isSubmitting(true);
                         const voucherCode = this.code();
                         let self = this;
                         $.ajax({
@@ -97,6 +69,7 @@ define(
                                 self.placeOrder(null, null);
                             }
 
+                            this.isSubmitting(false);
 
                             if (data.error) {
                                 self.displayErrorModal(self, data.error);
@@ -118,6 +91,7 @@ define(
                                 self.messageContainer.addSuccessMessage({ 'message': $t(data.message) });
                             }
                         }).fail((err) => {
+                            this.isSubmitting(false);
                             if (err.responseJSON && err.responseJSON.message) {
                                 self.displayErrorModal(self, err.responseJSON.message);
                             }
@@ -132,28 +106,7 @@ define(
                         actions: { always: function () { } }
                     });
                     self.messageContainer.addErrorMessage({ 'message': $t(message) });
-                },
-                selectPaymentMethod: function () {
-                    window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-
-                    selectPaymentMethodAction(this.getData());
-                    checkoutData.setSelectedPaymentMethod(this.item.method);
-                    return true;
-                },
-
-
-                payWithBaseCurrency: function () {
-                    var allowedCurrencies = window.checkoutConfig.payment.buckaroo.voucher.allowedCurrencies;
-
-                    return allowedCurrencies.indexOf(this.currencyCode) < 0;
-                },
-
-                getPayWithBaseCurrencyText: function () {
-                    var text = $.mage.__('The transaction will be processed using %s.');
-
-                    return text.replace('%s', this.baseCurrencyCode);
                 }
-
             }
         );
     }

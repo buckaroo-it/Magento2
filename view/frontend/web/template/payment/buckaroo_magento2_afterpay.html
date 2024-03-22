@@ -58,7 +58,7 @@
                     </div>
                     <!-- /ko -->
 
-                    <!-- ko if: ((businessMethod == '3') && (selectedBusiness() == 1)) || businessMethod == '1' -->
+                    <!-- ko if: ((buckaroo.businessMethod == '3') && (selectedBusiness() == 1)) || buckaroo.businessMethod == '1' -->
                     <div class="field required">
                         <label class="label" for="buckaroo_magento2_afterpay_DoB"> <span data-bind="i18n: 'Date of Birth:'"> </span> </label>
                         <div class="control addon">
@@ -88,7 +88,7 @@
 
                     <!-- Show IBAN field when Acceptgiro (paymentMethod: 1) is activated in the backend -->
 
-                    <!-- ko if: paymentMethod == '1' -->
+                    <!-- ko if: buckaroo.paymentMethod == '1' -->
                     <div class="field required">
                         <label class="label" for="buckaroo_magento2_afterpay_IBAN"> <span data-bind="i18n: 'Bank Account Number:'"> </span> </label>
                         <div class="control">
@@ -109,7 +109,7 @@
                     <!-- Show select between B2C & B2B when option 'both' (businessMethod: 3) is activated in the backend.
                          This option is only available in DigiAccept (paymentMethod: 2) -->
 
-                    <!-- ko if: paymentMethod == '2' && businessMethod == '3'  -->
+                    <!-- ko if: buckaroo.paymentMethod == '2' && buckaroo.businessMethod == '3'  -->
                     <div class="field">
                         <label class="label" for="buckaroo_magento2_afterpay_BusinessModel"> <span data-bind="i18n: 'Business Model:'"> </span> </label>
                         <div class="control">
@@ -128,8 +128,8 @@
                          Show B2B fields when DigiAccept (paymentMethod: 2) & Both (businessMethod: 3) are activated in the backend + B2B is selected in the select above
                     -->
 
-                    <!-- ko if: selectedBusiness() == 2 || businessMethod == '2' -->
-                    <!-- ko if: paymentMethod != '1' && businessMethod != '1' -->
+                    <!-- ko if: selectedBusiness() == 2 || buckaroo.businessMethod == '2' -->
+                    <!-- ko if: buckaroo.paymentMethod != '1' && buckaroo.businessMethod != '1' -->
 
                     <div class="field required b2b-fields" >
                         <label class="label" for="buckaroo_magento2_afterpay_COCNumber"> <span data-bind="i18n: 'COC Number:'"> </span> </label>
@@ -173,7 +173,7 @@
                                    class="field"
                                    type="checkbox"
                                    data-bind="
-                                       checked: termsValidate,
+                                       checked: termsSelected,
                                        event: { change: validateField }"
                                    data-validate="{required:true}"
                                    name="payment[buckaroo_magento2_afterpay][termsCondition]">
@@ -211,7 +211,7 @@
                         click: placeOrder,
                         attr: {title: $t('Place Order')},
                         enable: (getCode() == isChecked()),
-                        css: {disabled: !isPlaceOrderActionAllowed() || !buttoncheck() }
+                        css: {disabled: !isPlaceOrderActionAllowed() }
                         "
                         disabled>
                     <span data-bind="i18n: 'Place Order'"></span>

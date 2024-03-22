@@ -49,25 +49,7 @@ define(
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_klarna',
                     selectedGender: null,
                 },
-                redirectAfterPlaceOrder: true,
-                paymentFeeLabel : window.checkoutConfig.payment.buckaroo.klarna.paymentFeeLabel,
-                subtext : window.checkoutConfig.payment.buckaroo.klarna.subtext,
-                subTextStyle : checkoutCommon.getSubtextStyle('klarna'),
-                currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
-                baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
-                genderList: window.checkoutConfig.payment.buckaroo.klarna.genderList,
-                isTestMode: window.checkoutConfig.payment.buckaroo.klarna.isTestMode,
-
-                /**
-                 * @override
-                 */
-                initialize : function (options) {
-                    if (checkoutData.getSelectedPaymentMethod() == options.index) {
-                        window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-                    }
-
-                    return this._super(options);
-                },
+              
 
                 initObservable: function () {
                     this._super().observe(
@@ -81,81 +63,14 @@ define(
                         function () {
                             return quote.billingAddress() !== null &&
                             quote.billingAddress().countryId == 'NL' &&
-                            window.checkoutConfig.payment.buckaroo.klarna.showFinancialWarning
-                        },
-                        this
-                    );
-
-                    /**
-                     * Check if the required fields are filled. If so: enable place order button (true) | if not: disable place order button (false)
-                     */
-                    this.buttoncheck = ko.computed(
-                        function () {
-                            return this.selectedGender() != null;
+                            this.buckaroo.showFinancialWarning
                         },
                         this
                     );
 
                     return this;
                 },
-                validateField(data, event) {
-                    $(event.target).valid();
-                },
-
-                /**
-                 * Place order.
-                 *
-                 * placeOrderAction has been changed from Magento_Checkout/js/action/place-order to our own version
-                 * (Buckaroo_Magento2/js/action/place-order) to prevent redirect and handle the response.
-                 */
-                placeOrder: function (data, event) {
-                    var self = this,
-                        placeOrder;
-
-                    if (event) {
-                        event.preventDefault();
-                    }
-
-                    if (this.validate() && additionalValidators.validate()) {
-                        this.isPlaceOrderActionAllowed(false);
-                        placeOrder = placeOrderAction(this.getData(), this.redirectAfterPlaceOrder, this.messageContainer);
-
-                        $.when(placeOrder).fail(
-                            function () {
-                                self.isPlaceOrderActionAllowed(true);
-                            }
-                        ).done(this.afterPlaceOrder.bind(this));
-                        return true;
-                    }
-                    return false;
-                },
-
-                afterPlaceOrder: function () {
-                    var response = window.checkoutConfig.payment.buckaroo.response;
-                    response = $.parseJSON(response);
-                    checkoutCommon.redirectHandle(response);
-                },
-
-                selectPaymentMethod: function () {
-                    window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-
-                    selectPaymentMethodAction(this.getData());
-                    checkoutData.setSelectedPaymentMethod(this.item.method);
-                    return true;
-                },
-
-                payWithBaseCurrency: function () {
-                    var allowedCurrencies = window.checkoutConfig.payment.buckaroo.klarna.allowedCurrencies;
-
-                    return allowedCurrencies.indexOf(this.currencyCode) < 0;
-                },
-
-                getPayWithBaseCurrencyText: function () {
-                    var text = $.mage.__('The transaction will be processed using %s.');
-
-                    return text.replace('%s', this.baseCurrencyCode);
-                },
-
+               
                 getData: function () {
                     return {
                         "method": this.item.method,

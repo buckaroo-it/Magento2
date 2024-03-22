@@ -30,9 +30,9 @@ define(
         return Component.extend(
             {
                 defaults: {
-                    template: 'Buckaroo_Magento2/payment/buckaroo_magento2_creditcard'
+                    template: 'Buckaroo_Magento2/payment/buckaroo_magento2_creditcard',
+                    selectedCard: null
                 },
-                selectedCard: null,
                 redirectAfterPlaceOrder: false,
                 initObservable: function () {
                     this._super().observe(['selectedCard']);

@@ -110,31 +110,34 @@ class Giftcards extends AbstractConfigProvider
 
         $availableCards = $this->getAllowedGiftcards();
 
-        $url = $this->storeManager->getStore()->getBaseUrl(
-            UrlInterface::URL_TYPE_MEDIA
-        );
+        $cards = [];
+        if (!empty($availableCards)) {
+            $url = $this->storeManager->getStore()->getBaseUrl(
+                UrlInterface::URL_TYPE_MEDIA
+            );
 
-        foreach (explode(',', (string)$availableCards) as $value) {
-            $logo = $this->getLogo($value);
-            if (isset($allGiftCards[$value]['logo'])) {
-                $logo = $url . $allGiftCards[$value]['logo'];
+            foreach (explode(',', (string)$availableCards) as $value) {
+                $logo = $this->getLogo($value);
+                if (isset($allGiftCards[$value]['logo'])) {
+                    $logo = $url . $allGiftCards[$value]['logo'];
+                }
+
+                $cards[] = [
+                    'code'  => $value,
+                    'title' => $allGiftCards[$value]['label'] ?? '',
+                    'logo'  => $logo,
+                    'sort'  => $allGiftCards[$value]['sort'] ?? '99',
+                ];
             }
 
-            $cards[] = [
-                'code'  => $value,
-                'title' => $allGiftCards[$value]['label'] ?? '',
-                'logo'  => $logo,
-                'sort'  => $allGiftCards[$value]['sort'] ?? '99',
-            ];
+            usort($cards, function ($cardA, $cardB) {
+                return $cardA['sort'] - $cardB['sort'];
+            });
         }
-
-        usort($cards, function ($cardA, $cardB) {
-            return $cardA['sort'] - $cardB['sort'];
-        });
 
         
         return $this->fullConfig([
-            'groupGiftcards'   => $this->getGroupGiftcards(),
+            'groupGiftcards'   => $this->getGroupGiftcards() == true,
             'availableGiftcards' => $cards,
         ]);
     }

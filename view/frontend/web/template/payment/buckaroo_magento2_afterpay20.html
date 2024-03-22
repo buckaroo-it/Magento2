@@ -127,7 +127,7 @@
                             <input id="buckaroo_magento2_afterpay20_TermsCondition"
                                    class="field"
                                    type="checkbox"
-                                   data-bind="checked: termsValidate"
+                                   data-bind="checked: termsSelected"
                                    data-validate="{required:true}"
                                    name="payment[buckaroo_magento2_afterpay20][termsCondition]">
                             <span>
@@ -166,7 +166,7 @@
                         click: placeOrder,
                         attr: {title: $t('Place Order')},
                         enable: (getCode() == isChecked()),
-                        css: {disabled: !isPlaceOrderActionAllowed() || !buttoncheck() }
+                        css: {disabled: !isPlaceOrderActionAllowed() }
                         "
                         disabled>
                     <span data-bind="i18n: 'Place Order'"></span>

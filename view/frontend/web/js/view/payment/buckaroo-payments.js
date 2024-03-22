@@ -53,7 +53,7 @@ define(
             },
             {
                 type: 'buckaroo_magento2_afterpay2',
-                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/afterpay2',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/afterpay',
                 config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_afterpay2}
             },
             {
@@ -78,7 +78,7 @@ define(
             },
             {
                 type: 'buckaroo_magento2_paypal',
-                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/paypal',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/default',
                 config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_paypal}
             },
             {
@@ -103,7 +103,7 @@ define(
             },
             {
                 type: 'buckaroo_magento2_giropay',
-                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/giropay',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/default',
                 config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_giropay}
             },
             {
@@ -113,17 +113,17 @@ define(
             },
             {
                 type: 'buckaroo_magento2_sofortbanking',
-                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/sofortbanking',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/default',
                 config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_sofortbanking}
             },
             {
                 type: 'buckaroo_magento2_belfius',
-                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/parent',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/default',
                 config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_belfius}
             },
             {
                 type: 'buckaroo_magento2_eps',
-                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/eps',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/default',
                 config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_eps}
             },
             {
@@ -133,7 +133,7 @@ define(
             },
             {
                 type: 'buckaroo_magento2_kbc',
-                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/kbc',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/default',
                 config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_kbc}
             },
             {
@@ -142,14 +142,14 @@ define(
                 config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_klarna}
             },
             {
+                type: 'buckaroo_magento2_klarnain',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/klarna',
+                config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_klarnain}
+            },
+            {
                 type: 'buckaroo_magento2_klarnakp',
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/klarnakp',
                 config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_klarnakp}
-            },
-            {
-                type: 'buckaroo_magento2_klarnain',
-                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/klarnain',
-                config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_klarnain}
             },
             {
                 type: 'buckaroo_magento2_applepay',
@@ -168,22 +168,22 @@ define(
             },
             {
                 type: 'buckaroo_magento2_alipay',
-                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/alipay',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/default',
                 config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_alipay}
             },
             {
                 type: 'buckaroo_magento2_wechatpay',
-                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/wechatpay',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/default',
                 config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_wechatpay}
             },
             {
                 type: 'buckaroo_magento2_p24',
-                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/p24',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/default',
                 config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_p24}
             },
             {
                 type: 'buckaroo_magento2_trustly',
-                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/trustly',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/default',
                 config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_trustly}
             },
             {
@@ -209,17 +209,17 @@ define(
             },
             {
                 type: 'buckaroo_magento2_multibanco',
-                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/multibanco',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/default',
                 config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_multibanco}
             },
             {
                 type: 'buckaroo_magento2_mbway',
-                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/mbway',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/default',
                 config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_mbway}
             },
             {
                 type: 'buckaroo_magento2_knaken',
-                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/knaken',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/default',
                 config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_knaken}
             }
         );

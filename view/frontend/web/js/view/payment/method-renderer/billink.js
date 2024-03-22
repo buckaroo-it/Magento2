@@ -22,28 +22,16 @@ define(
     [
         'jquery',
         'buckaroo/checkout/payment/default',
-        'Magento_Checkout/js/model/payment/additional-validators',
-        'Buckaroo_Magento2/js/action/place-order',
         'Magento_Checkout/js/model/quote',
         'ko',
-        'Magento_Checkout/js/checkout-data',
-        'Magento_Checkout/js/action/select-payment-method',
-        'buckaroo/checkout/common',
         'buckaroo/checkout/datepicker',
         'Magento_Ui/js/lib/knockout/bindings/datepicker'
-        /*,
-         'jquery/validate'*/
     ],
     function (
         $,
         Component,
-        additionalValidators,
-        placeOrderAction,
         quote,
         ko,
-        checkoutData,
-        selectPaymentMethodAction,
-        checkoutCommon,
         datePicker
     ) {
         'use strict';
@@ -133,33 +121,11 @@ define(
                     tos: true,
                     showPhone: false,
                     showFrenchTosValue: null,
-                    validationState:{
-                        'buckaroo_magento2_billink_TermsCondition': true
-                    },
                     value: ""
                 },
                 redirectAfterPlaceOrder : true,
-                paymentFeeLabel : window.checkoutConfig.payment.buckaroo.billink.paymentFeeLabel,
-                subtext : window.checkoutConfig.payment.buckaroo.billink.subtext,
-                subTextStyle : checkoutCommon.getSubtextStyle('billink'),
-                currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
-                baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 currentCustomerAddressId : null,
-                genderList: window.checkoutConfig.payment.buckaroo.billink.genderList,
                 dp: datePicker,
-                isB2B: window.checkoutConfig.payment.buckaroo.billink.b2b == true,
-                isTestMode: window.checkoutConfig.payment.buckaroo.billink.isTestMode,
-
-                /**
-                 * @override
-                 */
-                initialize : function (options) {
-                    if (checkoutData.getSelectedPaymentMethod() == options.index) {
-                        window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-                    }
-
-                    return this._super(options);
-                },
 
                 initObservable: function () {
                     this._super().observe(
@@ -171,7 +137,6 @@ define(
                             'tos',
                             'dob',
                             'showFrenchTosValue',
-                            'validationState',
                             'value'
                         ]
                     );
@@ -180,13 +145,13 @@ define(
                         function () {
                             return quote.billingAddress() !== null &&
                             quote.billingAddress().countryId == 'NL' &&
-                            window.checkoutConfig.payment.buckaroo.billink.showFinancialWarning
+                            this.buckaroo.showFinancialWarning
                         },
                         this
                     );
                     this.billingName = ko.computed(
                         function () {
-                            if (this.isB2B && quote.billingAddress() !== null) {
+                            if ((this.buckaroo.b2b == true) && quote.billingAddress() !== null) {
                                 return quote.billingAddress().company;
                             }
                             if (quote.billingAddress() !== null) {
@@ -196,19 +161,12 @@ define(
                         this
                     );
 
-                    this.showFrenchTos = ko.computed(
-                        function () {
-                            return  quote.billingAddress() !== null && quote.billingAddress().countryId == 'BE'
-                        },
-                        this
-                    );
-
                     this.showPhone = ko.computed(
                         function () {
                             return (
                                 quote.billingAddress() === null ||
                                 !validPhone(quote.billingAddress().telephone)
-                            ) && !this.isB2B;
+                            ) && this.buckaroo.b2b != true;
                         },
                         this
                     );
@@ -219,7 +177,7 @@ define(
                             let shipping = quote.shippingAddress();
                             let billing = quote.billingAddress();
 
-                            return this.isB2B && (
+                            return this.buckaroo.b2b == true && (
                                 (shipping && shipping.company && shipping.company.trim().length > 0) ||
                                 (billing && billing.company && billing.company.trim().length > 0)
                             )
@@ -227,111 +185,7 @@ define(
                         this
                     );
 
-                    this.dob.subscribe(function () {
-                        const dobId = 'buckaroo_magento2_billink_DoB';
-                        const isValid = $(`#${dobId}`).valid();
-                        let state = this.validationState();
-                        state[dobId] = isValid;
-                        this.validationState(state);
-                    }, this);
-
-                    this.buttoncheck = ko.computed(
-                        function () {
-                            const state = this.validationState();
-                            const valid = this.getActiveValidationFields().map((field) => {
-                                if (state[field] !== undefined) {
-                                    return state[field];
-                                }
-                                return false;
-                            }).reduce(
-                                function (prev, cur) {
-                                    return prev && cur
-                                },
-                                true
-                            )
-                            return valid;
-                        },
-                        this
-                    );
-
                     return this;
-                },
-                validateField(data, event) {
-                    const isValid = $(event.target).valid();
-                    let state = this.validationState();
-                    state[event.target.id] = isValid;
-                    this.validationState(state);
-                },
-
-                getActiveValidationFields() {
-                    let fields = [
-                        'buckaroo_magento2_billink_TermsCondition',
-                    ];
-                    if (this.showPhone()) {
-                        fields.push('buckaroo_magento2_billink_Telephone')
-                    }
-
-                    if (this.showB2B()) {
-                        fields.push('buckaroo_magento2_billink_chamberOfCommerce');
-                        fields.push('buckaroo_magento2_billink_VATNumber');
-                    } else {
-                        fields = fields.concat([
-                            'buckaroo_magento2_billink_DoB',
-                            'buckaroo_magento2_bilink_genderSelect'
-                        ]);
-                    }
-
-                    return fields;
-                },
-
-                validate: function () {
-                    return $('.' + this.getCode() + ' .payment-method-second-col form').valid();
-                },
-
-                /**
-                 * Place order.
-                 *
-                 * @todo To override the script used for placeOrderAction, we need to override the placeOrder method
-                 *          on our parent class (buckaroo/checkout/payment/default) so we can
-                 *
-                 *          placeOrderAction has been changed from Magento_Checkout/js/action/place-order to our own
-                 *          version (Buckaroo_Magento2/js/action/place-order) to prevent redirect and handle the response.
-                 */
-                placeOrder: function (data, event) {
-                    var self = this,
-                        placeOrder;
-
-                    if (event) {
-                        event.preventDefault();
-                    }
-
-                    if (this.validate() && additionalValidators.validate()) {
-                        this.isPlaceOrderActionAllowed(false);
-                        placeOrder = placeOrderAction(this.getData(), this.redirectAfterPlaceOrder, this.messageContainer);
-
-                        $.when(placeOrder).fail(
-                            function () {
-                                self.isPlaceOrderActionAllowed(true);
-                            }
-                        ).done(this.afterPlaceOrder.bind(this));
-                        return true;
-                    }
-                    return false;
-                },
-
-                afterPlaceOrder: function () {
-                    var response = window.checkoutConfig.payment.buckaroo.response;
-                    response = $.parseJSON(response);
-                    checkoutCommon.redirectHandle(response);
-                },
-
-                selectPaymentMethod: function () {
-                    window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-
-                    selectPaymentMethodAction(this.getData());
-                    checkoutData.setSelectedPaymentMethod(this.item.method);
-
-                    return true;
                 },
 
                 getData: function () {
