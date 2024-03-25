@@ -25,10 +25,7 @@ define(
         'Magento_Checkout/js/model/payment/additional-validators',
         'Buckaroo_Magento2/js/action/place-order',
         'ko',
-        'Magento_Checkout/js/checkout-data',
-        'Magento_Checkout/js/action/select-payment-method',
         'mageUtils',
-        'buckaroo/checkout/common',
         'BuckarooClientSideEncryption'
     ],
     function (
@@ -37,10 +34,7 @@ define(
         additionalValidators,
         placeOrderAction,
         ko,
-        checkoutData,
-        selectPaymentMethodAction,
-        utils,
-        checkoutCommon
+        utils
     ) {
         'use strict';
 
@@ -156,6 +150,30 @@ define(
                     return this;
                 },
 
+                placeOrder: function (data, event) {
+                    var self = this,
+                    placeOrder;
+
+                    if (event) {
+                        event.preventDefault();
+                    }
+
+                    if (this.validate() && additionalValidators.validate()) {
+                        this.isPlaceOrderActionAllowed(false);
+                        this.encryptCardData().then(function() {
+                            placeOrder = placeOrderAction(self.getData(), self.redirectAfterPlaceOrder, self.messageContainer);
+    
+                            $.when(placeOrder).fail(
+                                function () {
+                                    self.isPlaceOrderActionAllowed(true);
+                                }
+                            ).done(self.afterPlaceOrder.bind(self));
+                        })
+                        return true;
+                    }
+                    return false;
+                },
+
 
 
                 getData: function () {
@@ -194,7 +212,7 @@ define(
                     if (response.RequiredAction !== undefined && response.RequiredAction.RedirectURL !== undefined) {
                         if (this.isMobileMode()) {
                             utils.submit({
-                                url: this.buckaroo.mrcash.redirecturl,
+                                url: this.buckaroo.redirecturl,
                                 data: response
                             });
                         } else {

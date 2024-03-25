@@ -124,7 +124,6 @@ define(
                     value: ""
                 },
                 redirectAfterPlaceOrder : true,
-                currentCustomerAddressId : null,
                 dp: datePicker,
 
                 initObservable: function () {

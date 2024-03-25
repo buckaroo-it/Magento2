@@ -22,12 +22,16 @@ define(
     [
         'jquery',
         'buckaroo/checkout/payment/default',
+        'Magento_Checkout/js/model/payment/additional-validators',
+        'Buckaroo_Magento2/js/action/place-order',
         'ko',
         'BuckarooClientSideEncryption'
     ],
     function (
         $,
         Component,
+        additionalValidators,
+        placeOrderAction,
         ko,
     ) {
         'use strict';
@@ -164,6 +168,31 @@ define(
                     return this;
                 },
 
+                placeOrder: function (data, event) {
+                    var self = this,
+                        placeOrder;
+
+                    if (event) {
+                        event.preventDefault();
+                    }
+
+                    if (this.validate() && additionalValidators.validate()) {
+                        this.isPlaceOrderActionAllowed(false);
+                        this.encryptCardData().then(function() {
+                            console.log('here');
+                            placeOrder = placeOrderAction(self.getData(), self.redirectAfterPlaceOrder, self.messageContainer);
+    
+                            $.when(placeOrder).fail(
+                                function () {
+                                    self.isPlaceOrderActionAllowed(true);
+                                }
+                            ).done(self.afterPlaceOrder.bind(self));
+                        })
+                        return true;
+                    }
+                    return false;
+                },
+
                 
                 validateCardNumber(data, event) {
                     this.validateField(data, event);
@@ -252,6 +281,7 @@ define(
                             }.bind(this));
                     }.bind(this))
                 },
+
                 setTestParameters() {
                     if (this.buckaroo.isTestMode) {
                         this.cardNumber('4563550000000005')

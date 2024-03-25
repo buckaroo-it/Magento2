@@ -54,7 +54,7 @@ define(
                         data['transaction_key'] = response.key;
 
                         utils.submit({
-                            url: window.checkoutConfig.payment.buckaroo.payconiq.redirecturl,
+                            url: this.buckaroo.redirecturl,
                             data: response
                         });
                     }

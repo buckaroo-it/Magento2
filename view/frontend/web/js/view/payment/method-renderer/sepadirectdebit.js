@@ -99,8 +99,7 @@ define(
                     this._super().observe([
                         'bankaccountholder',
                         'bankaccountnumber',
-                        'bicnumber',
-                        'validationState'
+                        'bicnumber'
                     ]);
 
                     this.isnl = ko.computed(function () {

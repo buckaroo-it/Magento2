@@ -39,10 +39,6 @@ define(
                     return this;
                 },
 
-                selectCreditCardPaymentMethod: function (code) {
-                    this.setSelectedCard(code);
-                    this.selectPaymentMethod();
-                },
 
                 getData: function () {
                     return {

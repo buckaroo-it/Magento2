@@ -20,25 +20,13 @@
 /*global define*/
 define(
     [
-        'jquery',
         'buckaroo/checkout/payment/default',
-        'Magento_Checkout/js/model/payment/additional-validators',
-        'Buckaroo_Magento2/js/action/place-order',
         'ko',
-        'Magento_Checkout/js/checkout-data',
-        'Magento_Checkout/js/action/select-payment-method',
-        'buckaroo/checkout/common',
         'Magento_Checkout/js/model/quote'
     ],
     function (
-        $,
         Component,
-        additionalValidators,
-        placeOrderAction,
         ko,
-        checkoutData,
-        selectPaymentMethodAction,
-        checkoutCommon,
         quote
     ) {
         'use strict';
@@ -52,12 +40,7 @@ define(
               
 
                 initObservable: function () {
-                    this._super().observe(
-                        [
-                            'selectedGender',
-                            'genderList'
-                        ]
-                    );
+                    this._super().observe(['selectedGender']);
 
                     this.showFinancialWarning = ko.computed(
                         function () {

@@ -20,11 +20,9 @@
 /*global define*/
 define(
     [
-        'jquery',
         'buckaroo/checkout/payment/default',
     ],
     function (
-        $,
         Component,
     ) {
         'use strict';
@@ -33,7 +31,7 @@ define(
             {
                 defaults: {
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_ideal',
-                    selectedBank: '',
+                    selectedBank: null,
                 },
                 redirectAfterPlaceOrder: false,
 

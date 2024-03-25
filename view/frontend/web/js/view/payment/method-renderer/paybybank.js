@@ -34,8 +34,7 @@ define([
             template: "Buckaroo_Magento2/payment/buckaroo_magento2_paybybank",
             selectedBank: "",
             showAll: false,
-            isMobile: $(window).width() < 768,
-            logo: require.toUrl('Buckaroo_Magento2/images/paybybank.gif')
+            isMobile: $(window).width() < 768
         },
         redirectAfterPlaceOrder: false,
       /**
@@ -80,7 +79,7 @@ define([
                 if (found !== undefined) {
                     return found.img;
                 }
-                return require.toUrl('Buckaroo_Magento2/images/paybybank.gif')
+                return this.buckaroo.logo
             }, this);
             return this;
         },

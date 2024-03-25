@@ -131,7 +131,10 @@
                     <input type="radio"
                            name="payment[method]"
                            class="radio"
-                           data-bind="attr: {'id': code, 'data-method': 'buckaroo_magento2_creditcard'}, value: code,  click: $parent.selectCreditCardPaymentMethod.bind($parent, code), checked: $parent.isCheckedCreditCardPaymentMethod.bind($parent, code), visible: $parent.isRadioButtonVisible()"/>
+                           data-bind="attr: {'id': code, 'data-method': 'buckaroo_magento2_creditcard'}, value: code,
+                           event: { change: $parent.selectPaymentMethod.bind($parent)},
+                           checked: $parent.selectedCard,
+                           visible: $parent.isRadioButtonVisible()"/>
                     <label class="label" data-bind="attr: {'for': code}">
                         <!-- ko text: name --><!-- /ko -->
                     </label>
@@ -166,8 +169,7 @@
 
             <div class="actions-toolbar">
                 <div class="primary">
-                    <button id="button-action-checkout-giftcards"
-                            class="action primary checkout"
+                    <button class="action primary checkout"
                             type="submit"
                             data-bind="
                             click: $parent.placeOrder.bind($parent),

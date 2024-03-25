@@ -104,8 +104,7 @@ define(
                         'billingName',
                         'dateValidate',
                         'value',
-                        'phone',
-                        'validationState'
+                        'phone'
                     ]);
 
                     this.showFinancialWarning = ko.computed(

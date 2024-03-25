@@ -20,26 +20,12 @@
 /*global define*/
 define(
     [
-        'jquery',
         'buckaroo/checkout/payment/default',
-        'Magento_Checkout/js/model/payment/additional-validators',
-        'Buckaroo_Magento2/js/action/place-order',
         'Magento_Checkout/js/model/quote',
-        'ko',
-        'Magento_Checkout/js/checkout-data',
-        'Magento_Checkout/js/action/select-payment-method',
-        'buckaroo/checkout/common'
     ],
     function (
-        $,
         Component,
-        additionalValidators,
-        placeOrderAction,
         quote,
-        ko,
-        checkoutData,
-        selectPaymentMethodAction,
-        checkoutCommon
     ) {
         'use strict';
 
