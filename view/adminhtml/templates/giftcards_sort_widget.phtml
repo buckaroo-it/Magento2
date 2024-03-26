@@ -20,7 +20,7 @@
 // @codingStandardsIgnoreFile
 ?>
 <div class="giftcards_sort_wrapper">
-    <input type="hidden" name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_giftcards][fields][sort_giftcards][value]" id="sort_giftcards"
+    <input type="hidden" name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_giftcards][groups][buckaroo_magento2_default][fields][sort_giftcards][value]" id="sort_giftcards"
            value="<?= $block->getConfigGiftCardsSort() ?>">
     <div id="sort_giftcards_list"></div>
 </div>
@@ -37,11 +37,16 @@
         $(listSelector).sortable({
             axis: 'y',
             tolerance: 'pointer',
-            items: 'p'
+            items: 'p',
+            stop: function( event, ui ) 
+            {
+                bkUpdateOrder();
+            }
         });
 
-        let ccInherit = $('input[name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_giftcards][fields][sort_giftcards][inherit]"]');
-        let selector = 'select[name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_giftcards][fields][allowed_giftcards][value][]"]';
+        let ccInherit = $('input[name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_giftcards][groups][buckaroo_magento2_default][fields][sort_giftcards][inherit]"]');
+        let selector = 'select[name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_giftcards][groups][buckaroo_magento2_default][fields][allowed_giftcards][value][]"]';
+        
         let inputText = $('#sort_giftcards').val();
         let selectorWrapper = '.giftcards_sort_wrapper';
 
@@ -71,16 +76,17 @@
                 p.classList.add('sort_giftcards');
                 $(listSelector).append(p);
             });
+            bkUpdateOrder();
         });
 
-        $('#save').click(function () {
+        const bkUpdateOrder = function () {
             let cardList = '';
             $(listSelector + ' p').each(function () {
                 cardList += $(this).text() + ',';
             });
             cardList = cardList.slice(0, -1);
             $('#sort_giftcards').val(cardList);
-        });
+        };
 
         function sortableOnOff(status){
             if(status == 'disable'){

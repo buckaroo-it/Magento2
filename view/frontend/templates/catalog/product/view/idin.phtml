@@ -21,8 +21,9 @@
 <?php if ($block->canShowProductIdin()): ?>
     <div id="buckaroo_idin_product" style="background: #d4eded; padding: 10px; display: inline-block; width: 100%; ">
         <img width="50px" data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/idin.svg') }"
-             style="float: left; width: 50px; "/>
+             style="float: left; width: 50px; " alt="Idin Logo"/>
         <span data-bind="i18n: 'You must be 18 or older to pay for the products below'"
               style="height: 50px; display: block; float: left; line-height: 50px; margin-left: 11px; "></span>
     </div>
 <?php endif; ?>
+

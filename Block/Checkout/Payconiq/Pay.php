@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,29 +17,34 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Block\Checkout\Payconiq;
 
-class Pay extends \Magento\Framework\View\Element\Template
+use Magento\Framework\View\Element\Template;
+
+class Pay extends Template
 {
-    /** @var array */
+    /**
+     * @var array
+     */
     protected $response;
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function _construct()
     {
         parent::_construct();
-
         $this->response = $this->getRequest()->getParams();
     }
 
     /**
+     * Get transaction key
+     *
      * @return string
      */
     public function getTransactionKey()
     {
-        $key = preg_replace('/[^\w]/', '', $this->response['Key']);
-        return $key;
+        return preg_replace('/[^\w]/', '', $this->response['Key']);
     }
 }

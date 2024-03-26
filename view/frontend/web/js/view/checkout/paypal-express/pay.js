@@ -111,25 +111,25 @@ define([
       }
     },
 
-    onErrorCallback(reason) {
-      // custom error behavior
-      this.displayErrorMessage(reason);
-    },
-    onInitCallback() {
-    },
-    onCancelCallback() {
+        onErrorCallback(reason) {
+            // custom error behavior
+            this.displayErrorMessage(reason);
+        },
+        onInitCallback() {
+        },
+        onCancelCallback() {
       this.displayErrorMessage($t("You have canceled the payment request."));
-    },
-    onClickCallback() {
-      //reset any previous payment response;
-      this.result = null;
-    },
-    /**
-     * Init class
-     */
-    init() {
-      BuckarooSdk.PayPal.initiate(this.options);
-    },
+        },
+        onClickCallback() {
+            //reset any previous payment response;
+            this.result = null;
+        },
+        /**
+         * Init class
+         */
+        init() {
+            sdk.initiate(this.options);
+        },
 
     /**
      * Create order and do payment
@@ -172,7 +172,7 @@ define([
     getOrderData() {
       let form = $("#product_addtocart_form");
       if (this.page === 'product') {
-                return form.serialize();
+        return form.serialize();
       }
     },
     /**

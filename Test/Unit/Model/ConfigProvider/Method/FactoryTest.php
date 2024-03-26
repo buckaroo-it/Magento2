@@ -24,7 +24,7 @@ use Magento\Framework\ObjectManagerInterface;
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface;
 use Buckaroo\Magento2\Test\BaseTest;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 
 class FactoryTest extends BaseTest
 {

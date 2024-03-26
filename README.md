@@ -1,9 +1,8 @@
 <p align="center">
-  <img src="https://www.buckaroo.nl/media/3473/magento2_icon.png" width="200px" position="center">
+  <img src="https://github.com/buckaroo-it/Magento2/assets/106905746/904925b3-4a32-4b17-b692-1e23e4370fd8" width="200px" position="center">
 </p>
 
 # Buckaroo Magento 2 Payments Plugin
-[![Latest release](https://badgen.net/github/release/buckaroo-it/Magento2)](https://github.com/buckaroo-it/Magento2/releases)
 
 ## Index
 - [About](#about)
@@ -23,7 +22,7 @@
 Magento is an e-commerce platform owned by Adobe. There are two versions: Magento Open Source, the free, open source version written in PHP, and Magento Commerce, the paid cloud version.
 More than 250,000 merchants around the world use the Magento platform.
 
-The Buckaroo Payments Plugin ([Dutch](https://docs.buckaroo.io/docs/nl/magento-2) or [English](https://docs.buckaroo.io/docs/magento-2)) for Magento 2 enables a ready-to-sell payment gateway. You can choose from popular online payment methods in The Netherlands, Belgium, France, Germany and globally.
+The Buckaroo Payments Plugin ([Dutch](https://docs.buckaroo.io/docs/nl/magento-20) or [English](https://docs.buckaroo.io/docs/magento-20)) for Magento 2 enables a ready-to-sell payment gateway. You can choose from popular online payment methods in The Netherlands, Belgium, France, Germany and globally.
 Start accepting payments within a few minutes.
 <br>
 
@@ -41,9 +40,11 @@ We recommend you to install the Buckaroo Magento 2 Payments plugin with composer
 
 **Run the following commands in the Magento 2 root folder:**
 ```
-composer require buckaroo/magento2
+composer require buckaroo/magento2:2.0.0-RC1
 php bin/magento module:enable Buckaroo_Magento2
+php bin/magento setup:db-declaration:generate-whitelist --module-name=Buckaroo_Magento2
 php bin/magento setup:upgrade
+php bin/magento setup:di:compile
 php bin/magento setup:static-content:deploy
 ```
 <br>
@@ -54,8 +55,9 @@ php bin/magento setup:static-content:deploy
 To do this, please run the following commands in your Magento 2 root folder:**
 
 ```
-composer update buckaroo/magento2
+composer update buckaroo/magento2:2.0.0-RC1
 php bin/magento setup:upgrade
+php bin/magento setup:di:compile
 php bin/magento setup:static-content:deploy
 ```
 
@@ -79,6 +81,9 @@ But if you still have some unanswered questions, then please contact our [techni
 | [Second chance<br>module](https://github.com/buckaroo-it/Magento2_SecondChance)   | [Google Analytics<br>module](https://github.com/buckaroo-it/Magento2_Analytics)   | [Hyvä React Checkout<br>module](https://github.com/buckaroo-it/Magento2_Hyva) | [Hyvä Checkout<br>module](https://github.com/buckaroo-it/Magento2_Hyva_Checkout)  | [GraphQL<br>module](https://github.com/buckaroo-it/Magento2_GraphQL)   |
 :-------------------------:|:-------------------------:|:-------------------------:|:-------------------------:|:-------------------------:|
 [<img src="https://github.com/buckaroo-it/Magento2/assets/105488705/68ba0c08-1162-44c6-a18a-8734692b8b02" alt="Second-chance" width="200"/>](https://github.com/buckaroo-it/Magento2_SecondChance)|  [<img src="https://github.com/buckaroo-it/Magento2/assets/105488705/1c6e9345-a0ff-46cf-be31-d1c17e69fd90" alt="Google-analytics" width="200"/>](https://github.com/buckaroo-it/Magento2_Analytics)| [<img src="https://github.com/buckaroo-it/Magento2/assets/105488705/11953f16-3f5d-4c10-bb6b-f9a949a97a7a" alt="Hyva-react-checkout" width="200"/>](https://github.com/buckaroo-it/Magento2_Hyva) | [<img src="https://github.com/buckaroo-it/Magento2/assets/105488705/b00d2fcd-2458-4a8b-ab1f-e85d678a0008" alt="Hyva-checkout" width="200"/>](https://github.com/buckaroo-it/Magento2_Hyva_Checkout) | [<img src="https://github.com/buckaroo-it/Magento2/assets/105488705/8611dfeb-bb84-4ba6-ab72-7b6459143dff" alt="GraphQL" width="200"/>](https://github.com/buckaroo-it/Magento2_GraphQL) |
+
+> **Please note:**
+> The Hyvä Checkout module is not available yet. This module is currently being developed, so it will be available anytime soon.
 <br>
 
 ## Contribute

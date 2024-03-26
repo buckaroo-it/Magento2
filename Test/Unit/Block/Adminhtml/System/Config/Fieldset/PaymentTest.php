@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Test\Unit\Block\Adminhtml\System\Config\Fieldset;
 
 use Magento\Framework\Data\Form\Element\AbstractElement;
@@ -44,7 +46,7 @@ class PaymentTest extends BaseTest
         $elementMock = $this->getFakeMock(AbstractElement::class)->getMock();
 
         $result = $this->invokeArgs('_getHeaderCommentHtml', [$elementMock], $instance);
-        $this->assertInternalType('string', $result);
+        $this->assertIsString($result);
         $this->assertEquals(0, strlen($result));
     }
 }

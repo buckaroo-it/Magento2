@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,35 +17,46 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Service\CreditManagement\ServiceParameters;
 
+use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
-use Buckaroo\Magento2\Model\Method\PayPerEmail;
 
 class CreateCombinedInvoice
 {
-    /** @var AbstractConfigProvider */
+    /**
+     * @var AbstractConfigProvider
+     */
     private $configProvider;
 
-    /** @var Factory */
+    /**
+     * @var Factory
+     */
     private $configProviderMethodFactory;
 
+    /**
+     * @param Factory $configProviderMethodFactory
+     */
     public function __construct(Factory $configProviderMethodFactory)
     {
         $this->configProviderMethodFactory = $configProviderMethodFactory;
     }
 
     /**
-     * @param OrderPaymentInterface|InfoInterface $payment
-     * @param string                              $configProviderType
+     * Get request parameters for CM
      *
+     * @param OrderPaymentInterface|InfoInterface $payment
+     * @param string $configProviderType
      * @return array
+     * @throws Exception
      */
-    public function get($payment, $configProviderType)
+    public function get($payment, string $configProviderType): array
     {
         $this->configProvider = $this->configProviderMethodFactory->get($configProviderType);
 
@@ -53,19 +64,18 @@ class CreateCombinedInvoice
             return [];
         }
 
-        $services = [
+        return [
             'Name'             => 'CreditManagement3',
             'Action'           => 'CreateCombinedInvoice',
             'Version'          => 1,
             'RequestParameter' => $this->getCmRequestParameters($payment)
         ];
-
-        return $services;
     }
 
     /**
-     * @param OrderPaymentInterface|InfoInterface $payment
+     * Get debtor details
      *
+     * @param OrderPaymentInterface|InfoInterface $payment
      * @return array
      */
     private function getCmRequestParameters($payment)
@@ -75,21 +85,21 @@ class CreateCombinedInvoice
 
         $requestParameters = [
             [
-                '_'    => $order->getBillingAddress()->getEmail(),
-                'Name' => 'Code',
+                '_'     => $order->getBillingAddress()->getEmail(),
+                'Name'  => 'Code',
                 'Group' => 'Debtor',
             ],
             [
-                '_'    => $order->getBillingAddress()->getEmail(),
-                'Name' => 'Email',
+                '_'     => $order->getBillingAddress()->getEmail(),
+                'Name'  => 'Email',
                 'Group' => 'Email',
             ],
         ];
 
         if ($order->getBillingAddress()->getTelephone()) {
             $requestParameters[] = [
-                '_'    => $order->getBillingAddress()->getTelephone(),
-                'Name' => 'Mobile',
+                '_'     => $order->getBillingAddress()->getTelephone(),
+                'Name'  => 'Mobile',
                 'Group' => 'Phone',
             ];
         }
@@ -110,8 +120,9 @@ class CreateCombinedInvoice
     }
 
     /**
-     * @param Order $order
+     * Get invoice data
      *
+     * @param Order $order
      * @return array
      */
     private function getUngroupedCmParameters($order)
@@ -158,6 +169,8 @@ class CreateCombinedInvoice
     }
 
     /**
+     * Get allowed services
+     *
      * @param OrderPaymentInterface|InfoInterface $payment
      * @return string
      */
@@ -171,7 +184,7 @@ class CreateCombinedInvoice
 
         $allowedServices = $this->appendGiftcards($allowedServices);
 
-        if ($payment->getMethod() === PayPerEmail::PAYMENT_METHOD_CODE) {
+        if ($payment->getMethod() === PayPerEmail::CODE) {
             return str_replace("p24,", "", $allowedServices);
         }
 
@@ -209,15 +222,16 @@ class CreateCombinedInvoice
             return $allowedServices;
         }
 
-        if(strlen($allowedServices) > 0) {
+        if (strlen($allowedServices) > 0) {
             return $allowedServices . "," . $activeGiftcardIssuers;
         }
         return $activeGiftcardIssuers;
     }
 
     /**
-     * @param OrderPaymentInterface|InfoInterface $payment
+     * Get CM Person details
      *
+     * @param OrderPaymentInterface|InfoInterface $payment
      * @return array
      */
     private function getPersonCmParameters($payment)
@@ -227,26 +241,26 @@ class CreateCombinedInvoice
 
         $personParameters = [
             [
-                '_'    => strtolower($order->getBillingAddress()->getCountryId()),
-                'Name' => 'Culture',
+                '_'     => strtolower($order->getBillingAddress()->getCountryId()),
+                'Name'  => 'Culture',
                 'Group' => 'Person',
             ],
             [
-                '_'    => $order->getBillingAddress()->getFirstname(),
-                'Name' => 'FirstName',
+                '_'     => $order->getBillingAddress()->getFirstname(),
+                'Name'  => 'FirstName',
                 'Group' => 'Person',
             ],
             [
-                '_'    => $order->getBillingAddress()->getLastname(),
-                'Name' => 'LastName',
+                '_'     => $order->getBillingAddress()->getLastname(),
+                'Name'  => 'LastName',
                 'Group' => 'Person',
             ],
         ];
 
         if (!empty($payment->getAdditionalInformation('customer_gender'))) {
             $personParameters[] = [
-                '_'    => $payment->getAdditionalInformation('customer_gender'),
-                'Name' => 'Gender',
+                '_'     => $payment->getAdditionalInformation('customer_gender'),
+                'Name'  => 'Gender',
                 'Group' => 'Person',
             ];
         }
@@ -255,8 +269,9 @@ class CreateCombinedInvoice
     }
 
     /**
-     * @param \Magento\Sales\Api\Data\OrderAddressInterface $billingAddress
+     * Get Address CM Parameters
      *
+     * @param \Magento\Sales\Api\Data\OrderAddressInterface $billingAddress
      * @return array
      */
     private function getAddressCmParameters($billingAddress)
@@ -265,36 +280,36 @@ class CreateCombinedInvoice
 
         $addressParameters = [
             [
-                '_'    => $address['street'],
-                'Name' => 'Street',
+                '_'     => $address['street'],
+                'Name'  => 'Street',
                 'Group' => 'Address',
             ],
             [
-                '_'    => $address['house_number'],
-                'Name' => 'HouseNumber',
+                '_'     => $address['house_number'],
+                'Name'  => 'HouseNumber',
                 'Group' => 'Address',
             ],
             [
-                '_'    => $billingAddress->getPostcode(),
-                'Name' => 'Zipcode',
+                '_'     => $billingAddress->getPostcode(),
+                'Name'  => 'Zipcode',
                 'Group' => 'Address',
             ],
             [
-                '_'    => $billingAddress->getCity(),
-                'Name' => 'City',
+                '_'     => $billingAddress->getCity(),
+                'Name'  => 'City',
                 'Group' => 'Address',
             ],
             [
-                '_'    => $billingAddress->getCountryId(),
-                'Name' => 'Country',
+                '_'     => $billingAddress->getCountryId(),
+                'Name'  => 'Country',
                 'Group' => 'Address',
             ],
         ];
 
         if (!empty($address['number_addition']) && strlen($address['number_addition']) > 0) {
             $addressParameters[] = [
-                '_'    => $address['number_addition'],
-                'Name' => 'HouseNumberSuffix',
+                '_'     => $address['number_addition'],
+                'Name'  => 'HouseNumberSuffix',
                 'Group' => 'Address'
             ];
         }
@@ -303,39 +318,12 @@ class CreateCombinedInvoice
     }
 
     /**
-     * @param \Magento\Sales\Api\Data\OrderAddressInterface $billingAddress
+     * Get CM Address
      *
-     * @return array
-     */
-    private function getCompanyCmParameters($billingAddress)
-    {
-        $requestParameters = [];
-        $company = $billingAddress->getCompany();
-
-        if (empty($company) || strlen($company) <= 0) {
-            return $requestParameters;
-        }
-
-        $requestParameters = [
-            [
-                '_' => strtolower($billingAddress->getCountryId()),
-                'Name' => 'Culture',
-                'Group' => 'Company'
-            ],
-            [
-                '_' => $company,
-                'Name' => 'Name',
-                'Group' => 'Company'
-            ]
-        ];
-
-        return $requestParameters;
-    }
-
-    /**
      * @param $street
-     *
      * @return array
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     private function getCmAddress($street)
     {
@@ -350,8 +338,8 @@ class CreateCombinedInvoice
         );
         if (!$addressRegexResult || !is_array($matches)) {
             $addressData = [
-                'street'           => $street,
-                'house_number'          => '',
+                'street'          => $street,
+                'house_number'    => '',
                 'number_addition' => '',
             ];
 
@@ -390,5 +378,36 @@ class CreateCombinedInvoice
         ];
 
         return $addressData;
+    }
+
+    /**
+     * Get Company CM Parameters
+     *
+     * @param \Magento\Sales\Api\Data\OrderAddressInterface $billingAddress
+     * @return array
+     */
+    private function getCompanyCmParameters($billingAddress)
+    {
+        $requestParameters = [];
+        $company = $billingAddress->getCompany();
+
+        if (empty($company) || strlen($company) <= 0) {
+            return $requestParameters;
+        }
+
+        $requestParameters = [
+            [
+                '_'     => strtolower($billingAddress->getCountryId()),
+                'Name'  => 'Culture',
+                'Group' => 'Company'
+            ],
+            [
+                '_'     => $company,
+                'Name'  => 'Name',
+                'Group' => 'Company'
+            ]
+        ];
+
+        return $requestParameters;
     }
 }

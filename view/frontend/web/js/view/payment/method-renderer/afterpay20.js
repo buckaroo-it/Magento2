@@ -63,9 +63,8 @@ define(
             }
 
             return value.length <= 8;
-        },
-        $.mage.__('Invalid COC number')
-        );
+            },
+        $.mage.__('Invalid COC number'));
 
         const bkIsPhoneValid = function (value) {
             if (quote.billingAddress() === null) {
@@ -90,8 +89,8 @@ define(
                 return false;
             }
 
-            value = value.replace(/^\+|(00)/, '');
-            value = value.replace(/\(0\)|\s|-/g, '');
+            value = value.replace(/^(\+|00)/, '');
+            value = value.replace(/(\(0\)|\s|-)/g, '');
 
             if (value.match(/\+/)) {
                 return false;
@@ -127,15 +126,16 @@ define(
                         value.substr(6, 4),
                         value.substr(3, 2) - 1,
                         value.substr(0, 2),
-                        0, 0, 0
+                        0,
+                        0,
+                        0
                     );
                     return ~~((Date.now() - birthday) / (31557600000)) >= 18;
                 }
             }
             return false;
         },
-        $.mage.__('You should be at least 18 years old.')
-        );
+        $.mage.__('You should be at least 18 years old.'));
 
         return Component.extend(
             {
@@ -163,6 +163,7 @@ define(
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 isCustomerLoggedIn: customer.isLoggedIn,
                 isB2B: window.checkoutConfig.payment.buckaroo.afterpay20.is_b2b,
+                isTestMode: window.checkoutConfig.payment.buckaroo.afterpay20.isTestMode,
                 dp: datePicker,
                 /**
                  * @override
@@ -198,8 +199,8 @@ define(
                     );
 
                     this.activeAddress = ko.computed(
-                        function() {
-                            if(quote.billingAddress()) {
+                        function () {
+                            if (quote.billingAddress()) {
                                 return quote.billingAddress();
                             }
                             return quote.shippingAddress();
@@ -207,14 +208,14 @@ define(
                     );
                     
                     this.country = ko.computed(
-                        function() {
+                        function () {
                             return this.activeAddress().countryId;
                         },
                         this
                     );
 
                     this.showCOC = ko.computed(
-                        function() {
+                        function () {
 
                             let shipping = quote.shippingAddress();
                             let billing = quote.billingAddress();
@@ -227,13 +228,13 @@ define(
                         this
                     );
 
+
                     this.showPhone = ko.computed(function () {
                             return  (!this.isCustomerLoggedIn() && this.isOsc()) ||
                             quote.billingAddress() === null ||
                             (['NL','BE'].indexOf(quote.billingAddress().countryId) !== -1 && !bkIsPhoneValid( quote.billingAddress().telephone))
-                        },
-                        this
-                    );
+                    },
+                        this);
 
                     this.showNLBEFields = ko.computed(
                         function () {
@@ -268,15 +269,15 @@ define(
                     );
 
                     this.buttoncheck = ko.computed(
-                        function() {
+                        function () {
                             const state = this.validationState();
                             const valid = this.getActiveValidationFields().map((field) => {
-                                if(state[field] !== undefined) {
+                                if (state[field] !== undefined) {
                                     return state[field];
                                 }
                                 return false;
                             }).reduce(
-                                function(prev, cur) {
+                                function (prev, cur) {
                                     return prev && cur
                                 },
                                 true
@@ -286,20 +287,20 @@ define(
                         this
                     )
 
-                    this.dateValidate.subscribe(function() {
-                       this.validateField('DoB');
+                    this.dateValidate.subscribe(function () {
+                        this.validateField('DoB');
                     }, this);
-                    this.customerCoc.subscribe(function() {
+                    this.customerCoc.subscribe(function () {
                         this.validateField('coc');
-                     }, this);
-                    this.termsValidate.subscribe(function() {
-                       this.validateField('TermsCondition');
                     }, this);
-                    this.identificationValidate.subscribe(function() {
-                       this.validateField('Identificationnumber');
+                    this.termsValidate.subscribe(function () {
+                        this.validateField('TermsCondition');
+                    }, this);
+                    this.identificationValidate.subscribe(function () {
+                        this.validateField('Identificationnumber');
                     }, this);
                     this.phone.subscribe(function() {
-                       this.validateField('Telephone');
+                        this.validateField('Telephone');
                     }, this);
 
                     return this;
@@ -307,26 +308,26 @@ define(
 
                 getActiveValidationFields() {
                     let fields = ['TermsCondition'];
-                    if(this.showPhone()) {
+                    if (this.showPhone()) {
                         fields.push('Telephone')
                     }
 
-                    if(this.showIdentification()) {
+                    if (this.showIdentification()) {
                         fields.push('Identificationnumber')
                     }
 
-                    if(this.showCOC()) {
+                    if (this.showCOC()) {
                         fields.push('coc')
                     }
 
-                    if(this.showNLBEFields()) {
+                    if (this.showNLBEFields()) {
                         fields.push('DoB')
                     }
                     return fields;
                 },
 
 
-                validateField: function(id) {
+                validateField: function (id) {
                     this.messageContainer.clear();
                     const isValid = $(`#buckaroo_magento2_afterpay20_${id}`).valid();
                     let state = this.validationState();
@@ -366,7 +367,7 @@ define(
                             'dpd-selected-parcelshop-city',
                             'dpd-selected-parcelshop-country'
                         ];
-                        dpdCookies.forEach(function(item) {
+                        dpdCookies.forEach(function (item) {
                             var value = $.mage.cookies.get(item);
                             if (value) {
                                 $.mage.cookies.clear(item);

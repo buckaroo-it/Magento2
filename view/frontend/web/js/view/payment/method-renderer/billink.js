@@ -56,15 +56,16 @@ define(
                         value.substr(6, 4),
                         value.substr(3, 2) - 1,
                         value.substr(0, 2),
-                        0, 0, 0
+                        0,
+                        0,
+                        0
                     );
                     return ~~((Date.now() - birthday) / (31557600000)) >= 18;
                 }
             }
             return false;
         },
-        $.mage.__('You should be at least 18 years old.')
-        );
+        $.mage.__('You should be at least 18 years old.'));
         
         const validPhone = function (value) {
             if (quote.billingAddress() === null) {
@@ -89,8 +90,8 @@ define(
                 return false;
             }
 
-            value = value.replace(/^\+|(00)/, '');
-            value = value.replace(/\(0\)|\s|-/g, '');
+            value = value.replace(/^(\+|00)/, '');
+            value = value.replace(/(\(0\)|\s|-)/g, '');
 
             if (value.match(/\+/)) {
                 return false;
@@ -111,7 +112,9 @@ define(
 
             return true;
         };
-        $.validator.addMethod('phoneValidation', validPhone ,
+        $.validator.addMethod(
+            'phoneValidation',
+            validPhone ,
             $.mage.__('Phone number should be correct.')
         );
 
@@ -145,6 +148,7 @@ define(
                 genderList: window.checkoutConfig.payment.buckaroo.billink.genderList,
                 dp: datePicker,
                 isB2B: window.checkoutConfig.payment.buckaroo.billink.b2b == true,
+                isTestMode: window.checkoutConfig.payment.buckaroo.billink.isTestMode,
 
                 /**
                  * @override
@@ -182,10 +186,10 @@ define(
                     );
                     this.billingName = ko.computed(
                         function () {
-                            if(this.isB2B && quote.billingAddress() !== null) {
+                            if (this.isB2B && quote.billingAddress() !== null) {
                                 return quote.billingAddress().company;
                             }
-                            if(quote.billingAddress() !== null) {
+                            if (quote.billingAddress() !== null) {
                                 return quote.billingAddress().firstname + " " + quote.billingAddress().lastname;
                             }
                         },
@@ -208,25 +212,39 @@ define(
                         },
                         this
                     );
-      
-                    this.dob.subscribe(function() {
+
+                    this.showB2B = ko.computed(
+                        function () {
+
+                            let shipping = quote.shippingAddress();
+                            let billing = quote.billingAddress();
+
+                            return this.isB2B && (
+                                (shipping && shipping.company && shipping.company.trim().length > 0) ||
+                                (billing && billing.company && billing.company.trim().length > 0)
+                            )
+                        },
+                        this
+                    );
+
+                    this.dob.subscribe(function () {
                         const dobId = 'buckaroo_magento2_billink_DoB';
                         const isValid = $(`#${dobId}`).valid();
                         let state = this.validationState();
                         state[dobId] = isValid;
                         this.validationState(state);
-                     }, this);
+                    }, this);
 
                     this.buttoncheck = ko.computed(
                         function () {
                             const state = this.validationState();
                             const valid = this.getActiveValidationFields().map((field) => {
-                                if(state[field] !== undefined) {
+                                if (state[field] !== undefined) {
                                     return state[field];
                                 }
                                 return false;
                             }).reduce(
-                                function(prev, cur) {
+                                function (prev, cur) {
                                     return prev && cur
                                 },
                                 true
@@ -249,12 +267,13 @@ define(
                     let fields = [
                         'buckaroo_magento2_billink_TermsCondition',
                     ];
-                    if(this.showPhone()) {
+                    if (this.showPhone()) {
                         fields.push('buckaroo_magento2_billink_Telephone')
-                    } 
-                    
-                    if(this.isB2B) {
-                       fields.push('buckaroo_magento2_billink_chamberOfCommerce')
+                    }
+
+                    if (this.showB2B()) {
+                        fields.push('buckaroo_magento2_billink_chamberOfCommerce');
+                        fields.push('buckaroo_magento2_billink_VATNumber');
                     } else {
                         fields = fields.concat([
                             'buckaroo_magento2_billink_DoB',
@@ -264,6 +283,7 @@ define(
 
                     return fields;
                 },
+
                 validate: function () {
                     return $('.' + this.getCode() + ' .payment-method-second-col form').valid();
                 },
@@ -316,7 +336,7 @@ define(
 
                 getData: function () {
                     let phone = this.phone();
-                    if(!this.showPhone() && quote.billingAddress() !== null) {
+                    if (!this.showPhone() && quote.billingAddress() !== null) {
                         phone = quote.billingAddress().telephone;
                     }
 

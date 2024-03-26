@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,20 +17,29 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Api\Data\PaypalExpress;
 
 interface TotalBreakdownInterface
 {
     /**
-     * @return \Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterface
+     * Get Subtotal
+     *
+     * @return BreakdownItemInterface
      */
     public function getItemTotal();
+
     /**
-     * @return \Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterface
+     * Get total amount of the shipping
+     *
+     * @return BreakdownItemInterface
      */
     public function getShipping();
+
     /**
-     * @return \Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterface
+     * Get Totals of taxes
+     *
+     * @return BreakdownItemInterface
      */
     public function getTaxTotal();
 }

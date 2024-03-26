@@ -24,7 +24,7 @@ define(
         'mage/translate',
         'BuckarooSDK'
     ],
-    function(
+    function (
         $,
         utils,
         url
@@ -34,15 +34,15 @@ define(
         return {
             transactionKey : null,
 
-            setTransactionKey: function(newKey) {
+            setTransactionKey: function (newKey) {
                 this.transactionKey = newKey;
             },
 
-            showQrCode: function() {
+            showQrCode: function () {
                 BuckarooSdk.Payconiq.initiate(
                     "#buckaroo_magento2_payconiq_qr",
                     this.transactionKey,
-                    function(status, params) {
+                    function (status, params) {
                         if (status === 'SUCCESS') {
                             $('#buckaroo_magento2_payconiq_cancel').hide();
                         }
@@ -52,7 +52,7 @@ define(
                 );
             },
 
-            cancelPayment: function() {
+            cancelPayment: function () {
                 var cancelText = $.mage.__('You have canceled the order. We kindly ask you to not complete the payment in the Payconiq app - Your order will not be processed. Place the order again if you still want to make the payment.');
                 $('#buckaroo_magento2_payconiq_qr').html(cancelText);
 

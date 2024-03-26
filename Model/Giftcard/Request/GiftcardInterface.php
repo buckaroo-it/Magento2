@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,6 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Giftcard\Request;
 
@@ -31,39 +31,40 @@ interface GiftcardInterface
      * @return mixed
      */
     public function send();
+
     /**
      * Set card number
      *
      * @param string $cardNumber
      *
-     * @return \Buckaroo\Magento2\Model\Giftcard\Request\GiftcardInterface
+     * @return GiftcardInterface
      */
-    public function setCardNumber(string $cardNumber);
+    public function setCardNumber(string $cardNumber): GiftcardInterface;
 
     /**
      * Set card pin
      *
      * @param string $pin
      *
-     * @return \Buckaroo\Magento2\Model\Giftcard\Request\GiftcardInterface
+     * @return GiftcardInterface
      */
-    public function setPin(string $pin);
+    public function setPin(string $pin): GiftcardInterface;
 
     /**
      * Set card type
      *
      * @param string $cardId
      *
-     * @return \Buckaroo\Magento2\Model\Giftcard\Request\GiftcardInterface
+     * @return GiftcardInterface
      */
-    public function setCardId(string $cardId);
+    public function setCardId(string $cardId): GiftcardInterface;
 
     /**
      * Set quote
      *
      * @param CartInterface $quote
      *
-     * @return \Buckaroo\Magento2\Model\Giftcard\Request\GiftcardInterface
+     * @return GiftcardInterface
      */
-    public function setQuote(CartInterface $quote);
+    public function setQuote(CartInterface $quote): GiftcardInterface;
 }

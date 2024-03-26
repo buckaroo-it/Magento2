@@ -89,7 +89,7 @@ define(
         $.validator.addMethod(
             'IBAN',
             function (value) {
-                var patternIBAN = new RegExp('^[a-zA-Z]{2}[0-9]{2}[a-zA-Z0-9]{4}[0-9]{7}([a-zA-Z0-9]?){0,16}$');
+                var patternIBAN = new RegExp('^[a-zA-Z]{2}[0-9]{2}[a-zA-Z0-9]{4}[0-9]{7}([a-zA-Z0-9]{1,16})$');
                 return (patternIBAN.test(value) && isValidIBAN(value));
             },
             $.mage.__('Enter Valid IBAN')
@@ -103,15 +103,16 @@ define(
                         value.substr(6, 4),
                         value.substr(3, 2) - 1,
                         value.substr(0, 2),
-                        0, 0, 0
+                        0,
+                        0,
+                        0
                     );
                     return ~~((Date.now() - birthday) / (31557600000)) >= 18;
                 }
             }
             return false;
         },
-        $.mage.__('You should be at least 18 years old.')
-        );
+        $.mage.__('You should be at least 18 years old.'));
 
         return Component.extend(
             {
@@ -141,6 +142,7 @@ define(
                 dp: datePicker,
                 businessMethod : window.checkoutConfig.payment.buckaroo.afterpay.businessMethod,
                 paymentMethod : window.checkoutConfig.payment.buckaroo.afterpay.paymentMethod,
+                isTestMode: window.checkoutConfig.payment.buckaroo.afterpay.isTestMode,
                 /**
                  * @override
                  */
@@ -179,7 +181,7 @@ define(
 
                     this.termsUrl =  ko.computed(
                         function () {
-                            if(quote.billingAddress() !== null) {
+                            if (quote.billingAddress() !== null) {
                                 return this.getTos(quote.billingAddress().countryId);
                             }
                         },
@@ -209,24 +211,24 @@ define(
                      */
                     this.bankAccountNumber.extend({ uppercase: true });
 
-                    this.dateValidate.subscribe(function() {
+                    this.dateValidate.subscribe(function () {
                         const dobId = 'buckaroo_magento2_afterpay_DoB';
                         const isValid = $(`#${dobId}`).valid();
                         let state = this.validationState();
                         state[dobId] = isValid;
                         this.validationState(state);
-                     }, this);
+                    }, this);
 
                     this.buttoncheck = ko.computed(
                         function () {
                             const state = this.validationState();
                             const valid = this.getActiveValidationFields().map((field) => {
-                                if(state[field] !== undefined) {
+                                if (state[field] !== undefined) {
                                     return state[field];
                                 }
                                 return false;
                             }).reduce(
-                                function(prev, cur) {
+                                function (prev, cur) {
                                     return prev && cur
                                 },
                                 true
@@ -249,7 +251,7 @@ define(
                     let fields = [
                         'buckaroo_magento2_afterpay_TermsCondition',
                     ];
-                    if(!this.hasTelephoneNumber()) {
+                    if (!this.hasTelephoneNumber()) {
                         fields.push('buckaroo_magento2_afterpay_Telephone')
                     }
 
@@ -260,9 +262,9 @@ define(
                         )
                     ) {
                         fields.push('buckaroo_magento2_afterpay_DoB')
-                        if(this.paymentMethod == PAYMENT_METHOD_ACCEPTGIRO) {
-                            fields.push('buckaroo_magento2_afterpay_IBAN')
-                        }
+                    if (this.paymentMethod == PAYMENT_METHOD_ACCEPTGIRO) {
+                        fields.push('buckaroo_magento2_afterpay_IBAN')
+                    }
                     } else {
                         fields = fields.concat(
                             [
@@ -271,7 +273,7 @@ define(
                             ]
                         )
                     }
-                    
+
                     return fields;
                 },
 
@@ -360,7 +362,7 @@ define(
                         if (country === 'BE') {
                             lang = 'be_nl';
                         }
-    
+
                         if (['NL','DE'].indexOf(country) !== -1) {
                             lang = `${cc}_${cc}`;
                         }
@@ -370,7 +372,7 @@ define(
                             lang = `${cc}_en`;
                         }
                     }
-                   
+
                     if (businessMethod == BUSINESS_METHOD_B2B && ['NL', 'DE', 'AT', 'CH'].indexOf(country) !== -1) {
                         url = 'https://documents.riverty.com/terms_conditions/payment_methods/b2b_invoice';
                         if (['NL', 'DE'].indexOf(country) !== -1) {
@@ -391,7 +393,7 @@ define(
                      .replace('%s', 'https://documents.riverty.com/terms_conditions/payment_methods/invoice/be_fr/');
                  },
 
-                getBusinessMethod : function() {
+                getBusinessMethod : function () {
                     var businessMethod = BUSINESS_METHOD_B2C;
 
                     if (this.businessMethod == BUSINESS_METHOD_B2B

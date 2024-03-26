@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,50 +17,65 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Config\Backend;
+
+use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies as ConfigAllowedCurrencies;
+use Magento\Framework\App\Cache\TypeListInterface;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\Config\Value;
+use Magento\Framework\Data\Collection\AbstractDb;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Locale\Bundle\CurrencyBundle;
+use Magento\Framework\Locale\ResolverInterface;
+use Magento\Framework\Model\Context;
+use Magento\Framework\Model\ResourceModel\AbstractResource;
+use Magento\Framework\Registry;
 
 /**
  * @method mixed getValue()
  */
-class AllowedCurrencies extends \Magento\Framework\App\Config\Value
+class AllowedCurrencies extends Value
 {
     /**
-     * @var \Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies
+     * @var ConfigAllowedCurrencies
      */
     protected $configProvider;
 
     /**
-     * @var \Magento\Framework\Locale\ResolverInterface
+     * @var ResolverInterface
      */
     protected $localeResolver;
 
     /**
-     * @var \Magento\Framework\Locale\Bundle\CurrencyBundle
+     * @var CurrencyBundle
      */
     protected $currencyBundle;
 
     /**
-     * @param \Magento\Framework\Model\Context                             $context
-     * @param \Magento\Framework\Registry                                  $registry
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface           $config
-     * @param \Magento\Framework\App\Cache\TypeListInterface               $cacheTypeList
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies         $configProvider
-     * @param \Magento\Framework\Locale\Bundle\CurrencyBundle              $currencyBundle
-     * @param \Magento\Framework\Locale\ResolverInterface                  $localeResolver
-     * @param \Magento\Framework\Model\ResourceModel\AbstractResource|null $resource
-     * @param \Magento\Framework\Data\Collection\AbstractDb|null           $resourceCollection
-     * @param array                                                        $data
+     * @param Context $context
+     * @param Registry $registry
+     * @param ScopeConfigInterface $config
+     * @param TypeListInterface $cacheTypeList
+     * @param ConfigAllowedCurrencies $configProvider
+     * @param CurrencyBundle $currencyBundle
+     * @param ResolverInterface $localeResolver
+     * @param AbstractResource|null $resource
+     * @param AbstractDb|null $resourceCollection
+     * @param array $data
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
-        \Magento\Framework\Model\Context $context,
-        \Magento\Framework\Registry $registry,
-        \Magento\Framework\App\Config\ScopeConfigInterface $config,
-        \Magento\Framework\App\Cache\TypeListInterface $cacheTypeList,
-        \Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies $configProvider,
-        \Magento\Framework\Locale\Bundle\CurrencyBundle $currencyBundle,
-        \Magento\Framework\Locale\ResolverInterface $localeResolver,
-        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
-        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
+        Context $context,
+        Registry $registry,
+        ScopeConfigInterface $config,
+        TypeListInterface $cacheTypeList,
+        ConfigAllowedCurrencies $configProvider,
+        CurrencyBundle $currencyBundle,
+        ResolverInterface $localeResolver,
+        AbstractResource $resource = null,
+        AbstractDb $resourceCollection = null,
         array $data = []
     ) {
         parent::__construct($context, $registry, $config, $cacheTypeList, $resource, $resourceCollection, $data);
@@ -74,7 +89,7 @@ class AllowedCurrencies extends \Magento\Framework\App\Config\Value
      * Check that the value contains valid currencies.
      *
      * @return $this
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws LocalizedException
      */
     public function save()
     {
@@ -83,7 +98,7 @@ class AllowedCurrencies extends \Magento\Framework\App\Config\Value
 
         foreach ($value as $currency) {
             if (!in_array($currency, $allowedCurrencies)) {
-                throw new \Magento\Framework\Exception\LocalizedException(
+                throw new LocalizedException(
                     __("Please enter a valid currency: '%1'.", $this->getCurrencyTranslation($currency))
                 );
             }
@@ -95,8 +110,7 @@ class AllowedCurrencies extends \Magento\Framework\App\Config\Value
     /**
      * Checks if there is a translation for this currency. If not, returns the original value to show it to the user.
      *
-     * @param $currency
-     *
+     * @param string $currency
      * @return mixed
      */
     protected function getCurrencyTranslation($currency)

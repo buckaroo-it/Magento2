@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,46 +17,56 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Controller\Adminhtml\Giftcard;
 
-use Magento\Backend\App\Action\Context;
-use Magento\Framework\Registry;
-use Magento\Framework\View\Result\PageFactory;
 use Buckaroo\Magento2\Model\GiftcardFactory;
+use Magento\Backend\App\Action;
+use Magento\Backend\App\Action\Context;
+use Magento\Backend\Model\View\Result\Page;
+use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\Filesystem;
-use Magento\MediaStorage\Model\File\UploaderFactory;
 use Magento\Framework\Image\AdapterFactory;
+use Magento\Framework\View\Result\PageFactory;
+use Magento\MediaStorage\Model\File\UploaderFactory;
 
-class Index extends \Magento\Backend\App\Action
+class Index extends Action implements HttpGetActionInterface
 {
     /**
-     * @var  PageFactory
+     * @var PageFactory
      */
     protected $resultPageFactory;
-
-    /**
-     * @var  Registry
-     */
-    protected $_coreRegistry;
 
     /**
      * @var  GiftcardFactory
      */
     protected $giftcardFactory;
 
+    /**
+     * @var Filesystem
+     */
     protected $fileSystem;
+
+    /**
+     * @var UploaderFactory
+     */
     protected $uploaderFactory;
+
+    /**
+     * @var AdapterFactory
+     */
     protected $adapterFactory;
 
     /**
-     * @param Context         $context
-     * @param Registry        $coreRegistry
-     * @param PageFactory     $resultPageFactory
+     * @param Context $context
+     * @param PageFactory $resultPageFactory
      * @param GiftcardFactory $giftcardFactory
+     * @param Filesystem $fileSystem
+     * @param UploaderFactory $uploaderFactory
+     * @param AdapterFactory $adapterFactory
      */
     public function __construct(
         Context $context,
-        Registry $coreRegistry,
         PageFactory $resultPageFactory,
         GiftcardFactory $giftcardFactory,
         Filesystem $fileSystem,
@@ -66,7 +76,6 @@ class Index extends \Magento\Backend\App\Action
         parent::__construct($context);
 
         $this->resultPageFactory = $resultPageFactory;
-        $this->_coreRegistry = $coreRegistry;
         $this->giftcardFactory = $giftcardFactory;
         $this->fileSystem = $fileSystem;
         $this->adapterFactory = $adapterFactory;
@@ -74,12 +83,14 @@ class Index extends \Magento\Backend\App\Action
     }
 
     /**
-     * @return \Magento\Backend\Model\View\Result\Page
+     * Giftcard Grid
+     *
+     * @return Page
      */
     public function execute()
     {
         /**
-         * @var \Magento\Backend\Model\View\Result\Page $resultPage
+         * @var Page $resultPage
          */
         $resultPage = $this->resultPageFactory->create();
         $resultPage->setActiveMenu('Buckaroo_Magento2::buckaroo_giftcards');
@@ -89,7 +100,7 @@ class Index extends \Magento\Backend\App\Action
     }
 
     /**
-     * Is the user allowed to view the blog post grid.
+     * Is the user allowed to view the giftcards grid.
      *
      * @return bool
      */

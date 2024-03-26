@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -22,7 +23,7 @@
  * Magento 2.1 and lower uses PHPUnit 4.8, which has PHPUnit_Framework_TestCase has base class. Magento 2.2 and higher
  * have an updated version of PHPUnit, which uses \PHPUnit\Framework\Testcase as base class
  */
-if (class_exists('PHPUnit_Framework_TestCase')) {
+if (class_exists('PHPUnit\Framework\TestCase')) {
     require_once 'TestCaseFinder/PHPUnit4.php';
     return;
 }

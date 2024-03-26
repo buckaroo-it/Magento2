@@ -111,8 +111,8 @@ define(
                             title: $t('Error'),
                             content: $t(jsonResponse.limitReachedMessage),
                             buttons: [{
-                            text: $t('Close'),
-                            class: 'action primary accept',
+                                text: $t('Close'),
+                                class: 'action primary accept',
                                 click: function () {
                                     this.closeModal(true);
                                 }
@@ -137,7 +137,6 @@ define(
                                 window.scroll(0, y);
                             }
                         }, 2000);
-
                     }
                 }
             );

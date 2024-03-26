@@ -49,7 +49,8 @@ define(
     ) {
         'use strict';
 
-        function checkOrderState(orderId, interval) {
+        function checkOrderState(orderId, interval)
+        {
             //console.log('==================31', orderId);
             $.ajax({
                 url: urlBuilder.build('buckaroo/pos/checkOrderStatus'),
@@ -77,6 +78,7 @@ define(
                 subTextStyle : checkoutCommon.getSubtextStyle('pospayment'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
+                isTestMode: window.checkoutConfig.payment.buckaroo.pospayment.isTestMode,
 
                 /**
                  * @override
@@ -125,7 +127,7 @@ define(
                         alert({
                             title: $t('Follow the instructions on the payment terminal'),
                             content: $t('Your order will be completed as soon as payment has been made'),
-                            actions: {always: function(){} }/*,
+                            actions: {always: function (){} }/*,
                             buttons: [{
                                 text: $t(333),
                                 class: 'action primary accept',

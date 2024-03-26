@@ -22,7 +22,7 @@ namespace Buckaroo\Magento2\Block\Adminhtml\Form\Field;
 
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as ConfigProviderFactory;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderFactory;
 use Magento\Backend\Block\Template\Context;
 use Magento\Config\Block\System\Config\Form\Field;
 use Magento\Framework\Data\Form\Element\AbstractElement;

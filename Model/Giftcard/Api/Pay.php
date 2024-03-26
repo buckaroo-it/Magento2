@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,67 +20,65 @@
 
 namespace Buckaroo\Magento2\Model\Giftcard\Api;
 
-use Magento\Quote\Model\Quote;
-use Buckaroo\Magento2\Logging\Log;
-use Magento\Quote\Model\QuoteIdMaskFactory;
-use Magento\Quote\Api\CartRepositoryInterface;
-use Buckaroo\Magento2\Api\PayWithGiftcardInterface;
-use Buckaroo\Magento2\Model\Giftcard\Api\ApiException;
 use Buckaroo\Magento2\Api\Data\Giftcard\PayRequestInterface;
 use Buckaroo\Magento2\Api\Data\Giftcard\PayResponseSetInterfaceFactory;
-use Buckaroo\Magento2\Model\Giftcard\Response\Giftcard as GiftcardResponse;
+use Buckaroo\Magento2\Api\PayWithGiftcardInterface;
 use Buckaroo\Magento2\Model\Giftcard\Request\GiftcardInterface as GiftcardRequest;
+use Buckaroo\Magento2\Model\Giftcard\Response\Giftcard as GiftcardResponse;
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Quote\Model\Quote;
+use Magento\Quote\Model\QuoteIdMaskFactory;
 
 class Pay implements PayWithGiftcardInterface
 {
     /**
-     * @var \Buckaroo\Magento2\Model\Giftcard\Request\GiftcardInterface
+     * @var GiftcardRequest
      */
     protected $giftcardRequest;
 
     /**
-     * @var \Buckaroo\Magento2\Model\Giftcard\Response\Giftcard
+     * @var GiftcardResponse
      */
     protected $giftcardResponse;
 
     /**
-     * @var \Magento\Quote\Model\QuoteIdMaskFactory
+     * @var QuoteIdMaskFactory
      */
     protected $quoteIdMaskFactory;
 
     /**
-     * @var \Magento\Quote\Api\CartRepositoryInterface
+     * @var CartRepositoryInterface
      */
     protected $cartRepository;
 
     /**
-     * @var \Buckaroo\Magento2\Api\Data\Giftcard\PayResponseSetInterfaceFactory
+     * @var PayResponseSetInterfaceFactory
      */
     protected $payResponseFactory;
 
     /**
-     * @var Log
+     * @param GiftcardRequest $giftcardRequest
+     * @param GiftcardResponse $giftcardResponse
+     * @param QuoteIdMaskFactory $quoteIdMaskFactory
+     * @param CartRepositoryInterface $cartRepository
+     * @param PayResponseSetInterfaceFactory $payResponseFactory
      */
-    private Log $logger;
-
-
     public function __construct(
         GiftcardRequest $giftcardRequest,
         GiftcardResponse $giftcardResponse,
         QuoteIdMaskFactory $quoteIdMaskFactory,
         CartRepositoryInterface $cartRepository,
-        PayResponseSetInterfaceFactory $payResponseFactory,
-        Log $logger
+        PayResponseSetInterfaceFactory $payResponseFactory
     ) {
         $this->giftcardRequest = $giftcardRequest;
         $this->giftcardResponse = $giftcardResponse;
         $this->quoteIdMaskFactory = $quoteIdMaskFactory;
         $this->cartRepository = $cartRepository;
         $this->payResponseFactory = $payResponseFactory;
-        $this->logger = $logger;
     }
+
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function pay(string $cartId, string $giftcardId, PayRequestInterface $payment)
     {
@@ -108,46 +105,15 @@ class Pay implements PayWithGiftcardInterface
             throw new ApiException(__('Unknown buckaroo error has occurred'), 0, $th);
         }
     }
-    protected function getResponse(Quote $quote, $response)
-    {
-
-        $this->giftcardResponse->set($response, $quote);
-
-        if ($this->giftcardResponse->getErrorMessage() !== null) {
-            throw new ApiException($this->giftcardResponse->getErrorMessage());
-        }
-        return $this->payResponseFactory->create()->setData([
-            'remainderAmount' => $this->giftcardResponse->getRemainderAmount(),
-            'alreadyPaid' => $this->giftcardResponse->getAlreadyPaid($quote),
-            'transaction' => $this->giftcardResponse->getCreatedTransaction()
-        ]);
-    }
-    /**
-     * Build giftcard request
-     *
-     * @param Quote $quote
-     * @param string $giftcardId
-     *
-     * @return GiftcardRequest
-     */
-    protected function build(Quote $quote, string $giftcardId, PayRequestInterface $payment)
-    {
-
-        return $this->giftcardRequest
-            ->setCardId($giftcardId)
-            ->setCardNumber($payment->getCardNumber())
-            ->setPin($payment->getCardPin())
-            ->setQuote($quote);
-    }
 
     /**
      * Get quote from masked cart id
      *
      * @param string $cartId
-     *
      * @return Quote
+     * @throws NoQuoteException
      */
-    protected function getQuote(string $cartId)
+    protected function getQuote(string $cartId): Quote
     {
         try {
             $quoteIdMask = $this->quoteIdMaskFactory->create()->load($cartId, 'masked_id');
@@ -156,5 +122,44 @@ class Pay implements PayWithGiftcardInterface
         } catch (\Throwable $th) {
             throw new NoQuoteException(__("The cart isn't active."), 0, $th);
         }
+    }
+
+    /**
+     * Get Giftcard Response
+     *
+     * @param Quote $quote
+     * @param mixed $response
+     * @return mixed
+     * @throws ApiException
+     */
+    protected function getResponse(Quote $quote, $response)
+    {
+        $this->giftcardResponse->set($response, $quote);
+
+        if ($this->giftcardResponse->getErrorMessage() !== null) {
+            throw new ApiException($this->giftcardResponse->getErrorMessage());
+        }
+        return $this->payResponseFactory->create()->setData([
+            'remainderAmount' => $this->giftcardResponse->getRemainderAmount(),
+            'alreadyPaid'     => $this->giftcardResponse->getAlreadyPaid($quote),
+            'transaction'     => $this->giftcardResponse->getCreatedTransaction()
+        ]);
+    }
+
+    /**
+     * Build giftcard request
+     *
+     * @param Quote $quote
+     * @param string $giftcardId
+     * @param PayRequestInterface $payment
+     * @return GiftcardRequest
+     */
+    protected function build(Quote $quote, string $giftcardId, PayRequestInterface $payment)
+    {
+        return $this->giftcardRequest
+            ->setCardId($giftcardId)
+            ->setCardNumber($payment->getCardNumber())
+            ->setPin($payment->getCardPin())
+            ->setQuote($quote);
     }
 }

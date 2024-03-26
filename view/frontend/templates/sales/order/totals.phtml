@@ -16,14 +16,15 @@
         <?php echo $block->getChildHtml($_total->getBlockName(), false); ?>
     <?php else:?>
     <tr class="<?php /* @escapeNotVerified */ echo $_code?>">
-        <th <?php /* @escapeNotVerified */ echo $block->getLabelProperties()?> scope="row">
+        <th scope="row" <?php /* @escapeNotVerified */ echo $block->getLabelProperties()?>>
             <?php if ($_total->getStrong()):?>
             <strong><?php echo $block->escapeHtml($_total->getLabel());?></strong>
             <?php else:?>
             <?php echo $block->escapeHtml($_total->getLabel());?>
             <?php endif?>
         </th>
-        <td <?php /* @escapeNotVerified */ echo $block->getValueProperties()?> data-th="<?php echo $block->escapeHtml($_total->getLabel());?>">
+        <td <?php /* @escapeNotVerified */ echo $block->getValueProperties()?>
+                data-th="<?php echo $block->escapeHtml($_total->getLabel());?>">
             <?php if ($_total->getStrong()):?>
             <strong><?php /* @escapeNotVerified */ echo $block->formatValue($_total) ?></strong>
             <?php else:?>

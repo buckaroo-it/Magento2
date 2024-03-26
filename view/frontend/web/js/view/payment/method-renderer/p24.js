@@ -52,6 +52,7 @@ define(
                 subTextStyle : checkoutCommon.getSubtextStyle('p24'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
+                isTestMode: window.checkoutConfig.payment.buckaroo.p24.isTestMode,
 
                 /**
                  * @override

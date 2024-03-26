@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,15 +17,19 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Config\Backend;
 
-class Price extends \Magento\Framework\App\Config\Value
+use Magento\Framework\App\Config\Value;
+use Magento\Framework\Exception\LocalizedException;
+
+class Price extends Value
 {
     /**
      * Validate that the number is a valid price.
      *
      * @return $this
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws LocalizedException
      */
     public function save()
     {
@@ -34,7 +38,7 @@ class Price extends \Magento\Framework\App\Config\Value
          */
         $value = $this->getValue();
         if (!empty($value) && !is_numeric($value)) {
-            throw new \Magento\Framework\Exception\LocalizedException(__("Please enter a valid number: '%1'.", $value));
+            throw new LocalizedException(__("Please enter a valid number: '%1'.", $value));
         }
 
         return parent::save();

@@ -14,8 +14,16 @@
                         <!-- /ko -->
                 </label>
             </div>
-            <div class="bk-img-wrap">
-                <img data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/creditcards.svg') }" />
+            <div class="bk-mode-and-img">
+                <!-- ko if: isTestMode -->
+                <div class="bk-test-mode"><div class="bk-test-text" data-bind="i18n: 'Test Mode'"></div></div>
+                <!-- /ko -->
+                <div class="bk-img-wrap">
+                    <img
+                        data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/creditcards.svg') }"
+                        alt="Credicards Logo"
+                    />
+                </div>
             </div>
         </div>
     </div>
@@ -40,12 +48,23 @@
                         <!-- ko if: selectionType == '1' -->
                             <!-- ko foreach: creditcards -->
                                 <label class="card-types">
-                                    <img class="card-types-img" data-bind="attr: {
-                                             'src': img,
-                                             'width': 30,
-                                             'height': 20 }"
-                                            />
-                                    <input class="card-types-input" type="radio" data-bind="value: code, click: $parent.setSelectedCard" data-validate="{'validate-one-required-by-name':true}" name="card"> <!-- ko text: name --><!--/ko-->
+                                    <img
+                                        class="card-types-img"
+                                        data-bind="attr: {
+                                            'src': img,
+                                            'width': 30,
+                                            'height': 20,
+                                            'alt': name + ' Logo'
+                                        }"
+                                    />
+                                    <input
+                                        class="card-types-input"
+                                        type="radio"
+                                        data-bind="value: code, click: $parent.setSelectedCard"
+                                        data-validate="{'validate-one-required-by-name':true}"
+                                        name="card"
+                                    >
+                                    <!-- ko text: name --><!--/ko-->
                                 </label>
                             <!--/ko-->
                         <!--/ko-->
@@ -53,8 +72,8 @@
                         <!-- ko if: selectionType == '2' -->
                             <select id="buckaroo_magento2_creditcard_issuer" class="field"
                                     data-bind="value: creditcardIssuer,
-                                    event: { change: setSelectedBankDropDown },
-                                    attr: { 'data-validate': JSON.stringify({ 'required-entry': true }) }"
+                                    event: { change: setSelectedBankDropDown }"
+                                    data-validate="{required:true}"
                                     name="card">
                                 <option data-bind="i18n: 'Select a Credit Card or Debit Card', 'value': ''"></option>
                                 <!-- ko foreach: creditcards -->
@@ -116,8 +135,13 @@
                         <!-- ko text: name --><!-- /ko -->
                     </label>
                 </div>
-                <div class="bk-img-wrap">
-                    <img data-bind="attr: { src: img }"/>
+                <div class="bk-mode-and-img">
+                    <!-- ko if: $parent.isTestMode -->
+                    <div class="bk-test-mode"><div class="bk-test-text" data-bind="i18n: 'Test Mode'"></div></div>
+                    <!-- /ko -->
+                    <div class="bk-img-wrap">
+                        <img data-bind="attr: { src: img, alt: name }" />
+                    </div>
                 </div>
             </div>
         </div>

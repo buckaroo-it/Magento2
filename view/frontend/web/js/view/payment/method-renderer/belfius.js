@@ -52,6 +52,7 @@ define(
                 subTextStyle : checkoutCommon.getSubtextStyle('belfius'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
+                isTestMode: window.checkoutConfig.payment.buckaroo.belfius.isTestMode,
 
                 /**
                  * @override

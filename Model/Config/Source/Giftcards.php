@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,23 +17,32 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
+
 namespace Buckaroo\Magento2\Model\Config\Source;
 
+use Buckaroo\Magento2\Api\Data\GiftcardInterface;
+use Buckaroo\Magento2\Api\GiftcardRepositoryInterface;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Api\SortOrderBuilder;
-use Magento\Framework\Option\ArrayInterface;
-use Buckaroo\Magento2\Api\GiftcardRepositoryInterface;
+use Magento\Framework\Data\OptionSourceInterface;
 
-class Giftcards implements ArrayInterface
+class Giftcards implements OptionSourceInterface
 {
-    /** @var SortOrderBuilder */
-    private $sortOrderBuilder;
+    /**
+     * @var SortOrderBuilder
+     */
+    private SortOrderBuilder $sortOrderBuilder;
 
-    /** @var SearchCriteriaBuilder */
-    private $searchCriteriaBuilder;
+    /**
+     * @var SearchCriteriaBuilder
+     */
+    private SearchCriteriaBuilder $searchCriteriaBuilder;
 
-    /** @var GiftcardRepositoryInterface */
-    private $giftcardRepository;
+    /**
+     * @var GiftcardRepositoryInterface
+     */
+    private GiftcardRepositoryInterface $giftcardRepository;
 
     public function __construct(
         SortOrderBuilder $sortOrderBuilder,
@@ -50,7 +59,7 @@ class Giftcards implements ArrayInterface
      *
      * @return array
      */
-    public function toOptionArray()
+    public function toOptionArray(): array
     {
         $giftcardData = $this->getGiftcardData();
 
@@ -65,7 +74,7 @@ class Giftcards implements ArrayInterface
             return $options;
         }
 
-        /** @var \Buckaroo\Magento2\Api\Data\GiftcardInterface $model */
+        /** @var GiftcardInterface $model */
         foreach ($giftcardData as $model) {
             $options[] = [
                 'value' => $model->getServicecode(),
@@ -81,7 +90,7 @@ class Giftcards implements ArrayInterface
      *
      * @return array
      */
-    protected function getGiftcardData()
+    protected function getGiftcardData(): array
     {
         $sortOrder = $this->sortOrderBuilder->setField('label')->setAscendingDirection();
         $searchCriteria = $this->searchCriteriaBuilder->addSortOrder($sortOrder->create());

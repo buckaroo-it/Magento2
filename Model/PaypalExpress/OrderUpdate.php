@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,7 +20,7 @@
 
 namespace Buckaroo\Magento2\Model\PaypalExpress;
 
-use Magento\Framework\Registry;
+use Buckaroo\Magento2\Api\Data\BuckarooResponseDataInterface;
 use Magento\Sales\Api\Data\OrderAddressInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 
@@ -32,17 +31,59 @@ class OrderUpdate
      */
     protected $responseAddressInfo;
 
+    /**
+     * @var BuckarooResponseDataInterface
+     */
+    private BuckarooResponseDataInterface $buckarooResponseData;
 
     /**
-     * @var \Magento\Sales\Api\Data\OrderAddressInterface
+     * @param BuckarooResponseDataInterface $buckarooResponseData
      */
-    protected $address;
-
     public function __construct(
-        Registry $registry
+        BuckarooResponseDataInterface $buckarooResponseData
     ) {
-        $this->responseAddressInfo = $this->getAddressInfoFromPayRequest($registry);
+        $this->buckarooResponseData = $buckarooResponseData;
+        $this->responseAddressInfo = $this->getAddressInfoFromPayRequest();
     }
+
+    /**
+     * Get payment response
+     *
+     * @return array|null
+     */
+    private function getAddressInfoFromPayRequest(): ?array
+    {
+        $buckarooResponse = $this->buckarooResponseData->getResponse()->toArray();
+        if (!empty($buckarooResponse)
+            && isset($buckarooResponse['Services']['Service']['ResponseParameter'])
+        ) {
+            return $this->formatAddressData($buckarooResponse['Services']['Service']['ResponseParameter']);
+        }
+
+        return null;
+    }
+
+    /**
+     * Format address data in key/value pairs
+     *
+     * @param mixed $addressData
+     * @return array
+     */
+    public function formatAddressData($addressData): array
+    {
+        $data = [];
+        if (!is_array($addressData)) {
+            return $data;
+        }
+
+        foreach ($addressData as $addressItem) {
+            if (isset($addressItem->_) && isset($addressItem->Name)) {
+                $data[$addressItem->Name] = $addressItem->_;
+            }
+        }
+        return $data;
+    }
+
     /**
      * Update order address with pay response data
      *
@@ -57,6 +98,7 @@ class OrderUpdate
         $this->updateItem($address, OrderAddressInterface::EMAIL, 'payerEmail');
         return $address;
     }
+
     protected function updateItem($address, $addressField, $responseField)
     {
         if ($this->valueExists($responseField)) {
@@ -78,48 +120,10 @@ class OrderUpdate
      *
      * @return void
      */
-    public function updateEmail(OrderInterface $order) {
+    public function updateEmail(OrderInterface $order)
+    {
         if ($this->valueExists('payerEmail')) {
             $order->setCustomerEmail($this->responseAddressInfo['payerEmail']);
         };
-    }
-    /**
-     * Get payment response
-     *
-     * @return stdClass|null
-     */
-    private function getAddressInfoFromPayRequest($registry)
-    {
-        if (
-            $registry &&
-            $registry->registry("buckaroo_response") &&
-            isset($registry->registry("buckaroo_response")[0]) &&
-            isset($registry->registry("buckaroo_response")[0]->Services->Service->ResponseParameter)
-        ) {
-            return $this->formatAddressData(
-                $registry->registry("buckaroo_response")[0]->Services->Service->ResponseParameter
-            );
-        }
-    }
-    /**
-     * Format address data in key/value pairs
-     *
-     * @param mixed $addressData
-     *
-     * @return array
-     */
-    public function formatAddressData($addressData)
-    {
-        $data = [];
-        if (!is_array($addressData)) {
-            return $data;
-        }
-
-        foreach ($addressData as $addressItem) {
-            if (isset($addressItem->_) && isset($addressItem->Name)) {
-                $data[$addressItem->Name] = $addressItem->_;
-            }
-        }
-        return $data;
     }
 }

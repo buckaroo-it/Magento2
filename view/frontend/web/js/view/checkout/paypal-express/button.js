@@ -16,7 +16,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
- define(
+define(
     [
         'uiComponent',
         'buckaroo/paypal-express/pay',

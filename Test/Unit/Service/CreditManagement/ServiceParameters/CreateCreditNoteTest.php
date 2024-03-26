@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Test\Unit\Service\CreditManagement\ServiceParameters;
 
 use Magento\Sales\Model\Order;
@@ -44,7 +46,7 @@ class CreateCreditNoteTest extends BaseTest
         $instance = $this->getInstance();
         $result = $instance->get($infoInstanceMock);
 
-        $this->assertInternalType('array', $result);
+        $this->assertIsArray($result);
         $this->assertEquals('CreditManagement3', $result['Name']);
         $this->assertEquals('CreateCreditNote', $result['Action']);
         $this->assertEquals(1, $result['Version']);

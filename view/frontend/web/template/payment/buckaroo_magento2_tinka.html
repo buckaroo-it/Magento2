@@ -13,8 +13,16 @@
                         <!-- /ko -->
                 </label>
             </div>
-            <div class="bk-img-wrap">
-                <img data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/'+getCode().replace('buckaroo_magento2_','')+'.svg') }" />
+            <div class="bk-mode-and-img">
+                <!-- ko if: isTestMode -->
+                <div class="bk-test-mode"><div class="bk-test-text" data-bind="i18n: 'Test Mode'"></div></div>
+                <!-- /ko -->
+                <div class="bk-img-wrap">
+                    <img
+                        data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/'+getCode().replace('buckaroo_magento2_','')+'.svg') }"
+                        alt="Tinka Logo"
+                    />
+                </div>
             </div>
         </div>
     </div>
@@ -31,6 +39,7 @@
             <form data-bind="mageInit: { 'validation': [] },
                 attr: {'data-hasrequired': $t('* Required Fields')}">
                 <fieldset class="fieldset payment">
+                    <legend class="hidden-fieldset-legend">Payment Details</legend>
                     <div class="field required">
                         <label class="label" for="buckaroo_magento2_tinka_BillingName"> <span data-bind="i18n: 'Billing Name:'"> </span> </label>
                         <div class="control">
@@ -53,8 +62,8 @@
                                    data-bind="
                                    valueUpdate: 'blur',
                                    value: phone,
-                                   attr: { 'data-validate': JSON.stringify({ 'required': true })},
                                    event: { blur: validateField }"
+                                   data-validate="{required:true}"
                                    name="payment[buckaroo_magento2_tinka][customer_telephone]">
                         </div>
                     </div>
@@ -81,10 +90,8 @@
                                    },
                                    valueUpdate: 'change',
                                    value: dateValidate,
-                                   attr: {
-                                    'data-validate': JSON.stringify({ 'required': true, 'validate-date-au': true, 'validateAge': true }),
-                                    placeholder: $t('DD/MM/YYYY')
-                                   }"
+                                   attr: { placeholder: $t('DD/MM/YYYY') }"
+                                   data-validate="{required:true, 'validate-date-au':true, 'validateAge':true}"
                                    name="payment[buckaroo_magento2_tinka][customer_DoB]">
                         </div>
                     </div>

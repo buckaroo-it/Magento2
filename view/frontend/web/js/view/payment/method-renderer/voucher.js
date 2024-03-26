@@ -59,6 +59,7 @@ define(
                 subTextStyle : checkoutCommon.getSubtextStyle('voucher'),
                 currencyCode: window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode: window.checkoutConfig.quoteData.base_currency_code,
+                isTestMode: window.checkoutConfig.payment.buckaroo.voucher.isTestMode,
 
 
                 /**
@@ -88,8 +89,8 @@ define(
                             url: url.build(`rest/V1/buckaroo/voucher/apply`),
                             type: 'POST',
                             dataType: 'json',
-                            showLoader: true, //use for display loader 
-                            data: { voucherCode: voucherCode }
+                            showLoader: true, //use for display loader
+                            data: {voucherCode: voucherCode}
                         }).done(function (data) {
                             self.code(null);
                             if (data.remainder_amount == 0) {

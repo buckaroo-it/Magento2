@@ -9,11 +9,29 @@
     margin-right:10px;
     align-items: center;
     display: flex;
+    align-items: center;
+}
+
+.bk-mode-and-img {
+    display: flex;
+    align-items: stretch;
 }
 .bk-radio-wrap {
     flex: auto;
     display: flex;
     align-items: center;
+}
+.bk-test-mode {
+    background-color:#ff6200;
+    border-radius: 5px;
+    margin-right: 10px;
+    display: flex;
+    align-items: center;
+}
+.bk-test-text {
+    text-transform: uppercase;
+    color: #fff;
+    padding: 0 10px;
 }
 .bk-description {
     margin:0;
@@ -133,15 +151,15 @@
     margin-top: 20px;
 }
 
-.payment-method-second-col input::placeholder { 
+.payment-method-second-col input::placeholder {
     color: #c0c0c0;
-    opacity: 1; 
+    opacity: 1;
 }
-  
+
 .payment-method-second-col input:-ms-input-placeholder {
     color: #c0c0c0;
 }
-  
+
 .payment-method-second-col input::-ms-input-placeholder {
     color: #c0c0c0;
 }
@@ -164,7 +182,6 @@
     }
 
     .buckaroo_magento2_ideal .payment-method-second-col,
-    .buckaroo_magento2_idealprocessing .payment-method-second-col,
     .buckaroo_magento2_creditcard .payment-method-second-col,
     .buckaroo_magento2_creditcards .payment-method-second-col,
     .buckaroo_magento2_transfer .payment-method-second-col,
@@ -178,7 +195,6 @@
     .buckaroo_magento2_klarna .payment-method-second-col,
     .buckaroo_magento2_klarnakp .payment-method-second-col,
     .buckaroo_magento2_klarnain .payment-method-second-col,
-    .buckaroo_magento2_emandate .payment-method-second-col,
     .buckaroo_magento2_applepay .payment-method-second-col,
     .buckaroo_magento2_capayablein3 .payment-method-second-col,
     .buckaroo_magento2_capayablepostpay .payment-method-second-col,
@@ -197,7 +213,6 @@
     }
 
     .buckaroo_magento2_ideal .payment-method-billing-address,
-    .buckaroo_magento2_idealprocessing .payment-method-billing-address,
     .buckaroo_magento2_creditcard .payment-method-billing-address,
     .buckaroo_magento2_creditcards .payment-method-billing-address,
     .buckaroo_magento2_transfer .payment-method-billing-address,
@@ -211,7 +226,6 @@
     .buckaroo_magento2_klarna .payment-method-billing-address,
     .buckaroo_magento2_klarnakp .payment-method-billing-address,
     .buckaroo_magento2_klarnain .payment-method-billing-address,
-    .buckaroo_magento2_emandate .payment-method-billing-address,
     .buckaroo_magento2_applepay .payment-method-billing-address,
     .buckaroo_magento2_capayablein3 .payment-method-billing-address,
     .buckaroo_magento2_capayablepostpay .payment-method-billing-address,
@@ -234,7 +248,6 @@
 
 @media screen and (min-width: 768px){
     .magento-blank .buckaroo_magento2_ideal .fieldset > .field:not(.choice) > .label,
-    .magento-blank .buckaroo_magento2_idealprocessing .fieldset > .field:not(.choice) > .label,
     .magento-blank .buckaroo_magento2_creditcard .fieldset > .field:not(.choice) > .label,
     .magento-blank .buckaroo_magento2_creditcards .fieldset > .field:not(.choice) > .label,
     .magento-blank .buckaroo_magento2_transfer .fieldset > .field:not(.choice) > .label,
@@ -248,7 +261,6 @@
     .magento-blank .buckaroo_magento2_klarna .fieldset > .field:not(.choice) > .label,
     .magento-blank .buckaroo_magento2_klarnakp .fieldset > .field:not(.choice) > .label,
     .magento-blank .buckaroo_magento2_klarnain .fieldset > .field:not(.choice) > .label,
-    .magento-blank .buckaroo_magento2_emandate .fieldset > .field:not(.choice) > .label,
     .magento-blank .buckaroo_magento2_applepay .fieldset > .field:not(.choice) > .label,
     .magento-blank .buckaroo_magento2_capayablein3 .fieldset > .field:not(.choice) > .label,
     .magento-blank .buckaroo_magento2_capayablepostpay .fieldset > .field:not(.choice) > .label,
@@ -261,8 +273,7 @@
         float: left !important;
     }
 
-    .magento-blank .buckaroo_magento2_ideal di.fieldset > .field:not(.choice) > .control,
-    .magento-blank .buckaroo_magento2_idealprocessing .fieldset > .field:not(.choice) > .control,
+    .magento-blank .buckaroo_magento2_ideal .fieldset > .field:not(.choice) > .control,
     .magento-blank .buckaroo_magento2_creditcard .fieldset > .field:not(.choice) > .control,
     .magento-blank .buckaroo_magento2_creditcards .fieldset > .field:not(.choice) > .control,
     .magento-blank .buckaroo_magento2_transfer .fieldset > .field:not(.choice) > .control,
@@ -276,7 +287,6 @@
     .magento-blank .buckaroo_magento2_klarna .fieldset > .field:not(.choice) > .control,
     .magento-blank .buckaroo_magento2_klarnakp .fieldset > .field:not(.choice) > .control,
     .magento-blank .buckaroo_magento2_klarnain .fieldset > .field:not(.choice) > .control,
-    .magento-blank .buckaroo_magento2_emandate .fieldset > .field:not(.choice) > .control,
     .magento-blank .buckaroo_magento2_applepay .fieldset > .field:not(.choice) > .control,
     .magento-blank .buckaroo_magento2_capayablein3 .fieldset > .field:not(.choice) > .control,
     .magento-blank .buckaroo_magento2_capayablepostpay .fieldset > .field:not(.choice) > .control
@@ -288,7 +298,6 @@
     }
 
     .magento-blank .buckaroo_magento2_ideal .fieldset > .field.choice:before,
-    .magento-blank .buckaroo_magento2_idealprocessing .fieldset > .field.choice:before,
     .magento-blank .buckaroo_magento2_creditcard .fieldset > .field.choice:before,
     .magento-blank .buckaroo_magento2_creditcards .fieldset > .field.choice:before,
     .magento-blank .buckaroo_magento2_transfer .fieldset > .field.choice:before,
@@ -302,7 +311,6 @@
     .magento-blank .buckaroo_magento2_klarna .fieldset > .field.choice:before,
     .magento-blank .buckaroo_magento2_klarnakp .fieldset > .field.choice:before,
     .magento-blank .buckaroo_magento2_klarnain .fieldset > .field.choice:before,
-    .magento-blank .buckaroo_magento2_emandate .fieldset > .field.choice:before,
     .magento-blank .buckaroo_magento2_applepay .fieldset > .field.choice:before,
     .magento-blank .buckaroo_magento2_capayablein3 .fieldset > .field.choice:before,
     .magento-blank .buckaroo_magento2_capayablepostpay .fieldset > .field.choice:before
@@ -323,17 +331,27 @@
     content: '*';
 }
 /* ===================== iDeal ================================ */
-.buckaroo_magento2_ideal .payment-method-second-col .bank-types,
-.buckaroo_magento2_emandate .payment-method-second-col .bank-types,
-.buckaroo_magento2_idealprocessing .payment-method-second-col .bank-types {
+.buckaroo_magento2_ideal .payment-method-second-col .bank-types {
     display: flex;
     align-items: center;
     margin-top: 10px;
+    flex:1 1 100%;
 }
-.buckaroo_magento2_ideal .payment-method-second-col .bank-types-img,
-.buckaroo_magento2_emandate .payment-method-second-col .bank-types-img,
-.buckaroo_magento2_idealprocessing .payment-method-second-col .bank-types-img {
+.buckaroo_magento2_ideal .payment-method-second-col .bank-types-img {
     margin-right:10px;
+}
+
+.fieldset > .field .bk-issuer-list.addon {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.buckaroo_magento2_ideal .payment-method-second-col .bank-types input {
+    flex: 0;
+    order: 0;
+    margin: 0;
+    padding: 0;
+    margin-right: 5px;
 }
 
 /* ===================== Credit Card =========================== */
@@ -480,7 +498,7 @@
     line-height: 20px;
     color: #757575;
     content: '\e604';
-    font-family: 'luma-icons';
+    font-family: 'luma-icons', sans-serif;
     vertical-align: middle;
     display: inline-block;
     font-weight: normal;
@@ -587,6 +605,11 @@
     align-items: center;
     cursor: pointer;
 }
+
+.hidden-fieldset-legend {
+    display: none;
+}
+
 @media screen and (max-width: 768px) {
     .buckaroo_magento2_paybybank .billing-address-form
     {

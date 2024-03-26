@@ -56,15 +56,16 @@ define(
                         value.substr(6, 4),
                         value.substr(3, 2) - 1,
                         value.substr(0, 2),
-                        0, 0, 0
+                        0,
+                        0,
+                        0
                     );
                     return ~~((Date.now() - birthday) / (31557600000)) >= 18;
                 }
             }
             return false;
         },
-        $.mage.__('You should be at least 18 years old.')
-        );
+        $.mage.__('You should be at least 18 years old.'));
 
         return Component.extend(
             {
@@ -87,6 +88,7 @@ define(
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 dp: datePicker,
+                isTestMode: window.checkoutConfig.payment.buckaroo.tinka.isTestMode,
 
                 /**
                  * @override
@@ -119,8 +121,8 @@ define(
                     );
 
                     this.activeAddress = ko.computed(
-                        function() {
-                            if(quote.billingAddress()) {
+                        function () {
+                            if (quote.billingAddress()) {
                                 return quote.billingAddress();
                             }
                             return quote.shippingAddress();
@@ -128,7 +130,7 @@ define(
                     );
                     
                     this.country = ko.computed(
-                        function() {
+                        function () {
                             return this.activeAddress().countryId;
                         },
                         this
@@ -161,12 +163,12 @@ define(
                         function () {
                             const state = this.validationState();
                             const valid = this.getActiveValidationFields().map((field) => {
-                                if(state[field] !== undefined) {
+                                if (state[field] !== undefined) {
                                     return state[field];
                                 }
                                 return false;
                             }).reduce(
-                                function(prev, cur) {
+                                function (prev, cur) {
                                     return prev && cur
                                 },
                                 true
@@ -176,13 +178,13 @@ define(
                         this
                     );
 
-                    this.dateValidate.subscribe(function() {
+                    this.dateValidate.subscribe(function () {
                         const dobId = 'buckaroo_magento2_tinka_DoB';
                         const isValid = $(`#${dobId}`).valid();
                         let state = this.validationState();
                         state[dobId] = isValid;
                         this.validationState(state);
-                     }, this);
+                    }, this);
 
                     return this;
                 },
@@ -197,11 +199,11 @@ define(
 
                 getActiveValidationFields() {
                     let fields = [];
-                    if(this.showPhone()) {
+                    if (this.showPhone()) {
                         fields.push('buckaroo_magento2_tinka_Telephone')
                     }
 
-                    if(this.showNLBEFields()) {
+                    if (this.showNLBEFields()) {
                         fields.push('buckaroo_magento2_tinka_DoB')
                     }
                     return fields;

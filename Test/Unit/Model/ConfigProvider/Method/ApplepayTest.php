@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,17 +18,18 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
+use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Magento\Framework\Locale\Resolver;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Buckaroo\Magento2\Helper\PaymentFee;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
-use Buckaroo\Magento2\Model\Method\Applepay as ApplepayMethod;
 use Buckaroo\Magento2\Test\BaseTest;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay;
-use \Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 
 class ApplepayTest extends BaseTest
 {
@@ -76,8 +78,14 @@ class ApplepayTest extends BaseTest
         $scopeConfigMock->expects($this->atLeastOnce())
             ->method('getValue')
             ->withConsecutive(
-                [Applepay::XPATH_APPLEPAY_ACTIVE, ScopeInterface::SCOPE_STORE],
-                [Applepay::XPATH_ALLOWED_CURRENCIES, ScopeInterface::SCOPE_STORE, null]
+                [
+                    $this->getPaymentMethodConfigPath(Applepay::CODE, AbstractConfigProvider::ACTIVE),
+                    ScopeInterface::SCOPE_STORE
+                ],
+                [
+                    $this->getPaymentMethodConfigPath(Applepay::CODE, AbstractConfigProvider::ALLOWED_CURRENCIES),
+                    ScopeInterface::SCOPE_STORE, null
+                ]
             )
             ->willReturnOnConsecutiveCalls($active, 'EUR');
 
@@ -87,7 +95,7 @@ class ApplepayTest extends BaseTest
         }
 
         $storeManagerMock = $this->getFakeMock(StoreManagerInterface::class)
-            ->setMethods(['getStore', 'getName', 'getCurrentCurrency', 'getCode'])
+            ->setMethods(['getStore', 'getName', 'getCurrentCurrency', 'getCode', 'getMerchantGuid'])
             ->getMockForAbstractClass();
         $storeManagerMock->expects($this->exactly($expectedCount))->method('getStore')->willReturnSelf();
         $storeManagerMock->expects($this->exactly($expectedCount))->method('getName')->willReturn('Buckaroo Webshop');
@@ -97,14 +105,12 @@ class ApplepayTest extends BaseTest
         $localeResolverMock = $this->getFakeMock(Resolver::class)->setMethods(['getLocale'])->getMock();
         $localeResolverMock->expects($this->exactly($expectedCount))->method('getLocale')->willReturn('nl_NL');
 
-        $accountConfigMock = $this->getFakeMock(Account::class)->setMethods(['getMerchantGuid'])->getMock();
-        $accountConfigMock->expects($this->exactly($expectedCount))->method('getMerchantGuid')->willReturn('GUID12345');
+        $storeManagerMock->expects($this->exactly($expectedCount))->method('getMerchantGuid')->willReturn('GUID12345');
 
         $instance = $this->getInstance([
             'scopeConfig' => $scopeConfigMock,
             'storeManager' => $storeManagerMock,
             'localeResolver' => $localeResolverMock,
-            'configProvicerAccount' => $accountConfigMock
         ]);
 
         $result = $instance->getConfig();

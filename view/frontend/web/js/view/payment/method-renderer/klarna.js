@@ -56,6 +56,8 @@ define(
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 genderList: window.checkoutConfig.payment.buckaroo.klarna.genderList,
+                isTestMode: window.checkoutConfig.payment.buckaroo.klarna.isTestMode,
+
                 /**
                  * @override
                  */
@@ -74,7 +76,7 @@ define(
                             'genderList'
                         ]
                     );
-                    
+
                     this.showFinancialWarning = ko.computed(
                         function () {
                             return quote.billingAddress() !== null &&
@@ -83,13 +85,13 @@ define(
                         },
                         this
                     );
-                    
+
                     /**
                      * Check if the required fields are filled. If so: enable place order button (true) | if not: disable place order button (false)
                      */
                     this.buttoncheck = ko.computed(
-                    function () {
-                        return this.selectedGender() != null;
+                        function () {
+                            return this.selectedGender() != null;
                         },
                         this
                     );
@@ -152,7 +154,7 @@ define(
                     var text = $.mage.__('The transaction will be processed using %s.');
 
                     return text.replace('%s', this.baseCurrencyCode);
-                },             
+                },
 
                 getData: function () {
                     return {

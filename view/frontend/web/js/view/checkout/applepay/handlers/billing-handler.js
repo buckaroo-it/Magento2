@@ -76,10 +76,7 @@ define(
                 var url = resourceUrlManager.getUrl(urls, params);
 
                 payload.paymentMethod = {
-                    method: 'buckaroo_magento2_applepay',
-                    additional_data: {
-                        buckaroo_skip_validation: true
-                    }
+                    method: 'buckaroo_magento2_applepay'
                 };
                 payload.billingAddress = quote.billingAddress();
                 payload.shippingAddress = quote.shippingAddress();

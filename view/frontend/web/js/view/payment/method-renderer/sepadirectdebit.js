@@ -74,7 +74,7 @@ define(
         $.validator.addMethod(
             'IBAN',
             function (value) {
-                var patternIBAN = new RegExp('^[a-zA-Z]{2}[0-9]{2}[a-zA-Z0-9]{4}[0-9]{7}([a-zA-Z0-9]?){0,16}$');
+                var patternIBAN = new RegExp('^[a-zA-Z]{2}[0-9]{2}[a-zA-Z0-9]{4}[0-9]{7}([a-zA-Z0-9]{1,16})$');
                 return (patternIBAN.test(value) && isValidIBAN(value));
             },
             $.mage.__('Enter Valid IBAN')
@@ -112,7 +112,7 @@ define(
                 subTextStyle : checkoutCommon.getSubtextStyle('sepadirectdebit'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
-
+                isTestMode: window.checkoutConfig.payment.buckaroo.sepadirectdebit.isTestMode,
 
                 /**
                  * @override
@@ -127,7 +127,7 @@ define(
 
                 initObservable: function () {
                     this._super().observe([
-                        'bankaccountholder', 
+                        'bankaccountholder',
                         'bankaccountnumber',
                         'bicnumber',
                         'validationState'
@@ -148,12 +148,12 @@ define(
                         function () {
                             const state = this.validationState();
                             const valid =this.getActiveFields().map((field) => {
-                                if(state[field] !== undefined) {
+                                if (state[field] !== undefined) {
                                     return state[field];
                                 }
                                 return false;
                             }).reduce(
-                                function(prev, cur) {
+                                function (prev, cur) {
                                     return prev && cur
                                 },
                                 true
@@ -162,7 +162,7 @@ define(
                         },
                         this
                     );
-                    
+
                     return this;
                 },
 
@@ -171,7 +171,7 @@ define(
                         'bankaccountholder',
                         'bankaccountnumber',
                     ];
-                    if(!this.isnl()) {
+                    if (!this.isnl()) {
                         fields.push('bicnumber');
                     }
                     return fields;

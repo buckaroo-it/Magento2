@@ -13,8 +13,16 @@
                         <!-- /ko -->
                 </label>
             </div>
-            <div class="bk-img-wrap">
-                <img data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/klarna.svg') }" />
+            <div class="bk-mode-and-img">
+                <!-- ko if: isTestMode -->
+                <div class="bk-test-mode"><div class="bk-test-text" data-bind="i18n: 'Test Mode'"></div></div>
+                <!-- /ko -->
+                <div class="bk-img-wrap">
+                    <img
+                        data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/klarna.svg') }"
+                        alt="Klarna Instalments Logo"
+                    />
+                </div>
             </div>
         </div>
     </div>
@@ -31,6 +39,7 @@
             <form data-bind="mageInit: { 'validation': [] },
                 attr: {'data-hasrequired': $t('* Required Fields')}">
                 <fieldset class="fieldset">
+                    <legend class="hidden-fieldset-legend">Payment Details</legend>
                     <div class="field required">
                         <label class="label" for="buckaroo_magento2_klarnain_genderSelect"> <span data-bind="i18n: 'Salutation:'"> </span> </label>
                         <div class="control">
@@ -41,9 +50,8 @@
                             optionsValue: 'genderType',
                             optionsCaption: $t('-- Please Select Your Gender--'),
                             value: selectedGender,
-                            attr: { 'data-validate': JSON.stringify({ 'required': true })},
-                            event: { change: validateField }
-                            ">
+                            event: { change: validateField }"
+                            data-validate="{required:true}">
                             </select>
                         </div>
                     </div>

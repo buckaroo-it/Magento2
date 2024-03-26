@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,30 +20,38 @@
 
 namespace Buckaroo\Magento2\Block\Adminhtml\Sales\Order\Creditmemo\Create;
 
-class RoundingWarning extends \Magento\Backend\Block\Template
+use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderMethodFactory;
+use Magento\Backend\Block\Template;
+use Magento\Backend\Block\Template\Context;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Registry;
+use Magento\Sales\Model\Order\Creditmemo;
+
+class RoundingWarning extends Template
 {
     /**
-     * @var \Magento\Framework\Registry
+     * @var Registry
      */
     protected $registry;
 
     /**
-     * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory
+     * @var ConfigProviderMethodFactory
      */
     protected $configProviderFactory;
 
     /**
      * RoundingWarning constructor.
      *
-     * @param \Magento\Framework\Registry                       $registry
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderFactory
-     * @param \Magento\Backend\Block\Template\Context           $context
-     * @param array                                             $data
+     * @param Registry $registry
+     * @param ConfigProviderMethodFactory $configProviderFactory
+     * @param Context $context
+     * @param array $data
      */
     public function __construct(
-        \Magento\Framework\Registry $registry,
-        \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderFactory,
-        \Magento\Backend\Block\Template\Context $context,
+        Registry $registry,
+        ConfigProviderMethodFactory $configProviderFactory,
+        Context $context,
         array $data = []
     ) {
         parent::__construct($context, $data);
@@ -54,19 +61,20 @@ class RoundingWarning extends \Magento\Backend\Block\Template
     }
 
     /**
-     * Retrieve creditmemo model instance
-     *
-     * @return \Magento\Sales\Model\Order\Creditmemo
+     * @inheritdoc
      */
-    public function getCreditmemo()
+    protected function _toHtml()
     {
-        return $this->registry->registry('current_creditmemo');
+        if (!$this->shouldShowWarning()) {
+            return '';
+        }
+
+        return parent::_toHtml();
     }
 
     /**
      * @return bool
-     * @throws \LogicException
-     * @throws \Buckaroo\Magento2\Exception
+     * @throws \LogicException|Exception|LocalizedException
      */
     protected function shouldShowWarning()
     {
@@ -103,7 +111,7 @@ class RoundingWarning extends \Magento\Backend\Block\Template
         }
 
         /**
-         * @var \Buckaroo\Magento2\Model\Method\AbstractMethod $paymentMethodInstance
+         * @var \Buckaroo\Magento2\Model\Method\BuckarooAdapter $paymentMethodInstance
          */
         $paymentMethodInstance = $payment->getMethodInstance();
 
@@ -126,14 +134,12 @@ class RoundingWarning extends \Magento\Backend\Block\Template
     }
 
     /**
-     * {@inheritdoc}
+     * Retrieve creditmemo model instance
+     *
+     * @return Creditmemo
      */
-    protected function _toHtml()
+    public function getCreditmemo()
     {
-        if (!$this->shouldShowWarning()) {
-            return '';
-        }
-
-        return parent::_toHtml();
+        return $this->registry->registry('current_creditmemo');
     }
 }

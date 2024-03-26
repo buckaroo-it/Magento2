@@ -68,6 +68,7 @@ define(
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 dp: datePicker,
+                isTestMode: window.checkoutConfig.payment.buckaroo.capayablepostpay.isTestMode,
                 
                 /**
                  * @override
@@ -115,7 +116,7 @@ define(
                     /**
                      * Observe customer first & lastname and bind them together, so they could appear in the frontend
                      */
-                    this.updateBillingName = function(firstname, lastname) {
+                    this.updateBillingName = function (firstname, lastname) {
                         this.firstName = firstname;
                         this.lastName = lastname;
 
@@ -134,7 +135,7 @@ define(
                     }
 
                     quote.billingAddress.subscribe(
-                        function(newAddress) {
+                        function (newAddress) {
                             if (this.getCode() === this.isChecked() &&
                                 newAddress &&
                                 newAddress.getKey() &&
@@ -236,7 +237,7 @@ define(
                     return $('.' + this.getCode() + ' .payment [data-validate]:not([name*="agreement"])').valid();
                 },
 
-                getData : function() {
+                getData : function () {
                     return {
                         "method" : this.item.method,
                         "additional_data": {

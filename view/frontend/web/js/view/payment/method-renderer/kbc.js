@@ -51,6 +51,7 @@ define(
                 subTextStyle : checkoutCommon.getSubtextStyle('kbc'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
+                isTestMode: window.checkoutConfig.payment.buckaroo.kbc.isTestMode,
 
                 /**
                  * @override
