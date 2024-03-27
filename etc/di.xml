@@ -2284,6 +2284,7 @@
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
                 <item name="payRemainder" xsi:type="string">BuckarooPayRemainderRequest</item>
                 <item name="customer" xsi:type="string">CustomerAfterpayDataBuilder</item>
+                <item name="service_version" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AfterpaySCADataBuilder</item>
                 <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesDataBuilder</item>
                 <item name="skipPush" xsi:type="string">Buckaroo\Magento2\Gateway\Request\SkipPushDataBuilder</item>
             </argument>
@@ -2371,6 +2372,7 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="refund_request" xsi:type="string">BuckarooPartialRefundRequest</item>
+                <item name="service_version" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AfterpaySCADataBuilder</item>
                 <item name="creditmemmo_articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\CreditmemoArticlesDataBuilder</item>
             </argument>
         </arguments>
