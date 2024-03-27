@@ -9,7 +9,7 @@
                 <label class="label" data-bind="attr: {'for': getCode()}" >
                         <!-- ko text: getTitle() --><!-- /ko -->
                         <!-- ko if: buckaroo.subtext !== null && buckaroo.subtext.length > 0 -->
-                        <p class="bk-description" data-bind="text: subtext, style: getSubtextStyle()"></p>
+                        <p class="bk-description" data-bind="text:buckaroo.subtext, style: getSubtextStyle()"></p>
                         <!-- /ko -->
                 </label>
             </div>
