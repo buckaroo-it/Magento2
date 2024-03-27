@@ -31,8 +31,6 @@ use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\MaskedQuoteIdToQuoteIdInterface;
 use Magento\Quote\Model\Quote;
-use Magento\Tests\NamingConvention\true\string;
-
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
