@@ -137,6 +137,11 @@ class Afterpay20 extends AbstractMethod
             'RequestParameter' => $this->getPaymentRequestParameters($payment),
         ];
 
+        $serviceVersion = $this->getServiceVersion($payment);
+        if ($serviceVersion) {
+            $services['Version'] = $serviceVersion;
+        }
+
         $transactionBuilder->setOrder($payment->getOrder())
             ->setServices($services)
             ->setMethod('TransactionRequest');
@@ -172,6 +177,11 @@ class Afterpay20 extends AbstractMethod
             'Action' => 'CancelAuthorize',
         ];
 
+        $serviceVersion = $this->getServiceVersion($payment);
+        if ($serviceVersion) {
+            $services['Version'] = $serviceVersion;
+        }
+
         $originalTrxKey = $payment->getAdditionalInformation(self::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY);
 
         $transactionBuilder->setOrder($payment->getOrder())
@@ -196,6 +206,14 @@ class Afterpay20 extends AbstractMethod
     public function getRefundTransactionBuilder($payment)
     {
         $transactionBuilder = parent::getRefundTransactionBuilder($payment);
+
+        $serviceVersion = $this->getServiceVersion($payment);
+        if ($serviceVersion) {
+            $services = $transactionBuilder->getServices();
+            $services['Version'] = $serviceVersion;
+            $transactionBuilder->setServices($services);
+        }
+
         if (!$this->payRemainder) {
             $this->getRefundTransactionBuilderPartialSupport($payment, $transactionBuilder);
         }
@@ -1004,5 +1022,22 @@ class Afterpay20 extends AbstractMethod
                 )
             );
         }
+    }
+
+    private function getServiceVersion($payment)
+    {
+        $serviceVersion = $payment->getAdditionalInformation(self::BUCKAROO_SERVICE_VERSION_KEY);
+
+        if (!empty($serviceVersion)) {
+            return $serviceVersion;
+        }
+
+        $storeId = $payment->getOrder()->getStoreId();
+        if ($this->getConfigData('afterpay_sca', $storeId)) {
+            $payment->setAdditionalInformation(self::BUCKAROO_SERVICE_VERSION_KEY, 2);
+            return 2;
+        }
+
+        return null;
     }
 }
