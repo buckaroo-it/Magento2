@@ -20,12 +20,13 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use Buckaroo\Magento2\Helper\Data as BuckarooHelper;
-use Buckaroo\Magento2\Helper\PaymentFee;
-use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
-use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\View\Asset\Repository;
 use Magento\Store\Model\ScopeInterface;
+use Buckaroo\Magento2\Helper\PaymentFee;
+use Buckaroo\Magento2\Service\LogoService;
+use Magento\Framework\View\Asset\Repository;
+use Buckaroo\Magento2\Helper\Data as BuckarooHelper;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 
 class Billink extends AbstractConfigProvider
 {
@@ -50,9 +51,10 @@ class Billink extends AbstractConfigProvider
         ScopeConfigInterface $scopeConfig,
         AllowedCurrencies $allowedCurrencies,
         PaymentFee $paymentFeeHelper,
+        LogoService $logoService,
         BuckarooHelper $helper
     ) {
-        parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper);
+        parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper, $logoService);
 
         $this->helper = $helper;
     }
@@ -66,31 +68,18 @@ class Billink extends AbstractConfigProvider
             return [];
         }
 
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'billink' => [
-                        'sendEmail'         => $this->hasOrderEmail(),
-                        'paymentFeeLabel'   => $this->getBuckarooPaymentFeeLabel(),
-                        'subtext'           => $this->getSubtext(),
-                        'subtext_style'     => $this->getSubtextStyle(),
-                        'subtext_color'     => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'b2b'               => $this->helper->checkCustomerGroup('buckaroo_magento2_billink'),
-                        'genderList'        => [
-                            ['genderType' => 'male', 'genderTitle' => __('He/him')],
-                            ['genderType' => 'female', 'genderTitle' => __('She/her')],
-                            ['genderType' => 'unknown', 'genderTitle' => __('They/them')],
-                            ['genderType' => 'unknown', 'genderTitle' => __('I prefer not to say')]
-                        ],
-                        'businessMethod'    => $this->getBusiness(),
-                        'showFinancialWarning' => $this->canShowFinancialWarning(),
-                        'isTestMode'        => $this->isTestMode()
-                    ],
-                    'response' => [],
-                ],
+        return $this->fullConfig([
+            'sendEmail'         => $this->hasOrderEmail(),
+            'b2b'               => $this->helper->checkCustomerGroup('buckaroo_magento2_billink'),
+            'genderList'        => [
+                ['genderType' => 'male', 'genderTitle' => __('He/him')],
+                ['genderType' => 'female', 'genderTitle' => __('She/her')],
+                ['genderType' => 'unknown', 'genderTitle' => __('They/them')],
+                ['genderType' => 'unknown', 'genderTitle' => __('I prefer not to say')]
             ],
-        ];
+            'businessMethod'    => $this->getBusiness(),
+            'showFinancialWarning' => $this->canShowFinancialWarning(),
+        ]);
     }
 
     /**

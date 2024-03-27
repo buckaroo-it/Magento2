@@ -66,7 +66,7 @@ define(
                     this.setIsOnCheckout(true);
                 }
 
-                BuckarooSdk.ApplePay.checkApplePaySupport(window.checkoutConfig.payment.buckaroo.applepay.guid).then(
+                BuckarooSdk.ApplePay.checkApplePaySupport(window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.guid).then(
                     function (applePaySupported) {
                         this.devLog('==============applepaydebug/8',[
                             applePaySupported,
@@ -84,8 +84,8 @@ define(
 
                             this.payment = new BuckarooSdk.ApplePay.ApplePayPayment('#apple-pay-wrapper', this.applepayOptions);
                             this.payment.showPayButton(
-                                window.checkoutConfig.payment.buckaroo.applepay.buttonStyle ?
-                                    window.checkoutConfig.payment.buckaroo.applepay.buttonStyle : 'black',
+                                window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.buttonStyle ?
+                                    window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.buttonStyle : 'black',
                                 'buy'
                             );
                             if (this.payMode == 'product') {
@@ -119,7 +119,7 @@ define(
             canShowApplePay:function () {
                 //ZAK
                 //return true;
-                BuckarooSdk.ApplePay.checkApplePaySupport(window.checkoutConfig.payment.buckaroo.applepay.guid).then(
+                BuckarooSdk.ApplePay.checkApplePaySupport(window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.guid).then(
                     function (applePaySupported) {
                         this.canShowMethod(applePaySupported);
                     }.bind(this)
@@ -151,7 +151,7 @@ define(
                 var requiredBillingContactFields = ["postalAddress", "name", "phone", "email"];
                 var requiredShippingContactFields = ["postalAddress", "name", "phone", "email"];
 
-                var country = window.checkoutConfig.payment.buckaroo.applepay.country;
+                var country = window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.country;
                 this.devLog('==============applepaydebug/11', this.quote);
                 if (this.quote && (null !== this.quote.shippingAddress())) {
                     country = this.quote.shippingAddress().countryId;
@@ -169,7 +169,7 @@ define(
                     shipmentMethodCallback = null;
                     requiredBillingContactFields = ["postalAddress"];
                     requiredShippingContactFields = [];
-                    if (window.checkoutConfig.payment.buckaroo.applepay.dontAskBillingInfoInCheckout) {
+                    if (window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.dontAskBillingInfoInCheckout) {
                         requiredBillingContactFields = [];
                     }
                 }
@@ -177,11 +177,11 @@ define(
                 this.devLog('==============applepaydebug/13', [country, requiredBillingContactFields, requiredShippingContactFields]);
 
                 this.applepayOptions = new BuckarooSdk.ApplePay.ApplePayOptions(
-                    window.checkoutConfig.payment.buckaroo.applepay.storeName,
+                    window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.storeName,
                     country,
-                    window.checkoutConfig.payment.buckaroo.applepay.currency,
-                    window.checkoutConfig.payment.buckaroo.applepay.cultureCode,
-                    window.checkoutConfig.payment.buckaroo.applepay.guid,
+                    window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.currency,
+                    window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.cultureCode,
+                    window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.guid,
                     self.processLineItems(lineItemsType),
                     self.processTotalLineItems(lineItemsType),
                     "shipping",
@@ -229,7 +229,7 @@ define(
              */
             processTotalLineItems: function (type = 'final', directTotals = false) {
                 var grandTotal = '0.00';
-                var storeName = window.checkoutConfig.payment.buckaroo.applepay.storeName;
+                var storeName = window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.storeName;
                 var totals = directTotals ? directTotals : this.getQuoteTotals();
 
                 if ('grand_total' in totals) {

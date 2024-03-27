@@ -47,21 +47,9 @@ class Tinka extends AbstractConfigProvider
             return [];
         }
 
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'tinka' => [
-                        'paymentFeeLabel'      => $this->getBuckarooPaymentFeeLabel(),
-                        'subtext'              => $this->getSubtext(),
-                        'subtext_style'        => $this->getSubtextStyle(),
-                        'subtext_color'        => $this->getSubtextColor(),
-                        'allowedCurrencies'    => $this->getAllowedCurrencies(),
-                        'showFinancialWarning' => $this->canShowFinancialWarning(),
-                        'isTestMode'           => $this->isTestMode()
-                    ],
-                ],
-            ],
-        ];
+        return $this->fullConfig([
+            'showFinancialWarning' => $this->canShowFinancialWarning(),
+        ]);
     }
 
     /**

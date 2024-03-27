@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -41,20 +42,8 @@ class Eps extends AbstractConfigProvider
             return [];
         }
 
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'eps' => [
-                        'sendEmail'         => $this->hasOrderEmail(),
-                        'paymentFeeLabel'   => $this->getBuckarooPaymentFeeLabel(),
-                        'subtext'           => $this->getSubtext(),
-                        'subtext_style'     => $this->getSubtextStyle(),
-                        'subtext_color'     => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'isTestMode'        => $this->isTestMode()
-                    ]
-                ]
-            ]
-        ];
+        return $this->fullConfig([
+            'sendEmail' => $this->hasOrderEmail(),
+        ]);
     }
 }

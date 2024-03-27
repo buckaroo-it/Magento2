@@ -24,26 +24,6 @@ class Alipay extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_alipay';
 
-    /**
-     * @inheritdoc
-     */
-    public function getConfig(): array
-    {
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'alipay' => [
-                        'paymentFeeLabel'   => $this->getBuckarooPaymentFeeLabel(),
-                        'subtext'           => $this->getSubtext(),
-                        'subtext_style'     => $this->getSubtextStyle(),
-                        'subtext_color'     => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'isTestMode'        => $this->isTestMode()
-                    ],
-                ],
-            ],
-        ];
-    }
 
     /**
      * @return array

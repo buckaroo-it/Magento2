@@ -42,31 +42,18 @@ class Afterpay extends AbstractConfigProvider
      *
      * @throws Exception
      */
-    public function getConfig(): array
+    public function getConfig()
     {
         if (!$this->getActive()) {
             return [];
         }
-
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'afterpay' => [
-                        'sendEmail'            => $this->hasOrderEmail(),
-                        'paymentFeeLabel'      => $this->getBuckarooPaymentFeeLabel(),
-                        'subtext'              => $this->getSubtext(),
-                        'subtext_style'        => $this->getSubtextStyle(),
-                        'subtext_color'        => $this->getSubtextColor(),
-                        'allowedCurrencies'    => $this->getAllowedCurrencies(),
-                        'businessMethod'       => $this->getBusiness(),
-                        'paymentMethod'        => $this->getPaymentMethod(),
-                        'showFinancialWarning' => $this->canShowFinancialWarning(),
-                        'isTestMode'           => $this->isTestMode()
-                    ],
-                    'response' => [],
-                ],
-            ],
-        ];
+        
+        return $this->fullConfig([
+            'sendEmail'            => $this->hasOrderEmail(),
+            'businessMethod'       => $this->getBusiness(),
+            'paymentMethod'        => $this->getPaymentMethod(),
+            'showFinancialWarning' => $this->canShowFinancialWarning(),
+        ]);
     }
 
     /**

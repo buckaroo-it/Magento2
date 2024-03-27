@@ -21,7 +21,7 @@ define([
   "ko",
   "mage/url",
   "Magento_Customer/js/customer-data",
-  "BuckarooSDK",
+  "Buckaroo_Magento2/js/action/paypal-express",
   'mage/translate',
 ], function ($, ko, urlBuilder, customerData, sdk, $t) {
   // 'use strict';

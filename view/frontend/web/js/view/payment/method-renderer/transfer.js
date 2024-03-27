@@ -20,69 +20,18 @@
 /*global define*/
 define(
     [
-        'jquery',
-        'Magento_Checkout/js/view/payment/default',
-        'Magento_Checkout/js/model/payment/additional-validators',
-        'Buckaroo_Magento2/js/action/place-order',
-        'ko',
-        'Magento_Checkout/js/checkout-data',
-        'Magento_Checkout/js/action/select-payment-method',
-        'buckaroo/checkout/common'
+        'buckaroo/checkout/payment/default',
     ],
     function (
-        $,
         Component,
-        additionalValidators,
-        placeOrderAction,
-        ko,
-        checkoutData,
-        selectPaymentMethodAction,
-        checkoutCommon
+ 
     ) {
         'use strict';
-
         return Component.extend(
             {
                 defaults: {
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_transfer'
                 },
-                paymentFeeLabel : window.checkoutConfig.payment.buckaroo.transfer.paymentFeeLabel,
-                subtext : window.checkoutConfig.payment.buckaroo.transfer.subtext,
-                subTextStyle : checkoutCommon.getSubtextStyle('transfer'),
-                currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
-                baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
-                isTestMode: window.checkoutConfig.payment.buckaroo.transfer.isTestMode,
-
-                /**
-                 * @override
-                 */
-                initialize : function (options) {
-                    if (checkoutData.getSelectedPaymentMethod() == options.index) {
-                        window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-                    }
-
-                    return this._super(options);
-                },
-
-                selectPaymentMethod: function () {
-                    window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-
-                    selectPaymentMethodAction(this.getData());
-                    checkoutData.setSelectedPaymentMethod(this.item.method);
-                    return true;
-                },
-
-                payWithBaseCurrency: function () {
-                    var allowedCurrencies = window.checkoutConfig.payment.buckaroo.transfer.allowedCurrencies;
-
-                    return allowedCurrencies.indexOf(this.currencyCode) < 0;
-                },
-
-                getPayWithBaseCurrencyText: function () {
-                    var text = $.mage.__('The transaction will be processed using %s.');
-
-                    return text.replace('%s', this.baseCurrencyCode);
-                }
 
             }
         );

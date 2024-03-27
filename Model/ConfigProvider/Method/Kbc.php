@@ -26,30 +26,4 @@ use Buckaroo\Magento2\Exception;
 class Kbc extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_kbc';
-
-    /**
-     * @return array
-     * @throws Exception
-     */
-    public function getConfig(): array
-    {
-        if (!$this->getActive()) {
-            return [];
-        }
-
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'kbc' => [
-                        'paymentFeeLabel'   => $this->getBuckarooPaymentFeeLabel(),
-                        'subtext'           => $this->getSubtext(),
-                        'subtext_style'     => $this->getSubtextStyle(),
-                        'subtext_color'     => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'isTestMode'        => $this->isTestMode()
-                    ]
-                ]
-            ]
-        ];
-    }
 }

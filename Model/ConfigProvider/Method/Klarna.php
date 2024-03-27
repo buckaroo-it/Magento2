@@ -69,26 +69,13 @@ class Klarna extends AbstractConfigProvider
             return [];
         }
 
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'klarna'   => [
-                        'paymentFeeLabel'      => $this->getBuckarooPaymentFeeLabel(),
-                        'subtext'              => $this->getSubtext(),
-                        'subtext_style'        => $this->getSubtextStyle(),
-                        'subtext_color'        => $this->getSubtextColor(),
-                        'allowedCurrencies'    => $this->getAllowedCurrencies(),
-                        'paymentFee'           => $this->getPaymentFee(),
-                        'genderList'           => [
-                            ['genderType' => 'male', 'genderTitle' => __('He/him')],
-                            ['genderType' => 'female', 'genderTitle' => __('She/her')]
-                        ],
-                        'showFinancialWarning' => $this->canShowFinancialWarning(),
-                        'isTestMode'        => $this->isTestMode()
-                    ],
-                    'response' => [],
-                ],
+        return $this->fullConfig([
+            'paymentFee'           => $this->getPaymentFee(),
+            'genderList'           => [
+                ['genderType' => 'male', 'genderTitle' => __('He/him')],
+                ['genderType' => 'female', 'genderTitle' => __('She/her')]
             ],
-        ];
+            'showFinancialWarning' => $this->canShowFinancialWarning(),
+        ]);
     }
 }
