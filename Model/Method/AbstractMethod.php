@@ -44,6 +44,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     const BUCKAROO_PAYMENT_IN_TRANSIT           = 'buckaroo_payment_in_transit';
     const PAYMENT_FROM                          = 'buckaroo_payment_from';
     const PAYMENT_ATTEMPTS_REACHED_MESSAGE      = 'buckaroo_payment_attempts_reached_message';
+    const BUCKAROO_SERVICE_VERSION_KEY          = 'buckaroo_service_version';
+
     /**
      * The regex used to validate the entered BIC number
      */
