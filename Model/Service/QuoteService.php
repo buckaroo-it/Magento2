@@ -31,7 +31,6 @@ use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\MaskedQuoteIdToQuoteIdInterface;
 use Magento\Quote\Model\Quote;
-
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
@@ -117,6 +116,10 @@ class QuoteService
      */
     public function getQuote($cartHash = null)
     {
+        if ($this->quote instanceof Quote) {
+            return $this->quote;
+        }
+
         if ($cartHash) {
             try {
                 $cartId = $this->maskedQuoteIdToQuoteId->execute($cartHash);
@@ -227,10 +230,16 @@ class QuoteService
     {
         $quoteTotals = $this->quote->getTotals();
 
+        $shippingAddress = $this->quote->getShippingAddress();
+        $shippingTotalInclTax = 0;
+        if ($shippingAddress !== null) {
+            $shippingTotalInclTax = $shippingAddress->getData('shipping_incl_tax');
+        }
+
         $totals = [
             'subtotal' => $quoteTotals['subtotal']->getValue(),
             'discount' => isset($quoteTotals['discount']) ? $quoteTotals['discount']->getValue() : null,
-            'shipping' => $this->quote->getShippingAddress()->getData('shipping_incl_tax'),
+            'shipping' => $shippingTotalInclTax,
             'grand_total' => $quoteTotals['grand_total']->getValue()
         ];
 
@@ -242,6 +251,18 @@ class QuoteService
         }
 
         return $totals;
+    }
+
+    /**
+     * Set shipping method on shipping address
+     *
+     * @param string $methodCode
+     * @return void
+     * @throws NoSuchEntityException
+     */
+    public function setShippingMethod(string $methodCode): void
+    {
+        $this->getQuote()->getShippingAddress()->setShippingMethod($methodCode);
     }
 
     /**

@@ -76,23 +76,25 @@ class UpdateShippingMethods extends AbstractApplepay
                 // Get Cart
                 $quote = $this->checkoutSession->getQuote();
 
-                // Set Shipping Method
-                $quote->getShippingAddress()->setCollectShippingRates(true);
-                $quote->getShippingAddress()->setShippingMethod($postValues['wallet']['identifier']);
+                if (!$quote->getIsVirtual()) {
+                    // Set Shipping Method
+                    $quote->getShippingAddress()->setCollectShippingRates(true);
+                    $quote->getShippingAddress()->setShippingMethod($postValues['wallet']['identifier']);
 
-                // Recalculate Totals after setting new shipping method
-                $quote->setTotalsCollectedFlag(false);
-                $quote->collectTotals();
-                $totals = $this->gatherTotals($quote->getShippingAddress(), $quote->getTotals());
+                    // Recalculate Totals after setting new shipping method
+                    $quote->setTotalsCollectedFlag(false);
+                    $quote->collectTotals();
+                    $totals = $this->gatherTotals($quote->getShippingAddress(), $quote->getTotals());
 
-                // Save Cart
-                $this->quoteRepository->save($quote);
-                $data = [
-                    'shipping_methods' => [
-                        'code' => $postValues['wallet']['identifier']
-                    ],
-                    'totals' => $totals
-                ];
+                    // Save Cart
+                    $this->quoteRepository->save($quote);
+                    $data = [
+                        'shipping_methods' => [
+                            'code' => $postValues['wallet']['identifier']
+                        ],
+                        'totals' => $totals
+                    ];
+                }
             } catch (\Exception $exception) {
                 $errorMessage = "Setting the new Shipping Method failed.";
             }

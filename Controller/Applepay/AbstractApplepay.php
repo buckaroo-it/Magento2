@@ -74,16 +74,21 @@ abstract class AbstractApplepay implements HttpPostActionInterface
     /**
      * Get totals
      *
-     * @param Address $address
+     * @param Address|null $address
      * @param AddressTotal[] $quoteTotals
      * @return array
      */
-    public function gatherTotals(Address $address, array $quoteTotals): array
+    public function gatherTotals(?Address $address, array $quoteTotals): array
     {
+        $shippingTotalInclTax = 0;
+        if ($address !== null) {
+            $shippingTotalInclTax = $address->getData('shipping_incl_tax');
+        }
+
         return [
             'subtotal' => $quoteTotals['subtotal']->getValue(),
             'discount' => isset($quoteTotals['discount']) ? $quoteTotals['discount']->getValue() : null,
-            'shipping' => $address->getData('shipping_incl_tax'),
+            'shipping' => $shippingTotalInclTax,
             'grand_total' => $quoteTotals['grand_total']->getValue()
         ];
     }
