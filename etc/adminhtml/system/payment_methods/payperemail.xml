@@ -84,8 +84,8 @@
 
             <field id="enable_b2b" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>B2B mode enabled</label>
-                <comment><![CDATA[Enables or disables B2B mode]]></comment>
-                <tooltip>Set to 'Yes' will enable B2B mode.</tooltip>
+                <comment><![CDATA[Set this option to "Yes" to enable the B2B mode. B2B mode will set orders directly into "processing" without the need to receive a payment first. This can be used for B2B orders to let companies pay in invoice.]]></comment>
+                <tooltip>Set this option to "Yes" to enable the B2B mode. B2B mode will set orders directly into "processing" without the need to receive a payment first. This can be used for B2B orders to let companies pay in invoice.</tooltip>
                 <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 <config_path>payment/buckaroo_magento2_payperemail/enable_b2b</config_path>
             </field>
