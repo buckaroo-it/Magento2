@@ -365,6 +365,8 @@
 "Select which payment methods can be used after the payment due date.","Selecteer welke betaalwijze na de termijnverloop gebruikt kan worden."
 "Billing First Name:","Factuur voornaam:"
 "Billing Last Name:","Factuur achternaam:"
+"Billing Middle Name:","Factuur tussenvoegsel:"
+"Not applicable","Niet toepasbaar"
 "Email:","E-mail"
 "Frontend","Voorkant"
 "Backend","Achterkant"
