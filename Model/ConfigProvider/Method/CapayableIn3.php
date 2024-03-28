@@ -70,14 +70,10 @@ class CapayableIn3 extends AbstractConfigProvider
      */
     public function getLogo($storeId = null): string
     {
-        $logo = $this->getMethodConfigValue(self::XPATH_CAPAYABLEIN3_PAYMENT_LOGO, $storeId);
+        $logo = 'ideal-in3.svg';
 
         if ($this->isV2($storeId)) {
-            return 'in3.svg';
-        }
-
-        if (!is_string($logo)) {
-            return 'ideal-in3.svg';
+            $logo = 'in3.svg';
         }
 
         return $this->logoService->getLogoUrl("images/svg/".$logo);

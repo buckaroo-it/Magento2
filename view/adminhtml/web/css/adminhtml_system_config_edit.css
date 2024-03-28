@@ -344,21 +344,6 @@ a.bk-plugin-zone {
 .bk-payment-method .entry-edit-head-link {
     display: none;
 }
-.bk-in3-wrap {
-    display: flex;
-    align-items: center;
-    padding:10px 5px;
-}
-
-.bk-in3-logo {
-    max-height: 30px;
-    width: auto;
-    margin-left:5px;
-}
-
-.bk-in3-main-wrap {
-    border: 1px solid #adadad;
-}
 
 #buckaroo_magento2_payment_methods_buckaroo_magento2_payment_section_buckaroo_magento2_klarna_group {
     padding: 20px 0 20px 20px;
