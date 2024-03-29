@@ -365,10 +365,6 @@
                     <item name="type" xsi:type="string">pospayment</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Pospayment</item>
                 </item>
-                <item name="tinka" xsi:type="array">
-                    <item name="type" xsi:type="string">tinka</item>
-                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Tinka</item>
-                </item>
                 <item name="voucher" xsi:type="array">
                     <item name="type" xsi:type="string">voucher</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Voucher</item>
