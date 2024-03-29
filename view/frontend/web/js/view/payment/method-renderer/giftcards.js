@@ -52,7 +52,7 @@ define(
 
         function checkPayments()
         {
-            var p = ["billink","klarnakp","capayableinstallments","sofortbanking","giropay","transfer","sepadirectdebit","capayablein3","creditcard","mrcash","payperemail", "tinka"];
+            var p = ["billink","klarnakp","capayableinstallments","sofortbanking","giropay","transfer","sepadirectdebit","capayablein3","creditcard","mrcash","payperemail"];
             p.forEach(function (item) {
                 $('.buckaroo_magento2_' + item).remove();
             });

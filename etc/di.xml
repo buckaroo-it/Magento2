@@ -332,10 +332,6 @@
                     <item name="type" xsi:type="string">pospayment</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Pospayment</item>
                 </item>
-                <item name="tinka" xsi:type="array">
-                    <item name="type" xsi:type="string">tinka</item>
-                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Tinka</item>
-                </item>
                 <item name="creditclick" xsi:type="array">
                     <item name="type" xsi:type="string">creditclick</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\CreditClick</item>
@@ -776,7 +772,6 @@
                 <item name="default" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\DefaultHandler</item>
                 <item name="afterpay" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\AfterpayOldHandler</item>
                 <item name="afterpay20" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\AfterpayHandler</item>
-                <item name="tinka" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\TinkaHandler</item>
                 <item name="capayablein3" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\CapayableIn3Handler</item>
                 <item name="billink" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\BillinkHandler</item>
                 <item name="klarnakp" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\KlarnaKpHandler</item>
@@ -2579,108 +2574,6 @@
     <!-- END Afterpay Old Commands infrastructure -->
     <!-- END Payment Method: Afterpay Old -->
 
-    <!-- Payment Method: Tinka -->
-    <!-- Tinka Payment Method Facade configuration -->
-    <virtualType name="TinkaFacade" type="Buckaroo\Magento2\Model\Method\BuckarooAdapter">
-        <arguments>
-            <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\Tinka::CODE</argument>
-            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
-            <argument name="infoBlockType" xsi:type="string">Buckaroo\Magento2\Block\Info</argument>
-            <argument name="valueHandlerPool" xsi:type="object">TinkaValueHandlerPool</argument>
-            <argument name="validatorPool" xsi:type="object">BuckarooValidatorPool</argument>
-            <argument name="commandPool" xsi:type="object">TinkaGatewayCommandPool</argument>
-        </arguments>
-    </virtualType>
-
-    <!-- Tinka Value handlers infrastructure -->
-    <virtualType name="TinkaValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
-        <arguments>
-            <argument name="handlers" xsi:type="array">
-                <item name="default" xsi:type="string">TinkaConfigValueHandler</item>
-            </argument>
-        </arguments>
-    </virtualType>
-    <!-- Configuration reader -->
-    <virtualType name="TinkaConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
-        <arguments>
-            <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Tinka</argument>
-        </arguments>
-    </virtualType>
-    <!-- END Tinka Value handlers infrastructure -->
-
-    <!-- Tinka Commands infrastructure -->
-    <virtualType name="TinkaGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
-        <arguments>
-            <argument name="commands" xsi:type="array">
-                <item name="order" xsi:type="string">TinkaOrderCommand</item>
-                <item name="refund" xsi:type="string">BuckarooRefundCommand</item>
-            </argument>
-        </arguments>
-    </virtualType>
-
-    <!-- Tinka Order Command -->
-    <virtualType name="TinkaOrderCommand" type="Buckaroo\Magento2\Gateway\Command\GatewayCommand">
-        <arguments>
-            <argument name="requestBuilder" xsi:type="object">TinkaOrderRequest</argument>
-            <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRemainder</argument>
-            <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
-            <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
-        </arguments>
-    </virtualType>
-
-    <!-- Tinka Order Command - Request Builder -->
-    <virtualType name="TinkaOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
-        <arguments>
-            <argument name="builders" xsi:type="array">
-                <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
-                <item name="tinka" xsi:type="string">Buckaroo\Magento2\Gateway\Request\TinkaDataBuilder</item>
-                <item name="customer" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddress\CustomerDataBuilder</item>
-                <item name="customer_address" xsi:type="string">CustomerTinkaDataBuilder</item>
-                <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesDataBuilder</item>
-            </argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="CustomerTinkaDataBuilder" type="BuckarooWithIdBuilderComposite">
-        <arguments>
-            <argument name="builders" xsi:type="array">
-                <item name="billing" xsi:type="string">TinkaBillingDataBuilder</item>
-                <item name="shipping" xsi:type="string">TinkaShippingDataBuilder</item>
-            </argument>
-        </arguments>
-    </virtualType>
-
-    <virtualType name="TinkaBillingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
-        <arguments>
-            <argument name="builders" xsi:type="array">
-                <item name="recipient" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Recipient\TinkaDataBuilder</item>
-                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\BillingAddressDataBuilder</item>
-                <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\PhoneDataBuilder</item>
-                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\EmailAddressDataBuilder</item>
-            </argument>
-        </arguments>
-    </virtualType>
-
-    <virtualType name="TinkaShippingDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
-        <arguments>
-            <argument name="builders" xsi:type="array">
-                <item name="recipient" xsi:type="string">TinkaShippingRecipientDataBuilder</item>
-                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\ShippingAddressDataBuilder</item>
-                <item name="phone" xsi:type="string">PhoneShippingDataBuilder</item>
-                <item name="email" xsi:type="string">EmailAddressShippingDataBuilder</item>
-            </argument>
-        </arguments>
-    </virtualType>
-
-    <virtualType name="TinkaShippingRecipientDataBuilder" type="Buckaroo\Magento2\Gateway\Request\Recipient\TinkaDataBuilder">
-        <arguments>
-            <argument name="addressType" xsi:type="string">shipping</argument>
-        </arguments>
-    </virtualType>
-    <!-- END Tinka Order Command -->
-    <!-- END Tinka Commands infrastructure -->
-    <!-- END Payment Method: Tinka -->
 
     <!-- Payment Method: CreditClick-->
     <!-- CreditClick Payment Method Facade configuration -->

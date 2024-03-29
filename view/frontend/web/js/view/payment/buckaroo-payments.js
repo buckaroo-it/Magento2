@@ -192,12 +192,6 @@ define(
                 config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_pospayment}
             },
             {
-                type: 'buckaroo_magento2_tinka',
-                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/tinka',
-                config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_tinka}
-
-            },
-            {
                 type: 'buckaroo_magento2_voucher',
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/voucher',
                 config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_voucher}
