@@ -200,8 +200,8 @@ class QuoteAddressService
             'vat_id'     => ''
         ];
 
-        if ($phone !== null) {
-            $address['telephone'] = $phone;
+        if ($phone !== null && !isset($wallet['phoneNumber'])) {
+            $address['telephone'] =  $phone;
         }
 
         $address['street'] = implode("\n", $address['street']);
