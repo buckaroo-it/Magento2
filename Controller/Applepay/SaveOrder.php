@@ -182,7 +182,13 @@ class SaveOrder extends AbstractApplepay
             if (!$this->quoteAddressService->setShippingAddress($quote, $payment['shippingContact'])) {
                 return $this->commonResponse(false, true);
             }
-            if (!$this->quoteAddressService->setBillingAddress($quote, $payment['billingContact'])) {
+            if (
+                !$this->quoteAddressService->setBillingAddress(
+                    $quote,
+                    $payment['billingContact'],
+                    $payment['shippingContact']['phoneNumber'] ?? null
+                )
+            ) {
                 return $this->commonResponse(false, true);
             }
 
