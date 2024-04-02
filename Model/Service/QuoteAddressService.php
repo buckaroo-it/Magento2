@@ -174,11 +174,12 @@ class QuoteAddressService
      *
      * @param array $wallet
      * @param string $type
+     * @param string|null $phone
      * @return array
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
      */
-    public function processAddressFromWallet(array $wallet, string $type = 'shipping'): array
+    public function processAddressFromWallet(array $wallet, string $type = 'shipping', $phone = null): array
     {
         $address = [
             'prefix'     => '',
@@ -198,6 +199,11 @@ class QuoteAddressService
             'fax'        => '',
             'vat_id'     => ''
         ];
+
+        if ($phone !== null) {
+            $address['telephone'] = $phone;
+        }
+
         $address['street'] = implode("\n", $address['street']);
         if ($type == 'shipping') {
             $address['email'] = $wallet['emailAddress'] ?? '';
@@ -267,12 +273,13 @@ class QuoteAddressService
      *
      * @param Quote $quote
      * @param array $data
+     * @param string|null $phone
      * @return true
      * @throws ExpressMethodsException
      */
-    public function setBillingAddress(Quote &$quote, array $data): bool
+    public function setBillingAddress(Quote &$quote, array $data, $phone = null): bool
     {
-        $billingAddress = $this->processAddressFromWallet($data, 'billing');
+        $billingAddress = $this->processAddressFromWallet($data, 'billing', $phone);
         $quote->getBillingAddress()->addData($billingAddress);
 
         $errors = $quote->getBillingAddress()->validate();
