@@ -22,14 +22,15 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Buckaroo\Magento2\Exception;
-use Buckaroo\Magento2\Helper\PaymentFee;
-use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
-use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\App\ResourceConnection;
-use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\UrlInterface;
+use Buckaroo\Magento2\Helper\PaymentFee;
+use Buckaroo\Magento2\Service\LogoService;
 use Magento\Framework\View\Asset\Repository;
+use Magento\Framework\App\ResourceConnection;
 use Magento\Store\Model\StoreManagerInterface;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 
 class Giftcards extends AbstractConfigProvider
 {
@@ -70,10 +71,11 @@ class Giftcards extends AbstractConfigProvider
         ScopeConfigInterface $scopeConfig,
         AllowedCurrencies $allowedCurrencies,
         PaymentFee $paymentFeeHelper,
+        LogoService $logoService,
         StoreManagerInterface $storeManager,
         ResourceConnection $resourceConnection
     ) {
-        parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper);
+        parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper, $logoService);
         $this->storeManager = $storeManager;
         $this->resourceConnection = $resourceConnection;
     }
@@ -90,32 +92,6 @@ class Giftcards extends AbstractConfigProvider
             return [];
         }
 
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'groupGiftcards'   => $this->getGroupGiftcards(),
-                    'avaibleGiftcards' => $this->getAvailableGiftcards(),
-                    'giftcards'        => [
-                        'paymentFeeLabel'   => $this->getBuckarooPaymentFeeLabel(),
-                        'subtext'           => $this->getSubtext(),
-                        'subtext_style'     => $this->getSubtextStyle(),
-                        'subtext_color'     => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'isTestMode'        => $this->isTestMode()
-                    ],
-                ],
-            ],
-        ];
-    }
-
-    /**
-     * Get sorted available gift cards
-     *
-     * @return array
-     * @throws NoSuchEntityException
-     */
-    public function getAvailableGiftcards(): array
-    {
         $sort = (string)$this->getSort();
 
         if (!empty($sort)) {
@@ -136,29 +112,36 @@ class Giftcards extends AbstractConfigProvider
 
         $availableCards = $this->getAllowedGiftcards();
 
-        $url = $this->storeManager->getStore()->getBaseUrl(
-            UrlInterface::URL_TYPE_MEDIA
-        );
+        $cards = [];
+        if (!empty($availableCards)) {
+            $url = $this->storeManager->getStore()->getBaseUrl(
+                UrlInterface::URL_TYPE_MEDIA
+            );
 
-        foreach (explode(',', (string)$availableCards) as $value) {
-            $logo = $this->getLogo($value);
-            if (isset($allGiftCards[$value]['logo'])) {
-                $logo = $url . $allGiftCards[$value]['logo'];
+            foreach (explode(',', (string)$availableCards) as $value) {
+                $logo = $this->getGiftcardLogo($value);
+                if (isset($allGiftCards[$value]['logo'])) {
+                    $logo = $url . $allGiftCards[$value]['logo'];
+                }
+
+                $cards[] = [
+                    'code'  => $value,
+                    'title' => $allGiftCards[$value]['label'] ?? '',
+                    'logo'  => $logo,
+                    'sort'  => $allGiftCards[$value]['sort'] ?? '99',
+                ];
             }
 
-            $cards[] = [
-                'code'  => $value,
-                'title' => $allGiftCards[$value]['label'] ?? '',
-                'logo'  => $logo,
-                'sort'  => $allGiftCards[$value]['sort'] ?? '99',
-            ];
+            usort($cards, function ($cardA, $cardB) {
+                return $cardA['sort'] - $cardB['sort'];
+            });
         }
 
-        usort($cards, function ($cardA, $cardB) {
-            return $cardA['sort'] - $cardB['sort'];
-        });
 
-        return $cards;
+        return $this->fullConfig([
+            'groupGiftcards'   => $this->getGroupGiftcards() == true,
+            'availableGiftcards' => $cards,
+        ]);
     }
 
     /**
@@ -189,7 +172,7 @@ class Giftcards extends AbstractConfigProvider
      * @param string $code
      * @return string
      */
-    protected function getLogo(string $code): string
+    protected function getGiftcardLogo(string $code): string
     {
         $mappings = [
             "ajaxgiftcard"               => "ajaxgiftcard",

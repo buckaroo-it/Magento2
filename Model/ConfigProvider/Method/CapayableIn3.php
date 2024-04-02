@@ -57,22 +57,9 @@ class CapayableIn3 extends AbstractConfigProvider
             return [];
         }
 
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'capayablein3' => [
-                        'paymentFeeLabel'      => $this->getBuckarooPaymentFeeLabel(),
-                        'subtext'              => $this->getSubtext(),
-                        'subtext_style'        => $this->getSubtextStyle(),
-                        'subtext_color'        => $this->getSubtextColor(),
-                        'allowedCurrencies'    => $this->getAllowedCurrencies(),
-                        'logo'                 => $this->getLogo(),
-                        'showFinancialWarning' => $this->canShowFinancialWarning(),
-                        'isTestMode'           => $this->isTestMode()
-                    ],
-                ],
-            ],
-        ];
+        return $this->fullConfig([
+            'showFinancialWarning' => $this->canShowFinancialWarning(),
+        ]);
     }
 
     /**
@@ -83,17 +70,13 @@ class CapayableIn3 extends AbstractConfigProvider
      */
     public function getLogo($storeId = null): string
     {
-        $logo = $this->getMethodConfigValue(self::XPATH_CAPAYABLEIN3_PAYMENT_LOGO, $storeId);
+        $logo = 'ideal-in3.svg';
 
         if ($this->isV2($storeId)) {
-            return 'in3.svg';
+            $logo = 'in3.svg';
         }
 
-        if (!is_string($logo)) {
-            return 'ideal-in3.svg';
-        }
-
-        return $logo;
+        return $this->logoService->getLogoUrl("images/svg/".$logo);
     }
 
     /**

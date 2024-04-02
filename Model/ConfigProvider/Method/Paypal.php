@@ -40,28 +40,6 @@ class Paypal extends AbstractConfigProvider
     public const EXPRESS_BUTTON_COLOR      = 'express_button_color';
     public const EXPRESS_BUTTON_IS_ROUNDED = 'express_button_rounded';
 
-    /**
-     * @inheritdoc
-     *
-     * @throws Exception
-     */
-    public function getConfig(): array
-    {
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'paypal' => [
-                        'paymentFeeLabel'   => $this->getBuckarooPaymentFeeLabel(),
-                        'subtext'           => $this->getSubtext(),
-                        'subtext_style'     => $this->getSubtextStyle(),
-                        'subtext_color'     => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'isTestMode'        => $this->isTestMode()
-                    ],
-                ],
-            ],
-        ];
-    }
 
     /**
      * Get Sellers Protection

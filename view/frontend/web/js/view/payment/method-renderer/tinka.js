@@ -21,29 +21,16 @@
 define(
     [
         'jquery',
-        'Magento_Checkout/js/view/payment/default',
-        'Magento_Checkout/js/model/payment/additional-validators',
-        'Buckaroo_Magento2/js/action/place-order',
+        'buckaroo/checkout/payment/default',
         'Magento_Checkout/js/model/quote',
         'ko',
-        'Magento_Checkout/js/checkout-data',
-        'Magento_Checkout/js/action/select-payment-method',
-        'buckaroo/checkout/common',
         'buckaroo/checkout/datepicker',
-        'Magento_Ui/js/lib/knockout/bindings/datepicker'
-        /*,
-         'jquery/validate'*/
     ],
     function (
         $,
         Component,
-        additionalValidators,
-        placeOrderAction,
         quote,
         ko,
-        checkoutData,
-        selectPaymentMethodAction,
-        checkoutCommon,
         datePicker
     ) {
         'use strict';
@@ -72,42 +59,20 @@ define(
                 defaults                : {
                     template : 'Buckaroo_Magento2/payment/buckaroo_magento2_tinka',
                     billingName: null,
-                    country: '',
                     dateValidate: null,
-                    showNLBEFields: true,
-                    activeAddress: null,
                     value:'',
-                    showPhone: false,
                     phone: null,
-                    validationState: {}
                 },
                 redirectAfterPlaceOrder : true,
-                paymentFeeLabel : window.checkoutConfig.payment.buckaroo.tinka.paymentFeeLabel,
-                subtext : window.checkoutConfig.payment.buckaroo.tinka.subtext,
-                subTextStyle : checkoutCommon.getSubtextStyle('tinka'),
-                currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
-                baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
                 dp: datePicker,
-                isTestMode: window.checkoutConfig.payment.buckaroo.tinka.isTestMode,
-
-                /**
-                 * @override
-                 */
-                initialize : function (options) {
-                    if (checkoutData.getSelectedPaymentMethod() == options.index) {
-                        window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-                    }
-
-                    return this._super(options);
-                },
+               
 
                 initObservable: function () {
                     this._super().observe(
                         [
                             'dateValidate',
                             'value',
-                            'phone',
-                            'validationState'
+                            'phone'
                         ]
                     );
 
@@ -115,7 +80,7 @@ define(
                         function () {
                             return quote.billingAddress() !== null &&
                             quote.billingAddress().countryId == 'NL' &&
-                            window.checkoutConfig.payment.buckaroo.tinka.showFinancialWarning
+                            this.buckaroo.showFinancialWarning
                         },
                         this
                     );
@@ -159,102 +124,8 @@ define(
                         this
                     );
 
-                    this.buttoncheck = ko.computed(
-                        function () {
-                            const state = this.validationState();
-                            const valid = this.getActiveValidationFields().map((field) => {
-                                if (state[field] !== undefined) {
-                                    return state[field];
-                                }
-                                return false;
-                            }).reduce(
-                                function (prev, cur) {
-                                    return prev && cur
-                                },
-                                true
-                            )
-                            return valid;
-                        },
-                        this
-                    );
-
-                    this.dateValidate.subscribe(function () {
-                        const dobId = 'buckaroo_magento2_tinka_DoB';
-                        const isValid = $(`#${dobId}`).valid();
-                        let state = this.validationState();
-                        state[dobId] = isValid;
-                        this.validationState(state);
-                    }, this);
 
                     return this;
-                },
-
-
-                validateField(data, event) {
-                    const isValid = $(event.target).valid();
-                    let state = this.validationState();
-                    state[event.target.id] = isValid;
-                    this.validationState(state);
-                },
-
-                getActiveValidationFields() {
-                    let fields = [];
-                    if (this.showPhone()) {
-                        fields.push('buckaroo_magento2_tinka_Telephone')
-                    }
-
-                    if (this.showNLBEFields()) {
-                        fields.push('buckaroo_magento2_tinka_DoB')
-                    }
-                    return fields;
-                },
-
-
-             
-
-                /**
-                 * Place order.
-                 *
-                 * @todo To override the script used for placeOrderAction, we need to override the placeOrder method
-                 *          on our parent class (Magento_Checkout/js/view/payment/default) so we can
-                 *
-                 *          placeOrderAction has been changed from Magento_Checkout/js/action/place-order to our own
-                 *          version (Buckaroo_Magento2/js/action/place-order) to prevent redirect and handle the response.
-                 */
-                placeOrder: function (data, event) {
-                    var self = this,
-                        placeOrder;
-
-                    if (event) {
-                        event.preventDefault();
-                    }
-
-                    if (additionalValidators.validate()) {
-                        this.isPlaceOrderActionAllowed(false);
-                        placeOrder = placeOrderAction(this.getData(), this.redirectAfterPlaceOrder, this.messageContainer);
-
-                        $.when(placeOrder).fail(
-                            function () {
-                                self.isPlaceOrderActionAllowed(true);
-                            }
-                        ).done(this.afterPlaceOrder.bind(this));
-                        return true;
-                    }
-                    return false;
-                },
-
-                afterPlaceOrder: function () {
-                    var response = window.checkoutConfig.payment.buckaroo.response;
-                    response = $.parseJSON(response);
-                    checkoutCommon.redirectHandle(response);
-                },
-
-                selectPaymentMethod: function () {
-                    window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-
-                    selectPaymentMethodAction(this.getData());
-                    checkoutData.setSelectedPaymentMethod(this.item.method);
-                    return true;
                 },
 
                 getData: function () {

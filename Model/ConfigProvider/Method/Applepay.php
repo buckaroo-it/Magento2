@@ -20,16 +20,18 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Store\Model\Store;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Locale\Resolver;
 use Magento\Framework\View\Asset\Repository;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Model\ScopeInterface;
-use Magento\Store\Model\Store;
-use Magento\Store\Model\StoreManagerInterface;
 use Buckaroo\Magento2\Helper\PaymentFee;
+use Buckaroo\Magento2\Service\LogoService;
+use Magento\Framework\View\Asset\Repository;
+use Magento\Store\Model\StoreManagerInterface;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 
 class Applepay extends AbstractConfigProvider
@@ -72,10 +74,11 @@ class Applepay extends AbstractConfigProvider
         ScopeConfigInterface $scopeConfig,
         AllowedCurrencies $allowedCurrencies,
         PaymentFee $paymentFeeHelper,
+        LogoService $logoService,
         StoreManagerInterface $storeManager,
         Resolver $localeResolver
     ) {
-        parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper);
+        parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper, $logoService);
 
         $this->storeManager = $storeManager;
         $this->localeResolver = $localeResolver;
@@ -90,27 +93,26 @@ class Applepay extends AbstractConfigProvider
             return [];
         }
 
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'applepay' => [
-                        'subtext'           => $this->getSubtext(),
-                        'subtext_style'     => $this->getSubtextStyle(),
-                        'subtext_color'     => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'storeName'         => $this->getStoreName(),
-                        'currency'          => $this->getStoreCurrency(),
-                        'cultureCode'       => $this->getCultureCode(),
-                        'country'           => $this->getDefaultCountry(),
-                        'guid'              => $this->getMerchantGuid(),
-                        'availableButtons'  => $this->getAvailableButtons(),
-                        'buttonStyle'       => $this->getButtonStyle(),
-                        'dontAskBillingInfoInCheckout' => (int)$this->getDontAskBillingInfoInCheckout(),
-                        'isTestMode'        => $this->isTestMode()
-                    ],
-                ],
-            ],
-        ];
+        $store = $this->storeManager->getStore();
+        $storeName = $store->getName();
+        $currency = $store->getCurrentCurrency()->getCode();
+
+        $localeCode = $this->localeResolver->getLocale();
+        $shortLocale = explode('_', $localeCode)[0];
+
+        return $this->fullConfig([
+            'storeName'         => $storeName,
+            'currency'          => $currency,
+            'cultureCode'       => $shortLocale,
+            'country'           => $this->scopeConfig->getValue(
+                'general/country/default',
+                ScopeInterface::SCOPE_WEBSITES
+            ),
+            'guid'              => $this->getMerchantGuid(),
+            'availableButtons'  => $this->getAvailableButtons(),
+            'buttonStyle'       => $this->getButtonStyle(),
+            'dontAskBillingInfoInCheckout' => (int)$this->getDontAskBillingInfoInCheckout(),
+        ]);
     }
 
     /**

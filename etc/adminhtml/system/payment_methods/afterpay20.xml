@@ -49,6 +49,13 @@
             </depends>
         </field>
 
+        <field id="afterpay_sca" translate="label comment" type="select" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Enable Strong Customer Authentication</label>
+            <comment><![CDATA[Strong Customer Authentication (also known as SCA) fulfills a set of regulatory requirements, designed to reduce fraud, making online payments more secure while establishing trust with consumers.]]></comment>
+            <config_path>payment/buckaroo_magento2_afterpay20/afterpay_sca</config_path>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+        </field>
+
         <field id="title" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Frontend label</label>
             <comment><![CDATA[Determines the frontend label shown.]]></comment>

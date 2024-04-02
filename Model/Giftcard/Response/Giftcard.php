@@ -178,7 +178,7 @@ class Giftcard
             __METHOD__,
             __LINE__,
             $this->quote->getId(),
-            $order->getEntityId()
+            $order?->getEntityId()
         ));
 
         $this->quote->setIsActive(true);

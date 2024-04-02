@@ -22,12 +22,13 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Buckaroo\Magento2\Exception;
+use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\PaymentFee;
-use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
+use Buckaroo\Magento2\Service\LogoService;
+use Magento\Framework\View\Asset\Repository;
 use Buckaroo\Magento2\Service\Ideal\IssuersService;
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\View\Asset\Repository;
-use Magento\Store\Model\ScopeInterface;
+use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 
 class Ideal extends AbstractConfigProvider
 {
@@ -62,6 +63,7 @@ class Ideal extends AbstractConfigProvider
         ScopeConfigInterface $scopeConfig,
         AllowedCurrencies $allowedCurrencies,
         PaymentFee $paymentFeeHelper,
+        LogoService $logoService,
         IssuersService $issuersService
     ) {
         $this->issuersService = $issuersService;
@@ -70,7 +72,8 @@ class Ideal extends AbstractConfigProvider
             $assetRepo,
             $scopeConfig,
             $allowedCurrencies,
-            $paymentFeeHelper
+            $paymentFeeHelper,
+            $logoService
         );
     }
 
@@ -85,23 +88,11 @@ class Ideal extends AbstractConfigProvider
             return [];
         }
 
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'ideal' => [
-                        'banks'             => $this->formatIssuers(),
-                        'paymentFeeLabel'   => $this->getBuckarooPaymentFeeLabel(),
-                        'subtext'           => $this->getSubtext(),
-                        'subtext_style'     => $this->getSubtextStyle(),
-                        'subtext_color'     => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'selectionType'     => $this->getSelectionType(),
-                        'showIssuers'       => $this->canShowIssuers(),
-                        'isTestMode'        => $this->isTestMode()
-                    ],
-                ],
-            ],
-        ];
+        return $this->fullConfig([
+            'banks'             => $this->formatIssuers(),
+            'selectionType'     => $this->getSelectionType(),
+            'showIssuers'       => $this->canShowIssuers(),
+        ]);
     }
 
     /**
@@ -111,7 +102,11 @@ class Ideal extends AbstractConfigProvider
      */
     public function getIssuers()
     {
-        return $this->issuersService->get();
+        return array_map(function ($issuer) {
+            $issuer['logo'] = $this->issuersService->getImageUrlByIssuerId($issuer['id']);
+            return $issuer;
+        }, $this->issuersService->get());
+
     }
 
     /**

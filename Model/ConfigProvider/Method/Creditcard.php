@@ -114,26 +114,16 @@ class Creditcard extends AbstractConfigProvider
      */
     public function getConfig(): array
     {
-        $issuers = $this->formatIssuers();
+        if (!$this->getActive()) {
+            return [];
+        }
 
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'creditcard' => [
-                        'cards'             => $issuers,
-                        'groupCreditcards'  => $this->isGroupCreditcards(),
-                        'paymentFeeLabel'   => $this->getBuckarooPaymentFeeLabel(),
-                        'subtext'           => $this->getSubtext(),
-                        'subtext_style'     => $this->getSubtextStyle(),
-                        'subtext_color'     => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'selectionType'     => $this->getSelectionType(),
-                        'paymentFlow'       => $this->getPaymentFlow(),
-                        'isTestMode'        => $this->isTestMode()
-                    ],
-                ],
-            ],
-        ];
+        return $this->fullConfig([
+            'cards'             => $this->formatIssuers(),
+            'groupCreditcards'  => $this->isGroupCreditcards(),
+            'selectionType'     => $this->getSelectionType(),
+            'paymentFlow'       => $this->getPaymentFlow(),
+        ]);
     }
 
     public function getIssuers(): array
@@ -183,7 +173,6 @@ class Creditcard extends AbstractConfigProvider
         }
 
         $allowed = explode(',', (string)$this->getAllowedCreditcards());
-
         $cards = [];
         foreach ($allowed as $value) {
             if (isset($allCreditcard[$value])) {

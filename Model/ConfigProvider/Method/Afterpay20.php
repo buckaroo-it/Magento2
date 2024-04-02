@@ -31,6 +31,7 @@ class Afterpay20 extends AbstractConfigProvider
     public const XPATH_AFTERPAY20_CUSTOMER_TYPE  = 'customer_type';
     public const XPATH_AFTERPAY20_MIN_AMOUNT_B2B = 'min_amount_b2b';
     public const XPATH_AFTERPAY20_MAX_AMOUNT_B2B = 'max_amount_b2b';
+    public const XPATH_AFTERPAY20_SCA            = 'afterpay_sca';
 
     /**
      * @inheritdoc
@@ -41,24 +42,11 @@ class Afterpay20 extends AbstractConfigProvider
             return [];
         }
 
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'afterpay20' => [
-                        'sendEmail'            => $this->hasOrderEmail(),
-                        'paymentFeeLabel'      => $this->getBuckarooPaymentFeeLabel(),
-                        'subtext'              => $this->getSubtext(),
-                        'subtext_style'        => $this->getSubtextStyle(),
-                        'subtext_color'        => $this->getSubtextColor(),
-                        'allowedCurrencies'    => $this->getAllowedCurrencies(),
-                        'is_b2b'               => $this->getCustomerType() !== AfterpayCustomerType::CUSTOMER_TYPE_B2C,
-                        'showFinancialWarning' => $this->canShowFinancialWarning(),
-                        'isTestMode'           => $this->isTestMode()
-                    ],
-                    'response'   => [],
-                ],
-            ],
-        ];
+        return  $this->fullConfig([
+            'sendEmail'            => $this->hasOrderEmail(),
+            'is_b2b'               => $this->getCustomerType() !== AfterpayCustomerType::CUSTOMER_TYPE_B2C,
+            'showFinancialWarning' => $this->canShowFinancialWarning(),
+        ]);
     }
 
     /**
@@ -83,5 +71,16 @@ class Afterpay20 extends AbstractConfigProvider
         $createInvoiceAfterShipment = $this->getMethodConfigValue(self::XPATH_AFTERPAY20_CUSTOMER_TYPE, $storeId);
 
         return $createInvoiceAfterShipment ?: false;
+    }
+
+    /**
+     * Get customer type
+     *
+     * @param null|int $storeId
+     * @return bool
+     */
+    public function isEnabledSCA($storeId = null): bool
+    {
+        return (bool)$this->getMethodConfigValue(self::XPATH_AFTERPAY20_SCA, $storeId);
     }
 }
