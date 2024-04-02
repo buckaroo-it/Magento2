@@ -94,7 +94,7 @@ class Mrcash extends AbstractConfigProvider
      * @param null|int|string $store
      * @return mixed
      */
-    private function useClientSide($store = null)
+    public function useClientSide($store = null)
     {
         return $this->getMethodConfigValue(self::XPATH_MRCASH_USE_CLIENT_SIDE, $store);
     }

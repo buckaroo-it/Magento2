@@ -90,6 +90,32 @@ class Giftcards extends AbstractConfigProvider
             return [];
         }
 
+        return [
+            'payment' => [
+                'buckaroo' => [
+                    'groupGiftcards'   => $this->getGroupGiftcards(),
+                    'avaibleGiftcards' => $this->getAvailableGiftcards(),
+                    'giftcards'        => [
+                        'paymentFeeLabel'   => $this->getBuckarooPaymentFeeLabel(),
+                        'subtext'           => $this->getSubtext(),
+                        'subtext_style'     => $this->getSubtextStyle(),
+                        'subtext_color'     => $this->getSubtextColor(),
+                        'allowedCurrencies' => $this->getAllowedCurrencies(),
+                        'isTestMode'        => $this->isTestMode()
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Get sorted available gift cards
+     *
+     * @return array
+     * @throws NoSuchEntityException
+     */
+    public function getAvailableGiftcards(): array
+    {
         $sort = (string)$this->getSort();
 
         if (!empty($sort)) {
@@ -132,22 +158,7 @@ class Giftcards extends AbstractConfigProvider
             return $cardA['sort'] - $cardB['sort'];
         });
 
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'groupGiftcards'   => $this->getGroupGiftcards(),
-                    'avaibleGiftcards' => $cards,
-                    'giftcards'        => [
-                        'paymentFeeLabel'   => $this->getBuckarooPaymentFeeLabel(),
-                        'subtext'           => $this->getSubtext(),
-                        'subtext_style'     => $this->getSubtextStyle(),
-                        'subtext_color'     => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'isTestMode'        => $this->isTestMode()
-                    ],
-                ],
-            ],
-        ];
+        return $cards;
     }
 
     /**

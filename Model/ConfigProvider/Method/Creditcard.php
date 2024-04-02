@@ -116,10 +116,6 @@ class Creditcard extends AbstractConfigProvider
     {
         $issuers = $this->formatIssuers();
 
-        $selectionType = $this->getSelectionType();
-
-        $paymentFlow = $this->getMethodConfigValue(self::XPATH_PAYMENT_FLOW);
-
         return [
             'payment' => [
                 'buckaroo' => [
@@ -131,8 +127,8 @@ class Creditcard extends AbstractConfigProvider
                         'subtext_style'     => $this->getSubtextStyle(),
                         'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'selectionType'     => $selectionType,
-                        'paymentFlow'       => $paymentFlow,
+                        'selectionType'     => $this->getSelectionType(),
+                        'paymentFlow'       => $this->getPaymentFlow(),
                         'isTestMode'        => $this->isTestMode()
                     ],
                 ],
@@ -291,6 +287,17 @@ class Creditcard extends AbstractConfigProvider
     public function getSelectionType($store = null)
     {
         return $this->getMethodConfigValue(self::XPATH_SELECTION_TYPE, $store);
+    }
+
+    /**
+     * Get Payment Flow - Order vs Authorize/Capture
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getPaymentFlow($store = null)
+    {
+        return $this->getMethodConfigValue(self::XPATH_PAYMENT_FLOW, $store);
     }
 
     /**

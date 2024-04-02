@@ -72,7 +72,7 @@ class Creditcards extends AbstractConfigProvider
                         'subtext_style'     => $this->getSubtextStyle(),
                         'subtext_color'     => $this->getSubtextColor(),
                         'creditcards'       => $this->formatIssuers(),
-                        'defaultCardImage'  => $this->getImageUrl('svg/creditcards', 'svg'),
+                        'defaultCardImage'  => $this->getDefaultCardImage(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'isTestMode'        => $this->isTestMode()
                     ],
@@ -118,5 +118,15 @@ class Creditcards extends AbstractConfigProvider
     public function getActiveStatusCm3()
     {
         return null;
+    }
+
+    /**
+     * Get Default Card Image
+     *
+     * @return string
+     */
+    public function getDefaultCardImage(): string
+    {
+        return $this->getImageUrl('svg/creditcards', 'svg');
     }
 }

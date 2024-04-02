@@ -76,7 +76,7 @@ class Billink extends AbstractConfigProvider
                         'subtext_style'     => $this->getSubtextStyle(),
                         'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'b2b'               => $this->helper->checkCustomerGroup('buckaroo_magento2_billink'),
+                        'b2b'               => $this->isB2B(),
                         'genderList'        => [
                             ['genderType' => 'male', 'genderTitle' => __('He/him')],
                             ['genderType' => 'female', 'genderTitle' => __('She/her')],
@@ -105,5 +105,15 @@ class Billink extends AbstractConfigProvider
         $business = (int)$this->getMethodConfigValue(self::XPATH_BILLINK_BUSINESS);
 
         return $business ?: false;
+    }
+
+    /**
+     * Get Customer Group
+     *
+     * @return bool
+     */
+    public function isB2B()
+    {
+        return $this->helper->checkCustomerGroup('buckaroo_magento2_billink');
     }
 }
