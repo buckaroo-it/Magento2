@@ -98,6 +98,7 @@ class PayByBank extends AbstractConfigProvider
      * @param ScopeConfigInterface $scopeConfig
      * @param AllowedCurrencies $allowedCurrencies
      * @param PaymentFee $paymentFeeHelper
+     * @param LogoService $logoService
      * @param CustomerSession $customerSession
      */
     public function __construct(

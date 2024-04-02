@@ -21,7 +21,6 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-
 class Voucher extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_voucher';

@@ -23,12 +23,12 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Helper\PaymentFee;
-use Magento\Framework\Data\Form\FormKey;
-use Buckaroo\Magento2\Service\LogoService;
-use Magento\Framework\View\Asset\Repository;
-use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\App\Config\ScopeConfigInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
+use Buckaroo\Magento2\Service\LogoService;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Data\Form\FormKey;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\View\Asset\Repository;
 
 class Payconiq extends AbstractConfigProvider
 {
@@ -72,7 +72,7 @@ class Payconiq extends AbstractConfigProvider
         }
 
         return $this->fullConfig([
-            'redirecturl'       => static::PAYCONIC_REDIRECT_URL . '?form_key=' . $this->getFormKey(),
+            'redirecturl' => static::PAYCONIC_REDIRECT_URL . '?form_key=' . $this->getFormKey(),
         ]);
     }
 

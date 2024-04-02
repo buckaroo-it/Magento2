@@ -20,7 +20,6 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Model\Config\Source\AfterpayPaymentMethods;
 use Buckaroo\Magento2\Model\Config\Source\Business;
 
@@ -39,15 +38,13 @@ class Afterpay extends AbstractConfigProvider
 
     /**
      * @inheritdoc
-     *
-     * @throws Exception
      */
-    public function getConfig()
+    public function getConfig(): array
     {
         if (!$this->getActive()) {
             return [];
         }
-        
+
         return $this->fullConfig([
             'sendEmail'            => $this->hasOrderEmail(),
             'businessMethod'       => $this->getBusiness(),

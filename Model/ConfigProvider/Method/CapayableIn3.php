@@ -20,8 +20,6 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use Buckaroo\Magento2\Exception;
-
 class CapayableIn3 extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_capayablein3';
@@ -48,10 +46,8 @@ class CapayableIn3 extends AbstractConfigProvider
 
     /**
      * @inheritdoc
-     *
-     * @throws Exception
      */
-    public function getConfig()
+    public function getConfig(): array
     {
         if (!$this->getActive()) {
             return [];

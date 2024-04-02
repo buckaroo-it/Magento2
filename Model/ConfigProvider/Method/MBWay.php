@@ -21,24 +21,21 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use Buckaroo\Magento2\Exception;
-
 class MBWay extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_mbway';
 
     /**
      * @return array
-     * @throws Exception
      */
-    public function getConfig()
+    public function getConfig(): array
     {
         if (!$this->getActive()) {
             return [];
         }
 
         return $this->fullConfig([
-            'sendEmail'         => $this->hasOrderEmail(),
+            'sendEmail' => $this->hasOrderEmail(),
         ]);
     }
 }

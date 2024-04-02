@@ -21,8 +21,6 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use Buckaroo\Magento2\Exception;
-
 /**
  * @method getDueDate()
  */
@@ -34,7 +32,6 @@ class Eps extends AbstractConfigProvider
      * Get Eps config
      *
      * @return array
-     * @throws Exception
      */
     public function getConfig(): array
     {

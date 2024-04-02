@@ -20,16 +20,12 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use Buckaroo\Magento2\Exception;
-
 class Afterpay2 extends Afterpay
 {
     public const CODE = 'buckaroo_magento2_afterpay2';
 
     /**
      * @inheritdoc
-     *
-     * @throws Exception
      */
     public function getConfig(): array
     {

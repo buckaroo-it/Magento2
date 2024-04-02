@@ -166,8 +166,7 @@ class Creditcard extends AbstractConfigProvider
         }
 
         foreach ($this->getIssuers() as $item) {
-            $item['sort'] = isset($sorted_array[$item['code']]) ?
-                $sorted_array[$item['code']] : self::DEFAULT_SORT_VALUE;
+            $item['sort'] = $sorted_array[$item['code']] ?? self::DEFAULT_SORT_VALUE;
             $item['img'] = $this->getImageUrl($item['code']);
             $allCreditcard[$item['code']] = $item;
         }

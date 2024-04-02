@@ -40,11 +40,12 @@ class Billink extends AbstractConfigProvider
     private BuckarooHelper $helper;
 
     /**
-     * @param Repository           $assetRepo
+     * @param Repository $assetRepo
      * @param ScopeConfigInterface $scopeConfig
-     * @param AllowedCurrencies    $allowedCurrencies
-     * @param PaymentFee           $paymentFeeHelper
-     * @param BuckarooHelper       $helper
+     * @param AllowedCurrencies $allowedCurrencies
+     * @param PaymentFee $paymentFeeHelper
+     * @param LogoService $logoService
+     * @param BuckarooHelper $helper
      */
     public function __construct(
         Repository $assetRepo,
@@ -62,7 +63,7 @@ class Billink extends AbstractConfigProvider
     /**
      * @inheritdoc
      */
-    public function getConfig()
+    public function getConfig(): array
     {
         if (!$this->getActive()) {
             return [];
@@ -70,7 +71,7 @@ class Billink extends AbstractConfigProvider
 
         return $this->fullConfig([
             'sendEmail'         => $this->hasOrderEmail(),
-            'b2b'               => $this->helper->checkCustomerGroup('buckaroo_magento2_billink'),
+            'b2b'               => $this->isB2B(),
             'genderList'        => [
                 ['genderType' => 'male', 'genderTitle' => __('He/him')],
                 ['genderType' => 'female', 'genderTitle' => __('She/her')],

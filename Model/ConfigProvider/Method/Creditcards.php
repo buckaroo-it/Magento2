@@ -43,6 +43,7 @@ class Creditcards extends AbstractConfigProvider
      * @param ScopeConfigInterface $scopeConfig
      * @param AllowedCurrencies $allowedCurrencies
      * @param PaymentFee $paymentFeeHelper
+     * @param LogoService $logoService
      * @param Creditcard $creditcardConfigProvider
      */
     public function __construct(

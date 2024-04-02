@@ -22,15 +22,15 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Buckaroo\Magento2\Exception;
-use Magento\Framework\UrlInterface;
 use Buckaroo\Magento2\Helper\PaymentFee;
-use Buckaroo\Magento2\Service\LogoService;
-use Magento\Framework\View\Asset\Repository;
-use Magento\Framework\App\ResourceConnection;
-use Magento\Store\Model\StoreManagerInterface;
-use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\Exception\NoSuchEntityException;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
+use Buckaroo\Magento2\Service\LogoService;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\ResourceConnection;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\UrlInterface;
+use Magento\Framework\View\Asset\Repository;
+use Magento\Store\Model\StoreManagerInterface;
 
 class Giftcards extends AbstractConfigProvider
 {
@@ -63,6 +63,7 @@ class Giftcards extends AbstractConfigProvider
      * @param ScopeConfigInterface $scopeConfig
      * @param AllowedCurrencies $allowedCurrencies
      * @param PaymentFee $paymentFeeHelper
+     * @param LogoService $logoService
      * @param StoreManagerInterface $storeManager
      * @param ResourceConnection $resourceConnection
      */
@@ -92,6 +93,25 @@ class Giftcards extends AbstractConfigProvider
             return [];
         }
 
+        return $this->fullConfig([
+            'groupGiftcards'     => $this->getGroupGiftcards() == true,
+            'availableGiftcards' => $this->getAvailableGiftcards(),
+        ]);
+    }
+
+    /**
+     * Type of the giftcard inline/redirect
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getGroupGiftcards($store = null)
+    {
+        return $this->getMethodConfigValue(self::XPATH_GIFTCARDS_GROUP_GIFTCARDS, $store);
+    }
+
+    public function getAvailableGiftcards()
+    {
         $sort = (string)$this->getSort();
 
         if (!empty($sort)) {
@@ -137,11 +157,7 @@ class Giftcards extends AbstractConfigProvider
             });
         }
 
-
-        return $this->fullConfig([
-            'groupGiftcards'   => $this->getGroupGiftcards() == true,
-            'availableGiftcards' => $cards,
-        ]);
+        return $cards;
     }
 
     /**
@@ -193,17 +209,6 @@ class Giftcards extends AbstractConfigProvider
         }
 
         return $this->getImageUrl("svg/giftcards", "svg");
-    }
-
-    /**
-     * Type of the giftcard inline/redirect
-     *
-     * @param null|int|string $store
-     * @return mixed
-     */
-    public function getGroupGiftcards($store = null)
-    {
-        return $this->getMethodConfigValue(self::XPATH_GIFTCARDS_GROUP_GIFTCARDS, $store);
     }
 
     /**

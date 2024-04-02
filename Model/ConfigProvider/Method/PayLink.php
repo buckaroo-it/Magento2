@@ -21,7 +21,6 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use Buckaroo\Magento2\Exception;
 use Magento\Store\Model\ScopeInterface;
 
 class PayLink extends AbstractConfigProvider

@@ -496,7 +496,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
         return $issuersPrepared;
     }
 
-    public function getConfig()
+    public function getConfig(): array
     {
         return $this->fullConfig();
     }

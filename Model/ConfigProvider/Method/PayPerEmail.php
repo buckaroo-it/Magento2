@@ -54,7 +54,7 @@ class PayPerEmail extends AbstractConfigProvider
         }
 
         return $this->fullConfig([
-            'genderList'        => [
+            'genderList' => [
                 ['genderType' => 1, 'genderTitle' => __('He/him')],
                 ['genderType' => 2, 'genderTitle' => __('She/her')],
                 ['genderType' => 0, 'genderTitle' => __('They/them')],

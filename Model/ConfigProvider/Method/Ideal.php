@@ -21,29 +21,24 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use Buckaroo\Magento2\Exception;
-use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\PaymentFee;
-use Buckaroo\Magento2\Service\LogoService;
-use Magento\Framework\View\Asset\Repository;
-use Buckaroo\Magento2\Service\Ideal\IssuersService;
-use Magento\Framework\App\Config\ScopeConfigInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
+use Buckaroo\Magento2\Service\Ideal\IssuersService;
+use Buckaroo\Magento2\Service\LogoService;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\View\Asset\Repository;
 
 class Ideal extends AbstractConfigProvider
 {
-    /**
-     * @var IssuersService
-     */
-    protected IssuersService $issuersService;
-
     public const CODE = 'buckaroo_magento2_ideal';
-
     public const XPATH_SELECTION_TYPE   = 'selection_type';
     public const XPATH_SHOW_ISSUERS     = 'show_issuers';
     public const XPATH_GATEWAY_SETTINGS = 'gateway_settings';
     public const XPATH_SORTED_ISSUERS   = 'sorted_issuers';
-
+    /**
+     * @var IssuersService
+     */
+    protected IssuersService $issuersService;
     /**
      * @var array
      */
@@ -56,6 +51,7 @@ class Ideal extends AbstractConfigProvider
      * @param ScopeConfigInterface $scopeConfig
      * @param AllowedCurrencies $allowedCurrencies
      * @param PaymentFee $paymentFeeHelper
+     * @param LogoService $logoService
      * @param IssuersService $issuersService
      */
     public function __construct(
@@ -79,8 +75,6 @@ class Ideal extends AbstractConfigProvider
 
     /**
      * @inheritdoc
-     *
-     * @throws Exception
      */
     public function getConfig(): array
     {
@@ -89,24 +83,21 @@ class Ideal extends AbstractConfigProvider
         }
 
         return $this->fullConfig([
-            'banks'             => $this->formatIssuers(),
-            'selectionType'     => $this->getSelectionType(),
-            'showIssuers'       => $this->canShowIssuers(),
+            'banks'         => $this->formatIssuers(),
+            'selectionType' => $this->getSelectionType(),
+            'showIssuers'   => $this->canShowIssuers(),
         ]);
     }
 
     /**
-     * Retrieve the list of issuers.
+     * Selection type radio checkbox or drop down
      *
-     * @return array
+     * @param null|int|string $store
+     * @return mixed
      */
-    public function getIssuers()
+    public function getSelectionType($store = null)
     {
-        return array_map(function ($issuer) {
-            $issuer['logo'] = $this->issuersService->getImageUrlByIssuerId($issuer['id']);
-            return $issuer;
-        }, $this->issuersService->get());
-
+        return $this->getMethodConfigValue(self::XPATH_SELECTION_TYPE, $store);
     }
 
     /**
@@ -119,17 +110,6 @@ class Ideal extends AbstractConfigProvider
     public function canShowIssuers(string $storeId = null): bool
     {
         return $this->getMethodConfigValue(self::XPATH_SHOW_ISSUERS, $storeId) == 1;
-    }
-
-    /**
-     * Selection type radio checkbox or drop down
-     *
-     * @param null|int|string $store
-     * @return mixed
-     */
-    public function getSelectionType($store = null)
-    {
-        return $this->getMethodConfigValue(self::XPATH_SELECTION_TYPE, $store);
     }
 
     /**
@@ -176,5 +156,19 @@ class Ideal extends AbstractConfigProvider
         }
 
         return $issuersPrepared;
+    }
+
+    /**
+     * Retrieve the list of issuers.
+     *
+     * @return array
+     */
+    public function getIssuers()
+    {
+        return array_map(function ($issuer) {
+            $issuer['logo'] = $this->issuersService->getImageUrlByIssuerId($issuer['id']);
+            return $issuer;
+        }, $this->issuersService->get());
+
     }
 }

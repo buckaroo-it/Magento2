@@ -32,7 +32,6 @@ class SepaDirectDebit extends AbstractConfigProvider
     public const XPATH_SEPADIRECTDEBIT_CM3_DUE_DATE                = 'cm3_due_date';
     public const XPATH_SEPADIRECTDEBIT_PAYMENT_METHOD_AFTER_EXPIRY = 'payment_method_after_expiry';
 
-
     /**
      * Check if Credit Management is enabled
      *

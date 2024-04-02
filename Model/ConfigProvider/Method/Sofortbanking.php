@@ -21,8 +21,6 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use Buckaroo\Magento2\Exception;
-
 class Sofortbanking extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_sofortbanking';

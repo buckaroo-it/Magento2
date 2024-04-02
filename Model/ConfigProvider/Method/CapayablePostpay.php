@@ -41,7 +41,7 @@ class CapayablePostpay extends AbstractConfigProvider
     /**
      * @inheritdoc
      */
-    public function getConfig()
+    public function getConfig(): array
     {
         if (!$this->getActive()) {
             return [];

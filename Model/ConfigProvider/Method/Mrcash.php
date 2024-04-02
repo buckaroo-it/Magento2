@@ -22,14 +22,13 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Buckaroo\Magento2\Exception;
-use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\PaymentFee;
-use Magento\Framework\Data\Form\FormKey;
-use Buckaroo\Magento2\Service\LogoService;
-use Magento\Framework\View\Asset\Repository;
-use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\App\Config\ScopeConfigInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
+use Buckaroo\Magento2\Service\LogoService;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Data\Form\FormKey;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\View\Asset\Repository;
 
 class Mrcash extends AbstractConfigProvider
 {
@@ -49,6 +48,7 @@ class Mrcash extends AbstractConfigProvider
      * @param ScopeConfigInterface $scopeConfig
      * @param AllowedCurrencies $allowedCurrencies
      * @param PaymentFee $paymentFeeHelper
+     * @param LogoService $logoService
      * @param FormKey $formKey
      */
     public function __construct(
@@ -70,15 +70,15 @@ class Mrcash extends AbstractConfigProvider
      * @throws Exception
      * @throws LocalizedException
      */
-    public function getConfig()
+    public function getConfig(): array
     {
-       if (!$this->getActive()) {
+        if (!$this->getActive()) {
             return [];
         }
 
         return $this->fullConfig([
-            'useClientSide'     => (int)$this->useClientSide(),
-            'redirecturl'       => self::MRCASH_REDIRECT_URL . '?form_key=' . $this->getFormKey(),
+            'useClientSide' => (int)$this->useClientSide(),
+            'redirecturl'   => self::MRCASH_REDIRECT_URL . '?form_key=' . $this->getFormKey(),
         ]);
     }
 
