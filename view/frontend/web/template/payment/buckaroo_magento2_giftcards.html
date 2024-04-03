@@ -66,7 +66,7 @@
 
 <!-- ko ifnot: isGiftcardsRedirectMode() -->
 
-    <div class="buckaroo_magento2_all_giftcards" data-bind="foreach: { data: allgiftcards, as: 'giftcard', noChildContext: false }">
+    <div class="payment-method" data-bind="foreach: { data: allgiftcards, as: 'giftcard', noChildContext: false }">
     <div data-bind="attr: { 'class': 'buckaroo_magento2_all_giftcard payment-method buckaroo_magento2_' + code }, css: {'_active': ($parent.getCode() == $parent.isChecked() && $parent.getGiftcardType() == code)}">
 
     <div class="payment-method-title field choice bk-payment">
