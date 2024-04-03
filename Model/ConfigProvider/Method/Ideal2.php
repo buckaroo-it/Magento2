@@ -64,7 +64,7 @@ class Ideal2 extends AbstractConfigProvider
 
         $issuers = $this->formatIssuers();
         $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
-            \Buckaroo\Magento2\Model\Method\Ideal::PAYMENT_METHOD_CODE
+            \Buckaroo\Magento2\Model\Method\Ideal2::PAYMENT_METHOD_CODE
         );
 
         $selectionType = $this->scopeConfig->getValue(

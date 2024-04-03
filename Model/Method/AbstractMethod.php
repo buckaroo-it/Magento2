@@ -662,7 +662,12 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             return $title;
         }
 
-        $paymentFee = trim($this->configProviderMethodFactory->get($this->buckarooPaymentMethodCode)->getPaymentFee());
+        $configName = $this->buckarooPaymentMethodCode;
+        if (static::PAYMENT_METHOD_CODE === 'buckaroo_magento2_ideal2') {
+            $configName = 'ideal2';
+        }
+
+        $paymentFee = trim($this->configProviderMethodFactory->get($configName)->getPaymentFee());
         if (!$paymentFee || (float) $paymentFee < 0.01) {
             return $title;
         }
