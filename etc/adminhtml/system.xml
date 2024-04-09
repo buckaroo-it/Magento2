@@ -28,7 +28,7 @@
         <section id="buckaroo_magento2" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Buckaroo</label>
             <tab>sales</tab>
-            <resource>Sales_Buckaroo::configuration</resource>
+            <resource>Buckaroo_Magento2::configuration</resource>
             <class>buckaroo-section</class>
             <include path="Buckaroo_Magento2::system/support.xml"/>
             <include path="Buckaroo_Magento2::system/account.xml"/>
