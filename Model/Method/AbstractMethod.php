@@ -1244,9 +1244,9 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
                 Push::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES,
                 $buckarooTransactionKeysArray
             );
-//            $resource = $this->objectManager->get('Magento\Framework\App\ResourceConnection');
-//            $connection = $resource->getConnection();
-//            $connection->rollBack();
+            $resource = $this->objectManager->get('Magento\Framework\App\ResourceConnection');
+            $connection = $resource->getConnection();
+            $connection->rollBack();
 
             $payment->getOrder()->addStatusHistoryComment(
                 __("The refund has been initiated but it is waiting for a approval. Login to the Buckaroo Plaza to finalize the refund by approving it.")
