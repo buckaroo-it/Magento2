@@ -566,6 +566,7 @@
 }
 
 .buckaroo_magento2_all_giftcards, .buckaroo_magento2_all_creditcards{
+    width: 100%;
     border-top: 1px solid #ccc;
     border-bottom: 1px solid #ccc;
 }
