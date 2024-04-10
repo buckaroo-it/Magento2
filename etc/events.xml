@@ -20,10 +20,7 @@
  */
  -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
-    <event name="sales_order_payment_place_end">
-        <observer name="buckaroo_magento2_update_order_status" instance="Buckaroo\Magento2\Observer\UpdateOrderStatus" />
-        <observer name="buckaroo_magento2_send_order_confirmation" instance="Buckaroo\Magento2\Observer\SendOrderConfirmation" />
-    </event>
+
     <event name="sales_model_service_quote_submit_before">
         <observer name="buckaroo_magento2_fee_set" instance="Buckaroo\Magento2\Observer\SetBuckarooFee" />
         <observer name="buckaroo_magento2_set_existing_order_items" instance="Buckaroo\Magento2\Observer\SetExistingOrderItems" />
@@ -41,15 +38,29 @@
         <observer name="buckaroo_magento2_send_invoice_mail" instance="Buckaroo\Magento2\Observer\SendInvoiceMail" />
     </event>
 
-     <event name="controller_action_predispatch_sales_order_view">
-        <observer name="buckaroo_magento2_show_in_test_mode" instance="Buckaroo\Magento2\Observer\AddInTestModeMessage" />
+    <event name="sales_order_payment_place_end">
+        <observer name="buckaroo_magento2_update_order_status" instance="Buckaroo\Magento2\Observer\UpdateOrderStatus" />
+        <observer name="buckaroo_magento2_send_order_confirmation" instance="Buckaroo\Magento2\Observer\SendOrderConfirmation" />
     </event>
 
     <event name="sales_order_payment_cancel">
         <observer name="buckaroo_magento2_void_cm3_payment" instance="Buckaroo\Magento2\Observer\VoidCm3Payment" />
     </event>
+
+    <event name="sales_order_creditmemo_refund">
+        <observer name="change_creditmemo_status_to_pending" instance="Buckaroo\Magento2\Observer\PendingApprovalChangeCreditMemoStatus" />
+    </event>
+
+    <event name="sales_order_payment_transaction_html_txn_id">
+        <observer name="paypal_transaction_html" instance="Buckaroo\Magento2\Observer\HtmlTransactionIdObserver"/>
+    </event>
+
     <event name="sales_order_shipment_save_after">
         <observer name="buckaroo_magento2_shipment_save_after" instance="Buckaroo\Magento2\Observer\SalesOrderShipmentAfter" />
+    </event>
+
+     <event name="controller_action_predispatch_sales_order_view">
+        <observer name="buckaroo_magento2_show_in_test_mode" instance="Buckaroo\Magento2\Observer\AddInTestModeMessage" />
     </event>
 
     <event name="controller_action_predispatch_checkout_index_index">
@@ -58,10 +69,6 @@
 
     <event name="order_cancel_after">
         <observer name="buckaroo_magento2_order_cancel_after" instance="Buckaroo\Magento2\Observer\OrderCancelAfter" />
-    </event>
-
-    <event name="sales_order_payment_transaction_html_txn_id">
-        <observer name="paypal_transaction_html" instance="Buckaroo\Magento2\Observer\HtmlTransactionIdObserver"/>
     </event>
 
     <event name="payment_method_assign_data">

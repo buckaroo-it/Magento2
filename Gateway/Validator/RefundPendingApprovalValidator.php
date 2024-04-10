@@ -25,6 +25,7 @@ use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\Push\DefaultProcessor;
 use Buckaroo\Magento2\Model\Transaction\Status\Response;
+use Buckaroo\Magento2\Model\ConfigProvider\Refund as RefundConfigProvider;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;
@@ -38,15 +39,23 @@ class RefundPendingApprovalValidator extends AbstractValidator
     protected BuckarooLoggerInterface $logger;
 
     /**
+     * @var RefundConfigProvider
+     */
+    protected RefundConfigProvider $refundConfigProvider;
+
+    /**
      * @param BuckarooLoggerInterface $logger
      * @param ResultInterfaceFactory $resultFactory
+     * @param RefundConfigProvider $refundConfigProvider
      */
     public function __construct(
         BuckarooLoggerInterface $logger,
-        ResultInterfaceFactory $resultFactory
+        ResultInterfaceFactory $resultFactory,
+        RefundConfigProvider $refundConfigProvider
     ) {
         parent::__construct($resultFactory);
         $this->logger = $logger;
+        $this->refundConfigProvider = $refundConfigProvider;
     }
 
     /**
@@ -87,10 +96,20 @@ class RefundPendingApprovalValidator extends AbstractValidator
                 $transactionKeysArray
             );
 
+            if ($this->refundConfigProvider->getPendingApprovalSetting() == RefundConfigProvider::PENDING_REFUND_ON_APPROVE) {
+                $response = false;
+            } else {
+                $response = true;
+                $payment->setAdditionalInformation(
+                    RefundConfigProvider::ADDITIONAL_INFO_PENDING_REFUND_STATUS,
+                    $statusCode
+                );
+            }
+
             $payment->save();
 
             return $this->createResult(
-                false,
+                $response,
                 [__('Refund has been initiated, but it needs to be approved, so you need to wait for an approval')],
                 [$statusCode]
             );

@@ -119,6 +119,7 @@ class ResponseCodeSDKValidator extends AbstractValidator
         return in_array($statusCode, [
             Response::STATUSCODE_SUCCESS,
             Response::STATUSCODE_PENDING_PROCESSING,
+            Response::STATUSCODE_PENDING_APPROVAL,
             Response::STATUSCODE_WAITING_ON_USER_INPUT,
             Response::STATUSCODE_WAITING_ON_CONSUMER,
             Response::STATUSCODE_PAYMENT_ON_HOLD,
