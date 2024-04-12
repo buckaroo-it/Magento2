@@ -450,7 +450,6 @@ class Data extends AbstractHelper
             ['value' => 'sepadirectdebit',       'label' => __('SEPA direct debit')],
             ['value' => 'sofortbanking',       'label' => __('SOFORT')],
             ['value' => 'belfius',       'label' => __('Belfius')],
-            ['value' => 'tinka',       'label' => __('Tinka')],
             ['value' => 'transfer',       'label' => __('Bank Transfer')],
             ['value' => 'trustly',       'label' => __('Trustly')],
             ['value' => 'wechatpay',       'label' => __('WeChatPay')],
