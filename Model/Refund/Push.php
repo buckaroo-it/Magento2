@@ -362,7 +362,7 @@ class Push
         $refundedItems = $this->order->getPayment()->getAdditionalInformation(RefundConfigProvider::ADDITIONAL_INFO_PENDING_REFUND_ITEMS);
 
         if($refundedItems) {
-            $items = $refundedItems;
+            $items = json_decode($refundedItems, true);
         } else {
             foreach ($this->order->getAllItems() as $orderItem) {
                 if (!array_key_exists($orderItem->getId(), $items)) {
