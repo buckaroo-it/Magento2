@@ -95,12 +95,22 @@
                 </depends>
             </field>
 
-            <field id="retudn_label" translate="label comment tooltip" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+            <field id="refund_label" translate="label comment tooltip" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Refund label</label>
                 <comment><![CDATA[The refund description, shown in Buckaroo plaza and visible on bank account of consumers.]]></comment>
                 <tooltip><![CDATA[Available substitutions: <code>{order_number}</code>, <code>{shop_name}</code>, <code>{product_name}</code>(first product name)]]></tooltip>
                 <backend_model>Buckaroo\Magento2\Model\Config\Backend\TransactionLabel</backend_model>
                 <config_path>buckaroo_magento2/account/refund_label</config_path>
+                <depends>
+                    <field id="active">1</field>
+                </depends>
+            </field>
+
+            <field id="pending_approval" translate="label comment tooltip" type="select" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Create Refund on Approve for Pending Approval Refunds</label>
+                <comment><![CDATA[Yes - Create CreditMemo after approve from Plaza <br> No - Create CreditMemo on Request with status "Pending"]]></comment>
+                <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                <config_path>buckaroo_magento2/refund/pending_approval</config_path>
                 <depends>
                     <field id="active">1</field>
                 </depends>

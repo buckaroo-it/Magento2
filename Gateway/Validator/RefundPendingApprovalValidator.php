@@ -23,12 +23,15 @@ namespace Buckaroo\Magento2\Gateway\Validator;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
+use Buckaroo\Magento2\Model\ConfigProvider\Refund as RefundConfigProvider;
 use Buckaroo\Magento2\Model\Push\DefaultProcessor;
 use Buckaroo\Magento2\Model\Transaction\Status\Response;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Registry;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
+use Magento\Sales\Model\Order\Creditmemo;
 
 class RefundPendingApprovalValidator extends AbstractValidator
 {
@@ -38,15 +41,31 @@ class RefundPendingApprovalValidator extends AbstractValidator
     protected BuckarooLoggerInterface $logger;
 
     /**
+     * @var RefundConfigProvider
+     */
+    protected RefundConfigProvider $refundConfigProvider;
+
+    /**
+     * @var Registry
+     */
+    protected $registry;
+
+    /**
      * @param BuckarooLoggerInterface $logger
      * @param ResultInterfaceFactory $resultFactory
+     * @param RefundConfigProvider $refundConfigProvider
+     * @param Registry $registry
      */
     public function __construct(
         BuckarooLoggerInterface $logger,
-        ResultInterfaceFactory $resultFactory
+        ResultInterfaceFactory $resultFactory,
+        RefundConfigProvider $refundConfigProvider,
+        Registry $registry
     ) {
         parent::__construct($resultFactory);
         $this->logger = $logger;
+        $this->refundConfigProvider = $refundConfigProvider;
+        $this->registry = $registry;
     }
 
     /**
@@ -87,6 +106,23 @@ class RefundPendingApprovalValidator extends AbstractValidator
                 $transactionKeysArray
             );
 
+            if ($this->refundConfigProvider->getPendingApprovalSetting() == RefundConfigProvider::PENDING_REFUND_ON_APPROVE) {
+                $creditmemo = $this->getCreditmemo();
+                $creditmemoItems = $creditmemo->getAllItems();
+
+                $orderItemsRefunded = [];
+                foreach ($creditmemoItems as $creditmemoItem) {
+                    if($creditmemoItem->getPrice() > 0) {
+                        $orderItemsRefunded[$creditmemoItem->getOrderItemId()] = ['qty' => (int)$creditmemoItem->getQty()];
+                    }
+                }
+
+                $payment->setAdditionalInformation(
+                    RefundConfigProvider::ADDITIONAL_INFO_PENDING_REFUND_ITEMS,
+                    $orderItemsRefunded
+                );
+            }
+
             $payment->save();
 
             return $this->createResult(
@@ -97,5 +133,15 @@ class RefundPendingApprovalValidator extends AbstractValidator
         }
 
         return $this->createResult(true, [__('Transaction Success')], [$statusCode]);
+    }
+
+    /**
+     * Retrieve creditmemo model instance
+     *
+     * @return Creditmemo
+     */
+    public function getCreditmemo()
+    {
+        return $this->registry->registry('current_creditmemo');
     }
 }
