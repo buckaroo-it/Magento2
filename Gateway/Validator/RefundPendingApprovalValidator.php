@@ -26,6 +26,7 @@ use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Refund as RefundConfigProvider;
 use Buckaroo\Magento2\Model\Push\DefaultProcessor;
 use Buckaroo\Magento2\Model\Transaction\Status\Response;
+use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Registry;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
@@ -51,21 +52,29 @@ class RefundPendingApprovalValidator extends AbstractValidator
     protected $registry;
 
     /**
+     * @var ResourceConnection
+     */
+    private ResourceConnection $resourceConnection;
+
+    /**
      * @param BuckarooLoggerInterface $logger
      * @param ResultInterfaceFactory $resultFactory
      * @param RefundConfigProvider $refundConfigProvider
+     * @param ResourceConnection $resourceConnection
      * @param Registry $registry
      */
     public function __construct(
         BuckarooLoggerInterface $logger,
         ResultInterfaceFactory $resultFactory,
         RefundConfigProvider $refundConfigProvider,
+        ResourceConnection $resourceConnection,
         Registry $registry
     ) {
         parent::__construct($resultFactory);
         $this->logger = $logger;
         $this->refundConfigProvider = $refundConfigProvider;
         $this->registry = $registry;
+        $this->resourceConnection = $resourceConnection;
     }
 
     /**
@@ -79,7 +88,9 @@ class RefundPendingApprovalValidator extends AbstractValidator
      */
     public function validate(array $validationSubject): ResultInterface
     {
-        $payment = SubjectReader::readPayment($validationSubject)->getPayment();
+        $paymentDO = SubjectReader::readPayment($validationSubject);
+        $payment = $paymentDO->getPayment();
+        $order = $paymentDO->getOrder()->getOrder();
         $transactionResponse = SubjectReader::readTransactionResponse($validationSubject['response']);
         $statusCode = $transactionResponse->getStatusCode();
 
@@ -93,6 +104,8 @@ class RefundPendingApprovalValidator extends AbstractValidator
                 __METHOD__,
                 __LINE__,
             ));
+
+            $this->resourceConnection->getConnection()->rollBack();
 
             $transactionKeysArray = $payment->getAdditionalInformation(
                 DefaultProcessor::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES
@@ -122,6 +135,10 @@ class RefundPendingApprovalValidator extends AbstractValidator
                     $orderItemsRefunded
                 );
             }
+
+            $order->addStatusHistoryComment(
+                __("The refund has been initiated but it is waiting for a approval. Login to the Buckaroo Plaza to finalize the refund by approving it.")
+            )->setIsCustomerNotified(false)->save();
 
             $payment->save();
 
