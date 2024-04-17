@@ -93,7 +93,7 @@ class RefundProcessor extends DefaultProcessor
         $this->order = $this->orderRequestService->getOrderByRequest($pushRequest);
         $this->payment = $this->order->getPayment();
 
-        if (!$this->skipPendingRefundPush($pushRequest)) {
+        if ($this->skipPendingRefundPush($pushRequest)) {
             return true;
         }
 
