@@ -69,6 +69,14 @@ class CouponManagement
         return [$cartId, $couponCode];
     }
 
+    /**
+     * @param CouponManagementInterface $subject
+     * @param int $cartId
+     * @return array
+     * @throws CouldNotDeleteException
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function beforeRemove(CouponManagementInterface $subject, $cartId)
     {
         if ($this->isGroupTransaction($cartId)) {
