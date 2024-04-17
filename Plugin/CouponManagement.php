@@ -50,6 +50,15 @@ class CouponManagement
         $this->quoteRepository = $quoteRepository;
     }
 
+    /**
+     * @param CouponManagementInterface $subject
+     * @param int $cartId
+     * @param string $couponCode
+     * @return array
+     * @throws CouldNotSaveException
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function beforeSet(CouponManagementInterface $subject, $cartId, $couponCode)
     {
         if ($this->isGroupTransaction($cartId)) {
