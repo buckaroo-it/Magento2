@@ -51,6 +51,7 @@ class AfterpayHandler extends AbstractArticlesHandler
      * @param ConfigProviderMethodFactory $configProviderMethodFactory
      * @param PayReminderService $payReminderService
      * @param Image $imageHelper
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,

@@ -26,11 +26,25 @@ use Buckaroo\Magento2\Api\Data\BuckarooRestOrderDataInterfaceFactory;
 
 class RestOrderGroupTransactions
 {
+    /**
+     * @var BuckarooRestOrderDataInterfaceFactory
+     */
     private $dataFactory;
 
+    /**
+     * @param BuckarooRestOrderDataInterfaceFactory $dataFactory
+     */
     public function __construct(BuckarooRestOrderDataInterfaceFactory $dataFactory) {
         $this->dataFactory = $dataFactory;
     }
+
+    /**
+     * @param OrderRepositoryInterface $subject
+     * @param OrderInterface $entity
+     * @return OrderInterface
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function afterGet(
         OrderRepositoryInterface $subject,
         OrderInterface $entity
