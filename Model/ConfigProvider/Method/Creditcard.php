@@ -204,7 +204,7 @@ class Creditcard extends AbstractConfigProvider
     }
 
     /**
-     * Get card name by card type
+     * Get card name by card code
      *
      * @param string $cardType
      * @return string
@@ -213,9 +213,7 @@ class Creditcard extends AbstractConfigProvider
      */
     public function getCardName($cardType)
     {
-        $config = $this->getConfig();
-
-        foreach ($config['payment']['buckaroo']['creditcard']['cards'] as $card) {
+        foreach ($this->getIssuers() as $card) {
             if ($card['code'] == $cardType) {
                 return $card['name'];
             }
@@ -225,23 +223,22 @@ class Creditcard extends AbstractConfigProvider
     }
 
     /**
-     * Get card code by card type
+     * Get card code by card name
      *
-     * @param string $cardType
+     * @param string $cardName
      * @return string
      *
      * @throws \InvalidArgumentException
      */
-    public function getCardCode($cardType)
+    public function getCardCode($cardName)
     {
-        $config = $this->getConfig();
-        foreach ($config['payment']['buckaroo']['creditcard']['cards'] as $card) {
-            if ($card['name'] == $cardType) {
+        foreach ($this->getIssuers() as $card) {
+            if ($card['name'] == $cardName) {
                 return $card['code'];
             }
         }
 
-        throw new \InvalidArgumentException("No card found for card type: {$cardType}");
+        throw new \InvalidArgumentException("No card found for card name: {$cardName}");
     }
 
     /**
