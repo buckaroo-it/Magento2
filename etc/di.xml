@@ -22,6 +22,7 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
     <preference for="Buckaroo\Magento2\Gateway\GatewayInterface" type="Buckaroo\Magento2\Gateway\Http\Bpe3"/>
     <preference for="Buckaroo\Magento2\Api\CertificateRepositoryInterface" type="Buckaroo\Magento2\Model\CertificateRepository"/>
+    <preference for="Buckaroo\Magento2\Api\Data\BuckarooRestOrderDataInterface" type="Buckaroo\Magento2\Model\BuckarooRestOrderData"/>
     <preference for="Buckaroo\Magento2\Api\InvoiceRepositoryInterface" type="Buckaroo\Magento2\Model\InvoiceRepository"/>
     <preference for="Buckaroo\Magento2\Api\GiftcardRepositoryInterface" type="Buckaroo\Magento2\Model\GiftcardRepository"/>
     <preference for="Buckaroo\Magento2\Api\GroupTransactionRepositoryInterface" type="Buckaroo\Magento2\Model\GroupTransactionRepository"/>
@@ -87,9 +88,15 @@
             <argument name="logger2" xsi:type="object">Buckaroo\Magento2\Logging\Log</argument>
         </arguments>
     </type>
+
     <type name="Magento\Checkout\Controller\Onepage\Success">
         <plugin name="buckaroo_magento2_checkout_success" type="Buckaroo\Magento2\Plugin\Onepage\Success" />
     </type>
+
+    <type name="Magento\Sales\Api\OrderRepositoryInterface">
+        <plugin name="buckaroo_magento2_rest_order_data" type="Buckaroo\Magento2\Plugin\RestOrderGroupTransactions" />
+    </type>
+
     <type name="Buckaroo\Magento2\Model\Method\Paypal">
         <plugin name="buckaroo_magento2_paypal_sellersprotection_order" type="Buckaroo\Magento2\Model\Service\Plugin\PaypalSellersProtection\Order" />
     </type>
@@ -358,10 +365,6 @@
                     <item name="type" xsi:type="string">pospayment</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Pospayment</item>
                 </item>
-                <item name="tinka" xsi:type="array">
-                    <item name="type" xsi:type="string">tinka</item>
-                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Tinka</item>
-                </item>
                 <item name="voucher" xsi:type="array">
                     <item name="type" xsi:type="string">voucher</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Voucher</item>
@@ -475,6 +478,10 @@
     </type>
 
     <type name="Buckaroo\Magento2\Model\RefundFieldsFactory">
+    </type>
+
+    <type name="Magento\Quote\Api\CouponManagementInterface">
+        <plugin name="buckaroo_magento2_coupon_managment" type="Buckaroo\Magento2\Plugin\CouponManagement" />
     </type>
 
     <type name="Magento\Quote\Model\Cart\CartTotalRepository">

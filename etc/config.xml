@@ -94,7 +94,7 @@
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
-                <payment_method_after_expiry>amex,bancontactmrcash,cartebancaire,cartebleuevisa,nexi,postepay,dankort,eps,giftcard,giropay,ideal,mastercard,paypal,sofortueberweisung,transfer,visa,maestro,visaelectron,vpay,alipay,wechatpay,p24,trustly,tinka,belfius</payment_method_after_expiry>
+                <payment_method_after_expiry>amex,bancontactmrcash,cartebancaire,cartebleuevisa,nexi,postepay,dankort,eps,giftcard,giropay,ideal,mastercard,paypal,sofortueberweisung,transfer,visa,maestro,visaelectron,vpay,alipay,wechatpay,p24,trustly,belfius</payment_method_after_expiry>
             </buckaroo_magento2_sepadirectdebit>
 
             <buckaroo_magento2_paypal>
@@ -181,7 +181,7 @@
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>1</available_in_backend>
-                <payment_method_after_expiry>amex,bancontactmrcash,cartebancaire,cartebleuevisa,nexi,postepay,dankort,eps,giftcard,giropay,ideal,mastercard,paypal,sofortueberweisung,transfer,visa,maestro,visaelectron,vpay,alipay,wechatpay,p24,trustly,tinka,belfius</payment_method_after_expiry>
+                <payment_method_after_expiry>amex,bancontactmrcash,cartebancaire,cartebleuevisa,nexi,postepay,dankort,eps,giftcard,giropay,ideal,mastercard,paypal,sofortueberweisung,transfer,visa,maestro,visaelectron,vpay,alipay,wechatpay,p24,trustly,belfius</payment_method_after_expiry>
             </buckaroo_magento2_transfer>
 
             <buckaroo_magento2_giropay>
@@ -289,8 +289,8 @@
                 <can_capture_partial>1</can_capture_partial>
                 <available_in_backend>1</available_in_backend>
                 <send_mail>1</send_mail>
-                <payment_method>amex,bancontactmrcash,cartebancaire,cartebleuevisa,nexi,postepay,dankort,eps,sepadirectdebit,giftcard,giropay,ideal,mastercard,paypal,sofortueberweisung,transfer,visa,maestro,visaelectron,vpay,alipay,wechatpay,p24,trustly,tinka,belfius</payment_method>
-                <payment_method_after_expiry>amex,bancontactmrcash,cartebancaire,cartebleuevisa,nexi,postepay,dankort,eps,giftcard,giropay,ideal,mastercard,paypal,sofortueberweisung,transfer,visa,maestro,visaelectron,vpay,alipay,wechatpay,p24,trustly,tinka,belfius</payment_method_after_expiry>
+                <payment_method>amex,bancontactmrcash,cartebancaire,cartebleuevisa,nexi,postepay,dankort,eps,sepadirectdebit,giftcard,giropay,ideal,mastercard,paypal,sofortueberweisung,transfer,visa,maestro,visaelectron,vpay,alipay,wechatpay,p24,trustly,belfius</payment_method>
+                <payment_method_after_expiry>amex,bancontactmrcash,cartebancaire,cartebleuevisa,nexi,postepay,dankort,eps,giftcard,giropay,ideal,mastercard,paypal,sofortueberweisung,transfer,visa,maestro,visaelectron,vpay,alipay,wechatpay,p24,trustly,belfius</payment_method_after_expiry>
                 <expire_days>7</expire_days>
                 <cron_cancel_ppe>1</cron_cancel_ppe>
             </buckaroo_magento2_payperemail>
@@ -579,21 +579,6 @@
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
             </buckaroo_magento2_pospayment>
-
-            <buckaroo_magento2_tinka>
-                <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Tinka</model>
-                <order_status>pending</order_status>
-                <title>Buckaroo Tinka</title>
-                <allowspecific>0</allowspecific>
-                <sort_order>320</sort_order>
-                <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
-                <group>buckaroo_magento2</group>
-                <payment_action>order</payment_action>
-                <financial_warning>1</financial_warning>
-                <available_in_backend>0</available_in_backend>
-            </buckaroo_magento2_tinka>
 
             <buckaroo_magento2_voucher>
                 <active>0</active>

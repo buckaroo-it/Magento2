@@ -42,8 +42,6 @@ class CapayableIn3 extends AbstractConfigProvider
     const XPATH_CAPAYABLEIN3_AVAILABLE_IN_BACKEND = 'payment/buckaroo_magento2_capayablein3/available_in_backend';
 
     const XPATH_CAPAYABLEIN3_API_VERSION = 'payment/buckaroo_magento2_capayablein3/api_version';
-    const XPATH_CAPAYABLEIN3_PAYMENT_LOGO = 'payment/buckaroo_magento2_capayablein3/payment_logo';
-
 
     const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_capayablein3/allowed_currencies';
     const XPATH_ALLOW_SPECIFIC     = 'payment/buckaroo_magento2_capayablein3/allowspecific';
@@ -118,20 +116,10 @@ class CapayableIn3 extends AbstractConfigProvider
 
     public function getLogo($storeId = null): string
     {
-        $logo = $this->scopeConfig->getValue(
-            self::XPATH_CAPAYABLEIN3_PAYMENT_LOGO,
-            ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
-
         if ($this->isV2($storeId)) {
             return 'in3.svg';
         }
+        return 'ideal-in3.svg';
 
-        if (!is_string($logo)) {
-            return 'ideal-in3.svg';
-        }
-
-        return $logo;
     }
 }
