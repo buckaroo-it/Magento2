@@ -75,17 +75,18 @@ class CartManagement
             $quote->getReservedOrderId() !== null &&
             $this->isBuckarooPayment($quote)
         ) {
-            $orderIncrementID = $quote->getReservedOrderId();
-            $lockAcquired = $this->lockManager->lockOrder($orderIncrementID, 5);
+            try {
+                $orderIncrementID = $quote->getReservedOrderId();
+                $lockAcquired = $this->lockManager->lockOrder($orderIncrementID, 5);
 
-            if (!$lockAcquired) {
-                throw new CouldNotSaveException(__("Cannot lock payment process"));
-                
+                if (!$lockAcquired) {
+                    throw new CouldNotSaveException(__("Cannot lock payment process"));
+
+                }
+                return $proceed($cartId, $paymentMethod);
+            } finally {
+                $this->lockManager->unlockOrder($orderIncrementID);
             }
-            $response = $proceed($cartId, $paymentMethod);
-
-            $this->lockManager->unlockOrder($orderIncrementID);
-            return $response;
         }
 
         return $proceed($cartId, $paymentMethod);
