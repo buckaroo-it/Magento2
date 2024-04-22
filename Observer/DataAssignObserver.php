@@ -53,7 +53,7 @@ class DataAssignObserver extends AbstractDataAssignObserver
     public const CUSTOMER_COMPANYNAME          = 'customer_companyName';
     public const CARD_TYPE                     = 'card_type';
     public const CUSTOMER_ENCRYPTEDDATA        = 'customer_encrypteddata';
-    public const CUSTOMER_CREDITCARDCOMPANY    = 'card_type';
+    public const CUSTOMER_CREDITCARDCOMPANY    = 'customer_creditcardcompany';
     public const GIFTCARD_METHOD               = 'giftcard_method';
     public const CUSTOMER_BIC                  = 'customer_bic';
     public const CLIENT_SIDE_MODE              = 'client_side_mode';
