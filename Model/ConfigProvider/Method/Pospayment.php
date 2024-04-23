@@ -35,31 +35,6 @@ class Pospayment extends AbstractConfigProvider
     ];
 
     /**
-     * @inheritdoc
-     */
-    public function getConfig()
-    {
-        if (!$this->getActive()) {
-            return [];
-        }
-
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'pospayment' => [
-                        'paymentFeeLabel'   => $this->getBuckarooPaymentFeeLabel(),
-                        'subtext'           => $this->getSubtext(),
-                        'subtext_style'     => $this->getSubtextStyle(),
-                        'subtext_color'     => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'isTestMode'        => $this->isTestMode()
-                    ]
-                ]
-            ]
-        ];
-    }
-
-    /**
      * Get Other payment methods for POS
      *
      * @param $store

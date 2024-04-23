@@ -21,14 +21,15 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use Buckaroo\Magento2\Gateway\Request\SaveIssuerDataBuilder;
+use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\PaymentFee;
+use Buckaroo\Magento2\Service\LogoService;
+use Magento\Framework\View\Asset\Repository;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
-use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\View\Asset\Repository;
-use Magento\Store\Model\ScopeInterface;
+use Buckaroo\Magento2\Gateway\Request\SaveIssuerDataBuilder;
+use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 
 class PayByBank extends AbstractConfigProvider
 {
@@ -97,6 +98,7 @@ class PayByBank extends AbstractConfigProvider
      * @param ScopeConfigInterface $scopeConfig
      * @param AllowedCurrencies $allowedCurrencies
      * @param PaymentFee $paymentFeeHelper
+     * @param LogoService $logoService
      * @param CustomerSession $customerSession
      */
     public function __construct(
@@ -104,9 +106,10 @@ class PayByBank extends AbstractConfigProvider
         ScopeConfigInterface $scopeConfig,
         AllowedCurrencies $allowedCurrencies,
         PaymentFee $paymentFeeHelper,
+        LogoService $logoService,
         CustomerSession $customerSession
     ) {
-        parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper);
+        parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper, $logoService);
         $this->customerSession = $customerSession;
     }
 
@@ -124,21 +127,10 @@ class PayByBank extends AbstractConfigProvider
             ScopeInterface::SCOPE_STORE
         );
 
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'paybybank' => [
-                        'banks'             => $this->getIssuersWithSelected(),
-                        'subtext'           => $this->getSubtext(),
-                        'subtext_style'     => $this->getSubtextStyle(),
-                        'subtext_color'     => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'selectionType'     => $selectionType,
-                        'isTestMode'        => $this->isTestMode()
-                    ],
-                ],
-            ],
-        ];
+        return $this->fullConfig([
+            'banks'             => $this->getIssuersWithSelected(),
+            'selectionType'     => $selectionType,
+        ]);
     }
 
     /**

@@ -35,7 +35,7 @@ class PreventMergeQuoteObserver implements \Magento\Framework\Event\ObserverInte
      * @param PaymentGroupTransaction $groupTransaction
      */
     public function __construct(
-        PaymentGroupTransaction $groupTransaction,
+        PaymentGroupTransaction $groupTransaction
     ) {
         $this->groupTransaction = $groupTransaction;
     }
@@ -59,8 +59,7 @@ class PreventMergeQuoteObserver implements \Magento\Framework\Event\ObserverInte
     private function removeAllItems($quote): void
     {
         $items = $quote->getItemsCollection();
-        foreach ($items as $item)
-        {
+        foreach ($items as $item) {
             $quote->removeItem($item->getId());
         }
     }

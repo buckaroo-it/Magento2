@@ -23,25 +23,4 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 class Knaken extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_knaken';
-
-    /**
-     * @return array|void
-     */
-    public function getConfig()
-    {
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'knaken' => [
-                        'paymentFeeLabel'   => $this->getBuckarooPaymentFeeLabel(),
-                        'subtext'           => $this->getSubtext(),
-                        'subtext_style'     => $this->getSubtextStyle(),
-                        'subtext_color'     => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'isTestMode'        => $this->isTestMode()
-                    ],
-                ],
-            ],
-        ];
-    }
 }

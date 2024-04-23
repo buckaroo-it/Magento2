@@ -114,30 +114,16 @@ class Creditcard extends AbstractConfigProvider
      */
     public function getConfig(): array
     {
-        $issuers = $this->formatIssuers();
+        if (!$this->getActive()) {
+            return [];
+        }
 
-        $selectionType = $this->getSelectionType();
-
-        $paymentFlow = $this->getMethodConfigValue(self::XPATH_PAYMENT_FLOW);
-
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'creditcard' => [
-                        'cards'             => $issuers,
-                        'groupCreditcards'  => $this->isGroupCreditcards(),
-                        'paymentFeeLabel'   => $this->getBuckarooPaymentFeeLabel(),
-                        'subtext'           => $this->getSubtext(),
-                        'subtext_style'     => $this->getSubtextStyle(),
-                        'subtext_color'     => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'selectionType'     => $selectionType,
-                        'paymentFlow'       => $paymentFlow,
-                        'isTestMode'        => $this->isTestMode()
-                    ],
-                ],
-            ],
-        ];
+        return $this->fullConfig([
+            'cards'             => $this->formatIssuers(),
+            'groupCreditcards'  => $this->isGroupCreditcards(),
+            'selectionType'     => $this->getSelectionType(),
+            'paymentFlow'       => $this->getPaymentFlow(),
+        ]);
     }
 
     public function getIssuers(): array
@@ -180,14 +166,12 @@ class Creditcard extends AbstractConfigProvider
         }
 
         foreach ($this->getIssuers() as $item) {
-            $item['sort'] = isset($sorted_array[$item['code']]) ?
-                $sorted_array[$item['code']] : self::DEFAULT_SORT_VALUE;
+            $item['sort'] = $sorted_array[$item['code']] ?? self::DEFAULT_SORT_VALUE;
             $item['img'] = $this->getImageUrl($item['code']);
             $allCreditcard[$item['code']] = $item;
         }
 
         $allowed = explode(',', (string)$this->getAllowedCreditcards());
-
         $cards = [];
         foreach ($allowed as $value) {
             if (isset($allCreditcard[$value])) {
@@ -220,7 +204,7 @@ class Creditcard extends AbstractConfigProvider
     }
 
     /**
-     * Get card name by card type
+     * Get card name by card code
      *
      * @param string $cardType
      * @return string
@@ -229,9 +213,7 @@ class Creditcard extends AbstractConfigProvider
      */
     public function getCardName($cardType)
     {
-        $config = $this->getConfig();
-
-        foreach ($config['payment']['buckaroo']['creditcard']['cards'] as $card) {
+        foreach ($this->getIssuers() as $card) {
             if ($card['code'] == $cardType) {
                 return $card['name'];
             }
@@ -241,23 +223,22 @@ class Creditcard extends AbstractConfigProvider
     }
 
     /**
-     * Get card code by card type
+     * Get card code by card name
      *
-     * @param string $cardType
+     * @param string $cardName
      * @return string
      *
      * @throws \InvalidArgumentException
      */
-    public function getCardCode($cardType)
+    public function getCardCode($cardName)
     {
-        $config = $this->getConfig();
-        foreach ($config['payment']['buckaroo']['creditcard']['cards'] as $card) {
-            if ($card['name'] == $cardType) {
+        foreach ($this->getIssuers() as $card) {
+            if ($card['name'] == $cardName) {
                 return $card['code'];
             }
         }
 
-        throw new \InvalidArgumentException("No card found for card type: {$cardType}");
+        throw new \InvalidArgumentException("No card found for card name: {$cardName}");
     }
 
     /**
@@ -291,6 +272,17 @@ class Creditcard extends AbstractConfigProvider
     public function getSelectionType($store = null)
     {
         return $this->getMethodConfigValue(self::XPATH_SELECTION_TYPE, $store);
+    }
+
+    /**
+     * Get Payment Flow - Order vs Authorize/Capture
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getPaymentFlow($store = null)
+    {
+        return $this->getMethodConfigValue(self::XPATH_PAYMENT_FLOW, $store);
     }
 
     /**

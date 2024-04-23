@@ -173,12 +173,13 @@ class Giftcard
             $this->quote->setOrigOrderId($order->getEntityId());
         }
 
+        $orderId = $order ? $order->getEntityId() : null;
         $this->logger->addDebug(sprintf(
             '[Giftcard] | [Response] | [%s:%s] - Create Order From Quote | QuoteId: %s - OrderId: %s',
             __METHOD__,
             __LINE__,
             $this->quote->getId(),
-            $order->getEntityId()
+            $orderId
         ));
 
         $this->quote->setIsActive(true);

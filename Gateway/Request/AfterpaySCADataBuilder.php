@@ -19,41 +19,48 @@
  */
 declare(strict_types=1);
 
-namespace Buckaroo\Magento2\Gateway\Request\AdditionalInformation;
+namespace Buckaroo\Magento2\Gateway\Request;
 
-use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 
-class CreditcardEncryptedDataBuilder implements BuilderInterface
+class AfterpaySCADataBuilder implements BuilderInterface
 {
+    public const BUCKAROO_SERVICE_VERSION_KEY = 'buckaroo_service_version';
+
+    /**
+     * @var Afterpay20
+     */
+    private Afterpay20 $configAfterpay;
+
+    /**
+     * @param Afterpay20 $configAfterpay
+     */
+    public function __construct(Afterpay20 $configAfterpay)
+    {
+        $this->configAfterpay = $configAfterpay;
+    }
+
     /**
      * @inheritdoc
-     *
-     * @throws Exception
      */
     public function build(array $buildSubject): array
     {
         $paymentDO = SubjectReader::readPayment($buildSubject);
         $payment = $paymentDO->getPayment();
 
-        $additionalInformation = $payment->getAdditionalInformation();
+        $serviceVersion = $payment->getAdditionalInformation(self::BUCKAROO_SERVICE_VERSION_KEY);
 
-        if (!isset($additionalInformation['customer_encrypteddata'])) {
-            throw new Exception(__(
-                'An error occured trying to send the encrypted creditcard data to Buckaroo.'
-            ));
+        if (!empty($serviceVersion)) {
+            return ['serviceVersion' => $serviceVersion];
         }
 
-        if (!isset($additionalInformation['customer_creditcardcompany'])) {
-            throw new Exception(__(
-                'An error occured trying to send the creditcard company data to Buckaroo.'
-            ));
+        if ($this->configAfterpay->isEnabledSCA($paymentDO->getOrder()->getStoreId())) {
+            $payment->setAdditionalInformation(self::BUCKAROO_SERVICE_VERSION_KEY, 2);
+            return ['serviceVersion' => 2];
         }
 
-        return [
-            'name' => $additionalInformation['customer_creditcardcompany'],
-            'encryptedCardData' => $additionalInformation['customer_encrypteddata']
-        ];
+        return [];
     }
 }

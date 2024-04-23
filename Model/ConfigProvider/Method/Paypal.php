@@ -23,8 +23,6 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use Buckaroo\Magento2\Exception;
-
 class Paypal extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_paypal';
@@ -39,29 +37,6 @@ class Paypal extends AbstractConfigProvider
     public const EXPRESS_MERCHANT_ID       = 'express_merchant_id';
     public const EXPRESS_BUTTON_COLOR      = 'express_button_color';
     public const EXPRESS_BUTTON_IS_ROUNDED = 'express_button_rounded';
-
-    /**
-     * @inheritdoc
-     *
-     * @throws Exception
-     */
-    public function getConfig(): array
-    {
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'paypal' => [
-                        'paymentFeeLabel'   => $this->getBuckarooPaymentFeeLabel(),
-                        'subtext'           => $this->getSubtext(),
-                        'subtext_style'     => $this->getSubtextStyle(),
-                        'subtext_color'     => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'isTestMode'        => $this->isTestMode()
-                    ],
-                ],
-            ],
-        ];
-    }
 
     /**
      * Get Sellers Protection
@@ -119,17 +94,6 @@ class Paypal extends AbstractConfigProvider
     }
 
     /**
-     * Enable or disable Paypal express buttons
-     *
-     * @param null|int|string $store
-     * @return mixed
-     */
-    public function getExpressButtons($store = null)
-    {
-        return $this->getMethodConfigValue(self::EXPRESS_BUTTONS, $store);
-    }
-
-    /**
      * Get PayPal merchant ID
      *
      * @param null|int|string $store
@@ -179,5 +143,16 @@ class Paypal extends AbstractConfigProvider
 
         $pages = explode(",", $buttons);
         return in_array($page, $pages);
+    }
+
+    /**
+     * Enable or disable Paypal express buttons
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getExpressButtons($store = null)
+    {
+        return $this->getMethodConfigValue(self::EXPRESS_BUTTONS, $store);
     }
 }

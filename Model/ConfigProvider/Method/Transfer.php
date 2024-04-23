@@ -26,8 +26,8 @@ class Transfer extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_transfer';
 
-    public const XPATH_TRANSFER_DUE_DATE                    = 'due_date';
-    
+    public const XPATH_TRANSFER_DUE_DATE = 'due_date';
+
     public const XPATH_TRANSFER_ACTIVE_STATUS_CM3           = 'active_status_cm3';
     public const XPATH_TRANSFER_SCHEME_KEY                  = 'scheme_key';
     public const XPATH_TRANSFER_MAX_STEP_INDEX              = 'max_step_index';
@@ -45,21 +45,9 @@ class Transfer extends AbstractConfigProvider
             return [];
         }
 
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'transfer' => [
-                        'sendEmail'         => $this->hasOrderEmail(),
-                        'paymentFeeLabel'   => $this->getBuckarooPaymentFeeLabel(),
-                        'subtext'           => $this->getSubtext(),
-                        'subtext_style'     => $this->getSubtextStyle(),
-                        'subtext_color'     => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'isTestMode'        => $this->isTestMode()
-                    ]
-                ]
-            ]
-        ];
+        return $this->fullConfig([
+            'sendEmail' => $this->hasOrderEmail(),
+        ]);
     }
 
     /**

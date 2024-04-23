@@ -55,7 +55,6 @@ class DefaultTitles
         'p24'              => 'Przelewy24',
         'trustly'          => 'Trustly',
         'pospayment'       => 'PosPay',
-        'tinka'            => 'Tinka',
         'paybybank'        => 'PayByBank'
     ];
 
