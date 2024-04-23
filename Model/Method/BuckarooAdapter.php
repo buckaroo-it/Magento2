@@ -30,7 +30,6 @@ use Magento\Quote\Api\Data\CartInterface;
 use Magento\Framework\Pricing\Helper\Data;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Event\ManagerInterface;
-use Magento\Framework\ObjectManagerInterface;
 use Buckaroo\Magento2\Api\PushRequestInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
@@ -78,11 +77,6 @@ class BuckarooAdapter extends Adapter
     public Data $priceHelper;
 
     /**
-     * @var ObjectManagerInterface
-     */
-    protected ObjectManagerInterface $objectManager;
-
-    /**
      * @var RequestInterface|null
      */
     protected ?RequestInterface $request;
@@ -98,7 +92,6 @@ class BuckarooAdapter extends Adapter
      * @param string $code
      * @param string $formBlockType
      * @param string $infoBlockType
-     * @param ObjectManagerInterface $objectManager
      * @param Factory $configProviderMethodFactory
      * @param Data $priceHelper
      * @param RequestInterface|null $request
@@ -117,7 +110,6 @@ class BuckarooAdapter extends Adapter
         $code,
         $formBlockType,
         $infoBlockType,
-        ObjectManagerInterface $objectManager,
         Factory $configProviderMethodFactory,
         Data $priceHelper,
         RequestInterface $request = null,
@@ -141,7 +133,6 @@ class BuckarooAdapter extends Adapter
         );
 
         $this->buckarooPaymentMethodCode = $this->setBuckarooPaymentMethodCode();
-        $this->objectManager = $objectManager;
         $this->request = $request;
         $this->usesRedirect = $usesRedirect;
         $this->configProviderMethodFactory = $configProviderMethodFactory;
@@ -267,6 +258,8 @@ class BuckarooAdapter extends Adapter
      *
      * @return string
      * @throws BuckarooException
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function getTitle(): string
     {

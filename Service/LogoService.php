@@ -1,5 +1,4 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
@@ -23,6 +22,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Service;
 
+use Magento\Framework\UrlInterface;
 use Magento\Framework\View\Asset\Repository;
 
 class LogoService
@@ -33,40 +33,51 @@ class LogoService
     protected Repository $assetRepo;
 
     /**
-     * @param Repository $assetRepo
+     * @var UrlInterface
      */
-    public function __construct(Repository $assetRepo)
-    {
+    protected UrlInterface $baseUrl;
+
+    /**
+     * @param Repository $assetRepo
+     * @param UrlInterface $baseUrl
+     */
+    public function __construct(
+        Repository $assetRepo,
+        UrlInterface $baseUrl
+    ) {
         $this->assetRepo = $assetRepo;
+        $this->baseUrl = $baseUrl;
     }
 
     /**
      * Get payment method logo
      *
      * @param string $paymentCode
+     * @param bool $backend
      * @return string
      */
     public function getPayment(string $paymentCode, bool $backend = false): string
     {
         $mappings = [
-            "afterpay2" => "svg/afterpay.svg",
-            "afterpay20" => "svg/afterpay.svg",
-            "capayablein3" => "svg/in3.svg",
-            "capayablepostpay" => "svg/in3.svg",
-            "creditcard" => "svg/creditcards.svg",
-            "creditcards" => "svg/creditcards.svg",
-            "giftcards" => "svg/giftcards.svg",
-            "ideal" => "svg/ideal.svg",
-            "klarnain" => "svg/klarna.svg",
-            "klarnakp" => "svg/klarna.svg",
-            "mrcash" => "svg/bancontact.svg",
-            "p24" => "svg/przelewy24.svg",
-            "sepadirectdebit" => "svg/sepa-directdebit.svg",
-            "sofortbanking" => "svg/sofort.svg",
-            "pospayment" => "svg/pos.svg",
-            "transfer" => "svg/sepa-credittransfer.svg",
-            "buckaroovoucher" => "svg/vouchers.svg",
-            "paybybank" => "paybybank.gif"
+            "afterpay2"        => "svg/afterpay.svg",
+            "afterpay20"       => "svg/afterpay.svg",
+            "capayablein3"     => "svg/ideal-in3.svg",
+            "capayablepostpay" => "svg/ideal-in3.svg",
+            "creditcard"       => "svg/creditcards.svg",
+            "creditcards"      => "svg/creditcards.svg",
+            "giftcards"        => "svg/giftcards.svg",
+            "ideal"            => "svg/ideal.svg",
+            "klarnain"         => "svg/klarna.svg",
+            "klarnakp"         => "svg/klarna.svg",
+            "mrcash"           => "svg/bancontact.svg",
+            "p24"              => "svg/przelewy24.svg",
+            "sepadirectdebit"  => "svg/sepa-directdebit.svg",
+            "sofortbanking"    => "svg/sofort.svg",
+            "pospayment"       => "svg/pos.svg",
+            "transfer"         => "svg/sepa-credittransfer.svg",
+            "buckaroovoucher"  => "svg/vouchers.svg",
+            "voucher"          => "svg/vouchers.svg",
+            "paybybank"        => "paybybank.gif"
         ];
 
         if ($backend === true) {
@@ -84,29 +95,50 @@ class LogoService
         return $this->assetRepo->getUrl("Buckaroo_Magento2::images/{$name}");
     }
 
+    public function getLogoUrl(string $path): string
+    {
+        return $this->assetRepo->getUrl("Buckaroo_Magento2::{$path}");
+    }
+
+    public function getGiftcardLogo(array $giftcard): string
+    {
+        if (
+            isset($giftcard['logo']) &&
+            is_string($giftcard['logo']) &&
+            strlen(trim($giftcard['logo']))
+        ) {
+            return $this->baseUrl->getDirectUrl(
+                $giftcard['logo'],
+                ['_type' => UrlInterface::URL_TYPE_MEDIA]
+            );
+        }
+
+        return $this->getGiftcardLogoDefaults($giftcard['code']);
+    }
+
     /**
      * Get gift card logo url by code
      *
      * @param string $code
      * @return string
      */
-    public function getGiftcard(string $code): string
+    public function getGiftcardLogoDefaults(string $code): string
     {
         $name = "svg/giftcards.svg";
 
         $mappings = [
-            "ajaxgiftcard" => "ajaxgiftcard",
-            "boekenbon" => "boekenbon",
-            "cjpbetalen" => "cjp",
-            "digitalebioscoopbon" => "nationaletuinbon",
-            "fashioncheque" => "fashioncheque",
-            "fashionucadeaukaart" => "fashiongiftcard",
-            "nationaletuinbon" => "nationalebioscoopbon",
+            "ajaxgiftcard"               => "ajaxgiftcard",
+            "boekenbon"                  => "boekenbon",
+            "cjpbetalen"                 => "cjp",
+            "digitalebioscoopbon"        => "nationaletuinbon",
+            "fashioncheque"              => "fashioncheque",
+            "fashionucadeaukaart"        => "fashiongiftcard",
+            "nationaletuinbon"           => "nationalebioscoopbon",
             "nationaleentertainmentcard" => "nationaleentertainmentcard",
-            "podiumcadeaukaart" => "podiumcadeaukaart",
-            "sportfitcadeau" => "sport-fitcadeau",
-            "vvvgiftcard" => "vvvgiftcard",
-            "buckaroovoucher" => "vouchers"
+            "podiumcadeaukaart"          => "podiumcadeaukaart",
+            "sportfitcadeau"             => "sport-fitcadeau",
+            "vvvgiftcard"                => "vvvgiftcard",
+            "buckaroovoucher"            => "vouchers"
         ];
 
         if (isset($mappings[$code])) {

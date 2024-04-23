@@ -132,19 +132,22 @@ class RefundProcessor extends DefaultProcessor
             return false;
         }
 
-        // Is the refund in pending approval than skip it
+        // Skip Refund Pending Approval with status Pending Approval
         if ($pushRequest->hasPostData('statuscode', BuckarooStatusCode::PENDING_APPROVAL)) {
             return true;
         }
 
         // Was the refund in pending approval and now approved than don't skip it
         if ($pushRequest->hasPostData('statuscode', BuckarooStatusCode::SUCCESS)
-            && !empty($pushRequest->getRelatedtransactionRefund())
-            && $this->receivePushCheckDuplicates(
+            && !empty($pushRequest->getRelatedtransactionRefund())) {
+            if ($this->receivePushCheckDuplicates(
                 BuckarooStatusCode::PENDING_APPROVAL,
                 $pushRequest->getRelatedtransactionRefund()
             )) {
-            return false;
+                return true;
+            } else {
+                return false;
+            }
         }
 
 

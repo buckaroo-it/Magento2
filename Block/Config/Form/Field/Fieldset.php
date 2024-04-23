@@ -79,9 +79,11 @@ class Fieldset extends MagentoFieldset
     protected function _getFrontendClass($element): string
     {
         if ($element->getGroup()['id'] === 'buckaroo_magento2_klarna_group') {
-            return parent::_getFrontendClass($element);
+            $value = $this->getActiveStatusByGroup($element);
+        } else {
+            $value = $this->getElementValue($element);
         }
-        $value = $this->getElementValue($element);
+
         $class = 'payment_method_';
 
         switch ($value) {
@@ -115,6 +117,53 @@ class Fieldset extends MagentoFieldset
         $group = $element->getData('group');
         return $this->_scopeConfig->getValue(
             $group['children']['active']['config_path'],
+            $scopeValues['scope'],
+            $scopeValues['scopevalue']
+        );
+    }
+
+    /**
+     * Get active status for a group
+     *
+     * @param AbstractElement $element
+     * @return string
+     */
+    private function getActiveStatusByGroup(AbstractElement $element): string
+    {
+        $children = $element->getGroup()['children'];
+        $status = '0';
+
+        foreach ($children as $child) {
+            $childStatus = $this->getElementValueByConfigPath($child['children']['active']['config_path'] ?? '');
+            if($childStatus === '1') {
+                $status = '1';
+                continue;
+            }
+            if($childStatus === '2') {
+                return '2';
+            }
+
+        }
+
+        return $status;
+
+    }
+
+    /**
+     * Get element value
+     *
+     * @param string $configPath
+     * @return string
+     */
+    private function getElementValueByConfigPath(string $configPath): string
+    {
+        if (empty($configPath)) {
+            return '';
+        }
+        $scopeValues = $this->getScopeValue();
+
+        return $this->_scopeConfig->getValue(
+            $configPath,
             $scopeValues['scope'],
             $scopeValues['scopevalue']
         );
@@ -161,8 +210,6 @@ class Fieldset extends MagentoFieldset
         ) {
             return parent::_getHeaderTitleHtml($element);
         }
-
-       
 
         $element->setLegend($this->getTabImgAndLink($element));
         return parent::_getHeaderTitleHtml($element);

@@ -38,7 +38,7 @@
 
             <field id="idin_mode" translate="label comment tooltip" type="select" sortOrder="70" showInDefault="1" showInWebsite="0" showInStore="0">
                 <label>iDIN mode</label>
-                <comment><![CDATA[iDIN mode]]></comment>
+                <comment><![CDATA[iDIN can be used in different modes, based on when you want iDIN to be required as an additional verification.<br/><strong>Global Mode:</strong> Requires iDIN verification for all products.<br/><strong>Specific Products Mode:</strong> Enables iDIN for selected products via the Magento 2 catalog settings.<br/><strong>Product Categories Mode:</strong> Configures iDIN for specific product categories.]]></comment>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\Idinmode</source_model>
                 <config_path>buckaroo_magento2/account/idin_mode</config_path>
                 <depends>

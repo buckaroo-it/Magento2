@@ -29,7 +29,7 @@ if ($giftCards = $block->getGiftCards()) {
     foreach ($giftCards as $giftCard) { ?>
         <div class="bk-payment-wrap">
             <div class="bk-img-wrap">
-                <img src=" <?php echo $block->escapeHtml($block->getGiftcardLogo($giftCard['code'])) ?>" alt=""/>
+                <img src=" <?php echo $block->escapeHtml($block->getGiftcardLogo($giftCard)) ?>" alt=""/>
             </div>
             <div class="bk-label-wrap">
             <?php echo $block->escapeHtml($giftCard['label']) ?>

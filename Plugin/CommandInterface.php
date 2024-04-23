@@ -58,27 +58,20 @@ class CommandInterface
      */
     public Data $helper;
 
-    /**
-     * @var LockManagerWrapper
-     */
-    protected LockManagerWrapper $lockManager;
 
     /**
      * @param Factory $configProviderMethodFactory
      * @param BuckarooLoggerInterface $logger
      * @param Data $helper
-     * @param LockManagerWrapper $lockManager
      */
     public function __construct(
         Factory $configProviderMethodFactory,
         BuckarooLoggerInterface $logger,
-        Data $helper,
-        LockManagerWrapper $lockManager
+        Data $helper
     ) {
         $this->configProviderMethodFactory = $configProviderMethodFactory;
         $this->logger = $logger;
         $this->helper = $helper;
-        $this->lockManager = $lockManager;
     }
 
     /**
@@ -104,14 +97,6 @@ class CommandInterface
     ) {
         $message = $proceed($payment, $amount, $order);
 
-        $orderIncrementID = $order->getIncrementId();
-        $this->logger->addDebug(__METHOD__ . '|Lock Name| - ' . var_export($orderIncrementID, true));
-        $lockAcquired = $this->lockManager->lockOrder($orderIncrementID, 5);
-
-        if (!$lockAcquired) {
-            $this->logger->addError(__METHOD__ . '|lock not acquired|');
-            return $message;
-        }
 
         try {
             /** @var MethodInterface $methodInstance */
@@ -155,10 +140,6 @@ class CommandInterface
         } catch (\Exception $e) {
             $this->logger->addDebug(__METHOD__ . '|Exception|' . $e->getMessage());
             throw $e;
-        } finally {
-            // Ensure the lock is released
-            $this->lockManager->unlockOrder($orderIncrementID);
-            $this->logger->addDebug(__METHOD__ . '|Lock released|');
         }
     }
 

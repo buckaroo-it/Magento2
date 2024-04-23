@@ -22,9 +22,10 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Helper\PaymentFee;
-use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
-use Magento\Framework\App\Config\ScopeConfigInterface;
+use Buckaroo\Magento2\Service\LogoService;
 use Magento\Framework\View\Asset\Repository;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 
 class Creditcards extends AbstractConfigProvider
 {
@@ -42,6 +43,7 @@ class Creditcards extends AbstractConfigProvider
      * @param ScopeConfigInterface $scopeConfig
      * @param AllowedCurrencies $allowedCurrencies
      * @param PaymentFee $paymentFeeHelper
+     * @param LogoService $logoService
      * @param Creditcard $creditcardConfigProvider
      */
     public function __construct(
@@ -49,9 +51,10 @@ class Creditcards extends AbstractConfigProvider
         ScopeConfigInterface $scopeConfig,
         AllowedCurrencies $allowedCurrencies,
         PaymentFee $paymentFeeHelper,
+        LogoService $logoService,
         Creditcard $creditcardConfigProvider
     ) {
-        parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper);
+        parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper, $logoService);
 
         $this->issuers = $creditcardConfigProvider->getIssuers();
     }
@@ -63,22 +66,14 @@ class Creditcards extends AbstractConfigProvider
      */
     public function getConfig(): array
     {
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'creditcards' => [
-                        'paymentFeeLabel'   => $this->getBuckarooPaymentFeeLabel(),
-                        'subtext'           => $this->getSubtext(),
-                        'subtext_style'     => $this->getSubtextStyle(),
-                        'subtext_color'     => $this->getSubtextColor(),
-                        'creditcards'       => $this->formatIssuers(),
-                        'defaultCardImage'  => $this->getImageUrl('svg/creditcards', 'svg'),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'isTestMode'        => $this->isTestMode()
-                    ],
-                ],
-            ],
-        ];
+        if (!$this->getActive()) {
+            return [];
+        }
+
+        return $this->fullConfig([
+            'creditcards'       => $this->formatIssuers(),
+            'defaultCardImage'  => $this->getDefaultCardImage(),
+        ]);
     }
 
     /**
@@ -118,5 +113,15 @@ class Creditcards extends AbstractConfigProvider
     public function getActiveStatusCm3()
     {
         return null;
+    }
+
+    /**
+     * Get Default Card Image
+     *
+     * @return string
+     */
+    public function getDefaultCardImage(): string
+    {
+        return $this->getImageUrl('svg/creditcards', 'svg');
     }
 }

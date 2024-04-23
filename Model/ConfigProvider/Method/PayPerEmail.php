@@ -27,7 +27,7 @@ class PayPerEmail extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_payperemail';
 
-    public const XPATH_PAYPEREMAIL_SEND_MAIL = 'payment/buckaroo_magento2_payperemail/send_mail';
+    public const XPATH_PAYPEREMAIL_SEND_MAIL = 'send_mail';
 
     public const XPATH_PAYPEREMAIL_ACTIVE_STATUS_CM3           = 'active_status_cm3';
     public const XPATH_PAYPEREMAIL_SCHEME_KEY                  = 'scheme_key';
@@ -53,27 +53,14 @@ class PayPerEmail extends AbstractConfigProvider
             return [];
         }
 
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'payperemail' => [
-                        'paymentFeeLabel'   => $this->getBuckarooPaymentFeeLabel(),
-                        'subtext'           => $this->getSubtext(),
-                        'subtext_style'     => $this->getSubtextStyle(),
-                        'subtext_color'     => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'genderList'        => [
-                            ['genderType' => 1, 'genderTitle' => __('He/him')],
-                            ['genderType' => 2, 'genderTitle' => __('She/her')],
-                            ['genderType' => 0, 'genderTitle' => __('They/them')],
-                            ['genderType' => 9, 'genderTitle' => __('I prefer not to say')]
-                        ],
-                        'isTestMode'        => $this->isTestMode()
-                    ],
-                    'response'    => [],
-                ],
+        return $this->fullConfig([
+            'genderList' => [
+                ['genderType' => 1, 'genderTitle' => __('He/him')],
+                ['genderType' => 2, 'genderTitle' => __('She/her')],
+                ['genderType' => 0, 'genderTitle' => __('They/them')],
+                ['genderType' => 9, 'genderTitle' => __('I prefer not to say')]
             ],
-        ];
+        ]);
     }
 
     /**

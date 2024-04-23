@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -218,5 +219,21 @@ class GiftcardRepository implements GiftcardRepositoryInterface
         }
 
         return true;
+    }
+
+    /**
+     * @param string $serviceCode
+     * @return GiftcardInterface
+     */
+    public function getByServiceCode(string $serviceCode)
+    {
+        /** @var GiftcardCollection $collection */
+        $collection = $this->giftcardCollectionFactory->create();
+
+        return $collection->addFieldToFilter(
+            'servicecode',
+            ['eq' => $serviceCode]
+        )
+            ->getLastItem();
     }
 }

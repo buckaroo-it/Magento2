@@ -21,13 +21,10 @@
 define(
     [
         'jquery',
-        'Magento_Checkout/js/view/payment/default',
+        'buckaroo/checkout/payment/default',
         'Magento_Checkout/js/model/payment/additional-validators',
         'Buckaroo_Magento2/js/action/place-order',
         'ko',
-        'Magento_Checkout/js/checkout-data',
-        'Magento_Checkout/js/action/select-payment-method',
-        'buckaroo/checkout/common',
         'BuckarooClientSideEncryption'
     ],
     function (
@@ -36,9 +33,6 @@ define(
         additionalValidators,
         placeOrderAction,
         ko,
-        checkoutData,
-        selectPaymentMethodAction,
-        checkoutCommon
     ) {
         'use strict';
 
@@ -90,29 +84,8 @@ define(
                     cvc             : '',
                     cardHolderName  : '',
                     expireDate      : '',
-                    EncryptedData   : null,
+                    encryptedCardData : null,
                     cardIssuer      : null,
-                    validationState : {},
-                    issuerImage     : window.checkoutConfig.payment.buckaroo.creditcards.defaultCardImage
-                },
-                paymentFeeLabel : window.checkoutConfig.payment.buckaroo.creditcards.paymentFeeLabel,
-                subtext : window.checkoutConfig.payment.buckaroo.creditcards.subtext,
-                subTextStyle : checkoutCommon.getSubtextStyle('creditcards'),
-                currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
-                baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
-                creditcards : window.checkoutConfig.payment.buckaroo.creditcards.creditcards,
-                defaultCardImage : window.checkoutConfig.payment.buckaroo.creditcards.defaultCardImage,
-                isTestMode: window.checkoutConfig.payment.buckaroo.creditcards.isTestMode,
-
-                /**
-                 * @override
-                 */
-                initialize : function (options) {
-                    if (checkoutData.getSelectedPaymentMethod() == options.index) {
-                        window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-                    }
-
-                    return this._super(options);
                 },
 
                 initObservable: function () {
@@ -123,12 +96,11 @@ define(
                             'cvc',
                             'cardHolderName',
                             'expireDate',
-                            'EncryptedData',
-                            'cardIssuer',
-                            'validationState'
+                            'cardIssuer'
                         ]
                     );
 
+                    this.setTestParameters()
                     this.formatedCardNumber = ko.computed({
                         read: function () {
                             let cardNumber = this.cardNumber();
@@ -181,9 +153,9 @@ define(
 
                     this.issuerImage = ko.computed(
                         function () {
-                            var cardLogo = this.defaultCardImage;
-
-                            var issuer = this.creditcards.find(o => o.code === this.cardIssuer());
+                            var cardLogo = this.buckaroo.defaultCardImage;
+                            
+                            var issuer = this.buckaroo.creditcards.find(o => o.code === this.cardIssuer());
                             if (issuer) {
                                 cardLogo = issuer.img;
                             }
@@ -196,6 +168,31 @@ define(
                     return this;
                 },
 
+                placeOrder: function (data, event) {
+                    var self = this,
+                        placeOrder;
+
+                    if (event) {
+                        event.preventDefault();
+                    }
+
+                    if (this.validate() && additionalValidators.validate()) {
+                        this.isPlaceOrderActionAllowed(false);
+                        this.encryptCardData().then(function() {
+                            console.log('here');
+                            placeOrder = placeOrderAction(self.getData(), self.redirectAfterPlaceOrder, self.messageContainer);
+    
+                            $.when(placeOrder).fail(
+                                function () {
+                                    self.isPlaceOrderActionAllowed(true);
+                                }
+                            ).done(self.afterPlaceOrder.bind(self));
+                        })
+                        return true;
+                    }
+                    return false;
+                },
+
                 
                 validateCardNumber(data, event) {
                     this.validateField(data, event);
@@ -206,17 +203,11 @@ define(
                     )
                     
                     //validate the cvc if exists
-                if (this.cvc().length) {
-                    $('#buckaroo_magento2_creditcards_cvc').valid();
-                }
+                    if (this.cvc().length) {
+                        $('#buckaroo_magento2_creditcards_cvc').valid();
+                    }
                 },
 
-                validateField(data, event) {
-                    const isValid = $(event.target).valid();
-                    let state = this.validationState();
-                    state[event.target.id] = isValid;
-                    this.validationState(state);
-                },
 
                 /** Get the card issuer based on the creditcard number **/
                 determineIssuer: function (cardNumber) {
@@ -256,81 +247,27 @@ define(
                     return false;
                 },
 
-                validate: function () {
-                    return $('.' + this.getCode() + ' .payment-method-second-col form').valid();
-                },
+                getData: function() {
+                    let cardIssuer = this.cardIssuer();
 
-                selectPaymentMethod: function () {
-                    window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-
-                    this.getData().then(function (data) {
-                        selectPaymentMethodAction(data);
-                    })
-                    checkoutData.setSelectedPaymentMethod(this.item.method);
-                    return true;
-                },
-
-
-                payWithBaseCurrency: function () {
-                    var allowedCurrencies = window.checkoutConfig.payment.buckaroo.creditcards.allowedCurrencies;
-
-                    return allowedCurrencies.indexOf(this.currencyCode) < 0;
-                },
-
-                getPayWithBaseCurrencyText: function () {
-                    var text = $.mage.__('The transaction will be processed using %s.');
-
-                    return text.replace('%s', this.baseCurrencyCode);
-                },
-
-                /**
-                 * Place order.
-                 *
-                 * placeOrderAction has been changed from Magento_Checkout/js/action/place-order to our own version
-                 * (Buckaroo_Magento2/js/action/place-order) to prevent redirect and handle the response.
-                 */
-                placeOrder: function (data, event) {
-                    var self = this,
-                        placeOrder;
-
-                    if (event) {
-                        event.preventDefault();
+                    if(cardIssuer == null) {
+                        cardIssuer = this.determineIssuer(this.cardNumber());
                     }
-
-                    if (this.validate() && additionalValidators.validate()) {
-                        this.isPlaceOrderActionAllowed(false);
-                        this.getData().then(function (data) {
-                            placeOrder = placeOrderAction(data, self.redirectAfterPlaceOrder, self.messageContainer);
-    
-                            $.when(placeOrder).fail(
-                                function () {
-                                    self.isPlaceOrderActionAllowed(true);
-                                }
-                            ).done(self.afterPlaceOrder.bind(self));
-                        })
-                        return true;
+                    return {
+                        "method":  this.item.method,
+                        "po_number": null,
+                        "additional_data": {
+                            "customer_encrypteddata" : this.encryptedCardData,
+                            "customer_creditcardcompany" : cardIssuer
+                        }
                     }
-                    return false;
                 },
 
-                afterPlaceOrder: function () {
-                    var response = window.checkoutConfig.payment.buckaroo.response;
-                    response = $.parseJSON(response);
-                    checkoutCommon.redirectHandle(response);
-                },
-
-                getData: function () {
+                encryptCardData: function () {
                     return new Promise(function (resolve) {
                         const parts = this.expireDate().split("/");
                         const month = parts[0];
                         const year = parts[1];
-                        const method = this.item.method;
-                        let cardIssuer = this.cardIssuer();
-
-                        if (cardIssuer == null) {
-                            cardIssuer = this.determineIssuer(this.cardNumber());
-                        }
-
 
                         BuckarooClientSideEncryption.V001.encryptCardData(
                             this.cardNumber(),
@@ -339,17 +276,20 @@ define(
                             this.cvc(),
                             this.cardHolderName(),
                             function (encryptedCardData) {
-                                resolve({
-                                    "method": method,
-                                    "po_number": null,
-                                    "additional_data": {
-                                        "customer_encrypteddata" : encryptedCardData,
-                                        "card_type" : cardIssuer
-                                    }
-                                })
-                            }
-                        );
+                                this.encryptedCardData = encryptedCardData;
+                                resolve()
+                            }.bind(this));
                     }.bind(this))
+                },
+
+                setTestParameters() {
+                    if (this.buckaroo.isTestMode) {
+                        this.cardNumber('4563550000000005')
+                        this.cardIssuer('visa')
+                        this.cardHolderName('Test Acceptation')
+                        this.expireDate('01/' + (new Date(new Date().setFullYear(new Date().getFullYear() + 1)).getFullYear().toString().substr(-2)))
+                        this.cvc('123')
+                    }
                 }
             }
         );

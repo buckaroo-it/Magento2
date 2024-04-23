@@ -22,14 +22,11 @@ define(
     [
         'jquery',
         'mage/translate',
-        'Magento_Checkout/js/view/payment/default',
+        'buckaroo/checkout/payment/default',
         'Magento_Checkout/js/model/payment/additional-validators',
         'Buckaroo_Magento2/js/action/place-order',
         'Magento_Checkout/js/model/quote',
         'ko',
-        'Magento_Checkout/js/checkout-data',
-        'Magento_Checkout/js/action/select-payment-method',
-        'buckaroo/checkout/common',
         'buckaroo/checkout/datepicker',
         'Magento_Customer/js/model/customer',
         'Magento_Ui/js/lib/knockout/bindings/datepicker',
@@ -44,9 +41,6 @@ define(
         placeOrderAction,
         quote,
         ko,
-        checkoutData,
-        selectPaymentMethodAction,
-        checkoutCommon,
         datePicker,
         customer,
         selectBillingAddress,
@@ -63,10 +57,13 @@ define(
             }
 
             return value.length <= 8;
-            },
-        $.mage.__('Invalid COC number'));
+        },
+            $.mage.__('Invalid COC number'));
 
-        $.validator.addMethod('phoneValidation', function (value) {
+        const bkIsPhoneValid = function (value) {
+            if (quote.billingAddress() === null) {
+                return false;
+            }
             var countryId = quote.billingAddress().countryId;
             var lengths = {
                 'NL': {
@@ -107,8 +104,13 @@ define(
             }
 
             return true;
-        },
-        $.mage.__('Phone number should be correct.'));
+        }
+
+        $.validator.addMethod(
+            'phoneValidation',
+            bkIsPhoneValid,
+            $.mage.__('Phone number should be correct.')
+        );
 
         $.validator.addMethod('validateAge', function (value) {
             if (value && (value.length > 0)) {
@@ -127,7 +129,7 @@ define(
             }
             return false;
         },
-        $.mage.__('You should be at least 18 years old.'));
+            $.mage.__('You should be at least 18 years old.'));
 
         return Component.extend(
             {
@@ -135,58 +137,38 @@ define(
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_afterpay20',
                     activeAddress: null,
                     identificationNumber: null,
-                    billingName: null,
                     country: '',
-                    customerCoc:'',
+                    customerCoc: '',
                     dateValidate: null,
-                    termsValidate: true,
+                    termsSelected: true,
                     identificationValidate: null,
-                    phoneValidate: null,
+                    phone: null,
                     showIdentification: false,
                     showCOC: false,
-                    value:"",
-                    buttoncheck: false,
-                    validationState: {'TermsCondition':true},
+                    value: "",
                 },
-                redirectAfterPlaceOrder : true,
-                paymentFeeLabel : window.checkoutConfig.payment.buckaroo.afterpay20.paymentFeeLabel,
-                subtext : window.checkoutConfig.payment.buckaroo.afterpay20.subtext,
-                subTextStyle : checkoutCommon.getSubtextStyle('afterpay20'),
-                currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
-                baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
+                redirectAfterPlaceOrder: true,
                 isCustomerLoggedIn: customer.isLoggedIn,
-                isB2B: window.checkoutConfig.payment.buckaroo.afterpay20.is_b2b,
-                isTestMode: window.checkoutConfig.payment.buckaroo.afterpay20.isTestMode,
                 dp: datePicker,
-                /**
-                 * @override
-                 */
-                initialize: function (options) {
-                    if (checkoutData.getSelectedPaymentMethod() == options.index) {
-                        window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-                    }
 
-                    return this._super(options);
-                },
 
                 initObservable: function () {
                     this._super().observe(
                         [
                             'dateValidate',
-                            'termsValidate',
+                            'termsSelected',
                             'identificationValidate',
-                            'phoneValidate',
+                            'phone',
                             'customerCoc',
-                            'value',
-                            'validationState'
+                            'value'
                         ]
                     );
 
                     this.showFinancialWarning = ko.computed(
                         function () {
                             return quote.billingAddress() !== null &&
-                            quote.billingAddress().countryId == 'NL' &&
-                            window.checkoutConfig.payment.buckaroo.afterpay20.showFinancialWarning
+                                quote.billingAddress().countryId == 'NL' &&
+                                this.buckaroo.showFinancialWarning
                         },
                         this
                     );
@@ -199,7 +181,7 @@ define(
                             return quote.shippingAddress();
                         }
                     );
-                    
+
                     this.country = ko.computed(
                         function () {
                             return this.activeAddress().countryId;
@@ -213,7 +195,7 @@ define(
                             let shipping = quote.shippingAddress();
                             let billing = quote.billingAddress();
 
-                            return this.isB2B && (
+                            return this.buckaroo.is_b2b && (
                                 (shipping && shipping.countryId == 'NL' && shipping.company && shipping.company.trim().length > 0) ||
                                 (billing && billing.countryId == 'NL' && billing.company && billing.company.trim().length > 0)
                             )
@@ -223,19 +205,19 @@ define(
 
 
                     this.showPhone = ko.computed(function () {
-                            return  (!this.isCustomerLoggedIn() && this.isOsc()) ||
-                            (this.country() === 'NL' || this.country() === 'BE') ||
-                            this.phoneValidate()
+                        return (!this.isCustomerLoggedIn() && this.isOsc()) ||
+                            quote.billingAddress() === null ||
+                            (['NL', 'BE'].indexOf(quote.billingAddress().countryId) !== -1 && !bkIsPhoneValid(quote.billingAddress().telephone))
                     },
                         this);
 
                     this.showNLBEFields = ko.computed(
                         function () {
                             return !this.showCOC() &&
-                            (
-                                (this.country() === 'NL' || this.country() === 'BE') ||
-                                (!this.isCustomerLoggedIn() && this.isOsc())
-                            );
+                                (
+                                    ['NL', 'BE', 'DE'].indexOf(this.country()) != -1 ||
+                                    (!this.isCustomerLoggedIn() && this.isOsc())
+                                );
                         },
                         this
                     );
@@ -254,23 +236,6 @@ define(
                         this
                     );
 
-                    this.billingName = ko.computed(
-                        function () {
-                            let firstname = this.activeAddress().firstname;
-                            if (firstname === undefined) {
-                                firstname = '';
-                            }
-
-
-                            let lastname = this.activeAddress().lastname;
-                            if (lastname === undefined) {
-                                lastname = '';
-                            }
-                            return firstname + " " + lastname;
-                        },
-                        this
-                    );
-
                     this.termsUrl = ko.computed(
                         function () {
                             return this.getTermsUrl(this.country(), this.showCOC());
@@ -278,85 +243,15 @@ define(
                         this
                     );
 
-                    this.buttoncheck = ko.computed(
-                        function () {
-                            const state = this.validationState();
-                            const valid = this.getActiveValidationFields().map((field) => {
-                                if (state[field] !== undefined) {
-                                    return state[field];
-                                }
-                                return false;
-                            }).reduce(
-                                function (prev, cur) {
-                                    return prev && cur
-                                },
-                                true
-                            )
-                            return valid;
-                        },
-                        this
-                    )
-                    
-                    this.activeAddress.subscribe(function (address) {
-                        if (address.phone) {
-                            this.phoneValidate(address.phone)
-                        }
-                    }, this)
-
-                    this.dateValidate.subscribe(function () {
-                        this.validateField('DoB');
-                    }, this);
-                    this.customerCoc.subscribe(function () {
-                        this.validateField('coc');
-                    }, this);
-                    this.termsValidate.subscribe(function () {
-                        this.validateField('TermsCondition');
-                    }, this);
-                    this.identificationValidate.subscribe(function () {
-                        this.validateField('Identificationnumber');
-                    }, this);
-                    this.phoneValidate.subscribe(function () {
-                        this.validateField('Telephone');
-                    }, this);
-
                     return this;
                 },
 
-                getActiveValidationFields() {
-                    let fields = ['TermsCondition'];
-                    if (this.showPhone()) {
-                        fields.push('Telephone')
-                    }
-
-                    if (this.showIdentification()) {
-                        fields.push('Identificationnumber')
-                    }
-
-                    if (this.showCOC()) {
-                        fields.push('coc')
-                    }
-
-                    if (this.showNLBEFields()) {
-                        fields.push('DoB')
-                    }
-                    return fields;
-                },
-
-
-                validateField: function (id) {
-                    this.messageContainer.clear();
-                    const isValid = $(`#buckaroo_magento2_afterpay20_${id}`).valid();
-                    let state = this.validationState();
-                    state[id] = isValid;
-                    this.validationState(state);
-                    return isValid;
-                },
 
                 /**
                  * Place order.
                  *
                  * @todo To override the script used for placeOrderAction, we need to override the placeOrder method
-                 *          on our parent class (Magento_Checkout/js/view/payment/default) so we can
+                 *          on our parent class (buckaroo/checkout/payment/default) so we can
                  *
                  *          placeOrderAction has been changed from Magento_Checkout/js/action/place-order to our own
                  *          version (Buckaroo_Magento2/js/action/place-order) to prevent redirect and handle the response.
@@ -409,38 +304,15 @@ define(
                     return false;
                 },
 
-                afterPlaceOrder: function () {
-                    var response = window.checkoutConfig.payment.buckaroo.response;
-                    response = $.parseJSON(response);
-                    checkoutCommon.redirectHandle(response);
-                },
-
-                selectPaymentMethod: function () {
-                    window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-
-                    selectPaymentMethodAction(this.getData());
-                    checkoutData.setSelectedPaymentMethod(this.item.method);
-                    return true;
-                },
-
-                /**
-                 * Run validation function
-                 */
-
-                validate: function () {
-                    return $('.' + this.getCode() + ' .payment-method-second-col form').valid();
-                },
-
                 getData: function () {
                     return {
                         "method": this.item.method,
                         "po_number": null,
                         "additional_data": {
-                            "customer_telephone": this.phoneValidate(),
+                            "customer_telephone": this.phone(),
                             "customer_identificationNumber": this.identificationValidate(),
-                            "customer_billingName": this.billingName(),
                             "customer_DoB": this.dateValidate(),
-                            "termsCondition": this.termsValidate(),
+                            "termsCondition": this.termsSelected(),
                             "customer_coc": this.customerCoc(),
                         }
                     };
@@ -451,26 +323,26 @@ define(
                     let url = 'https://documents.riverty.com/terms_conditions/payment_methods/invoice';
                     const cc = country.toLowerCase()
 
-                    if ( b2b === false ) {
+                    if (b2b === false) {
                         if (country === 'BE') {
                             lang = 'be_nl';
                         }
-    
-                        if (['NL','DE'].indexOf(country) !== -1) {
+
+                        if (['NL', 'DE'].indexOf(country) !== -1) {
                             lang = `${cc}_${cc}`;
                         }
 
-                        if (['AT','DK', 'FI', 'SE', 'CH', 'NO'].indexOf(country) !== -1) {
+                        if (['AT', 'DK', 'FI', 'SE', 'CH', 'NO'].indexOf(country) !== -1) {
                             const cc = country.toLowerCase()
                             lang = `${cc}_en`;
                         }
                     } else {
                         url = 'https://documents.riverty.com/terms_conditions/payment_methods/b2b_invoice';
-                        if (['NL','DE'].indexOf(country) !== -1) {
+                        if (['NL', 'DE'].indexOf(country) !== -1) {
                             lang = `${cc}_${cc}`;
                         }
 
-                        if (['AT','CH'].indexOf(country) !== -1) {
+                        if (['AT', 'CH'].indexOf(country) !== -1) {
                             lang = `${cc}_en`;
                         }
                     }
@@ -479,9 +351,9 @@ define(
                 },
 
                 getFrenchTos: function () {
-                   return $.mage
-                    .__('(Or click here for the French translation: <a target="_blank" href="%s">terms and condition</a>.)')
-                    .replace('%s', 'https://documents.riverty.com/terms_conditions/payment_methods/invoice/be_fr/');
+                    return $.mage
+                        .__('(Or click here for the French translation: <a target="_blank" href="%s">terms and condition</a>.)')
+                        .replace('%s', 'https://documents.riverty.com/terms_conditions/payment_methods/invoice/be_fr/');
                 },
 
                 isOsc: function () {

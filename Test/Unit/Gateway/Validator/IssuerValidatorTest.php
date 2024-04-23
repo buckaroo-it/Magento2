@@ -60,7 +60,7 @@ class IssuerValidatorTest extends TestCase
     /**
      * @dataProvider issuerValidatorDataProvider
      */
-    public function testValidate($skipValidation, $chosenIssuer, $paymentMethodCode, $isValid, $failMessage)
+    public function testValidate($chosenIssuer, $paymentMethodCode, $isValid, $failMessage)
     {
         $paymentDataObjectInterface = $this->getMockBuilder(PaymentDataObjectInterface::class)
             ->disableOriginalConstructor()
@@ -71,7 +71,6 @@ class IssuerValidatorTest extends TestCase
         $infoInterface->expects($this->atMost(2))
             ->method('getAdditionalInformation')
             ->willReturnMap([
-                ['buckaroo_skip_validation', $skipValidation],
                 ['issuer', $chosenIssuer]
             ]);
         $paymentDataObjectInterface->expects($this->once())
@@ -124,35 +123,30 @@ class IssuerValidatorTest extends TestCase
     {
         return [
             'valid' => [
-                'skipValidation' => 0,
                 'chosenIssuer' => 'ABNANL2A',
                 'paymentMethodCode' => 'buckaroo_magento2_ideal',
                 'isValid' => true,
                 'failMessage' => ''
             ],
             'valid skip validation boolean' => [
-                'skipValidation' => null,
                 'chosenIssuer' => 'INGBNL2A',
                 'paymentMethodCode' => 'buckaroo_magento2_ideal',
                 'isValid' => true,
                 'failMessage' => ''
             ],
             'valid skipValidation' => [
-                'skipValidation' => 1,
                 'chosenIssuer' => 'ABNANL2A',
                 'paymentMethodCode' => 'buckaroo_magento2_ideal',
                 'isValid' => true,
                 'failMessage' => ''
             ],
             'invalid wrong issuer code' => [
-                'skipValidation' => 0,
                 'chosenIssuer' => 'WRONG',
                 'paymentMethodCode' => 'buckaroo_magento2_ideal',
                 'isValid' => false,
                 'failMessage' => __('Please select a issuer from the list')
             ],
             'invalid null issuer code' => [
-                'skipValidation' => null,
                 'chosenIssuer' => null,
                 'paymentMethodCode' => 'buckaroo_magento2_ideal',
                 'isValid' => false,

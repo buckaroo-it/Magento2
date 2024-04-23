@@ -21,8 +21,6 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use Buckaroo\Magento2\Exception;
-
 class Trustly extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_trustly';
@@ -42,30 +40,6 @@ class Trustly extends AbstractConfigProvider
         'SE',
         'GB'
     ];
-
-    /**
-     * @inheritdoc
-     *
-     * @throws Exception
-     */
-    public function getConfig(): array
-    {
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'trustly' => [
-                        'paymentFeeLabel'   => $this->getBuckarooPaymentFeeLabel(),
-                        'subtext'           => $this->getSubtext(),
-                        'subtext_style'     => $this->getSubtextStyle(),
-                        'subtext_color'     => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'isTestMode'        => $this->isTestMode()
-                    ],
-                ],
-            ],
-        ];
-    }
-
 
     /**
      * @inheritdoc

@@ -20,7 +20,6 @@
 
 namespace Buckaroo\Magento2\Observer;
 
-use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
@@ -173,7 +172,7 @@ class RestoreQuote implements ObserverInterface
      *
      * @return false
      */
-    public function shouldSkipFurtherEventHandling(): bool
+    public function shouldSkipFurtherEventHandling()
     {
         return false;
     }

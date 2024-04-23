@@ -24,6 +24,9 @@ namespace Buckaroo\Magento2\Model\Service;
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Model\Method\AbstractMethod;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
+use Magento\Framework\DB\TransactionFactory;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Registry;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Invoice;
 use Buckaroo\Magento2\Logging\Log;
@@ -31,6 +34,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
 use Magento\Sales\Model\Order\Payment\Transaction;
+use Magento\Sales\Model\Service\InvoiceService;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -63,10 +67,28 @@ class CreateInvoice
     private Data $helper;
 
     /**
+     * @var InvoiceService
+     */
+    private InvoiceService $invoiceService;
+
+    /**
+     * @var TransactionFactory
+     */
+    private TransactionFactory $transactionFactory;
+
+    /**
+     * @var Registry
+     */
+    protected $registry;
+
+    /**
      * @param Account $configAccount
      * @param Log $logger
      * @param PaymentGroupTransaction $groupTransaction
      * @param InvoiceSender $invoiceSender
+     * @param InvoiceService $invoiceService
+     * @param TransactionFactory $transactionFactory
+     * @param Registry $registry
      * @param Data $helper
      */
     public function __construct(
@@ -74,44 +96,64 @@ class CreateInvoice
         Log $logger,
         PaymentGroupTransaction $groupTransaction,
         InvoiceSender $invoiceSender,
+        InvoiceService $invoiceService,
+        TransactionFactory $transactionFactory,
+        Registry $registry,
         Data $helper
     ) {
         $this->logger = $logger;
         $this->groupTransaction = $groupTransaction;
         $this->invoiceSender = $invoiceSender;
         $this->configAccount = $configAccount;
+        $this->invoiceService = $invoiceService;
         $this->helper = $helper;
+        $this->transactionFactory = $transactionFactory;
+        $this->registry = $registry;
     }
 
     /**
      * Create invoice after shipment for all buckaroo payment methods
      *
      * @param Order $order
+     * @param array $invoiceItems
      * @return bool
-     * @throws \Exception
+     * @throws LocalizedException
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
-    public function createInvoiceGeneralSetting(Order $order): bool
+    public function createInvoiceGeneralSetting(Order $order, array $invoiceItems): bool
     {
-        /** @var Order\Payment $payment */
-        $payment = $order->getPayment();
-
-        $this->addTransactionData($payment);
-
-        $this->logger->addDebug(__METHOD__ . '|1| - Save Invoice');
-
-        if (!$order->canInvoice() || $order->hasInvoices()) {
-            $this->logger->addDebug(__METHOD__ . '|2| - Order can not be invoiced');
-
-            return false;
+        if (!$order->canInvoice()) {
+            return true;
         }
 
-        //Fix for suspected fraud when the order currency does not match with the payment's currency
-        $amount = ($payment->isSameCurrency()
-            && $payment->isCaptureFinal($order->getGrandTotal())) ?
-            $order->getGrandTotal() : $order->getBaseTotalDue();
-        $payment->registerCaptureNotification($amount);
-        $payment->save();
+        $invoiceItems = $this->prepareInvoiceItems($order, $invoiceItems);
+
+        $data['capture_case'] = 'offline';
+        $invoice = $this->invoiceService->prepareInvoice($order, $invoiceItems);
+
+        if (!$invoice->getTotalQty()) {
+            throw new LocalizedException(
+                __("The invoice can't be created without products. Add products and try again.")
+            );
+        }
+
+        $this->registry->register('current_invoice', $invoice);
+        if (!empty($data['capture_case'])) {
+            $invoice->setRequestedCaptureCase($data['capture_case']);
+        }
+
+        $invoice->register();
+
+        $invoice->getOrder()->setCustomerNoteNotify(!empty($data['send_email']));
+        $invoice->getOrder()->setIsInProcess(true);
+
+        $transactionSave = $this->transactionFactory->create()
+            ->addObject($invoice)
+            ->addObject($invoice->getOrder());
+
+        $transactionSave->save();
+
+        $payment = $invoice->getOrder()->getPayment();
 
         $transactionKey = (string)$payment->getAdditionalInformation(
             BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY
@@ -136,11 +178,28 @@ class CreateInvoice
             }
         }
 
-        $order->setIsInProcess(true);
-        $order->save();
-
         return true;
     }
+
+    /**
+     * Get Order Items that are not invoiced
+     *
+     * @param Order $order
+     * @return array
+     */
+    public function getInvoiceItems(Order $order): array
+    {
+        $invoiceItems = [];
+
+        foreach ($order->getAllItems() as $item) {
+            if ($item->getQtyToInvoice() > 0 && !$item->getLockedDoInvoice()) {
+                $invoiceItems[$item->getItemId()] = $item->getQtyToInvoice();
+            }
+        }
+
+        return $invoiceItems;
+    }
+
 
     /**
      * @return Order\Payment
@@ -159,12 +218,11 @@ class CreateInvoice
         /**
          * Save the transaction's response as additional info for the transaction.
          */
-        if(!$datas)
-        {
+        if (!$datas) {
             $rawDetails = $payment->getAdditionalInformation(Transaction::RAW_DETAILS);
             $rawInfo = $rawDetails[$transactionKey] ?? [];
         } else {
-            $rawInfo  = $this->helper->getTransactionAdditionalInfo($datas);
+            $rawInfo = $this->helper->getTransactionAdditionalInfo($datas);
         }
 
         /**
@@ -184,5 +242,10 @@ class CreateInvoice
         );
 
         return $payment;
+    }
+
+    private function prepareInvoiceItems(Order $order, array $invoiceItems): array
+    {
+        return empty($invoiceItems) ? $this->getInvoiceItems($order) : $invoiceItems;
     }
 }

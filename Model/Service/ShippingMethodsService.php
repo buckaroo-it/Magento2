@@ -86,7 +86,7 @@ class ShippingMethodsService
      */
     public function addFirstShippingMethod(Address $address, Quote $quote): Quote
     {
-        if ($address->getShippingMethod() === null) {
+        if (empty($address->getShippingMethod())) {
             $shippingMethods = $this->shipmentEstimation->estimateByExtendedAddress(
                 $quote->getId(),
                 $quote->getShippingAddress()

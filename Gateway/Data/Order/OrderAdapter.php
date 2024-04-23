@@ -123,7 +123,7 @@ class OrderAdapter implements OrderAdapterInterface
      */
     public function getStoreId(): ?int
     {
-        return $this->order->getStoreId();
+        return (int)$this->order->getStoreId();
     }
 
     /**

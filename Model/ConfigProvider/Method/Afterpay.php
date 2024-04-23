@@ -20,7 +20,6 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Model\Config\Source\AfterpayPaymentMethods;
 use Buckaroo\Magento2\Model\Config\Source\Business;
 
@@ -39,8 +38,6 @@ class Afterpay extends AbstractConfigProvider
 
     /**
      * @inheritdoc
-     *
-     * @throws Exception
      */
     public function getConfig(): array
     {
@@ -48,25 +45,12 @@ class Afterpay extends AbstractConfigProvider
             return [];
         }
 
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'afterpay' => [
-                        'sendEmail'            => $this->hasOrderEmail(),
-                        'paymentFeeLabel'      => $this->getBuckarooPaymentFeeLabel(),
-                        'subtext'              => $this->getSubtext(),
-                        'subtext_style'        => $this->getSubtextStyle(),
-                        'subtext_color'        => $this->getSubtextColor(),
-                        'allowedCurrencies'    => $this->getAllowedCurrencies(),
-                        'businessMethod'       => $this->getBusiness(),
-                        'paymentMethod'        => $this->getPaymentMethod(),
-                        'showFinancialWarning' => $this->canShowFinancialWarning(),
-                        'isTestMode'           => $this->isTestMode()
-                    ],
-                    'response' => [],
-                ],
-            ],
-        ];
+        return $this->fullConfig([
+            'sendEmail'            => $this->hasOrderEmail(),
+            'businessMethod'       => $this->getBusiness(),
+            'paymentMethod'        => $this->getPaymentMethod(),
+            'showFinancialWarning' => $this->canShowFinancialWarning(),
+        ]);
     }
 
     /**

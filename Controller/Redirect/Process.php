@@ -24,6 +24,7 @@ namespace Buckaroo\Magento2\Controller\Redirect;
 use Buckaroo\Magento2\Api\PushRequestInterface;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
+use Buckaroo\Magento2\Model\Config\Source\InvoiceHandlingOptions;
 use Buckaroo\Magento2\Model\ConfigProvider\Account as AccountConfig;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
@@ -309,8 +310,8 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
                 'buckaroo_magento2_transfer'
             ]
         )) {
-            if ($this->payment->getAdditionalInformation(BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY)
-                != $this->redirectRequest->getTransactions()) {
+            $transactionKey = (string)$this->payment->getAdditionalInformation(BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY);
+            if (strpos($this->redirectRequest->getTransactions(), $transactionKey) === false) {
                 return true;
             }
 
@@ -542,7 +543,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
      */
     private function processPendingRedirect($statusCode): ResponseInterface
     {
-        if ($this->order->canInvoice()) {
+        if ($this->order->canInvoice() && !$this->isInvoiceCreatedAfterShipment()) {
             $pendingStatus = $this->orderStatusFactory->get(
                 BuckarooStatusCode::PENDING_PROCESSING,
                 $this->order
@@ -899,5 +900,17 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
         $this->setCustomerAndRestoreQuote('success');
 
         return $this->handleProcessedResponse('checkout', ['_query' => ['bk_e' => 1]]);
+    }
+
+    /**
+     * Is the invoice for the current order is created after shipment
+     *
+     * @return bool
+     */
+    private function isInvoiceCreatedAfterShipment(): bool
+    {
+        return $this->payment->getAdditionalInformation(
+                InvoiceHandlingOptions::INVOICE_HANDLING
+            ) == InvoiceHandlingOptions::SHIPMENT;
     }
 }

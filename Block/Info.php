@@ -26,6 +26,7 @@ use Buckaroo\Magento2\Service\LogoService;
 use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
+use Magento\Framework\UrlInterface;
 use Magento\Framework\View\Element\Template\Context;
 
 class Info extends \Magento\Payment\Block\Info
@@ -40,6 +41,8 @@ class Info extends \Magento\Payment\Block\Info
      */
     protected GiftcardCollection $giftcardCollection;
 
+    protected UrlInterface $baseUrl;
+
     /**
      * @var LogoService
      */
@@ -50,6 +53,7 @@ class Info extends \Magento\Payment\Block\Info
      * @param PaymentGroupTransaction $groupTransaction
      * @param GiftcardCollection $giftcardCollection
      * @param LogoService $logoService
+     * @param UrlInterface $baseUrl
      * @param array $data
      */
     public function __construct(
@@ -57,21 +61,14 @@ class Info extends \Magento\Payment\Block\Info
         PaymentGroupTransaction $groupTransaction,
         GiftcardCollection $giftcardCollection,
         LogoService $logoService,
+        UrlInterface $baseUrl,
         array $data = []
     ) {
         parent::__construct($context, $data);
         $this->groupTransaction = $groupTransaction;
         $this->giftcardCollection = $giftcardCollection;
         $this->logoService = $logoService;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function _construct()
-    {
-        parent::_construct();
-        $this->setTemplate('Buckaroo_Magento2::info/payment_method.phtml');
+        $this->baseUrl = $baseUrl;
     }
 
     /**
@@ -93,6 +90,7 @@ class Info extends \Magento\Payment\Block\Info
                     $result[] = [
                         'code'  => $giftcard['servicecode'],
                         'label' => $foundGiftcard['label'],
+                        'logo'  => $foundGiftcard['logo']
                     ];
                 }
 
@@ -139,12 +137,12 @@ class Info extends \Magento\Payment\Block\Info
     /**
      * Get giftcard logo url by code
      *
-     * @param string $code
+     * @param array $code
      * @return string
      */
-    public function getGiftcardLogo(string $code): string
+    public function getGiftcardLogo(array $code): string
     {
-        return $this->logoService->getGiftcard($code);
+        return $this->logoService->getGiftcardLogo($code);
     }
 
     /**
@@ -181,6 +179,26 @@ class Info extends \Magento\Payment\Block\Info
     }
 
     /**
+     * Returns value view
+     *
+     * @param string $value
+     * @return string
+     */
+    protected function getValueView(string $value): string
+    {
+        return $value;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function _construct()
+    {
+        parent::_construct();
+        $this->setTemplate('Buckaroo_Magento2::info/payment_method.phtml');
+    }
+
+    /**
      * Prepare information specific to current payment method
      *
      * @param null|DataObject|array $transport
@@ -212,16 +230,5 @@ class Info extends \Magento\Payment\Block\Info
         $words = explode('_', $field);
         $transformedWords = array_map('ucfirst', $words);
         return __(implode(' ', $transformedWords));
-    }
-
-    /**
-     * Returns value view
-     *
-     * @param string $value
-     * @return string
-     */
-    protected function getValueView(string $value): string
-    {
-        return $value;
     }
 }

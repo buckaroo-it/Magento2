@@ -5,7 +5,7 @@
     align-items: center;
 }
 .bk-img-wrap {
-    width: 50px;
+    width: 40px;
     margin-right:10px;
     align-items: center;
     display: flex;
@@ -198,12 +198,12 @@
     .buckaroo_magento2_applepay .payment-method-second-col,
     .buckaroo_magento2_capayablein3 .payment-method-second-col,
     .buckaroo_magento2_capayablepostpay .payment-method-second-col,
-    .buckaroo_magento2_tinka .payment-method-second-col,
     .buckaroo_magento2_mrcash .payment-method-second-col,
     .buckaroo_magento2_voucher .payment-method-second-col,
     .buckaroo_magento2_paybybank .payment-method-second-col,
     .buckaroo_magento2_mbway .payment-method-second-col,
-    .buckaroo_magento2_multibanco .payment-method-second-col
+    .buckaroo_magento2_multibanco .payment-method-second-col,
+    .buckaroo_magento2_knaken .payment-method-second-col
     {
         float:left;
         width: 50%;
@@ -228,13 +228,13 @@
     .buckaroo_magento2_applepay .payment-method-billing-address,
     .buckaroo_magento2_capayablein3 .payment-method-billing-address,
     .buckaroo_magento2_capayablepostpay .payment-method-billing-address,
-    .buckaroo_magento2_tinka .payment-method-billing-address,
     .buckaroo_magento2_mrcash .payment-method-billing-address,
     .buckaroo_magento2_voucher .payment-method-billing-address,
     .buckaroo_magento2_paybybank .payment-method-billing-address,
     .buckaroo_magento2_mbway .payment-method-billing-address,
     .buckaroo_magento2_multibanco .payment-method-billing-address,
-    .buckaroo_magento2_all_creditcard .payment-method-billing-address
+    .buckaroo_magento2_all_creditcard .payment-method-billing-address,
+    .buckaroo_magento2_knaken .payment-method-billing-address
     {
         float:left;
         width: 50%;
@@ -261,8 +261,7 @@
     .magento-blank .buckaroo_magento2_klarnain .fieldset > .field:not(.choice) > .label,
     .magento-blank .buckaroo_magento2_applepay .fieldset > .field:not(.choice) > .label,
     .magento-blank .buckaroo_magento2_capayablein3 .fieldset > .field:not(.choice) > .label,
-    .magento-blank .buckaroo_magento2_capayablepostpay .fieldset > .field:not(.choice) > .label,
-    .magento-blank .buckaroo_magento2_tinka .fieldset > .field:not(.choice) > .label
+    .magento-blank .buckaroo_magento2_capayablepostpay .fieldset > .field:not(.choice) > .label
     {
         padding: 6px 15px 0 0 !important;
         text-align: left !important;
@@ -288,7 +287,6 @@
     .magento-blank .buckaroo_magento2_applepay .fieldset > .field:not(.choice) > .control,
     .magento-blank .buckaroo_magento2_capayablein3 .fieldset > .field:not(.choice) > .control,
     .magento-blank .buckaroo_magento2_capayablepostpay .fieldset > .field:not(.choice) > .control
-    .magento-blank .buckaroo_magento2_tinka .fieldset > .field:not(.choice) > .control
     {
         width: 100% !important;
         float: left !important;
@@ -312,7 +310,6 @@
     .magento-blank .buckaroo_magento2_applepay .fieldset > .field.choice:before,
     .magento-blank .buckaroo_magento2_capayablein3 .fieldset > .field.choice:before,
     .magento-blank .buckaroo_magento2_capayablepostpay .fieldset > .field.choice:before
-    .magento-blank .buckaroo_magento2_tinka .fieldset > .field.choice:before
     {
         padding:0 !important;
         width: auto !important;
@@ -582,6 +579,7 @@
 }
 
 .buckaroo_magento2_all_giftcards, .buckaroo_magento2_all_creditcards{
+    width: 100%;
     border-top: 1px solid #ccc;
     border-bottom: 1px solid #ccc;
 }
@@ -665,7 +663,7 @@
         padding: 10px 20px;
     }
 
-    .fieldset > .field .addon .bk-paybybank-selector .bank-method-input {
-        display:none;
+    .bk-paybybank-selector .bank-method-input {
+        visibility: hidden;
     }
 }

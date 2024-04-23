@@ -27,7 +27,6 @@ use Buckaroo\Magento2\Api\Data\PaypalExpress\TotalBreakdownInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Api\CartTotalRepositoryInterface;
 use Magento\Quote\Model\Quote;
-use Magento\Quote\Model\Quote\Address\Total;
 
 class TotalBreakdown implements TotalBreakdownInterface
 {
@@ -74,20 +73,6 @@ class TotalBreakdown implements TotalBreakdownInterface
                 "currencyCode" => $this->quote->getQuoteCurrencyCode()
             ]
         );
-    }
-
-    /**
-     * Get buckaroo fee without tax
-     *
-     * @return float
-     */
-    protected function getBuckarooFeeExclTax()
-    {
-        $fee = $this->getTotalsOfType('buckaroo_fee');
-        if ($fee !== null) {
-            return (float)$fee->getData('buckaroo_fee');
-        }
-        return 0;
     }
 
     /**

@@ -99,7 +99,7 @@ class PaypalExpress extends Template
      *
      * @return array
      */
-    public function getConfig()
+    public function getConfig(): array
     {
         return [
             'currency' => $this->getCurrency(),

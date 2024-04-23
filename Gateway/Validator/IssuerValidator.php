@@ -79,11 +79,11 @@ class IssuerValidator extends AbstractValidator
     {
         /** @var Payment $paymentInfo */
         $paymentInfo = $validationSubject['payment'];
+        $config = $this->getConfig($paymentInfo);
 
-//        $skipValidation = $paymentInfo->getAdditionalInformation('buckaroo_skip_validation');
-//        if ($skipValidation) {
-//            return $this->createResult(true);
-//        }
+        if (method_exists($config, 'canShowIssuers') && !$config->canShowIssuers()) {
+            return $this->createResult(true);
+        }
 
         $chosenIssuer = $paymentInfo->getAdditionalInformation('issuer');
 
@@ -95,7 +95,7 @@ class IssuerValidator extends AbstractValidator
             }
         }
 
-        foreach ($this->getConfig($paymentInfo)->getIssuers() as $issuer) {
+        foreach ($config->getIssuers() as $issuer) {
             if ($issuer['code'] == $chosenIssuer) {
                 return $this->createResult(true);
             }

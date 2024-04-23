@@ -72,8 +72,6 @@
 
         <include path="Buckaroo_Magento2::system/payment_methods/pospayment.xml"/>
 
-        <include path="Buckaroo_Magento2::system/payment_methods/tinka.xml"/>
-
         <include path="Buckaroo_Magento2::system/payment_methods/klarnas.xml"/>
 
         <include path="Buckaroo_Magento2::system/payment_methods/belfius.xml"/>
@@ -87,4 +85,6 @@
         <include path="Buckaroo_Magento2::system/payment_methods/mbway.xml"/>
 
         <include path="Buckaroo_Magento2::system/payment_methods/multibanco.xml"/>
+
+        <include path="Buckaroo_Magento2::system/payment_methods/knaken.xml"/>
 </include>

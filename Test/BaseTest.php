@@ -214,10 +214,6 @@ abstract class BaseTest extends TestCaseFinder
      */
     public function assignDataTest($fixture)
     {
-        if (!array_key_exists('buckaroo_skip_validation', $fixture)) {
-            $fixture['buckaroo_skip_validation'] = false;
-        }
-
         $data = $this->getFakeMock(\Magento\Framework\DataObject::class)->getMock();
         $infoInterface = $this->getFakeMock(\Magento\Payment\Model\InfoInterface::class)->getMockForAbstractClass();
 

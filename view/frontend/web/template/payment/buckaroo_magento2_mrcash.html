@@ -8,18 +8,18 @@
                        data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
                 <label class="label" data-bind="attr: {'for': getCode()}" >
                         <!-- ko text: getTitle() --><!-- /ko -->
-                        <!-- ko if: subtext !== null && subtext.length > 0 -->
-                       <p class="bk-description" data-bind="text: subtext, style: subTextStyle"></p>
+                        <!-- ko if: buckaroo.subtext !== null && buckaroo.subtext.length > 0 -->
+                       <p class="bk-description" data-bind="text:buckaroo.subtext, style: getSubtextStyle()"></p>
                         <!-- /ko -->
                 </label>
             </div>
             <div class="bk-mode-and-img">
-                <!-- ko if: isTestMode -->
+                <!-- ko if: buckaroo.isTestMode -->
                 <div class="bk-test-mode"><div class="bk-test-text" data-bind="i18n: 'Test Mode'"></div></div>
                 <!-- /ko -->
                 <div class="bk-img-wrap">
                     <img
-                        data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/bancontact.svg') }"
+                        data-bind="attr: { src: buckaroo.logo }"
                         alt="Mr. Cash Logo"
                     />
                 </div>
@@ -34,7 +34,7 @@
             <!--/ko-->
         </div>
 
-        <!-- ko if: useClientSide -->
+        <!-- ko if: buckaroo.useClientSide -->
 
         <div class="payment-method-second-col billing-address-form">
 
@@ -129,7 +129,7 @@
                         click: placeOrder,
                         attr: {title: $t('Place Order')},
                         enable: (getCode() == isChecked()),
-                        css: {disabled: !isPlaceOrderActionAllowed() || !buttoncheck() }
+                        css: {disabled: !isPlaceOrderActionAllowed() }
                         "
                         disabled>
                     <span data-bind="i18n: 'Place Order'"></span>

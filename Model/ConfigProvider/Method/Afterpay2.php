@@ -20,41 +20,24 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use Buckaroo\Magento2\Exception;
-
 class Afterpay2 extends Afterpay
 {
     public const CODE = 'buckaroo_magento2_afterpay2';
 
     /**
      * @inheritdoc
-     *
-     * @throws Exception
      */
     public function getConfig(): array
     {
         if (!$this->getActive()) {
             return [];
         }
-
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'afterpay2' => [
-                        'sendEmail'            => $this->hasOrderEmail(),
-                        'paymentFeeLabel'      => $this->getBuckarooPaymentFeeLabel(),
-                        'subtext'              => $this->getSubtext(),
-                        'subtext_style'        => $this->getSubtextStyle(),
-                        'subtext_color'        => $this->getSubtextColor(),
-                        'allowedCurrencies'    => $this->getAllowedCurrencies(),
-                        'businessMethod'       => $this->getBusiness(),
-                        'paymentMethod'        => $this->getPaymentMethod(),
-                        'showFinancialWarning' => $this->canShowFinancialWarning(),
-                        'isTestMode'           => $this->isTestMode()
-                    ],
-                    'response'  => [],
-                ],
-            ],
-        ];
+        
+        return $this->fullConfig([
+            'sendEmail'            => $this->hasOrderEmail(),
+            'businessMethod'       => $this->getBusiness(),
+            'paymentMethod'        => $this->getPaymentMethod(),
+            'showFinancialWarning' => $this->canShowFinancialWarning(),
+        ]);
     }
 }

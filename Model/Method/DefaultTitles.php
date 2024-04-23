@@ -34,7 +34,7 @@ class DefaultTitles
         'creditcard'       => 'Credit or Debit card',
         'creditcards'      => 'Credit or Debit card',
         'ideal'            => 'iDEAL',
-        'mrcash'           => 'Buckaroo Bancontact',
+        'mrcash'           => 'Bancontact',
         'paypal'           => 'PayPal',
         'payconiq'         => 'Payconiq',
         'sepadirectdebit'  => 'SEPA Direct Debit',
@@ -55,7 +55,6 @@ class DefaultTitles
         'p24'              => 'Przelewy24',
         'trustly'          => 'Trustly',
         'pospayment'       => 'PosPay',
-        'tinka'            => 'Tinka',
         'paybybank'        => 'PayByBank'
     ];
 
