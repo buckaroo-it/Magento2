@@ -22,7 +22,6 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Buckaroo\Magento2\Exception;
-use Magento\Store\Model\ScopeInterface;
 
 class Klarnakp extends AbstractConfigProvider
 {
@@ -76,24 +75,9 @@ class Klarnakp extends AbstractConfigProvider
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
-
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'klarnakp' => [
-                        'paymentFeeLabel'      => $paymentFeeLabel,
-                        'subtext'              => $this->getSubtext(),
-                        'subtext_style'        => $this->getSubtextStyle(),
-                        'subtext_color'        => $this->getSubtextColor(),
-                        'allowedCurrencies'    => $this->getAllowedCurrencies(),
-                        'paymentFee'           => $this->getPaymentFee(),
-                        'showFinancialWarning' => $this->canShowFinancialWarning()
-                    ],
-                    'response' => [],
-                ],
-            ],
-        ];
+        return $this->fullConfig([
+            'showFinancialWarning' => $this->canShowFinancialWarning(),
+        ]);
     }
 
     /**

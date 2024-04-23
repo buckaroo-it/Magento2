@@ -157,17 +157,25 @@ class IssuersService
         return array_map(
             function ($issuer) {
                 $logo = null;
-                if (isset($issuer['id']) &&
-                    isset(self::ISSUERS_IMAGES[$issuer['id']])
-                ) {
-                    $name = self::ISSUERS_IMAGES[$issuer['id']];
-                    $logo = $this->getImageUrl("ideal/{$name}");
+                if (isset($issuer['id'])) {
+                    $logo = $this->getImageUrlByIssuerId($issuer['id']);
                 }
                 $issuer['logo'] = $logo;
+                $issuer['code'] = $issuer['id'];
                 return $issuer;
             },
             $issuers
         );
+    }
+
+    public function getImageUrlByIssuerId($issuerId)
+    {
+        if (
+            isset(self::ISSUERS_IMAGES[$issuerId])
+        ) {
+            $name = self::ISSUERS_IMAGES[$issuerId];
+            return $this->getImageUrl("ideal/{$name}");
+        }
     }
     
     /**

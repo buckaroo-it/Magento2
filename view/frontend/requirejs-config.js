@@ -40,7 +40,8 @@ var config = {
             "buckaroo/checkout/common": "Buckaroo_Magento2/js/view/checkout/common",
             "buckaroo/checkout/datepicker": "Buckaroo_Magento2/js/view/checkout/datepicker",
             "buckaroo/paypal-express/pay": "Buckaroo_Magento2/js/view/checkout/paypal-express/pay",
-            "buckaroo/paypal-express/button": "Buckaroo_Magento2/js/view/checkout/paypal-express/button"
+            "buckaroo/paypal-express/button": "Buckaroo_Magento2/js/view/checkout/paypal-express/button",
+            "buckaroo/checkout/payment/default": "Buckaroo_Magento2/js/view/payment/method-renderer/default"
         }
     },
     shim: {

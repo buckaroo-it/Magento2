@@ -21,12 +21,12 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Validator;
 
+use Laminas\Validator\Iban;
 use Magento\Framework\Exception\NotFoundException;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
 use Magento\Sales\Model\Order\Payment;
-use Zend\Validator\Iban;
 
 /**
  * Class IssuerValidator
@@ -70,11 +70,6 @@ class BankAccountValidator extends AbstractValidator
     public function validate(array $validationSubject): ResultInterface
     {
         $paymentInfo = $validationSubject['payment'];
-
-        $skipValidation = $paymentInfo->getAdditionalInformation('buckaroo_skip_validation');
-        if ($skipValidation) {
-            return $this->createResult(true);
-        }
 
         $customerBic = $paymentInfo->getAdditionalInformation('customer_bic');
         $customerIban = $paymentInfo->getAdditionalInformation('customer_iban');

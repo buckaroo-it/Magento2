@@ -20,7 +20,6 @@
 
 namespace Buckaroo\Magento2\Observer;
 
-use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
@@ -141,14 +140,15 @@ class RestoreQuote implements ObserverInterface
                 ) {
                     $this->logger->addDebug(sprintf(
                         '[RESTORE_QUOTE] | [Observer] | [%s:%s] - Restore Quote | ' .
-                        'lastRealOrder: %s | previousOrderId: %s',
+                        'lastRealOrder: %s - %s| previousOrderId: %s',
                         __METHOD__,
                         __LINE__,
-                        $lastRealOrder->getIncrementId(),
+                        $lastRealOrder->getIncrementId(), $lastRealOrder->getEntityId(),
                         $previousOrderId
                     ));
 
                     $this->checkoutSession->restoreQuote();
+                    $this->checkoutSession->getQuote()->setOrigOrderId(null);
                     $this->rollbackPartialPayment($lastRealOrder->getIncrementId(), $payment);
                     $this->setOrderToCancel($previousOrderId);
                 }
@@ -172,7 +172,7 @@ class RestoreQuote implements ObserverInterface
      *
      * @return false
      */
-    public function shouldSkipFurtherEventHandling(): bool
+    public function shouldSkipFurtherEventHandling()
     {
         return false;
     }

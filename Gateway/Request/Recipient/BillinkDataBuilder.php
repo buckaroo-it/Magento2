@@ -67,6 +67,34 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
     }
 
     /**
+     * Returns the birthdate of the customer
+     *
+     * @return false|string
+     */
+    protected function getBirthDate()
+    {
+        $customerDoB = (string)$this->payment->getAdditionalInformation('customer_DoB');
+        if (empty($customerDoB)) {
+            $customerDoB = $this->getOrder()->getCustomerDob() ?? '1990-01-01';
+        }
+
+        if(!is_string($customerDoB) || strlen(trim($customerDoB)) === 0) {
+            return null;
+        }
+
+        $birthDayStamp = date(
+            $this->getFormatDate(),
+            strtotime(str_replace('/', '-', $customerDoB))
+        );
+
+        if($birthDayStamp === false) {
+            return null;
+        }
+
+        return $birthDayStamp;
+    }
+
+    /**
      * @inheritdoc
      */
     protected function getCategory(): string
@@ -83,6 +111,12 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
      */
     protected function getCareOf(): string
     {
+        $company = $this->getAddress()->getCompany();
+
+        if ($company !== null && strlen(trim($company)) > 0) {
+            return $company;
+        }
+
         return $this->getFirstname() . ' ' . $this->getLastName();
     }
 

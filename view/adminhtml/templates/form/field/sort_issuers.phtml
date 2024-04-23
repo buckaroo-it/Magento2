@@ -1,0 +1,113 @@
+<?php
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+// @codingStandardsIgnoreFile
+$paymentMethod = $block->getConfiguration('providerType');
+$issuers = $block->getIssuers();
+?>
+<div class="issuers_sort_wrapper">
+    <input type="hidden" name="<?= $block->getConfiguration('name') ?>" id="sort_<?= $paymentMethod ?>"
+           value="<?= $block->getSortedIssuerCodes() ?>">
+    <div id="sort_<?= $paymentMethod ?>_list"></div>
+</div>
+
+<script>
+    require([
+        "jquery",
+        "jquery/ui",
+        "Magento_Theme/js/sortable"
+    ], function ($) {
+        'use strict';
+
+        let listSelector = '#sort_<?= $paymentMethod ?>_list';
+        $(listSelector).sortable({
+            axis: 'y',
+            tolerance: 'pointer',
+            items: 'p',
+            update: function(event, ui) {
+                updateSortedList();
+            }
+        });
+
+        let ccInherit = $('input[name="<?= $block->getConfiguration('ccInherit') ?>"]');
+        let selector = 'select[name="<?= $block->getConfiguration('selector') ?>[]"]';
+        let inputText = $('#sort_<?= $paymentMethod ?>').val();
+        let selectorWrapper = '.<?= $paymentMethod ?>_sort_wrapper';
+
+        var issuers = <?php echo json_encode($issuers); ?>;
+
+        function createParagraphElement(code) {
+            if (!issuers[code]) {
+                console.error('Issuer not found for code:', code);
+                return;
+            }
+
+            $(listSelector).append(
+                '<p class="sort_issuer" data-code="' + code + '">' +
+                '<img src="' + issuers[code]['img'] + '">' + issuers[code]['name'] + '</p>'
+            );
+        }
+
+        if (inputText !== '') {
+            let cardSortedArray = inputText.split(',');
+            cardSortedArray.forEach(createParagraphElement);
+        } else {
+            $(selector + ' option:selected').each(function () {
+                createParagraphElement($(this).val());
+            });
+        }
+
+        $(selector).change(function () {
+            $(listSelector + ' p').remove();
+
+            $(selector + ' option:selected').each(function () {
+                createParagraphElement($(this).val());
+            });
+        });
+
+        function updateSortedList() {
+            let codes = [];
+            $(listSelector + ' p').each(function () {
+                codes.push($(this).data('code'));
+            });
+            let cardList = codes.join(',');
+            $('#sort_<?= $paymentMethod ?>').val(cardList);
+        }
+
+        function sortableOnOff(status) {
+            let isDisabled = status == 'disable';
+            $(listSelector).sortable(isDisabled  ? "disable": "enable");
+            $(selectorWrapper).toggleClass('sortable_disable', isDisabled);
+        }
+
+        $(document).ready(function () {
+            if (ccInherit.is(":checked")) {
+                sortableOnOff('disable');
+            }
+        });
+
+        $('body').on('click', ccInherit, function () {
+            if (ccInherit.is(":checked")) {
+                sortableOnOff('disable');
+            } else {
+                sortableOnOff();
+            }
+        });
+    });
+</script>

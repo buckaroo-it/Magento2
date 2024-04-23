@@ -40,7 +40,6 @@ class Toolbar
         'buckaroo_magento2_creditcard',
         'buckaroo_magento2_creditcards',
         'buckaroo_magento2_ideal',
-        'buckaroo_magento2_idealprocessing',
         'buckaroo_magento2_mrcash',
         'buckaroo_magento2_paypal',
         'buckaroo_magento2_payconiq',
@@ -61,8 +60,7 @@ class Toolbar
         'buckaroo_magento2_wechatpay',
         'buckaroo_magento2_p24',
         'buckaroo_magento2_trustly',
-        'buckaroo_magento2_pospayment',
-        'buckaroo_magento2_tinka'
+        'buckaroo_magento2_pospayment'
     ];
 
     /**

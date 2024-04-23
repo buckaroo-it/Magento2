@@ -21,43 +21,14 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use Buckaroo\Magento2\Exception;
 use Magento\Store\Model\ScopeInterface;
 
 class PayLink extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_paylink';
 
-    public const XPATH_PAYLINK_PAYMENT_METHOD = 'payment/buckaroo_magento2_paylink/payment_method';
+    public const XPATH_PAYLINK_PAYMENT_METHOD = 'payment_method';
 
-    /**
-     * @inheritdoc
-     *
-     * @throws Exception
-     */
-    public function getConfig(): array
-    {
-        if (!$this->getActive()) {
-            return [];
-        }
-
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
-
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'paylink'  => [
-                        'paymentFeeLabel'   => $paymentFeeLabel,
-                        'subtext'           => $this->getSubtext(),
-                        'subtext_style'     => $this->getSubtextStyle(),
-                        'subtext_color'     => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                    ],
-                    'response' => [],
-                ],
-            ],
-        ];
-    }
 
     /**
      * Payment method is visible for area code

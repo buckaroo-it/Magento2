@@ -148,7 +148,7 @@ class AdminInfo extends ConfigurableInfo
      */
     public function getGiftcardLogo(string $code): string
     {
-        return $this->logoService->getGiftcard($code);
+        return $this->logoService->getGiftcardLogo($code);
     }
 
     /**

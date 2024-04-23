@@ -21,33 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use Buckaroo\Magento2\Exception;
-
 class Sofortbanking extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_sofortbanking';
-
-    /**
-     * @inheritdoc
-     *
-     * @throws Exception
-     */
-    public function getConfig(): array
-    {
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
-
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'sofortbanking' => [
-                        'paymentFeeLabel'   => $paymentFeeLabel,
-                        'subtext'           => $this->getSubtext(),
-                        'subtext_style'     => $this->getSubtextStyle(),
-                        'subtext_color'     => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                    ],
-                ],
-            ],
-        ];
-    }
 }

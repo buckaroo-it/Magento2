@@ -86,11 +86,6 @@ class PayPerEmail implements OptionSourceInterface
                 'code'  => 'buckaroo_magento2_ideal'
             ],
             [
-                'value' => 'idealprocessing',
-                'label' => __('iDEAL Processing'),
-                'code'  => 'buckaroo_magento2_idealprocessing'
-            ],
-            [
                 'value' => 'maestro',
                 'label' => __('Maestro'),
                 'code'  => 'buckaroo_magento2_creditcards'
@@ -154,12 +149,7 @@ class PayPerEmail implements OptionSourceInterface
                 'value' => 'trustly',
                 'label' => __('Trustly'),
                 'code'  => 'buckaroo_magento2_trustly'
-            ],
-            [
-                'value' => 'tinka',
-                'label' => __('Tinka'),
-                'code'  => 'buckaroo_magento2_tinka'
-            ],
+            ]
         ];
     }
 }

@@ -21,8 +21,9 @@
  -->
 <include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
     <!-- Klarna Payment methods group -->
-    <group id="buckaroo_magento2_klarna" translate="label" type="text" sortOrder="160" showInDefault="1" showInWebsite="1" showInStore="1">
+    <group id="buckaroo_magento2_klarna_group" translate="label" type="text" sortOrder="160" showInDefault="1" showInWebsite="1" showInStore="1">
         <label>Klarna</label>
+        <frontend_model>Buckaroo\Magento2\Block\Config\Form\Field\Fieldset</frontend_model>
 
         <include path="Buckaroo_Magento2::system/payment_methods/klarna.xml"/>
 

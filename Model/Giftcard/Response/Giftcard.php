@@ -34,6 +34,7 @@ use Buckaroo\Magento2\Model\Giftcard\Remove as GiftcardRemove;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Model\Order;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -120,6 +121,8 @@ class Giftcard
      */
     public function set(TransactionResponse $response, CartInterface $quote)
     {
+        $this->logger->addDebug('[Giftcard] | [Response] | [' . __METHOD__ . ':' . __LINE__ . '] - Set Response');
+
         $this->quote = $quote;
         $this->response = $response;
         $this->buckarooResponseData->setResponse($response);
@@ -131,31 +134,99 @@ class Giftcard
             }
         } else {
             $this->saveGroupTransaction();
-            $this->createOrderFromQuote(false);
+            $this->createOrderFromQuote();
         }
     }
 
     /**
-     * Get error message
+     * Save group transaction data
      *
-     * @return mixed|string|null
+     * @return void
      */
-    public function getErrorMessage()
+    protected function saveGroupTransaction()
     {
-        if ($this->response->isSuccess()) {
-            return null;
-        }
-        if (!empty($this->response->getSubCodeMessage())) {
-            return $this->response->getSubCodeMessage();
+        $this->groupTransaction->saveGroupTransaction($this->response->data());
+    }
+
+    /**
+     * Create order from quote
+     *
+     * @return AbstractExtensibleModel|OrderInterface|object|null
+     * @throws LocalizedException
+     */
+    protected function createOrderFromQuote()
+    {
+        $this->logger->addDebug('
+          [Giftcard] | [Response] | [' . __METHOD__ . ':' . __LINE__ . '] - Create Order From Quote'
+        );
+
+        $this->ensureCustomerEmail();
+
+        $order = $this->getExistingOrder() ?? null;
+
+        if ($this->response->isSuccess()
+            || ($order instanceof OrderInterface && $order->getStatus() == Order::STATE_CANCELED)) {
+            $order = $order ?? $this->createOrder();
         }
 
-        if (isset($this->response->getFirstError()['ErrorMessage'])) {
-            return $this->response->getFirstError()['ErrorMessage'];
+        if ($order) {
+            $this->quote->setOrigOrderId($order->getEntityId());
         }
-        if (isset($this->response->data()['Status']['Code']['Description'])) {
-            return $this->response->data()['Status']['Code']['Description'];
+
+        $orderId = $order ? $order->getEntityId() : null;
+        $this->logger->addDebug(sprintf(
+            '[Giftcard] | [Response] | [%s:%s] - Create Order From Quote | QuoteId: %s - OrderId: %s',
+            __METHOD__,
+            __LINE__,
+            $this->quote->getId(),
+            $orderId
+        ));
+
+        $this->quote->setIsActive(true);
+        $this->quote->save();
+
+        return $order;
+    }
+
+    /**
+     * Ensure customer email is set in the quote.
+     */
+    protected function ensureCustomerEmail(): void
+    {
+        if (!$this->quote->getCustomerEmail()) {
+            $this->quote->setCustomerEmail($this->quote->getBillingAddress()->getEmail());
         }
-        return '';
+    }
+
+    /**
+     * Retrieve the existing order if it exists.
+     *
+     * @return OrderInterface|null
+     */
+    protected function getExistingOrder(): ?OrderInterface
+    {
+        $orderId = $this->quote->getOrigOrderId();
+        if (!$orderId) {
+            return null;
+        }
+
+        try {
+            return $this->orderRepository->get($orderId);
+        } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Create order from quote
+     *
+     * @return AbstractExtensibleModel|OrderInterface|object|null
+     * @throws LocalizedException
+     */
+    protected function createOrder()
+    {
+        $this->quote->collectTotals();
+        return $this->quoteManagement->submit($this->quote);
     }
 
     /**
@@ -246,37 +317,6 @@ class Giftcard
         return $this->response->data()['RequiredAction']['PayRemainderDetails']['Currency'];
     }
 
-    public function rollbackAllPartialPayments($order)
-    {
-        try {
-            $transactions = $this->groupTransaction->getGroupTransactionItems($order->getIncrementId());
-            foreach ($transactions as $transaction) {
-                $this->giftcardRemoveService->remove(
-                    $transaction->getTransactionId(),
-                    $order->getIncrementId(),
-                    $order->getPayment()
-                );
-            }
-        } catch (\Throwable $th) {
-            $this->logger->addDebug(sprintf(
-                '[GIFTCARD] | [Model] | [%s:%s] - Rollback all Partial Payment | [ERROR]: %s',
-                __METHOD__,
-                __LINE__,
-                $th->getMessage()
-            ));
-        }
-    }
-
-    /**
-     * Save group transaction data
-     *
-     * @return void
-     */
-    protected function saveGroupTransaction()
-    {
-        $this->groupTransaction->saveGroupTransaction($this->response->data());
-    }
-
     /**
      * Cancel order for failed group transaction
      *
@@ -299,94 +339,46 @@ class Giftcard
     }
 
     /**
-     * Create order from quote
+     * Get error message
      *
-     * @return AbstractExtensibleModel|OrderInterface|object|null
-     * @throws LocalizedException
+     * @return mixed|string|null
      */
-    protected function createOrderFromQuote($success = true)
+    public function getErrorMessage()
     {
-        $this->ensureCustomerEmail();
-
-        $order = $this->getExistingOrder() ?? null;
-
-        if ($success) {
-            $order = $order ?? $this->createOrder();
-            $this->updateQuotePaymentAmounts();
-        }
-
-        if ($order) {
-            $this->quote->setOrigOrderId($order->getEntityId());
-        }
-
-        $this->quote->setIsActive(true);
-        $this->quote->save();
-
-        return $order;
-    }
-
-    /**
-     * Ensure customer email is set in the quote.
-     */
-    protected function ensureCustomerEmail(): void
-    {
-        if (!$this->quote->getCustomerEmail()) {
-            $this->quote->setCustomerEmail($this->quote->getBillingAddress()->getEmail());
-        }
-    }
-
-    /**
-     * Retrieve the existing order if it exists.
-     *
-     * @return OrderInterface|null
-     */
-    protected function getExistingOrder(): ?OrderInterface
-    {
-        $orderId = $this->quote->getOrigOrderId();
-        if (!$orderId) {
+        if ($this->response->isSuccess()) {
             return null;
         }
+        if (!empty($this->response->getSubCodeMessage())) {
+            return $this->response->getSubCodeMessage();
+        }
 
+        if (isset($this->response->getFirstError()['ErrorMessage'])) {
+            return $this->response->getFirstError()['ErrorMessage'];
+        }
+        if (isset($this->response->data()['Status']['Code']['Description'])) {
+            return $this->response->data()['Status']['Code']['Description'];
+        }
+        return '';
+    }
+
+    public function rollbackAllPartialPayments($order)
+    {
         try {
-            return $this->orderRepository->get($orderId);
-        } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
-            return null;
+            $transactions = $this->groupTransaction->getGroupTransactionItems($order->getIncrementId());
+            foreach ($transactions as $transaction) {
+                $this->giftcardRemoveService->remove(
+                    $transaction->getTransactionId(),
+                    $order->getIncrementId(),
+                    $order->getPayment()
+                );
+            }
+        } catch (\Throwable $th) {
+            $this->logger->addDebug(sprintf(
+                '[GIFTCARD] | [Model] | [%s:%s] - Rollback all Partial Payment | [ERROR]: %s',
+                __METHOD__,
+                __LINE__,
+                $th->getMessage()
+            ));
         }
-    }
-
-    /**
-     * Create order from quote
-     *
-     * @return AbstractExtensibleModel|OrderInterface|object|null
-     * @throws LocalizedException
-     */
-    protected function createOrder()
-    {
-        $this->quote->collectTotals();
-        return $this->quoteManagement->submit($this->quote);
-    }
-
-    /**
-     * Update the quote's payment amounts based on the currency rate.
-     */
-    protected function updateQuotePaymentAmounts()
-    {
-        $rate = 1.0;
-        $store = $this->quote->getStore();
-        $currency = $store->getCurrentCurrencyCode();
-        if ($currency != $store->getBaseCurrencyCode()) {
-            $rate = $store->getBaseCurrency()->getRate($currency);
-        }
-
-        $amountPaid = $this->response->getAmount();
-        $baseAmountPaid = (float)$amountPaid / (float)$rate;
-
-        $this->quote->setBuckarooAlreadyPaid(
-            $this->quote->getBuckarooAlreadyPaid() + $amountPaid
-        );
-
-        $this->quote->setBaseBuckarooAlreadyPaid(
-            $this->quote->getBaseBuckarooAlreadyPaid() + $baseAmountPaid
-        );
     }
 }

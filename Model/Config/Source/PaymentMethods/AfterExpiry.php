@@ -43,7 +43,6 @@ class AfterExpiry implements OptionSourceInterface
             ['value' => 'giftcard',               'label' => __('Giftcards')],
             ['value' => 'giropay',                'label' => __('Giropay')],
             ['value' => 'ideal',                  'label' => __('iDEAL')],
-            ['value' => 'idealprocessing',        'label' => __('iDEAL Processing')],
             ['value' => 'maestro',                'label' => __('Maestro')],
             ['value' => 'mastercard',             'label' => __('Mastercard')],
             ['value' => 'nexi',                   'label' => __('Nexi')],
@@ -57,8 +56,7 @@ class AfterExpiry implements OptionSourceInterface
             ['value' => 'alipay',                 'label' => __('Alipay')],
             ['value' => 'wechatpay',              'label' => __('WeChatPay')],
             ['value' => 'p24',                    'label' => __('P24')],
-            ['value' => 'trustly',                'label' => __('Trustly')],
-            ['value' => 'tinka',                  'label' => __('Tinka')],
+            ['value' => 'trustly',                'label' => __('Trustly')]
         ];
     }
 }

@@ -28,7 +28,6 @@ use Magento\Quote\Api\Data\PaymentInterface;
 
 class DataAssignObserver extends AbstractDataAssignObserver
 {
-    public const SKIP_VALIDATION               = 'buckaroo_skip_validation';
     public const PAYMENT_FROM                  = 'buckaroo_payment_from';
     public const PAYMENT_ISSUER                = 'issuer';
     public const TERMS_CONDITION               = 'termsCondition';
@@ -39,6 +38,7 @@ class DataAssignObserver extends AbstractDataAssignObserver
     public const CUSTOMER_TELEPHONE            = 'customer_telephone';
     public const CUSTOMER_BILLINGFIRSTNAME     = 'customer_billingFirstName';
     public const CUSTOMER_BILLINGLASTNAME      = 'customer_billingLastName';
+    public const CUSTOMER_BILLING_MIDDLENAME   = 'customer_billingMiddleName';
     public const CUSTOMER_EMAIL                = 'customer_email';
     public const CUSTOMER_IBAN                 = 'customer_iban';
     public const SELECTEDBUSINESS              = 'selectedBusiness';
@@ -53,7 +53,7 @@ class DataAssignObserver extends AbstractDataAssignObserver
     public const CUSTOMER_COMPANYNAME          = 'customer_companyName';
     public const CARD_TYPE                     = 'card_type';
     public const CUSTOMER_ENCRYPTEDDATA        = 'customer_encrypteddata';
-    public const CUSTOMER_CREDITCARDCOMPANY    = 'card_type';
+    public const CUSTOMER_CREDITCARDCOMPANY    = 'customer_creditcardcompany';
     public const GIFTCARD_METHOD               = 'giftcard_method';
     public const CUSTOMER_BIC                  = 'customer_bic';
     public const CLIENT_SIDE_MODE              = 'client_side_mode';
@@ -63,7 +63,6 @@ class DataAssignObserver extends AbstractDataAssignObserver
      * @var array
      */
     private array $additionalInformationList = [
-        self::SKIP_VALIDATION,
         self::PAYMENT_ISSUER,
         self::PAYMENT_FROM,
         self::TERMS_CONDITION,
@@ -74,6 +73,7 @@ class DataAssignObserver extends AbstractDataAssignObserver
         self::CUSTOMER_TELEPHONE,
         self::CUSTOMER_BILLINGFIRSTNAME,
         self::CUSTOMER_BILLINGLASTNAME,
+        self::CUSTOMER_BILLING_MIDDLENAME,
         self::CUSTOMER_EMAIL,
         self::CUSTOMER_IBAN,
         self::SELECTEDBUSINESS,

@@ -343,15 +343,18 @@ class DefaultProcessor implements PushProcessorInterface
             $trxId = $this->pushRequest->getTransactions();
         }
 
+
+        $isRefund = $this->pushRequest->hasAdditionalInformation('service_action_from_magento', 'refund');
+
         $ignoredPaymentMethods = [
             Giftcards::CODE,
             Transfer::CODE
         ];
 
         if ($receivedStatusCode
-            && ($this->pushTransactionType->getPushType() == PushTransactionType::BUCK_PUSH_TYPE_TRANSACTION)
             && $this->payment && $this->payment->getMethod()
-            && (!in_array($this->payment->getMethod(), $ignoredPaymentMethods))
+            && ($this->pushTransactionType->getPushType() == PushTransactionType::BUCK_PUSH_TYPE_TRANSACTION)
+            && (!in_array($this->payment->getMethod(), $ignoredPaymentMethods) || $isRefund)
         ) {
             if ($this->isDuplicateTransaction($receivedStatusCode,$trxId)
             ) {

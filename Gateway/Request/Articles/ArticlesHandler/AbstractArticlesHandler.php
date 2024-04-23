@@ -30,6 +30,7 @@ use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 use Magento\Catalog\Model\Product\Type;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Payment\Model\InfoInterface;
+use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\Quote\Item;
 use Magento\Quote\Model\QuoteFactory;
 use Magento\Sales\Model\Order;
@@ -102,6 +103,11 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     protected Order $order;
 
     /**
+     * @var Quote|null
+     */
+    protected ?Quote $quote = null;
+
+    /**
      * @var InfoInterface
      */
     protected InfoInterface $payment;
@@ -109,7 +115,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     /**
      * @var PayReminderService
      */
-    private PayReminderService $payReminderService;
+    protected PayReminderService $payReminderService;
 
     /**
      * @param ScopeConfigInterface $scopeConfig
@@ -174,6 +180,11 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         $discountline = $this->getDiscountLine();
         if (!empty($discountline)) {
             $articles['articles'][] = $discountline;
+        }
+
+        $additionalLines = $this->getAdditionalLines();
+        if (!empty($additionalLines)) {
+            $articles = array_merge_recursive($articles, $additionalLines);
         }
 
         return $articles;
@@ -245,6 +256,32 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     }
 
     /**
+     * Get Quote
+     *
+     * @return Quote
+     */
+    public function getQuote(): Quote
+    {
+        if (!$this->quote instanceof Quote) {
+            $this->quote = $this->quoteFactory->create()->load($this->getOrder()->getQuoteId());
+        }
+
+        return $this->quote;
+    }
+
+    /**
+     * Set Quote
+     *
+     * @param Quote $quote
+     * @return $this
+     */
+    public function setQuote(Quote $quote): AbstractArticlesHandler
+    {
+        $this->quote = $quote;
+        return $this;
+    }
+
+    /**
      * Get tax category
      *
      * @param Order|Invoice $order
@@ -273,7 +310,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         $count = 1;
         $bundleProductQty = 0;
 
-        $quote = $this->quoteFactory->create()->load($this->getOrder()->getQuoteId());
+        $quote = $this->getQuote();
         $cartData = $quote->getAllItems();
 
         /**
@@ -727,11 +764,12 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      */
     protected function getCreditmemoArticleDataPayRemainder(): array
     {
+        $payRemainderAmount = round($this->payReminderService->getPayRemainder($this->getOrder()), 2);
         return $this->getArticleRefundArrayLine(
             'PayRemainder',
             1,
             1,
-            round($this->payReminderService->getPayRemainder($this->getOrder()), 2),
+            $payRemainderAmount,
             $this->getTaxCategory($this->getOrder())
         );
     }
@@ -808,5 +846,15 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         $this->payment = $payment;
 
         return $this;
+    }
+
+    /**
+     * Get Additional Lines for specific methods
+     *
+     * @return array
+     */
+    protected function getAdditionalLines(): array
+    {
+        return [];
     }
 }

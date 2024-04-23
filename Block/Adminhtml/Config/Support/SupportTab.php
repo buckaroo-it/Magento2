@@ -213,6 +213,10 @@ class SupportTab extends Template implements RendererInterface
         }
 
         $magentoMajorMinor = $magentoVersion[0] . '.' . $magentoVersion[1];
+        if (!isset($this->phpVersionSupport[$magentoMajorMinor])) {
+            return __('Cannot determine compatible PHP versions');
+        }
+
         $versions = array_keys($this->phpVersionSupport[$magentoMajorMinor]);
         return implode(', ', $versions);
     }

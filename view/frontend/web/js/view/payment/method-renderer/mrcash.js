@@ -21,14 +21,11 @@
 define(
     [
         'jquery',
-        'Magento_Checkout/js/view/payment/default',
+        'buckaroo/checkout/payment/default',
         'Magento_Checkout/js/model/payment/additional-validators',
         'Buckaroo_Magento2/js/action/place-order',
         'ko',
-        'Magento_Checkout/js/checkout-data',
-        'Magento_Checkout/js/action/select-payment-method',
         'mageUtils',
-        'buckaroo/checkout/common',
         'BuckarooClientSideEncryption'
     ],
     function (
@@ -37,10 +34,7 @@ define(
         additionalValidators,
         placeOrderAction,
         ko,
-        checkoutData,
-        selectPaymentMethodAction,
-        utils,
-        checkoutCommon
+        utils
     ) {
         'use strict';
 
@@ -80,32 +74,11 @@ define(
                     cardNumber      : '',
                     cardHolderName  : null,
                     expireDate      : '',
-                    validationState : {},
                     clientSideMode  : 'cc',
-                    isMobileMode    : false
+                    isMobileMode    : false,
+                    encryptedCardData : null
                 },
                 redirectAfterPlaceOrder: false,
-                paymentFeeLabel : window.checkoutConfig.payment.buckaroo.mrcash.paymentFeeLabel,
-                subtext : window.checkoutConfig.payment.buckaroo.mrcash.subtext,
-                subTextStyle : checkoutCommon.getSubtextStyle('mrcash'),
-                currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
-                baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
-                useClientSide : window.checkoutConfig.payment.buckaroo.mrcash.useClientSide,
-
-                /**
-                * @override
-                */
-                initialize : function (options) {
-                    if (checkoutData.getSelectedPaymentMethod() == options.index) {
-                        window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-                    }
-
-                    return this._super(options);
-
-
-                },
-
-
 
                 initObservable: function () {
                     /** Observed fields **/
@@ -114,14 +87,13 @@ define(
                             'cardNumber',
                             'cardHolderName',
                             'expireDate',
-                            'validationState',
                             'clientSideMode'
                         ]
                     );
-
+                    this.setTestParameters()
                     this.isMobileMode = ko.computed(
                         function () {
-                            return this.useClientSide && this.clientSideMode() == 'mobile';
+                            return this.buckaroo.useClientSide && this.clientSideMode() == 'mobile';
                         },
                         this
                     );
@@ -175,81 +147,9 @@ define(
                         owner: this
                     });
 
-                    this.buttoncheck = ko.computed(
-                        function () {
-                            if (this.isMobileMode() || this.useClientSide == false) {
-                                return true;
-                            }
-                            const state = this.validationState();
-                            const valid = [
-                                'buckaroo_magento2_mrcash_cardholdername',
-                                'buckaroo_magento2_mrcash_cardnumber',
-                                'buckaroo_magento2_mrcash_expireDate',
-                            ].map((field) => {
-                                if (state[field] !== undefined) {
-                                    return state[field];
-                                }
-                                return false;
-                            }).reduce(
-                                function (prev, cur) {
-                                    return prev && cur
-                                },
-                                true
-                            )
-                            return valid;
-                        },
-                        this
-                    );
-
                     return this;
                 },
 
-
-                validateField(data, event) {
-                    const isValid = $(event.target).valid();
-                    let state = this.validationState();
-                    state[event.target.id] = isValid;
-                    this.validationState(state);
-                },
-
-                getData: function () {
-                    return new Promise(function (resolve) {
-                        const parts = this.expireDate().split("/");
-                        const month = parts[0];
-                        const year = parts[1];
-                        const method = this.item.method;
-                        const clientSideMode =  this.clientSideMode();
-
-
-                        BuckarooClientSideEncryption.V001.encryptCardData(
-                            this.cardNumber(),
-                            year,
-                            month,
-                            '',
-                            this.cardHolderName(),
-                            function (encryptedCardData) {
-                                resolve({
-                                    "method": method,
-                                    "po_number": null,
-                                    "additional_data": {
-                                        "customer_encrypteddata" : encryptedCardData,
-                                        "client_side_mode" :clientSideMode
-                                    }
-                                })
-                            }
-                        );
-                    }.bind(this))
-                },
-
-                setClientSideMode: function (mode) {
-                    this.clientSideMode(mode)
-                },
-                 /**
-                 * Place order.
-                 *
-                 * placeOrderAction has been changed from Magento_Checkout/js/action/place-order to our own version
-                 * (Buckaroo_Magento2/js/action/place-order) to prevent redirect and handle the response.
-                 */
                 placeOrder: function (data, event) {
                     var self = this,
                     placeOrder;
@@ -258,11 +158,11 @@ define(
                         event.preventDefault();
                     }
 
-                    if (additionalValidators.validate()) {
+                    if (this.validate() && additionalValidators.validate()) {
                         this.isPlaceOrderActionAllowed(false);
-                        this.getData().then(function (data) {
-                            placeOrder = placeOrderAction(data, self.redirectAfterPlaceOrder, self.messageContainer);
-
+                        this.encryptCardData().then(function() {
+                            placeOrder = placeOrderAction(self.getData(), self.redirectAfterPlaceOrder, self.messageContainer);
+    
                             $.when(placeOrder).fail(
                                 function () {
                                     self.isPlaceOrderActionAllowed(true);
@@ -274,16 +174,45 @@ define(
                     return false;
                 },
 
+
+
+                getData: function () {
+                    return {
+                        "method":  this.item.method,
+                        "po_number": null,
+                        "additional_data": {
+                            "customer_encrypteddata" : this.encryptedCardData,
+                            "client_side_mode" : this.clientSideMode()
+                        }
+                    }
+                },
+
+                encryptCardData: function () {
+                    return new Promise(function (resolve) {
+                        const parts = this.expireDate().split("/");
+                        const month = parts[0];
+                        const year = parts[1];
+
+                        BuckarooClientSideEncryption.V001.encryptCardData(
+                            this.cardNumber(),
+                            year,
+                            month,
+                            '',
+                            this.cardHolderName(),
+                            function (encryptedCardData) {
+                                this.encryptedCardData = encryptedCardData;
+                                resolve()
+                            }.bind(this));
+                    }.bind(this))
+                },
+
                 afterPlaceOrder: function () {
                     var response = window.checkoutConfig.payment.buckaroo.response;
                     response = $.parseJSON(response);
                     if (response.RequiredAction !== undefined && response.RequiredAction.RedirectURL !== undefined) {
                         if (this.isMobileMode()) {
-                            var data =  {};
-                            data['transaction_key'] = response.key;
-
                             utils.submit({
-                                url: window.checkoutConfig.payment.buckaroo.mrcash.redirecturl,
+                                url: this.buckaroo.redirecturl,
                                 data: response
                             });
                         } else {
@@ -292,37 +221,15 @@ define(
                     }
                 },
 
-                selectPaymentMethod: function () {
-                    window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-
-                    selectPaymentMethodAction({
-                        "method": this.item.method,
-                        "po_number": null,
-                    });
-                    checkoutData.setSelectedPaymentMethod(this.item.method);
-                    return true;
-                },
-
-                payWithBaseCurrency: function () {
-                    var allowedCurrencies = window.checkoutConfig.payment.buckaroo.mrcash.allowedCurrencies;
-
-                    return allowedCurrencies.indexOf(this.currencyCode) < 0;
-                },
-
-                getPayWithBaseCurrencyText: function () {
-                    var text = $.mage.__('The transaction will be processed using %s.');
-
-                    return text.replace('%s', this.baseCurrencyCode);
-                },
+                setTestParameters() {
+                        if (this.buckaroo.useClientSide && this.buckaroo.isTestMode) {
+                        this.cardNumber('67034200554565015')
+                        this.cardHolderName('Test Acceptation')
+                        this.expireDate('01/' + (new Date(new Date().setFullYear(new Date().getFullYear() + 1)).getFullYear().toString().substr(-2)))
+                    }
+                }
+                
             }
         );
     }
 );
-
-
-
-
-
-
-
-

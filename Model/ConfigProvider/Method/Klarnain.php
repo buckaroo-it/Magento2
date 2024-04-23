@@ -62,27 +62,13 @@ class Klarnain extends AbstractConfigProvider
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
-
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'klarnain' => [
-                        'paymentFeeLabel'   => $paymentFeeLabel,
-                        'subtext'           => $this->getSubtext(),
-                        'subtext_style'     => $this->getSubtextStyle(),
-                        'subtext_color'     => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'paymentFee'        => $this->getPaymentFee(),
-                        'genderList'        => [
-                            ['genderType' => 'male', 'genderTitle' => __('He/him')],
-                            ['genderType' => 'female', 'genderTitle' => __('She/her')]
-                        ],
-                        'showFinancialWarning' => $this->canShowFinancialWarning()
-                    ],
-                    'response' => [],
-                ],
+        return $this->fullConfig([
+            'paymentFee'        => $this->getPaymentFee(),
+            'genderList'        => [
+                ['genderType' => 'male', 'genderTitle' => __('He/him')],
+                ['genderType' => 'female', 'genderTitle' => __('She/her')]
             ],
-        ];
+            'showFinancialWarning' => $this->canShowFinancialWarning(),
+        ]);
     }
 }

@@ -21,25 +21,24 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Helper\PaymentFee;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 use Buckaroo\Magento2\Service\Ideal\IssuersService;
+use Buckaroo\Magento2\Service\LogoService;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\View\Asset\Repository;
-use Magento\Store\Model\ScopeInterface;
 
 class Ideal extends AbstractConfigProvider
 {
+    public const CODE = 'buckaroo_magento2_ideal';
+    public const XPATH_SELECTION_TYPE   = 'selection_type';
+    public const XPATH_SHOW_ISSUERS     = 'show_issuers';
+    public const XPATH_GATEWAY_SETTINGS = 'gateway_settings';
+    public const XPATH_SORTED_ISSUERS   = 'sorted_issuers';
     /**
      * @var IssuersService
      */
     protected IssuersService $issuersService;
-
-    public const CODE = 'buckaroo_magento2_ideal';
-
-    public const XPATH_SELECTION_TYPE = 'selection_type';
-    public const XPATH_SHOW_ISSUERS   = 'show_issuers';
     /**
      * @var array
      */
@@ -52,6 +51,7 @@ class Ideal extends AbstractConfigProvider
      * @param ScopeConfigInterface $scopeConfig
      * @param AllowedCurrencies $allowedCurrencies
      * @param PaymentFee $paymentFeeHelper
+     * @param LogoService $logoService
      * @param IssuersService $issuersService
      */
     public function __construct(
@@ -59,6 +59,7 @@ class Ideal extends AbstractConfigProvider
         ScopeConfigInterface $scopeConfig,
         AllowedCurrencies $allowedCurrencies,
         PaymentFee $paymentFeeHelper,
+        LogoService $logoService,
         IssuersService $issuersService
     ) {
         $this->issuersService = $issuersService;
@@ -67,14 +68,13 @@ class Ideal extends AbstractConfigProvider
             $assetRepo,
             $scopeConfig,
             $allowedCurrencies,
-            $paymentFeeHelper
+            $paymentFeeHelper,
+            $logoService
         );
     }
 
     /**
      * @inheritdoc
-     *
-     * @throws Exception
      */
     public function getConfig(): array
     {
@@ -82,27 +82,22 @@ class Ideal extends AbstractConfigProvider
             return [];
         }
 
-        $issuers = $this->issuersService->get();
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
+        return $this->fullConfig([
+            'banks'         => $this->formatIssuers(),
+            'selectionType' => $this->getSelectionType(),
+            'showIssuers'   => $this->canShowIssuers(),
+        ]);
+    }
 
-        $selectionType = $this->getSelectionType();
-
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'ideal' => [
-                        'banks'             => $issuers,
-                        'paymentFeeLabel'   => $paymentFeeLabel,
-                        'subtext'           => $this->getSubtext(),
-                        'subtext_style'     => $this->getSubtextStyle(),
-                        'subtext_color'     => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'selectionType'     => $selectionType,
-                        'showIssuers'       => $this->canShowIssuers()
-                    ],
-                ],
-            ],
-        ];
+    /**
+     * Selection type radio checkbox or drop down
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getSelectionType($store = null)
+    {
+        return $this->getMethodConfigValue(self::XPATH_SELECTION_TYPE, $store);
     }
 
     /**
@@ -118,24 +113,62 @@ class Ideal extends AbstractConfigProvider
     }
 
     /**
-     * Selection type radio checkbox or drop down
+     * Get gateway setting ideal/idealprocessing
      *
-     * @param null|int|string $store
-     * @return mixed
+     * @param null|int|string $storeId
+     * @return string
      */
-    public function getSelectionType($store = null)
+    public function getGatewaySettings($storeId = null): string
     {
-        $methodConfig = $this->getMethodConfigValue(self::XPATH_SELECTION_TYPE, $store);
+        return $this->getMethodConfigValue(self::XPATH_GATEWAY_SETTINGS, $storeId) ??
+            str_replace('buckaroo_magento2_', '', self::CODE);
+    }
 
-        /** @deprecated 2.0.0 moved from main configuration to payment configuration */
-        $mainConfig = $this->scopeConfig->getValue(
-            'buckaroo_magento2/account/selection_type',
-            ScopeInterface::SCOPE_STORE,
-        );
+    /**
+     * @param $storeId
+     * @return string
+     */
+    public function getSortedIssuers($storeId = null): string
+    {
+        return $this->getMethodConfigValue(self::XPATH_SORTED_ISSUERS, $storeId) ?? '';
+    }
 
-        if ($methodConfig === null) {
-            return $mainConfig;
+    /**
+     * Generate the url to the desired asset.
+     *
+     * @param string $imgName
+     * @param string $extension
+     *
+     * @return string
+     */
+    public function getImageUrl($imgName, string $extension = 'png')
+    {
+        return parent::getImageUrl("ideal/{$imgName}", "svg");
+    }
+
+    public function getAllIssuers(): array
+    {
+        $issuers = $this->getIssuers();
+        $issuersPrepared = [];
+        foreach ($issuers as $issuer) {
+            $issuer['img'] = $issuer['logo'];
+            $issuersPrepared[$issuer['code']] = $issuer;
         }
-        return $methodConfig;
+
+        return $issuersPrepared;
+    }
+
+    /**
+     * Retrieve the list of issuers.
+     *
+     * @return array
+     */
+    public function getIssuers()
+    {
+        return array_map(function ($issuer) {
+            $issuer['logo'] = $this->issuersService->getImageUrlByIssuerId($issuer['id']);
+            return $issuer;
+        }, $this->issuersService->get());
+
     }
 }

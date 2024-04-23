@@ -77,10 +77,10 @@
 
         <group id="buckaroo_magento2_default" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Method specific configuration</label>
-            <field id="allowed_creditcards" translate="label comment" type="multiselect" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+            <field id="allowed_issuers" translate="label comment" type="multiselect" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Allowed credit and debit cards</label>
-                <comment><![CDATA[Select payment method specific Creditcards.]]></comment>
-                <config_path>payment/buckaroo_magento2_creditcards/allowed_creditcards</config_path>
+                <comment><![CDATA[Select payment method specific Credit and debit card.]]></comment>
+                <config_path>payment/buckaroo_magento2_creditcards/allowed_issuers</config_path>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\Creditcard</source_model>
             </field>
         </group>

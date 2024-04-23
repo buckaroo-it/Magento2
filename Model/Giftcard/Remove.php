@@ -80,7 +80,8 @@ class Remove
         $this->removeCommand->execute([
            'payment' => $this->paymentDataObjectFactory->create($payment),
            'giftcardTransaction' => $giftcardTransaction,
-           'amount' => $giftcardTransaction->getAmount()
+           'amount' => $giftcardTransaction->getAmount(),
+           'cancelOrderId' => $orderId
         ]);
     }
 

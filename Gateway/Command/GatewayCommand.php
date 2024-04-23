@@ -24,9 +24,11 @@ namespace Buckaroo\Magento2\Gateway\Command;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRemainder;
 use Buckaroo\Magento2\Model\Method\LimitReachException;
+use Buckaroo\Magento2\Model\Service\CancelOrder;
 use Buckaroo\Magento2\Service\SpamLimitService;
 use Magento\Payment\Gateway\Command\CommandException;
 use Magento\Payment\Gateway\CommandInterface;
+use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Payment\Gateway\ErrorMapper\ErrorMessageMapperInterface;
 use Magento\Payment\Gateway\Http\ClientException;
 use Magento\Payment\Gateway\Http\ClientInterface;
@@ -36,6 +38,10 @@ use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Payment\Gateway\Response\HandlerInterface;
 use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ValidatorInterface;
+use Magento\Payment\Model\InfoInterface;
+use Magento\Sales\Api\OrderManagementInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Model\Order;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -93,15 +99,23 @@ class GatewayCommand implements CommandInterface
     private SpamLimitService $spamLimitService;
 
     /**
+     * @var CancelOrder
+     */
+    private CancelOrder $cancelOrder;
+
+    /**
      * @param BuilderInterface $requestBuilder
      * @param TransferFactoryInterface $transferFactory
      * @param ClientInterface $client
      * @param LoggerInterface $logger
      * @param SpamLimitService $spamLimitService
+     * @param CancelOrder $cancelOrder
      * @param HandlerInterface|null $handler
      * @param ValidatorInterface|null $validator
      * @param ErrorMessageMapperInterface|null $errorMessageMapper
      * @param SkipCommandInterface|null $skipCommand
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         BuilderInterface            $requestBuilder,
@@ -109,6 +123,7 @@ class GatewayCommand implements CommandInterface
         ClientInterface             $client,
         LoggerInterface             $logger,
         SpamLimitService            $spamLimitService,
+        CancelOrder                 $cancelOrder,
         HandlerInterface            $handler = null,
         ValidatorInterface          $validator = null,
         ErrorMessageMapperInterface $errorMessageMapper = null,
@@ -123,6 +138,7 @@ class GatewayCommand implements CommandInterface
         $this->errorMessageMapper = $errorMessageMapper;
         $this->skipCommand = $skipCommand;
         $this->spamLimitService = $spamLimitService;
+        $this->cancelOrder = $cancelOrder;
     }
 
     /**
@@ -137,6 +153,8 @@ class GatewayCommand implements CommandInterface
     public function execute(array $commandSubject): void
     {
         $paymentDO = SubjectReader::readPayment($commandSubject);
+
+        $this->cancelOrder->cancelPreviousPendingOrder($paymentDO);
 
         if ($this->client instanceof TransactionPayRemainder) {
             $orderIncrementId = $paymentDO->getOrder()->getOrder()->getIncrementId();

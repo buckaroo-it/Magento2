@@ -24,11 +24,11 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Helper\PaymentFee;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
+use Buckaroo\Magento2\Service\LogoService;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Data\Form\FormKey;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\View\Asset\Repository;
-use Magento\Store\Model\ScopeInterface;
 
 class Mrcash extends AbstractConfigProvider
 {
@@ -48,6 +48,7 @@ class Mrcash extends AbstractConfigProvider
      * @param ScopeConfigInterface $scopeConfig
      * @param AllowedCurrencies $allowedCurrencies
      * @param PaymentFee $paymentFeeHelper
+     * @param LogoService $logoService
      * @param FormKey $formKey
      */
     public function __construct(
@@ -55,9 +56,10 @@ class Mrcash extends AbstractConfigProvider
         ScopeConfigInterface $scopeConfig,
         AllowedCurrencies $allowedCurrencies,
         PaymentFee $paymentFeeHelper,
+        LogoService $logoService,
         FormKey $formKey
     ) {
-        parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper);
+        parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper, $logoService);
 
         $this->formKey = $formKey;
     }
@@ -68,25 +70,16 @@ class Mrcash extends AbstractConfigProvider
      * @throws Exception
      * @throws LocalizedException
      */
-    public function getConfig()
+    public function getConfig(): array
     {
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
+        if (!$this->getActive()) {
+            return [];
+        }
 
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'mrcash' => [
-                        'paymentFeeLabel'   => $paymentFeeLabel,
-                        'subtext'           => $this->getSubtext(),
-                        'subtext_style'     => $this->getSubtextStyle(),
-                        'subtext_color'     => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'useClientSide'     => (int)$this->useClientSide(),
-                        'redirecturl'       => self::MRCASH_REDIRECT_URL . '?form_key=' . $this->getFormKey()
-                    ],
-                ],
-            ],
-        ];
+        return $this->fullConfig([
+            'useClientSide' => (int)$this->useClientSide(),
+            'redirecturl'   => self::MRCASH_REDIRECT_URL . '?form_key=' . $this->getFormKey(),
+        ]);
     }
 
     /**
@@ -95,7 +88,7 @@ class Mrcash extends AbstractConfigProvider
      * @param null|int|string $store
      * @return mixed
      */
-    private function useClientSide($store = null)
+    public function useClientSide($store = null)
     {
         return $this->getMethodConfigValue(self::XPATH_MRCASH_USE_CLIENT_SIDE, $store);
     }

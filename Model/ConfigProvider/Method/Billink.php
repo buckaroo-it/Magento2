@@ -20,12 +20,13 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use Buckaroo\Magento2\Helper\Data as BuckarooHelper;
-use Buckaroo\Magento2\Helper\PaymentFee;
-use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
-use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\View\Asset\Repository;
 use Magento\Store\Model\ScopeInterface;
+use Buckaroo\Magento2\Helper\PaymentFee;
+use Buckaroo\Magento2\Service\LogoService;
+use Magento\Framework\View\Asset\Repository;
+use Buckaroo\Magento2\Helper\Data as BuckarooHelper;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 
 class Billink extends AbstractConfigProvider
 {
@@ -39,20 +40,22 @@ class Billink extends AbstractConfigProvider
     private BuckarooHelper $helper;
 
     /**
-     * @param Repository           $assetRepo
+     * @param Repository $assetRepo
      * @param ScopeConfigInterface $scopeConfig
-     * @param AllowedCurrencies    $allowedCurrencies
-     * @param PaymentFee           $paymentFeeHelper
-     * @param BuckarooHelper       $helper
+     * @param AllowedCurrencies $allowedCurrencies
+     * @param PaymentFee $paymentFeeHelper
+     * @param LogoService $logoService
+     * @param BuckarooHelper $helper
      */
     public function __construct(
         Repository $assetRepo,
         ScopeConfigInterface $scopeConfig,
         AllowedCurrencies $allowedCurrencies,
         PaymentFee $paymentFeeHelper,
+        LogoService $logoService,
         BuckarooHelper $helper
     ) {
-        parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper);
+        parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper, $logoService);
 
         $this->helper = $helper;
     }
@@ -60,38 +63,24 @@ class Billink extends AbstractConfigProvider
     /**
      * @inheritdoc
      */
-    public function getConfig()
+    public function getConfig(): array
     {
         if (!$this->getActive()) {
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
-
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'billink' => [
-                        'sendEmail'         => $this->hasOrderEmail(),
-                        'paymentFeeLabel'   => $paymentFeeLabel,
-                        'subtext'           => $this->getSubtext(),
-                        'subtext_style'     => $this->getSubtextStyle(),
-                        'subtext_color'     => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'b2b'               => $this->helper->checkCustomerGroup('buckaroo_magento2_billink'),
-                        'genderList'        => [
-                            ['genderType' => 'male', 'genderTitle' => __('He/him')],
-                            ['genderType' => 'female', 'genderTitle' => __('She/her')],
-                            ['genderType' => 'unknown', 'genderTitle' => __('They/them')],
-                            ['genderType' => 'unknown', 'genderTitle' => __('I prefer not to say')]
-                        ],
-                        'businessMethod'    => $this->getBusiness(),
-                        'showFinancialWarning' => $this->canShowFinancialWarning()
-                    ],
-                    'response' => [],
-                ],
+        return $this->fullConfig([
+            'sendEmail'         => $this->hasOrderEmail(),
+            'b2b'               => $this->isB2B(),
+            'genderList'        => [
+                ['genderType' => 'male', 'genderTitle' => __('He/him')],
+                ['genderType' => 'female', 'genderTitle' => __('She/her')],
+                ['genderType' => 'unknown', 'genderTitle' => __('They/them')],
+                ['genderType' => 'unknown', 'genderTitle' => __('I prefer not to say')]
             ],
-        ];
+            'businessMethod'    => $this->getBusiness(),
+            'showFinancialWarning' => $this->canShowFinancialWarning(),
+        ]);
     }
 
     /**
@@ -106,5 +95,15 @@ class Billink extends AbstractConfigProvider
         $business = (int)$this->getMethodConfigValue(self::XPATH_BILLINK_BUSINESS);
 
         return $business ?: false;
+    }
+
+    /**
+     * Get Customer Group
+     *
+     * @return bool
+     */
+    public function isB2B()
+    {
+        return $this->helper->checkCustomerGroup('buckaroo_magento2_billink');
     }
 }

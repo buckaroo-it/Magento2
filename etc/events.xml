@@ -35,7 +35,6 @@
         <observer name="buckaroo_magento2_group_transaction_register" instance="Buckaroo\Magento2\Observer\GroupTransactionRegister" />
         <observer name="buckaroo_magento2_fee_invoice" instance="Buckaroo\Magento2\Observer\InvoiceRegister" />
         <observer name="buckaroo_magento2_set_transaction" instance="Buckaroo\Magento2\Observer\SetTransactionOnInvoiceObserver" />
-
     </event>
     <event name="sales_order_invoice_pay">
         <observer name="buckaroo_magento2_group_transaction_register" instance="Buckaroo\Magento2\Observer\GroupTransactionRegister" />
@@ -67,5 +66,9 @@
 
     <event name="payment_method_assign_data">
         <observer name="buckaroo_gateway_data_assign" instance="Buckaroo\Magento2\Observer\DataAssignObserver" />
+    </event>
+
+    <event name="sales_quote_merge_before">
+        <observer name="prevent_merge_quote" instance="Buckaroo\Magento2\Observer\PreventMergeQuoteObserver"/>
     </event>
 </config>

@@ -29,27 +29,6 @@ class CreditClick extends AbstractConfigProvider
 
     /**
      * @inheritdoc
-     *
-     * @throws Exception
-     */
-    public function getConfig(): array
-    {
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
-
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'creditclick' => [
-                        'paymentFeeLabel'   => $paymentFeeLabel,
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                    ],
-                ],
-            ],
-        ];
-    }
-
-    /**
-     * @inheritdoc
      */
     public function getBaseAllowedCurrencies(): array
     {

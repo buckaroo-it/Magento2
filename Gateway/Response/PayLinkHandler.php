@@ -24,6 +24,8 @@ namespace Buckaroo\Magento2\Gateway\Response;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Magento\Framework\Message\ManagerInterface as MessageManager;
 use Magento\Payment\Gateway\Response\HandlerInterface;
+use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Model\Order;
 
 class PayLinkHandler implements HandlerInterface
 {
@@ -48,8 +50,12 @@ class PayLinkHandler implements HandlerInterface
     {
         $response = SubjectReader::readTransactionResponse($response);
         $paylink = $response->getServiceParameters()['paylink'] ?? '';
+        $paymentDO = SubjectReader::readPayment($handlingSubject);
+        /** @var Order $order */
+        $order = $paymentDO->getOrder()->getOrder();
 
         if (!empty($paylink)) {
+            $order->addCommentToStatusHistory('Paylink: ' . $paylink);
             $this->messageManager->addSuccess(
                 __(
                     'Your PayLink <a href="%1">%1</a>',

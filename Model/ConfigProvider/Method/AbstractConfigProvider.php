@@ -20,15 +20,17 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
+use Magento\Store\Model\Store;
 use Buckaroo\Magento2\Exception;
+use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\PaymentFee;
-use Buckaroo\Magento2\Model\ConfigProvider\AbstractConfigProvider as BaseAbstractConfigProvider;
+use Buckaroo\Magento2\Service\LogoService;
+use Magento\Framework\View\Asset\Repository;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 use Magento\Checkout\Model\ConfigProviderInterface as CheckoutConfigProvider;
-use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\View\Asset\Repository;
-use Magento\Store\Model\ScopeInterface;
-use Magento\Store\Model\Store;
+use Buckaroo\Magento2\Model\ConfigProvider\AbstractConfigProvider as BaseAbstractConfigProvider;
 
 /**
  * @SuppressWarnings(PHPMD.NumberOfChildren)
@@ -69,84 +71,6 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     protected $assetRepo;
 
     /**
-     * The list of issuers. This is filled by the child classes.
-     *
-     * @var array
-     */
-    protected array $issuers = [
-        [
-            'name' => 'ABN AMRO',
-            'code' => 'ABNANL2A',
-            'imgName' => 'abnamro'
-        ],
-        [
-            'name' => 'ASN Bank',
-            'code' => 'ASNBNL21',
-            'imgName' => 'asnbank'
-        ],
-        [
-            'name' => 'Bunq Bank',
-            'code' => 'BUNQNL2A',
-            'imgName' => 'bunq'
-        ],
-        [
-            'name' => 'ING',
-            'code' => 'INGBNL2A',
-            'imgName' => 'ing'
-        ],
-        [
-            'name' => 'Knab Bank',
-            'code' => 'KNABNL2H',
-            'imgName' => 'knab'
-        ],
-        [
-            'name' => 'Rabobank',
-            'code' => 'RABONL2U',
-            'imgName' => 'rabobank'
-        ],
-        [
-            'name' => 'RegioBank',
-            'code' => 'RBRBNL21',
-            'imgName' => 'regiobank'
-        ],
-        [
-            'name' => 'SNS Bank',
-            'code' => 'SNSBNL2A',
-            'imgName' => 'sns'
-        ],
-        [
-            'name' => 'Triodos Bank',
-            'code' => 'TRIONL2U',
-            'imgName' => 'triodos'
-        ],
-        [
-            'name' => 'Van Lanschot Kempen',
-            'code' => 'FVLBNL22',
-            'imgName' => 'vanlanschot'
-        ],
-        [
-            'name' => 'Revolut',
-            'code' => 'REVOLT21',
-            'imgName' => 'revolut'
-        ],
-        [
-            'name' => 'Yoursafe',
-            'code' => 'BITSNL2A',
-            'imgName' => 'yoursafe'
-        ],
-        [
-            'name' => 'N26',
-            'code' => 'NTSBDEB1',
-            'imgName' => 'n26'
-        ],
-        [
-            'name' => 'Nationale Nederlanden',
-            'code' => 'NNBANL2G',
-            'imgName' => 'nn'
-        ]
-    ];
-
-    /**
      * @var ScopeConfigInterface
      */
     protected $scopeConfig;
@@ -167,6 +91,13 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     protected $paymentFeeHelper;
 
     /**
+     * @var LogoService
+     */
+    protected $logoService;
+
+
+    protected array $issuers = [];
+    /**
      * @param Repository $assetRepo
      * @param ScopeConfigInterface $scopeConfig
      * @param AllowedCurrencies $allowedCurrencies
@@ -176,12 +107,14 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
         Repository $assetRepo,
         ScopeConfigInterface $scopeConfig,
         AllowedCurrencies $allowedCurrencies,
-        PaymentFee $paymentFeeHelper
+        PaymentFee $paymentFeeHelper,
+        LogoService $logoService
     ) {
         parent::__construct($scopeConfig, static::CODE);
 
         $this->assetRepo = $assetRepo;
         $this->paymentFeeHelper = $paymentFeeHelper;
+        $this->logoService = $logoService;
 
         if (!$this->allowedCurrencies) {
             $this->allowedCurrencies = $allowedCurrencies->getAllowedCurrencies();
@@ -203,26 +136,38 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      *
      * @return array
      */
-    protected function formatIssuers()
+    public function formatIssuers()
     {
-        return array_map(
-            function ($issuer) {
-                if (isset($issuer['imgName'])) {
-                    $issuer['img'] = $this->getImageUrl("ideal/{$issuer['imgName']}", "svg");
+        $issuers = $this->getIssuers();
+        $codeToIssuerMap = [];
+        foreach ($issuers as &$issuer) {
+            if(isset($issuer['imgName'])) {
+                $issuer['img'] = $this->getImageUrl($issuer['imgName']);
+            }
+            $codeToIssuerMap[$issuer['code']] = $issuer;
+        }
+        if(method_exists($this, 'getSortedIssuers')) {
+            $sortedCodes = $this->getSortedIssuers() ?? '';
+            $sortedCodes = $sortedCodes ? explode(',',$sortedCodes) : [];
+            if(!empty($sortedCodes)) {
+                $sortedIssuers = [];
+                foreach ($sortedCodes as $code) {
+                    if (isset($codeToIssuerMap[$code])) {
+                        $sortedIssuers[] = $codeToIssuerMap[$code];
+                    }
                 }
-                return $issuer;
-            },
-            $this->getIssuers()
-        );
+            }
+
+            return $sortedIssuers ?? $issuers;
+
+        }
+
+        return $issuers;
     }
 
     public function getCreditcardLogo(string $code): string
     {
-        if ($code === 'cartebleuevisa') {
-            $code = 'cartebleue';
-        }
-
-        return $this->getImageUrl("creditcards/{$code}", "svg");
+        return $this->logoService->getCreditcard($code);
     }
 
     /**
@@ -359,13 +304,21 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     /**
      * Get buckaroo payment fee
      *
-     * @param string|bool $method
-     * @return string
-     * @throws Exception
+     * @return string|null
      */
-    public function getBuckarooPaymentFeeLabel($method = false)
+    public function getBuckarooPaymentFeeLabel(): ?string
     {
-        return $this->paymentFeeHelper->getBuckarooPaymentFeeLabel($method);
+        $paymentFeeLabel = $this->getPaymentFeeLabel();
+
+        if (!$paymentFeeLabel) {
+            $paymentFeeLabel = $this->getAccoutPaymentFeeLabel();
+        }
+
+        if (!$paymentFeeLabel) {
+            $paymentFeeLabel = __('Buckaroo Fee');
+        }
+
+        return $paymentFeeLabel;
     }
 
     /**
@@ -423,6 +376,21 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     public function getPaymentFeeLabel($store = null)
     {
         return $this->getMethodConfigValue(static::PAYMENT_FEE_LABEL, $store);
+    }
+
+    /**
+     * Get Account Payment fee frontend label
+     *
+     * @param null|int|string $store
+     * @return mixed|null
+     */
+    protected function getAccoutPaymentFeeLabel($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            Account::XPATH_ACCOUNT_PAYMENT_FEE_LABEL,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
     }
 
     /**
@@ -499,5 +467,68 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     protected function canShowFinancialWarning($store = null): bool
     {
         return $this->getMethodConfigValue(static::FINANCIAL_WARNING, $store) !== "0";
+    }
+
+    /**
+     * Is test mode
+     *
+     * @return boolean
+     */
+    protected function isTestMode($store = null): bool
+    {
+        return $this->getActive($store) == "1";
+    }
+
+    /**
+     * Get all issuers not sorted
+     *
+     * @return array
+     */
+    public function getAllIssuers(): array
+    {
+        $issuers = $this->getIssuers();
+        $issuersPrepared = [];
+        foreach ($issuers as $issuer) {
+            $issuer['img'] = $this->getImageUrl($issuer['imgName']);
+            $issuersPrepared[$issuer['code']] = $issuer;
+        }
+
+        return $issuersPrepared;
+    }
+
+    public function getConfig(): array
+    {
+        return $this->fullConfig();
+    }
+
+    protected function fullConfig(array $additonal = []): array
+    {
+
+        if (!$this->getActive()) {
+            return [];
+        }
+
+        return [
+            'payment' => [
+                'buckaroo' => [
+                    static::CODE => array_merge_recursive(
+                        [
+                            'paymentFeeLabel'   => $this->getBuckarooPaymentFeeLabel(),
+                            'subtext'           => $this->getSubtext(),
+                            'subtext_style'     => $this->getSubtextStyle(),
+                            'subtext_color'     => $this->getSubtextColor(),
+                            'allowedCurrencies' => $this->getAllowedCurrencies(),
+                            'isTestMode'        => $this->isTestMode(),
+                            'logo'              => $this->getLogo(),
+                        ],
+                        $additonal
+                    )
+                ],
+            ]
+        ];
+    }
+
+    public function getLogo():string {
+        return $this->logoService->getPayment(str_replace("buckaroo_magento2_", "", static::CODE));
     }
 }

@@ -31,6 +31,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Eps;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
+use Buckaroo\Magento2\Model\LockManagerWrapper;
 use Magento\Payment\Model\MethodInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
@@ -56,6 +57,7 @@ class CommandInterface
      * @var Data
      */
     public Data $helper;
+
 
     /**
      * @param Factory $configProviderMethodFactory
@@ -95,8 +97,11 @@ class CommandInterface
     ) {
         $message = $proceed($payment, $amount, $order);
 
-        $methodInstance = $payment->getMethodInstance();
-        $paymentAction = $methodInstance->getConfigPaymentAction();
+
+        try {
+            /** @var MethodInterface $methodInstance */
+            $methodInstance = $payment->getMethodInstance();
+            $paymentAction = $methodInstance->getConfigPaymentAction();
         $paymentCode = $methodInstance->getCode();
         $buckarooPaymentCode = substr($paymentCode, 0, 18);
 
@@ -109,7 +114,7 @@ class CommandInterface
             $paymentAction
         ));
 
-        if ($buckarooPaymentCode == 'buckaroo_magento2_' && $paymentAction) {
+        if ($buckarooPaymentCode == 'buckaroo_magento2_' && $paymentAction && $order->canInvoice()) {
             $orderState = Order::STATE_NEW;
             $orderStatus = $this->helper->getOrderStatusByState($order, $orderState);
 
@@ -128,9 +133,14 @@ class CommandInterface
 
             $order->setState($orderState);
             $order->setStatus($orderStatus);
-        }
+            }
 
-        return $message;
+            return $message;
+
+        } catch (\Exception $e) {
+            $this->logger->addDebug(__METHOD__ . '|Exception|' . $e->getMessage());
+            throw $e;
+        }
     }
 
     /**

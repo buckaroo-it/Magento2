@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Gateway\Validator;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Helper\Data;
+use Buckaroo\Magento2\Model\Transaction\Status\Response;
 use Buckaroo\Transaction\Response\TransactionResponse;
 use Magento\Framework\App\Request\Http;
 use Magento\Framework\Exception\LocalizedException;
@@ -71,70 +72,24 @@ class ResponseCodeSDKValidator extends AbstractValidator
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @throws LocalizedException
      */
-    public function validate(array $validationSubject)
+    public function validate(array $validationSubject): ResultInterface
     {
         $response = $validationSubject['response']['object'] ?? null;
 
-        if ($response === null && !($response instanceof TransactionResponse)) {
-            return $this->createResult(
-                false,
-                [__('Data must be an instance of "TransactionResponse"')]
-            );
+        if (!$response instanceof TransactionResponse) {
+            return $this->createResult(false, [__('Data must be an instance of "TransactionResponse"')]);
         }
 
         $this->transaction = $response;
         $statusCode = $this->getStatusCode();
 
-        switch ($statusCode) {
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'):
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING'):
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_WAITING_ON_USER_INPUT'):
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_WAITING_ON_CONSUMER'):
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PAYMENT_ON_HOLD'):
-                $success = true;
-                break;
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_ORDER_FAILED'):
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_VALIDATION_FAILURE'):
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_TECHNICAL_ERROR'):
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED'):
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_REJECTED'):
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER'):
-            case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_MERCHANT'):
-                $success = false;
-                break;
-            default:
-                return $this->createResult(
-                    false,
-                    [__("Invalid Buckaroo status code received: %1.")],
-                    [$statusCode]
-                );
+        if ($this->isSuccessStatusCode($statusCode)) {
+            return $this->createResult(true, [__('Transaction Success')], [$statusCode]);
+        } elseif ($this->isFailedStatusCode($statusCode)) {
+            return $this->handleFailureStatusCode($validationSubject, $statusCode);
         }
 
-        if ($success) {
-            $response = $this->createResult(
-                true,
-                [__('Transaction Success')],
-                [$statusCode]
-            );
-        } else {
-            $payment = SubjectReader::readPayment($validationSubject)->getPayment();
-            $methodInstanceClass = $payment->getMethodInstance();
-
-            if ($methodInstanceClass->getCode() == 'buckaroo_magento2_klarnakp') {
-                $methodInstanceClass::$requestOnVoid = false;
-            }
-
-            $message = !empty($this->transaction->getSomeError()) ?
-                $this->transaction->getSomeError()
-                : 'Gateway rejected the transaction.';
-            $response = $this->createResult(
-                false,
-                [__($message)],
-                [$statusCode]
-            );
-        }
-
-        return $response;
+        return $this->createResult(false, [__("Invalid Buckaroo status code received: %1.")], [$statusCode]);
     }
 
     /**
@@ -142,20 +97,87 @@ class ResponseCodeSDKValidator extends AbstractValidator
      *
      * @return int|null
      */
-    public function getStatusCode()
+    public function getStatusCode(): ?int
     {
         $statusCode = $this->transaction->getStatusCode();
 
         if ((!isset($statusCode) || $statusCode == null) && $this->transaction->isCanceled()) {
-            $statusCode = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS');
+            $statusCode = Response::STATUSCODE_SUCCESS;
         }
 
         if ((!isset($statusCode) || $statusCode == null)
             && $this->request->getParam('cancel')
         ) {
-            $statusCode = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER');
+            $statusCode = Response::STATUSCODE_CANCELLED_BY_USER;
         }
 
         return $statusCode;
+    }
+
+    private function isSuccessStatusCode(int $statusCode): bool
+    {
+        return in_array($statusCode, [
+            Response::STATUSCODE_SUCCESS,
+            Response::STATUSCODE_PENDING_PROCESSING,
+            Response::STATUSCODE_WAITING_ON_USER_INPUT,
+            Response::STATUSCODE_WAITING_ON_CONSUMER,
+            Response::STATUSCODE_PAYMENT_ON_HOLD,
+        ]);
+    }
+
+    private function isFailedStatusCode(int $statusCode): bool
+    {
+        return in_array($statusCode, [
+            Response::ORDER_FAILED,
+            Response::STATUSCODE_VALIDATION_FAILURE,
+            Response::STATUSCODE_TECHNICAL_ERROR,
+            Response::STATUSCODE_FAILED,
+            Response::STATUSCODE_REJECTED,
+            Response::STATUSCODE_CANCELLED_BY_USER,
+            Response::STATUSCODE_CANCELLED_BY_MERCHANT,
+        ]);
+    }
+
+    /**
+     * @throws LocalizedException
+     */
+    private function handleFailureStatusCode(array $validationSubject, ?int $statusCode): ResultInterface
+    {
+        $payment = SubjectReader::readPayment($validationSubject)->getPayment();
+        $methodInstanceClass = $payment->getMethodInstance();
+
+        if ($methodInstanceClass->getCode() == 'buckaroo_magento2_klarnakp') {
+            $methodInstanceClass::$requestOnVoid = false;
+        }
+
+        $message = !empty($this->transaction->getSomeError()) ?
+            $this->transaction->getSomeError()
+            : 'Gateway rejected the transaction.';
+
+        if ($statusCode === 690
+            && strpos($message, "deliveryCustomer.address.countryCode") !== false
+        ) {
+            $message = "Pay rejected: It is not allowed to specify another country " .
+                "for the invoice and delivery address for Afterpay transactions.";
+        }
+
+        $fraudMessage = $this->getFailureMessageOnFraud();
+        if ($fraudMessage !== null) {
+            $message = $fraudMessage;
+        }
+
+        return $this->createResult(false, [__($message)], [$statusCode]);
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getFailureMessageOnFraud(): ?string
+    {
+        if ($this->transaction->getSubStatusCode() == 'S103') {
+            return 'An anti-fraud rule has blocked this transaction automatically. Please contact the webshop.';
+        }
+
+        return null;
     }
 }

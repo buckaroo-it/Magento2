@@ -8,16 +8,21 @@
                        data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
                 <label class="label" data-bind="attr: {'for': getCode()}" >
                         <!-- ko text: getTitle() --><!-- /ko -->
-                        <!-- ko if: subtext !== null && subtext.length > 0 -->
-                       <p class="bk-description" data-bind="text: subtext, style: subTextStyle"></p>
+                        <!-- ko if: buckaroo.subtext !== null && buckaroo.subtext.length > 0 -->
+                       <p class="bk-description" data-bind="text:buckaroo.subtext, style: getSubtextStyle()"></p>
                         <!-- /ko -->
                 </label>
             </div>
-            <div class="bk-img-wrap">
-                <img
-                    data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/'+getCode().replace('buckaroo_magento2_','')+'.svg') }"
-                    alt="Pay Per Email Logo"
-                />
+            <div class="bk-mode-and-img">
+                <!-- ko if: buckaroo.isTestMode -->
+                <div class="bk-test-mode"><div class="bk-test-text" data-bind="i18n: 'Test Mode'"></div></div>
+                <!-- /ko -->
+                <div class="bk-img-wrap">
+                    <img
+                        data-bind="attr: { src: buckaroo.logo }"
+                        alt="Pay Per Email Logo"
+                    />
+                </div>
             </div>
         </div>
     </div>
@@ -41,14 +46,16 @@
                     <div class="field required">
                         <label class="label" for="buckaroo_magento2_payperemail_genderSelect"> <span data-bind="i18n: 'Salutation:'"> </span> </label>
                         <div class="control">
-                            <select id="buckaroo_magento2_payperemail_genderSelect" name="payment[buckaroo_magento2_payperemail[customer_gender]" class="field"
-                                data-bind="options: genderList,
+                            <select id="buckaroo_magento2_payperemail_genderSelect"
+                                    name="payment[buckaroo_magento2_payperemail[customer_gender]"
+                                    class="field select"
+                                    data-bind="options: buckaroo.genderList,
                                     optionsText: $t('genderTitle'),
                                     optionsValue: 'genderType',
                                     optionsCaption: $t('-- Please Select Your Gender--'),
                                     value: selectedGender,
-                                    attr: { 'data-validate': JSON.stringify({ 'required': true }) },
-                                    event: { blur: validateField }" class="select">
+                                    event: { blur: validateField }"
+                                    data-validate="{required:true}">
                             </select>
                         </div>
                     </div>
@@ -63,10 +70,9 @@
                                    data-bind="
                                        valueUpdate: 'keyup',
                                        value: firstName,
-                                       attr: { 'data-validate': JSON.stringify({ 'required': true }) },
                                        event: { blur: validateField }"
-                                   name="payment[buckaroo_magento2_payperemail][customer_billingFirstName]"
-                                   >
+                                   data-validate="{required:true}"
+                                   name="payment[buckaroo_magento2_payperemail][customer_billingFirstName]">
                         </div>
                     </div>
 
@@ -93,8 +99,8 @@
                                    data-bind="
                                        valueUpdate: 'keyup',
                                        value: lastName,
-                                       attr: { 'data-validate': JSON.stringify({ 'required': true }) },
                                        event: { blur: validateField }"
+                                   data-validate="{required:true}"
                                    name="payment[buckaroo_magento2_payperemail][customer_billingLastName]"
                             >
                         </div>
@@ -109,8 +115,8 @@
                                    data-bind="
                                        valueUpdate: 'keyup',
                                        value: email,
-                                       attr: { 'data-validate': JSON.stringify({ 'required': true, 'validate-email': true })},
                                        event: { blur: validateField }"
+                                   data-validate="{required:true, 'validate-email': true}"
                                    name="payment[buckaroo_magento2_payperemail][customer_email]">
                         </div>
                     </div>
@@ -131,7 +137,7 @@
                         click: placeOrder,
                         attr: {title: $t('Place Order')},
                         enable: (getCode() == isChecked()),
-                        css: {disabled: !isPlaceOrderActionAllowed() || !buttoncheck() }
+                        css: {disabled: !isPlaceOrderActionAllowed() }
                         "
                         disabled>
                     <span data-bind="i18n: 'Place Order'"></span>

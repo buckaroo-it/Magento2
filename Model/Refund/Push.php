@@ -32,6 +32,7 @@ use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Creditmemo;
 use Magento\Sales\Model\Order\CreditmemoFactory;
 use Magento\Sales\Model\Order\Email\Sender\CreditmemoSender;
+use Buckaroo\Magento2\Model\ConfigProvider\Refund as RefundConfigProvider;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -358,13 +359,19 @@ class Push
         $items = [];
         $qty = 0;
 
-        foreach ($this->order->getAllItems() as $orderItem) {
-            if (!array_key_exists($orderItem->getId(), $items)) {
-                if ($this->helper->areEqualAmounts($this->creditAmount, $this->order->getBaseGrandTotal())) {
-                    $qty = $orderItem->getQtyInvoiced() - $orderItem->getQtyRefunded();
-                }
+        $refundedItems = $this->order->getPayment()->getAdditionalInformation(RefundConfigProvider::ADDITIONAL_INFO_PENDING_REFUND_ITEMS);
 
-                $items[$orderItem->getId()] = ['qty' => (int)$qty];
+        if($refundedItems) {
+            $items = $refundedItems;
+        } else {
+            foreach ($this->order->getAllItems() as $orderItem) {
+                if (!array_key_exists($orderItem->getId(), $items)) {
+                    if ($this->helper->areEqualAmounts($this->creditAmount, $this->order->getBaseGrandTotal())) {
+                        $qty = $orderItem->getQtyInvoiced() - $orderItem->getQtyRefunded();
+                    }
+
+                    $items[$orderItem->getId()] = ['qty' => (int)$qty];
+                }
             }
         }
 

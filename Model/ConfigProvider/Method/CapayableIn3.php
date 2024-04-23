@@ -20,8 +20,6 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use Buckaroo\Magento2\Exception;
-
 class CapayableIn3 extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_capayablein3';
@@ -48,32 +46,16 @@ class CapayableIn3 extends AbstractConfigProvider
 
     /**
      * @inheritdoc
-     *
-     * @throws Exception
      */
-    public function getConfig()
+    public function getConfig(): array
     {
         if (!$this->getActive()) {
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
-
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'capayablein3' => [
-                        'paymentFeeLabel'      => $paymentFeeLabel,
-                        'subtext'              => $this->getSubtext(),
-                        'subtext_style'        => $this->getSubtextStyle(),
-                        'subtext_color'        => $this->getSubtextColor(),
-                        'allowedCurrencies'    => $this->getAllowedCurrencies(),
-                        'logo'                 => $this->getLogo(),
-                        'showFinancialWarning' => $this->canShowFinancialWarning()
-                    ],
-                ],
-            ],
-        ];
+        return $this->fullConfig([
+            'showFinancialWarning' => $this->canShowFinancialWarning(),
+        ]);
     }
 
     /**
@@ -84,17 +66,13 @@ class CapayableIn3 extends AbstractConfigProvider
      */
     public function getLogo($storeId = null): string
     {
-        $logo = $this->getMethodConfigValue(self::XPATH_CAPAYABLEIN3_PAYMENT_LOGO, $storeId);
+        $logo = 'ideal-in3.svg';
 
         if ($this->isV2($storeId)) {
-            return 'in3.svg';
+            $logo = 'in3.svg';
         }
 
-        if (!is_string($logo)) {
-            return 'ideal-in3.svg';
-        }
-
-        return $logo;
+        return $this->logoService->getLogoUrl("images/svg/".$logo);
     }
 
     /**

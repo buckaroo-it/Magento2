@@ -21,20 +21,23 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use Buckaroo\Magento2\Gateway\Request\SaveIssuerDataBuilder;
+use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\PaymentFee;
+use Buckaroo\Magento2\Service\LogoService;
+use Magento\Framework\View\Asset\Repository;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
-use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\View\Asset\Repository;
-use Magento\Store\Model\ScopeInterface;
+use Buckaroo\Magento2\Gateway\Request\SaveIssuerDataBuilder;
+use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 
 class PayByBank extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_paybybank';
 
     public const XPATH_ACCOUNT_SELECTION_TYPE = 'buckaroo_magento2/account/selection_type';
+    public const XPATH_SORTED_ISSUERS           = 'payment/buckaroo_magento2_paybybank/sorted_issuers';
+
 
     protected array $issuers = [
         [
@@ -95,6 +98,7 @@ class PayByBank extends AbstractConfigProvider
      * @param ScopeConfigInterface $scopeConfig
      * @param AllowedCurrencies $allowedCurrencies
      * @param PaymentFee $paymentFeeHelper
+     * @param LogoService $logoService
      * @param CustomerSession $customerSession
      */
     public function __construct(
@@ -102,9 +106,10 @@ class PayByBank extends AbstractConfigProvider
         ScopeConfigInterface $scopeConfig,
         AllowedCurrencies $allowedCurrencies,
         PaymentFee $paymentFeeHelper,
+        LogoService $logoService,
         CustomerSession $customerSession
     ) {
-        parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper);
+        parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper, $logoService);
         $this->customerSession = $customerSession;
     }
 
@@ -122,20 +127,10 @@ class PayByBank extends AbstractConfigProvider
             ScopeInterface::SCOPE_STORE
         );
 
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'paybybank' => [
-                        'banks'             => $this->getIssuersWithSelected(),
-                        'subtext'           => $this->getSubtext(),
-                        'subtext_style'     => $this->getSubtextStyle(),
-                        'subtext_color'     => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'selectionType'     => $selectionType,
-                    ],
-                ],
-            ],
-        ];
+        return $this->fullConfig([
+            'banks'             => $this->getIssuersWithSelected(),
+            'selectionType'     => $selectionType,
+        ]);
     }
 
     /**
@@ -190,5 +185,31 @@ class PayByBank extends AbstractConfigProvider
             ScopeInterface::SCOPE_STORE,
             $store
         );
+    }
+
+    /**
+     * @param $storeId
+     * @return mixed
+     */
+    public function getSortedIssuers($storeId = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_SORTED_ISSUERS,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        ) ?? '';
+    }
+
+    /**
+     * Generate the url to the desired asset.
+     *
+     * @param string $imgName
+     * @param string $extension
+     *
+     * @return string
+     */
+    public function getImageUrl($imgName, string $extension = 'png')
+    {
+        return parent::getImageUrl("ideal/{$imgName}", "svg");
     }
 }

@@ -21,25 +21,15 @@
 define(
     [
         'jquery',
-        'Magento_Checkout/js/view/payment/default',
-        'Magento_Checkout/js/model/payment/additional-validators',
-        'Buckaroo_Magento2/js/action/place-order',
+        'buckaroo/checkout/payment/default',
         'ko',
-        'Magento_Checkout/js/checkout-data',
-        'Magento_Checkout/js/action/select-payment-method',
         'Magento_Checkout/js/model/quote',
-        'buckaroo/checkout/common'
     ],
     function (
         $,
         Component,
-        additionalValidators,
-        placeOrderAction,
         ko,
-        checkoutData,
-        selectPaymentMethodAction,
         quote,
-        checkoutCommon
     ) {
         'use strict';
 
@@ -48,9 +38,8 @@ define(
          * This function check if the checksum if correct
          */
 
-        function isValidIBAN($v)
-        {
-            $v = $v.replace(/^(.{4})(.*)$/,"$2$1"); //Move the first 4 chars from left to the right
+        function isValidIBAN($v) {
+            $v = $v.replace(/^(.{4})(.*)$/, "$2$1"); //Move the first 4 chars from left to the right
             //Convert A-Z to 10-25
             $v = $v.replace(
                 /[A-Z]/g,
@@ -61,7 +50,7 @@ define(
             var $sum = 0;
             var $ei = 1; //First exponent
             for (var $i = $v.length - 1; $i >= 0; $i--) {
-                $sum += $ei * parseInt($v.charAt($i),10); //multiply the digit by it's exponent
+                $sum += $ei * parseInt($v.charAt($i), 10); //multiply the digit by it's exponent
                 $ei = ($ei * 10) % 97; //compute next base 10 exponent  in modulus 97
             }
             return $sum % 97 == 1;
@@ -103,101 +92,27 @@ define(
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_sepadirectdebit',
                     bankaccountholder: '',
                     bankaccountnumber: '',
-                    bicnumber: '',
-                    isnl: false,
-                    validationState : {},
-                },
-                paymentFeeLabel : window.checkoutConfig.payment.buckaroo.sepadirectdebit.paymentFeeLabel,
-                subtext : window.checkoutConfig.payment.buckaroo.sepadirectdebit.subtext,
-                subTextStyle : checkoutCommon.getSubtextStyle('sepadirectdebit'),
-                currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
-                baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
-
-
-                /**
-                 * @override
-                 */
-                initialize : function (options) {
-                    if (checkoutData.getSelectedPaymentMethod() == options.index) {
-                        window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-                    }
-
-                    return this._super(options);
+                    bicnumber: ''
                 },
 
                 initObservable: function () {
                     this._super().observe([
                         'bankaccountholder',
                         'bankaccountnumber',
-                        'bicnumber',
-                        'validationState'
+                        'bicnumber'
                     ]);
 
                     this.isnl = ko.computed(function () {
-                        return quote.billingAddress() !== null &&  quote.billingAddress().countryId == 'NL'
+                        return quote.billingAddress() !== null && quote.billingAddress().countryId == 'NL'
                     }, this);
-
 
                     /**
                      * Repair IBAN value to uppercase
                      */
                     this.bankaccountnumber.extend({ uppercase: true });
 
-                    /** Check used to see form is valid **/
-                    this.buttoncheck = ko.computed(
-                        function () {
-                            const state = this.validationState();
-                            const valid =this.getActiveFields().map((field) => {
-                                if (state[field] !== undefined) {
-                                    return state[field];
-                                }
-                                return false;
-                            }).reduce(
-                                function (prev, cur) {
-                                    return prev && cur
-                                },
-                                true
-                            )
-                            return valid;
-                        },
-                        this
-                    );
-
                     return this;
                 },
-
-                getActiveFields() {
-                    let fields = [
-                        'bankaccountholder',
-                        'bankaccountnumber',
-                    ];
-                    if (!this.isnl()) {
-                        fields.push('bicnumber');
-                    }
-                    return fields;
-                },
-                validateField(data, event) {
-                    const isValid = $(event.target).valid();
-                    let state = this.validationState();
-                    state[event.target.id] = isValid;
-                    this.validationState(state);
-                },
-                /**
-                 * Run function
-                 */
-
-                validate: function () {
-                    return $('.' + this.getCode() + ' .payment-method-second-col form').valid();
-                },
-
-                selectPaymentMethod: function () {
-                    window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-
-                    selectPaymentMethodAction(this.getData());
-                    checkoutData.setSelectedPaymentMethod(this.item.method);
-                    return true;
-                },
-
                 getData: function () {
                     return {
                         "method": this.item.method,
@@ -209,18 +124,6 @@ define(
                         }
                     };
                 },
-
-                payWithBaseCurrency: function () {
-                    var allowedCurrencies = window.checkoutConfig.payment.buckaroo.sepadirectdebit.allowedCurrencies;
-
-                    return allowedCurrencies.indexOf(this.currencyCode) < 0;
-                },
-
-                getPayWithBaseCurrencyText: function () {
-                    var text = $.mage.__('The transaction will be processed using %s.');
-
-                    return text.replace('%s', this.baseCurrencyCode);
-                }
             }
         );
     }

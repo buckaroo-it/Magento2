@@ -33,28 +33,6 @@ class P24 extends AbstractConfigProvider
     /**
      * @inheritdoc
      */
-    public function getConfig(): array
-    {
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(self::CODE);
-
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'p24' => [
-                        'paymentFeeLabel'   => $paymentFeeLabel,
-                        'subtext'           => $this->getSubtext(),
-                        'subtext_style'     => $this->getSubtextStyle(),
-                        'subtext_color'     => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                    ],
-                ],
-            ],
-        ];
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function getBaseAllowedCurrencies(): array
     {
         return [
