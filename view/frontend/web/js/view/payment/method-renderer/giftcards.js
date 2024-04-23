@@ -120,7 +120,7 @@ define(
                 },
 
                 validate: function() {
-                    return this.alreadyFullPayed() === true;
+                    return this.alreadyFullPayed() === true || this.buckaroo.groupGiftcards === true;
                 },
 
                 validateForm: function () {
