@@ -113,11 +113,6 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     protected InfoInterface $payment;
 
     /**
-     * @var float|int
-     */
-    protected float $itemsTotalAmount = 0;
-
-    /**
      * @var PayReminderService
      */
     protected PayReminderService $payReminderService;

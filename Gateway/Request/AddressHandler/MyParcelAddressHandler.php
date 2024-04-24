@@ -79,18 +79,14 @@ class MyParcelAddressHandler extends AbstractAddressHandler
             }
         }
 
-        if (!$myparcelFetched) {
-            if ((strpos((string)$order->getShippingMethod(), 'myparcelnl') !== false)
-                && (strpos((string)$order->getShippingMethod(), 'pickup') !== false)
-            ) {
-                if ($this->helper->getCheckoutSession()->getMyParcelNLBuckarooData()
-                    && $myParcelNLData = $this->helper->getJson()->unserialize(
-                        $this->helper->getCheckoutSession()->getMyParcelNLBuckarooData()
-                    )
-                ) {
-                    $this->updateShippingAddressByMyParcel($myParcelNLData, $requestData);
-                }
-            }
+        if (!$myparcelFetched
+            && (strpos((string)$order->getShippingMethod(), 'myparcelnl') !== false)
+            && (strpos((string)$order->getShippingMethod(), 'pickup') !== false)
+            && $this->helper->getCheckoutSession()->getMyParcelNLBuckarooData()
+            && $myParcelNLData = $this->helper->getJson()->unserialize(
+                $this->helper->getCheckoutSession()->getMyParcelNLBuckarooData()
+            )) {
+            $this->updateShippingAddressByMyParcel($myParcelNLData, $requestData);
         }
 
 

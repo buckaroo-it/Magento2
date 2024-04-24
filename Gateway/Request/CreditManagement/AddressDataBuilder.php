@@ -66,10 +66,11 @@ class AddressDataBuilder extends AbstractDataBuilder
         }
 
         $addressRegexResult = preg_match(
-            '#\A(.*?)\s+(\d+[a-zA-Z]{0,1}\s{0,1}[-]{1}\s{0,1}\d*[a-zA-Z]{0,1}|\d+[a-zA-Z-]{0,1}\d*[a-zA-Z]{0,1})#',
+            '#\A(.*?)\s+(\d+[a-zA-Z]?\s?-\s?\d*[a-zA-Z]?|\d+[a-zA-Z-]?\d*[a-zA-Z]?)#',
             $street,
             $matches
         );
+
         if (!$addressRegexResult || !is_array($matches)) {
             return [
                 'street'          => $street,

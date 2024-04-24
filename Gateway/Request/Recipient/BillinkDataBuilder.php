@@ -101,7 +101,7 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
     {
         try {
             return $this->helper->checkCustomerGroup('buckaroo_magento2_billink') ? 'B2B' : 'B2C';
-        } catch (Exception | LocalizedException $e) {
+        } catch (Exception $e) {
             return 'B2C';
         }
     }

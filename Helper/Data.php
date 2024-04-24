@@ -621,13 +621,12 @@ class Data extends AbstractHelper
      */
     private function checkCustomerGroupAdminArea(array $configCustomerGroupArr): bool
     {
-        if (($customerId = $this->_getRequest()->getParam('customer_id')) && ($customerId > 0)) {
-            if ($customer = $this->customerRepository->getById($customerId)) {
-                if ($customerGroup = $customer->getGroupId()) {
-                    return in_array($customerGroup, $configCustomerGroupArr);
-                }
-            }
+        if (($customerId = $this->_getRequest()->getParam('customer_id')) && ($customerId > 0)
+            && ($customer = $this->customerRepository->getById($customerId))
+            && $customerGroup = $customer->getGroupId()) {
+                return in_array($customerGroup, $configCustomerGroupArr);
         }
+
         return true;
     }
 

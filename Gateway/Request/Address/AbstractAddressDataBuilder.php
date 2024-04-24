@@ -91,13 +91,13 @@ abstract class AbstractAddressDataBuilder extends AbstractDataBuilder
             'street' => $street,
         ];
 
-        if (preg_match('#^(.*?)([0-9\-]+)(.*)#s', $street, $matches)) {
-            // Check if the number is at the beginning of streetname
+        if (preg_match('#^(.*?)([\d\-]+)(.*)#s', $street, $matches)) {
+            // Check if the number is at the beginning of street name
             if ('' == $matches[1]) {
                 $format['house_number'] = trim($matches[2]);
                 $format['street'] = trim($matches[3]);
             } else {
-                if (preg_match('#^(.*?)([0-9]+)(.*)#s', $street, $matches)) {
+                if (preg_match('#^(.*?)(\d+)(.*)#s', $street, $matches)) {
                     $format['street'] = trim($matches[1]);
                     $format['house_number'] = trim($matches[2]);
                     $format['number_addition'] = trim($matches[3]);

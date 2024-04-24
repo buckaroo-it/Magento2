@@ -24,6 +24,7 @@ use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\App\Action\HttpPostActionInterface;
+use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
 
@@ -32,7 +33,7 @@ class Pay extends Action implements HttpGetActionInterface, HttpPostActionInterf
     /**
      * @var PageFactory
      */
-    protected $resultPageFactory;
+    protected PageFactory $resultPageFactory;
 
     /**
      * @param Context $context
@@ -49,15 +50,14 @@ class Pay extends Action implements HttpGetActionInterface, HttpPostActionInterf
     /**
      * Display Payconiq page
      *
-     * @return Page|void
+     * @return Page|ResponseInterface
      */
     public function execute()
     {
         $canShowPage = $this->canShowPage();
 
         if (!$canShowPage) {
-            $this->_forward('defaultNoRoute');
-            return;
+            return $this->_redirect('defaultNoRoute');
         }
 
         return $this->resultPageFactory->create();
@@ -68,7 +68,7 @@ class Pay extends Action implements HttpGetActionInterface, HttpPostActionInterf
      *
      * @return bool
      */
-    protected function canShowPage()
+    protected function canShowPage(): bool
     {
         $key = $this->getRequest()->getParam('Key');
 

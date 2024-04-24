@@ -38,14 +38,17 @@ class Idin extends Action implements HttpPostActionInterface
      * @var BuilderInterface
      */
     protected BuilderInterface $requestDataBuilder;
+
     /**
      * @var TransferFactoryInterface
      */
     protected TransferFactoryInterface $transferFactory;
+
     /**
      * @var ClientInterface
      */
     protected ClientInterface $clientInterface;
+
     /**
      * @var BuckarooLoggerInterface
      */
@@ -78,9 +81,10 @@ class Idin extends Action implements HttpPostActionInterface
      *
      * @return Json
      */
-    public function execute()
+    public function execute(): Json
     {
         $data = $this->getRequest()->getParams();
+        $response = ['error' => 'Unknown buckaroo error occurred'];
 
         if (empty($data['issuer'])) {
             return $this->json(
@@ -99,14 +103,10 @@ class Idin extends Action implements HttpPostActionInterface
                 if ($response["object"]->isSuccess() || $response["object"]->isPendingProcessing()) {
                     $response = $response["object"]->toArray();
                 } else {
-                    return $this->json(
-                        ['error' => $response['object']->getSomeError()]
-                    );
+                    $response = ['error' => $response['object']->getSomeError()];
                 }
             } else {
-                return $this->json(
-                    ['error' => 'TransactionResponse is not valid']
-                );
+                $response = ['error' => 'TransactionResponse is not valid'];
             }
         } catch (\Throwable $th) {
             $this->logger->addError(sprintf(
@@ -115,9 +115,6 @@ class Idin extends Action implements HttpPostActionInterface
                 __LINE__,
                 $th->getMessage()
             ));
-            return $this->json(
-                ['error' => 'Unknown buckaroo error occurred']
-            );
         }
 
         return $this->json($response);

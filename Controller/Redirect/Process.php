@@ -335,20 +335,22 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
      */
     private function processRedirectByStatus(int $statusCode): ResponseInterface
     {
+        $result = null;
+
         if ($statusCode == BuckarooStatusCode::SUCCESS) {
-            return $this->processSucceededRedirect($statusCode);
+            $result = $this->processSucceededRedirect($statusCode);
         } elseif ($statusCode == BuckarooStatusCode::PENDING_PROCESSING) {
-            return $this->processPendingRedirect($statusCode);
+            $result = $this->processPendingRedirect($statusCode);
         } elseif (in_array($statusCode, [
             BuckarooStatusCode::ORDER_FAILED,
             BuckarooStatusCode::FAILED,
             BuckarooStatusCode::REJECTED,
             BuckarooStatusCode::CANCELLED_BY_USER
         ])) {
-            return $this->handleFailed($statusCode);
+            $result = $this->handleFailed($statusCode);
         }
 
-        return $this->_response;
+        return $result ?? $this->_response;
     }
 
     /**
