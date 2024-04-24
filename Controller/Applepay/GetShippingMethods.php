@@ -97,17 +97,33 @@ class GetShippingMethods extends AbstractApplepay
                 // Add Shipping Address on Quote
                 $this->quoteService->addAddressToQuote($shippingAddressRequest);
 
-                // Get Shipping Methods
-                $shippingMethods = $this->quoteService->getAvailableShippingMethods();
-                if (count($shippingMethods) <= 0) {
-                    $errorMessage = __(
-                        'Apple Pay payment failed, because no shipping methods were found for the selected address. ' .
-                        'Please select a different shipping address within the pop-up or within your Apple Pay Wallet.'
-                    );
-                }
-
                 //Set Payment Method
                 $this->quoteService->setPaymentMethod(Applepay::CODE);
+
+                // Get Shipping Methods
+                $shippingMethodsResult = [];
+                if (!$this->quoteService->getQuote()->getIsVirtual()) {
+                    $shippingMethods = $this->quoteService->getAvailableShippingMethods();
+                    if (count($shippingMethods) <= 0) {
+                        $errorMessage = __(
+                            'Apple Pay payment failed, because no shipping methods were found for the selected address. ' .
+                            'Please select a different shipping address within the pop-up or within your Apple Pay Wallet.'
+                        );
+                    } else {
+                        foreach ($shippingMethods as $shippingMethod) {
+                            $shippingMethodsResult[] = [
+                                'carrier_title'  => $shippingMethod->getCarrierTitle(),
+                                'price_incl_tax' => round($shippingMethod->getAmount(), 2),
+                                'method_code'    => $shippingMethod->getCarrierCode() . '_' . $shippingMethod->getMethodCode(),
+                                'method_title'   => $shippingMethod->getMethodTitle(),
+                            ];
+                        }
+
+                        $this->logger->addDebug(__METHOD__ . '|2|');
+
+                        $this->quoteService->setShippingMethod($shippingMethodsResult[0]['method_code']);
+                    }
+                }
 
                 // Calculate Quote Totals
                 $this->quoteService->calculateQuoteTotals();
@@ -116,7 +132,7 @@ class GetShippingMethods extends AbstractApplepay
                 $totals = $this->quoteService->gatherTotals();
 
                 $data = [
-                    'shipping_methods' => $shippingMethods,
+                    'shipping_methods' => $shippingMethodsResult,
                     'totals' => $totals
                 ];
             } catch (\Exception $exception) {

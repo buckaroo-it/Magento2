@@ -30,15 +30,12 @@ use Magento\Sales\Model\Order;
 
 class ReturnUrlDataBuilder implements BuilderInterface
 {
+    public const ADDITIONAL_RETURN_URL = 'buckaroo_return_url';
+
     /**
      * @var null|string
      */
     protected ?string $returnUrl = null;
-
-    /**
-     * @var Order
-     */
-    protected Order $order;
 
     /**
      * @var FormKey
@@ -93,6 +90,12 @@ class ReturnUrlDataBuilder implements BuilderInterface
      */
     public function getReturnUrl(Order $order): ?string
     {
+        $returnUrl = $this->getReturnUrlFromPayment($order);
+        if($returnUrl !== null) {
+            $this->setReturnUrl($returnUrl);
+            return $this->returnUrl;
+        }
+
         if ($this->returnUrl === null) {
             $url = $this->urlBuilder->setScope($order->getStoreId());
             $url = $url->getDirectUrl('buckaroo/redirect/process') . '?form_key=' . $this->getFormKey();
@@ -125,5 +128,24 @@ class ReturnUrlDataBuilder implements BuilderInterface
     public function getFormKey(): string
     {
         return $this->formKey->getFormKey();
+    }
+
+    public function getReturnUrlFromPayment(Order $order): ?string
+    {
+        if (
+            $order->getPayment() === null ||
+            $order->getPayment()->getAdditionalInformation(self::ADDITIONAL_RETURN_URL) === null
+        ) {
+            return null;
+        }
+        $returnUrl = (string)$order->getPayment()->getAdditionalInformation(self::ADDITIONAL_RETURN_URL);
+        if (
+            !filter_var($returnUrl, FILTER_VALIDATE_URL) === false &&
+            in_array(parse_url($returnUrl, PHP_URL_SCHEME), ['http', 'https'])
+        ) {
+            return $returnUrl;
+        }
+
+        return null;
     }
 }

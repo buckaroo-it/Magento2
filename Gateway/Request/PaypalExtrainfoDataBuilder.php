@@ -66,7 +66,17 @@ class PaypalExtrainfoDataBuilder extends AbstractDataBuilder
         parent::initialize($buildSubject);
 
         $sellersProtectionActive = (bool)$this->configProviderPaypal->getSellersProtection();
-        $shippingAddress = $this->getOrder()->getShippingAddress();
+        $order = $this->getOrder();
+        $shippingAddress = $order->getShippingAddress();
+
+        if ($shippingAddress === null) {
+            $shippingAddress = $order->getBillingAddress();
+        }
+
+        if ($shippingAddress === null) {
+            return [];
+        }
+
         $isPaypalExpress = $this->getPayment()->getAdditionalInformation('express_order_id')!== null;
 
         if (!$sellersProtectionActive || !$shippingAddress || $isPaypalExpress) {

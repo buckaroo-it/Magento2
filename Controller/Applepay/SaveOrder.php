@@ -179,7 +179,7 @@ class SaveOrder extends AbstractApplepay
             $quote = $this->checkoutSession->getQuote();
 
             // Set Address
-            if (!$this->quoteAddressService->setShippingAddress($quote, $payment['shippingContact'])) {
+            if (!$quote->getIsVirtual() && !$this->quoteAddressService->setShippingAddress($quote, $payment['shippingContact'])) {
                 return $this->commonResponse(false, true);
             }
             if (
@@ -193,7 +193,7 @@ class SaveOrder extends AbstractApplepay
             }
 
             // Place Order
-            $this->submitQuote($quote, $extra);
+            $this->submitQuote($quote, $extra, $payment);
 
             // Handle the response
             $data = $this->handleResponse();
@@ -210,13 +210,19 @@ class SaveOrder extends AbstractApplepay
      * @return void
      * @throws LocalizedException
      */
-    private function submitQuote($quote, $extra)
+    private function submitQuote($quote, $extra, $payment)
     {
         try {
+            $emailAddress = $quote->getShippingAddress()->getEmail();
+
+            if ($quote->getIsVirtual()) {
+                $emailAddress = $payment['shippingContact']['emailAddress'] ?? null;
+            }
+
             if (!($this->customerSession->getCustomer() && $this->customerSession->getCustomer()->getId())) {
                 $quote->setCheckoutMethod('guest')
                     ->setCustomerId(null)
-                        ->setCustomerEmail($quote->getShippingAddress()->getEmail())
+                    ->setCustomerEmail($emailAddress)
                     ->setCustomerIsGuest(true)
                     ->setCustomerGroupId(Group::NOT_LOGGED_IN_ID);
             }
