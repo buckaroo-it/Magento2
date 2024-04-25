@@ -54,23 +54,17 @@ class CartTotalRepository
     }
 
     /**
-     * Set Buckaroo fee before get the totals
+     * Set Buckaroo fee after get the totals
      *
      * @param TotalRepository $subject
-     * @param \Closure $proceed
+     * @param $totals
      * @param int $cartId
      * @return TotalsInterface
      * @throws NoSuchEntityException
-     *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function aroundGet(TotalRepository $subject, \Closure $proceed, int $cartId): TotalsInterface
+    public function afterGet(TotalRepository $subject, $totals, int $cartId): TotalsInterface
     {
-        /**
-         * @var TotalsInterface $totals
-         */
-        $totals = $proceed($cartId);
-
         /**
          * @var Quote $quote
          */
