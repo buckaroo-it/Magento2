@@ -170,10 +170,6 @@ define(
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/pospayment'
             },
             {
-                type: 'buckaroo_magento2_tinka',
-                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/tinka'
-            },
-            {
                 type: 'buckaroo_magento2_voucher',
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/voucher'
             },

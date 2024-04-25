@@ -60,7 +60,7 @@ class Voucher extends AbstractConfigProvider
         }
 
         $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
-            \Buckaroo\Magento2\Model\Method\Tinka::PAYMENT_METHOD_CODE
+            \Buckaroo\Magento2\Model\Method\Voucher::PAYMENT_METHOD_CODE
         );
 
         return [
