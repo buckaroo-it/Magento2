@@ -381,7 +381,7 @@ class DefaultProcessor implements PushProcessorInterface
      * @param int $receivedStatusCode
      * @return bool
      */
-    private function isDuplicateTransaction(int $receivedStatusCode, string $trxId): bool
+    private function isDuplicateTransaction($receivedStatusCode, string $trxId): bool
     {
         $receivedTrxStatuses = $this->payment->getAdditionalInformation(
             self::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES
@@ -408,7 +408,7 @@ class DefaultProcessor implements PushProcessorInterface
      * @param int $receivedStatusCode
      * @return bool
      */
-    private function isNewOrderAndReceivedSuccess(int $receivedStatusCode): bool
+    private function isNewOrderAndReceivedSuccess($receivedStatusCode): bool
     {
         $orderStatus = $this->helper->getOrderStatusByState($this->order, Order::STATE_NEW);
         if (($this->order->getState() == Order::STATE_NEW)
