@@ -21,6 +21,7 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
+use Buckaroo\Magento2\Model\ConfigProvider\Refund as RefundConfigProvider;
 use Magento\Tax\Model\Config;
 use Magento\Sales\Model\Order;
 use Buckaroo\Magento2\Model\Push;
@@ -333,7 +334,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         /**
-         * @var \Buckaroo\Magento2\Model\ConfigProvider\Refund $refundConfig
+         * @var Refund $refundConfig
          */
         $refundConfig = $this->configProviderFactory->get('refund');
 
@@ -1247,6 +1248,28 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             $resource = $this->objectManager->get('Magento\Framework\App\ResourceConnection');
             $connection = $resource->getConnection();
             $connection->rollBack();
+
+            /**
+             * @var RefundConfigProvider $refundConfig
+             */
+            $refundConfig = $this->configProviderFactory->get('refund');
+
+            if ($refundConfig->getPendingApprovalSetting() == RefundConfigProvider::PENDING_REFUND_ON_APPROVE) {
+                $creditmemo = $this->_registry->registry('current_creditmemo');;
+                $creditmemoItems = $creditmemo->getAllItems();
+
+                $orderItemsRefunded = [];
+                foreach ($creditmemoItems as $creditmemoItem) {
+                    if($creditmemoItem->getPrice() > 0) {
+                        $orderItemsRefunded[$creditmemoItem->getOrderItemId()] = ['qty' => (int)$creditmemoItem->getQty()];
+                    }
+                }
+
+                $payment->setAdditionalInformation(
+                    RefundConfigProvider::ADDITIONAL_INFO_PENDING_REFUND_ITEMS,
+                    $orderItemsRefunded
+                );
+            }
 
             $payment->getOrder()->addStatusHistoryComment(
                 __("The refund has been initiated but it is waiting for a approval. Login to the Buckaroo Plaza to finalize the refund by approving it.")

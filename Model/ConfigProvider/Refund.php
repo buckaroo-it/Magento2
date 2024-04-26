@@ -21,6 +21,7 @@
 namespace Buckaroo\Magento2\Model\ConfigProvider;
 
 use \Buckaroo\Magento2\Model\ConfigProvider;
+use Magento\Store\Model\ScopeInterface;
 
 /**
  * @method mixed getEnabled()
@@ -35,6 +36,13 @@ class Refund extends AbstractConfigProvider
     const XPATH_REFUND_ENABLED      = 'buckaroo_magento2/refund/enabled';
     const XPATH_REFUND_ALLOW_PUSH   = 'buckaroo_magento2/refund/allow_push';
 
+    public const XPATH_REFUND_PENDING_APPROVAL = 'buckaroo_magento2/refund/pending_approval';
+
+    public const PENDING_REFUND_ON_APPROVE = 1;
+    public const PENDING_REFUND_ON_REQUEST = 0;
+
+    public const ADDITIONAL_INFO_PENDING_REFUND_ITEMS = 'pending_refund_items';
+
     /**
      * {@inheritdoc}
      */
@@ -43,7 +51,23 @@ class Refund extends AbstractConfigProvider
         $config = [
             'enabled' => $this->getEnabled($store),
             'allow_push' => $this->getAllowPush($store),
+            'pending_approval' => $this->getPendingApprovalSetting($store),
         ];
         return $config;
+    }
+
+    /**
+     * Get the setting for creating a refund on approval for pending approval refunds.
+     *
+     * @param int|string|null $store
+     * @return mixed
+     */
+    public function getPendingApprovalSetting($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_REFUND_PENDING_APPROVAL,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
     }
 }

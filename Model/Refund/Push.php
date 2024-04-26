@@ -422,16 +422,22 @@ class Push
         $items = [];
         $qty   = 0;
 
-        foreach ($this->order->getAllItems() as $orderItem) {
-            /**
-             * @var \Magento\Sales\Model\Order\Item $orderItem
-             */
-            if (!array_key_exists($orderItem->getId(), $items)) {
-                if ($this->helper->areEqualAmounts($this->creditAmount, $this->order->getBaseGrandTotal())) {
-                    $qty = $orderItem->getQtyInvoiced() - $orderItem->getQtyRefunded();
-                }
+        $refundedItems = $this->order->getPayment()->getAdditionalInformation(Refund::ADDITIONAL_INFO_PENDING_REFUND_ITEMS);
 
-                $items[$orderItem->getId()] = ['qty' => (int)$qty];
+        if ($refundedItems) {
+            $items = $refundedItems;
+        } else {
+            foreach ($this->order->getAllItems() as $orderItem) {
+                /**
+                 * @var \Magento\Sales\Model\Order\Item $orderItem
+                 */
+                if (!array_key_exists($orderItem->getId(), $items)) {
+                    if ($this->helper->areEqualAmounts($this->creditAmount, $this->order->getBaseGrandTotal())) {
+                        $qty = $orderItem->getQtyInvoiced() - $orderItem->getQtyRefunded();
+                    }
+
+                    $items[$orderItem->getId()] = ['qty' => (int)$qty];
+                }
             }
         }
 
