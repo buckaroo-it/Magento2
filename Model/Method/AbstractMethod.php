@@ -1239,8 +1239,10 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             $buckarooTransactionKeysArray = $payment->getAdditionalInformation(
                 Push::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES
             );
-            $buckarooTransactionKeysArray[$response[0]->RelatedTransactions->RelatedTransaction->_] =
-                $response[0]->Status->Code->Code;
+            $relatedTransactionKey = $response[0]->RelatedTransactions->RelatedTransaction->_;
+            $transactionKey = $response[0]->Key;
+            $statusCode = $response[0]->Status->Code->Code;
+            $buckarooTransactionKeysArray[$relatedTransactionKey] = $statusCode;
             $payment->setAdditionalInformation(
                 Push::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES,
                 $buckarooTransactionKeysArray
@@ -1255,6 +1257,12 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             $refundConfig = $this->configProviderFactory->get('refund');
 
             if ($refundConfig->getPendingApprovalSetting() == RefundConfigProvider::PENDING_REFUND_ON_APPROVE) {
+
+                $pendingRefund = $payment->getAdditionalInformation(
+                    RefundConfigProvider::ADDITIONAL_INFO_PENDING_REFUND
+                );
+
+                /** @var \Magento\Sales\Model\Order\Creditmemo $creditmemo */
                 $creditmemo = $this->_registry->registry('current_creditmemo');;
                 $creditmemoItems = $creditmemo->getAllItems();
 
@@ -1265,10 +1273,19 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
                     }
                 }
 
+                $pendingRefund[$transactionKey]['items'] = $orderItemsRefunded;
+                $pendingRefund[$transactionKey]['shipping_amount'] = $creditmemo->getBaseShippingAmount();
+                $pendingRefund[$transactionKey]['tax'] = $creditmemo->getBaseTaxAmount();
+                $pendingRefund[$transactionKey]['adjustment_negative'] = $creditmemo->getAdjustmentNegative();
+                $pendingRefund[$transactionKey]['adjustment_positive'] = $creditmemo->getAdjustmentPositive();
+                $pendingRefund[$transactionKey]['base_buckaroo_fee'] = $creditmemo->getBaseBuckarooFee();
+                $pendingRefund[$transactionKey]['status'] = $statusCode;
+
                 $payment->setAdditionalInformation(
-                    RefundConfigProvider::ADDITIONAL_INFO_PENDING_REFUND_ITEMS,
-                    $orderItemsRefunded
+                    RefundConfigProvider::ADDITIONAL_INFO_PENDING_REFUND,
+                    $pendingRefund
                 );
+
             }
 
             $payment->getOrder()->addStatusHistoryComment(

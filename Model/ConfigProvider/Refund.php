@@ -41,7 +41,8 @@ class Refund extends AbstractConfigProvider
     public const PENDING_REFUND_ON_APPROVE = 1;
     public const PENDING_REFUND_ON_REQUEST = 0;
 
-    public const ADDITIONAL_INFO_PENDING_REFUND_ITEMS = 'pending_refund_items';
+    public const ADDITIONAL_INFO_PENDING_REFUND = 'pending_refund';
+
 
     /**
      * {@inheritdoc}
