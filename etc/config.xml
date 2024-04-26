@@ -622,6 +622,7 @@
             <refund>
                 <enabled>0</enabled>
                 <allow_push>0</allow_push>
+                <pending_approval>0</pending_approval>
             </refund>
 
             <states>
