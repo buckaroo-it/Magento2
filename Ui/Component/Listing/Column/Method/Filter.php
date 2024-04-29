@@ -24,6 +24,7 @@ namespace Buckaroo\Magento2\Ui\Component\Listing\Column\Method;
 use Buckaroo\Magento2\Model\Config\Source\PaymentMethods\PayPerEmail;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Payment\Helper\Data;
+use Zend_Db_Statement_Exception;
 
 class Filter extends \Magento\Payment\Ui\Component\Listing\Column\Method\Options
 {
@@ -50,32 +51,46 @@ class Filter extends \Magento\Payment\Ui\Component\Listing\Column\Method\Options
      * Get options
      *
      * @return array
-     * @throws \Zend_Db_Statement_Exception
+     * @throws Zend_Db_Statement_Exception
      */
     public function toOptionArray(): array
     {
         parent::toOptionArray();
 
-        $db = $this->resourceConnection->getConnection();
-        /**
-         * converting this to zend db is part of another ticket
-         */
-        // @codingStandardsIgnoreStart
-        $result = $db->query('
-            SELECT 
-            method, 
-            group_concat(distinct(' . $this->resourceConnection->getTableName('buckaroo_magento2_giftcard') . '.servicecode) SEPARATOR "-") as giftcard_codes,
-            group_concat(distinct(' . $this->resourceConnection->getTableName('buckaroo_magento2_giftcard') . '.label) SEPARATOR "-") as giftcard_titles 
-            from ' . $this->resourceConnection->getTableName('sales_order_payment') . '  
-            inner join ' . $this->resourceConnection->getTableName('sales_order') . ' on ' . $this->resourceConnection->getTableName('sales_order') . '.entity_id = ' . $this->resourceConnection->getTableName('sales_order_payment') . '.parent_id 
-            inner join ' . $this->resourceConnection->getTableName('buckaroo_magento2_group_transaction') . ' on ' . $this->resourceConnection->getTableName('buckaroo_magento2_group_transaction') . '.order_id=' . $this->resourceConnection->getTableName('sales_order') . '.increment_id 
-            inner join ' . $this->resourceConnection->getTableName('buckaroo_magento2_giftcard') . ' on ' . $this->resourceConnection->getTableName('buckaroo_magento2_giftcard') . '.servicecode=' . $this->resourceConnection->getTableName('buckaroo_magento2_group_transaction') . '.servicecode 
-            group by ' . $this->resourceConnection->getTableName('buckaroo_magento2_group_transaction') . '.order_id
-        ');
-        // @codingStandardsIgnoreEnd
+        $connection = $this->resourceConnection->getConnection();
+        $salesOrderPaymentTable = $this->resourceConnection->getTableName('sales_order_payment');
+        $salesOrderTable = $this->resourceConnection->getTableName('sales_order');
+        $groupTransactionTable = $this->resourceConnection->getTableName('buckaroo_magento2_group_transaction');
+        $giftcardTable = $this->resourceConnection->getTableName('buckaroo_magento2_giftcard');
+
+        $select = $connection->select()
+            ->from(
+                ['sop' => $salesOrderPaymentTable],
+                ['method']
+            )
+            ->joinInner(
+                ['so' => $salesOrderTable],
+                'so.entity_id = sop.parent_id',
+                []
+            )
+            ->joinInner(
+                ['bmg' => $groupTransactionTable],
+                'bmg.order_id = so.increment_id',
+                []
+            )
+            ->joinInner(
+                ['bmgc' => $giftcardTable],
+                'bmgc.servicecode = bmg.servicecode',
+                ['giftcard_codes' => new \Zend_Db_Expr('GROUP_CONCAT(DISTINCT ' . $connection->quoteIdentifier('bmgc.servicecode') . ' SEPARATOR "-")'),
+                    'giftcard_titles' => new \Zend_Db_Expr('GROUP_CONCAT(DISTINCT ' . $connection->quoteIdentifier('bmgc.label') . ' SEPARATOR "-")')]
+            )
+            ->group('bmg.order_id');
+
+        $query = $connection->query($select);
+        $rows = $query->fetchAll();
 
         $additionalOptions = [];
-        while ($row = $result->fetch()) {
+        foreach ($rows as $row) {
             if (!isset($additionalOptions[$row['method'] . '-' . $row['giftcard_codes']])) {
                 foreach ($this->options as $option) {
                     if ($option['value'] == $row['method']) {
