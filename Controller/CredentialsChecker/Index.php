@@ -84,21 +84,60 @@ class Index extends Action implements HttpPostActionInterface
      * @return Json
      * @throws \Exception
      */
-    public function execute()
+    public function execute(): Json
     {
-        if (($params = $this->getRequest()->getParams())
-            && (!empty($params['secretKey']) && !empty($params['merchantKey']))) {
-            if($this->client->confirmCredential()){
-                return $this->doResponse([
-                    'success' => true
-                ]);
-            }
+        $params = $this->getRequest()->getParams();
+        if (empty($params) || empty($params['secretKey']) || empty($params['merchantKey'])) {
+            return $this->doResponse([
+                'success' => false,
+                'error_message' => __('Failed to start validation process due to lack of data')
+            ]);
         }
 
-        return $this->doResponse([
-            'success'       => false,
-            'error_message' => __('Failed to start validation process due to lack of data')
-        ]);
+        $secretKey = $this->resolveCredential($params['secretKey'], 'secretKey');
+        $merchantKey = $this->resolveCredential($params['merchantKey'], 'merchantKey');
+
+        return $this->validateCredentials($merchantKey, $secretKey);
+    }
+
+    /**
+     * Resolves the provided credential by checking if it contains any non-asterisk characters.
+     * If it contains any real characters, the raw credential is returned.
+     * Otherwise, the credential is decrypted from the stored configuration.
+     *
+     * @param string $credential The raw credential input.
+     * @param string $type The type of the credential ('secretKey' or 'merchantKey').
+     * @return string The resolved credential, either as provided or decrypted.
+     * @throws \Exception
+     */
+    private function resolveCredential(string $credential, string $type): string
+    {
+        return preg_match('/[^\*]/', $credential) ? $credential :
+            $this->encryptor->decrypt($this->configProviderAccount->{"get{$type}"}());
+    }
+
+    /**
+     * Validates the credentials by sending them to the Buckaroo client for confirmation.
+     * If the credentials are valid, a success response is generated.
+     * Otherwise, an error message is returned stating the credentials are invalid.
+     *
+     * @param string $merchantKey The merchant key to validate.
+     * @param string $secretKey The secret key to validate.
+     * @return Json The JSON response indicating whether the credentials are valid.
+     * @throws \Exception
+     */
+    private function validateCredentials(string $merchantKey, string $secretKey): Json
+    {
+        if ($this->client->confirmCredential($merchantKey, $secretKey)) {
+            return $this->doResponse([
+                'success' => true
+            ]);
+        } else {
+            return $this->doResponse([
+                'success' => false,
+                'error_message' => 'The credentials are not valid!'
+            ]);
+        }
     }
 
     /**
