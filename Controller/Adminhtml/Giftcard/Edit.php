@@ -20,7 +20,7 @@
 
 namespace Buckaroo\Magento2\Controller\Adminhtml\Giftcard;
 
-use Buckaroo\Magento2\Api\Data\BuckarooGiftcardDataInterface;
+use Buckaroo\Magento2\Model\Data\BuckarooGiftcardDataInterface;
 use Buckaroo\Magento2\Model\Giftcard;
 use Buckaroo\Magento2\Model\GiftcardFactory;
 use Magento\Backend\App\Action;
@@ -43,7 +43,7 @@ class Edit extends Action implements HttpGetActionInterface
     protected $giftcardFactory;
 
     /**
-     * @var BuckarooGiftcardDataInterface
+     * @var \Buckaroo\Magento2\Model\Data\BuckarooGiftcardDataInterface
      */
     private BuckarooGiftcardDataInterface $buckarooGiftcardData;
 
@@ -51,7 +51,7 @@ class Edit extends Action implements HttpGetActionInterface
      * @param Context $context
      * @param PageFactory $resultPageFactory
      * @param GiftcardFactory $giftcardFactory
-     * @param BuckarooGiftcardDataInterface $buckarooGiftcardData
+     * @param \Buckaroo\Magento2\Model\Data\BuckarooGiftcardDataInterface $buckarooGiftcardData
      */
     public function __construct(
         Context $context,

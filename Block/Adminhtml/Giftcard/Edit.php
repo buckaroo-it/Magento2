@@ -20,7 +20,7 @@
 
 namespace Buckaroo\Magento2\Block\Adminhtml\Giftcard;
 
-use Buckaroo\Magento2\Api\Data\BuckarooGiftcardDataInterface;
+use Buckaroo\Magento2\Model\Data\BuckarooGiftcardDataInterface;
 use Magento\Backend\Block\Widget\Context;
 use Magento\Backend\Block\Widget\Form\Container;
 

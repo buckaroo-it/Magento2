@@ -2,7 +2,6 @@
 
 namespace Buckaroo\Magento2\Model\Data;
 
-use Buckaroo\Magento2\Api\Data\BuckarooGiftcardDataInterface;
 use Buckaroo\Magento2\Model\Giftcard;
 
 class BuckarooGiftcardData implements BuckarooGiftcardDataInterface
