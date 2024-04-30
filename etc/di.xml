@@ -26,16 +26,17 @@
     <preference for="Buckaroo\Magento2\Api\GiftcardRepositoryInterface" type="Buckaroo\Magento2\Model\GiftcardRepository"/>
     <preference for="Buckaroo\Magento2\Api\GroupTransactionRepositoryInterface" type="Buckaroo\Magento2\Model\GroupTransactionRepository"/>
     <preference for="Buckaroo\Magento2\Api\LogRepositoryInterface" type="Buckaroo\Magento2\Model\LogRepository"/>
-    <preference for="Buckaroo\Magento2\Api\PushInterface" type="Buckaroo\Magento2\Model\Push"/>
-    <preference for="Buckaroo\Magento2\Api\TransactionResponseInterface" type="Buckaroo\Magento2\Model\Transaction\Status\Response" />
-    <preference for="Buckaroo\Magento2\Api\PaymentInformationManagementInterface" type="Buckaroo\Magento2\Model\PaymentInformationManagement"/>
-    <preference for="Buckaroo\Magento2\Api\GuestPaymentInformationManagementInterface" type="Buckaroo\Magento2\Model\GuestPaymentInformationManagement"/>
-    <preference for="Buckaroo\Magento2\Api\Data\BuckarooResponseDataInterface" type="Buckaroo\Magento2\Model\Data\BuckarooResponseData"/>
-    <preference for="Buckaroo\Magento2\Api\Data\BuckarooGiftcardDataInterface" type="Buckaroo\Magento2\Model\Data\BuckarooGiftcardData"/>
-    <preference for="Buckaroo\Magento2\Api\Data\BuckarooRestOrderDataInterface" type="Buckaroo\Magento2\Model\BuckarooRestOrderData"/>
     <preference for="Buckaroo\Magento2\Api\Data\LogInterface" type="Buckaroo\Magento2\Model\Data\Log"/>
     <preference for="Buckaroo\Magento2\Api\Data\LogSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
 
+    <preference for="Buckaroo\Magento2\Api\PushInterface" type="Buckaroo\Magento2\Model\Push"/>
+    <preference for="Buckaroo\Magento2\Api\TransactionStatusResponseInterface" type="Buckaroo\Magento2\Model\Transaction\Status\Response" />
+    <preference for="Buckaroo\Magento2\Api\PaymentInformationManagementInterface" type="Buckaroo\Magento2\Model\PaymentInformationManagement"/>
+    <preference for="Buckaroo\Magento2\Api\GuestPaymentInformationManagementInterface" type="Buckaroo\Magento2\Model\GuestPaymentInformationManagement"/>
+    <preference for="Buckaroo\Magento2\Api\Data\BuckarooResponseDataInterface" type="Buckaroo\Magento2\Model\Data\BuckarooResponseData"/>
+    <preference for="Buckaroo\Magento2\Api\Data\BuckarooRestOrderDataInterface" type="Buckaroo\Magento2\Model\BuckarooRestOrderData"/>
+
+    <preference for="Buckaroo\Magento2\Model\Data\BuckarooGiftcardDataInterface" type="Buckaroo\Magento2\Model\Data\BuckarooGiftcardData"/>
     <preference for="Buckaroo\Magento2\Logging\BuckarooLoggerInterface" type="Buckaroo\Magento2\Logging\SimplifiedLog" />
 
     <!-- Magento Rewrite -->

@@ -18,9 +18,9 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace Buckaroo\Magento2\Api;
+namespace Buckaroo\Magento2\Api\Data;
 
-interface TransactionResponseInterface
+interface TransactionStatusResponseInterface
 {
     /**
      * Get status code

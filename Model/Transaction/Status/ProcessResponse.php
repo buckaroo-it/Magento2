@@ -20,10 +20,9 @@
 
 namespace Buckaroo\Magento2\Model\Transaction\Status;
 
-use Buckaroo\Magento2\Api\TransactionResponseInterface;
 use Buckaroo\Magento2\Exception;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigFactory;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\Exception\NotFoundException;
