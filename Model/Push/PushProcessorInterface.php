@@ -1,6 +1,8 @@
 <?php
 
-namespace Buckaroo\Magento2\Api;
+namespace Buckaroo\Magento2\Model\Push;
+
+use Buckaroo\Magento2\Api\PushRequestInterface;
 
 interface PushProcessorInterface
 {
