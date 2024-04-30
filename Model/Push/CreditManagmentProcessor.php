@@ -2,7 +2,7 @@
 
 namespace Buckaroo\Magento2\Model\Push;
 
-use Buckaroo\Magento2\Api\PushRequestInterface;
+use Buckaroo\Magento2\Api\Data\PushRequestInterface;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Magento\Framework\Exception\LocalizedException;
 

@@ -21,7 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Push;
 
-use Buckaroo\Magento2\Api\PushRequestInterface;
+use Buckaroo\Magento2\Api\Data\PushRequestInterface;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Magento\Sales\Model\Order;
 
@@ -125,7 +125,7 @@ class PushTransactionType
     }
 
     /**
-     * @param PushRequestInterface|null $pushRequest
+     * @param \Buckaroo\Magento2\Api\Data\PushRequestInterface|null $pushRequest
      * @param Order|null $order
      * @return PushTransactionType
      */

@@ -21,7 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Push;
 
-use Buckaroo\Magento2\Api\PushRequestInterface;
+use Buckaroo\Magento2\Api\Data\PushRequestInterface;
 use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
@@ -221,7 +221,7 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * @param PushRequestInterface $pushRequest
+     * @param \Buckaroo\Magento2\Api\Data\PushRequestInterface $pushRequest
      * @return void
      * @throws \Exception
      */

@@ -22,7 +22,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Service\Push;
 
 use Buckaroo\Exceptions\BuckarooException;
-use Buckaroo\Magento2\Api\PushRequestInterface;
+use Buckaroo\Magento2\Api\Data\PushRequestInterface;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Phrase;

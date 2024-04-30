@@ -21,7 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Push;
 
-use Buckaroo\Magento2\Api\PushRequestInterface;
+use Buckaroo\Magento2\Api\Data\PushRequestInterface;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface as BuckarooLogger;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
@@ -42,7 +42,7 @@ use Magento\Sales\Model\Order;
 class GroupTransactionPushProcessor implements PushProcessorInterface
 {
     /**
-     * @var PushRequestInterface
+     * @var \Buckaroo\Magento2\Api\Data\PushRequestInterface
      */
     private PushRequestInterface $pushRequest;
 
