@@ -25,6 +25,8 @@ use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;
 use Magento\Framework\View\Element\UiComponentFactory;
 use Magento\Ui\Component\Listing\Columns\Column;
+use Magento\Sales\Model\ResourceModel\Order\CollectionFactory as OrderCollectionFactory;
+
 
 class Options extends Column
 {
@@ -32,6 +34,9 @@ class Options extends Column
      * @var ResourceConnection
      */
     protected ResourceConnection $resourceConnection;
+
+    protected $orderCollectionFactory;
+
 
     /**
      * @param ContextInterface $context
@@ -42,6 +47,7 @@ class Options extends Column
      */
     public function __construct(
         ContextInterface $context,
+        OrderCollectionFactory $orderCollectionFactory,
         UiComponentFactory $uiComponentFactory,
         ResourceConnection $resourceConnection,
         array $components = [],
@@ -49,6 +55,7 @@ class Options extends Column
     ) {
         parent::__construct($context, $uiComponentFactory, $components, $data);
         $this->resourceConnection = $resourceConnection;
+        $this->orderCollectionFactory = $orderCollectionFactory;
     }
 
     /**
@@ -82,50 +89,59 @@ class Options extends Column
         $paymentTable = $this->resourceConnection->getTableName('sales_order_payment');
         $groupTransactionTable = $this->resourceConnection->getTableName('buckaroo_magento2_group_transaction');
 
-        $result = $db->query(
-            'SELECT method,
-                group_concat(distinct(' . $groupTransactionTable . '.servicecode) SEPARATOR "-") as giftcard_codes,
-                increment_id
-             FROM ' . $paymentTable .
-            ' INNER JOIN ' . $orderTable . ' ON ' . $orderTable . '.entity_id = ' . $paymentTable . '.parent_id' .
-            ' INNER JOIN ' . $groupTransactionTable .
-            ' ON ' . $groupTransactionTable . '.order_id=' . $orderTable . '.increment_id' .
-            ' WHERE ' . $orderTable . '.increment_id IN ("' . join('","', $incrementIds) . '")
-             GROUP BY ' . $orderTable . '.increment_id'
-        );
+        $query = $db->select()
+            ->from(
+                ['order' => $orderTable],
+                ['increment_id']
+            )
+            ->joinInner(
+                ['payment' => $paymentTable],
+                'order.entity_id = payment.parent_id',
+                ['method']
+            )
+            ->joinInner(
+                ['group_transaction' => $groupTransactionTable],
+                'group_transaction.order_id = order.increment_id',
+                []
+            )
+            ->columns([
+                'giftcard_codes' => new \Zend_Db_Expr("GROUP_CONCAT(DISTINCT group_transaction.servicecode SEPARATOR '-')")
+            ])
+            ->where('order.increment_id IN (?)', $incrementIds)
+            ->group('order.increment_id');
+
+        $result = $db->fetchAll($query);
 
         $additionalOptions = [];
-        while ($row = $result->fetch()) {
+        foreach ($result as $row) {
             $additionalOptions[$row['increment_id']] = $row['method'] . '-' . $row['giftcard_codes'];
         }
-
         return $additionalOptions;
     }
 
     private function getPayPerEmailData(array $incrementIds): array
     {
-        $db = $this->resourceConnection->getConnection();
-        $orderTable = $this->resourceConnection->getTableName('sales_order');
+        $orderCollection = $this->orderCollectionFactory->create();
         $paymentTable = $this->resourceConnection->getTableName('sales_order_payment');
 
-        $result2 = $db->query(
-            'SELECT ' . $paymentTable . '.method,
-                    ' . $orderTable . '.increment_id
-             FROM ' . $paymentTable .
-            ' INNER JOIN ' . $orderTable . ' ON ' . $orderTable . '.entity_id = ' . $paymentTable . '.parent_id' .
-            ' WHERE ' . $orderTable . '.increment_id in ("' . join('","', $incrementIds) . '")
-                AND ' . $paymentTable . '.additional_information like "%isPayPerEmail%"
-             GROUP BY ' . $orderTable . '.increment_id'
-        );
+        $orderCollection->getSelect()
+            ->join(
+                ['payment' => $paymentTable],
+                'main_table.entity_id = payment.parent_id',
+                ['payment_method' => 'method']
+            )
+            ->where('main_table.increment_id IN(?)', $incrementIds)
+            ->where('payment.additional_information LIKE ?', '%isPayPerEmail%')
+            ->group('main_table.increment_id');
 
-        $additionalOptions2 = [];
-        while ($row = $result2->fetch()) {
-            $additionalOptions2[$row['increment_id']] =
+        $additionalOptions = [];
+        foreach ($orderCollection as $order) {
+            $additionalOptions[$order->getIncrementId()] =
                 'buckaroo_magento2_payperemail-' .
-                str_replace('buckaroo_magento2_', '', $row['method']);
+                str_replace('buckaroo_magento2_', '', $order->getPayment()->getMethod());
         }
 
-        return $additionalOptions2;
+        return $additionalOptions;
     }
 
     private function updateDataSourceItems(array $dataSource, array $additionalOptions): array
