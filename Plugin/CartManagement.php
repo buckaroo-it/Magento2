@@ -69,10 +69,11 @@ class CartManagement
     ) {
         /** @var Quote $quote */
         $quote = $this->quoteRepository->getActive($cartId);
+        $orderIncrementID = $quote->getReservedOrderId();
 
         if (
             $quote instanceof Quote &&
-            $quote->getReservedOrderId() !== null &&
+            $orderIncrementID !== null &&
             $this->isBuckarooPayment($quote)
         ) {
             try {
@@ -81,7 +82,6 @@ class CartManagement
 
                 if (!$lockAcquired) {
                     throw new CouldNotSaveException(__("Cannot lock payment process"));
-
                 }
                 return $proceed($cartId, $paymentMethod);
             } finally {
