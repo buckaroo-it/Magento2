@@ -21,7 +21,6 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler;
 
-use Buckaroo\Magento2\Api\ArticleHandlerInterface;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface as BuckarooLog;
 use Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderMethodFactory;

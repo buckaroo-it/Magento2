@@ -21,8 +21,8 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request\Articles;
 
-use Buckaroo\Magento2\Api\ArticleHandlerInterface;
 use Buckaroo\Magento2\Gateway\Request\AbstractDataBuilder;
+use Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\ArticleHandlerInterface;
 use Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\ArticlesHandlerFactory;
 
 class CreditmemoArticlesDataBuilder extends AbstractDataBuilder
@@ -41,7 +41,7 @@ class CreditmemoArticlesDataBuilder extends AbstractDataBuilder
     {
         parent::initialize($buildSubject);
 
-        /** @var ArticleHandlerInterface $articleHandler */
+        /** @var \Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\ArticleHandlerInterface $articleHandler */
         $articleHandler = $this->articlesHandlerFactory->create($this->getPayment()->getMethod());
 
         return $articleHandler->getCreditMemoArticlesData($this->getOrder(), $this->getPayment());
