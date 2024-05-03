@@ -21,8 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Push;
 
-use Buckaroo\Magento2\Api\PushProcessorInterface;
-use Buckaroo\Magento2\Api\PushRequestInterface;
+use Buckaroo\Magento2\Api\Data\PushRequestInterface;
 use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
@@ -37,7 +36,6 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Transfer;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Voucher;
 use Buckaroo\Magento2\Model\GroupTransaction;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
@@ -223,7 +221,7 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * @param PushRequestInterface $pushRequest
+     * @param \Buckaroo\Magento2\Api\Data\PushRequestInterface $pushRequest
      * @return void
      * @throws \Exception
      */

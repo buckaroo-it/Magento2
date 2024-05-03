@@ -23,23 +23,23 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Method;
 
-use Psr\Log\LoggerInterface;
+use Buckaroo\Magento2\Api\Data\PushRequestInterface;
+use Buckaroo\Magento2\Exception as BuckarooException;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\CapayableIn3;
+use Magento\Framework\App\RequestInterface;
+use Magento\Framework\Event\ManagerInterface;
+use Magento\Framework\Pricing\Helper\Data;
+use Magento\Payment\Gateway\Command\CommandManagerInterface;
+use Magento\Payment\Gateway\Command\CommandPoolInterface;
+use Magento\Payment\Gateway\Config\ValueHandlerPoolInterface;
+use Magento\Payment\Gateway\Data\PaymentDataObjectFactory;
+use Magento\Payment\Gateway\Validator\ValidatorPoolInterface;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Payment\Model\Method\Adapter;
 use Magento\Quote\Api\Data\CartInterface;
-use Magento\Framework\Pricing\Helper\Data;
-use Magento\Framework\App\RequestInterface;
-use Magento\Framework\Event\ManagerInterface;
-use Buckaroo\Magento2\Api\PushRequestInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
-use Buckaroo\Magento2\Model\ConfigProvider\Factory;
-use Buckaroo\Magento2\Exception as BuckarooException;
-use Magento\Payment\Gateway\Command\CommandPoolInterface;
-use Magento\Payment\Gateway\Data\PaymentDataObjectFactory;
-use Magento\Payment\Gateway\Command\CommandManagerInterface;
-use Magento\Payment\Gateway\Config\ValueHandlerPoolInterface;
-use Magento\Payment\Gateway\Validator\ValidatorPoolInterface;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\CapayableIn3;
+use Psr\Log\LoggerInterface;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)

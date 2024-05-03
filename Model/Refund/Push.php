@@ -20,11 +20,12 @@
 
 namespace Buckaroo\Magento2\Model\Refund;
 
-use Buckaroo\Magento2\Api\PushRequestInterface;
+use Buckaroo\Magento2\Api\Data\PushRequestInterface;
 use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Refund;
+use Buckaroo\Magento2\Model\ConfigProvider\Refund as RefundConfigProvider;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\CreditmemoManagementInterface;
@@ -32,7 +33,6 @@ use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Creditmemo;
 use Magento\Sales\Model\Order\CreditmemoFactory;
 use Magento\Sales\Model\Order\Email\Sender\CreditmemoSender;
-use Buckaroo\Magento2\Model\ConfigProvider\Refund as RefundConfigProvider;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -42,7 +42,7 @@ class Push
     const TAX_CALCULATION_SHIPPING_INCLUDES_TAX = 'tax/calculation/shipping_includes_tax';
 
     /**
-     * @var PushRequestInterface
+     * @var \Buckaroo\Magento2\Api\Data\PushRequestInterface
      */
     public $postData;
 

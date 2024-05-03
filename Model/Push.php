@@ -21,8 +21,8 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model;
 
+use Buckaroo\Magento2\Api\Data\PushRequestInterface;
 use Buckaroo\Magento2\Api\PushInterface;
-use Buckaroo\Magento2\Api\PushRequestInterface;
 use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\Push\PushProcessorsFactory;
@@ -38,7 +38,7 @@ class Push implements PushInterface
     public BuckarooLoggerInterface $logger;
 
     /**
-     * @var PushRequestInterface
+     * @var \Buckaroo\Magento2\Api\Data\PushRequestInterface
      */
     public PushRequestInterface $pushRequest;
 

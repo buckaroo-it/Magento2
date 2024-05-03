@@ -20,10 +20,10 @@
 
 namespace Buckaroo\Magento2\Model\Transaction\Status;
 
-use Buckaroo\Magento2\Api\TransactionResponseInterface;
+use Buckaroo\Magento2\Api\Data\TransactionStatusResponseInterface;
 use Buckaroo\Magento2\Exception;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigFactory;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\Exception\NotFoundException;
@@ -38,7 +38,7 @@ class ProcessResponse
     protected $order;
 
     /**
-     * @var TransactionResponseInterface
+     * @var TransactionStatusResponseInterface
      */
     protected $response;
 
@@ -85,13 +85,13 @@ class ProcessResponse
     /**
      * Process transaction response
      *
-     * @param TransactionResponseInterface $response
+     * @param TransactionStatusResponseInterface $response
      * @param Order $order
      * @return array|void
      * @throws NotFoundException|Exception
      */
     public function process(
-        TransactionResponseInterface $response,
+        TransactionStatusResponseInterface $response,
         Order $order
     ) {
         $this->init($response, $order);
@@ -120,14 +120,14 @@ class ProcessResponse
     /**
      * Set class properties
      *
-     * @param TransactionResponseInterface $response
+     * @param TransactionStatusResponseInterface $response
      * @param Order $order
      * @return void
      * @throws Exception
      * @throws NotFoundException
      */
     protected function init(
-        TransactionResponseInterface $response,
+        TransactionStatusResponseInterface $response,
         Order $order
     ) {
         $this->response = $response;

@@ -21,11 +21,12 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Controller\Redirect;
 
-use Buckaroo\Magento2\Api\PushRequestInterface;
+use Buckaroo\Magento2\Api\Data\PushRequestInterface;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\Config\Source\InvoiceHandlingOptions;
 use Buckaroo\Magento2\Model\ConfigProvider\Account as AccountConfig;
+use Buckaroo\Magento2\Model\LockManagerWrapper;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Model\RequestPush\RequestPushFactory;
@@ -50,7 +51,6 @@ use Magento\Quote\Model\Quote;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order;
-use Buckaroo\Magento2\Model\LockManagerWrapper;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)

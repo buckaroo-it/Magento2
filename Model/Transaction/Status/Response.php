@@ -20,9 +20,9 @@
 
 namespace Buckaroo\Magento2\Model\Transaction\Status;
 
-use Buckaroo\Magento2\Api\TransactionResponseInterface;
+use Buckaroo\Magento2\Api\Data\TransactionStatusResponseInterface;
 
-class Response implements TransactionResponseInterface
+class Response implements TransactionStatusResponseInterface
 {
     public const STATUSCODE_SUCCESS               = 190;
     public const STATUSCODE_FAILED                = 490;

@@ -21,7 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Push;
 
-use Buckaroo\Magento2\Api\PushRequestInterface;
+use Buckaroo\Magento2\Api\Data\PushRequestInterface;
 use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
@@ -120,7 +120,7 @@ class RefundProcessor extends DefaultProcessor
     /**
      * Skip Pending Refund Push
      *
-     * @param PushRequestInterface $pushRequest
+     * @param \Buckaroo\Magento2\Api\Data\PushRequestInterface $pushRequest
      * @return bool
      * @throws \Exception
      */

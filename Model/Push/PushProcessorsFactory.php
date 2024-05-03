@@ -21,9 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Push;
 
-use Buckaroo\Magento2\Api\PushRequestInterface;
 use Buckaroo\Magento2\Exception as BuckarooException;
-use Buckaroo\Magento2\Api\PushProcessorInterface;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\Phrase;

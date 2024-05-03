@@ -21,9 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Push;
 
-use AllowDynamicProperties;
-use Buckaroo\Magento2\Api\PushProcessorInterface;
-use Buckaroo\Magento2\Api\PushRequestInterface;
+use Buckaroo\Magento2\Api\Data\PushRequestInterface;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface as BuckarooLogger;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
@@ -33,10 +31,10 @@ use Magento\Framework\Model\AbstractExtensibleModel;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\QuoteFactory;
 use Magento\Quote\Model\QuoteManagement;
+use Magento\Quote\Model\ResourceModel\Quote as ResourceQuote;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Model\Order;
-use Magento\Quote\Model\ResourceModel\Quote as ResourceQuote;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -44,7 +42,7 @@ use Magento\Quote\Model\ResourceModel\Quote as ResourceQuote;
 class GroupTransactionPushProcessor implements PushProcessorInterface
 {
     /**
-     * @var PushRequestInterface
+     * @var \Buckaroo\Magento2\Api\Data\PushRequestInterface
      */
     private PushRequestInterface $pushRequest;
 

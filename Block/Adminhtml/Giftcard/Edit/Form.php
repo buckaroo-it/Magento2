@@ -20,7 +20,7 @@
 
 namespace Buckaroo\Magento2\Block\Adminhtml\Giftcard\Edit;
 
-use Buckaroo\Magento2\Api\Data\BuckarooGiftcardDataInterface;
+use Buckaroo\Magento2\Model\Data\BuckarooGiftcardDataInterface;
 use Buckaroo\Magento2\Model\Giftcard\Request\Giftcard;
 use Magento\Backend\Block\Template\Context;
 use Magento\Backend\Block\Widget\Form\Generic;
@@ -39,7 +39,7 @@ class Form extends Generic
      * @param Context $context
      * @param Registry $registry
      * @param FormFactory $formFactory
-     * @param BuckarooGiftcardDataInterface $buckarooGiftcardData
+     * @param \Buckaroo\Magento2\Model\Data\BuckarooGiftcardDataInterface $buckarooGiftcardData
      * @param array $data
      */
     public function __construct(

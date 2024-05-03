@@ -19,7 +19,7 @@
  */
 declare(strict_types=1);
 
-namespace Buckaroo\Magento2\Api;
+namespace Buckaroo\Magento2\Api\Data;
 
 interface PushRequestInterface
 {

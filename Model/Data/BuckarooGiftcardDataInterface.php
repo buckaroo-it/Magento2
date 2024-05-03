@@ -18,13 +18,20 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace Buckaroo\Magento2\Api\Data;
+namespace Buckaroo\Magento2\Model\Data;
 
-use Buckaroo\Transaction\Response\TransactionResponse;
+use Buckaroo\Magento2\Model\Giftcard;
 
-interface BuckarooResponseDataInterface
+interface BuckarooGiftcardDataInterface
 {
-    public function getResponse(): ?TransactionResponse;
+    /**
+     * @return Giftcard
+     */
+    public function getGiftcardModel(): Giftcard;
 
-    public function setResponse(TransactionResponse $transactionResponse): BuckarooResponseDataInterface;
+    /**
+     * @param Giftcard $giftcard
+     * @return BuckarooGiftcardDataInterface
+     */
+    public function setGiftcardModel(Giftcard $giftcard): BuckarooGiftcardDataInterface;
 }
