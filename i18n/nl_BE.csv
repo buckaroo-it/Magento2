@@ -416,6 +416,9 @@
 "Error: postcode is required","Error: postcode is required",
 "Delivery costs","Bezorgkosten"
 "Discount","Korting"
+"Shipping fee","Korting"
+"Service costs","Servicekosten"
+"Discount on","Korting op"
 "Your paid successfully. Please finish your order","Uw betaling is succesvol verlopen. Rond uw bestelling af"
 "Apply Gift Card","Pas cadeaubonnen toe"
 "Pay remaining amount: %1 %2","Betaal resterende bedrag: %1 %2"
