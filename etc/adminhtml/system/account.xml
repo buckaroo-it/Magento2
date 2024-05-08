@@ -26,11 +26,10 @@
         <fieldset_css>buckaroo_magento2-section</fieldset_css>
         <attribute type="expanded">1</attribute>
 
-        <field id="active" translate="label comment tooltip" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+        <field id="active" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Enabled</label>
-            <comment>Enable or disable the Buckaroo module.</comment>
-            <tooltip>Selecting 'Off' will overrule all individual settings.</tooltip>
-            <source_model>Buckaroo\Magento2\Model\Config\Source\Enablemode</source_model>
+            <comment><![CDATA[Enable or disable the Buckaroo plugin.]]></comment>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
             <config_path>buckaroo_magento2/account/active</config_path>
         </field>
 
@@ -115,10 +114,9 @@
                     <field id="active">1</field>
                 </depends>
             </field>
-
         </group>
-
     </group>
+
     <group id="buckaroo_magento2_advanced" translate="label comment" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Advanced Configuration</label>
             <comment><![CDATA[These options are only intended for expert users. Tampering with the default settings may negatively affect the workflow and performance of all Buckaroo payment methods. Use at your own risk.]]></comment>
@@ -159,11 +157,7 @@
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <config_path>buckaroo_magento2/account/cancel_on_failed</config_path>
                 </field>
-
-
             </group>
-
-
 
             <group id="buckaroo_magento2_redirects" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Redirect after payment attempt</label>
