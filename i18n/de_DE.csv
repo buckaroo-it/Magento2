@@ -412,6 +412,9 @@
 "Error: postcode is required","Fehler: Postleitzahl ist erforderlich",
 "Delivery costs","Versandkosten"
 "Discount","Rabatt"
+"Shipping fee","Versandkosten"
+"Service costs","Servicekosten"
+"Discount on","Rabatt auf"
 "Your paid successfully. Please finish your order","Sie haben erfolgreich bezahlt. Bitte schließen Sie Ihre Bestellung ab."
 "Apply Gift Card","Geschenkkarte beantragen"
 "Pay remaining amount: %1 %2","Restbetrag zahlen: %1 %2"

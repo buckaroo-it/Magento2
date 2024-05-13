@@ -411,7 +411,10 @@
 "Card","Carte"
 "Error: postcode is required","Erreur: le code postal est requis",
 "Delivery costs","Coûts de livraison"
-"Discount","Remise"
+"Discount","Réduction"
+"Shipping fee","Les frais d'expédition"
+"Service costs","Frais de service"
+"Discount on","Réduction sur"
 "Your paid successfully. Please finish your order","Vous avez payé avec succès. Veuillez terminer votre commande"
 "Apply Gift Card","Appliquer des chèques cadeaux"
 "Pay remaining amount: %1 %2","Payer le montant restant: %1 %2"

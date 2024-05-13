@@ -28,6 +28,7 @@ use Buckaroo\Magento2\Service\PayReminderService;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 use Magento\Catalog\Model\Product\Type;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Phrase;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\Quote\Item;
@@ -425,6 +426,46 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     }
 
     /**
+     * Get text for Discount
+     *
+     * @return Phrase
+     */
+    public function getDiscount() : Phrase
+    {
+        return __('Discount');
+    }
+
+    /**
+     * Get text for Shipping fee
+     *
+     * @return Phrase
+     */
+    public function getShippingFee() : Phrase
+    {
+        return __('Shipping fee');
+    }
+
+    /**
+     * Get text for Service costs
+     *
+     * @return Phrase
+     */
+    public function getServiceCosts() : Phrase
+    {
+        return __('Service Costs');
+    }
+
+    /**
+     * Get text for Discount on
+     *
+     * @return Phrase
+     */
+    public function getDiscountOn() :Phrase
+    {
+        return __('Discount on');
+    }
+
+    /**
      * Get discount amount
      *
      * @return float|int
@@ -476,7 +517,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
 
         if ($buckarooFeeLine && $buckarooFeeLine > 0) {
             $article = $this->getArticleArrayLine(
-                'Servicekosten',
+                (string)$this->getServiceCosts(),
                 1,
                 1,
                 round($buckarooFeeLine, 2),
@@ -513,7 +554,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         $percent = $this->taxCalculation->getRate($request->setProductClassId($taxClassId));
 
         $shippingCostsArticle = $this->getArticleArrayLine(
-            'Shipping fee',
+            (string)$this->getShippingFee(),
             2,
             1,
             $this->formatPrice($shippingAmount),
@@ -577,7 +618,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         }
 
         return $this->getArticleArrayLine(
-            'Korting',
+            (string)$this->getDiscount(),
             1,
             1,
             round($discount, 2),
@@ -677,7 +718,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      */
     protected function getDiscountDescription($item): string
     {
-        return 'Korting op ' . $item->getName();
+        return $this->getDiscountOn() . ' ' . $item->getName();
     }
 
     /**
