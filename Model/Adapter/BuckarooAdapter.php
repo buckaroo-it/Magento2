@@ -201,11 +201,11 @@ class BuckarooAdapter
     {
         $clientMode = Config::TEST_MODE;
 
-        if ($accountMode == Enablemode::ENABLE_OFF) {
+        if ($accountMode == 0) {
             throw new Exception(__('The Buckaroo Module is OFF'));
         }
 
-        if ($accountMode == Enablemode::ENABLE_LIVE) {
+        if ($accountMode == 1) {
             $clientMode = Config::LIVE_MODE;
 
             if ($paymentMethod) {
