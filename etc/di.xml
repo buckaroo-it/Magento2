@@ -392,10 +392,6 @@
                     <item name="type" xsi:type="string">pospayment</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Pospayment</item>
                 </item>
-                <item name="creditclick" xsi:type="array">
-                    <item name="type" xsi:type="string">creditclick</item>
-                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\CreditClick</item>
-                </item>
                 <item name="voucher" xsi:type="array">
                     <item name="type" xsi:type="string">voucher</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Voucher</item>
@@ -2654,89 +2650,6 @@
     <!-- END Afterpay Old Refund Command -->
     <!-- END Afterpay Old Commands infrastructure -->
     <!-- END Payment Method: Afterpay Old -->
-
-
-
-    <!-- Payment Method: CreditClick-->
-    <!-- CreditClick Payment Method Facade configuration -->
-    <virtualType name="CreditClickFacade" type="Buckaroo\Magento2\Model\Method\BuckarooAdapter">
-        <arguments>
-            <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\CreditClick::CODE</argument>
-            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
-            <argument name="infoBlockType" xsi:type="string">Buckaroo\Magento2\Block\Info</argument>
-            <argument name="valueHandlerPool" xsi:type="object">CreditClickValueHandlerPool</argument>
-            <argument name="validatorPool" xsi:type="object">BuckarooValidatorPool</argument>
-            <argument name="commandPool" xsi:type="object">CreditClickGatewayCommandPool</argument>
-        </arguments>
-    </virtualType>
-    <!-- CreditClick Value handlers infrastructure -->
-    <virtualType name="CreditClickValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
-        <arguments>
-            <argument name="handlers" xsi:type="array">
-                <item name="default" xsi:type="string">CreditClickConfigValueHandler</item>
-            </argument>
-        </arguments>
-    </virtualType>
-    <!-- Configuration reader -->
-    <virtualType name="CreditClickConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
-        <arguments>
-            <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\CreditClick</argument>
-        </arguments>
-    </virtualType>
-    <!-- END CreditClick Value handlers infrastructure -->
-
-    <!-- CreditClick Commands infrastructure -->
-    <virtualType name="CreditClickGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
-        <arguments>
-            <argument name="commands" xsi:type="array">
-                <item name="order" xsi:type="string">CreditClickOrderCommand</item>
-                <item name="refund" xsi:type="string">CreditClickRefundCommand</item>
-            </argument>
-        </arguments>
-    </virtualType>
-
-    <!-- CreditClick Order Command -->
-    <virtualType name="CreditClickOrderCommand" type="Buckaroo\Magento2\Gateway\Command\GatewayCommand">
-        <arguments>
-            <argument name="requestBuilder" xsi:type="object">CreditClickOrderRequest</argument>
-            <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">TransactionPay</argument>
-            <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
-            <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
-            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
-        </arguments>
-    </virtualType>
-
-    <!-- CreditClick Order Command - Request Builder -->
-    <virtualType name="CreditClickOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
-        <arguments>
-            <argument name="builders" xsi:type="array">
-                <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
-                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\EmailAddressDataBuilder</item>
-                <item name="customer_name" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddress\CustomerNameDataBuilder</item>
-            </argument>
-        </arguments>
-    </virtualType>
-    <!-- END CreditClick Order Command -->
-
-     <!-- CreditClick Refund Command -->
-    <virtualType name="CreditClickRefundCommand" type="BuckarooRefundCommand">
-        <arguments>
-            <argument name="requestBuilder" xsi:type="object">CreditClickRefundRequest</argument>
-        </arguments>
-    </virtualType>
-    <!-- CreditClick Refund Command - Request Builder -->
-    <virtualType name="CreditClickRefundRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
-        <arguments>
-            <argument name="builders" xsi:type="array">
-                <item name="refund_request" xsi:type="string">BuckarooRefundRequest</item>
-                <item name="refund_reason" xsi:type="string">Buckaroo\Magento2\Gateway\Request\RefundReasonDataBuilder</item>
-            </argument>
-        </arguments>
-    </virtualType>
-    <!-- END CreditClick Order Command -->
-    <!-- END CreditClick Commands infrastructure -->
-    <!-- END Payment Method: CreditClick -->
 
     <!-- Payment Method: Apple Pay-->
     <!-- Applepay Payment Method Facade configuration -->
