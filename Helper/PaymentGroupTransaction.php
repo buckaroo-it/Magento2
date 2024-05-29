@@ -27,6 +27,7 @@ use Buckaroo\Magento2\Model\GroupTransaction;
 use Buckaroo\Magento2\Model\ResourceModel\GroupTransaction\CollectionFactory as GroupTransactionCollectionFactory;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
+use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 
 class PaymentGroupTransaction extends AbstractHelper
@@ -56,6 +57,9 @@ class PaymentGroupTransaction extends AbstractHelper
      */
     private BuckarooLoggerInterface $logger;
 
+    protected ResourceConnection $resourceConnection;
+
+
     /**
      * Constructor
      *
@@ -65,14 +69,16 @@ class PaymentGroupTransaction extends AbstractHelper
      * @param BuckarooLoggerInterface $logger
      * @param GroupTransactionCollectionFactory $grTrCollectionFactory
      * @param GroupTransactionResource $resourceModel
-     */
+     * @param ResourceConnection|null $resourceConnection
+ */
     public function __construct(
         Context $context,
         GroupTransactionFactory $groupTransactionFactory,
         DateTime $dateTime,
         BuckarooLoggerInterface $logger,
         GroupTransactionCollectionFactory $grTrCollectionFactory,
-        GroupTransactionResource $resourceModel
+        GroupTransactionResource $resourceModel,
+        ResourceConnection $resourceConnection
     ) {
         parent::__construct($context);
 
@@ -81,6 +87,30 @@ class PaymentGroupTransaction extends AbstractHelper
         $this->logger = $logger;
         $this->grTrCollectionFactory = $grTrCollectionFactory;
         $this->resourceModel = $resourceModel;
+        $this->resourceConnection = $resourceConnection;
+    }
+
+    /**
+     * Get additional information when there's a partial payment.
+     *
+     * @param integer $incrementId
+     * @return mixed
+     */
+    public function getAdditionalData($incrementId)
+    {
+        $connection = $this->resourceConnection->getConnection();
+
+        $tableName = $this->resourceConnection->getTableName('sales_order_payment');
+
+        $select = $connection->select()
+            ->from($tableName)
+            ->where('parent_id = ?', $incrementId)
+            ->order('entity_id DESC')
+            ->limit(1);
+
+        $result = $connection->fetchRow($select);
+
+        return json_decode($result["additional_information"], true);
     }
 
     /**

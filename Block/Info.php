@@ -231,4 +231,19 @@ class Info extends \Magento\Payment\Block\Info
         $transformedWords = array_map('ucfirst', $words);
         return __(implode(' ', $transformedWords));
     }
+
+    /**
+     * Returns additional information for giftcards
+     *
+     * @return array
+     * @throws LocalizedException
+     */
+    public function getGiftcardAdditionalData()
+    {
+        $orderId = $this->getInfo()->getOrder()->getEntityId();
+
+        $additionalInformation = $this->groupTransaction->getAdditionalData($orderId);
+
+        return $additionalInformation;
+    }
 }

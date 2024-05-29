@@ -32,31 +32,46 @@ if ($giftCards = $block->getGiftCards()) {
                 <img src=" <?php echo $block->escapeHtml($block->getGiftcardLogo($giftCard)) ?>" alt=""/>
             </div>
             <div class="bk-label-wrap">
-            <?php echo $block->escapeHtml($giftCard['label']) ?>
+                <?php echo $block->escapeHtml($giftCard['label']) ?>
             </div>
         </div>
-    <?php
+        <?php
     }
+    ?>
+    <div class="bk-payment-wrap">
+        <div class="bk-img-wrap">
+            <img src="
+            <?php
+            $additionalInfo = $block->getGiftcardAdditionalData();
+            echo $block->escapeHtml($block->getPaymentLogo($additionalInfo['method_title'])) ?>
+            " alt=""/>
+        </div>
+        <div class="bk-label-wrap">
+            <?php echo $block->escapeHtml($additionalInfo['method_title']) ?>
+        </div>
+    </div>
+    <?php
 }
 ?>
 
 <?php
-if ($method = $block->getPayPerEmailMethod()) {?>
-        <div class="buckaroo_magento2_payment_" style="margin-bottom:10px">
-            <?php echo $block->escapeHtml($method['label']) ?>
-        </div>
+if ($method = $block->getPayPerEmailMethod()) { ?>
+    <div class="buckaroo_magento2_payment_" style="margin-bottom:10px">
+        <?php echo $block->escapeHtml($method['label']) ?>
+    </div>
 <?php } ?>
 
 <?php $method = $block->getMethod(); ?>
 <div class="bk-payment-wrap">
-    <?php if($method->buckarooPaymentMethodCode !== 'voucher') { ?>
+    <?php if ($method->buckarooPaymentMethodCode !== 'voucher' && $method->buckarooPaymentMethodCode !== 'giftcards') { ?>
         <div class="bk-img-wrap">
-                <img src=" <?php echo $block->escapeHtml($block->getPaymentLogo($method->buckarooPaymentMethodCode)) ?>" alt=""/>
+            <img src=" <?php echo $block->escapeHtml($block->getPaymentLogo($method->buckarooPaymentMethodCode)) ?>"
+                 alt=""/>
+        </div>
+        <div class="bk-label-wrap">
+            <?php echo $block->escapeHtml($block->getMethod()->getTitle()) ?>
         </div>
     <?php } ?>
-    <div class="bk-label-wrap">
-        <?php echo $block->escapeHtml($block->getMethod()->getTitle()) ?>
-    </div>
 </div>
 
 <?php if ($specificPaymentDetails = $block->getSpecificPaymentDetails()) : ?>
