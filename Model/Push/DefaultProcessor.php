@@ -177,7 +177,7 @@ class DefaultProcessor implements PushProcessorInterface
             return true;
         }
 
-        // Check Push Dublicates
+        // Check Push Duplicates
         if ($this->receivePushCheckDuplicates()) {
             throw new BuckarooException(__('Skipped handling this push, duplicate'));
         }
