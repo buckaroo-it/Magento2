@@ -42,7 +42,7 @@ class PayPerEmail implements OptionSourceInterface
             ],
             [
                 'value' => 'bancontactmrcash',
-                'label' => __('Bancontact / Mr Cash'),
+                'label' => __('Bancontact'),
                 'code'  => 'buckaroo_magento2_mrcash'
             ],
             [

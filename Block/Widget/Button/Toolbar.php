@@ -64,7 +64,7 @@ class Toolbar
     ];
 
     /**
-     * Display cannot refund message for refunds that works only via the Buckaroo Payment Plaza
+     * Display cannot refund message for refunds that works only via the Buckaroo Buckaroo Plaza
      *
      * @param ToolbarContext $toolbar
      * @param AbstractBlock $context
@@ -114,11 +114,11 @@ class Toolbar
         if ($orderPayment->getBaseBuckarooFee() > 0 && !in_array($paymentMethod, $this->allowedMethods)) {
             $message = __(
                 'Cannot Refund via Magento Backend. ' .
-                'Partial refunds combined with a payment fee can only be refunded via the Buckaroo Payment Plaza, ' .
+                'Partial refunds combined with a payment fee can only be refunded via the Buckaroo Buckaroo Plaza, ' .
                 'see also the ' .
                 '<a href="https://support.buckaroo.nl" target="_blank">KB article</a>.<br>' .
                 '<a href="https://plaza.buckaroo.nl" target="_blank">' .
-                'Open a new window to the Buckaroo Payment Plaza</a>.'
+                'Open a new window to the Buckaroo Buckaroo Plaza</a>.'
             );
             $onClick = "confirmSetLocation('{$message}', '#')";
 
@@ -130,10 +130,10 @@ class Toolbar
         if (isset($orderKeyCM3) && strlen((string)$orderKeyCM3) > 0) {
             $message = __(
                 'Cannot refund this order via Magento Backend for now, we are working on a solution! ' .
-                'Credit Management orders can only be refunded via the Buckaroo Payment Plaza.' .
+                'Credit Management orders can only be refunded via the Buckaroo Buckaroo Plaza.' .
                 '<br>' .
                 '<a href="https://plaza.buckaroo.nl" target="_blank">' .
-                'Open a new window to the Buckaroo Payment Plaza</a>.'
+                'Open a new window to the Buckaroo Buckaroo Plaza</a>.'
             );
             $onClick = "confirmSetLocation('{$message}', '#')";
 

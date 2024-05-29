@@ -124,7 +124,7 @@
 
                 <field id="maestro_unsecure_hold" translate="label comment" type="select" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Set unsecure orders onhold</label>
-                    <comment><![CDATA[Hold orders which are secure.]]></comment>
+                    <comment><![CDATA[Hold orders which are unsecure.]]></comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <config_path>payment/buckaroo_magento2_creditcard/maestro_unsecure_hold</config_path>
                 </field>
@@ -137,7 +137,7 @@
 
                 <field id="dankort_unsecure_hold" translate="label comment" type="select" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Set unsecure orders onhold</label>
-                    <comment><![CDATA[Hold orders which are secure.]]></comment>
+                    <comment><![CDATA[Hold orders which are unsecure.]]></comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <config_path>payment/buckaroo_magento2_creditcard/dankort_unsecure_hold</config_path>
                 </field>

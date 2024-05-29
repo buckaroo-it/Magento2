@@ -65,7 +65,7 @@ class Refund extends AbstractConfigProvider
     }
 
     /**
-     * Allow 2-way refunding from Magento and Payment Plaza.
+     * Allow 2-way refunding from Magento and Buckaroo Plaza.
      *
      * @param int|string|null $store
      * @return mixed

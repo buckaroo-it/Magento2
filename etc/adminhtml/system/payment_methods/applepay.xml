@@ -69,12 +69,12 @@
             <field id="merchant_guid" translate="label comment tooltip" type="text" sortOrder="36" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>(Merchant) guid</label>
                 <comment><![CDATA[Enter your Buckaroo merchant guid.]]></comment>
-                <tooltip>The (Merchant) Guid can be retrieved in Payment Plaza under My Buckaroo > Details > Guid. For support contact Buckaroo.</tooltip>
+                <tooltip>The (Merchant) Guid can be retrieved in Buckaroo Plaza under My Buckaroo > General > Guid.</tooltip>
                 <config_path>buckaroo_magento2/account/merchant_guid</config_path>
             </field>
 
             <field id="available_buttons" translate="label comment" type="multiselect" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Enable or disable applepay buttons</label>
+                <label>Enable or disable Apple Pay buttons</label>
                 <comment><![CDATA[Select which buttons you want to be active.]]></comment>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\AvailableButtons</source_model>
                 <config_path>payment/buckaroo_magento2_applepay/available_buttons</config_path>
@@ -95,7 +95,7 @@
 
             <field id="dont_ask_billing_info_in_checkout" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Do not ask for billing info in checkout</label>
-                <comment><![CDATA[In ApplePay's popup billing info will not be requested. CustomerCardName will not be passed to gateway in such case.]]></comment>
+                <comment><![CDATA[In Apple Pay's popup billing info will not be requested. CustomerCardName will not be passed to gateway in such case.]]></comment>
                 <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 <config_path>payment/buckaroo_magento2_applepay/dont_ask_billing_info_in_checkout</config_path>
             </field>

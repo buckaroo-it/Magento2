@@ -119,7 +119,7 @@ class Push
     }
 
     /**
-     * This is called when a refund is made in Buckaroo Payment Plaza.
+     * This is called when a refund is made in Buckaroo Buckaroo Plaza.
      * This Function will result in a creditmemo being created for the order in question.
      *
      * @param PushRequestInterface $postData
@@ -144,7 +144,7 @@ class Push
         if (!$this->configRefund->getAllowPush()) {
             $this->logger->addDebug(sprintf(
                 '[PUSH_REFUND] | [Webapi] | [%s:%s] - Refund order failed - ' .
-                'the configuration is set not to accept refunds out of Payment Plaza | orderId: %s',
+                'the configuration is set not to accept refunds out of Buckaroo Plaza | orderId: %s',
                 __METHOD__,
                 __LINE__,
                 $this->order->getId()

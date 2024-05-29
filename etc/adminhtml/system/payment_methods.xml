@@ -30,7 +30,7 @@
                     <li class="disabled">
                         <span class="img"></span>
                         <span class="text">Payment method: </span>
-                        <span class="status">Disabled</span>
+                        <span class="status">DNG</span>
                     </li>
                     <li class="test">
                         <span class="img"></span>
