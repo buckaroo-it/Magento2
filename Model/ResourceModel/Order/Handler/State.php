@@ -46,9 +46,10 @@ class State extends \Magento\Sales\Model\ResourceModel\Order\Handler\State
      * @param BuckarooLoggerInterface $logger
      */
     public function __construct(
-        Factory $configProviderMethodFactory,
+        Factory                 $configProviderMethodFactory,
         BuckarooLoggerInterface $logger
-    ) {
+    )
+    {
         $this->configProviderMethodFactory = $configProviderMethodFactory;
         $this->logger = $logger;
     }
@@ -61,7 +62,7 @@ class State extends \Magento\Sales\Model\ResourceModel\Order\Handler\State
      *
      * @throws LocalizedException
      */
-    public function check(Order $order): State
+    public function beforeCheck(Order $order): State
     {
         if ($order->getPayment() &&
             $order->getPayment()->getMethod() == 'buckaroo_magento2_payperemail'
