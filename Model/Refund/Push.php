@@ -119,7 +119,7 @@ class Push
     }
 
     /**
-     * This is called when a refund is made in Buckaroo Buckaroo Plaza.
+     * This is called when a refund is made in Buckaroo Plaza.
      * This Function will result in a creditmemo being created for the order in question.
      *
      * @param PushRequestInterface $postData
