@@ -494,7 +494,7 @@
                 <item name="group_transaction" xsi:type="string">Buckaroo\Magento2\Model\Push\GroupTransactionPushProcessor</item>
                 <item name="refund" xsi:type="string">Buckaroo\Magento2\Model\Push\RefundProcessor</item>
                 <item name="cancel_authorize" xsi:type="string">Buckaroo\Magento2\Model\Push\CancelAuthorizeProcessor</item>
-                <item name="ideal" xsi:type="string">Buckaroo\Magento2\Model\Push\LockedPushProcessor</item>
+                <item name="ideal" xsi:type="string">Buckaroo\Magento2\Model\Push\IdealPushProcessor</item>
                 <item name="paypal" xsi:type="string">Buckaroo\Magento2\Model\Push\PaypalProcessor</item>
                 <item name="afterpay" xsi:type="string">Buckaroo\Magento2\Model\Push\AfterpayProcessor</item>
                 <item name="klarna" xsi:type="string">Buckaroo\Magento2\Model\Push\KlarnaProcessor</item>
