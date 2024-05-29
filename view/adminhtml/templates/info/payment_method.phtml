@@ -37,14 +37,12 @@ if ($giftCards = $block->getGiftCards()) {
         </div>
         <?php
     }
+    $additionalInfo = $block->getGiftcardAdditionalData();
+    $methodTitle = $block->getPaymentLogo(strtolower(str_replace('Buckaroo ', '', $additionalInfo['method_title'])));
     ?>
     <div class="bk-payment-wrap">
         <div class="bk-img-wrap">
-            <img src="
-            <?php
-            $additionalInfo = $block->getGiftcardAdditionalData();
-            echo $block->escapeHtml($block->getPaymentLogo($additionalInfo['method_title'])) ?>
-            " alt=""/>
+            <img src=" <?php echo $block->escapeHtml($methodTitle) ?>" alt=""/>
         </div>
         <div class="bk-label-wrap">
             <?php echo $block->escapeHtml($additionalInfo['method_title']) ?>
