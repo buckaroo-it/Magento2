@@ -70,7 +70,7 @@
     <hr class="bk-hr-line">
     <h3 class="bk-h3"><?= $block->escapeHtml(__('Documentation:'));?></h3>
     <div class="bk-flex bk-mb-5px">
-        <a href="https://docs.buckaroo.io/docs/magento-2" target="_blank" rel="noopener" class="bk-btn">
+        <a href="https://docs.buckaroo.io/docs/magento-20" target="_blank" rel="noopener" class="bk-btn">
             <?= $block->escapeHtml(__('Magento Documentation'));?>
         </a>
 
@@ -78,7 +78,7 @@
             <?= $block->escapeHtml(__('Github'));?>
         </a>
 
-        <a href="https://docs.buckaroo.io/v1/docs/magento-2-releases" target="_blank" rel="noopener" class="bk-btn bk-ml-10px">
+        <a href="https://docs.buckaroo.io/v1/docs/magento-20-releases" target="_blank" rel="noopener" class="bk-btn bk-ml-10px">
             <?= $block->escapeHtml(__('Changelog'));?>
         </a>
     </div>
@@ -125,8 +125,8 @@
 
     <hr class="bk-hr-line">
     <h3 class="bk-h3"><?= $block->escapeHtml(__('Account:'));?></h3>
-    <p class="bk-mb-5px"><?= $block->escapeHtml(__('No Buckaroo account yet? No problem. Click on the attached button to sign up for a (live) account.
-'));?></p>
+    <p class="bk-mb-5px"><?= $block->escapeHtml(__('No Buckaroo account yet? No problem.'));?></p>
+    <p class="bk-mb-5px"><?= $block->escapeHtml(__('Click on the attached button to sign up for a (live) account.'));?></p>
     <a href="https://www.buckaroo.nl/start" target="_blank" rel="noopener" class="bk-btn">
         <?= $block->escapeHtml(__('Get account'));?>
     </a>
@@ -134,7 +134,8 @@
 
     <hr class="bk-hr-line">
     <h3 class="bk-h3"><?= $block->escapeHtml(__('Contact:'));?></h3>
-    <p class="bk-mb-5px"><?= $block->escapeHtml(__('Questions about Buckaroo, Magento 2 or the plugin? Do not hesitate to contact us via <a href="mailto:support@buckaroo.nl">support@buckaroo.nl</a> or call <a href="tel:+31 (0)30 711 50 50">+31 (0)30 711 50 50</a>'), ['a']);?></p>
+    <p class="bk-mb-5px"><?= $block->escapeHtml(__('Questions about Buckaroo, Magento 2 or the plugin?'));?></p>
+    <p class="bk-mb-5px"><?= $block->escapeHtml(__('Do not hesitate to contact us via <a href="%1">support@buckaroo.nl</a> or call <a href="%2">+31 (0)30 711 50 50</a>', $block->escapeHtml('mailto:support@buckaroo.nl'), $block->escapeHtml('tel:+31 (0)30 711 50 50')), ['a']);?></p>
 
     <a href="mailto:support@buckaroo.nl" target="_blank" class="bk-btn">
         <?= $block->escapeHtml(__('Contact us'));?>
@@ -142,7 +143,8 @@
 
     <hr class="bk-hr-line">
     <h3 class="bk-h3"><?= $block->escapeHtml(__('Contribute:'));?></h3>
-    <p class="bk-mb-5px"><?= $block->escapeHtml(__('Do you see room for improvement? We look forward to your input! Via Github you can submit a feature request or submit a pull request yourself with your proposed adjustments.'));?></p>
+    <p class="bk-mb-5px"><?= $block->escapeHtml(__('Do you see room for improvement? We look forward to your input!'));?></p>
+    <p class="bk-mb-5px"><?= $block->escapeHtml(__('Via Github you can submit a feature request or submit a pull request yourself with your proposed adjustments.'));?></p>
 
     <a href="https://github.com/buckaroo-it/Magento2/blob/master/CONTRIBUTING.md" target="_blank" rel="noopener" class="bk-btn">
         <?= $block->escapeHtml(__('Contribute'));?>

@@ -36,7 +36,7 @@
         <field id="merchant_key" translate="label comment tooltip" type="obscure" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>(Website) key</label>
             <comment><![CDATA[Enter your Buckaroo merchant/website key.]]></comment>
-            <tooltip>The (Website) key can be retrieved in Payment Plaza under My Buckaroo > Websites. For support contact Buckaroo.</tooltip>
+            <tooltip>The (Website) key can be retrieved in the Buckaroo Plaza under Settings > Websites. For support contact Buckaroo.</tooltip>
             <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
             <config_path>buckaroo_magento2/account/merchant_key</config_path>
         </field>
@@ -44,7 +44,7 @@
         <field id="secret_key" translate="label comment tooltip" type="obscure" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Secret key</label>
             <comment><![CDATA[Enter your Buckaroo Secret Key.]]></comment>
-            <tooltip>The Secret Key can be retrieved in Payment Plaza under Configuration > Security > Secret Key. For support contact Buckaroo.</tooltip>
+            <tooltip>The Secret Key can be retrieved in the Buckaroo Plaza under Settings > Secret Key. For support contact Buckaroo.</tooltip>
             <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
             <config_path>buckaroo_magento2/account/secret_key</config_path>
         </field>
@@ -58,7 +58,7 @@
 
         <field id="transaction_label" translate="label comment tooltip" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Transaction label</label>
-            <comment><![CDATA[The transaction description, shown in Buckaroo plaza and visible on bank account of consumers.]]></comment>
+            <comment><![CDATA[The transaction description, shown in the Buckaroo Plaza and visible on bank account of consumers.]]></comment>
             <tooltip><![CDATA[Available substitutions: <code>{order_number}</code>, <code>{shop_name}</code>, <code>{product_name}</code>(first product name)]]></tooltip>
             <backend_model>Buckaroo\Magento2\Model\Config\Backend\TransactionLabel</backend_model>
             <config_path>buckaroo_magento2/account/transaction_label</config_path>
@@ -79,14 +79,14 @@
             <field id="active" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
                 <label>Enabled</label>
                 <comment><![CDATA[Enable or disable refunding.]]></comment>
-                <tooltip>Set to 'No' refunds must be done manualy in Payment Plaza.</tooltip>
+                <tooltip>Set to 'No' refunds must be done manualy in Buckaroo Plaza.</tooltip>
                 <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 <config_path>buckaroo_magento2/refund/enabled</config_path>
             </field>
 
             <field id="allow_push" translate="label comment tooltip" type="select" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
-                <label>Push Payment Plaza refunds to Magento</label>
-                <comment><![CDATA[Allow 2-way refunding from Magento and Payment Plaza.]]></comment>
+                <label>Push Buckaroo Plaza refunds to Magento</label>
+                <comment><![CDATA[Allow 2-way refunding from Magento and Buckaroo Plaza.]]></comment>
                 <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 <config_path>buckaroo_magento2/refund/allow_push</config_path>
                 <depends>
@@ -250,7 +250,7 @@
                 <field id="log_retention" translate="label" type="multiselect" sortOrder="260" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Log retention period</label>
                     <source_model>Buckaroo\Magento2\Model\Config\Source\LogRetention</source_model>
-                    <comment><![CDATA[[Decide what period will be for log retention]]></comment>
+                    <comment><![CDATA[Decide what period will be for log retention]]></comment>
                     <config_path>buckaroo_magento2/account/log_retention</config_path>
                 </field>
             </group>
@@ -281,7 +281,7 @@
                 </field>
 
                 <field id="cart_keep_alive" translate="label" type="select" sortOrder="205" showInDefault="1" showInWebsite="0" showInStore="0">
-                    <label>Cart keep alive</label>
+                    <label>Keep cart alive</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment><![CDATA[Optional will restore the cart when consumer use back button]]></comment>
                     <config_path>buckaroo_magento2/account/cart_keep_alive</config_path>

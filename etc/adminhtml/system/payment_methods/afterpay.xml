@@ -100,35 +100,35 @@
             </field>
             
             <field id="high_tax" translate="label comment" type="multiselect" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label> High VAT tax classes</label>
+                <label>High VAT tax classes</label>
                 <comment><![CDATA[Select which tax classes count as 'high' VAT.]]></comment>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\TaxClass\Product</source_model>
                 <config_path>payment/buckaroo_magento2_afterpay/high_tax</config_path>
             </field>
 
             <field id="middle_tax" translate="label comment" type="multiselect" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label> Middle VAT tax classes</label>
+                <label>Middle VAT tax classes</label>
                 <comment><![CDATA[Select which tax classes count as 'middle' VAT.]]></comment>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\TaxClass\Product</source_model>
                 <config_path>payment/buckaroo_magento2_afterpay/middle_tax</config_path>
             </field>
 
             <field id="low_tax" translate="label comment" type="multiselect" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label> Low VAT tax classes</label>
+                <label>Low VAT tax classes</label>
                 <comment><![CDATA[Select which tax classes count as 'low' VAT.]]></comment>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\TaxClass\Product</source_model>
                 <config_path>payment/buckaroo_magento2_afterpay/low_tax</config_path>
             </field>
 
             <field id="zero_tax" translate="label comment" type="multiselect" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label> Zero VAT tax classes</label>
+                <label>Zero VAT tax classes</label>
                 <comment><![CDATA[Select which tax classes count as 'zero' VAT.]]></comment>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\TaxClass\Product</source_model>
                 <config_path>payment/buckaroo_magento2_afterpay/zero_tax</config_path>
             </field>
 
             <field id="no_tax" translate="label comment" type="multiselect" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label> No VAT tax classes</label>
+                <label>No VAT tax classes</label>
                 <comment><![CDATA[Select which tax classes count as 'no' VAT.]]></comment>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\TaxClass\Product</source_model>
                 <config_path>payment/buckaroo_magento2_afterpay/no_tax</config_path>
