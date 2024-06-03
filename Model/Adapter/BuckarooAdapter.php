@@ -189,6 +189,23 @@ class BuckarooAdapter
     }
 
     /**
+     * Confirms the validity of the provided merchant key and secret key using the Buckaroo SDK.
+     *
+     * @param string $merchantKey The merchant key to validate.
+     * @param string $secretKey The secret key to validate.
+     * @return bool Returns true if the credentials are valid, false otherwise.
+     * @throws \Exception
+     */
+    public function confirmCredential(string $merchantKey, string $secretKey): bool
+    {
+        $this->buckaroo = new BuckarooClient(new DefaultConfig(
+            $merchantKey,
+            $secretKey
+        ));
+        return $this->buckaroo->confirmCredential();
+    }
+
+    /**
      * Get client mode base on account mode and payment method mode
      *
      * @param int|string $accountMode
