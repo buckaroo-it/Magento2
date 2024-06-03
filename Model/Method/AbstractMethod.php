@@ -24,6 +24,7 @@ namespace Buckaroo\Magento2\Model\Method;
 use Buckaroo\Magento2\Model\ConfigProvider\Refund as RefundConfigProvider;
 use Magento\Tax\Model\Config;
 use Magento\Sales\Model\Order;
+use Magento\Framework\Phrase;
 use Buckaroo\Magento2\Model\Push;
 use Magento\Tax\Model\Calculation;
 use Magento\Payment\Model\InfoInterface;
@@ -444,6 +445,26 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             $this->getInfoInstance()
                 ->setAdditionalInformation('customer_email', $data['additional_data']['customer_email']);
         }
+    }
+
+    /**
+     * Get text for Service costs
+     *
+     * @return Phrase
+     */
+    public function getServiceCosts() : Phrase
+    {
+        return __('Service costs');
+    }
+
+    /**
+     * Get text for Shipping fee
+     *
+     * @return Phrase
+     */
+    public function getShippingFee() : Phrase
+    {
+        return __('Shipping fee');
     }
 
     /**
@@ -2074,7 +2095,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         if (false !== $buckarooFeeLine && (double) $buckarooFeeLine > 0) {
             $article = $this->getArticleArrayLine(
                 $latestKey,
-                'Servicekosten',
+                (string)$this->getServiceCosts(),
                 1,
                 1,
                 round($buckarooFeeLine, 2),
@@ -2556,7 +2577,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         $shippingCostsArticle = [
             [
-                '_'       => 'Shipping fee',
+                '_'       => (string)$this->getShippingFee(),
                 'Name'    => 'Description',
                 'Group'   => 'Article',
                 'GroupID' => $count,

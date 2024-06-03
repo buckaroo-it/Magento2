@@ -22,6 +22,7 @@ namespace Buckaroo\Magento2\Model\Method;
 
 use Magento\Tax\Model\Config;
 use Magento\Tax\Model\Calculation;
+use Magento\Framework\Phrase;
 use Magento\Catalog\Model\Product\Type;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Quote\Model\Quote\AddressFactory;
@@ -145,6 +146,16 @@ class Billink extends AbstractMethod
         }
 
         return $this;
+    }
+
+    /**
+     * Get text for Discount on
+     *
+     * @return Phrase
+     */
+    public function getDiscountOn() :Phrase
+    {
+        return __('Discount on');
     }
 
     /**
@@ -325,7 +336,7 @@ class Billink extends AbstractMethod
                 $count++;
                 $article = $this->getArticleArrayLine(
                     $count,
-                    'Korting op ' . $item->getName(),
+                    $this->getDiscountOn() . ' ' . $item->getName(),
                     $item->getSku(),
                     1,
                     number_format(($item->getDiscountAmount()*-1), 2),
@@ -401,7 +412,7 @@ class Billink extends AbstractMethod
                 $count++;
                 $article = $this->getArticleArrayLine(
                     $count,
-                    'Korting op ' . $item->getName(),
+                    $this->getDiscountOn() . ' ' . $item->getName(),
                     $item->getSku(),
                     1,
                     number_format(($item->getDiscountAmount()*-1), 2),
