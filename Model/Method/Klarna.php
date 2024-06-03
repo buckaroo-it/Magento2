@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Model\Method;
 use Magento\Catalog\Model\Product\Type;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
+use Magento\Framework\Phrase;
 use Magento\Quote\Model\Quote\AddressFactory;
 use Magento\Store\Model\ScopeInterface;
 
@@ -239,6 +240,16 @@ class Klarna extends AbstractMethod
     }
 
     /**
+     * Get text for Discount
+     *
+     * @return Phrase
+     */
+    public function getDiscount() : Phrase
+    {
+        return __('Discount');
+    }
+
+    /**
      * Get the discount cost lines
      *
      * @param (int)                                                                              $latestKey
@@ -257,7 +268,7 @@ class Klarna extends AbstractMethod
 
         $article = $this->getArticleArrayLine(
             $latestKey,
-            'Korting',
+            (string)$this->getServiceCosts(),
             1,
             1,
             round($discount, 2),

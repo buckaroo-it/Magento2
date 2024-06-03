@@ -21,6 +21,7 @@
 namespace Buckaroo\Magento2\Model\Method;
 
 use Magento\Sales\Model\Order\Payment;
+use Magento\Framework\Phrase;
 use Magento\Catalog\Model\Product\Type;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Model\Config\Source\AfterpayCustomerType;
@@ -96,6 +97,26 @@ class Afterpay20 extends AbstractMethod
         $data = $this->assignDataConvertToArray($data);
         $this->assignDataCommon($data);
         return $this;
+    }
+
+    /**
+     * Get text for Discount
+     *
+     * @return Phrase
+     */
+    public function getDiscount() : Phrase
+    {
+        return __('Discount');
+    }
+
+    /**
+     * Get text for Discount on
+     *
+     * @return Phrase
+     */
+    public function getDiscountOn() :Phrase
+    {
+        return __('Discount on');
     }
 
     /**
@@ -356,7 +377,7 @@ class Afterpay20 extends AbstractMethod
                 $count++;
                 $article = $this->getArticleArrayLine(
                     $count,
-                    'Korting op ' . (int) $item->getQty() . ' x ' . $item->getName(),
+                    $this->getDiscountOn() . ' ' . (int) $item->getQty() . ' x ' . $item->getName(),
                     $item->getSku(),
                     1,
                     number_format(($item->getDiscountAmount()*-1), 2),
@@ -492,7 +513,7 @@ class Afterpay20 extends AbstractMethod
 
         $article = $this->getArticleArrayLine(
             $latestKey,
-            'Korting',
+            (string)$this->getDiscount(),
             1,
             1,
             round($discount, 2),
