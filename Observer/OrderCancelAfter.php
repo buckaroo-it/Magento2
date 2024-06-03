@@ -27,6 +27,7 @@ use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
+use Exception;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Encryption\Encryptor;
 use Magento\Framework\Event\Observer;
@@ -116,7 +117,7 @@ class OrderCancelAfter implements ObserverInterface
                     $order->getId()
                 ));
                 $this->sendCancelResponse($originalKey);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->logger->addError(sprintf(
                     '[CANCEL_ORDER - PayPerEmail] | [Observer] | [%s:%s] - Send Cancel Request for PPE | [ERROR]: %s',
                     __METHOD__,
@@ -127,14 +128,17 @@ class OrderCancelAfter implements ObserverInterface
         }
     }
 
+    /**
+     * @throws Exception
+     */
     private function sendCancelResponse($key)
     {
         $active = $this->configProviderPPE->getActive();
         $mode = ($active == Data::MODE_LIVE) ? Data::MODE_LIVE : Data::MODE_TEST;
 
-        $this->client->setSecretKey($this->encryptor->decrypt($this->configProviderAccount->getSecretKey()));
-        $this->client->setWebsiteKey($this->encryptor->decrypt($this->configProviderAccount->getMerchantKey()));
+        $secretKey = $this->encryptor->decrypt($this->configProviderAccount->getSecretKey());
+        $websiteKey = $this->encryptor->decrypt($this->configProviderAccount->getMerchantKey());
 
-        return $this->client->doCancelRequest($key, $mode);
+        return $this->client->doCancelRequest($key, $mode, $secretKey, $websiteKey);
     }
 }

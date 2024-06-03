@@ -87,10 +87,14 @@ class Json
      *
      * @param string $key
      * @param int $mode
+     * @param string $secretKey
+     * @param string $websiteKey
      * @return false|mixed
      */
-    public function doCancelRequest($key, $mode)
+    public function doCancelRequest($key, $mode, $secretKey, $websiteKey)
     {
+        $this->setSecretKey($secretKey);
+        $this->setWebsiteKey($websiteKey);
         $urls = $this->getUrls($mode, 'cancel', $key);
 
         $options = $this->getOptions($urls['uri'], $urls['uri2'], [], 'GET');
