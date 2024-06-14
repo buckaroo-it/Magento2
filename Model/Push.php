@@ -494,7 +494,7 @@ class Push implements PushInterface
             && $payment->getMethod()
             && $receivedStatusCode
             && ($this->getTransactionType() == self::BUCK_PUSH_TYPE_TRANSACTION)
-            && (!in_array($payment->getMethod(), $ignoredPaymentMethods) || $isRefund)
+            && ((!in_array($payment->getMethod(), $ignoredPaymentMethods)) || $isRefund)
         ) {
             $this->logging->addDebug(__METHOD__ . '|5|');
 

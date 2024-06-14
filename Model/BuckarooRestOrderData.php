@@ -38,7 +38,7 @@ class BuckarooRestOrderData implements BuckarooRestOrderDataInterface
     public function __construct(
         string $orderIncrementId,
         PaymentGroupTransaction $groupTransaction,
-        TransactionResponseInterfaceFactory $trResponseFactory,
+        TransactionResponseInterfaceFactory $trResponseFactory
         ) {
         $this->orderIncrementId = $orderIncrementId;
         $this->groupTransaction = $groupTransaction;

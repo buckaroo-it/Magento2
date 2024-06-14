@@ -156,6 +156,7 @@ class Add
             try {
                 $this->shippingAddressManagement->assign($cart->getId(), $shippingAddress);
             } catch (\Exception $e) {
+                // phpcs:ignore Magento2.Security.LanguageConstruct.DirectOutput
                 echo $e->getMessage();
             }
             $this->quoteRepository->save($cart);
