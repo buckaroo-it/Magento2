@@ -29,7 +29,7 @@ use Buckaroo\Magento2\Model\Config\Source\TaxClass\Calculation;
 use Buckaroo\Magento2\Model\ConfigProvider\Account as ConfigProviderAccount;
 use Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee as ConfigProviderBuckarooFee;
 
-class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
+class BuckarooFeeHyva extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
 {
     /** @var ConfigProviderAccount */
     protected $configProviderAccount;
@@ -84,7 +84,7 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
         Log $logging,
         TaxModelCalculation $taxCalculation
     ) {
-        $this->setCode('buckaroo_fee');
+        $this->setCode('buckaroo_fee_hyva');
 
         $this->configProviderAccount = $configProviderAccount;
         $this->configProviderBuckarooFee = $configProviderBuckarooFee;
@@ -195,13 +195,15 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
         $totals = [
             'code' => $this->getCode(),
             'title' => $this->getLabel(),
-            'buckaroo_fee' => $total->getBuckarooFee(),
+            'buckaroo_fee_hyva' => ['buckaroo_fee' => [$total->getBuckarooFee()]],
+            'value' => $total->getBuckarooFee(),
             'base_buckaroo_fee' => $total->getBaseBuckarooFee(),
             'buckaroo_fee_incl_tax' => $total->getBuckarooFeeInclTax(),
             'base_buckaroo_fee_incl_tax' => $total->getBaseBuckarooFeeInclTax(),
             'buckaroo_fee_tax_amount' => $total->getBuckarooFeeTaxAmount(),
             'buckaroo_fee_base_tax_amount' => $total->getBuckarooFeeBaseTaxAmount(),
         ];
+
 
         return $totals;
     }
@@ -217,7 +219,7 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
     public function getBaseFee(
         \Buckaroo\Magento2\Model\Method\AbstractMethod $methodInstance,
         \Magento\Quote\Model\Quote $quote,
-        $inclTax = false
+                                                       $inclTax = false
     ) {
         $buckarooPaymentMethodCode = $methodInstance->buckarooPaymentMethodCode;
         if (!$this->configProviderMethodFactory->has($buckarooPaymentMethodCode)) {
