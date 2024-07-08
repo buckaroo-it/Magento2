@@ -19,21 +19,21 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 ?>
-<?php if ($block->canShowCartButton()) : ?>
+<?php if ($block->canShowCartButton()) :?>
     <div class="box-tocart">
         <div class="fieldset">
             <div class="actions">
-                <div id="paypal-express-wrapper" data-bind="afterRender: showPaypalExpressButton"></div>
+                <div id="ideal-fast-checkout-wrapper" data-bind="afterRender: showIdealFastCheckoutButton"></div>
             </div>
         </div>
     </div>
-    <div class="buckaroo-paypal-express"></div>
+    <div class="buckaroo-ideal-fast-checkout"></div>
 
     <script>
-        showPaypalExpressButton = function() {
-            require(['jquery', 'buckaroo/paypal-express/pay'], function(jQuery, paypalExpressPay) {
-                paypalExpressPay.setConfig(<?= /* @noEscape */ json_encode($block->getConfig()); ?>, 'cart');
-                paypalExpressPay.init();
+        showIdealFastCheckoutButton = function() {
+            require(['jquery', 'buckaroo/ideal-fast-checkout/pay'], function(jQuery, idealFastCheckoutPay) {
+                idealFastCheckoutPay.setConfig(<?= /* @noEscape */ json_encode($block->getConfig()); ?>, 'cart');
+                idealFastCheckoutPay.init();
             });
         }
     </script>

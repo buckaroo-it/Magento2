@@ -26,8 +26,8 @@ var config = {
     },
     map: {
         '*': {
-            "BuckarooSDK": "//checkout.buckaroo.nl/api/buckaroosdk/script",
-            // "BuckarooSDK": "//testcheckout.buckaroo.nl/api/buckaroosdk/script",
+            // "BuckarooSDK": "//checkout.buckaroo.nl/api/buckaroosdk/script",
+            "BuckarooSDK": "//testcheckout.buckaroo.nl/api/buckaroosdk/script",
             "buckaroo/applepay/catalog-product-view": "Buckaroo_Magento2/js/view/checkout/applepay/catalog-product-view",
             "buckaroo/applepay/checkout-cart": "Buckaroo_Magento2/js/view/checkout/applepay/checkout-cart",
             "buckaroo/applepay/pay": "Buckaroo_Magento2/js/view/checkout/applepay/pay",
@@ -40,7 +40,9 @@ var config = {
             "buckaroo/checkout/common": "Buckaroo_Magento2/js/view/checkout/common",
             "buckaroo/checkout/datepicker": "Buckaroo_Magento2/js/view/checkout/datepicker",
             "buckaroo/paypal-express/pay": "Buckaroo_Magento2/js/view/checkout/paypal-express/pay",
-            "buckaroo/paypal-express/button": "Buckaroo_Magento2/js/view/checkout/paypal-express/button"
+            "buckaroo/paypal-express/button": "Buckaroo_Magento2/js/view/checkout/paypal-express/button",
+            "buckaroo/ideal-fast-checkout/pay": "Buckaroo_Magento2/js/view/checkout/ideal-fast-checkout/pay",
+            "buckaroo/ideal-fast-checkout/button": "Buckaroo_Magento2/js/view/checkout/ideal-fast-checkout/button",
         }
     },
     shim: {

@@ -19,23 +19,24 @@
  */
 ?>
 <?php if ($block->canShowProductButton()): ?>
-<div id="paypal-express-button-component" data-bind="scope:'paypalExpress'">
-    <!-- ko template: getTemplate() --><!-- /ko -->
-    <div class="buckaroo-paypal-express"></div>
-    <script type="text/x-magento-init">
-        {
-            "#paypal-express-button-component": {
-                "Magento_Ui/js/core/app": {
-                    "components": {
-                        "paypalExpress": {
-                            "component":"buckaroo/paypal-express/button",
-                            "template":"Buckaroo_Magento2/catalog/product/view/paypal-express",
-                            "data":  <?= /* @noEscape */ json_encode($block->getConfig()); ?>
-                        }
-                    }
-                }
+    <div id="ideal-button-component" data-bind="scope:'idealFastCheckout'">
+<!--         ko template: getTemplate() --><!-- /ko -->
+        <div class="buckaroo-ideal-fast-checkout"></div>
+        <script type="text/x-magento-init">
+            {
+                "#ideal-button-component": {
+                    "Magento_Ui/js/core/app": {
+                        "components": {
+                            "idealFastCheckout": {
+                                "component":"buckaroo/ideal-fast-checkout/button",
+                                "template":"Buckaroo_Magento2/catalog/product/view/ideal-fast-checkout",
+                                "data": <?= /* @noEscape */
+        json_encode($block->getConfig()); ?>
             }
         }
-    </script>
-</div>
+    }
+}
+}
+        </script>
+    </div>
 <?php endif; ?>

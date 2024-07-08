@@ -34,6 +34,8 @@ class Ideal extends AbstractConfigProvider
     const XPATH_IDEAL_ORDER_EMAIL           = 'payment/buckaroo_magento2_ideal/order_email';
     const XPATH_IDEAL_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_ideal/available_in_backend';
 
+    const XPATH_IDEAL_FAST_CHECKOUT_BUTTONS = 'payment/buckaroo_magento2_ideal/available_buttons';
+
     const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_ideal/allowed_currencies';
 
     const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_ideal/allowspecific';
@@ -145,5 +147,21 @@ class Ideal extends AbstractConfigProvider
     public function getImageUrl($imgName, string $extension = 'png')
     {
         return parent::getImageUrl("ideal/{$imgName}", "svg");
+    }
+
+    public function canShowButtonForPage($page, $store = null)
+    {
+        $buttons = $this->getExpressButtons($store);
+        if ($buttons === null) {
+            return false;
+        }
+
+        $pages = explode(",", $buttons);
+        return in_array($page, $pages);
+    }
+
+    public function getExpressButtons($store = null)
+    {
+        return $this->getConfigFromXpath(self::XPATH_IDEAL_FAST_CHECKOUT_BUTTONS, $store);
     }
 }

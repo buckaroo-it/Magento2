@@ -128,7 +128,9 @@ define([
      * Init class
      */
     init() {
+        console.log("KTUU");
       BuckarooSdk.PayPal.initiate(this.options);
+        console.log("KTUUPAYPAL");
     },
 
     /**
