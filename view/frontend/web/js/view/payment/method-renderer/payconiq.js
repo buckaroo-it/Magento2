@@ -29,7 +29,8 @@ define(
         'Magento_Checkout/js/action/select-payment-method',
         'mageUtils',
         'mage/url',
-        'buckaroo/checkout/common'
+        'buckaroo/checkout/common',
+        'buckaroo/payconiq/pay'
     ],
     function (
         $,
@@ -41,14 +42,16 @@ define(
         selectPaymentMethodAction,
         utils,
         url,
-        checkoutCommon
+        checkoutCommon,
+        payconiqPay
     ) {
         'use strict';
 
         return Component.extend(
             {
                 defaults: {
-                    template: 'Buckaroo_Magento2/payment/buckaroo_magento2_payconiq'
+                    template: 'Buckaroo_Magento2/payment/buckaroo_magento2_payconiq',
+                    transactionKey: null
                 },
                 redirectAfterPlaceOrder: false,
                 paymentFeeLabel : window.checkoutConfig.payment.buckaroo.payconiq.paymentFeeLabel,
@@ -56,16 +59,29 @@ define(
                 subTextStyle : checkoutCommon.getSubtextStyle('payconiq'),
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
-
                 /**
                  * @override
                  */
-                initialize : function (options) {
+                initialize: function (options) {
+                    this._super(options);
                     if (checkoutData.getSelectedPaymentMethod() == options.index) {
                         window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
                     }
 
-                    return this._super(options);
+                    if (this.transactionKey) {
+                        this.setTransactionKeyAndShowQrCode(this.transactionKey);
+                    }
+
+                    return this;
+                },
+
+                setTransactionKeyAndShowQrCode: function (transactionKey) {
+                    payconiqPay.setTransactionKey(transactionKey);
+                    payconiqPay.showQrCode();
+                },
+
+                cancelPayment: function () {
+                    payconiqPay.cancelPayment();
                 },
 
                 /**
@@ -139,11 +155,3 @@ define(
         );
     }
 );
-
-
-
-
-
-
-
-
