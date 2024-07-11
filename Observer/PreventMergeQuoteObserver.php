@@ -35,7 +35,7 @@ class PreventMergeQuoteObserver implements \Magento\Framework\Event\ObserverInte
      * @param PaymentGroupTransaction $groupTransaction
      */
     public function __construct(
-        PaymentGroupTransaction $groupTransaction,
+        PaymentGroupTransaction $groupTransaction
     ) {
         $this->groupTransaction = $groupTransaction;
     }
