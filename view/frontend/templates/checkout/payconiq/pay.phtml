@@ -10,9 +10,11 @@
     </div>
 </div>
 
-<script>
+<?php
+    $key = $block->getTransactionKey();
+    $script = <<<JS
     require(['buckaroo/payconiq/pay'], function (payconiqPay) {
-        var transactionKey = "<?= /* @noEscape */ $block->getTransactionKey(); ?>";
+        var transactionKey = "$key";
 
         payconiqPay.setTransactionKey(transactionKey);
         payconiqPay.showQrCode();
@@ -22,4 +24,6 @@
             payconiqPay.cancelPayment();
         });
     }
-</script>
+JS;
+?>
+<?= /* @noEscape */ $secureRenderer->renderTag('script', [], $script, false); ?>
