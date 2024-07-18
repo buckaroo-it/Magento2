@@ -2,37 +2,31 @@
 
 <div id="buckaroo_magento2_payconiq_container">
     <div id="buckaroo_magento2_mrcash_items">
-        <p id="buckaroo_magento2_mrcash_title"><?= /* @noEscape */
-                __('Scan onderstaande code binnen 15 minuten met de'); ?>&nbsp;
-            <a target="_blank" href="https://www.bancontact.com/nl"><?= /* @noEscape */
-                    __('Bancontact app'); ?></a></p>
-        <button id="buckaroo_magento2_mrcash_url" class="action-primary" type="button"
-                style="width:100%; display: none;"><?= /* @noEscape */
-                __('Bancontact app'); ?></button>
+        <p id="buckaroo_magento2_mrcash_title"><?= /* @noEscape */ __('Scan onderstaande code binnen 15 minuten met de'); ?>&nbsp;
+            <a target="_blank" href="https://www.bancontact.com/nl"><?= /* @noEscape */ __('Bancontact app'); ?></a></p>
+        <button id="buckaroo_magento2_mrcash_url" class="action-primary" type="button" style="width:100%; display: none;"><?= /* @noEscape */ __('Bancontact app'); ?></button>
         <div id="buckaroo_magento2_mrcash_qr"></div>
 
         <button id="buckaroo_magento2_mrcash_cancel" type="button" title="Cancel" data-bind="click: cancelPayment">
-            <span><?= /* @noEscape */
-                    (__('Cancel')); ?></span>
+            <span><?= /* @noEscape */ (__('Cancel')); ?></span>
         </button>
     </div>
 </div>
 
 <?php
-    $transactionKey = $block->getTransactionKey();
-?>
-<script type="text/x-magento-init">
-    {
-        "*": {
-            "Magento_Ui/js/core/app": {
-                "components": {
-                    "buckaroo_mrcash": {
-                        "component": "Buckaroo_Magento2/js/view/payment/method-renderer/mrcash",
-                        "transactionKey": "<?= /* @noEscape */
-        $transactionKey; ?>"
-                    }
-                }
-            }
-        }
+    $key = $block->getTransactionKey();
+    $script = <<<JS
+    require(['buckaroo/mrcash/pay'], function (mrcashPay) {
+        var transactionKey = "$key";
+
+        mrcashPay.setTransactionKey(transactionKey);
+        mrcashPay.showQrCode();
+    });
+    cancelPayment = function() {
+        require(['buckaroo/mrcash/pay'], function (mrcashPay) {
+            mrcashPay.cancelPayment();
+        });
     }
-</script>
+JS;
+?>
+<?= /* @noEscape */ $secureRenderer->renderTag('script', [], $script, false); ?>
