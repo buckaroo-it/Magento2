@@ -1,0 +1,50 @@
+<?php
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+?>
+<?php if ($block->canShowCartButton()): ?>
+    <style>
+        .custom-ideal-button {
+            text-decoration: none;
+            border: none;
+            background: none;
+            padding: 0;
+            margin: 0;
+            display: inline-block;
+        }
+        .custom-ideal-button img {
+            display: block;
+            width: 250px; /* Adjust size as needed */
+            height: auto;
+        }
+    </style>
+    <div id="ideal-button-component">
+        <a id="ideal-button" href="javascript:void(0);" class="custom-ideal-button">
+            <img src="https://d1twnm33rljaon.cloudfront.net/Logos/_AUTOxAUTO_crop_center-center_none/39471/iDEAL_Snel_bestellen_RGB_onwhite.webp" alt="<?= __('Fast Checkout with iDEAL') ?>" />
+        </a>
+        <script type="text/javascript">
+            require(['jquery', 'buckaroo/ideal-fast-checkout/pay', 'domReady!'], function ($, idealFastCheckoutPay) {
+                $('#ideal-button').on('click', function () {
+                    idealFastCheckoutPay.setConfig(<?= /* @noEscape */ json_encode($block->getConfig()); ?>, 'cart');
+                    idealFastCheckoutPay.init();
+                });
+            });
+        </script>
+    </div>
+<?php endif; ?>

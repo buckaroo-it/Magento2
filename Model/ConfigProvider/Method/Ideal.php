@@ -19,6 +19,8 @@
  */
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
+//use Magento\Store\Model\StoreManagerInterface;
+
 
 class Ideal extends AbstractConfigProvider
 {
@@ -52,6 +54,18 @@ class Ideal extends AbstractConfigProvider
         'EUR'
     ];
 
+
+//    /** @var StoreManagerInterface */
+//    private $storeManager;
+//
+//    public function __construct(
+//        StoreManagerInterface $storeManager
+//    ) {
+////        parent::__construct();
+//
+//        $this->storeManager = $storeManager;
+//    }
+
     /**
      * @return array|void
      */
@@ -64,6 +78,9 @@ class Ideal extends AbstractConfigProvider
             return [];
         }
 
+//        $store = $this->storeManager->getStore();
+//        $storeName = $store->getName();
+//        $currency = $store->getCurrentCurrency()->getCode();
         $issuers = $this->formatIssuers();
         $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
             \Buckaroo\Magento2\Model\Method\Ideal::PAYMENT_METHOD_CODE
@@ -83,6 +100,8 @@ class Ideal extends AbstractConfigProvider
                         'subtext'   => $this->getSubtext(),
                         'subtext_style'   => $this->getSubtextStyle(),
                         'subtext_color'   => $this->getSubtextColor(),
+//                        'storeName' => $storeName,
+//                        'currency' => $currency,
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'selectionType' => $selectionType,
                         'showIssuers' => $this->canShowIssuers()
@@ -162,6 +181,16 @@ class Ideal extends AbstractConfigProvider
 
     public function getExpressButtons($store = null)
     {
+
+//        var_dump("HERE");
+//        var_dump($this->storeManager->getStore()->getName());
+//        die();
+//        $store = $this->storeManager->getStore();
+
+//        var_dump("HEREE");
+//        var_dump($store);
+//        var_dump($this->getConfigFromXpath(self::XPATH_IDEAL_FAST_CHECKOUT_BUTTONS, $store));
+//        die();
         return $this->getConfigFromXpath(self::XPATH_IDEAL_FAST_CHECKOUT_BUTTONS, $store);
     }
 }

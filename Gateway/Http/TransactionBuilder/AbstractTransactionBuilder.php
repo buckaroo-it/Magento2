@@ -421,14 +421,14 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
      */
     public function getReturnUrl()
     {
-        
+
         $returnUrl = $this->getReturnUrlFromPayment();
         if($returnUrl !== null) {
             $this->setReturnUrl($returnUrl);
             return $returnUrl;
         }
 
-        
+
         if ($this->returnUrl === null) {
             $url = $this->urlBuilder->setScope($this->order->getStoreId());
             $url = $url->getRouteUrl('buckaroo/redirect/process') . '?form_key=' . $this->getFormKey();
@@ -442,7 +442,7 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
     public function getReturnUrlFromPayment()
     {
         if(
-            $this->getOrder() === null || 
+            $this->getOrder() === null ||
             $this->getOrder()->getPayment() === null ||
             $this->getOrder()->getPayment()->getAdditionalInformation(self::ADDITIONAL_RETURN_URL) === null
         ) {
@@ -450,7 +450,7 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
         }
         $returnUrl = $this->getOrder()->getPayment()->getAdditionalInformation(self::ADDITIONAL_RETURN_URL);
         if(
-            !filter_var($returnUrl, FILTER_VALIDATE_URL) === false && 
+            !filter_var($returnUrl, FILTER_VALIDATE_URL) === false &&
             in_array(parse_url($returnUrl, PHP_URL_SCHEME), ['http','https'])
         ) {
             return $returnUrl;
@@ -465,6 +465,7 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
         $this->logging->addDebug(__METHOD__ . '|1|');
 
         $transaction = $this->transaction->setBody($this->getBody());
+
         $transaction->setHeaders($this->getHeaders());
         $transaction->setMethod($this->getMethod());
 
@@ -634,7 +635,7 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
     {
         return $this->additionaParameters[$key];
     }
-    
+
     public function getAllAdditionalParameters()
     {
         return $this->additionaParameters;

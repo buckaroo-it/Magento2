@@ -356,7 +356,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     {
         if ($data instanceof \Magento\Framework\DataObject) {
             $additionalSkip = $data->getAdditionalData();
-            
+
             if (isset($additionalSkip[self::PAYMENT_FROM])) {
                 $this->getInfoInstance()->setAdditionalInformation(self::PAYMENT_FROM, $additionalSkip[self::PAYMENT_FROM]);
             }
@@ -741,6 +741,10 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         $transactionBuilder = $this->getOrderTransactionBuilder($payment);
 
+
+//        var_dump($transactionBuilder);
+//        die();
+
         if (!$transactionBuilder) {
             throw new \LogicException(
                 'Order action is not implemented for this payment method.'
@@ -750,6 +754,9 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         $transaction = $transactionBuilder->build();
+        if($transactionBuilder->getServices()['Action'] == 'PayFastCheckout'){
+            $transaction->setData('Order', '');
+        }
 
         try {
             $response = $this->orderTransaction($transaction);
@@ -763,6 +770,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         // SET REGISTRY BUCKAROO REDIRECT
         $this->_registry->unregister('buckaroo_response');
         $this->_registry->register('buckaroo_response', $response);
+
 
         if (!(isset($response[0]->RequiredAction->Type) && $response[0]->RequiredAction->Type === 'Redirect')) {
             $this->setPaymentInTransit($payment, false);
@@ -2785,7 +2793,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         } catch (\Throwable $th) {
             $this->logger2->addError(__METHOD__." ".(string)$th);
         }
-        
+
     }
 
     /**
@@ -2866,7 +2874,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         $limit = $this->getConfigData('spam_attempts');
-        
+
         if(!is_scalar($limit)) {
             $limit = 10;
         }
@@ -2895,11 +2903,11 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         if($storage === null) {
             return [];
-        } 
+        }
 
         $storage = json_decode($storage, true);
 
-        
+
         if(!is_array($storage)) {
             $storage = [];
         }

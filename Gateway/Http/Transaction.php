@@ -60,6 +60,13 @@ class Transaction
         return $this;
     }
 
+    public function setData($key, $value)
+    {
+        $this->body[$key] = $value;
+
+        return $this;
+    }
+
     /**
      * @returns array
      */

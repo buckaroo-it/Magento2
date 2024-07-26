@@ -61,13 +61,14 @@ class Ideal extends AbstractMethod
      */
     public function getOrderTransactionBuilder($payment)
     {
+//        var_dump($this->transactionBuilderFactory->get('order'));
+//        die();
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
 
         $services = [
             'Name'             => 'ideal',
-            'Action'           => $this->getPayRemainder($payment, $transactionBuilder),
+            'Action'           => 'PayFastCheckout',
             'Version'          => 2,
-            'RequestParameter' => $this->getOrderRequestParameters($payment),
         ];
 
         /**
@@ -151,7 +152,7 @@ class Ideal extends AbstractMethod
         $paymentInfo = $this->getInfoInstance();
 
         $chosenIssuer = $paymentInfo->getAdditionalInformation('issuer');
-        
+
         if (!$chosenIssuer) {
             if ($content = $this->request->getContent()) {
                 $jsonDecode = $this->helper->getJson()->unserialize($content);

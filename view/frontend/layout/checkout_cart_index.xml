@@ -15,7 +15,7 @@
                    after="checkout.cart.methods.onepage.bottom" template="Buckaroo_Magento2::checkout/cart/paypal-express.phtml">
             </block>
             <block class="Buckaroo\Magento2\Block\Catalog\Product\View\IdealFastCheckout" name="buckaroo_magento2.checkout.cart.ideal.fast.checkout"
-                   after="checkout.cart.methods.onepage.bottom" template="Buckaroo_Magento2::checkout/cart/ideal.phtml">
+                   after="checkout.cart.methods.onepage.bottom" template="Buckaroo_Magento2::checkout/cart/ideal-fast-checkout.phtml">
             </block>
         </referenceBlock>
         <referenceBlock name="checkout.cart.order.actions">

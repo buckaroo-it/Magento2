@@ -21,11 +21,11 @@
 
 namespace Buckaroo\Magento2\Block\Catalog\Product\View;
 
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Ideal;
 use Magento\Framework\Encryption\Encryptor;
 use Magento\Framework\View\Element\Template;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Magento\Framework\View\Element\Template\Context;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Paypal;
 
 class IdealFastCheckout extends Template
 {
@@ -40,21 +40,23 @@ class IdealFastCheckout extends Template
     protected $encryptor;
 
     /**
-     * @var Paypal
+     * @var Ideal
      */
     protected $idealConfig;
+    protected $ideal;
 
     public function __construct(
         Context $context,
         Account $configProviderAccount,
         Encryptor $encryptor,
-        Paypal $idealConfig,
+        Ideal $idealConfig,
         array $data = []
     ) {
         parent::__construct($context, $data);
         $this->configProviderAccount = $configProviderAccount;
         $this->encryptor = $encryptor;
         $this->idealConfig = $idealConfig;
+
     }
 
     /**
@@ -64,6 +66,8 @@ class IdealFastCheckout extends Template
      */
     public function canShowProductButton()
     {
+//        var_dump($this->get);
+//        die();
         return $this->idealConfig->canShowButtonForPage(
             'Product',
             $this->_storeManager->getStore()
@@ -134,5 +138,17 @@ class IdealFastCheckout extends Template
         return $this->idealConfig->getMerchantId(
             $this->_storeManager->getStore()
         );
+    }
+
+//    protected function getOrder(){
+//        return $this->ideal->getOrderTransactionBuilder("Test");
+//    }
+
+    /**
+     * @return false|string
+     */
+    public function getIdealConfig()
+    {
+        return json_encode($this->idealConfig->getConfig());
     }
 }

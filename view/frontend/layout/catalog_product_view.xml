@@ -30,7 +30,7 @@
                    before="product.info.extrahint" template="Buckaroo_Magento2::catalog/product/view/idin.phtml">
             </block>
             <block class="Buckaroo\Magento2\Block\Catalog\Product\View\IdealFastCheckout" name="buckaroo_magento2.product.info.ideal.fast.checkout"
-                   before="buckaroo_magento2.product.info.paypal.express" template="Buckaroo_Magento2::catalog/product/view/ideal.phtml">
+                   before="product.info.extrahint" template="Buckaroo_Magento2::catalog/product/view/ideal-fast-checkout.phtml">
             </block>
         </referenceContainer>
     </body>
