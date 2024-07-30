@@ -48,8 +48,7 @@ define(
         return Component.extend({
             defaults: {
                 template: 'Buckaroo_Magento2/payment/buckaroo_magento2_creditcards',
-                encryptedCardData: null,
-                cardIssuer: ''
+                encryptedCardData: null
             },
             paymentFeeLabel: window.checkoutConfig.payment.buckaroo.creditcards.paymentFeeLabel,
             subtext: window.checkoutConfig.payment.buckaroo.creditcards.subtext,
@@ -62,13 +61,7 @@ define(
             },
 
             initObservable: function () {
-                /** Observed fields **/
-                this._super().observe(
-                    [
-                        'cardIssuer'
-                    ]
-                );
-
+                this._super();
                 return this;
             },
 
@@ -189,10 +182,6 @@ define(
 
                         await sdkClient.mountCardNumber("#cc-number-wrapper", ccOptions);
 
-                        sdkClient.on('cardNumberChange', function (event) {
-                            self.cardIssuer(self.determineIssuer(event.cardNumber));
-                        });
-
                         let cvcOptions = {
                             id: "cvc",
                             placeHolder: "1234",
@@ -219,7 +208,7 @@ define(
                                 try {
                                     let paymentToken = await sdkClient.submitSession();
                                     self.encryptedCardData = paymentToken;
-                                    self.placeOrder(event);
+                                    self.placeOrder(null, event);
                                 } catch (error) {
                                     console.error("Error during payment submission:", error);
                                 }
@@ -233,7 +222,13 @@ define(
                 init();
             },
 
-            placeOrder: function (event) {
+            /**
+             * Place order.
+             *
+             * placeOrderAction has been changed from Magento_Checkout/js/action/place-order to our own version
+             * (Buckaroo_Magento2/js/action/place-order) to prevent redirect and handle the response.
+             */
+            placeOrder: function (data, event) {
                 var self = this,
                     placeOrder;
 
@@ -262,14 +257,12 @@ define(
             },
 
             getData: function() {
-                const cardIssuer = this.cardIssuer();
-
                 return {
                     "method": this.item.method,
                     "po_number": null,
                     "additional_data": {
                         "customer_encrypteddata": this.encryptedCardData,
-                        "customer_creditcardcompany": cardIssuer
+                        "customer_creditcardcompany": 'Visa'
                     }
                 }
             },
