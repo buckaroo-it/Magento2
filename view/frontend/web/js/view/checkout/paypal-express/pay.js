@@ -39,21 +39,21 @@ define([
       }
 
       this.options = Object.assign(
-        {
-          containerSelector: ".buckaroo-paypal-express",
-          buckarooWebsiteKey: "",
-          paypalMerchantId: "",
-          currency: "EUR",
-          amount: 0.1,
-          createPaymentHandler: this.createPaymentHandler.bind(this),
-          onShippingChangeHandler: this.onShippingChangeHandler.bind(this),
-          onSuccessCallback: this.onSuccessCallback.bind(this),
-          onErrorCallback: this.onErrorCallback.bind(this),
-          onCancelCallback: this.onCancelCallback.bind(this),
-          onInitCallback: this.onInitCallback.bind(this),
-          onClickCallback: this.onClickCallback.bind(this),
-        },
-        config
+          {
+            containerSelector: ".buckaroo-paypal-express",
+            buckarooWebsiteKey: "",
+            paypalMerchantId: "",
+            currency: "EUR",
+            amount: 0.1,
+            createPaymentHandler: this.createPaymentHandler.bind(this),
+            onShippingChangeHandler: this.onShippingChangeHandler.bind(this),
+            onSuccessCallback: this.onSuccessCallback.bind(this),
+            onErrorCallback: this.onErrorCallback.bind(this),
+            onCancelCallback: this.onCancelCallback.bind(this),
+            onInitCallback: this.onInitCallback.bind(this),
+            onClickCallback: this.onClickCallback.bind(this),
+          },
+          config
       );
     },
     result: null,
@@ -64,8 +64,8 @@ define([
      */
     onShippingChangeHandler(data, actions) {
       if (
-        this.page === 'product' &&
-        $("#product_addtocart_form").valid() === false
+          this.page === 'product' &&
+          $("#product_addtocart_form").valid() === false
       ) {
         return actions.reject();
       }
@@ -73,24 +73,24 @@ define([
       let shipping = this.setShipping(data);
       return new Promise((resolve, reject) => {
         shipping.then(
-          (response) => {
-            if (!response.message) {
-              this.options.amount = response.value;
-              this.cart_id = response.cart_id;
-              actions.order.patch([
-                {
-                  op: "replace",
-                  path: "/purchase_units/@reference_id=='default'/amount",
-                  value: response,
-                },
-              ]).then((resp) => resolve(resp), (err) => reject(err));
-            } else {
-              reject(response.message);
+            (response) => {
+              if (!response.message) {
+                this.options.amount = response.value;
+                this.cart_id = response.cart_id;
+                actions.order.patch([
+                  {
+                    op: "replace",
+                    path: "/purchase_units/@reference_id=='default'/amount",
+                    value: response,
+                  },
+                ]).then((resp) => resolve(resp), (err) => reject(err));
+              } else {
+                reject(response.message);
+              }
+            },
+            () => {
+              reject($t("Cannot create payment"));
             }
-          },
-          () => {
-            reject($t("Cannot create payment"));
-          }
         );
 
       })
@@ -140,16 +140,16 @@ define([
       const cart_id = this.cart_id;
       return new Promise((resolve, reject) => {
         $.post(urlBuilder.build("rest/V1/buckaroo/paypal-express/order/create"),
-          {
-            paypal_order_id: orderId,
-            cart_id
-          }).then(
+            {
+              paypal_order_id: orderId,
+              cart_id
+            }).then(
             (response) => {
               this.result = response;
               resolve(response);
             },
             (reason) => reject(reason)
-          );
+        );
       });
     },
 
@@ -172,7 +172,7 @@ define([
     getOrderData() {
       let form = $("#product_addtocart_form");
       if (this.page === 'product') {
-                return form.serialize();
+        return form.serialize();
       }
     },
     /**
