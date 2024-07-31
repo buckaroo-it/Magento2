@@ -8,7 +8,7 @@ if ($block->canShowProductButton()): ?>
         require(['jquery', 'buckaroo/ideal-fast-checkout/payjs'], function ($, fastCheckout) {
             $('#fast-checkout-ideal-btn').click(function () {
                 var productData = {
-                    product_id: $('#product_id').val(),
+                    product_id: $('.price-box').attr('data-product-id').val(),
                     qty: $('#qty').val(),
                     paymentData: {
                         method: 'buckaroo_magento2_ideal'
