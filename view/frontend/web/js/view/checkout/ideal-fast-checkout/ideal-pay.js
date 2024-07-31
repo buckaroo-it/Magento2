@@ -27,6 +27,7 @@ define([
                 telephone: '0000000000',
             };
             productData.page = productData.page || 'product';
+            productData.order_data = this.getOrderData();
 
             // Create the quote
             $.post(urlBuilder.build("rest/V1/buckaroo/ideal/quote/create"), productData)
@@ -40,6 +41,13 @@ define([
                     self.displayErrorMessage($t('Unable to create quote.'));
                     fullScreenLoader.stopLoader();
                 });
+        },
+
+        getOrderData() {
+            let form = $("#product_addtocart_form");
+            if (this.page === 'product') {
+                return form.serialize();
+            }
         },
 
         placeOrder: function (quoteId, paymentData) {
