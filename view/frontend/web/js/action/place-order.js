@@ -98,49 +98,49 @@ define(
                 };
             }
 
-                fullScreenLoader.startLoader();
+            fullScreenLoader.startLoader();
 
-                return storage.post(
-                    serviceUrl,
-                    JSON.stringify(payload)
-                ).done(
-                    function (response) {
-                        let jsonResponse = $.parseJSON(response);
-                        if (typeof jsonResponse === 'object' && typeof jsonResponse.limitReachedMessage === 'string') {
-                            alert({
-                                title: $t('Error'),
-                                content: $t(jsonResponse.limitReachedMessage),
-                                buttons: [{
-                                    text: $t('Close'),
-                                    class: 'action primary accept',
-                                    click: function () {
-                                        this.closeModal(true);
-                                    }
-                                }]
-                            });
-                            $('.' + paymentData.method).remove();
-                        } else if (redirectOnSuccess) {
-                            window.location.replace(url.build('checkout/onepage/success/'));
-                        }
-                        window.checkoutConfig.payment.buckaroo.response = response;
-                        fullScreenLoader.stopLoader();
-                    }
-                ).fail(
-                    function (response) {
-                        errorProcessor.process(response, messageContainer);
-                        fullScreenLoader.stopLoader();
-                        if (paymentData && paymentData.method && (paymentData.method == 'buckaroo_magento2_afterpay20')) {
-                            setInterval(function () {
-                                if (document.querySelector('.buckaroo_magento2_afterpay20.payment-method')) {
-                                    var y = window.scrollY;
-                                    window.scroll(0, 0);  // reset the scroll position to the top left of the document.
-                                    window.scroll(0, y);
+            return storage.post(
+                serviceUrl,
+                JSON.stringify(payload)
+            ).done(
+                function (response) {
+                    let jsonResponse = $.parseJSON(response);
+                    if (typeof jsonResponse === 'object' && typeof jsonResponse.limitReachedMessage === 'string') {
+                        alert({
+                            title: $t('Error'),
+                            content: $t(jsonResponse.limitReachedMessage),
+                            buttons: [{
+                                text: $t('Close'),
+                                class: 'action primary accept',
+                                click: function () {
+                                    this.closeModal(true);
                                 }
-                            }, 2000);
-
-                        }
+                            }]
+                        });
+                        $('.' + paymentData.method).remove();
+                    } else if (redirectOnSuccess) {
+                        window.location.replace(url.build('checkout/onepage/success/'));
                     }
-                );
+                    window.checkoutConfig.payment.buckaroo.response = response;
+                    fullScreenLoader.stopLoader();
+                }
+            ).fail(
+                function (response) {
+                    errorProcessor.process(response, messageContainer);
+                    fullScreenLoader.stopLoader();
+                    if (paymentData && paymentData.method && (paymentData.method == 'buckaroo_magento2_afterpay20')) {
+                        setInterval(function () {
+                            if (document.querySelector('.buckaroo_magento2_afterpay20.payment-method')) {
+                                var y = window.scrollY;
+                                window.scroll(0, 0);  // reset the scroll position to the top left of the document.
+                                window.scroll(0, y);
+                            }
+                        }, 2000);
+
+                    }
+                }
+            );
         };
     }
 );

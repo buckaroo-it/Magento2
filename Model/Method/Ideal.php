@@ -66,7 +66,7 @@ class Ideal extends AbstractMethod
         if($paymentMethod == 'FastCheckout'){
             $services = [
                 'Name'             => 'ideal',
-                'Action'           => 'PayFastCheckout',
+                'Action'           => $this->getPayRemainder($payment, $transactionBuilder,'PayFastCheckout'),
                 'Version'          => 2,
             ];
 
