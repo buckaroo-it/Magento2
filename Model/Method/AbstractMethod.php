@@ -741,10 +741,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         $transactionBuilder = $this->getOrderTransactionBuilder($payment);
 
-
-//        var_dump($transactionBuilder);
-//        die();
-
         if (!$transactionBuilder) {
             throw new \LogicException(
                 'Order action is not implemented for this payment method.'
@@ -770,7 +766,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         // SET REGISTRY BUCKAROO REDIRECT
         $this->_registry->unregister('buckaroo_response');
         $this->_registry->register('buckaroo_response', $response);
-
 
         if (!(isset($response[0]->RequiredAction->Type) && $response[0]->RequiredAction->Type === 'Redirect')) {
             $this->setPaymentInTransit($payment, false);

@@ -66,8 +66,6 @@ class IdealFastCheckout extends Template
      */
     public function canShowProductButton()
     {
-//        var_dump($this->get);
-//        die();
         return $this->idealConfig->canShowButtonForPage(
             'Product',
             $this->_storeManager->getStore()

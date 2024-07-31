@@ -74,7 +74,6 @@ class Order extends AbstractTransactionBuilder
         $shippingData = $order->getShippingAddress();
         $customParametersKey = $this->configProviderAccount->getCustomerAdditionalInfo($store);
 
-//        var_dump($order);
         $body = [
             'Currency' => $this->getCurrency(),
             'AmountDebit' => $this->getAmount(),

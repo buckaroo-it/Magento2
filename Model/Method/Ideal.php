@@ -61,25 +61,38 @@ class Ideal extends AbstractMethod
      */
     public function getOrderTransactionBuilder($payment)
     {
-//        var_dump($this->transactionBuilderFactory->get('order'));
-//        die();
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
+        $paymentMethod = "FastCheckout";
+        if($paymentMethod == 'FastCheckout'){
+            $services = [
+                'Name'             => 'ideal',
+                'Action'           => 'PayFastCheckout',
+                'Version'          => 2,
+            ];
 
-        $services = [
-            'Name'             => 'ideal',
-            'Action'           => 'PayFastCheckout',
-            'Version'          => 2,
-        ];
+            /**
+             * @noinspection PhpUndefinedMethodInspection
+             */
+            $transactionBuilder->setOrder($payment->getOrder())
+                ->setServices($services)
+                ->setMethod('TransactionRequest');
+        }else{
+            $services = [
+                'Name'             => 'ideal',
+                'Action'           => $this->getPayRemainder($payment, $transactionBuilder),
+                'Version'          => 2,
+                'RequestParameter' => $this->getOrderRequestParameters($payment),
+            ];
+            /**
+             * @noinspection PhpUndefinedMethodInspection
+             */
+            $transactionBuilder->setOrder($payment->getOrder())
+                ->setServices($services)
+                ->setMethod('TransactionRequest');
 
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $transactionBuilder->setOrder($payment->getOrder())
-            ->setServices($services)
-            ->setMethod('TransactionRequest');
-
-        if (!$this->canShowIssuers()) {
-            $transactionBuilder->setCustomVars(['ContinueOnIncomplete' => 'RedirectToHTML']);
+            if (!$this->canShowIssuers()) {
+                $transactionBuilder->setCustomVars(['ContinueOnIncomplete' => 'RedirectToHTML']);
+            }
         }
 
         return $transactionBuilder;
@@ -143,39 +156,41 @@ class Ideal extends AbstractMethod
      * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function validateAdditionalData() {
+        $paymentMethod = "FastCheckout";
+        if($paymentMethod != 'FastCheckout') {
+            /**
+             * @var IdealConfig $config
+             */
+            $config = $this->objectManager->get(IdealConfig::class);
 
-        /**
-         * @var IdealConfig $config
-         */
-        $config = $this->objectManager->get(IdealConfig::class);
+            $paymentInfo = $this->getInfoInstance();
 
-        $paymentInfo = $this->getInfoInstance();
+            $chosenIssuer = $paymentInfo->getAdditionalInformation('issuer');
 
-        $chosenIssuer = $paymentInfo->getAdditionalInformation('issuer');
-
-        if (!$chosenIssuer) {
-            if ($content = $this->request->getContent()) {
-                $jsonDecode = $this->helper->getJson()->unserialize($content);
-                if (!empty($jsonDecode['paymentMethod']['additional_data']['issuer'])) {
-                    $chosenIssuer = $jsonDecode['paymentMethod']['additional_data']['issuer'];
-                    $this->getInfoInstance()->setAdditionalInformation('issuer', $chosenIssuer);
+            if (!$chosenIssuer) {
+                if ($content = $this->request->getContent()) {
+                    $jsonDecode = $this->helper->getJson()->unserialize($content);
+                    if (!empty($jsonDecode['paymentMethod']['additional_data']['issuer'])) {
+                        $chosenIssuer = $jsonDecode['paymentMethod']['additional_data']['issuer'];
+                        $this->getInfoInstance()->setAdditionalInformation('issuer', $chosenIssuer);
+                    }
                 }
             }
-        }
 
-        $valid = false;
-        foreach ($config->getIssuers() as $issuer) {
-            if ($issuer['code'] == $chosenIssuer) {
-                $valid = true;
-                break;
+            $valid = false;
+            foreach ($config->getIssuers() as $issuer) {
+                if ($issuer['code'] == $chosenIssuer) {
+                    $valid = true;
+                    break;
+                }
             }
-        }
 
-        if (!$valid && $this->canShowIssuers()) {
-            throw new \Magento\Framework\Exception\LocalizedException(__('Please select a issuer from the list'));
-        }
+            if (!$valid && $this->canShowIssuers()) {
+                throw new \Magento\Framework\Exception\LocalizedException(__('Please select a issuer from the list'));
+            }
 
-        return $this;
+            return $this;
+        }
     }
 
     /**

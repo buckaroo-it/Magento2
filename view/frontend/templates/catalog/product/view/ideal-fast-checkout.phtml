@@ -1,44 +1,19 @@
 <?php
 if ($block->canShowProductButton()): ?>
-    <button id="ideal-fast-checkout-button">Fast Checkout with iDEAL</button>
-
-    <div id="ideal-fast-checkout-catalog-product-view-component" data-bind="scope:'idealFastCheckout'" style="display:none;">
-    </div>
+    <button id="fast-checkout-ideal-btn">Fast Checkout with iDEAL</button>
 
     <script>
-        function initializeIdealFastCheckout() {
-            if (typeof window.checkoutConfig === 'undefined') {
-                window.checkoutConfig = <?= /* @noEscape */ ($block->getIdealConfig()); ?>;
-                window.isCustomerLoggedIn = window.checkoutConfig.isCustomerLoggedIn;
-                if (typeof window.checkoutConfig.totalsData === 'undefined') {
-                    window.checkoutConfig.totalsData = {};
-                }
-            }
-
-            require(['Magento_Ui/js/core/app'], function (app) {
-                console.log('Magento_Ui/js/core/app loaded');
-                console.log('Initializing idealFastCheckout component');
-
-                app({
-                    components: {
-                        idealFastCheckout: {
-                            component: "buckaroo/ideal-fast-checkout/payjs",
-                            template: "Buckaroo_Magento2/catalog/product/view/ideal-fast-checkout",
-                            data: <?= /* @noEscape */ json_encode($block->getConfig()); ?>
-                        }
+        require(['jquery', 'buckaroo/ideal-fast-checkout/payjs'], function ($, fastCheckout) {
+            $('#fast-checkout-ideal-btn').click(function () {
+                var productData = {
+                    product_id: $('#product_id').val(),
+                    qty: $('#qty').val(),
+                    paymentData: {
+                        method: 'buckaroo_magento2_ideal'
                     }
-                });
-            });
+                };
 
-            document.getElementById('ideal-fast-checkout-catalog-product-view-component').style.display = 'block';
-        }
-
-        document.getElementById('ideal-fast-checkout-button').addEventListener('click', function() {
-            console.log('Button clicked');
-            initializeIdealFastCheckout();
-            require(['buckaroo/ideal-fast-checkout/payjs'], function (Component) {
-                var component = new Component();
-                component.startProcess();
+                fastCheckout.createQuoteAndPlaceOrder(productData);
             });
         });
     </script>

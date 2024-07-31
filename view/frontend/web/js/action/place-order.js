@@ -30,11 +30,6 @@ define(
         $t
     ) {
         'use strict';
-        //
-        console.log("ALBINAAA");
-        // console.log(window.checkoutConfig.storeCode);
-        // console.log("ALBINAAA");
-
 
         return function (paymentData, redirectOnSuccess, messageContainer) {
             var serviceUrl,
@@ -42,9 +37,6 @@ define(
 
             redirectOnSuccess = redirectOnSuccess !== false;
             agreementsAssigner(paymentData);
-
-
-            console.log("HEREEE");
 
             /**
              * Support for PostNL postcode check and Buckaroo Postcode Service
@@ -98,11 +90,7 @@ define(
                     billingAddress: quote.billingAddress()
                 };
             } else {
-
                 serviceUrl = urlBuilder.createUrl('/buckaroo/payment-information', {});
-                console.log("ALBINAAA111");
-                console.log(serviceUrl);
-                console.log("ALBINAAA222");
                 payload = {
                     cartId: quote.getQuoteId(),
                     paymentMethod: paymentData,
@@ -110,52 +98,49 @@ define(
                 };
             }
 
-            console.log("ALBINAAA44411");
-            console.log(serviceUrl);
-            console.log("ALBINAAr4455411");
-            // fullScreenLoader.startLoader();
-            //
-            // return storage.post(
-            //     serviceUrl,
-            //     JSON.stringify(payload)
-            // ).done(
-            //     function (response) {
-            //         let jsonResponse = $.parseJSON(response);
-            //         if (typeof jsonResponse === 'object' && typeof jsonResponse.limitReachedMessage === 'string') {
-            //             alert({
-            //                 title: $t('Error'),
-            //                 content: $t(jsonResponse.limitReachedMessage),
-            //                 buttons: [{
-            //                 text: $t('Close'),
-            //                 class: 'action primary accept',
-            //                     click: function () {
-            //                         this.closeModal(true);
-            //                     }
-            //                 }]
-            //             });
-            //             $('.' + paymentData.method).remove();
-            //         } else if (redirectOnSuccess) {
-            //             window.location.replace(url.build('checkout/onepage/success/'));
-            //         }
-            //         window.checkoutConfig.payment.buckaroo.response = response;
-            //         fullScreenLoader.stopLoader();
-            //     }
-            // ).fail(
-            //     function (response) {
-            //         errorProcessor.process(response, messageContainer);
-            //         fullScreenLoader.stopLoader();
-            //         if (paymentData && paymentData.method && (paymentData.method == 'buckaroo_magento2_afterpay20')) {
-            //             setInterval(function () {
-            //                 if (document.querySelector('.buckaroo_magento2_afterpay20.payment-method')) {
-            //                     var y = window.scrollY;
-            //                     window.scroll(0, 0);  // reset the scroll position to the top left of the document.
-            //                     window.scroll(0, y);
-            //                 }
-            //             }, 2000);
-            //
-            //         }
-            //     }
-            // );
+                fullScreenLoader.startLoader();
+
+                return storage.post(
+                    serviceUrl,
+                    JSON.stringify(payload)
+                ).done(
+                    function (response) {
+                        let jsonResponse = $.parseJSON(response);
+                        if (typeof jsonResponse === 'object' && typeof jsonResponse.limitReachedMessage === 'string') {
+                            alert({
+                                title: $t('Error'),
+                                content: $t(jsonResponse.limitReachedMessage),
+                                buttons: [{
+                                    text: $t('Close'),
+                                    class: 'action primary accept',
+                                    click: function () {
+                                        this.closeModal(true);
+                                    }
+                                }]
+                            });
+                            $('.' + paymentData.method).remove();
+                        } else if (redirectOnSuccess) {
+                            window.location.replace(url.build('checkout/onepage/success/'));
+                        }
+                        window.checkoutConfig.payment.buckaroo.response = response;
+                        fullScreenLoader.stopLoader();
+                    }
+                ).fail(
+                    function (response) {
+                        errorProcessor.process(response, messageContainer);
+                        fullScreenLoader.stopLoader();
+                        if (paymentData && paymentData.method && (paymentData.method == 'buckaroo_magento2_afterpay20')) {
+                            setInterval(function () {
+                                if (document.querySelector('.buckaroo_magento2_afterpay20.payment-method')) {
+                                    var y = window.scrollY;
+                                    window.scroll(0, 0);  // reset the scroll position to the top left of the document.
+                                    window.scroll(0, y);
+                                }
+                            }, 2000);
+
+                        }
+                    }
+                );
         };
     }
 );

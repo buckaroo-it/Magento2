@@ -17,10 +17,6 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-?>
-<?php
-//var_dump($block->getProduct());
-//die();
 
 if ($block->canShowProductButton()): ?>
     <button id="ideal-fast-checkout-button">Fast Checkout with iDEAL</button>
@@ -36,7 +32,6 @@ if ($block->canShowProductButton()): ?>
                 if ('undefined' === typeof window.checkoutConfig.totalsData) {
                     window.checkoutConfig.totalsData = {};
                 }
-                // console.log("HEREEee");
             }
 
             require(['Magento_Ui/js/core/app'], function (app) {

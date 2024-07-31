@@ -18,11 +18,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 ?>
-<?php
-//var_dump("ALBINA");
-//var_dump(json_encode($block));
-//die();
-if ($block->canShowProductButton()): ?>
+<?php if ($block->canShowProductButton()): ?>
 <div id="paypal-express-button-component" data-bind="scope:'paypalExpress'">
     <!-- ko template: getTemplate() --><!-- /ko -->
     <div class="buckaroo-paypal-express"></div>
