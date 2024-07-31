@@ -578,7 +578,7 @@ class Push implements PushInterface
 
         }
 
-        $types = ['capture', 'cancelauthorize', 'cancelreservation'];
+        $types = ['capture', 'cancelauthorize', 'cancelreservation','payfastcheckout'];
         if ($this->hasPostData('add_initiated_by_magento', 1)
             && $this->hasPostData('add_service_action_from_magento', $types)
             && empty($this->postData['brq_relatedtransaction_refund'])
