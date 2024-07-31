@@ -465,7 +465,6 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
         $this->logging->addDebug(__METHOD__ . '|1|');
 
         $transaction = $this->transaction->setBody($this->getBody());
-
         $transaction->setHeaders($this->getHeaders());
         $transaction->setMethod($this->getMethod());
 
