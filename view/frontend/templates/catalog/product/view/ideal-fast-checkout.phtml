@@ -1,6 +1,8 @@
 <?php
 if ($block->canShowProductButton()): ?>
-    <button id="fast-checkout-ideal-btn">Fast Checkout with iDEAL</button>
+    <button id="fast-checkout-ideal-btn">
+        <img src="https://d1twnm33rljaon.cloudfront.net/Logos/iDEAL/RGB/iDEAL_Snel_bestellen_RGB_onwhite.png" alt="Fast Checkout with iDEAL" />
+    </button>
 
     <script>
         require(['jquery', 'buckaroo/ideal-fast-checkout/payjs'], function ($, fastCheckout) {
@@ -17,4 +19,24 @@ if ($block->canShowProductButton()): ?>
             });
         });
     </script>
+
+    <style>
+        #fast-checkout-ideal-btn {
+            height: 45px;
+            padding: 0;
+            border: none;
+            background: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        #fast-checkout-ideal-btn img {
+            max-height: 100%;
+            max-width: 100%;
+            display: block;
+            margin: auto;
+        }
+    </style>
 <?php endif; ?>
