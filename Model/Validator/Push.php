@@ -177,6 +177,23 @@ class Push implements ValidatorInterface
         switch (strtolower($brq_key)) {
             case 'brq_customer_name':
             case 'brq_service_ideal_consumername':
+            case 'brq_SERVICE_ideal_ContactDetailsEmail':
+            case 'brq_SERVICE_ideal_ContactDetailsFirstName':
+            case 'brq_SERVICE_ideal_ContactDetailsLastName':
+            case 'brq_SERVICE_ideal_ContactDetailsPhoneNumber':
+            case 'brq_SERVICE_ideal_InvoiceAddressCity':
+            case 'brq_SERVICE_ideal_InvoiceAddressFirstName':
+            case 'brq_SERVICE_ideal_InvoiceAddressHouseNumber':
+            case 'brq_SERVICE_ideal_InvoiceAddressLastName':
+            case 'brq_SERVICE_ideal_InvoiceAddressPostalCode':
+            case 'brq_SERVICE_ideal_InvoiceAddressStreet':
+            case 'brq_SERVICE_ideal_ShippingAddressCity':
+            case 'brq_SERVICE_ideal_ShippingAddressCountryName':
+            case 'brq_SERVICE_ideal_ShippingAddressFirstName':
+            case 'brq_SERVICE_ideal_ShippingAddressHouseNumber':
+            case 'brq_SERVICE_ideal_ShippingAddressLastName':
+            case 'brq_SERVICE_ideal_ShippingAddressPostalCode':
+            case 'brq_SERVICE_ideal_ShippingAddressStreet':
             case 'brq_service_transfer_consumername':
             case 'brq_service_payconiq_payconiqandroidurl':
             case 'brq_service_paypal_payeremail':

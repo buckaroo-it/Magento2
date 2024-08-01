@@ -11,7 +11,7 @@ define([
     'buckaroo/checkout/common'
 ], function ($, urlBuilder, customerData, fullScreenLoader, $t, storage, errorProcessor, customer, alert, checkoutCommon) {
     'use strict';
-
+    let page;
     return {
         createQuoteAndPlaceOrder: function (productData) {
             var self = this;
@@ -26,7 +26,7 @@ define([
                 state: 'Placeholder',
                 telephone: '0000000000',
             };
-            productData.page = productData.page || 'product';
+            this.page = productData.page
             productData.order_data = this.getOrderData();
 
             // Create the quote
