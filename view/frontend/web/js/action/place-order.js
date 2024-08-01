@@ -106,10 +106,10 @@ define(
             ).done(
                 function (response) {
                     let jsonResponse = $.parseJSON(response);
-                    if (typeof jsonResponse === 'object' && typeof jsonResponse.limitReachedMessage === 'string') {
+                    if (typeof jsonResponse === 'object' && jsonResponse.buckaroo_response && typeof jsonResponse.buckaroo_response.limitReachedMessage === 'string') {
                         alert({
                             title: $t('Error'),
-                            content: $t(jsonResponse.limitReachedMessage),
+                            content: $t(jsonResponse.buckaroo_response.limitReachedMessage),
                             buttons: [{
                                 text: $t('Close'),
                                 class: 'action primary accept',

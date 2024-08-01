@@ -78,10 +78,11 @@
         </resources>
     </route>
 
-    <route url="/V1/buckaroo/ideal/order/create" method="POST">
-        <service class="Buckaroo\Magento2\Api\IdealOrderCreateInterface" method="execute"/>
+
+    <route url="/V1/buckaroo/ideal/orders/:orderId/addresses" method="POST">
+        <service class="Buckaroo\Magento2\Api\Data\Ideal\OrderAddressesInformationManagementInterface" method="updateAddressInformation"/>
         <resources>
-            <resource ref="anonymous"/>
+            <resource ref="anonymous" />
         </resources>
     </route>
 

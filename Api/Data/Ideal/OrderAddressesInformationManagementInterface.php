@@ -1,5 +1,4 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
@@ -18,20 +17,19 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+namespace Buckaroo\Magento2\Api\Data\Ideal;
 
-namespace Buckaroo\Magento2\Api;
+use Magento\Sales\Api\Data\OrderAddressInterface;
 
-use Buckaroo\Magento2\Api\Data\Ideal\OrderCreateResponseInterface;
-
-interface IdealOrderCreateInterface
+interface OrderAddressesInformationManagementInterface
 {
     /**
-     * Get order breakdown after shipping is applied
+     * Update the shipping information for an order.
      *
-     * @param string|null $cart_id
-     * @return OrderCreateResponseInterface
+     * @param string $orderId
+     * @param OrderAddressInterface $shippingAddress
+     * @param OrderAddressInterface $billingAddress
+     * @return bool
      */
-    public function execute(
-        string $cart_id = null
-    );
+    public function updateAddressInformation($orderId, OrderAddressInterface $shippingAddress , OrderAddressInterface $billingAddress);
 }
