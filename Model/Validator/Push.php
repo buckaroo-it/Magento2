@@ -160,7 +160,7 @@ class Push implements ValidatorInterface
         $signatureString .= $digitalSignature;
 
         $signature = SHA1($signatureString);
-        $this->logging->addDebug('$signature$signature$signature$signature' . $signature);
+        $this->logging->addDebug('$signature$signature$signature$signature ' . $signature);
 
 
         return $signature;
@@ -177,8 +177,6 @@ class Push implements ValidatorInterface
         switch (strtolower($brq_key)) {
             case 'brq_customer_name':
             case 'brq_service_ideal_consumername':
-            case 'brq_SERVICE_ideal_ContactDetailsEmail':
-            case 'brq_SERVICE_ideal_ContactDetailsPhoneNumber':
             case 'brq_service_transfer_consumername':
             case 'brq_service_payconiq_payconiqandroidurl':
             case 'brq_service_paypal_payeremail':
@@ -243,7 +241,7 @@ class Push implements ValidatorInterface
             $key = $originalArray[$key];
             $sortableArray[$key] = $value;
         }
-        $this->logging->addDebug('$sortableArray$sortableArray$sortableArray$sortableArray' . print_r($sortableArray, true));
+        $this->logging->addDebug('$sortableArray$sortableArray$sortableArray$sortableArray ' . print_r($sortableArray, true));
 
         return $sortableArray;
     }
