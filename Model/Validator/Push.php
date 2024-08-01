@@ -122,10 +122,10 @@ class Push implements ValidatorInterface
         if (!isset($postData['brq_signature'])) {
             return false;
         }
+        $this->logging->addDebug('$postData$postData$postData$postData$postData ' . print_r($postData, true));
         foreach ($postData as $key => $value) {
             $valueType = gettype($value);
             $this->logging->addDebug(
-                '$postData$postData$postData$postData$postData$postData ' .
                 sprintf(
                     '%s: %s (Type: %s)',
                     $key,
@@ -152,18 +152,8 @@ class Push implements ValidatorInterface
      */
     public function calculateSignature($postData, $store = null)
     {
-        foreach ($postData as $key => $value) {
-            $valueType = gettype($value);
-            $this->logging->addDebug(
-                '$originalPostData$originalPostData$originalPostData$originalPostData ' .
-                sprintf(
-                    '%s: %s (Type: %s)',
-                    $key,
-                    print_r($value, true),
-                    $valueType
-                )
-            );
-        }
+        $this->logging->addDebug('$originalPostData$originalPostData$originalPostData$originalPostData ' . print_r($postData, true));
+
         $copyData = $postData;
         unset($copyData['brq_signature']);
         unset($copyData['BRQ_SIGNATURE']);
@@ -181,6 +171,7 @@ class Push implements ValidatorInterface
         $digitalSignature = $this->encryptor->decrypt($this->configProviderAccount->getSecretKey($store));
 
         $signatureString .= $digitalSignature;
+        $this->logging->addDebug('$signatureString$signatureString$signatureString$signatureString$signatureString$signatureString ' . print_r($signatureString, true));
 
         $signature = SHA1($signatureString);
         $this->logging->addDebug('$signature$signature$signature$signature ' . $signature);
