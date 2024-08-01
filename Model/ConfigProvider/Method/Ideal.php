@@ -36,6 +36,7 @@ class Ideal extends AbstractConfigProvider
 
     const XPATH_IDEAL_FAST_CHECKOUT_BUTTONS = 'payment/buckaroo_magento2_ideal/available_buttons';
     const XPATH_IDEAL_FAST_CHECKOUT_ENABLE = 'payment/buckaroo_magento2_ideal/ideal_fast_checkout';
+    const XPATH_IDEAL_FAST_CHECKOUT_LOGO = 'payment/buckaroo_magento2_ideal/ideal_logo_colors';
 
     const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_ideal/allowed_currencies';
 
@@ -170,5 +171,11 @@ class Ideal extends AbstractConfigProvider
     public function isFastCheckoutEnabled($store = null)
     {
         return $this->getConfigFromXpath(self::XPATH_IDEAL_FAST_CHECKOUT_ENABLE, $store);
+    }
+
+
+    public function getLogoColor($store = null)
+    {
+        return $this->getConfigFromXpath(self::XPATH_IDEAL_FAST_CHECKOUT_LOGO, $store);
     }
 }

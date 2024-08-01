@@ -23,7 +23,7 @@ namespace Buckaroo\Magento2\Model\Config\Source;
 class LogoColors implements \Magento\Framework\Option\ArrayInterface
 {
     const DARK_OPTION = 'Dark';
-    const LIGHT_OPTION = 'Cart';
+    const LIGHT_OPTION = 'Light';
 
     public function toOptionArray()
     {

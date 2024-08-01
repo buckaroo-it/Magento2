@@ -114,11 +114,16 @@ class IdealFastCheckout extends Template
         );
     }
 
-
     public function getLogo() {
-        $name = "ideal/ideal-fast-checkout-rgb.png";
 
+        $logoColor = $this->idealConfig->getLogoColor($this->_storeManager->getStore());
 
+        if ($logoColor == "Light"){
+            $name = "ideal/ideal-fast-checkout-rgb-light.png";
+        }
+        else{
+            $name = "ideal/ideal-fast-checkout-rgb-dark.png";
+        }
         return $this->assetRepo->getUrl("Buckaroo_Magento2::images/{$name}");
     }
     /**
