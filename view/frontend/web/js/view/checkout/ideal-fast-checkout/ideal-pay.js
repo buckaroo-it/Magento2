@@ -125,14 +125,20 @@ define([
                 }
             ).fail(
                 function (response) {
-                    this.displayErrorMessage(response);
-                    errorProcessor.process(response);
-                    fullScreenLoader.stopLoader();
+                    return self.displayErrorMessage(response);
                 }
             );
         },
 
         displayErrorMessage: function (message) {
+            if (typeof message === "object") {
+                if (message.responseJSON && message.responseJSON.message) {
+                    message = $t(message.responseJSON.message);
+                } else {
+                    message = $t("Cannot create payment");
+                }
+
+            }
             customerData.set('messages', {
                 messages: [{
                     type: 'error',
