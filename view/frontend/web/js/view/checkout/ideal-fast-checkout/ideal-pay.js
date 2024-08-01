@@ -224,6 +224,11 @@ define([
                     })
                     .fail(() => {
                         this.displayErrorMessage($t('Failed to update the addresses.'));
+                        if (jsonResponse.buckaroo_response.RequiredAction && jsonResponse.buckaroo_response.RequiredAction.RedirectURL) {
+                            window.location.replace(jsonResponse.buckaroo_response.RequiredAction.RedirectURL);
+                        } else {
+                            window.location.replace(urlBuilder.build('checkout/onepage/success'));
+                        }
                     });
             } else {
                 this.displayErrorMessage($t('Order ID not found in response.'));
