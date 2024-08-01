@@ -141,27 +141,25 @@ class Push implements ValidatorInterface
      */
     public function calculateSignature($postData, $store = null)
     {
-        $copyData = $postData;
-        unset($copyData['brq_signature']);
-        unset($copyData['BRQ_SIGNATURE']);
+        ksort($postData, SORT_FLAG_CASE | SORT_STRING);
 
-        $sortableArray = $this->buckarooArraySort($copyData);
+        $data = array_filter($postData, function ($key) {
+            $acceptable_top_level = ['brq', 'add', 'cust', 'BRQ', 'ADD', 'CUST'];
 
-        $signatureString = '';
+            return (
+                    $key != 'brq_signature' && $key != 'BRQ_SIGNATURE') &&
+                in_array(explode('_', $key)[0], $acceptable_top_level);
+        }, ARRAY_FILTER_USE_KEY);
 
-        foreach ($sortableArray as $brq_key => $value) {
-            $value = $this->decodePushValue($brq_key, $value);
+        $data = array_map(function ($value, $key) {
+            return $key . '=' . html_entity_decode($value);
+        }, $data, array_keys($data));
 
-            $signatureString .= $brq_key. '=' . $value;
-        }
 
         $digitalSignature = $this->encryptor->decrypt($this->configProviderAccount->getSecretKey($store));
-
-        $signatureString .= $digitalSignature;
+        $signatureString = implode('', $data) . trim($digitalSignature);
 
         $signature = SHA1($signatureString);
-
-        $this->logging->addDebug($signature);
 
         return $signature;
     }
@@ -177,23 +175,6 @@ class Push implements ValidatorInterface
         switch (strtolower($brq_key)) {
             case 'brq_customer_name':
             case 'brq_service_ideal_consumername':
-            case 'brq_SERVICE_ideal_ContactDetailsEmail':
-            case 'brq_SERVICE_ideal_ContactDetailsFirstName':
-            case 'brq_SERVICE_ideal_ContactDetailsLastName':
-            case 'brq_SERVICE_ideal_ContactDetailsPhoneNumber':
-            case 'brq_SERVICE_ideal_InvoiceAddressCity':
-            case 'brq_SERVICE_ideal_InvoiceAddressFirstName':
-            case 'brq_SERVICE_ideal_InvoiceAddressHouseNumber':
-            case 'brq_SERVICE_ideal_InvoiceAddressLastName':
-            case 'brq_SERVICE_ideal_InvoiceAddressPostalCode':
-            case 'brq_SERVICE_ideal_InvoiceAddressStreet':
-            case 'brq_SERVICE_ideal_ShippingAddressCity':
-            case 'brq_SERVICE_ideal_ShippingAddressCountryName':
-            case 'brq_SERVICE_ideal_ShippingAddressFirstName':
-            case 'brq_SERVICE_ideal_ShippingAddressHouseNumber':
-            case 'brq_SERVICE_ideal_ShippingAddressLastName':
-            case 'brq_SERVICE_ideal_ShippingAddressPostalCode':
-            case 'brq_SERVICE_ideal_ShippingAddressStreet':
             case 'brq_service_transfer_consumername':
             case 'brq_service_payconiq_payconiqandroidurl':
             case 'brq_service_paypal_payeremail':
@@ -250,14 +231,15 @@ class Push implements ValidatorInterface
             $originalArray[strtolower($key)] = $key;
         }
 
-        ksort($arrayToSort);
-
+//        ksort($arrayToSort);
+        ksort($arrayToSort, SORT_FLAG_CASE | SORT_STRING);
         $sortableArray = [];
 
         foreach ($arrayToSort as $key => $value) {
             $key = $originalArray[$key];
             $sortableArray[$key] = $value;
         }
+        $this->logging->addDebug('$sortableArray$sortableArray$sortableArray$sortableArray ' . print_r($sortableArray, true));
 
         return $sortableArray;
     }

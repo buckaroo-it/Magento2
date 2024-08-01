@@ -16,6 +16,7 @@ define([
         createQuoteAndPlaceOrder: function (productData) {
             var self = this;
             fullScreenLoader.startLoader();
+            console.log(productData);
 
             // Add placeholders for required fields if not provided
             productData.shipping_address = productData.shipping_address || {
@@ -32,6 +33,7 @@ define([
             $.post(urlBuilder.build("rest/V1/buckaroo/ideal/quote/create"), productData)
                 .done(function (quoteResponse) {
                     var quoteId = quoteResponse.cart_id;
+                    console.log(productData)
                     // Proceed to place the order using the created quote ID
                     self.placeOrder(quoteId, productData.paymentData);
                 })
@@ -123,29 +125,20 @@ define([
                 }
             ).fail(
                 function (response) {
-                    return self.displayErrorMessage(response);
-
+                    this.displayErrorMessage(response);
+                    errorProcessor.process(response);
+                    fullScreenLoader.stopLoader();
                 }
             );
         },
 
         displayErrorMessage: function (message) {
-            if (typeof message === "object") {
-                if (message.responseJSON && message.responseJSON.message) {
-                    message = $t(message.responseJSON.message);
-                } else {
-                    message = $t("Cannot create payment");
-                }
-
-            }
             customerData.set('messages', {
                 messages: [{
                     type: 'error',
                     text: message
                 }]
             });
-
-        },
-
+        }
     };
 });
