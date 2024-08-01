@@ -29,8 +29,8 @@ class LogoColors implements \Magento\Framework\Option\ArrayInterface
     {
         $options = [];
 
-        $options[] = ['value' => self::LIGHT_OPTION, 'label' => __('Light')];
         $options[] = ['value' => self::DARK_OPTION, 'label' => __('Dark')];
+        $options[] = ['value' => self::LIGHT_OPTION, 'label' => __('Light')];
 
         return $options;
     }
