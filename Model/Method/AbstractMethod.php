@@ -727,7 +727,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         if (method_exists($this, 'validateAdditionalData')) {
-            $this->validateAdditionalData();
+            $this->validateAdditionalData($payment);
         }
 
         parent::order($payment, $amount);
@@ -971,7 +971,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         if (method_exists($this, 'validateAdditionalData')) {
-            $this->validateAdditionalData();
+            $this->validateAdditionalData($payment);
         }
 
         parent::authorize($payment, $amount);
