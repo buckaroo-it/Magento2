@@ -147,7 +147,7 @@ class QuoteCreate implements IdealQuoteCreateInterface
         $this->quoteRepository->save($this->quote);
     }
     /**
-     * Add address from paypal express to quote
+     * Add address from Ideal Fast Checkout to quote
      *
      * @param ShippingAddressRequestInterface $shipping_address
      */
@@ -170,14 +170,6 @@ class QuoteCreate implements IdealQuoteCreateInterface
         $address->setLastname('unknown');
         $address->setEmail('no-reply@example.com');
         $address->setStreet('unknown');
-
-        // Additional logging
-        $this->logger->addDebug('Shipping address set', [
-            'country' => $address->getCountryId(),
-            'postcode' => $address->getPostcode(),
-            'city' => $address->getCity(),
-            'region' => $address->getRegion()
-        ]);
 
         $this->maybeFillAnyMissingAddressFields($shipping_address);
 
@@ -265,7 +257,7 @@ class QuoteCreate implements IdealQuoteCreateInterface
     }
 
     /**
-     * Set paypal payment method on quote
+     * Set Ideal Fast Checkout payment method on quote
      *
      * @return Quote
      */

@@ -11,85 +11,58 @@ define([
     'buckaroo/checkout/common'
 ], function ($, urlBuilder, customerData, fullScreenLoader, $t, storage, errorProcessor, customer, alert, checkoutCommon) {
     'use strict';
-    let page;
+
     return {
         createQuoteAndPlaceOrder: function (productData) {
-            var self = this;
             fullScreenLoader.startLoader();
-            console.log(productData);
 
             // Add placeholders for required fields if not provided
-            productData.shipping_address = productData.shipping_address || {
+            productData.shipping_address = productData.shipping_address || this.getDefaultAddress();
+            this.page = productData.page;
+            productData.order_data = this.getOrderData();
+
+            // Create the quote
+            $.post(urlBuilder.build("rest/V1/buckaroo/ideal/quote/create"), productData)
+                .done(this.onQuoteCreateSuccess.bind(this, productData))
+                .fail(this.onQuoteCreateFail.bind(this));
+        },
+
+        getDefaultAddress: function () {
+            return {
                 city: 'Placeholder',
                 country_code: 'NL',
                 postal_code: '00000',
                 state: 'Placeholder',
                 telephone: '0000000000',
             };
-            this.page = productData.page
-            productData.order_data = this.getOrderData();
-
-            // Create the quote
-            $.post(urlBuilder.build("rest/V1/buckaroo/ideal/quote/create"), productData)
-                .done(function (quoteResponse) {
-                    var quoteId = quoteResponse.cart_id;
-                    console.log(productData)
-                    // Proceed to place the order using the created quote ID
-                    self.placeOrder(quoteId, productData.paymentData);
-                })
-                .fail(function (error) {
-                    self.displayErrorMessage($t('Unable to create quote.'));
-                    fullScreenLoader.stopLoader();
-                });
         },
 
-        getOrderData() {
+        getOrderData: function () {
             let form = $("#product_addtocart_form");
-            if (this.page === 'product') {
-                return form.serialize();
-            }
+            return this.page === 'product' ? form.serialize() : null;
+        },
+
+        onQuoteCreateSuccess: function (productData, quoteResponse) {
+            var quoteId = quoteResponse.cart_id;
+
+            // Proceed to place the order using the created quote ID
+            this.placeOrder(quoteId, productData.paymentData);
+        },
+
+        onQuoteCreateFail: function () {
+            this.displayErrorMessage($t('Unable to create quote.'));
+            fullScreenLoader.stopLoader();
         },
 
         placeOrder: function (quoteId, paymentData) {
-            var self = this;
             var serviceUrl, payload;
 
             if (!customer.isLoggedIn()) {
                 serviceUrl = urlBuilder.build(`rest/V1/guest-buckaroo/${quoteId}/payment-information`);
-
-                payload = {
-                    cartId: quoteId,
-                    email: 'placeholder@example.com',
-                    paymentMethod: paymentData,
-                    billingAddress: {
-                        city: 'Placeholder',
-                        country_id: 'NL',
-                        postcode: '00000',
-                        region: 'Placeholder',
-                        street: ['Placeholder Street'],
-                        telephone: '0000000000',
-                        firstname: 'Placeholder',
-                        lastname: 'Placeholder',
-                        email: 'placeholder@example.com'
-                    }
-                };
+                payload = this.getPayload(quoteId, paymentData, 'guest');
             } else {
                 serviceUrl = urlBuilder.build('rest/V1/buckaroo/payment-information');
-                payload = {
-                    cartId: quoteId,
-                    paymentMethod: paymentData,
-                    billingAddress: {
-                        city: 'Placeholder',
-                        country_id: 'NL',
-                        postcode: '00000',
-                        region: 'Placeholder',
-                        street: ['Placeholder Street'],
-                        telephone: '0000000000',
-                        firstname: 'Placeholder',
-                        lastname: 'Placeholder',
-                        email: 'placeholder@example.com'
-                    }
-                };
+                payload = this.getPayload(quoteId, paymentData, 'customer');
             }
 
             fullScreenLoader.startLoader();
@@ -97,48 +70,179 @@ define([
             storage.post(
                 serviceUrl,
                 JSON.stringify(payload)
-            ).done(
-                function (response) {
-                    let jsonResponse = $.parseJSON(response);
-                    if (typeof jsonResponse === 'object' && typeof jsonResponse.limitReachedMessage === 'string') {
-                        alert({
-                            title: $t('Error'),
-                            content: $t(jsonResponse.limitReachedMessage),
-                            buttons: [{
-                                text: $t('Close'),
-                                class: 'action primary accept',
-                                click: function () {
-                                    this.closeModal(true);
-                                }
-                            }]
-                        });
-                        $('.' + paymentData.method).remove();
-                    } else {
-                        if (jsonResponse.RequiredAction && jsonResponse.RequiredAction.RedirectURL) {
-                            window.location.replace(jsonResponse.RequiredAction.RedirectURL);
+            ).done(this.onOrderPlaceSuccess.bind(this))
+                .fail(this.onOrderPlaceFail.bind(this));
+        },
+
+        getPayload: function (quoteId, paymentData, type) {
+            var billingAddress = {
+                city: 'Placeholder',
+                country_id: 'NL',
+                postcode: '00000',
+                region: 'Placeholder',
+                street: ['Placeholder Street'],
+                telephone: '0000000000',
+                firstname: 'Placeholder',
+                lastname: 'Placeholder',
+                email: 'placeholder@example.com'
+            };
+
+            return type === 'guest' ? {
+                cartId: quoteId,
+                email: 'placeholder@example.com',
+                paymentMethod: paymentData,
+                billingAddress: billingAddress
+            } : {
+                cartId: quoteId,
+                paymentMethod: paymentData,
+                billingAddress: billingAddress
+            };
+        },
+
+        onOrderPlaceSuccess: function (response) {
+            let jsonResponse;
+            try {
+                jsonResponse = JSON.parse(response);
+            } catch (e) {
+                this.displayErrorMessage($t('An error occurred while processing your order.'));
+                fullScreenLoader.stopLoader();
+                return;
+            }
+
+            if (this.isLimitReached(jsonResponse)) {
+                this.displayLimitReachedMessage(jsonResponse.buckaroo_response.limitReachedMessage);
+                return;
+            }
+
+            const shippingAddress = this.extractShippingAddress(jsonResponse.buckaroo_response);
+            const billingAddress = this.extractBillingAddress(jsonResponse.buckaroo_response);
+
+            if (shippingAddress && billingAddress) {
+                this.updateOrderWithAddresses(jsonResponse, shippingAddress, billingAddress);
+            } else {
+                this.displayErrorMessage($t('Invalid address data.'));
+            }
+
+            fullScreenLoader.stopLoader();
+        },
+
+        onOrderPlaceFail: function (response) {
+            this.displayErrorMessage($t('An error occurred during payment.'));
+            errorProcessor.process(response);
+            fullScreenLoader.stopLoader();
+        },
+
+        isLimitReached: function (jsonResponse) {
+            return typeof jsonResponse === 'object' && jsonResponse.buckaroo_response && jsonResponse.buckaroo_response.limitReachedMessage;
+        },
+
+        displayLimitReachedMessage: function (message) {
+            alert({
+                title: $t('Error'),
+                content: $t(message),
+                buttons: [{
+                    text: $t('Close'),
+                    class: 'action primary accept',
+                    click: function () {
+                        this.closeModal(true);
+                    }
+                }]
+            });
+            $('.' + paymentData.method).remove();
+        },
+
+        extractShippingAddress: function (jsonResponse) {
+            return this.extractAddress(jsonResponse, 'ShippingAddress');
+        },
+
+        extractBillingAddress: function (jsonResponse) {
+            return this.extractAddress(jsonResponse, 'InvoiceAddress');
+        },
+
+        extractAddress: function (jsonResponse, addressType) {
+            if (
+                jsonResponse &&
+                jsonResponse.Services &&
+                jsonResponse.Services.Service &&
+                jsonResponse.Services.Service.ResponseParameter &&
+                Array.isArray(jsonResponse.Services.Service.ResponseParameter)
+            ) {
+                const responseParameters = jsonResponse.Services.Service.ResponseParameter;
+                const address = {};
+
+                responseParameters.forEach((param) => {
+                    switch (param.Name) {
+                        case `${addressType}FirstName`:
+                            address.firstname = param._;
+                            break;
+                        case `${addressType}LastName`:
+                            address.lastname = param._;
+                            break;
+                        case `${addressType}Street`:
+                            address.street = [param._];
+                            break;
+                        case `${addressType}HouseNumber`:
+                            if (!address.street) {
+                                address.street = [];
+                            }
+                            address.street[0] += ' ' + param._;
+                            break;
+                        case `${addressType}PostalCode`:
+                            address.postcode = param._;
+                            break;
+                        case `${addressType}City`:
+                            address.city = param._;
+                            break;
+                        case `${addressType}CountryName`:
+                            address.country_id = "NL";
+                            break;
+                        case `${addressType}PhoneNumber`:
+                            address.telephone = param._;
+                            break;
+                        case `${addressType}CompanyName`:
+                            address.company = param._;
+                            break;
+                    }
+                });
+
+                return address;
+            } else {
+                return null;
+            }
+        },
+
+        updateOrderWithAddresses: function (jsonResponse, shippingAddress, billingAddress) {
+            const orderId = jsonResponse.order_id;
+
+            if (orderId) {
+                this.updateOrderAddresses(orderId, shippingAddress, billingAddress)
+                    .done(() => {
+                        if (jsonResponse.buckaroo_response.RequiredAction && jsonResponse.buckaroo_response.RequiredAction.RedirectURL) {
+                            window.location.replace(jsonResponse.buckaroo_response.RequiredAction.RedirectURL);
                         } else {
                             window.location.replace(urlBuilder.build('checkout/onepage/success'));
                         }
-                    }
-                    fullScreenLoader.stopLoader();
+                    })
+                    .fail(() => {
+                        this.displayErrorMessage($t('Failed to update the addresses.'));
+                    });
+            } else {
+                this.displayErrorMessage($t('Order ID not found in response.'));
+            }
+        },
 
-                }
-            ).fail(
-                function (response) {
-                    return self.displayErrorMessage(response);
-                }
+        updateOrderAddresses: function (orderId, shippingAddress, billingAddress) {
+            var serviceUrl = urlBuilder.build(`rest/V1/buckaroo/ideal/orders/${orderId}/addresses`);
+            return storage.post(
+                serviceUrl,
+                JSON.stringify({
+                    shippingAddress: shippingAddress,
+                    billingAddress: billingAddress
+                })
             );
         },
 
         displayErrorMessage: function (message) {
-            if (typeof message === "object") {
-                if (message.responseJSON && message.responseJSON.message) {
-                    message = $t(message.responseJSON.message);
-                } else {
-                    message = $t("Cannot create payment");
-                }
-
-            }
             customerData.set('messages', {
                 messages: [{
                     type: 'error',
