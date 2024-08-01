@@ -122,6 +122,7 @@ class Push implements ValidatorInterface
         if (!isset($postData['brq_signature'])) {
             return false;
         }
+        $this->logging->addDebug('$postData$postData$postData$postData$postData ' . $postData);
 
         $signature = $this->calculateSignature($originalPostData, $store);
 
@@ -141,6 +142,8 @@ class Push implements ValidatorInterface
      */
     public function calculateSignature($postData, $store = null)
     {
+        $this->logging->addDebug('$originalPostData$originalPostData$originalPostData$originalPostData ' . $postData);
+
         $copyData = $postData;
         unset($copyData['brq_signature']);
         unset($copyData['BRQ_SIGNATURE']);
