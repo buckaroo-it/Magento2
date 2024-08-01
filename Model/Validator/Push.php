@@ -122,18 +122,7 @@ class Push implements ValidatorInterface
         if (!isset($postData['brq_signature'])) {
             return false;
         }
-        $this->logging->addDebug('$postData$postData$postData$postData$postData ' . print_r($postData, true));
-        foreach ($postData as $key => $value) {
-            $valueType = gettype($value);
-            $this->logging->addDebug(
-                sprintf(
-                    '%s: %s (Type: %s)',
-                    $key,
-                    print_r($value, true),
-                    $valueType
-                )
-            );
-        }
+
         $signature = $this->calculateSignature($originalPostData, $store);
 
         if ($signature !== $postData['brq_signature']) {
@@ -152,30 +141,25 @@ class Push implements ValidatorInterface
      */
     public function calculateSignature($postData, $store = null)
     {
-        $this->logging->addDebug('$originalPostData$originalPostData$originalPostData$originalPostData ' . print_r($postData, true));
+        ksort($postData, SORT_FLAG_CASE | SORT_STRING);
 
-        $copyData = $postData;
-        unset($copyData['brq_signature']);
-        unset($copyData['BRQ_SIGNATURE']);
+        $data = array_filter($postData, function ($key) {
+            $acceptable_top_level = ['brq', 'add', 'cust', 'BRQ', 'ADD', 'CUST'];
 
-        $sortableArray = $this->buckarooArraySort($copyData);
+            return (
+                    $key != 'brq_signature' && $key != 'BRQ_SIGNATURE') &&
+                in_array(explode('_', $key)[0], $acceptable_top_level);
+        }, ARRAY_FILTER_USE_KEY);
 
-        $signatureString = '';
+        $data = array_map(function ($value, $key) {
+            return $key . '=' . html_entity_decode($value);
+        }, $data, array_keys($data));
 
-        foreach ($sortableArray as $brq_key => $value) {
-            $value = $this->decodePushValue($brq_key, $value);
-
-            $signatureString .= $brq_key. '=' . $value;
-        }
 
         $digitalSignature = $this->encryptor->decrypt($this->configProviderAccount->getSecretKey($store));
-
-        $signatureString .= $digitalSignature;
-        $this->logging->addDebug('$signatureString$signatureString$signatureString$signatureString$signatureString$signatureString ' . print_r($signatureString, true));
+        $signatureString = implode('', $data) . trim($digitalSignature);
 
         $signature = SHA1($signatureString);
-        $this->logging->addDebug('$signature$signature$signature$signature ' . $signature);
-
 
         return $signature;
     }
