@@ -62,8 +62,7 @@ class Ideal extends AbstractMethod
     public function getOrderTransactionBuilder($payment)
     {
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
-        $paymentMethod = "FastCheckout";
-        if($paymentMethod == 'FastCheckout'){
+        if ($this->isFastCheckout($payment)) {
             $services = [
                 'Name'             => 'ideal',
                 'Action'           => $this->getPayRemainder($payment, $transactionBuilder,'PayFastCheckout'),
@@ -150,47 +149,60 @@ class Ideal extends AbstractMethod
     }
 
     /**
+     * Check if the order request parameters indicate a fast checkout.
+     *
+     * @return bool
+     */
+    private function isFastCheckout($payment): bool
+    {
+        return $payment->getAdditionalInformation('issuer') === 'fastcheckout';
+    }
+
+    /**
      * Validate that we received a valid issuer ID.
      *
      * @return $this
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function validateAdditionalData() {
-        $paymentMethod = "FastCheckout";
-        if($paymentMethod != 'FastCheckout') {
-            /**
-             * @var IdealConfig $config
-             */
-            $config = $this->objectManager->get(IdealConfig::class);
+    public function validateAdditionalData($payment) {
 
-            $paymentInfo = $this->getInfoInstance();
-
-            $chosenIssuer = $paymentInfo->getAdditionalInformation('issuer');
-
-            if (!$chosenIssuer) {
-                if ($content = $this->request->getContent()) {
-                    $jsonDecode = $this->helper->getJson()->unserialize($content);
-                    if (!empty($jsonDecode['paymentMethod']['additional_data']['issuer'])) {
-                        $chosenIssuer = $jsonDecode['paymentMethod']['additional_data']['issuer'];
-                        $this->getInfoInstance()->setAdditionalInformation('issuer', $chosenIssuer);
-                    }
-                }
-            }
-
-            $valid = false;
-            foreach ($config->getIssuers() as $issuer) {
-                if ($issuer['code'] == $chosenIssuer) {
-                    $valid = true;
-                    break;
-                }
-            }
-
-            if (!$valid && $this->canShowIssuers()) {
-                throw new \Magento\Framework\Exception\LocalizedException(__('Please select a issuer from the list'));
-            }
-
+        if ($this->isFastCheckout($payment)) {
             return $this;
         }
+
+        /**
+         * @var IdealConfig $config
+         */
+        $config = $this->objectManager->get(IdealConfig::class);
+
+        $paymentInfo = $this->getInfoInstance();
+
+        $chosenIssuer = $paymentInfo->getAdditionalInformation('issuer');
+
+        if (!$chosenIssuer) {
+            if ($content = $this->request->getContent()) {
+                $jsonDecode = $this->helper->getJson()->unserialize($content);
+                if (!empty($jsonDecode['paymentMethod']['additional_data']['issuer'])) {
+                    $chosenIssuer = $jsonDecode['paymentMethod']['additional_data']['issuer'];
+                    $this->getInfoInstance()->setAdditionalInformation('issuer', $chosenIssuer);
+                }
+            }
+        }
+
+        $valid = false;
+        foreach ($config->getIssuers() as $issuer) {
+            if ($issuer['code'] == $chosenIssuer) {
+                $valid = true;
+                break;
+            }
+        }
+
+        if (!$valid && $this->canShowIssuers()) {
+            throw new \Magento\Framework\Exception\LocalizedException(__('Please select a issuer from the list'));
+        }
+
+        return $this;
+
     }
 
     /**

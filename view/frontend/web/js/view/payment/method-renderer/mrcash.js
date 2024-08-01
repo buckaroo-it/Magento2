@@ -254,7 +254,6 @@ define(
 
                 afterPlaceOrder: function () {
                     var response = window.checkoutConfig.payment.buckaroo.response;
-                    response = $.parseJSON(response);
                     if (response.RequiredAction !== undefined && response.RequiredAction.RedirectURL !== undefined) {
                         if (this.isMobileMode()) {
                             var data =  {};

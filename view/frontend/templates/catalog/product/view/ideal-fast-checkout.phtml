@@ -11,7 +11,10 @@ if ($block->canShowProductButton()): ?>
                     qty: $('#qty').val(),
                     page: 'product',
                     paymentData: {
-                        method: 'buckaroo_magento2_ideal'
+                        method: 'buckaroo_magento2_ideal',
+                        additional_data: {
+                            issuer : 'fastcheckout'
+                        }
                     }
                 };
 

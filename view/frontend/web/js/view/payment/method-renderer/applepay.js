@@ -152,7 +152,6 @@ define(
                 afterPlaceOrder: function () {
                     var response = window.checkoutConfig.payment.buckaroo.response;
                     applepayPay.devLog('==========applepaydebug/14');
-                    response = $.parseJSON(response);
                     if (response.RequiredAction !== undefined && response.RequiredAction.RedirectURL !== undefined) {
                         window.location.replace(response.RequiredAction.RedirectURL);
                     }

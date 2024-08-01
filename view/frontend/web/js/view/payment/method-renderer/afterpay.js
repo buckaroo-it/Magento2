@@ -308,7 +308,6 @@ define(
 
                 afterPlaceOrder: function () {
                     var response = window.checkoutConfig.payment.buckaroo.response;
-                    response = $.parseJSON(response);
                     checkoutCommon.redirectHandle(response);
                 },
 

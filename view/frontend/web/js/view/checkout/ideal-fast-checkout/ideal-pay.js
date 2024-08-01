@@ -7,9 +7,8 @@ define([
     'mage/storage',
     'Magento_Checkout/js/model/error-processor',
     'Magento_Customer/js/model/customer',
-    'Magento_Ui/js/modal/alert',
-    'buckaroo/checkout/common'
-], function ($, urlBuilder, customerData, fullScreenLoader, $t, storage, errorProcessor, customer, alert, checkoutCommon) {
+    'Magento_Ui/js/modal/alert'
+], function ($, urlBuilder, customerData, fullScreenLoader, $t, storage, errorProcessor, customer, alert) {
     'use strict';
 
     return {
