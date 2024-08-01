@@ -101,7 +101,7 @@ define([
         onOrderPlaceSuccess: function (response) {
             let jsonResponse;
             try {
-                jsonResponse = JSON.parse(response);
+                jsonResponse = $.parseJSON(response);
             } catch (e) {
                 this.displayErrorMessage($t('An error occurred while processing your order.'));
                 fullScreenLoader.stopLoader();
