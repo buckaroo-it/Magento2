@@ -85,15 +85,15 @@ For precise cost details, please reach out to <a href="mailto:wecare@buckaroo.nl
 
             <field id="available_buttons" translate="label comment" type="multiselect" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>iDEAL Fast Checkout logo visibility</label>
-                <comment><![CDATA[Select which buttons you want to be active.]]></comment>
+                <comment><![CDATA[Select where you want the button to be visible. Multiple options can be selected at the same time.]]></comment>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\AvailableButtons</source_model>
                 <config_path>payment/buckaroo_magento2_ideal/available_buttons</config_path>
                 <can_be_empty>1</can_be_empty>
             </field>
 
             <field id="ideal_logo_colors" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>iDEAL Fast Checkout logo colors</label>
-                <comment><![CDATA[Select the iDEAL Fast Checkout button text color.]]></comment>
+                <label>iDEAL Fast Checkout logo scheme</label>
+                <comment><![CDATA[Select the iDEAL fast checkout button (text) color.]]></comment>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\LogoColors</source_model>
                 <config_path>payment/buckaroo_magento2_ideal/ideal_logo_colors</config_path>
             </field>
