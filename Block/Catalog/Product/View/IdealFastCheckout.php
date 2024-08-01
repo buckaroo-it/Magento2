@@ -71,7 +71,7 @@ class IdealFastCheckout extends Template
      */
     public function canShowProductButton()
     {
-        if ($this->isModuleActive()){
+        if ($this->isModuleActive() && $this->isButtonEnabled()){
             return $this->idealConfig->canShowButtonForPage(
                 'Product',
                 $this->_storeManager->getStore()
@@ -87,7 +87,7 @@ class IdealFastCheckout extends Template
      */
     public function canShowCartButton()
     {
-        if ($this->isModuleActive()){
+        if ($this->isModuleActive() && $this->isButtonEnabled()){
             return $this->idealConfig->canShowButtonForPage(
                 'Cart',
                 $this->_storeManager->getStore()
@@ -107,6 +107,12 @@ class IdealFastCheckout extends Template
         return $status == 1 || $status == 2;
     }
 
+    public function isButtonEnabled()
+    {
+        return $this->idealConfig->isFastCheckoutEnabled(
+            $this->_storeManager->getStore()
+        );
+    }
 
 
     public function getLogo() {

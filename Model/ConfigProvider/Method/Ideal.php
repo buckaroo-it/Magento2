@@ -35,6 +35,7 @@ class Ideal extends AbstractConfigProvider
     const XPATH_IDEAL_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_ideal/available_in_backend';
 
     const XPATH_IDEAL_FAST_CHECKOUT_BUTTONS = 'payment/buckaroo_magento2_ideal/available_buttons';
+    const XPATH_IDEAL_FAST_CHECKOUT_ENABLE = 'payment/buckaroo_magento2_ideal/ideal_fast_checkout';
 
     const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_ideal/allowed_currencies';
 
@@ -163,5 +164,11 @@ class Ideal extends AbstractConfigProvider
     public function getExpressButtons($store = null)
     {
         return $this->getConfigFromXpath(self::XPATH_IDEAL_FAST_CHECKOUT_BUTTONS, $store);
+    }
+
+
+    public function isFastCheckoutEnabled($store = null)
+    {
+        return $this->getConfigFromXpath(self::XPATH_IDEAL_FAST_CHECKOUT_ENABLE, $store);
     }
 }
