@@ -250,8 +250,8 @@ class Push implements ValidatorInterface
             $originalArray[strtolower($key)] = $key;
         }
 
-        ksort($arrayToSort);
-
+//        ksort($arrayToSort);
+        ksort($arrayToSort, SORT_FLAG_CASE | SORT_STRING);
         $sortableArray = [];
 
         foreach ($arrayToSort as $key => $value) {

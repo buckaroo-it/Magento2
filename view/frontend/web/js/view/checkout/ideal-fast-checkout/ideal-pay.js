@@ -125,6 +125,7 @@ define([
                 }
             ).fail(
                 function (response) {
+                    this.displayErrorMessage(response);
                     errorProcessor.process(response);
                     fullScreenLoader.stopLoader();
                 }
