@@ -223,7 +223,6 @@ define([
                         }
                     })
                     .fail(() => {
-                        this.displayErrorMessage($t('Failed to update the addresses.'));
                         if (jsonResponse.buckaroo_response.RequiredAction && jsonResponse.buckaroo_response.RequiredAction.RedirectURL) {
                             window.location.replace(jsonResponse.buckaroo_response.RequiredAction.RedirectURL);
                         } else {
