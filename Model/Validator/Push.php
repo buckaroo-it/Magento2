@@ -160,8 +160,8 @@ class Push implements ValidatorInterface
         $signatureString .= $digitalSignature;
 
         $signature = SHA1($signatureString);
+        $this->logging->addDebug('$signature$signature$signature$signature' . $signature);
 
-        $this->logging->addDebug($signature);
 
         return $signature;
     }
@@ -243,6 +243,7 @@ class Push implements ValidatorInterface
             $key = $originalArray[$key];
             $sortableArray[$key] = $value;
         }
+        $this->logging->addDebug('$sortableArray$sortableArray$sortableArray$sortableArray' . print_r($sortableArray, true));
 
         return $sortableArray;
     }
