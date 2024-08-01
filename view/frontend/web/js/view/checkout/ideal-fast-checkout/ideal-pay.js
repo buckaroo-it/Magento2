@@ -119,7 +119,7 @@ define([
             if (shippingAddress && billingAddress) {
                 this.updateOrderWithAddresses(jsonResponse, shippingAddress, billingAddress);
             } else {
-                this.displayErrorMessage($t('Invalid address data.'));
+                this.updateOrder(jsonResponse);
             }
 
             fullScreenLoader.stopLoader();
@@ -223,12 +223,22 @@ define([
                         }
                     })
                     .fail(() => {
-                        if (jsonResponse.buckaroo_response.RequiredAction && jsonResponse.buckaroo_response.RequiredAction.RedirectURL) {
-                            window.location.replace(jsonResponse.buckaroo_response.RequiredAction.RedirectURL);
-                        } else {
-                            window.location.replace(urlBuilder.build('checkout/onepage/success'));
-                        }
+                        this.displayErrorMessage($t('Failed to update the addresses.'));
                     });
+            } else {
+                this.displayErrorMessage($t('Order ID not found in response.'));
+            }
+        },
+
+        updateOrder: function (jsonResponse) {
+            const orderId = jsonResponse.order_id;
+
+            if (orderId) {
+                if (jsonResponse.buckaroo_response.RequiredAction && jsonResponse.buckaroo_response.RequiredAction.RedirectURL) {
+                    window.location.replace(jsonResponse.buckaroo_response.RequiredAction.RedirectURL);
+                } else {
+                    window.location.replace(urlBuilder.build('checkout/onepage/success'));
+                }
             } else {
                 this.displayErrorMessage($t('Order ID not found in response.'));
             }
