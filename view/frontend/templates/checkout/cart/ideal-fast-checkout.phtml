@@ -1,7 +1,7 @@
 <?php
 if ($block->canShowProductButton()): ?>
     <button id="fast-checkout-ideal-btn">
-        <img src="https://d1twnm33rljaon.cloudfront.net/Logos/iDEAL/RGB/iDEAL_Snel_bestellen_RGB_onwhite.png" alt="Fast Checkout with iDEAL" />
+        <img src=" <?php echo $block->escapeHtml($block->getLogo()) ?>" alt="Ideal Snel bestellen"/>
     </button>
 
     <script>

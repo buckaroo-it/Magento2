@@ -24,6 +24,7 @@ namespace Buckaroo\Magento2\Block\Catalog\Product\View;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Ideal;
 use Magento\Framework\Encryption\Encryptor;
 use Magento\Framework\View\Element\Template;
+use Magento\Framework\View\Asset\Repository;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Magento\Framework\View\Element\Template\Context;
 
@@ -44,18 +45,22 @@ class IdealFastCheckout extends Template
      */
     protected $idealConfig;
     protected $ideal;
+    protected  Repository $assetRepo;
+
 
     public function __construct(
         Context $context,
         Account $configProviderAccount,
         Encryptor $encryptor,
         Ideal $idealConfig,
+        Repository $assetRepo,
         array $data = []
     ) {
         parent::__construct($context, $data);
         $this->configProviderAccount = $configProviderAccount;
         $this->encryptor = $encryptor;
         $this->idealConfig = $idealConfig;
+        $this->assetRepo = $assetRepo;
 
     }
 
@@ -66,10 +71,13 @@ class IdealFastCheckout extends Template
      */
     public function canShowProductButton()
     {
-        return $this->idealConfig->canShowButtonForPage(
-            'Product',
-            $this->_storeManager->getStore()
-        );
+        if ($this->isModuleActive()){
+            return $this->idealConfig->canShowButtonForPage(
+                'Product',
+                $this->_storeManager->getStore()
+            );
+        }
+        return false;
     }
 
     /**
@@ -79,12 +87,34 @@ class IdealFastCheckout extends Template
      */
     public function canShowCartButton()
     {
-        return $this->idealConfig->canShowButtonForPage(
-            'Cart',
-            $this->_storeManager->getStore()
-        );
+        if ($this->isModuleActive()){
+            return $this->idealConfig->canShowButtonForPage(
+                'Cart',
+                $this->_storeManager->getStore()
+            );
+        }
+        return false;
     }
 
+    /**
+     * Check if Buckaroo module is active
+     *
+     * @return bool
+     */
+    public function isModuleActive()
+    {
+        $status = $this->configProviderAccount->getActive();
+        return $status == 1 || $status == 2;
+    }
+
+
+
+    public function getLogo() {
+        $name = "ideal/ideal-fast-checkout-rgb.png";
+
+
+        return $this->assetRepo->getUrl("Buckaroo_Magento2::images/{$name}");
+    }
     /**
      * Get all required data
      *
