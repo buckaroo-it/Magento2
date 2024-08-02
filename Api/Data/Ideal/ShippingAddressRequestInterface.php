@@ -1,5 +1,4 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
@@ -18,7 +17,6 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-
 namespace Buckaroo\Magento2\Api\Data\Ideal;
 
 
@@ -60,7 +58,41 @@ interface ShippingAddressRequestInterface
      */
     public function setTelephone(string $telephone);
 
+    /**
+     * Set telephone
+     *
+     * @param string|null $firstname
+     *
+     * @return void
+     */
+    public function setFirstname(string $firstname);
 
+    /**
+     * Set telephone
+     *
+     * @param string|null $lastname
+     *
+     * @return void
+     */
+    public function setLastname(string $lastname);
+
+    /**
+     * Set telephone
+     *
+     * @param string|null $email
+     *
+     * @return void
+     */
+    public function setEmail(string $email);
+
+    /**
+     * Set telephone
+     *
+     * @param string|null $street
+     *
+     * @return void
+     */
+    public function setStreet(string $street);
     /**
      * Get city
      *
@@ -88,4 +120,32 @@ interface ShippingAddressRequestInterface
      * @return string|null
      */
     public function getTelephone(): string;
+
+    /**
+     * Get telephone
+     *
+     * @return string|null
+     */
+    public function getFirstname(): string;
+
+    /**
+     * Get telephone
+     *
+     * @return string|null
+     */
+    public function getLastname(): string;
+
+    /**
+     * Get telephone
+     *
+     * @return string|null
+     */
+    public function getEmail(): string;
+
+    /**
+     * Get telephone
+     *
+     * @return string|null
+     */
+    public function getStreet(): string;
 }

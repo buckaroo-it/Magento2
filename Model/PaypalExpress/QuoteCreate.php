@@ -264,7 +264,6 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
      * Create quote if in product page
      *
      * @param string $form_data
-     * @param ShippingAddressRequestInterface $shipping_address
      *
      * @return Quote
      */

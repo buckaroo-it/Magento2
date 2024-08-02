@@ -44,6 +44,7 @@ use Buckaroo\Magento2\Model\Method\Transfer;
 use Buckaroo\Magento2\Model\Method\Voucher;
 use Buckaroo\Magento2\Model\Refund\Push as RefundPush;
 use Buckaroo\Magento2\Model\Validator\Push as ValidatorPush;
+use Magento\Customer\Api\Data\GroupInterface;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Filesystem\DirectoryList;
 use Magento\Framework\ObjectManagerInterface;
@@ -388,10 +389,9 @@ class Push implements PushInterface
                     $orderAddressRepository->save($orderBillingAddress);
                 }
 
-                // Update Customer Information if "NOT LOGGED IN"
-                if ($order->getCustomerGroupId() == \Magento\Customer\Api\Data\GroupInterface::NOT_LOGGED_IN_ID) {
-                    $this->updateGuestCustomerInformation($order, $billingAddress);
-                }
+                $this->updateGuestCustomerInformation($order, $billingAddress);
+
+
 
             } catch (\Exception $e) {
                 $this->logging->addDebug(__METHOD__ . '|Failed to update addresses|');
@@ -410,13 +410,22 @@ class Push implements PushInterface
      */
     private function updateGuestCustomerInformation(Order $order, array $billingAddress)
     {
-        $customerEmail = $this->postData['brq_service_ideal_contactdetailsemail'] ?? null;
-        if ($customerEmail) {
+        if ($order->getCustomerGroupId() == GroupInterface::NOT_LOGGED_IN_ID) {
+            // For guest customers, use billing address details
+            $customerEmail = $this->postData['brq_service_ideal_contactdetailsemail'] ?? $order->getCustomerEmail();
             $order->setCustomerEmail($customerEmail);
+            $order->setCustomerFirstname($billingAddress['firstname'] ?? $order->getCustomerFirstname());
+            $order->setCustomerLastname($billingAddress['lastname'] ?? $order->getCustomerLastname());
+        }else{
+            // For registered customers, use their stored details
+            $customer = $order->getCustomer();
+            if ($customer) {
+                $order->setCustomerFirstname($customer->getFirstname() ?? $order->getCustomerFirstname());
+                $order->setCustomerLastname($customer->getLastname() ?? $order->getCustomerLastname());
+                $order->setCustomerEmail($customer->getEmail() ?? $order->getCustomerEmail());
+            }
         }
 
-        $order->setCustomerFirstname($billingAddress['firstname'] ?? $order->getCustomerFirstname());
-        $order->setCustomerLastname($billingAddress['lastname'] ?? $order->getCustomerLastname());
         $order->save();
     }
 

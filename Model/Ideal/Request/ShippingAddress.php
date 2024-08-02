@@ -35,6 +35,14 @@ class ShippingAddress implements ShippingAddressRequestInterface
 
     protected $telephone;
 
+    protected $firstname;
+
+    protected $lastname;
+
+    protected $email;
+
+    protected $street;
+
     /** @inheritDoc */
     public function setCity(string $city)
     {
@@ -64,6 +72,34 @@ class ShippingAddress implements ShippingAddressRequestInterface
     }
 
     /** @inheritDoc */
+    public function setFirstname(string $firstname)
+    {
+        $this->validateRequired($firstname, 'firstname');
+        $this->firstname = $firstname;
+    }
+
+    /** @inheritDoc */
+    public function setLastname(string $lastname)
+    {
+        $this->validateRequired($lastname, 'lastname');
+        $this->lastname = $lastname;
+    }
+
+    /** @inheritDoc */
+    public function setEmail(string $email)
+    {
+        $this->validateRequired($email, 'email');
+        $this->email = $email;
+    }
+
+    /** @inheritDoc */
+    public function setStreet(string $street)
+    {
+        $this->validateRequired($street, 'street');
+        $this->street = $street;
+    }
+
+    /** @inheritDoc */
     public function getCity(): string
     {
         return $this->city;
@@ -85,6 +121,30 @@ class ShippingAddress implements ShippingAddressRequestInterface
     public function getTelephone(): string
     {
         return $this->telephone;
+    }
+
+    /** @inheritDoc */
+    public function getFirstname(): string
+    {
+        return $this->firstname;
+    }
+
+    /** @inheritDoc */
+    public function getLastname(): string
+    {
+        return $this->lastname;
+    }
+
+    /** @inheritDoc */
+    public function getEmail(): string
+    {
+        return $this->email;
+    }
+
+    /** @inheritDoc */
+    public function getStreet(): string
+    {
+        return $this->street;
     }
     /**
      * Validate required fields

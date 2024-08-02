@@ -2,19 +2,14 @@ define([
     'jquery',
     'mage/url',
     'Magento_Customer/js/customer-data',
-    'Magento_Checkout/js/model/full-screen-loader',
     'mage/translate',
     'mage/storage',
-    'Magento_Checkout/js/model/error-processor',
     'Magento_Customer/js/model/customer',
-    'Magento_Ui/js/modal/alert'
-], function ($, urlBuilder, customerData, fullScreenLoader, $t, storage, errorProcessor, customer, alert) {
+], function ($, urlBuilder, customerData, $t, storage, customer) {
     'use strict';
 
     return {
         createQuoteAndPlaceOrder: function (productData) {
-            fullScreenLoader.startLoader();
-
             // Add placeholders for required fields if not provided
             productData.shipping_address = productData.shipping_address || this.getDefaultAddress();
             this.page = productData.page;
@@ -28,6 +23,10 @@ define([
 
         getDefaultAddress: function () {
             return {
+                firstname: 'unknown',
+                lastname: 'unknown',
+                email: 'no-reply@example.com',
+                street: 'unknown',
                 city: 'Placeholder',
                 country_code: 'NL',
                 postal_code: '00000',
@@ -49,7 +48,6 @@ define([
 
         onQuoteCreateFail: function () {
             this.displayErrorMessage($t('Unable to create quote.'));
-            fullScreenLoader.stopLoader();
         },
 
         placeOrder: function (quoteId, paymentData) {
@@ -62,8 +60,6 @@ define([
                 serviceUrl = urlBuilder.build('rest/V1/buckaroo/payment-information');
                 payload = this.getPayload(quoteId, paymentData, 'customer');
             }
-
-            fullScreenLoader.startLoader();
 
             storage.post(
                 serviceUrl,
@@ -102,43 +98,14 @@ define([
                 jsonResponse = $.parseJSON(response);
             } catch (e) {
                 this.displayErrorMessage($t('An error occurred while processing your order.'));
-                fullScreenLoader.stopLoader();
-                return;
-            }
-
-            if (this.isLimitReached(jsonResponse)) {
-                this.displayLimitReachedMessage(jsonResponse.buckaroo_response.limitReachedMessage);
                 return;
             }
 
             this.updateOrder(jsonResponse);
-
-            fullScreenLoader.stopLoader();
         },
 
         onOrderPlaceFail: function (response) {
-            this.displayErrorMessage($t('An error occurred during payment.'));
-            errorProcessor.process(response);
-            fullScreenLoader.stopLoader();
-        },
-
-        isLimitReached: function (jsonResponse) {
-            return typeof jsonResponse === 'object' && jsonResponse.buckaroo_response && jsonResponse.buckaroo_response.limitReachedMessage;
-        },
-
-        displayLimitReachedMessage: function (message) {
-            alert({
-                title: $t('Error'),
-                content: $t(message),
-                buttons: [{
-                    text: $t('Close'),
-                    class: 'action primary accept',
-                    click: function () {
-                        this.closeModal(true);
-                    }
-                }]
-            });
-            $('.' + paymentData.method).remove();
+            this.displayErrorMessage($t(response));
         },
 
         updateOrder: function (jsonResponse) {
@@ -150,6 +117,14 @@ define([
         },
 
         displayErrorMessage: function (message) {
+            if (typeof message === "object") {
+                if (message.responseJSON && message.responseJSON.message) {
+                    message = $t(message.responseJSON.message);
+                } else {
+                    message = $t("Cannot create payment");
+                }
+
+            }
             customerData.set('messages', {
                 messages: [{
                     type: 'error',

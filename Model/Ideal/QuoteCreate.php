@@ -1,5 +1,4 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
@@ -18,7 +17,6 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-
 namespace Buckaroo\Magento2\Model\Ideal;
 
 use Magento\Quote\Model\Quote;
@@ -165,10 +163,10 @@ class QuoteCreate implements IdealQuoteCreateInterface
         $address->setPostcode($shipping_address->getPostalCode());
         $address->setCity($shipping_address->getCity());
         $address->setTelephone($shipping_address->getTelephone());
-        $address->setFirstname('unknown');
-        $address->setLastname('unknown');
-        $address->setEmail('no-reply@example.com');
-        $address->setStreet('unknown');
+        $address->setFirstname($shipping_address->getFirstname());
+        $address->setLastname($shipping_address->getLastname());
+        $address->setEmail($shipping_address->getEmail());
+        $address->setStreet($shipping_address->getStreet());
 
         $this->maybeFillAnyMissingAddressFields($shipping_address);
 
@@ -243,10 +241,10 @@ class QuoteCreate implements IdealQuoteCreateInterface
     {
         $address = $this->quote->getBillingAddress();
         if ($address->getId() === null) {
-            $address->setFirstname('unknown');
-            $address->setLastname('unknown');
-            $address->setEmail('no-reply@example.com');
-            $address->setStreet('unknown');
+            $address->setFirstname($shipping_address->getFirstname());
+            $address->setLastname($shipping_address->getLastname());
+            $address->setEmail($shipping_address->getEmail());
+            $address->setStreet($shipping_address->getStreet());
             $address->setCountryId($shipping_address->getCountryCode());
             $address->setPostcode($shipping_address->getPostalCode());
             $address->setCity($shipping_address->getCity());
@@ -270,7 +268,6 @@ class QuoteCreate implements IdealQuoteCreateInterface
      * Create quote if in product page
      *
      * @param string $form_data
-     * @param ShippingAddressRequestInterface $shipping_address
      *
      * @return Quote
      */
