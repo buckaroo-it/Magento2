@@ -41,7 +41,7 @@ var config = {
             "buckaroo/checkout/datepicker": "Buckaroo_Magento2/js/view/checkout/datepicker",
             "buckaroo/paypal-express/pay": "Buckaroo_Magento2/js/view/checkout/paypal-express/pay",
             "buckaroo/paypal-express/button": "Buckaroo_Magento2/js/view/checkout/paypal-express/button",
-            "buckaroo/ideal-fast-checkout/payjs": "Buckaroo_Magento2/js/view/checkout/ideal-fast-checkout/ideal-pay",
+            "buckaroo/ideal-fast-checkout/pay": "Buckaroo_Magento2/js/view/checkout/ideal-fast-checkout/pay",
         }
     },
     shim: {

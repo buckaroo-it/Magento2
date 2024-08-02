@@ -5,7 +5,7 @@ if ($block->canShowCartButton()): ?>
     </button>
 
     <script>
-        require(['jquery', 'buckaroo/ideal-fast-checkout/payjs'], function ($, fastCheckout) {
+        require(['jquery', 'buckaroo/ideal-fast-checkout/pay'], function ($, fastCheckout) {
             $('#fast-checkout-ideal-btn').click(function () {
                 var productData = {
                     qty: $('#qty').val(),
