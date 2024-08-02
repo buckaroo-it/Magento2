@@ -34,18 +34,19 @@ class Ideal extends AbstractConfigProvider
     const XPATH_IDEAL_ORDER_EMAIL           = 'payment/buckaroo_magento2_ideal/order_email';
     const XPATH_IDEAL_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_ideal/available_in_backend';
 
-    const XPATH_IDEAL_FAST_CHECKOUT_BUTTONS = 'payment/buckaroo_magento2_ideal/available_buttons';
-    const XPATH_IDEAL_FAST_CHECKOUT_ENABLE = 'payment/buckaroo_magento2_ideal/ideal_fast_checkout';
-    const XPATH_IDEAL_FAST_CHECKOUT_LOGO = 'payment/buckaroo_magento2_ideal/ideal_logo_colors';
-
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_ideal/allowed_currencies';
-
     const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_ideal/allowspecific';
     const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_ideal/specificcountry';
     const XPATH_IDEAL_SELECTION_TYPE            = 'buckaroo_magento2/account/selection_type';
     const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_ideal/specificcustomergroup';
     const XPATH_SHOW_ISSUERS                    = 'payment/buckaroo_magento2_ideal/show_issuers';
     const XPATH_SORTED_ISSUERS                  = 'payment/buckaroo_magento2_ideal/sorted_issuers';
+
+    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_ideal/allowed_currencies';
+
+    // Related to Ideal Fast Checkout
+    const XPATH_IDEAL_FAST_CHECKOUT_ENABLE = 'payment/buckaroo_magento2_ideal/ideal_fast_checkout';
+    const XPATH_IDEAL_FAST_CHECKOUT_BUTTONS = 'payment/buckaroo_magento2_ideal/available_buttons';
+    const XPATH_IDEAL_FAST_CHECKOUT_LOGO = 'payment/buckaroo_magento2_ideal/ideal_logo_colors';
 
     /**
      * @var array
@@ -167,12 +168,10 @@ class Ideal extends AbstractConfigProvider
         return $this->getConfigFromXpath(self::XPATH_IDEAL_FAST_CHECKOUT_BUTTONS, $store);
     }
 
-
     public function isFastCheckoutEnabled($store = null)
     {
         return $this->getConfigFromXpath(self::XPATH_IDEAL_FAST_CHECKOUT_ENABLE, $store);
     }
-
 
     public function getLogoColor($store = null)
     {

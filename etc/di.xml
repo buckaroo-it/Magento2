@@ -74,8 +74,6 @@
     <preference for="Buckaroo\Magento2\Api\Data\Ideal\ShippingAddressRequestInterface" type="Buckaroo\Magento2\Model\Ideal\Request\ShippingAddress" />
     <!-- end ideal-fast-checkout -->
 
-
-
     <preference for="Buckaroo\Magento2\Api\TransactionResponseInterface" type="Buckaroo\Magento2\Model\Transaction\Status\Response" />
 
     <type name="Buckaroo\Magento2\Model\Method\AbstractMethod">
@@ -231,7 +229,7 @@
                  <item name="refund_partial" xsi:type="array">
                     <item name="type" xsi:type="string">refund_partial</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Gateway\Http\TransactionBuilder\RefundPartial</item>
-                </item> 
+                </item>
             </argument>
         </arguments>
     </type>

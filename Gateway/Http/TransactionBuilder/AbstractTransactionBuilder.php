@@ -441,7 +441,7 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
 
     public function getReturnUrlFromPayment()
     {
-        if(
+        if (
             $this->getOrder() === null ||
             $this->getOrder()->getPayment() === null ||
             $this->getOrder()->getPayment()->getAdditionalInformation(self::ADDITIONAL_RETURN_URL) === null
@@ -449,9 +449,9 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
             return;
         }
         $returnUrl = $this->getOrder()->getPayment()->getAdditionalInformation(self::ADDITIONAL_RETURN_URL);
-        if(
+        if (
             !filter_var($returnUrl, FILTER_VALIDATE_URL) === false &&
-            in_array(parse_url($returnUrl, PHP_URL_SCHEME), ['http','https'])
+            in_array(parse_url($returnUrl, PHP_URL_SCHEME), ['http', 'https'])
         ) {
             return $returnUrl;
         }
@@ -600,7 +600,7 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
             return false;
         }
 
-        $pri_addrs =  [
+        $pri_addrs = [
             '10.0.0.0|10.255.255.255', // single class A network
             '172.16.0.0|172.31.255.255', // 16 contiguous class B network
             '192.168.0.0|192.168.255.255', // 256 contiguous class C network

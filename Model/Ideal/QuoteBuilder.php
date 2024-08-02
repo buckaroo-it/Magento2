@@ -21,7 +21,6 @@
 
 namespace Buckaroo\Magento2\Model\Ideal;
 
-use Buckaroo\Magento2\Model\Ideal\Magento;
 use Magento\Customer\Model\Group;
 use Magento\Quote\Model\Quote\Item;
 use Magento\Quote\Model\QuoteFactory;
@@ -118,7 +117,7 @@ class QuoteBuilder implements QuoteBuilderInterface
      * Add product to quote
      *
      * @return void
-     * @throws \Buckaroo\Magento2\Model\Ideal\IdealException
+     * @throws IdealException
      */
     protected function addProduct()
     {

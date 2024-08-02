@@ -45,7 +45,7 @@ class IdealFastCheckout extends Template
      */
     protected $idealConfig;
     protected $ideal;
-    protected  Repository $assetRepo;
+    protected Repository $assetRepo;
 
 
     public function __construct(
@@ -107,6 +107,11 @@ class IdealFastCheckout extends Template
         return $status == 1 || $status == 2;
     }
 
+    /**
+     * Check if ideal fast checkout button is enabled
+     *
+     * @return mixed
+     */
     public function isButtonEnabled()
     {
         return $this->idealConfig->isFastCheckoutEnabled(
@@ -114,6 +119,12 @@ class IdealFastCheckout extends Template
         );
     }
 
+
+    /**
+     * Get logo based on chosen color setting
+     *
+     * @return mixed
+     */
     public function getLogo() {
 
         $logoColor = $this->idealConfig->getLogoColor($this->_storeManager->getStore());
@@ -126,6 +137,7 @@ class IdealFastCheckout extends Template
         }
         return $this->assetRepo->getUrl("Buckaroo_Magento2::images/{$name}");
     }
+
     /**
      * Get all required data
      *
@@ -136,7 +148,6 @@ class IdealFastCheckout extends Template
         return [
             'currency' => $this->getCurrency(),
             'buckarooWebsiteKey' => $this->getWebsiteKey(),
-//            'idealMerchantId' => $this->getMerchantId(),
         ];
     }
 
@@ -165,29 +176,5 @@ class IdealFastCheckout extends Template
             ->getStore()
             ->getCurrentCurrency()
             ->getCode();
-    }
-
-    /**
-     * Get merchant id
-     *
-     * @return string|null
-     */
-    protected function getMerchantId()
-    {
-        return $this->idealConfig->getMerchantId(
-            $this->_storeManager->getStore()
-        );
-    }
-
-//    protected function getOrder(){
-//        return $this->ideal->getOrderTransactionBuilder("Test");
-//    }
-
-    /**
-     * @return false|string
-     */
-    public function getIdealConfig()
-    {
-        return json_encode($this->idealConfig->getConfig());
     }
 }
