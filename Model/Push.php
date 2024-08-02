@@ -292,9 +292,28 @@ class Push implements PushInterface
         $shippingAddress = $this->extractAddress('shippingaddress');
         $billingAddress = $this->extractAddress('invoiceaddress');
 
+        // Update telephone numbers from contact info
+        $contactPhoneNumber = $this->extractContactPhoneNumber();
+
         if ($shippingAddress && $billingAddress) {
+            // Update the phone numbers from contact info if available
+            if ($contactPhoneNumber) {
+                $shippingAddress['telephone'] = $contactPhoneNumber;
+                $billingAddress['telephone'] = $contactPhoneNumber;
+            }
             $this->updateOrderWithAddresses($shippingAddress, $billingAddress);
         }
+    }
+
+    /**
+     * Extract contact phone number from post data.
+     *
+     * @return string|null
+     */
+    private function extractContactPhoneNumber()
+    {
+        $phoneKey = 'brq_service_ideal_contactdetailsphonenumber';
+        return isset($this->postData[$phoneKey]) ? urldecode($this->postData[$phoneKey]) : null;
     }
 
     /**
@@ -316,7 +335,6 @@ class Push implements PushInterface
             'postalcode' => 'postcode',
             'city' => 'city',
             'countryname' => 'country_id',
-            'phonenumber' => 'telephone',
             'companyname' => 'company'
         ];
 
@@ -335,8 +353,10 @@ class Push implements PushInterface
         }
 
         if (!empty($address['country_id'])) {
-            $address['country_id'] = "NL"; // Adjust as needed
+            $address['country_id'] = "NL";
         }
+
+        $address['state'] = '';
 
         return !empty($address) ? $address : null;
     }
