@@ -17,7 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace Buckaroo\Magento2\Api\Data\Ideal;
+namespace Buckaroo\Magento2\Api\Data;
 
 interface BreakdownItemInterface
 {

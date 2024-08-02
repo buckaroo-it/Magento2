@@ -33,13 +33,13 @@ use Magento\Customer\Model\Session as CustomerSession;
 use Buckaroo\Magento2\Api\PaypalExpressQuoteCreateInterface;
 use Buckaroo\Magento2\Model\PaypalExpress\QuoteBuilderInterfaceFactory;
 use Buckaroo\Magento2\Api\Data\PaypalExpress\ShippingAddressRequestInterface;
-use Buckaroo\Magento2\Api\Data\PaypalExpress\QuoteCreateResponseInterfaceFactory;
+use Buckaroo\Magento2\Api\Data\QuoteCreateResponseInterfaceFactory;
 
 class QuoteCreate implements PaypalExpressQuoteCreateInterface
 {
 
     /**
-     * @var \Buckaroo\Magento2\Api\Data\PaypalExpress\QuoteCreateResponseInterfaceFactory
+     * @var \Buckaroo\Magento2\Api\Data\QuoteCreateResponseInterfaceFactory
      */
     protected $responseFactory;
 

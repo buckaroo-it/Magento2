@@ -17,21 +17,20 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace Buckaroo\Magento2\Api\Data\PaypalExpress;
+namespace Buckaroo\Magento2\Api\Data;
 
-interface BreakdownItemInterface
+interface TotalBreakdownInterface
 {
     /**
-     * Get currency code
-     *
-     * @return string
+     * @return \Buckaroo\Magento2\Api\Data\BreakdownItemInterface
      */
-    public function getCurrencyCode();
-
+    public function getItemTotal();
     /**
-     * Get amount
-     *
-     * @return string
+     * @return \Buckaroo\Magento2\Api\Data\BreakdownItemInterface
      */
-    public function getValue();
+    public function getShipping();
+    /**
+     * @return \Buckaroo\Magento2\Api\Data\BreakdownItemInterface
+     */
+    public function getTaxTotal();
 }

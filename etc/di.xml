@@ -53,13 +53,15 @@
     <preference for="Buckaroo\Magento2\Api\GiftcardTransactionInterface" type="Buckaroo\Magento2\Model\Giftcard\Api\GetTransactions"/>
     <!-- end gifcard rest api -->
 
+
+
+    <preference for="Buckaroo\Magento2\Api\Data\TotalBreakdownInterface" type="Buckaroo\Magento2\Model\Response\TotalBreakdown" />
+    <preference for="Buckaroo\Magento2\Api\Data\BreakdownItemInterface" type="Buckaroo\Magento2\Model\Response\BreakdownItem" />
+    <preference for="Buckaroo\Magento2\Api\Data\QuoteCreateResponseInterface" type="Buckaroo\Magento2\Model\Response\QuoteCreate" />
+
     <!-- paypal-express -->
     <preference for="Buckaroo\Magento2\Model\PaypalExpress\QuoteBuilderInterface" type="Buckaroo\Magento2\Model\PaypalExpress\QuoteBuilder" />
     <preference for="Buckaroo\Magento2\Api\PaypalExpressQuoteCreateInterface" type="Buckaroo\Magento2\Model\PaypalExpress\QuoteCreate" />
-    <preference for="Buckaroo\Magento2\Api\Data\PaypalExpress\QuoteCreateResponseInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Response\QuoteCreate" />
-    <preference for="Buckaroo\Magento2\Api\Data\PaypalExpress\TotalBreakdownInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Response\TotalBreakdown" />
-    <preference for="Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Response\BreakdownItem" />
-    <preference for="Buckaroo\Magento2\Api\Data\PaypalExpress\OrderDataItemInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Request\OrderDataItem" />
     <preference for="Buckaroo\Magento2\Api\Data\PaypalExpress\ShippingAddressRequestInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Request\ShippingAddress" />
     <preference for="Buckaroo\Magento2\Api\PaypalExpressOrderCreateInterface" type="Buckaroo\Magento2\Model\PaypalExpress\OrderCreate" />
     <preference for="Buckaroo\Magento2\Api\Data\PaypalExpress\OrderCreateResponseInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Response\OrderCreate" />
@@ -68,9 +70,6 @@
     <!-- ideal-fast-checkout -->
     <preference for="Buckaroo\Magento2\Model\Ideal\QuoteBuilderInterface" type="Buckaroo\Magento2\Model\Ideal\QuoteBuilder" />
     <preference for="Buckaroo\Magento2\Api\IdealQuoteCreateInterface" type="Buckaroo\Magento2\Model\Ideal\QuoteCreate" />
-    <preference for="Buckaroo\Magento2\Api\Data\Ideal\QuoteCreateResponseInterface" type="Buckaroo\Magento2\Model\Ideal\Response\QuoteCreate" />
-    <preference for="Buckaroo\Magento2\Api\Data\Ideal\TotalBreakdownInterface" type="Buckaroo\Magento2\Model\Ideal\Response\TotalBreakdown" />
-    <preference for="Buckaroo\Magento2\Api\Data\Ideal\BreakdownItemInterface" type="Buckaroo\Magento2\Model\Ideal\Response\BreakdownItem" />
     <preference for="Buckaroo\Magento2\Api\Data\Ideal\ShippingAddressRequestInterface" type="Buckaroo\Magento2\Model\Ideal\Request\ShippingAddress" />
     <!-- end ideal-fast-checkout -->
 

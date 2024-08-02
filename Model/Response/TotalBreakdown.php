@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,18 +18,19 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace Buckaroo\Magento2\Model\Ideal\Response;
 
-use Magento\Quote\Model\Quote;
+namespace Buckaroo\Magento2\Model\Response;
+
+use Buckaroo\Magento2\Api\Data\BreakdownItemInterfaceFactory;
+use Buckaroo\Magento2\Api\Data\TotalBreakdownInterface;
 use Magento\Quote\Model\Cart\CartTotalRepository;
-use Buckaroo\Magento2\Api\Data\Ideal\TotalBreakdownInterface;
-use Buckaroo\Magento2\Api\Data\Ideal\BreakdownItemInterfaceFactory;
+use Magento\Quote\Model\Quote;
 
 class TotalBreakdown implements TotalBreakdownInterface
 {
 
     /**
-     *  @var \Buckaroo\Magento2\Api\Data\Ideal\BreakdownItemInterfaceFactory
+     *  @var \Buckaroo\Magento2\Api\Data\BreakdownItemInterfaceFactory
      */
     protected $breakdownItemFactory;
 
@@ -50,7 +52,7 @@ class TotalBreakdown implements TotalBreakdownInterface
         $this->cartTotalRepository = $cartTotalRepository;
     }
     /**
-     * @return \Buckaroo\Magento2\Api\Data\Ideal\BreakdownItemInterface
+     * @return \Buckaroo\Magento2\Api\Data\BreakdownItemInterface
      */
     public function getItemTotal()
     {
@@ -62,7 +64,7 @@ class TotalBreakdown implements TotalBreakdownInterface
         );
     }
     /**
-     * @return \Buckaroo\Magento2\Api\Data\Ideal\BreakdownItemInterface
+     * @return \Buckaroo\Magento2\Api\Data\BreakdownItemInterface
      */
     public function getShipping()
     {
@@ -74,7 +76,7 @@ class TotalBreakdown implements TotalBreakdownInterface
         );
     }
     /**
-     * @return \Buckaroo\Magento2\Api\Data\Ideal\BreakdownItemInterface
+     * @return \Buckaroo\Magento2\Api\Data\BreakdownItemInterface
      */
     public function getTaxTotal()
     {

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,20 +18,32 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace Buckaroo\Magento2\Api\Data\PaypalExpress;
 
-interface TotalBreakdownInterface
+namespace Buckaroo\Magento2\Model\Response;
+
+use Buckaroo\Magento2\Api\Data\BreakdownItemInterface;
+
+class BreakdownItem implements BreakdownItemInterface
 {
-    /**
-     * @return \Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterface
-     */
-    public function getItemTotal();
-    /**
-     * @return \Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterface
-     */
-    public function getShipping();
-    /**
-     * @return \Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterface
-     */
-    public function getTaxTotal();
+    protected $total;
+
+    protected $currencyCode;
+
+    public function __construct(float $total, string $currencyCode)
+    {
+        $this->total = $total;
+        $this->currencyCode = $currencyCode;
+    }
+
+    /** @inheritDoc */
+    public function getCurrencyCode()
+    {
+        return $this->currencyCode;
+    }
+
+    /** @inheritDoc */
+    public function getValue()
+    {
+        return number_format($this->total, 2);
+    }
 }

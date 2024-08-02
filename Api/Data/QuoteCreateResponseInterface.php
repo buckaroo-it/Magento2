@@ -17,31 +17,23 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace Buckaroo\Magento2\Model\Ideal\Response;
+namespace Buckaroo\Magento2\Api\Data;
 
-use Buckaroo\Magento2\Api\Data\Ideal\BreakdownItemInterface;
+use Buckaroo\Magento2\Api\Data\BreakdownItemInterface;
 
-class BreakdownItem implements BreakdownItemInterface
+interface QuoteCreateResponseInterface extends BreakdownItemInterface
 {
-    protected $total;
+    /**
+     * Get order breakdown
+     *
+     * @return \Buckaroo\Magento2\Api\Data\TotalBreakdownInterface
+     */
+    public function getBreakdown();
 
-    protected $currencyCode;
-
-    public function __construct(float $total, string $currencyCode)
-    {
-        $this->total = $total;
-        $this->currencyCode = $currencyCode;
-    }
-
-    /** @inheritDoc */
-    public function getCurrencyCode()
-    {
-        return $this->currencyCode;
-    }
-
-    /** @inheritDoc */
-    public function getValue()
-    {
-        return number_format($this->total, 2);
-    }
+    /**
+     * Get masked cart id
+     *
+     * @return string
+     */
+    public function getCartId();
 }

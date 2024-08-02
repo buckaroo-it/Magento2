@@ -21,7 +21,7 @@
 
 namespace Buckaroo\Magento2\Api;
 
-use Buckaroo\Magento2\Api\Data\Ideal\QuoteCreateResponseInterface;
+use Buckaroo\Magento2\Api\Data\QuoteCreateResponseInterface;
 use Buckaroo\Magento2\Api\Data\Ideal\ShippingAddressRequestInterface;
 
 interface IdealQuoteCreateInterface

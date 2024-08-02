@@ -31,14 +31,14 @@ use Magento\Customer\Model\Session as CustomerSession;
 use Buckaroo\Magento2\Api\IdealQuoteCreateInterface;
 use Buckaroo\Magento2\Model\Ideal\QuoteBuilderInterfaceFactory;
 use Buckaroo\Magento2\Api\Data\Ideal\ShippingAddressRequestInterface;
-use Buckaroo\Magento2\Api\Data\Ideal\QuoteCreateResponseInterfaceFactory;
+use Buckaroo\Magento2\Api\Data\QuoteCreateResponseInterfaceFactory;
 use function Buckaroo\Magento2\Model\Ideal\__;
 
 class QuoteCreate implements IdealQuoteCreateInterface
 {
 
     /**
-     * @var \Buckaroo\Magento2\Api\Data\Ideal\QuoteCreateResponseInterfaceFactory
+     * @var \Buckaroo\Magento2\Api\Data\QuoteCreateResponseInterfaceFactory
      */
     protected $responseFactory;
 
