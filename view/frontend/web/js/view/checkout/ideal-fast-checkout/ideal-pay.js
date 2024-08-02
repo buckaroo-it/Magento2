@@ -31,7 +31,6 @@ define([
                 city: 'Placeholder',
                 country_code: 'NL',
                 postal_code: '00000',
-                state: 'Placeholder',
                 telephone: '0000000000',
             };
         },
@@ -78,7 +77,6 @@ define([
                 city: 'Placeholder',
                 country_id: 'NL',
                 postcode: '00000',
-                region: 'Placeholder',
                 street: ['Placeholder Street'],
                 telephone: '0000000000',
                 firstname: 'Placeholder',

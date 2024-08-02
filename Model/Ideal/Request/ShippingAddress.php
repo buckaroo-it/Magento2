@@ -33,8 +33,6 @@ class ShippingAddress implements ShippingAddressRequestInterface
 
     protected $postal_code;
 
-    protected $state;
-
     protected $telephone;
 
     /** @inheritDoc */
@@ -66,12 +64,6 @@ class ShippingAddress implements ShippingAddressRequestInterface
     }
 
     /** @inheritDoc */
-    public function setState(string $state)
-    {
-        $this->state = $state;
-    }
-
-    /** @inheritDoc */
     public function getCity(): string
     {
         return $this->city;
@@ -87,12 +79,6 @@ class ShippingAddress implements ShippingAddressRequestInterface
     public function getPostalCode(): string
     {
         return $this->postal_code;
-    }
-
-    /** @inheritDoc */
-    public function getState(): string
-    {
-        return $this->state;
     }
 
     /** @inheritDoc */

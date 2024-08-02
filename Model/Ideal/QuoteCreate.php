@@ -164,7 +164,6 @@ class QuoteCreate implements IdealQuoteCreateInterface
         $address->setCountryId($shipping_address->getCountryCode());
         $address->setPostcode($shipping_address->getPostalCode());
         $address->setCity($shipping_address->getCity());
-        $address->setRegion($shipping_address->getState());
         $address->setTelephone($shipping_address->getTelephone());
         $address->setFirstname('unknown');
         $address->setLastname('unknown');
@@ -251,7 +250,6 @@ class QuoteCreate implements IdealQuoteCreateInterface
             $address->setCountryId($shipping_address->getCountryCode());
             $address->setPostcode($shipping_address->getPostalCode());
             $address->setCity($shipping_address->getCity());
-            $address->setRegion($shipping_address->getState());
             $address->setTelephone($shipping_address->getTelephone());
         }
     }

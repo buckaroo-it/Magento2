@@ -356,8 +356,6 @@ class Push implements PushInterface
             $address['country_id'] = "NL";
         }
 
-        $address['state'] = '';
-
         return !empty($address) ? $address : null;
     }
 

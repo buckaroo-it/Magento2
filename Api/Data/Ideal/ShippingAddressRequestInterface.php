@@ -52,15 +52,6 @@ interface ShippingAddressRequestInterface
     public function setPostalCode(string $postal_code);
 
     /**
-     * Set state
-     *
-     * @param string|null $state
-     *
-     * @return void
-     */
-    public function setState(string $state);
-
-    /**
      * Set telephone
      *
      * @param string|null $telephone
@@ -90,13 +81,6 @@ interface ShippingAddressRequestInterface
      * @return string
      */
     public function getPostalCode(): string;
-
-    /**
-     * Get state
-     *
-     * @return string|null
-     */
-    public function getState(): string;
 
     /**
      * Get telephone
