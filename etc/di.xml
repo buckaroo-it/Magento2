@@ -36,11 +36,10 @@
     <preference for="Magento\Ui\Model\Export\ConvertToCsv" type="Buckaroo\Magento2\Model\Export\ConvertToCsv" />
     <preference for="Magento\Sales\Model\Order\CreditmemoFactory" type="Buckaroo\Magento2\Model\Order\CreditmemoFactory" />
 
-
-      <!-- giftcard rest api -->
+    <!-- giftcard rest api -->
     <preference for="Buckaroo\Magento2\Model\Voucher\ApplyVoucherRequestInterface" type="Buckaroo\Magento2\Model\Voucher\ApplyVoucherRequest"/>
     <preference for="Buckaroo\Magento2\Api\ApplyVoucherInterface" type="Buckaroo\Magento2\Model\Voucher\ApplyVoucher"/>
-    <!-- end gifcard rest api -->
+    <!-- end giftcard rest api -->
 
     <!-- giftcard rest api -->
     <preference for="Buckaroo\Magento2\Api\PayWithGiftcardInterface" type="Buckaroo\Magento2\Model\Giftcard\Api\Pay"/>
@@ -51,9 +50,7 @@
     <preference for="Buckaroo\Magento2\Api\Data\Giftcard\GetTransactionsResponseInterface" type="Buckaroo\Magento2\Model\Giftcard\Api\GetTransactionsResponse"/>
     <preference for="Buckaroo\Magento2\Api\Data\Giftcard\PayRequestInterface" type="Buckaroo\Magento2\Model\Giftcard\Api\PayRequest"/>
     <preference for="Buckaroo\Magento2\Api\GiftcardTransactionInterface" type="Buckaroo\Magento2\Model\Giftcard\Api\GetTransactions"/>
-    <!-- end gifcard rest api -->
-
-
+    <!-- end giftcard rest api -->
 
     <preference for="Buckaroo\Magento2\Api\Data\TotalBreakdownInterface" type="Buckaroo\Magento2\Model\Response\TotalBreakdown" />
     <preference for="Buckaroo\Magento2\Api\Data\BreakdownItemInterface" type="Buckaroo\Magento2\Model\Response\BreakdownItem" />
