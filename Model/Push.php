@@ -257,7 +257,13 @@ class Push implements PushInterface
         }
 
         try {
-            return $this->pushProcess();
+            $response = $this->pushProcess();
+
+            if ($this->isFastCheckout()) {
+                $this->updateOrderAddressesIfFastCheckout();
+            }
+
+            return $response;
         } catch (\Throwable $e) {
             $this->logging->addDebug(__METHOD__ . '|Exception|' . $e->getMessage());
             throw $e;
@@ -265,6 +271,135 @@ class Push implements PushInterface
             $this->lockManager->unlockOrder($orderIncrementID);
             $this->logging->addDebug(__METHOD__ . '|Lock released|');
         }
+    }
+
+    /**
+     * Check if the transaction is a fast checkout.
+     *
+     * @return bool
+     */
+    private function isFastCheckout()
+    {
+        return isset($this->postData['brq_service_ideal_transactionflow']) &&
+            $this->postData['brq_service_ideal_transactionflow'] === 'Fast_Checkout';
+    }
+
+    /**
+     * Extract and update order addresses if it's a fast checkout.
+     */
+    private function updateOrderAddressesIfFastCheckout()
+    {
+        $shippingAddress = $this->extractAddress('shippingaddress');
+        $billingAddress = $this->extractAddress('invoiceaddress');
+
+        if ($shippingAddress && $billingAddress) {
+            $this->updateOrderWithAddresses($shippingAddress, $billingAddress);
+        }
+    }
+
+    /**
+     * Extract address from post data based on address type.
+     *
+     * @param string $addressType
+     * @return array|null
+     */
+    private function extractAddress($addressType)
+    {
+        $address = [];
+        $prefix = 'brq_service_ideal_' . $addressType;
+
+        $fieldsMap = [
+            'firstname' => 'firstname',
+            'lastname' => 'lastname',
+            'street' => 'street',
+            'housenumber' => 'housenumber',
+            'postalcode' => 'postcode',
+            'city' => 'city',
+            'countryname' => 'country_id',
+            'phonenumber' => 'telephone',
+            'companyname' => 'company'
+        ];
+
+        foreach ($fieldsMap as $key => $field) {
+            $paramKey = $prefix . $key;
+            if (isset($this->postData[$paramKey])) {
+                $decodedValue = urldecode($this->postData[$paramKey]);
+                $address[$field] = $decodedValue;
+            }
+        }
+
+        // Append house number to street if both are available
+        if (isset($address['street']) && isset($address['housenumber'])) {
+            $address['street'] .= ' ' . $address['housenumber'];
+            unset($address['housenumber']);
+        }
+
+        if (!empty($address['country_id'])) {
+            $address['country_id'] = "NL"; // Adjust as needed
+        }
+
+        return !empty($address) ? $address : null;
+    }
+
+    /**
+     * Update order with extracted shipping and billing addresses.
+     *
+     * @param array $shippingAddress
+     * @param array $billingAddress
+     */
+    private function updateOrderWithAddresses($shippingAddress, $billingAddress)
+    {
+        $orderId = $this->order->getEntityId();
+        if ($orderId) {
+            $this->logging->addDebug(__METHOD__ . '|Updating order addresses|');
+
+            $orderAddressRepository = $this->objectManager->get('\Magento\Sales\Api\OrderAddressRepositoryInterface');
+
+            try {
+                $order = $this->order->load($orderId);
+
+                $orderShippingAddress = $order->getShippingAddress();
+                if ($orderShippingAddress) {
+                    $orderShippingAddress->addData($shippingAddress);
+                    $orderAddressRepository->save($orderShippingAddress);
+                }
+
+                $orderBillingAddress = $order->getBillingAddress();
+                if ($orderBillingAddress) {
+                    $orderBillingAddress->addData($billingAddress);
+                    $orderAddressRepository->save($orderBillingAddress);
+                }
+
+                // Update Customer Information if "NOT LOGGED IN"
+                if ($order->getCustomerGroupId() == \Magento\Customer\Api\Data\GroupInterface::NOT_LOGGED_IN_ID) {
+                    $this->updateGuestCustomerInformation($order, $billingAddress);
+                }
+
+            } catch (\Exception $e) {
+                $this->logging->addDebug(__METHOD__ . '|Failed to update addresses|');
+                $this->logging->addDebug(__METHOD__ . '|' . $e->getMessage());
+            }
+        } else {
+            $this->logging->addDebug(__METHOD__ . '|Order ID not found|');
+        }
+    }
+
+    /**
+     * Update guest customer information.
+     *
+     * @param Order $order
+     * @param array $billingAddress
+     */
+    private function updateGuestCustomerInformation(Order $order, array $billingAddress)
+    {
+        $customerEmail = $this->postData['brq_service_ideal_contactdetailsemail'] ?? null;
+        if ($customerEmail) {
+            $order->setCustomerEmail($customerEmail);
+        }
+
+        $order->setCustomerFirstname($billingAddress['firstname'] ?? $order->getCustomerFirstname());
+        $order->setCustomerLastname($billingAddress['lastname'] ?? $order->getCustomerLastname());
+        $order->save();
     }
 
     private function pushProcess()

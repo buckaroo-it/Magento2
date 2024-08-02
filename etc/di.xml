@@ -72,7 +72,6 @@
     <preference for="Buckaroo\Magento2\Api\Data\Ideal\TotalBreakdownInterface" type="Buckaroo\Magento2\Model\Ideal\Response\TotalBreakdown" />
     <preference for="Buckaroo\Magento2\Api\Data\Ideal\BreakdownItemInterface" type="Buckaroo\Magento2\Model\Ideal\Response\BreakdownItem" />
     <preference for="Buckaroo\Magento2\Api\Data\Ideal\ShippingAddressRequestInterface" type="Buckaroo\Magento2\Model\Ideal\Request\ShippingAddress" />
-    <preference for="Buckaroo\Magento2\Api\Data\Ideal\OrderAddressesInformationManagementInterface" type="Buckaroo\Magento2\Model\Ideal\OrderAddressInformationManagement"/>
     <!-- end ideal-fast-checkout -->
 
 

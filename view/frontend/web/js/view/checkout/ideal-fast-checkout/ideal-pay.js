@@ -113,14 +113,7 @@ define([
                 return;
             }
 
-            const shippingAddress = this.extractShippingAddress(jsonResponse.buckaroo_response);
-            const billingAddress = this.extractBillingAddress(jsonResponse.buckaroo_response);
-
-            if (shippingAddress && billingAddress) {
-                this.updateOrderWithAddresses(jsonResponse, shippingAddress, billingAddress);
-            } else {
-                this.updateOrder(jsonResponse);
-            }
+            this.updateOrder(jsonResponse);
 
             fullScreenLoader.stopLoader();
         },
@@ -150,109 +143,12 @@ define([
             $('.' + paymentData.method).remove();
         },
 
-        extractShippingAddress: function (jsonResponse) {
-            return this.extractAddress(jsonResponse, 'ShippingAddress');
-        },
-
-        extractBillingAddress: function (jsonResponse) {
-            return this.extractAddress(jsonResponse, 'InvoiceAddress');
-        },
-
-        extractAddress: function (jsonResponse, addressType) {
-            if (
-                jsonResponse &&
-                jsonResponse.Services &&
-                jsonResponse.Services.Service &&
-                jsonResponse.Services.Service.ResponseParameter &&
-                Array.isArray(jsonResponse.Services.Service.ResponseParameter)
-            ) {
-                const responseParameters = jsonResponse.Services.Service.ResponseParameter;
-                const address = {};
-
-                responseParameters.forEach((param) => {
-                    switch (param.Name) {
-                        case `${addressType}FirstName`:
-                            address.firstname = param._;
-                            break;
-                        case `${addressType}LastName`:
-                            address.lastname = param._;
-                            break;
-                        case `${addressType}Street`:
-                            address.street = [param._];
-                            break;
-                        case `${addressType}HouseNumber`:
-                            if (!address.street) {
-                                address.street = [];
-                            }
-                            address.street[0] += ' ' + param._;
-                            break;
-                        case `${addressType}PostalCode`:
-                            address.postcode = param._;
-                            break;
-                        case `${addressType}City`:
-                            address.city = param._;
-                            break;
-                        case `${addressType}CountryName`:
-                            address.country_id = "NL";
-                            break;
-                        case `${addressType}PhoneNumber`:
-                            address.telephone = param._;
-                            break;
-                        case `${addressType}CompanyName`:
-                            address.company = param._;
-                            break;
-                    }
-                });
-
-                return address;
-            } else {
-                return null;
-            }
-        },
-
-        updateOrderWithAddresses: function (jsonResponse, shippingAddress, billingAddress) {
-            const orderId = jsonResponse.order_id;
-
-            if (orderId) {
-                this.updateOrderAddresses(orderId, shippingAddress, billingAddress)
-                    .done(() => {
-                        if (jsonResponse.buckaroo_response.RequiredAction && jsonResponse.buckaroo_response.RequiredAction.RedirectURL) {
-                            window.location.replace(jsonResponse.buckaroo_response.RequiredAction.RedirectURL);
-                        } else {
-                            window.location.replace(urlBuilder.build('checkout/onepage/success'));
-                        }
-                    })
-                    .fail(() => {
-                        this.displayErrorMessage($t('Failed to update the addresses.'));
-                    });
-            } else {
-                this.displayErrorMessage($t('Order ID not found in response.'));
-            }
-        },
-
         updateOrder: function (jsonResponse) {
-            const orderId = jsonResponse.order_id;
-
-            if (orderId) {
-                if (jsonResponse.buckaroo_response.RequiredAction && jsonResponse.buckaroo_response.RequiredAction.RedirectURL) {
-                    window.location.replace(jsonResponse.buckaroo_response.RequiredAction.RedirectURL);
-                } else {
-                    window.location.replace(urlBuilder.build('checkout/onepage/success'));
-                }
+            if (jsonResponse.buckaroo_response.RequiredAction && jsonResponse.buckaroo_response.RequiredAction.RedirectURL) {
+                window.location.replace(jsonResponse.buckaroo_response.RequiredAction.RedirectURL);
             } else {
-                this.displayErrorMessage($t('Order ID not found in response.'));
+                window.location.replace(urlBuilder.build('checkout/onepage/success'));
             }
-        },
-
-        updateOrderAddresses: function (orderId, shippingAddress, billingAddress) {
-            var serviceUrl = urlBuilder.build(`rest/V1/buckaroo/ideal/orders/${orderId}/addresses`);
-            return storage.post(
-                serviceUrl,
-                JSON.stringify({
-                    shippingAddress: shippingAddress,
-                    billingAddress: billingAddress
-                })
-            );
         },
 
         displayErrorMessage: function (message) {

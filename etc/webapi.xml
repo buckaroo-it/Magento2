@@ -78,14 +78,6 @@
         </resources>
     </route>
 
-
-    <route url="/V1/buckaroo/ideal/orders/:orderId/addresses" method="POST">
-        <service class="Buckaroo\Magento2\Api\Data\Ideal\OrderAddressesInformationManagementInterface" method="updateAddressInformation"/>
-        <resources>
-            <resource ref="anonymous" />
-        </resources>
-    </route>
-
     <route url="/V1/buckaroo/voucher/apply" method="POST">
         <service class="Buckaroo\Magento2\Api\ApplyVoucherInterface" method="apply"/>
         <resources>
