@@ -356,7 +356,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     {
         if ($data instanceof \Magento\Framework\DataObject) {
             $additionalSkip = $data->getAdditionalData();
-            
+
             if (isset($additionalSkip[self::PAYMENT_FROM])) {
                 $this->getInfoInstance()->setAdditionalInformation(self::PAYMENT_FROM, $additionalSkip[self::PAYMENT_FROM]);
             }
@@ -727,7 +727,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         if (method_exists($this, 'validateAdditionalData')) {
-            $this->validateAdditionalData();
+            $this->validateAdditionalData($payment);
         }
 
         parent::order($payment, $amount);
@@ -750,6 +750,9 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         $transaction = $transactionBuilder->build();
+        if($transactionBuilder->getServices()['Action'] == 'PayFastCheckout'){
+            $transaction->setData('Order', '');
+        }
 
         try {
             $response = $this->orderTransaction($transaction);
@@ -968,7 +971,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         if (method_exists($this, 'validateAdditionalData')) {
-            $this->validateAdditionalData();
+            $this->validateAdditionalData($payment);
         }
 
         parent::authorize($payment, $amount);
@@ -2785,7 +2788,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         } catch (\Throwable $th) {
             $this->logger2->addError(__METHOD__." ".(string)$th);
         }
-        
+
     }
 
     /**
@@ -2866,7 +2869,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         $limit = $this->getConfigData('spam_attempts');
-        
+
         if(!is_scalar($limit)) {
             $limit = 10;
         }
@@ -2895,11 +2898,11 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         if($storage === null) {
             return [];
-        } 
+        }
 
         $storage = json_decode($storage, true);
 
-        
+
         if(!is_array($storage)) {
             $storage = [];
         }

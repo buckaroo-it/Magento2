@@ -105,7 +105,10 @@ class PaymentInformationManagement extends MagentoPaymentInformationManagement i
         $this->logger->debug('-------------------------------------------------');
 
         if ($this->registry && $this->registry->registry('buckaroo_response')) {
-            return json_encode($this->registry->registry('buckaroo_response')[0]);
+            return json_encode([
+                "buckaroo_response" => $this->registry->registry('buckaroo_response')[0],
+                "order_id" => $orderId
+            ]);
         }
         return json_encode([
             "limitReachedMessage" => $this->getLimitReachedMessage($orderId),

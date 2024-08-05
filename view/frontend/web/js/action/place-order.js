@@ -106,13 +106,13 @@ define(
             ).done(
                 function (response) {
                     let jsonResponse = $.parseJSON(response);
-                    if (typeof jsonResponse === 'object' && typeof jsonResponse.limitReachedMessage === 'string') {
+                    if (typeof jsonResponse === 'object' && jsonResponse.buckaroo_response && typeof jsonResponse.buckaroo_response.limitReachedMessage === 'string') {
                         alert({
                             title: $t('Error'),
-                            content: $t(jsonResponse.limitReachedMessage),
+                            content: $t(jsonResponse.buckaroo_response.limitReachedMessage),
                             buttons: [{
-                            text: $t('Close'),
-                            class: 'action primary accept',
+                                text: $t('Close'),
+                                class: 'action primary accept',
                                 click: function () {
                                     this.closeModal(true);
                                 }
@@ -122,7 +122,7 @@ define(
                     } else if (redirectOnSuccess) {
                         window.location.replace(url.build('checkout/onepage/success/'));
                     }
-                    window.checkoutConfig.payment.buckaroo.response = response;
+                    window.checkoutConfig.payment.buckaroo.response = jsonResponse.buckaroo_response;
                     fullScreenLoader.stopLoader();
                 }
             ).fail(
