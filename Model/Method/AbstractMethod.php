@@ -750,7 +750,9 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         $transaction = $transactionBuilder->build();
-        if($transactionBuilder->getServices()['Action'] == 'PayFastCheckout'){
+
+        $services = $transactionBuilder->getServices();
+        if (isset($services['Action']) && $services['Action'] == 'PayFastCheckout') {
             $transaction->setData('Order', '');
         }
 
