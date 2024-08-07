@@ -1694,6 +1694,12 @@ class Push implements PushInterface
         if ($invoiceHandlingConfig == InvoiceHandlingOptions::SHIPMENT) {
             $payment->setAdditionalInformation(InvoiceHandlingOptions::INVOICE_HANDLING, $invoiceHandlingConfig);
             $payment->save();
+
+            if($this->hasPostData('brq_transaction_method', 'transfer')){
+                $this->order->setIsInProcess(true);
+                $this->order->save();
+            }
+
             return true;
         }
 
