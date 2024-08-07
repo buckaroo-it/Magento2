@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,23 +18,25 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace Buckaroo\Magento2\Api\Data\PaypalExpress;
 
-use Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterface;
+namespace Buckaroo\Magento2\Api;
 
-interface QuoteCreateResponseInterface extends BreakdownItemInterface
+use Buckaroo\Magento2\Api\Data\QuoteCreateResponseInterface;
+use Buckaroo\Magento2\Api\Data\Ideal\ShippingAddressRequestInterface;
+
+interface IdealQuoteCreateInterface
 {
     /**
-     * Get order breakdown
+     * Get order breakdown after shipping is applied
      *
-     * @return \Buckaroo\Magento2\Api\Data\PaypalExpress\TotalBreakdownInterface
+     * @param ShippingAddressRequestInterface $shipping_address
+     * @param string $page
+     * @param string|null $order_data
+     * @return QuoteCreateResponseInterface
      */
-    public function getBreakdown();
-
-    /**
-     * Get masked cart id
-     *
-     * @return string
-     */
-    public function getCartId();
+    public function execute(
+        ShippingAddressRequestInterface $shipping_address,
+        string $page,
+        string $order_data = null
+    );
 }

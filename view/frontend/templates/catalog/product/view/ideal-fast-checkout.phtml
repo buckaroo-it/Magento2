@@ -1,0 +1,45 @@
+<?php
+if ($block->canShowProductButton()): ?>
+    <button id="fast-checkout-ideal-btn">
+        <img src=" <?php echo $block->escapeHtml($block->getLogo()) ?>" alt="Ideal Snel bestellen"/>
+    </button>
+
+    <script>
+        require(['jquery', 'buckaroo/ideal-fast-checkout/pay'], function ($, fastCheckout) {
+            $('#fast-checkout-ideal-btn').click(function () {
+                var productData = {
+                    qty: $('#qty').val(),
+                    page: 'product',
+                    paymentData: {
+                        method: 'buckaroo_magento2_ideal',
+                        additional_data: {
+                            issuer : 'fastcheckout'
+                        }
+                    }
+                };
+
+                fastCheckout.createQuoteAndPlaceOrder(productData);
+            });
+        });
+    </script>
+
+    <style>
+        #fast-checkout-ideal-btn {
+            height: 45px;
+            padding: 0;
+            border: none;
+            background: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        #fast-checkout-ideal-btn img {
+            max-height: 100%;
+            max-width: 100%;
+            display: block;
+            margin: auto;
+        }
+    </style>
+<?php endif; ?>

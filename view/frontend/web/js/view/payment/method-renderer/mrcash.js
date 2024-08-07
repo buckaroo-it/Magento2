@@ -59,7 +59,7 @@ define(
         );
         $.validator.addMethod('bkValidateYear', function (value) {
                 if(value.length === 0) {
-                    return false; 
+                    return false;
                 }
                 const parts = value.split("/");
                 return BuckarooClientSideEncryption.V001.validateYear(parts[1]);
@@ -68,7 +68,7 @@ define(
         );
         $.validator.addMethod('bkValidateMonth', function (value) {
                 if(value.length === 0) {
-                    return false; 
+                    return false;
                 }
 
                 const parts = value.split("/");
@@ -99,8 +99,8 @@ define(
                 isTestMode: window.checkoutConfig.payment.buckaroo.mrcash.isTestMode,
 
                 /**
-                * @override
-                */
+                 * @override
+                 */
                 initialize : function (options) {
                     if (checkoutData.getSelectedPaymentMethod() == options.index) {
                         window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
@@ -111,7 +111,7 @@ define(
 
                 },
 
-               
+
 
                 initObservable: function () {
                     /** Observed fields **/
@@ -152,19 +152,19 @@ define(
                             if(expireDate.length) {
                                 return expireDate.replace(
                                     /^([1-9]\/|[2-9])$/g, '0$1/' // 3 > 03/
-                                  ).replace(
+                                ).replace(
                                     /^(0[1-9]|1[0-2])$/g, '$1/' // 11 > 11/
-                                  ).replace(
+                                ).replace(
                                     /^([0-1])([3-9])$/g, '0$1/$2' // 13 > 01/3
-                                  ).replace(
+                                ).replace(
                                     /^(0?[1-9]|1[0-2])([0-9]{2})$/g, '$1/$2' // 141 > 01/41
-                                  ).replace(
+                                ).replace(
                                     /^([0]+)\/|[0]+$/g, '0' // 0/ > 0 and 00 > 0
-                                  ).replace(
+                                ).replace(
                                     /[^\d\/]|^[\/]*$/g, '' // To allow only digits and `/`
-                                  ).replace(
+                                ).replace(
                                     /\/\//g, '/' // Prevent entering more than 1 `/`
-                                  );
+                                );
                             }
                             return '';
                         },
@@ -218,15 +218,15 @@ define(
                 setClientSideMode: function (mode) {
                     this.clientSideMode(mode)
                 },
-                 /**
+                /**
                  * Place order.
                  *
                  * placeOrderAction has been changed from Magento_Checkout/js/action/place-order to our own version
                  * (Buckaroo_Magento2/js/action/place-order) to prevent redirect and handle the response.
                  */
-                 placeOrder: function (data, event) {
+                placeOrder: function (data, event) {
                     var self = this,
-                    placeOrder;
+                        placeOrder;
 
                     if (event) {
                         event.preventDefault();
@@ -236,7 +236,7 @@ define(
                         this.isPlaceOrderActionAllowed(false);
                         this.encryptCardData().then(function() {
                             placeOrder = placeOrderAction(self.getData(), self.redirectAfterPlaceOrder, self.messageContainer);
-    
+
                             $.when(placeOrder).fail(
                                 function () {
                                     self.isPlaceOrderActionAllowed(true);
@@ -254,7 +254,6 @@ define(
 
                 afterPlaceOrder: function () {
                     var response = window.checkoutConfig.payment.buckaroo.response;
-                    response = $.parseJSON(response);
                     if (response.RequiredAction !== undefined && response.RequiredAction.RedirectURL !== undefined) {
                         if (this.isMobileMode()) {
                             var data =  {};
@@ -293,13 +292,13 @@ define(
                     return text.replace('%s', this.baseCurrencyCode);
                 },
                 setTestParameters() {
-                        if (this.useClientSide && this.isTestMode) {
+                    if (this.useClientSide && this.isTestMode) {
                         this.cardNumber('67034200554565015')
                         this.cardHolderName('Test Acceptation')
                         this.expireDate('01/' + (new Date(new Date().setFullYear(new Date().getFullYear() + 1)).getFullYear().toString().substr(-2)))
                     }
                 }
-                
+
             }
         );
     }

@@ -19,18 +19,18 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace Buckaroo\Magento2\Model\PaypalExpress\Response;
+namespace Buckaroo\Magento2\Model\Response;
 
+use Buckaroo\Magento2\Api\Data\QuoteCreateResponseInterface;
+use Buckaroo\Magento2\Api\Data\TotalBreakdownInterfaceFactory;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\QuoteIdMaskFactory;
-use Buckaroo\Magento2\Api\Data\PaypalExpress\QuoteCreateResponseInterface;
-use Buckaroo\Magento2\Api\Data\PaypalExpress\TotalBreakdownInterfaceFactory;
 use Magento\Quote\Model\ResourceModel\Quote\QuoteIdMask as QuoteIdMaskResource;
 
 class QuoteCreate implements QuoteCreateResponseInterface
 {
     /**
-     * @var \Buckaroo\Magento2\Api\Data\PaypalExpress\TotalBreakdownInterfaceFactory
+     * @var \Buckaroo\Magento2\Api\Data\TotalBreakdownInterfaceFactory
      */
     protected $totalBreakdownFactory;
 

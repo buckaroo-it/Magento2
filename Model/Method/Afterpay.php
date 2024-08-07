@@ -26,6 +26,7 @@ use Magento\Catalog\Model\Product\Type;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Framework\App\RequestInterface;
+use Magento\Framework\Phrase;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Quote\Model\Quote\AddressFactory;
 use Magento\Sales\Api\Data\CreditmemoInterface;
@@ -97,6 +98,26 @@ class Afterpay extends AbstractMethod
      * @var bool
      */
     public $closeAuthorizeTransaction   = false;
+
+    /**
+     * Get text for Discount on
+     *
+     * @return Phrase
+     */
+    public function getDiscountOn() :Phrase
+    {
+        return __('Discount on');
+    }
+
+    /**
+     * Get text for Discount
+     *
+     * @return Phrase
+     */
+    public function getDiscount() : Phrase
+    {
+        return __('Discount');
+    }
 
     /**
      * {@inheritdoc}
@@ -502,7 +523,7 @@ class Afterpay extends AbstractMethod
                 $count++;
                 $article = $this->getArticleArrayLine(
                     $count,
-                    'Korting op '. $item->getName(),
+                    $this->getDiscountOn() . ' ' . $item->getName(),
                     $item->getProductId(),
                     1,
                     number_format(($item->getDiscountAmount()*-1), 2),
@@ -646,7 +667,7 @@ class Afterpay extends AbstractMethod
 
         $article = $this->getArticleArrayLine(
             $latestKey,
-            'Korting',
+            (string)$this->getDiscount(),
             1,
             1,
             round($discount, 2),

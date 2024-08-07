@@ -27,6 +27,7 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\DataObject;
+use Magento\Framework\Phrase;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
@@ -415,6 +416,16 @@ class Capayable extends AbstractMethod
     }
 
     /**
+     * Get text for Discount
+     *
+     * @return Phrase
+     */
+    public function getDiscount() : Phrase
+    {
+        return __('Discount');
+    }
+
+    /**
      * @param OrderInterface $order
      * @param int            $groupId
      *
@@ -434,7 +445,7 @@ class Capayable extends AbstractMethod
         }
 
         $discount = (-1 * round($discount, 2));
-        $discountLineData[] = $this->getRequestParameterRow('Korting', 'Name', 'SubtotalLine', $groupId);
+        $discountLineData[] = $this->getRequestParameterRow((string)$this->getDiscount(), 'Name', 'SubtotalLine', $groupId);
         $discountLineData[] = $this->getRequestParameterRow($discount, 'Value', 'SubtotalLine', $groupId);
 
         return $discountLineData;
