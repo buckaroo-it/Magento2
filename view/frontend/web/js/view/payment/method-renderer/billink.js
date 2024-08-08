@@ -31,8 +31,6 @@ define(
         'buckaroo/checkout/common',
         'buckaroo/checkout/datepicker',
         'Magento_Ui/js/lib/knockout/bindings/datepicker'
-        /*,
-         'jquery/validate'*/
     ],
     function (
         $,
@@ -49,23 +47,23 @@ define(
         'use strict';
 
         $.validator.addMethod('validateAge', function (value) {
-            if (value && (value.length > 0)) {
-                var dateReg = /^\d{2}[./-]\d{2}[./-]\d{4}$/;
-                if (value.match(dateReg)) {
-                    var birthday = +new Date(
-                        value.substr(6, 4),
-                        value.substr(3, 2) - 1,
-                        value.substr(0, 2),
-                        0, 0, 0
-                    );
-                    return ~~((Date.now() - birthday) / (31557600000)) >= 18;
+                if (value && (value.length > 0)) {
+                    var dateReg = /^\d{2}[./-]\d{2}[./-]\d{4}$/;
+                    if (value.match(dateReg)) {
+                        var birthday = +new Date(
+                            value.substr(6, 4),
+                            value.substr(3, 2) - 1,
+                            value.substr(0, 2),
+                            0, 0, 0
+                        );
+                        return ~~((Date.now() - birthday) / (31557600000)) >= 18;
+                    }
                 }
-            }
-            return false;
-        },
-        $.mage.__('You should be at least 18 years old.')
+                return false;
+            },
+            $.mage.__('You should be at least 18 years old.')
         );
-        
+
         const validPhone = function (value) {
             if (quote.billingAddress() === null) {
                 return false;
@@ -115,7 +113,6 @@ define(
             $.mage.__('Phone number should be correct.')
         );
 
-
         return Component.extend(
             {
                 defaults                : {
@@ -144,7 +141,6 @@ define(
                 currentCustomerAddressId : null,
                 genderList: window.checkoutConfig.payment.buckaroo.billink.genderList,
                 dp: datePicker,
-                isB2B: window.checkoutConfig.payment.buckaroo.billink.b2b == true,
 
                 /**
                  * @override
@@ -175,14 +171,14 @@ define(
                     this.showFinancialWarning = ko.computed(
                         function () {
                             return quote.billingAddress() !== null &&
-                            quote.billingAddress().countryId == 'NL' &&
-                            window.checkoutConfig.payment.buckaroo.billink.showFinancialWarning
+                                quote.billingAddress().countryId == 'NL' &&
+                                window.checkoutConfig.payment.buckaroo.billink.showFinancialWarning
                         },
                         this
                     );
                     this.billingName = ko.computed(
                         function () {
-                            if(this.isB2B && quote.billingAddress() !== null) {
+                            if(this.isB2B() && quote.billingAddress() !== null) {
                                 return quote.billingAddress().company;
                             }
                             if(quote.billingAddress() !== null) {
@@ -204,18 +200,18 @@ define(
                             return (
                                 quote.billingAddress() === null ||
                                 !validPhone(quote.billingAddress().telephone)
-                            ) && !this.isB2B;
+                            ) && !this.isB2B();
                         },
                         this
                     );
-      
+
                     this.dob.subscribe(function() {
                         const dobId = 'buckaroo_magento2_billink_DoB';
                         const isValid = $(`#${dobId}`).valid();
                         let state = this.validationState();
                         state[dobId] = isValid;
                         this.validationState(state);
-                     }, this);
+                    }, this);
 
                     this.buttoncheck = ko.computed(
                         function () {
@@ -251,10 +247,10 @@ define(
                     ];
                     if(this.showPhone()) {
                         fields.push('buckaroo_magento2_billink_Telephone')
-                    } 
-                    
-                    if(this.isB2B) {
-                       fields.push('buckaroo_magento2_billink_chamberOfCommerce')
+                    }
+
+                    if(this.isB2B()) {
+                        fields.push('buckaroo_magento2_billink_chamberOfCommerce')
                     } else {
                         fields = fields.concat([
                             'buckaroo_magento2_billink_DoB',
@@ -313,25 +309,36 @@ define(
                     return true;
                 },
 
+                isB2B: function () {
+                    const billingAddress = quote.billingAddress();
+                    return billingAddress && billingAddress.company;
+                },
+
                 getData: function () {
                     let phone = this.phone();
                     if(!this.showPhone() && quote.billingAddress() !== null) {
                         phone = quote.billingAddress().telephone;
                     }
 
+                    let additionalData = {
+                        "customer_telephone": phone,
+                        "customer_gender": this.selectedGender(),
+                        "customer_DoB": this.dob(),
+                        "termsCondition": this.tos(),
+                    };
+
+                    if (this.isB2B()) {
+                        additionalData["customer_chamberOfCommerce"] = this.cocNumber();
+                        additionalData["customer_VATNumber"] = this.vatNumber();
+                    }
+
                     return {
                         "method": this.item.method,
                         "po_number": null,
-                        "additional_data": {
-                            "customer_telephone" : phone,
-                            "customer_gender" : this.selectedGender(),
-                            "customer_chamberOfCommerce" : this.cocNumber(),
-                            "customer_VATNumber" : this.vatNumber(),
-                            "customer_DoB" : this.dob(),
-                            "termsCondition": this.tos(),
-                        }
+                        "additional_data": additionalData
                     };
                 }
+
             }
         );
     }
