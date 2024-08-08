@@ -84,4 +84,9 @@ class Knaken extends AbstractMethod
     {
         return $this->buckarooPaymentMethodCode;
     }
+
+    protected function getRefundTransactionBuilderChannel()
+    {
+        return 'Web';
+    }
 }
