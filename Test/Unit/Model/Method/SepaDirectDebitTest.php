@@ -29,7 +29,7 @@ use Buckaroo\Magento2\Gateway\Http\TransactionBuilder\Order as TransactionOrder;
 use Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory;
 use Buckaroo\Magento2\Model\Method\SepaDirectDebit;
 use Buckaroo\Magento2\Service\CreditManagement\ServiceParameters;
-use Zend\Validator\Iban;
+use Laminas\Validator\Iban;
 
 class SepaDirectDebitTest extends \Buckaroo\Magento2\Test\BaseTest
 {
