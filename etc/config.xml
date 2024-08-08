@@ -50,6 +50,7 @@
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
                 <show_issuers>1</show_issuers>
+                <ideal_logo_colors>Dark</ideal_logo_colors>
             </buckaroo_magento2_ideal>
 
             <buckaroo_magento2_paybybank>

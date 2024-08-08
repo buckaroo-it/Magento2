@@ -17,21 +17,24 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace Buckaroo\Magento2\Api\Data\PaypalExpress;
+namespace Buckaroo\Magento2\Model\Ideal;
 
-interface BreakdownItemInterface
+interface QuoteBuilderInterface
 {
-    /**
-     * Get currency code
-     *
-     * @return string
-     */
-    public function getCurrencyCode();
 
     /**
-     * Get amount
+     * Set form data
      *
-     * @return string
+     * @param string $formData
+     *
+     * @return void
      */
-    public function getValue();
+    public function setFormData(string $formData);
+
+    /**
+     * Build quote from form data and session
+     *
+     * @return \Magento\Quote\Model\Quote
+     */
+    public function build();
 }

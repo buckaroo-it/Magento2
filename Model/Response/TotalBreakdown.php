@@ -19,18 +19,18 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace Buckaroo\Magento2\Model\PaypalExpress\Response;
+namespace Buckaroo\Magento2\Model\Response;
 
-use Magento\Quote\Model\Quote;
+use Buckaroo\Magento2\Api\Data\BreakdownItemInterfaceFactory;
+use Buckaroo\Magento2\Api\Data\TotalBreakdownInterface;
 use Magento\Quote\Model\Cart\CartTotalRepository;
-use Buckaroo\Magento2\Api\Data\PaypalExpress\TotalBreakdownInterface;
-use Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterfaceFactory;
+use Magento\Quote\Model\Quote;
 
 class TotalBreakdown implements TotalBreakdownInterface
 {
 
     /**
-     *  @var \Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterfaceFactory
+     *  @var \Buckaroo\Magento2\Api\Data\BreakdownItemInterfaceFactory
      */
     protected $breakdownItemFactory;
 
@@ -52,7 +52,7 @@ class TotalBreakdown implements TotalBreakdownInterface
         $this->cartTotalRepository = $cartTotalRepository;
     }
     /**
-     * @return \Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterface
+     * @return \Buckaroo\Magento2\Api\Data\BreakdownItemInterface
      */
     public function getItemTotal()
     {
@@ -64,7 +64,7 @@ class TotalBreakdown implements TotalBreakdownInterface
         );
     }
     /**
-     * @return \Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterface
+     * @return \Buckaroo\Magento2\Api\Data\BreakdownItemInterface
      */
     public function getShipping()
     {
@@ -76,7 +76,7 @@ class TotalBreakdown implements TotalBreakdownInterface
         );
     }
     /**
-     * @return \Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterface
+     * @return \Buckaroo\Magento2\Api\Data\BreakdownItemInterface
      */
     public function getTaxTotal()
     {

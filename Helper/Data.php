@@ -463,20 +463,8 @@ class Data extends AbstractHelper
             $configProvider = $this->configProviderMethodFactory->get($paymentMethodCode);
             $configCustomerGroup = $configProvider->getSpecificCustomerGroup();
 
-            if (!$forceB2C
-                && (
-                    ($paymentMethodCode == 'billink')
-                    || (
-                        (($paymentMethodCode == 'afterpay') || ($paymentMethodCode == 'afterpay2'))
-                        && ($configProvider->getBusiness() == Business::BUSINESS_B2B)
-                    )
-                    || (
-                        ($paymentMethodCode == 'payperemail') && ($configProvider->getEnabledB2B())
-                    )
-                )
-            ) {
+            if (!$forceB2C && $this->isBusinessCustomer($paymentMethodCode, $configProvider)) {
                 $configCustomerGroup = $configProvider->getSpecificCustomerGroupB2B();
-
             }
 
             if ($configCustomerGroup === null) {
@@ -501,6 +489,20 @@ class Data extends AbstractHelper
         }
 
         return true;
+    }
+
+    private function isBusinessCustomer(string $paymentMethodCode, $configProvider): bool
+    {
+        return (
+            ($paymentMethodCode == 'billink') ||
+            (
+                (($paymentMethodCode == 'afterpay') || ($paymentMethodCode == 'afterpay2')) &&
+                ($configProvider->getBusiness() == Business::BUSINESS_B2B)
+            ) ||
+            (
+                ($paymentMethodCode == 'payperemail') && ($configProvider->getEnabledB2B())
+            )
+        );
     }
 
     private function checkCustomerGroupAdminArea(array $configCustomerGroupArr): bool

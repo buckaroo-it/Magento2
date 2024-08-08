@@ -62,23 +62,36 @@ class Ideal extends AbstractMethod
     public function getOrderTransactionBuilder($payment)
     {
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
+        if ($this->isFastCheckout($payment)) {
+            $services = [
+                'Name'             => 'ideal',
+                'Action'           => $this->getPayRemainder($payment, $transactionBuilder,'PayFastCheckout'),
+                'Version'          => 2,
+            ];
 
-        $services = [
-            'Name'             => 'ideal',
-            'Action'           => $this->getPayRemainder($payment, $transactionBuilder),
-            'Version'          => 2,
-            'RequestParameter' => $this->getOrderRequestParameters($payment),
-        ];
+            /**
+             * @noinspection PhpUndefinedMethodInspection
+             */
+            $transactionBuilder->setOrder($payment->getOrder())
+                ->setServices($services)
+                ->setMethod('TransactionRequest');
+        }else{
+            $services = [
+                'Name'             => 'ideal',
+                'Action'           => $this->getPayRemainder($payment, $transactionBuilder),
+                'Version'          => 2,
+                'RequestParameter' => $this->getOrderRequestParameters($payment),
+            ];
+            /**
+             * @noinspection PhpUndefinedMethodInspection
+             */
+            $transactionBuilder->setOrder($payment->getOrder())
+                ->setServices($services)
+                ->setMethod('TransactionRequest');
 
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $transactionBuilder->setOrder($payment->getOrder())
-            ->setServices($services)
-            ->setMethod('TransactionRequest');
-
-        if (!$this->canShowIssuers()) {
-            $transactionBuilder->setCustomVars(['ContinueOnIncomplete' => 'RedirectToHTML']);
+            if (!$this->canShowIssuers()) {
+                $transactionBuilder->setCustomVars(['ContinueOnIncomplete' => 'RedirectToHTML']);
+            }
         }
 
         return $transactionBuilder;
@@ -136,12 +149,26 @@ class Ideal extends AbstractMethod
     }
 
     /**
+     * Check if the order request parameters indicate a fast checkout.
+     *
+     * @return bool
+     */
+    private function isFastCheckout($payment): bool
+    {
+        return $payment->getAdditionalInformation('issuer') === 'fastcheckout';
+    }
+
+    /**
      * Validate that we received a valid issuer ID.
      *
      * @return $this
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function validateAdditionalData() {
+    public function validateAdditionalData($payment) {
+
+        if ($this->isFastCheckout($payment)) {
+            return $this;
+        }
 
         /**
          * @var IdealConfig $config
@@ -151,7 +178,7 @@ class Ideal extends AbstractMethod
         $paymentInfo = $this->getInfoInstance();
 
         $chosenIssuer = $paymentInfo->getAdditionalInformation('issuer');
-        
+
         if (!$chosenIssuer) {
             if ($content = $this->request->getContent()) {
                 $jsonDecode = $this->helper->getJson()->unserialize($content);
@@ -175,6 +202,7 @@ class Ideal extends AbstractMethod
         }
 
         return $this;
+
     }
 
     /**

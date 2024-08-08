@@ -58,17 +58,35 @@ class PaypalExpress extends Template
     }
     public function canShowProductButton()
     {
-        return $this->paypalConfig->canShowButtonForPage(
-            'Product',
-            $this->_storeManager->getStore()
-        );
+        if ($this->isModuleActive()){
+            return $this->paypalConfig->canShowButtonForPage(
+                'Product',
+                $this->_storeManager->getStore()
+            );
+        }
+        return false;
     }
+
     public function canShowCartButton()
     {
-        return $this->paypalConfig->canShowButtonForPage(
-            'Cart',
-            $this->_storeManager->getStore()
-        );
+        if ($this->isModuleActive()){
+            return $this->paypalConfig->canShowButtonForPage(
+                'Cart',
+                $this->_storeManager->getStore()
+            );
+        }
+        return false;
+    }
+
+    /**
+     * Check if Buckaroo module is active
+     *
+     * @return bool
+     */
+    public function isModuleActive()
+    {
+        $status = $this->configProviderAccount->getActive();
+        return $status == 1 || $status == 2;
     }
     /**
      * Get all data required
