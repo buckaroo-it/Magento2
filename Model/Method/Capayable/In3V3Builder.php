@@ -177,7 +177,7 @@ class In3V3Builder
         $order = $payment->getOrder();
         $products = $this->getProducts($order->getAllItems());
 
-        $costs =  array_merge(
+        $costs = array_merge(
             $this->getDiscountLine($order),
             $this->getFeeLine($order),
             $this->getShippingCostsLine($order)
@@ -185,17 +185,14 @@ class In3V3Builder
 
         $articles = array_merge(
             $products,
-            count($costs) ? $costs: []
+            count($costs) ? $costs : []
         );
 
         $roundingErrors = $this->getRoundingErrors($payment, $articles);
-        if(is_array($roundingErrors)) {
-            $articles = array_merge(
-                $articles,
-                [$roundingErrors]
-            );
+        if ($roundingErrors !== null) {
+            $articles[] = $roundingErrors;
         }
-        
+
         return $this->formatArticle($articles);
     }
 
@@ -236,13 +233,13 @@ class In3V3Builder
             return null;
         }
 
-        return [[
+        return [
             'id' => 'rounding_errors',
             'description'=> 'Rounding Errors',
             'qty' => 1,
             'price' => $amount,
             'vat' => 0,
-        ]];
+        ];
     }
 
     /**
