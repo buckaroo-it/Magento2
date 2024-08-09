@@ -146,7 +146,7 @@ class Creditcards extends AbstractMethod
     {
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
 
-        $serviceAction = $this->getPayRemainder($payment, $transactionBuilder, 'PayEncrypted', 'PayRemainderEncrypted');
+        $serviceAction = $this->getPayRemainder($payment, $transactionBuilder, 'PayWithToken', 'PayRemainderEncrypted');
 
         $services = [];
         $services[] = $this->getCreditcardsService($payment, $serviceAction);
@@ -192,11 +192,11 @@ class Creditcards extends AbstractMethod
         $services = [
             'Name'             => $additionalInformation['customer_creditcardcompany'],
             'Action'           => $serviceAction,
-            'Version'          => 2,
+            'Version'          => 0,
             'RequestParameter' => [
                 [
                     '_'    => $additionalInformation['customer_encrypteddata'],
-                    'Name' => 'EncryptedCardData',
+                    'Name' => 'SessionId',
                 ],
             ],
         ];

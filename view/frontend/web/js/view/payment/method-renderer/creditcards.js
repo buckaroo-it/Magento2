@@ -48,7 +48,8 @@ define(
         return Component.extend({
             defaults: {
                 template: 'Buckaroo_Magento2/payment/buckaroo_magento2_creditcards',
-                encryptedCardData: null
+                encryptedCardData: null,
+                service: null
             },
             paymentFeeLabel: window.checkoutConfig.payment.buckaroo.creditcards.paymentFeeLabel,
             subtext: window.checkoutConfig.payment.buckaroo.creditcards.subtext,
@@ -132,11 +133,12 @@ define(
                 const init = async function () {
                     try {
                         var sdkClient = new BuckarooHostedFieldsSdk.HFClient(accessToken);
-
+                        let service = "";
                         await sdkClient.startSession(function (event) {
                             sdkClient.handleValidation(event, 'cc-name-error', 'cc-number-error', 'cc-expiry-error', 'cc-cvc-error');
 
                             let payButton = document.getElementById("pay");
+
                             if (payButton) {
                                 let disabled = !sdkClient.formIsValid();
                                 payButton.disabled = disabled;
@@ -150,6 +152,8 @@ define(
                                     payButton.style.opacity = "";
                                 }
                             }
+
+                            service = sdkClient.getService();
                         });
 
                         let styling = {
@@ -208,7 +212,8 @@ define(
                                 try {
                                     let paymentToken = await sdkClient.submitSession();
                                     self.encryptedCardData = paymentToken;
-                                    self.placeOrder(null, event);
+                                    self.service = service;
+                                    self.finalizePlaceOrder(event);
                                 } catch (error) {
                                     console.error("Error during payment submission:", error);
                                 }
@@ -228,7 +233,7 @@ define(
              * placeOrderAction has been changed from Magento_Checkout/js/action/place-order to our own version
              * (Buckaroo_Magento2/js/action/place-order) to prevent redirect and handle the response.
              */
-            placeOrder: function (data, event) {
+            finalizePlaceOrder: function (event) {
                 var self = this,
                     placeOrder;
 
@@ -261,7 +266,7 @@ define(
                     "po_number": null,
                     "additional_data": {
                         "customer_encrypteddata": this.encryptedCardData,
-                        "customer_creditcardcompany": 'Visa'
+                        "customer_creditcardcompany": this.service
                     }
                 }
             },
