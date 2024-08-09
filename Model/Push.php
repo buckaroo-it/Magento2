@@ -429,7 +429,7 @@ class Push implements PushInterface
             $order->setCustomerFirstname($billingAddress['firstname'] ?? $order->getCustomerFirstname());
             $order->setCustomerLastname($billingAddress['lastname'] ?? $order->getCustomerLastname());
         } catch (\Exception $e) {
-            $this->logging->addError('Error updating rguest information: '. $e->getMessage());
+            $this->logging->addError('Error updating guest information: '. $e->getMessage());
         }
     }
 
