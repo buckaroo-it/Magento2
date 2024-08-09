@@ -44,7 +44,6 @@ use Buckaroo\Magento2\Model\Method\Transfer;
 use Buckaroo\Magento2\Model\Method\Voucher;
 use Buckaroo\Magento2\Model\Refund\Push as RefundPush;
 use Buckaroo\Magento2\Model\Validator\Push as ValidatorPush;
-use Magento\Customer\Api\Data\GroupInterface;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Filesystem\DirectoryList;
 use Magento\Framework\ObjectManagerInterface;
@@ -389,9 +388,7 @@ class Push implements PushInterface
                     $orderAddressRepository->save($orderBillingAddress);
                 }
 
-                $this->updateGuestCustomerInformation($order, $billingAddress);
-
-
+                $this->updateCustomerInformation($order, $billingAddress);
 
             } catch (\Exception $e) {
                 $this->logging->addDebug(__METHOD__ . '|Failed to update addresses|');
@@ -408,25 +405,46 @@ class Push implements PushInterface
      * @param Order $order
      * @param array $billingAddress
      */
-    private function updateGuestCustomerInformation(Order $order, array $billingAddress)
+    private function updateCustomerInformation(Order $order, array $billingAddress)
     {
-        if ($order->getCustomerGroupId() == GroupInterface::NOT_LOGGED_IN_ID) {
-            // For guest customers, use billing address details
+        if ($this->isGuestOrder($order)) {
+            $this->updateGuestInformation($order, $billingAddress);
+        } else {
+            $this->updateRegisteredCustomerInformation($order);
+        }
+
+        $order->save();
+    }
+
+    private function isGuestOrder(Order $order): bool
+    {
+        return !$order->getCustomerId();
+    }
+
+    private function updateGuestInformation(Order $order, array $billingAddress): void
+    {
+        try {
             $customerEmail = $this->postData['brq_service_ideal_contactdetailsemail'] ?? $order->getCustomerEmail();
             $order->setCustomerEmail($customerEmail);
             $order->setCustomerFirstname($billingAddress['firstname'] ?? $order->getCustomerFirstname());
             $order->setCustomerLastname($billingAddress['lastname'] ?? $order->getCustomerLastname());
-        }else{
-            // For registered customers, use their stored details
+        } catch (\Exception $e) {
+            $this->logging->addError('Error updating rguest information: '. $e->getMessage());
+        }
+    }
+
+    private function updateRegisteredCustomerInformation(Order $order): void
+    {
+        try {
             $customer = $order->getCustomer();
             if ($customer) {
                 $order->setCustomerFirstname($customer->getFirstname() ?? $order->getCustomerFirstname());
                 $order->setCustomerLastname($customer->getLastname() ?? $order->getCustomerLastname());
                 $order->setCustomerEmail($customer->getEmail() ?? $order->getCustomerEmail());
             }
+        } catch (\Exception $e) {
+            $this->logging->addError('Error updating registered customer information: '. $e->getMessage());
         }
-
-        $order->save();
     }
 
     private function pushProcess()
