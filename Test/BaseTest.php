@@ -47,19 +47,6 @@ abstract class BaseTest extends TestCaseFinder
 
     public function setUp()
     {
-        /**
-         * Require functions.php to be able to use the translate function
-         */
-        if (strpos(__DIR__, 'vendor') === false) {
-            include_once __DIR__ . '/../../../../functions.php';
-        } else {
-            include_once __DIR__ . '/../../../../app/functions.php';
-        }
-
-        ini_set('error_reporting', E_ALL);
-        ini_set('display_errors', '1');
-        ini_set('display_startup_errors', '1');
-
         $this->objectManagerHelper = new ObjectManager($this);
     }
 
