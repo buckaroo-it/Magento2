@@ -45,7 +45,7 @@ abstract class BaseTest extends TestCaseFinder
         return $this->getObject($this->instanceClass, $args);
     }
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->objectManagerHelper = new ObjectManager($this);
     }
