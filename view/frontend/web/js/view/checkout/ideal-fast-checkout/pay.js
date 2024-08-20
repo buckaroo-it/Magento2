@@ -3,9 +3,8 @@ define([
     'mage/url',
     'Magento_Customer/js/customer-data',
     'mage/translate',
-    'mage/storage',
-    'Magento_Checkout/js/model/full-screen-loader'
-], function ($, urlBuilder, customerData, $t, storage, fullScreenLoader) {
+    'mage/storage'
+], function ($, urlBuilder, customerData, $t, storage) {
     'use strict';
 
     return {
@@ -17,17 +16,17 @@ define([
             customerDataObject.subscribe(function (updatedCustomer) {
             }.bind(this));
 
-            fullScreenLoader.startLoader(); // Show the loader
-
-            this.processOrderFlow(productData);
+            this.processOrderFlow(productData)
+                .then(this.onQuoteCreateSuccess.bind(this, productData))
+                .catch(this.onQuoteCreateFail.bind(this));
         },
 
         processOrderFlow: function (productData) {
-            // Create the quote
-            $.post(urlBuilder.build("rest/V1/buckaroo/ideal/quote/create"), productData)
-                .done(this.onQuoteCreateSuccess.bind(this, productData))
-                .fail(this.onQuoteCreateFail.bind(this))
-                .always(fullScreenLoader.stopLoader); // Hide the loader when the request is done
+            return new Promise((resolve, reject) => {
+                $.post(urlBuilder.build("rest/V1/buckaroo/ideal/quote/create"), productData)
+                    .done((response) => resolve(response))
+                    .fail((error) => reject(error));
+            });
         },
 
         getOrderData: function () {
@@ -37,12 +36,13 @@ define([
 
         onQuoteCreateSuccess: function (productData, quoteResponse) {
             var quoteId = quoteResponse.cart_id;
-            this.placeOrder(quoteId, productData.paymentData);
+            this.placeOrder(quoteId, productData.paymentData)
+                .then(this.onOrderPlaceSuccess.bind(this))
+                .catch(this.onOrderPlaceFail.bind(this));
         },
 
-        onQuoteCreateFail: function () {
+        onQuoteCreateFail: function (error) {
             this.displayErrorMessage($t('Unable to create quote.'));
-            fullScreenLoader.stopLoader(); // Hide the loader on failure
         },
 
         placeOrder: function (quoteId, paymentData) {
@@ -58,10 +58,11 @@ define([
                 payload = this.getPayload(quoteId, paymentData, 'customer');
             }
 
-            storage.post(serviceUrl, JSON.stringify(payload))
-                .done(this.onOrderPlaceSuccess.bind(this))
-                .fail(this.onOrderPlaceFail.bind(this))
-                .always(fullScreenLoader.stopLoader); // Hide the loader when the request is done
+            return new Promise((resolve, reject) => {
+                storage.post(serviceUrl, JSON.stringify(payload))
+                    .done((response) => resolve(response))
+                    .fail((error) => reject(error));
+            });
         },
 
         getPayload: function (quoteId, paymentData, type) {
@@ -87,8 +88,8 @@ define([
             this.updateOrder(jsonResponse);
         },
 
-        onOrderPlaceFail: function (response) {
-            this.displayErrorMessage($t(response));
+        onOrderPlaceFail: function (error) {
+            this.displayErrorMessage(error);
         },
 
         updateOrder: function (jsonResponse) {
@@ -106,8 +107,8 @@ define([
                 } else {
                     message = $t("Cannot create payment");
                 }
-
             }
+
             customerData.set('messages', {
                 messages: [{
                     type: 'error',
