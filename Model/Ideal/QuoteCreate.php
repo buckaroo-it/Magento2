@@ -19,6 +19,8 @@
  */
 namespace Buckaroo\Magento2\Model\Ideal;
 
+use Buckaroo\Magento2\Api\Data\QuoteCreateResponseInterface;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Model\Quote;
 use Buckaroo\Magento2\Logging\Log;
 use Magento\Quote\Model\Quote\Address;
@@ -75,18 +77,18 @@ class QuoteCreate implements IdealQuoteCreateInterface
      *
      * @param string $page
      * @param string|null $form_data
-     * @return \Buckaroo\Magento2\Api\Data\QuoteCreateResponseInterface
+     * @return QuoteCreateResponseInterface
      * @throws IdealException
      */
     public function execute(string $page, string $form_data = null)
     {
-        if ($page === 'product' && is_string($form_data)) {
-            $this->quote = $this->createQuote($form_data);
-        } else {
-            $this->quote = $this->checkoutSession->getQuote();
-        }
-
         try {
+            if ($page === 'product' && is_string($form_data)) {
+                $this->quote = $this->createQuote($form_data);
+            } else {
+                $this->quote = $this->checkoutSession->getQuote();
+            }
+
             if ($this->customerSession->isLoggedIn()) {
                 $customer = $this->customerRepository->getById($this->customerSession->getCustomerId());
                 $defaultBillingAddress = $this->getAddress($customer->getDefaultBilling());
@@ -99,8 +101,7 @@ class QuoteCreate implements IdealQuoteCreateInterface
 
             $this->setPaymentMethod();
         } catch (\Throwable $th) {
-            $this->logger->addDebug(__METHOD__ . ' ' . $th->getMessage(), ['trace' => $th->getTraceAsString()]);
-            throw new IdealException(__("Failed to create quote"), 1, $th);
+            throw new IdealException("Failed to create quote");
         }
 
         $this->calculateQuoteTotals();
@@ -112,6 +113,7 @@ class QuoteCreate implements IdealQuoteCreateInterface
      *
      * @param int|null $addressId
      * @return \Magento\Customer\Api\Data\AddressInterface|null
+     * @throws LocalizedException
      */
     protected function getAddress($addressId)
     {
@@ -278,7 +280,7 @@ class QuoteCreate implements IdealQuoteCreateInterface
             return $quoteBuilder->build();
         } catch (\Throwable $th) {
             $this->logger->addDebug(__METHOD__ . ' ' . $th->getMessage());
-            throw new IdealException(__("Failed to create quote"), 1, $th);
+            throw new IdealException("Failed to create quote");
         }
     }
 }
