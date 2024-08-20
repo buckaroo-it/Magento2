@@ -25,9 +25,9 @@ namespace Buckaroo\Magento2\Model\Method;
 class DefaultTitles
 {
     protected static array $labels = [
-        'afterpay'         => 'Riverty | Afterpay',
-        'afterpay2'        => 'Riverty | Afterpay',
-        'afterpay20'       => 'Riverty | Afterpay',
+        'afterpay'         => 'Riverty',
+        'afterpay2'        => 'Riverty',
+        'afterpay20'       => 'Riverty',
         'billink'          => 'Billink',
         'payperemail'      => 'PayPerEmail',
         'paylink'          => 'PayLink',

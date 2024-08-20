@@ -69,7 +69,7 @@ class SupportTabTest extends BaseTest
     public function getVersionsDataProvider(): array
     {
         return [
-            ['2.4.5', '7.4, 8.1, 8.2', 1],
+            ['2.4.5', '8.1, 8.2, 8.3', 1],
             ['6.6.6', 'Cannot determine compatible PHP versions', 0]
         ];
     }

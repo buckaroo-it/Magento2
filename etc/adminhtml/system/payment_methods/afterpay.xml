@@ -22,11 +22,11 @@
 <include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
     <!-- Afterpay Payment method group -->
     <group id="buckaroo_magento2_afterpay" translate="label" type="text" sortOrder="240" showInDefault="1" showInWebsite="1" showInStore="1">
-        <label>Riverty | Afterpay (old)</label>
+        <label>Riverty (old)</label>
         <frontend_model>Buckaroo\Magento2\Block\Config\Form\Field\Fieldset</frontend_model>
 
         <field id="active" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Enable Riverty | Afterpay</label>
+            <label>Enable Riverty</label>
             <comment><![CDATA[Enable or disable this payment method.]]></comment>
             <source_model>Buckaroo\Magento2\Model\Config\Source\Enablemode</source_model>
             <config_path>payment/buckaroo_magento2_afterpay/active</config_path>
@@ -76,15 +76,15 @@
             <label>Method specific configuration</label>
 
             <field id="payment_method" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Riverty | Afterpay payment method</label>
-                <comment><![CDATA[Select which paymethod must be used at Riverty | Afterpay.]]></comment>
+                <label>Riverty payment method</label>
+                <comment><![CDATA[Select which paymethod must be used at Riverty.]]></comment>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\AfterpayPaymentMethods</source_model>
                 <config_path>payment/buckaroo_magento2_afterpay/payment_method</config_path>
             </field>
 
             <field id="business" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Riverty | Afterpay payment method</label>
-                <comment><![CDATA[Select which paymethod must be used at Riverty | Afterpay.]]></comment>
+                <label>Riverty payment method</label>
+                <comment><![CDATA[Select which paymethod must be used at Riverty.]]></comment>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\Business</source_model>
                 <config_path>payment/buckaroo_magento2_afterpay/business</config_path>
                 <depends>
