@@ -4,34 +4,30 @@ define([
     'Magento_Customer/js/customer-data',
     'mage/translate',
     'mage/storage',
-    'Magento_Customer/js/model/customer',
-], function ($, urlBuilder, customerData, $t, storage, customer) {
+    'Magento_Checkout/js/model/full-screen-loader'
+], function ($, urlBuilder, customerData, $t, storage, fullScreenLoader) {
     'use strict';
 
     return {
         createQuoteAndPlaceOrder: function (productData) {
-            // Add placeholders for required fields if not provided
-            productData.shipping_address = productData.shipping_address || this.getDefaultAddress();
             this.page = productData.page;
             productData.order_data = this.getOrderData();
 
+            var customerDataObject = customerData.get('customer');
+            customerDataObject.subscribe(function (updatedCustomer) {
+            }.bind(this));
+
+            fullScreenLoader.startLoader(); // Show the loader
+
+            this.processOrderFlow(productData);
+        },
+
+        processOrderFlow: function (productData) {
             // Create the quote
             $.post(urlBuilder.build("rest/V1/buckaroo/ideal/quote/create"), productData)
                 .done(this.onQuoteCreateSuccess.bind(this, productData))
-                .fail(this.onQuoteCreateFail.bind(this));
-        },
-
-        getDefaultAddress: function () {
-            return {
-                firstname: 'unknown',
-                lastname: 'unknown',
-                email: 'no-reply@example.com',
-                street: 'unknown',
-                city: 'Placeholder',
-                country_code: 'NL',
-                postal_code: '00000',
-                telephone: '0000000000',
-            };
+                .fail(this.onQuoteCreateFail.bind(this))
+                .always(fullScreenLoader.stopLoader); // Hide the loader when the request is done
         },
 
         getOrderData: function () {
@@ -41,19 +37,20 @@ define([
 
         onQuoteCreateSuccess: function (productData, quoteResponse) {
             var quoteId = quoteResponse.cart_id;
-
-            // Proceed to place the order using the created quote ID
             this.placeOrder(quoteId, productData.paymentData);
         },
 
         onQuoteCreateFail: function () {
             this.displayErrorMessage($t('Unable to create quote.'));
+            fullScreenLoader.stopLoader(); // Hide the loader on failure
         },
 
         placeOrder: function (quoteId, paymentData) {
             var serviceUrl, payload;
+            var customerDataObject = customerData.get('customer');
 
-            if (!customer.isLoggedIn()) {
+            // Determine the appropriate service URL and payload based on login status
+            if (!customerDataObject().firstname) {
                 serviceUrl = urlBuilder.build(`rest/V1/guest-buckaroo/${quoteId}/payment-information`);
                 payload = this.getPayload(quoteId, paymentData, 'guest');
             } else {
@@ -61,34 +58,20 @@ define([
                 payload = this.getPayload(quoteId, paymentData, 'customer');
             }
 
-            storage.post(
-                serviceUrl,
-                JSON.stringify(payload)
-            ).done(this.onOrderPlaceSuccess.bind(this))
-                .fail(this.onOrderPlaceFail.bind(this));
+            storage.post(serviceUrl, JSON.stringify(payload))
+                .done(this.onOrderPlaceSuccess.bind(this))
+                .fail(this.onOrderPlaceFail.bind(this))
+                .always(fullScreenLoader.stopLoader); // Hide the loader when the request is done
         },
 
         getPayload: function (quoteId, paymentData, type) {
-            var billingAddress = {
-                city: 'Placeholder',
-                country_id: 'NL',
-                postcode: '00000',
-                street: ['Placeholder Street'],
-                telephone: '0000000000',
-                firstname: 'Placeholder',
-                lastname: 'Placeholder',
-                email: 'placeholder@example.com'
-            };
-
             return type === 'guest' ? {
                 cartId: quoteId,
-                email: 'placeholder@example.com',
+                email: 'guest@example.com',
                 paymentMethod: paymentData,
-                billingAddress: billingAddress
             } : {
                 cartId: quoteId,
                 paymentMethod: paymentData,
-                billingAddress: billingAddress
             };
         },
 
