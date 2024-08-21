@@ -3,8 +3,7 @@ define([
     'mage/url',
     'Magento_Customer/js/customer-data',
     'mage/translate',
-    'mage/storage',
-    'mage/loader'
+    'mage/storage'
 ], function ($, urlBuilder, customerData, $t, storage) {
     'use strict';
 
@@ -114,12 +113,7 @@ define([
                 }
             }
 
-            customerData.set('messages', {
-                messages: [{
-                    type: 'error',
-                    text: message
-                }]
-            });
+            $('<div class="message message-error error"><div>' + message + '</div></div>').appendTo('.page.messages').show();
         },
 
         showLoader: function () {
