@@ -453,6 +453,7 @@ class Data extends AbstractHelper
             ['value' => 'transfer',       'label' => __('Bank Transfer')],
             ['value' => 'trustly',       'label' => __('Trustly')],
             ['value' => 'wechatpay',       'label' => __('WeChatPay')],
+            ['value' => 'blik',       'label' => __('Blik')],
         ];
     }
 

@@ -64,6 +64,8 @@
                 <item name="buckaroo_config_provider_mbway" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\MBWay</item>
                 <item name="buckaroo_config_provider_multibanco" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Multibanco</item>
                 <item name="buckaroo_config_provider_knaken" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Knaken</item>
+                <item name="buckaroo_config_provider_blik" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Blik</item>
+
             </argument>
         </arguments>
     </type>

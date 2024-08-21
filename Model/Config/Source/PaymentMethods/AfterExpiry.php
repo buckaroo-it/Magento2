@@ -54,6 +54,7 @@ class AfterExpiry implements \Magento\Framework\Option\ArrayInterface
             ['value' => 'wechatpay',              'label' => __('WeChatPay')],
             ['value' => 'p24',                    'label' => __('P24')],
             ['value' => 'trustly',                'label' => __('Trustly')],
+            ['value' => 'blik',                'label' => __('Blik')],
         ];
 
         return $options;

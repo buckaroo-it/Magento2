@@ -118,5 +118,8 @@
 
         <include path="Buckaroo_Magento2::system/payment_methods/knaken.xml"/>
 
+        <include path="Buckaroo_Magento2::system/payment_methods/blik.xml"/>
+
+
     </group>
 </include>
