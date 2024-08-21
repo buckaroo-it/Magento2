@@ -3,12 +3,15 @@ define([
     'mage/url',
     'Magento_Customer/js/customer-data',
     'mage/translate',
-    'mage/storage'
+    'mage/storage',
+    'mage/loader'
 ], function ($, urlBuilder, customerData, $t, storage) {
     'use strict';
 
     return {
         createQuoteAndPlaceOrder: function (productData) {
+            this.showLoader();
+
             this.page = productData.page;
             productData.order_data = this.getOrderData();
 
@@ -42,6 +45,7 @@ define([
         },
 
         onQuoteCreateFail: function (error) {
+            this.hideLoader();
             this.displayErrorMessage($t('Unable to create quote.'));
         },
 
@@ -49,7 +53,6 @@ define([
             var serviceUrl, payload;
             var customerDataObject = customerData.get('customer');
 
-            // Determine the appropriate service URL and payload based on login status
             if (!customerDataObject().firstname) {
                 serviceUrl = urlBuilder.build(`rest/V1/guest-buckaroo/${quoteId}/payment-information`);
                 payload = this.getPayload(quoteId, paymentData, 'guest');
@@ -77,6 +80,7 @@ define([
         },
 
         onOrderPlaceSuccess: function (response) {
+            this.hideLoader();
             let jsonResponse;
             try {
                 jsonResponse = $.parseJSON(response);
@@ -89,6 +93,7 @@ define([
         },
 
         onOrderPlaceFail: function (error) {
+            this.hideLoader();
             this.displayErrorMessage(error);
         },
 
@@ -115,6 +120,14 @@ define([
                     text: message
                 }]
             });
+        },
+
+        showLoader: function () {
+            $('body').loader('show');
+        },
+
+        hideLoader: function () {
+            $('body').loader('hide');
         }
     };
 });
