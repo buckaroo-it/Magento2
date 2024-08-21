@@ -39,7 +39,7 @@ class SupportTab extends Template implements RendererInterface
      * @var array
      */
     private array $phpVersionSupport = [
-        '2.4' => ['7.4' => ['+'], '8.1' => ['+'], '8.2' => ['+']],
+        '2.4' => ['8.1' => ['+'], '8.2' => ['+'], '8.3' => ['+']],
     ];
 
     /**

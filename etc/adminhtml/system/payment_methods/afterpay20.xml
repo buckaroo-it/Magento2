@@ -22,11 +22,11 @@
 <include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
     <!-- Afterpay Payment method group -->
     <group id="buckaroo_magento2_afterpay20" translate="label" type="text" sortOrder="260" showInDefault="1" showInWebsite="1" showInStore="1">
-        <label>Riverty | Afterpay</label>
+        <label>Riverty</label>
         <frontend_model>Buckaroo\Magento2\Block\Config\Form\Field\Fieldset</frontend_model>
 
         <field id="active" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Enable Riverty | Afterpay</label>
+            <label>Enable Riverty</label>
             <comment><![CDATA[Enable or disable this payment method.]]></comment>
             <source_model>Buckaroo\Magento2\Model\Config\Source\Enablemode</source_model>
             <config_path>payment/buckaroo_magento2_afterpay20/active</config_path>
@@ -94,8 +94,8 @@
         <group id="buckaroo_magento2_default" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Method specific configuration</label>
             <field id="customer_type" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Riverty | Afterpay customer type</label>
-                <comment><![CDATA[This setting determines whether you accept Riverty | Afterpay payments for B2C, B2B or both customer types. When B2B is selected, this method is only shown when a company name is entered in the checkout process.]]></comment>
+                <label>Riverty customer type</label>
+                <comment><![CDATA[This setting determines whether you accept Riverty payments for B2C, B2B or both customer types. When B2B is selected, this method is only shown when a company name is entered in the checkout process.]]></comment>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\AfterpayCustomerType</source_model>
                 <config_path>payment/buckaroo_magento2_afterpay20/customer_type</config_path>
             </field>

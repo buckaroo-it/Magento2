@@ -54,7 +54,7 @@ class Afterpay extends AbstractConfigProvider
     }
 
     /**
-     * This setting determines whether you accept Riverty | Afterpay payments for B2C, B2B or both customer types
+     * This setting determines whether you accept Riverty payments for B2C, B2B or both customer types
      * businessMethod 1 = B2C
      * businessMethod 2 = B2B
      * businessMethod 3 = Both
