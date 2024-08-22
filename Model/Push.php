@@ -332,6 +332,7 @@ class Push implements PushInterface
             'lastname' => 'lastname',
             'street' => 'street',
             'housenumber' => 'housenumber',
+            'addition' => 'addition',
             'postalcode' => 'postcode',
             'city' => 'city',
             'countryname' => 'country_id',
@@ -349,6 +350,12 @@ class Push implements PushInterface
         // Append house number to street if both are available
         if (isset($address['street']) && isset($address['housenumber'])) {
             $address['street'] .= ' ' . $address['housenumber'];
+
+            // Add the addition (like 'A') if it exists
+            if (isset($address['addition'])) {
+                $address['street'] .= $address['addition'];
+                unset($address['addition']);
+            }
             unset($address['housenumber']);
         }
 

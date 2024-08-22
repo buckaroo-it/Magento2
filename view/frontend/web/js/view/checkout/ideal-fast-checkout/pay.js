@@ -3,35 +3,32 @@ define([
     'mage/url',
     'Magento_Customer/js/customer-data',
     'mage/translate',
-    'mage/storage',
-    'Magento_Customer/js/model/customer',
-], function ($, urlBuilder, customerData, $t, storage, customer) {
+    'mage/storage'
+], function ($, urlBuilder, customerData, $t, storage) {
     'use strict';
 
     return {
         createQuoteAndPlaceOrder: function (productData) {
-            // Add placeholders for required fields if not provided
-            productData.shipping_address = productData.shipping_address || this.getDefaultAddress();
+            this.showLoader();
+
             this.page = productData.page;
             productData.order_data = this.getOrderData();
 
-            // Create the quote
-            $.post(urlBuilder.build("rest/V1/buckaroo/ideal/quote/create"), productData)
-                .done(this.onQuoteCreateSuccess.bind(this, productData))
-                .fail(this.onQuoteCreateFail.bind(this));
+            var customerDataObject = customerData.get('customer');
+            customerDataObject.subscribe(function (updatedCustomer) {
+            }.bind(this));
+
+            this.processOrderFlow(productData)
+                .then(this.onQuoteCreateSuccess.bind(this, productData))
+                .catch(this.onQuoteCreateFail.bind(this));
         },
 
-        getDefaultAddress: function () {
-            return {
-                firstname: 'unknown',
-                lastname: 'unknown',
-                email: 'no-reply@example.com',
-                street: 'unknown',
-                city: 'Placeholder',
-                country_code: 'NL',
-                postal_code: '00000',
-                telephone: '0000000000',
-            };
+        processOrderFlow: function (productData) {
+            return new Promise((resolve, reject) => {
+                $.post(urlBuilder.build("rest/V1/buckaroo/ideal/quote/create"), productData)
+                    .done((response) => resolve(response))
+                    .fail((error) => reject(error));
+            });
         },
 
         getOrderData: function () {
@@ -41,19 +38,21 @@ define([
 
         onQuoteCreateSuccess: function (productData, quoteResponse) {
             var quoteId = quoteResponse.cart_id;
-
-            // Proceed to place the order using the created quote ID
-            this.placeOrder(quoteId, productData.paymentData);
+            this.placeOrder(quoteId, productData.paymentData)
+                .then(this.onOrderPlaceSuccess.bind(this))
+                .catch(this.onOrderPlaceFail.bind(this));
         },
 
-        onQuoteCreateFail: function () {
+        onQuoteCreateFail: function (error) {
+            this.hideLoader();
             this.displayErrorMessage($t('Unable to create quote.'));
         },
 
         placeOrder: function (quoteId, paymentData) {
             var serviceUrl, payload;
+            var customerDataObject = customerData.get('customer');
 
-            if (!customer.isLoggedIn()) {
+            if (!customerDataObject().firstname) {
                 serviceUrl = urlBuilder.build(`rest/V1/guest-buckaroo/${quoteId}/payment-information`);
                 payload = this.getPayload(quoteId, paymentData, 'guest');
             } else {
@@ -61,38 +60,26 @@ define([
                 payload = this.getPayload(quoteId, paymentData, 'customer');
             }
 
-            storage.post(
-                serviceUrl,
-                JSON.stringify(payload)
-            ).done(this.onOrderPlaceSuccess.bind(this))
-                .fail(this.onOrderPlaceFail.bind(this));
+            return new Promise((resolve, reject) => {
+                storage.post(serviceUrl, JSON.stringify(payload))
+                    .done((response) => resolve(response))
+                    .fail((error) => reject(error));
+            });
         },
 
         getPayload: function (quoteId, paymentData, type) {
-            var billingAddress = {
-                city: 'Placeholder',
-                country_id: 'NL',
-                postcode: '00000',
-                street: ['Placeholder Street'],
-                telephone: '0000000000',
-                firstname: 'Placeholder',
-                lastname: 'Placeholder',
-                email: 'placeholder@example.com'
-            };
-
             return type === 'guest' ? {
                 cartId: quoteId,
-                email: 'placeholder@example.com',
+                email: 'guest@example.com',
                 paymentMethod: paymentData,
-                billingAddress: billingAddress
             } : {
                 cartId: quoteId,
                 paymentMethod: paymentData,
-                billingAddress: billingAddress
             };
         },
 
         onOrderPlaceSuccess: function (response) {
+            this.hideLoader();
             let jsonResponse;
             try {
                 jsonResponse = $.parseJSON(response);
@@ -104,8 +91,9 @@ define([
             this.updateOrder(jsonResponse);
         },
 
-        onOrderPlaceFail: function (response) {
-            this.displayErrorMessage($t(response));
+        onOrderPlaceFail: function (error) {
+            this.hideLoader();
+            this.displayErrorMessage(error);
         },
 
         updateOrder: function (jsonResponse) {
@@ -123,14 +111,17 @@ define([
                 } else {
                     message = $t("Cannot create payment");
                 }
-
             }
-            customerData.set('messages', {
-                messages: [{
-                    type: 'error',
-                    text: message
-                }]
-            });
+
+            $('<div class="message message-error error"><div>' + message + '</div></div>').appendTo('.page.messages').show();
+        },
+
+        showLoader: function () {
+            $('body').loader('show');
+        },
+
+        hideLoader: function () {
+            $('body').loader('hide');
         }
     };
 });
