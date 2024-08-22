@@ -82,6 +82,11 @@ class Knaken extends AbstractMethod
      */
     public function getPaymentMethodName($payment)
     {
-        return 'Knaken Settle';
+        return $this->buckarooPaymentMethodCode;
+    }
+
+    protected function getRefundTransactionBuilderChannel()
+    {
+        return 'Web';
     }
 }

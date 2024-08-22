@@ -6,11 +6,11 @@
                        name="payment[method]"
                        class="radio"
                        data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
-                <label class="label" data-bind="attr: {'for': getCode()}" >
-                        <!-- ko text: getTitle() --><!-- /ko -->
-                        <!-- ko if: subtext !== null && subtext.length > 0 -->
-                       <p class="bk-description" data-bind="text: subtext, style: subTextStyle"></p>
-                        <!-- /ko -->
+                <label class="label" data-bind="attr: {'for': getCode()}">
+                    <!-- ko text: getTitle() --><!-- /ko -->
+                    <!-- ko if: subtext !== null && subtext.length > 0 -->
+                    <p class="bk-description" data-bind="text: subtext, style: subTextStyle"></p>
+                    <!-- /ko -->
                 </label>
             </div>
             <div class="bk-img-wrap">
@@ -32,12 +32,12 @@
                   attr: {'data-hasrequired': $t('* Required Fields')}">
                 <fieldset class="fieldset payment">
 
-                    <!-- ko if: !isB2B -->
+                    <!-- ko if: !isB2B() -->
                     <div class="field required">
-                        <label class="label" for="buckaroo_magento2_payperemail_genderSelect"> <span data-bind="i18n: 'Salutation:'"> </span> </label>
+                        <label class="label" for="buckaroo_magento2_bilink_genderSelect"> <span data-bind="i18n: 'Salutation:'"> </span> </label>
                         <div class="control">
-                        <select id="buckaroo_magento2_bilink_genderSelect" name="payment[buckaroo_magento2_bilink][customer_gender]" class="select"
-                        data-bind="options: genderList,
+                            <select id="buckaroo_magento2_bilink_genderSelect" name="payment[buckaroo_magento2_bilink][customer_gender]" class="select"
+                                    data-bind="options: genderList,
                             optionsText: $t('genderTitle'),
                             optionsValue: 'genderType',
                             optionsCaption: $t('-- Please Select Your Gender--'),
@@ -48,7 +48,8 @@
                     </div>
                     <!-- /ko -->
 
-                    <div class="field required">
+                    <!-- Commented out the Billing Name Field -->
+                    <!-- <div class="field required">
                         <label class="label" for="buckaroo_magento2_billink_BillingName"> <span data-bind="i18n: 'Billing Name:'"> </span> </label>
                         <div class="control">
                             <input id="buckaroo_magento2_billink_BillingName"
@@ -60,9 +61,9 @@
                                    name="payment[buckaroo_magento2_billink][customer_billingName]"
                                    disabled >
                         </div>
-                    </div>
+                    </div> -->
 
-                    <!-- ko if: showPhone -->
+                    <!-- ko if: showPhone() -->
                     <div class="field required" >
                         <label class="label" for="buckaroo_magento2_billink_Telephone"> <span data-bind="i18n: 'Telephone:'"> </span> </label>
                         <div class="control">
@@ -79,7 +80,7 @@
                     </div>
                     <!-- /ko -->
 
-                    <!-- ko if: !isB2B -->
+                    <!-- ko if: !isB2B() -->
                     <div class="field required">
                         <label class="label" for="buckaroo_magento2_billink_DoB"> <span data-bind="i18n: 'Date of Birth:'"> </span> </label>
                         <div class="control addon">
@@ -109,7 +110,7 @@
                     </div>
                     <!-- /ko -->
 
-                    <!-- ko if: isB2B -->
+                    <!-- ko if: isB2B() -->
                     <div class="field required">
                         <legend class="label"> <span data-bind="i18n: 'Chamber of Commerce number:'"> </span> </legend>
                         <div class="control">
@@ -125,7 +126,7 @@
                                    ">
                         </div>
                     </div>
-          
+
                     <div class="field">
                         <legend class="label"> <span data-bind="i18n: 'VAT number:'"> </span> </legend>
                         <div class="control">
@@ -166,9 +167,9 @@
                     </div>
 
                     <!-- ko if: showFinancialWarning  -->
-                        <span data-bind="i18n: `Je moet minimaal 18+ zijn om deze dienst te gebruiken. Als je op tijd betaalt, voorkom je extra kosten en zorg je dat je in de toekomst nogmaals gebruik kunt maken van de diensten van ${getTitle()}. Door verder te gaan, accepteer je de Algemene Voorwaarden en bevestig je dat je de Privacyverklaring en Cookieverklaring hebt gelezen.`">  </span>
+                    <span data-bind="i18n: `Je moet minimaal 18+ zijn om deze dienst te gebruiken. Als je op tijd betaalt, voorkom je extra kosten en zorg je dat je in de toekomst nogmaals gebruik kunt maken van de diensten van ${getTitle()}. Door verder te gaan, accepteer je de Algemene Voorwaarden en bevestig je dat je de Privacyverklaring en Cookieverklaring hebt gelezen.`">  </span>
                     <!-- /ko -->
-                    
+
                     <div class="field">
                         <span data-bind="i18n: 'Please make sure all fields are filled in correctly before proceeding.' ">  </span>
                     </div>

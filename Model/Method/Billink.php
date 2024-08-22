@@ -107,18 +107,18 @@ class Billink extends AbstractMethod
 
         $additionalData = $data['additional_data'];
 
-        if (isset($additionalData['customer_billingName'])) {
-            $this->getInfoInstance()->setAdditionalInformation(
-                'customer_billingName',
-                $additionalData['customer_billingName']
-            );
-        }
+//        if (isset($additionalData['customer_billingName'])) {
+//            $this->getInfoInstance()->setAdditionalInformation(
+//                'customer_billingName',
+//                $additionalData['customer_billingName']
+//            );
+//        }
 
         if (isset($additionalData['customer_gender'])) {
             $this->getInfoInstance()->setAdditionalInformation('customer_gender', $additionalData['customer_gender']);
         }
 
-        if (isset($additionalData['customer_chamberOfCommerce'])) {
+        if (isset($additionalData['customer_chamberOfCommerce']) && !empty($additionalData['customer_chamberOfCommerce'])) {
             $this->getInfoInstance()->setAdditionalInformation(
                 'customer_chamberOfCommerce',
                 $additionalData['customer_chamberOfCommerce']
@@ -681,7 +681,7 @@ class Billink extends AbstractMethod
         $telephone = $payment->getAdditionalInformation('customer_telephone');
         $telephone = (empty($telephone) ? $billingAddress->getTelephone() : $telephone);
 
-        $category = $this->helper->checkCustomerGroup('buckaroo_magento2_billink') ? 'B2B' : 'B2C'; //1
+        $category = !empty($billingAddress->getCompany()) ? 'B2B' : 'B2C';
 
         switch ($payment->getAdditionalInformation('customer_gender')) {
             case 'male':

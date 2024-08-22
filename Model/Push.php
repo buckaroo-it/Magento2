@@ -332,6 +332,7 @@ class Push implements PushInterface
             'lastname' => 'lastname',
             'street' => 'street',
             'housenumber' => 'housenumber',
+            'addition' => 'addition',
             'postalcode' => 'postcode',
             'city' => 'city',
             'countryname' => 'country_id',
@@ -349,6 +350,12 @@ class Push implements PushInterface
         // Append house number to street if both are available
         if (isset($address['street']) && isset($address['housenumber'])) {
             $address['street'] .= ' ' . $address['housenumber'];
+
+            // Add the addition (like 'A') if it exists
+            if (isset($address['addition'])) {
+                $address['street'] .= $address['addition'];
+                unset($address['addition']);
+            }
             unset($address['housenumber']);
         }
 
@@ -1712,6 +1719,12 @@ class Push implements PushInterface
         if ($invoiceHandlingConfig == InvoiceHandlingOptions::SHIPMENT) {
             $payment->setAdditionalInformation(InvoiceHandlingOptions::INVOICE_HANDLING, $invoiceHandlingConfig);
             $payment->save();
+
+            if($this->hasPostData('brq_transaction_method', 'transfer')){
+                $this->order->setIsInProcess(true);
+                $this->order->save();
+            }
+
             return true;
         }
 
