@@ -17,20 +17,20 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace Buckaroo\Magento2\Api\Data\PaypalExpress;
+namespace Buckaroo\Magento2\Api\Data;
 
 interface TotalBreakdownInterface
 {
     /**
-     * @return \Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterface
+     * @return \Buckaroo\Magento2\Api\Data\BreakdownItemInterface
      */
     public function getItemTotal();
     /**
-     * @return \Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterface
+     * @return \Buckaroo\Magento2\Api\Data\BreakdownItemInterface
      */
     public function getShipping();
     /**
-     * @return \Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterface
+     * @return \Buckaroo\Magento2\Api\Data\BreakdownItemInterface
      */
     public function getTaxTotal();
 }

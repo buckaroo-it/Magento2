@@ -21,8 +21,10 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
+use Buckaroo\Magento2\Model\ConfigProvider\Refund as RefundConfigProvider;
 use Magento\Tax\Model\Config;
 use Magento\Sales\Model\Order;
+use Magento\Framework\Phrase;
 use Buckaroo\Magento2\Model\Push;
 use Magento\Tax\Model\Calculation;
 use Magento\Payment\Model\InfoInterface;
@@ -333,7 +335,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         /**
-         * @var \Buckaroo\Magento2\Model\ConfigProvider\Refund $refundConfig
+         * @var Refund $refundConfig
          */
         $refundConfig = $this->configProviderFactory->get('refund');
 
@@ -354,7 +356,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     {
         if ($data instanceof \Magento\Framework\DataObject) {
             $additionalSkip = $data->getAdditionalData();
-            
+
             if (isset($additionalSkip[self::PAYMENT_FROM])) {
                 $this->getInfoInstance()->setAdditionalInformation(self::PAYMENT_FROM, $additionalSkip[self::PAYMENT_FROM]);
             }
@@ -443,6 +445,26 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             $this->getInfoInstance()
                 ->setAdditionalInformation('customer_email', $data['additional_data']['customer_email']);
         }
+    }
+
+    /**
+     * Get text for Service costs
+     *
+     * @return Phrase
+     */
+    public function getServiceCosts() : Phrase
+    {
+        return __('Service costs');
+    }
+
+    /**
+     * Get text for Shipping fee
+     *
+     * @return Phrase
+     */
+    public function getShippingFee() : Phrase
+    {
+        return __('Shipping fee');
     }
 
     /**
@@ -705,7 +727,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         if (method_exists($this, 'validateAdditionalData')) {
-            $this->validateAdditionalData();
+            $this->validateAdditionalData($payment);
         }
 
         parent::order($payment, $amount);
@@ -728,6 +750,11 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         $transaction = $transactionBuilder->build();
+
+        $services = $transactionBuilder->getServices();
+        if (isset($services['Action']) && $services['Action'] == 'PayFastCheckout') {
+            $transaction->setData('Order', '');
+        }
 
         try {
             $response = $this->orderTransaction($transaction);
@@ -946,7 +973,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         if (method_exists($this, 'validateAdditionalData')) {
-            $this->validateAdditionalData();
+            $this->validateAdditionalData($payment);
         }
 
         parent::authorize($payment, $amount);
@@ -1238,8 +1265,10 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             $buckarooTransactionKeysArray = $payment->getAdditionalInformation(
                 Push::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES
             );
-            $buckarooTransactionKeysArray[$response[0]->RelatedTransactions->RelatedTransaction->_] =
-                $response[0]->Status->Code->Code;
+            $relatedTransactionKey = $response[0]->RelatedTransactions->RelatedTransaction->_;
+            $transactionKey = $response[0]->Key;
+            $statusCode = $response[0]->Status->Code->Code;
+            $buckarooTransactionKeysArray[$relatedTransactionKey] = $statusCode;
             $payment->setAdditionalInformation(
                 Push::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES,
                 $buckarooTransactionKeysArray
@@ -1247,6 +1276,43 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             $resource = $this->objectManager->get('Magento\Framework\App\ResourceConnection');
             $connection = $resource->getConnection();
             $connection->rollBack();
+
+            /**
+             * @var RefundConfigProvider $refundConfig
+             */
+            $refundConfig = $this->configProviderFactory->get('refund');
+
+            if ($refundConfig->getPendingApprovalSetting() == RefundConfigProvider::PENDING_REFUND_ON_APPROVE) {
+
+                $pendingRefund = $payment->getAdditionalInformation(
+                    RefundConfigProvider::ADDITIONAL_INFO_PENDING_REFUND
+                );
+
+                /** @var \Magento\Sales\Model\Order\Creditmemo $creditmemo */
+                $creditmemo = $this->_registry->registry('current_creditmemo');;
+                $creditmemoItems = $creditmemo->getAllItems();
+
+                $orderItemsRefunded = [];
+                foreach ($creditmemoItems as $creditmemoItem) {
+                    if($creditmemoItem->getPrice() > 0) {
+                        $orderItemsRefunded[$creditmemoItem->getOrderItemId()] = ['qty' => (int)$creditmemoItem->getQty()];
+                    }
+                }
+
+                $pendingRefund[$transactionKey]['items'] = $orderItemsRefunded;
+                $pendingRefund[$transactionKey]['shipping_amount'] = $creditmemo->getBaseShippingAmount();
+                $pendingRefund[$transactionKey]['tax'] = $creditmemo->getBaseTaxAmount();
+                $pendingRefund[$transactionKey]['adjustment_negative'] = $creditmemo->getAdjustmentNegative();
+                $pendingRefund[$transactionKey]['adjustment_positive'] = $creditmemo->getAdjustmentPositive();
+                $pendingRefund[$transactionKey]['base_buckaroo_fee'] = $creditmemo->getBaseBuckarooFee();
+                $pendingRefund[$transactionKey]['status'] = $statusCode;
+
+                $payment->setAdditionalInformation(
+                    RefundConfigProvider::ADDITIONAL_INFO_PENDING_REFUND,
+                    $pendingRefund
+                );
+
+            }
 
             $payment->getOrder()->addStatusHistoryComment(
                 __("The refund has been initiated but it is waiting for a approval. Login to the Buckaroo Plaza to finalize the refund by approving it.")
@@ -2034,7 +2100,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         if (false !== $buckarooFeeLine && (double) $buckarooFeeLine > 0) {
             $article = $this->getArticleArrayLine(
                 $latestKey,
-                'Servicekosten',
+                (string)$this->getServiceCosts(),
                 1,
                 1,
                 round($buckarooFeeLine, 2),
@@ -2516,7 +2582,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         $shippingCostsArticle = [
             [
-                '_'       => 'Shipping fee',
+                '_'       => (string)$this->getShippingFee(),
                 'Name'    => 'Description',
                 'Group'   => 'Article',
                 'GroupID' => $count,
@@ -2724,7 +2790,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         } catch (\Throwable $th) {
             $this->logger2->addError(__METHOD__." ".(string)$th);
         }
-        
+
     }
 
     /**
@@ -2805,7 +2871,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         $limit = $this->getConfigData('spam_attempts');
-        
+
         if(!is_scalar($limit)) {
             $limit = 10;
         }
@@ -2834,11 +2900,11 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         if($storage === null) {
             return [];
-        } 
+        }
 
         $storage = json_decode($storage, true);
 
-        
+
         if(!is_array($storage)) {
             $storage = [];
         }

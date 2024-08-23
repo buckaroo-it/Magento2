@@ -348,7 +348,7 @@ class SepaDirectDebit extends AbstractMethod
             $billingCountry = $paymentInfo->getQuote()->getBillingAddress()->getCountryId();
         }
 
-        $ibanValidator = $this->objectManager->create(\Zend\Validator\Iban::class);
+        $ibanValidator = $this->objectManager->create(\Laminas\Validator\Iban::class);
         if (empty($customerIban) || !$ibanValidator->isValid($customerIban)) {
             throw new \Buckaroo\Magento2\Exception(__('Please enter a valid bank account number'));
         }

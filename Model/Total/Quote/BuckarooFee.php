@@ -338,6 +338,6 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
      */
     public function getLabel()
     {
-        return __('Payment Fee');
+        return __('Fee');
     }
 }

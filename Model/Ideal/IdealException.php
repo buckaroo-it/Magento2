@@ -17,23 +17,9 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace Buckaroo\Magento2\Api\Data\PaypalExpress;
+namespace Buckaroo\Magento2\Model\Ideal;
 
-use Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterface;
 
-interface QuoteCreateResponseInterface extends BreakdownItemInterface
+class IdealException extends \Exception
 {
-    /**
-     * Get order breakdown
-     *
-     * @return \Buckaroo\Magento2\Api\Data\PaypalExpress\TotalBreakdownInterface
-     */
-    public function getBreakdown();
-
-    /**
-     * Get masked cart id
-     *
-     * @return string
-     */
-    public function getCartId();
 }

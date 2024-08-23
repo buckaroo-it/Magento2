@@ -42,5 +42,15 @@
                 <field id="active">1</field>
             </depends>
         </field>
+
+        <field id="pending_approval" translate="label comment tooltip" type="select" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+            <label>Create Refund on Approve for Pending Approval Refunds</label>
+            <comment><![CDATA[Yes - Create CreditMemo after approve from Plaza <br> No - Create CreditMemo on Request with status "Pending"]]></comment>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <config_path>buckaroo_magento2/refund/pending_approval</config_path>
+            <depends>
+                <field id="active">1</field>
+            </depends>
+        </field>
     </group>
 </include>

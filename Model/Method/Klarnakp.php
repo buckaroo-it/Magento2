@@ -21,6 +21,7 @@
 namespace Buckaroo\Magento2\Model\Method;
 
 use Magento\Payment\Model\InfoInterface;
+use Magento\Framework\Phrase;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Buckaroo\Magento2\Service\Formatter\AddressFormatter;
@@ -864,6 +865,15 @@ class Klarnakp extends AbstractMethod
         return $article;
     }
 
+    /**
+     * Get text for Shipping fee
+     *
+     * @return Phrase
+     */
+    public function getShippingFee() : Phrase
+    {
+        return __('Shipping fee');
+    }
 
     /**
      * @param OrderInterface $order
@@ -904,7 +914,7 @@ class Klarnakp extends AbstractMethod
                 'Name' => 'ArticleQuantity',
             ],
             [
-                '_' => 'Verzendkosten',
+                '_' => (string)$this->getShippingFee(),
                 'Group' => 'Article',
                 'GroupID' => $group,
                 'Name' => 'ArticleTitle',
