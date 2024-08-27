@@ -687,8 +687,12 @@ class Process extends \Magento\Framework\App\Action\Action
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
-        $url = $this->accountConfig->getFailureRedirect($store);
-
+        if($this->hasPostData('ADD_service_action_from_magento', 'payfastcheckout')){
+            $url = 'checkout/cart';
+        } else {
+            //$url = 'checkout/cart';
+            $url = $this->accountConfig->getFailureRedirect($store);
+        }
         return $this->handleProcessedResponse($url);
     }
 
