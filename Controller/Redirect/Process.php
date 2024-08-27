@@ -687,7 +687,7 @@ class Process extends \Magento\Framework\App\Action\Action
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
-        if($this->hasPostData('ADD_service_action_from_magento', 'payfastcheckout')){
+        if($this->hasPostData('add_service_action_from_magento', 'payfastcheckout')) {
             $url = 'checkout/cart';
         } else {
             //$url = 'checkout/cart';
