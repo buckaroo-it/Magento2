@@ -353,7 +353,7 @@ class Push implements PushInterface
 
             // Add the addition (like 'A') if it exists
             if (isset($address['addition'])) {
-                $address['street'] .= $address['addition'];
+                $address['street'] .= ' ' .$address['addition'];
                 unset($address['addition']);
             }
             unset($address['housenumber']);

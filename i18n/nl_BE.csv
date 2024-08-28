@@ -142,7 +142,7 @@
 "Redirect url after 'Success'","Redirect url na 'Success'"
 "Redirect after successful payments.","Redirect URL na een geaccepteerde betaling."
 "Redirect url after 'Failure'","Redirect url na 'Failure'"
-"Redirect after failed payments.","Redirect URL na een afgeweze betaling."
+"Redirect after failed payments.<br>Please note that this setting does not apply to all express payment methods, such as iDEAL fast checkout.","Redirect URL na een afgewezen betaling.<br>Let op: deze instelling is niet van toepassing op alle express betaalmethoden, zoals iDEAL snel bestellen."
 "'Canceled' state on failed payment","'Canceled' status bij mislukte betalingen"
 "Orders will stay open after failed payments.","Orders worden niet geannuleerd na een afgewezen betaling."
 "Debug email","Debug e-mail"

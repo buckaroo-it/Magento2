@@ -142,7 +142,7 @@
 "Redirect url after 'Success'","Umleitungs-URL nach 'Erfolg'"
 "Redirect after successful payments.","Weiterleitung nach erfolgreicher Zahlung."
 "Redirect url after 'Failure'","Umleitungs-URL nach 'Fehler'"
-"Redirect after failed payments.","Weiterleitung nach fehlgeschlagenen Zahlungen."
+"Redirect after failed payments.<br>Please note that this setting does not apply to all express payment methods, such as iDEAL fast checkout.","Weiterleitung nach fehlgeschlagenen Zahlungen.<br>Bitte beachten Sie, dass diese Einstellung nicht für alle Express-Zahlungsmethoden gilt, wie zum Beispiel die iDEAL-Schnellkasse."
 "'Canceled' state on failed payment","'Status 'Storniert' bei fehlgeschlagener Zahlung"
 "Orders will stay open after failed payments.","Bestellungen bleiben nach fehlgeschlagenen Zahlungen offen."
 "Debug email","E-Mail debuggen"
