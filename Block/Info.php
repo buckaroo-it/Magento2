@@ -94,8 +94,8 @@ class Info extends \Magento\Payment\Block\Info
     public function getPaymentLogo(string $method): string
     {
         $mappings = [
-            "afterpay2" => "svg/afterpay.svg",
-            "afterpay20" => "svg/afterpay.svg",
+            "afterpay2" => "svg/riverty.svg",
+            "afterpay20" => "svg/riverty.svg",
             "capayablein3" => "svg/in3.svg",
             "capayablepostpay" => "svg/in3.svg",
             "creditcard" => "svg/creditcards.svg",
