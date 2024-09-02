@@ -201,7 +201,7 @@
 
             <field id="failure_redirect" translate="label comment" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Redirect url after 'Failure'</label>
-                <comment><![CDATA[Redirect after failed payments.]]></comment>
+                <comment><![CDATA[Redirect after failed payments.<br>Please note that this setting does not apply to all express payment methods, such as iDEAL fast checkout.]]></comment>
                 <config_path>buckaroo_magento2/account/failure_redirect</config_path>
             </field>
 

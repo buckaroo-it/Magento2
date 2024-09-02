@@ -36,7 +36,7 @@ class Data
     const MODULE_CODE = 'Buckaroo_Magento2';
 
     /** Version of Module */
-    const BUCKAROO_VERSION = '1.49.1';
+    const BUCKAROO_VERSION = '1.49.3';
 
     /** @var ProductMetadataInterface */
     private $productMetadata;
@@ -87,7 +87,7 @@ class Data
     private function getPlatformData(OrderPaymentInterface $payment = null)
     {
         $platformName = $this->getProductMetaData()->getName() . ' - ' . $this->getProductMetaData()->getEdition();
-        
+
         $platformInfo = $payment !== null ? $payment->getAdditionalInformation('buckaroo_platform_info') : null;
         if ($platformInfo !== null)
         {
