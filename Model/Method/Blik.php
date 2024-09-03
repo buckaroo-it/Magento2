@@ -95,4 +95,9 @@ class Blik extends AbstractMethod
     {
         return 'blik';
     }
+
+    protected function getRefundTransactionBuilderChannel()
+    {
+        return 'Web';
+    }
 }
