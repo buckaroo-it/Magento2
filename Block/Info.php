@@ -41,7 +41,7 @@ class Info extends \Magento\Payment\Block\Info
     /**
      * @param \Magento\Framework\View\Element\Template\Context     $context
      * @param array                                                $data
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard $configProvider
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcards $configProvider
      */
     public function __construct(
         \Magento\Framework\View\Element\Template\Context $context,
@@ -98,7 +98,6 @@ class Info extends \Magento\Payment\Block\Info
             "afterpay20" => "svg/riverty.svg",
             "capayablein3" => "svg/in3.svg",
             "capayablepostpay" => "svg/in3.svg",
-            "creditcard" => "svg/creditcards.svg",
             "creditcards" => "svg/creditcards.svg",
             "giftcards" => "svg/giftcards.svg",
             "idealprocessing" => "svg/ideal.svg",
@@ -115,7 +114,7 @@ class Info extends \Magento\Payment\Block\Info
         ];
 
         $name = "svg/{$method}.svg";
-        
+
         if(isset($mappings[$method])) {
             $name = $mappings[$method];
         }
@@ -164,7 +163,7 @@ class Info extends \Magento\Payment\Block\Info
         if($code === 'cartebleuevisa') {
             $code = 'cartebleue';
         }
-        
+
         return $this->assetRepo->getUrl("Buckaroo_Magento2::images/creditcards/{$code}.svg");
     }
 }

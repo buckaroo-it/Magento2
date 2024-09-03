@@ -36,6 +36,21 @@ use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
  */
 class Creditcards extends AbstractConfigProvider
 {
+    /**#@+
+     * Creditcard service codes.
+     */
+    const CREDITCARD_SERVICE_CODE_MASTERCARD    = 'mastercard';
+    const CREDITCARD_SERVICE_CODE_VISA          = 'visa';
+    const CREDITCARD_SERVICE_CODE_AMEX          = 'amex';
+    const CREDITCARD_SERVICE_CODE_MAESTRO       = 'maestro';
+    const CREDITCARD_SERVICE_CODE_VPAY          = 'vpay';
+    const CREDITCARD_SERVICE_CODE_VISAELECTRON  = 'visaelectron';
+    const CREDITCARD_SERVICE_CODE_CARTEBLEUE    = 'cartebleuevisa';
+    const CREDITCARD_SERVICE_CODE_CARTEBANCAIRE = 'cartebancaire';
+    const CREDITCARD_SERVICE_CODE_DANKORT       = 'dankort';
+    const CREDITCARD_SERVICE_CODE_NEXI          = 'nexi';
+    const CREDITCARD_SERVICE_CODE_POSTEPAY      = 'postepay';
+
     const XPATH_CREDITCARDS_PAYMENT_FEE = 'payment/buckaroo_magento2_creditcards/payment_fee';
     const XPATH_CREDITCARDS_PAYMENT_FEE_LABEL = 'payment/buckaroo_magento2_creditcards/payment_fee_label';
     const XPATH_CREDITCARDS_ACTIVE = 'payment/buckaroo_magento2_creditcards/active';
@@ -61,26 +76,63 @@ class Creditcards extends AbstractConfigProvider
     const XPATH_SPECIFIC_COUNTRY = 'payment/buckaroo_magento2_creditcards/specificcountry';
     const XPATH_SPECIFIC_CUSTOMER_GROUP = 'payment/buckaroo_magento2_creditcards/specificcustomergroup';
 
-    /**
-     * Creditcards constructor.
-     *
-     * @param Repository           $assetRepo
-     * @param ScopeConfigInterface $scopeConfig
-     * @param AllowedCurrencies    $allowedCurrencies
-     * @param PaymentFee           $paymentFeeHelper
-     * @param Creditcard           $creditcardConfigProvider
-     */
-    public function __construct(
-        Repository $assetRepo,
-        ScopeConfigInterface $scopeConfig,
-        AllowedCurrencies $allowedCurrencies,
-        PaymentFee $paymentFeeHelper,
-        Creditcard $creditcardConfigProvider
-    ) {
-        parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper);
-
-        $this->issuers = $creditcardConfigProvider->getIssuers();
-    }
+    protected $issuers = [
+        [
+            'name' => 'American Express',
+            'code' => self::CREDITCARD_SERVICE_CODE_AMEX,
+            'sort' => 0
+        ],
+        [
+            'name' => 'Carte Bancaire',
+            'code' => self::CREDITCARD_SERVICE_CODE_CARTEBANCAIRE,
+            'sort' => 0
+        ],
+        [
+            'name' => 'Carte Bleue',
+            'code' => self::CREDITCARD_SERVICE_CODE_CARTEBLEUE,
+            'sort' => 0
+        ],
+        [
+            'name' => 'Dankort',
+            'code' => self::CREDITCARD_SERVICE_CODE_DANKORT,
+            'sort' => 0
+        ],
+        [
+            'name' => 'Maestro',
+            'code' => self::CREDITCARD_SERVICE_CODE_MAESTRO,
+            'sort' => 0
+        ],
+        [
+            'name' => 'MasterCard',
+            'code' => self::CREDITCARD_SERVICE_CODE_MASTERCARD,
+            'sort' => 0
+        ],
+        [
+            'name' => 'Nexi',
+            'code' => self::CREDITCARD_SERVICE_CODE_NEXI,
+            'sort' => 0
+        ],
+        [
+            'name' => 'PostePay',
+            'code' => self::CREDITCARD_SERVICE_CODE_POSTEPAY,
+            'sort' => 0
+        ],
+        [
+            'name' => 'VISA',
+            'code' => self::CREDITCARD_SERVICE_CODE_VISA,
+            'sort' => 0
+        ],
+        [
+            'name' => 'VISA Electron',
+            'code' => self::CREDITCARD_SERVICE_CODE_VISAELECTRON,
+            'sort' => 0
+        ],
+        [
+            'name' => 'VPay',
+            'code' => self::CREDITCARD_SERVICE_CODE_VPAY,
+            'sort' => 0
+        ],
+    ];
 
     /**
      * @return array

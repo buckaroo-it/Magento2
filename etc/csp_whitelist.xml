@@ -33,5 +33,11 @@
                 <value id="buckaroo-hostedfields-connect" type="host">https://hostedfields-externalapi.prod-pci.buckaroo.io</value>
             </values>
         </policy>
+        <policy id="frame-src">
+            <values>
+                <value id="buckaroo-hostedfields-alpha-frame" type="host">https://hostedfields-externalapi.alpha.buckaroo.aws</value>
+                <value id="buckaroo-hostedfields-frame" type="host">https://hostedfields-externalapi.prod-pci.buckaroo.io</value>
+            </values>
+        </policy>
     </policies>
 </csp_whitelist>
