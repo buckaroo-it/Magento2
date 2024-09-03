@@ -41,7 +41,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Ideal</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo iDEAL</title>
+                <title>iDEAL</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>10</sort_order>
                 <order_email>1</order_email>
@@ -57,7 +57,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\PayByBank</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo PayByBank</title>
+                <title>PayByBank</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>350</sort_order>
                 <order_email>1</order_email>
@@ -71,7 +71,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\IdealProcessing</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo iDEAL Processing</title>
+                <title>iDEAL Processing</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>10</sort_order>
                 <order_email>1</order_email>
@@ -86,7 +86,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\SepaDirectDebit</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo SEPA Direct Debit</title>
+                <title>SEPA Direct Debit</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>110</sort_order>
                 <reminder_leve1>4</reminder_leve1>
@@ -102,7 +102,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Paypal</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo PayPal</title>
+                <title>PayPal</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>90</sort_order>
                 <sellers_protection>1</sellers_protection>
@@ -121,7 +121,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Payconiq</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Payconiq</title>
+                <title>Payconiq</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>90</sort_order>
                 <order_email>1</order_email>
@@ -135,7 +135,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Creditcard</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Creditcard and Debit Cards</title>
+                <title>Creditcard and Debit Cards</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>30</sort_order>
                 <order_email>1</order_email>
@@ -156,7 +156,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Creditcards</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Creditcard and Debit Cards</title>
+                <title>Creditcard and Debit Cards</title>
                 <sort_order>35</sort_order>
                 <order_email>1</order_email>
                 <payment_fee_label>Fee</payment_fee_label>
@@ -170,7 +170,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Transfer</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Transfer</title>
+                <title>Transfer</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>100</sort_order>
                 <send_email>1</send_email>
@@ -189,7 +189,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Giropay</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Giropay</title>
+                <title>Giropay</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>160</sort_order>
                 <order_email>1</order_email>
@@ -203,7 +203,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Mrcash</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Bancontact/Mister Cash</title>
+                <title>Bancontact/Mister Cash</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>140</sort_order>
                 <order_email>1</order_email>
@@ -220,7 +220,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Sofortbanking</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Sofort</title>
+                <title>Sofort</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>150</sort_order>
                 <order_email>1</order_email>
@@ -234,7 +234,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Belfius</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Belfius</title>
+                <title>Belfius</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>150</sort_order>
                 <order_email>1</order_email>
@@ -248,7 +248,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Afterpay</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Riverty</title>
+                <title>Riverty</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>150</sort_order>
                 <order_email>1</order_email>
@@ -264,7 +264,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Afterpay2</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Riverty 2</title>
+                <title>Riverty 2</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>160</sort_order>
                 <order_email>1</order_email>
@@ -280,7 +280,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\PayPerEmail</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo PayPerEmail</title>
+                <title>PayPerEmail</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>170</sort_order>
                 <order_email>1</order_email>
@@ -300,7 +300,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Eps</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo EPS</title>
+                <title>EPS</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>180</sort_order>
                 <order_email>1</order_email>
@@ -314,7 +314,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Giftcards</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Giftcards</title>
+                <title>Giftcards</title>
                 <sort_order>190</sort_order>
                 <order_email>1</order_email>
                 <payment_fee_label>Fee</payment_fee_label>
@@ -327,7 +327,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Kbc</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo KBC</title>
+                <title>KBC</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>210</sort_order>
                 <order_email>1</order_email>
@@ -341,7 +341,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Knaken</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Knaken Settle</title>
+                <title>Knaken Settle</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>300</sort_order>
                 <order_email>1</order_email>
@@ -355,7 +355,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Multibanco</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Multibanco</title>
+                <title>Multibanco</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>211</sort_order>
                 <order_email>1</order_email>
@@ -369,7 +369,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\MBWay</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo MBWay</title>
+                <title>MBWay</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>212</sort_order>
                 <order_email>1</order_email>
@@ -383,7 +383,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\PayLink</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo PayLink</title>
+                <title>PayLink</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>215</sort_order>
                 <order_email>1</order_email>
@@ -397,7 +397,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Klarna\PayLater</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Klarna: Pay later</title>
+                <title>Klarna: Pay later</title>
                 <sort_oder>220</sort_oder>
                 <order_email>1</order_email>
                 <payment_fee_label>Fee</payment_fee_label>
@@ -411,7 +411,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Klarnakp</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Klarna: Pay later</title>
+                <title>Klarna: Pay later</title>
                 <sort_oder>220</sort_oder>
                 <order_email>1</order_email>
                 <payment_fee_label>Fee</payment_fee_label>
@@ -425,7 +425,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Klarna\Klarnain</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Klarna: Slice it</title>
+                <title>Klarna: Slice it</title>
                 <sort_oder>220</sort_oder>
                 <order_email>1</order_email>
                 <payment_fee_label>Fee</payment_fee_label>
@@ -439,7 +439,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Emandate</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Digitale Incassomachtiging</title>
+                <title>Digitale Incassomachtiging</title>
                 <sequence_type>1</sequence_type>
                 <language>nl</language>
                 <allowspecific>0</allowspecific>
@@ -455,7 +455,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Afterpay20</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Riverty</title>
+                <title>Riverty</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>240</sort_order>
                 <order_email>1</order_email>
@@ -488,7 +488,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Applepay</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Apple Pay</title>
+                <title>Apple Pay</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>240</sort_order>
                 <order_email>1</order_email>
@@ -515,7 +515,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Alipay</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Alipay</title>
+                <title>Alipay</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>270</sort_order>
                 <order_email>1</order_email>
@@ -529,7 +529,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Wechatpay</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo WeChatPay</title>
+                <title>WeChatPay</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>280</sort_order>
                 <order_email>1</order_email>
@@ -543,7 +543,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\P24</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Przelewy24</title>
+                <title>Przelewy24</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>290</sort_order>
                 <order_email>1</order_email>
@@ -557,7 +557,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Trustly</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Trustly</title>
+                <title>Trustly</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>300</sort_order>
                 <order_email>1</order_email>
@@ -571,7 +571,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Pospayment</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Point of Sale</title>
+                <title>Point of Sale</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>320</sort_order>
                 <order_email>1</order_email>
@@ -585,7 +585,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Voucher</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Voucher</title>
+                <title>Voucher</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>340</sort_order>
                 <order_email>1</order_email>
