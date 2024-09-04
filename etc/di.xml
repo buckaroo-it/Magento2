@@ -412,6 +412,10 @@
                     <item name="type" xsi:type="string">knaken</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Knaken</item>
                 </item>
+                <item name="blik" xsi:type="array">
+                    <item name="type" xsi:type="string">blik</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Blik</item>
+                </item>
             </argument>
         </arguments>
     </type>
@@ -1867,6 +1871,32 @@
     </virtualType>
     <!-- END Belfius Value handlers infrastructure -->
     <!-- END Payment Method: Belfius -->
+
+
+    <!-- Payment Method: Blik -->
+    <!-- Blik Payment Method Facade configuration -->
+    <virtualType name="BlikFacade" type="BuckarooRemainderFacade">
+        <arguments>
+            <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\Blik::CODE</argument>
+            <argument name="valueHandlerPool" xsi:type="object">BlikValueHandlerPool</argument>
+        </arguments>
+    </virtualType>
+    <!-- Blik Value handlers infrastructure -->
+    <virtualType name="BlikValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">BlikConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Configuration reader -->
+    <virtualType name="BlikConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Blik</argument>
+        </arguments>
+    </virtualType>
+    <!-- END Blik Value handlers infrastructure -->
+    <!-- END Payment Method: Blik -->
 
      <!-- Payment Method: Capayable -->
     <!-- Capayable Payment Method Facade configuration -->

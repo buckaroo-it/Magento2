@@ -56,7 +56,8 @@ class AfterExpiry implements OptionSourceInterface
             ['value' => 'alipay',                 'label' => __('Alipay')],
             ['value' => 'wechatpay',              'label' => __('WeChatPay')],
             ['value' => 'p24',                    'label' => __('P24')],
-            ['value' => 'trustly',                'label' => __('Trustly')]
+            ['value' => 'trustly',                'label' => __('Trustly')],
+            ['value' => 'blik',                   'label' => __('Blik')]
         ];
     }
 }
