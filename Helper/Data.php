@@ -421,9 +421,9 @@ class Data extends AbstractHelper
     public function getPaymentMethodsList()
     {
         return [
-            ['value' => 'afterpay',               'label' => __('Riverty | Afterpay (old)')],
-            ['value' => 'afterpay2',       'label' => __('Riverty | Afterpay 2 (old)')],
-            ['value' => 'afterpay20',       'label' => __('Riverty | Afterpay')],
+            ['value' => 'afterpay',               'label' => __('Riverty (old)')],
+            ['value' => 'afterpay2',       'label' => __('Riverty 2 (old)')],
+            ['value' => 'afterpay20',       'label' => __('Riverty')],
             ['value' => 'alipay',       'label' => __('Alipay')],
             ['value' => 'applepay',       'label' => __('Apple Pay')],
             ['value' => 'billink',       'label' => __('Billink')],
