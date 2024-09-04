@@ -385,6 +385,10 @@
                     <item name="type" xsi:type="string">knaken</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Knaken</item>
                 </item>
+                <item name="blik" xsi:type="array">
+                    <item name="type" xsi:type="string">blik</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Blik</item>
+                </item>
             </argument>
         </arguments>
     </type>
