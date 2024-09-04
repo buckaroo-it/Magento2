@@ -599,7 +599,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Blik</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Blik</title>
+                <title>Blik</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>350</sort_order>
                 <order_email>1</order_email>
