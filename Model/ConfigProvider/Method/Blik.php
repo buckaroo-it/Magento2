@@ -25,4 +25,10 @@ class Blik extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_blik';
 
+    /**
+     * @var array
+     */
+    protected $allowedCurrencies = [
+        'PLN'
+    ];
 }
