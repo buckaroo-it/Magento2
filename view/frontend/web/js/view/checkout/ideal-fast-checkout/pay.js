@@ -2,9 +2,10 @@ define([
     'jquery',
     'mage/url',
     'Magento_Customer/js/customer-data',
+    'Magento_Checkout/js/model/quote',
     'mage/translate',
     'mage/storage'
-], function ($, urlBuilder, customerData, $t, storage) {
+], function ($, urlBuilder, customerData, quote, $t, storage) {
     'use strict';
 
     return {
@@ -91,9 +92,71 @@ define([
             this.updateOrder(jsonResponse);
         },
 
+        clearAddressData: function () {
+            var emptyAddress = {
+                firstname: '',
+                lastname: '',
+                street: ['', ''],
+                city: '',
+                postcode: '',
+                telephone: '',
+                countryId: ''
+            };
+
+            if (quote.shippingAddress()) {
+                quote.shippingAddress().firstname = emptyAddress.firstname;
+                quote.shippingAddress().lastname = emptyAddress.lastname;
+                quote.shippingAddress().street = emptyAddress.street;
+                quote.shippingAddress().city = emptyAddress.city;
+                quote.shippingAddress().postcode = emptyAddress.postcode;
+                quote.shippingAddress().telephone = emptyAddress.telephone;
+                quote.shippingAddress().countryId = emptyAddress.countryId;
+            }
+
+            if (quote.billingAddress()) {
+                quote.billingAddress().firstname = emptyAddress.firstname;
+                quote.billingAddress().lastname = emptyAddress.lastname;
+                quote.billingAddress().street = emptyAddress.street;
+                quote.billingAddress().city = emptyAddress.city;
+                quote.billingAddress().postcode = emptyAddress.postcode;
+                quote.billingAddress().telephone = emptyAddress.telephone;
+                quote.billingAddress().countryId = emptyAddress.countryId;
+            }
+
+            this.clearAddressCookies();
+
+        },
+
+        clearAddressCookies: function () {
+            var cookiesToDelete = [
+                'PHPSESSID',
+            ];
+
+            cookiesToDelete.forEach(function (cookieName) {
+                document.cookie = cookieName + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            });
+
+            cookiesToDelete.forEach(function (cookieName) {
+                document.cookie = cookieName + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=" + window.location.hostname + ";";
+            });
+
+            var cookies = document.cookie.split(";");
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i];
+                var eqPos = cookie.indexOf("=");
+                var name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+                document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=" + window.location.hostname + ";";
+            }
+        },
+
         onOrderPlaceFail: function (error) {
             this.hideLoader();
             this.displayErrorMessage(error);
+            this.clearAddressData();
+            localStorage.clear();
+            sessionStorage.clear();
+            customerData.invalidate(['checkout-data']);
         },
 
         updateOrder: function (jsonResponse) {
