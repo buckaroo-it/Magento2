@@ -122,6 +122,11 @@ define(
                 config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_belfius}
             },
             {
+                type: 'buckaroo_magento2_blik',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/default',
+                config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_blik}
+            },
+            {
                 type: 'buckaroo_magento2_eps',
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/default',
                 config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_eps}
