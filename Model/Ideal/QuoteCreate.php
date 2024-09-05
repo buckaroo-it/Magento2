@@ -283,4 +283,31 @@ class QuoteCreate implements IdealQuoteCreateInterface
             throw new IdealException("Failed to create quote");
         }
     }
+
+    /**
+     * Clear the quote by removing all items and deactivating it
+     *
+     * @throws IdealException
+     */
+    public function clearQuote()
+    {
+        try {
+            // Retrieve the current quote from the session
+            $quote = $this->checkoutSession->getQuote();
+
+            // Check if the quote exists and has an ID
+            if ($quote && $quote->getId()) {
+                // Remove all items from the quote
+                $quote->removeAllItems();
+                // Deactivate the quote
+                $quote->setIsActive(false);
+                // Save the modified quote
+                $this->quoteRepository->save($quote);
+            }
+        } catch (\Exception $e) {
+            // Log the error and rethrow it as a LocalizedException
+            $this->logger->addError('Error clearing quote: ' . $e->getMessage());
+            throw new IdealException('Unable to clear the quote.');
+        }
+    }
 }
