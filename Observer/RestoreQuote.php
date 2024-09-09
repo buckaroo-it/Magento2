@@ -49,7 +49,7 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
      */
     private \Buckaroo\Magento2\Helper\Data $helper;
 
- 
+
 
     /**
      * @var \Magento\Quote\Api\CartRepositoryInterface
@@ -119,6 +119,13 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
                 return;
             }
 
+            if ($payment->getMethod() === 'buckaroo_magento2_ideal' &&
+                isset($payment->getAdditionalInformation()['issuer']) &&
+                $payment->getAdditionalInformation()['issuer'] === 'fastcheckout') {
+                $this->helper->addDebug(__METHOD__ . '|Detected buckaroo_magento2_ideal with issuer fastcheckout, handling accordingly.');
+                return;
+            }
+
             if ($this->accountConfig->getCartKeepAlive($lastRealOrder->getStore())) {
                 $this->helper->addDebug(__METHOD__ . '|20|');
 
@@ -133,7 +140,7 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
                         $shippingAddress->load($shippingAddress->getAddressId());
                     }
                 }
-                
+
 
                 if (
                     (
@@ -199,6 +206,6 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
         } catch (\Throwable $th) {
             $this->helper->addDebug(__METHOD__ . (string)$th);
         }
-       
+
     }
 }
