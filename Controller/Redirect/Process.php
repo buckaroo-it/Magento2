@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Controller\Redirect;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\Config\Source\InvoiceHandlingOptions;
 use Magento\Framework\App\Request\Http as Http;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Buckaroo\Magento2\Model\Method\AbstractMethod;
@@ -466,6 +467,10 @@ class Process extends \Magento\Framework\App\Action\Action
         ->setAdditionalInformation(AbstractMethod::BUCKAROO_PAYMENT_IN_TRANSIT, false)
         ->save();
     }
+
+    /**
+     * @throws NoSuchEntityException
+     */
     protected function handleFailed($statusCode)
     {
         $this->logger->addDebug(__METHOD__ . '|7|');
@@ -475,12 +480,27 @@ class Process extends \Magento\Framework\App\Action\Action
         $this->removeCoupon();
         $this->removeAmastyGiftcardOnFailed();
 
-        if (!$this->getSkipHandleFailedRecreate()) {
-            if (!$this->quoteRecreate->recreate($this->quote)) {
-                $this->logging->addError('Could not recreate the quote.');
-            }
+        // Exit early if skipping quote recreation
+        if ($this->getSkipHandleFailedRecreate()) {
+            return $this->processFailedOrder($statusCode);
         }
 
+        // Exit early if the action is from payfastcheckout
+        if ($this->response['add_service_action_from_magento'] === 'payfastcheckout') {
+            return $this->processFailedOrder($statusCode);
+        }
+
+        // Attempt to recreate the quote and log an error if it fails
+        if (!$this->quoteRecreate->recreate($this->quote)) {
+            $this->logger->addError('Could not recreate the quote.');
+            return $this->processFailedOrder($statusCode);
+        }
+
+        return $this->processFailedOrder($statusCode);
+    }
+
+    protected function processFailedOrder($statusCode)
+    {
         /*
          * Something went wrong, so we're going to have to
          * 1) recreate the quote for the user
@@ -489,35 +509,25 @@ class Process extends \Magento\Framework\App\Action\Action
          */
 
         // StatusCode specified error messages
-        $statusCodeAddErrorMessage                                                                 = [];
-        $statusCodeAddErrorMessage[$this->helper->getStatusCode('BUCKAROO_MAGENTO2_ORDER_FAILED')] =
-            'Unfortunately an error occurred while processing your payment. Please try again. If this' .
-            ' error persists, please choose a different payment method.';
-        $statusCodeAddErrorMessage[$this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED')] =
-            'Unfortunately an error occurred while processing your payment. Please try again. If this' .
-            ' error persists, please choose a different payment method.';
-        $statusCodeAddErrorMessage[$this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_REJECTED')] =
-            'Unfortunately an error occurred while processing your payment. Please try again. If this' .
-            ' error persists, please choose a different payment method.';
-        $statusCodeAddErrorMessage[
-            $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER')
-        ] = 'According to our system, you have canceled the payment. If this' .
-            ' is not the case, please contact us.';
+        $statusCodeAddErrorMessage = [
+            $this->helper->getStatusCode('BUCKAROO_MAGENTO2_ORDER_FAILED') => 'Unfortunately an error occurred while processing your payment. Please try again. If this error persists, please choose a different payment method.',
+            $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED') => 'Unfortunately an error occurred while processing your payment. Please try again. If this error persists, please choose a different payment method.',
+            $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_REJECTED') => 'Unfortunately an error occurred while processing your payment. Please try again. If this error persists, please choose a different payment method.',
+            $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER') => 'According to our system, you have canceled the payment. If this is not the case, please contact us.'
+        ];
 
-        $this->addErrorMessage(
-            __(
-                $statusCodeAddErrorMessage[$statusCode]
-            )
-        );
+        $this->addErrorMessage(__($statusCodeAddErrorMessage[$statusCode] ?? 'An error occurred while processing your payment.'));
 
-        //skip cancel order for PPE
+        // Skip cancel order for PPE
         if (isset($this->response['add_frompayperemail'])) {
             return $this->redirectFailure();
         }
 
+        // Cancel the order and log an error if it fails
         if (!$this->cancelOrder($statusCode)) {
             $this->logger->addError('Could not cancel the order.');
         }
+
         $this->logger->addDebug(__METHOD__ . '|8|');
         return $this->redirectFailure();
     }
@@ -784,7 +794,7 @@ class Process extends \Magento\Framework\App\Action\Action
 
     /**
      * Remove coupon from failed order if magento enterprise
-     * 
+     *
      * @return void
      */
     protected function removeCoupon()
@@ -795,7 +805,7 @@ class Process extends \Magento\Framework\App\Action\Action
             if (!(is_object($couponFactory) && method_exists($couponFactory, 'load'))) {
                 return;
             }
-            
+
             $coupon = $couponFactory->load($couponCode, 'code');
             $resourceModel = $this->_objectManager->get(\Magento\SalesRule\Model\Spi\CouponResourceInterface::class);
             if (!(is_object($resourceModel) && method_exists($resourceModel, 'delete'))) {
