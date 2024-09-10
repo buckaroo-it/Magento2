@@ -668,6 +668,9 @@ class Process extends \Magento\Framework\App\Action\Action
     {
         $store = $this->order->getStore();
         $this->logger->addDebug('start redirectFailure');
+        if ($this->hasPostData('add_service_action_from_magento', 'payfastcheckout')) {
+            return $this->handleProcessedResponse('checkout/cart');
+        }
         if ($this->accountConfig->getFailureRedirectToCheckout($store)) {
             $this->logger->addDebug('getFailureRedirectToCheckout');
             if (!$this->customerSession->isLoggedIn() && ($this->order->getCustomerId() > 0)) {
@@ -676,7 +679,6 @@ class Process extends \Magento\Framework\App\Action\Action
                 try {
                     $customer = $this->customerRepository->getById($this->order->getCustomerId());
                     $this->customerSession->setCustomerDataAsLoggedIn($customer);
-
                     if (!$this->checkoutSession->getLastRealOrderId() && $this->order->getIncrementId()) {
                         $this->checkoutSession->setLastRealOrderId($this->order->getIncrementId());
                         $this->logger->addDebug(__METHOD__ . '|setLastRealOrderId|');
@@ -693,15 +695,7 @@ class Process extends \Magento\Framework\App\Action\Action
             $this->logger->addDebug('ready for redirect');
             return $this->handleProcessedResponse('checkout', ['_fragment' => 'payment', '_query' => ['bk_e' => 1]]);
         }
-
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        if($this->hasPostData('add_service_action_from_magento', 'payfastcheckout')) {
-            $url = 'checkout/cart';
-        } else {
-            $url = $this->accountConfig->getFailureRedirect($store);
-        }
+        $url = $this->accountConfig->getFailureRedirect($store);
         return $this->handleProcessedResponse($url);
     }
 
