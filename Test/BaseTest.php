@@ -244,4 +244,9 @@ abstract class BaseTest extends TestCaseFinder
 
         return $mock;
     }
+
+    protected function assertInternalType(string $type, $value)
+    {
+        $this->assertEquals($type, gettype($value));
+    }
 }
