@@ -24,68 +24,30 @@ use Buckaroo\Magento2\Helper\Data;
 use Magento\Checkout\Model\Session;
 use Buckaroo\Magento2\Model\Service\Order;
 use Buckaroo\Magento2\Model\Method\Payconiq;
-use Buckaroo\Magento2\Model\Method\Giftcards;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Model\Giftcard\Remove as GiftcardRemove;
-use Buckaroo\Magento2\Model\Method\AbstractMethod;
-use Buckaroo\Magento2\Service\Sales\Quote\Recreate as QuoteRecreate;
+use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
+use Magento\Quote\Model\Quote;
 
-class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
+class RestoreQuote implements ObserverInterface
 {
-    /**
-     * @var \Magento\Checkout\Model\Session
-     */
     private $checkoutSession;
-
-    /**
-     * @var \Buckaroo\Magento2\Model\ConfigProvider\Account
-     */
     protected $accountConfig;
-
-    /**
-     * @var \Buckaroo\Magento2\Helper\Data
-     */
-    private \Buckaroo\Magento2\Helper\Data $helper;
-
-
-
-    /**
-     * @var \Magento\Quote\Api\CartRepositoryInterface
-     */
+    private $helper;
     protected $quoteRepository;
-
-    /**
-     * @var \Buckaroo\Magento2\Model\Service\Order
-     */
     protected $orderService;
-
-    /**
-     * @var \Buckaroo\Magento2\Model\Giftcard\Remove
-     */
     protected $giftcardRemoveService;
-
-     /**
-     * @var \Buckaroo\Magento2\Helper\PaymentGroupTransaction
-     */
     protected $groupTransaction;
 
-
-    /**
-     * @param Session $checkoutSession
-     * @param Account $accountConfig
-     * @param Data $helper
-     * @param QuoteRecreate $quoteRecreate
-     * @param CartRepositoryInterface $quoteRepository
-     * @param Order $orderService
-     */
     public function __construct(
-        \Magento\Checkout\Model\Session                 $checkoutSession,
-        \Buckaroo\Magento2\Model\ConfigProvider\Account $accountConfig,
-        \Buckaroo\Magento2\Helper\Data                  $helper,
-        \Magento\Quote\Api\CartRepositoryInterface      $quoteRepository,
-        \Buckaroo\Magento2\Model\Service\Order          $orderService,
+        Session $checkoutSession,
+        Account $accountConfig,
+        Data $helper,
+        CartRepositoryInterface $quoteRepository,
+        Order $orderService,
         GiftcardRemove $giftcardRemoveService,
         PaymentGroupTransaction $groupTransaction
     ) {
@@ -101,10 +63,10 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
     /**
      * Restore Quote and Cancel LastRealOrder
      *
-     * @param \Magento\Framework\Event\Observer $observer
+     * @param Observer $observer
      * @return void
      */
-    public function execute(\Magento\Framework\Event\Observer $observer)
+    public function execute(Observer $observer)
     {
         $this->helper->addDebug(__METHOD__ . '|1|' . var_export($this->checkoutSession->getData(), true));
 
@@ -112,46 +74,27 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
         $previousOrderId = $lastRealOrder->getId();
 
         if ($payment = $lastRealOrder->getPayment()) {
-            if ($this->shouldSkipFurtherEventHandling()
-                || strpos($payment->getMethod(), 'buckaroo_magento2') === false
-                || in_array($payment->getMethod(), [Payconiq::PAYMENT_METHOD_CODE])) {
+            if ($this->shouldSkipFurtherEventHandling() || $this->isPayconiqPaymentMethod($payment)) {
                 $this->helper->addDebug(__METHOD__ . '|10|');
-                return;
-            }
-
-            if ($payment->getMethod() === 'buckaroo_magento2_ideal' &&
-                isset($payment->getAdditionalInformation()['issuer']) &&
-                $payment->getAdditionalInformation()['issuer'] === 'fastcheckout') {
-                $this->helper->addDebug(__METHOD__ . '|Detected buckaroo_magento2_ideal with issuer fastcheckout, handling accordingly.');
                 return;
             }
 
             if ($this->accountConfig->getCartKeepAlive($lastRealOrder->getStore())) {
                 $this->helper->addDebug(__METHOD__ . '|20|');
 
-                if ($this->checkoutSession->getQuote()
-                    && $this->checkoutSession->getQuote()->getId()
-                    && ($quote = $this->quoteRepository->getActive($this->checkoutSession->getQuote()->getId()))
-                ) {
-                    $this->helper->addDebug(__METHOD__ . '|25|');
-                    $shippingAddress = $quote->getShippingAddress();
-                    if (!$shippingAddress->getShippingMethod()) {
-                        $this->helper->addDebug(__METHOD__ . '|35|');
-                        $shippingAddress->load($shippingAddress->getAddressId());
-                    }
+                $quote = $this->getActiveQuote();
+                if ($quote) {
+                    $this->processShippingAddress($quote);
                 }
 
-
-                if (
-                    (
-                        $this->helper->getRestoreQuoteLastOrder() &&
-                        ($lastRealOrder->getData('state') === 'new') &&
-                        ($lastRealOrder->getData('status') === 'pending') &&
-                        $payment->getMethodInstance()->usesRedirect
-                    ) || $this->canRestoreFailedFromSpam()
-                ) {
+                if ($this->shouldRestoreQuote($lastRealOrder, $payment)) {
                     $this->helper->addDebug(__METHOD__ . '|40|');
                     $this->checkoutSession->restoreQuote();
+
+                    if ($this->isFastCheckout($payment)) {
+                        $this->clearRestoredQuoteAddresses($this->checkoutSession->getQuote());
+                    }
+
                     $this->rollbackPartialPayment($lastRealOrder->getIncrementId());
                     $this->setOrderToCancel($previousOrderId);
                 }
@@ -166,10 +109,126 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
     }
 
     /**
-     * Check if order has failed from max spam payment attempts
+     * Get the active quote from the checkout session.
      *
-     * @return boolean
+     * @return Quote|null
      */
+    private function getActiveQuote()
+    {
+        $quote = null;
+        if ($this->checkoutSession->getQuote() && $this->checkoutSession->getQuote()->getId()) {
+            try {
+                $quote = $this->quoteRepository->getActive($this->checkoutSession->getQuote()->getId());
+            } catch (\Exception $e) {
+                $this->helper->addError(__METHOD__ . '|Error fetching active quote: ' . $e->getMessage());
+            }
+        }
+        return $quote;
+    }
+
+    /**
+     * Process the shipping address of the quote.
+     *
+     * @param Quote $quote
+     */
+    private function processShippingAddress($quote)
+    {
+        $this->helper->addDebug(__METHOD__ . '|25|');
+        $shippingAddress = $quote->getShippingAddress();
+        if ($shippingAddress && !$shippingAddress->getShippingMethod()) {
+            $this->helper->addDebug(__METHOD__ . '|35|');
+            try {
+                $shippingAddress->load($shippingAddress->getAddressId());
+            } catch (\Exception $e) {
+                $this->helper->addError(__METHOD__ . '|Error loading shipping address: ' . $e->getMessage());
+            }
+        }
+    }
+
+    /**
+     * Check if the quote should be restored.
+     *
+     * @param $lastRealOrder
+     * @param $payment
+     * @return bool
+     */
+    private function shouldRestoreQuote($lastRealOrder, $payment)
+    {
+        return (
+            ($this->helper->getRestoreQuoteLastOrder() &&
+                ($lastRealOrder->getData('state') === 'new') &&
+                ($lastRealOrder->getData('status') === 'pending') &&
+                $payment->getMethodInstance()->usesRedirect) || $this->canRestoreFailedFromSpam()
+        );
+    }
+
+    /**
+     * Clear addresses after quote restoration to ensure they are not unintentionally restored.
+     *
+     * @param Quote $quote
+     */
+    private function clearRestoredQuoteAddresses($quote)
+    {
+        if ($quote && $quote->getId()) {
+            $quote->setCustomerEmail(null);
+
+            // Remove existing addresses if they exist
+            $this->clearAddress($quote, $quote->getBillingAddress());
+            $this->clearAddress($quote, $quote->getShippingAddress());
+
+            // Save the modified quote to ensure addresses are cleared
+            try {
+                $this->quoteRepository->save($quote);
+                $this->helper->addDebug(__METHOD__ . '|Addresses cleared after restoreQuote()');
+            } catch (\Exception $e) {
+                $this->helper->addDebug(__METHOD__ . '|Error clearing addresses: ' . $e->getMessage());
+            }
+        }
+    }
+
+
+    /**
+     * Clear address data and remove the address object from the quote.
+     *
+     * @param Quote $quote
+     * @param $address
+     */
+    private function clearAddress($quote, $address)
+    {
+        if ($address) {
+            // Remove the address from the quote
+            $quote->removeAddress($address->getId());
+
+            // Optionally clear address data if needed to reset but keep structure intact
+            $address->addData([]);
+        }
+    }
+
+    /**
+     * Check if the payment method is fastcheckout.
+     *
+     * @param $payment
+     * @return bool
+     */
+    private function isFastCheckout($payment)
+    {
+        return $payment->getMethod() === 'buckaroo_magento2_ideal' &&
+            isset($payment->getAdditionalInformation()['issuer']) &&
+            $payment->getAdditionalInformation()['issuer'] === 'fastcheckout';
+    }
+
+    /**
+     * Check if the payment method should be skipped.
+     *
+     * @param $payment
+     * @return bool
+     */
+    private function isPayconiqPaymentMethod($payment)
+    {
+        return strpos($payment->getMethod(), 'buckaroo_magento2') === false ||
+            in_array($payment->getMethod(), [Payconiq::PAYMENT_METHOD_CODE]);
+    }
+
     public function canRestoreFailedFromSpam()
     {
         return $this->helper->getRestoreQuoteLastOrder() &&
@@ -181,18 +240,11 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
         return false;
     }
 
-    /**
-     * Set previous order id on the payment object for the next payment
-     *
-     * @param int $previousOrderId
-     *
-     * @return void
-     */
     private function setOrderToCancel($previousOrderId)
     {
         $this->checkoutSession->getQuote()
-        ->getPayment()
-        ->setAdditionalInformation('buckaroo_cancel_order_id', $previousOrderId);
+            ->getPayment()
+            ->setAdditionalInformation('buckaroo_cancel_order_id', $previousOrderId);
         $this->quoteRepository->save($this->checkoutSession->getQuote());
     }
 
@@ -206,6 +258,5 @@ class RestoreQuote implements \Magento\Framework\Event\ObserverInterface
         } catch (\Throwable $th) {
             $this->helper->addDebug(__METHOD__ . (string)$th);
         }
-
     }
 }

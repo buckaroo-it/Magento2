@@ -480,27 +480,12 @@ class Process extends \Magento\Framework\App\Action\Action
         $this->removeCoupon();
         $this->removeAmastyGiftcardOnFailed();
 
-        // Exit early if skipping quote recreation
-        if ($this->getSkipHandleFailedRecreate()) {
-            return $this->processFailedOrder($statusCode);
+        if (!$this->getSkipHandleFailedRecreate()) {
+            if (!$this->quoteRecreate->recreate($this->quote, $this->response)) {
+                $this->logging->addError('Could not recreate the quote.');
+            }
         }
 
-        // Exit early if the action is from payfastcheckout
-        if ($this->response['add_service_action_from_magento'] === 'payfastcheckout') {
-            return $this->processFailedOrder($statusCode);
-        }
-
-        // Attempt to recreate the quote and log an error if it fails
-        if (!$this->quoteRecreate->recreate($this->quote)) {
-            $this->logger->addError('Could not recreate the quote.');
-            return $this->processFailedOrder($statusCode);
-        }
-
-        return $this->processFailedOrder($statusCode);
-    }
-
-    protected function processFailedOrder($statusCode)
-    {
         /*
          * Something went wrong, so we're going to have to
          * 1) recreate the quote for the user
