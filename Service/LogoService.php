@@ -59,8 +59,8 @@ class LogoService
     public function getPayment(string $paymentCode, bool $backend = false): string
     {
         $mappings = [
-            "afterpay2"        => "svg/afterpay.svg",
-            "afterpay20"       => "svg/afterpay.svg",
+            "afterpay2"        => "svg/riverty.svg",
+            "afterpay20"       => "svg/riverty.svg",
             "capayablein3"     => "svg/ideal-in3.svg",
             "capayablepostpay" => "svg/ideal-in3.svg",
             "creditcard"       => "svg/creditcards.svg",
