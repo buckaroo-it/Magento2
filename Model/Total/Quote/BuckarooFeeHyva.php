@@ -100,6 +100,68 @@ class BuckarooFeeHyva extends \Magento\Quote\Model\Quote\Address\Total\AbstractT
     }
 
     /**
+     * Collect grand total address amount
+     *
+     * @param  \Magento\Quote\Model\Quote                          $quote
+     * @param  \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment
+     * @param  \Magento\Quote\Model\Quote\Address\Total            $total
+     * @return $this
+     *
+     * @throws \LogicException
+     */
+    public function collect(
+        \Magento\Quote\Model\Quote $quote,
+        \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment,
+        \Magento\Quote\Model\Quote\Address\Total $total
+    ) {
+        parent::collect($quote, $shippingAssignment, $total);
+
+        // Ensure that shipping assignment has items, otherwise skip processing.
+        if (!$shippingAssignment->getItems()) {
+            return $this;
+        }
+
+        $orderId = $quote->getReservedOrderId();
+
+        // Check if already paid amount is affecting the calculation
+        if ($this->groupTransaction->getAlreadyPaid($orderId) > 0) {
+            // Optionally, you could log or debug here to ensure no early returns affect the fee calculation.
+            $this->logging->addDebug('Already paid detected, but continuing to add fee.');
+        }
+
+        // Ensure payment method is set correctly
+        $paymentMethod = $quote->getPayment()->getMethod();
+        if (!$paymentMethod || strpos($paymentMethod, 'buckaroo_magento2_') !== 0) {
+            return $this;
+        }
+
+        $methodInstance = $quote->getPayment()->getMethodInstance();
+        if (!$methodInstance instanceof \Buckaroo\Magento2\Model\Method\AbstractMethod) {
+            return $this;
+        }
+
+        // Calculate the base payment fee using the getBaseFee method
+        $basePaymentFee = $this->getBaseFee($methodInstance, $quote);
+        if ($basePaymentFee < 0.01) {
+            return $this;
+        }
+
+        // Convert the fee to the store's currency
+        $paymentFee = $this->priceCurrency->convert($basePaymentFee, $quote->getStore());
+
+        // Add fee amounts using addTotalAmount to ensure proper accumulation with other totals
+        $total->addTotalAmount('buckaroo_fee_hyva', $paymentFee);
+        $total->addBaseTotalAmount('buckaroo_fee_hyva', $basePaymentFee);
+
+        // Set the fee on the total object for further calculations
+        $total->setBuckarooFee($paymentFee);
+        $total->setBaseBuckarooFee($basePaymentFee);
+        $total->setGrandTotal($total->getGrandTotal() + $paymentFee);
+
+        return $this;
+    }
+
+    /**
      * Add buckaroo fee information to address
      *
      * @param Quote $quote

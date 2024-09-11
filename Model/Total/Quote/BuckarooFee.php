@@ -112,7 +112,11 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
         \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment,
         \Magento\Quote\Model\Quote\Address\Total $total
     ) {
+        parent::collect($quote, $shippingAssignment, $total);
 
+        if (!$shippingAssignment->getItems()) {
+            return $this;
+        }
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
@@ -123,11 +127,8 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
         $total->setBaseBuckarooFee(0);
 
         $orderId = $quote->getReservedOrderId();
-        if ($this->groupTransaction->getAlreadyPaid($orderId) > 0) {
-            return $this;
-        }
 
-        if (!$shippingAssignment->getItems()) {
+        if ($this->groupTransaction->getAlreadyPaid($orderId) > 0) {
             return $this;
         }
 
@@ -175,7 +176,7 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
-        $total->setGrandTotal($total->getGrandTotal() + $paymentFee);
+//        $total->setGrandTotal($total->getGrandTotal() + $paymentFee);
 
         return $this;
     }
