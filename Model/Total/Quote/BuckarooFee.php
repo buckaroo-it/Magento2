@@ -68,11 +68,14 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
     protected $logging;
 
     /**
-     * @param ConfigProviderAccount     $configProviderAccount
+     * @param ConfigProviderAccount $configProviderAccount
      * @param ConfigProviderBuckarooFee $configProviderBuckarooFee
-     * @param Factory                   $configProviderMethodFactory
-     * @param PriceCurrencyInterface    $priceCurrency
-     * @param Data                      $catalogHelper
+     * @param Factory $configProviderMethodFactory
+     * @param PriceCurrencyInterface $priceCurrency
+     * @param Data $catalogHelper
+     * @param PaymentGroupTransaction $groupTransaction
+     * @param Log $logging
+     * @param TaxModelCalculation $taxCalculation
      */
     public function __construct(
         ConfigProviderAccount $configProviderAccount,
@@ -128,10 +131,13 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
 
         $orderId = $quote->getReservedOrderId();
 
+        // Check if already paid amount is affecting the calculation
         if ($this->groupTransaction->getAlreadyPaid($orderId) > 0) {
-            return $this;
+            // Optionally, you could log or debug here to ensure no early returns affect the fee calculation.
+            $this->logging->addDebug('Already paid detected, but continuing to add fee.');
         }
 
+        // Ensure payment method is set correctly
         $paymentMethod = $quote->getPayment()->getMethod();
         if (!$paymentMethod || strpos($paymentMethod, 'buckaroo_magento2_') !== 0) {
             return $this;
@@ -142,9 +148,8 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
             return $this;
         }
 
-        $basePaymentFeeOLD = $this->getBaseFee($methodInstance, $quote);
-        $basePaymentFee = $total->getBaseBuckarooFeeInclTax() - $total->getBuckarooFeeBaseTaxAmount();
-
+        // Calculate the base payment fee using the getBaseFee method
+        $basePaymentFee = $this->getBaseFee($methodInstance, $quote);
         if ($basePaymentFee < 0.01) {
             return $this;
         }
@@ -176,7 +181,7 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
-//        $total->setGrandTotal($total->getGrandTotal() + $paymentFee);
+        $total->setGrandTotal($total->getGrandTotal() + $paymentFee);
 
         return $this;
     }
