@@ -19,17 +19,18 @@
  */
 namespace Buckaroo\Magento2\Model\Total\Quote;
 
-use Magento\Catalog\Helper\Data;
-use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
+use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Model\Config\Source\TaxClass\Calculation;
+use Buckaroo\Magento2\Model\ConfigProvider\Account as ConfigProviderAccount;
+use Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee as ConfigProviderBuckarooFee;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Service\HyvaCheckoutConfig;
+use Magento\Catalog\Helper\Data;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\Quote\Address\Total;
 use Magento\Tax\Model\Calculation as TaxModelCalculation;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
-use Buckaroo\Magento2\Model\Config\Source\TaxClass\Calculation;
-use Buckaroo\Magento2\Model\ConfigProvider\Account as ConfigProviderAccount;
-use Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee as ConfigProviderBuckarooFee;
 
 class BuckarooFeeHyva extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
 {
@@ -55,7 +56,7 @@ class BuckarooFeeHyva extends \Magento\Quote\Model\Quote\Address\Total\AbstractT
     public $catalogHelper;
 
     /**
-     * @var \Buckaroo\Magento2\Helper\PaymentGroupTransaction
+     * @var PaymentGroupTransaction
      */
     public $groupTransaction;
 
@@ -70,11 +71,20 @@ class BuckarooFeeHyva extends \Magento\Quote\Model\Quote\Address\Total\AbstractT
     protected $logging;
 
     /**
-     * @param ConfigProviderAccount     $configProviderAccount
+     * @var HyvaCheckoutConfig
+     */
+    protected $configProvider;
+
+    /**
+     * @param ConfigProviderAccount $configProviderAccount
      * @param ConfigProviderBuckarooFee $configProviderBuckarooFee
-     * @param Factory                   $configProviderMethodFactory
-     * @param PriceCurrencyInterface    $priceCurrency
-     * @param Data                      $catalogHelper
+     * @param Factory $configProviderMethodFactory
+     * @param PriceCurrencyInterface $priceCurrency
+     * @param Data $catalogHelper
+     * @param PaymentGroupTransaction $groupTransaction
+     * @param Log $logging
+     * @param TaxModelCalculation $taxCalculation
+     * @param HyvaCheckoutConfig $configProvider
      */
     public function __construct(
         ConfigProviderAccount $configProviderAccount,
@@ -84,7 +94,8 @@ class BuckarooFeeHyva extends \Magento\Quote\Model\Quote\Address\Total\AbstractT
         Data $catalogHelper,
         PaymentGroupTransaction $groupTransaction,
         Log $logging,
-        TaxModelCalculation $taxCalculation
+        TaxModelCalculation $taxCalculation,
+        HyvaCheckoutConfig $configProvider,
     ) {
         $this->setCode('buckaroo_fee_hyva');
 
@@ -97,6 +108,7 @@ class BuckarooFeeHyva extends \Magento\Quote\Model\Quote\Address\Total\AbstractT
         $this->groupTransaction = $groupTransaction;
         $this->logging = $logging;
         $this->taxCalculation = $taxCalculation;
+        $this->configProvider = $configProvider;
     }
 
     /**
@@ -114,6 +126,10 @@ class BuckarooFeeHyva extends \Magento\Quote\Model\Quote\Address\Total\AbstractT
         \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment,
         \Magento\Quote\Model\Quote\Address\Total $total
     ) {
+        if (!$this->configProvider->isHyvaCheckoutEnabled()) {
+            return $this;
+        }
+
         parent::collect($quote, $shippingAssignment, $total);
 
         // Ensure that shipping assignment has items, otherwise skip processing.
