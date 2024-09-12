@@ -40,16 +40,16 @@ class Recreate
     }
 
     /**
-     * @param Order $order
-     *
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @param $quote
+     * @param array $response
+     * @return false|mixed
      */
-    public function recreate($quote)
+    public function recreate($quote, $response = [])
     {
         // @codingStandardsIgnoreStart
         try {
             $quote->setIsActive(true);
-            $quote->setTriggerRecollect('1');
+//            $quote->setTriggerRecollect('1');
             $quote->setReservedOrderId(null);
             $quote->setBuckarooFee(null);
             $quote->setBaseBuckarooFee(null);
@@ -57,9 +57,28 @@ class Recreate
             $quote->setBuckarooFeeBaseTaxAmount(null);
             $quote->setBuckarooFeeInclTax(null);
             $quote->setBaseBuckarooFeeInclTax(null);
+
+            if (isset($response['add_service_action_from_magento']) && $response['add_service_action_from_magento'] === 'payfastcheckout') {
+                $this->logger->addDebug(__METHOD__ . '|Handling payfastcheckout specific logic.');
+
+                $quote->setCustomerEmail(null);
+
+                // Remove existing addresses if they exist
+                if ($billingAddress = $quote->getBillingAddress()) {
+                    $quote->removeAddress($billingAddress->getId());
+                    $billingAddress->addData([]); // Optionally clear address data
+                }
+
+                if ($shippingAddress = $quote->getShippingAddress()) {
+                    $quote->removeAddress($shippingAddress->getId());
+                    $shippingAddress->addData([]); // Optionally clear address data
+                }
+            }
+
             $quote->save();
             $this->cart->setQuote($quote);
             $this->cart->save();
+
             return $quote;
         } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
             //No such entity
