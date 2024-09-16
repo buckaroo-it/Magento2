@@ -66,44 +66,6 @@ define(
                 return this;
             },
 
-            /** Get the card issuer based on the creditcard number **/
-            determineIssuer: function (cardNumber) {
-                var issuers = {
-                    'amex': {
-                        'regex': '^3[47][0-9]{13}$',
-                        'name': 'American Express'
-                    },
-                    'maestro': {
-                        'regex': '^(5018|5020|5038|6304|6759|6761|6763)[0-9]{8,15}$',
-                        'name': 'Maestro'
-                    },
-                    'dankort': {
-                        'regex': '^(5019|4571)[0-9]{12}$',
-                        'name': 'Dankort'
-                    },
-                    'mastercard': {
-                        'regex': '^(5[1-5]|2[2-7])[0-9]{14}$',
-                        'name': 'Mastercard'
-                    },
-                    'visaelectron': {
-                        'regex': '^(4026[0-9]{2}|417500|4508[0-9]{2}|4844[0-9]{2}|4913[0-9]{2}|4917[0-9]{2})[0-9]{10}$',
-                        'name': 'Visa Electron'
-                    },
-                    'visa': {
-                        'regex': '^4[0-9]{12}(?:[0-9]{3})?$',
-                        'name': 'Visa'
-                    }
-                };
-
-                for (var key in issuers) {
-                    if (cardNumber !== undefined && cardNumber.match(issuers[key].regex)) {
-                        return issuers[key].name;
-                    }
-                }
-
-                return false;
-            },
-
             async getOAuthToken() {
                 try {
                     const response = await $.ajax({
@@ -252,6 +214,7 @@ define(
             },
 
             getData: function() {
+
                 return {
                     "method": this.item.method,
                     "po_number": null,
