@@ -149,6 +149,11 @@ class PayPerEmail implements \Magento\Framework\Option\ArrayInterface
                 'value' => 'trustly',
                 'label' => __('Trustly'),
                 'code' => 'buckaroo_magento2_trustly'
+            ],
+            [
+                'value' => 'blik',
+                'label' => __('Blik'),
+                'code' => 'buckaroo_magento2_blik'
             ]
         ];
 

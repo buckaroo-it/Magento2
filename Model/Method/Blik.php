@@ -1,5 +1,4 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
@@ -21,17 +20,17 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
-class Giropay extends AbstractMethod
+class Blik extends AbstractMethod
 {
     /**
      * Payment Code
      */
-    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_giropay';
+    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_blik';
 
     /**
      * @var string
      */
-    public $buckarooPaymentMethodCode = 'giropay';
+    public $buckarooPaymentMethodCode = 'blik';
 
     /**
      * Payment method code
@@ -48,9 +47,9 @@ class Giropay extends AbstractMethod
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
 
         $services = [
-            'Name'             => 'giropay',
-            'Action'           => 'Pay',
-            'Version'          => 2,
+            'Name'    => 'blik',
+            'Action'  => 'Pay',
+            'Version' => 0,
         ];
 
         /**
@@ -79,11 +78,6 @@ class Giropay extends AbstractMethod
         return false;
     }
 
-    protected function getRefundTransactionBuilderVersion()
-    {
-        return 2;
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -99,7 +93,7 @@ class Giropay extends AbstractMethod
      */
     public function getPaymentMethodName($payment)
     {
-        return $this->buckarooPaymentMethodCode;
+        return 'blik';
     }
 
     protected function getRefundTransactionBuilderChannel()

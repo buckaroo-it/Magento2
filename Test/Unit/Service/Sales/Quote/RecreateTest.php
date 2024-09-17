@@ -20,12 +20,12 @@
 namespace Buckaroo\Magento2\Test\Unit\Service\Sales\Quote;
 
 use Magento\Checkout\Model\Cart;
-use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\QuoteFactory;
-use Magento\Sales\Model\Order;
 use Buckaroo\Magento2\Service\Sales\Quote\Recreate;
 use Buckaroo\Magento2\Test\BaseTest;
+use Magento\Quote\Model\ResourceModel\Quote as QuoteResource;
+use Magento\Quote\Model\Quote\Address;
 
 class RecreateTest extends BaseTest
 {
@@ -33,25 +33,39 @@ class RecreateTest extends BaseTest
 
     public function testRecreate()
     {
-        $quoteId = 135;
-        $orderMock = $this->getFakeMock(Order::class)->setMethods(['getQuoteId'])->getMock();
-        $orderMock->expects($this->once())->method('getQuoteId')->willReturn($quoteId);
-
-        $quoteMock = $this->getFakeMock(Quote::class)->setMethods(['load'])->getMock();
-        $quoteMock->expects($this->once())->method('load')->willReturnSelf();
-
-        $quoteFactoryMock = $this->getFakeMock(QuoteFactory::class)
-            ->setMethods(['create'])
+        // Mock the Quote object directly without loading by ID
+        $quoteMock = $this->getFakeMock(Quote::class)
+            ->setMethods(['save', 'getBillingAddress', 'getShippingAddress', 'removeAddress'])
             ->getMock();
-        $quoteFactoryMock->expects($this->once())->method('create')->willReturn($quoteMock);
+        $quoteMock->expects($this->any())->method('getBillingAddress')->willReturn($this->createMock(Address::class));
+        $quoteMock->expects($this->any())->method('getShippingAddress')->willReturn($this->createMock(Address::class));
+        $quoteMock->expects($this->any())->method('removeAddress')->willReturnSelf();
 
-        $cartMock = $this->getFakeMock(Cart::class)->setMethods(['setQuote', 'save'])->getMock();
+        // Mock the Resource Model to avoid "The resource isn't set" error
+        $quoteResourceMock = $this->getFakeMock(QuoteResource::class)
+            ->setMethods(['save'])
+            ->getMock();
+        $quoteMock->setResource($quoteResourceMock);
+
+        // Mock the Cart object
+        $cartMock = $this->getFakeMock(Cart::class)
+            ->setMethods(['setQuote', 'save'])
+            ->getMock();
         $cartMock->expects($this->once())->method('setQuote')->with($quoteMock)->willReturnSelf();
         $cartMock->expects($this->once())->method('save');
 
-        $instance = $this->getInstance(['quoteFactory' => $quoteFactoryMock, 'cart' => $cartMock]);
-        $instance->recreate($orderMock);
+        // Define a sample response array to pass as the second argument
+        $response = [
+            'add_service_action_from_magento' => 'payfastcheckout', // Example response value
+        ];
 
+        // Instantiate the Recreate class with necessary mocks
+        $instance = $this->getInstance(['cart' => $cartMock]);
+
+        // Call the recreate method with the quote and response
+        $instance->recreate($quoteMock, $response);
+
+        // Assertions to verify the quote state
         $this->assertTrue($quoteMock->getIsActive());
         $this->assertEquals('1', $quoteMock->getTriggerRecollect());
         $this->assertNull($quoteMock->getReservedOrderId());

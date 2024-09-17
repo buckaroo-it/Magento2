@@ -22,7 +22,7 @@ jobs:
       - name: Copy payment method icons
         run: |
             cd "${{ github.workspace }}/Media/Payment methods/SVG/"
-            rm -f ideal-qr.svg knaken.svg paylink.svg paybybank.svg pos-nfc.svg riverty.svg
+            rm -f ideal-qr.svg knaken.svg paylink.svg paybybank.svg pos-nfc.svg
             cd ${{ github.workspace }}/Media
             cp -R "Payment methods/SVG/." ${{ github.workspace }}/view/base/web/images/svg/
       - name: Copy creditcards icons

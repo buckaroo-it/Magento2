@@ -22,6 +22,7 @@
 namespace Buckaroo\Magento2\Api;
 
 use Buckaroo\Magento2\Api\Data\PaypalExpress\ShippingAddressRequestInterface;
+use Buckaroo\Magento2\Api\Data\QuoteCreateResponseInterface;
 
 interface PaypalExpressQuoteCreateInterface
 {
@@ -31,8 +32,8 @@ interface PaypalExpressQuoteCreateInterface
    * @param \Buckaroo\Magento2\Api\Data\PaypalExpress\ShippingAddressRequestInterface $shipping_address
    * @param string $page
    * @param string|null $order_data
-   * @return \Buckaroo\Magento2\Api\Data\PaypalExpress\QuoteCreateResponseInterface
-   */
+   * @return QuoteCreateResponseInterface
+ */
   public function execute(
     ShippingAddressRequestInterface $shipping_address,
     string $page,
