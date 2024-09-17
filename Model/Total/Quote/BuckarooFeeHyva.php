@@ -172,7 +172,6 @@ class BuckarooFeeHyva extends \Magento\Quote\Model\Quote\Address\Total\AbstractT
         // Set the fee on the total object for further calculations
         $total->setBuckarooFee($paymentFee);
         $total->setBaseBuckarooFee($basePaymentFee);
-        $total->setGrandTotal($total->getGrandTotal() + $paymentFee);
 
         return $this;
     }
