@@ -48,46 +48,6 @@ class BuckarooAlreadyPay extends \Magento\Quote\Model\Quote\Address\Total\Abstra
     }
 
     /**
-     * Collect grand total address amount
-     *
-     * @param  \Magento\Quote\Model\Quote                          $quote
-     * @param  \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment
-     * @param  \Magento\Quote\Model\Quote\Address\Total            $total
-     * @return $this
-     *
-     * @throws \LogicException
-     */
-    public function collect(
-        \Magento\Quote\Model\Quote $quote,
-        \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment,
-        \Magento\Quote\Model\Quote\Address\Total $total
-    ) {
-        parent::collect($quote, $shippingAssignment, $total);
-
-        // Ensure that shipping assignment has items, otherwise skip processing.
-        if (!$shippingAssignment->getItems()) {
-            return $this;
-        }
-
-        $orderId = $quote->getReservedOrderId();
-        $alreadyPaidAmount = $this->groupTransaction->getAlreadyPaid($orderId);
-
-        // Ensure totals are properly initialized.
-        $total->setTotalAmount($this->getCode(), 0);
-        $total->setBaseTotalAmount($this->getCode(), 0);
-
-        // Adjust the grand total only if the already paid amount is greater than zero.
-        if ($alreadyPaidAmount > 0) {
-            $total->addTotalAmount($this->getCode(), -$alreadyPaidAmount);
-            $total->addBaseTotalAmount($this->getCode(), -$alreadyPaidAmount);
-
-        }
-
-        return $this;
-    }
-
-
-    /**
      * Add buckaroo fee information to address
      *
      * @param  \Magento\Quote\Model\Quote               $quote

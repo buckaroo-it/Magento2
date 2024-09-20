@@ -119,10 +119,18 @@ define(
                             }]
                         });
                         $('.' + paymentData.method).remove();
-                    } else if (redirectOnSuccess) {
-                        window.location.replace(url.build('checkout/onepage/success/'));
+                    } else {
+                        if (jsonResponse.buckaroo_response) {
+                            window.checkoutConfig.payment.buckaroo.response = jsonResponse.buckaroo_response;
+                        } else {
+                            window.checkoutConfig.payment.buckaroo.response = jsonResponse;
+                        }
+
+                        if (redirectOnSuccess) {
+                            window.location.replace(url.build('checkout/onepage/success/'));
+                        }
                     }
-                    window.checkoutConfig.payment.buckaroo.response = jsonResponse.buckaroo_response;
+
                     fullScreenLoader.stopLoader();
                 }
             ).fail(
