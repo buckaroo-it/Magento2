@@ -8,6 +8,7 @@
         "buckaroo/sdk": "^1.14.1",
         "monolog/monolog": "^2.9",
         "phpunit/phpunit": "^9.5",
+        "psr/log": "^2.0 || ^3.0",
         "ext-json": "*",
         "ext-pcre": "*"
     },
