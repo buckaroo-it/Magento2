@@ -28,7 +28,6 @@ use Magento\Framework\App\RequestInterface;
 use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Sales\Model\Order;
-use Zend\Stdlib\ParametersInterface;
 
 class ClientIPDataBuilder implements BuilderInterface
 {

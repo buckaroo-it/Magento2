@@ -25,6 +25,7 @@ use Buckaroo\Magento2\Model\Config\Source\PaymentMethods\PayPerEmail;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Payment\Helper\Data;
 use Zend_Db_Statement_Exception;
+use Laminas\Db\Sql\Expression;
 
 class Filter extends \Magento\Payment\Ui\Component\Listing\Column\Method\Options
 {
@@ -81,8 +82,8 @@ class Filter extends \Magento\Payment\Ui\Component\Listing\Column\Method\Options
             ->joinInner(
                 ['bmgc' => $giftcardTable],
                 'bmgc.servicecode = bmg.servicecode',
-                ['giftcard_codes' => new \Zend_Db_Expr('GROUP_CONCAT(DISTINCT ' . $connection->quoteIdentifier('bmgc.servicecode') . ' SEPARATOR "-")'),
-                    'giftcard_titles' => new \Zend_Db_Expr('GROUP_CONCAT(DISTINCT ' . $connection->quoteIdentifier('bmgc.label') . ' SEPARATOR "-")')]
+                ['giftcard_codes' => new Expression('GROUP_CONCAT(DISTINCT ' . $connection->quoteIdentifier('bmgc.servicecode') . ' SEPARATOR "-")'),
+                    'giftcard_titles' => new Expression('GROUP_CONCAT(DISTINCT ' . $connection->quoteIdentifier('bmgc.label') . ' SEPARATOR "-")')]
             )
             ->group('bmg.order_id');
 

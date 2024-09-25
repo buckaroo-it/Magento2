@@ -33,6 +33,7 @@ use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\Sales\Model\ResourceModel\Order\CollectionFactory;
 use Buckaroo\Magento2\Helper\Data;
 use Magento\Framework\App\ResourceConnection;
+use Laminas\Db\Sql\Expression;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -158,11 +159,11 @@ class Order
                     )
                     ->addFieldToFilter(
                         'created_at',
-                        ['lt' => new \Zend_Db_Expr('NOW() - INTERVAL ' . $dueDays . ' DAY')]
+                        ['lt' => new Expression('NOW() - INTERVAL ' . $dueDays . ' DAY')]
                     )
                     ->addFieldToFilter(
                         'created_at',
-                        ['gt' => new \Zend_Db_Expr('NOW() - INTERVAL ' . ($dueDays + 7) . ' DAY')]
+                        ['gt' => new Expression('NOW() - INTERVAL ' . ($dueDays + 7) . ' DAY')]
                     );
 
                 $orderCollection->getSelect()
@@ -238,11 +239,11 @@ class Order
                         )
                         ->addFieldToFilter(
                             'created_at',
-                            ['lt' => new \Zend_Db_Expr('NOW() - INTERVAL ' . $dueDays . ' DAY')]
+                            ['lt' => new Expression('NOW() - INTERVAL ' . $dueDays . ' DAY')]
                         )
                         ->addFieldToFilter(
                             'created_at',
-                            ['gt' => new \Zend_Db_Expr('NOW() - INTERVAL ' . ($dueDays + 7) . ' DAY')]
+                            ['gt' => new Expression('NOW() - INTERVAL ' . ($dueDays + 7) . ' DAY')]
                         );
 
                     $orderCollection->getSelect()
