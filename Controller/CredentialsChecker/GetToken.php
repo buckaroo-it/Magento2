@@ -122,6 +122,14 @@ class GetToken extends Action
                     return $result->setData($responseArray);
                 }
 
+                // Check if there's a message in the response
+                if (isset($responseArray['message'])) {
+                    return $result->setHttpResponseCode(400)->setData([
+                        'error' => 'Error fetching token',
+                        'response' => $responseArray['message']
+                    ]);
+                }
+
                 return $result->setHttpResponseCode(500)->setData([
                     'error' => 'Unable to fetch token',
                     'response' => $response

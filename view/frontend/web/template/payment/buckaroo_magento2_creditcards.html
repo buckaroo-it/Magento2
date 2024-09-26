@@ -19,6 +19,8 @@
         </div>
     </div>
 
+    <div class="oauth-token-error text-red-500 text-xs italic" data-bind="text: oauthTokenError, visible: oauthTokenError"></div>
+
     <div class="payment-method-content">
         <div class="payment-method-billing-address">
             <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
@@ -36,7 +38,7 @@
                         <div id="cc-name-wrapper"
                              class="shadow h-12 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                         </div>
-                        <p id="cc-name-error" class="text-red-500 text-xs italic mt-1"></p>
+                        <p id="cc-name-error" class="text-red-500 text-xs italic mt-1" data-bind="text: cardholderNameError"></p>
                     </div>
 
                     <div class="mb-4">
@@ -46,7 +48,7 @@
                         <div id="cc-number-wrapper"
                              class="shadow h-12 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                         </div>
-                        <p id="cc-number-error" class="text-red-500 text-xs italic mt-1"></p>
+                        <p id="cc-number-error" class="text-red-500 text-xs italic mt-1" data-bind="text: cardNumberError"></p>
                     </div>
 
                     <div class="mb-6">
@@ -58,7 +60,7 @@
                                 <div id="cc-expiry-wrapper"
                                      class="shadow h-12 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                 </div>
-                                <p id="cc-expiry-error"  class="text-red-500 text-xs italic mt-1"></p>
+                                <p id="cc-expiry-error" class="text-red-500 text-xs italic mt-1" data-bind="text: expiryError"></p>
                             </div>
                             <div class="col-span-1">
                                 <label id="cc-cvc-label" class="block text-gray-700 text-sm font-bold mb-2">
@@ -67,7 +69,7 @@
                                 <div id="cc-cvc-wrapper"
                                      class="shadow h-12 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                 </div>
-                                <p id="cc-cvc-error" class="text-red-500 text-xs italic mt-1"></p>
+                                <p id="cc-cvc-error" class="text-red-500 text-xs italic mt-1" data-bind="text: cvcError"></p>
                             </div>
                         </div>
                     </div>

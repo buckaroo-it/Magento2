@@ -55,14 +55,16 @@ define(
             subtext: window.checkoutConfig.payment.buckaroo.creditcards.subtext,
             subTextStyle: checkoutCommon.getSubtextStyle('creditcards'),
 
+            // Error message observables
+            cardholderNameError: ko.observable(''),
+            cardNumberError: ko.observable(''),
+            expiryError: ko.observable(''),
+            cvcError: ko.observable(''),
+            oauthTokenError: ko.observable(''),
+
             initialize: function (options) {
                 this._super(options);
                 this.getOAuthToken();
-                return this;
-            },
-
-            initObservable: function () {
-                this._super();
                 return this;
             },
 
@@ -79,20 +81,25 @@ define(
                     if (response.access_token) {
                         await this.initHostedFields(response.access_token);
                     } else {
-                        console.error("Error getting OAuth token:", response.error);
+                        this.oauthTokenError("Error getting OAuth token: " + response.error);
                     }
                 } catch (error) {
-                    console.error("Error getting OAuth token:", error);
+                    this.oauthTokenError("Error getting OAuth token: " + response.error);
                 }
             },
 
             async initHostedFields(accessToken) {
                 try {
                     const sdkClient = new BuckarooHostedFieldsSdk.HFClient(accessToken);
-                    let service = "";
 
                     await sdkClient.startSession(event => {
                         sdkClient.handleValidation(event, 'cc-name-error', 'cc-number-error', 'cc-expiry-error', 'cc-cvc-error');
+
+                        // Dynamically update the error messages using observables
+                        this.cardholderNameError(event.errors['cc-name-error'] || '');
+                        this.cardNumberError(event.errors['cc-number-error'] || '');
+                        this.expiryError(event.errors['cc-expiry-error'] || '');
+                        this.cvcError(event.errors['cc-cvc-error'] || '');
 
                         let payButton = document.getElementById("pay");
                         if (payButton) {
@@ -109,7 +116,7 @@ define(
                             }
                         }
 
-                        service = sdkClient.getService();
+                        this.service = sdkClient.getService();
                     });
 
                     // Define styling and mount hosted fields as needed...
@@ -162,7 +169,7 @@ define(
                                     throw new Error("Failed to get encrypted card data.");
                                 }
                                 this.encryptedCardData = paymentToken;
-                                this.service = service;
+                                this.service = sdkClient.getService();
                                 this.finalizePlaceOrder(event);
                             } catch (error) {
                                 console.error("Error during payment submission:", error);
