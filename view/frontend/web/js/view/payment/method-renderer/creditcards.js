@@ -84,7 +84,7 @@ define(
                         this.oauthTokenError("Error getting OAuth token: " + response.error);
                     }
                 } catch (error) {
-                    this.oauthTokenError("Error getting OAuth token: " + response.error);
+                    this.oauthTokenError("Error getting OAuth token: " + error.message);
                 }
             },
 
