@@ -37,16 +37,12 @@ class GetToken extends Action
         // Initialize cURL
         $ch = curl_init();
 
-        // Set the URL
+        // Set the URL and method
         curl_setopt($ch, CURLOPT_URL, $url);
-
-        // Set the HTTP method to POST
         curl_setopt($ch, CURLOPT_POST, true);
 
-        // Set the username and password for Basic Auth
+        // Basic Auth and headers
         curl_setopt($ch, CURLOPT_USERPWD, "$username:$password");
-
-        // Set the Content-Type to application/x-www-form-urlencoded
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/x-www-form-urlencoded']);
 
         // Set the POST fields
@@ -98,52 +94,57 @@ class GetToken extends Action
     {
         $result = $this->resultJsonFactory->create();
 
+        // Validate the request origin
         $requestOrigin = $this->getRequest()->getHeader('X-Requested-From');
-
         if ($requestOrigin !== 'MagentoFrontend') {
-            return $result->setHttpResponseCode(403)->setData(['error' => 'Unauthorized request']);
+            return $result->setHttpResponseCode(403)->setData([
+                'error' => true,
+                'message' => 'Unauthorized request'
+            ]);
         }
 
+        // Get username and password
         $hostedFieldsUsername = $this->getHostedFieldsUsername();
         $hostedFieldsPassword = $this->getHostedFieldsPassword();
 
-        if (!empty($hostedFieldsUsername) && !empty($hostedFieldsPassword)) {
-            try {
-                $url = "https://auth.buckaroo.io/oauth/token";
-                $postData = [
-                    'scope' => 'hostedfields:save',
-                    'grant_type' => 'client_credentials'
-                ];
+        if (empty($hostedFieldsUsername) || empty($hostedFieldsPassword)) {
+            return $result->setHttpResponseCode(400)->setData([
+                'error' => true,
+                'message' => 'Hosted Fields Username or Password is empty.'
+            ]);
+        }
 
-                $response = $this->sendPostRequest($url, $hostedFieldsUsername, $hostedFieldsPassword, $postData);
-                $responseArray = json_decode($response, true);
+        // Try to fetch the token
+        try {
+            $url = "https://auth.buckaroo.io/oauth/token";
+            $postData = [
+                'scope' => 'hostedfields:save',
+                'grant_type' => 'client_credentials'
+            ];
 
-                if (isset($responseArray['access_token'])) {
-                    return $result->setData($responseArray);
-                }
+            $response = $this->sendPostRequest($url, $hostedFieldsUsername, $hostedFieldsPassword, $postData);
+            $responseArray = json_decode($response, true);
 
-                // Check if there's a message in the response
-                if (isset($responseArray['message'])) {
-                    return $result->setHttpResponseCode(400)->setData([
-                        'error' => 'Error fetching token',
-                        'response' => $responseArray['message']
-                    ]);
-                }
-
-                return $result->setHttpResponseCode(500)->setData([
-                    'error' => 'Unable to fetch token',
-                    'response' => $response
-                ]);
-            } catch (\Exception $e) {
-                $this->logger->error('Error occurred while fetching token: ' . $e->getMessage());
-                return $result->setHttpResponseCode(500)->setData([
-                    'error' => 'An error occurred while fetching the token',
-                    'message' => $e->getMessage()
+            // Check for successful response
+            if (isset($responseArray['access_token'])) {
+                return $result->setData([
+                    'error' => false,
+                    'data' => $responseArray
                 ]);
             }
-        } else {
+
+            // Handle error response
+            $message = isset($responseArray['message']) ? $responseArray['message'] : 'Unknown error occurred';
             return $result->setHttpResponseCode(400)->setData([
-                'error' => 'Hosted Fields Username or Password is empty.'
+                'error' => true,
+                'message' => 'Error fetching token: ' . $message
+            ]);
+
+        } catch (\Exception $e) {
+            $this->logger->error('Error occurred while fetching token: ' . $e->getMessage());
+            return $result->setHttpResponseCode(500)->setData([
+                'error' => true,
+                'message' => 'An error occurred while fetching the token: ' . $e->getMessage()
             ]);
         }
     }

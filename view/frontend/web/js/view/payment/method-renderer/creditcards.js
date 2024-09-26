@@ -78,12 +78,16 @@ define(
                         }
                     });
 
-                    if (response.access_token) {
-                        await this.initHostedFields(response.access_token);
+                    // Check for error field in response
+                    if (response.error) {
+                        // Display the error message in the observable
+                        this.oauthTokenError("Error getting OAuth token: " + response.message);
                     } else {
-                        this.oauthTokenError("Error getting OAuth token: " + response.error);
+                        // Success: Initialize hosted fields with access token
+                        await this.initHostedFields(response.data.access_token);
                     }
                 } catch (error) {
+                    // Catch any other errors (e.g., network issues)
                     this.oauthTokenError("Error getting OAuth token: " + error.message);
                 }
             },

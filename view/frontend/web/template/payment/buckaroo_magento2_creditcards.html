@@ -19,15 +19,12 @@
         </div>
     </div>
 
-    <div class="oauth-token-error text-red-500 text-xs italic" data-bind="text: oauthTokenError, visible: oauthTokenError"></div>
-
     <div class="payment-method-content">
         <div class="payment-method-billing-address">
             <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
             <!-- ko template: getTemplate() --><!-- /ko -->
             <!--/ko-->
         </div>
-
 
         <div class="payment-method-second-col billing-address-form">
             <form class="bg-white px-8 pt-6 pb-8">
@@ -77,6 +74,8 @@
                     <div class="field">
                         <span data-bind="i18n: 'Please make sure all fields are filled in correctly before proceeding.'"></span>
                     </div>
+
+                    <div class="field oauth-token-error text-red-500" data-bind="text: oauthTokenError, visible: oauthTokenError"></div>
 
                     <div class="flex items-center justify-between">
                         <button id="pay"
