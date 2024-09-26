@@ -359,7 +359,7 @@ class Giftcard implements GiftcardInterface
             return 'intersolveCardnumber';
         }
 
-        return 'cardnumber';
+        return 'cardNumber';
     }
 
     /**
