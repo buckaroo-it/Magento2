@@ -178,6 +178,22 @@ class Creditcards extends AbstractConfigProvider
         return $paymentFee ? $paymentFee : false;
     }
 
+    public function getHostedFieldsUsername()
+    {
+        return $this->scopeConfig->getValue(
+            'buckaroo_magento2/account/hosted_fields_username',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+    }
+
+    public function getHostedFieldsPassword()
+    {
+        return $this->scopeConfig->getValue(
+            'buckaroo_magento2/account/hosted_fields_password',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+    }
+
     /**
      * Add the active flag to the creditcard list. This is used in the checkout process.
      *
