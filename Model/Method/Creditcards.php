@@ -116,6 +116,28 @@ class Creditcards extends AbstractMethod
         $this->serviceParameters = $serviceParameters;
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
+    {
+        /**
+         * If there are no giftcards chosen, we can't be available
+         */
+        /**
+         * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards $ccConfig
+         */
+        $gcConfig = $this->configProviderMethodFactory->get('creditcards');
+
+        if ($gcConfig->getHostedFieldsUsername() === null || $gcConfig->getHostedFieldsPassword() === null) {
+            return false;
+        }
+        /**
+         * Return the regular isAvailable result
+         */
+        return parent::isAvailable($quote);
+    }
+
     public function assignData(\Magento\Framework\DataObject $data)
     {
         parent::assignData($data);
