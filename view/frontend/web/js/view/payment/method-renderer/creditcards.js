@@ -56,6 +56,7 @@ define(
             subTextStyle: checkoutCommon.getSubtextStyle('creditcards'),
 
             oauthTokenError: ko.observable(''),
+            paymentError: ko.observable(''),
 
             initialize: function (options) {
                 this._super(options);
@@ -93,6 +94,7 @@ define(
 
                 // Re-fetch the OAuth token and reinitialize the hosted fields
                 this.getOAuthToken();
+                this.paymentError('');
 
                 // Re-enable the submit button
                 let payButton = document.getElementById("pay");
@@ -190,8 +192,8 @@ define(
                                 this.service = sdkClient.getService();
                                 this.finalizePlaceOrder(event);
                             } catch (error) {
-                                console.error("Error during payment submission:", error);
-                                payButton.disabled = false; // Re-enable button if there's an error
+                                this.paymentError("Payment processing failed. Please try again.");
+                                payButton.disabled = false;
                             }
                         }.bind(this));
                     }
@@ -215,7 +217,7 @@ define(
                 }
 
                 if (!this.encryptedCardData) {
-                    console.error("Payment token is missing. Please try again.");
+                    this.paymentError("Payment token is missing. Please try again.");
                     return;
                 }
 
@@ -226,6 +228,7 @@ define(
                     $.when(placeOrder).fail(
                         function () {
                             self.isPlaceOrderActionAllowed(true);
+                            self.paymentError("Payment token is missing. Please try again.");
                         }
                     ).done(self.afterPlaceOrder.bind(self));
                     return true;
