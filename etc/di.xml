@@ -276,10 +276,6 @@
                     <item name="type" xsi:type="string">creditcards</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcards</item>
                 </item>
-                <item name="giropay" xsi:type="array">
-                    <item name="type" xsi:type="string">giropay</item>
-                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Giropay</item>
-                </item>
                 <item name="mrcash" xsi:type="array">
                     <item name="type" xsi:type="string">mrcash</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Mrcash</item>
@@ -1702,32 +1698,6 @@
     <!-- END Alipay Order Command -->
     <!-- END Alipay Commands infrastructure -->
     <!-- END Payment Method: Alipay -->
-
-
-    <!-- Payment Method: Giropay -->
-    <!-- Giropay Payment Method Facade configuration -->
-    <virtualType name="GiropayFacade" type="BuckarooFacade">
-        <arguments>
-            <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\Giropay::CODE</argument>
-            <argument name="valueHandlerPool" xsi:type="object">GiropayValueHandlerPool</argument>
-        </arguments>
-    </virtualType>
-    <!-- Giropay Value handlers infrastructure -->
-    <virtualType name="GiropayValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
-        <arguments>
-            <argument name="handlers" xsi:type="array">
-                <item name="default" xsi:type="string">GiropayConfigValueHandler</item>
-            </argument>
-        </arguments>
-    </virtualType>
-    <!-- Configuration reader -->
-    <virtualType name="GiropayConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
-        <arguments>
-            <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Giropay</argument>
-        </arguments>
-    </virtualType>
-    <!-- END Giropay Value handlers infrastructure -->
-    <!-- END Payment Method: Giropay -->
 
 
     <!-- Payment Method: Trustly -->

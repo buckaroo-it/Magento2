@@ -76,11 +76,6 @@ class PayPerEmail implements OptionSourceInterface
                 'code'  => 'buckaroo_magento2_giftcards'
             ],
             [
-                'value' => 'giropay',
-                'label' => __('Giropay'),
-                'code'  => 'buckaroo_magento2_giropay'
-            ],
-            [
                 'value' => 'ideal',
                 'label' => __('iDEAL'),
                 'code'  => 'buckaroo_magento2_ideal'

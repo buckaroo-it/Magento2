@@ -62,7 +62,7 @@ define([], function () {
             options.paypalMerchantId +
             "&currency=" +
             currency +
-            "&disable-funding=credit,card,bancontact,blik,eps,giropay,ideal,mercadopago,mybank,p24,sepa,sofort,venmo&enable-funding=paylater",
+            "&disable-funding=credit,card,bancontact,blik,eps,ideal,mercadopago,mybank,p24,sepa,sofort,venmo&enable-funding=paylater",
             function () {
                 paypal
                 .Buttons({

@@ -464,7 +464,6 @@ class Data extends AbstractHelper
             ['value' => 'creditcards',       'label' => __('Credit and debit cards (Client sided)')],
             ['value' => 'eps',       'label' => __('EPS')],
             ['value' => 'giftcards',       'label' => __('Giftcards')],
-            ['value' => 'giropay',       'label' => __('Giropay')],
             ['value' => 'ideal',       'label' => __('iDEAL')],
             ['value' => 'kbc',       'label' => __('KBC')],
             ['value' => 'klarna',       'label' => __('Klarna Pay later (pay)')],
