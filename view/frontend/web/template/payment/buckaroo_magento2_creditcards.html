@@ -92,16 +92,6 @@
             </form>
         </div>
 
-        <!-- ko if: payWithBaseCurrency() -->
-        <div class="buckaroo_magento2_currency-notification">
-            <span data-bind="text: getPayWithBaseCurrencyText()"></span>
-        </div>
-        <!--/ko-->
-
-        <!-- ko foreach: getRegion('messages') -->
-        <!-- ko template: getTemplate() --><!-- /ko -->
-        <!--/ko-->
-
         <div class="checkout-agreements-block">
             <!-- ko foreach: $parent.getRegion('before-place-order') -->
             <!-- ko template: getTemplate() --><!-- /ko -->
