@@ -36,7 +36,7 @@ class Data
     const MODULE_CODE = 'Buckaroo_Magento2';
 
     /** Version of Module */
-    const BUCKAROO_VERSION = '1.49.4';
+    const BUCKAROO_VERSION = '1.50.1';
 
     /** @var ProductMetadataInterface */
     private $productMetadata;

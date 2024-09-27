@@ -141,8 +141,7 @@ class BuckarooFeeHyva extends \Magento\Quote\Model\Quote\Address\Total\AbstractT
 
         // Check if already paid amount is affecting the calculation
         if ($this->groupTransaction->getAlreadyPaid($orderId) > 0) {
-            // Optionally, you could log or debug here to ensure no early returns affect the fee calculation.
-            $this->logging->addDebug('Already paid detected, but continuing to add fee.');
+            return $this;
         }
 
         // Ensure payment method is set correctly
@@ -172,7 +171,6 @@ class BuckarooFeeHyva extends \Magento\Quote\Model\Quote\Address\Total\AbstractT
         // Set the fee on the total object for further calculations
         $total->setBuckarooFee($paymentFee);
         $total->setBaseBuckarooFee($basePaymentFee);
-        $total->setGrandTotal($total->getGrandTotal() + $paymentFee);
 
         return $this;
     }

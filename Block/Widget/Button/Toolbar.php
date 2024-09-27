@@ -48,7 +48,6 @@ class Toolbar
         'buckaroo_magento2_belfius',
         'buckaroo_magento2_transfer',
         'buckaroo_magento2_eps',
-        'buckaroo_magento2_giropay',
         'buckaroo_magento2_kbc',
         'buckaroo_magento2_klarna',
         'buckaroo_magento2_klarnakp',
