@@ -295,17 +295,6 @@ class Data extends AbstractHelper
         }
     }
 
-    public function getConfigCardSort()
-    {
-        $configValue = $this->scopeConfig->getValue(
-            'payment/buckaroo_magento2_creditcard/sorted_issuers',
-            $this->scopeDefiner->getScope(),
-            ($this->scopeDefiner->getScope() == ScopeInterface::SCOPE_WEBSITES) ? $this->storeManager->getStore() : null
-        );
-
-        return $configValue;
-    }
-
     public function getConfigGiftCardsSort()
     {
         $configValue = $this->scopeConfig->getValue(

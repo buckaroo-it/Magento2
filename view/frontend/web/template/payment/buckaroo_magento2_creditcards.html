@@ -26,6 +26,7 @@
             <!--/ko-->
         </div>
 
+
         <div class="payment-method-second-col billing-address-form">
             <form class="bg-white px-8 pt-6 pb-8">
                     <div class="mb-4">
@@ -35,7 +36,7 @@
                         <div id="cc-name-wrapper"
                              class="shadow h-12 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                         </div>
-                        <p id="cc-name-error" class="text-red-500 text-xs italic mt-1" data-bind="text: cardholderNameError"></p>
+                        <p id="cc-name-error" class="text-red-500 text-xs italic mt-1"></p>
                     </div>
 
                     <div class="mb-4">
@@ -45,7 +46,7 @@
                         <div id="cc-number-wrapper"
                              class="shadow h-12 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                         </div>
-                        <p id="cc-number-error" class="text-red-500 text-xs italic mt-1" data-bind="text: cardNumberError"></p>
+                        <p id="cc-number-error" class="text-red-500 text-xs italic mt-1"></p>
                     </div>
 
                     <div class="mb-6">
@@ -57,7 +58,7 @@
                                 <div id="cc-expiry-wrapper"
                                      class="shadow h-12 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                 </div>
-                                <p id="cc-expiry-error" class="text-red-500 text-xs italic mt-1" data-bind="text: expiryError"></p>
+                                <p id="cc-expiry-error"  class="text-red-500 text-xs italic mt-1"></p>
                             </div>
                             <div class="col-span-1">
                                 <label id="cc-cvc-label" class="block text-gray-700 text-sm font-bold mb-2">
@@ -66,7 +67,7 @@
                                 <div id="cc-cvc-wrapper"
                                      class="shadow h-12 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                 </div>
-                                <p id="cc-cvc-error" class="text-red-500 text-xs italic mt-1" data-bind="text: cvcError"></p>
+                                <p id="cc-cvc-error" class="text-red-500 text-xs italic mt-1"></p>
                             </div>
                         </div>
                     </div>
@@ -83,7 +84,7 @@
                                 type="button">
                             Submit
                         </button>
-                        <a class="inline-block align-baseline text-sm text-gray-500 hover:text-gray-800" href="#">
+                        <a class="inline-block align-baseline text-sm text-gray-500 hover:text-gray-800" href="#" data-bind="click: resetForm">
                             Cancel
                         </a>
                     </div>

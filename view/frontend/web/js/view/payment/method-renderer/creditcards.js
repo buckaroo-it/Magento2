@@ -55,11 +55,6 @@ define(
             subtext: window.checkoutConfig.payment.buckaroo.creditcards.subtext,
             subTextStyle: checkoutCommon.getSubtextStyle('creditcards'),
 
-            // Error message observables
-            cardholderNameError: ko.observable(''),
-            cardNumberError: ko.observable(''),
-            expiryError: ko.observable(''),
-            cvcError: ko.observable(''),
             oauthTokenError: ko.observable(''),
 
             initialize: function (options) {
@@ -81,15 +76,40 @@ define(
                     // Check for error field in response
                     if (response.error) {
                         // Display the error message in the observable
-                        this.oauthTokenError("Error getting OAuth token: " + response.message);
+                        this.oauthTokenError("Error getting OAuth token.");
                     } else {
                         // Success: Initialize hosted fields with access token
                         await this.initHostedFields(response.data.access_token);
                     }
                 } catch (error) {
                     // Catch any other errors (e.g., network issues)
-                    this.oauthTokenError("Error getting OAuth token: " + error.message);
+                    this.oauthTokenError("Error getting OAuth token.");
                 }
+            },
+
+            resetForm: function() {
+                // Remove hosted field iframes from DOM
+                this.removeHostedFieldIframes();
+
+                // Re-fetch the OAuth token and reinitialize the hosted fields
+                this.getOAuthToken();
+
+                // Re-enable the submit button
+                let payButton = document.getElementById("pay");
+                if (payButton) {
+                    payButton.disabled = false;
+                    payButton.style.backgroundColor = ""; // Reset to original
+                    payButton.style.cursor = "";
+                    payButton.style.opacity = "";
+                }
+            },
+
+            removeHostedFieldIframes: function() {
+                // Remove the iframes for the hosted fields by targeting their container
+                $('#cc-name-wrapper iframe').remove();
+                $('#cc-number-wrapper iframe').remove();
+                $('#cc-expiry-wrapper iframe').remove();
+                $('#cc-cvc-wrapper iframe').remove();
             },
 
             async initHostedFields(accessToken) {
@@ -98,12 +118,6 @@ define(
 
                     await sdkClient.startSession(event => {
                         sdkClient.handleValidation(event, 'cc-name-error', 'cc-number-error', 'cc-expiry-error', 'cc-cvc-error');
-
-                        // Dynamically update the error messages using observables
-                        this.cardholderNameError(event.errors['cc-name-error'] || '');
-                        this.cardNumberError(event.errors['cc-number-error'] || '');
-                        this.expiryError(event.errors['cc-expiry-error'] || '');
-                        this.cvcError(event.errors['cc-cvc-error'] || '');
 
                         let payButton = document.getElementById("pay");
                         if (payButton) {

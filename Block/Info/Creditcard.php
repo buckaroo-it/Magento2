@@ -45,7 +45,7 @@ class Creditcard extends \Buckaroo\Magento2\Block\Info
     /**
      * @var string
      */
-    protected $_template = 'Buckaroo_Magento2::info/creditcard.phtml';
+    protected $_template = 'Buckaroo_Magento2::info/creditcards.phtml';
 
     public function __construct(
         \Magento\Framework\View\Element\Template\Context $context,

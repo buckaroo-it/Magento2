@@ -8,6 +8,7 @@ use Magento\Framework\Controller\Result\JsonFactory;
 use Psr\Log\LoggerInterface;
 use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\Store\Model\StoreManagerInterface;
+use Magento\Framework\HTTP\Client\Curl;
 
 class GetToken extends Action
 {
@@ -16,6 +17,7 @@ class GetToken extends Action
     protected $configProviderAccount;
     protected $encryptor;
     protected $store;
+    protected $curlClient;
 
     public function __construct(
         Context $context,
@@ -23,47 +25,38 @@ class GetToken extends Action
         LoggerInterface $logger,
         Account $configProviderAccount,
         EncryptorInterface $encryptor,
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
+        Curl $curlClient
     ) {
         $this->resultJsonFactory = $resultJsonFactory;
         $this->logger = $logger;
         $this->configProviderAccount = $configProviderAccount;
         $this->encryptor = $encryptor;
         $this->store = $storeManager->getStore();
+        $this->curlClient = $curlClient;
         parent::__construct($context);
     }
 
+    /**
+     * Send POST request using Magento's Curl client.
+     */
     private function sendPostRequest($url, $username, $password, $postData) {
-        // Initialize cURL
-        $ch = curl_init();
+        try {
+            // Set Basic Auth credentials without base64_encode()
+            $this->curlClient->setCredentials($username, $password);
 
-        // Set the URL and method
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_POST, true);
+            // Set the headers and post fields
+            $this->curlClient->addHeader("Content-Type", "application/x-www-form-urlencoded");
 
-        // Basic Auth and headers
-        curl_setopt($ch, CURLOPT_USERPWD, "$username:$password");
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/x-www-form-urlencoded']);
+            // Send the POST request
+            $this->curlClient->post($url, http_build_query($postData));
 
-        // Set the POST fields
-        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
-
-        // Return the response instead of printing it
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-        // Execute the request
-        $response = curl_exec($ch);
-
-        // Check for cURL errors
-        if ($response === false) {
-            $error = 'Curl error: ' . curl_error($ch);
-            curl_close($ch);
-            throw new \Exception($error);
+            // Get the response body
+            return $this->curlClient->getBody();
+        } catch (\Exception $e) {
+            $this->logger->error('Curl request error: ' . $e->getMessage());
+            throw new \Exception('Error occurred during cURL request: ' . $e->getMessage());
         }
-
-        // Close the cURL session
-        curl_close($ch);
-        return $response;
     }
 
     protected function getHostedFieldsUsername()
@@ -137,14 +130,14 @@ class GetToken extends Action
             $message = isset($responseArray['message']) ? $responseArray['message'] : 'Unknown error occurred';
             return $result->setHttpResponseCode(400)->setData([
                 'error' => true,
-                'message' => 'Error fetching token: ' . $message
+                'message' => 'Error fetching token.'
             ]);
 
         } catch (\Exception $e) {
-            $this->logger->error('Error occurred while fetching token: ' . $e->getMessage());
+            $this->logger->error('Error occurred while fetching token.');
             return $result->setHttpResponseCode(500)->setData([
                 'error' => true,
-                'message' => 'An error occurred while fetching the token: ' . $e->getMessage()
+                'message' => 'An error occurred while fetching the token.'
             ]);
         }
     }
