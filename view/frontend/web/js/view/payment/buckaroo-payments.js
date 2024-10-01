@@ -102,11 +102,6 @@ define(
                 config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_transfer}
             },
             {
-                type: 'buckaroo_magento2_giropay',
-                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/default',
-                config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_giropay}
-            },
-            {
                 type: 'buckaroo_magento2_mrcash',
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/mrcash',
                 config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_mrcash}

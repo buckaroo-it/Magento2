@@ -101,8 +101,6 @@
 "Enable Przelewy24","Przelewy24 inschakelen"
 "Trustly","Trustly"
 "Enable Trustly","Trustly inschakelen"
-"Giropay","Giropay"
-"Enable Giropay","Giropay inschakelen"
 "Refunding","Terugbetaling"
 "Enable or disable refunding.","Activeer of deactiveer de mogelijkheid tot terugbetalingen via Buckaroo. Wanneer ingeschakeld, kun je online terugbetalingen verwerken via Buckaroo door het aanmaken van een creditnota in Magento."
 "Set to 'No' refunds must be done manualy in Buckaroo Plaza.","Bij de selectie 'Nee' worden credit memo's in Magento niet aangeboden bij Buckaroo Plaza."

@@ -42,7 +42,6 @@ class DefaultTitles
         'belfius'          => 'Belfius',
         'transfer'         => 'Bank Transfer',
         'eps'              => 'EPS',
-        'giropay'          => 'Giropay',
         'kbc'              => 'KBC',
         'klarna'           => 'Klarna: Pay Later',
         'klarnakp'         => 'Klarna: Pay later (authorize/capture)',

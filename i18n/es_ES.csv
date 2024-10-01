@@ -99,8 +99,6 @@
 "Enable Trustly","Activar Trustly"
 "Request To Pay","Request To Pay"
 "Enable Request To Pay","Activar Request To Pay"
-"Giropay","Giropay"
-"Enable Giropay","Activar Giropay"
 "Refunding","Reembolso"
 "Enable or disable refunding.","Activar o desactivar el reembolso."
 "Set to 'No' refunds must be done manualy in Buckaroo Plaza.","Elegir 'No' para 'los reembolsos se deben realizar manualmente en Buckaroo Plaza'."
