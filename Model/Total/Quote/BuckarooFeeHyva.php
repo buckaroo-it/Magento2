@@ -219,17 +219,27 @@ class BuckarooFeeHyva extends \Magento\Quote\Model\Quote\Address\Total\AbstractT
 
         $configProvider = $this->configProviderMethodFactory->get($buckarooPaymentMethodCode);
         $basePaymentFee = trim($configProvider->getPaymentFee($quote->getStore()));
+        $inclTax = $this->configProviderBuckarooFee->getPaymentFeeTax() ==
+            Calculation::DISPLAY_TYPE_INCLUDING_TAX;
+
+        $shippingAddress = $quote->getShippingAddress();
+        $billingAddress = $quote->getBillingAddress();
+        $customerTaxClassId = $quote->getCustomerTaxClassId();
+        $storeId = $quote->getStoreId();
+        $taxClassId = $this->configProviderBuckarooFee->getTaxClass();
+
+        $request = $this->taxCalculation->getRateRequest(
+            $shippingAddress,
+            $billingAddress,
+            $customerTaxClassId,
+            $storeId
+        );
+        $request->setProductClassId($taxClassId);
+        $percent = $this->taxCalculation->getRate($request);
 
         if (is_numeric($basePaymentFee)) {
             if (in_array($buckarooPaymentMethodCode, ['billink','afterpay20','afterpay','paypal'])) {
-
-                $inclTax = $this->configProviderBuckarooFee->getPaymentFeeTax() ==
-                    Calculation::DISPLAY_TYPE_INCLUDING_TAX;
-
                 if ($inclTax) {
-                    $request = $this->taxCalculation->getRateRequest(null, null, null, $quote->getStore());
-                    $taxClassId = $this->configProviderBuckarooFee->getTaxClass($quote->getStore());
-                    $percent = $this->taxCalculation->getRate($request->setProductClassId($taxClassId));
                     if ($percent > 0) {
                         return $basePaymentFee / (1 + ($percent / 100));
                     }
@@ -237,7 +247,7 @@ class BuckarooFeeHyva extends \Magento\Quote\Model\Quote\Address\Total\AbstractT
                 return $basePaymentFee;
             } else {
                 if ($inclTax) {
-                    return $basePaymentFee;
+                    return $basePaymentFee / (1 + ($percent / 100));
                 }
                 /**
                  * Payment fee is a number
