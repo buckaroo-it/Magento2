@@ -22,7 +22,7 @@
 namespace Buckaroo\Magento2\Test\Unit\Block\Adminhtml\Giftcard;
 
 use Magento\Framework\Phrase;
-use Magento\Framework\Registry;
+use Buckaroo\Magento2\Model\Data\BuckarooGiftcardDataInterface;
 use Buckaroo\Magento2\Block\Adminhtml\Giftcard\Edit;
 use Buckaroo\Magento2\Model\Giftcard;
 
@@ -68,10 +68,10 @@ class EditTest extends \Buckaroo\Magento2\Test\BaseTest
         $giftcardModel->method('getId')->willReturn($id);
         $giftcardModel->method('getLabel')->willReturn($label);
 
-        $registry = $this->getFakeMock(Registry::class)->setMethods(['registry'])->getMock();
-        $registry->method('registry')->with('buckaroo_giftcard')->willReturn($giftcardModel);
+        $buckarooGiftcardData = $this->getFakeMock(BuckarooGiftcardDataInterface::class)->getMock();
+        $buckarooGiftcardData->method('getGiftcardModel')->willReturn($giftcardModel);
 
-        $instance = $this->getInstance(['registry' => $registry]);
+        $instance = $this->getInstance(['buckarooGiftcardData' => $buckarooGiftcardData]);
         $result = $instance->getHeaderText();
         $resultArgs = $result->getArguments();
 
