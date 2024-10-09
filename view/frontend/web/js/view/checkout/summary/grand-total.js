@@ -71,7 +71,9 @@ define([
                 return 0;
             }
 
-            amount = total['grand_total'];
+            if(!isNaN(parseFloat(this.getAlreadyPayTotal()))){
+                amount = parseFloat(total['grand_total']) - parseFloat(this.getAlreadyPayTotal());
+            }
 
             if (amount < 0) {
                 amount = 0;
