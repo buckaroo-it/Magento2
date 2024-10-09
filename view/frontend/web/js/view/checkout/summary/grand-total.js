@@ -71,7 +71,7 @@ define([
                 return 0;
             }
 
-            amount = total['grand_total'] - total['tax_amount'];
+            amount = total['grand_total'];
 
             if (amount < 0) {
                 amount = 0;
