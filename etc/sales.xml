@@ -35,7 +35,7 @@
     </section>
     <section name="order_invoice">
         <group name="totals">
-           <item name="buckaroo_fee" instance="Buckaroo\Magento2\Model\Total\Invoice\BuckarooFee" sort_order="400"/>
+            <item name="buckaroo_fee" instance="Buckaroo\Magento2\Model\Total\Invoice\BuckarooFee" sort_order="400"/>
             <item name="tax_buckaroo_fee" instance="Buckaroo\Magento2\Model\Total\Invoice\Tax\BuckarooFee" sort_order="300"/>
         </group>
     </section>

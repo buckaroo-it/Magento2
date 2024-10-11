@@ -1,0 +1,11 @@
+<!-- app/code/Buckaroo/Magento2/view/frontend/web/template/checkout/summary/remaining-amount.html -->
+<!-- ko if: isDisplayed() -->
+<tr class="totals remaining-amount">
+    <th class="mark" scope="row">
+        <strong data-bind="i18n: title"></strong>
+    </th>
+    <td data-bind="attr: {'data-th': title}" class="amount">
+        <strong><span class="price" data-bind="text: getValue()"></span></strong>
+    </td>
+</tr>
+<!-- /ko -->
