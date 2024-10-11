@@ -34,17 +34,14 @@ define([
          * @return {*|String}
          */
         getValue: function () {
-            var price = 0;
+            let grandTotal = this._getGrandTotalValue();
+            const alreadyPaid = this.getAlreadyPaidTotal();
 
-            if (this.totals()) {
-                price = totals.getSegment('grand_total').value;
-
-                if(!isNaN(parseFloat(this.getAlreadyPayTotal()))){
-                    price = parseFloat(price) - parseFloat(this.getAlreadyPayTotal());
-                }
+            if (!isNaN(alreadyPaid)) {
+                grandTotal -= alreadyPaid;
             }
 
-            return this.getFormattedPrice(price);
+            return this.getFormattedPrice(grandTotal);
         },
 
         /**
@@ -68,12 +65,10 @@ define([
                 amount;
 
             if (!total) {
-                return 0;
+                return this.getFormattedPrice(0);
             }
 
-            if(!isNaN(parseFloat(this.getAlreadyPayTotal()))){
-                amount = parseFloat(total['grand_total']) - parseFloat(this.getAlreadyPayTotal());
-            }
+            amount = total['grand_total'] - total['tax_amount'] - this.getAlreadyPaidTotal();
 
             if (amount < 0) {
                 amount = 0;
@@ -86,16 +81,20 @@ define([
          * @return {Boolean}
          */
         isBaseGrandTotalDisplayNeeded: function () {
-            var total = this.totals();
-
+            const total = this.totals();
             if (!total) {
                 return false;
             }
 
-            return total['base_currency_code'] != total['quote_currency_code']; //eslint-disable-line eqeqeq
+            return total['base_currency_code'] !== total['quote_currency_code'];
         },
 
-        getAlreadyPayTotal : function () {
+        /**
+         * Retrieve the already paid total from the totals segments
+         *
+         * @returns {Number}
+         */
+        getAlreadyPaidTotal: function () {
             var buckarooFeeSegment = totals.getSegment('buckaroo_already_paid');
             try {
                 if (buckarooFeeSegment.title) {
@@ -109,10 +108,21 @@ define([
                     }
                 }
             } catch (e) {
-                // console.log(e);
             }
 
             return parseFloat(buckarooFeeSegment.value).toFixed(2);
+        },
+
+        /**
+         * Helper method to retrieve the grand total value
+         *
+         * @returns {Number}
+         */
+        _getGrandTotalValue: function () {
+            if (this.totals()) {
+                return parseFloat(totals.getSegment('grand_total').value) || 0;
+            }
+            return 0;
         }
     });
 });
