@@ -51,18 +51,18 @@
                                                                 </item>
                                                             </item>
                                                         </item>
-                                                        <!-- Already Paid Component -->
-                                                        <item name="already_paid" xsi:type="array">
-                                                            <item name="component" xsi:type="string">Buckaroo_Magento2/js/view/checkout/summary/already-paid</item>
-                                                            <item name="sortOrder" xsi:type="string">250</item> <!-- Adjust sortOrder as needed -->
-                                                            <item name="title" xsi:type="string" translate="true">Already Paid</item>
-                                                            <item name="is_always_shown" xsi:type="boolean">false</item>
-                                                        </item>
                                                         <!-- Remaining Amount Component -->
                                                         <item name="remaining_amount" xsi:type="array">
                                                             <item name="component" xsi:type="string">Buckaroo_Magento2/js/view/checkout/summary/remaining-amount</item>
-                                                            <item name="sortOrder" xsi:type="string">300</item> <!-- Adjust sortOrder as needed -->
+                                                            <item name="sortOrder" xsi:type="string">250</item> <!-- Adjust sortOrder as needed -->
                                                             <item name="title" xsi:type="string" translate="true">Remaining Amount</item>
+                                                            <item name="is_always_shown" xsi:type="boolean">false</item>
+                                                        </item>
+                                                        <!-- Already Paid Component -->
+                                                        <item name="already_paid" xsi:type="array">
+                                                            <item name="component" xsi:type="string">Buckaroo_Magento2/js/view/checkout/summary/already-paid</item>
+                                                            <item name="sortOrder" xsi:type="string">300</item> <!-- Adjust sortOrder as needed -->
+                                                            <item name="title" xsi:type="string" translate="true">Already Paid</item>
                                                             <item name="is_always_shown" xsi:type="boolean">false</item>
                                                         </item>
                                                     </item>

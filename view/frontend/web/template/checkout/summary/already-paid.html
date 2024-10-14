@@ -2,10 +2,10 @@
 <!-- ko if: isDisplayed() -->
 <tr class="totals already-paid">
     <th class="mark" scope="row">
-        <strong data-bind="i18n: title"></strong>
+        <p data-bind="i18n: title"></p>
     </th>
     <td data-bind="attr: {'data-th': title}" class="amount">
-        <strong><span class="price" data-bind="text: getValue()"></span></strong>
+        <p><span class="price" data-bind="text: getValue()"></span></p>
     </td>
 </tr>
 <!-- /ko -->
