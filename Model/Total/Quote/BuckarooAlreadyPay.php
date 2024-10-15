@@ -1,5 +1,4 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
@@ -97,7 +96,7 @@ class BuckarooAlreadyPay extends AbstractTotal
 
                         $customTitle[] = [
                             'label'          => __('Paid with') . ' ' . $label,
-                            'amount'         => -$giftcard['amount'], // Ensure this is negative
+                            'amount'         => -$giftcard['amount'],
                             'servicecode'    => $giftcard['servicecode'],
                             'serviceamount'  => $giftcard['amount'],
                             'transaction_id' => $giftcard['transaction_id'],
@@ -105,7 +104,6 @@ class BuckarooAlreadyPay extends AbstractTotal
                     }
                 }
             } catch (\Exception $e) {
-                // Optional: Log the exception if you have a logger
                 // $this->logger->error($e->getMessage());
             }
         }
@@ -113,7 +111,7 @@ class BuckarooAlreadyPay extends AbstractTotal
         return [
             'code'  => $this->getCode(),
             'title' => $customTitle ? __(json_encode($customTitle)) : $this->getLabel(),
-            'value' => -$this->groupTransaction->getAlreadyPaid($orderId), // Set as negative
+            'value' => -$this->groupTransaction->getAlreadyPaid($orderId),
         ];
     }
 
