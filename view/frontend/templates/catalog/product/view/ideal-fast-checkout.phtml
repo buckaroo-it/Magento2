@@ -1,45 +1,52 @@
 <?php
-if ($block->canShowProductButton()): ?>
-    <button id="fast-checkout-ideal-btn">
-        <img src=" <?php echo $block->escapeHtml($block->getLogo()) ?>" alt="Ideal Snel bestellen"/>
-    </button>
 
-    <script>
-        require(['jquery', 'buckaroo/ideal-fast-checkout/pay'], function ($, fastCheckout) {
-            $('#fast-checkout-ideal-btn').click(function () {
-                var productData = {
-                    qty: $('#qty').val(),
-                    page: 'product',
-                    paymentData: {
-                        method: 'buckaroo_magento2_ideal',
-                        additional_data: {
-                            issuer : 'fastcheckout'
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+
+if ($block->canShowProductButton()): ?>
+
+    <div id="fast-checkout-ideal-btn-component" data-bind="scope: 'fastCheckoutIdeal'">
+        <button id="fast-checkout-ideal-btn" type="button">
+            <img src="<?= $block->escapeHtml($block->getLogo()) ?>" alt="<?= __('Ideal Fast Checkout') ?>"/>
+        </button>
+    </div>
+
+    <script type="text/x-magento-init">
+        {
+            "#fast-checkout-ideal-btn-component": {
+                "Magento_Ui/js/core/app": {
+                    "components": {
+                        "fastCheckoutIdeal": {
+                            "component":"buckaroo/ideal-fast-checkout/pay",
+                            "config": {
+                                "page": "product",
+                                "paymentData": {
+                                    "method": "buckaroo_magento2_ideal",
+                                    "additional_data": {
+                                        "issuer": "fastcheckout"
+                                    }
+                                }
+                            }
                         }
                     }
-                };
-
-                fastCheckout.createQuoteAndPlaceOrder(productData);
-            });
-        });
+                }
+            }
+        }
     </script>
-
-    <style>
-        #fast-checkout-ideal-btn {
-            height: 45px;
-            padding: 0;
-            border: none;
-            background: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 20px 0;
-        }
-
-        #fast-checkout-ideal-btn img {
-            max-height: 100%;
-            max-width: 100%;
-            display: block;
-            margin: auto;
-        }
-    </style>
 <?php endif; ?>
