@@ -17,12 +17,14 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
+/** @var string $cspNonce */
 ?>
 <?php if ($block->canShowProductButton()): ?>
 <div id="apple-pay-catalog-product-view-component" data-bind="scope:'applepayproductcomponent'">
     <!-- ko template: getTemplate() --><!-- /ko -->
 
-    <script>
+    <script nonce="<?= $cspNonce ?>">
         if ('undefined' === typeof window.checkoutConfig) {
             window.checkoutConfig = <?= /* @noEscape */ ($block->getApplepayConfig()); ?>;
             window.isCustomerLoggedIn = window.checkoutConfig.isCustomerLoggedIn;
