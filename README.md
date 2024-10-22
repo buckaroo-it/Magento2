@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://www.buckaroo.nl/media/3473/magento2_icon.png" width="200px" position="center">
+  <img src="https://github.com/user-attachments/assets/d9ed3b9e-551c-4426-b995-4481ba21816d" width="200px" position="center">
 </p>
 
 # Buckaroo Magento 2 Payments Plugin
@@ -104,3 +104,4 @@ If you want to contribute as well, then please follow our [Contribution Guidelin
 
 <b>Please note:</b><br>
 This file has been prepared with the greatest possible care and is subject to language and/or spelling errors.
+
