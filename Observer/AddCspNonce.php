@@ -2,19 +2,22 @@
 
 namespace Buckaroo\Magento2\Observer;
 
-use Magento\Csp\Helper\CspNonceProvider;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\View\Element\Template;
+use Buckaroo\Magento2\Factory\CspNonceProviderFactory;
 
 class AddCspNonce implements ObserverInterface
 {
-    private CspNonceProvider $cspNonceProvider;
+    /**
+     * @var \Magento\Csp\Helper\CspNonceProvider|\Buckaroo\Magento2\Helper\CustomCspNonceProvider|null
+     */
+    private $cspNonceProvider;
 
     public function __construct(
-        CspNonceProvider $cspNonceProvider
+        CspNonceProviderFactory $cspNonceProviderFactory
     ) {
-        $this->cspNonceProvider = $cspNonceProvider;
+        $this->cspNonceProvider = $cspNonceProviderFactory->create();
     }
 
     public function execute(Observer $observer)
@@ -25,10 +28,19 @@ class AddCspNonce implements ObserverInterface
             return;
         }
 
-        if (false === strstr($block->getNameInLayout(), 'buckaroo_magento2')) {
+        // Retrieve the block name
+        $nameInLayout = $block->getNameInLayout();
+        // Check if $nameInLayout is a non-empty string
+        if (!is_string($nameInLayout) || strpos($nameInLayout, 'buckaroo_magento2') === false) {
             return;
         }
 
-        $block->assign('cspNonce', $this->cspNonceProvider->generateNonce());
+        if ($this->cspNonceProvider) {
+            try {
+                $nonce = $this->cspNonceProvider->generateNonce();
+                $block->assign('cspNonce', $nonce);
+            } catch (\Exception $e) {
+            }
+        }
     }
 }
