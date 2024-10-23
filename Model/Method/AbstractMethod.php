@@ -2124,9 +2124,20 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
     protected function getTaxCategory($order)
     {
-        $request    = $this->taxCalculation->getRateRequest(null, null, null, $order->getStore());
-        $taxClassId = $this->configProviderBuckarooFee->getTaxClass($order->getStore());
-        $percent    = $this->taxCalculation->getRate($request->setProductClassId($taxClassId));
+        $shippingAddress = $order->getShippingAddress();
+        $billingAddress = $order->getBillingAddress();
+        $customerTaxClassId = $order->getCustomerTaxClassId();
+        $storeId = $order->getStoreId();
+        $taxClassId = $this->configProviderBuckarooFee->getTaxClass();
+
+        $request = $this->taxCalculation->getRateRequest(
+            $shippingAddress,
+            $billingAddress,
+            $customerTaxClassId,
+            $storeId
+        );
+        $request->setProductClassId($taxClassId);
+        $percent = $this->taxCalculation->getRate($request);
         return $percent;
     }
 
@@ -2725,7 +2736,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         //Add diff line
-        if (!$this->helper->areEqualAmounts($order->getGrandTotal(), $itemsTotalAmount) && !$this->payRemainder) {
+        if (abs($order->getGrandTotal() - $itemsTotalAmount) > 0.01) {
             $diff        = $order->getGrandTotal() - $itemsTotalAmount;
             $diffLine    = $this->getDiffLine($count, $diff);
             $requestData = array_merge($requestData, $diffLine);
