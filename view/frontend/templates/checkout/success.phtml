@@ -17,8 +17,10 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
+/** @var string $cspNonce */
 ?>
-<script>
+<script nonce="<?= $cspNonce ?>">
     window.onload = function(){
         require(['Magento_Customer/js/customer-data'], function (customerData) {
             var sections = ['cart'];
