@@ -69,31 +69,12 @@ class IdealFastCheckout extends Template
      *
      * @return bool
      */
-    public function canShowProductButton()
+    public function canShowButton($page)
     {
-        if ($this->isModuleActive() && $this->isButtonEnabled()){
-            return $this->idealConfig->canShowButtonForPage(
-                'Product',
-                $this->_storeManager->getStore()
-            );
-        }
-        return false;
-    }
-
-    /**
-     * Determine if the cart button can be shown
-     *
-     * @return bool
-     */
-    public function canShowCartButton()
-    {
-        if ($this->isModuleActive() && $this->isButtonEnabled()){
-            return $this->idealConfig->canShowButtonForPage(
-                'Cart',
-                $this->_storeManager->getStore()
-            );
-        }
-        return false;
+        return ($this->isModuleActive() &&
+            $this->idealConfig->isFastCheckoutEnabled($this->_storeManager->getStore()) &&
+            $this->idealConfig->canShowButtonForPage($page, $this->_storeManager->getStore()) &&
+            $this->idealConfig->isIDealEnabled($this->_storeManager->getStore()));
     }
 
     /**
@@ -106,19 +87,6 @@ class IdealFastCheckout extends Template
         $status = $this->configProviderAccount->getActive();
         return $status == 1 || $status == 2;
     }
-
-    /**
-     * Check if ideal fast checkout button is enabled
-     *
-     * @return mixed
-     */
-    public function isButtonEnabled()
-    {
-        return $this->idealConfig->isFastCheckoutEnabled(
-            $this->_storeManager->getStore()
-        );
-    }
-
 
     /**
      * Get logo based on chosen color setting
