@@ -60,41 +60,23 @@ class Applepay extends Template
     /**
      * @return bool
      */
-    public function canShowButton()
+    public function canShowButton($page)
     {
-        $result = false;
-
-        if ($this->cart->getSummaryQty()
-            &&
-            ($this->applepayConfigProvider->getActive() != 0)
-            &&
-            ($this->applepayConfigProvider->getAvailableButtons())
-            &&
-            (in_array('Cart', $this->applepayConfigProvider->getAvailableButtons()))
-        ) {
-            $result = true;
-        }
-
-        return $result;
+        return $this->cart->getSummaryQty() &&
+            $this->isModuleActive() &&
+            in_array($page, $this->applepayConfigProvider->getAvailableButtons()) &&
+            $this->applepayConfigProvider->isApplePayEnabled($this->_storeManager->getStore());
     }
 
     /**
+     * Check if Buckaroo module is active
+     *
      * @return bool
      */
-    public function canShowProductButton()
+    public function isModuleActive()
     {
-        $result = false;
-
-        if (($this->applepayConfigProvider->getActive() != 0)
-            &&
-            ($this->applepayConfigProvider->getAvailableButtons())
-            &&
-            (in_array('Product', $this->applepayConfigProvider->getAvailableButtons()))
-        ) {
-            $result = true;
-        }
-
-        return $result;
+        $status = $this->applepayConfigProvider->getActive();
+        return $status == 1 || $status == 2;
     }
 
     /**
@@ -102,10 +84,6 @@ class Applepay extends Template
      */
     public function getCheckoutConfig()
     {
-        if (!$this->canShowButton()) {
-            return null;
-        }
-
         return json_encode($this->compositeConfigProvider->getConfig(), JSON_HEX_TAG);
     }
 
