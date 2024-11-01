@@ -29,8 +29,11 @@
 
 <script>
     if ('undefined' === typeof window.checkoutConfig) {
-        window.checkoutConfig = <?= /* @noEscape */ $block->getCheckoutConfig(); ?>;
+        window.checkoutConfig = <?= /* @noEscape */ $block->getApplepayConfig(); ?>;
         window.isCustomerLoggedIn = window.checkoutConfig.isCustomerLoggedIn;
+        if ('undefined' === typeof window.checkoutConfig.totalsData) {
+            window.checkoutConfig.totalsData = {};
+        }
     }
     showPayButton = function() {
         require(['jquery', 'buckaroo/applepay/checkout-cart'], function (jQuery, applepayPay) {
