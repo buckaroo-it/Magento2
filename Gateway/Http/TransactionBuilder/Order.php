@@ -85,7 +85,7 @@ class Order extends AbstractTransactionBuilder
                 'Type' => strpos($ip, ':') === false ? 'IPv4' : 'IPv6',
             ],
             'ReturnURL' => $this->getReturnUrl(),
-            'ReturnURLCancel' => $this->getReturnUrl(),
+            'ReturnURLCancel' => $this->getCancelUrl(),
             'ReturnURLError' => $this->getReturnUrl(),
             'ReturnURLReject' => $this->getReturnUrl(),
             'OriginalTransactionKey' => $this->originalTransactionKey,

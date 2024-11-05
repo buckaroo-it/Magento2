@@ -37,6 +37,8 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
 
     public const ADDITIONAL_RETURN_URL = 'buckaroo_return_url';
 
+    public const ADDITIONAL_CANCEL_URL = 'buckaroo_cancel_url';
+
     /**
      * @var \Magento\Sales\Model\Order
      */
@@ -66,6 +68,11 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
      * @var null|string
      */
     protected $returnUrl = null;
+
+    /**
+     * @var null|string
+     */
+    protected $cancelUrl = null;
 
     /**
      * @var ScopeConfigInterface
@@ -428,7 +435,6 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
             return $returnUrl;
         }
 
-
         if ($this->returnUrl === null) {
             $url = $this->urlBuilder->setScope($this->order->getStoreId());
             $url = $url->getRouteUrl('buckaroo/redirect/process') . '?form_key=' . $this->getFormKey();
@@ -454,6 +460,55 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
             in_array(parse_url($returnUrl, PHP_URL_SCHEME), ['http', 'https'])
         ) {
             return $returnUrl;
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setCancelUrl($url)
+    {
+        $routeUrl = $this->urlBuilder->getRouteUrl($url);
+
+        $this->cancelUrl = $routeUrl;
+
+        return $this;
+    }
+
+    public function getCancelUrl()
+    {
+
+        $cancelUrl = $this->getCancelUrlFromPayment();
+        if($cancelUrl !== null) {
+            $this->setCancelUrl($cancelUrl);
+            return $cancelUrl;
+        }
+
+        if ($this->cancelUrl === null) {
+            $url = $this->urlBuilder->setScope($this->order->getStoreId());
+            $url = $url->getRouteUrl('buckaroo/redirect/process') . '?form_key=' . $this->getFormKey();
+
+            $this->setCancelUrl($url);
+        }
+
+        return $this->cancelUrl;
+    }
+
+    public function getCancelUrlFromPayment()
+    {
+        if (
+            $this->getOrder() === null ||
+            $this->getOrder()->getPayment() === null ||
+            $this->getOrder()->getPayment()->getAdditionalInformation(self::ADDITIONAL_CANCEL_URL) === null
+        ) {
+            return;
+        }
+        $cancelUrl = $this->getOrder()->getPayment()->getAdditionalInformation(self::ADDITIONAL_CANCEL_URL);
+        if (
+            !filter_var($cancelUrl, FILTER_VALIDATE_URL) === false &&
+            in_array(parse_url($cancelUrl, PHP_URL_SCHEME), ['http', 'https'])
+        ) {
+            return $cancelUrl;
         }
     }
 
