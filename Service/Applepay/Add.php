@@ -168,16 +168,28 @@ class Add
             }
             $this->quoteRepository->save($cart);
             //this delivery address is already assigned to the cart
-            $shippingMethods = $this->appleShippingMethod->getAvailableMethods( $cart);
-            foreach ($shippingMethods as $index => $shippingMethod) {
+
+            try {
+                $shippingMethods = $this->appleShippingMethod->getAvailableMethods($cart);
+            } catch (\Exception $e) {
+                throw new \Exception(__('Unable to retrieve shipping methods.'));
+            }
+
+            foreach ($shippingMethods as $method) {
                 $shippingMethodsResult[] = [
-                    'carrier_title' => $shippingMethod['carrier_title'],
-                    'price_incl_tax' => round($shippingMethod['amount'], 2),
-                    'method_code' => $shippingMethod['carrier_code'] . '_' .  $shippingMethod['method_code'],
-                    'method_title' => $shippingMethod['method_title'],
+                    'carrier_title' => $method['carrier_title'],
+                    'price_incl_tax' => round($method['amount']['value'], 2),
+                    'method_code' => $method['carrier_code'] . '__SPLIT__' .  $method['method_code'],
+                    'method_title' => $method['method_title'],
                 ];
             }
-            $cart->getShippingAddress()->setShippingMethod($shippingMethodsResult[0]['method_code']);
+
+            if (!empty($shippingMethodsResult)) {
+                // Set the first available shipping method
+                $cart->getShippingAddress()->setShippingMethod($shippingMethodsResult[0]['method_code']);
+            } else {
+                throw new \Exception(__('No shipping methods are available for the provided address.'));
+            }
         }
         $cart->setTotalsCollectedFlag(false);
         $cart->collectTotals();
