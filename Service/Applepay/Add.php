@@ -111,7 +111,7 @@ class Add
     public function process($request)
     {
         $cart_hash = $request->getParam('id');
-        
+
         if($cart_hash) {
             $cartId = $this->maskedQuoteIdToQuoteId->execute($cart_hash);
             $cart = $this->cartRepository->get($cartId);
@@ -121,14 +121,21 @@ class Add
         }
 
         $product = $request->getParam('product');
+
+        // Check if product data is present and valid
+        if (!$product || !is_array($product) || !isset($product['id']) || !is_numeric($product['id'])) {
+            throw new \Exception('Product data is missing or invalid.');
+        }
+
+
         $cart->removeAllItems();
-        
+
         try {
             $productToBeAdded = $this->productRepository->getById($product['id']);
         } catch (NoSuchEntityException $e) {
             throw new NoSuchEntityException(__('Could not find a product with ID "%id"', ['id' => $product['id']]));
         }
-       
+
         $cartItem = new CartItem(
             $productToBeAdded->getSku(),
             $product['qty']
@@ -140,19 +147,19 @@ class Add
 
         $cart->addProduct($productToBeAdded, $this->requestBuilder->build($cartItem));
         $this->cartRepository->save($cart);
-        
+
         $wallet = $request->getParam('wallet');
 
         $shippingMethodsResult = [];
         if (!$cart->getIsVirtual()) {
             $shippingAddressData = $this->applepayModel->processAddressFromWallet($wallet, 'shipping');
-            
-            
+
+
             $shippingAddress = $this->quoteAddressFactory->create();
             $shippingAddress->addData($shippingAddressData);
 
-            $errors = $shippingAddress->validate(); 
-                    
+            $errors = $shippingAddress->validate();
+
             try {
                 $this->shippingAddressManagement->assign($cart->getId(), $shippingAddress);
             } catch (\Exception $e) {

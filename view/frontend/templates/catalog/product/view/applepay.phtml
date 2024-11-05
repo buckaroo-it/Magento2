@@ -19,27 +19,32 @@
  */
 ?>
 <?php if ($block->canShowButton('Product')): ?>
-<div class="box-tocart">
-    <div class="fieldset">
-        <div class="actions">
-            <div id="apple-pay-wrapper" data-bind="afterRender: showPayButton"></div>
-        </div>
-    </div>
-</div>
+    <div id="apple-pay-catalog-product-view-component" data-bind="scope:'applepayproductcomponent'">
+        <!-- ko template: getTemplate() --><!-- /ko -->
 
-<script>
-    if ('undefined' === typeof window.checkoutConfig) {
-        window.checkoutConfig = <?= /* @noEscape */ $block->getApplepayConfig(); ?>;
-        window.isCustomerLoggedIn = window.checkoutConfig.isCustomerLoggedIn;
-        if ('undefined' === typeof window.checkoutConfig.totalsData) {
-            window.checkoutConfig.totalsData = {};
+    <script>
+        if ('undefined' === typeof window.checkoutConfig) {
+            window.checkoutConfig = <?= /* @noEscape */ ($block->getApplepayConfig()); ?>;
+            window.isCustomerLoggedIn = window.checkoutConfig.isCustomerLoggedIn;
+            if ('undefined' === typeof window.checkoutConfig.totalsData) {
+                window.checkoutConfig.totalsData = {};
+            }
         }
-    }
-    showPayButton = function() {
-        require(['jquery', 'buckaroo/applepay/checkout-cart'], function (jQuery, applepayPay) {
-            applepayPay.showPayButton('product');
-        });
-    }
-</script>
+    </script>
 
+    <script type="text/x-magento-init">
+        {
+            "#apple-pay-catalog-product-view-component": {
+                "Magento_Ui/js/core/app": {
+                    "components": {
+                        "applepayproductcomponent": {
+                            "component":"buckaroo/applepay/catalog-product-view",
+                            "template":"Buckaroo_Magento2/catalog/product/view/applepay"
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</div>
 <?php endif; ?>
