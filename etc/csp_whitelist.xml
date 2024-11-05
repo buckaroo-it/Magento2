@@ -18,15 +18,18 @@ list.xsd">
         </policy>
         <policy id="img-src">
             <values>
+                <value id="payconiq-img" type="host">https://portal.payconiq.com</value>
                 <value id="buckaroo-static-img" type="host">https://static.buckaroo.nl</value>
             </values>
         </policy>
         <policy id="connect-src">
             <values>
+                <value id="payconiq-ws" type="host">wss://websocketservice-externalapi.prod.buckaroo.io</value>
                 <value id="buckaroo-static" type="host">https://static.buckaroo.nl</value>
                 <value id="buckaroo-ws" type="host">wss://websockets.buckaroo.io/</value>
                 <value id="buckaroo-checkout" type="host">https://checkout.buckaroo.nl</value>
                 <value id="buckaroo-checkout-test" type="host">https://testcheckout.buckaroo.nl</value>
+                <value id="applepay-buckaroo" type="host">https://applepay.buckaroo.io</value>
             </values>
         </policy>
     </policies>

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
@@ -22,24 +21,41 @@
 namespace Buckaroo\Magento2\Model\Total\Quote;
 
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
+use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
+use Magento\Quote\Model\Quote;
+use Magento\Quote\Model\Quote\Address\Total;
+use Magento\Quote\Model\Quote\Address\Total\AbstractTotal;
+use Magento\Quote\Api\Data\ShippingAssignmentInterface;
 
-class BuckarooAlreadyPay extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
+class BuckarooAlreadyPay extends AbstractTotal
 {
-
     /**
      * @var PriceCurrencyInterface
      */
-    public $priceCurrency;
+    protected $priceCurrency;
 
+    /**
+     * @var PaymentGroupTransaction
+     */
     protected $groupTransaction;
+
+    /**
+     * @var Collection
+     */
     protected $giftcardCollection;
 
-
+    /**
+     * Constructor
+     *
+     * @param PriceCurrencyInterface $priceCurrency
+     * @param PaymentGroupTransaction $groupTransaction
+     * @param Collection $giftcardCollection
+     */
     public function __construct(
         PriceCurrencyInterface $priceCurrency,
         PaymentGroupTransaction $groupTransaction,
-        \Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection $giftcardCollection
+        Collection $giftcardCollection
     ) {
         $this->setCode('buckaroo_already_paid');
         $this->priceCurrency      = $priceCurrency;
@@ -50,53 +66,53 @@ class BuckarooAlreadyPay extends \Magento\Quote\Model\Quote\Address\Total\Abstra
     /**
      * Add buckaroo fee information to address
      *
-     * @param  \Magento\Quote\Model\Quote               $quote
-     * @param  \Magento\Quote\Model\Quote\Address\Total $total
-     * @return $this
+     * @param Quote $quote
+     * @param Total $total
+     * @return array
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function fetch(\Magento\Quote\Model\Quote $quote, \Magento\Quote\Model\Quote\Address\Total $total)
+    public function fetch(Quote $quote, Total $total)
     {
         $orderId = $quote->getReservedOrderId();
 
         $customTitle = [];
         if ($orderId) {
-            $items = $this->groupTransaction->getGroupTransactionItemsNotRefunded($orderId);
+            try {
+                $items = $this->groupTransaction->getGroupTransactionItemsNotRefunded($orderId);
 
-            foreach ($items as $giftcard) {
-                $foundGiftcard = $this->giftcardCollection->getItemByColumnValue(
-                    'servicecode',
-                    $giftcard['servicecode']
-                );
+                foreach ($items as $giftcard) {
+                    $foundGiftcard = $this->giftcardCollection->getItemByColumnValue(
+                        'servicecode',
+                        $giftcard['servicecode']
+                    );
 
-                if ($foundGiftcard !== null || $giftcard['servicecode'] === 'buckaroovoucher') {
+                    if ($foundGiftcard !== null || $giftcard['servicecode'] === 'buckaroovoucher') {
+                        if ($giftcard['servicecode'] === 'buckaroovoucher') {
+                            $label = __('Voucher');
+                        } else {
+                            $label = $foundGiftcard['label'];
+                        }
 
-
-                    if ($giftcard['servicecode'] === 'buckaroovoucher') {
-                        $label = __('Voucher');
-                    } else {
-                        $label = $foundGiftcard['label'];
+                        $customTitle[] = [
+                            'label'          => __('Paid with') . ' ' . $label,
+                            'amount'         => -$giftcard['amount'],
+                            'servicecode'    => $giftcard['servicecode'],
+                            'serviceamount'  => $giftcard['amount'],
+                            'transaction_id' => $giftcard['transaction_id'],
+                        ];
                     }
-
-                    $customTitle[] = [
-                        'label' => __('Paid with') . ' ' . $label,
-                        'amount' => -$giftcard['amount'],
-                        'servicecode' => $giftcard['servicecode'],
-                        'serviceamount' => $giftcard['amount'],
-                        'transaction_id' => $giftcard['transaction_id'],
-                    ];
                 }
+            } catch (\Exception $e) {
+                // $this->logger->error($e->getMessage());
             }
         }
 
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $totals = [
-            'code' => $this->getCode(),
+        return [
+            'code'  => $this->getCode(),
             'title' => $customTitle ? __(json_encode($customTitle)) : $this->getLabel(),
-            'value' => $this->groupTransaction->getAlreadyPaid($orderId),
+            'value' => -$this->groupTransaction->getAlreadyPaid($orderId),
         ];
-        return $totals;
     }
 
     /**
