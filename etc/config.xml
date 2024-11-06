@@ -95,7 +95,7 @@
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
-                <payment_method_after_expiry>amex,bancontactmrcash,cartebancaire,cartebleuevisa,nexi,postepay,dankort,eps,giftcard,ideal,mastercard,paypal,sofortueberweisung,transfer,visa,maestro,visaelectron,vpay,alipay,wechatpay,p24,trustly,belfius,blik</payment_method_after_expiry>
+                <payment_method_after_expiry>amex,bancontactmrcash,cartebancaire,cartebleuevisa,nexi,postepay,dankort,eps,giftcard,ideal,mastercard,paypal,transfer,visa,maestro,visaelectron,vpay,alipay,wechatpay,p24,trustly,belfius,blik</payment_method_after_expiry>
             </buckaroo_magento2_sepadirectdebit>
 
             <buckaroo_magento2_paypal>
@@ -161,7 +161,7 @@
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>1</available_in_backend>
-                <payment_method_after_expiry>amex,bancontactmrcash,cartebancaire,cartebleuevisa,nexi,postepay,dankort,eps,giftcard,ideal,mastercard,paypal,sofortueberweisung,transfer,visa,maestro,visaelectron,vpay,alipay,wechatpay,p24,trustly,belfius,blik</payment_method_after_expiry>
+                <payment_method_after_expiry>amex,bancontactmrcash,cartebancaire,cartebleuevisa,nexi,postepay,dankort,eps,giftcard,ideal,mastercard,paypal,transfer,visa,maestro,visaelectron,vpay,alipay,wechatpay,p24,trustly,belfius,blik</payment_method_after_expiry>
             </buckaroo_magento2_transfer>
 
             <buckaroo_magento2_mrcash>
@@ -180,20 +180,6 @@
                 <available_in_backend>0</available_in_backend>
                 <client_side>0</client_side>
             </buckaroo_magento2_mrcash>
-
-            <buckaroo_magento2_sofortbanking>
-                <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Sofortbanking</model>
-                <order_status>pending</order_status>
-                <title>Sofort</title>
-                <allowspecific>0</allowspecific>
-                <sort_order>150</sort_order>
-                <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
-                <group>buckaroo_magento2</group>
-                <payment_action>order</payment_action>
-                <available_in_backend>0</available_in_backend>
-            </buckaroo_magento2_sofortbanking>
 
             <buckaroo_magento2_belfius>
                 <active>0</active>
@@ -255,8 +241,8 @@
                 <can_capture_partial>1</can_capture_partial>
                 <available_in_backend>1</available_in_backend>
                 <send_mail>1</send_mail>
-                <payment_method>amex,bancontactmrcash,cartebancaire,cartebleuevisa,nexi,postepay,dankort,eps,sepadirectdebit,giftcard,ideal,mastercard,paypal,sofortueberweisung,transfer,visa,maestro,visaelectron,vpay,alipay,wechatpay,p24,trustly,belfius,blik</payment_method>
-                <payment_method_after_expiry>amex,bancontactmrcash,cartebancaire,cartebleuevisa,nexi,postepay,dankort,eps,giftcard,ideal,mastercard,paypal,sofortueberweisung,transfer,visa,maestro,visaelectron,vpay,alipay,wechatpay,p24,trustly,belfius,blik</payment_method_after_expiry>
+                <payment_method>amex,bancontactmrcash,cartebancaire,cartebleuevisa,nexi,postepay,dankort,eps,sepadirectdebit,giftcard,ideal,mastercard,paypal,transfer,visa,maestro,visaelectron,vpay,alipay,wechatpay,p24,trustly,belfius,blik</payment_method>
+                <payment_method_after_expiry>amex,bancontactmrcash,cartebancaire,cartebleuevisa,nexi,postepay,dankort,eps,giftcard,ideal,mastercard,paypal,transfer,visa,maestro,visaelectron,vpay,alipay,wechatpay,p24,trustly,belfius,blik</payment_method_after_expiry>
                 <expire_days>7</expire_days>
                 <cron_cancel_ppe>1</cron_cancel_ppe>
             </buckaroo_magento2_payperemail>

@@ -346,9 +346,7 @@ class Process extends \Magento\Framework\App\Action\Action
                 }
 
                 $pendingCode = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING');
-                if (($statusCode == $pendingCode)
-                    && !$this->hasPostData('brq_payment_method', 'sofortueberweisung')
-                ) {
+                if ($statusCode == $pendingCode) {
                     $this->addErrorMessage(
                         __(
                             'Unfortunately an error occurred while processing your payment.' .

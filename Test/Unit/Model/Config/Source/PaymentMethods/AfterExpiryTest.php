@@ -54,9 +54,6 @@ class AfterExpiryTest extends BaseTest
                 ['value' => 'paypal',             'label' => 'PayPal']
             ],
             [
-                ['value' => 'sofortueberweisung', 'label' => 'Sofort Banking']
-            ],
-            [
                 ['value' => 'transfer',           'label' => 'Bank Transfer']
             ],
             [
