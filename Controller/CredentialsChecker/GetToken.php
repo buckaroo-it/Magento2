@@ -1,7 +1,7 @@
 <?php
 namespace Buckaroo\Magento2\Controller\CredentialsChecker;
 
-use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcards;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller\Result\JsonFactory;
@@ -14,7 +14,7 @@ class GetToken extends Action
 {
     protected $resultJsonFactory;
     protected $logger;
-    protected $configProviderAccount;
+    protected $configProviderCreditcard;
     protected $encryptor;
     protected $store;
     protected $curlClient;
@@ -23,14 +23,14 @@ class GetToken extends Action
         Context $context,
         JsonFactory $resultJsonFactory,
         LoggerInterface $logger,
-        Account $configProviderAccount,
+        Creditcards $configProviderCreditcard,
         EncryptorInterface $encryptor,
         StoreManagerInterface $storeManager,
         Curl $curlClient
     ) {
         $this->resultJsonFactory = $resultJsonFactory;
         $this->logger = $logger;
-        $this->configProviderAccount = $configProviderAccount;
+        $this->configProviderCreditcard = $configProviderCreditcard;
         $this->encryptor = $encryptor;
         $this->store = $storeManager->getStore();
         $this->curlClient = $curlClient;
@@ -59,11 +59,11 @@ class GetToken extends Action
         }
     }
 
-    protected function getHostedFieldsUsername()
+    protected function getHostedFieldsClientId()
     {
         try {
             return $this->encryptor->decrypt(
-                $this->configProviderAccount->getHostedFieldsUsername($this->store)
+                $this->configProviderCreditcard->getHostedFieldsClientId($this->store)
             );
         } catch (\Exception $e) {
             $this->logger->error('Error decrypting Hosted Fields Username: ' . $e->getMessage());
@@ -71,14 +71,24 @@ class GetToken extends Action
         }
     }
 
-    protected function getHostedFieldsPassword()
+    protected function getHostedFieldsClientSecret()
     {
         try {
             return $this->encryptor->decrypt(
-                $this->configProviderAccount->getHostedFieldsPassword($this->store)
+                $this->configProviderCreditcard->getHostedFieldsClientSecret($this->store)
             );
         } catch (\Exception $e) {
             $this->logger->error('Error decrypting Hosted Fields Password: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    protected function getAllowedIssuers()
+    {
+        try {
+            return $this->configProviderCreditcard->getSupportedServices();
+        } catch (\Exception $e) {
+            $this->logger->error('Error getting Allowed Issuers: ' . $e->getMessage());
             return null;
         }
     }
@@ -97,13 +107,20 @@ class GetToken extends Action
         }
 
         // Get username and password
-        $hostedFieldsUsername = $this->getHostedFieldsUsername();
-        $hostedFieldsPassword = $this->getHostedFieldsPassword();
+        $hostedFieldsClientId = $this->getHostedFieldsClientId();
+        $hostedFieldsClientSecret = $this->getHostedFieldsClientSecret();
+        $issuers = $this->getAllowedIssuers();
 
-        if (empty($hostedFieldsUsername) || empty($hostedFieldsPassword)) {
+        if (empty($hostedFieldsClientId) || empty($hostedFieldsClientSecret)) {
             return $result->setHttpResponseCode(400)->setData([
                 'error' => true,
                 'message' => 'Hosted Fields Username or Password is empty.'
+            ]);
+        }
+        if (empty($issuers)) {
+            return $result->setHttpResponseCode(400)->setData([
+                'error' => true,
+                'message' => 'There is no Allowed Issuers for Hosted Fields.'
             ]);
         }
 
@@ -115,14 +132,17 @@ class GetToken extends Action
                 'grant_type' => 'client_credentials'
             ];
 
-            $response = $this->sendPostRequest($url, $hostedFieldsUsername, $hostedFieldsPassword, $postData);
+            $response = $this->sendPostRequest($url, $hostedFieldsClientId, $hostedFieldsClientSecret, $postData);
             $responseArray = json_decode($response, true);
 
             // Check for successful response
             if (isset($responseArray['access_token'])) {
                 return $result->setData([
                     'error' => false,
-                    'data' => $responseArray
+                    'data' => [
+                        'access_token' => $responseArray['access_token'],
+                        'issuers' => $issuers
+                    ]
                 ]);
             }
 

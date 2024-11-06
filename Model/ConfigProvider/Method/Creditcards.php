@@ -39,10 +39,10 @@ class Creditcards extends AbstractConfigProvider
     /**#@+
      * Creditcard service codes.
      */
-    const CREDITCARD_SERVICE_CODE_MASTERCARD    = 'mastercard';
-    const CREDITCARD_SERVICE_CODE_VISA          = 'visa';
-    const CREDITCARD_SERVICE_CODE_AMEX          = 'amex';
-    const CREDITCARD_SERVICE_CODE_MAESTRO       = 'maestro';
+    const CREDITCARD_SERVICE_CODE_MASTERCARD    = 'MasterCard';
+    const CREDITCARD_SERVICE_CODE_VISA          = 'Visa';
+    const CREDITCARD_SERVICE_CODE_AMEX          = 'Amex';
+    const CREDITCARD_SERVICE_CODE_MAESTRO       = 'Maestro';
     const CREDITCARD_SERVICE_CODE_VPAY          = 'vpay';
     const CREDITCARD_SERVICE_CODE_VISAELECTRON  = 'visaelectron';
     const CREDITCARD_SERVICE_CODE_CARTEBLEUE    = 'cartebleuevisa';
@@ -71,6 +71,8 @@ class Creditcards extends AbstractConfigProvider
     const XPATH_CREDITCARDS_SELLERS_PROTECTION_UNAUTHORIZEDPAYMENT_ELIGIBLE = 'payment/'.
         'buckaroo_magento2_creditcards/sellers_protection_unauthorizedpayment_eligible';
     const XPATH_CREDITCARDS_ALLOWED_ISSUERS = 'payment/buckaroo_magento2_creditcards/allowed_issuers';
+    const XPATH_CREDITCARDS_HOSTED_FIELDS_CLIENT_ID = 'payment/buckaroo_magento2_creditcards/hosted_fields_client_id';
+    const XPATH_CREDITCARDS_HOSTED_FIELDS_CLIENT_SECRET = 'payment/buckaroo_magento2_creditcards/hosted_fields_client_secret';
     const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_creditcards/allowed_currencies';
     const XPATH_ALLOW_SPECIFIC = 'payment/buckaroo_magento2_creditcards/allowspecific';
     const XPATH_SPECIFIC_COUNTRY = 'payment/buckaroo_magento2_creditcards/specificcountry';
@@ -80,21 +82,6 @@ class Creditcards extends AbstractConfigProvider
         [
             'name' => 'American Express',
             'code' => self::CREDITCARD_SERVICE_CODE_AMEX,
-            'sort' => 0
-        ],
-        [
-            'name' => 'Carte Bancaire',
-            'code' => self::CREDITCARD_SERVICE_CODE_CARTEBANCAIRE,
-            'sort' => 0
-        ],
-        [
-            'name' => 'Carte Bleue',
-            'code' => self::CREDITCARD_SERVICE_CODE_CARTEBLEUE,
-            'sort' => 0
-        ],
-        [
-            'name' => 'Dankort',
-            'code' => self::CREDITCARD_SERVICE_CODE_DANKORT,
             'sort' => 0
         ],
         [
@@ -108,30 +95,10 @@ class Creditcards extends AbstractConfigProvider
             'sort' => 0
         ],
         [
-            'name' => 'Nexi',
-            'code' => self::CREDITCARD_SERVICE_CODE_NEXI,
-            'sort' => 0
-        ],
-        [
-            'name' => 'PostePay',
-            'code' => self::CREDITCARD_SERVICE_CODE_POSTEPAY,
-            'sort' => 0
-        ],
-        [
             'name' => 'VISA',
             'code' => self::CREDITCARD_SERVICE_CODE_VISA,
             'sort' => 0
-        ],
-        [
-            'name' => 'VISA Electron',
-            'code' => self::CREDITCARD_SERVICE_CODE_VISAELECTRON,
-            'sort' => 0
-        ],
-        [
-            'name' => 'VPay',
-            'code' => self::CREDITCARD_SERVICE_CODE_VPAY,
-            'sort' => 0
-        ],
+        ]
     ];
 
     /**
@@ -178,19 +145,19 @@ class Creditcards extends AbstractConfigProvider
         return $paymentFee ? $paymentFee : false;
     }
 
-    public function getHostedFieldsUsername()
+    public function getHostedFieldsClientId()
     {
         return $this->scopeConfig->getValue(
-            'buckaroo_magento2/account/hosted_fields_username',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            self::XPATH_CREDITCARDS_HOSTED_FIELDS_CLIENT_ID,
+            ScopeInterface::SCOPE_STORE
         );
     }
 
-    public function getHostedFieldsPassword()
+    public function getHostedFieldsClientSecret()
     {
         return $this->scopeConfig->getValue(
-            'buckaroo_magento2/account/hosted_fields_password',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            self::XPATH_CREDITCARDS_HOSTED_FIELDS_CLIENT_SECRET,
+            ScopeInterface::SCOPE_STORE
         );
     }
 
@@ -214,5 +181,19 @@ class Creditcards extends AbstractConfigProvider
         }
 
         return $issuers;
+    }
+
+    public function getSupportedServices(): array
+    {
+        $issuers = $this->formatIssuers();
+        $supportedServices = [];
+
+        foreach ($issuers as $issuer) {
+            if ($issuer['active']) {
+                $supportedServices[] = $issuer['code'];
+            }
+        }
+
+        return $supportedServices;
     }
 }

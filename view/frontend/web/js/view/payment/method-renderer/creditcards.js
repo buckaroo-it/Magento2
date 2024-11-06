@@ -79,8 +79,10 @@ define(
                         // Display the error message in the observable
                         this.oauthTokenError("Error getting OAuth token.");
                     } else {
+                        const accessToken = response.data.access_token;
+                        const issuers = response.data.issuers;
                         // Success: Initialize hosted fields with access token
-                        await this.initHostedFields(response.data.access_token);
+                        await this.initHostedFields(accessToken,issuers);
                     }
                 } catch (error) {
                     // Catch any other errors (e.g., network issues)
@@ -114,9 +116,13 @@ define(
                 $('#cc-cvc-wrapper iframe').remove();
             },
 
-            async initHostedFields(accessToken) {
+            async initHostedFields(accessToken,issuers) {
                 try {
                     const sdkClient = new BuckarooHostedFieldsSdk.HFClient(accessToken);
+                    var locale = document.documentElement.lang;
+                    var languageCode = locale.split('_')[0];
+                    sdkClient.setLanguage(languageCode);
+                    sdkClient.setSupportedServices(issuers);
 
                     await sdkClient.startSession(event => {
                         sdkClient.handleValidation(event, 'cc-name-error', 'cc-number-error', 'cc-expiry-error', 'cc-cvc-error');
@@ -139,6 +145,17 @@ define(
                         this.service = sdkClient.getService();
                     });
 
+                    let cardLogoStyling = {
+                        height:"80%",
+                        position: 'absolute',
+                        border: '1px soli gray',
+                        radius: '5px',
+                        opacity:'1',
+                        transition:'all 0.3s ease',
+                        right:'5px',
+                        backgroundColor:'inherit'
+                    };
+
                     // Define styling and mount hosted fields as needed...
                     let styling = {
                         fontSize: "14px",
@@ -146,7 +163,8 @@ define(
                         textAlign: 'left',
                         background: 'inherit',
                         color: 'black',
-                        placeholderColor: 'grey'
+                        placeholderColor: 'grey',
+                        cardLogoStyling: cardLogoStyling
                     };
 
                     await sdkClient.mountCardHolderName("#cc-name-wrapper", {

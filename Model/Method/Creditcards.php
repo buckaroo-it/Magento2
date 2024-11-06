@@ -129,7 +129,7 @@ class Creditcards extends AbstractMethod
          */
         $gcConfig = $this->configProviderMethodFactory->get('creditcards');
 
-        if ($gcConfig->getHostedFieldsUsername() === null || $gcConfig->getHostedFieldsPassword() === null) {
+        if ($gcConfig->getHostedFieldsClientId() === null || $gcConfig->getHostedFieldsClientSecret() === null) {
             return false;
         }
         /**

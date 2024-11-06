@@ -35,20 +35,20 @@
             </tooltip>
         </field>
 
-        <field id="hosted_fields_username" translate="label comment tooltip" type="obscure" sortOrder="33" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Buckaroo Hosted Fields Username:</label>
-            <comment><![CDATA[Enter your Buckaroo Hosted Fields Username, obtainable from the Buckaroo Plaza at → Settings → <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank">Token registration</a>.]]></comment>
-            <tooltip>Please enter your Buckaroo Hosted Fields Username.</tooltip>
+        <field id="hosted_fields_client_id" translate="label comment tooltip" type="obscure" sortOrder="33" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Buckaroo Hosted Fields Client ID:</label>
+            <comment><![CDATA[Enter your Buckaroo Hosted Fields Client ID, obtainable from the Buckaroo Plaza at → Settings → <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank">Token registration</a>.]]></comment>
+            <tooltip>Please enter your Buckaroo Hosted Fields Client ID.</tooltip>
             <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-            <config_path>buckaroo_magento2/account/hosted_fields_username</config_path>
+            <config_path>payment/buckaroo_magento2_creditcards/hosted_fields_client_id</config_path>
         </field>
 
-        <field id="hosted_fields_password" translate="label comment tooltip" type="obscure" sortOrder="34" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Buckaroo Hosted Fields Password:</label>
-            <comment><![CDATA[Enter your Buckaroo Hosted Fields Password, obtainable from the Buckaroo Plaza at → Settings → <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank">Token registration</a>.]]></comment>
-            <tooltip>Please enter your Buckaroo Hosted Fields Password.</tooltip>
+        <field id="hosted_fields_client_secret" translate="label comment tooltip" type="obscure" sortOrder="34" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Buckaroo Hosted Fields Client Secret:</label>
+            <comment><![CDATA[Enter your Buckaroo Hosted Fields Client Secret, obtainable from the Buckaroo Plaza at → Settings → <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank">Token registration</a>.]]></comment>
+            <tooltip>Please enter your Buckaroo Hosted Fields Client Secret.</tooltip>
             <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-            <config_path>buckaroo_magento2/account/hosted_fields_password</config_path>
+            <config_path>payment/buckaroo_magento2_creditcards/hosted_fields_client_secret</config_path>
         </field>
 
         <field id="title" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
