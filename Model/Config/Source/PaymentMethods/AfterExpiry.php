@@ -37,6 +37,7 @@ class AfterExpiry implements \Magento\Framework\Option\ArrayInterface
             ['value' => 'dankort',                'label' => __('Dankort')],
             ['value' => 'eps',                    'label' => __('EPS')],
             ['value' => 'giftcard',               'label' => __('Giftcards')],
+            ['value' => 'giropay',                'label' => __('Giropay')],
             ['value' => 'ideal',                  'label' => __('iDEAL')],
             ['value' => 'idealprocessing',        'label' => __('iDEAL Processing')],
             ['value' => 'maestro',                'label' => __('Maestro')],
