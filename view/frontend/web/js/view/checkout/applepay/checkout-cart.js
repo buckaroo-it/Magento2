@@ -32,9 +32,9 @@ define(
         'use strict';
 
         return {
-            showPayButton: function () {
+            showPayButton: function ($page) {
                 applepayPay.setQuote(quote);
-                applepayPay.showPayButton('cart');
+                applepayPay.showPayButton($page);
 
                 applepayPay.transactionResult.subscribe(
                     function () {

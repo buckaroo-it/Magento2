@@ -259,10 +259,6 @@ class Push implements PushInterface
         try {
             $response = $this->pushProcess();
 
-            if ($this->isFastCheckout()) {
-                $this->updateOrderAddressesIfFastCheckout();
-            }
-
             return $response;
         } catch (\Throwable $e) {
             $this->logging->addDebug(__METHOD__ . '|Exception|' . $e->getMessage());
@@ -597,6 +593,9 @@ class Push implements PushInterface
             );
         }
 
+        if ($this->isFastCheckout()) {
+            $this->updateOrderAddressesIfFastCheckout();
+        }
 
         if (!$this->isGroupTransactionInfo()) {
             $this->setTransactionKey();

@@ -19,8 +19,6 @@
  */
 namespace Buckaroo\Magento2\Api\Data;
 
-use Buckaroo\Magento2\Api\Data\BreakdownItemInterface;
-
 interface QuoteCreateResponseInterface extends BreakdownItemInterface
 {
     /**

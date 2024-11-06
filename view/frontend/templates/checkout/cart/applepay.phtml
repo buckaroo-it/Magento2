@@ -18,7 +18,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 ?>
-<?php if ($block->canShowButton()): ?>
+<?php if ($block->canShowButton('Cart')): ?>
 <div class="box-tocart">
     <div class="fieldset">
         <div class="actions">
@@ -34,7 +34,7 @@
     }
     showPayButton = function() {
         require(['jquery', 'buckaroo/applepay/checkout-cart'], function (jQuery, applepayPay) {
-            applepayPay.showPayButton();
+            applepayPay.showPayButton('cart');
         });
     }
 </script>

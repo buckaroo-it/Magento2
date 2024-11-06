@@ -111,7 +111,7 @@ class Add
     public function process($request)
     {
         $cart_hash = $request->getParam('id');
-        
+
         if($cart_hash) {
             $cartId = $this->maskedQuoteIdToQuoteId->execute($cart_hash);
             $cart = $this->cartRepository->get($cartId);
@@ -121,14 +121,21 @@ class Add
         }
 
         $product = $request->getParam('product');
+
+        // Check if product data is present and valid
+        if (!$product || !is_array($product) || !isset($product['id']) || !is_numeric($product['id'])) {
+            throw new \Exception('Product data is missing or invalid.');
+        }
+
+
         $cart->removeAllItems();
-        
+
         try {
             $productToBeAdded = $this->productRepository->getById($product['id']);
         } catch (NoSuchEntityException $e) {
             throw new NoSuchEntityException(__('Could not find a product with ID "%id"', ['id' => $product['id']]));
         }
-       
+
         $cartItem = new CartItem(
             $productToBeAdded->getSku(),
             $product['qty']
@@ -140,19 +147,19 @@ class Add
 
         $cart->addProduct($productToBeAdded, $this->requestBuilder->build($cartItem));
         $this->cartRepository->save($cart);
-        
+
         $wallet = $request->getParam('wallet');
 
         $shippingMethodsResult = [];
         if (!$cart->getIsVirtual()) {
             $shippingAddressData = $this->applepayModel->processAddressFromWallet($wallet, 'shipping');
-            
-            
+
+
             $shippingAddress = $this->quoteAddressFactory->create();
             $shippingAddress->addData($shippingAddressData);
 
-            $errors = $shippingAddress->validate(); 
-                    
+            $errors = $shippingAddress->validate();
+
             try {
                 $this->shippingAddressManagement->assign($cart->getId(), $shippingAddress);
             } catch (\Exception $e) {
@@ -161,16 +168,28 @@ class Add
             }
             $this->quoteRepository->save($cart);
             //this delivery address is already assigned to the cart
-            $shippingMethods = $this->appleShippingMethod->getAvailableMethods( $cart);
-            foreach ($shippingMethods as $index => $shippingMethod) {
+
+            try {
+                $shippingMethods = $this->appleShippingMethod->getAvailableMethods($cart);
+            } catch (\Exception $e) {
+                throw new \Exception(__('Unable to retrieve shipping methods.'));
+            }
+
+            foreach ($shippingMethods as $method) {
                 $shippingMethodsResult[] = [
-                    'carrier_title' => $shippingMethod['carrier_title'],
-                    'price_incl_tax' => round($shippingMethod['amount'], 2),
-                    'method_code' => $shippingMethod['carrier_code'] . '_' .  $shippingMethod['method_code'],
-                    'method_title' => $shippingMethod['method_title'],
+                    'carrier_title' => $method['carrier_title'],
+                    'price_incl_tax' => round($method['amount']['value'], 2),
+                    'method_code' => $method['carrier_code'] . '__SPLIT__' .  $method['method_code'],
+                    'method_title' => $method['method_title'],
                 ];
             }
-            $cart->getShippingAddress()->setShippingMethod($shippingMethodsResult[0]['method_code']);
+
+            if (!empty($shippingMethodsResult)) {
+                // Set the first available shipping method
+                $cart->getShippingAddress()->setShippingMethod($shippingMethodsResult[0]['method_code']);
+            } else {
+                throw new \Exception(__('No shipping methods are available for the provided address.'));
+            }
         }
         $cart->setTotalsCollectedFlag(false);
         $cart->collectTotals();

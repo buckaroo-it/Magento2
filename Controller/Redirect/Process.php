@@ -330,13 +330,16 @@ class Process extends \Magento\Framework\App\Action\Action
                         || $paymentMethod->getConfigData('order_email', $store) === "1"
                     )
                 ) {
-                    if (!($this->hasPostData('add_initiated_by_magento', 1) &&
-                        $this->hasPostData('brq_primary_service', 'KlarnaKp') &&
-                        $this->hasPostData('add_service_action_from_magento', 'reserve') &&
-                        !empty($this->response['brq_service_klarnakp_reservationnumber'])
+                    if (!(
+                        ($this->hasPostData('add_initiated_by_magento', 1) &&
+                            $this->hasPostData('brq_primary_service', 'KlarnaKp') &&
+                            $this->hasPostData('add_service_action_from_magento', 'reserve') &&
+                            !empty($this->response['brq_service_klarnakp_reservationnumber']))
+                        ||
+                        $this->hasPostData('add_service_action_from_magento', 'payfastcheckout')
                     )) {
                         if ($statusCode == $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')) {
-                            $this->logger->addDebug(__METHOD__ . '|sendemail|');
+                            $this->logger->addDebug(__METHOD__ . '|sendemail| |1|');
                             $this->orderSender->send($this->order, true);
                         }
                     }

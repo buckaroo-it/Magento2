@@ -2124,9 +2124,20 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
     protected function getTaxCategory($order)
     {
-        $request    = $this->taxCalculation->getRateRequest(null, null, null, $order->getStore());
-        $taxClassId = $this->configProviderBuckarooFee->getTaxClass($order->getStore());
-        $percent    = $this->taxCalculation->getRate($request->setProductClassId($taxClassId));
+        $shippingAddress = $order->getShippingAddress();
+        $billingAddress = $order->getBillingAddress();
+        $customerTaxClassId = $order->getCustomerTaxClassId();
+        $storeId = $order->getStoreId();
+        $taxClassId = $this->configProviderBuckarooFee->getTaxClass();
+
+        $request = $this->taxCalculation->getRateRequest(
+            $shippingAddress,
+            $billingAddress,
+            $customerTaxClassId,
+            $storeId
+        );
+        $request->setProductClassId($taxClassId);
+        $percent = $this->taxCalculation->getRate($request);
         return $percent;
     }
 

@@ -392,9 +392,9 @@ define(
                             }
                         }.bind(this),
                     })
-                    .fail(function() {
-                        this.timeoutRedirect();
-                    }.bind(this));
+                        .fail(function() {
+                            this.timeoutRedirect();
+                        }.bind(this));
 
                     return update;
                 } else if (this.payMode == 'cart') {
@@ -432,9 +432,9 @@ define(
                             }
                         }.bind(this),
                     })
-                    .fail(function() {
-                        this.timeoutRedirect();
-                    }.bind(this));
+                        .fail(function() {
+                            this.timeoutRedirect();
+                        }.bind(this));
 
                     return update;
                 } else {
@@ -548,9 +548,9 @@ define(
                             }
                         }.bind(this),
                     })
-                    .fail(function() {
-                        this.timeoutRedirect();
-                    }.bind(this));
+                        .fail(function() {
+                            this.timeoutRedirect();
+                        }.bind(this));
 
                     return update;
 
@@ -607,10 +607,22 @@ define(
             initProductViewWatchers: function () {
                 this.devLog('==============applepaydebug/initProductViewWatchers');
 
-                this.productSelected.id = $('.price-box').attr('data-product-id');
-                this.productSelected.qty = $('#qty').val();
-                var self = this;
+                var productId = $('.price-box').attr('data-product-id');
+                var productQty = $('#qty').val();
 
+                if (!productId) {
+                    console.error('Product ID not found on the page.');
+                    return;
+                }
+
+                if (!productQty) {
+                    productQty = 1;
+                }
+
+                this.productSelected.id = productId;
+                this.productSelected.qty = productQty;
+
+                var self = this;
                 $('#qty').change(function() {
                     self.productSelected.qty = $(this).val();
                 });

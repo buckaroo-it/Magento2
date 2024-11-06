@@ -29,7 +29,7 @@ define([
         },
 
         onCheckout: function () {
-            var qty = $(".qty").val();
+            var qty = $("#qty").val();
 
             var productData = {
                 qty: qty,
