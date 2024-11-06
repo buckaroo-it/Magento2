@@ -97,6 +97,8 @@
 "Enable Przelewy24","Przelewy24 activieren"
 "Trustly","Trustly"
 "Enable Trustly","Trustly activieren"
+"Giropay","Giropay"
+"Enable Giropay","Giropay activieren"
 "Refunding","Erstattung"
 "Enable or disable refunding.","Gutschrift/Rückerstattung aktivieren oder deaktivieren."
 "Set to 'No' refunds must be done manualy in Payment Plaza.","Mit der Auswahl 'Nein' werden Gutschriften in Magento bei Payment Plaza nicht angeboten."

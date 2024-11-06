@@ -249,6 +249,10 @@
                     <item name="type" xsi:type="string">creditcards</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcards</item>
                 </item>
+                <item name="giropay" xsi:type="array">
+                    <item name="type" xsi:type="string">giropay</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Giropay</item>
+                </item>
                 <item name="mrcash" xsi:type="array">
                     <item name="type" xsi:type="string">mrcash</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Mrcash</item>

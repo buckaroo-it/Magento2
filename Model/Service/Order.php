@@ -29,7 +29,6 @@ use Buckaroo\Magento2\Logging\Log;
 use Magento\Sales\Model\ResourceModel\Order\CollectionFactory;
 use Buckaroo\Magento2\Helper\Data;
 use Magento\Framework\App\ResourceConnection;
-use Laminas\Db\Sql\Expression;
 
 class Order
 {
@@ -44,17 +43,16 @@ class Order
     private Factory $configProviderFactory;
 
     public function __construct(
-        Account                  $accountConfig,
-        MethodFactory            $configProviderMethodFactory,
-        Factory                  $configProviderFactory,
+        Account $accountConfig,
+        MethodFactory $configProviderMethodFactory,
+        Factory $configProviderFactory,
         StoreRepositoryInterface $storeRepository,
-        CollectionFactory        $orderFactory,
-        OrderStatusFactory       $orderStatusFactory,
-        Data                     $helper,
-        Log                      $logging,
-        ResourceConnection       $resourceConnection
-    )
-    {
+        CollectionFactory $orderFactory,
+        OrderStatusFactory $orderStatusFactory,
+        Data $helper,
+        Log $logging,
+        ResourceConnection $resourceConnection
+    ) {
         $this->accountConfig = $accountConfig;
         $this->configProviderMethodFactory = $configProviderMethodFactory;
         $this->configProviderFactory = $configProviderFactory;
@@ -96,11 +94,11 @@ class Order
                     )
                     ->addFieldToFilter(
                         'created_at',
-                        ['lt' => new Expression('NOW() - INTERVAL ' . $dueDays . ' DAY')]
+                        ['lt' => new \Zend_Db_Expr('NOW() - INTERVAL ' . $dueDays . ' DAY')]
                     )
                     ->addFieldToFilter(
                         'created_at',
-                        ['gt' => new Expression('NOW() - INTERVAL ' . ($dueDays + 7) . ' DAY')]
+                        ['gt' => new \Zend_Db_Expr('NOW() - INTERVAL ' . ($dueDays + 7) . ' DAY')]
                     );
 
                 $orderCollection->getSelect()
@@ -156,11 +154,11 @@ class Order
                         )
                         ->addFieldToFilter(
                             'created_at',
-                            ['lt' => new Expression('NOW() - INTERVAL ' . $dueDays . ' DAY')]
+                            ['lt' => new \Zend_Db_Expr('NOW() - INTERVAL ' . $dueDays . ' DAY')]
                         )
                         ->addFieldToFilter(
                             'created_at',
-                            ['gt' => new Expression('NOW() - INTERVAL ' . ($dueDays + 7) . ' DAY')]
+                            ['gt' => new \Zend_Db_Expr('NOW() - INTERVAL ' . ($dueDays + 7) . ' DAY')]
                         );
 
                     $orderCollection->getSelect()
@@ -218,7 +216,7 @@ class Order
             $this->logging->addDebug(__METHOD__ . '|20|');
 
             if (in_array($order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode, ['klarnakp'])) {
-                $methodInstanceClass = get_class($order->getPayment()->getMethodInstance());
+                $methodInstanceClass                 = get_class($order->getPayment()->getMethodInstance());
                 $methodInstanceClass::$requestOnVoid = false;
             }
 
