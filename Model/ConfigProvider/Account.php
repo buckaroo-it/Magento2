@@ -31,8 +31,6 @@ use Magento\Store\Model\Store;
  * @method mixed getActive()
  * @method mixed getSecretKey()
  * @method mixed getMerchantKey()
- * @method mixed getHostedFieldsUsername()
- * @method mixed getHostedFieldsPassword()
  * @method mixed getMerchantGuid()
  * @method mixed getTransactionLabel()
  * @method mixed getCertificateFile()
@@ -60,8 +58,6 @@ class Account extends AbstractConfigProvider
     const XPATH_ACCOUNT_ACTIVE                          = 'buckaroo_magento2/account/active';
     const XPATH_ACCOUNT_SECRET_KEY                      = 'buckaroo_magento2/account/secret_key';
     const XPATH_ACCOUNT_MERCHANT_KEY                    = 'buckaroo_magento2/account/merchant_key';
-    const XPATH_ACCOUNT_HOSTED_FIELDS_USERNAME          = 'buckaroo_magento2/account/hosted_fields_username';
-    const XPATH_ACCOUNT_HOSTED_FIELDS_PASSWORD          = 'buckaroo_magento2/account/hosted_fields_password';
     const XPATH_ACCOUNT_MERCHANT_GUID                   = 'buckaroo_magento2/account/merchant_guid';
     const XPATH_ACCOUNT_TRANSACTION_LABEL               = 'buckaroo_magento2/account/transaction_label';
     const XPATH_ACCOUNT_INVOICE_HANDLING                = 'buckaroo_magento2/account/invoice_handling';
@@ -125,8 +121,6 @@ class Account extends AbstractConfigProvider
             'active'                            => $this->getActive($store),
             'secret_key'                        => $this->getSecretKey($store),
             'merchant_key'                      => $this->getMerchantKey($store),
-            'hosted_fields_username'            => $this->getHostedFieldsUsername($store),
-            'hosted_fields_password'            => $this->getHostedFieldsPassword($store),
             'merchant_guid'                     => $this->getMerchantGuid($store),
             'transaction_label'                 => $this->getTransactionLabel($store),
             'certificate_file'                  => $this->getCertificateFile($store),
@@ -258,7 +252,7 @@ class Account extends AbstractConfigProvider
         if ($label === null) {
             return $store->getName();
         }
-        
+
         $label = preg_replace('/\{order_number\}/', $order->getIncrementId(), $label);
         $label = preg_replace('/\{shop_name\}/', $store->getName(), $label);
 
