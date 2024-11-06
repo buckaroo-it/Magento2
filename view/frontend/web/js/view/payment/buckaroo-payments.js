@@ -82,10 +82,6 @@ define(
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/payconiq'
             },
             {
-                type: 'buckaroo_magento2_creditcard',
-                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/creditcard'
-            },
-            {
                 type: 'buckaroo_magento2_creditcards',
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/creditcards'
             },
@@ -187,7 +183,7 @@ define(
             },
             {
                 type: 'buckaroo_magento2_blik',
-                    component: 'Buckaroo_Magento2/js/view/payment/method-renderer/blik'
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/blik'
             }
         );
         /**

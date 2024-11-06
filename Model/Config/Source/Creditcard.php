@@ -22,17 +22,17 @@ namespace Buckaroo\Magento2\Model\Config\Source;
 class Creditcard implements \Magento\Framework\Option\ArrayInterface
 {
     /**
-     * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard
+     * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcards
      */
     protected $configProvider;
 
     /**
      * Use the constructor to get the requested config provider.
      *
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard $configProvider
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcards $configProvider
      */
     public function __construct(
-        \Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard $configProvider
+        \Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcards $configProvider
     ) {
         $this->configProvider = $configProvider;
     }

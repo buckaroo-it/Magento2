@@ -22,6 +22,7 @@
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="checkout" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <head>
         <css src="Buckaroo_Magento2::css/styles.css" />
+        <script src="https://cdn.tailwindcss.com" src_type="url" />
     </head>
 
     <body>
@@ -111,9 +112,6 @@
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
                                                                         <item name="buckaroo_magento2_payconiq" xsi:type="array">
-                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
-                                                                        </item>
-                                                                        <item name="buckaroo_magento2_creditcard" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
                                                                         <item name="buckaroo_magento2_creditcards" xsi:type="array">

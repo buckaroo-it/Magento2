@@ -131,27 +131,6 @@
                 <available_in_backend>0</available_in_backend>
             </buckaroo_magento2_payconiq>
 
-            <buckaroo_magento2_creditcard>
-                <active>0</active>
-                <model>Buckaroo\Magento2\Model\Method\Creditcard</model>
-                <order_status>pending</order_status>
-                <title>Creditcard and Debit Cards</title>
-                <allowspecific>0</allowspecific>
-                <sort_order>30</sort_order>
-                <order_email>1</order_email>
-                <amex_payment_fee_label>Fee</amex_payment_fee_label>
-                <maestro_payment_fee_label>Fee</maestro_payment_fee_label>
-                <mastercard_payment_fee_label>Fee</mastercard_payment_fee_label>
-                <visa_payment_fee_label>Fee</visa_payment_fee_label>
-
-                <dankort_payment_fee_label>Fee</dankort_payment_fee_label>
-
-                <group>buckaroo_magento2</group>
-                <payment_action>order</payment_action>
-                <available_in_backend>0</available_in_backend>
-                <group_creditcards>1</group_creditcards>
-            </buckaroo_magento2_creditcard>
-
             <buckaroo_magento2_creditcards>
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Creditcards</model>
