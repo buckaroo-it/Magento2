@@ -260,10 +260,6 @@
                     <item name="type" xsi:type="string">sepadirectdebit</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\SepaDirectDebit</item>
                 </item>
-                <item name="sofortbanking" xsi:type="array">
-                    <item name="type" xsi:type="string">sofortbanking</item>
-                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Sofortbanking</item>
-                </item>
                 <item name="belfius" xsi:type="array">
                     <item name="type" xsi:type="string">belfius</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Belfius</item>
