@@ -66,7 +66,7 @@ class GetToken extends Action
                 $this->configProviderCreditcard->getHostedFieldsClientId($this->store)
             );
         } catch (\Exception $e) {
-            $this->logger->error('Error decrypting Hosted Fields Username: ' . $e->getMessage());
+            $this->logger->error('Error decrypting Hosted Fields fields: ' . $e->getMessage());
             return null;
         }
     }
@@ -78,7 +78,7 @@ class GetToken extends Action
                 $this->configProviderCreditcard->getHostedFieldsClientSecret($this->store)
             );
         } catch (\Exception $e) {
-            $this->logger->error('Error decrypting Hosted Fields Password: ' . $e->getMessage());
+            $this->logger->error('Error decrypting Hosted Fields fields: ' . $e->getMessage());
             return null;
         }
     }
