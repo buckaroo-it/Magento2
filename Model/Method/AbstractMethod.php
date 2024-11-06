@@ -2736,7 +2736,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         //Add diff line
-        if (!$this->helper->areEqualAmounts($order->getGrandTotal(), $itemsTotalAmount) && !$this->payRemainder) {
+        if (abs($order->getGrandTotal() - $itemsTotalAmount) > 0.01) {
             $diff        = $order->getGrandTotal() - $itemsTotalAmount;
             $diffLine    = $this->getDiffLine($count, $diff);
             $requestData = array_merge($requestData, $diffLine);
