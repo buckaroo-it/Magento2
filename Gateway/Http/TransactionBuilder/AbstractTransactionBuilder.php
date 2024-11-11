@@ -21,6 +21,7 @@
 
 namespace Buckaroo\Magento2\Gateway\Http\TransactionBuilder;
 
+use Buckaroo\Magento2\Gateway\Http\TransactionBuilder\Order as OrderTransactionBuilder;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -38,6 +39,10 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
     public const ADDITIONAL_RETURN_URL = 'buckaroo_return_url';
 
     public const ADDITIONAL_CANCEL_URL = 'buckaroo_cancel_url';
+
+    public const ADDITIONAL_ERROR_URL = 'buckaroo_error_url';
+
+    public const ADDITIONAL_REJECT_URL = 'buckaroo_reject_url';
 
     /**
      * @var \Magento\Sales\Model\Order
@@ -73,6 +78,16 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
      * @var null|string
      */
     protected $cancelUrl = null;
+
+    /**
+     * @var null|string
+     */
+    protected $errorUrl = null;
+
+    /**
+     * @var null|string
+     */
+    protected $rejectUrl = null;
 
     /**
      * @var ScopeConfigInterface
@@ -428,7 +443,6 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
      */
     public function getReturnUrl()
     {
-
         $returnUrl = $this->getReturnUrlFromPayment();
         if($returnUrl !== null) {
             $this->setReturnUrl($returnUrl);
@@ -475,6 +489,9 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
         return $this;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getCancelUrl()
     {
 
@@ -509,6 +526,110 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
             in_array(parse_url($cancelUrl, PHP_URL_SCHEME), ['http', 'https'])
         ) {
             return $cancelUrl;
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setErrorUrl($url)
+    {
+        $routeUrl = $this->urlBuilder->getRouteUrl($url);
+
+        $this->errorUrl = $routeUrl;
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getErrorUrl()
+    {
+
+        $errorUrl = $this->getErrorUrlFromPayment();
+        if($errorUrl !== null) {
+            $this->setErrorUrl($errorUrl);
+            return $errorUrl;
+        }
+
+        if ($this->errorUrl === null) {
+            $url = $this->urlBuilder->setScope($this->order->getStoreId());
+            $url = $url->getRouteUrl('buckaroo/redirect/process') . '?form_key=' . $this->getFormKey();
+
+            $this->setErrorUrl($url);
+        }
+
+        return $this->errorUrl;
+    }
+
+    public function getErrorUrlFromPayment()
+    {
+        if (
+            $this->getOrder() === null ||
+            $this->getOrder()->getPayment() === null ||
+            $this->getOrder()->getPayment()->getAdditionalInformation(self::ADDITIONAL_ERROR_URL) === null
+        ) {
+            return;
+        }
+        $errorUrl = $this->getOrder()->getPayment()->getAdditionalInformation(self::ADDITIONAL_ERROR_URL);
+        if (
+            !filter_var($errorUrl, FILTER_VALIDATE_URL) === false &&
+            in_array(parse_url($errorUrl, PHP_URL_SCHEME), ['http', 'https'])
+        ) {
+            return $errorUrl;
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setRejectUrl($url)
+    {
+        $routeUrl = $this->urlBuilder->getRouteUrl($url);
+
+        $this->rejectUrl = $routeUrl;
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getRejectUrl()
+    {
+
+        $rejectUrl = $this->getRejectUrlFromPayment();
+        if($rejectUrl !== null) {
+            $this->setRejectUrl($rejectUrl);
+            return $rejectUrl;
+        }
+
+        if ($this->rejectUrl === null) {
+            $url = $this->urlBuilder->setScope($this->order->getStoreId());
+            $url = $url->getRouteUrl('buckaroo/redirect/process') . '?form_key=' . $this->getFormKey();
+
+            $this->setRejectUrl($url);
+        }
+
+        return $this->rejectUrl;
+    }
+
+    public function getRejectUrlFromPayment()
+    {
+        if (
+            $this->getOrder() === null ||
+            $this->getOrder()->getPayment() === null ||
+            $this->getOrder()->getPayment()->getAdditionalInformation(self::ADDITIONAL_REJECT_URL) === null
+        ) {
+            return;
+        }
+        $rejectUrl = $this->getOrder()->getPayment()->getAdditionalInformation(self::ADDITIONAL_REJECT_URL);
+        if (
+            !filter_var($rejectUrl, FILTER_VALIDATE_URL) === false &&
+            in_array(parse_url($rejectUrl, PHP_URL_SCHEME), ['http', 'https'])
+        ) {
+            return $rejectUrl;
         }
     }
 
