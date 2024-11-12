@@ -286,10 +286,10 @@ class BuckarooFeeHyva extends \Magento\Quote\Model\Quote\Address\Total\AbstractT
 
         if($inclTax){
             if($percent > 0){
-                return $percentageFee / (1 + ($percent / 100));
+                return $basePaymentFee / (1 + ($percent / 100));
             }
         } else{
-            return $percentageFee;
+            return $basePaymentFee;
         }
 
         return $basePaymentFee;

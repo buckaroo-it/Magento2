@@ -300,10 +300,10 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
 
         if($inclTax){
             if($percent > 0){
-                return $percentageFee / (1 + ($percent / 100));
+                return $basePaymentFee / (1 + ($percent / 100));
             }
         } else{
-            return $percentageFee;
+            return $basePaymentFee;
         }
 
         return $basePaymentFee;
