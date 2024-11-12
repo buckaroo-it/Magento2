@@ -43,7 +43,6 @@ use Magento\Store\Model\Store;
  * @method mixed getDebugTypes()
  * @method mixed getDebugEmail()
  * @method mixed getLimitByIp()
- * @method mixed getFeePercentageMode()
  * @method mixed getOrderStatusPending()
  * @method mixed getOrderStatusNew()
  * @method mixed getPaymentFeeLabel()
@@ -73,7 +72,6 @@ class Account extends AbstractConfigProvider
     const XPATH_ACCOUNT_DEBUG_TYPES                     = 'buckaroo_magento2/account/debug_types';
     const XPATH_ACCOUNT_DEBUG_EMAIL                     = 'buckaroo_magento2/account/debug_email';
     const XPATH_ACCOUNT_LIMIT_BY_IP                     = 'buckaroo_magento2/account/limit_by_ip';
-    const XPATH_ACCOUNT_FEE_PERCENTAGE_MODE             = 'buckaroo_magento2/account/fee_percentage_mode';
     const XPATH_ACCOUNT_PAYMENT_FEE_LABEL               = 'buckaroo_magento2/account/payment_fee_label';
     const XPATH_ACCOUNT_ORDER_STATUS_NEW                = 'buckaroo_magento2/account/order_status_new';
     const XPATH_ACCOUNT_ORDER_STATUS_PENDING            = 'buckaroo_magento2/account/order_status_pending';
@@ -135,7 +133,6 @@ class Account extends AbstractConfigProvider
             'debug_types'                       => $this->getDebugTypes($store),
             'debug_email'                       => $this->getDebugEmail($store),
             'limit_by_ip'                       => $this->getLimitByIp($store),
-            'fee_percentage_mode'               => $this->getFeePercentageMode($store),
             'payment_fee_label'                 => $this->getPaymentFeeLabel($store),
             'order_status_new'                  => $this->getOrderStatusNew($store),
             'order_status_pending'              => $this->getOrderStatusPending($store),
