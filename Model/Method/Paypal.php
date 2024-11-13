@@ -70,7 +70,7 @@ class Paypal extends AbstractMethod
                 "_" => $expressOrderId
             ];
         }
-        $payment->setAdditionalInformation('skip_push', 2);
+        $payment->setAdditionalInformation('skip_push', 1);
 
         /** @noinspection PhpUndefinedMethodInspection */
         $transactionBuilder->setOrder($payment->getOrder())
