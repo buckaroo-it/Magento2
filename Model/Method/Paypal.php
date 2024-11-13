@@ -69,8 +69,8 @@ class Paypal extends AbstractMethod
                 "Name" => "PayPalOrderId",
                 "_" => $expressOrderId
             ];
+            $payment->setAdditionalInformation('skip_push', 1);
         }
-        $payment->setAdditionalInformation('skip_push', 1);
 
         /** @noinspection PhpUndefinedMethodInspection */
         $transactionBuilder->setOrder($payment->getOrder())
