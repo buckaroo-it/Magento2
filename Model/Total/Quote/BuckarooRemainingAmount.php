@@ -59,7 +59,7 @@ class BuckarooRemainingAmount extends AbstractTotal
 
         return [
             'code'  => $this->getCode(),
-            'title' => __('Remaining Amount'),
+            'title' => $this->getLabel(),
             'value' => $remainingAmount
         ];
     }
@@ -71,6 +71,6 @@ class BuckarooRemainingAmount extends AbstractTotal
      */
     public function getLabel()
     {
-        return __('Fee');
+        return __('Remaining Amount');
     }
 }

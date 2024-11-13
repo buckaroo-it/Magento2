@@ -19,22 +19,28 @@
  */
 namespace Buckaroo\Magento2\Model\Total\Quote;
 
+use Buckaroo\Magento2\Exception;
 use Magento\Catalog\Helper\Data;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
+use Magento\Quote\Model\Quote\Address\Total\AbstractTotal;
 use Magento\Tax\Model\Calculation as TaxModelCalculation;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 use Buckaroo\Magento2\Model\Config\Source\TaxClass\Calculation;
 use Buckaroo\Magento2\Model\ConfigProvider\Account as ConfigProviderAccount;
 use Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee as ConfigProviderBuckarooFee;
 
-class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
+class BuckarooFee extends AbstractTotal
 {
-    /** @var ConfigProviderAccount */
+    /**
+     * @var ConfigProviderAccount
+     */
     protected $configProviderAccount;
 
-    /** @var ConfigProviderBuckarooFee */
+    /**
+     * @var ConfigProviderBuckarooFee
+     */
     protected $configProviderBuckarooFee;
 
     /**
@@ -53,7 +59,7 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
     public $catalogHelper;
 
     /**
-     * @var \Buckaroo\Magento2\Helper\PaymentGroupTransaction
+     * @var PaymentGroupTransaction
      */
     public $groupTransaction;
 
@@ -103,12 +109,13 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
     /**
      * Collect grand total address amount
      *
-     * @param  \Magento\Quote\Model\Quote                          $quote
-     * @param  \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment
-     * @param  \Magento\Quote\Model\Quote\Address\Total            $total
+     * @param \Magento\Quote\Model\Quote $quote
+     * @param \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment
+     * @param \Magento\Quote\Model\Quote\Address\Total $total
      * @return $this
      *
-     * @throws \LogicException
+     * @throws \Buckaroo\Magento2\Exception
+     * @throws Exception
      */
     public function collect(
         \Magento\Quote\Model\Quote $quote,
@@ -136,7 +143,6 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
             return $this;
         }
 
-        // Ensure payment method is set correctly
         $paymentMethod = $quote->getPayment()->getMethod();
         if (!$paymentMethod || strpos($paymentMethod, 'buckaroo_magento2_') !== 0) {
             return $this;
@@ -148,7 +154,7 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
         }
 
         // Calculate the base payment fee using the getBaseFee method
-        $basePaymentFee = $this->getBaseFee($methodInstance, $quote);
+        $basePaymentFee = $this->getBaseFee($methodInstance, $quote, $total);
         if ($basePaymentFee < 0.01) {
             return $this;
         }
@@ -163,7 +169,6 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
          * @noinspection PhpUndefinedMethodInspection
          */
         $quote->setBaseBuckarooFee($basePaymentFee);
-
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
@@ -190,14 +195,14 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
      *
      * @param  \Magento\Quote\Model\Quote               $quote
      * @param  \Magento\Quote\Model\Quote\Address\Total $total
-     * @return $this
+     * @return array
      */
     public function fetch(\Magento\Quote\Model\Quote $quote, \Magento\Quote\Model\Quote\Address\Total $total)
     {
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
-        $totals = [
+        return [
             'code' => $this->getCode(),
             'title' => $this->getLabel(),
             'buckaroo_fee' => $total->getBuckarooFee(),
@@ -207,14 +212,12 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
             'buckaroo_fee_tax_amount' => $total->getBuckarooFeeTaxAmount(),
             'buckaroo_fee_base_tax_amount' => $total->getBuckarooFeeBaseTaxAmount(),
         ];
-
-        return $totals;
     }
 
     /**
      * @param \Buckaroo\Magento2\Model\Method\AbstractMethod $methodInstance
      * @param \Magento\Quote\Model\Quote                $quote
-     * @param bool                                      $inclTax
+     * @param \Magento\Quote\Model\Quote\Address\Total $total
      *
      * @return bool|false|float
      * @throws \Buckaroo\Magento2\Exception
@@ -222,7 +225,7 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
     public function getBaseFee(
         \Buckaroo\Magento2\Model\Method\AbstractMethod $methodInstance,
         \Magento\Quote\Model\Quote $quote,
-        $inclTax = false
+        \Magento\Quote\Model\Quote\Address\Total $total
     ) {
         $buckarooPaymentMethodCode = $methodInstance->buckarooPaymentMethodCode;
         if (!$this->configProviderMethodFactory->has($buckarooPaymentMethodCode)) {
@@ -230,127 +233,47 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
         }
 
         $configProvider = $this->configProviderMethodFactory->get($buckarooPaymentMethodCode);
-        $basePaymentFee = trim($configProvider->getPaymentFee($quote->getStore()));
-        $inclTax = $this->configProviderBuckarooFee->getPaymentFeeTax() ==
+        $basePaymentFeeRaw = trim($configProvider->getPaymentFee($quote->getStore()));
+
+        $inclTax= $this->configProviderBuckarooFee->getPaymentFeeTax() ==
             Calculation::DISPLAY_TYPE_INCLUDING_TAX;
 
-        $shippingAddress = $quote->getShippingAddress();
-        $billingAddress = $quote->getBillingAddress();
-        $customerTaxClassId = $quote->getCustomerTaxClassId();
-        $storeId = $quote->getStoreId();
-        $taxClassId = $this->configProviderBuckarooFee->getTaxClass();
+        // Determine if the fee is a percentage or fixed amount
+        $isPercentage = strpos($basePaymentFeeRaw, '%') !== false;
 
-        $request = $this->taxCalculation->getRateRequest(
-            $shippingAddress,
-            $billingAddress,
-            $customerTaxClassId,
-            $storeId
-        );
-        $request->setProductClassId($taxClassId);
-        $percent = $this->taxCalculation->getRate($request);
-
-        if (is_numeric($basePaymentFee)) {
-            if (in_array($buckarooPaymentMethodCode, ['billink','afterpay20','afterpay','paypal'])) {
-                if ($inclTax) {
-                    if ($percent > 0) {
-                        return $basePaymentFee / (1 + ($percent / 100));
-                    }
-                }
-                return $basePaymentFee;
-            } else {
-                if ($inclTax){
-                    return $basePaymentFee / (1 + ($percent / 100));
-                }
-                /**
-                 * Payment fee is a number
-                 */
-                return $this->getFeePrice($basePaymentFee);
+        if ($isPercentage) {
+            $subtotal = $total->getData('base_subtotal_incl_tax');
+            if (!$subtotal) {
+                $subtotal = $total->getTotalAmount('subtotal');
             }
-
-        } elseif (strpos($basePaymentFee, '%') === false) {
-            /**
-             * Payment fee is invalid
-             */
-            return false;
-        }
-
-        /**
-         * Payment fee is a percentage
-         */
-        $percentage = floatval($basePaymentFee);
-        if ($quote->getShippingAddress()) {
-            $address = $quote->getShippingAddress();
+            $percentage = (float) rtrim($basePaymentFeeRaw, '%');
+            $basePaymentFee = ($percentage / 100) * $subtotal;
         } else {
-            $address = $quote->getBillingAddress();
+            $basePaymentFee = (float) $basePaymentFeeRaw;
         }
 
-        $total = 0;
-
-        $feePercentageMode = $this->configProviderAccount->getFeePercentageMode($quote->getStore());
-
-        switch ($feePercentageMode) {
-            case 'subtotal':
-                $total = $address->getBaseSubtotal();
-                break;
-            case 'subtotal_incl_tax':
-                $total = $address->getBaseSubtotalTotalInclTax();
-                break;
-        }
-        $percentageFee = ($percentage / 100) * $total;
-
-        if($inclTax){
-            if($percent > 0){
-                return $percentageFee / (1 + ($percent / 100));
+        if (!$inclTax) {
+            $shippingAddress = $quote->getShippingAddress() ?: $quote->getBillingAddress();
+            $billingAddress = $quote->getBillingAddress();
+            $customerTaxClassId = $quote->getCustomerTaxClassId();
+            $storeId = $quote->getStoreId();
+            $taxClassId = $this->configProviderBuckarooFee->getTaxClass();
+            if (!$taxClassId) {
+                $taxClassId = 0;
             }
-        } else{
-            return $percentageFee;
+
+            $taxRate = $this->taxCalculation->getRate(
+                $this->taxCalculation->getRateRequest(
+                    $shippingAddress,
+                    $billingAddress,
+                    $customerTaxClassId,
+                    $storeId
+                )->setProductClassId($taxClassId)
+            );
+            $basePaymentFee = $basePaymentFee * (1 + $taxRate / 100);
         }
 
         return $basePaymentFee;
-    }
-
-    /**
-     * Get payment fee price with correct tax
-     *
-     * @param float                              $price
-     * @param null                               $priceIncl
-     *
-     * @param \Magento\Framework\DataObject|null $pseudoProduct
-     *
-     * @return float
-     * @throws \Buckaroo\Magento2\Exception
-     */
-    public function getFeePrice($price, $priceIncl = null, \Magento\Framework\DataObject $pseudoProduct = null)
-    {
-        if ($pseudoProduct === null) {
-            $pseudoProduct = new \Magento\Framework\DataObject();
-        }
-
-        $pseudoProduct->setTaxClassId($this->configProviderBuckarooFee->getTaxClass());
-
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        if ($priceIncl === null
-            && $this->configProviderBuckarooFee->getPaymentFeeTax() == Calculation::DISPLAY_TYPE_INCLUDING_TAX
-        ) {
-            $priceIncl = true;
-        } else {
-            $priceIncl = false;
-        }
-
-        $price = $this->catalogHelper->getTaxPrice(
-            $pseudoProduct,
-            $price,
-            false,
-            null,
-            null,
-            null,
-            null,
-            $priceIncl
-        );
-
-        return $price;
     }
 
     /**
@@ -360,6 +283,6 @@ class BuckarooFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
      */
     public function getLabel()
     {
-        return __('Fee');
+        return __('Payment Fee');
     }
 }

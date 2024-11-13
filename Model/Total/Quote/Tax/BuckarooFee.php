@@ -99,7 +99,7 @@ class BuckarooFee extends \Buckaroo\Magento2\Model\Total\Quote\BuckarooFee
             return $this;
         }
 
-        $basePaymentFee = $this->getBaseFee($methodInstance, $quote, true);
+        $basePaymentFee = $this->getBaseFee($methodInstance, $quote, $total);
 
         if ($basePaymentFee < 0.01) {
             return $this;
