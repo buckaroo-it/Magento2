@@ -48,6 +48,7 @@ use Magento\Store\Model\Store;
  * @method mixed getPaymentFeeLabel()
  * @method mixed getCreateOrderBeforeTransaction()
  * @method mixed getCustomerAdditionalInfo()
+ * @method mixed getBuckarooFeeTaxClass()
  */
 class Account extends AbstractConfigProvider
 {
@@ -86,6 +87,7 @@ class Account extends AbstractConfigProvider
     const XPATH_ACCOUNT_IDIN_MODE                       = 'buckaroo_magento2/account/idin_mode';
     const XPATH_ACCOUNT_IDIN_CATEGORY                   = 'buckaroo_magento2/account/idin_category';
     const XPATH_ACCOUNT_ADVANCED_EXPORT_GIFTCARDS       = 'buckaroo_magento2/account/advanced_export_giftcards';
+    const XPATH_ACCOUNT_BUCKAROO_FEE_TAX_CLASS          = 'buckaroo_magento2/account/buckaroo_fee_tax_class';
 
     /**
      * @var MethodFactory
@@ -143,6 +145,7 @@ class Account extends AbstractConfigProvider
             'cart_keep_alive'                   => $this->getCartKeepAlive($store),//can be changed from cli/db only
             'selection_type'                    => $this->getSelectionType($store),
             'customer_additional_info'          => $this->getCustomerAdditionalInfo($store),
+            'buckaroo_fee_tax_class'            => $this->getBuckarooFeeTaxClass($store),
             'idin'                              => $this->getIdin($store),
             'idin_mode'                         => $this->getIdinMode($store),
             'idin_category'                     => $this->getIdinCategory($store),
