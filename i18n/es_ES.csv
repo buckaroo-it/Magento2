@@ -11,7 +11,7 @@
 "Send order confirmation email","Enviar correo electrónico de confirmación de pedido"
 "Enable to send an order confirmation email to the customer when the creating of the order is successful. Specific for this payment method.","Activar para enviar un correo electrónico de confirmación de pedido al cliente cuando se crea correctamente el pedido. Específico para este método de pago."
 "Payment fee","Tarifa de pago"
-"The above amount is calculated based on de Tax settings in Stores > Configuration > Sales > Tax.","La cantidad anterior se calcula a partir de los ajustes de Impuesto en Tiendas > Configuración > Ventas > Impuesto."
+"The above amount is calculated based on de Tax settings in Buckaroo > General configuration and account information > Buckaroo Payment Fee Tax Class.","La cantidad anterior se calcula a partir de los ajustes de Impuesto en Tiendas > Configuración > Ventas > Impuesto."
 "Payment fee frontend label","Etiqueta front-end de tarifa de pago"
 "This label will be displayed next to the fee on the checkout","Esta etiqueta aparecerá junto a la tarifa en la pantalla de compra, el pedido, la factura, las notas de abono y los PDF."
 "Max order amount (in Base Currency)","Importe máx. del pedido (en moneda de base)"
