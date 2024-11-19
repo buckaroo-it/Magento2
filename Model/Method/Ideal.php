@@ -57,7 +57,8 @@ class Ideal extends AbstractMethod
         $quote = $payment->getQuote();
 
         if ($quote) {
-            $shippingCost = $quote->getShippingAddress()->getShippingAmount() + $quote->getShippingAddress()->getBuckarooFee();
+            $shippingCost = $quote->getShippingAddress()->getShippingInclTax();
+
             $this->getInfoInstance()->setAdditionalInformation('shippingCost', $shippingCost);
         }
 
