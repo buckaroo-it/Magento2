@@ -906,8 +906,11 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         foreach ($errorTypes as $errorType) {
             if ($this->hasError($transactionResponse, $errorType)) {
-                return $transactionResponse->RequestErrors->$errorType->_;
+                $errorData = $transactionResponse->RequestErrors->$errorType ?? null;
 
+                if (is_object($errorData) && property_exists($errorData, '_')) {
+                    return $errorData->_;
+                }
             }
         }
 
