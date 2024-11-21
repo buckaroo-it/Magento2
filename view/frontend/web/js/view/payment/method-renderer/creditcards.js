@@ -132,7 +132,7 @@ define(
                             let disabled = !sdkClient.formIsValid();
                             payButton.disabled = disabled;
                             if (disabled) {
-                                payButton.style.backgroundColor = "#ff5555";
+                                payButton.style.backgroundColor = "";
                                 payButton.style.cursor = "not-allowed";
                                 payButton.style.opacity = "0.5";
                             } else {
