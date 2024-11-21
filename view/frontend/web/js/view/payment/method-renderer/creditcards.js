@@ -148,8 +148,8 @@ define(
                     let cardLogoStyling = {
                         height:"80%",
                         position: 'absolute',
-                        border: '1px soli gray',
-                        radius: '5px',
+                        border: '1px solid #d6d6d6',
+                        borderRadius: "4px",
                         opacity:'1',
                         transition:'all 0.3s ease',
                         right:'5px',
@@ -159,11 +159,18 @@ define(
                     // Define styling and mount hosted fields as needed...
                     let styling = {
                         fontSize: "14px",
-                        fontFamily: 'Consolas, Liberation Mono, Menlo, Courier, monospace',
+                        fontStyle: "normal",
+                        fontWeight: 400,
+                        fontFamily: 'Open Sans, Helvetica Neue, Helvetica, Arial, sans-serif',
                         textAlign: 'left',
-                        background: 'inherit',
-                        color: 'black',
-                        placeholderColor: 'grey',
+                        background: '#fefefe',
+                        color: '#333333',
+                        placeholderColor: '#888888',
+                        borderRadius: '5px',
+                        padding: '8px 10px',
+                        boxShadow: 'none',
+                        transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+                        border: '1px solid #d6d6d6',
                         cardLogoStyling: cardLogoStyling
                     };
 
