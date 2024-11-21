@@ -124,7 +124,7 @@ class PhoneFormatter
         }
 
         // Prepend starting notation for supported local numbers
-        if ($phoneLength === 10 && !str_starts_with($phoneNumber, $startingNotation)) {
+        if ($phoneLength === 10 && strpos($phoneNumber, $startingNotation) !== 0) {
             $phoneNumber = $startingNotation . substr($phoneNumber, 1);
         }
 
@@ -141,7 +141,7 @@ class PhoneFormatter
     private function isMobileNumber(string $phoneNumber, string $country): bool
     {
         foreach (self::VALID_MOBILE[$country] ?? [] as $prefix) {
-            if (str_starts_with($phoneNumber, $prefix)) {
+            if (strpos($phoneNumber, $prefix) === 0) {
                 return true;
             }
         }
@@ -158,7 +158,7 @@ class PhoneFormatter
     private function applyInvalidNotationCorrection(string $phoneNumber, string $country): string
     {
         foreach (self::INVALID_NOTATION[$country] ?? [] as $invalidPrefix) {
-            if (str_starts_with($phoneNumber, $invalidPrefix)) {
+            if (strpos($phoneNumber, $invalidPrefix) === 0) {
                 $phoneNumber = $this->replaceInvalidNotation($phoneNumber, $invalidPrefix, $country);
             }
         }
