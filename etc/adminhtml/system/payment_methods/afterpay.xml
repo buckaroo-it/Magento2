@@ -43,7 +43,7 @@
             <comment><![CDATA[This controls the description which the user sees during checkout.]]></comment>
             <config_path>payment/buckaroo_magento2_afterpay/subtext</config_path>
         </field>
-        
+
         <field id="subtext_style" translate="label comment" type="select" sortOrder="26" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Frontend subtext style</label>
             <comment><![CDATA[Choose a font style for the subtext.]]></comment>
@@ -91,7 +91,7 @@
                 <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 <config_path>payment/buckaroo_magento2_afterpay/financial_warning</config_path>
             </field>
-            
+
             <field id="high_tax" translate="label comment" type="multiselect" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label> High VAT tax classes</label>
                 <comment><![CDATA[Select which tax classes count as 'high' VAT.]]></comment>
