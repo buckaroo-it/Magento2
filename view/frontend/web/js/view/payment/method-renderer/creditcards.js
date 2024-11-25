@@ -77,7 +77,7 @@ define(
                     // Check for error field in response
                     if (response.error) {
                         // Display the error message in the observable
-                        this.oauthTokenError("Error getting OAuth token.");
+                        this.oauthTokenError("An error occurred, please try another payment method or try again later.");
                     } else {
                         const accessToken = response.data.access_token;
                         const issuers = response.data.issuers;
@@ -86,7 +86,7 @@ define(
                     }
                 } catch (error) {
                     // Catch any other errors (e.g., network issues)
-                    this.oauthTokenError("Error getting OAuth token.");
+                    this.oauthTokenError("An error occurred, please try another payment method or try again later.");
                 }
             },
 
