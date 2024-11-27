@@ -40,6 +40,16 @@ class Paypal extends AbstractMethod
     protected $_code = self::PAYMENT_METHOD_CODE;
 
     /**
+     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     *
+     * @return bool|string
+     */
+    public function getPaymentMethodName($payment)
+    {
+        return $this->buckarooPaymentMethodCode;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function getOrderTransactionBuilder($payment)
@@ -59,9 +69,9 @@ class Paypal extends AbstractMethod
                 "Name" => "PayPalOrderId",
                 "_" => $expressOrderId
             ];
+            $payment->setAdditionalInformation('skip_push', 1);
         }
 
-        
         /** @noinspection PhpUndefinedMethodInspection */
         $transactionBuilder->setOrder($payment->getOrder())
                            ->setServices($services)
@@ -92,15 +102,5 @@ class Paypal extends AbstractMethod
     public function getVoidTransactionBuilder($payment)
     {
         return true;
-    }
-
-    /**
-     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
-     *
-     * @return bool|string
-     */
-    public function getPaymentMethodName($payment)
-    {
-        return $this->buckarooPaymentMethodCode;
     }
 }
