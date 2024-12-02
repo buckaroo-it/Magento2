@@ -261,6 +261,11 @@ class Data extends AbstractHelper
         return $this->groupTransaction->getGroupTransactionOriginalTransactionKey($orderId);
     }
 
+    public function getAlreadyPaid()
+    {
+        return $this->groupTransaction->getAlreadyPaid($this->getOrderId());
+    }
+
     public function getOrderId()
     {
         $orderId = $this->_checkoutSession->getQuote()->getReservedOrderId();
