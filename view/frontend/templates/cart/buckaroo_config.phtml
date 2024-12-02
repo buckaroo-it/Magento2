@@ -22,7 +22,7 @@
 ?>
 <div id="buckaroo-fee-cart" data-bind="scope:'buckarooFeeCart'">
     <!-- ko template: getTemplate() --><!-- /ko -->
-    <script nonce="<?= $cspNonce ?>">
+    <script nonce="<?= $block->getCspNonce() ?>">
         window.buckarooConfig = <?= /* @noEscape */ $block->getBuckarooConfigJson(); ?>;
     </script>
 </div>
