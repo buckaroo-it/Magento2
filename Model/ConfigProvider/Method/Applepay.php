@@ -141,7 +141,7 @@ class Applepay extends AbstractConfigProvider
         if ($availableButtons) {
             $availableButtons = explode(',', (string)$availableButtons);
         } else {
-            $availableButtons = false;
+            $availableButtons = [];
         }
 
         return $availableButtons;
@@ -170,4 +170,8 @@ class Applepay extends AbstractConfigProvider
         ];
     }
 
+    public function isApplePayEnabled($store = null)
+    {
+        return $this->getConfigFromXpath(self::XPATH_APPLEPAY_ACTIVE, $store);
+    }
 }

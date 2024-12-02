@@ -43,12 +43,12 @@ use Magento\Store\Model\Store;
  * @method mixed getDebugTypes()
  * @method mixed getDebugEmail()
  * @method mixed getLimitByIp()
- * @method mixed getFeePercentageMode()
  * @method mixed getOrderStatusPending()
  * @method mixed getOrderStatusNew()
  * @method mixed getPaymentFeeLabel()
  * @method mixed getCreateOrderBeforeTransaction()
  * @method mixed getCustomerAdditionalInfo()
+ * @method mixed getBuckarooFeeTaxClass()
  */
 class Account extends AbstractConfigProvider
 {
@@ -73,7 +73,6 @@ class Account extends AbstractConfigProvider
     const XPATH_ACCOUNT_DEBUG_TYPES                     = 'buckaroo_magento2/account/debug_types';
     const XPATH_ACCOUNT_DEBUG_EMAIL                     = 'buckaroo_magento2/account/debug_email';
     const XPATH_ACCOUNT_LIMIT_BY_IP                     = 'buckaroo_magento2/account/limit_by_ip';
-    const XPATH_ACCOUNT_FEE_PERCENTAGE_MODE             = 'buckaroo_magento2/account/fee_percentage_mode';
     const XPATH_ACCOUNT_PAYMENT_FEE_LABEL               = 'buckaroo_magento2/account/payment_fee_label';
     const XPATH_ACCOUNT_ORDER_STATUS_NEW                = 'buckaroo_magento2/account/order_status_new';
     const XPATH_ACCOUNT_ORDER_STATUS_PENDING            = 'buckaroo_magento2/account/order_status_pending';
@@ -88,6 +87,7 @@ class Account extends AbstractConfigProvider
     const XPATH_ACCOUNT_IDIN_MODE                       = 'buckaroo_magento2/account/idin_mode';
     const XPATH_ACCOUNT_IDIN_CATEGORY                   = 'buckaroo_magento2/account/idin_category';
     const XPATH_ACCOUNT_ADVANCED_EXPORT_GIFTCARDS       = 'buckaroo_magento2/account/advanced_export_giftcards';
+    const XPATH_ACCOUNT_BUCKAROO_FEE_TAX_CLASS          = 'buckaroo_magento2/account/buckaroo_fee_tax_class';
 
     /**
      * @var MethodFactory
@@ -135,7 +135,6 @@ class Account extends AbstractConfigProvider
             'debug_types'                       => $this->getDebugTypes($store),
             'debug_email'                       => $this->getDebugEmail($store),
             'limit_by_ip'                       => $this->getLimitByIp($store),
-            'fee_percentage_mode'               => $this->getFeePercentageMode($store),
             'payment_fee_label'                 => $this->getPaymentFeeLabel($store),
             'order_status_new'                  => $this->getOrderStatusNew($store),
             'order_status_pending'              => $this->getOrderStatusPending($store),
@@ -146,6 +145,7 @@ class Account extends AbstractConfigProvider
             'cart_keep_alive'                   => $this->getCartKeepAlive($store),//can be changed from cli/db only
             'selection_type'                    => $this->getSelectionType($store),
             'customer_additional_info'          => $this->getCustomerAdditionalInfo($store),
+            'buckaroo_fee_tax_class'            => $this->getBuckarooFeeTaxClass($store),
             'idin'                              => $this->getIdin($store),
             'idin_mode'                         => $this->getIdinMode($store),
             'idin_category'                     => $this->getIdinCategory($store),
@@ -252,7 +252,7 @@ class Account extends AbstractConfigProvider
         if ($label === null) {
             return $store->getName();
         }
-        
+
         $label = preg_replace('/\{order_number\}/', $order->getIncrementId(), $label);
         $label = preg_replace('/\{shop_name\}/', $store->getName(), $label);
 

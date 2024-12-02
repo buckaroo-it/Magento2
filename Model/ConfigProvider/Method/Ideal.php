@@ -173,6 +173,11 @@ class Ideal extends AbstractConfigProvider
         return $this->getConfigFromXpath(self::XPATH_IDEAL_FAST_CHECKOUT_ENABLE, $store);
     }
 
+    public function isIDealEnabled($store = null)
+    {
+        return $this->getConfigFromXpath(self::XPATH_IDEAL_ACTIVE, $store);
+    }
+
     public function getLogoColor($store = null)
     {
         return $this->getConfigFromXpath(self::XPATH_IDEAL_FAST_CHECKOUT_LOGO, $store);

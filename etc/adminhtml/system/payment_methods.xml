@@ -52,8 +52,6 @@
 
         <include path="Buckaroo_Magento2::system/payment_methods/idealprocessing.xml"/>
 
-        <include path="Buckaroo_Magento2::system/payment_methods/creditcard.xml"/>
-
         <include path="Buckaroo_Magento2::system/payment_methods/creditcards.xml"/>
 
         <include path="Buckaroo_Magento2::system/payment_methods/paypal.xml"/>
@@ -63,8 +61,6 @@
         <include path="Buckaroo_Magento2::system/payment_methods/sepa_direct_debit.xml"/>
 
         <include path="Buckaroo_Magento2::system/payment_methods/mrcash.xml"/>
-
-        <include path="Buckaroo_Magento2::system/payment_methods/sofort_banking.xml"/>
 
         <include path="Buckaroo_Magento2::system/payment_methods/afterpay.xml"/>
 

@@ -55,15 +55,9 @@ class Totals extends \Magento\Framework\View\Element\Template
     public function initTotals()
     {
         $parent = $this->getParentBlock();
-        /**
-        * @noinspection PhpUndefinedMethodInspection
-        */
         $source = $parent->getSource();
         $totals = $this->getTotalsForCreditmemo($source);
         foreach ($totals as $total) {
-            /**
-            * @noinspection PhpUndefinedMethodInspection
-            */
             $this->getParentBlock()->addTotalBefore(new \Magento\Framework\DataObject($total), 'grand_total');
         }
         return $this;
@@ -72,12 +66,9 @@ class Totals extends \Magento\Framework\View\Element\Template
     public function getTotals()
     {
         $parent = $this->getParentBlock();
-        /**
-        * @noinspection PhpUndefinedMethodInspection
-        */
         $source = $parent->getSource();
 
-        
+
         return $this->getTotalsForCreditmemo($source);
     }
 
@@ -92,7 +83,7 @@ class Totals extends \Magento\Framework\View\Element\Template
     }
 
     /**
-     * For credit memo display the fees from invoice/order, 
+     * For credit memo display the fees from invoice/order,
      * check if invoice has that fee and set selected
      *
      * @param mixed $source
@@ -107,7 +98,7 @@ class Totals extends \Magento\Framework\View\Element\Template
             $invoice = $source->getInvoice();
             $salesModel = ($invoice != null? $invoice : $order);
             $saleTotals = $this->helper->getTotals($salesModel);
-            
+
             $saleTotals = array_map(function($saleTotal) use($creditTotals) {
                 if (in_array($saleTotal['code'],['buckaroo_fee', 'buckaroo_fee_excl'] )) {
                     $saleTotal['block_name'] = "buckaroo_fee";
@@ -116,12 +107,12 @@ class Totals extends \Magento\Framework\View\Element\Template
                 return $saleTotal;
             }, $saleTotals);
 
-            
+
             return array_merge(
                 $this->getTotalsByCode($creditTotals, 'buckaroo_already_paid'),
                 $this->getTotalsExceptCode($saleTotals, 'buckaroo_already_paid')
             );
-            
+
         }
         return $this->helper->getTotals($source);
     }

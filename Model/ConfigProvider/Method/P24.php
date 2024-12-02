@@ -85,7 +85,8 @@ class P24 extends AbstractConfigProvider
     public function getBaseAllowedCurrencies()
     {
         return [
-            'PLN'
+            'PLN',
+            'EUR'
         ];
     }
 }

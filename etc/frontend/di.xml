@@ -28,13 +28,11 @@
                 <item name="buckaroo_config_provider_ideal" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Ideal</item>
                 <item name="buckaroo_config_provider_idealprocessing" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\IdealProcessing</item>
                 <item name="buckaroo_config_provider_transfer" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Transfer</item>
-                <item name="buckaroo_config_provider_creditcard" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard</item>
                 <item name="buckaroo_config_provider_creditcards" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcards</item>
                 <item name="buckaroo_config_provider_fee" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee</item>
                 <item name="buckaroo_config_provider_paypal" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Paypal</item>
                 <item name="buckaroo_config_provider_sepadirectdebit" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\SepaDirectDebit</item>
                 <item name="buckaroo_config_provider_mrcash" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Mrcash</item>
-                <item name="buckaroo_config_provider_sofort" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Sofortbanking</item>
                 <item name="buckaroo_config_provider_belfius" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Belfius</item>
                 <item name="buckaroo_config_provider_afterpay" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay</item>
                 <item name="buckaroo_config_provider_afterpay2" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay2</item>

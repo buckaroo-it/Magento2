@@ -21,7 +21,27 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
+use Buckaroo\Magento2\Gateway\GatewayInterface;
+use Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory;
+use Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Buckaroo\Magento2\Model\ConfigProvider\Refund as RefundConfigProvider;
+use Buckaroo\Magento2\Model\RefundFieldsFactory;
+use Buckaroo\Magento2\Model\ValidatorFactory;
+use Magento\Framework\Api\AttributeValueFactory;
+use Magento\Framework\Api\ExtensionAttributesFactory;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\RequestInterface;
+use Magento\Framework\Data\Collection\AbstractDb;
+use Magento\Framework\Event\ManagerInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Model\Context;
+use Magento\Framework\Model\ResourceModel\AbstractResource;
+use Magento\Framework\ObjectManagerInterface;
+use Magento\Framework\Registry;
+use Magento\Payment\Helper\Data;
+use Magento\Payment\Model\Method\Logger;
+use Magento\Quote\Model\QuoteFactory;
 use Magento\Tax\Model\Config;
 use Magento\Sales\Model\Order;
 use Magento\Framework\Phrase;
@@ -226,37 +246,41 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     protected $_code;
 
     /**
-     * @var EventManager
+     * @var ManagerInterface
      */
     private $eventManager;
 
     /**
-     * @param \Magento\Framework\ObjectManagerInterface $objectManager
-     * @param \Magento\Framework\Model\Context $context
-     * @param \Magento\Framework\Registry $registry
-     * @param \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory
-     * @param \Magento\Framework\Api\AttributeValueFactory $customAttributeFactory
-     * @param \Magento\Payment\Helper\Data $paymentData
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
-     * @param \Magento\Payment\Model\Method\Logger $logger
+     * @param ObjectManagerInterface $objectManager
+     * @param Context $context
+     * @param Registry $registry
+     * @param ExtensionAttributesFactory $extensionFactory
+     * @param AttributeValueFactory $customAttributeFactory
+     * @param Data $paymentData
+     * @param ScopeConfigInterface $scopeConfig
+     * @param Logger $logger
      * @param \Magento\Developer\Helper\Data $developmentHelper
-     * @param \Magento\Quote\Model\QuoteFactory $quoteFactory
-     * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
-     * @param \Magento\Framework\Data\Collection\AbstractDb $resourceCollection
-     * @param \Buckaroo\Magento2\Gateway\GatewayInterface $gateway
-     * @param \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory
-     * @param \Buckaroo\Magento2\Model\ValidatorFactory $validatorFactory
-     * @param \Buckaroo\Magento2\Helper\Data $helper
-     * @param \Magento\Framework\App\RequestInterface $request
-     * @param \Buckaroo\Magento2\Model\RefundFieldsFactory $refundFieldsFactory
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory
-     * @param \Magento\Framework\Pricing\Helper\Data $priceHelper
+     * @param QuoteFactory $quoteFactory
+     * @param Config $taxConfig
+     * @param Calculation $taxCalculation
+     * @param BuckarooFee $configProviderBuckarooFee
+     * @param BuckarooLog $buckarooLog
+     * @param SoftwareData $softwareData
+     * @param AddressFactory $addressFactory
+     * @param ManagerInterface $eventManager
+     * @param AbstractResource|null $resource
+     * @param AbstractDb|null $resourceCollection
+     * @param GatewayInterface|null $gateway
+     * @param TransactionBuilderFactory|null $transactionBuilderFactory
+     * @param ValidatorFactory|null $validatorFactory
+     * @param \Buckaroo\Magento2\Helper\Data|null $helper
+     * @param RequestInterface|null $request
+     * @param RefundFieldsFactory|null $refundFieldsFactory
+     * @param Factory|null $configProviderFactory
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory|null $configProviderMethodFactory
+     * @param \Magento\Framework\Pricing\Helper\Data|null $priceHelper
      * @param array $data
      *
-     * @param GroupTransaction $groupTransaction
-     *
-     * @throws \Buckaroo\Magento2\Exception
      */
     public function __construct(
         \Magento\Framework\ObjectManagerInterface $objectManager,
@@ -275,7 +299,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         BuckarooLog $buckarooLog,
         SoftwareData $softwareData,
         AddressFactory $addressFactory,
-        \Magento\Framework\Event\ManagerInterface $eventManager,
+        ManagerInterface $eventManager,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
@@ -666,6 +690,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     /**
      * @return string
      * @throws \Buckaroo\Magento2\Exception
+     * @throws LocalizedException
      */
     public function getTitle()
     {
@@ -685,18 +710,23 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         $paymentFee = trim($this->configProviderMethodFactory->get($this->buckarooPaymentMethodCode)->getPaymentFee());
-        if (!$paymentFee || (float) $paymentFee < 0.01) {
-            return $title;
-        }
 
-        if (strpos($paymentFee, '%') === false) {
-            $title .= ' + ' . $this->priceHelper->currency(number_format($paymentFee, 2), true, false);
-        } else {
-            $title .= ' + ' . $paymentFee;
+        if(!$this->helper->getAlreadyPaid()){
+            if (!$paymentFee || (float) $paymentFee < 0.01) {
+                return $title;
+            }
+
+            if (strpos($paymentFee, '%') === false) {
+                $title .= ' + ' . $this->priceHelper->currency(number_format($paymentFee, 2), true, false);
+            } else {
+                $title .= ' + ' . $paymentFee;
+            }
         }
 
         return $title;
     }
+
+
 
     /**
      * @return bool|string
@@ -2736,7 +2766,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         //Add diff line
-        if (!$this->helper->areEqualAmounts($order->getGrandTotal(), $itemsTotalAmount) && !$this->payRemainder) {
+        if (abs($order->getGrandTotal() - $itemsTotalAmount) > 0.01) {
             $diff        = $order->getGrandTotal() - $itemsTotalAmount;
             $diffLine    = $this->getDiffLine($count, $diff);
             $requestData = array_merge($requestData, $diffLine);

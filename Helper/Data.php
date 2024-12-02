@@ -261,6 +261,11 @@ class Data extends AbstractHelper
         return $this->groupTransaction->getGroupTransactionOriginalTransactionKey($orderId);
     }
 
+    public function getAlreadyPaid()
+    {
+        return $this->groupTransaction->getAlreadyPaid($this->getOrderId());
+    }
+
     public function getOrderId()
     {
         $orderId = $this->_checkoutSession->getQuote()->getReservedOrderId();
@@ -293,17 +298,6 @@ class Data extends AbstractHelper
             $this->logger->addDebug(__METHOD__.(string)$e);
             return null;
         }
-    }
-
-    public function getConfigCardSort()
-    {
-        $configValue = $this->scopeConfig->getValue(
-            'payment/buckaroo_magento2_creditcard/sorted_issuers',
-            $this->scopeDefiner->getScope(),
-            ($this->scopeDefiner->getScope() == ScopeInterface::SCOPE_WEBSITES) ? $this->storeManager->getStore() : null
-        );
-
-        return $configValue;
     }
 
     public function getConfigGiftCardsSort()
@@ -428,8 +422,7 @@ class Data extends AbstractHelper
             ['value' => 'applepay',       'label' => __('Apple Pay')],
             ['value' => 'billink',       'label' => __('Billink')],
             ['value' => 'capayablein3',       'label' => __('In3')],
-            ['value' => 'creditcard',       'label' => __('Credit and debit cards')],
-            ['value' => 'creditcards',       'label' => __('Credit and debit cards (Client sided)')],
+            ['value' => 'creditcards',       'label' => __('Credit and debit cards')],
             ['value' => 'emandate',       'label' => __('Digital Debit Authorization')],
             ['value' => 'eps',       'label' => __('EPS')],
             ['value' => 'giftcards',       'label' => __('Giftcards')],
@@ -447,7 +440,6 @@ class Data extends AbstractHelper
             ['value' => 'payperemail',       'label' => __('PayPerEmail')],
             ['value' => 'pospayment',       'label' => __('Point of Sale')],
             ['value' => 'sepadirectdebit',       'label' => __('SEPA direct debit')],
-            ['value' => 'sofortbanking',       'label' => __('SOFORT')],
             ['value' => 'belfius',       'label' => __('Belfius')],
             ['value' => 'transfer',       'label' => __('Bank Transfer')],
             ['value' => 'trustly',       'label' => __('Trustly')],

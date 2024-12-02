@@ -35,24 +35,24 @@ class Filter extends \Magento\Payment\Ui\Component\Listing\Column\Method\Options
          */
         $result = $db->query(
             '
-                SELECT 
-                    method, 
+                SELECT
+                    method,
                     group_concat(distinct(' .
                 $this->resourceConnection->getTableName('buckaroo_magento2_giftcard') .
                 '.servicecode) SEPARATOR "-") as giftcard_codes,
                     group_concat(distinct(' .
                 $this->resourceConnection->getTableName('buckaroo_magento2_giftcard') .
-                '.label) SEPARATOR "-") as giftcard_titles 
+                '.label) SEPARATOR "-") as giftcard_titles
                     from ' .
                 $this->resourceConnection->getTableName('sales_order_payment') .
-                '  
+                '
                     inner join ' .
                 $this->resourceConnection->getTableName('sales_order') .
                 ' on ' .
                 $this->resourceConnection->getTableName('sales_order') .
                 '.entity_id = ' .
                 $this->resourceConnection->getTableName('sales_order_payment') .
-                '.parent_id 
+                '.parent_id
                     inner join ' .
                 $this->resourceConnection->getTableName(
                     'buckaroo_magento2_group_transaction'
@@ -63,7 +63,7 @@ class Filter extends \Magento\Payment\Ui\Component\Listing\Column\Method\Options
                 ) .
                 '.order_id=' .
                 $this->resourceConnection->getTableName('sales_order') .
-                '.increment_id 
+                '.increment_id
                     inner join ' .
                 $this->resourceConnection->getTableName('buckaroo_magento2_giftcard') .
                 ' on ' .
@@ -72,7 +72,7 @@ class Filter extends \Magento\Payment\Ui\Component\Listing\Column\Method\Options
                 $this->resourceConnection->getTableName(
                     'buckaroo_magento2_group_transaction'
                 ) .
-                '.servicecode 
+                '.servicecode
                     group by ' .
                 $this->resourceConnection->getTableName(
                     'buckaroo_magento2_group_transaction'
@@ -105,8 +105,7 @@ class Filter extends \Magento\Payment\Ui\Component\Listing\Column\Method\Options
         $options = new \Buckaroo\Magento2\Model\Config\Source\PaymentMethods\PayPerEmail();
         $option = $options->toOptionArray();
         $option = array_merge($option, [
-            ['value' => 'creditcards', 'label' => __('Creditcards')],
-            ['value' => 'sofortbanking', 'label' => __('Sofort')],
+            ['value' => 'creditcards', 'label' => __('Creditcards')]
         ]);
         foreach ($option as $item) {
             $this->options[] = [

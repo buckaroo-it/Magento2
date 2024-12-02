@@ -20,8 +20,6 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider;
 
-use \Buckaroo\Magento2\Model\Config\Source\Display\Type as DisplayType;
-
 /**
  * @method int getPriceDisplayCart()
  * @method int getPriceDisplaySales()
@@ -36,19 +34,15 @@ class BuckarooFee extends AbstractConfigProvider
     const XPATH_BUCKAROOFEE_TAX_CLASS           = 'tax/classes/buckaroo_fee_tax_class';
 
     /**
-     * Calculation fee tax settings
+     * Retrieve the tax class for Buckaroo fee
+     *
+     * @param null $store
+     * @return int|string
      */
-    const XPATH_BUCKAROOFEE_PAYMENT_FEE_TAX      = 'tax/calculation/buckaroo_fee';
-
-    /**
-     * Shopping cart display settings
-     */
-    const XPATH_BUCKAROOFEE_PRICE_DISPLAY_CART  = 'tax/cart_display/buckaroo_fee';
-
-    /**
-     * Sales display settings
-     */
-    const XPATH_BUCKAROOFEE_PRICE_DISPLAY_SALES = 'tax/sales_display/buckaroo_fee';
+    public function getBuckarooFeeTaxClass($store = null)
+    {
+        return $this->scopeConfig->getValue(self::XPATH_BUCKAROOFEE_TAX_CLASS, \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $store);
+    }
 
     /**
      * Retrieve associated array of checkout configuration
@@ -61,20 +55,7 @@ class BuckarooFee extends AbstractConfigProvider
     {
         return [
             'buckarooFee' => [
-                'calculation' => [
-                    'buckarooPaymentFeeInclTax'    =>
-                        $this->getPaymentFeeTax() == DisplayType::DISPLAY_TYPE_INCLUDING_TAX,
-                ],
-                'cart' => [
-                    'displayBuckarooFeeBothPrices' => $this->getPriceDisplayCart() == DisplayType::DISPLAY_TYPE_BOTH,
-                    'displayBuckarooFeeInclTax'    => $this->getPriceDisplayCart() == DisplayType::DISPLAY_TYPE_BOTH
-                        || $this->getPriceDisplayCart() == DisplayType::DISPLAY_TYPE_INCLUDING_TAX,
-                ],
-                'sales' => [
-                    'displayBuckarooFeeBothPrices' => $this->getPriceDisplaySales() == DisplayType::DISPLAY_TYPE_BOTH,
-                    'displayBuckarooFeeInclTax'    => $this->getPriceDisplaySales() == DisplayType::DISPLAY_TYPE_BOTH
-                        || $this->getPriceDisplaySales() == DisplayType::DISPLAY_TYPE_INCLUDING_TAX,
-                ],
+                'tax_class_id' => $this->getBuckarooFeeTaxClass($store),
             ],
         ];
     }

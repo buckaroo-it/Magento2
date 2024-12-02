@@ -20,9 +20,9 @@
 
 /** @var string $cspNonce */
 ?>
-<?php if ($block->canShowProductButton()): ?>
-<div id="apple-pay-catalog-product-view-component" data-bind="scope:'applepayproductcomponent'">
-    <!-- ko template: getTemplate() --><!-- /ko -->
+<?php if ($block->canShowButton('Product')): ?>
+    <div id="apple-pay-catalog-product-view-component" data-bind="scope:'applepayproductcomponent'">
+        <!-- ko template: getTemplate() --><!-- /ko -->
 
     <script nonce="<?= $cspNonce ?>">
         if ('undefined' === typeof window.checkoutConfig) {

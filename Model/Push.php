@@ -33,13 +33,12 @@ use Buckaroo\Magento2\Model\Method\Afterpay;
 use Buckaroo\Magento2\Model\LockManagerWrapper;
 use Buckaroo\Magento2\Model\Method\Afterpay2;
 use Buckaroo\Magento2\Model\Method\Afterpay20;
-use Buckaroo\Magento2\Model\Method\Creditcard;
+use Buckaroo\Magento2\Model\Method\Creditcards;
 use Buckaroo\Magento2\Model\Method\Klarnakp;
 use Buckaroo\Magento2\Model\Method\Giftcards;
 use Buckaroo\Magento2\Model\Method\Paypal;
 use Buckaroo\Magento2\Model\Method\PayPerEmail;
 use Buckaroo\Magento2\Model\Method\SepaDirectDebit;
-use Buckaroo\Magento2\Model\Method\Sofortbanking;
 use Buckaroo\Magento2\Model\Method\Transfer;
 use Buckaroo\Magento2\Model\Method\Voucher;
 use Buckaroo\Magento2\Model\Refund\Push as RefundPush;
@@ -1610,7 +1609,6 @@ class Push implements PushInterface
         if (!$this->order->getEmailSent()
             && in_array($payment->getMethod(), [Transfer::PAYMENT_METHOD_CODE,
                 SepaDirectDebit::PAYMENT_METHOD_CODE,
-                Sofortbanking::PAYMENT_METHOD_CODE,
                 PayPerEmail::PAYMENT_METHOD_CODE,
             ])
             && ($this->configAccount->getOrderConfirmationEmail($store)
@@ -2065,7 +2063,7 @@ class Push implements PushInterface
             Afterpay::PAYMENT_METHOD_CODE,
             Afterpay2::PAYMENT_METHOD_CODE,
             Afterpay20::PAYMENT_METHOD_CODE,
-            Creditcard::PAYMENT_METHOD_CODE,
+            Creditcards::PAYMENT_METHOD_CODE,
             Klarnakp::PAYMENT_METHOD_CODE
         ];
 

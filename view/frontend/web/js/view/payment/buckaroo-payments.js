@@ -82,10 +82,6 @@ define(
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/payconiq'
             },
             {
-                type: 'buckaroo_magento2_creditcard',
-                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/creditcard'
-            },
-            {
                 type: 'buckaroo_magento2_creditcards',
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/creditcards'
             },
@@ -96,10 +92,6 @@ define(
             {
                 type: 'buckaroo_magento2_mrcash',
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/mrcash'
-            },
-            {
-                type: 'buckaroo_magento2_sofortbanking',
-                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/sofortbanking'
             },
             {
                 type: 'buckaroo_magento2_belfius',
@@ -187,7 +179,7 @@ define(
             },
             {
                 type: 'buckaroo_magento2_blik',
-                    component: 'Buckaroo_Magento2/js/view/payment/method-renderer/blik'
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/blik'
             }
         );
         /**

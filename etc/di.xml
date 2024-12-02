@@ -124,7 +124,6 @@
 
     <type name="Buckaroo\Magento2\Model\Push">
         <plugin name="buckaroo_magento2_paypal_sellersprotection_push" type="Buckaroo\Magento2\Model\Service\Plugin\PaypalSellersProtection\Push" />
-        <plugin name="buckaroo_magento2_mpi_push" type="Buckaroo\Magento2\Model\Service\Plugin\Mpi\Push" />
         <arguments>
             <argument name="fileSystemDriver" xsi:type="object">Magento\Framework\Filesystem\Driver\File</argument>
         </arguments>
@@ -241,10 +240,6 @@
                     <item name="type" xsi:type="string">idealprocessing</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\IdealProcessing</item>
                 </item>
-                <item name="creditcard" xsi:type="array">
-                    <item name="type" xsi:type="string">creditcard</item>
-                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard</item>
-                </item>
                 <item name="creditcards" xsi:type="array">
                     <item name="type" xsi:type="string">creditcards</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcards</item>
@@ -264,10 +259,6 @@
                 <item name="sepadirectdebit" xsi:type="array">
                     <item name="type" xsi:type="string">sepadirectdebit</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\SepaDirectDebit</item>
-                </item>
-                <item name="sofortbanking" xsi:type="array">
-                    <item name="type" xsi:type="string">sofortbanking</item>
-                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Sofortbanking</item>
                 </item>
                 <item name="belfius" xsi:type="array">
                     <item name="type" xsi:type="string">belfius</item>
@@ -477,6 +468,12 @@
         </arguments>
     </type>
 
+    <type name="Buckaroo\Magento2\Service\BuckarooFee\ResultFactory">
+        <arguments>
+            <argument name="instance" xsi:type="string">Buckaroo\Magento2\Service\BuckarooFee\Result</argument>
+        </arguments>
+    </type>
+
     <type name="Buckaroo\Magento2\Model\RefundFieldsFactory">
     </type>
 
@@ -498,7 +495,7 @@
 
     <type name="Buckaroo\Magento2\Block\Info\Creditcard">
         <arguments>
-            <argument name="configProvider" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard</argument>
+            <argument name="configProvider" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcards</argument>
         </arguments>
     </type>
 
