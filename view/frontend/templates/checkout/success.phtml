@@ -20,7 +20,7 @@
 
 /** @var string $cspNonce */
 ?>
-<script nonce="<?= $cspNonce ?>">
+<script nonce="<?= $block->getCspNonce() ?>">
     window.onload = function(){
         require(['Magento_Customer/js/customer-data'], function (customerData) {
             var sections = ['cart'];
