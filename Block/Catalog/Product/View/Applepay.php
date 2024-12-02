@@ -62,8 +62,11 @@ class Applepay extends Template
      */
     public function canShowButton($page)
     {
+        $applepayButtons = $this->applepayConfigProvider->getAvailableButtons();
+
         return $this->isModuleActive() &&
-            in_array($page, $this->applepayConfigProvider->getAvailableButtons()) &&
+            is_array($applepayButtons) &&
+            in_array($page, $applepayButtons) &&
             $this->applepayConfigProvider->isApplePayEnabled($this->_storeManager->getStore());
     }
 
