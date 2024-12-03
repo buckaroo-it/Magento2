@@ -21,24 +21,22 @@
 
 namespace Buckaroo\Magento2\Gateway\Http\TransactionBuilder;
 
-use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\Data\Form\FormKey;
-use Magento\Framework\UrlInterface;
-use Magento\Framework\Encryption\Encryptor;
-use Buckaroo\Magento2\Gateway\Http\Transaction;
-use Buckaroo\Magento2\Model\ConfigProvider\Account;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
-use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
+use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Model\Method\AbstractMethod;
+use Magento\Framework\Exception\LocalizedException;
 
 class Refund extends AbstractTransactionBuilder
 {
+
     /**
-     * @throws \Buckaroo\Magento2\Exception
+     * @return void
+     * @throws Exception
+     * @throws LocalizedException
      */
     protected function setRefundCurrencyAndAmount()
     {
         /**
-         * @var \Buckaroo\Magento2\Model\Method\AbstractMethod $methodInstance
+         * @var AbstractMethod $methodInstance
          */
         $methodInstance = $this->order->getPayment()->getMethodInstance();
         $method = $methodInstance->buckarooPaymentMethodCode;
@@ -65,6 +63,8 @@ class Refund extends AbstractTransactionBuilder
 
     /**
      * @return array
+     * @throws Exception
+     * @throws LocalizedException
      */
     public function getBody()
     {
@@ -102,6 +102,12 @@ class Refund extends AbstractTransactionBuilder
                 'AdditionalParameter' => $this->getAdditionalParameters()
             ],
         ];
+
+        if ($this->order->getTotalRefunded() >= $this->order->getGrandTotal()) {
+            $this->order->setState(\Magento\Sales\Model\Order::STATE_CLOSED)
+                ->setStatus('closed');
+            $this->order->save();
+        }
 
         return $body;
     }
