@@ -1,4 +1,5 @@
-<?php
+<?xml version="1.0"?>
+<!--
 /**
  * NOTICE OF LICENSE
  *
@@ -17,16 +18,9 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-
-/** @var string $cspNonce */
-?>
-<script nonce="<?= $block->getCspNonce() ?>">
-    window.onload = function(){
-        require(['Magento_Customer/js/customer-data'], function (customerData) {
-            var sections = ['cart'];
-            customerData.initStorage();
-            customerData.reload(sections, true);
-            customerData.invalidate(sections);
-            console.log('Reload shopping cart on success');});
-    }
-</script>
+ -->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <event name="view_block_abstract_to_html_before">
+        <observer name="buckaroo_magento2_update_order_status" instance="Buckaroo\Magento2\Observer\AddCspNonce" />
+    </event>
+</config>

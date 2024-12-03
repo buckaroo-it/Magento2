@@ -18,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+/** @var string $cspNonce */
 ?>
 <?php if ($block->canShowButton('Cart')) : ?>
     <div class="box-tocart">
@@ -29,7 +30,7 @@
     </div>
     <div class="buckaroo-paypal-express"></div>
 
-    <script>
+    <script nonce="<?= $cspNonce ?>">
         showPaypalExpressButton = function() {
             require(['jquery', 'buckaroo/paypal-express/pay'], function(jQuery, paypalExpressPay) {
                 paypalExpressPay.setConfig(<?= /* @noEscape */ json_encode($block->getConfig()); ?>, 'cart');
