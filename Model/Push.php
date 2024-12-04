@@ -1711,7 +1711,7 @@ class Push implements PushInterface
          * @var \Magento\Sales\Model\Order\Payment $payment
          */
         $payment = $this->order->getPayment();
-        $invoiceHandlingConfig = $this->configAccount->getInvoiceHandling();
+        $invoiceHandlingConfig = $this->configAccount->getInvoiceHandling($this->order->getStore());
 
         if ($invoiceHandlingConfig == InvoiceHandlingOptions::SHIPMENT) {
             $payment->setAdditionalInformation(InvoiceHandlingOptions::INVOICE_HANDLING, $invoiceHandlingConfig);
