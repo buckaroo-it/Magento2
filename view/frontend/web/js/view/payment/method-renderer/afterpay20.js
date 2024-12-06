@@ -219,8 +219,8 @@ define(
                             let billing = quote.billingAddress();
 
                             return this.isB2B && (
-                                (shipping && shipping.countryId == 'NL' && shipping.company && shipping.company.trim().length > 0) ||
-                                (billing && billing.countryId == 'NL' && billing.company && billing.company.trim().length > 0)
+                                (shipping && shipping.company && shipping.company.trim().length > 0) ||
+                                (billing && billing.company && billing.company.trim().length > 0)
                             )
                         },
                         this
@@ -254,7 +254,7 @@ define(
 
                     this.showFrenchTos = ko.computed(
                         function () {
-                            return this.country() === 'BE'
+                            return this.country() === 'BE' && !this.showCOC()
                         },
                         this
                     );
@@ -466,7 +466,7 @@ define(
 
                 getFrenchTos: function () {
                    return $.mage
-                    .__('(Or click here for the French translation: <a target="_blank" href="%s">terms and condition</a>. )')
+                    .__('(Or click here for the French translation: <a target="_blank" href="%s">terms and conditions</a>. )')
                     .replace('%s', 'https://documents.riverty.com/terms_conditions/payment_methods/invoice/be_fr/');
                 },
 
