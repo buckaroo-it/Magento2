@@ -96,8 +96,10 @@ function ($, Component, quote, totals , globalMessageList, $t, alert, ko) {
             return isAvailable;
         },
 
-        getTitle : function () {
-            return window.checkoutConfig.buckarooFee.title();
+        getTitle: function () {
+            return typeof window.checkoutConfig.buckarooFee.title === 'function'
+                ? window.checkoutConfig.buckarooFee.title()
+                : $t('Payment Fee');
         },
 
         /**
