@@ -144,56 +144,56 @@ class Process extends Action
      * @param Factory $configProviderFactory
      * @param OrderSender $orderSender
      * @param OrderStatusFactory $orderStatusFactory
-     * @param Session $checkoutSession,
-     * @param CustomerSession $customerSession,
-     * @param CustomerRepositoryInterface $customerRepository,
-     * @param SessionFactory $sessionFactory,
-     * @param Customer $customerModel,
-     * @param CustomerFactory $customerFactory,
-     * @param OrderService $orderService,
-     * @param ManagerInterface $eventManager,
-     * @param Recreate $quoteRecreate,
+     * @param Session $checkoutSession
+     * @param CustomerSession $customerSession
+     * @param CustomerRepositoryInterface $customerRepository
+     * @param SessionFactory $sessionFactory
+     * @param Customer $customerModel
+     * @param CustomerFactory $customerFactory
+     * @param OrderService $orderService
+     * @param ManagerInterface $eventManager
+     * @param Recreate $quoteRecreate
      * @param LockManagerWrapper $lockManager
-     *
      * @throws Exception
      */
     public function __construct(
-        Context $context,
-        Data $helper,
-        Cart $cart,
-        Order $order,
-        Quote $quote,
-        TransactionInterface $transaction,
-        Log $logger,
-        Factory $configProviderFactory,
-        OrderSender $orderSender,
-        OrderStatusFactory $orderStatusFactory,
-        Session $checkoutSession,
-        CustomerSession $customerSession,
+        Context                     $context,
+        Data                        $helper,
+        Cart                        $cart,
+        Order                       $order,
+        Quote                       $quote,
+        TransactionInterface        $transaction,
+        Log                         $logger,
+        Factory                     $configProviderFactory,
+        OrderSender                 $orderSender,
+        OrderStatusFactory          $orderStatusFactory,
+        Session                     $checkoutSession,
+        CustomerSession             $customerSession,
         CustomerRepositoryInterface $customerRepository,
-        SessionFactory $sessionFactory,
-        Customer $customerModel,
-        CustomerFactory $customerFactory,
-        OrderService $orderService,
-        ManagerInterface $eventManager,
-        Recreate $quoteRecreate,
-        LockManagerWrapper $lockManager
-    ) {
+        SessionFactory              $sessionFactory,
+        Customer                    $customerModel,
+        CustomerFactory             $customerFactory,
+        OrderService                $orderService,
+        ManagerInterface            $eventManager,
+        Recreate                    $quoteRecreate,
+        LockManagerWrapper          $lockManager
+    )
+    {
         parent::__construct($context);
-        $this->helper             = $helper;
-        $this->cart               = $cart;
-        $this->order              = $order;
-        $this->quote              = $quote;
-        $this->transaction        = $transaction;
-        $this->logger             = $logger;
-        $this->orderSender        = $orderSender;
+        $this->helper = $helper;
+        $this->cart = $cart;
+        $this->order = $order;
+        $this->quote = $quote;
+        $this->transaction = $transaction;
+        $this->logger = $logger;
+        $this->orderSender = $orderSender;
         $this->orderStatusFactory = $orderStatusFactory;
-        $this->checkoutSession    = $checkoutSession;
-        $this->customerSession    = $customerSession;
+        $this->checkoutSession = $checkoutSession;
+        $this->customerSession = $customerSession;
         $this->customerRepository = $customerRepository;
-        $this->_sessionFactory    = $sessionFactory;
+        $this->_sessionFactory = $sessionFactory;
 
-        $this->customerModel           = $customerModel;
+        $this->customerModel = $customerModel;
         $this->customerResourceFactory = $customerFactory;
 
         $this->accountConfig = $configProviderFactory->get('account');
@@ -261,7 +261,8 @@ class Process extends Action
      * @throws LocalizedException
      * @throws \Exception
      */
-    private function redirectProcess() {
+    private function redirectProcess()
+    {
         /**
          * Check if there is a valid response. If not, redirect to home.
          */
@@ -408,22 +409,23 @@ class Process extends Action
                         $this->order->getIncrementId(),
                     ], true));
 
-                if (!$this->checkoutSession->getLastSuccessQuoteId() && $this->order->getQuoteId()) {
-                    $this->logger->addDebug(__METHOD__ . '|52|');
-                    $this->checkoutSession->setLastSuccessQuoteId($this->order->getQuoteId());
-                }
-                if (!$this->checkoutSession->getLastQuoteId() && $this->order->getQuoteId()) {
-                    $this->logger->addDebug(__METHOD__ . '|53|');
-                    $this->checkoutSession->setLastQuoteId($this->order->getQuoteId());
-                }
-                if (!$this->checkoutSession->getLastOrderId() && $this->order->getId()) {
-                    $this->logger->addDebug(__METHOD__ . '|54|');
+                if ($this->order && $this->order->getId()) {
                     $this->checkoutSession->setLastOrderId($this->order->getId());
                 }
-                if (!$this->checkoutSession->getLastRealOrderId() && $this->order->getIncrementId()) {
-                    $this->logger->addDebug(__METHOD__ . '|55|');
+
+                if ($this->order && $this->order->getQuoteId()) {
+                    $this->checkoutSession->setLastQuoteId($this->order->getQuoteId());
+                    $this->checkoutSession->setLastSuccessQuoteId($this->order->getQuoteId());
+                }
+
+                if ($this->order && $this->order->getIncrementId()) {
                     $this->checkoutSession->setLastRealOrderId($this->order->getIncrementId());
                 }
+
+                if ($this->order && $this->order->getStatus()) {
+                    $this->checkoutSession->setLastOrderStatus($this->order->getStatus());
+                }
+
                 $this->logger->addDebug(__METHOD__ . '|6|');
                 return $this->redirectSuccess();
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_ORDER_FAILED'):
@@ -436,6 +438,7 @@ class Process extends Action
                 return $this->handleProcessedResponse('/');
         }
     }
+
     /**
      * Handle final response
      *
@@ -449,6 +452,7 @@ class Process extends Action
         $this->logger->addDebug(__METHOD__ . '|15|');
         return $this->_redirect($path, $arguments);
     }
+
     /**
      * Get order
      *
@@ -458,6 +462,7 @@ class Process extends Action
     {
         return $this->order;
     }
+
     /**
      * Add error message to be displayed to the user
      *
@@ -469,6 +474,7 @@ class Process extends Action
     {
         $this->messageManager->addErrorMessage($message);
     }
+
     /**
      * Add success message to be displayed to the user
      *
@@ -492,8 +498,8 @@ class Process extends Action
     protected function setPaymentOutOfTransit(OrderPaymentInterface $payment)
     {
         $payment
-        ->setAdditionalInformation(AbstractMethod::BUCKAROO_PAYMENT_IN_TRANSIT, false)
-        ->save();
+            ->setAdditionalInformation(AbstractMethod::BUCKAROO_PAYMENT_IN_TRANSIT, false)
+            ->save();
     }
 
     /**
@@ -805,7 +811,7 @@ class Process extends Action
      */
     protected function removeCoupon()
     {
-        if (method_exists($this->order,'getCouponCode')) {
+        if (method_exists($this->order, 'getCouponCode')) {
             $couponCode = $this->order->getCouponCode();
             $couponFactory = $this->_objectManager->get(CouponFactory::class);
             if (!(is_object($couponFactory) && method_exists($couponFactory, 'load'))) {
@@ -818,7 +824,7 @@ class Process extends Action
                 return;
             }
 
-            if (is_int($coupon->getCouponId())) {
+            if ($coupon && is_int($coupon->getCouponId())) {
                 $resourceModel->delete($coupon);
             }
         }
