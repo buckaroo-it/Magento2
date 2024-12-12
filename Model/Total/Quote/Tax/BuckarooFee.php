@@ -20,7 +20,6 @@
 
 namespace Buckaroo\Magento2\Model\Total\Quote\Tax;
 
-use Buckaroo\Magento2\Model\ConfigProvider\Account as ConfigProviderAccount;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Magento\Customer\Api\AccountManagementInterface as CustomerAccountManagement;
 use Magento\Customer\Api\Data\AddressInterfaceFactory as CustomerAddressFactory;
@@ -55,17 +54,25 @@ class BuckarooFee extends CommonTaxCollector
      * @var PaymentGroupTransaction
      */
     protected $groupTransaction;
+
     /**
      * @var Calculate
      */
     protected $calculate;
 
     /**
-     * @var ConfigProviderAccount
+     * @var \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee
      */
-    protected $configProviderAccount;
+    protected $configProviderBuckarooFee;
 
     /**
+     * @var TaxHelper|null
+     */
+    protected $taxHelper;
+
+    /**
+     * Constructor
+     *
      * @param TaxConfig $taxConfig
      * @param TaxCalculationInterface $taxCalculationService
      * @param QuoteDetailsInterfaceFactory $quoteDetailsDataObjectFactory
@@ -73,13 +80,13 @@ class BuckarooFee extends CommonTaxCollector
      * @param TaxClassKeyInterfaceFactory $taxClassKeyDataObjectFactory
      * @param CustomerAddressFactory $customerAddressFactory
      * @param CustomerAddressRegionFactory $customerAddressRegionFactory
-     * @param TaxHelper|null $taxHelper
-     * @param QuoteDetailsItemExtensionInterfaceFactory|null $quoteDetailsItemExtensionInterfaceFactory
-     * @param CustomerAccountManagement|null $customerAccountManagement
      * @param PriceCurrencyInterface $priceCurrency
      * @param PaymentGroupTransaction $groupTransaction
      * @param Calculate $calculate
-     * @param ConfigProviderAccount $configProviderAccount
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee
+     * @param TaxHelper|null $taxHelper
+     * @param QuoteDetailsItemExtensionInterfaceFactory|null $quoteDetailsItemExtensionInterfaceFactory
+     * @param CustomerAccountManagement|null $customerAccountManagement
      */
     public function __construct(
         TaxConfig $taxConfig,
@@ -92,7 +99,7 @@ class BuckarooFee extends CommonTaxCollector
         PriceCurrencyInterface $priceCurrency,
         PaymentGroupTransaction $groupTransaction,
         Calculate $calculate,
-        ConfigProviderAccount $configProviderAccount,
+        \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
         TaxHelper $taxHelper = null,
         QuoteDetailsItemExtensionInterfaceFactory $quoteDetailsItemExtensionInterfaceFactory = null,
         ?CustomerAccountManagement $customerAccountManagement = null
@@ -133,12 +140,13 @@ class BuckarooFee extends CommonTaxCollector
         $this->priceCurrency = $priceCurrency;
         $this->groupTransaction = $groupTransaction;
         $this->calculate = $calculate;
-        $this->configProviderAccount = $configProviderAccount;
+        $this->configProviderBuckarooFee = $configProviderBuckarooFee;
+        $this->taxHelper = $taxHelper;
         $this->setCode('pretax_buckaroo_fee');
     }
 
     /**
-     * Collect buckaroo fee related items and add them to tax calculation
+     * Collect Buckaroo fee related items and add them to tax calculation
      *
      * @param  Quote $quote
      * @param  ShippingAssignmentInterface $shippingAssignment
@@ -151,9 +159,9 @@ class BuckarooFee extends CommonTaxCollector
         Total $total
     ) {
         if (!$shippingAssignment->getItems()) {
+            parent::collect($quote, $shippingAssignment, $total);
             return $this;
         }
-
         $orderId = $quote->getReservedOrderId();
 
         // Check if already paid amount is affecting the calculation
@@ -162,40 +170,25 @@ class BuckarooFee extends CommonTaxCollector
         }
 
         $result = $this->calculate->calculatePaymentFee($quote, $total);
+
         if ($result === null){
             return $this;
         }
-        $amount = $this->priceCurrency->convert($result->getRoundedAmount());
 
         $this->addAssociatedTaxable($shippingAssignment, $result, $quote);
 
-        $feeDataObject = $this->quoteDetailsItemDataObjectFactory->create()
-            ->setType('buckaroo_fee')
-            ->setCode('buckaroo_fee')
-            ->setQuantity(1);
-
-        $feeDataObject->setUnitPrice($result->getRoundedAmount());
-        $feeDataObject->setTaxClassKey(
-            $this->taxClassKeyDataObjectFactory->create()
-                ->setType(TaxClassKeyInterface::TYPE_ID)
-                ->setValue(4)
-        );
-        $feeDataObject->setIsTaxIncluded(true);
-
-        $quoteDetails = $this->prepareQuoteDetails($shippingAssignment, [$feeDataObject]);
-
-        $this->taxCalculationService->calculateTax($quoteDetails, $quote->getStoreId());
-
         parent::collect($quote, $shippingAssignment, $total);
-
 
         return $this;
     }
 
     /**
+     * Add associated taxable for Buckaroo fee
+     *
      * @param ShippingAssignmentInterface $shippingAssignment
      * @param Result $result
      * @param Quote $quote
+     * @return void
      */
     private function addAssociatedTaxable(ShippingAssignmentInterface $shippingAssignment, Result $result, Quote $quote)
     {
@@ -210,8 +203,11 @@ class BuckarooFee extends CommonTaxCollector
             $associatedTaxables = [];
         }
 
-        $taxClassId = $this->configProviderAccount->getBuckarooFeeTaxClass();
+        // Retrieve the store from the quote
+        $store = $quote->getStore();
 
+        // Retrieve the Buckaroo fee tax class ID from BuckarooFeeConfigProvider using the store
+        $taxClassId = $this->configProviderBuckarooFee->getBuckarooFeeTaxClass($store);
         $associatedTaxables[] = [
             CommonTaxCollector::KEY_ASSOCIATED_TAXABLE_TYPE => self::QUOTE_TYPE,
             CommonTaxCollector::KEY_ASSOCIATED_TAXABLE_CODE => self::CODE_QUOTE_GW,

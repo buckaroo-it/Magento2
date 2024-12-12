@@ -48,9 +48,9 @@ class BuckarooFeeTest extends \Buckaroo\Magento2\Test\BaseTest
         $quoteMock = $this->getFakeMock(Quote::class)->getMock();
 
         $configProviderFeeMock = $this->getFakeMock(ConfigProviderBuckarooFee::class)
-            ->setMethods(['getTaxClass', 'getPaymentFeeTax'])
+            ->setMethods(['getBuckarooFeeTaxClass', 'getPaymentFeeTax'])
             ->getMock();
-        $configProviderFeeMock->expects($this->once())->method('getTaxClass')->willReturn(1);
+        $configProviderFeeMock->expects($this->once())->method('getBuckarooFeeTaxClass')->willReturn(1);
         $configProviderFeeMock->expects($this->once())->method('getPaymentFeeTax')->willReturn($taxIncl);
 
         $catalogHelper = $this->getFakeMock(Data::class)->setMethods(['getTaxPrice'])->getMock();
@@ -373,9 +373,9 @@ class BuckarooFeeTest extends \Buckaroo\Magento2\Test\BaseTest
         $configProviderFactoryMock->expects($this->once())->method('getPaymentFee')->willReturn($expectedFee);
 
         $configProviderFeeMock = $this->getFakeMock(ConfigProviderBuckarooFee::class)
-            ->setMethods(['getTaxClass','getPaymentFeeTax'])
+            ->setMethods(['getBuckarooFeeTaxClass','getPaymentFeeTax'])
             ->getMock();
-        $configProviderFeeMock->expects($this->once())->method('getTaxClass')->willReturn(1);
+        $configProviderFeeMock->expects($this->once())->method('getBuckarooFeeTaxClass')->willReturn(1);
 
         $catalogHelperMock = $this->getFakeMock(Data::class)->setMethods(['getTaxPrice'])->getMock();
         $catalogHelperMock->expects($this->once())->method('getTaxPrice')->willReturn($expectedFee);
@@ -438,9 +438,9 @@ class BuckarooFeeTest extends \Buckaroo\Magento2\Test\BaseTest
         $priceCurrencyMock->method('convert')->with($fee, $store)->willReturn($fee);
 
         $configProviderFeeMock = $this->getFakeMock(ConfigProviderBuckarooFee::class)
-            ->setMethods(['getTaxClass', 'getPaymentFeeTax'])
+            ->setMethods(['getBuckarooFeeTaxClass', 'getPaymentFeeTax'])
             ->getMock();
-        $configProviderFeeMock->expects($this->once())->method('getTaxClass')->willReturn(1);
+        $configProviderFeeMock->expects($this->once())->method('getBuckarooFeeTaxClass')->willReturn(1);
         $configProviderFeeMock->expects($this->once())->method('getPaymentFeeTax')->willReturn($taxIncl);
 
         $catalogHelperMock = $this->getFakeMock(Data::class)->setMethods(['getTaxPrice'])->getMock();

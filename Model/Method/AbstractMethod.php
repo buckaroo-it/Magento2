@@ -2158,7 +2158,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $billingAddress = $order->getBillingAddress();
         $customerTaxClassId = $order->getCustomerTaxClassId();
         $storeId = $order->getStoreId();
-        $taxClassId = $this->configProviderBuckarooFee->getTaxClass();
+        $taxClassId = $this->configProviderBuckarooFee->getBuckarooFeeTaxClass($order->getStore());
 
         $request = $this->taxCalculation->getRateRequest(
             $shippingAddress,
@@ -2773,8 +2773,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         return $requestData;
-
     }
+
     public function canUseForCountry($country)
     {
         if ($this->getConfigData('allowspecific') != 1) {
