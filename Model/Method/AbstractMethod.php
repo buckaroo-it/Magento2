@@ -2773,8 +2773,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         return $requestData;
-
     }
+
     public function canUseForCountry($country)
     {
         if ($this->getConfigData('allowspecific') != 1) {

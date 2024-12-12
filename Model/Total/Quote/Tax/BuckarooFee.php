@@ -159,9 +159,9 @@ class BuckarooFee extends CommonTaxCollector
         Total $total
     ) {
         if (!$shippingAssignment->getItems()) {
+            parent::collect($quote, $shippingAssignment, $total);
             return $this;
         }
-
         $orderId = $quote->getReservedOrderId();
 
         // Check if already paid amount is affecting the calculation
@@ -170,29 +170,12 @@ class BuckarooFee extends CommonTaxCollector
         }
 
         $result = $this->calculate->calculatePaymentFee($quote, $total);
+
         if ($result === null){
             return $this;
         }
-        $amount = $this->priceCurrency->convert($result->getRoundedAmount());
 
         $this->addAssociatedTaxable($shippingAssignment, $result, $quote);
-
-        $feeDataObject = $this->quoteDetailsItemDataObjectFactory->create()
-            ->setType('buckaroo_fee')
-            ->setCode('buckaroo_fee')
-            ->setQuantity(1);
-
-        $feeDataObject->setUnitPrice($result->getRoundedAmount());
-        $feeDataObject->setTaxClassKey(
-            $this->taxClassKeyDataObjectFactory->create()
-                ->setType(TaxClassKeyInterface::TYPE_ID)
-                ->setValue(4)
-        );
-        $feeDataObject->setIsTaxIncluded(true);
-
-        $quoteDetails = $this->prepareQuoteDetails($shippingAssignment, [$feeDataObject]);
-
-        $this->taxCalculationService->calculateTax($quoteDetails, $quote->getStoreId());
 
         parent::collect($quote, $shippingAssignment, $total);
 
@@ -225,7 +208,6 @@ class BuckarooFee extends CommonTaxCollector
 
         // Retrieve the Buckaroo fee tax class ID from BuckarooFeeConfigProvider using the store
         $taxClassId = $this->configProviderBuckarooFee->getBuckarooFeeTaxClass($store);
-
         $associatedTaxables[] = [
             CommonTaxCollector::KEY_ASSOCIATED_TAXABLE_TYPE => self::QUOTE_TYPE,
             CommonTaxCollector::KEY_ASSOCIATED_TAXABLE_CODE => self::CODE_QUOTE_GW,
