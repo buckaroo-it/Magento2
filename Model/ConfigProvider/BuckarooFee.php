@@ -31,7 +31,7 @@ class BuckarooFee extends AbstractConfigProvider
     /**
      * Buckaroo fee tax class
      */
-    const XPATH_BUCKAROOFEE_TAX_CLASS           = 'tax/classes/buckaroo_fee_tax_class';
+    const XPATH_ACCOUNT_BUCKAROO_FEE_TAX_CLASS           = 'buckaroo_magento2/account/buckaroo_fee_tax_class';
 
     /**
      * Retrieve the tax class for Buckaroo fee
@@ -41,7 +41,7 @@ class BuckarooFee extends AbstractConfigProvider
      */
     public function getBuckarooFeeTaxClass($store = null)
     {
-        return $this->scopeConfig->getValue(self::XPATH_BUCKAROOFEE_TAX_CLASS, \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $store);
+        return $this->scopeConfig->getValue(self::XPATH_ACCOUNT_BUCKAROO_FEE_TAX_CLASS, \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $store);
     }
 
     /**

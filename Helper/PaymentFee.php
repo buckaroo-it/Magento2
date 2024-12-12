@@ -20,48 +20,60 @@
 
 namespace Buckaroo\Magento2\Helper;
 
-use \Buckaroo\Magento2\Model\Config\Source\Display\Type as DisplayType;
-
+use Buckaroo\Magento2\Model\Config\Source\Display\Type as DisplayType;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
+use Magento\Framework\App\Helper\AbstractHelper;
+use Magento\Framework\App\Helper\Context;
+use Buckaroo\Magento2\Model\ConfigProvider\Account as AccountConfigProvider;
+use Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee as BuckarooFeeConfigProvider;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as MethodConfigProviderFactory;
+use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
+use Magento\Framework\DataObject;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Invoice;
+use Magento\Sales\Model\Order\Creditmemo;
+use Magento\Store\Api\Data\StoreInterface;
 
-class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
+class PaymentFee extends AbstractHelper
 {
-    /** @var \Buckaroo\Magento2\Model\ConfigProvider\Account */
+    /** @var AccountConfigProvider */
     protected $configProviderAccount;
 
-    /** @var \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee */
+    /** @var BuckarooFeeConfigProvider */
     protected $configProviderBuckarooFee;
 
-    /** @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory */
+    /** @var MethodConfigProviderFactory */
     protected $configProviderMethodFactory;
 
+    /** @var bool|float */
     public $buckarooFee = false;
 
+    /** @var bool|float */
     public $buckarooFeeTax = false;
 
+    /** @var PaymentGroupTransaction */
     protected $groupTransaction;
 
-    /**
-     * @var \Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection
-     */
+    /** @var GiftcardCollection */
     protected $giftcardCollection;
 
     /**
-     * @param \Magento\Framework\App\Helper\Context             $context
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Account        $configProviderAccount
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee    $configProviderBuckarooFee
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory
+     * @param Context                     $context
+     * @param AccountConfigProvider       $configProviderAccount
+     * @param BuckarooFeeConfigProvider   $configProviderBuckarooFee
+     * @param MethodConfigProviderFactory $configProviderMethodFactory
+     * @param PaymentGroupTransaction     $groupTransaction
+     * @param GiftcardCollection          $giftcardCollection
      */
     public function __construct(
-        \Magento\Framework\App\Helper\Context $context,
-        \Buckaroo\Magento2\Model\ConfigProvider\Account $configProviderAccount,
-        \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
-        \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory,
+        Context $context,
+        AccountConfigProvider $configProviderAccount,
+        BuckarooFeeConfigProvider $configProviderBuckarooFee,
+        MethodConfigProviderFactory $configProviderMethodFactory,
         PaymentGroupTransaction $groupTransaction,
-        \Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection $giftcardCollection
+        GiftcardCollection $giftcardCollection
     ) {
         parent::__construct($context);
-
         $this->configProviderAccount = $configProviderAccount;
         $this->configProviderBuckarooFee = $configProviderBuckarooFee;
         $this->configProviderMethodFactory = $configProviderMethodFactory;
@@ -70,26 +82,27 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     /**
-     * Return totals of data object
+     * Retrieve totals array based on the data object.
      *
-     * @param  \Magento\Framework\DataObject $dataObject
+     * @param DataObject $dataObject
      * @return array
      */
     public function getTotals($dataObject)
     {
         $totals = [];
+        $store = $this->getStoreFromDataObject($dataObject);
 
-        $taxClassId = $this->configProviderAccount->getBuckarooFeeTaxClass();
+        $taxClassId = $this->configProviderBuckarooFee->getBuckarooFeeTaxClass($store);
+        $isIncludingTax = $this->isFeeDisplayTypeIncludingTax($taxClassId);
+
         $label = $this->getBuckarooPaymentFeeLabel($dataObject);
-
         $fee = $dataObject->getBuckarooFee();
         $feeTaxAmount = $dataObject->getBuckarooFeeTaxAmount();
         $baseFee = $dataObject->getBaseBuckarooFee();
         $baseFeeTaxAmount = $dataObject->getBuckarooFeeBaseTaxAmount();
 
-        // Check the setting to determine if the fee should include tax
-        if ($taxClassId && $this->buckarooPaymentCalculationInclTax()) {
-            // Add the fee with tax included
+        // Add the fee total line depending on the display type
+        if ($isIncludingTax) {
             $this->addTotalToTotals(
                 $totals,
                 'buckaroo_fee_incl',
@@ -98,7 +111,6 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
                 $label . __(' (Incl. Tax)')
             );
         } else {
-            // Add the fee without tax
             $this->addTotalToTotals(
                 $totals,
                 'buckaroo_fee',
@@ -112,22 +124,55 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
 
         $this->buckarooFee = $fee;
         $this->buckarooFeeTax = $feeTaxAmount;
+
         return $totals;
     }
 
-    public function buckarooPaymentCalculationInclTax($store = null)
+    /**
+     * Extract the store from the data object.
+     *
+     * @param DataObject $dataObject
+     * @return StoreInterface|null
+     */
+    protected function getStoreFromDataObject($dataObject)
     {
-        $configValue = $this->configProviderBuckarooFee->getPaymentFeeTax($store);
+        if ($dataObject instanceof Order) {
+            return $dataObject->getStore();
+        } elseif ($dataObject instanceof Invoice || $dataObject instanceof Creditmemo) {
+            return $dataObject->getOrder()->getStore();
+        }
 
-        return $configValue == DisplayType::DISPLAY_TYPE_INCLUDING_TAX;
+        return null;
     }
-    public function addAlreadyPayedTotals($dataObject, &$totals)
-    {
-        $order_id = $this->getOrderIncrementId($dataObject);
-        $alreadyPayed = $this->groupTransaction->getAlreadyPaid($order_id);
 
-        if (!$dataObject instanceof \Magento\Sales\Model\Order\Creditmemo && $alreadyPayed > 0) {
+    /**
+     * Determine if the fee display type is set to "Including Tax".
+     *
+     * @param mixed $displayType
+     * @return bool
+     */
+    protected function isFeeDisplayTypeIncludingTax($displayType)
+    {
+        return (int)$displayType === DisplayType::DISPLAY_TYPE_INCLUDING_TAX;
+    }
+
+    /**
+     * Add "already paid" totals for giftcards or vouchers if applicable.
+     *
+     * @param DataObject $dataObject
+     * @param array &$totals
+     * @return void
+     */
+    public function addAlreadyPayedTotals($dataObject, array &$totals)
+    {
+        $orderId = $this->getOrderIncrementId($dataObject);
+        $alreadyPayed = $this->groupTransaction->getAlreadyPaid($orderId);
+
+        // For orders (not creditmemos), if there's an already paid amount, adjust totals accordingly
+        if (!$dataObject instanceof Creditmemo && $alreadyPayed > 0) {
+            // Remove the fee line if previously added
             unset($totals['buckaroo_fee']);
+
             $this->addTotalToTotals(
                 $totals,
                 'buckaroo_already_paid',
@@ -138,10 +183,10 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
             return;
         }
 
-        if ($order_id !== null && $alreadyPayed > 0) {
-
+        // Handling creditmemo cases
+        if ($orderId !== null && $alreadyPayed > 0) {
             $requestParams = $this->_request->getParams();
-            $items = $this->groupTransaction->getGroupTransactionItems($order_id);
+            $items = $this->groupTransaction->getGroupTransactionItems($orderId);
             $giftcards = [];
 
             if (isset($requestParams['creditmemo']['buckaroo_already_paid'])) {
@@ -150,7 +195,8 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
                     $giftcards[$transaction[1]] = $value;
                 }
             }
-            foreach ($items as $key => $giftcard) {
+
+            foreach ($items as $giftcard) {
                 $foundGiftcard = $this->giftcardCollection->getItemByColumnValue(
                     'servicecode',
                     $giftcard['servicecode']
@@ -161,32 +207,36 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
                     $label = __('Paid with ' . $foundGiftcard['label']);
                 }
 
-                $refundedAlreadyPaidSaved = $giftcard->getRefundedAmount() ?? 0;
-                $amountValue = $giftcard['amount'];
-                $amountBaseValue = $giftcard['amount'];
+                $refundedAlreadyPaidSaved = $giftcard->getRefundedAmount() ?? 0.0;
+                $amountValue = (float)$giftcard['amount'];
+                $amountBaseValue = $amountValue;
 
+                // Handle partially refundable giftcards
                 if (!empty($foundGiftcard['is_partial_refundable'])) {
-                    $residual = floatval($giftcard['amount']) - floatval($refundedAlreadyPaidSaved);
+                    $residual = $amountValue - (float)$refundedAlreadyPaidSaved;
+
                     if (
-                        array_key_exists($foundGiftcard['servicecode'], $giftcards)
-                        && floatval($giftcards[$foundGiftcard['servicecode']]) <= $residual
+                        array_key_exists($foundGiftcard['servicecode'], $giftcards) &&
+                        (float)$giftcards[$foundGiftcard['servicecode']] <= $residual
                     ) {
-                        $amountValue = floatval($giftcards[$foundGiftcard['servicecode']]);
-                        $amountBaseValue = floatval($giftcards[$foundGiftcard['servicecode']]);
+                        $amountValue = (float)$giftcards[$foundGiftcard['servicecode']];
+                        $amountBaseValue = $amountValue;
                     } else {
-                        $amountBaseValue = $residual;
                         $amountValue = $residual;
+                        $amountBaseValue = $residual;
                     }
                 } else {
-                    if ((!empty(floatval($refundedAlreadyPaidSaved))
-                        && floatval($refundedAlreadyPaidSaved) === floatval($amountValue))) {
-                        $amountBaseValue = 0;
+                    // Non-partially refundable logic
+                    if ((float)$refundedAlreadyPaidSaved === $amountValue) {
                         $amountValue = 0;
-                    } elseif (is_array($foundGiftcard) && array_key_exists($foundGiftcard['servicecode'], $giftcards)) {
-                        if (empty(floatval($giftcards[$foundGiftcard['servicecode']]))) {
-                            $amountBaseValue = 0;
-                            $amountValue = 0;
-                        }
+                        $amountBaseValue = 0;
+                    } elseif (
+                        is_array($foundGiftcard) &&
+                        array_key_exists($foundGiftcard['servicecode'], $giftcards) &&
+                        empty((float)$giftcards[$foundGiftcard['servicecode']])
+                    ) {
+                        $amountValue = 0;
+                        $amountBaseValue = 0;
                     }
                 }
 
@@ -204,26 +254,25 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     /**
-     * Get order increment id from data object
+     * Get order increment ID from a data object (Order/Invoice/Creditmemo).
      *
      * @param mixed $dataObject
-     *
      * @return string|null
      */
     public function getOrderIncrementId($dataObject)
     {
-        if ($dataObject instanceof \Magento\Sales\Model\Order) {
+        if ($dataObject instanceof Order) {
             return $dataObject->getIncrementId();
         }
-        if (
-            $dataObject instanceof \Magento\Sales\Model\Order\Invoice
-            || $dataObject instanceof \Magento\Sales\Model\Order\Creditmemo
-        ) {
+        if ($dataObject instanceof Invoice || $dataObject instanceof Creditmemo) {
             return $dataObject->getOrder()->getIncrementId();
         }
+        return null;
     }
 
     /**
+     * Get the Buckaroo fee amount.
+     *
      * @return mixed
      */
     public function getBuckarooFee()
@@ -232,6 +281,8 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     /**
+     * Get the Buckaroo fee tax amount.
+     *
      * @return mixed
      */
     public function getBuckarooFeeTax()
@@ -240,48 +291,24 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     /**
-     * Return the correct label for the payment method
+     * Retrieve the correct label for the Buckaroo payment fee.
      *
-     * @param $dataObject
-     *
+     * @param mixed $dataObject
      * @return string
      */
     public function getBuckarooPaymentFeeLabel($dataObject)
     {
-        $method = false;
+        $method = $this->extractPaymentMethodFromDataObject($dataObject);
         $label = false;
 
-        /**
-         * Parse data object for payment method
-         */
-        if ($dataObject instanceof \Magento\Sales\Model\Order) {
-            $method = $dataObject->getPayment()->getMethod();
-        } elseif (
-            $dataObject instanceof \Magento\Sales\Model\Order\Invoice
-            || $dataObject instanceof \Magento\Sales\Model\Order\Creditmemo
-        ) {
-            $method = $dataObject->getOrder()->getPayment()->getMethod();
-        } elseif (is_string($dataObject)) {
-            $method = $dataObject;
-        }
-
-        /**
-         * If a method is found, and the method has a config provider, try to get the label from config
-         */
         if ($method && $this->configProviderMethodFactory->has($method)) {
             $label = $this->configProviderMethodFactory->get($method)->getPaymentFeeLabel();
         }
 
-        /**
-         * If no label is set yet, get the default configurable label
-         */
         if (!$label) {
             $label = $this->configProviderAccount->getPaymentFeeLabel();
         }
 
-        /**
-         * If no label is set yet, return a default label
-         */
         if (!$label) {
             $label = __('Buckaroo Fee');
         }
@@ -290,41 +317,67 @@ class PaymentFee extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     /**
-     * Add total into array totals
+     * Extract the payment method code from order, invoice, creditmemo, or direct string.
      *
-     * @param  array  &$totals
-     * @param  string $code
-     * @param  float  $value
-     * @param  float  $baseValue
-     * @param  string $label
+     * @param mixed $dataObject
+     * @return string|false
+     */
+    protected function extractPaymentMethodFromDataObject($dataObject)
+    {
+        if ($dataObject instanceof Order) {
+            return $dataObject->getPayment()->getMethod();
+        } elseif ($dataObject instanceof Invoice || $dataObject instanceof Creditmemo) {
+            return $dataObject->getOrder()->getPayment()->getMethod();
+        } elseif (is_string($dataObject)) {
+            return $dataObject;
+        }
+
+        return false;
+    }
+
+    /**
+     * Add a total entry into the provided totals array.
+     *
+     * @param array  &$totals
+     * @param string $code
+     * @param float  $value
+     * @param float  $baseValue
+     * @param string $label
+     * @param string $blockName
+     * @param string $transactionId
+     * @param array  $extraInfo
      * @return void
      */
     protected function addTotalToTotals(
-        &$totals,
-        $code,
-        $value,
-        $baseValue,
-        $label,
-        $block_name = false,
-        $transaction_id = false,
-        $extra_info = []
+        array &$totals,
+              $code,
+              $value,
+              $baseValue,
+              $label,
+              $blockName = false,
+              $transactionId = false,
+        array $extraInfo = []
     ) {
+        // Only add totals if values are non-zero
         if ($value == 0 && $baseValue == 0) {
             return;
         }
+
         $total = [
-            'code' => $code,
-            'value' => $value,
+            'code'       => $code,
+            'value'      => $value,
             'base_value' => $baseValue,
-            'label' => $label,
-            'extra_info' => $extra_info
+            'label'      => $label,
+            'extra_info' => $extraInfo
         ];
-        if ($block_name) {
-            $total['block_name'] = $block_name;
+
+        if ($blockName) {
+            $total['block_name'] = $blockName;
         }
-        if ($transaction_id) {
-            $total['transaction_id'] = $transaction_id;
+        if ($transactionId) {
+            $total['transaction_id'] = $transactionId;
         }
+
         $totals[] = $total;
     }
 }

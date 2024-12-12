@@ -20,7 +20,7 @@
 
 namespace Buckaroo\Magento2\Service\Tax;
 
-use Buckaroo\Magento2\Model\ConfigProvider\Account as ConfigProviderAccount;
+use Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee as BuckarooFeeConfigProvider;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Tax\Model\Calculation;
 
@@ -32,30 +32,41 @@ class TaxCalculate
     private $taxCalculation;
 
     /**
-     * @var ConfigProviderAccount
+     * @var BuckarooFeeConfigProvider
      */
-    protected $configProviderAccount;
+    protected $configProviderBuckarooFee;
 
     /**
+     * Constructor
+     *
      * @param Calculation $taxCalculation
-     * @param ConfigProviderAccount $configProviderAccount
+     * @param BuckarooFeeConfigProvider $configProviderBuckarooFee
      */
-    public function __construct(Calculation $taxCalculation, ConfigProviderAccount $configProviderAccount)
-    {
+    public function __construct(
+        Calculation $taxCalculation,
+        BuckarooFeeConfigProvider $configProviderBuckarooFee
+    ) {
         $this->taxCalculation = $taxCalculation;
-        $this->configProviderAccount = $configProviderAccount;
+        $this->configProviderBuckarooFee = $configProviderBuckarooFee;
     }
 
-    public function getTaxFromAmountIncludingTax(CartInterface $cart, $amount)
+    /**
+     * Calculate tax amount from an amount that includes tax.
+     *
+     * @param CartInterface $cart
+     * @param float $amount Amount including tax
+     * @return float Tax amount
+     */
+    public function getTaxFromAmountIncludingTax(CartInterface $cart, float $amount): float
     {
         $shippingAddress = $cart->getShippingAddress();
         $billingAddress = $cart->getBillingAddress();
         $customerTaxClassId = $cart->getCustomerTaxClassId();
         $storeId = $cart->getStoreId();
-        $taxClassId = $this->configProviderAccount->getBuckarooFeeTaxClass();
+
+        $taxClassId = $this->configProviderBuckarooFee->getBuckarooFeeTaxClass($cart->getStore());
 
         if (empty($taxClassId) || !is_numeric($taxClassId)) {
-            // If the tax class ID is not set, return zero tax amount to avoid errors
             return 0.0;
         }
 

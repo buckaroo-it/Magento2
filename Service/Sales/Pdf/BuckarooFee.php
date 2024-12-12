@@ -78,7 +78,7 @@ class BuckarooFee extends DefaultTotal
         $label = $this->paymentFee->getBuckarooPaymentFeeLabel($this->getOrder());
         $fontSize = $this->getFontSize() ? $this->getFontSize() : 7;
 
-        $isFeeInclusiveOfTax = (bool)$this->configProviderAccount->getBuckarooFeeTaxClass();
+        $isFeeInclusiveOfTax = $this->configProviderBuckarooFee->getBuckarooFeeTaxClass($store);
 
         $amountInclTax = $this->getSource()->getBuckarooFeeInclTax();
 
@@ -88,7 +88,7 @@ class BuckarooFee extends DefaultTotal
 
         $amountInclTax = $this->getOrder()->formatPriceTxt($amountInclTax);
 
-        if ($isFeeInclusiveOfTax && $this->buckarooPaymentCalculationInclTax($store)) {
+        if ($isFeeInclusiveOfTax == DisplayType::DISPLAY_TYPE_INCLUDING_TAX) {
             $totals = [
                 [
                     'amount' => $this->getAmountPrefix() . $amountInclTax,
@@ -107,12 +107,5 @@ class BuckarooFee extends DefaultTotal
         }
 
         return $totals;
-    }
-
-    public function buckarooPaymentCalculationInclTax($store = null)
-    {
-        $configValue = $this->configProviderBuckarooFee->getPaymentFeeTax($store);
-
-        return $configValue == DisplayType::DISPLAY_TYPE_INCLUDING_TAX;
     }
 }

@@ -771,7 +771,7 @@ class Afterpay extends AbstractMethod
     protected function getTaxCategory($order)
     {
         $storeId = (int) $order->getStoreId();
-        $taxClassId = $this->configProviderBuckarooFee->getTaxClass($storeId);
+        $taxClassId = $this->configProviderBuckarooFee->getBuckarooFeeTaxClass($order->getStore());
 
         $taxCategory = 4;
 
