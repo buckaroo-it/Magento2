@@ -120,7 +120,7 @@ class Add
     public function process($request)
     {
         $this->logger->addDebug('Add - Process');
-        $this->logger->addDebug('Request Variable: '. json_encode($request));
+        $this->logger->addDebug('Request Variable: '. json_encode($request->getParams()));
 
         $cart_hash = $request->getParam('id');
 
