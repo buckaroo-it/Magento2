@@ -56,9 +56,9 @@ class ShippingMethod
         $this->logger->addDebug('Starting getAvailableMethods process.');
 
         $address = $cart->getShippingAddress();
-        //$address->setLimitCarrier(null);
+        $address->setLimitCarrier(null);
 
-        $this->logger->addDebug('address:::::'. json_encode($address));
+        $this->logger->addDebug('Address: '. json_encode($address));
         $address->setQuote($cart);
         $address->setCollectShippingRates(true);
 
