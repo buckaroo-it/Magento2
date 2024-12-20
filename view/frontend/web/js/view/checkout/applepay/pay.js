@@ -373,7 +373,8 @@ define(
                         async: false,
                         dataFilter: function(data, type) {
                             var result = JSON.parse(data);
-                            this.devLog('==============applepaydebug/e',result);
+                            this.devLog('==============applepaydebug/e',result.data);
+                            this.devLog('==============applepaydebug/t',result.data.shipping_methods);
                             if (result.success == 'true') {
 
                                 this.shippingGroups = {};
@@ -458,6 +459,7 @@ define(
 
             updateShippingMethods: function (address) {
                 this.devLog('==============applepaydebug/16');
+                this.devLog('==============applepaydebug/address: ', address);
                 var serviceUrl = resourceUrlManager.getUrlForEstimationShippingMethodsForNewAddress(this.quote);
                 var payload = JSON.stringify({
                     address: {
@@ -499,6 +501,7 @@ define(
             },
 
             updateQuoteRate: function (newRate) {
+                this.devLog('==========applepaydebug/yyy',newRate);
                 shippingHandler.selectShippingMethod(newRate);
 
                 var subtotal = this.quote.totals().subtotal_incl_tax;

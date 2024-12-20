@@ -124,7 +124,7 @@ class Add
 
         $cart_hash = $request->getParam('id');
 
-        $this->logger->addDebug('Request Variable: '. json_encode($cart_hash));
+        $this->logger->addDebug('Cart hash Variable: '. json_encode($cart_hash));
         if($cart_hash) {
             $this->logger->addDebug('Add - Process - If cart hash');
 
@@ -137,13 +137,11 @@ class Add
             $this->logger->addDebug('Add - Process - Else cart hash');
             $checkoutSession = ObjectManager::getInstance()->get(\Magento\Checkout\Model\Session::class);
             $cart = $checkoutSession->getQuote();
-            $this->logger->addDebug('Cart Variable (Else): '. json_encode($cart));
+            $this->logger->addDebug('Cart Variable (Else): '. json_encode($cart->getId()));
         }
 
         $product = $request->getParam('product');
         $this->logger->addDebug('Add - Process - Product Variable: '. json_encode($product));
-        $productId = (int)$request->getParam('product');
-        $this->logger->addDebug('Add - Process - Product Id Variable: '. json_encode($productId));
 
         // Check if product data is present and valid
         //if (!$product || !is_array($product) || !isset($product['id']) || !is_numeric($product['id'])) {
@@ -151,9 +149,9 @@ class Add
         //}
 
 
-        $this->logger->addDebug('Cart Variable before: '. json_encode($cart));
+        $this->logger->addDebug('Cart Variable before: '. json_encode($cart->getAllItems()));
         $cart->removeAllItems();
-        $this->logger->addDebug('Cart Variable after: '. json_encode($cart));
+        $this->logger->addDebug('Cart Variable after: '. json_encode($cart->getAllItems()));
 
         try {
             $productToBeAdded = $this->productRepository->getById(15);
@@ -175,7 +173,7 @@ class Add
         $cart->addProduct($productToBeAdded, $this->requestBuilder->build($cartItem));
         $this->cartRepository->save($cart);
 
-        $this->logger->addDebug('Cart Variable after added product: '. json_encode($cart));
+        $this->logger->addDebug('Cart Variable after added product: '. json_encode($cart->getAllItems()));
 
         $wallet = $request->getParam('wallet');
 
@@ -207,6 +205,9 @@ class Add
             $this->quoteRepository->save($cart);
             //this delivery address is already assigned to the cart
             $this->logger->addDebug('Cart Variable (line 209): '. json_encode($cart));
+            $this->logger->addDebug('Request param shipping method: '. json_encode($request->getParam('shippingMethod')));
+            $this->logger->addDebug('Cart shipping addressss: '. json_encode($cart->getShippingAddress()));
+            $this->logger->addDebug('Cart shipping address methodsss: '. json_encode($cart->getShippingAddress()->getGroupedAllShippingRates()));
             try {
                 $shippingMethods = $this->appleShippingMethod->getAvailableMethods($cart);
             } catch (\Exception $e) {
@@ -243,6 +244,7 @@ class Add
         $this->logger->addDebug('Cart Variable (243): '. json_encode($cart));
         $this->logger->addDebug('Totals Variable: '. json_encode($totals));
 
+        $this->quoteRepository->save($cart);
         return [
             'shipping_methods' => $shippingMethodsResult,
             'totals' => $totals

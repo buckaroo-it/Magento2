@@ -139,9 +139,9 @@ class Common extends Action
     {
         $address = [
             'prefix' => '',
-            'firstname' => isset($wallet['givenName']) ? $wallet['givenName'] : '',
+            'firstname' => isset($wallet['givenName']) ? $wallet['givenName'] : 'First name',
             'middlename' => '',
-            'lastname' => isset($wallet['familyName']) ? $wallet['familyName'] : '',
+            'lastname' => isset($wallet['familyName']) ? $wallet['familyName'] : 'Last name',
             'street' => [
                 '0' => isset($wallet['addressLines'][0]) ? $wallet['addressLines'][0] : '',
                 '1' => isset($wallet['addressLines'][1]) ? $wallet['addressLines'][1] : null
@@ -149,7 +149,7 @@ class Common extends Action
             'city' => isset($wallet['locality']) ? $wallet['locality'] : '',
             'country_id' => isset($wallet['countryCode']) ? strtoupper($wallet['countryCode']) : '',
             'region' => isset($wallet['administrativeArea']) ? $wallet['administrativeArea'] : '',
-            'region_id' => '',
+            'region_id' => 0,
             'postcode' => isset($wallet['postalCode']) ? $wallet['postalCode'] : '',
             'telephone' => isset($wallet['phoneNumber']) ? $wallet['phoneNumber'] : 'N/A',
             'fax' => '',
