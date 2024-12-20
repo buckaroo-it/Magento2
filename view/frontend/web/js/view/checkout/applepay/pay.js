@@ -318,6 +318,7 @@ define(
                         async: false,
                         dataFilter: function(data, type) {
                             var result = JSON.parse(data);
+                            this.devLog('==============applepaydebug/321', result);
                             if (result.success == 'true') {
 
                                 var authorizationResult = {
@@ -357,6 +358,8 @@ define(
                 this.devLog('==============applepaydebug/28');
 
                 if (this.payMode == 'product') {
+                    this.devLog('==============applepaydebug/q',this.productSelected);
+                    this.devLog('==============applepaydebug/w',event);
 
                     var update = $.ajax({
                         url: urlBuilder.build('buckaroo/applepay/add'),
@@ -370,6 +373,7 @@ define(
                         async: false,
                         dataFilter: function(data, type) {
                             var result = JSON.parse(data);
+                            this.devLog('==============applepaydebug/e',result);
                             if (result.success == 'true') {
 
                                 this.shippingGroups = {};
@@ -655,7 +659,7 @@ define(
             },
 
             devLog: function (msg, params) {
-                //window.buckarooDebug = 1;
+                window.buckarooDebug = 1;
                 if (window.buckarooDebug) {
                     console.log(msg, params);
                 }
