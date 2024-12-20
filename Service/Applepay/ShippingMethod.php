@@ -58,7 +58,7 @@ class ShippingMethod
         $address = $cart->getShippingAddress();
         //$address->setLimitCarrier(null);
 
-        $this->logger->addDebug('address:::::'. json_decode($address));
+        $this->logger->addDebug('address:::::'. json_encode($address));
         $address->setQuote($cart);
         $address->setCollectShippingRates(true);
 
@@ -72,7 +72,7 @@ class ShippingMethod
         $methods = [];
         $shippingRates = $address->getGroupedAllShippingRates();
 
-        $this->logger->addDebug('shipping rates:::::'. json_decode($shippingRates));
+        $this->logger->addDebug('shipping rates:::::'. json_encode($shippingRates));
 
         foreach ($shippingRates as $carrierRates) {
             foreach ($carrierRates as $rate) {
