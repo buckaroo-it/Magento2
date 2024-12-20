@@ -6,9 +6,9 @@ class Applepay
     {
         $address = [
             'prefix' => '',
-            'firstname' => isset($wallet['givenName']) ? $wallet['givenName'] : 'Test',
+            'firstname' => 'Test firstname',
             'middlename' => '',
-            'lastname' => isset($wallet['familyName']) ? $wallet['familyName'] : 'Test',
+            'lastname' => 'Test lastname',
             'street' => [
                 '0' => isset($wallet['addressLines'][0]) ? $wallet['addressLines'][0] : '',
                 '1' => isset($wallet['addressLines'][1]) ? $wallet['addressLines'][1] : null
