@@ -82,7 +82,7 @@ class ShippingMethod
 //                    [],
 //                    ShippingMethodInterface::class
 //                );
-                $methods[] = $this->dataObjectConverter->modelToDataObject(
+                $methods[] = $this->shippingMethodConverter->modelToDataObject(
                     $rate,
                     $cart->getQuoteCurrencyCode()
                 );
