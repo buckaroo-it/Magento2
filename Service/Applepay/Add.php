@@ -227,9 +227,18 @@ class Add
             }
             $this->logger->addDebug('Shipping Methods Result Variable: '. json_encode($shippingMethodsResult));
 
-            if (!empty($shippingMethodsResult)) {
+            $shippingMethodsss = [
+                [
+                    "carrier_title" => "Free Shipping",
+                    "price_incl_tax" => 0,
+                    "method_code" => "freeshipping_freeshipping",
+                    "method_title" => "Free"
+                ]
+            ];
+
+            if (!empty($shippingMethodsss)) {
                 // Set the first available shipping method
-                $cart->getShippingAddress()->setShippingMethod($shippingMethodsResult[0]['method_code']);
+                $cart->getShippingAddress()->setShippingMethod($shippingMethodsss[0]['method_code']);
             } else {
                 throw new \Exception(__('No shipping methods are available for the provided address.'));
             }
@@ -246,7 +255,7 @@ class Add
 
         $this->quoteRepository->save($cart);
         return [
-            'shipping_methods' => $shippingMethodsResult,
+            'shipping_methods' => $shippingMethodsss,
             'totals' => $totals
         ];
     }
