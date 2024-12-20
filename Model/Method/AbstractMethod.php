@@ -2168,6 +2168,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         );
         $request->setProductClassId($taxClassId);
         $percent = $this->taxCalculation->getRate($request);
+
         return $percent;
     }
 
@@ -2635,7 +2636,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
                 'GroupID' => $count,
             ],
             [
-                '_'       => $this->formatShippingCostsLineVatPercentage($percent),
+                '_'       => $percent,
                 'Name'    => 'VatPercentage',
                 'Group'   => 'Article',
                 'GroupID' => $count,
@@ -2667,11 +2668,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     protected function formatPrice($price)
     {
         return $price;
-    }
-
-    protected function formatShippingCostsLineVatPercentage($percent)
-    {
-        return $percent;
     }
 
     /**
