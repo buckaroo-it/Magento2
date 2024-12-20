@@ -526,63 +526,6 @@ class Billink extends AbstractMethod
     }
 
     /**
-     * @param \Magento\Sales\Model\Order|\Magento\Sales\Model\Order\Invoice|\Magento\Sales\Model\Order\Creditmemo $order
-     *
-     * @param $count
-     * @return array
-     */
-    protected function getShippingCostsLine333($order, $count, &$itemsTotalAmount = 0)
-    {
-        $shippingCostsArticle = [];
-
-        $shippingAmount = $this->getShippingAmount($order);
-        if ($shippingAmount <= 0) {
-            return $shippingCostsArticle;
-        }
-
-        $request = $this->taxCalculation->getRateRequest(null, null, null);
-        $taxClassId = $this->taxConfig->getShippingTaxClass();
-        $percent = $this->taxCalculation->getRate($request->setProductClassId($taxClassId));
-
-        $shippingCostsArticle = [
-            [
-                '_'       => 'Shipping fee',
-                'Name'    => 'Description',
-                'Group'   => 'Article',
-                'GroupID' =>  $count,
-            ],
-            [
-                '_'       => number_format($shippingAmount, 4, '.', ''),
-                'Name'    => 'GrossUnitPriceIncl',
-                'Group'   => 'Article',
-                'GroupID' =>  $count,
-            ],
-            [
-                '_'       => (int)$percent,
-                'Name'    => 'VatPercentage',
-                'Group'   => 'Article',
-                'GroupID' =>  $count,
-            ],
-            [
-                '_'       => '1',
-                'Name'    => 'Quantity',
-                'Group'   => 'Article',
-                'GroupID' =>  $count,
-            ],
-            [
-                '_'       => '1',
-                'Name'    => 'Identifier',
-                'Group'   => 'Article',
-                'GroupID' => $count,
-            ]
-        ];
-
-        $itemsTotalAmount += $shippingAmount;
-
-        return $shippingCostsArticle;
-    }
-
-    /**
      * @param $latestKey
      * @param $articleDescription
      * @param $articleId
@@ -635,7 +578,7 @@ class Billink extends AbstractMethod
 
         return $article;
     }
-    
+
     /**
      * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
      *
@@ -644,7 +587,7 @@ class Billink extends AbstractMethod
     private function getBirthDate($payment)
     {
         $birth = $payment->getAdditionalInformation('customer_DoB');
-        
+
         if(!is_string($birth) || strlen(trim($birth)) === 0) {
             return null;
         }
@@ -955,11 +898,6 @@ class Billink extends AbstractMethod
     protected function formatPrice($price)
     {
         return number_format($price, 4, '.', '');
-    }
-
-    protected function formatShippingCostsLineVatPercentage($price)
-    {
-        return (int)$price;
     }
 
     protected function isAvailableBasedOnAmount(\Magento\Quote\Api\Data\CartInterface $quote = null)
