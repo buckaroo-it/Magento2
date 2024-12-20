@@ -76,12 +76,13 @@ class ShippingMethod
 
         foreach ($shippingRates as $carrierRates) {
             foreach ($carrierRates as $rate) {
+                $this->logger->addDebug('carrier rate:'. json_encode($rate));
 //                $methodData = $this->dataObjectConverter->toFlatArray(
 //                    $this->shippingMethodConverter->modelToDataObject($rate, $cart->getQuoteCurrencyCode()),
 //                    [],
 //                    ShippingMethodInterface::class
 //                );
-                $methods[] = $this->processMoneyTypeData(
+                $methods[] = $this->dataObjectConverter->modelToDataObject(
                     $rate,
                     $cart->getQuoteCurrencyCode()
                 );
