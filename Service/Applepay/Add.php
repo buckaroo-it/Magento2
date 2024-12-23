@@ -139,6 +139,8 @@ class Add
             $cart = $checkoutSession->getQuote();
             $cart->getPayment()->setMethod(\Buckaroo\Magento2\Model\Method\Applepay::PAYMENT_METHOD_CODE);
             $this->logger->addDebug('Cart Variable (Else): '. json_encode($cart->getId()));
+            $this->logger->addDebug('Cart Object: ' . json_encode($cart->debug(), JSON_PRETTY_PRINT));
+
         }
 
         $product = $request->getParam('product');
@@ -217,6 +219,8 @@ class Add
 
             $this->logger->addDebug('Shipping Methods Variable: '. json_encode($shippingMethods));
 
+            $this->logger->addDebug('Cart Session: ' . json_encode($cart->getData()));
+
 
             foreach ($shippingMethods as $method) {
                 $shippingMethodsResult[] = [
@@ -254,14 +258,9 @@ class Add
         $this->logger->addDebug('Cart Variable (243): '. json_encode($cart));
         $this->logger->addDebug('Totals Variable: '. json_encode($totals));
 
-        $testShipping = $this->appleShippingMethod->getAvailableMethods($cart);
-        $this->logger->addDebug('Test Shippingggg: '. json_encode($testShipping));
-
 
         $this->quoteRepository->save($cart);
 
-        $testShipping2 = $this->appleShippingMethod->getAvailableMethods($cart);
-        $this->logger->addDebug('Last shipping info: '. json_encode($testShipping2));
         return [
             'shipping_methods' => $shippingMethodsss,
             'totals' => $totals
