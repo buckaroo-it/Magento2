@@ -14,8 +14,8 @@ class Applepay
                 '1' => isset($wallet['addressLines'][1]) ? $wallet['addressLines'][1] : null
             ],
             'city' => isset($wallet['locality']) ? $wallet['locality'] : '',
-            'country_id' => isset($wallet['countryCode']) ? strtoupper($wallet['countryCode']) : 'NL',
-            'region' => isset($wallet['administrativeArea']) ? $wallet['administrativeArea'] : 'unknown',
+            'country_id' => 'NL',
+            'region' => 'unknown',
             'region_id' => 0,
             'postcode' => isset($wallet['postalCode']) ? $wallet['postalCode'] : '',
             'telephone' => isset($wallet['phoneNumber']) ? $wallet['phoneNumber'] : 'N/A',
