@@ -58,15 +58,7 @@ class ShippingMethod
 
         foreach ($shippingRates as $carrierRates) {
             foreach ($carrierRates as $rate) {
-                $methodData = $this->dataObjectConverter->toFlatArray(
-                    $this->shippingMethodConverter->modelToDataObject($rate, $cart->getQuoteCurrencyCode()),
-                    [],
-                    ShippingMethodInterface::class
-                );
-                $methods[] = $this->processMoneyTypeData(
-                    $methodData,
-                    $cart->getQuoteCurrencyCode()
-                );
+                $methods[] = $this->shippingMethodConverter->modelToDataObject($rate, $cart->getQuoteCurrencyCode());
             }
         }
 
