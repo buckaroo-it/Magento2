@@ -184,11 +184,18 @@ class Add
         if (!$cart->getIsVirtual()) {
             $this->logger->addDebug('Add - Process - If cart is not virtual');
             $shippingAddressData = $this->applepayModel->processAddressFromWallet($wallet, 'shipping');
-            $this->logger->addDebug('Shipping Address Data Variable: '. json_encode($shippingAddressData));
+            $this->logger->addDebug('Cart Session: ' . json_encode($cart->getData()));
 
+            $this->logger->addDebug('Shipping Address Data Variable: '. json_encode($shippingAddressData));
+            $cart->getShippingAddress()->addData($shippingAddressData);
+
+            $cart->setShippingAddress($cart->getShippingAddress());
 
             $shippingAddress = $this->quoteAddressFactory->create();
             $shippingAddress->addData($shippingAddressData);
+
+            $this->logger->addDebug('Cart get shippingggggggg: '. json_encode($cart->getShippingAddress()));
+            $this->logger->addDebug('Cart Session: ' . json_encode($cart->getData()));
 
             $this->logger->addDebug('Shipping Address Variable: '. json_encode($shippingAddress));
 
