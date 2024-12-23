@@ -51,19 +51,22 @@ class ShippingMethod
 
         $address->setQuote($cart);
         $address->setCollectShippingRates(true);
-
-        try {
-            $this->totalsCollector->collectAddressTotals($cart, $address);
-        } catch (\Exception $e) {
-            throw new LocalizedException(__('Unable to collect shipping rates.'));
-        }
+        $this->totalsCollector->collectAddressTotals($cart, $address);
 
         $methods = [];
         $shippingRates = $address->getGroupedAllShippingRates();
 
         foreach ($shippingRates as $carrierRates) {
             foreach ($carrierRates as $rate) {
-                $methods[] = $this->shippingMethodConverter->modelToDataObject($rate, $cart->getQuoteCurrencyCode());
+                $methodData = $this->dataObjectConverter->toFlatArray(
+                    $this->shippingMethodConverter->modelToDataObject($rate, $cart->getQuoteCurrencyCode()),
+                    [],
+                    ShippingMethodInterface::class
+                );
+                $methods[] = $this->processMoneyTypeData(
+                    $methodData,
+                    $cart->getQuoteCurrencyCode()
+                );
             }
         }
 
