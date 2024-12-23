@@ -131,7 +131,6 @@ define(
              * @param newQuote
              */
             setQuote: function (newQuote) {
-                this.devLog('==============applepaydebug/setQuote : ', newQuote);
                 this.quote = newQuote;
             },
 
@@ -319,8 +318,6 @@ define(
                         async: false,
                         dataFilter: function(data, type) {
                             var result = JSON.parse(data);
-                            this.devLog('==============applepaydebug/u',result.data);
-                            this.devLog('==============applepaydebug/i',result.data.shipping_methods);
                             if (result.success == 'true') {
 
                                 var authorizationResult = {
@@ -360,9 +357,6 @@ define(
                 this.devLog('==============applepaydebug/28');
 
                 if (this.payMode == 'product') {
-                    this.devLog('==============applepaydebug/q',this.productSelected);
-                    this.devLog('==============applepaydebug/w',event);
-                    this.devLog('==============applepaydebug/p',event.identifier);
 
                     var update = $.ajax({
                         url: urlBuilder.build('buckaroo/applepay/add'),
@@ -376,8 +370,6 @@ define(
                         async: false,
                         dataFilter: function(data, type) {
                             var result = JSON.parse(data);
-                            this.devLog('==============applepaydebug/e',result.data);
-                            this.devLog('==============applepaydebug/t',result.data.shipping_methods);
                             if (result.success == 'true') {
 
                                 this.shippingGroups = {};
@@ -504,7 +496,6 @@ define(
             },
 
             updateQuoteRate: function (newRate) {
-                this.devLog('==========applepaydebug/yyy',newRate);
                 shippingHandler.selectShippingMethod(newRate);
 
                 var subtotal = this.quote.totals().subtotal_incl_tax;
