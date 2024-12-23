@@ -102,19 +102,18 @@ class ShippingMethod
             }
         }
 
-
-        $testtt = $this->shipmentEstimation->estimateByExtendedAddress(
-            $cart->getId(),
-            $cart->getShippingAddress()
-        );
-
-        $aaa = $this->shipmentEstimation->getList($cart->getId());
-
-        $this->logger->addDebug('get list method: '. json_encode($aaa));
-
-        $this->logger->addDebug('testing shipment estimation::::: '. json_encode($testtt));
-
-        $this->logger->addDebug('Shipping methods retrieved successfully.');
+//        $testtt = $this->shipmentEstimation->estimateByExtendedAddress(
+//            $cart->getId(),
+//            $cart->getShippingAddress()
+//        );
+//
+//        $aaa = $this->shipmentEstimation->getList($cart->getId());
+//
+//        $this->logger->addDebug('get list method: '. json_encode($aaa));
+//
+//        $this->logger->addDebug('testing shipment estimation::::: '. json_encode($testtt));
+//
+//        $this->logger->addDebug('Shipping methods retrieved successfully.');
 
         return $methods;
     }

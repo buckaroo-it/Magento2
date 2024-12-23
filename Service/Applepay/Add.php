@@ -152,9 +152,9 @@ class Add
         //}
 
 
-        $this->logger->addDebug('Cart Variable before: '. json_encode($cart->getAllItems()));
+//        $this->logger->addDebug('Cart Variable before: '. json_encode($cart->getAllItems()));
         $cart->removeAllItems();
-        $this->logger->addDebug('Cart Variable after: '. json_encode($cart->getAllItems()));
+//        $this->logger->addDebug('Cart Variable after: '. json_encode($cart->getAllItems()));
 
         try {
             $productToBeAdded = $this->productRepository->getById(15);
@@ -215,13 +215,13 @@ class Add
             $this->logger->addDebug('Cart Variable (line 209): '. json_encode($cart));
             $this->logger->addDebug('Cart shipping addressss: '. json_encode($cart->getShippingAddress()));
             $this->logger->addDebug('Cart shipping address methodsss: '. json_encode($cart->getShippingAddress()->getGroupedAllShippingRates()));
-//            try {
-//                $shippingMethods = $this->appleShippingMethod->getAvailableMethods($cart);
-//            } catch (\Exception $e) {
-//                throw new \Exception(__('Unable to retrieve shipping methods.'));
-//            }
+            try {
+                $shippingMethods = $this->appleShippingMethod->getAvailableMethods($cart);
+            } catch (\Exception $e) {
+                throw new \Exception(__('Unable to retrieve shipping methods.'));
+            }
 
-//            $this->logger->addDebug('Shipping Methods Variable: '. json_encode($shippingMethods));
+            $this->logger->addDebug('Shipping Methods Variable: '. json_encode($shippingMethods));
 
             $this->logger->addDebug('Cart Session: ' . json_encode($cart->getData()));
 
