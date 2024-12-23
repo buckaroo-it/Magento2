@@ -16,7 +16,6 @@ use Magento\Quote\Model\Quote\AddressFactory as BaseQuoteAddressFactory;
 use Magento\Quote\Model\ShippingAddressManagementInterface;
 use Magento\Quote\Model\QuoteRepository;
 use Buckaroo\Magento2\Service\Applepay\ShippingMethod as AppleShippingMethod;
-use Buckaroo\Magento2\Logging\Log as BuckarooLog;
 
 class Add
 {
@@ -71,12 +70,6 @@ class Add
     private ShippingMethod $appleShippingMethod;
 
     /**
-     * @var BuckarooLog
-     */
-    private BuckarooLog $logger;
-
-
-    /**
      * @param CartRepositoryInterface $cartRepository
      * @param CartInterface $cart
      * @param MaskedQuoteIdToQuoteIdInterface $maskedQuoteIdToQuoteId
@@ -87,7 +80,6 @@ class Add
      * @param ShippingAddressManagementInterface $shippingAddressManagement
      * @param QuoteRepository|null $quoteRepository
      * @param ShippingMethod $appleShippingMethod
-     * @param BuckarooLog $logger
  */
     public function __construct(
         CartRepositoryInterface $cartRepository,
@@ -99,8 +91,7 @@ class Add
         BaseQuoteAddressFactory $quoteAddressFactory,
         ShippingAddressManagementInterface $shippingAddressManagement,
         QuoteRepository $quoteRepository = null,
-        AppleShippingMethod $appleShippingMethod,
-        BuckarooLog $logger
+        AppleShippingMethod $appleShippingMethod
 
     ) {
         $this->cartRepository = $cartRepository;
@@ -114,7 +105,6 @@ class Add
         $this->quoteRepository = $quoteRepository
             ?? ObjectManager::getInstance()->get(QuoteRepository::class);
         $this->appleShippingMethod = $appleShippingMethod;
-        $this->logger = $logger;
     }
 
     public function process($request)
@@ -220,8 +210,6 @@ class Add
 
         $this->quoteRepository->save($cart);
         $this->cart->save();
-
-        $this->logger->addDebug(__METHOD__ . '|1|');
 
         return $data;
     }
