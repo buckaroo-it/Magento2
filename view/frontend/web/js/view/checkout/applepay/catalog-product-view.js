@@ -21,14 +21,12 @@ define(
         'jquery',
         'uiComponent',
         'Magento_Checkout/js/model/quote',
-        'buckaroo/applepay/order-handler',
         'buckaroo/applepay/pay',
     ],
     function (
         $,
         Component,
         quote,
-        orderHandler,
         applepayPay
     ) {
         'use strict';
@@ -41,16 +39,10 @@ define(
                     &&
                     (window.checkoutConfig.payment.buckaroo.applepay.availableButtons.indexOf('Product') !== -1)
                 ) {
-                    //console.log('==============applepaydebug/catalog-product-view/4');
+                    console.log('==============applepaydebug/catalog-product-view/4');
                     applepayPay.setQuote(quote);
                     applepayPay.showPayButton('product');
                 }
-                applepayPay.transactionResult.subscribe(
-                    function () {
-                        orderHandler.setApplepayTransaction(applepayPay.transactionResult());
-                        orderHandler.placeOrder();
-                    }.bind(this)
-                );
             }
         });
     }
