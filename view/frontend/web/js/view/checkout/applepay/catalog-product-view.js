@@ -21,12 +21,14 @@ define(
         'jquery',
         'uiComponent',
         'Magento_Checkout/js/model/quote',
+        'buckaroo/applepay/order-handler',
         'buckaroo/applepay/pay',
     ],
     function (
         $,
         Component,
         quote,
+        orderHandler,
         applepayPay
     ) {
         'use strict';
@@ -43,6 +45,12 @@ define(
                     applepayPay.setQuote(quote);
                     applepayPay.showPayButton('product');
                 }
+                applepayPay.transactionResult.subscribe(
+                    function () {
+                        orderHandler.setApplepayTransaction(applepayPay.transactionResult());
+                        orderHandler.placeOrder();
+                    }.bind(this)
+                );
             }
         });
     }

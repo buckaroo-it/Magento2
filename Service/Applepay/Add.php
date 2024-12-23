@@ -176,8 +176,6 @@ class Add
         $cart->addProduct($productToBeAdded, $this->requestBuilder->build($cartItem));
         $this->cartRepository->save($cart);
 
-        $this->logger->addDebug('Cart Variable after added product: '. json_encode($cart->getAllItems()));
-
         $wallet = $request->getParam('wallet');
 
         $this->logger->addDebug('Wallet Variable: '. json_encode($wallet));
@@ -208,7 +206,6 @@ class Add
             $this->quoteRepository->save($cart);
             //this delivery address is already assigned to the cart
             $this->logger->addDebug('Cart Variable (line 209): '. json_encode($cart));
-//            $this->logger->addDebug('Request param shipping method: '. json_encode($request->getParam('shippingMethod')));
             $this->logger->addDebug('Cart shipping addressss: '. json_encode($cart->getShippingAddress()));
             $this->logger->addDebug('Cart shipping address methodsss: '. json_encode($cart->getShippingAddress()->getGroupedAllShippingRates()));
             try {
