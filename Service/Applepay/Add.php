@@ -220,43 +220,27 @@ class Add
             } catch (\Exception $e) {
                 throw new \Exception(__('Unable to retrieve shipping methods.'));
             }
+            if (count($shippingMethods) == 0) {
+                $this->logger->addDebug('count shipping methods == 0');
+                return [];
 
-
-            $this->logger->addDebug('shipping methods:......' . json_encode($shippingMethods));
-            $this->logger->addDebug('count($shippingMethods):    ' . count($shippingMethods));
-
-//            $this->logger->addDebug('Shipping Methods Variable: '. json_encode($shippingMethods));
-
-//            $this->logger->addDebug('Cart Session: ' . json_encode($cart->getData()));
-
-
-            foreach ($shippingMethods as $method) {
-                $this->logger->addDebug('foreach product' . json_encode($method));
-
-                $shippingMethodsResult[] = [
-                    'carrier_title' => $method['carrier_title'],
-                    'price_incl_tax' => round($method['amount']['value'], 2),
-                    'method_code' => $method['carrier_code'] . '_' . $method['method_code'],
-                    'method_title' => $method['method_title'],
-                ];
-            }
-
-            $this->logger->addDebug('$shippingMethodsResult::' . json_encode($shippingMethodsResult));
-
-//            $shippingMethodsss = [
-//                [
-//                    "carrier_title" => "Free Shipping",
-//                    "price_incl_tax" => 0,
-//                    "method_code" => "freeshipping_freeshipping",
-//                    "method_title" => "Free"
-//                ]
-//            ];
-
-            if (!empty($shippingMethodsResult)) {
-                // Set the first available shipping method
-                $cart->getShippingAddress()->setShippingMethod($shippingMethodsResult[0]['method_code']);
             } else {
-                throw new \Exception(__('No shipping methods are available for the provided address.'));
+
+                foreach ($shippingMethods as $shippingMethod) {
+                    $this->logger->addDebug('foreach product'. json_encode($shippingMethod));
+                    $shippingMethodsResult[] = [
+                        'carrier_title' => $shippingMethod->getCarrierTitle(),
+                        'price_incl_tax' => round($shippingMethod->getAmount(), 2),
+                        'method_code' => $shippingMethod->getCarrierCode() . '_' .  $shippingMethod->getMethodCode(),
+                        'method_title' => $shippingMethod->getMethodTitle(),
+                    ];
+                }
+
+                $this->logger->addDebug('$shippingMethodsResult::'. json_encode($shippingMethodsResult));
+
+                $this->logger->addDebug(__METHOD__ . '|2|');
+
+                $cart->getShippingAddress()->setShippingMethod($shippingMethodsResult[0]['method_code']);
             }
         }
         $cart->setTotalsCollectedFlag(false);
@@ -265,11 +249,6 @@ class Add
         if ($cart->getSubtotal() != $cart->getSubtotalWithDiscount()) {
             $totals['discount'] = round($cart->getSubtotalWithDiscount() - $cart->getSubtotal(), 2);
         }
-
-
-//        $testShippinggg = $this->appleShippingMethod->getAvailableMethods($cart);
-//        $this->logger->addDebug('Testing shipping '. json_encode($testShippinggg));
-
 
         $data = [
             'shipping_methods' => $shippingMethodsResult,
