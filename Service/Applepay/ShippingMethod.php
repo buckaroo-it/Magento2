@@ -9,6 +9,8 @@ use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Quote\Api\Data\ShippingMethodInterface;
 use Magento\Quote\Model\Cart\ShippingMethodConverter;
 use Magento\Quote\Model\Quote\TotalsCollector;
+use Magento\Quote\Api\ShipmentEstimationInterface;
+
 use Buckaroo\Magento2\Logging\Log as BuckarooLog;
 
 class ShippingMethod
@@ -34,21 +36,31 @@ class ShippingMethod
     private BuckarooLog $logger;
 
     /**
+     * @var ShipmentEstimationInterface
+     */
+    protected ShipmentEstimationInterface $shipmentEstimation;
+
+    /**
      * @param ExtensibleDataObjectConverter $dataObjectConverter
      * @param ShippingMethodConverter $shippingMethodConverter
      * @param TotalsCollector $totalsCollector
      * @param BuckarooLog $logger
+     * @param ShipmentEstimationInterface $shipmentEstimation
      */
     public function __construct(
         ExtensibleDataObjectConverter $dataObjectConverter,
         ShippingMethodConverter $shippingMethodConverter,
         TotalsCollector $totalsCollector,
-        BuckarooLog $logger
+        BuckarooLog $logger,
+        ShipmentEstimationInterface $shipmentEstimation
+
     ) {
         $this->dataObjectConverter = $dataObjectConverter;
         $this->shippingMethodConverter = $shippingMethodConverter;
         $this->totalsCollector = $totalsCollector;
         $this->logger = $logger;
+        $this->shipmentEstimation = $shipmentEstimation;
+
     }
 
     public function getAvailableMethods($cart)
@@ -61,6 +73,14 @@ class ShippingMethod
         $this->logger->addDebug('Address: '. json_encode($address));
         $address->setQuote($cart);
         $address->setCollectShippingRates(true);
+
+
+        $testtt = $this->shipmentEstimation->estimateByExtendedAddress(
+            $cart->getId(),
+            $cart->getShippingAddress()
+        );
+
+        $this->logger->addDebug('testing shipment estimation::::: '. json_encode($testtt));
 
         try {
             $this->totalsCollector->collectAddressTotals($cart, $address);

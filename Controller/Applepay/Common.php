@@ -148,7 +148,7 @@ class Common extends Action
             ],
             'city' => isset($wallet['locality']) ? $wallet['locality'] : '',
             'country_id' => isset($wallet['countryCode']) ? strtoupper($wallet['countryCode']) : '',
-            'region' => isset($wallet['administrativeArea']) ? $wallet['administrativeArea'] : '',
+            'region' => isset($wallet['administrativeArea']) ? $wallet['administrativeArea'] : 'unknown',
             'region_id' => 0,
             'postcode' => isset($wallet['postalCode']) ? $wallet['postalCode'] : '',
             'telephone' => isset($wallet['phoneNumber']) ? $wallet['phoneNumber'] : 'N/A',
