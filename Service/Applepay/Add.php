@@ -137,6 +137,7 @@ class Add
             $this->logger->addDebug('Add - Process - Else cart hash');
             $checkoutSession = ObjectManager::getInstance()->get(\Magento\Checkout\Model\Session::class);
             $cart = $checkoutSession->getQuote();
+            $cart->getPayment()->setMethod(\Buckaroo\Magento2\Model\Method\Applepay::PAYMENT_METHOD_CODE);
             $this->logger->addDebug('Cart Variable (Else): '. json_encode($cart->getId()));
         }
 

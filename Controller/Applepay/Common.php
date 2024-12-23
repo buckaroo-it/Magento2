@@ -332,7 +332,9 @@ class Common extends Action
     {
         $output = [];
         $shippingAddress = $quote->getShippingAddress();
+        $this->logger->addDebug('Common - shipping address: '. json_encode($shippingAddress));
         $extractedAddressData = $this->extractAddressData($address);
+        $this->logger->addDebug('Common - extracted data: '. json_encode($extractedAddressData));
         if (array_key_exists('extension_attributes', $extractedAddressData)) {
             unset($extractedAddressData['extension_attributes']);
         }
@@ -348,6 +350,7 @@ class Common extends Action
             $quote->setCustomerGroupId($customerGroupId);
         }
         $shippingRates = $shippingAddress->getGroupedAllShippingRates();
+        $this->logger->addDebug('Common - shipping rates: '. json_encode($shippingRates));
         foreach ($shippingRates as $carrierRates) {
             foreach ($carrierRates as $rate) {
                 $output[] = $this->converter->modelToDataObject($rate, $quote->getQuoteCurrencyCode());

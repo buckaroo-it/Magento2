@@ -363,6 +363,9 @@ define(
                     this.devLog('==============applepaydebug/w',event);
                     this.devLog('==============applepaydebug/p',event.identifier);
 
+                    this.updateShippingMethods(event);
+
+
                     var update = $.ajax({
                         url: urlBuilder.build('buckaroo/applepay/add'),
                         type: 'POST',
