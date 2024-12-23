@@ -119,46 +119,31 @@ class Add
 
     public function process($request)
     {
-        $this->logger->addDebug('Add - Process');
-        $this->logger->addDebug('Request Variable: ' . json_encode($request->getParams()));
 
         $cart_hash = $request->getParam('id');
 
-        $this->logger->addDebug('Cart hash Variable: ' . json_encode($cart_hash));
         if ($cart_hash) {
-            $this->logger->addDebug('Add - Process - If cart hash');
 
             $cartId = $this->maskedQuoteIdToQuoteId->execute($cart_hash);
-            $this->logger->addDebug('Cart Id Variable: ' . json_encode($cartId));
             $cart = $this->cartRepository->get($cartId);
-            $this->logger->addDebug('Cart Variable (If): ' . json_encode($cart));
 
         } else {
-            $this->logger->addDebug('Add - Process - Else cart hash');
             $checkoutSession = ObjectManager::getInstance()->get(\Magento\Checkout\Model\Session::class);
             $cart = $checkoutSession->getQuote();
             $cart->getPayment()->setMethod(\Buckaroo\Magento2\Model\Method\Applepay::PAYMENT_METHOD_CODE);
-            $this->logger->addDebug('Cart Variable (Else): ' . json_encode($cart->getId()));
-            $this->logger->addDebug('Cart Object: ' . json_encode($cart->debug(), JSON_PRETTY_PRINT));
-
         }
 
         $product = $request->getParam('product');
-        $this->logger->addDebug('Add - Process - Product Variable: ' . json_encode($product));
 
         // Check if product data is present and valid
         //if (!$product || !is_array($product) || !isset($product['id']) || !is_numeric($product['id'])) {
         //    throw new \Exception('Product data is missing or invalid.');
         //}
 
-
-//        $this->logger->addDebug('Cart Variable before: '. json_encode($cart->getAllItems()));
         $cart->removeAllItems();
-//        $this->logger->addDebug('Cart Variable after: '. json_encode($cart->getAllItems()));
 
         try {
             $productToBeAdded = $this->productRepository->getById(15);
-            $this->logger->addDebug('Product to be added Variable: ' . json_encode($productToBeAdded));
         } catch (NoSuchEntityException $e) {
             throw new NoSuchEntityException(__('Could not find a product with ID "%id"', ['id' => 15]));
         }
@@ -168,7 +153,6 @@ class Add
             1
         );
 
-        $this->logger->addDebug('Cart Item Variable: ' . json_encode($cartItem));
         if (isset($product['selected_options'])) {
             $cartItem->setSelectedOptions($product['selected_options']);
         }
@@ -178,15 +162,10 @@ class Add
 
         $wallet = $request->getParam('wallet');
 
-        $this->logger->addDebug('Wallet Variable: ' . json_encode($wallet));
-
         $shippingMethodsResult = [];
         if (!$cart->getIsVirtual()) {
-            $this->logger->addDebug('Add - Process - If cart is not virtual');
             $shippingAddressData = $this->applepayModel->processAddressFromWallet($wallet, 'shipping');
-            $this->logger->addDebug('Cart Session: ' . json_encode($cart->getData()));
 
-            $this->logger->addDebug('Shipping Address Data Variable: ' . json_encode($shippingAddressData));
             $cart->getShippingAddress()->addData($shippingAddressData);
 
             $cart->setShippingAddress($cart->getShippingAddress());
@@ -194,14 +173,7 @@ class Add
             $shippingAddress = $this->quoteAddressFactory->create();
             $shippingAddress->addData($shippingAddressData);
 
-            $this->logger->addDebug('Cart get shippingggggggg: ' . json_encode($cart->getShippingAddress()));
-            $this->logger->addDebug('Cart Session: ' . json_encode($cart->getData()));
-
-            $this->logger->addDebug('Shipping Address Variable: ' . json_encode($shippingAddress));
-
             $errors = $shippingAddress->validate();
-
-            $this->logger->addDebug('Errors Variable: ' . json_encode($errors));
 
             try {
                 $this->shippingAddressManagement->assign($cart->getId(), $shippingAddress);
@@ -212,22 +184,17 @@ class Add
             }
             $this->quoteRepository->save($cart);
             //this delivery address is already assigned to the cart
-            $this->logger->addDebug('Cart Variable (line 209): ' . json_encode($cart));
-            $this->logger->addDebug('Cart shipping addressss: ' . json_encode($cart->getShippingAddress()));
-            $this->logger->addDebug('Cart shipping address methodsss: ' . json_encode($cart->getShippingAddress()->getGroupedAllShippingRates()));
             try {
                 $shippingMethods = $this->appleShippingMethod->getAvailableMethods($cart);
             } catch (\Exception $e) {
                 throw new \Exception(__('Unable to retrieve shipping methods.'));
             }
             if (count($shippingMethods) == 0) {
-                $this->logger->addDebug('count shipping methods == 0');
                 return [];
 
             } else {
 
                 foreach ($shippingMethods as $shippingMethod) {
-                    $this->logger->addDebug('foreach product'. json_encode($shippingMethod));
                     $shippingMethodsResult[] = [
                         'carrier_title' => $shippingMethod->getCarrierTitle(),
                         'price_incl_tax' => round($shippingMethod->getAmount(), 2),
@@ -235,10 +202,6 @@ class Add
                         'method_title' => $shippingMethod->getMethodTitle(),
                     ];
                 }
-
-                $this->logger->addDebug('$shippingMethodsResult::'. json_encode($shippingMethodsResult));
-
-                $this->logger->addDebug(__METHOD__ . '|2|');
 
                 $cart->getShippingAddress()->setShippingMethod($shippingMethodsResult[0]['method_code']);
             }
@@ -258,7 +221,7 @@ class Add
         $this->quoteRepository->save($cart);
         $this->cart->save();
 
-        $this->logger->addDebug(__METHOD__ . '|3|');
+        $this->logger->addDebug(__METHOD__ . '|1|');
 
         return $data;
     }

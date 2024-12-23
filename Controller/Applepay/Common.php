@@ -224,6 +224,7 @@ class Common extends Action
 
         if (empty($errorFields)) {
             $this->logger->addDebug(__METHOD__ . '|2|');
+
             return true;
         } else {
             $this->logger->addDebug(__METHOD__ . '|3|');
@@ -244,9 +245,6 @@ class Common extends Action
         if (!$quote->getIsVirtual()) {
             $shippingMethods = $this->getShippingMethods2($quote, $quote->getShippingAddress());
 
-            $this->logger->addDebug('shipping methods:......'. json_encode($shippingMethods));
-            $this->logger->addDebug('count($shippingMethods):    '. count($shippingMethods));
-
             if (count($shippingMethods) == 0) {
                 $errorMessage = __(
                     'Apple Pay payment failed, because no shipping methods were found for the selected address. '.
@@ -258,7 +256,6 @@ class Common extends Action
             } else {
 
                 foreach ($shippingMethods as $shippingMethod) {
-                    $this->logger->addDebug('foreach cart'. json_encode($shippingMethod));
                     $shippingMethodsResult[] = [
                         'carrier_title' => $shippingMethod->getCarrierTitle(),
                         'price_incl_tax' => round($shippingMethod->getAmount(), 2),
@@ -266,8 +263,6 @@ class Common extends Action
                         'method_title' => $shippingMethod->getMethodTitle(),
                     ];
                 }
-
-                $this->logger->addDebug('$shippingMethodsResult::'. json_encode($shippingMethodsResult));
 
                 $this->logger->addDebug(__METHOD__ . '|2|');
 
@@ -338,10 +333,7 @@ class Common extends Action
     {
         $output = [];
         $shippingAddress = $quote->getShippingAddress();
-        $this->logger->addDebug('Common - shipping address: '. json_encode($shippingAddress));
-        $this->logger->addDebug('Common - Address: '. json_encode($address));
         $extractedAddressData = $this->extractAddressData($address);
-        $this->logger->addDebug('Common - extracted data: '. json_encode($extractedAddressData));
         if (array_key_exists('extension_attributes', $extractedAddressData)) {
             unset($extractedAddressData['extension_attributes']);
         }
@@ -357,8 +349,6 @@ class Common extends Action
             $quote->setCustomerGroupId($customerGroupId);
         }
         $shippingRates = $shippingAddress->getGroupedAllShippingRates();
-        $this->logger->addDebug('Common - shipping rates: '. json_encode($shippingRates));
-        $this->logger->addDebug('$cart->getQuoteCurrencyCode()::::'. json_encode($quote->getQuoteCurrencyCode()));
         foreach ($shippingRates as $carrierRates) {
             foreach ($carrierRates as $rate) {
                 $output[] = $this->converter->modelToDataObject($rate, $quote->getQuoteCurrencyCode());
@@ -367,7 +357,6 @@ class Common extends Action
         if ($isCustomerGroupChanged) {
             $quote->setCustomerGroupId($quoteCustomerGroupId);
         }
-        $this->logger->addDebug('methodsss from cart'. json_encode($output));
         return $output;
     }
 }

@@ -65,63 +65,26 @@ class ShippingMethod
 
     public function getAvailableMethods($cart)
     {
-        $this->logger->addDebug('Starting getAvailableMethods process.');
-
         $address = $cart->getShippingAddress();
         $address->setLimitCarrier(null);
 
-        $this->logger->addDebug('Address: '. json_encode($address));
         $address->setQuote($cart);
         $address->setCollectShippingRates(true);
-
 
         try {
             $this->totalsCollector->collectAddressTotals($cart, $address);
         } catch (\Exception $e) {
-            $this->logger->addError('Error collecting address totals: ' . $e->getMessage());
             throw new LocalizedException(__('Unable to collect shipping rates.'));
         }
 
         $methods = [];
         $shippingRates = $address->getGroupedAllShippingRates();
 
-        $this->logger->addDebug('shipping rates:::::'. json_encode($shippingRates));
-        $this->logger->addDebug('$cart->getQuoteCurrencyCode()::::'. json_encode($cart->getQuoteCurrencyCode()));
-
         foreach ($shippingRates as $carrierRates) {
             foreach ($carrierRates as $rate) {
                 $methods[] = $this->shippingMethodConverter->modelToDataObject($rate, $cart->getQuoteCurrencyCode());
             }
         }
-
-        $this->logger->addDebug('methodsss from product'. json_encode($methods));
-//        foreach ($shippingRates as $carrierRates) {
-//            foreach ($carrierRates as $rate) {
-//                $this->logger->addDebug('carrier rate:'. json_encode($rate));
-////                $methodData = $this->dataObjectConverter->toFlatArray(
-////                    $this->shippingMethodConverter->modelToDataObject($rate, $cart->getQuoteCurrencyCode()),
-////                    [],
-////                    ShippingMethodInterface::class
-////                );
-//                $methods[] = $this->shippingMethodConverter->modelToDataObject(
-//                    $rate,
-//                    $cart->getQuoteCurrencyCode()
-//                );
-//            }
-//        }
-
-//        $testtt = $this->shipmentEstimation->estimateByExtendedAddress(
-//            $cart->getId(),
-//            $cart->getShippingAddress()
-//        );
-//
-//        $aaa = $this->shipmentEstimation->getList($cart->getId());
-//
-//        $this->logger->addDebug('get list method: '. json_encode($aaa));
-//
-//        $this->logger->addDebug('testing shipment estimation::::: '. json_encode($testtt));
-//
-//        $this->logger->addDebug('Shipping methods retrieved successfully.');
 
         return $methods;
     }
