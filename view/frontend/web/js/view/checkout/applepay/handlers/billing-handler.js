@@ -112,7 +112,6 @@ define(
                     region: address.administrativeArea,
                     region_id: 0,
                     country_id: address.countryCode,
-                    country: 'NL',
                     telephone: address.phoneNumber,
                     email: address.emailAddress,
                     save_in_address_book: 0,

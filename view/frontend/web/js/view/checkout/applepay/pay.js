@@ -145,8 +145,8 @@ define(
                 var self = this;
                 var lineItemsType = 'pending';
                 var shippingMethods = self.availableShippingMethodInformation();
-                var shipmentMethodCallback = self.onSelectedShipmentMethod.bind(this);
                 var shippingContactCallback = self.onSelectedShippingContact.bind(this);
+                var shipmentMethodCallback = self.onSelectedShipmentMethod.bind(this);
                 var requiredBillingContactFields = ["name", "postalAddress", "phone"];
                 var requiredShippingContactFields = ["name", "postalAddress", "phone"];
 
@@ -461,8 +461,7 @@ define(
                         'city': address.city,
                         'region_id': address.regionId,
                         'region': address.region,
-                        'country_id': 'NL',
-                        'country': 'NL',
+                        'country_id': address.countryId,
                         'postcode': address.postcode,
                         'firstname': address.firstname,
                         'lastname': address.lastname,
@@ -656,7 +655,7 @@ define(
             },
 
             devLog: function (msg, params) {
-                window.buckarooDebug = 1;
+                //window.buckarooDebug = 1;
                 if (window.buckarooDebug) {
                     console.log(msg, params);
                 }

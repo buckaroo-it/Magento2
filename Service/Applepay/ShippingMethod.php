@@ -9,9 +9,6 @@ use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Quote\Api\Data\ShippingMethodInterface;
 use Magento\Quote\Model\Cart\ShippingMethodConverter;
 use Magento\Quote\Model\Quote\TotalsCollector;
-use Magento\Quote\Api\ShipmentEstimationInterface;
-
-use Buckaroo\Magento2\Logging\Log as BuckarooLog;
 
 class ShippingMethod
 {
@@ -31,35 +28,19 @@ class ShippingMethod
     private TotalsCollector $totalsCollector;
 
     /**
-     * @var BuckarooLog
-     */
-    private BuckarooLog $logger;
-
-    /**
-     * @var ShipmentEstimationInterface
-     */
-    protected ShipmentEstimationInterface $shipmentEstimation;
-
-    /**
      * @param ExtensibleDataObjectConverter $dataObjectConverter
      * @param ShippingMethodConverter $shippingMethodConverter
      * @param TotalsCollector $totalsCollector
-     * @param BuckarooLog $logger
-     * @param ShipmentEstimationInterface $shipmentEstimation
      */
     public function __construct(
         ExtensibleDataObjectConverter $dataObjectConverter,
         ShippingMethodConverter $shippingMethodConverter,
-        TotalsCollector $totalsCollector,
-        BuckarooLog $logger,
-        ShipmentEstimationInterface $shipmentEstimation
+        TotalsCollector $totalsCollector
 
     ) {
         $this->dataObjectConverter = $dataObjectConverter;
         $this->shippingMethodConverter = $shippingMethodConverter;
         $this->totalsCollector = $totalsCollector;
-        $this->logger = $logger;
-        $this->shipmentEstimation = $shipmentEstimation;
 
     }
 

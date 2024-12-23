@@ -80,7 +80,7 @@ class Add
      * @param ShippingAddressManagementInterface $shippingAddressManagement
      * @param QuoteRepository|null $quoteRepository
      * @param ShippingMethod $appleShippingMethod
- */
+    */
     public function __construct(
         CartRepositoryInterface $cartRepository,
         CartInterface $cart,
@@ -109,38 +109,35 @@ class Add
 
     public function process($request)
     {
-
         $cart_hash = $request->getParam('id');
 
         if ($cart_hash) {
-
             $cartId = $this->maskedQuoteIdToQuoteId->execute($cart_hash);
             $cart = $this->cartRepository->get($cartId);
 
         } else {
             $checkoutSession = ObjectManager::getInstance()->get(\Magento\Checkout\Model\Session::class);
             $cart = $checkoutSession->getQuote();
-            $cart->getPayment()->setMethod(\Buckaroo\Magento2\Model\Method\Applepay::PAYMENT_METHOD_CODE);
         }
 
         $product = $request->getParam('product');
 
         // Check if product data is present and valid
-        //if (!$product || !is_array($product) || !isset($product['id']) || !is_numeric($product['id'])) {
-        //    throw new \Exception('Product data is missing or invalid.');
-        //}
+        if (!$product || !is_array($product) || !isset($product['id']) || !is_numeric($product['id'])) {
+            throw new \Exception('Product data is missing or invalid.');
+        }
 
         $cart->removeAllItems();
 
         try {
-            $productToBeAdded = $this->productRepository->getById(15);
+            $productToBeAdded = $this->productRepository->getById($product['id']);
         } catch (NoSuchEntityException $e) {
-            throw new NoSuchEntityException(__('Could not find a product with ID "%id"', ['id' => 15]));
+            throw new NoSuchEntityException(__('Could not find a product with ID "%id"', ['id' => $product['id']]));
         }
 
         $cartItem = new CartItem(
             $productToBeAdded->getSku(),
-            1
+            $product['qty']
         );
 
         if (isset($product['selected_options'])) {
@@ -168,9 +165,8 @@ class Add
             try {
                 $this->shippingAddressManagement->assign($cart->getId(), $shippingAddress);
             } catch (\Exception $e) {
-                throw new \Exception($e->getMessage());
                 // phpcs:ignore Magento2.Security.LanguageConstruct.DirectOutput
-                //echo $e->getMessage();
+                echo $e->getMessage();
             }
             $this->quoteRepository->save($cart);
             //this delivery address is already assigned to the cart

@@ -139,17 +139,17 @@ class Common extends Action
     {
         $address = [
             'prefix' => '',
-            'firstname' => isset($wallet['givenName']) ? $wallet['givenName'] : 'First name',
+            'firstname' => isset($wallet['givenName']) ? $wallet['givenName'] : '',
             'middlename' => '',
-            'lastname' => isset($wallet['familyName']) ? $wallet['familyName'] : 'Last name',
+            'lastname' => isset($wallet['familyName']) ? $wallet['familyName'] : '',
             'street' => [
                 '0' => isset($wallet['addressLines'][0]) ? $wallet['addressLines'][0] : '',
                 '1' => isset($wallet['addressLines'][1]) ? $wallet['addressLines'][1] : null
             ],
             'city' => isset($wallet['locality']) ? $wallet['locality'] : '',
             'country_id' => isset($wallet['countryCode']) ? strtoupper($wallet['countryCode']) : '',
-            'region' => 'unknown',
-            'region_id' => 0,
+            'region' => isset($wallet['administrativeArea']) ? $wallet['administrativeArea'] : '',
+            'region_id' => '',
             'postcode' => isset($wallet['postalCode']) ? $wallet['postalCode'] : '',
             'telephone' => isset($wallet['phoneNumber']) ? $wallet['phoneNumber'] : 'N/A',
             'fax' => '',
@@ -224,7 +224,6 @@ class Common extends Action
 
         if (empty($errorFields)) {
             $this->logger->addDebug(__METHOD__ . '|2|');
-
             return true;
         } else {
             $this->logger->addDebug(__METHOD__ . '|3|');
