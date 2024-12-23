@@ -75,13 +75,6 @@ class ShippingMethod
         $address->setCollectShippingRates(true);
 
 
-        $testtt = $this->shipmentEstimation->estimateByExtendedAddress(
-            $cart->getId(),
-            $cart->getShippingAddress()
-        );
-
-        $this->logger->addDebug('testing shipment estimation::::: '. json_encode($testtt));
-
         try {
             $this->totalsCollector->collectAddressTotals($cart, $address);
         } catch (\Exception $e) {
@@ -108,6 +101,14 @@ class ShippingMethod
                 );
             }
         }
+
+
+        $testtt = $this->shipmentEstimation->estimateByExtendedAddress(
+            $cart->getId(),
+            $cart->getShippingAddress()
+        );
+
+        $this->logger->addDebug('testing shipment estimation::::: '. json_encode($testtt));
 
         $this->logger->addDebug('Shipping methods retrieved successfully.');
 

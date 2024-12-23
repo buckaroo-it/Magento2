@@ -255,6 +255,9 @@ class Add
         $this->logger->addDebug('Cart Variable (243): '. json_encode($cart));
         $this->logger->addDebug('Totals Variable: '. json_encode($totals));
 
+        $testShippinggg = $this->appleShippingMethod->getAvailableMethods($cart);
+        $this->logger->addDebug('Testing shipping '. json_encode($testShippinggg));
+
 
         $this->quoteRepository->save($cart);
 
