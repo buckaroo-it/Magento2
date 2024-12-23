@@ -131,6 +131,7 @@ define(
              * @param newQuote
              */
             setQuote: function (newQuote) {
+                this.devLog('==============applepaydebug/setQuote : ', newQuote);
                 this.quote = newQuote;
             },
 
@@ -466,6 +467,7 @@ define(
                 this.devLog('==============applepaydebug/16');
                 this.devLog('==============applepaydebug/address: ', address);
                 var serviceUrl = resourceUrlManager.getUrlForEstimationShippingMethodsForNewAddress(this.quote);
+                this.devLog('==============applepaydebug/address street: ', address.street);
                 var payload = JSON.stringify({
                     address: {
                         'street': address.street,
