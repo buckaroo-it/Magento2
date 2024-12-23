@@ -86,6 +86,7 @@ class ShippingMethod
         $shippingRates = $address->getGroupedAllShippingRates();
 
         $this->logger->addDebug('shipping rates:::::'. json_encode($shippingRates));
+        $this->logger->addDebug('$cart->getQuoteCurrencyCode()::::'. json_encode($cart->getQuoteCurrencyCode()));
 
         foreach ($shippingRates as $carrierRates) {
             foreach ($carrierRates as $rate) {

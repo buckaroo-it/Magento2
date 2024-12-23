@@ -244,6 +244,9 @@ class Common extends Action
         if (!$quote->getIsVirtual()) {
             $shippingMethods = $this->getShippingMethods2($quote, $quote->getShippingAddress());
 
+            $this->logger->addDebug('shipping methods:......'. json_encode($shippingMethods));
+            $this->logger->addDebug('count($shippingMethods):    '. count($shippingMethods));
+
             if (count($shippingMethods) == 0) {
                 $errorMessage = __(
                     'Apple Pay payment failed, because no shipping methods were found for the selected address. '.
@@ -352,6 +355,7 @@ class Common extends Action
         }
         $shippingRates = $shippingAddress->getGroupedAllShippingRates();
         $this->logger->addDebug('Common - shipping rates: '. json_encode($shippingRates));
+        $this->logger->addDebug('$cart->getQuoteCurrencyCode()::::'. json_encode($quote->getQuoteCurrencyCode()));
         foreach ($shippingRates as $carrierRates) {
             foreach ($carrierRates as $rate) {
                 $output[] = $this->converter->modelToDataObject($rate, $quote->getQuoteCurrencyCode());

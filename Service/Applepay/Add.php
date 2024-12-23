@@ -221,9 +221,13 @@ class Add
                 throw new \Exception(__('Unable to retrieve shipping methods.'));
             }
 
-            $this->logger->addDebug('Shipping Methods Variable: '. json_encode($shippingMethods));
 
-            $this->logger->addDebug('Cart Session: ' . json_encode($cart->getData()));
+            $this->logger->addDebug('shipping methods:......'. json_encode($shippingMethods));
+            $this->logger->addDebug('count($shippingMethods):    '. count($shippingMethods));
+
+//            $this->logger->addDebug('Shipping Methods Variable: '. json_encode($shippingMethods));
+
+//            $this->logger->addDebug('Cart Session: ' . json_encode($cart->getData()));
 
 
             foreach ($shippingMethods as $method) {
