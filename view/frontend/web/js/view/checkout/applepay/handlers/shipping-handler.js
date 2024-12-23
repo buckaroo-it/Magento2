@@ -106,6 +106,7 @@ define(
                     postcode: address.postalCode,
                     region: address.administrativeArea,
                     region_id: 0,
+                    country: 'NL',
                     country_id: address.countryCode,
                     telephone: address.phoneNumber,
                     email: address.emailAddress,

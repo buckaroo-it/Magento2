@@ -15,6 +15,7 @@ class Applepay
             ],
             'city' => isset($wallet['locality']) ? $wallet['locality'] : '',
             'country_id' => 'NL',
+            'country' => 'NL',
             'region' => 'unknown',
             'region_id' => 0,
             'postcode' => isset($wallet['postalCode']) ? $wallet['postalCode'] : '',
