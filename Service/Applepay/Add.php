@@ -226,28 +226,28 @@ class Add
             $this->logger->addDebug('Cart Session: ' . json_encode($cart->getData()));
 
 
-//            foreach ($shippingMethods as $method) {
-//                $shippingMethodsResult[] = [
-//                    'carrier_title' => $method['carrier_title'],
-//                    'price_incl_tax' => round($method['amount']['value'], 2),
-//                    'method_code' => $method['carrier_code'] . '_' .  $method['method_code'],
-//                    'method_title' => $method['method_title'],
-//                ];
-//            }
-//            $this->logger->addDebug('Shipping Methods Result Variable: '. json_encode($shippingMethodsResult));
+            foreach ($shippingMethods as $method) {
+                $shippingMethodsResult[] = [
+                    'carrier_title' => $method['carrier_title'],
+                    'price_incl_tax' => round($method['amount']['value'], 2),
+                    'method_code' => $method['carrier_code'] . '_' .  $method['method_code'],
+                    'method_title' => $method['method_title'],
+                ];
+            }
+            $this->logger->addDebug('Shipping Methods Result Variable: '. json_encode($shippingMethodsResult));
 
-            $shippingMethodsss = [
-                [
-                    "carrier_title" => "Free Shipping",
-                    "price_incl_tax" => 0,
-                    "method_code" => "freeshipping_freeshipping",
-                    "method_title" => "Free"
-                ]
-            ];
+//            $shippingMethodsss = [
+//                [
+//                    "carrier_title" => "Free Shipping",
+//                    "price_incl_tax" => 0,
+//                    "method_code" => "freeshipping_freeshipping",
+//                    "method_title" => "Free"
+//                ]
+//            ];
 
-            if (!empty($shippingMethodsss)) {
+            if (!empty($shippingMethodsResult)) {
                 // Set the first available shipping method
-                $cart->getShippingAddress()->setShippingMethod($shippingMethodsss[0]['method_code']);
+                $cart->getShippingAddress()->setShippingMethod($shippingMethodsResult[0]['method_code']);
             } else {
                 throw new \Exception(__('No shipping methods are available for the provided address.'));
             }
@@ -259,17 +259,15 @@ class Add
             $totals['discount'] = round($cart->getSubtotalWithDiscount() - $cart->getSubtotal(), 2);
         }
 
-        $this->logger->addDebug('Cart Variable (243): '. json_encode($cart));
-        $this->logger->addDebug('Totals Variable: '. json_encode($totals));
 
-        $testShippinggg = $this->appleShippingMethod->getAvailableMethods($cart);
-        $this->logger->addDebug('Testing shipping '. json_encode($testShippinggg));
+//        $testShippinggg = $this->appleShippingMethod->getAvailableMethods($cart);
+//        $this->logger->addDebug('Testing shipping '. json_encode($testShippinggg));
 
 
         $this->quoteRepository->save($cart);
 
         return [
-            'shipping_methods' => $shippingMethodsss,
+            'shipping_methods' => $shippingMethodsResult,
             'totals' => $totals
         ];
     }

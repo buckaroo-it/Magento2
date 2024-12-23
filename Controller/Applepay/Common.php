@@ -360,6 +360,7 @@ class Common extends Action
         if ($isCustomerGroupChanged) {
             $quote->setCustomerGroupId($quoteCustomerGroupId);
         }
+        $this->logger->addDebug('methodsss from cart'. json_encode($output));
         return $output;
     }
 }

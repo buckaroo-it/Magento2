@@ -89,18 +89,25 @@ class ShippingMethod
 
         foreach ($shippingRates as $carrierRates) {
             foreach ($carrierRates as $rate) {
-                $this->logger->addDebug('carrier rate:'. json_encode($rate));
-//                $methodData = $this->dataObjectConverter->toFlatArray(
-//                    $this->shippingMethodConverter->modelToDataObject($rate, $cart->getQuoteCurrencyCode()),
-//                    [],
-//                    ShippingMethodInterface::class
-//                );
-                $methods[] = $this->shippingMethodConverter->modelToDataObject(
-                    $rate,
-                    $cart->getQuoteCurrencyCode()
-                );
+                $methods[] = $this->shippingMethodConverter->modelToDataObject($rate, $cart->getQuoteCurrencyCode());
             }
         }
+
+        $this->logger->addDebug('methodsss from product'. json_encode($methods));
+//        foreach ($shippingRates as $carrierRates) {
+//            foreach ($carrierRates as $rate) {
+//                $this->logger->addDebug('carrier rate:'. json_encode($rate));
+////                $methodData = $this->dataObjectConverter->toFlatArray(
+////                    $this->shippingMethodConverter->modelToDataObject($rate, $cart->getQuoteCurrencyCode()),
+////                    [],
+////                    ShippingMethodInterface::class
+////                );
+//                $methods[] = $this->shippingMethodConverter->modelToDataObject(
+//                    $rate,
+//                    $cart->getQuoteCurrencyCode()
+//                );
+//            }
+//        }
 
 //        $testtt = $this->shipmentEstimation->estimateByExtendedAddress(
 //            $cart->getId(),
