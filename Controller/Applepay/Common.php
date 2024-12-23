@@ -258,6 +258,7 @@ class Common extends Action
             } else {
 
                 foreach ($shippingMethods as $shippingMethod) {
+                    $this->logger->addDebug('foreach cart'. json_encode($shippingMethod));
                     $shippingMethodsResult[] = [
                         'carrier_title' => $shippingMethod->getCarrierTitle(),
                         'price_incl_tax' => round($shippingMethod->getAmount(), 2),
@@ -265,6 +266,8 @@ class Common extends Action
                         'method_title' => $shippingMethod->getMethodTitle(),
                     ];
                 }
+
+                $this->logger->addDebug('$shippingMethodsResult::'. json_encode($shippingMethodsResult));
 
                 $this->logger->addDebug(__METHOD__ . '|2|');
 
