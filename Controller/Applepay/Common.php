@@ -333,6 +333,7 @@ class Common extends Action
         $output = [];
         $shippingAddress = $quote->getShippingAddress();
         $this->logger->addDebug('Common - shipping address: '. json_encode($shippingAddress));
+        $this->logger->addDebug('Common - Address: '. json_encode($address));
         $extractedAddressData = $this->extractAddressData($address);
         $this->logger->addDebug('Common - extracted data: '. json_encode($extractedAddressData));
         if (array_key_exists('extension_attributes', $extractedAddressData)) {

@@ -364,9 +364,6 @@ define(
                     this.devLog('==============applepaydebug/w',event);
                     this.devLog('==============applepaydebug/p',event.identifier);
 
-                    this.updateShippingMethods(event);
-
-
                     var update = $.ajax({
                         url: urlBuilder.build('buckaroo/applepay/add'),
                         type: 'POST',
@@ -465,9 +462,7 @@ define(
 
             updateShippingMethods: function (address) {
                 this.devLog('==============applepaydebug/16');
-                this.devLog('==============applepaydebug/address: ', address);
                 var serviceUrl = resourceUrlManager.getUrlForEstimationShippingMethodsForNewAddress(this.quote);
-                this.devLog('==============applepaydebug/address street: ', address.street);
                 var payload = JSON.stringify({
                     address: {
                         'street': address.street,
