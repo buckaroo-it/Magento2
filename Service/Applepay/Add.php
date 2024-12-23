@@ -208,26 +208,26 @@ class Add
             $this->logger->addDebug('Cart Variable (line 209): '. json_encode($cart));
             $this->logger->addDebug('Cart shipping addressss: '. json_encode($cart->getShippingAddress()));
             $this->logger->addDebug('Cart shipping address methodsss: '. json_encode($cart->getShippingAddress()->getGroupedAllShippingRates()));
-            try {
-                $shippingMethods = $this->appleShippingMethod->getAvailableMethods($cart);
-            } catch (\Exception $e) {
-                throw new \Exception(__('Unable to retrieve shipping methods.'));
-            }
+//            try {
+//                $shippingMethods = $this->appleShippingMethod->getAvailableMethods($cart);
+//            } catch (\Exception $e) {
+//                throw new \Exception(__('Unable to retrieve shipping methods.'));
+//            }
 
-            $this->logger->addDebug('Shipping Methods Variable: '. json_encode($shippingMethods));
+//            $this->logger->addDebug('Shipping Methods Variable: '. json_encode($shippingMethods));
 
             $this->logger->addDebug('Cart Session: ' . json_encode($cart->getData()));
 
 
-            foreach ($shippingMethods as $method) {
-                $shippingMethodsResult[] = [
-                    'carrier_title' => $method['carrier_title'],
-                    'price_incl_tax' => round($method['amount']['value'], 2),
-                    'method_code' => $method['carrier_code'] . '_' .  $method['method_code'],
-                    'method_title' => $method['method_title'],
-                ];
-            }
-            $this->logger->addDebug('Shipping Methods Result Variable: '. json_encode($shippingMethodsResult));
+//            foreach ($shippingMethods as $method) {
+//                $shippingMethodsResult[] = [
+//                    'carrier_title' => $method['carrier_title'],
+//                    'price_incl_tax' => round($method['amount']['value'], 2),
+//                    'method_code' => $method['carrier_code'] . '_' .  $method['method_code'],
+//                    'method_title' => $method['method_title'],
+//                ];
+//            }
+//            $this->logger->addDebug('Shipping Methods Result Variable: '. json_encode($shippingMethodsResult));
 
             $shippingMethodsss = [
                 [
