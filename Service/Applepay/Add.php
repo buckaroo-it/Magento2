@@ -259,6 +259,9 @@ class Add
 
 
         $this->quoteRepository->save($cart);
+
+        $testShipping2 = $this->appleShippingMethod->getAvailableMethods($cart);
+        $this->logger->addDebug('Last shipping info: '. json_encode($testShipping2));
         return [
             'shipping_methods' => $shippingMethodsss,
             'totals' => $totals
