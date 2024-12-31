@@ -107,11 +107,6 @@ define(
                 config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_mrcash}
             },
             {
-                type: 'buckaroo_magento2_sofortbanking',
-                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/default',
-                config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_sofortbanking}
-            },
-            {
                 type: 'buckaroo_magento2_belfius',
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/default',
                 config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_belfius}

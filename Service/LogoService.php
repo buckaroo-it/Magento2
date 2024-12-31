@@ -72,7 +72,6 @@ class LogoService
             "mrcash"           => "svg/bancontact.svg",
             "p24"              => "svg/przelewy24.svg",
             "sepadirectdebit"  => "svg/sepa-directdebit.svg",
-            "sofortbanking"    => "svg/sofort.svg",
             "pospayment"       => "svg/pos.svg",
             "transfer"         => "svg/sepa-credittransfer.svg",
             "buckaroovoucher"  => "svg/vouchers.svg",

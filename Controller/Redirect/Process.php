@@ -533,8 +533,6 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
      *
      *  - If the order can be invoiced, it sets the 'Pending payment status' and saves the order.
      *  - Sends a Klarna KP order confirmation using the status code.
-     *  - If the redirect request does not contain specific post data for the 'sofortueberweisung' payment method,
-     *    it adds an error message, removes an Amasty gift card if failed, and redirect to home.
      *  - Sets the last quote and order.
      *  - Returns a successful redirect response.
      *
@@ -564,22 +562,6 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
         }
 
         $this->sendKlarnaKpOrderConfirmation($statusCode);
-
-        if (!$this->redirectRequest->hasPostData('payment_method', 'sofortueberweisung')) {
-            $this->addErrorMessage(__(self::GENERAL_ERROR_MESSAGE));
-
-            $this->logger->addDebug(sprintf(
-                '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect Pending NOT Sofort - Remove Coupon & Giftcard',
-                $this->payment->getMethod(),
-                __METHOD__,
-                __LINE__
-            ));
-
-            $this->removeCoupon();
-            $this->removeAmastyGiftcardOnFailed();
-
-            return $this->handleProcessedResponse('/');
-        }
 
         $this->setLastQuoteOrder();
 

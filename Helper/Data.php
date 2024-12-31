@@ -477,7 +477,6 @@ class Data extends AbstractHelper
             ['value' => 'payperemail',       'label' => __('PayPerEmail')],
             ['value' => 'pospayment',       'label' => __('Point of Sale')],
             ['value' => 'sepadirectdebit',       'label' => __('SEPA direct debit')],
-            ['value' => 'sofortbanking',       'label' => __('SOFORT')],
             ['value' => 'belfius',       'label' => __('Belfius')],
             ['value' => 'transfer',       'label' => __('Bank Transfer')],
             ['value' => 'trustly',       'label' => __('Trustly')],

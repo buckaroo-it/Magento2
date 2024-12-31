@@ -115,7 +115,6 @@ class Filter extends \Magento\Payment\Ui\Component\Listing\Column\Method\Options
         $option = $options->toOptionArray();
         $option = array_merge($option, [
             ['value' => 'creditcards', 'label' => __('Creditcards')],
-            ['value' => 'sofortbanking', 'label' => __('Sofort')],
         ]);
         foreach ($option as $item) {
             $this->options[] = [
