@@ -1596,10 +1596,12 @@ class Push implements PushInterface
 
     protected function updateTransactionIsClosed($order)
     {
-        $payment = $order->getPayment();
-        $transactions = $payment->getTransactions();
+        $orderId = $order->getId();
 
-        foreach ($transactions as $transaction) {
+        $transactionCollection = $this->transactionCollectionFactory->create()
+            ->addFieldToFilter('order_id', $orderId);
+
+        foreach ($transactionCollection as $transaction) {
             if ($transaction->getIsClosed() == 1) {
                 $transaction->setIsClosed(0);
                 $transaction->save();
