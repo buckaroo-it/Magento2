@@ -211,7 +211,7 @@ class Klarnakp extends AbstractMethod
     public function canCapture()
     {
         if ($this->getConfigData('payment_action') == 'order') {
-            return false;
+            return true;
         }
         return $this->_canCapture;
     }
