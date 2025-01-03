@@ -1395,7 +1395,7 @@ class Push implements PushInterface
             $this->order->save();
         }
 
-        if ($this->hasPostData('brq_transaction_method', 'klarnakp')) {
+        if (isset($this->postData['brq_service_klarnakp_reservationnumber'])){
             $this->updateTransactionIsClosed($this->order);
         }
 
