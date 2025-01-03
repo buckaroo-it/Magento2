@@ -104,9 +104,12 @@ class CreateInvoice
             return true;
         }
 
+        $data['capture_case'] = 'offline';
         if (empty($invoiceItems)) {
             $invoiceItems = $this->getInvoiceItems($order);
         }
+
+        $data['capture_case'] = 'offline';
 
         $invoice = $this->invoiceService->prepareInvoice($order, $invoiceItems);
 

@@ -33,7 +33,6 @@ use Magento\Checkout\Model\Cart;
 use Zend_Locale;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Quote\Model\Quote\AddressFactory;
-use Magento\Sales\Model\Order;
 
 class Klarnakp extends AbstractMethod
 {
@@ -214,9 +213,7 @@ class Klarnakp extends AbstractMethod
         if ($this->getConfigData('payment_action') == 'order') {
             return false;
         }
-        if ($this->getState() === Order::STATE_CANCELED && $this->getOrder()->getState() === \Magento\Sales\Model\Order::STATE_PROCESSING) {
-            return true;
-        }
+
         return $this->_canCapture;
     }
 
@@ -225,7 +222,6 @@ class Klarnakp extends AbstractMethod
         if ($this->getInfoInstance()->getOrder()->getDiscountAmount() < 0) {
             return false;
         }
-
         return $this->_canCapturePartial;
     }
 

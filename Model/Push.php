@@ -1333,7 +1333,8 @@ class Push implements PushInterface
             $methods = [
                 'buckaroo_magento2_afterpay',
                 'buckaroo_magento2_afterpay2',
-                'buckaroo_magento2_klarna'
+                'buckaroo_magento2_klarna',
+                'buckaroo_magento2_klarnakp'
             ];
             if (in_array($payment->getMethodInstance()->getCode(), $methods)) {
                 $payment->setAdditionalInformation('buckaroo_failed_authorize', 1);
@@ -1396,7 +1397,7 @@ class Push implements PushInterface
         }
 
         if (isset($this->postData['brq_service_klarnakp_reservationnumber'])){
-            $this->updateTransactionIsClosedDirectly($this->order);
+            $this->updateTransactionIsClosed($this->order);
         }
 
         $store = $this->order->getStore();
@@ -1565,8 +1566,6 @@ class Push implements PushInterface
             }
         }
 
-
-
         if (!empty($this->postData['brq_service_klarna_autopaytransactionkey'])
             && ($this->postData['brq_statuscode'] == 190)
         ) {
@@ -1594,7 +1593,7 @@ class Push implements PushInterface
         return true;
     }
 
-    protected function updateTransactionIsClosedDirectly($order)
+    protected function updateTransactionIsClosed($order)
     {
         $connection = $this->resourceConnection->getConnection();
         $transactionTable = $connection->getTableName('sales_payment_transaction');
