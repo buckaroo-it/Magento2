@@ -1333,8 +1333,7 @@ class Push implements PushInterface
             $methods = [
                 'buckaroo_magento2_afterpay',
                 'buckaroo_magento2_afterpay2',
-                'buckaroo_magento2_klarna',
-                'buckaroo_magento2_klarnakp'
+                'buckaroo_magento2_klarna'
             ];
             if (in_array($payment->getMethodInstance()->getCode(), $methods)) {
                 $payment->setAdditionalInformation('buckaroo_failed_authorize', 1);
