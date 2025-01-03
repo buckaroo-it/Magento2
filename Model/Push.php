@@ -1395,6 +1395,10 @@ class Push implements PushInterface
             $this->order->save();
         }
 
+        if ($this->hasPostData('brq_transaction_method', 'klarnakp')) {
+            $this->updateTransactionIsClosed($this->order);
+        }
+
         $store = $this->order->getStore();
 
         $payment = $this->order->getPayment();
@@ -1561,6 +1565,8 @@ class Push implements PushInterface
             }
         }
 
+
+
         if (!empty($this->postData['brq_service_klarna_autopaytransactionkey'])
             && ($this->postData['brq_statuscode'] == 190)
         ) {
@@ -1586,6 +1592,21 @@ class Push implements PushInterface
         $this->logging->addDebug(__METHOD__ . '|9|');
 
         return true;
+    }
+
+    protected function updateTransactionIsClosed($order)
+    {
+        $payment = $order->getPayment();
+        $transactions = $payment->getTransactions();
+
+        foreach ($transactions as $transaction) {
+            if ($transaction->getTxnType() == \Magento\Sales\Model\Order\Payment\Transaction::TYPE_AUTH) {
+                if ($transaction->getIsClosed() == 1) {
+                    $transaction->setIsClosed(0);
+                    $transaction->save();
+                }
+            }
+        }
     }
 
     /**
