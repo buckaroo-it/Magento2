@@ -1396,7 +1396,7 @@ class Push implements PushInterface
         }
 
         if (isset($this->postData['brq_service_klarnakp_reservationnumber'])){
-            $this->updateTransactionIsClosed($this->order);
+            $this->updateTransactionIsClosedDirectly($this->order);
         }
 
         $store = $this->order->getStore();
@@ -1594,19 +1594,16 @@ class Push implements PushInterface
         return true;
     }
 
-    protected function updateTransactionIsClosed($order)
+    protected function updateTransactionIsClosedDirectly($order)
     {
-        $orderId = $order->getId();
+        $connection = $this->resourceConnection->getConnection();
+        $transactionTable = $connection->getTableName('sales_payment_transaction');
 
-        $transactionCollection = $this->transactionCollectionFactory->create()
-            ->addFieldToFilter('order_id', $orderId);
-
-        foreach ($transactionCollection as $transaction) {
-            if ($transaction->getIsClosed() == 1) {
-                $transaction->setIsClosed(0);
-                $transaction->save();
-            }
-        }
+        $connection->update(
+            $transactionTable,
+            ['is_closed' => 0],
+            ['order_id = ?' => $order->getId()]
+        );
     }
 
     /**
