@@ -1600,11 +1600,9 @@ class Push implements PushInterface
         $transactions = $payment->getTransactions();
 
         foreach ($transactions as $transaction) {
-            if ($transaction->getTxnType() == \Magento\Sales\Model\Order\Payment\Transaction::TYPE_AUTH) {
-                if ($transaction->getIsClosed() == 1) {
-                    $transaction->setIsClosed(0);
-                    $transaction->save();
-                }
+            if ($transaction->getIsClosed() == 1) {
+                $transaction->setIsClosed(0);
+                $transaction->save();
             }
         }
     }
