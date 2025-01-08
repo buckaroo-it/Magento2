@@ -101,11 +101,6 @@ class PayPerEmail implements OptionSourceInterface
                 'code'  => 'buckaroo_magento2_sepadirectdebit'
             ],
             [
-                'value' => 'sofortueberweisung',
-                'label' => __('Sofort Banking'),
-                'code'  => 'buckaroo_magento2_sofortbanking'
-            ],
-            [
                 'value' => 'belfius',
                 'label' => __('Belfius'),
                 'code'  => 'buckaroo_magento2_belfius'

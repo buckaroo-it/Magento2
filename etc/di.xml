@@ -292,10 +292,6 @@
                     <item name="type" xsi:type="string">sepadirectdebit</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\SepaDirectDebit</item>
                 </item>
-                <item name="sofortbanking" xsi:type="array">
-                    <item name="type" xsi:type="string">sofortbanking</item>
-                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Sofortbanking</item>
-                </item>
                 <item name="belfius" xsi:type="array">
                     <item name="type" xsi:type="string">belfius</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Belfius</item>
@@ -519,7 +515,6 @@
                 <item name="afterpay" xsi:type="string">afterpaydigiaccept</item>
                 <item name="afterpay2" xsi:type="string">afterpaydigiaccept</item>
                 <item name="giftcards" xsi:type="string">giftcard</item>
-                <item name="sofortbanking" xsi:type="string">sofortueberweisung</item>
                 <item name="creditcards" xsi:type="string">creditcard</item>
                 <item name="mrcash" xsi:type="string">bancontactmrcash</item>
                 <item name="paylink" xsi:type="string">payperemail</item>
@@ -3101,34 +3096,6 @@
     </type>
     <!-- END Voucher Commands infrastructure -->
     <!-- END Payment Method: Voucher -->
-
-
-    <!-- Payment Method: Sofortbanking -->
-    <!-- Sofortbanking Payment Method Facade configuration -->
-    <virtualType name="SofortbankingFacade" type="BuckarooFacade">
-        <arguments>
-            <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\Sofortbanking::CODE</argument>
-            <argument name="valueHandlerPool" xsi:type="object">SofortbankingValueHandlerPool</argument>
-        </arguments>
-    </virtualType>
-
-    <!-- Sofortbanking Value handlers infrastructure -->
-    <virtualType name="SofortbankingValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
-        <arguments>
-            <argument name="handlers" xsi:type="array">
-                <item name="default" xsi:type="string">SofortbankingConfigValueHandler</item>
-            </argument>
-        </arguments>
-    </virtualType>
-    <!-- Configuration reader -->
-    <virtualType name="SofortbankingConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
-        <arguments>
-            <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Sofortbanking</argument>
-        </arguments>
-    </virtualType>
-    <!-- END Sofortbanking Value handlers infrastructure -->
-    <!-- END Payment Method: Sofortbanking -->
-
 
     <!-- Payment Method: PayPal -->
     <!-- PayPal Payment Method Facade configuration -->

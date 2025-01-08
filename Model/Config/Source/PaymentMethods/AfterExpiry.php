@@ -47,7 +47,6 @@ class AfterExpiry implements OptionSourceInterface
             ['value' => 'nexi',                   'label' => __('Nexi')],
             ['value' => 'postepay',               'label' => __('PostePay')],
             ['value' => 'paypal',                 'label' => __('PayPal')],
-            ['value' => 'sofortueberweisung',     'label' => __('Sofort Banking')],
             ['value' => 'belfius',                'label' => __('Belfius')],
             ['value' => 'visa',                   'label' => __('Visa')],
             ['value' => 'visaelectron',           'label' => __('Visa Electron')],

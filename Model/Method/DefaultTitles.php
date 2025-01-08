@@ -38,7 +38,6 @@ class DefaultTitles
         'paypal'           => 'PayPal',
         'payconiq'         => 'Payconiq',
         'sepadirectdebit'  => 'SEPA Direct Debit',
-        'sofortbanking'    => 'SOFORT',
         'belfius'          => 'Belfius',
         'transfer'         => 'Bank Transfer',
         'eps'              => 'EPS',
