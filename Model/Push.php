@@ -28,9 +28,9 @@ use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\Config\Source\InvoiceHandlingOptions;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Model\LockManagerWrapper;
 use Buckaroo\Magento2\Model\Method\AbstractMethod;
 use Buckaroo\Magento2\Model\Method\Afterpay;
-use Buckaroo\Magento2\Model\LockManagerWrapper;
 use Buckaroo\Magento2\Model\Method\Afterpay2;
 use Buckaroo\Magento2\Model\Method\Afterpay20;
 use Buckaroo\Magento2\Model\Method\Creditcards;
@@ -44,7 +44,6 @@ use Buckaroo\Magento2\Model\Method\Voucher;
 use Buckaroo\Magento2\Model\Refund\Push as RefundPush;
 use Buckaroo\Magento2\Model\Validator\Push as ValidatorPush;
 use Magento\Framework\App\ResourceConnection;
-use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Filesystem\DirectoryList;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\Webapi\Rest\Request;
@@ -54,8 +53,7 @@ use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Magento\Sales\Model\Order\Payment\Transaction;
 use Magento\Framework\Filesystem\Driver\File;
-use Magento\Sales\Api\TransactionRepositoryInterface;
-use Magento\Sales\Model\ResourceModel\Order\Payment\Transaction\CollectionFactory;
+
 
 class Push implements PushInterface
 {
@@ -162,17 +160,12 @@ class Push implements PushInterface
 
     private $fileSystemDriver;
 
-    protected $transactionRepository;
-    protected $transactionCollectionFactory;
-
     /**
      * @var LockManagerWrapper
      */
     protected LockManagerWrapper $lockManager;
 
     /**
-     * @param TransactionRepositoryInterface $transactionRepository
-     * @param CollectionFactory $transactionCollectionFactory
      * @param Order $order
      * @param TransactionInterface $transaction
      * @param Request $request
@@ -195,18 +188,16 @@ class Push implements PushInterface
      * @param LockManagerWrapper $lockManager
      */
     public function __construct(
-        TransactionRepositoryInterface $transactionRepository,
-        CollectionFactory              $transactionCollectionFactory,
-        Order                          $order,
-        TransactionInterface           $transaction,
-        Request                        $request,
-        ValidatorPush                  $validator,
-        OrderSender                    $orderSender,
-        InvoiceSender                  $invoiceSender,
-        Data                           $helper,
-        Account                        $configAccount,
-        RefundPush                     $refundPush,
-        Log                            $logging,
+        Order $order,
+        TransactionInterface $transaction,
+        Request $request,
+        ValidatorPush $validator,
+        OrderSender $orderSender,
+        InvoiceSender $invoiceSender,
+        Data $helper,
+        Account $configAccount,
+        RefundPush $refundPush,
+        Log $logging,
         Factory $configProviderMethodFactory,
         OrderStatusFactory $orderStatusFactory,
         PaymentGroupTransaction $groupTransaction,
@@ -218,8 +209,6 @@ class Push implements PushInterface
         File $fileSystemDriver,
         LockManagerWrapper $lockManager
     ) {
-        $this->transactionRepository = $transactionRepository;
-        $this->transactionCollectionFactory = $transactionCollectionFactory;
         $this->order                       = $order;
         $this->transaction                 = $transaction;
         $this->request                     = $request;
@@ -1064,7 +1053,7 @@ class Push implements PushInterface
         /** @var \Magento\Payment\Model\MethodInterface $paymentMethod */
         $paymentMethod   = $this->order->getPayment()->getMethodInstance();
         $configOrderMail = $this->configAccount->getOrderConfirmationEmail($store)
-        || $paymentMethod->getConfigData('order_email', $store);
+            || $paymentMethod->getConfigData('order_email', $store);
 
         if (!$this->order->getEmailSent() && $cm3StatusCode == 10 && $configOrderMail) {
             $this->orderSender->send($this->order);
@@ -1604,54 +1593,16 @@ class Push implements PushInterface
         return true;
     }
 
-    /**
-     * Updates the 'is_closed' status of all payment transactions for a given order to 0 (open).
-     *
-     * @param Order $order The order whose transactions need to be updated.
-     * @throws LocalizedException If an error occurs during the update.
-     */
     protected function updateTransactionIsClosed($order)
     {
-        $this->logging->addDebug(sprintf('Starting updateTransactionIsClosed for order ID %d', $order->getId()));
-
-        $transactions = $this->transactionCollectionFactory->create()
-            ->addFieldToFilter('order_id', $order->getId());
-
-        if ($transactions->getSize() === 0) {
-            $this->logging->addDebug(sprintf('No transactions found for order ID %d', $order->getId()));
-            return;
-        }
-
         $connection = $this->resourceConnection->getConnection();
-        $connection->beginTransaction();
+        $transactionTable = $connection->getTableName('sales_payment_transaction');
 
-        try {
-            foreach ($transactions as $transaction) {
-                $transaction->setIsClosed(0);
-                $this->transactionRepository->save($transaction);
-            }
-
-            $connection->commit();
-
-            $this->logging->addDebug(sprintf(
-                'Successfully updated is_closed status for %d transactions of order ID %d',
-                $transactions->getSize(),
-                $order->getId()
-            ));
-
-        } catch (\Exception $e) {
-            $connection->rollBack();
-
-            $this->logging->addError(sprintf(
-                'Failed to update transactions for order ID %d: %s',
-                $order->getId(),
-                $e->getMessage()
-            ));
-
-            throw new LocalizedException(
-                __('Failed to update transaction status: %1', $e->getMessage())
-            );
-        }
+        $connection->update(
+            $transactionTable,
+            ['is_closed' => 0],
+            ['order_id = ?' => $order->getId()]
+        );
     }
 
     /**
@@ -1866,7 +1817,7 @@ class Push implements PushInterface
 
     /**
      * @return Order\Payment
-     * @throws LocalizedException
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function addTransactionData($transactionKey = false, $datas = false)
     {
@@ -2176,13 +2127,13 @@ class Push implements PushInterface
     protected function isFailedGroupTransaction()
     {
         return $this->hasPostData(
-            'brq_transaction_type',
-            self::BUCK_PUSH_GROUPTRANSACTION_TYPE
-        ) &&
-        $this->hasPostData(
-            'brq_statuscode',
-            $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED')
-        );
+                'brq_transaction_type',
+                self::BUCK_PUSH_GROUPTRANSACTION_TYPE
+            ) &&
+            $this->hasPostData(
+                'brq_statuscode',
+                $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED')
+            );
     }
 
 
@@ -2242,7 +2193,7 @@ class Push implements PushInterface
      *
      * @return \Magento\Framework\Model\AbstractExtensibleModel|\Magento\Sales\Api\Data\OrderInterface|object|null
      * @throws \Exception
-     * @throws LocalizedException
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
     protected function createOrder(\Magento\Quote\Model\Quote $quote)
     {
@@ -2280,9 +2231,9 @@ class Push implements PushInterface
             $order->addCommentToStatusHistory(
                 __($historyComment)
             )
-            ->setIsCustomerNotified(false)
-            ->setEntityName('invoice')
-            ->save();
+                ->setIsCustomerNotified(false)
+                ->setEntityName('invoice')
+                ->save();
         }
     }
 
@@ -2292,7 +2243,7 @@ class Push implements PushInterface
      * @param string $reservedOrderId
      * @return \Magento\Framework\Model\AbstractExtensibleModel|\Magento\Sales\Api\Data\OrderInterface|object|null
      * @throws \Exception
-     * @throws LocalizedException
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
     protected function createOrderFromQuote(string $reservedOrderId)
     {
@@ -2347,12 +2298,12 @@ class Push implements PushInterface
     public function isCanceledGroupTransaction()
     {
         return $this->hasPostData(
-            'brq_transaction_type',
-            self::BUCK_PUSH_GROUPTRANSACTION_TYPE
-        ) &&
-        $this->hasPostData(
-            'brq_statuscode',
-            $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER')
-        );
+                'brq_transaction_type',
+                self::BUCK_PUSH_GROUPTRANSACTION_TYPE
+            ) &&
+            $this->hasPostData(
+                'brq_statuscode',
+                $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER')
+            );
     }
 }
