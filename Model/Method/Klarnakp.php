@@ -213,6 +213,7 @@ class Klarnakp extends AbstractMethod
         if ($this->getConfigData('payment_action') == 'order') {
             return false;
         }
+
         return $this->_canCapture;
     }
 

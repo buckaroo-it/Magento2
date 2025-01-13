@@ -28,9 +28,9 @@ use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\Config\Source\InvoiceHandlingOptions;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Model\LockManagerWrapper;
 use Buckaroo\Magento2\Model\Method\AbstractMethod;
 use Buckaroo\Magento2\Model\Method\Afterpay;
-use Buckaroo\Magento2\Model\LockManagerWrapper;
 use Buckaroo\Magento2\Model\Method\Afterpay2;
 use Buckaroo\Magento2\Model\Method\Afterpay20;
 use Buckaroo\Magento2\Model\Method\Creditcards;
@@ -1053,7 +1053,7 @@ class Push implements PushInterface
         /** @var \Magento\Payment\Model\MethodInterface $paymentMethod */
         $paymentMethod   = $this->order->getPayment()->getMethodInstance();
         $configOrderMail = $this->configAccount->getOrderConfirmationEmail($store)
-        || $paymentMethod->getConfigData('order_email', $store);
+            || $paymentMethod->getConfigData('order_email', $store);
 
         if (!$this->order->getEmailSent() && $cm3StatusCode == 10 && $configOrderMail) {
             $this->orderSender->send($this->order);
@@ -1396,6 +1396,10 @@ class Push implements PushInterface
             $this->order->save();
         }
 
+        if (isset($this->postData['brq_service_klarnakp_reservationnumber'])){
+            $this->updateTransactionIsClosed($this->order);
+        }
+
         $store = $this->order->getStore();
 
         $payment = $this->order->getPayment();
@@ -1587,6 +1591,27 @@ class Push implements PushInterface
         $this->logging->addDebug(__METHOD__ . '|9|');
 
         return true;
+    }
+
+    protected function updateTransactionIsClosed($order)
+    {
+        if ($order->getState() === Order::STATE_CANCELED
+        ) {
+            $order->setState(Order::STATE_PROCESSING);
+            $order->setStatus(Order::STATE_PROCESSING);
+
+            foreach ($order->getAllItems() as $item) {
+                if ($item->getQtyCanceled() > 0) {
+                    $item->setQtyCanceled(0);
+                }
+            }
+
+            $order->addStatusHistoryComment(
+                __('Order was re-opened from canceled state after a successful Klarna push.')
+            );
+
+            $order->save();
+        }
     }
 
     /**
@@ -2111,13 +2136,13 @@ class Push implements PushInterface
     protected function isFailedGroupTransaction()
     {
         return $this->hasPostData(
-            'brq_transaction_type',
-            self::BUCK_PUSH_GROUPTRANSACTION_TYPE
-        ) &&
-        $this->hasPostData(
-            'brq_statuscode',
-            $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED')
-        );
+                'brq_transaction_type',
+                self::BUCK_PUSH_GROUPTRANSACTION_TYPE
+            ) &&
+            $this->hasPostData(
+                'brq_statuscode',
+                $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED')
+            );
     }
 
 
@@ -2215,9 +2240,9 @@ class Push implements PushInterface
             $order->addCommentToStatusHistory(
                 __($historyComment)
             )
-            ->setIsCustomerNotified(false)
-            ->setEntityName('invoice')
-            ->save();
+                ->setIsCustomerNotified(false)
+                ->setEntityName('invoice')
+                ->save();
         }
     }
 
@@ -2282,12 +2307,12 @@ class Push implements PushInterface
     public function isCanceledGroupTransaction()
     {
         return $this->hasPostData(
-            'brq_transaction_type',
-            self::BUCK_PUSH_GROUPTRANSACTION_TYPE
-        ) &&
-        $this->hasPostData(
-            'brq_statuscode',
-            $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER')
-        );
+                'brq_transaction_type',
+                self::BUCK_PUSH_GROUPTRANSACTION_TYPE
+            ) &&
+            $this->hasPostData(
+                'brq_statuscode',
+                $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER')
+            );
     }
 }
