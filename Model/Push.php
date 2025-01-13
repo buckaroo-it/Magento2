@@ -1600,20 +1600,16 @@ class Push implements PushInterface
             $order->setState(Order::STATE_PROCESSING);
             $order->setStatus(Order::STATE_PROCESSING);
 
-            // If some items in the order got canceled (refunded or otherwise),
-            // and you want to reopen them as well, set qty_canceled back to 0:
             foreach ($order->getAllItems() as $item) {
                 if ($item->getQtyCanceled() > 0) {
                     $item->setQtyCanceled(0);
                 }
             }
 
-            // Add a comment so you know it was re-opened via Klarna push:
             $order->addStatusHistoryComment(
                 __('Order was re-opened from canceled state after a successful Klarna push.')
             );
 
-            // Finally, save your changes to the order:
             $order->save();
         }
     }
