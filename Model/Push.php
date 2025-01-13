@@ -1595,14 +1595,27 @@ class Push implements PushInterface
 
     protected function updateTransactionIsClosed($order)
     {
-        $connection = $this->resourceConnection->getConnection();
-        $transactionTable = $connection->getTableName('sales_payment_transaction');
+        if ($order->getState() === Order::STATE_CANCELED
+        ) {
+            $order->setState(Order::STATE_PROCESSING);
+            $order->setStatus(Order::STATE_PROCESSING);
 
-        $connection->update(
-            $transactionTable,
-            ['is_closed' => 0],
-            ['order_id = ?' => $order->getId()]
-        );
+            // If some items in the order got canceled (refunded or otherwise),
+            // and you want to reopen them as well, set qty_canceled back to 0:
+            foreach ($order->getAllItems() as $item) {
+                if ($item->getQtyCanceled() > 0) {
+                    $item->setQtyCanceled(0);
+                }
+            }
+
+            // Add a comment so you know it was re-opened via Klarna push:
+            $order->addStatusHistoryComment(
+                __('Order was re-opened from canceled state after a successful Klarna push.')
+            );
+
+            // Finally, save your changes to the order:
+            $order->save();
+        }
     }
 
     /**
