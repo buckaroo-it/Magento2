@@ -1291,9 +1291,8 @@ class Push implements PushInterface
         ) {
             $this->logging->addDebug(__METHOD__ . '|2|');
 
-            if (isset($this->postData['brq_service_klarnakp_reservationnumber'])){
-                $this->updateTransactionIsClosed($this->order);
-            }
+            $this->order->setState(Order::STATE_NEW);
+            $this->order->setStatus('pending');
 
             foreach ($this->order->getAllItems() as $item) {
                 $item->setQtyCanceled(0);
