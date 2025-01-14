@@ -983,10 +983,6 @@ class Push implements PushInterface
                 $this->processFailedPush($newStatus, $response['message']);
                 break;
             case 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS':
-                if ($payment->getMethod() === \Buckaroo\Magento2\Model\Method\Klarnakp::PAYMENT_METHOD_CODE) {
-                    $this->reopenCanceledOrder($this->order);
-                }
-
                 if ($this->order->getPayment()->getMethod() == Paypal::PAYMENT_METHOD_CODE) {
                     $paypalConfig = $this->configProviderMethodFactory
                         ->get(Paypal::PAYMENT_METHOD_CODE);
@@ -1011,53 +1007,6 @@ class Push implements PushInterface
                 $this->processPendingPaymentPush($newStatus, $response['message']);
                 break;
         }
-    }
-
-    protected function reopenCanceledOrder(Order $order)
-    {
-        // 1) Re-open order state/status
-        $order->setState(Order::STATE_PROCESSING);
-        $order->setStatus(Order::STATE_PROCESSING);
-
-        // 2) Reset canceled item qty so they are invoiceable
-        foreach ($order->getAllItems() as $item) {
-            if ($item->getQtyCanceled() > 0) {
-                $item->setQtyCanceled(0);
-            }
-        }
-
-        $order->addStatusHistoryComment(
-            __('Order re-opened from canceled state after a successful push/payment.')
-        );
-        $order->save();
-
-        // 3) Re-open the payment + transaction(s)
-        $payment = $order->getPayment();
-        if ($payment) {
-            // Payment object should not forcibly close the transaction
-            $payment->setIsTransactionClosed(false);
-            $payment->setShouldCloseParentTransaction(false);
-            $payment->save();
-        }
-
-        // If you only have one transaction, use getLastTransId():
-        if ($payment && $payment->getLastTransId()) {
-            try {
-                $transaction = $this->transactionRepository->getByTransactionId(
-                    $payment->getLastTransId(),
-                    $order->getId(),
-                    $order->getStoreId()
-                );
-                if ($transaction && $transaction->getId()) {
-                    $transaction->setIsClosed(false); // same as 0
-                    $this->transactionRepository->save($transaction);
-                }
-            } catch (\Exception $e) {
-                $this->logging->addError(__METHOD__ . '| Could not re-open transaction: ' . $e->getMessage());
-            }
-        }
-
-        $this->logging->addDebug(__METHOD__ . '| Re-opened order #' . $order->getIncrementId());
     }
 
     public function processCm3Push()
@@ -1342,8 +1291,9 @@ class Push implements PushInterface
         ) {
             $this->logging->addDebug(__METHOD__ . '|2|');
 
-            $this->order->setState(Order::STATE_NEW);
-            $this->order->setStatus('pending');
+            if (isset($this->postData['brq_service_klarnakp_reservationnumber'])){
+                $this->updateTransactionIsClosed($this->order);
+            }
 
             foreach ($this->order->getAllItems() as $item) {
                 $item->setQtyCanceled(0);
@@ -1463,9 +1413,9 @@ class Push implements PushInterface
             $this->order->save();
         }
 
-//        if (isset($this->postData['brq_service_klarnakp_reservationnumber'])){
-//            $this->updateTransactionIsClosed($this->order);
-//        }
+        if (isset($this->postData['brq_service_klarnakp_reservationnumber'])){
+            $this->updateTransactionIsClosed($this->order);
+        }
 
         $store = $this->order->getStore();
 
