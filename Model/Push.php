@@ -1611,56 +1611,47 @@ class Push implements PushInterface
 
     protected function updateTransactionIsClosed(Order $order)
     {
-
         // 1) Re-open the order
         $this->logging->addDebug(__METHOD__ . '| Re-opening canceled order ID: ' . $order->getId());
 
-        $order->setState(Order::STATE_PROCESSING);
-        $order->setStatus(Order::STATE_PROCESSING);
-
-        // 2) Restore any canceled item quantities
+        // 2) Switch to "processing" (or "pending") and reset canceled item quantities
+        $order->setState(Order::STATE_PROCESSING)->setStatus(Order::STATE_PROCESSING);
         foreach ($order->getAllItems() as $item) {
             if ($item->getQtyCanceled() > 0) {
                 $item->setQtyCanceled(0);
             }
         }
-
-        // 3) Add a history comment
         $order->addStatusHistoryComment(
             __('Order was re-opened from canceled state after a successful Klarna push.')
         );
-
-        // 4) Save the order before we fix up transactions
         $order->save();
-        $this->logging->addDebug(__METHOD__ . '| Reopened order saved. Now re-opening transactions...');
 
-        // 5) Load all transactions for this order and set is_closed=0
+        // 3) Re-open the payment object
+        $payment = $order->getPayment();
+        if ($payment) {
+            // Force Magento to see the parent transaction as still "open"
+            $payment->setIsTransactionClosed(false);
+            $payment->setShouldCloseParentTransaction(false);
+            $payment->save();
+        }
+
+        // 4) Load all transactions for this order and set is_closed=0
+        //    (You can do it for just the lastTransId if you know there's only one.)
         try {
-            $filters = [
-                $this->filterBuilder
-                    ->setField('order_id')
-                    ->setValue($order->getId())
-                    ->setConditionType('eq')
-                    ->create()
-            ];
             $searchCriteria = $this->searchCriteriaBuilder
-                ->addFilters($filters)
+                ->addFilter('order_id', $order->getId())
                 ->create();
-
             $transactionList = $this->transactionRepository->getList($searchCriteria);
 
             foreach ($transactionList->getItems() as $txn) {
                 if ($txn->getIsClosed()) {
-                    $this->logging->addDebug(
-                        __METHOD__ . '| Setting is_closed=0 for transaction ID: ' . $txn->getTransactionId()
-                    );
                     $txn->setIsClosed(0);
                     $this->transactionRepository->save($txn);
+                    $this->logging->addDebug(__METHOD__ . '|Re-open transaction ' . $txn->getTxnId());
                 }
             }
-
         } catch (\Exception $e) {
-            $this->logging->addError(__METHOD__ . '| Could not re-open transactions: ' . $e->getMessage());
+            $this->logging->addError(__METHOD__ . '|Could not re-open transactions: ' . $e->getMessage());
         }
     }
 
