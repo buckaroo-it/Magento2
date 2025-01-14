@@ -1263,10 +1263,11 @@ class Push implements PushInterface
         /**
          * Types of statusses
          */
-        $completedStateAndStatus = [Order::STATE_COMPLETE, Order::STATE_COMPLETE];
-        $cancelledStateAndStatus = [Order::STATE_CANCELED, Order::STATE_CANCELED];
-        $holdedStateAndStatus    = [Order::STATE_HOLDED, Order::STATE_HOLDED];
-        $closedStateAndStatus    = [Order::STATE_CLOSED, Order::STATE_CLOSED];
+        $completedStateAndStatus  = [Order::STATE_COMPLETE, Order::STATE_COMPLETE];
+        $cancelledStateAndStatus  = [Order::STATE_CANCELED, Order::STATE_CANCELED];
+        $holdedStateAndStatus     = [Order::STATE_HOLDED, Order::STATE_HOLDED];
+        $closedStateAndStatus     = [Order::STATE_CLOSED, Order::STATE_CLOSED];
+        $processingStateAndStatus = [Order::STATE_PROCESSING, Order::STATE_PROCESSING];
         /**
          * Get current state and status of order
          */
@@ -1280,6 +1281,7 @@ class Push implements PushInterface
             && $cancelledStateAndStatus != $currentStateAndStatus
             && $holdedStateAndStatus != $currentStateAndStatus
             && $closedStateAndStatus != $currentStateAndStatus
+            && $processingStateAndStatus != $currentStateAndStatus
         ) {
             return true;
         }
