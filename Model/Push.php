@@ -48,6 +48,9 @@ use Magento\Framework\Filesystem\DirectoryList;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\Webapi\Rest\Request;
 use Magento\Sales\Api\Data\TransactionInterface;
+use Magento\Sales\Api\TransactionRepositoryInterface;
+use Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\Framework\Api\FilterBuilder;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
@@ -165,7 +168,14 @@ class Push implements PushInterface
      */
     protected LockManagerWrapper $lockManager;
 
+    protected TransactionRepositoryInterface $transactionRepository;
+    protected SearchCriteriaBuilder $searchCriteriaBuilder;
+    protected FilterBuilder $filterBuilder;
+
     /**
+     * @param TransactionRepositoryInterface $transactionRepository
+     * @param SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param FilterBuilder $filterBuilder
      * @param Order $order
      * @param TransactionInterface $transaction
      * @param Request $request
@@ -188,6 +198,9 @@ class Push implements PushInterface
      * @param LockManagerWrapper $lockManager
      */
     public function __construct(
+        TransactionRepositoryInterface $transactionRepository,
+        SearchCriteriaBuilder $searchCriteriaBuilder,
+        FilterBuilder $filterBuilder,
         Order $order,
         TransactionInterface $transaction,
         Request $request,
@@ -209,6 +222,9 @@ class Push implements PushInterface
         File $fileSystemDriver,
         LockManagerWrapper $lockManager
     ) {
+        $this->transactionRepository       = $transactionRepository;
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->filterBuilder = $filterBuilder;
         $this->order                       = $order;
         $this->transaction                 = $transaction;
         $this->request                     = $request;
@@ -1593,24 +1609,58 @@ class Push implements PushInterface
         return true;
     }
 
-    protected function updateTransactionIsClosed($order)
+    protected function updateTransactionIsClosed(Order $order)
     {
-        if ($order->getState() === Order::STATE_CANCELED
-        ) {
-            $order->setState(Order::STATE_PROCESSING);
-            $order->setStatus(Order::STATE_PROCESSING);
 
-            foreach ($order->getAllItems() as $item) {
-                if ($item->getQtyCanceled() > 0) {
-                    $item->setQtyCanceled(0);
+        // 1) Re-open the order
+        $this->logging->addDebug(__METHOD__ . '| Re-opening canceled order ID: ' . $order->getId());
+
+        $order->setState(Order::STATE_PROCESSING);
+        $order->setStatus(Order::STATE_PROCESSING);
+
+        // 2) Restore any canceled item quantities
+        foreach ($order->getAllItems() as $item) {
+            if ($item->getQtyCanceled() > 0) {
+                $item->setQtyCanceled(0);
+            }
+        }
+
+        // 3) Add a history comment
+        $order->addStatusHistoryComment(
+            __('Order was re-opened from canceled state after a successful Klarna push.')
+        );
+
+        // 4) Save the order before we fix up transactions
+        $order->save();
+        $this->logging->addDebug(__METHOD__ . '| Reopened order saved. Now re-opening transactions...');
+
+        // 5) Load all transactions for this order and set is_closed=0
+        try {
+            $filters = [
+                $this->filterBuilder
+                    ->setField('order_id')
+                    ->setValue($order->getId())
+                    ->setConditionType('eq')
+                    ->create()
+            ];
+            $searchCriteria = $this->searchCriteriaBuilder
+                ->addFilters($filters)
+                ->create();
+
+            $transactionList = $this->transactionRepository->getList($searchCriteria);
+
+            foreach ($transactionList->getItems() as $txn) {
+                if ($txn->getIsClosed()) {
+                    $this->logging->addDebug(
+                        __METHOD__ . '| Setting is_closed=0 for transaction ID: ' . $txn->getTransactionId()
+                    );
+                    $txn->setIsClosed(0);
+                    $this->transactionRepository->save($txn);
                 }
             }
 
-            $order->addStatusHistoryComment(
-                __('Order was re-opened from canceled state after a successful Klarna push.')
-            );
-
-            $order->save();
+        } catch (\Exception $e) {
+            $this->logging->addError(__METHOD__ . '| Could not re-open transactions: ' . $e->getMessage());
         }
     }
 
