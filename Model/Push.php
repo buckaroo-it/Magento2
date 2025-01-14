@@ -1474,27 +1474,10 @@ class Push implements PushInterface
                 //Fix for suspected fraud when the order currency does not match with the payment's currency
                 $amount = ($payment->isSameCurrency() && $payment->isCaptureFinal($this->order->getGrandTotal())) ?
                     $this->order->getGrandTotal() : $this->order->getBaseTotalDue();
-                try {
-                    $payment->registerCaptureNotification($amount);
-                    $payment->save();
-                } catch (\Exception $e) {
-                    if (
-                        strpos($e->getMessage(), 'FullyCaptured') !== false
-                        || strpos($e->getMessage(), 'reservation has status "FullyCaptured"') !== false
-                    ) {
-                        $this->logging->addDebug(__METHOD__ . '|Skipping second capture: already fully captured.');
 
-                        // 2) Create the invoice as “offline”
-                        //    so Magento doesn’t re-attempt capture, but DOES mark the invoice as paid.
-                        $invoice = $this->createOfflineInvoice($payment);
+                $payment->registerCaptureNotification($amount);
+                $payment->save();
 
-                        // 3) Done. Return or break.
-                        return true;
-                    }
-
-                    // If it’s some other error, re-throw so you see it.
-                    throw $e;
-                }
                 $this->order->setState('complete');
                 $this->order->addStatusHistoryComment($description, 'complete');
                 $this->order->save();
@@ -1884,8 +1867,28 @@ class Push implements PushInterface
             $amount = ($payment->isSameCurrency()
                 && $payment->isCaptureFinal($this->order->getGrandTotal())) ?
                 $this->order->getGrandTotal() : $this->order->getBaseTotalDue();
-            $payment->registerCaptureNotification($amount);
-            $payment->save();
+
+            try {
+                $payment->registerCaptureNotification($amount);
+                $payment->save();
+            } catch (\Exception $e) {
+                if (
+                    strpos($e->getMessage(), 'FullyCaptured') !== false
+                    || strpos($e->getMessage(), 'reservation has status "FullyCaptured"') !== false
+                ) {
+                    $this->logging->addDebug(__METHOD__ . '|Skipping second capture: already fully captured.');
+
+                    // 2) Create the invoice as “offline”
+                    //    so Magento doesn’t re-attempt capture, but DOES mark the invoice as paid.
+                    $invoice = $this->createOfflineInvoice($payment);
+
+                    // 3) Done. Return or break.
+                    return true;
+                }
+
+                // If it’s some other error, re-throw so you see it.
+                throw $e;
+            }
         }
 
         $this->logging->addDebug(__METHOD__ . '|20|');
