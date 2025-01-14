@@ -1474,10 +1474,8 @@ class Push implements PushInterface
                 //Fix for suspected fraud when the order currency does not match with the payment's currency
                 $amount = ($payment->isSameCurrency() && $payment->isCaptureFinal($this->order->getGrandTotal())) ?
                     $this->order->getGrandTotal() : $this->order->getBaseTotalDue();
-
                 $payment->registerCaptureNotification($amount);
                 $payment->save();
-
                 $this->order->setState('complete');
                 $this->order->addStatusHistoryComment($description, 'complete');
                 $this->order->save();
@@ -1610,47 +1608,6 @@ class Push implements PushInterface
 
         return true;
     }
-
-    private function createOfflineInvoice(\Magento\Sales\Model\Order\Payment $payment)
-    {
-        // Make sure the order can still invoice:
-        $order = $payment->getOrder();
-        if (!$order->canInvoice()) {
-            $this->logging->addDebug(__METHOD__ . '|Cannot invoice, maybe already invoiced?');
-            return null;
-        }
-
-        // Create an Invoice object
-        $invoice = $order->prepareInvoice();
-        if (!$invoice || !$invoice->getId()) {
-            $this->logging->addDebug(__METHOD__ . '|No invoice was created, or no items found');
-            return null;
-        }
-
-        // Mark as offline capture
-        $invoice->setRequestedCaptureCase(\Magento\Sales\Model\Order\Invoice::CAPTURE_OFFLINE);
-
-        // Register, save, etc.
-        $invoice->register(); // Tells Magento we are finalizing it
-        $invoice->setTransactionId($this->getTransactionKey()); // optional
-        $invoice->pay(); // Mark it as paid in full
-
-        // Force the order to be in-process
-        $order->setIsInProcess(true);
-
-        // Save via transaction
-        $transaction = $this->objectManager->create(\Magento\Framework\DB\Transaction::class);
-        $transaction->addObject($invoice)->addObject($order)->save();
-
-        // Optionally send the invoice email if that’s your normal flow
-        if ($this->configAccount->getInvoiceEmail($order->getStore()) && !$invoice->getEmailSent()) {
-            $this->invoiceSender->send($invoice, true);
-        }
-
-        $this->logging->addDebug(__METHOD__ . '|Created OFFLINE invoice for already captured order ID: ' . $order->getIncrementId());
-        return $invoice;
-    }
-
 
     protected function updateTransactionIsClosed(Order $order)
     {
@@ -1867,28 +1824,8 @@ class Push implements PushInterface
             $amount = ($payment->isSameCurrency()
                 && $payment->isCaptureFinal($this->order->getGrandTotal())) ?
                 $this->order->getGrandTotal() : $this->order->getBaseTotalDue();
-
-            try {
-                $payment->registerCaptureNotification($amount);
-                $payment->save();
-            } catch (\Exception $e) {
-                if (
-                    strpos($e->getMessage(), 'FullyCaptured') !== false
-                    || strpos($e->getMessage(), 'reservation has status "FullyCaptured"') !== false
-                ) {
-                    $this->logging->addDebug(__METHOD__ . '|Skipping second capture: already fully captured.');
-
-                    // 2) Create the invoice as “offline”
-                    //    so Magento doesn’t re-attempt capture, but DOES mark the invoice as paid.
-                    $invoice = $this->createOfflineInvoice($payment);
-
-                    // 3) Done. Return or break.
-                    return true;
-                }
-
-                // If it’s some other error, re-throw so you see it.
-                throw $e;
-            }
+            $payment->registerCaptureNotification($amount);
+            $payment->save();
         }
 
         $this->logging->addDebug(__METHOD__ . '|20|');
