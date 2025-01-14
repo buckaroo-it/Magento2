@@ -37,19 +37,35 @@ class HtmlTransactionIdObserver implements ObserverInterface
         /** @var \Magento\Sales\Model\Order\Payment\Transaction $transaction */
         $transaction = $observer->getDataObject();
         $order = $transaction->getOrder();
-        $txnIdArray =explode("-",$transaction->getTxnId());
+        $txnIdArray = explode("-", $transaction->getTxnId());
         $txnId = reset($txnIdArray);
-       if ($this->isBuckarooPayment($order->getPayment()) && $txnId !== false) {
-            $transaction->setData('html_txn_id', 
-            sprintf(
-                '<a href="https://plaza.buckaroo.nl/Transaction/Transactions/Details?transactionKey=%s" target="_blank">%s</a>',
-                $txnId,
-                $transaction->getTxnId()
-            )
-        );
-       }
+        $methods = [
+            'buckaroo_magento2_emandate',
+            'buckaroo_magento2_klarnakp'
+        ];
+        if ($this->isBuckarooPayment($order->getPayment()) && $txnId !== false) {
+            if(in_array($order->getPayment()->getMethod(), $methods)) {
+                $transaction->setData('html_txn_id',
+                    sprintf(
+                        '<a href="https://plaza.buckaroo.nl/Transaction/DataRequest/Details/%s" target="_blank">%s</a>',
+                        $txnId,
+                        $transaction->getTxnId()
+                    )
+                );
+                return;
+            }
+            $transaction->setData('html_txn_id',
+                sprintf(
+                    '<a href="https://plaza.buckaroo.nl/Transaction/Transactions/Details?transactionKey=%s" target="_blank">%s</a>',
+                    $txnId,
+                    $transaction->getTxnId()
+                )
+            );
+
+        }
     }
-     /**
+
+    /**
      * Is one of our payment methods
      *
      * @param OrderPaymentInterface|null $payment
@@ -59,7 +75,7 @@ class HtmlTransactionIdObserver implements ObserverInterface
     public function isBuckarooPayment($payment)
     {
         if (!$payment instanceof OrderPaymentInterface) {
-           return false;
+            return false;
         }
         return strpos($payment->getMethod(), 'buckaroo_magento2') !== false;
     }
