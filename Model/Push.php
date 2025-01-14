@@ -1281,7 +1281,7 @@ class Push implements PushInterface
             && $cancelledStateAndStatus != $currentStateAndStatus
             && $holdedStateAndStatus != $currentStateAndStatus
             && $closedStateAndStatus != $currentStateAndStatus
-            && $processingStateAndStatus != $currentStateAndStatus
+            && $processingStateAndStatus[0] != $currentStateAndStatus[0]
         ) {
             return true;
         }
