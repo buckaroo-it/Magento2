@@ -266,6 +266,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
      */
     private function isInvoiceCreatedAfterShipment(OrderPaymentInterface $payment): bool
     {
+        $this->logger->addDebug(json_encode($payment->getAdditionalInformation()) . '|additional infooooo|');
         return $payment->getAdditionalInformation(
                 InvoiceHandlingOptions::INVOICE_HANDLING
             ) == InvoiceHandlingOptions::SHIPMENT;
