@@ -142,7 +142,7 @@ class Account extends AbstractConfigProvider
             'order_status_failed'               => $this->getOrderStatusFailed($store),
             'create_order_before_transaction'   => $this->getCreateOrderBeforeTransaction($store),
             'ip_header'                         => $this->getIpHeader($store),
-            'cart_keep_alive'                   => $this->getCartKeepAlive($store),//can be changed from cli/db only
+            'cart_keep_alive'                   => true,
             'selection_type'                    => $this->getSelectionType($store),
             'customer_additional_info'          => $this->getCustomerAdditionalInfo($store),
             'buckaroo_fee_tax_class'            => $this->getBuckarooFeeTaxClass($store),

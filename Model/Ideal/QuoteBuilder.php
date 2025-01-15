@@ -17,6 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Ideal;
 
 use Magento\Customer\Model\Group;
@@ -64,11 +65,12 @@ class QuoteBuilder implements QuoteBuilderInterface
     protected $quote;
 
     public function __construct(
-        QuoteFactory $quoteFactory,
+        QuoteFactory               $quoteFactory,
         ProductRepositoryInterface $productRepository,
-        DataObjectFactory $dataObjectFactory,
-        CustomerSession $customer
-    ) {
+        DataObjectFactory          $dataObjectFactory,
+        CustomerSession            $customer
+    )
+    {
         $this->quoteFactory = $quoteFactory;
         $this->productRepository = $productRepository;
         $this->dataObjectFactory = $dataObjectFactory;
@@ -80,6 +82,7 @@ class QuoteBuilder implements QuoteBuilderInterface
     {
         $this->formData = $this->formatFormData($formData);
     }
+
     /**
      * Build quote from form data and session without persisting it
      *
@@ -88,6 +91,7 @@ class QuoteBuilder implements QuoteBuilderInterface
     public function build()
     {
         $this->quote = $this->quoteFactory->create();
+        $this->quote->setIsCheckoutCart(true);
         $this->addProduct();
         $this->setUser();
         return $this->quote;
@@ -111,6 +115,7 @@ class QuoteBuilder implements QuoteBuilderInterface
                 ->setCustomerGroupId(Group::NOT_LOGGED_IN_ID);
         }
     }
+
     /**
      * Add product to quote
      *
@@ -134,7 +139,8 @@ class QuoteBuilder implements QuoteBuilderInterface
             throw new IdealException($exceptionMessage, 1);
         }
     }
-/**
+
+    /**
      * Format form data
      *
      * @param string $form_data
