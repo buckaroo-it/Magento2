@@ -26,6 +26,7 @@ if ($block->canShowButton('Cart')): ?>
             <img src="<?= $block->escapeHtml($block->getLogo()) ?>" alt="<?= __('Ideal Fast Checkout') ?>"/>
         </button>
     </div>
+
     <script type="text/x-magento-init">
         {
             "#fast-checkout-ideal-btn-component": {
@@ -39,7 +40,7 @@ if ($block->canShowButton('Cart')): ?>
                                 "paymentData": {
                                     "method": "buckaroo_magento2_ideal",
                                     "additional_data": {
-                                        "issuer" : "fastcheckout"
+                                        "issuer": "fastcheckout"
                                     }
                                 }
                             }
