@@ -182,8 +182,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
         $this->logger->addDebug('|before last iff|');
         $this->logger->addDebug(json_encode($order) . '|ordeeeer info|');
         $this->logger->addDebug(json_encode($this->isInvoiceCreatedAfterShipment($payment)) . '|is invoice created after shipment|');
-        if (strpos($paymentMethodCode, 'buckaroo_magento2') !== false
-            && $this->isInvoiceCreatedAfterShipment($payment)) {
+        if (strpos($paymentMethodCode, 'buckaroo_magento2') !== false) {
             $this->logger->addDebug('|inside last iff|');
             $this->logger->addDebug($paymentMethod->getConfigPaymentAction() .'|config payment action|');
             if ($paymentMethod->getConfigPaymentAction() == 'authorize') {
