@@ -174,7 +174,6 @@ class SaveOrder extends Common
                                 ];
                             }
                         }
-                        $this->_redirect($shortUrl, []);
                     }
                 }
             }
