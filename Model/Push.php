@@ -1936,7 +1936,7 @@ class Push implements PushInterface
          */
         $payment->setParentTransactionId($transactionKey);
         $payment->setAdditionalInformation(
-            \Buckaroo\Magento2\Model\Method\AbstractMethod::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY,
+            AbstractMethod::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY,
             $transactionKey
         );
 
