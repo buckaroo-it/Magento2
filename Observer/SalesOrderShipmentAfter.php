@@ -183,8 +183,8 @@ class SalesOrderShipmentAfter implements ObserverInterface
         $this->logger->addDebug(strpos($paymentMethodCode, 'buckaroo_magento2') . "ALBINAA");
         $this->logger->addDebug(strpos($paymentMethodCode, 'buckaroo_magento2') != false . "AAAAAAAAA");
         $this->logger->addDebug(json_encode($order) . '|ordeeeer info|');
-        $this->logger->addDebug(json_encode($this->isInvoiceCreatedAfterShipment($payment)) . '|is invoice created after shipment|');
-        if (strpos($paymentMethodCode, 'buckaroo_magento2') != false) {
+//        $this->logger->addDebug(json_encode($this->isInvoiceCreatedAfterShipment($payment)) . '|is invoice created after shipment|');
+        if (strpos($paymentMethodCode, 'buckaroo_magento2')) {
             $this->logger->addDebug('|inside last iff|');
             $this->logger->addDebug($paymentMethod->getConfigPaymentAction() .'|config payment action|');
             if ($paymentMethod->getConfigPaymentAction() == 'authorize') {
@@ -267,7 +267,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
      */
     private function isInvoiceCreatedAfterShipment(OrderPaymentInterface $payment): bool
     {
-        $this->logger->addDebug(json_encode($payment->getAdditionalInformation()) . '|additional infooooo|');
+//        $this->logger->addDebug(json_encode($payment->getAdditionalInformation()) . '|additional infooooo|');
         return $payment->getAdditionalInformation(
                 InvoiceHandlingOptions::INVOICE_HANDLING
             ) == InvoiceHandlingOptions::SHIPMENT;
