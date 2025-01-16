@@ -58,6 +58,7 @@ use Magento\Sales\Model\Order\Payment\Transaction;
 use Magento\Framework\Filesystem\Driver\File;
 
 
+
 class Push implements PushInterface
 {
     const BUCK_PUSH_CANCEL_AUTHORIZE_TYPE = 'I014';
@@ -1892,25 +1893,32 @@ class Push implements PushInterface
         /**
          * Save the transaction's response as additional info for the transaction.
          */
-        $postData = $datas ?: $this->postData;
-        $this->logging->addDebug(json_encode($postData) . '|pushhh - post dataaaa|');
-        $rawInfo  = $this->helper->getTransactionAdditionalInfo($postData);
-        $this->logging->addDebug(json_encode($rawInfo) . '|pushhh - raw infoo|');
+//        $postData = $datas ?: $this->postData;
+//        $this->logging->addDebug(json_encode($postData) . '|pushhh - post dataaaa|');
+//        $rawInfo  = $this->helper->getTransactionAdditionalInfo($postData);
+//        $this->logging->addDebug(json_encode($rawInfo) . '|pushhh - raw infoo|');
+
+
+        if (!$datas) {
+            $rawDetails = $payment->getAdditionalInformation(Transaction::RAW_DETAILS);
+            $rawInfo = $rawDetails[$transactionKey] ?? [];
+        } else {
+            $rawInfo = $this->helper->getTransactionAdditionalInfo($datas);
+        }
 
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
-        $payment->setTransactionAdditionalInfo(
-            Transaction::RAW_DETAILS,
-            $rawInfo
-        );
+        $payment->setTransactionAdditionalInfo(Transaction::RAW_DETAILS, $rawInfo);
 
-        $rawDetails = $payment->getAdditionalInformation(Transaction::RAW_DETAILS);
-        $this->logging->addDebug(json_encode($rawDetails) . '|pushhh - raw detailssss|');
+//        $rawDetails = $payment->getAdditionalInformation(PaymentTransaction::RAW_DETAILS);
+//        $this->logging->addDebug(json_encode($rawDetails) . '|pushhh - raw detailssss|');
 
-        $rawDetails = $rawDetails ?: [];
-        $rawDetails[$transactionKey] = $rawInfo;
-        $payment->setAdditionalInformation(Transaction::RAW_DETAILS, $rawDetails);
+//        $payment->setParentTransactionId($transactionKey);
+
+//        $rawDetails = $rawDetails ?: [];
+//        $rawDetails[$transactionKey] = $rawInfo;
+//        $payment->setAdditionalInformation(Transaction::RAW_DETAILS, $rawInfo);
 
         /**
          * Save the payment's transaction key.
