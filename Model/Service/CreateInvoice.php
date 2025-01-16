@@ -135,7 +135,7 @@ class CreateInvoice
 
         $transactionSave->save();
 
-        $this->registry->unregister('current_invoice');
+//        $this->registry->unregister('current_invoice');
 
         $payment = $invoice->getOrder()->getPayment();
 
