@@ -128,6 +128,8 @@ class SaveOrder extends Common
 
                 $payment = $quote->getPayment();
                 $payment->setMethod(Applepay::PAYMENT_METHOD_CODE);
+                $quote->setPayment($payment);
+
 
                 $invoiceHandlingConfig = $this->configAccount->getInvoiceHandling($this->order->getStore());
 
