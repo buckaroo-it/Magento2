@@ -80,6 +80,7 @@ class SetTransactionOnInvoiceObserver implements ObserverInterface
         $paymentMethod = $payment->getMethod();
 
         if (strpos($paymentMethod, 'buckaroo_magento2_') !== false &&
+            $this->isInvoiceCreatedAfterShipment($payment) &&
             empty($invoice->getTransactionId()) &&
             empty($payment->getTransactionId())
         ) {
