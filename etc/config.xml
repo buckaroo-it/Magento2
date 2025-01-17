@@ -168,7 +168,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Mrcash</model>
                 <order_status>pending</order_status>
-                <title>Bancontact/Mister Cash</title>
+                <title>Bancontact</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>140</sort_order>
                 <order_email>1</order_email>
@@ -423,7 +423,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Billink</model>
                 <order_status>pending</order_status>
-                <title>Billink - achteraf betalen</title>
+                <title>Billink</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>240</sort_order>
                 <order_email>1</order_email>
