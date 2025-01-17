@@ -58,7 +58,6 @@ use Magento\Sales\Model\Order\Payment\Transaction;
 use Magento\Framework\Filesystem\Driver\File;
 
 
-
 class Push implements PushInterface
 {
     const BUCK_PUSH_CANCEL_AUTHORIZE_TYPE = 'I014';
@@ -1773,7 +1772,6 @@ class Push implements PushInterface
          */
 
         if (!$this->isGroupTransactionInfoType()) {
-            $this->logging->addDebug(__METHOD__ . '|inside if is not group transaction|');
             $this->addTransactionData();
         }
 
@@ -1781,9 +1779,7 @@ class Push implements PushInterface
          * @var \Magento\Sales\Model\Order\Payment $payment
          */
         $payment = $this->order->getPayment();
-        $this->logging->addDebug(json_encode($payment) . '|pushhh - payment|');
         $invoiceHandlingConfig = $this->configAccount->getInvoiceHandling($this->order->getStore());
-        $this->logging->addDebug(json_encode($invoiceHandlingConfig) . '|pushhh - invoice handling config|');
 
         if ($invoiceHandlingConfig == InvoiceHandlingOptions::SHIPMENT) {
             $payment->setAdditionalInformation(InvoiceHandlingOptions::INVOICE_HANDLING, $invoiceHandlingConfig);
@@ -1882,9 +1878,7 @@ class Push implements PushInterface
          */
         $payment = $this->order->getPayment();
 
-        $this->logging->addDebug(json_encode($payment) . '|pushhh - add transaction dataaaa|');
         $transactionKey = $transactionKey ?: $this->getTransactionKey();
-        $this->logging->addDebug(json_encode($transactionKey) . '|pushhh - transaction key|');
 
         if (strlen($transactionKey) <= 0) {
             throw new \Buckaroo\Magento2\Exception(__('There was no transaction ID found'));
@@ -1893,32 +1887,21 @@ class Push implements PushInterface
         /**
          * Save the transaction's response as additional info for the transaction.
          */
-//        $postData = $datas ?: $this->postData;
-//        $this->logging->addDebug(json_encode($postData) . '|pushhh - post dataaaa|');
-//        $rawInfo  = $this->helper->getTransactionAdditionalInfo($postData);
-//        $this->logging->addDebug(json_encode($rawInfo) . '|pushhh - raw infoo|');
-
-
-        if (!$datas) {
-            $rawDetails = $payment->getAdditionalInformation(Transaction::RAW_DETAILS);
-            $rawInfo = $rawDetails[$transactionKey] ?? [];
-        } else {
-            $rawInfo = $this->helper->getTransactionAdditionalInfo($datas);
-        }
+        $postData = $datas ?: $this->postData;
+        $rawInfo  = $this->helper->getTransactionAdditionalInfo($postData);
 
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
-        $payment->setTransactionAdditionalInfo(Transaction::RAW_DETAILS, $rawInfo);
+        $payment->setTransactionAdditionalInfo(
+            Transaction::RAW_DETAILS,
+            $rawInfo
+        );
 
-//        $rawDetails = $payment->getAdditionalInformation(PaymentTransaction::RAW_DETAILS);
-//        $this->logging->addDebug(json_encode($rawDetails) . '|pushhh - raw detailssss|');
-
-//        $payment->setParentTransactionId($transactionKey);
-
-//        $rawDetails = $rawDetails ?: [];
-//        $rawDetails[$transactionKey] = $rawInfo;
-//        $payment->setAdditionalInformation(Transaction::RAW_DETAILS, $rawInfo);
+        $rawDetails = $payment->getAdditionalInformation(Transaction::RAW_DETAILS);
+        $rawDetails = $rawDetails ?: [];
+        $rawDetails[$transactionKey] = $rawInfo;
+        $payment->setAdditionalInformation(Transaction::RAW_DETAILS, $rawDetails);
 
         /**
          * Save the payment's transaction key.
@@ -1936,7 +1919,7 @@ class Push implements PushInterface
          */
         $payment->setParentTransactionId($transactionKey);
         $payment->setAdditionalInformation(
-            AbstractMethod::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY,
+            \Buckaroo\Magento2\Model\Method\AbstractMethod::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY,
             $transactionKey
         );
 

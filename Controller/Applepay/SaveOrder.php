@@ -167,15 +167,14 @@ class SaveOrder extends Common
 
                             if ($this->order->getId()) {
                                 $this->checkoutSession
-                                    ->setLastOrderId($this->order->getId())
                                     ->setLastQuoteId($this->order->getQuoteId())
                                     ->setLastSuccessQuoteId($this->order->getQuoteId())
+                                    ->setLastOrderId($this->order->getId())
                                     ->setLastRealOrderId($this->order->getIncrementId())
                                     ->setLastOrderStatus($this->order->getStatus());
 
                                 $store = $this->order->getStore();
-                                $shortUrl = $this->accountConfig->getSuccessRedirect($store);
-                                $url = $store->getBaseUrl() . '/' .$shortUrl ;
+                                $url = $store->getBaseUrl() . '/' . $this->accountConfig->getSuccessRedirect($store) ;
                                 $this->logger->addDebug(__METHOD__.'|7|'.var_export($url, true));
                                 $data = [
                                     'RequiredAction' => [
