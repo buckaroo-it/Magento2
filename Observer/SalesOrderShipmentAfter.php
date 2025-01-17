@@ -154,14 +154,11 @@ class SalesOrderShipmentAfter implements ObserverInterface
         $paymentMethodCode = $paymentMethod->getCode();
 
         $this->logger->addDebug(__METHOD__ . '|1|');
-        $this->logger->addDebug($paymentMethodCode . '|Method code|');
-        $this->logger->addDebug(__METHOD__ . '|1|');
 
 
         if (($paymentMethodCode == 'buckaroo_magento2_klarnakp')
             && $this->klarnakpConfig->getCreateInvoiceAfterShipment()
         ) {
-            $this->logger->addDebug('|klarna kppp|');
             $this->gateway->setMode(
                 $this->helper->getMode('buckaroo_magento2_klarnakp')
             );
@@ -172,26 +169,21 @@ class SalesOrderShipmentAfter implements ObserverInterface
             && $this->afterpayConfig->getCreateInvoiceAfterShipment()
             && ($paymentMethod->getConfigPaymentAction() == 'authorize')
         ) {
-            $this->logger->addDebug('|afterpay 20000|');
             $this->gateway->setMode(
                 $this->helper->getMode('buckaroo_magento2_afterpay20')
             );
             $this->createInvoice($order, $shipment, true);
         }
 
-        $this->logger->addDebug('|before last iff|');
-        $this->logger->addDebug(strpos($paymentMethodCode, 'buckaroo_magento2') . "ALBINAA");
-        $this->logger->addDebug(strpos($paymentMethodCode, 'buckaroo_magento2') != false . "AAAAAAAAA");
-        $this->logger->addDebug(json_encode($order) . '|ordeeeer info|');
-//        $this->logger->addDebug(json_encode($this->isInvoiceCreatedAfterShipment($payment)) . '|is invoice created after shipment|');
+        $this->logger->addDebug($paymentMethodCode . "payment method code");
+        $this->logger->addDebug(strpos($paymentMethodCode, 'buckaroo_magento2') != false . "strpos result");
+        $this->logger->addDebug($this->isInvoiceCreatedAfterShipment($payment) . "isinvoicecreatedaftershipment result");
+
+
         if ($this->isInvoiceCreatedAfterShipment($payment)) {
-            $this->logger->addDebug('|inside last iff|');
-            $this->logger->addDebug($paymentMethod->getConfigPaymentAction() .'|config payment action|');
             if ($paymentMethod->getConfigPaymentAction() == 'authorize') {
-                $this->logger->addDebug('|inside second iff|');
                 $this->createInvoice($order, $shipment, true);
             } else {
-                $this->logger->addDebug('|inside elseeee|');
                 $this->createInvoiceService->createInvoiceGeneralSetting($order, $invoiceItems);
             }
         }
@@ -267,7 +259,6 @@ class SalesOrderShipmentAfter implements ObserverInterface
      */
     private function isInvoiceCreatedAfterShipment(OrderPaymentInterface $payment): bool
     {
-//        $this->logger->addDebug(json_encode($payment->getAdditionalInformation()) . '|additional infooooo|');
         return $payment->getAdditionalInformation(
                 InvoiceHandlingOptions::INVOICE_HANDLING
             ) == InvoiceHandlingOptions::SHIPMENT;
