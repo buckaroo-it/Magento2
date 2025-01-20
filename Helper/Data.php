@@ -300,6 +300,17 @@ class Data extends AbstractHelper
         }
     }
 
+    public function getConfigCardSort()
+    {
+        $configValue = $this->scopeConfig->getValue(
+            'payment/buckaroo_magento2_creditcard/sorted_issuers',
+            $this->scopeDefiner->getScope(),
+            ($this->scopeDefiner->getScope() == ScopeInterface::SCOPE_WEBSITES) ? $this->storeManager->getStore() : null
+        );
+
+        return $configValue;
+    }
+
     public function getConfigGiftCardsSort()
     {
         $configValue = $this->scopeConfig->getValue(
@@ -422,7 +433,8 @@ class Data extends AbstractHelper
             ['value' => 'applepay',       'label' => __('Apple Pay')],
             ['value' => 'billink',       'label' => __('Billink')],
             ['value' => 'capayablein3',       'label' => __('In3')],
-            ['value' => 'creditcards',       'label' => __('Credit and debit cards')],
+            ['value' => 'creditcard',       'label' => __('Credit and debit cards')],
+            ['value' => 'creditcards',       'label' => __('Credit and debit cards (Client sided)')],
             ['value' => 'emandate',       'label' => __('Digital Debit Authorization')],
             ['value' => 'eps',       'label' => __('EPS')],
             ['value' => 'giftcards',       'label' => __('Giftcards')],

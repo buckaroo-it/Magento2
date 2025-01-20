@@ -38,14 +38,14 @@ class Creditcard extends \Buckaroo\Magento2\Block\Info
     protected $mpiStatus;
 
     /**
-     * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcards
+     * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard
      */
     protected $configProvider;
 
     /**
      * @var string
      */
-    protected $_template = 'Buckaroo_Magento2::info/creditcards.phtml';
+    protected $_template = 'Buckaroo_Magento2::info/creditcard.phtml';
 
     public function __construct(
         \Magento\Framework\View\Element\Template\Context $context,
@@ -54,7 +54,7 @@ class Creditcard extends \Buckaroo\Magento2\Block\Info
         Repository $assetRepo,
         UrlInterface $baseUrl,
         array $data = [],
-        \Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcards $configProvider = null
+        \Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard $configProvider = null
     ) {
         parent::__construct($context, $groupTransaction, $giftcardCollection, $assetRepo, $baseUrl, $data);
         $this->configProvider = $configProvider;
