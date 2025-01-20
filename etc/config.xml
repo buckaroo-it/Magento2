@@ -42,6 +42,7 @@
                 <model>Buckaroo\Magento2\Model\Method\Ideal</model>
                 <order_status>pending</order_status>
                 <title>iDEAL</title>
+                <default>iDEAL</default>
                 <allowspecific>0</allowspecific>
                 <sort_order>10</sort_order>
                 <order_email>1</order_email>
