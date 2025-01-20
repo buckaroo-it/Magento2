@@ -37,6 +37,7 @@ class Toolbar
         'buckaroo_magento2_billink',
         'buckaroo_magento2_payperemail',
         'buckaroo_magento2_paylink',
+        'buckaroo_magento2_creditcard',
         'buckaroo_magento2_creditcards',
         'buckaroo_magento2_ideal',
         'buckaroo_magento2_idealprocessing',

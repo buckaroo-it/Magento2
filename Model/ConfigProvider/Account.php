@@ -252,7 +252,7 @@ class Account extends AbstractConfigProvider
         if ($label === null) {
             return $store->getName();
         }
-
+        
         $label = preg_replace('/\{order_number\}/', $order->getIncrementId(), $label);
         $label = preg_replace('/\{shop_name\}/', $store->getName(), $label);
 

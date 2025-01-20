@@ -26,11 +26,11 @@ use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Model\Order\Payment;
 use Buckaroo\Magento2\Gateway\Http\TransactionBuilder\Order;
 use Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory;
-use Buckaroo\Magento2\Model\Method\Creditcards;
+use Buckaroo\Magento2\Model\Method\Creditcard;
 
 class CreditcardTest extends \Buckaroo\Magento2\Test\BaseTest
 {
-    protected $instanceClass = Creditcards::class;
+    protected $instanceClass = Creditcard::class;
 
     /**
      * Test the assignData method.
@@ -57,7 +57,7 @@ class CreditcardTest extends \Buckaroo\Magento2\Test\BaseTest
         $instance->setData('info_instance', $infoInstanceMock);
 
         $result = $instance->assignData($data);
-        $this->assertInstanceOf(Creditcards::class, $result);
+        $this->assertInstanceOf(Creditcard::class, $result);
     }
 
     /**
@@ -150,7 +150,7 @@ class CreditcardTest extends \Buckaroo\Magento2\Test\BaseTest
         $paymentMock->expects($this->once())->method('getOrder')->willReturn($fixture['order']);
         $paymentMock->expects($this->exactly(2))
             ->method('getAdditionalInformation')
-            ->withConsecutive(['card_type'], [Creditcards::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY])
+            ->withConsecutive(['card_type'], [Creditcard::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY])
             ->willReturnOnConsecutiveCalls($fixture['card_type'], $fixture['transaction_key']);
 
         $orderMock = $this->getFakeMock(Order::class)
@@ -242,7 +242,7 @@ class CreditcardTest extends \Buckaroo\Magento2\Test\BaseTest
         $paymentMock->expects($this->once())->method('getOrder')->willReturn($fixture['order']);
         $paymentMock->expects($this->exactly(2))
             ->method('getAdditionalInformation')
-            ->withConsecutive(['card_type'], [Creditcards::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY])
+            ->withConsecutive(['card_type'], [Creditcard::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY])
             ->willReturnOnConsecutiveCalls($fixture['card_type'], 'getAdditionalInformation');
 
         $trxFactoryMock = $this->getFakeMock(TransactionBuilderFactory::class)
@@ -258,7 +258,7 @@ class CreditcardTest extends \Buckaroo\Magento2\Test\BaseTest
             ->willReturnSelf();
         $trxFactoryMock->expects($this->once())->method('setServices')->willReturnCallback(
             function ($services) use ($trxFactoryMock) {
-                $services['Name'] = 'creditcards';
+                $services['Name'] = 'creditcard';
                 $services['Action'] = 'Refund';
 
                 return $trxFactoryMock;

@@ -42,6 +42,9 @@
         <method name="buckaroo_magento2_payconiq">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
+        <method name="buckaroo_magento2_creditcard">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
         <method name="buckaroo_magento2_creditcards">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
