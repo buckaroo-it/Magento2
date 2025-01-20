@@ -77,7 +77,7 @@ define(
                     // Check for error field in response
                     if (response.error) {
                         // Display the error message in the observable
-                        this.oauthTokenError("An error occurred, please try another payment method or try again later.");
+                        this.oauthTokenError("Error getting OAuth token.");
                     } else {
                         const accessToken = response.data.access_token;
                         const issuers = response.data.issuers;
@@ -86,7 +86,7 @@ define(
                     }
                 } catch (error) {
                     // Catch any other errors (e.g., network issues)
-                    this.oauthTokenError("An error occurred, please try another payment method or try again later.");
+                    this.oauthTokenError("Error getting OAuth token.");
                 }
             },
 
@@ -132,7 +132,7 @@ define(
                             let disabled = !sdkClient.formIsValid();
                             payButton.disabled = disabled;
                             if (disabled) {
-                                payButton.style.backgroundColor = "";
+                                payButton.style.backgroundColor = "#ff5555";
                                 payButton.style.cursor = "not-allowed";
                                 payButton.style.opacity = "0.5";
                             } else {
@@ -148,8 +148,8 @@ define(
                     let cardLogoStyling = {
                         height:"80%",
                         position: 'absolute',
-                        border: '1px solid #d6d6d6',
-                        borderRadius: "4px",
+                        border: '1px soli gray',
+                        radius: '5px',
                         opacity:'1',
                         transition:'all 0.3s ease',
                         right:'5px',
@@ -159,18 +159,11 @@ define(
                     // Define styling and mount hosted fields as needed...
                     let styling = {
                         fontSize: "14px",
-                        fontStyle: "normal",
-                        fontWeight: 400,
-                        fontFamily: 'Open Sans, Helvetica Neue, Helvetica, Arial, sans-serif',
+                        fontFamily: 'Consolas, Liberation Mono, Menlo, Courier, monospace',
                         textAlign: 'left',
-                        background: '#fefefe',
-                        color: '#333333',
-                        placeholderColor: '#888888',
-                        borderRadius: '5px',
-                        padding: '8px 10px',
-                        boxShadow: 'none',
-                        transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
-                        border: '1px solid #d6d6d6',
+                        background: 'inherit',
+                        color: 'black',
+                        placeholderColor: 'grey',
                         cardLogoStyling: cardLogoStyling
                     };
 
