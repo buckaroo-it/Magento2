@@ -1277,7 +1277,7 @@ class Push implements PushInterface
         /**
          * If the types are not the same and the order can receive an invoice the order can be udpated by BPE.
          */
-        if ($completedStateAndStatus != $currentStateAndStatus
+        if ($completedStateAndStatus[0] != $currentStateAndStatus[0]
             && $cancelledStateAndStatus != $currentStateAndStatus
             && $holdedStateAndStatus != $currentStateAndStatus
             && $closedStateAndStatus != $currentStateAndStatus
