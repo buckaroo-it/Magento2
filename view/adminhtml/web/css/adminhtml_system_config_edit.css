@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 /* ==================== Buckaroo / Buckaroo -  Navigation Logo - Top Menu ==================== */
 .buckaroo-config-page .page-main-actions .page-actions .page-actions-inner:after {
     background-image: url(../images/buckaroo_small.png) !important;
@@ -125,15 +126,20 @@ h3.bk-h3 {
    padding: 0;
 }
 a.bk-btn {
-    background: #d2ce27;
-    padding: 5px 10px;
-    border-radius: 5px;
-    color: #fff;
-    display: inline-block;
+    font-weight: 600;
+    padding: 15px 15px;
+    display: inline-flex;
+    justify-content: center;
+    background: #CDF564;
+    border-radius: 30px;
+    color: #000;
+    white-space: nowrap;
+    font-family: 'Poppins', sans-serif;
 }
 a.bk-btn:hover {
-    text-decoration:none;
-    color: #fefefe;
+    background: #163255;
+    color: #CDF564;
+    text-decoration: none;
 }
 .bk-flex {
     display: flex;
