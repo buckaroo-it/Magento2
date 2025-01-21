@@ -1,14 +1,14 @@
 /* ==================== Buckaroo / Buckaroo -  Navigation Logo - Top Menu ==================== */
 .buckaroo-config-page .page-main-actions .page-actions .page-actions-inner:after {
-    background-image: url(../images/buckaroo_config_logo_black.png) !important;
+    background-image: url(../images/buckaroo_small.png) !important;
     background-repeat: no-repeat;
     content: ' ';
 
     width: 160px;
     float: right;
     height: 30px;
-    margin-top: 8px;
-    background-size: auto 29px;
+    margin-top: 12px;
+    background-size: auto 20px;
 
     /*
     * Remove _beta if extension isn't beta anymore.
@@ -32,7 +32,7 @@
     height: 100%;
     width: 100%;
     content: ' ';
-    background-image: url(../images/buckaroo_small_black.png) !important;
+    background-image: url(../images/buckaroo_small.png) !important;
     background-repeat: no-repeat;
     background-size: auto 15px;
  }
@@ -42,14 +42,14 @@
 /* ======================= Identity ======================= */
 
 .buckaroo-config-page #container:before  {
-    background-image: url(../images/buckaroo_config_logo_black.png) !important;
+    background-image: url(../images/buckaroo_small.png) !important;
     background-repeat: no-repeat;
     content: ' ';
 
     float:left;
-    height: 50px;
-    background-size: auto 50px;
-     width: 295px;
+    height: 35px;
+    background-size: auto 30px;
+     width: 300px;
 }
 
 /* ==================== Buckaroo Active/Inactive Payments Feedback ==================== */
