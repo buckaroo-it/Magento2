@@ -45,7 +45,6 @@ class PayLink implements \Magento\Framework\Option\ArrayInterface
             ['value' => 'mastercard',             'label' => __('Mastercard')],
             ['value' => 'paypal',                 'label' => __('PayPal')],
             ['value' => 'sepadirectdebit',        'label' => __('SEPA Direct Debit')],
-            ['value' => 'sofortueberweisung',     'label' => __('Sofort Banking')],
             ['value' => 'belfius',                'label' => __('Belfius')],
             ['value' => 'visa',                   'label' => __('Visa')],
             ['value' => 'visaelectron',           'label' => __('Visa Electron')],

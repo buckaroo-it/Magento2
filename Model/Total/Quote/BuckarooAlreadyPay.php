@@ -104,7 +104,6 @@ class BuckarooAlreadyPay extends AbstractTotal
                     }
                 }
             } catch (\Exception $e) {
-                // $this->logger->error($e->getMessage());
             }
         }
 

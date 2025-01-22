@@ -636,10 +636,6 @@
             font-size: 12px;
             flex: 100% 0 0;
     }
-    .bk-paybybank-selector .bank-method-label img {
-        padding: 10px 20px;
-    }
-
     .fieldset > .field .addon .bk-paybybank-selector .bank-method-input {
         display:none;
     }

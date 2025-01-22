@@ -29,9 +29,6 @@ define([
         },
         getTitle: function () {
             return this.title;
-        },
-        getFormattedPrice: function (price) {
-            return priceUtils.formatPrice(price, quote.getPriceFormat());
         }
     });
 });

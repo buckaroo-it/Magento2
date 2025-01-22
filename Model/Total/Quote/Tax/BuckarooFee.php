@@ -1,5 +1,4 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
@@ -21,93 +20,179 @@
 
 namespace Buckaroo\Magento2\Model\Total\Quote\Tax;
 
-use Magento\Catalog\Helper\Data;
-use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
+use Magento\Customer\Api\AccountManagementInterface as CustomerAccountManagement;
+use Magento\Customer\Api\Data\AddressInterfaceFactory as CustomerAddressFactory;
+use Magento\Customer\Api\Data\RegionInterfaceFactory as CustomerAddressRegionFactory;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
-use Magento\Tax\Model\Calculation as TaxModelCalculation;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Service\BuckarooFee\Calculate;
+use Magento\Quote\Api\Data\ShippingAssignmentInterface;
+use Magento\Quote\Model\Quote;
+use Magento\Quote\Model\Quote\Address\Total;
+use Magento\Tax\Api\Data\QuoteDetailsInterfaceFactory;
+use Magento\Tax\Api\Data\QuoteDetailsItemExtensionInterfaceFactory;
+use Magento\Tax\Api\Data\QuoteDetailsItemInterfaceFactory;
+use Magento\Tax\Api\Data\TaxClassKeyInterface;
+use Magento\Tax\Api\Data\TaxClassKeyInterfaceFactory;
+use Magento\Tax\Api\TaxCalculationInterface;
+use Magento\Tax\Helper\Data as TaxHelper;
+use Magento\Tax\Model\Config as TaxConfig;
 use Magento\Tax\Model\Sales\Total\Quote\CommonTaxCollector;
-use Buckaroo\Magento2\Model\ConfigProvider\Account as ConfigProviderAccount;
-use Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee as ConfigProviderBuckarooFee;
+use Buckaroo\Magento2\Service\BuckarooFee\Result;
 
-class BuckarooFee extends \Buckaroo\Magento2\Model\Total\Quote\BuckarooFee
+class BuckarooFee extends CommonTaxCollector
 {
-    const QUOTE_TYPE = 'buckaroo_fee';
-    const CODE_QUOTE_GW = 'buckaroo_fee';
+    const QUOTE_TYPE = 'buckaroo_fee_tax';
+    const CODE_QUOTE_GW = 'buckaroo_fee_tax';
 
     /**
-     * @param ConfigProviderAccount     $configProviderAccount
-     * @param ConfigProviderBuckarooFee $configProviderBuckarooFee
-     * @param Factory                   $configProviderMethodFactory
-     * @param PriceCurrencyInterface    $priceCurrency
-     * @param Data                      $catalogHelper
+     * @var PriceCurrencyInterface
+     */
+    protected $priceCurrency;
+
+    /**
+     * @var PaymentGroupTransaction
+     */
+    protected $groupTransaction;
+
+    /**
+     * @var Calculate
+     */
+    protected $calculate;
+
+    /**
+     * @var \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee
+     */
+    protected $configProviderBuckarooFee;
+
+    /**
+     * @var TaxHelper|null
+     */
+    protected $taxHelper;
+
+    /**
+     * Constructor
+     *
+     * @param TaxConfig $taxConfig
+     * @param TaxCalculationInterface $taxCalculationService
+     * @param QuoteDetailsInterfaceFactory $quoteDetailsDataObjectFactory
+     * @param QuoteDetailsItemInterfaceFactory $quoteDetailsItemDataObjectFactory
+     * @param TaxClassKeyInterfaceFactory $taxClassKeyDataObjectFactory
+     * @param CustomerAddressFactory $customerAddressFactory
+     * @param CustomerAddressRegionFactory $customerAddressRegionFactory
+     * @param PriceCurrencyInterface $priceCurrency
+     * @param PaymentGroupTransaction $groupTransaction
+     * @param Calculate $calculate
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee
+     * @param TaxHelper|null $taxHelper
+     * @param QuoteDetailsItemExtensionInterfaceFactory|null $quoteDetailsItemExtensionInterfaceFactory
+     * @param CustomerAccountManagement|null $customerAccountManagement
      */
     public function __construct(
-        ConfigProviderAccount $configProviderAccount,
-        ConfigProviderBuckarooFee $configProviderBuckarooFee,
-        Factory $configProviderMethodFactory,
+        TaxConfig $taxConfig,
+        TaxCalculationInterface $taxCalculationService,
+        QuoteDetailsInterfaceFactory $quoteDetailsDataObjectFactory,
+        QuoteDetailsItemInterfaceFactory $quoteDetailsItemDataObjectFactory,
+        TaxClassKeyInterfaceFactory $taxClassKeyDataObjectFactory,
+        CustomerAddressFactory $customerAddressFactory,
+        CustomerAddressRegionFactory $customerAddressRegionFactory,
         PriceCurrencyInterface $priceCurrency,
-        Data $catalogHelper,
         PaymentGroupTransaction $groupTransaction,
-        Log $logging,
-        TaxModelCalculation $taxCalculation
+        Calculate $calculate,
+        \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
+        TaxHelper $taxHelper = null,
+        QuoteDetailsItemExtensionInterfaceFactory $quoteDetailsItemExtensionInterfaceFactory = null,
+        ?CustomerAccountManagement $customerAccountManagement = null
     ) {
-        parent::__construct(
-            $configProviderAccount,
-            $configProviderBuckarooFee,
-            $configProviderMethodFactory,
-            $priceCurrency,
-            $catalogHelper,
-            $groupTransaction,
-            $logging,
-            $taxCalculation
-        );
+        $parent = new \ReflectionClass(parent::class);
+        $parentConstructor = $parent->getConstructor();
+
+        // The parent call fails when running setup:di:compile in 2.4.3 and lower due to an extra parameter.
+        if ($parentConstructor->getNumberOfParameters() == 9) {
+            // @phpstan-ignore-next-line
+            parent::__construct(
+                $taxConfig,
+                $taxCalculationService,
+                $quoteDetailsDataObjectFactory,
+                $quoteDetailsItemDataObjectFactory,
+                $taxClassKeyDataObjectFactory,
+                $customerAddressFactory,
+                $customerAddressRegionFactory,
+                $taxHelper,
+                $quoteDetailsItemExtensionInterfaceFactory
+            );
+        } else {
+            // @phpstan-ignore-next-line
+            parent::__construct(
+                $taxConfig,
+                $taxCalculationService,
+                $quoteDetailsDataObjectFactory,
+                $quoteDetailsItemDataObjectFactory,
+                $taxClassKeyDataObjectFactory,
+                $customerAddressFactory,
+                $customerAddressRegionFactory,
+                $taxHelper,
+                $quoteDetailsItemExtensionInterfaceFactory,
+                $customerAccountManagement
+            );
+        }
+
+        $this->priceCurrency = $priceCurrency;
+        $this->groupTransaction = $groupTransaction;
+        $this->calculate = $calculate;
+        $this->configProviderBuckarooFee = $configProviderBuckarooFee;
+        $this->taxHelper = $taxHelper;
         $this->setCode('pretax_buckaroo_fee');
     }
 
     /**
-     * Collect buckaroo fee related items and add them to tax calculation
+     * Collect Buckaroo fee related items and add them to tax calculation
      *
-     * @param  \Magento\Quote\Model\Quote                          $quote
-     * @param  \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment
-     * @param  \Magento\Quote\Model\Quote\Address\Total            $total
+     * @param  Quote $quote
+     * @param  ShippingAssignmentInterface $shippingAssignment
+     * @param  Total $total
      * @return $this
      */
     public function collect(
-        \Magento\Quote\Model\Quote $quote,
-        \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment,
-        \Magento\Quote\Model\Quote\Address\Total $total
+        Quote $quote,
+        ShippingAssignmentInterface $shippingAssignment,
+        Total $total
     ) {
         if (!$shippingAssignment->getItems()) {
+            parent::collect($quote, $shippingAssignment, $total);
             return $this;
         }
-
-        $paymentMethod = $quote->getPayment()->getMethod();
-        if (!$paymentMethod || strpos($paymentMethod, 'buckaroo_magento2_') !== 0) {
-            return $this;
-        }
-
-        $methodInstance = $quote->getPayment()->getMethodInstance();
-        if (!$methodInstance instanceof \Buckaroo\Magento2\Model\Method\AbstractMethod) {
-            return $this;
-        }
-
         $orderId = $quote->getReservedOrderId();
 
+        // Check if already paid amount is affecting the calculation
         if ($this->groupTransaction->getAlreadyPaid($orderId) > 0) {
             return $this;
         }
 
-        $basePaymentFee = $this->getBaseFee($methodInstance, $quote, true);
+        $result = $this->calculate->calculatePaymentFee($quote, $total);
 
-        if ($basePaymentFee < 0.01) {
+        if ($result === null){
             return $this;
         }
 
-        $paymentFee = $this->priceCurrency->convert($basePaymentFee, $quote->getStore());
+        $this->addAssociatedTaxable($shippingAssignment, $result, $quote);
 
-        $productTaxClassId = $this->configProviderBuckarooFee->getTaxClass($quote->getStore());
+        parent::collect($quote, $shippingAssignment, $total);
+
+        return $this;
+    }
+
+    /**
+     * Add associated taxable for Buckaroo fee
+     *
+     * @param ShippingAssignmentInterface $shippingAssignment
+     * @param Result $result
+     * @param Quote $quote
+     * @return void
+     */
+    private function addAssociatedTaxable(ShippingAssignmentInterface $shippingAssignment, Result $result, Quote $quote)
+    {
+        $fullAmount = $this->priceCurrency->convert($result->getRoundedAmount());
 
         $address = $shippingAssignment->getShipping()->getAddress();
         /**
@@ -118,23 +203,25 @@ class BuckarooFee extends \Buckaroo\Magento2\Model\Total\Quote\BuckarooFee
             $associatedTaxables = [];
         }
 
+        // Retrieve the store from the quote
+        $store = $quote->getStore();
+
+        // Retrieve the Buckaroo fee tax class ID from BuckarooFeeConfigProvider using the store
+        $taxClassId = $this->configProviderBuckarooFee->getBuckarooFeeTaxClass($store);
         $associatedTaxables[] = [
             CommonTaxCollector::KEY_ASSOCIATED_TAXABLE_TYPE => self::QUOTE_TYPE,
             CommonTaxCollector::KEY_ASSOCIATED_TAXABLE_CODE => self::CODE_QUOTE_GW,
-            CommonTaxCollector::KEY_ASSOCIATED_TAXABLE_UNIT_PRICE => $paymentFee,
-            CommonTaxCollector::KEY_ASSOCIATED_TAXABLE_BASE_UNIT_PRICE => $basePaymentFee,
+            CommonTaxCollector::KEY_ASSOCIATED_TAXABLE_UNIT_PRICE => $fullAmount,
+            CommonTaxCollector::KEY_ASSOCIATED_TAXABLE_BASE_UNIT_PRICE => $result->getRoundedAmount(),
             CommonTaxCollector::KEY_ASSOCIATED_TAXABLE_QUANTITY => 1,
-            CommonTaxCollector::KEY_ASSOCIATED_TAXABLE_TAX_CLASS_ID => $productTaxClassId,
-            CommonTaxCollector::KEY_ASSOCIATED_TAXABLE_PRICE_INCLUDES_TAX => true,
-            CommonTaxCollector::KEY_ASSOCIATED_TAXABLE_ASSOCIATION_ITEM_CODE
-            => CommonTaxCollector::ASSOCIATION_ITEM_CODE_FOR_QUOTE,
+            CommonTaxCollector::KEY_ASSOCIATED_TAXABLE_TAX_CLASS_ID => $taxClassId,
+            CommonTaxCollector::KEY_ASSOCIATED_TAXABLE_PRICE_INCLUDES_TAX => false,
+            CommonTaxCollector::KEY_ASSOCIATED_TAXABLE_ASSOCIATION_ITEM_CODE => CommonTaxCollector::ASSOCIATION_ITEM_CODE_FOR_QUOTE,
         ];
 
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
         $address->setAssociatedTaxables($associatedTaxables);
-
-        return $this;
     }
 }

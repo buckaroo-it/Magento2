@@ -57,9 +57,6 @@
         <method name="buckaroo_magento2_mrcash">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
-        <method name="buckaroo_magento2_sofortbanking">
-            <allow_multiple_address>0</allow_multiple_address>
-        </method>
         <method name="buckaroo_magento2_belfius">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
