@@ -60,7 +60,10 @@ class Eps extends AbstractMethod
             'Version'          => 1,
         ];
 
-        $payment->setAdditionalInformation('skip_push', 1);
+        $store = $transactionBuilder->getOrder()->getStore();
+        if ($this->getConfigData('active', $store) == 1){
+            $payment->setAdditionalInformation('skip_push', 2);
+        }
 
         /**
          * @noinspection PhpUndefinedMethodInspection
