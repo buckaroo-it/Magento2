@@ -51,9 +51,6 @@
         <method name="buckaroo_magento2_transfer">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
-        <method name="buckaroo_magento2_giropay">
-            <allow_multiple_address>0</allow_multiple_address>
-        </method>
         <method name="buckaroo_magento2_mrcash">
             <allow_multiple_address>0</allow_multiple_address>
         </method>

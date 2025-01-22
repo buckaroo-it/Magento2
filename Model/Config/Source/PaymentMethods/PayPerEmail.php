@@ -71,11 +71,6 @@ class PayPerEmail implements \Magento\Framework\Option\ArrayInterface
                 'code' => 'buckaroo_magento2_giftcards'
             ],
             [
-                'value' => 'giropay',
-                'label' => __('Giropay'),
-                'code' => 'buckaroo_magento2_giropay'
-            ],
-            [
                 'value' => 'ideal',
                 'label' => __('iDEAL'),
                 'code' => 'buckaroo_magento2_ideal'
