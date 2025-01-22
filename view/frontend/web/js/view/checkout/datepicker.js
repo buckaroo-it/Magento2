@@ -18,10 +18,42 @@
  */
 define(
     [
-        'jquery'
+        'jquery',
+        'jquery/ui',
+        'mage/translate'
     ],
     function ($) {
         'use strict';
+
+        const translations = {
+            dayNamesMin: [
+                $.mage.__('Su'),
+                $.mage.__('Mo'),
+                $.mage.__('Tu'),
+                $.mage.__('We'),
+                $.mage.__('Th'),
+                $.mage.__('Fr'),
+                $.mage.__('Sa')
+            ],
+            monthNamesShort: [
+                $.mage.__('Jan'),
+                $.mage.__('Feb'),
+                $.mage.__('Mar'),
+                $.mage.__('Apr'),
+                $.mage.__('May'),
+                $.mage.__('Jun'),
+                $.mage.__('Jul'),
+                $.mage.__('Aug'),
+                $.mage.__('Sep'),
+                $.mage.__('Okt'),
+                $.mage.__('Nov'),
+                $.mage.__('Dec')
+            ]
+        };
+        $.datepicker.setDefaults({
+            dayNamesMin: translations.dayNamesMin,
+            monthNamesShort: translations.monthNamesShort
+        });
 
         return {
             addPickerClass(input, inst) {
