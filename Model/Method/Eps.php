@@ -60,8 +60,6 @@ class Eps extends AbstractMethod
             'Version'          => 1,
         ];
 
-        $payment->setAdditionalInformation('skip_push', 1);
-
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
