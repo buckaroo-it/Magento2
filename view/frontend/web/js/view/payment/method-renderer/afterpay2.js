@@ -169,8 +169,7 @@ define(
                     this.showFinancialWarning = ko.computed(
                         function () {
                             return quote.billingAddress() !== null &&
-                            quote.billingAddress().countryId == 'NL' &&
-                            window.checkoutConfig.payment.buckaroo.afterpay2.showFinancialWarning
+                            quote.billingAddress().countryId == 'NL'
                         },
                         this
                     );
@@ -269,7 +268,7 @@ define(
                             ]
                         )
                     }
-                    
+
                     return fields;
                 },
 
@@ -357,17 +356,22 @@ define(
                         if (country === 'BE') {
                             lang = 'be_nl';
                         }
-    
+
                         if (['NL','DE'].indexOf(country) !== -1) {
                             lang = `${cc}_${cc}`;
                         }
 
-                        if (['AT','DK', 'FI', 'SE', 'CH', 'NO'].indexOf(country) !== -1) {
+                        if (['AT', 'CH'].indexOf(country) !== -1) {
+                            const cc = country.toLowerCase()
+                            lang = `${cc}_de`;
+                        }
+
+                        if (['DK', 'FI', 'SE', 'NO'].indexOf(country) !== -1) {
                             const cc = country.toLowerCase()
                             lang = `${cc}_en`;
                         }
                     }
-                   
+
                     if (businessMethod == BUSINESS_METHOD_B2B && ['NL', 'DE', 'AT', 'CH'].indexOf(country) !== -1) {
                         url = 'https://documents.riverty.com/terms_conditions/payment_methods/b2b_invoice';
                         if (['NL', 'DE'].indexOf(country) !== -1) {
@@ -375,7 +379,7 @@ define(
                         }
 
                         if (['AT', 'CH'].indexOf(country) !== -1) {
-                            lang = `${cc}_en`;
+                            lang = `${cc}_de`;
                         }
                     }
 

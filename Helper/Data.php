@@ -261,6 +261,11 @@ class Data extends AbstractHelper
         return $this->groupTransaction->getGroupTransactionOriginalTransactionKey($orderId);
     }
 
+    public function getAlreadyPaid()
+    {
+        return $this->groupTransaction->getAlreadyPaid($this->getOrderId());
+    }
+
     public function getOrderId()
     {
         $orderId = $this->_checkoutSession->getQuote()->getReservedOrderId();
@@ -433,14 +438,13 @@ class Data extends AbstractHelper
             ['value' => 'emandate',       'label' => __('Digital Debit Authorization')],
             ['value' => 'eps',       'label' => __('EPS')],
             ['value' => 'giftcards',       'label' => __('Giftcards')],
-            ['value' => 'giropay',       'label' => __('Giropay')],
             ['value' => 'ideal',       'label' => __('iDEAL')],
             ['value' => 'idealprocessing',       'label' => __('iDEAL Processing')],
             ['value' => 'kbc',       'label' => __('KBC')],
             ['value' => 'klarna',       'label' => __('Klarna Pay later (pay)')],
             ['value' => 'klarnain',       'label' => __('Klarna Slice it')],
             ['value' => 'klarnakp',       'label' => __('Klarna Pay later (authorize/capture)')],
-            ['value' => 'mrcash',       'label' => __('Bancontact / Mister Cash')],
+            ['value' => 'mrcash',       'label' => __('Bancontact')],
             ['value' => 'p24',       'label' => __('Przelewy24')],
             ['value' => 'payconiq',       'label' => __('Payconiq')],
             ['value' => 'paylink',       'label' => __('PayLink')],
@@ -448,7 +452,6 @@ class Data extends AbstractHelper
             ['value' => 'payperemail',       'label' => __('PayPerEmail')],
             ['value' => 'pospayment',       'label' => __('Point of Sale')],
             ['value' => 'sepadirectdebit',       'label' => __('SEPA direct debit')],
-            ['value' => 'sofortbanking',       'label' => __('SOFORT')],
             ['value' => 'belfius',       'label' => __('Belfius')],
             ['value' => 'transfer',       'label' => __('Bank Transfer')],
             ['value' => 'trustly',       'label' => __('Trustly')],

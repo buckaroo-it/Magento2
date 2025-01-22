@@ -168,6 +168,14 @@ define(
                         ]
                     );
 
+                    this.isB2B = ko.computed(
+                        function () {
+                            const billingAddress = quote.billingAddress();
+                            return billingAddress && billingAddress.company;
+                        },
+                        this
+                    );
+
                     this.showFinancialWarning = ko.computed(
                         function () {
                             return quote.billingAddress() !== null &&
@@ -307,11 +315,6 @@ define(
                     checkoutData.setSelectedPaymentMethod(this.item.method);
 
                     return true;
-                },
-
-                isB2B: function () {
-                    const billingAddress = quote.billingAddress();
-                    return billingAddress && billingAddress.company;
                 },
 
                 getData: function () {

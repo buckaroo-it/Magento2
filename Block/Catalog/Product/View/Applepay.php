@@ -21,6 +21,7 @@ namespace Buckaroo\Magento2\Block\Catalog\Product\View;
 
 use Magento\Checkout\Model\Cart;
 use Magento\Checkout\Model\CompositeConfigProvider;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay as ApplepayConfig;
@@ -58,13 +59,22 @@ class Applepay extends Template
     }
 
     /**
+     * @param $page
      * @return bool
+     * @throws NoSuchEntityException
      */
-    public function canShowButton($page)
+    public function canShowButton($page): bool
     {
-        return $this->isModuleActive() &&
-            in_array($page, $this->applepayConfigProvider->getAvailableButtons()) &&
-            $this->applepayConfigProvider->isApplePayEnabled($this->_storeManager->getStore());
+        if (!$this->isModuleActive()) {
+            return false;
+        }
+
+        $availableButtons = $this->applepayConfigProvider->getAvailableButtons();
+        if (!in_array($page, $availableButtons, true)) {
+            return false;
+        }
+
+        return $this->applepayConfigProvider->isApplePayEnabled($this->_storeManager->getStore());
     }
 
     /**

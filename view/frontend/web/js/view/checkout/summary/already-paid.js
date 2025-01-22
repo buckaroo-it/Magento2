@@ -34,9 +34,6 @@ define([
             }
 
             return parseFloat(buckarooFeeSegment.value).toFixed(2);
-        },
-        getFormattedPrice: function (price) {
-            return priceUtils.formatPrice(price, quote.getPriceFormat());
         }
     });
 });

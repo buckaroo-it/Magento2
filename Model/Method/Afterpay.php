@@ -771,18 +771,15 @@ class Afterpay extends AbstractMethod
     protected function getTaxCategory($order)
     {
         $storeId = (int) $order->getStoreId();
-        $taxClassId = $this->configProviderBuckarooFee->getTaxClass($storeId);
+        $taxClassId = $this->configProviderBuckarooFee->getBuckarooFeeTaxClass($order->getStore());
 
         $taxCategory = 4;
 
         if (!$taxClassId) {
             return $taxCategory;
         }
-        /**
-         * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay $afterPayConfig
-         */
-        $afterPayConfig = $this->configProviderMethodFactory
-            ->get($this->_code);
+
+        $afterPayConfig = $this->configProviderMethodFactory->get($this->_code);
 
         $highClasses   = explode(',', (string)$afterPayConfig->getHighTaxClasses($storeId));
         $middleClasses = explode(',', (string)$afterPayConfig->getMiddleTaxClasses($storeId));
@@ -798,7 +795,6 @@ class Afterpay extends AbstractMethod
         } elseif (in_array($taxClassId, $zeroClasses)) {
             $taxCategory = 3;
         } else {
-            // No classes == 4
             $taxCategory = 4;
         }
 

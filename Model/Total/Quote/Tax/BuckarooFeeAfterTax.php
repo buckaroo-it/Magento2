@@ -74,11 +74,13 @@ class BuckarooFeeAfterTax extends \Magento\Quote\Model\Quote\Address\Total\Abstr
         if (empty($extraTaxableDetails[BuckarooFee::QUOTE_TYPE])) {
             return $this;
         }
+
         $itemTaxDetails = $extraTaxableDetails[BuckarooFee::QUOTE_TYPE];
 
         if (empty($itemTaxDetails[CommonTaxCollector::ASSOCIATION_ITEM_CODE_FOR_QUOTE][0])) {
             return $this;
         }
+
         $buckarooFeeTaxDetails = $itemTaxDetails[CommonTaxCollector::ASSOCIATION_ITEM_CODE_FOR_QUOTE][0];
 
         $buckarooFeeBaseTaxAmount = $buckarooFeeTaxDetails['base_row_tax'];

@@ -191,8 +191,7 @@ define(
                     this.showFinancialWarning = ko.computed(
                         function () {
                             return quote.billingAddress() !== null &&
-                            quote.billingAddress().countryId == 'NL' &&
-                            window.checkoutConfig.payment.buckaroo.afterpay20.showFinancialWarning
+                            quote.billingAddress().countryId == 'NL'
                         },
                         this
                     );
@@ -205,7 +204,7 @@ define(
                             return quote.shippingAddress();
                         }
                     );
-                    
+
                     this.country = ko.computed(
                         function() {
                             return this.activeAddress().countryId;
@@ -220,8 +219,8 @@ define(
                             let billing = quote.billingAddress();
 
                             return this.isB2B && (
-                                (shipping && shipping.countryId == 'NL' && shipping.company && shipping.company.trim().length > 0) ||
-                                (billing && billing.countryId == 'NL' && billing.company && billing.company.trim().length > 0)
+                                (shipping && shipping.company && shipping.company.trim().length > 0) ||
+                                (billing && billing.company && billing.company.trim().length > 0)
                             )
                         },
                         this
@@ -255,7 +254,7 @@ define(
 
                     this.showFrenchTos = ko.computed(
                         function () {
-                            return this.country() === 'BE'
+                            return this.country() === 'BE' && !this.showCOC()
                         },
                         this
                     );
@@ -432,36 +431,42 @@ define(
                     let url = 'https://documents.riverty.com/terms_conditions/payment_methods/invoice';
                     const cc = country.toLowerCase()
 
-                    if ( b2b === false ) {
-                        if (country === 'BE') {
-                            lang = 'be_nl';
-                        }
-    
-                        if (['NL','DE'].indexOf(country) !== -1) {
-                            lang = `${cc}_${cc}`;
-                        }
-
-                        if (['AT','DK', 'FI', 'SE', 'CH', 'NO'].indexOf(country) !== -1) {
-                            const cc = country.toLowerCase()
-                            lang = `${cc}_en`;
-                        }
-                    } else {
+                    if (b2b === true) {
                         url = 'https://documents.riverty.com/terms_conditions/payment_methods/b2b_invoice';
                         if (['NL','DE'].indexOf(country) !== -1) {
                             lang = `${cc}_${cc}`;
                         }
 
                         if (['AT','CH'].indexOf(country) !== -1) {
+                            lang = `${cc}_de`;
+                        }
+                    }
+                    else
+                    {
+                        if (country === 'BE') {
+                            lang = 'be_nl';
+                        }
+
+                        if (['NL','DE'].indexOf(country) !== -1) {
+                            lang = `${cc}_${cc}`;
+                        }
+
+                        if (['AT', 'CH'].indexOf(country) !== -1) {
+                            const cc = country.toLowerCase()
+                            lang = `${cc}_de`;
+                        }
+
+                        if (['DK', 'FI', 'SE', 'NO'].indexOf(country) !== -1) {
+                            const cc = country.toLowerCase()
                             lang = `${cc}_en`;
                         }
                     }
-
                     return `${url}/${lang}/`;
                 },
 
                 getFrenchTos: function () {
                    return $.mage
-                    .__('(Or click here for the French translation: <a target="_blank" href="%s">terms and condition</a>.)')
+                    .__('(Or click here for the French translation: <a target="_blank" href="%s">terms and conditions</a>. )')
                     .replace('%s', 'https://documents.riverty.com/terms_conditions/payment_methods/invoice/be_fr/');
                 },
 

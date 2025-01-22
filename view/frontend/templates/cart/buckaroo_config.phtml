@@ -17,10 +17,12 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
+/** @var string $cspNonce */
 ?>
 <div id="buckaroo-fee-cart" data-bind="scope:'buckarooFeeCart'">
     <!-- ko template: getTemplate() --><!-- /ko -->
-    <script>
+    <script nonce="<?= $block->getCspNonce() ?>">
         window.buckarooConfig = <?= /* @noEscape */ $block->getBuckarooConfigJson(); ?>;
     </script>
 </div>

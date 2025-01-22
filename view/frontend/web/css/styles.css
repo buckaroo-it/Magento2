@@ -133,15 +133,15 @@
     margin-top: 20px;
 }
 
-.payment-method-second-col input::placeholder { 
+.payment-method-second-col input::placeholder {
     color: #c0c0c0;
-    opacity: 1; 
+    opacity: 1;
 }
-  
+
 .payment-method-second-col input:-ms-input-placeholder {
     color: #c0c0c0;
 }
-  
+
 .payment-method-second-col input::-ms-input-placeholder {
     color: #c0c0c0;
 }
@@ -173,7 +173,6 @@
     .buckaroo_magento2_afterpay20 .payment-method-second-col,
     .buckaroo_magento2_billink .payment-method-second-col,
     .buckaroo_magento2_sepadirectdebit .payment-method-second-col,
-    .buckaroo_magento2_giropay .payment-method-second-col,
     .buckaroo_magento2_payperemail .payment-method-second-col,
     .buckaroo_magento2_klarna .payment-method-second-col,
     .buckaroo_magento2_klarnakp .payment-method-second-col,
@@ -205,7 +204,6 @@
     .buckaroo_magento2_afterpay20 .payment-method-billing-address,
     .buckaroo_magento2_billink .payment-method-billing-address,
     .buckaroo_magento2_sepadirectdebit .payment-method-billing-address,
-    .buckaroo_magento2_giropay .payment-method-billing-address,
     .buckaroo_magento2_payperemail .payment-method-billing-address,
     .buckaroo_magento2_klarna .payment-method-billing-address,
     .buckaroo_magento2_klarnakp .payment-method-billing-address,
@@ -241,7 +239,6 @@
     .magento-blank .buckaroo_magento2_afterpay20 .fieldset > .field:not(.choice) > .label,
     .magento-blank .buckaroo_magento2_billink .fieldset > .field:not(.choice) > .label,
     .magento-blank .buckaroo_magento2_sepadirectdebit .fieldset > .field:not(.choice) > .label,
-    .magento-blank .buckaroo_magento2_giropay .fieldset > .field:not(.choice) > .label,
     .magento-blank .buckaroo_magento2_payperemail .fieldset > .field:not(.choice) > .label,
     .magento-blank .buckaroo_magento2_klarna .fieldset > .field:not(.choice) > .label,
     .magento-blank .buckaroo_magento2_klarnakp .fieldset > .field:not(.choice) > .label,
@@ -268,7 +265,6 @@
     .magento-blank .buckaroo_magento2_afterpay20 .fieldset > .field:not(.choice) > .control,
     .magento-blank .buckaroo_magento2_billink .fieldset > .field:not(.choice) > .control,
     .magento-blank .buckaroo_magento2_sepadirectdebit .fieldset > .field:not(.choice) > .control,
-    .magento-blank .buckaroo_magento2_giropay .fieldset > .field:not(.choice) > .control,
     .magento-blank .buckaroo_magento2_payperemail .fieldset > .field:not(.choice) > .control,
     .magento-blank .buckaroo_magento2_klarna .fieldset > .field:not(.choice) > .control,
     .magento-blank .buckaroo_magento2_klarnakp .fieldset > .field:not(.choice) > .control,
@@ -293,7 +289,6 @@
     .magento-blank .buckaroo_magento2_afterpay20 .fieldset > .field.choice:before,
     .magento-blank .buckaroo_magento2_billink .fieldset > .field.choice:before,
     .magento-blank .buckaroo_magento2_sepadirectdebit .fieldset > .field.choice:before,
-    .magento-blank .buckaroo_magento2_giropay .fieldset > .field.choice:before,
     .magento-blank .buckaroo_magento2_payperemail .fieldset > .field.choice:before,
     .magento-blank .buckaroo_magento2_klarna .fieldset > .field.choice:before,
     .magento-blank .buckaroo_magento2_klarnakp .fieldset > .field.choice:before,
@@ -636,10 +631,6 @@
             font-size: 12px;
             flex: 100% 0 0;
     }
-    .bk-paybybank-selector .bank-method-label img {
-        padding: 10px 20px;
-    }
-
     .fieldset > .field .addon .bk-paybybank-selector .bank-method-input {
         display:none;
     }

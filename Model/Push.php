@@ -28,9 +28,9 @@ use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\Config\Source\InvoiceHandlingOptions;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Model\LockManagerWrapper;
 use Buckaroo\Magento2\Model\Method\AbstractMethod;
 use Buckaroo\Magento2\Model\Method\Afterpay;
-use Buckaroo\Magento2\Model\LockManagerWrapper;
 use Buckaroo\Magento2\Model\Method\Afterpay2;
 use Buckaroo\Magento2\Model\Method\Afterpay20;
 use Buckaroo\Magento2\Model\Method\Creditcard;
@@ -39,7 +39,6 @@ use Buckaroo\Magento2\Model\Method\Giftcards;
 use Buckaroo\Magento2\Model\Method\Paypal;
 use Buckaroo\Magento2\Model\Method\PayPerEmail;
 use Buckaroo\Magento2\Model\Method\SepaDirectDebit;
-use Buckaroo\Magento2\Model\Method\Sofortbanking;
 use Buckaroo\Magento2\Model\Method\Transfer;
 use Buckaroo\Magento2\Model\Method\Voucher;
 use Buckaroo\Magento2\Model\Refund\Push as RefundPush;
@@ -49,6 +48,9 @@ use Magento\Framework\Filesystem\DirectoryList;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\Webapi\Rest\Request;
 use Magento\Sales\Api\Data\TransactionInterface;
+use Magento\Sales\Api\TransactionRepositoryInterface;
+use Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\Framework\Api\FilterBuilder;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
@@ -166,7 +168,14 @@ class Push implements PushInterface
      */
     protected LockManagerWrapper $lockManager;
 
+    protected TransactionRepositoryInterface $transactionRepository;
+    protected SearchCriteriaBuilder $searchCriteriaBuilder;
+    protected FilterBuilder $filterBuilder;
+
     /**
+     * @param TransactionRepositoryInterface $transactionRepository
+     * @param SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param FilterBuilder $filterBuilder
      * @param Order $order
      * @param TransactionInterface $transaction
      * @param Request $request
@@ -189,6 +198,9 @@ class Push implements PushInterface
      * @param LockManagerWrapper $lockManager
      */
     public function __construct(
+        TransactionRepositoryInterface $transactionRepository,
+        SearchCriteriaBuilder $searchCriteriaBuilder,
+        FilterBuilder $filterBuilder,
         Order $order,
         TransactionInterface $transaction,
         Request $request,
@@ -210,6 +222,9 @@ class Push implements PushInterface
         File $fileSystemDriver,
         LockManagerWrapper $lockManager
     ) {
+        $this->transactionRepository       = $transactionRepository;
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->filterBuilder = $filterBuilder;
         $this->order                       = $order;
         $this->transaction                 = $transaction;
         $this->request                     = $request;
@@ -1054,7 +1069,7 @@ class Push implements PushInterface
         /** @var \Magento\Payment\Model\MethodInterface $paymentMethod */
         $paymentMethod   = $this->order->getPayment()->getMethodInstance();
         $configOrderMail = $this->configAccount->getOrderConfirmationEmail($store)
-        || $paymentMethod->getConfigData('order_email', $store);
+            || $paymentMethod->getConfigData('order_email', $store);
 
         if (!$this->order->getEmailSent() && $cm3StatusCode == 10 && $configOrderMail) {
             $this->orderSender->send($this->order);
@@ -1248,10 +1263,11 @@ class Push implements PushInterface
         /**
          * Types of statusses
          */
-        $completedStateAndStatus = [Order::STATE_COMPLETE, Order::STATE_COMPLETE];
-        $cancelledStateAndStatus = [Order::STATE_CANCELED, Order::STATE_CANCELED];
-        $holdedStateAndStatus    = [Order::STATE_HOLDED, Order::STATE_HOLDED];
-        $closedStateAndStatus    = [Order::STATE_CLOSED, Order::STATE_CLOSED];
+        $completedStateAndStatus  = [Order::STATE_COMPLETE, Order::STATE_COMPLETE];
+        $cancelledStateAndStatus  = [Order::STATE_CANCELED, Order::STATE_CANCELED];
+        $holdedStateAndStatus     = [Order::STATE_HOLDED, Order::STATE_HOLDED];
+        $closedStateAndStatus     = [Order::STATE_CLOSED, Order::STATE_CLOSED];
+        $processingStateAndStatus = [Order::STATE_PROCESSING, Order::STATE_PROCESSING];
         /**
          * Get current state and status of order
          */
@@ -1261,10 +1277,11 @@ class Push implements PushInterface
         /**
          * If the types are not the same and the order can receive an invoice the order can be udpated by BPE.
          */
-        if ($completedStateAndStatus != $currentStateAndStatus
+        if ($completedStateAndStatus[0] != $currentStateAndStatus[0]
             && $cancelledStateAndStatus != $currentStateAndStatus
             && $holdedStateAndStatus != $currentStateAndStatus
             && $closedStateAndStatus != $currentStateAndStatus
+            && $processingStateAndStatus[0] != $currentStateAndStatus[0]
         ) {
             return true;
         }
@@ -1395,6 +1412,10 @@ class Push implements PushInterface
         ) {
             $this->order->setBuckarooReservationNumber($this->postData['brq_service_klarnakp_reservationnumber']);
             $this->order->save();
+        }
+
+        if (isset($this->postData['brq_service_klarnakp_reservationnumber'])){
+            $this->updateTransactionIsClosed($this->order);
         }
 
         $store = $this->order->getStore();
@@ -1590,6 +1611,52 @@ class Push implements PushInterface
         return true;
     }
 
+    protected function updateTransactionIsClosed(Order $order)
+    {
+        // 1) Re-open the order
+        $this->logging->addDebug(__METHOD__ . '| Re-opening canceled order ID: ' . $order->getId());
+
+        // 2) Switch to "processing" (or "pending") and reset canceled item quantities
+        $order->setState(Order::STATE_PROCESSING)->setStatus(Order::STATE_PROCESSING);
+        foreach ($order->getAllItems() as $item) {
+            if ($item->getQtyCanceled() > 0) {
+                $item->setQtyCanceled(0);
+            }
+        }
+        $order->addStatusHistoryComment(
+            __('Order was re-opened from canceled state after a successful Klarna push.')
+        );
+        $order->save();
+
+        // 3) Re-open the payment object
+        $payment = $order->getPayment();
+        if ($payment) {
+            // Force Magento to see the parent transaction as still "open"
+            $payment->setIsTransactionClosed(false);
+            $payment->setShouldCloseParentTransaction(false);
+            $payment->save();
+        }
+
+        // 4) Load all transactions for this order and set is_closed=0
+        //    (You can do it for just the lastTransId if you know there's only one.)
+        try {
+            $searchCriteria = $this->searchCriteriaBuilder
+                ->addFilter('order_id', $order->getId())
+                ->create();
+            $transactionList = $this->transactionRepository->getList($searchCriteria);
+
+            foreach ($transactionList->getItems() as $txn) {
+                if ($txn->getIsClosed()) {
+                    $txn->setIsClosed(0);
+                    $this->transactionRepository->save($txn);
+                    $this->logging->addDebug(__METHOD__ . '|Re-open transaction ' . $txn->getTxnId());
+                }
+            }
+        } catch (\Exception $e) {
+            $this->logging->addError(__METHOD__ . '|Could not re-open transactions: ' . $e->getMessage());
+        }
+    }
+
     /**
      * @param $newStatus
      * @param $message
@@ -1610,7 +1677,6 @@ class Push implements PushInterface
         if (!$this->order->getEmailSent()
             && in_array($payment->getMethod(), [Transfer::PAYMENT_METHOD_CODE,
                 SepaDirectDebit::PAYMENT_METHOD_CODE,
-                Sofortbanking::PAYMENT_METHOD_CODE,
                 PayPerEmail::PAYMENT_METHOD_CODE,
             ])
             && ($this->configAccount->getOrderConfirmationEmail($store)
@@ -1713,7 +1779,7 @@ class Push implements PushInterface
          * @var \Magento\Sales\Model\Order\Payment $payment
          */
         $payment = $this->order->getPayment();
-        $invoiceHandlingConfig = $this->configAccount->getInvoiceHandling();
+        $invoiceHandlingConfig = $this->configAccount->getInvoiceHandling($this->order->getStore());
 
         if ($invoiceHandlingConfig == InvoiceHandlingOptions::SHIPMENT) {
             $payment->setAdditionalInformation(InvoiceHandlingOptions::INVOICE_HANDLING, $invoiceHandlingConfig);
@@ -2113,13 +2179,13 @@ class Push implements PushInterface
     protected function isFailedGroupTransaction()
     {
         return $this->hasPostData(
-            'brq_transaction_type',
-            self::BUCK_PUSH_GROUPTRANSACTION_TYPE
-        ) &&
-        $this->hasPostData(
-            'brq_statuscode',
-            $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED')
-        );
+                'brq_transaction_type',
+                self::BUCK_PUSH_GROUPTRANSACTION_TYPE
+            ) &&
+            $this->hasPostData(
+                'brq_statuscode',
+                $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED')
+            );
     }
 
 
@@ -2217,9 +2283,9 @@ class Push implements PushInterface
             $order->addCommentToStatusHistory(
                 __($historyComment)
             )
-            ->setIsCustomerNotified(false)
-            ->setEntityName('invoice')
-            ->save();
+                ->setIsCustomerNotified(false)
+                ->setEntityName('invoice')
+                ->save();
         }
     }
 
@@ -2284,12 +2350,12 @@ class Push implements PushInterface
     public function isCanceledGroupTransaction()
     {
         return $this->hasPostData(
-            'brq_transaction_type',
-            self::BUCK_PUSH_GROUPTRANSACTION_TYPE
-        ) &&
-        $this->hasPostData(
-            'brq_statuscode',
-            $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER')
-        );
+                'brq_transaction_type',
+                self::BUCK_PUSH_GROUPTRANSACTION_TYPE
+            ) &&
+            $this->hasPostData(
+                'brq_statuscode',
+                $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER')
+            );
     }
 }

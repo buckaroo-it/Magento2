@@ -36,36 +36,32 @@ class ShippingMethod
         ExtensibleDataObjectConverter $dataObjectConverter,
         ShippingMethodConverter $shippingMethodConverter,
         TotalsCollector $totalsCollector
+
     ) {
         $this->dataObjectConverter = $dataObjectConverter;
         $this->shippingMethodConverter = $shippingMethodConverter;
         $this->totalsCollector = $totalsCollector;
+
     }
 
     public function getAvailableMethods($cart)
     {
         $address = $cart->getShippingAddress();
-
         $address->setLimitCarrier(null);
+
         $address->setQuote($cart);
         $address->setCollectShippingRates(true);
         $this->totalsCollector->collectAddressTotals($cart, $address);
-        $methods = [];
 
+        $methods = [];
         $shippingRates = $address->getGroupedAllShippingRates();
+
         foreach ($shippingRates as $carrierRates) {
             foreach ($carrierRates as $rate) {
-                $methodData = $this->dataObjectConverter->toFlatArray(
-                    $this->shippingMethodConverter->modelToDataObject($rate, $cart->getQuoteCurrencyCode()),
-                    [],
-                    ShippingMethodInterface::class
-                );
-                $methods[] = $this->processMoneyTypeData(
-                    $methodData,
-                    $cart->getQuoteCurrencyCode()
-                );
+                $methods[] = $this->shippingMethodConverter->modelToDataObject($rate, $cart->getQuoteCurrencyCode());
             }
         }
+
         return $methods;
     }
     private function processMoneyTypeData(array $data, string $quoteCurrencyCode): array

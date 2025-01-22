@@ -1,11 +1,32 @@
 <?php
 /**
- * Copyright © 2015 Magento. All rights reserved.
- * See COPYING.txt for license details.
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Block\Cart;
 
-class BuckarooConfig extends \Magento\Backend\Block\Template
+use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory;
+use Magento\Backend\Block\Template;
+use Magento\Backend\Block\Template\Context;
+use Magento\Framework\Serialize\Serializer\Json;
+
+class BuckarooConfig extends Template
 {
     /**
      * @var bool
@@ -13,25 +34,25 @@ class BuckarooConfig extends \Magento\Backend\Block\Template
     protected $_isScopePrivate = false;
 
     /**
-     * @var \Buckaroo\Magento2\Model\ConfigProvider\Factory
+     * @var Factory
      */
     protected $configProviderFactory;
 
     /**
-     * @var \Magento\Framework\Json\Encoder
+     * @var Json
      */
     protected $jsonEncoder;
 
     /**
-     * @param \Magento\Backend\Block\Template\Context    $context
-     * @param \Magento\Framework\Json\Encoder            $jsonEncoder
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory
-     * @param array                                      $data
+     * @param Context $context
+     * @param Json $jsonEncoder
+     * @param Factory $configProviderFactory
+     * @param array $data
      */
     public function __construct(
-        \Magento\Backend\Block\Template\Context $context,
-        \Magento\Framework\Json\Encoder $jsonEncoder,
-        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory,
+        Context $context,
+        Json $jsonEncoder,
+        Factory $configProviderFactory,
         array $data = []
     ) {
         parent::__construct($context, $data);
@@ -42,11 +63,22 @@ class BuckarooConfig extends \Magento\Backend\Block\Template
     /**
      * Retrieve buckaroo configuration
      *
-     * @return array
+     * @return string
+     * @throws Exception
      */
     public function getBuckarooConfigJson()
     {
         $configProvider = $this->configProviderFactory->get('buckaroo_fee');
-        return $this->jsonEncoder->encode($configProvider->getConfig());
+        return $this->jsonEncoder->serialize($configProvider->getConfig());
+    }
+
+    /**
+     * Get CSP nonce
+     *
+     * @return string
+     */
+    public function getCspNonce()
+    {
+        return $this->getData('cspNonce') ?: '';
     }
 }

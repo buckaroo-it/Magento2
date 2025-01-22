@@ -20,17 +20,41 @@
 
 namespace Buckaroo\Magento2\Controller\Redirect;
 
+use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\Config\Source\InvoiceHandlingOptions;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory;
+use Buckaroo\Magento2\Model\OrderStatusFactory;
+use Buckaroo\Magento2\Service\Sales\Quote\Recreate;
+use Magento\Checkout\Model\Cart;
+use Magento\Checkout\Model\ConfigProviderInterface;
+use Magento\Checkout\Model\Session;
+use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Customer\Api\CustomerRepositoryInterface;
+use Magento\Customer\Model\Customer;
+use Magento\Customer\Model\ResourceModel\CustomerFactory;
+use Magento\Customer\Model\SessionFactory;
+use Magento\Framework\App\Action\Action;
+use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Request\Http as Http;
+use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\Event\ManagerInterface;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Quote\Model\Quote;
+use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Buckaroo\Magento2\Model\Method\AbstractMethod;
 use Buckaroo\Magento2\Model\Service\Order as OrderService;
 use Buckaroo\Magento2\Model\LockManagerWrapper;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Email\Sender\OrderSender;
+use Magento\SalesRule\Model\CouponFactory;
+use Magento\SalesRule\Model\Spi\CouponResourceInterface;
 
-class Process extends \Magento\Framework\App\Action\Action
+class Process extends Action
 {
     /**
      * @var array
@@ -38,12 +62,12 @@ class Process extends \Magento\Framework\App\Action\Action
     protected $response;
 
     /**
-     * @var \Magento\Sales\Model\Order $order
+     * @var Order $order
      */
     protected $order;
 
     /**
-     * @var \Magento\Quote\Model\Quote $quote
+     * @var Quote $quote
      */
     protected $quote;
 
@@ -51,27 +75,27 @@ class Process extends \Magento\Framework\App\Action\Action
     private $transaction;
 
     /**
-     * @var \Buckaroo\Magento2\Helper\Data $helper
+     * @var Data $helper
      */
     protected $helper;
 
     /**
-     * @var \Magento\Checkout\Model\Cart
+     * @var Cart
      */
     protected $cart;
 
     /**
-     * @var \Magento\Checkout\Model\ConfigProviderInterface
+     * @var ConfigProviderInterface
      */
     protected $accountConfig;
 
     /**
-     * @var \Magento\Sales\Model\Order\Email\Sender\OrderSender
+     * @var OrderSender
      */
     protected $orderSender;
 
     /**
-     * @var \Buckaroo\Magento2\Model\OrderStatusFactory
+     * @var OrderStatusFactory
      */
     protected $orderStatusFactory;
 
@@ -81,12 +105,12 @@ class Process extends \Magento\Framework\App\Action\Action
     protected $logger;
 
     /**
-     * @var \Magento\Checkout\Model\Session
+     * @var Session
      */
     protected $checkoutSession;
 
     /**
-     * @var  \Magento\Customer\Model\Session
+     * @var  CustomerSession
      */
     public $customerSession;
     protected $customerRepository;
@@ -98,7 +122,7 @@ class Process extends \Magento\Framework\App\Action\Action
     protected $orderService;
 
     /**
-     * @var EventManager
+     * @var ManagerInterface
      */
     private $eventManager;
 
@@ -110,66 +134,66 @@ class Process extends \Magento\Framework\App\Action\Action
     protected LockManagerWrapper $lockManager;
 
     /**
-     * @param \Magento\Framework\App\Action\Context $context
-     * @param \Buckaroo\Magento2\Helper\Data $helper
-     * @param \Magento\Checkout\Model\Cart $cart
-     * @param \Magento\Sales\Model\Order $order
-     * @param \Magento\Quote\Model\Quote $quote
+     * @param Context $context
+     * @param Data $helper
+     * @param Cart $cart
+     * @param Order $order
+     * @param Quote $quote
      * @param TransactionInterface $transaction
      * @param Log $logger
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory
-     * @param \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender
-     * @param \Buckaroo\Magento2\Model\OrderStatusFactory $orderStatusFactory
-     * @param \Magento\Checkout\Model\Session $checkoutSession,
-     * @param \Magento\Customer\Model\Session $customerSession,
-     * @param \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository,
-     * @param \Magento\Customer\Model\SessionFactory $sessionFactory,
-     * @param \Magento\Customer\Model\Customer $customerModel,
-     * @param \Magento\Customer\Model\ResourceModel\CustomerFactory $customerFactory,
-     * @param OrderService $orderService,
-     * @param \Magento\Framework\Event\ManagerInterface $eventManager,
-     * @param \Buckaroo\Magento2\Service\Sales\Quote\Recreate $quoteRecreate,
+     * @param Factory $configProviderFactory
+     * @param OrderSender $orderSender
+     * @param OrderStatusFactory $orderStatusFactory
+     * @param Session $checkoutSession
+     * @param CustomerSession $customerSession
+     * @param CustomerRepositoryInterface $customerRepository
+     * @param SessionFactory $sessionFactory
+     * @param Customer $customerModel
+     * @param CustomerFactory $customerFactory
+     * @param OrderService $orderService
+     * @param ManagerInterface $eventManager
+     * @param Recreate $quoteRecreate
      * @param LockManagerWrapper $lockManager
-     *
-     * @throws \Buckaroo\Magento2\Exception
+     * @throws Exception
      */
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        \Buckaroo\Magento2\Helper\Data $helper,
-        \Magento\Checkout\Model\Cart $cart,
-        \Magento\Sales\Model\Order $order,
-        \Magento\Quote\Model\Quote $quote,
-        TransactionInterface $transaction,
-        Log $logger,
-        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory,
-        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
-        \Buckaroo\Magento2\Model\OrderStatusFactory $orderStatusFactory,
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Customer\Model\Session $customerSession,
-        \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository,
-        \Magento\Customer\Model\SessionFactory $sessionFactory,
-        \Magento\Customer\Model\Customer $customerModel,
-        \Magento\Customer\Model\ResourceModel\CustomerFactory $customerFactory,
-        OrderService $orderService,
-        \Magento\Framework\Event\ManagerInterface $eventManager,
-        \Buckaroo\Magento2\Service\Sales\Quote\Recreate $quoteRecreate,
-        LockManagerWrapper $lockManager
-    ) {
+        Context                     $context,
+        Data                        $helper,
+        Cart                        $cart,
+        Order                       $order,
+        Quote                       $quote,
+        TransactionInterface        $transaction,
+        Log                         $logger,
+        Factory                     $configProviderFactory,
+        OrderSender                 $orderSender,
+        OrderStatusFactory          $orderStatusFactory,
+        Session                     $checkoutSession,
+        CustomerSession             $customerSession,
+        CustomerRepositoryInterface $customerRepository,
+        SessionFactory              $sessionFactory,
+        Customer                    $customerModel,
+        CustomerFactory             $customerFactory,
+        OrderService                $orderService,
+        ManagerInterface            $eventManager,
+        Recreate                    $quoteRecreate,
+        LockManagerWrapper          $lockManager
+    )
+    {
         parent::__construct($context);
-        $this->helper             = $helper;
-        $this->cart               = $cart;
-        $this->order              = $order;
-        $this->quote              = $quote;
-        $this->transaction        = $transaction;
-        $this->logger             = $logger;
-        $this->orderSender        = $orderSender;
+        $this->helper = $helper;
+        $this->cart = $cart;
+        $this->order = $order;
+        $this->quote = $quote;
+        $this->transaction = $transaction;
+        $this->logger = $logger;
+        $this->orderSender = $orderSender;
         $this->orderStatusFactory = $orderStatusFactory;
-        $this->checkoutSession    = $checkoutSession;
-        $this->customerSession    = $customerSession;
+        $this->checkoutSession = $checkoutSession;
+        $this->customerSession = $customerSession;
         $this->customerRepository = $customerRepository;
-        $this->_sessionFactory    = $sessionFactory;
+        $this->_sessionFactory = $sessionFactory;
 
-        $this->customerModel           = $customerModel;
+        $this->customerModel = $customerModel;
         $this->customerResourceFactory = $customerFactory;
 
         $this->accountConfig = $configProviderFactory->get('account');
@@ -193,40 +217,52 @@ class Process extends \Magento\Framework\App\Action\Action
     /**
      * Process action
      *
-     * @return \Magento\Framework\App\ResponseInterface
+     * @return ResponseInterface
      * @throws \Exception
      */
     public function execute()
     {
-        $this->logger->addDebug(__METHOD__ . '|' . var_export($this->getRequest()->getParams(), true));
-
-        $this->response = $this->getRequest()->getParams();
-        $this->response = array_change_key_case($this->response, CASE_LOWER);
-
-        $orderIncrementID = $this->getOrderIncrementId();
-        $this->logger->addDebug(__METHOD__ . '|Lock Name| - ' . var_export($orderIncrementID, true));
-        $lockAcquired = $this->lockManager->lockOrder($orderIncrementID, 5);
-
-        if (!$lockAcquired) {
-            $this->logger->addError(__METHOD__ . '|lock not acquired|');
-            return $this->handleProcessedResponse('/');
-        }
-
+        $lockAcquired = false;
         try {
+            $this->logger->addDebug(__METHOD__ . '|' . var_export($this->getRequest()->getParams(), true));
+
+            $this->response = $this->getRequest()->getParams();
+            $this->response = array_change_key_case($this->response, CASE_LOWER);
+
+            $orderIncrementID = $this->getOrderIncrementId();
+            if (empty($orderIncrementID)) {
+                $this->logger->addError(__METHOD__ . '|Order Increment ID is empty');
+                return $this->handleProcessedResponse('/');
+            }
+            $this->logger->addDebug(__METHOD__ . '|Lock Name| - ' . var_export($orderIncrementID, true));
+            $lockAcquired = $this->lockManager->lockOrder($orderIncrementID, 5);
+
+            if (!$lockAcquired) {
+                $this->logger->addError(__METHOD__ . '|lock not acquired|');
+                return $this->handleProcessedResponse('/');
+            }
+
             return $this->redirectProcess();
         } catch (\Exception $e) {
-            $this->addErrorMessage('Could not process the request.');
+            $this->addErrorMessage(__('Could not process the request.'));
             $this->logger->addError(__METHOD__ . '|Exception|' . $e->getMessage());
+            return $this->_redirect('/');
         } finally {
-            $this->lockManager->unlockOrder($orderIncrementID);
-            $this->logger->addDebug(__METHOD__ . '|Lock released|');
+            if ($lockAcquired && isset($orderIncrementID)) {
+                $this->lockManager->unlockOrder($orderIncrementID);
+                $this->logger->addDebug(__METHOD__ . '|Lock released|');
+            }
         }
-
-        $this->logger->addDebug(__METHOD__ . '|9|');
-        return $this->_response;
     }
 
-    private function redirectProcess() {
+    /**
+     * @throws NoSuchEntityException
+     * @throws Exception
+     * @throws LocalizedException
+     * @throws \Exception
+     */
+    private function redirectProcess()
+    {
         /**
          * Check if there is a valid response. If not, redirect to home.
          */
@@ -263,6 +299,9 @@ class Process extends \Magento\Framework\App\Action\Action
 
         if ($payment) {
             $this->setPaymentOutOfTransit($payment);
+        } else {
+            $this->logger->addError(__METHOD__ . '|Payment object is null');
+            return $this->handleProcessedResponse('/');
         }
 
         if (!method_exists($payment->getMethodInstance(), 'canProcessPostData')) {
@@ -317,7 +356,6 @@ class Process extends \Magento\Framework\App\Action\Action
 
                 $payment->getMethodInstance()->processCustomPostData($payment, $this->response);
 
-                /** @var \Magento\Payment\Model\MethodInterface $paymentMethod */
                 $paymentMethod = $this->order->getPayment()->getMethodInstance();
                 $store = $this->order->getStore();
 
@@ -346,9 +384,7 @@ class Process extends \Magento\Framework\App\Action\Action
                 }
 
                 $pendingCode = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING');
-                if (($statusCode == $pendingCode)
-                    && !$this->hasPostData('brq_payment_method', 'sofortueberweisung')
-                ) {
+                if ($statusCode == $pendingCode) {
                     $this->addErrorMessage(
                         __(
                             'Unfortunately an error occurred while processing your payment.' .
@@ -373,36 +409,36 @@ class Process extends \Magento\Framework\App\Action\Action
                         $this->order->getIncrementId(),
                     ], true));
 
-                if (!$this->checkoutSession->getLastSuccessQuoteId() && $this->order->getQuoteId()) {
-                    $this->logger->addDebug(__METHOD__ . '|52|');
-                    $this->checkoutSession->setLastSuccessQuoteId($this->order->getQuoteId());
-                }
-                if (!$this->checkoutSession->getLastQuoteId() && $this->order->getQuoteId()) {
-                    $this->logger->addDebug(__METHOD__ . '|53|');
-                    $this->checkoutSession->setLastQuoteId($this->order->getQuoteId());
-                }
-                if (!$this->checkoutSession->getLastOrderId() && $this->order->getId()) {
-                    $this->logger->addDebug(__METHOD__ . '|54|');
+                if ($this->order && $this->order->getId()) {
                     $this->checkoutSession->setLastOrderId($this->order->getId());
                 }
-                if (!$this->checkoutSession->getLastRealOrderId() && $this->order->getIncrementId()) {
-                    $this->logger->addDebug(__METHOD__ . '|55|');
+
+                if ($this->order && $this->order->getQuoteId()) {
+                    $this->checkoutSession->setLastQuoteId($this->order->getQuoteId());
+                    $this->checkoutSession->setLastSuccessQuoteId($this->order->getQuoteId());
+                }
+
+                if ($this->order && $this->order->getIncrementId()) {
                     $this->checkoutSession->setLastRealOrderId($this->order->getIncrementId());
                 }
+
+                if ($this->order && $this->order->getStatus()) {
+                    $this->checkoutSession->setLastOrderStatus($this->order->getStatus());
+                }
+
                 $this->logger->addDebug(__METHOD__ . '|6|');
-                // Redirect to success page
                 return $this->redirectSuccess();
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_ORDER_FAILED'):
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED'):
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_REJECTED'):
             case $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER'):
                 return $this->handleFailed($statusCode);
-                break;
-            //no default
+            default:
+                $this->addErrorMessage(__('An unexpected error occurred.'));
+                return $this->handleProcessedResponse('/');
         }
-
-        return $this->response;
     }
+
     /**
      * Handle final response
      *
@@ -416,15 +452,17 @@ class Process extends \Magento\Framework\App\Action\Action
         $this->logger->addDebug(__METHOD__ . '|15|');
         return $this->_redirect($path, $arguments);
     }
+
     /**
      * Get order
      *
-     * @return \Magento\Sales\Api\Data\OrderInterface
+     * @return OrderInterface
      */
     public function getOrder()
     {
         return $this->order;
     }
+
     /**
      * Add error message to be displayed to the user
      *
@@ -436,6 +474,7 @@ class Process extends \Magento\Framework\App\Action\Action
     {
         $this->messageManager->addErrorMessage($message);
     }
+
     /**
      * Add success message to be displayed to the user
      *
@@ -449,30 +488,23 @@ class Process extends \Magento\Framework\App\Action\Action
     }
 
     /**
-     * Get response parameters
-     *
-     * @return array
-     */
-    public function getResponseParameters()
-    {
-        return $this->response;
-    }
-    /**
      * Set flag if user is on the payment provider page
      *
      * @param OrderPaymentInterface $payment
      *
      * @return void
+     * @throws \Exception
      */
     protected function setPaymentOutOfTransit(OrderPaymentInterface $payment)
     {
         $payment
-        ->setAdditionalInformation(AbstractMethod::BUCKAROO_PAYMENT_IN_TRANSIT, false)
-        ->save();
+            ->setAdditionalInformation(AbstractMethod::BUCKAROO_PAYMENT_IN_TRANSIT, false)
+            ->save();
     }
 
     /**
-     * @throws NoSuchEntityException
+     * @param $statusCode
+     * @return ResponseInterface
      */
     protected function handleFailed($statusCode)
     {
@@ -485,7 +517,7 @@ class Process extends \Magento\Framework\App\Action\Action
 
         if (!$this->getSkipHandleFailedRecreate()) {
             if (!$this->quoteRecreate->recreate($this->quote, $this->response)) {
-                $this->logging->addError('Could not recreate the quote.');
+                $this->logger->addError('Could not recreate the quote.');
             }
         }
 
@@ -521,7 +553,7 @@ class Process extends \Magento\Framework\App\Action\Action
     }
 
     /**
-     * @throws \Buckaroo\Magento2\Exception
+     * @throws NoSuchEntityException
      */
     private function loadOrder()
     {
@@ -531,7 +563,12 @@ class Process extends \Magento\Framework\App\Action\Action
 
         if (!$this->order->getId()) {
             $this->logger->addDebug('Order could not be loaded by brq_invoicenumber or brq_ordernumber');
-            $this->order = $this->getOrderByTransactionKey();
+            try {
+                $this->order = $this->getOrderByTransactionKey();
+            } catch (\Exception $e) {
+                $this->logger->addError('Could not load order by transaction key: ' . $e->getMessage());
+                throw $e;
+            }
         }
     }
 
@@ -542,7 +579,7 @@ class Process extends \Magento\Framework\App\Action\Action
      */
     protected function getOrderIncrementId(): ?string
     {
-        $brqOrderId = false;
+        $brqOrderId = null;
 
         if (isset($this->response['brq_invoicenumber']) && !empty($this->response['brq_invoicenumber'])) {
             $brqOrderId = $this->response['brq_invoicenumber'];
@@ -556,8 +593,8 @@ class Process extends \Magento\Framework\App\Action\Action
     }
 
     /**
-     * @return bool
-     * @throws \Buckaroo\Magento2\Exception
+     * @return Order\Payment
+     * @throws NoSuchEntityException
      */
     private function getOrderByTransactionKey()
     {
@@ -575,7 +612,7 @@ class Process extends \Magento\Framework\App\Action\Action
         $order = $this->transaction->getOrder();
 
         if (!$order) {
-            throw new \Buckaroo\Magento2\Exception(__('There was no order found by transaction Id'));
+            throw new NoSuchEntityException(__('There was no order found by transaction Id'));
         }
 
         return $order;
@@ -588,7 +625,7 @@ class Process extends \Magento\Framework\App\Action\Action
      *
      * @return bool
      */
-    protected function cancelOrder($statusCode)
+    protected function cancelOrder($statusCode): bool
     {
         return $this->orderService->cancel($this->order, $statusCode);
     }
@@ -596,7 +633,7 @@ class Process extends \Magento\Framework\App\Action\Action
     /**
      * Redirect to Success url, which means everything seems to be going fine
      *
-     * @return \Magento\Framework\App\ResponseInterface
+     * @return ResponseInterface
      */
     protected function redirectSuccess()
     {
@@ -650,7 +687,7 @@ class Process extends \Magento\Framework\App\Action\Action
     /**
      * Redirect to Failure url, which means we've got a problem
      *
-     * @return \Magento\Framework\App\ResponseInterface
+     * @return ResponseInterface
      */
     protected function redirectFailure()
     {
@@ -675,7 +712,6 @@ class Process extends \Magento\Framework\App\Action\Action
                             $this->logger->addDebug(__METHOD__ . '|restoreQuote|');
                         }
                     }
-                    $this->setSkipHandleFailedRecreate(false);
                 } catch (\Exception $e) {
                     $this->logger->addError('Could not load customer');
                 }
@@ -689,7 +725,6 @@ class Process extends \Magento\Framework\App\Action\Action
 
     protected function redirectToCheckout()
     {
-        $store = $this->order->getStore();
         $this->logger->addDebug('start redirectToCheckout');
         if (!$this->customerSession->isLoggedIn()) {
             $this->logger->addDebug('not isLoggedIn');
@@ -769,11 +804,6 @@ class Process extends \Magento\Framework\App\Action\Action
         return false;
     }
 
-    public function setSkipHandleFailedRecreate($value)
-    {
-        return true;
-    }
-
     /**
      * Remove coupon from failed order if magento enterprise
      *
@@ -781,20 +811,20 @@ class Process extends \Magento\Framework\App\Action\Action
      */
     protected function removeCoupon()
     {
-        if (method_exists($this->order,'getCouponCode')) {
+        if (method_exists($this->order, 'getCouponCode')) {
             $couponCode = $this->order->getCouponCode();
-            $couponFactory = $this->_objectManager->get(\Magento\SalesRule\Model\CouponFactory::class);
+            $couponFactory = $this->_objectManager->get(CouponFactory::class);
             if (!(is_object($couponFactory) && method_exists($couponFactory, 'load'))) {
                 return;
             }
 
             $coupon = $couponFactory->load($couponCode, 'code');
-            $resourceModel = $this->_objectManager->get(\Magento\SalesRule\Model\Spi\CouponResourceInterface::class);
+            $resourceModel = $this->_objectManager->get(CouponResourceInterface::class);
             if (!(is_object($resourceModel) && method_exists($resourceModel, 'delete'))) {
                 return;
             }
 
-            if (is_int($coupon->getCouponId())) {
+            if ($coupon && is_int($coupon->getCouponId())) {
                 $resourceModel->delete($coupon);
             }
         }
