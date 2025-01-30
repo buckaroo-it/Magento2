@@ -1731,6 +1731,7 @@ class Push implements PushInterface
                     ->setStatus($newStatus)
                     ->save();
             } else {
+                $this->order->setStatus($newStatus);
                 $this->order->addStatusHistoryComment($description, $newStatus);
             }
         } else {
@@ -1742,6 +1743,7 @@ class Push implements PushInterface
                     ->setEntityName('invoice')
                     ->save();
             } else {
+                $this->order->setStatus($newStatus);
                 $this->order->addStatusHistoryComment($description);
             }
         }
