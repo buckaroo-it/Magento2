@@ -232,6 +232,8 @@ class Order
                 $statusCode,
                 $order
             );
+            $this->logging->addDebug(__METHOD__ . '|$failedStatus|' . $failedStatus);
+
 
             if ($failedStatus) {
                 $order->setStatus($failedStatus);
