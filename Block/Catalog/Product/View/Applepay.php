@@ -17,6 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Block\Catalog\Product\View;
 
 use Magento\Checkout\Model\Cart;
@@ -89,15 +90,26 @@ class Applepay extends Template
     }
 
     /**
-     * @return false|string
+     * Get entire checkout configuration as JSON.
+     * Wrap in a try/catch to avoid "No such entity with cartId" exceptions.
+     *
+     * @return string
      */
     public function getCheckoutConfig()
     {
-        return json_encode($this->compositeConfigProvider->getConfig(), JSON_HEX_TAG);
+        try {
+            $config = $this->compositeConfigProvider->getConfig();
+        } catch (NoSuchEntityException $e) {
+            $config = [];
+        }
+
+        return json_encode($config, JSON_HEX_TAG);
     }
 
     /**
-     * @return false|string
+     * Get Apple Pay-specific config as JSON.
+     *
+     * @return string
      */
     public function getApplepayConfig()
     {

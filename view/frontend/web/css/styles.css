@@ -1,4 +1,6 @@
-
+.buckaroo-box-to-cart{
+    text-align: center;
+}
 .bk-payment-wrap {
     display: flex;
     justify-content: space-between;
