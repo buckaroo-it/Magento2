@@ -2136,12 +2136,12 @@ class Push implements PushInterface
         ];
 
         if (in_array($payment->getMethod(), $authPaymentMethods)) {
-            if (
-                (
-                    !empty($this->postData['brq_transaction_type'])
-                    && in_array($this->postData['brq_transaction_type'], ['I038', 'I880'])
-                )
-                && !empty($this->postData['brq_statuscode'])
+            if ((($payment->getMethod() == Klarnakp::PAYMENT_METHOD_CODE)
+                    || (
+                        !empty($this->postData['brq_transaction_type'])
+                        && in_array($this->postData['brq_transaction_type'], ['I038', 'I880'])
+                    )
+                ) && !empty($this->postData['brq_statuscode'])
                 && ($this->postData['brq_statuscode'] == 190)
             ) {
                 $this->logging->addDebug(__METHOD__ . '|88|' . var_export($payment->getMethod(), true));
