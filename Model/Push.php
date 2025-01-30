@@ -2127,7 +2127,7 @@ class Push implements PushInterface
 
     private function processSucceededPushAuth($payment)
     {
-        $authPpaymentMethods = [
+        $authPaymentMethods = [
             Afterpay::PAYMENT_METHOD_CODE,
             Afterpay2::PAYMENT_METHOD_CODE,
             Afterpay20::PAYMENT_METHOD_CODE,
@@ -2135,13 +2135,13 @@ class Push implements PushInterface
             Klarnakp::PAYMENT_METHOD_CODE
         ];
 
-        if (in_array($payment->getMethod(), $authPpaymentMethods)) {
-            if ((($payment->getMethod() == Klarnakp::PAYMENT_METHOD_CODE)
-                    || (
-                        !empty($this->postData['brq_transaction_type'])
-                        && in_array($this->postData['brq_transaction_type'], ['I038', 'I880'])
-                    )
-                ) && !empty($this->postData['brq_statuscode'])
+        if (in_array($payment->getMethod(), $authPaymentMethods)) {
+            if (
+                (
+                    !empty($this->postData['brq_transaction_type'])
+                    && in_array($this->postData['brq_transaction_type'], ['I038', 'I880'])
+                )
+                && !empty($this->postData['brq_statuscode'])
                 && ($this->postData['brq_statuscode'] == 190)
             ) {
                 $this->logging->addDebug(__METHOD__ . '|88|' . var_export($payment->getMethod(), true));
