@@ -28,6 +28,7 @@ var config = {
         '*': {
             "BuckarooSDK": "//checkout.buckaroo.nl/api/buckaroosdk/script",
             // "BuckarooSDK": "//testcheckout.buckaroo.nl/api/buckaroosdk/script",
+            "buckaroo/applepay/catalog-cart-view": "Buckaroo_Magento2/js/view/checkout/applepay/catalog-cart-view",
             "buckaroo/applepay/catalog-product-view": "Buckaroo_Magento2/js/view/checkout/applepay/catalog-product-view",
             "buckaroo/applepay/checkout-cart": "Buckaroo_Magento2/js/view/checkout/applepay/checkout-cart",
             "buckaroo/applepay/pay": "Buckaroo_Magento2/js/view/checkout/applepay/pay",

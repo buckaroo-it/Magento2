@@ -17,11 +17,13 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 /** @var string $block */
 ?>
 <?php if ($block->canShowButton('Cart')): ?>
 <div id="apple-pay-catalog-cart-view-component" data-bind="scope:'buckarooApplepayCart'">
     <!-- ko template: getTemplate() --><!-- /ko -->
+
     <script>
         if ('undefined' === typeof window.checkoutConfig) {
             window.checkoutConfig = <?= /* @noEscape */ $block->getCheckoutConfig(); ?>;
@@ -31,7 +33,7 @@
 
     <script type="text/x-magento-init">
         {
-            "[data-bind='scope:buckarooApplepayCart']": {
+            "#apple-pay-catalog-cart-view-component": {
                 "Magento_Ui/js/core/app": {
                     "components": {
                         "buckarooApplepayCart": {
