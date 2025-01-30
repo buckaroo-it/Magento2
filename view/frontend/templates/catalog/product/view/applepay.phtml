@@ -18,13 +18,13 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-/** @var string $cspNonce */
+/** @var string $block */
 ?>
 <?php if ($block->canShowButton('Product')): ?>
-    <div id="apple-pay-catalog-product-view-component" data-bind="scope:'applepayproductcomponent'">
+<div id="apple-pay-catalog-product-view-component" data-bind="scope:'applepayproductcomponent'">
         <!-- ko template: getTemplate() --><!-- /ko -->
 
-    <script nonce="<?= $cspNonce ?>">
+    <script>
         if ('undefined' === typeof window.checkoutConfig) {
             window.checkoutConfig = <?= /* @noEscape */ ($block->getApplepayConfig()); ?>;
             window.isCustomerLoggedIn = window.checkoutConfig.isCustomerLoggedIn;
