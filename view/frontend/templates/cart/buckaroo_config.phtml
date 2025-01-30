@@ -18,11 +18,11 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-/** @var string $cspNonce */
+/** @var string $block */
 ?>
 <div id="buckaroo-fee-cart" data-bind="scope:'buckarooFeeCart'">
     <!-- ko template: getTemplate() --><!-- /ko -->
-    <script nonce="<?= $block->getCspNonce() ?>">
+    <script>
         window.buckarooConfig = <?= /* @noEscape */ $block->getBuckarooConfigJson(); ?>;
     </script>
 </div>
