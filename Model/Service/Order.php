@@ -230,6 +230,8 @@ class Order
                 $statusCode,
                 $order
             );
+            $this->logging->addDebug(__METHOD__ . '|vegiiiiiiiiiiiiiiiiiiiii|');
+            $this->logging->addDebug($failedStatus);
 
             if ($failedStatus) {
                 $order->setStatus($failedStatus);
