@@ -1732,7 +1732,6 @@ class Push implements PushInterface
                     ->save();
             } else {
                 $this->order->addStatusHistoryComment($description, $newStatus);
-                $this->order->setStatus($newStatus);
             }
         } else {
             $this->logging->addDebug(__METHOD__ . '|2|');
@@ -1744,7 +1743,6 @@ class Push implements PushInterface
                     ->save();
             } else {
                 $this->order->addStatusHistoryComment($description);
-                $this->order->setStatus($newStatus);
             }
         }
     }
