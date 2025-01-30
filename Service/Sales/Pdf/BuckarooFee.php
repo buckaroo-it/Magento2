@@ -75,7 +75,7 @@ class BuckarooFee extends DefaultTotal
     {
         $store = $this->getOrder()->getStore();
         $amount = $this->getOrder()->formatPriceTxt($this->getAmount());
-        $label = $this->paymentFee->getBuckarooPaymentFeeLabel($this->getOrder());
+        $label = $this->paymentFee->getBuckarooPaymentFeeLabel();
         $fontSize = $this->getFontSize() ? $this->getFontSize() : 7;
 
         $isFeeInclusiveOfTax = $this->configProviderBuckarooFee->getBuckarooFeeTaxClass($store);

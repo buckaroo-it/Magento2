@@ -41,7 +41,7 @@ define(
         checkoutCommon
     ) {
         'use strict';
-        
+
 
         /**
          * Add validation methods
@@ -54,7 +54,7 @@ define(
 
         $.validator.addMethod('validateCvc', function (value) {
                 return BuckarooClientSideEncryption.V001.validateCvc(
-                    value, 
+                    value,
                     $('#buckaroo_magento2_creditcards_issuer').val()
                 );
             },
@@ -66,10 +66,10 @@ define(
             },
             $.mage.__('Please enter a valid card holder name.')
         );
-        
+
         $.validator.addMethod('bkValidateYear', function (value) {
-                if(value.length === 0) {
-                    return false; 
+                if (value.length === 0) {
+                    return false;
                 }
                 const parts = value.split("/");
                 return BuckarooClientSideEncryption.V001.validateYear(parts[1]);
@@ -77,8 +77,8 @@ define(
             $.mage.__('Enter a valid year number.')
         );
         $.validator.addMethod('bkValidateMonth', function (value) {
-                if(value.length === 0) {
-                    return false; 
+                if (value.length === 0) {
+                    return false;
                 }
 
                 const parts = value.split("/");
@@ -90,35 +90,24 @@ define(
         return Component.extend(
             {
                 defaults: {
-                    template        : 'Buckaroo_Magento2/payment/buckaroo_magento2_creditcards',
-                    cardNumber      : '',
-                    cvc             : '',
-                    cardHolderName  : '',
-                    expireDate      : '',
-                    encryptedCardData : null,
-                    cardIssuer      : null,
-                    validationState : {},
-                    issuerImage     : window.checkoutConfig.payment.buckaroo.creditcards.defaultCardImage
+                    template: 'Buckaroo_Magento2/payment/buckaroo_magento2_creditcards',
+                    cardNumber: '',
+                    cvc: '',
+                    cardHolderName: '',
+                    expireDate: '',
+                    encryptedCardData: null,
+                    cardIssuer: null,
+                    validationState: {},
+                    issuerImage: window.checkoutConfig.payment.buckaroo.creditcards.defaultCardImage
                 },
-                paymentFeeLabel : window.checkoutConfig.payment.buckaroo.creditcards.paymentFeeLabel,
-                subtext : window.checkoutConfig.payment.buckaroo.creditcards.subtext,
-                subTextStyle : checkoutCommon.getSubtextStyle('creditcards'),
-                currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
-                baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
-                creditcards : window.checkoutConfig.payment.buckaroo.creditcards.creditcards,
-                defaultCardImage : window.checkoutConfig.payment.buckaroo.creditcards.defaultCardImage,
+                paymentFeeLabel: window.checkoutConfig.payment.buckaroo.creditcards.paymentFeeLabel,
+                subtext: window.checkoutConfig.payment.buckaroo.creditcards.subtext,
+                subTextStyle: checkoutCommon.getSubtextStyle('creditcards'),
+                currencyCode: window.checkoutConfig.quoteData.quote_currency_code,
+                baseCurrencyCode: window.checkoutConfig.quoteData.base_currency_code,
+                creditcards: window.checkoutConfig.payment.buckaroo.creditcards.creditcards,
+                defaultCardImage: window.checkoutConfig.payment.buckaroo.creditcards.defaultCardImage,
                 isTestMode: window.checkoutConfig.payment.buckaroo.creditcards.isTestMode,
-
-                /**
-                 * @override
-                 */
-                initialize : function (options) {
-                    if (checkoutData.getSelectedPaymentMethod() == options.index) {
-                        window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-                    }
-
-                    return this._super(options);
-                },
 
                 initObservable: function () {
                     /** Observed fields **/
@@ -137,7 +126,7 @@ define(
                     this.formatedCardNumber = ko.computed({
                         read: function () {
                             let cardNumber = this.cardNumber();
-                            if(cardNumber.length) {
+                            if (cardNumber.length) {
                                 return this.cardNumber().match(new RegExp('.{1,4}', 'g')).join(" ");
                             }
                             return '';
@@ -151,22 +140,22 @@ define(
                     this.formatedExpirationDate = ko.computed({
                         read: function () {
                             let expireDate = this.expireDate();
-                            if(expireDate.length) {
+                            if (expireDate.length) {
                                 return expireDate.replace(
                                     /^([1-9]\/|[2-9])$/g, '0$1/' // 3 > 03/
-                                  ).replace(
+                                ).replace(
                                     /^(0[1-9]|1[0-2])$/g, '$1/' // 11 > 11/
-                                  ).replace(
+                                ).replace(
                                     /^([0-1])([3-9])$/g, '0$1/$2' // 13 > 01/3
-                                  ).replace(
+                                ).replace(
                                     /^(0?[1-9]|1[0-2])([0-9]{2})$/g, '$1/$2' // 141 > 01/41
-                                  ).replace(
+                                ).replace(
                                     /^([0]+)\/|[0]+$/g, '0' // 0/ > 0 and 00 > 0
-                                  ).replace(
+                                ).replace(
                                     /[^\d\/]|^[\/]*$/g, '' // To allow only digits and `/`
-                                  ).replace(
+                                ).replace(
                                     /\/\//g, '/' // Prevent entering more than 1 `/`
-                                  );
+                                );
                             }
                             return '';
                         },
@@ -175,18 +164,18 @@ define(
                         },
                         owner: this
                     });
-                   
+
 
                     this.issuerImage = ko.computed(
                         function () {
                             var cardLogo = this.defaultCardImage;
-                            
+
                             var issuer = this.creditcards.find(o => o.code === this.cardIssuer());
                             if (issuer) {
                                 cardLogo = issuer.img;
                             }
 
-                        return cardLogo;
+                            return cardLogo;
                         },
                         this
                     );
@@ -194,7 +183,7 @@ define(
                     return this;
                 },
 
-                
+
                 validateCardNumber(data, event) {
                     this.validateField(data, event);
 
@@ -202,9 +191,9 @@ define(
                     this.cardIssuer(
                         this.determineIssuer(data.cardNumber())
                     )
-                    
+
                     //validate the cvc if exists
-                    if(this.cvc().length) {
+                    if (this.cvc().length) {
                         $('#buckaroo_magento2_creditcards_cvc').valid();
                     }
                 },
@@ -259,8 +248,6 @@ define(
                 },
 
                 selectPaymentMethod: function () {
-                    window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-
                     selectPaymentMethodAction(this.getData());
                     checkoutData.setSelectedPaymentMethod(this.item.method);
                     return true;
@@ -295,9 +282,9 @@ define(
 
                     if (this.validate() && additionalValidators.validate()) {
                         this.isPlaceOrderActionAllowed(false);
-                        this.encryptCardData().then(function() {
+                        this.encryptCardData().then(function () {
                             placeOrder = placeOrderAction(self.getData(), self.redirectAfterPlaceOrder, self.messageContainer);
-    
+
                             $.when(placeOrder).fail(
                                 function () {
                                     self.isPlaceOrderActionAllowed(true);
@@ -314,24 +301,24 @@ define(
                     checkoutCommon.redirectHandle(response);
                 },
 
-                getData: function() {
+                getData: function () {
                     let cardIssuer = this.cardIssuer();
 
-                    if(cardIssuer == null) {
+                    if (cardIssuer == null) {
                         cardIssuer = this.determineIssuer(this.cardNumber());
                     }
                     return {
-                        "method":  this.item.method,
+                        "method": this.item.method,
                         "po_number": null,
                         "additional_data": {
-                            "customer_encrypteddata" : this.encryptedCardData,
-                            "customer_creditcardcompany" : cardIssuer
+                            "customer_encrypteddata": this.encryptedCardData,
+                            "customer_creditcardcompany": cardIssuer
                         }
                     }
                 },
 
                 encryptCardData: function () {
-                    return new Promise(function(resolve) {
+                    return new Promise(function (resolve) {
                         const parts = this.expireDate().split("/");
                         const month = parts[0];
                         const year = parts[1];
@@ -342,7 +329,7 @@ define(
                             month,
                             this.cvc(),
                             this.cardHolderName(),
-                            function(encryptedCardData) {
+                            function (encryptedCardData) {
                                 this.encryptedCardData = encryptedCardData;
                                 resolve()
                             }.bind(this));

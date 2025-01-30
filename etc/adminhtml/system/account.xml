@@ -230,12 +230,6 @@
                 <config_path>buckaroo_magento2/account/limit_by_ip</config_path>
             </field>
 
-            <field id="payment_fee_label" translate="label comment" type="text" sortOrder="160" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Payment fee frontend label</label>
-                <comment><![CDATA[This label will be displayed next to the fee on the checkout, order, invoice and creditmemo pages and pdfs.]]></comment>
-                <config_path>buckaroo_magento2/account/payment_fee_label</config_path>
-            </field>
-
             <field id="create_order_before_transaction" translate="label comment" type="select" sortOrder="170" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Create order before transaction</label>
                 <comment><![CDATA[This will create an order before setting up the transaction with Buckaroo.]]></comment>

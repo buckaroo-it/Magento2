@@ -23,7 +23,6 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 class Belfius extends AbstractConfigProvider
 {
     const XPATH_BELFIUS_PAYMENT_FEE           = 'payment/buckaroo_magento2_belfius/payment_fee';
-    const XPATH_BELFIUS_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_belfius/payment_fee_label';
     const XPATH_BELFIUS_ACTIVE                = 'payment/buckaroo_magento2_belfius/active';
     const XPATH_BELFIUS_SUBTEXT               = 'payment/buckaroo_magento2_belfius/subtext';
     const XPATH_BELFIUS_SUBTEXT_STYLE         = 'payment/buckaroo_magento2_belfius/subtext_style';
@@ -44,9 +43,7 @@ class Belfius extends AbstractConfigProvider
      */
     public function getConfig()
     {
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
-            \Buckaroo\Magento2\Model\Method\Belfius::PAYMENT_METHOD_CODE
-        );
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
 
         return [
             'payment' => [

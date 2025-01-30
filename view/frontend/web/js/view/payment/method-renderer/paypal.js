@@ -47,32 +47,22 @@ define(
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_paypal'
                 },
                 redirectAfterPlaceOrder: false,
-                paymentFeeLabel : window.checkoutConfig.payment.buckaroo.paypal.paymentFeeLabel,
-                subtext : window.checkoutConfig.payment.buckaroo.paypal.subtext,
-                subTextStyle : checkoutCommon.getSubtextStyle('paypal'),
-                currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
-                baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
+                paymentFeeLabel: window.checkoutConfig.payment.buckaroo.paypal.paymentFeeLabel,
+                subtext: window.checkoutConfig.payment.buckaroo.paypal.subtext,
+                subTextStyle: checkoutCommon.getSubtextStyle('paypal'),
+                currencyCode: window.checkoutConfig.quoteData.quote_currency_code,
+                baseCurrencyCode: window.checkoutConfig.quoteData.base_currency_code,
+
 
                 /**
-             * @override
-             */
-                initialize : function (options) {
-                    if (checkoutData.getSelectedPaymentMethod() == options.index) {
-                        window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-                    }
-
-                    return this._super(options);
-                },
-
-                /**
-             * Place order.
-             *
-             * placeOrderAction has been changed from Magento_Checkout/js/action/place-order to our own version
-             * (Buckaroo_Magento2/js/action/place-order) to prevent redirect and handle the response.
-             */
+                 * Place order.
+                 *
+                 * placeOrderAction has been changed from Magento_Checkout/js/action/place-order to our own version
+                 * (Buckaroo_Magento2/js/action/place-order) to prevent redirect and handle the response.
+                 */
                 placeOrder: function (data, event) {
                     var self = this,
-                    placeOrder;
+                        placeOrder;
 
                     if (event) {
                         event.preventDefault();
@@ -98,8 +88,6 @@ define(
                 },
 
                 selectPaymentMethod: function () {
-                    window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-
                     selectPaymentMethodAction(this.getData());
                     checkoutData.setSelectedPaymentMethod(this.item.method);
                     return true;
@@ -120,11 +108,3 @@ define(
         );
     }
 );
-
-
-
-
-
-
-
-

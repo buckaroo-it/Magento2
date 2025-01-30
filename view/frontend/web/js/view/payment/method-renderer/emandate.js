@@ -49,22 +49,11 @@ define(
                 banktypes: [],
                 redirectAfterPlaceOrder: false,
                 selectedBank: null,
-                paymentFeeLabel : window.checkoutConfig.payment.buckaroo.emandate.paymentFeeLabel,
-                subtext : window.checkoutConfig.payment.buckaroo.emandate.subtext,
-                subTextStyle : checkoutCommon.getSubtextStyle('emandate'),
-                currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
-                baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
-
-                /**
-                 * @override
-                 */
-                initialize : function (options) {
-                    if (checkoutData.getSelectedPaymentMethod() == options.index) {
-                        window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-                    }
-
-                    return this._super(options);
-                },
+                paymentFeeLabel: window.checkoutConfig.payment.buckaroo.emandate.paymentFeeLabel,
+                subtext: window.checkoutConfig.payment.buckaroo.emandate.subtext,
+                subTextStyle: checkoutCommon.getSubtextStyle('emandate'),
+                currencyCode: window.checkoutConfig.quoteData.quote_currency_code,
+                baseCurrencyCode: window.checkoutConfig.quoteData.base_currency_code,
 
                 initObservable: function () {
                     this._super().observe(['selectedBank', 'banktypes']);
@@ -99,7 +88,7 @@ define(
                  */
                 placeOrder: function (data, event) {
                     var self = this,
-                    placeOrder;
+                        placeOrder;
 
                     if (event) {
                         event.preventDefault();
@@ -125,8 +114,6 @@ define(
                 },
 
                 selectPaymentMethod: function () {
-                    window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-
                     selectPaymentMethodAction(this.getData());
                     checkoutData.setSelectedPaymentMethod(this.item.method);
                     return true;
@@ -142,7 +129,7 @@ define(
                         "method": this.item.method,
                         "po_number": null,
                         "additional_data": {
-                            "issuer" : selectedBankCode
+                            "issuer": selectedBankCode
                         }
                     };
                 },

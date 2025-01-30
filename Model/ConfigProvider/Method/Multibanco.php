@@ -22,7 +22,6 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 class Multibanco extends AbstractConfigProvider
 {
     const XPATH_MULTIBANCO_PAYMENT_FEE           = 'payment/buckaroo_magento2_multibanco/payment_fee';
-    const XPATH_MULTIBANCO_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_multibanco/payment_fee_label';
     const XPATH_MULTIBANCO_ACTIVE                = 'payment/buckaroo_magento2_multibanco/active';
     const XPATH_MULTIBANCO_SUBTEXT               = 'payment/buckaroo_magento2_multibanco/subtext';
     const XPATH_MULTIBANCO_SUBTEXT_STYLE         = 'payment/buckaroo_magento2_multibanco/subtext_style';
@@ -51,9 +50,7 @@ class Multibanco extends AbstractConfigProvider
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
-            \Buckaroo\Magento2\Model\Method\Multibanco::PAYMENT_METHOD_CODE
-        );
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
 
         return [
             'payment' => [

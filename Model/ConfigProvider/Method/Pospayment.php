@@ -22,7 +22,6 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 class Pospayment extends AbstractConfigProvider
 {
     const XPATH_POSPAYMENT_PAYMENT_FEE           = 'payment/buckaroo_magento2_pospayment/payment_fee';
-    const XPATH_POSPAYMENT_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_pospayment/payment_fee_label';
     const XPATH_POSPAYMENT_ACTIVE                = 'payment/buckaroo_magento2_pospayment/active';
     const XPATH_POSPAYMENT_SUBTEXT               = 'payment/buckaroo_magento2_pospayment/subtext';
     const XPATH_POSPAYMENT_SUBTEXT_STYLE         = 'payment/buckaroo_magento2_pospayment/subtext_style';
@@ -59,9 +58,7 @@ class Pospayment extends AbstractConfigProvider
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
-            \Buckaroo\Magento2\Model\Method\Pospayment::PAYMENT_METHOD_CODE
-        );
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
 
         return [
             'payment' => [

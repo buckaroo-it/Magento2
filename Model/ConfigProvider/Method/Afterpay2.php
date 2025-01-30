@@ -39,7 +39,6 @@ class Afterpay2 extends AbstractConfigProvider
     const XPATH_AFTERPAY2_SUBTEXT_STYLE          = 'payment/buckaroo_magento2_afterpay2/subtext_style';
     const XPATH_AFTERPAY2_SUBTEXT_COLOR          = 'payment/buckaroo_magento2_afterpay2/subtext_color';
     const XPATH_AFTERPAY2_PAYMENT_FEE            = 'payment/buckaroo_magento2_afterpay2/payment_fee';
-    const XPATH_AFTERPAY2_PAYMENT_FEE_LABEL      = 'payment/buckaroo_magento2_afterpay2/payment_fee_label';
     const XPATH_AFTERPAY2_SEND_EMAIL             = 'payment/buckaroo_magento2_afterpay2/send_email';
     const XPATH_AFTERPAY2_ACTIVE_STATUS          = 'payment/buckaroo_magento2_afterpay2/active_status';
     const XPATH_AFTERPAY2_ORDER_STATUS_SUCCESS   = 'payment/buckaroo_magento2_afterpay2/order_status_success';
@@ -70,9 +69,7 @@ class Afterpay2 extends AbstractConfigProvider
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
-            \Buckaroo\Magento2\Model\Method\Afterpay2::PAYMENT_METHOD_CODE
-        );
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
 
         return [
             'payment' => [

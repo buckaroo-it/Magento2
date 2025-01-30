@@ -23,7 +23,6 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 class Voucher extends AbstractConfigProvider
 {
     const XPATH_VOUCHER_PAYMENT_FEE           = 'payment/buckaroo_magento2_voucher/payment_fee';
-    const XPATH_VOUCHER_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_voucher/payment_fee_label';
     const XPATH_VOUCHER_ACTIVE                = 'payment/buckaroo_magento2_voucher/active';
     const XPATH_VOUCHER_SUBTEXT               = 'payment/buckaroo_magento2_voucher/subtext';
     const XPATH_VOUCHER_SUBTEXT_STYLE         = 'payment/buckaroo_magento2_voucher/subtext_style';
@@ -59,9 +58,7 @@ class Voucher extends AbstractConfigProvider
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
-            \Buckaroo\Magento2\Model\Method\Voucher::PAYMENT_METHOD_CODE
-        );
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
 
         return [
             'payment' => [

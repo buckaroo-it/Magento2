@@ -35,7 +35,6 @@ class Transfer extends AbstractConfigProvider
     const XPATH_TRANSFER_SUBTEXT_STYLE          = 'payment/buckaroo_magento2_transfer/subtext_style';
     const XPATH_TRANSFER_SUBTEXT_COLOR          = 'payment/buckaroo_magento2_transfer/subtext_color';
     const XPATH_TRANSFER_PAYMENT_FEE            = 'payment/buckaroo_magento2_transfer/payment_fee';
-    const XPATH_TRANSFER_PAYMENT_FEE_LABEL      = 'payment/buckaroo_magento2_transfer/payment_fee_label';
     const XPATH_TRANSFER_SEND_EMAIL             = 'payment/buckaroo_magento2_transfer/send_email';
     const XPATH_TRANSFER_ACTIVE_STATUS          = 'payment/buckaroo_magento2_transfer/active_status';
     const XPATH_TRANSFER_ORDER_STATUS_SUCCESS   = 'payment/buckaroo_magento2_transfer/order_status_success';
@@ -67,9 +66,7 @@ class Transfer extends AbstractConfigProvider
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
-            \Buckaroo\Magento2\Model\Method\Transfer::PAYMENT_METHOD_CODE
-        );
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
 
         return [
             'payment' => [
