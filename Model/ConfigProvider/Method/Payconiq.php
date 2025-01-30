@@ -27,7 +27,6 @@ use Buckaroo\Magento2\Helper\PaymentFee;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 
 /**
- * @method getPaymentFeeLabel()
  * @method getSellersProtection()
  * @method getSellersProtectionEligible()
  * @method getSellersProtectionIneligible()
@@ -37,7 +36,6 @@ use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 class Payconiq extends AbstractConfigProvider
 {
     const XPATH_PAYCONIQ_PAYMENT_FEE                      = 'payment/buckaroo_magento2_payconiq/payment_fee';
-    const XPATH_PAYCONIQ_PAYMENT_FEE_LABEL                = 'payment/buckaroo_magento2_payconiq/payment_fee_label';
     const XPATH_PAYCONIQ_ACTIVE                           = 'payment/buckaroo_magento2_payconiq/active';
     const XPATH_PAYCONIQ_SUBTEXT                          = 'payment/buckaroo_magento2_payconiq/subtext';
     const XPATH_PAYCONIQ_SUBTEXT_STYLE                    = 'payment/buckaroo_magento2_payconiq/subtext_style';
@@ -96,9 +94,7 @@ class Payconiq extends AbstractConfigProvider
      */
     public function getConfig()
     {
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
-            \Buckaroo\Magento2\Model\Method\Payconiq::PAYMENT_METHOD_CODE
-        );
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
 
         return [
             'payment' => [

@@ -23,7 +23,6 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 class Trustly extends AbstractConfigProvider
 {
     const XPATH_TRUSTLY_PAYMENT_FEE           = 'payment/buckaroo_magento2_trustly/payment_fee';
-    const XPATH_TRUSTLY_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_trustly/payment_fee_label';
     const XPATH_TRUSTLY_ACTIVE                = 'payment/buckaroo_magento2_trustly/active';
     const XPATH_TRUSTLY_SUBTEXT               = 'payment/buckaroo_magento2_trustly/subtext';
     const XPATH_TRUSTLY_SUBTEXT_STYLE         = 'payment/buckaroo_magento2_trustly/subtext_style';
@@ -57,9 +56,7 @@ class Trustly extends AbstractConfigProvider
      */
     public function getConfig()
     {
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
-            \Buckaroo\Magento2\Model\Method\Trustly::PAYMENT_METHOD_CODE
-        );
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
 
         return [
             'payment' => [

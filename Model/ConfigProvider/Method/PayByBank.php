@@ -167,20 +167,6 @@ class PayByBank extends AbstractConfigProvider
     }
 
     /**
-     * @param null|int $storeId
-     *
-     * @return string
-     */
-    public function getPaymentFeeLabel($storeId = null)
-    {
-        return  $this->scopeConfig->getValue(
-            Account::XPATH_ACCOUNT_PAYMENT_FEE_LABEL,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
-    }
-
-    /**
      * Get bank issuers, move last saved bank issuer first,
      * add selected property to the issuers array
      *

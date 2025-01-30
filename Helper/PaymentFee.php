@@ -95,7 +95,7 @@ class PaymentFee extends AbstractHelper
         $taxClassId = $this->configProviderBuckarooFee->getBuckarooFeeTaxClass($store);
         $isIncludingTax = $this->isFeeDisplayTypeIncludingTax($taxClassId);
 
-        $label = $this->getBuckarooPaymentFeeLabel($dataObject);
+        $label = $this->getBuckarooPaymentFeeLabel();
         $fee = $dataObject->getBuckarooFee();
         $feeTaxAmount = $dataObject->getBuckarooFeeTaxAmount();
         $baseFee = $dataObject->getBaseBuckarooFee();
@@ -293,27 +293,11 @@ class PaymentFee extends AbstractHelper
     /**
      * Retrieve the correct label for the Buckaroo payment fee.
      *
-     * @param mixed $dataObject
      * @return string
      */
-    public function getBuckarooPaymentFeeLabel($dataObject)
+    public function getBuckarooPaymentFeeLabel()
     {
-        $method = $this->extractPaymentMethodFromDataObject($dataObject);
-        $label = false;
-
-        if ($method && $this->configProviderMethodFactory->has($method)) {
-            $label = $this->configProviderMethodFactory->get($method)->getPaymentFeeLabel();
-        }
-
-        if (!$label) {
-            $label = $this->configProviderAccount->getPaymentFeeLabel();
-        }
-
-        if (!$label) {
-            $label = __('Buckaroo Fee');
-        }
-
-        return $label;
+        return __('Payment Fee');
     }
 
     /**

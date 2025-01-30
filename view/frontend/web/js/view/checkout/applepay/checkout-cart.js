@@ -16,33 +16,37 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-define(
-    [
-        'jquery',
-        'Magento_Checkout/js/model/quote',
-        'buckaroo/applepay/order-handler',
-        'buckaroo/applepay/pay'
-    ],
-    function (
-        $,
-        quote,
-        orderHandler,
-        applepayPay
-    ) {
-        'use strict';
+define([
+    'uiComponent',
+    'Magento_Checkout/js/model/quote',
+    'buckaroo/applepay/order-handler',
+    'buckaroo/applepay/pay'
+], function (
+    Component,
+    quote,
+    orderHandler,
+    applepayPay
+) {
+    'use strict';
 
-        return {
-            showPayButton: function ($page) {
-                applepayPay.setQuote(quote);
-                applepayPay.showPayButton($page);
+    return Component.extend({
+        initialize: function () {
+            this._super();
+            this.initPayButton();
+            return this;
+        },
 
-                applepayPay.transactionResult.subscribe(
-                    function () {
-                        orderHandler.setApplepayTransaction(applepayPay.transactionResult());
-                        orderHandler.placeOrder();
-                    }.bind(this)
-                );
-            }
-        };
-    }
-);
+        /**
+         * Original 'showPayButton' logic
+         */
+        initPayButton: function () {
+            applepayPay.setQuote(quote);
+            applepayPay.showPayButton('cart');
+
+            applepayPay.transactionResult.subscribe(function () {
+                orderHandler.setApplepayTransaction(applepayPay.transactionResult());
+                orderHandler.placeOrder();
+            }.bind(this));
+        }
+    });
+});

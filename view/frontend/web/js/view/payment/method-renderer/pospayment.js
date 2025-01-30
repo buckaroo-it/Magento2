@@ -72,22 +72,11 @@ define(
                 defaults: {
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_pospayment'
                 },
-                paymentFeeLabel : window.checkoutConfig.payment.buckaroo.pospayment.paymentFeeLabel,
-                subtext : window.checkoutConfig.payment.buckaroo.pospayment.subtext,
-                subTextStyle : checkoutCommon.getSubtextStyle('pospayment'),
-                currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
-                baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
-
-                /**
-                 * @override
-                 */
-                initialize : function (options) {
-                    if (checkoutData.getSelectedPaymentMethod() == options.index) {
-                        window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-                    }
-
-                    return this._super(options);
-                },
+                paymentFeeLabel: window.checkoutConfig.payment.buckaroo.pospayment.paymentFeeLabel,
+                subtext: window.checkoutConfig.payment.buckaroo.pospayment.subtext,
+                subTextStyle: checkoutCommon.getSubtextStyle('pospayment'),
+                currencyCode: window.checkoutConfig.quoteData.quote_currency_code,
+                baseCurrencyCode: window.checkoutConfig.quoteData.base_currency_code,
 
                 /**
                  * Place order.
@@ -124,7 +113,10 @@ define(
                         alert({
                             title: $t('Follow the instructions on the payment terminal'),
                             content: $t('Your order will be completed as soon as payment has been made'),
-                            actions: {always: function(){} }/*,
+                            actions: {
+                                always: function () {
+                                }
+                            }/*,
                             buttons: [{
                                 text: $t(333),
                                 class: 'action primary accept',
@@ -135,13 +127,11 @@ define(
                         });
                         var interval = setInterval(function () {
                             checkOrderState(response.Order, interval);
-                        },3000);
+                        }, 3000);
                     }
                 },
 
                 selectPaymentMethod: function () {
-                    window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-
                     selectPaymentMethodAction(this.getData());
                     checkoutData.setSelectedPaymentMethod(this.item.method);
                     return true;

@@ -26,7 +26,6 @@ use Buckaroo\Magento2\Model\Method\IdealProcessing as IdealProcessingMethod;
 class IdealProcessing extends AbstractConfigProvider
 {
     const XPATH_IDEALPROCESSING_PAYMENT_FEE          = 'payment/buckaroo_magento2_idealprocessing/payment_fee';
-    const XPATH_IDEALPROCESSING_PAYMENT_FEE_LABEL    = 'payment/buckaroo_magento2_idealprocessing/payment_fee_label';
     const XPATH_IDEALPROCESSING_ACTIVE               = 'payment/buckaroo_magento2_idealprocessing/active';
     const XPATH_IDEALPROCESSING_SUBTEXT              = 'payment/buckaroo_magento2_idealprocessing/subtext';
     const XPATH_IDEALPROCESSING_SUBTEXT_STYLE        = 'payment/buckaroo_magento2_idealprocessing/subtext_style';
@@ -62,7 +61,7 @@ class IdealProcessing extends AbstractConfigProvider
         }
 
         $issuers = $this->formatIssuers();
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(IdealProcessingMethod::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
 
         $selectionType = $this->scopeConfig->getValue(
             self::XPATH_SELECTION_TYPE,

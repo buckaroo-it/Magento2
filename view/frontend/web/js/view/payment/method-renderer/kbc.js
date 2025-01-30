@@ -46,22 +46,11 @@ define(
                 defaults: {
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_kbc'
                 },
-                paymentFeeLabel : window.checkoutConfig.payment.buckaroo.kbc.paymentFeeLabel,
-                subtext : window.checkoutConfig.payment.buckaroo.kbc.subtext,
-                subTextStyle : checkoutCommon.getSubtextStyle('kbc'),
-                currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
-                baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
-
-                /**
-                 * @override
-                 */
-                initialize : function (options) {
-                    if (checkoutData.getSelectedPaymentMethod() == options.index) {
-                        window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-                    }
-
-                    return this._super(options);
-                },
+                paymentFeeLabel: window.checkoutConfig.payment.buckaroo.kbc.paymentFeeLabel,
+                subtext: window.checkoutConfig.payment.buckaroo.kbc.subtext,
+                subTextStyle: checkoutCommon.getSubtextStyle('kbc'),
+                currencyCode: window.checkoutConfig.quoteData.quote_currency_code,
+                baseCurrencyCode: window.checkoutConfig.quoteData.base_currency_code,
 
                 /**
                  * Place order.
@@ -97,8 +86,6 @@ define(
                 },
 
                 selectPaymentMethod: function () {
-                    window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-
                     selectPaymentMethodAction(this.getData());
                     checkoutData.setSelectedPaymentMethod(this.item.method);
                     return true;

@@ -34,7 +34,6 @@ class Klarna extends AbstractConfigProvider
     const XPATH_KLARNA_SUBTEXT_STYLE          = 'payment/buckaroo_magento2_klarna/subtext_style';
     const XPATH_KLARNA_SUBTEXT_COLOR          = 'payment/buckaroo_magento2_klarna/subtext_color';
     const XPATH_KLARNA_PAYMENT_FEE            = 'payment/buckaroo_magento2_klarna/payment_fee';
-    const XPATH_KLARNA_PAYMENT_FEE_LABEL      = 'payment/buckaroo_magento2_klarna/payment_fee_label';
     const XPATH_KLARNA_SEND_EMAIL             = 'payment/buckaroo_magento2_klarna/send_email';
     const XPATH_KLARNA_ACTIVE_STATUS          = 'payment/buckaroo_magento2_klarna/active_status';
     const XPATH_KLARNA_ORDER_STATUS_SUCCESS   = 'payment/buckaroo_magento2_klarna/order_status_success';
@@ -93,9 +92,7 @@ class Klarna extends AbstractConfigProvider
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
-            \Buckaroo\Magento2\Model\Method\Klarna\PayLater::PAYMENT_METHOD_CODE
-        );
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
 
         return [
             'payment' => [

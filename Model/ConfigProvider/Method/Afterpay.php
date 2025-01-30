@@ -39,7 +39,6 @@ class Afterpay extends AbstractConfigProvider
     const XPATH_AFTERPAY_SUBTEXT_STYLE          = 'payment/buckaroo_magento2_afterpay/subtext_style';
     const XPATH_AFTERPAY_SUBTEXT_COLOR          = 'payment/buckaroo_magento2_afterpay/subtext_color';
     const XPATH_AFTERPAY_PAYMENT_FEE            = 'payment/buckaroo_magento2_afterpay/payment_fee';
-    const XPATH_AFTERPAY_PAYMENT_FEE_LABEL      = 'payment/buckaroo_magento2_afterpay/payment_fee_label';
     const XPATH_AFTERPAY_SEND_EMAIL             = 'payment/buckaroo_magento2_afterpay/send_email';
     const XPATH_AFTERPAY_ACTIVE_STATUS          = 'payment/buckaroo_magento2_afterpay/active_status';
     const XPATH_AFTERPAY_ORDER_STATUS_SUCCESS   = 'payment/buckaroo_magento2_afterpay/order_status_success';
@@ -70,9 +69,7 @@ class Afterpay extends AbstractConfigProvider
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
-            \Buckaroo\Magento2\Model\Method\Afterpay::PAYMENT_METHOD_CODE
-        );
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
 
         return [
             'payment' => [
@@ -124,11 +121,12 @@ class Afterpay extends AbstractConfigProvider
      *
      * @return bool|int
      */
-    public function getPaymentMethod()
+    public function getPaymentMethod($storeId = null)
     {
         $paymentMethod = (int) $this->scopeConfig->getValue(
             self::XPATH_AFTERPAY_PAYMENT_METHODS,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
         );
 
         return $paymentMethod ? $paymentMethod : false;

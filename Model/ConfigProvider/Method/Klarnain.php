@@ -34,7 +34,6 @@ class Klarnain extends AbstractConfigProvider
     const XPATH_KLARNAIN_SUBTEXT_STYLE          = 'payment/buckaroo_magento2_klarnain/subtext_style';
     const XPATH_KLARNAIN_SUBTEXT_COLOR          = 'payment/buckaroo_magento2_klarnain/subtext_color';
     const XPATH_KLARNAIN_PAYMENT_FEE            = 'payment/buckaroo_magento2_klarnain/payment_fee';
-    const XPATH_KLARNAIN_PAYMENT_FEE_LABEL      = 'payment/buckaroo_magento2_klarnain/payment_fee_label';
     const XPATH_KLARNAIN_SEND_EMAIL             = 'payment/buckaroo_magento2_klarnain/send_email';
     const XPATH_KLARNAIN_ACTIVE_STATUS          = 'payment/buckaroo_magento2_klarnain/active_status';
     const XPATH_KLARNAIN_ORDER_STATUS_SUCCESS   = 'payment/buckaroo_magento2_klarnain/order_status_success';
@@ -86,9 +85,7 @@ class Klarnain extends AbstractConfigProvider
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
-            \Buckaroo\Magento2\Model\Method\Klarna\Klarnain::PAYMENT_METHOD_CODE
-        );
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
 
         return [
             'payment' => [

@@ -51,22 +51,11 @@ define(
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_payconiq'
                 },
                 redirectAfterPlaceOrder: false,
-                paymentFeeLabel : window.checkoutConfig.payment.buckaroo.payconiq.paymentFeeLabel,
-                subtext : window.checkoutConfig.payment.buckaroo.payconiq.subtext,
-                subTextStyle : checkoutCommon.getSubtextStyle('payconiq'),
-                currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
-                baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
-
-                /**
-                 * @override
-                 */
-                initialize : function (options) {
-                    if (checkoutData.getSelectedPaymentMethod() == options.index) {
-                        window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-                    }
-
-                    return this._super(options);
-                },
+                paymentFeeLabel: window.checkoutConfig.payment.buckaroo.payconiq.paymentFeeLabel,
+                subtext: window.checkoutConfig.payment.buckaroo.payconiq.subtext,
+                subTextStyle: checkoutCommon.getSubtextStyle('payconiq'),
+                currencyCode: window.checkoutConfig.quoteData.quote_currency_code,
+                baseCurrencyCode: window.checkoutConfig.quoteData.base_currency_code,
 
                 /**
                  * Place order.
@@ -105,7 +94,7 @@ define(
                             null,
                             url.build('/buckaroo/payconiq/process/?cancel=1&form_key=' + formKey + '&transaction_key=' + response.Key)
                         );
-                        var data =  {};
+                        var data = {};
                         data['transaction_key'] = response.key;
 
                         utils.submit({
@@ -116,8 +105,6 @@ define(
                 },
 
                 selectPaymentMethod: function () {
-                    window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-
                     selectPaymentMethodAction(this.getData());
                     checkoutData.setSelectedPaymentMethod(this.item.method);
                     return true;
@@ -138,11 +125,3 @@ define(
         );
     }
 );
-
-
-
-
-
-
-
-
