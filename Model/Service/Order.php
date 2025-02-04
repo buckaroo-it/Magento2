@@ -191,7 +191,7 @@ class Order
         }
     }
 
-    public function cancel($order, $statusCode)
+    public function cancel($order, $statusCode, $statusMessage = '')
     {
         $this->logging->addDebug(__METHOD__ . '|1|' . var_export($order->getIncrementId(), true));
 
@@ -234,7 +234,9 @@ class Order
 
 
             if ($failedStatus) {
+                $order->setState($failedStatus);
                 $order->setStatus($failedStatus);
+                $order->addStatusHistoryComment($statusMessage, $failedStatus);
             }
             $order->save();
             return true;
