@@ -198,8 +198,6 @@ class Order
         // Mostly the push api already canceled the order, so first check in wich state the order is.
         if ($order->getState() == \Magento\Sales\Model\Order::STATE_CANCELED) {
             $this->logging->addDebug(__METHOD__ . '|5|');
-            $this->logging->addDebug($this->orderStatusFactory->get($statusCode, $order));
-            $order->setStatus($this->orderStatusFactory->get($statusCode, $order));
             return true;
         }
 
