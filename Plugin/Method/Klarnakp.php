@@ -51,12 +51,12 @@ class Klarnakp
         Order $subject
     ) {
         $payment = $subject->getPayment();
-        $orderIsCanceled = $payment->getOrder()->getOrigData('state');
+        $orderIsCanceled = $payment->getOrder()->isCanceled();
         $orderIsVoided = ($payment->getAdditionalInformation('voided_by_buckaroo') === true);
 
         if ($payment->getMethod() !== self::KLARNAKP_METHOD_NAME
             || $orderIsVoided
-            || $orderIsCanceled == Order::STATE_CANCELED
+            || $orderIsCanceled
         ) {
             return $subject;
         }

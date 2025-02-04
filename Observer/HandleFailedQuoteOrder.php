@@ -94,6 +94,7 @@ class HandleFailedQuoteOrder implements \Magento\Framework\Event\ObserverInterfa
                     $this->logging->addDebug(__METHOD__ . '|5|');
                     $this->buckarooSession->setData('flagHandleFailedQuote', 1);
                 }
+                $this->orderManagement->setState($order->getId(), 'canceled');
                 $this->orderManagement->cancel($order->getId());
                 //phpcs:ignore: Magento2.CodeAnalysis.EmptyBlock.DetectedCatch
             } catch (\Exception $e) {
