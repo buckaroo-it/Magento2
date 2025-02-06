@@ -67,7 +67,7 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
         TransactionInterface $transaction,
         Log $logging,
         GroupTransactionCollectionFactory $grTrCollectionFactory,
-        GroupTransaction $resourceModel,
+        GroupTransaction $resourceModel
     ) {
         parent::__construct($context);
 
