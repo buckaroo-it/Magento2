@@ -113,15 +113,15 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
     public function getGroupTransactionItems($order_id)
     {
         $collection = $this->groupTransactionFactory->create()
-            ->getCollection()
-            ->addFieldToFilter(
-                'order_id',
-                ['eq' => $order_id]
-            )
-            ->addFieldToFilter(
-                'status',
-                ['eq' => '190']
-            );
+                                                    ->getCollection()
+                                                    ->addFieldToFilter(
+                                                        'order_id',
+                                                        ['eq' => $order_id]
+                                                    )
+                                                    ->addFieldToFilter(
+                                                        'status',
+                                                        ['eq' => '190']
+                                                    );
         $items = array_values($collection->getItems());
 
         return array_filter($items, function($item) {
@@ -171,35 +171,35 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
                 ['eq' => '190']
             )->setOrder('entity_id','DESC')
             ->getFirstItem();
-            if (!$groupTransaction->isEmpty()) {
-                return $groupTransaction->getData('relatedtransaction');
-            }
-            return;
+        if (!$groupTransaction->isEmpty()) {
+            return $groupTransaction->getData('relatedtransaction');
+        }
+        return;
     }
 
     public function getGroupTransactionItemsNotRefunded($order_id)
     {
         $collection = $this->groupTransactionFactory->create()
-            ->getCollection()
-            ->addFieldToFilter('order_id', ['eq' => $order_id])
-            ->addFieldToFilter('refunded_amount', ['null' => true]);
+                                                    ->getCollection()
+                                                    ->addFieldToFilter('order_id', ['eq' => $order_id])
+                                                    ->addFieldToFilter('refunded_amount', ['null' => true]);
         return array_values($collection->getItems());
     }
 
-    
+
     public function getGroupTransactionById($entity_id)
     {
         $collection = $this->groupTransactionFactory->create()
-            ->getCollection()
-            ->addFieldToFilter('entity_id', ['eq' => $entity_id]);
+                                                    ->getCollection()
+                                                    ->addFieldToFilter('entity_id', ['eq' => $entity_id]);
         return $collection->getItems();
     }
 
     public function getGroupTransactionByTrxId($trx_id)
     {
         return $this->groupTransactionFactory->create()
-            ->getCollection()
-            ->addFieldToFilter('transaction_id', ['eq' => $trx_id])->getItems();
+                                             ->getCollection()
+                                             ->addFieldToFilter('transaction_id', ['eq' => $trx_id])->getItems();
     }
     /**
      * Get successful group transactions for orderId
@@ -215,6 +215,8 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
             return [];
         }
 
+        $giftcardTable = $this->resourceModel->getTable('buckaroo_magento2_giftcard');
+
         $collection = $this->grTrCollectionFactory->create();
         $collection
             ->addFieldToFilter(
@@ -228,8 +230,8 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
             ->getSelect()
             ->joinLeft(
                 ['buckaroo_magento2_giftcard'],
-                'main_table.servicecode = buckaroo_magento2_giftcard.servicecode',
-                ['buckaroo_magento2_giftcard.label']
+                'main_table.servicecode = ' . $giftcardTable . '.servicecode',
+                [$giftcardTable . '.label']
             );
         return $collection->getItems();
     }
@@ -243,6 +245,8 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
      */
     public function getByTransactionIdWithName(string $transactionId)
     {
+        $giftcardTable = $this->resourceModel->getTable('buckaroo_magento2_giftcard');
+
         $collection = $this->grTrCollectionFactory->create();
         $collection
             ->addFieldToFilter(
@@ -252,8 +256,8 @@ class PaymentGroupTransaction extends \Magento\Framework\App\Helper\AbstractHelp
             ->getSelect()
             ->joinLeft(
                 ['buckaroo_magento2_giftcard'],
-                'main_table.servicecode = buckaroo_magento2_giftcard.servicecode',
-                ['buckaroo_magento2_giftcard.label']
+                'main_table.servicecode = ' . $giftcardTable . '.servicecode',
+                [$giftcardTable . '.label']
             );
         return $collection->getFirstItem();
     }
