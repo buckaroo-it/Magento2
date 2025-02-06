@@ -23,7 +23,6 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 class Ideal extends AbstractConfigProvider
 {
     const XPATH_IDEAL_PAYMENT_FEE           = 'payment/buckaroo_magento2_ideal/payment_fee';
-    const XPATH_IDEAL_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_ideal/payment_fee_label';
     const XPATH_IDEAL_ACTIVE                = 'payment/buckaroo_magento2_ideal/active';
     const XPATH_IDEAL_SUBTEXT               = 'payment/buckaroo_magento2_ideal/subtext';
     const XPATH_IDEAL_SUBTEXT_STYLE         = 'payment/buckaroo_magento2_ideal/subtext_style';
@@ -68,9 +67,7 @@ class Ideal extends AbstractConfigProvider
         }
 
         $issuers = $this->formatIssuers();
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
-            \Buckaroo\Magento2\Model\Method\Ideal::PAYMENT_METHOD_CODE
-        );
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
 
         $selectionType = $this->scopeConfig->getValue(
             self::XPATH_IDEAL_SELECTION_TYPE,

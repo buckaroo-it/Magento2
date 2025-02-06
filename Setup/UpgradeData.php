@@ -1415,12 +1415,6 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
             $setup->getConnection()->quoteInto('path = ?', $path)
         );
 
-        $path = 'payment/buckaroo_magento2_giftcards/payment_fee_label';
-        $data = [
-            'path' => $path,
-            'value' => '',
-        ];
-
         $setup->getConnection()->update(
             $setup->getTable('core_config_data'),
             $data,

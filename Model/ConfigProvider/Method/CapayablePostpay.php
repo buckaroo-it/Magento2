@@ -23,13 +23,9 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Model\Method\Capayable\Postpay as CapayablePostpayMethod;
 
-/**
- * @method getPaymentFeeLabel()
- */
 class CapayablePostpay extends AbstractConfigProvider
 {
     const XPATH_CAPAYABLEPOSTPAY_PAYMENT_FEE          = 'payment/buckaroo_magento2_capayablepostpay/payment_fee';
-    const XPATH_CAPAYABLEPOSTPAY_PAYMENT_FEE_LABEL    = 'payment/buckaroo_magento2_capayablepostpay/payment_fee_label';
     const XPATH_CAPAYABLEPOSTPAY_ACTIVE               = 'payment/buckaroo_magento2_capayablepostpay/active';
     const XPATH_CAPAYABLEPOSTPAY_SUBTEXT              = 'payment/buckaroo_magento2_capayablepostpay/subtext';
     const XPATH_CAPAYABLEPOSTPAY_SUBTEXT_STYLE          = 'payment/buckaroo_magento2_capayablepostpay/subtext_style';
@@ -68,7 +64,7 @@ class CapayablePostpay extends AbstractConfigProvider
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(CapayablePostpayMethod::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
 
         return [
             'payment' => [

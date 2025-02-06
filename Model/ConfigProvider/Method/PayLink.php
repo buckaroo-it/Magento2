@@ -42,7 +42,6 @@ class PayLink extends AbstractConfigProvider
     const XPATH_PAYLINK_SUBTEXT_STYLE        = 'payment/buckaroo_magento2_paylink/subtext_style';
     const XPATH_PAYLINK_SUBTEXT_COLOR        = 'payment/buckaroo_magento2_paylink/subtext_color';
     const XPATH_PAYLINK_PAYMENT_FEE          = 'payment/buckaroo_magento2_paylink/payment_fee';
-    const XPATH_PAYLINK_PAYMENT_FEE_LABEL    = 'payment/buckaroo_magento2_paylink/payment_fee_label';
     const XPATH_PAYLINK_ACTIVE_STATUS        = 'payment/buckaroo_magento2_paylink/active_status';
     const XPATH_PAYLINK_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_paylink/order_status_success';
     const XPATH_PAYLINK_ORDER_STATUS_FAILED  = 'payment/buckaroo_magento2_paylink/order_status_failed';
@@ -71,7 +70,7 @@ class PayLink extends AbstractConfigProvider
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(MethodPayLink::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
 
         return [
             'payment' => [

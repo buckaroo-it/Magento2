@@ -17,25 +17,34 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
+/** @var string $block */
 ?>
 <?php if ($block->canShowButton('Cart')): ?>
-<div class="box-tocart">
-    <div class="fieldset">
-        <div class="actions">
-            <div id="apple-pay-wrapper" data-bind="afterRender: showPayButton"></div>
-        </div>
-    </div>
+<div id="apple-pay-catalog-cart-view-component" data-bind="scope:'buckarooApplepayCart'">
+    <!-- ko template: getTemplate() --><!-- /ko -->
+
+    <script>
+        if ('undefined' === typeof window.checkoutConfig) {
+            window.checkoutConfig = <?= /* @noEscape */ $block->getCheckoutConfig(); ?>;
+            window.isCustomerLoggedIn = window.checkoutConfig.isCustomerLoggedIn;
+        }
+    </script>
+
+    <script type="text/x-magento-init">
+        {
+            "#apple-pay-catalog-cart-view-component": {
+                "Magento_Ui/js/core/app": {
+                    "components": {
+                        "buckarooApplepayCart": {
+                            "component": "buckaroo/applepay/catalog-cart-view",
+                            "template":"Buckaroo_Magento2/checkout/cart/applepay"
+                        }
+                    }
+                }
+            }
+        }
+    </script>
 </div>
 
-<script>
-    if ('undefined' === typeof window.checkoutConfig) {
-        window.checkoutConfig = <?= /* @noEscape */ $block->getCheckoutConfig(); ?>;
-        window.isCustomerLoggedIn = window.checkoutConfig.isCustomerLoggedIn;
-    }
-    showPayButton = function() {
-        require(['jquery', 'buckaroo/applepay/checkout-cart'], function (jQuery, applepayPay) {
-            applepayPay.showPayButton('cart');
-        });
-    }
-</script>
 <?php endif; ?>

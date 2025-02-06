@@ -23,7 +23,6 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 class Blik extends AbstractConfigProvider
 {
     const XPATH_BLIK_PAYMENT_FEE           = 'payment/buckaroo_magento2_blik/payment_fee';
-    const XPATH_BLIK_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_blik/payment_fee_label';
     const XPATH_BLIK_ACTIVE                = 'payment/buckaroo_magento2_blik/active';
     const XPATH_BLIK_SUBTEXT               = 'payment/buckaroo_magento2_blik/subtext';
     const XPATH_BLIK_SUBTEXT_STYLE         = 'payment/buckaroo_magento2_blik/subtext_style';
@@ -50,9 +49,7 @@ class Blik extends AbstractConfigProvider
      */
     public function getConfig()
     {
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
-            \Buckaroo\Magento2\Model\Method\Blik::PAYMENT_METHOD_CODE
-        );
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
 
         return [
             'payment' => [

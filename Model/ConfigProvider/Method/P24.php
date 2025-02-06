@@ -23,7 +23,6 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 class P24 extends AbstractConfigProvider
 {
     const XPATH_P24_PAYMENT_FEE           = 'payment/buckaroo_magento2_p24/payment_fee';
-    const XPATH_P24_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_p24/payment_fee_label';
     const XPATH_P24_ACTIVE                = 'payment/buckaroo_magento2_p24/active';
     const XPATH_P24_SUBTEXT               = 'payment/buckaroo_magento2_p24/subtext';
     const XPATH_P24_SUBTEXT_STYLE         = 'payment/buckaroo_magento2_p24/subtext_style';
@@ -44,9 +43,7 @@ class P24 extends AbstractConfigProvider
      */
     public function getConfig()
     {
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
-            \Buckaroo\Magento2\Model\Method\P24::PAYMENT_METHOD_CODE
-        );
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
 
         return [
             'payment' => [

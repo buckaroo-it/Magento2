@@ -71,14 +71,4 @@ class BuckarooConfig extends Template
         $configProvider = $this->configProviderFactory->get('buckaroo_fee');
         return $this->jsonEncoder->serialize($configProvider->getConfig());
     }
-
-    /**
-     * Get CSP nonce
-     *
-     * @return string
-     */
-    public function getCspNonce()
-    {
-        return $this->getData('cspNonce') ?: '';
-    }
 }

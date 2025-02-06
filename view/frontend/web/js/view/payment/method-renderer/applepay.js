@@ -51,18 +51,11 @@ define(
                 defaults: {
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_applepay'
                 },
-                currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
-                baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
-                subtext : window.checkoutConfig.payment.buckaroo.applepay.subtext,
-                subTextStyle : checkoutCommon.getSubtextStyle('applepay'),
+                currencyCode: window.checkoutConfig.quoteData.quote_currency_code,
+                baseCurrencyCode: window.checkoutConfig.quoteData.base_currency_code,
+                subtext: window.checkoutConfig.payment.buckaroo.applepay.subtext,
+                subTextStyle: checkoutCommon.getSubtextStyle('applepay'),
                 submit: false,
-
-                /**
-                 * @override
-                 */
-                initialize : function (options) {
-                    return this._super(options);
-                },
 
                 initObservable: function () {
                     this._super().observe([]);
@@ -192,8 +185,8 @@ define(
                         "method": this.item.method,
                         "po_number": null,
                         "additional_data": {
-                            "applepayTransaction" : transactionData,
-                            "billingContact" : transactionResult && transactionResult.billingContact ?
+                            "applepayTransaction": transactionData,
+                            "billingContact": transactionResult && transactionResult.billingContact ?
                                 JSON.stringify(transactionResult.billingContact) : ''
                         }
                     };

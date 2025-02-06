@@ -25,6 +25,7 @@ use Buckaroo\Magento2\Api\GuestPaymentInformationManagementInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 use Buckaroo\Magento2\Model\Method\AbstractMethod;
 use Magento\Framework\App\ProductMetadataInterface;
+use Buckaroo\Magento2\Logging\Log;
 
 // @codingStandardsIgnoreStart
 class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationManagement implements GuestPaymentInformationManagementInterface
@@ -33,6 +34,7 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
 
     protected $registry = null;
     protected $logger = null;
+    protected $logging = null;
 
     /**
      * @var Factory
@@ -53,8 +55,10 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
      * @param \Magento\Quote\Api\CartRepositoryInterface                  $cartRepository
      * @param \Magento\Framework\Registry                                 $registry
      * @param \Psr\Log\LoggerInterface                                    $logger
+     * @param Log                                                         $logging
      * @param Factory                                                     $configProviderMethodFactory
      * @param \Magento\Sales\Api\OrderRepositoryInterface                 $orderRepository
+     * @param ProductMetadataInterface                                    $productMetadata
      *
      * @codeCoverageIgnore
      */
@@ -67,6 +71,7 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
         \Magento\Quote\Api\CartRepositoryInterface $cartRepository,
         \Magento\Framework\Registry $registry,
         \Psr\Log\LoggerInterface $logger,
+        Log                      $logging,
         Factory $configProviderMethodFactory,
         \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
         ProductMetadataInterface $productMetadata
@@ -90,6 +95,7 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
 
         $this->registry = $registry;
         $this->logger = $logger;
+        $this->logging = $logging;
         $this->configProviderMethodFactory  = $configProviderMethodFactory;
         $this->orderRepository = $orderRepository;
     }
@@ -120,10 +126,10 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
 
         $orderId = $this->savePaymentInformationAndPlaceOrder($cartId, $email, $paymentMethod, $billingAddress);
 
-        $this->logger->debug('-[RESULT]----------------------------------------');
+        $this->logging->debug('-[RESULT]----------------------------------------');
         //phpcs:ignore:Magento2.Functions.DiscouragedFunction
-        $this->logger->debug(print_r($this->registry->registry('buckaroo_response'), true));
-        $this->logger->debug('-------------------------------------------------');
+        $this->logging->debug(print_r($this->registry->registry('buckaroo_response'), true));
+        $this->logging->debug('-------------------------------------------------');
 
         if ($this->registry && $this->registry->registry('buckaroo_response')) {
             return json_encode([

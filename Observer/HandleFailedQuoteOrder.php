@@ -23,36 +23,38 @@ namespace Buckaroo\Magento2\Observer;
 use Buckaroo\Magento2\Logging\Log;
 use Magento\Framework\Module\Manager;
 use Magento\Sales\Api\OrderManagementInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Buckaroo\Magento2\Model\Session as BuckarooSession;
+use Magento\Framework\Event\ObserverInterface;
+use Magento\Framework\Event\Observer;
 
-class HandleFailedQuoteOrder implements \Magento\Framework\Event\ObserverInterface
+class HandleFailedQuoteOrder implements ObserverInterface
 {
     protected $buckarooSession;
     protected $logging;
     protected $moduleManager;
-
-    /**
-     * @var \Magento\Sales\Api\OrderManagementInterface
-     */
     protected $orderManagement;
+    protected $orderRepository;
 
     public function __construct(
         BuckarooSession $buckarooSession,
         Log $logging,
         Manager $moduleManager,
-        OrderManagementInterface $orderManagement
+        OrderManagementInterface $orderManagement,
+        OrderRepositoryInterface $orderRepository
     ) {
         $this->buckarooSession = $buckarooSession;
         $this->logging = $logging;
         $this->moduleManager = $moduleManager;
         $this->orderManagement = $orderManagement;
+        $this->orderRepository = $orderRepository;
     }
 
     /**
-     * @param \Magento\Framework\Event\Observer $observer
+     * @param Observer $observer
      * @return void
      */
-    public function execute(\Magento\Framework\Event\Observer $observer)
+    public function execute(Observer $observer)
     {
         /**
          * @noinspection PhpUndefinedMethodInspection
@@ -76,7 +78,7 @@ class HandleFailedQuoteOrder implements \Magento\Framework\Event\ObserverInterfa
             $payment = $order->getPayment();
             if (in_array(
                 $payment->getMethodInstance()->getCode(),
-                ['buckaroo_magento2_afterpay','buckaroo_magento2_afterpay2','buckaroo_magento2_klarnakp']
+                ['buckaroo_magento2_afterpay', 'buckaroo_magento2_afterpay2', 'buckaroo_magento2_klarnakp']
             )) {
                 try {
                     $order->addStatusHistoryComment('Buckaroo: failed to authorize an order', false);
@@ -94,6 +96,10 @@ class HandleFailedQuoteOrder implements \Magento\Framework\Event\ObserverInterfa
                     $this->logging->addDebug(__METHOD__ . '|5|');
                     $this->buckarooSession->setData('flagHandleFailedQuote', 1);
                 }
+
+                $order = $this->orderRepository->get($order->getId());
+
+                $this->orderManagement->setState($order, 'canceled');
                 $this->orderManagement->cancel($order->getId());
                 //phpcs:ignore: Magento2.CodeAnalysis.EmptyBlock.DetectedCatch
             } catch (\Exception $e) {

@@ -108,12 +108,6 @@
                 <backend_model>Buckaroo\Magento2\Model\Config\Backend\PaymentFee</backend_model>
             </field>
 
-            <field id="payment_fee_label" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Payment fee frontend label</label>
-                <comment><![CDATA[This label will be displayed next to the fee on the checkout, order, invoice and creditmemo pages and pdfs.]]></comment>
-                <config_path>payment/buckaroo_magento2_billink/payment_fee_label</config_path>
-            </field>
-
             <field id="min_amount" translate="label comment tooltip" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Min order amount B2C (in Base Currency)</label>
                 <comment><![CDATA[Minimum order amount allowed for B2C.]]></comment>

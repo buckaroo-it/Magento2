@@ -544,7 +544,7 @@ class Process extends Action
         }
 
         // Cancel the order and log an error if it fails
-        if (!$this->cancelOrder($statusCode)) {
+        if (!$this->cancelOrder($statusCode, $statusCodeAddErrorMessage[$statusCode])) {
             $this->logger->addError('Could not cancel the order.');
         }
 
@@ -625,9 +625,9 @@ class Process extends Action
      *
      * @return bool
      */
-    protected function cancelOrder($statusCode): bool
+    protected function cancelOrder($statusCode, $statusMessage): bool
     {
-        return $this->orderService->cancel($this->order, $statusCode);
+        return $this->orderService->cancel($this->order, $statusCode, $statusMessage);
     }
 
     /**

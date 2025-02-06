@@ -28,8 +28,6 @@ function ($, Component, quote, totals , globalMessageList, $t, alert, ko) {
         initialize : function (options) {
             this._super();
 
-            window.checkoutConfig.buckarooFee.title = ko.observable(options.title);
-
             quote.paymentMethod.subscribe(this.updateFeeVisibility.bind(this));
 
             return this;
@@ -97,9 +95,7 @@ function ($, Component, quote, totals , globalMessageList, $t, alert, ko) {
         },
 
         getTitle: function () {
-            return typeof window.checkoutConfig.buckarooFee.title === 'function'
-                ? window.checkoutConfig.buckarooFee.title()
-                : $t('Payment Fee');
+            return $t('Payment Fee');
         },
 
         /**

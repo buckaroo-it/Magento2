@@ -46,7 +46,7 @@
                                                                 <item name="buckaroo_fee" xsi:type="array">
                                                                     <item name="component"  xsi:type="string">Buckaroo_Magento2/js/view/summary/totals</item>
                                                                     <item name="config" xsi:type="array">
-                                                                        <item name="title" xsi:type="string">Buckaroo Fee</item>
+                                                                        <item name="title" xsi:type="string">Payment Fee</item>
                                                                     </item>
                                                                 </item>
                                                             </item>

@@ -24,13 +24,9 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Model\Method\Capayable\Installments as CapayableIn3Method;
 
-/**
- * @method getPaymentFeeLabel()
- */
 class CapayableIn3 extends AbstractConfigProvider
 {
     const XPATH_CAPAYABLEIN3_PAYMENT_FEE          = 'payment/buckaroo_magento2_capayablein3/payment_fee';
-    const XPATH_CAPAYABLEIN3_PAYMENT_FEE_LABEL    = 'payment/buckaroo_magento2_capayablein3/payment_fee_label';
     const XPATH_CAPAYABLEIN3_ACTIVE               = 'payment/buckaroo_magento2_capayablein3/active';
     const XPATH_CAPAYABLEIN3_SUBTEXT              = 'payment/buckaroo_magento2_capayablein3/subtext';
     const XPATH_CAPAYABLEIN3_SUBTEXT_STYLE        = 'payment/buckaroo_magento2_capayablein3/subtext_style';
@@ -70,7 +66,7 @@ class CapayableIn3 extends AbstractConfigProvider
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(CapayableIn3Method::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
 
         return [
             'payment' => [

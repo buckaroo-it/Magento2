@@ -18,23 +18,32 @@
  */
 define(
     [
+        'jquery',
         'uiComponent',
-        'buckaroo/paypal-express/pay',
+        'Magento_Checkout/js/model/quote',
+        'buckaroo/applepay/order-handler',
+        'buckaroo/applepay/pay',
     ],
     function (
+        $,
         Component,
-        paypalExpressPay
+        quote,
+        orderHandler,
+        applepayPay
     ) {
         'use strict';
 
         return Component.extend({
-            initialize: function (config) {
-                this._super();
-                paypalExpressPay.setConfig(config.data, config.page);
-            },
-
             showPayButton: function () {
-                paypalExpressPay.init();
+                applepayPay.setQuote(quote);
+                applepayPay.showPayButton('cart');
+
+                applepayPay.transactionResult.subscribe(
+                    function () {
+                        orderHandler.setApplepayTransaction(applepayPay.transactionResult());
+                        orderHandler.placeOrder();
+                    }.bind(this)
+                );
             }
         });
     }

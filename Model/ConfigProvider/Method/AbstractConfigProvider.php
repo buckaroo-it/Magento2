@@ -226,7 +226,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
         if($code === 'cartebleuevisa') {
             $code = 'cartebleue';
         }
-        
+
         return $this->getImageUrl("creditcards/{$code}", "svg");
     }
 
@@ -340,13 +340,11 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     }
 
     /**
-     * @param string|bool $method
-     *
      * @return string
      */
-    public function getBuckarooPaymentFeeLabel($method = false)
+    public function getBuckarooPaymentFeeLabel()
     {
-        return $this->paymentFeeHelper->getBuckarooPaymentFeeLabel($method);
+        return $this->paymentFeeHelper->getBuckarooPaymentFeeLabel();
     }
 
     /**

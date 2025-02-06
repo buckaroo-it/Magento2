@@ -45,7 +45,6 @@
                 <allowspecific>0</allowspecific>
                 <sort_order>10</sort_order>
                 <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
@@ -61,7 +60,6 @@
                 <allowspecific>0</allowspecific>
                 <sort_order>350</sort_order>
                 <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
@@ -75,7 +73,6 @@
                 <allowspecific>0</allowspecific>
                 <sort_order>10</sort_order>
                 <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
@@ -91,7 +88,6 @@
                 <sort_order>110</sort_order>
                 <reminder_leve1>4</reminder_leve1>
                 <order_email>1</order_email>
-                <payment_fee_lavel>Fee</payment_fee_lavel>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
@@ -111,7 +107,6 @@
                 <sellers_protection_unauthorizedpayment_eligible>processing</sellers_protection_unauthorizedpayment_eligible>
                 <sellers_protection_ineligible>processing</sellers_protection_ineligible>
                 <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
@@ -125,7 +120,6 @@
                 <allowspecific>0</allowspecific>
                 <sort_order>90</sort_order>
                 <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
@@ -139,13 +133,6 @@
                 <allowspecific>0</allowspecific>
                 <sort_order>30</sort_order>
                 <order_email>1</order_email>
-                <amex_payment_fee_label>Fee</amex_payment_fee_label>
-                <maestro_payment_fee_label>Fee</maestro_payment_fee_label>
-                <mastercard_payment_fee_label>Fee</mastercard_payment_fee_label>
-                <visa_payment_fee_label>Fee</visa_payment_fee_label>
-
-                <dankort_payment_fee_label>Fee</dankort_payment_fee_label>
-
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
@@ -159,7 +146,6 @@
                 <title>Creditcard and Debit Cards</title>
                 <sort_order>35</sort_order>
                 <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
                 <card_design>1</card_design>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
@@ -178,7 +164,6 @@
                 <due_date_invoice>0</due_date_invoice>
                 <reminder_level>4</reminder_level>
                 <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>1</available_in_backend>
@@ -193,7 +178,6 @@
                 <allowspecific>0</allowspecific>
                 <sort_order>140</sort_order>
                 <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <refund_extra_fields>customeriban,customeraccountname,customerbic</refund_extra_fields>
@@ -210,7 +194,6 @@
                 <allowspecific>0</allowspecific>
                 <sort_order>150</sort_order>
                 <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
@@ -224,7 +207,6 @@
                 <allowspecific>0</allowspecific>
                 <sort_order>150</sort_order>
                 <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <can_capture_partial>1</can_capture_partial>
@@ -240,7 +222,6 @@
                 <allowspecific>0</allowspecific>
                 <sort_order>160</sort_order>
                 <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <can_capture_partial>1</can_capture_partial>
@@ -256,7 +237,6 @@
                 <allowspecific>0</allowspecific>
                 <sort_order>170</sort_order>
                 <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <can_capture_partial>1</can_capture_partial>
@@ -276,7 +256,6 @@
                 <allowspecific>0</allowspecific>
                 <sort_order>180</sort_order>
                 <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
@@ -289,7 +268,6 @@
                 <title>Giftcards</title>
                 <sort_order>190</sort_order>
                 <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
@@ -303,7 +281,6 @@
                 <allowspecific>0</allowspecific>
                 <sort_order>210</sort_order>
                 <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
@@ -317,7 +294,6 @@
                 <allowspecific>0</allowspecific>
                 <sort_order>300</sort_order>
                 <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
@@ -331,7 +307,6 @@
                 <allowspecific>0</allowspecific>
                 <sort_order>211</sort_order>
                 <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
@@ -345,7 +320,6 @@
                 <allowspecific>0</allowspecific>
                 <sort_order>212</sort_order>
                 <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
@@ -359,7 +333,6 @@
                 <allowspecific>0</allowspecific>
                 <sort_order>215</sort_order>
                 <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>1</available_in_backend>
@@ -372,7 +345,6 @@
                 <title>Klarna: Pay later</title>
                 <sort_oder>220</sort_oder>
                 <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <financial_warning>1</financial_warning>
@@ -386,7 +358,6 @@
                 <title>Klarna: Pay later</title>
                 <sort_oder>220</sort_oder>
                 <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>authorize</payment_action>
                 <financial_warning>1</financial_warning>
@@ -400,7 +371,6 @@
                 <title>Klarna: Slice it</title>
                 <sort_oder>220</sort_oder>
                 <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <financial_warning>1</financial_warning>
@@ -417,7 +387,6 @@
                 <allowspecific>0</allowspecific>
                 <sort_order>230</sort_order>
                 <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
@@ -431,7 +400,6 @@
                 <allowspecific>0</allowspecific>
                 <sort_order>240</sort_order>
                 <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <can_capture_partial>1</can_capture_partial>
@@ -448,7 +416,6 @@
                 <allowspecific>0</allowspecific>
                 <sort_order>240</sort_order>
                 <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <can_capture_partial>1</can_capture_partial>
@@ -477,7 +444,6 @@
                 <allowspecific>0</allowspecific>
                 <sort_order>250</sort_order>
                 <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
@@ -491,7 +457,6 @@
                 <allowspecific>0</allowspecific>
                 <sort_order>270</sort_order>
                 <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
@@ -505,7 +470,6 @@
                 <allowspecific>0</allowspecific>
                 <sort_order>280</sort_order>
                 <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
@@ -519,7 +483,6 @@
                 <allowspecific>0</allowspecific>
                 <sort_order>290</sort_order>
                 <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
@@ -533,7 +496,6 @@
                 <allowspecific>0</allowspecific>
                 <sort_order>300</sort_order>
                 <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
@@ -547,7 +509,6 @@
                 <allowspecific>0</allowspecific>
                 <sort_order>320</sort_order>
                 <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
@@ -561,7 +522,6 @@
                 <allowspecific>0</allowspecific>
                 <sort_order>340</sort_order>
                 <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
@@ -575,7 +535,6 @@
                 <allowspecific>0</allowspecific>
                 <sort_order>350</sort_order>
                 <order_email>1</order_email>
-                <payment_fee_label>Fee</payment_fee_label>
                 <group>buckaroo_magento2</group>
                 <payment_action>order</payment_action>
                 <available_in_backend>0</available_in_backend>
@@ -595,7 +554,6 @@
                 <failure_redirect>checkout/cart</failure_redirect>
                 <failure_redirect_to_checkout>0</failure_redirect_to_checkout>
                 <cancel_on_failed>1</cancel_on_failed>
-                <payment_fee_label>Payment Fee</payment_fee_label>
                 <order_status_new>pending</order_status_new>
                 <order_status_pending>pending_payment</order_status_pending>
                 <order_status_success>processing</order_status_success>

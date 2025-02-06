@@ -54,29 +54,19 @@ define(
                 selectedBank: null,
                 selectedBankDropDown: null,
                 selectionType: null,
-                paymentFeeLabel : window.checkoutConfig.payment.buckaroo.idealprocessing.paymentFeeLabel,
-                subtext : window.checkoutConfig.payment.buckaroo.idealprocessing.subtext,
-                subTextStyle : checkoutCommon.getSubtextStyle('idealprocessing'),
-                currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
-                baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
-                showIssuers :  window.checkoutConfig.payment.buckaroo.idealprocessing.showIssuers,
-                /**
-                 * @override
-                 */
-                initialize : function (options) {
-                    if (checkoutData.getSelectedPaymentMethod() == options.index) {
-                        window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-                    }
-
-                    return this._super(options);
-                },
+                paymentFeeLabel: window.checkoutConfig.payment.buckaroo.idealprocessing.paymentFeeLabel,
+                subtext: window.checkoutConfig.payment.buckaroo.idealprocessing.subtext,
+                subTextStyle: checkoutCommon.getSubtextStyle('idealprocessing'),
+                currencyCode: window.checkoutConfig.quoteData.quote_currency_code,
+                baseCurrencyCode: window.checkoutConfig.quoteData.base_currency_code,
+                showIssuers: window.checkoutConfig.payment.buckaroo.idealprocessing.showIssuers,
 
                 initObservable: function () {
                     this._super().observe(['selectedBank', 'banktypes', 'selectionType']);
 
                     this.banktypes = ko.observableArray(window.checkoutConfig.payment.buckaroo.idealprocessing.banks);
 
-                    this.selectionType  = window.checkoutConfig.payment.buckaroo.idealprocessing.selectionType;
+                    this.selectionType = window.checkoutConfig.payment.buckaroo.idealprocessing.selectionType;
 
                     /**
                      * observe radio buttons
@@ -98,16 +88,16 @@ define(
                         this
                     );
 
-                    $('.iosc-place-order-button').on('click', function(e){
-                        if(self.selectedBank() == null){
+                    $('.iosc-place-order-button').on('click', function (e) {
+                        if (self.selectedBank() == null) {
                             self.messageContainer.addErrorMessage({'message': $t('You need select a bank')});
                         }
                     });
-                    
+
                     return this;
                 },
 
-                setSelectedBankDropDown: function() {
+                setSelectedBankDropDown: function () {
                     var el = document.getElementById("buckaroo_magento2_idealp_issuer");
                     this.selectedBank(el.options[el.selectedIndex].valu);
                     return true;
@@ -147,8 +137,6 @@ define(
                 },
 
                 selectPaymentMethod: function () {
-                    window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-
                     selectPaymentMethodAction(this.getData());
                     checkoutData.setSelectedPaymentMethod(this.item.method);
                     return true;
@@ -160,7 +148,7 @@ define(
                         selectedBankCode = this.selectedBank().code;
                     }
 
-                    if(this.idealIssuer){
+                    if (this.idealIssuer) {
                         selectedBankCode = this.idealIssuer;
                     }
 
@@ -168,7 +156,7 @@ define(
                         "method": this.item.method,
                         "po_number": null,
                         "additional_data": {
-                            "issuer" : selectedBankCode
+                            "issuer": selectedBankCode
                         }
                     };
                 },

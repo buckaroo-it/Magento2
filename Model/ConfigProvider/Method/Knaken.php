@@ -23,7 +23,6 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 class Knaken extends AbstractConfigProvider
 {
     const XPATH_KNAKEN_PAYMENT_FEE          = 'payment/buckaroo_magento2_knaken/payment_fee';
-    const XPATH_KNAKEN_PAYMENT_FEE_LABEL    = 'payment/buckaroo_magento2_knaken/payment_fee_label';
     const XPATH_KNAKEN_ACTIVE               = 'payment/buckaroo_magento2_knaken/active';
     const XPATH_KNAKEN_SUBTEXT              = 'payment/buckaroo_magento2_knaken/subtext';
     const XPATH_KNAKEN_SUBTEXT_STYLE        = 'payment/buckaroo_magento2_knaken/subtext_style';
@@ -44,9 +43,7 @@ class Knaken extends AbstractConfigProvider
      */
     public function getConfig()
     {
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
-            \Buckaroo\Magento2\Model\Method\Knaken::PAYMENT_METHOD_CODE
-        );
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
 
         return [
             'payment' => [

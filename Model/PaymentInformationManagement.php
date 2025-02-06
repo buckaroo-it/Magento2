@@ -20,10 +20,12 @@
 
 namespace Buckaroo\Magento2\Model;
 
+use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\Method\AbstractMethod;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 use Buckaroo\Magento2\Api\PaymentInformationManagementInterface;
 use Magento\Checkout\Model\PaymentInformationManagement as MagentoPaymentInformationManagement;
+use Psr\Log\LoggerInterface;
 
 // @codingStandardsIgnoreStart
 class PaymentInformationManagement extends MagentoPaymentInformationManagement implements PaymentInformationManagementInterface
@@ -32,6 +34,7 @@ class PaymentInformationManagement extends MagentoPaymentInformationManagement i
 
     protected $registry = null;
     protected $logger = null;
+    protected $logging = null;
 
     /**
      * @var Factory
@@ -50,7 +53,8 @@ class PaymentInformationManagement extends MagentoPaymentInformationManagement i
      * @param \Magento\Checkout\Model\PaymentDetailsFactory        $paymentDetailsFactory
      * @param \Magento\Quote\Api\CartTotalRepositoryInterface      $cartTotalsRepository
      * @param \Magento\Framework\Registry                          $registry
-     * @param \Psr\Log\LoggerInterface                             $logger
+     * @param LoggerInterface $logger
+     * @param Log $logging
      * @param Factory                                              $configProviderMethodFactory
      * @param \Magento\Sales\Api\OrderRepositoryInterface          $orderRepository
      *
@@ -64,6 +68,7 @@ class PaymentInformationManagement extends MagentoPaymentInformationManagement i
         \Magento\Quote\Api\CartTotalRepositoryInterface $cartTotalsRepository,
         \Magento\Framework\Registry $registry,
         \Psr\Log\LoggerInterface $logger,
+        Log                      $logging,
         Factory $configProviderMethodFactory,
         \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
     ) {
@@ -76,6 +81,7 @@ class PaymentInformationManagement extends MagentoPaymentInformationManagement i
         );
         $this->registry = $registry;
         $this->logger = $logger;
+        $this->logging = $logging;
         $this->configProviderMethodFactory  = $configProviderMethodFactory;
         $this->orderRepository = $orderRepository;
     }
@@ -99,10 +105,10 @@ class PaymentInformationManagement extends MagentoPaymentInformationManagement i
 
         $orderId = $this->savePaymentInformationAndPlaceOrder($cartId, $paymentMethod, $billingAddress);
 
-        $this->logger->debug('-[RESULT]----------------------------------------');
+        $this->logging->debug('-[RESULT]----------------------------------------');
         //phpcs:ignore:Magento2.Functions.DiscouragedFunction
-        $this->logger->debug(print_r($this->registry->registry('buckaroo_response'), true));
-        $this->logger->debug('-------------------------------------------------');
+        $this->logging->debug(print_r($this->registry->registry('buckaroo_response'), true));
+        $this->logging->debug('-------------------------------------------------');
 
         if ($this->registry && $this->registry->registry('buckaroo_response')) {
             return json_encode([

@@ -43,7 +43,6 @@ class Billink extends AbstractConfigProvider
     const XPATH_BILLINK_SUBTEXT_STYLE        = 'payment/buckaroo_magento2_billink/subtext_style';
     const XPATH_BILLINK_SUBTEXT_COLOR        = 'payment/buckaroo_magento2_billink/subtext_color';
     const XPATH_BILLINK_PAYMENT_FEE          = 'payment/buckaroo_magento2_billink/payment_fee';
-    const XPATH_BILLINK_PAYMENT_FEE_LABEL    = 'payment/buckaroo_magento2_billink/payment_fee_label';
     const XPATH_BILLINK_SEND_EMAIL           = 'payment/buckaroo_magento2_billink/send_email';
     const XPATH_BILLINK_ACTIVE_STATUS        = 'payment/buckaroo_magento2_billink/active_status';
     const XPATH_BILLINK_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_billink/order_status_success';
@@ -90,7 +89,7 @@ class Billink extends AbstractConfigProvider
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(BillinkMethod::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
 
         return [
             'payment' => [

@@ -52,14 +52,4 @@ class Success extends \Magento\Checkout\Block\Onepage\Success
         );
         $this->currentCustomer = $currentCustomer;
     }
-
-    /**
-     * Get CSP nonce
-     *
-     * @return string
-     */
-    public function getCspNonce()
-    {
-        return $this->getData('cspNonce') ?: '';
-    }
 }

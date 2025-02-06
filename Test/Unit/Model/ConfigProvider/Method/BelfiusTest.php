@@ -65,7 +65,6 @@ class BelfiusTest extends BaseTest
             ->method('getValue')
             ->withConsecutive(
                 [Belfius::XPATH_ALLOWED_CURRENCIES, ScopeInterface::SCOPE_STORE, null],
-                [Belfius::XPATH_BELFIUS_PAYMENT_FEE_LABEL, ScopeInterface::SCOPE_STORE, null],
             )
             ->willReturnOnConsecutiveCalls('EUR', 'Belfius Fee');
 
