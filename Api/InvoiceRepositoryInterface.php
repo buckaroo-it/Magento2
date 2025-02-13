@@ -29,23 +29,6 @@ use Magento\Framework\Exception\NoSuchEntityException;
 
 interface InvoiceRepositoryInterface
 {
-    /**
-     * Save invoice
-     *
-     * @param InvoiceInterface $invoice
-     * @return InvoiceInterface
-     * @throws CouldNotSaveException
-     */
-    public function save(InvoiceInterface $invoice);
-
-    /**
-     * Get invoice by id
-     *
-     * @param int|string $invoiceId
-     * @return InvoiceInterface
-     * @throws NoSuchEntityException
-     */
-    public function getById($invoiceId);
 
     /**
      * Get the list of invoices
@@ -54,15 +37,6 @@ interface InvoiceRepositoryInterface
      * @return SearchResultsInterface
      */
     public function getList(SearchCriteria $searchCriteria);
-
-    /**
-     * Delete invoice
-     *
-     * @param InvoiceInterface $invoice
-     * @return bool
-     * @throws CouldNotDeleteException
-     */
-    public function delete(InvoiceInterface $invoice);
 
     /**
      * Delete invoice by invoice id

@@ -27,7 +27,6 @@ use Magento\Framework\Api\SearchResultsInterfaceFactory;
 use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Buckaroo\Magento2\Model\Invoice;
 use Buckaroo\Magento2\Model\InvoiceFactory;
 use Buckaroo\Magento2\Model\InvoiceRepository;
 use Buckaroo\Magento2\Model\ResourceModel\Invoice as InvoiceResource;

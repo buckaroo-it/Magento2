@@ -21,9 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model;
 
-use Buckaroo\Magento2\Api\Data\InvoiceInterface;
 use Buckaroo\Magento2\Api\InvoiceRepositoryInterface;
-use Buckaroo\Magento2\Model\ResourceModel\Invoice as InvoiceResource;
 use Buckaroo\Magento2\Model\ResourceModel\Invoice\Collection as InvoiceCollection;
 use Buckaroo\Magento2\Model\ResourceModel\Invoice\CollectionFactory as InvoiceCollectionFactory;
 use Magento\Framework\Api\Search\FilterGroup;
@@ -40,15 +38,7 @@ use Magento\Framework\Exception\NoSuchEntityException;
  */
 class InvoiceRepository implements InvoiceRepositoryInterface
 {
-    /**
-     * @var InvoiceResource
-     */
-    protected InvoiceResource $resource;
 
-    /**
-     * @var InvoiceFactory
-     */
-    protected InvoiceFactory $invoiceFactory;
 
     /**
      * @var InvoiceCollectionFactory
@@ -61,29 +51,11 @@ class InvoiceRepository implements InvoiceRepositoryInterface
     protected SearchResultsInterfaceFactory $searchResultsFactory;
 
     public function __construct(
-        InvoiceResource $resource,
-        InvoiceFactory $invoiceFactory,
         InvoiceCollectionFactory $invoiceCollectionFactory,
         SearchResultsInterfaceFactory $searchResultsFactory
     ) {
-        $this->resource = $resource;
         $this->invoiceCollectionFactory = $invoiceCollectionFactory;
-        $this->invoiceFactory = $invoiceFactory;
         $this->searchResultsFactory = $searchResultsFactory;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function save(InvoiceInterface $invoice): InvoiceInterface
-    {
-        try {
-            $this->resource->save($invoice);
-        } catch (\Exception $exception) {
-            throw new CouldNotSaveException(__($exception->getMessage()));
-        }
-
-        return $invoice;
     }
 
     /**
@@ -185,32 +157,4 @@ class InvoiceRepository implements InvoiceRepositoryInterface
         return $this->delete($invoice);
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getById($invoiceId)
-    {
-        $invoice = $this->invoiceFactory->create();
-        $invoice->load($invoiceId);
-
-        if (!$invoice->getId()) {
-            throw new NoSuchEntityException(__('Invoice with id "%1" does not exist.', $invoiceId));
-        }
-
-        return $invoice;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function delete(InvoiceInterface $invoice): bool
-    {
-        try {
-            $this->resource->delete($invoice);
-        } catch (\Exception $exception) {
-            throw new CouldNotDeleteException(__($exception->getMessage()));
-        }
-
-        return true;
-    }
 }
