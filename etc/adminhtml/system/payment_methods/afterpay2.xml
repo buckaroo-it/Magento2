@@ -50,7 +50,7 @@
             <comment><![CDATA[This controls the description which the user sees during checkout.]]></comment>
             <config_path>payment/buckaroo_magento2_afterpay2/subtext</config_path>
         </field>
-        
+
         <field id="subtext_style" translate="label comment" type="select" sortOrder="26" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Frontend subtext style</label>
             <comment><![CDATA[Choose a font style for the subtext.]]></comment>
@@ -92,13 +92,6 @@
                 </depends>
             </field>
 
-            <field id="financial_warning" translate="label comment" type="select" sortOrder="35" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Consumer Financial Warning</label>
-                <comment><![CDATA[Due to the regulations for BNPL methods in The Netherlands you’ll  have to warn customers about using a BNPL plan because it can be easy to get into debt. When enabled a warning will be showed in the checkout. Please note that this setting only applies for customers in The Netherlands.]]></comment>
-                <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                <config_path>payment/buckaroo_magento2_afterpay2/financial_warning</config_path>
-            </field>
-
             <field id="high_tax" translate="label comment" type="multiselect" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>High VAT tax classes</label>
                 <comment><![CDATA[Select which tax classes count as 'high' VAT.]]></comment>
@@ -134,7 +127,7 @@
                 <config_path>payment/buckaroo_magento2_afterpay2/no_tax</config_path>
             </field>
 
-            
+
         </group>
 
         <group id="buckaroo_magento2_advanced" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -188,7 +181,7 @@
                     <field id="active_status">1</field>
                 </depends>
             </field>
-            
+
             <group id="buckaroo_magento2_visibility" translate="label" type="text" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Method visibility</label>
                 <field id="min_amount" translate="label comment tooltip" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
