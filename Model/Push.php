@@ -1267,7 +1267,6 @@ class Push implements PushInterface
         $cancelledStateAndStatus  = [Order::STATE_CANCELED, Order::STATE_CANCELED];
         $holdedStateAndStatus     = [Order::STATE_HOLDED, Order::STATE_HOLDED];
         $closedStateAndStatus     = [Order::STATE_CLOSED, Order::STATE_CLOSED];
-        $processingStateAndStatus = [Order::STATE_PROCESSING, Order::STATE_PROCESSING];
         /**
          * Get current state and status of order
          */
@@ -1277,11 +1276,10 @@ class Push implements PushInterface
         /**
          * If the types are not the same and the order can receive an invoice the order can be udpated by BPE.
          */
-        if ($completedStateAndStatus[0] != $currentStateAndStatus[0]
+        if ($completedStateAndStatus != $currentStateAndStatus
             && $cancelledStateAndStatus != $currentStateAndStatus
             && $holdedStateAndStatus != $currentStateAndStatus
             && $closedStateAndStatus != $currentStateAndStatus
-            && $processingStateAndStatus[0] != $currentStateAndStatus[0]
         ) {
             return true;
         }
