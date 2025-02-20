@@ -1,22 +1,22 @@
 <?php
 /**
-     * NOTICE OF LICENSE
-     *
-     * This source file is subject to the MIT License
-     * It is available through the world-wide-web at this URL:
-     * https://tldrlegal.com/license/mit-license
-     * If you are unable to obtain it through the world-wide-web, please send an email
-     * to support@buckaroo.nl so we can send you a copy immediately.
-     *
-     * DISCLAIMER
-     *
-     * Do not edit or add to this file if you wish to upgrade this module to newer
-     * versions in the future. If you wish to customize this module for your
-     * needs please contact support@buckaroo.nl for more information.
-     *
-     * @copyright Copyright (c) Buckaroo B.V.
-     * @license   https://tldrlegal.com/license/mit-license
-     */
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
 
 namespace Buckaroo\Magento2\Model\Total\Quote;
 
@@ -44,7 +44,7 @@ class BuckarooRemainingAmount extends AbstractTotal
     }
 
     /**
-     * Fetch remaining amount for display in the frontend
+     * Fetch remaining amount for display in the frontend.
      *
      * @param Quote $quote
      * @param Total $total
@@ -52,8 +52,20 @@ class BuckarooRemainingAmount extends AbstractTotal
      */
     public function fetch(Quote $quote, Total $total)
     {
-        // Fetch the already paid amount
-        $alreadyPaid = $this->groupTransaction->getAlreadyPaid($quote->getReservedOrderId());
+        $orderId = $quote->getReservedOrderId();
+
+        $alreadyPaid = $this->groupTransaction->getAlreadyPaid($orderId);
+
+        // If no order ID is set or nothing has been paid, return zero for remaining amount.
+        if (!$orderId || $alreadyPaid <= 0) {
+            return [
+                'code'  => $this->getCode(),
+                'title' => $this->getLabel(),
+                'value' => 0
+            ];
+        }
+
+        // Calculate the remaining amount (grand total minus the amount already paid)
         $grandTotal = $quote->getGrandTotal();
         $remainingAmount = max(0, $grandTotal - $alreadyPaid);
 
@@ -65,7 +77,7 @@ class BuckarooRemainingAmount extends AbstractTotal
     }
 
     /**
-     * Get Buckaroo label
+     * Get Buckaroo label.
      *
      * @return \Magento\Framework\Phrase
      */
