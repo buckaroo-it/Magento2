@@ -1274,6 +1274,9 @@ class Push implements PushInterface
         $currentStateAndStatus = [$this->order->getState(), $this->order->getStatus()];
         $this->logging->addDebug(__METHOD__ . '|1|' . var_export($currentStateAndStatus, true));
 
+        $this->logging->addDebug(__METHOD__ . '|processingStateAndStatus|' . var_export($processingStateAndStatus, true));
+        $this->logging->addDebug(__METHOD__ . '|currentStateAndStatus|' . var_export($currentStateAndStatus, true));
+
         /**
          * If the types are not the same and the order can receive an invoice the order can be udpated by BPE.
          */
