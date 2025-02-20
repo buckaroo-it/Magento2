@@ -677,12 +677,18 @@ class Push implements PushInterface
             }
             $receivedStatusCode = $this->postData['brq_statuscode'];
         }
+
+        // Handle trxId with brq_transactions OR brq_datarequest
         if (!$trxId) {
-            if (empty($this->postData['brq_transactions'])) {
-                return false;
+            if (!empty($this->postData['brq_transactions'])) {
+                $trxId = $this->postData['brq_transactions'];
+            } elseif (!empty($this->postData['brq_datarequest'])) {
+                $trxId = $this->postData['brq_datarequest'];
+            } else {
+                return false; // If both are empty, return false
             }
-            $trxId = $this->postData['brq_transactions'];
         }
+
         $payment               = $this->order->getPayment();
         $ignoredPaymentMethods = [
             Giftcards::PAYMENT_METHOD_CODE,
@@ -716,7 +722,7 @@ class Push implements PushInterface
                     && ($this->order->getStatus() == $orderStatus)
                     && ($receivedStatusCode == $statusCode)
                 ) {
-                    //allow duplicated pushes for 190 statuses in case if order stills to be new/pending
+                    // Allow duplicated pushes for 190 statuses in case if order stills to be new/pending
                     $this->logging->addDebug(__METHOD__ . '|13|');
                     return false;
                 }
@@ -733,6 +739,7 @@ class Push implements PushInterface
         $this->logging->addDebug(__METHOD__ . '|20|');
         return false;
     }
+
 
     /**
      * Get and store the postdata parameters
@@ -909,13 +916,9 @@ class Push implements PushInterface
             return self::BUCK_PUSH_TYPE_INVOICE_INCOMPLETE;
         }
 
-        if (isset($this->postData['brq_datarequest'])) {
-            return self::BUCK_PUSH_TYPE_DATAREQUEST;
-        }
-
         if (!isset($this->postData['brq_invoicekey'])
             && !isset($this->postData['brq_service_creditmanagement3_invoicekey'])
-            && !isset($this->postData['brq_datarequest'])
+            && isset($this->postData['brq_datarequest'])
             && strlen($savedInvoiceKey) <= 0
         ) {
             return self::BUCK_PUSH_TYPE_TRANSACTION;
@@ -1152,23 +1155,31 @@ class Push implements PushInterface
      */
     protected function setReceivedPaymentFromBuckaroo()
     {
-        if (empty($this->postData['brq_transactions'])) {
+        // Check if brq_transactions or brq_datarequest is available in postData
+        $transactionId = $this->postData['brq_transactions'] ?? $this->postData['brq_datarequest'] ?? null;
+
+        // If neither brq_transactions nor brq_datarequest are available, exit the method
+        if (empty($transactionId)) {
             return;
         }
 
+        // Get the payment object
         $payment = $this->order->getPayment();
 
+        // Handle the case where there's no existing data
         if (!$payment->getAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS)) {
             $payment->setAdditionalInformation(
                 self::BUCKAROO_RECEIVED_TRANSACTIONS,
-                [$this->postData['brq_transactions'] => floatval($this->postData['brq_amount'])]
+                [$transactionId => floatval($this->postData['brq_amount'])]
             );
         } else {
+            // If there is already data in the Additional Information, append the new transaction or data request
             $buckarooTransactionKeysArray = $payment->getAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS);
 
-            $buckarooTransactionKeysArray[$this->postData['brq_transactions']] =
-                floatval($this->postData['brq_amount']);
+            // Add the transaction or data request with the associated amount
+            $buckarooTransactionKeysArray[$transactionId] = floatval($this->postData['brq_amount']);
 
+            // Update the payment's Additional Information
             $payment->setAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS, $buckarooTransactionKeysArray);
         }
     }
@@ -1181,18 +1192,28 @@ class Push implements PushInterface
      */
     protected function setReceivedTransactionStatuses(): void
     {
-        $txId = $this->postData['brq_transactions'];
+        $txId = $this->postData['brq_transactions'] ?? null;
+        $dataRequestId = $this->postData['brq_datarequest'] ?? null;
         $statusCode = $this->postData['brq_statuscode'];
 
-        if (empty($txId) || empty($statusCode)) {
+        // Proceed only if status code is provided and at least one of txId or dataRequestId is provided
+        if (empty($statusCode) || (!$txId && !$dataRequestId)) {
             return;
         }
 
         $payment = $this->order->getPayment();
 
+        // Get the existing transaction statuses
         $receivedTxStatuses = $payment->getAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES) ?? [];
-        $receivedTxStatuses[$txId] = $statusCode;
 
+        // If brq_transactions exists, use it, otherwise, use brq_datarequest
+        if (!empty($txId)) {
+            $receivedTxStatuses[$txId] = $statusCode;
+        } elseif (!empty($dataRequestId)) {
+            $receivedTxStatuses[$dataRequestId] = $statusCode;
+        }
+
+        // Save the updated statuses
         $payment->setAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES, $receivedTxStatuses);
     }
 
