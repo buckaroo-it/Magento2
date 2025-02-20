@@ -6,15 +6,15 @@
                        name="payment[method]"
                        class="radio"
                        data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
-                <label class="label" data-bind="attr: {'for': getCode()}" >
-                        <!-- ko text: getTitle() --><!-- /ko -->
-                        <!-- ko if: subtext !== null && subtext.length > 0 -->
-                       <p class="bk-description" data-bind="text: subtext, style: subTextStyle"></p>
-                        <!-- /ko -->
+                <label class="label" data-bind="attr: {'for': getCode()}">
+                    <!-- ko text: getTitle() --><!-- /ko -->
+                    <!-- ko if: subtext && subtext.length -->
+                    <p class="bk-description" data-bind="text: subtext, style: subTextStyle"></p>
+                    <!-- /ko -->
                 </label>
             </div>
             <div class="bk-img-wrap">
-                <img data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/creditcards.svg') }" />
+                <img data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/creditcards.svg') }"/>
             </div>
         </div>
     </div>
@@ -23,151 +23,74 @@
         <div class="payment-method-billing-address">
             <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
             <!-- ko template: getTemplate() --><!-- /ko -->
-            <!--/ko-->
+            <!-- /ko -->
         </div>
 
-        <div class="payment-method-second-col billing-address-form">
-            <form data-bind="mageInit: { 'validation': [] },
-                  attr: {'data-hasrequired': $t('* Required Fields')}">
-                <fieldset class="fieldset bk-creditcards">
-                    <input id="buckaroo_magento2_creditcards_issuer"
-                    type="hidden"
-                    name="payment[buckaroo_magento2_creditcards][issuer]"
-                    data-bind="value: cardIssuer">
-                    <div class="fieldset">
-                        <div class="field required">
-                            <label class="label" for="buckaroo_magento2_creditcards_cardholdername"> <span data-bind="i18n: 'Name on card:'"> </span> </label>
-                            <div class="control">
-                                <input id="buckaroo_magento2_creditcards_cardholdername"
-                                       type="text"
-                                       class="input-text field"
-                                       name="payment[buckaroo_magento2_creditcards][cardholdername]"
-                                       data-bind="
-                            valueUpdate: 'blur',
-                            value: cardHolderName,
-                            attr: {
-                                'data-validate': JSON.stringify({ 'required': true, 'validateCardHolderName': true }),
-                                'placeholder': 'John Doe'
-                             },
-                            event: { blur: validateField }">
-                            </div>
-                        </div>
-
-                        <div class="field required bk-card-number">
-                            <label class="label" for="buckaroo_magento2_creditcards_cardnumber">
-                                <span data-bind="i18n: 'Card number:'"> </span>
-                            </label>
-                                <div class="bk-card-number-input-wrap">
-                                    <div class="control">
-                                        <input id="buckaroo_magento2_creditcards_cardnumber"
-                                               type="text"
-                                               class="input-text field"
-                                               name="payment[buckaroo_magento2_creditcards][cardnumber]"
-                                               data-bind="
-                                    valueUpdate: 'input',
-                                    value: formatedCardNumber,
-                                    attr: {
-                                        'data-validate': JSON.stringify({ 'required': true, 'validateCardNumber': true }),
-                                        'maxlength': 23,
-                                        'placeholder': '0000 0000 0000 0000'
-                                    },
-                                    event: { blur: validateCardNumber }">
-                                    </div>
-                                    <div class="bk-card-image">
-                                        <img class="issuer-img" data-bind="attr: {
-                                                 'src': issuerImage,
-                                                 'width': 30,
-                                                 'height': 32 }"
-                                        />
-                                    </div>
-                                </div>
-                        </div>
-                        <div class="bk-cvc-date-wrap">
-                            <div class="field required bk-date">
-                                <label class="label" for="buckaroo_magento2_creditcards_expireDate">
-                                    <span data-bind="i18n: 'Expiration:'"></span>
-                                </label>
-                                <div class="control">
-                                    <input id="buckaroo_magento2_creditcards_expireDate"
-                                           type="text"
-                                           class="input-text field"
-                                           name="payment[buckaroo_magento2_creditcards][expireDate]"
-                                           data-bind="
-                                valueUpdate: 'input',
-                                value: formatedExpirationDate,
-                                attr: { 
-                                    'data-validate': JSON.stringify(
-                                        { 'required': true,  'bkValidateMonth': true, 'bkValidateYear': true }
-                                    ),
-                                    'maxlength': 5,
-                                    'placeholder': 'MM/YY'
-                                },
-                                event: { blur: validateField }">
-                                </div>
-                            </div>
-                            <div class="field required bk-cvc">
-                                <label class="label" for="buckaroo_magento2_creditcards_cvc">
-                                    <span data-bind="i18n: 'CVC / CVV:'"></span>
-                                </label>
-                                <div class="control">
-                                    <input id="buckaroo_magento2_creditcards_cvc"
-                                           type="text"
-                                           class="input-text field"
-                                           name="payment[buckaroo_magento2_creditcards][cvc]"
-                                           data-bind="
-                                    valueUpdate: 'blur',
-                                    value: cvc,
-                                    attr: {
-                                        'data-validate': JSON.stringify({ 'required': true, 'validateCvc': true }),
-                                        'maxlength': 4,
-                                        'placeholder': '123'
-                                    },
-                                    event: { blur: validateField }">
-                                </div>
-                               
-                            </div>
-                        </div>
-                        </div>
-
-                    <div class="field">
-                        <span data-bind="i18n: 'Please make sure all fields are filled in correctly before proceeding.' ">  </span>
+        <form>
+            <div class="payment-method-second-col payment-method-second-col-tailwind billing-address-form">
+                <div class="mb-4 field">
+                    <label id="cc-name-label" for="cc-cvc-wrapper" class="label">
+                        <span data-bind="i18n: 'Cardholder Name:'"> </span>
+                    </label>
+                    <div id="cc-name-wrapper"
+                         class="shadow h-12 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                     </div>
-                </fieldset>
-            </form>
-        </div>
+                    <div id="cc-name-error" class="mage-error"></div>
+                </div>
 
-        <div class="actions-toolbar">
-            <div class="primary">
-                <button id="button-action-checkout-creditcards"
-                        class="action primary checkout button-creditcards"
-                        type="submit"
-                        data-bind="
-                        click: placeOrder,
-                        attr: {title: $t('Place Order')},
-                        enable: (getCode() == isChecked()),
-                        css: {disabled: !isPlaceOrderActionAllowed() }
-                        "
-                        disabled>
-                    <span data-bind="i18n: 'Place Order'"></span>
-                </button>
+                <div class="mb-4 field">
+                    <label id="cc-number-label" for="cc-number-wrapper" class="label">
+                        <span data-bind="i18n: 'Card Number:'"> </span>
+                    </label>
+                    <div id="cc-number-wrapper"
+                         class="shadow h-12 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    </div>
+                    <div id="cc-number-error" class="mage-error"></div>
+                </div>
+
+                <div class="mb-6 field">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="col-span-1">
+                            <label id="cc-expiry-label" for="cc-expiry-wrapper" class="label">
+                                <span data-bind="i18n: 'Expiry Date:'"> </span>
+                            </label>
+                            <div id="cc-expiry-wrapper"
+                                 class="shadow h-12 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                            </div>
+                            <div id="cc-expiry-error" class="mage-error"></div>
+                        </div>
+                        <div class="col-span-1">
+                            <label id="cc-cvc-label" for="cc-cvc-wrapper" class="label">
+                                <span data-bind="i18n: 'CVC:'"> </span>
+                            </label>
+                            <div id="cc-cvc-wrapper"
+                                 class="shadow h-12 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                            </div>
+                            <div id="cc-cvc-error" class="mage-error"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <span
+                        data-bind="i18n: 'Please make sure all fields are filled in correctly before proceeding.'"></span>
+                    <a class="text-gray-500 hover:text-gray-800 float-right ml-2" href="#"
+                       data-bind="click: resetForm, i18n: 'Clear'"></a>
+                </div>
+
+
+                <div class="field oauth-token-error mage-error"
+                     data-bind="text: oauthTokenError, visible: oauthTokenError"></div>
+                <div class="field payment-error mage-error"
+                     data-bind="text: paymentError, visible: paymentError"></div>
             </div>
-        </div>
-
-        <!-- ko if: payWithBaseCurrency() -->
-        <div class="buckaroo_magento2_currency-notification">
-            <span data-bind="text: getPayWithBaseCurrencyText()"></span>
-        </div>
-        <!--/ko-->
-
-        <!-- ko foreach: getRegion('messages') -->
-        <!-- ko template: getTemplate() --><!-- /ko -->
-        <!--/ko-->
-
-        <div class="checkout-agreements-block">
-            <!-- ko foreach: $parent.getRegion('before-place-order') -->
-            <!-- ko template: getTemplate() --><!-- /ko -->
-            <!--/ko-->
-        </div>
-
+            <div class="actions-toolbar creditcards">
+                <div class="primary">
+                    <button id="pay" class="action primary checkout">
+                        <span data-bind="i18n: 'Place Order'"></span>
+                    </button>
+                </div>
+            </div>
+        </form>
     </div>
 </div>
