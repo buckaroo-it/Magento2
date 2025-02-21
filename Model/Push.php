@@ -1260,42 +1260,31 @@ class Push implements PushInterface
      */
     protected function canUpdateOrderStatus($response)
     {
-        /**
-         * Types of statusses
-         */
-        $completedStateAndStatus  = [Order::STATE_COMPLETE, Order::STATE_COMPLETE];
-        $cancelledStateAndStatus  = [Order::STATE_CANCELED, Order::STATE_CANCELED];
-        $holdedStateAndStatus     = [Order::STATE_HOLDED, Order::STATE_HOLDED];
-        $closedStateAndStatus     = [Order::STATE_CLOSED, Order::STATE_CLOSED];
-        $processingStateAndStatus = [Order::STATE_PROCESSING, Order::STATE_PROCESSING];
-        /**
-         * Get current state and status of order
-         */
-        $currentStateAndStatus = [$this->order->getState(), $this->order->getStatus()];
-        $this->logging->addDebug(__METHOD__ . '|1|' . var_export($currentStateAndStatus, true));
+        // Define the final states where the order should not normally be updated.
+        $finalStates = [
+            Order::STATE_COMPLETE,
+            Order::STATE_CANCELED,
+            Order::STATE_CLOSED,
+            Order::STATE_HOLDED
+        ];
 
-        /**
-         * If the types are not the same and the order can receive an invoice the order can be udpated by BPE.
-         */
-        if ($completedStateAndStatus[0] != $currentStateAndStatus[0]
-            && $cancelledStateAndStatus != $currentStateAndStatus
-            && $holdedStateAndStatus != $currentStateAndStatus
-            && $closedStateAndStatus != $currentStateAndStatus
-            && $processingStateAndStatus[0] != $currentStateAndStatus[0]
-        ) {
+        $currentState = $this->order->getState();
+        $this->logging->addDebug(__METHOD__ . '|Current state|' . $currentState);
+
+        // If the order is not in a final state, allow the update.
+        if (!in_array($currentState, $finalStates)) {
             return true;
         }
 
-        if (($this->order->getState() === Order::STATE_CANCELED)
-            && ($this->order->getStatus() === Order::STATE_CANCELED)
-            && ($response['status'] === 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')
+        if ($currentState === Order::STATE_CANCELED
+            && $response['status'] === 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'
             && !isset($this->postData['brq_relatedtransaction_partialpayment'])
         ) {
-            $this->logging->addDebug(__METHOD__ . '|2|');
+            $this->order->load($this->order->getId());
 
-            $this->order->setState(Order::STATE_NEW);
-            $this->order->setStatus('pending');
+            $this->logging->addDebug(__METHOD__ . '|Re-opening canceled order|');
 
+            $this->order->setState(Order::STATE_PROCESSING);
             foreach ($this->order->getAllItems() as $item) {
                 $item->setQtyCanceled(0);
             }
@@ -1613,6 +1602,12 @@ class Push implements PushInterface
 
     protected function updateTransactionIsClosed(Order $order)
     {
+        // Only re-open if the order is currently canceled.
+        if ($order->getState() !== Order::STATE_CANCELED) {
+            $this->logging->addDebug(__METHOD__ . '| Order is not canceled (current state: ' . $order->getState() . '), skipping re-opening.');
+            return;
+        }
+
         // 1) Re-open the order
         $this->logging->addDebug(__METHOD__ . '| Re-opening canceled order ID: ' . $order->getId());
 
@@ -1638,7 +1633,6 @@ class Push implements PushInterface
         }
 
         // 4) Load all transactions for this order and set is_closed=0
-        //    (You can do it for just the lastTransId if you know there's only one.)
         try {
             $searchCriteria = $this->searchCriteriaBuilder
                 ->addFilter('order_id', $order->getId())
@@ -1711,19 +1705,39 @@ class Push implements PushInterface
     }
 
     /**
-     * Updates the orderstate and add a comment.
+     * Updates the order state and add a comment.
      *
      * @param $orderState
      * @param $description
      * @param $newStatus
      * @param $force
+     * @throws \Exception
      */
     protected function updateOrderStatus($orderState, $newStatus, $description, $force = false)
     {
-        $this->logging->addDebug(__METHOD__ . '|0|' . var_export([$orderState, $newStatus, $description], true));
+        $this->logging->addDebug(__METHOD__ . '|Start updateOrderStatus with parameters: ' . var_export([$orderState, $newStatus, $description, $force], true));
+
+        $currentStatus = $this->order->getStatus();
+        $defaultStatus = $this->helper->getOrderStatusByState($this->order, $orderState);
+
+        $this->logging->addDebug(__METHOD__ . '|Current Status: ' . $currentStatus);
+        $this->logging->addDebug(__METHOD__ . '|Default Status for state ' . $orderState . ': ' . $defaultStatus);
+
+        if ($currentStatus !== $defaultStatus && $this->order->getState() === $orderState) {
+            $this->logging->addDebug(__METHOD__ . '|Preserving custom status: ' . $currentStatus . '. Description: ' . $description);
+            if ($this->dontSaveOrderUponSuccessPush) {
+                $this->order->addStatusHistoryComment($description)
+                    ->setIsCustomerNotified(false)
+                    ->setEntityName('invoice')
+                    ->save();
+            } else {
+                $this->order->addStatusHistoryComment($description);
+            }
+            return;
+        }
+
         if ($this->order->getState() == $orderState || $force == true) {
-            $this->logging->addDebug(__METHOD__ . '|1|');
-            $this->logging->addDebug('||| $orderState: ' . '|1|' . $orderState);
+            $this->logging->addDebug(__METHOD__ . '|Updating order state/status to new status: ' . $newStatus);
             if ($this->dontSaveOrderUponSuccessPush) {
                 $this->order->addStatusHistoryComment($description)
                     ->setIsCustomerNotified(false)
@@ -1734,8 +1748,7 @@ class Push implements PushInterface
                 $this->order->addStatusHistoryComment($description, $newStatus);
             }
         } else {
-            $this->logging->addDebug(__METHOD__ . '|2|');
-            $this->logging->addDebug('||| $orderState: ' . '|2|' . $orderState);
+            $this->logging->addDebug(__METHOD__ . '|Order state (' . $this->order->getState() . ') does not match expected state (' . $orderState . '). Preserving status.');
             if ($this->dontSaveOrderUponSuccessPush) {
                 $this->order->addStatusHistoryComment($description)
                     ->setIsCustomerNotified(false)
