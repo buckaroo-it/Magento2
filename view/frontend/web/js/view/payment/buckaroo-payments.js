@@ -94,16 +94,8 @@ define(
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/transfer'
             },
             {
-                type: 'buckaroo_magento2_giropay',
-                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/giropay'
-            },
-            {
                 type: 'buckaroo_magento2_mrcash',
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/mrcash'
-            },
-            {
-                type: 'buckaroo_magento2_sofortbanking',
-                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/sofortbanking'
             },
             {
                 type: 'buckaroo_magento2_belfius',
@@ -188,6 +180,10 @@ define(
             {
                 type: 'buckaroo_magento2_knaken',
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/knaken'
+            },
+            {
+                type: 'buckaroo_magento2_blik',
+                    component: 'Buckaroo_Magento2/js/view/payment/method-renderer/blik'
             }
         );
         /**

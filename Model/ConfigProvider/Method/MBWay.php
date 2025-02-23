@@ -22,7 +22,6 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 class MBWay extends AbstractConfigProvider
 {
     const XPATH_MBWAY_PAYMENT_FEE           = 'payment/buckaroo_magento2_mbway/payment_fee';
-    const XPATH_MBWAY_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_mbway/payment_fee_label';
     const XPATH_MBWAY_ACTIVE                = 'payment/buckaroo_magento2_mbway/active';
     const XPATH_MBWAY_SUBTEXT               = 'payment/buckaroo_magento2_mbway/subtext';
     const XPATH_MBWAY_SUBTEXT_STYLE         = 'payment/buckaroo_magento2_mbway/subtext_style';
@@ -51,9 +50,7 @@ class MBWay extends AbstractConfigProvider
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
-            \Buckaroo\Magento2\Model\Method\MBWay::PAYMENT_METHOD_CODE
-        );
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
 
         return [
             'payment' => [

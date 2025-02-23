@@ -46,19 +46,24 @@
                                                                 <item name="buckaroo_fee" xsi:type="array">
                                                                     <item name="component"  xsi:type="string">Buckaroo_Magento2/js/view/summary/totals</item>
                                                                     <item name="config" xsi:type="array">
-                                                                        <item name="title" xsi:type="string">Buckaroo Fee</item>
+                                                                        <item name="title" xsi:type="string">Payment Fee</item>
                                                                     </item>
                                                                 </item>
                                                             </item>
                                                         </item>
-                                                        <item name="grand-total" xsi:type="array">
-                                                            <item name="component" xsi:type="string">Buckaroo_Magento2/js/view/checkout/summary/grand-total</item>
-                                                            <item name="config" xsi:type="array">
-                                                                <item name="exclTaxLabel" xsi:type="string" translate="true">Order Total Excl. Tax</item>
-                                                                <item name="inclTaxLabel" xsi:type="string" translate="true">Order Total Incl. Tax</item>
-                                                                <item name="basicCurrencyMessage" xsi:type="string" translate="true">You will be charged for</item>
-                                                                <item name="title" xsi:type="string" translate="true">Order Total</item>
-                                                            </item>
+                                                        <!-- Remaining Amount Component -->
+                                                        <item name="remaining_amount" xsi:type="array">
+                                                            <item name="component" xsi:type="string">Buckaroo_Magento2/js/view/checkout/summary/remaining-amount</item>
+                                                            <item name="sortOrder" xsi:type="string">250</item> <!-- Adjust sortOrder as needed -->
+                                                            <item name="title" xsi:type="string" translate="true">Remaining Amount</item>
+                                                            <item name="is_always_shown" xsi:type="boolean">false</item>
+                                                        </item>
+                                                        <!-- Already Paid Component -->
+                                                        <item name="already_paid" xsi:type="array">
+                                                            <item name="component" xsi:type="string">Buckaroo_Magento2/js/view/checkout/summary/already-paid</item>
+                                                            <item name="sortOrder" xsi:type="string">300</item> <!-- Adjust sortOrder as needed -->
+                                                            <item name="title" xsi:type="string" translate="true">Already Paid</item>
+                                                            <item name="is_always_shown" xsi:type="boolean">false</item>
                                                         </item>
                                                     </item>
                                                 </item>
@@ -117,13 +122,7 @@
                                                                         <item name="buckaroo_magento2_transfer" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
-                                                                        <item name="buckaroo_magento2_giropay" xsi:type="array">
-                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
-                                                                        </item>
                                                                         <item name="buckaroo_magento2_mrcash" xsi:type="array">
-                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
-                                                                        </item>
-                                                                        <item name="buckaroo_magento2_sofortbanking" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
                                                                         <item name="buckaroo_magento2_belfius" xsi:type="array">
@@ -142,13 +141,13 @@
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
                                                                         <item name="buckaroo_magento2_eps" xsi:type="array">
-                                                                        	<item name="isBillingAddressRequired" xsi:type="boolean">true</item>
+                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
                                                                         <item name="buckaroo_magento2_giftcards" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                             <item name="children" xsi:type="array">
                                                                                 <item name="buckaroo_magento2_vvvgiftcard" xsi:type="array">
-                                                                                <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
+                                                                                    <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                                 </item>
                                                                             </item>
                                                                         </item>

@@ -17,10 +17,12 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Block\Catalog\Product\View;
 
 use Magento\Checkout\Model\Cart;
 use Magento\Checkout\Model\CompositeConfigProvider;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay as ApplepayConfig;
@@ -58,59 +60,56 @@ class Applepay extends Template
     }
 
     /**
+     * @param $page
      * @return bool
+     * @throws NoSuchEntityException
      */
-    public function canShowButton()
+    public function canShowButton($page): bool
     {
-        $result = false;
-
-        if ($this->cart->getSummaryQty()
-            &&
-            ($this->applepayConfigProvider->getActive() != 0)
-            &&
-            ($this->applepayConfigProvider->getAvailableButtons())
-            &&
-            (in_array('Cart', $this->applepayConfigProvider->getAvailableButtons()))
-        ) {
-            $result = true;
+        if (!$this->isModuleActive()) {
+            return false;
         }
 
-        return $result;
+        $availableButtons = $this->applepayConfigProvider->getAvailableButtons();
+        if (!in_array($page, $availableButtons, true)) {
+            return false;
+        }
+
+        return $this->applepayConfigProvider->isApplePayEnabled($this->_storeManager->getStore());
     }
 
     /**
+     * Check if Buckaroo module is active
+     *
      * @return bool
      */
-    public function canShowProductButton()
+    public function isModuleActive()
     {
-        $result = false;
-
-        if (($this->applepayConfigProvider->getActive() != 0)
-            &&
-            ($this->applepayConfigProvider->getAvailableButtons())
-            &&
-            (in_array('Product', $this->applepayConfigProvider->getAvailableButtons()))
-        ) {
-            $result = true;
-        }
-
-        return $result;
+        $status = $this->applepayConfigProvider->getActive();
+        return $status == 1 || $status == 2;
     }
 
     /**
-     * @return false|string
+     * Get entire checkout configuration as JSON.
+     * Wrap in a try/catch to avoid "No such entity with cartId" exceptions.
+     *
+     * @return string
      */
     public function getCheckoutConfig()
     {
-        if (!$this->canShowButton()) {
-            return null;
+        try {
+            $config = $this->compositeConfigProvider->getConfig();
+        } catch (NoSuchEntityException $e) {
+            $config = [];
         }
 
-        return json_encode($this->compositeConfigProvider->getConfig(), JSON_HEX_TAG);
+        return json_encode($config, JSON_HEX_TAG);
     }
 
     /**
-     * @return false|string
+     * Get Apple Pay-specific config as JSON.
+     *
+     * @return string
      */
     public function getApplepayConfig()
     {

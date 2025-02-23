@@ -71,11 +71,6 @@ class PayPerEmail implements \Magento\Framework\Option\ArrayInterface
                 'code' => 'buckaroo_magento2_giftcards'
             ],
             [
-                'value' => 'giropay',
-                'label' => __('Giropay'),
-                'code' => 'buckaroo_magento2_giropay'
-            ],
-            [
                 'value' => 'ideal',
                 'label' => __('iDEAL'),
                 'code' => 'buckaroo_magento2_ideal'
@@ -104,11 +99,6 @@ class PayPerEmail implements \Magento\Framework\Option\ArrayInterface
                 'value' => 'sepadirectdebit',
                 'label' => __('SEPA Direct Debit'),
                 'code' => 'buckaroo_magento2_sepadirectdebit'
-            ],
-            [
-                'value' => 'sofortueberweisung',
-                'label' => __('Sofort Banking'),
-                'code' => 'buckaroo_magento2_sofortbanking'
             ],
             [
                 'value' => 'belfius',
@@ -149,6 +139,11 @@ class PayPerEmail implements \Magento\Framework\Option\ArrayInterface
                 'value' => 'trustly',
                 'label' => __('Trustly'),
                 'code' => 'buckaroo_magento2_trustly'
+            ],
+            [
+                'value' => 'blik',
+                'label' => __('Blik'),
+                'code' => 'buckaroo_magento2_blik'
             ]
         ];
 

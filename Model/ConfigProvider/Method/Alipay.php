@@ -23,7 +23,6 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 class Alipay extends AbstractConfigProvider
 {
     const XPATH_ALIPAY_PAYMENT_FEE           = 'payment/buckaroo_magento2_alipay/payment_fee';
-    const XPATH_ALIPAY_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_alipay/payment_fee_label';
     const XPATH_ALIPAY_ACTIVE                = 'payment/buckaroo_magento2_alipay/active';
     const XPATH_ALIPAY_SUBTEXT               = 'payment/buckaroo_magento2_alipay/subtext';
     const XPATH_ALIPAY_SUBTEXT_STYLE         = 'payment/buckaroo_magento2_alipay/subtext_style';
@@ -44,9 +43,7 @@ class Alipay extends AbstractConfigProvider
      */
     public function getConfig()
     {
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
-            \Buckaroo\Magento2\Model\Method\Alipay::PAYMENT_METHOD_CODE
-        );
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
 
         return [
             'payment' => [

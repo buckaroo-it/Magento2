@@ -28,7 +28,6 @@ use Magento\Store\Model\StoreManagerInterface;
 class Giftcards extends AbstractConfigProvider
 {
     const XPATH_GIFTCARDS_PAYMENT_FEE          = 'payment/buckaroo_magento2_giftcards/payment_fee';
-    const XPATH_GIFTCARDS_PAYMENT_FEE_LABEL    = 'payment/buckaroo_magento2_giftcards/payment_fee_label';
     const XPATH_GIFTCARDS_ACTIVE               = 'payment/buckaroo_magento2_giftcards/active';
     const XPATH_GIFTCARDS_SUBTEXT              = 'payment/buckaroo_magento2_giftcards/subtext';
     const XPATH_GIFTCARDS_SUBTEXT_STYLE        = 'payment/buckaroo_magento2_giftcards/subtext_style';
@@ -93,9 +92,7 @@ class Giftcards extends AbstractConfigProvider
             }
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
-            \Buckaroo\Magento2\Model\Method\Giftcards::PAYMENT_METHOD_CODE
-        );
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
 
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
         $resource      = $objectManager->get(\Magento\Framework\App\ResourceConnection::class);

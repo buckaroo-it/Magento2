@@ -23,7 +23,6 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 class SepaDirectDebit extends AbstractConfigProvider
 {
     const XPATH_SEPADIRECTDEBIT_PAYMENT_FEE = 'payment/buckaroo_magento2_sepadirectdebit/payment_fee';
-    const XPATH_SEPADIRECTDEBIT_PAYMENT_FEE_LABEL = 'payment/buckaroo_magento2_sepadirectdebit/payment_fee_label';
     const XPATH_SEPADIRECTDEBIT_ACTIVE = 'payment/buckaroo_magento2_sepadirectdebit/active';
     const XPATH_SEPADIRECTDEBIT_SUBTEXT                = 'payment/buckaroo_magento2_sepadirectdebit/subtext';
     const XPATH_SEPADIRECTDEBIT_SUBTEXT_STYLE          = 'payment/buckaroo_magento2_sepadirectdebit/subtext_style';
@@ -51,9 +50,7 @@ class SepaDirectDebit extends AbstractConfigProvider
      */
     public function getConfig()
     {
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
-            \Buckaroo\Magento2\Model\Method\SepaDirectDebit::PAYMENT_METHOD_CODE
-        );
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
 
         return [
             'payment' => [

@@ -36,6 +36,7 @@ use Buckaroo\Magento2\Model\Ideal\QuoteBuilderInterfaceFactory;
 use Buckaroo\Magento2\Api\Data\QuoteCreateResponseInterfaceFactory;
 use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Store\Model\StoreManagerInterface;
 
 class QuoteCreate implements IdealQuoteCreateInterface
 {
@@ -49,6 +50,7 @@ class QuoteCreate implements IdealQuoteCreateInterface
     protected $shipmentEstimation;
     protected $logger;
     protected $quote;
+    protected $storeManager;
 
     public function __construct(
         QuoteCreateResponseInterfaceFactory $responseFactory,
@@ -59,7 +61,8 @@ class QuoteCreate implements IdealQuoteCreateInterface
         CheckoutSession $checkoutSession,
         QuoteRepository $quoteRepository,
         ShipmentEstimationInterface $shipmentEstimation,
-        Log $logger
+        Log $logger,
+        StoreManagerInterface $storeManager
     ) {
         $this->responseFactory = $responseFactory;
         $this->quoteBuilderInterfaceFactory = $quoteBuilderInterfaceFactory;
@@ -70,6 +73,7 @@ class QuoteCreate implements IdealQuoteCreateInterface
         $this->quoteRepository = $quoteRepository;
         $this->shipmentEstimation = $shipmentEstimation;
         $this->logger = $logger;
+        $this->storeManager = $storeManager;
     }
 
     /**
@@ -101,11 +105,25 @@ class QuoteCreate implements IdealQuoteCreateInterface
 
             $this->setPaymentMethod();
         } catch (\Throwable $th) {
+            $this->logger->debug('Error during quote creation: ' . $th->getMessage());
             throw new IdealException("Failed to create quote");
         }
 
+        $this->restoreStoreContext();
         $this->calculateQuoteTotals();
         return $this->responseFactory->create(["quote" => $this->quote]);
+    }
+
+    /**
+     * Restore store context for the quote
+     */
+    protected function restoreStoreContext()
+    {
+        if ($this->quote && $this->quote->getStoreId()) {
+            $this->storeManager->setCurrentStore($this->quote->getStoreId());
+        } else {
+            $this->logger->debug('Store ID not set on quote.');
+        }
     }
 
     /**
@@ -220,7 +238,7 @@ class QuoteCreate implements IdealQuoteCreateInterface
      */
     protected function calculateQuoteTotals()
     {
-        $this->quote->setStoreId($this->quote->getStore()->getId());
+        $this->restoreStoreContext();
 
         if ($this->quote->getCustomerEmail() === null) {
             $this->quote->setCustomerEmail('no-reply@example.com');

@@ -3,217 +3,134 @@
  * See COPYING.txt for license details.
  */
 /*global define*/
-define(
-    [
-        'jquery',
-        'Magento_Checkout/js/view/summary/abstract-total',
-        'Magento_Checkout/js/model/quote',
-        'Magento_Checkout/js/model/totals',
-        'Buckaroo_Magento2/js/model/buckaroo-fee',
-        'Magento_Ui/js/model/messageList',
-        'mage/translate',
-        'Magento_Ui/js/modal/alert',
-        'ko',
-        'mage/url'
-    ],
-    function ($, Component, quote, totals, BuckarooFee, globalMessageList, $t, alert, ko, url) {
-        'use strict';
+define([
+    'jquery',
+    'Magento_Checkout/js/view/summary/abstract-total',
+    'Magento_Checkout/js/model/quote',
+    'Magento_Checkout/js/model/totals',
+    'Magento_Ui/js/model/messageList',
+    'mage/translate',
+    'Magento_Ui/js/modal/alert',
+    'ko'
+],
+function ($, Component, quote, totals , globalMessageList, $t, alert, ko) {
+    'use strict';
 
-        return Component.extend(
-            {
-                defaults            : {
-                    template : 'Buckaroo_Magento2/summary/buckaroo_fee'
-                },
-                totals              : quote.getTotals(),
-                model               : {},
-                excludingTaxMessage : '(Excluding Tax)',
-                includingTaxMessage : '(Including Tax)',
+    return Component.extend({
+        defaults : {
+            template : 'Buckaroo_Magento2/summary/buckaroo_fee'
+        },
+        totals : quote.getTotals(),
 
-                /**
-                 * @override
-                 */
-                initialize : function (options) {
-                    this.model = new BuckarooFee();
+        /**
+         * @override
+         */
+        initialize : function (options) {
+            this._super();
 
-                    window.checkoutConfig.buckarooFee.title = ko.observable(options.title);
+            quote.paymentMethod.subscribe(this.updateFeeVisibility.bind(this));
 
-                    return this._super(options);
-                },
+            return this;
+        },
 
-                /**
-                 * Get buckaroo fee price based on options.
-                 *
-                 * @returns {int}
-                 */
-                getValue : function () {
-                    var price = 0,
-                        buckarooFeeSegment;
+        /**
+         * Update visibility of the Buckaroo fee based on payment method.
+         */
+        updateFeeVisibility: function (paymentMethod) {
+            if (!this.hasFee(paymentMethod)) {
+                // Clear the fee segment if the selected payment method has no fee
+                totals.getSegment('buckaroo_fee', null);
+            }
+            totals.isLoading(true); // Force totals to recalculate
+        },
 
-                    if (this.totals()
-                        && totals.getSegment('buckaroo_fee')
-                        && totals.getSegment('buckaroo_fee').hasOwnProperty('extension_attributes')
-                    ) {
-                        buckarooFeeSegment = totals.getSegment('buckaroo_fee')['extension_attributes'];
+        /**
+         * Determine if the selected payment method includes a fee.
+         */
+        hasFee: function (paymentMethod) {
+            return paymentMethod && paymentMethod.method && paymentMethod.method.includes('buckaroo');
+        },
 
-                        price = buckarooFeeSegment.hasOwnProperty('buckaroo_fee') ?
-                            buckarooFeeSegment['buckaroo_fee'] :
-                            0;
-                    }
+        /**
+         * Get buckaroo fee price based on options.
+         *
+         * @returns {int}
+         */
+        getValue : function () {
+            var price = 0,
+                buckarooFeeSegment;
+            if (this.totals()
+                && totals.getSegment('buckaroo_fee')
+                && totals.getSegment('buckaroo_fee').hasOwnProperty('extension_attributes')
+            ) {
+                buckarooFeeSegment = totals.getSegment('buckaroo_fee')['extension_attributes'];
 
-                    return this.getFormattedPrice(price);
-                },
+                price = buckarooFeeSegment.hasOwnProperty('buckaroo_fee') ?
+                    buckarooFeeSegment['buckaroo_fee'] :
+                    0;
+            }
 
-                /**
-                 * Get buckaroo fee price (including tax) based on options.
-                 *
-                 * @returns {int}
-                 */
-                getIncludingTaxValue : function () {
-                    var price = 0,
-                        buckarooFeeSegment;
+            return this.getFormattedPrice(price);
+        },
 
-                    if (this.totals()
-                        && totals.getSegment('buckaroo_fee')
-                        && totals.getSegment('buckaroo_fee').hasOwnProperty('extension_attributes')
-                    ) {
-                        buckarooFeeSegment = totals.getSegment('buckaroo_fee')['extension_attributes'];
+        /**
+         * Check buckaroo fee option availability.
+         *
+         * @returns {Boolean}
+         */
+        isAvailable : function () {
+            var isAvailable = false;
+            if (!this.isFullMode()) {
+                return false;
+            }
 
-                        price = buckarooFeeSegment.hasOwnProperty('buckaroo_fee_incl_tax') ?
-                            buckarooFeeSegment['buckaroo_fee_incl_tax'] :
-                            0;
-                    }
+            if (this.totals()
+                && totals.getSegment('buckaroo_fee')
+                && totals.getSegment('buckaroo_fee').hasOwnProperty('extension_attributes')
+            ) {
+                isAvailable = (0 < totals.getSegment('buckaroo_fee')['extension_attributes'].buckaroo_fee);
+            }
 
-                    return this.getFormattedPrice(price);
-                },
+            return isAvailable;
+        },
 
-                /**
-                 * Check buckaroo fee option availability.
-                 *
-                 * @returns {Boolean}
-                 */
-                isAvailable : function () {
-                    var isAvailable = false;
+        getTitle: function () {
+            return $t('Payment Fee');
+        },
 
-                    if (!this.isFullMode()) {
-                        return false;
-                    }
+        /**
+         * Title for 'Paid with Giftcard' option.
+         *
+         * @returns {string}
+         */
+        getAlreadyPayTitle: function () {
+            return $t('Paid with Giftcard');
+        },
 
-                    if (this.totals()
-                        && totals.getSegment('buckaroo_fee')
-                        && totals.getSegment('buckaroo_fee').hasOwnProperty('extension_attributes')
-                    ) {
-                        isAvailable = (0 < totals.getSegment('buckaroo_fee')['extension_attributes'].buckaroo_fee);
-                    }
-
-                    return isAvailable;
-                },
-
-                /**
-                 * Check if both buckaroo fee prices should be displayed.
-                 *
-                 * @returns {Boolean}
-                 */
-                displayBothPrices : function () {
-                    return (true == this.model.displayBothPrices());
-                },
-
-                /**
-                 * Check if buckaroo fee prices should be displayed including tax.
-                 *
-                 * @returns {Boolean}
-                 */
-                displayPriceInclTax : function () {
-                    var displayPriceInclTax = this.model.displayInclTaxPrice();
-
-                    return displayPriceInclTax && !this.displayBothPrices();
-                },
-
-                /**
-                 * Check if buckaroo fee prices should be displayed excluding tax.
-                 *
-                 * @returns {Boolean}
-                 */
-                displayPriceExclTax : function () {
-                    return !this.displayPriceInclTax() && !this.displayBothPrices();
-                },
-
-                getTitle : function () {
-                    return window.checkoutConfig.buckarooFee.title();
-                },
-
-                getAlreadyPayTitle : function () {
-                    return 'Paid with Giftcard';
-                },
-
-                getAlreadyPayValue : function () {
-                    var buckarooFeeSegment = totals.getSegment('buckaroo_already_paid');
-                    try {
-                        if (buckarooFeeSegment.title) {
-                            var items = JSON.parse(buckarooFeeSegment.title);
-                            if ((typeof items === 'object') && (items.length > 0)) {
-                                for (var i = 0; i < items.length; i++) {
-                                    items[i].amount = this.getFormattedPrice(items[i].amount);
-                                }
-                                return items;
-                            }
+        /**
+         * Get value for 'Paid with Giftcard'.
+         *
+         * @returns {string|boolean}
+         */
+        getAlreadyPayValue : function () {
+            var buckarooFeeSegment = totals.getSegment('buckaroo_already_paid');
+            try {
+                if (buckarooFeeSegment.title) {
+                    var items = JSON.parse(buckarooFeeSegment.title);
+                    if ((typeof items === 'object') && (items.length > 0)) {
+                        for (var i = 0; i < items.length; i++) {
+                            items[i].amount = this.getFormattedPrice(items[i].amount);
                         }
-                    } catch (e) {
-                        // console.log(e);
-                    }
-
-                    return buckarooFeeSegment.value ?
-                        this.getFormattedPrice(buckarooFeeSegment.value) :
-                        false;
-                },
-
-                removeGiftcard: function (transaction_id, servicecode, amount) {
-                    self = this;
-                    if (confirm('Are you sure you want to remove?')) {
-
-                    $.ajax({
-                        url: url.build("buckaroo/checkout/giftcard"),
-                        type: 'POST',
-                        dataType: 'json',
-                        showLoader: true, //use for display loader 
-                        data: {
-                            refund: transaction_id,
-                            card: servicecode,
-                            amount: amount,
-                        }
-                   }).done(function (data) {
-                        if(data.error){
-                            alert({
-                                title: $t('Error'),
-                                content: $t(data.error),
-                                actions: {always: function(){} }
-                            });
-                        }else{
-                            alert({
-                                title: $t('Success'),
-                                content: $t(data.message),
-                                actions: {always: function(){} },
-                                buttons: [{
-                                text: $t(data.message),
-                                class: 'action primary accept',
-                                    click: function () {
-                                        this.closeModal(true);
-                                    }
-                                }]
-                            });
-                        }
-
-                        var deferred = $.Deferred();
-                        getTotalsAction([], deferred);
-                        // $('.buckaroo_magento2_'+self.currentGiftcard+' input[name="payment[method]"]').click();
-                    
-                    });
-
-                    } else {
-                        console.log('no');
+                        return items;
                     }
                 }
-
+            } catch (e) {
+                // console.log(e);
             }
-        );
-    }
-);
+
+            return buckarooFeeSegment.value ?
+                this.getFormattedPrice(buckarooFeeSegment.value) :
+                false;
+        },
+    });
+});

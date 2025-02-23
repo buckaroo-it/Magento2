@@ -350,7 +350,6 @@ class TransferTest extends \Buckaroo\Magento2\Test\BaseTest
             ->willReturnSelf();
         $trxFactoryMock->expects($this->once())->method('setServices')->willReturnCallback(
             function ($services) use ($trxFactoryMock) {
-                $services['Name']   = 'sofortbanking';
                 $services['Action'] = 'Refund';
 
                 return $trxFactoryMock;

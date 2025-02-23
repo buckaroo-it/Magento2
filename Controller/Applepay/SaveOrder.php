@@ -20,6 +20,8 @@
 namespace Buckaroo\Magento2\Controller\Applepay;
 
 use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Model\Config\Source\InvoiceHandlingOptions;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\View\Result\Page;
@@ -35,6 +37,7 @@ class SaveOrder extends Common
     protected $order;
     protected $checkoutSession;
     protected $accountConfig;
+    private $configAccount;
 
     /**
      * @param Context     $context
@@ -47,6 +50,7 @@ class SaveOrder extends Common
         \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory,
         Log $logger,
         \Magento\Checkout\Model\Cart $cart,
+        Account $configAccount,
         \Magento\Quote\Model\QuoteManagement $quoteManagement,
         \Magento\Customer\Model\Session $customer,
         \Magento\Framework\DataObjectFactory $objectFactory,
@@ -69,7 +73,7 @@ class SaveOrder extends Common
             $converter,
             $customerSession
         );
-
+        $this->configAccount               = $configAccount;
         $this->quoteManagement = $quoteManagement;
         $this->customer = $customer;
         $this->objectFactory = $objectFactory;
@@ -126,6 +130,14 @@ class SaveOrder extends Common
                 $payment->setMethod(Applepay::PAYMENT_METHOD_CODE);
                 $quote->setPayment($payment);
 
+
+                $invoiceHandlingConfig = $this->configAccount->getInvoiceHandling($this->order->getStore());
+
+                if ($invoiceHandlingConfig == InvoiceHandlingOptions::SHIPMENT) {
+                    $payment->setAdditionalInformation(InvoiceHandlingOptions::INVOICE_HANDLING, $invoiceHandlingConfig);
+                    $payment->save();
+                    $quote->setPayment($payment);
+                }
                 $quote->collectTotals()->save();
 
                 $obj = $this->objectFactory->create();

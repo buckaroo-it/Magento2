@@ -94,8 +94,8 @@ class Info extends \Magento\Payment\Block\Info
     public function getPaymentLogo(string $method): string
     {
         $mappings = [
-            "afterpay2" => "svg/afterpay.svg",
-            "afterpay20" => "svg/afterpay.svg",
+            "afterpay2" => "svg/riverty.svg",
+            "afterpay20" => "svg/riverty.svg",
             "capayablein3" => "svg/in3.svg",
             "capayablepostpay" => "svg/in3.svg",
             "creditcard" => "svg/creditcards.svg",
@@ -107,7 +107,6 @@ class Info extends \Magento\Payment\Block\Info
             "mrcash" => "svg/bancontact.svg",
             "p24" => "svg/przelewy24.svg",
             "sepadirectdebit" => "svg/sepa-directdebit.svg",
-            "sofortbanking" => "svg/sofort.svg",
             "emandate" => "emandate.png",
             "pospayment" => "pos.png",
             "transfer" => "svg/sepa-credittransfer.svg",

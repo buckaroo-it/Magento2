@@ -21,31 +21,30 @@
 
 namespace Buckaroo\Magento2\Gateway\Http\TransactionBuilder;
 
+use Exception;
 use Magento\Store\Model\Store;
 use Magento\Framework\App\RequestInterface;
 use Buckaroo\Magento2\Model\GroupTransaction;
 use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
 
-
-
 class RefundPartial extends AbstractTransactionBuilder
 {
 
     /**
-     * @var \Magento\Framework\App\RequestInterface
+     * @var RequestInterface
      */
     protected $httpRequest;
 
 
     /**
-     * @var \Magento\Store\Model\Store
+     * @var Store
      */
     protected $store;
 
 
     /**
      *
-     * @var \Buckaroo\Magento2\Model\GroupTransaction
+     * @var GroupTransaction
      */
     protected $groupTransaction;
 
@@ -87,18 +86,19 @@ class RefundPartial extends AbstractTransactionBuilder
         $this->store = $store;
         return $this;
     }
+
     /**
      * @return array
+     * @throws Exception
      */
     public function getBody()
     {
         if (!$this->store instanceof Store) {
-            throw new \Exception("`store` must be instance of Magento\Store\Model\Store");
+            throw new Exception("`store` must be instance of Magento\Store\Model\Store");
         }
 
-
         if (!$this->groupTransaction instanceof GroupTransaction) {
-            throw new \Exception("`groupTransaction` must be instance of Buckaroo\Magento2\Model\GroupTransaction");
+            throw new Exception("`groupTransaction` must be instance of Buckaroo\Magento2\Model\GroupTransaction");
         }
 
         $ip = $this->getUserIp($this->store);
@@ -132,13 +132,20 @@ class RefundPartial extends AbstractTransactionBuilder
             ],
         ];
 
+        if ($this->groupTransaction->getRefundedAmount() >= $this->groupTransaction->getOrder()->getGrandTotal()) {
+            $this->groupTransaction->getOrder()->setState(\Magento\Sales\Model\Order::STATE_CLOSED)
+                ->setStatus('closed');
+            $this->groupTransaction->getOrder()->save();
+        }
+
         return $body;
     }
 
     /**
      * Get merchant key for store
      *
-     * @return mixed
+     * @return string
+     * @throws Exception
      */
     public function getMerchantKey()
     {
@@ -146,6 +153,7 @@ class RefundPartial extends AbstractTransactionBuilder
             $this->configProviderAccount->getMerchantKey($this->store)
         );
     }
+
     /**
      * @return array
      */
@@ -165,13 +173,12 @@ class RefundPartial extends AbstractTransactionBuilder
      */
     private function getParameterLine($name, $value)
     {
-        $line = [
+        return [
             '_'    => $value,
             'Name' => $name,
         ];
-
-        return $line;
     }
+
     /**
      * {@inheritdoc}
      */
@@ -186,19 +193,20 @@ class RefundPartial extends AbstractTransactionBuilder
 
         return $this->returnUrl;
     }
+
     /**
      * Get user ip
      *
      * @param Store $store
      *
      * @return string
-     * @throws \Exception
+     * @throws Exception
      */
     protected function getUserIp($store)
     {
-        
+
         if (!$this->httpRequest instanceof RequestInterface) {
-            throw new \Exception("Required parameter `httpRequest` must be instance of Magento\Framework\App\RequestInterface");
+            throw new Exception("Required parameter `httpRequest` must be instance of Magento\Framework\App\RequestInterface");
         }
 
         $ipHeaders = $this->configProviderAccount->getIpHeader($store);

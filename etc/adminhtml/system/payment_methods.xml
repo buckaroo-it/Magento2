@@ -64,10 +64,6 @@
 
         <include path="Buckaroo_Magento2::system/payment_methods/mrcash.xml"/>
 
-        <include path="Buckaroo_Magento2::system/payment_methods/sofort_banking.xml"/>
-
-        <include path="Buckaroo_Magento2::system/payment_methods/giropay.xml"/>
-
         <include path="Buckaroo_Magento2::system/payment_methods/afterpay.xml"/>
 
         <include path="Buckaroo_Magento2::system/payment_methods/afterpay2.xml"/>
@@ -117,6 +113,9 @@
         <include path="Buckaroo_Magento2::system/payment_methods/multibanco.xml"/>
 
         <include path="Buckaroo_Magento2::system/payment_methods/knaken.xml"/>
+
+        <include path="Buckaroo_Magento2::system/payment_methods/blik.xml"/>
+
 
     </group>
 </include>

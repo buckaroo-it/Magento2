@@ -49,36 +49,25 @@ define(
             {
                 defaults: {
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_capayablepostpay',
-                    selectedGender : null,
-                    genderValidate : null,
-                    firstname : '',
-                    lastname : '',
-                    CustomerName : null,
-                    BillingName : null,
-                    dateValidate : null,
-                    selectedOrderAs : 1,
-                    CocNumber : null,
-                    CompanyName : null,
-                    value:''
+                    selectedGender: null,
+                    genderValidate: null,
+                    firstname: '',
+                    lastname: '',
+                    CustomerName: null,
+                    BillingName: null,
+                    dateValidate: null,
+                    selectedOrderAs: 1,
+                    CocNumber: null,
+                    CompanyName: null,
+                    value: ''
                 },
                 redirectAfterPlaceOrder: true,
-                paymentFeeLabel : window.checkoutConfig.payment.buckaroo.capayablepostpay.paymentFeeLabel,
-                subtext : window.checkoutConfig.payment.buckaroo.capayablepostpay.subtext,
-                subTextStyle : checkoutCommon.getSubtextStyle('capayablepostpay'),
-                currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
-                baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
+                paymentFeeLabel: window.checkoutConfig.payment.buckaroo.capayablepostpay.paymentFeeLabel,
+                subtext: window.checkoutConfig.payment.buckaroo.capayablepostpay.subtext,
+                subTextStyle: checkoutCommon.getSubtextStyle('capayablepostpay'),
+                currencyCode: window.checkoutConfig.quoteData.quote_currency_code,
+                baseCurrencyCode: window.checkoutConfig.quoteData.base_currency_code,
                 dp: datePicker,
-                
-                /**
-                 * @override
-                 */
-                initialize : function (options) {
-                    if (checkoutData.getSelectedPaymentMethod() == options.index) {
-                        window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-                    }
-
-                    return this._super(options);
-                },
 
                 initObservable: function () {
                     this._super().observe([
@@ -98,8 +87,8 @@ define(
                     this.showFinancialWarning = ko.computed(
                         function () {
                             return quote.billingAddress() !== null &&
-                            quote.billingAddress().countryId == 'NL' &&
-                            window.checkoutConfig.payment.buckaroo.capayablepostpay.showFinancialWarning
+                                quote.billingAddress().countryId == 'NL' &&
+                                window.checkoutConfig.payment.buckaroo.capayablepostpay.showFinancialWarning
                         },
                         this
                     );
@@ -115,7 +104,7 @@ define(
                     /**
                      * Observe customer first & lastname and bind them together, so they could appear in the frontend
                      */
-                    this.updateBillingName = function(firstname, lastname) {
+                    this.updateBillingName = function (firstname, lastname) {
                         this.firstName = firstname;
                         this.lastName = lastname;
 
@@ -134,7 +123,7 @@ define(
                     }
 
                     quote.billingAddress.subscribe(
-                        function(newAddress) {
+                        function (newAddress) {
                             if (this.getCode() === this.isChecked() &&
                                 newAddress &&
                                 newAddress.getKey() &&
@@ -152,10 +141,10 @@ define(
                         $('.' + this.getCode() + ' .payment [data-validate]').filter(':not([name*="agreement"])').valid();
                     };
 
-                    this.genderValidate.subscribe(runValidation,this);
-                    this.dateValidate.subscribe(runValidation,this);
-                    this.CocNumber.subscribe(runValidation,this);
-                    this.CompanyName.subscribe(runValidation,this);
+                    this.genderValidate.subscribe(runValidation, this);
+                    this.dateValidate.subscribe(runValidation, this);
+                    this.CocNumber.subscribe(runValidation, this);
+                    this.CompanyName.subscribe(runValidation, this);
 
                     this.buttoncheck = ko.computed(function () {
                         var validation = this.selectedGender() !== null &&
@@ -207,8 +196,6 @@ define(
                 },
 
                 selectPaymentMethod: function () {
-                    window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-
                     selectPaymentMethodAction(this.getData());
                     checkoutData.setSelectedPaymentMethod(this.item.method);
 
@@ -235,16 +222,16 @@ define(
                     return $('.' + this.getCode() + ' .payment [data-validate]:not([name*="agreement"])').valid();
                 },
 
-                getData : function() {
+                getData: function () {
                     return {
-                        "method" : this.item.method,
+                        "method": this.item.method,
                         "additional_data": {
-                            "customer_gender" : this.genderValidate(),
-                            "customer_billingName" : this.BillingName(),
-                            "customer_DoB" : this.dateValidate(),
-                            "customer_orderAs" : this.selectedOrderAs(),
-                            "customer_cocnumber" : this.CocNumber(),
-                            "customer_companyName" : this.CompanyName()
+                            "customer_gender": this.genderValidate(),
+                            "customer_billingName": this.BillingName(),
+                            "customer_DoB": this.dateValidate(),
+                            "customer_orderAs": this.selectedOrderAs(),
+                            "customer_cocnumber": this.CocNumber(),
+                            "customer_companyName": this.CompanyName()
                         }
                     };
                 }

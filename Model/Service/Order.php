@@ -17,6 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Service;
 
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
@@ -29,6 +30,7 @@ use Buckaroo\Magento2\Logging\Log;
 use Magento\Sales\Model\ResourceModel\Order\CollectionFactory;
 use Buckaroo\Magento2\Helper\Data;
 use Magento\Framework\App\ResourceConnection;
+use Zend_Db_Expr;
 
 class Order
 {
@@ -43,15 +45,15 @@ class Order
     private Factory $configProviderFactory;
 
     public function __construct(
-        Account $accountConfig,
-        MethodFactory $configProviderMethodFactory,
-        Factory $configProviderFactory,
+        Account                  $accountConfig,
+        MethodFactory            $configProviderMethodFactory,
+        Factory                  $configProviderFactory,
         StoreRepositoryInterface $storeRepository,
-        CollectionFactory $orderFactory,
-        OrderStatusFactory $orderStatusFactory,
-        Data $helper,
-        Log $logging,
-        ResourceConnection $resourceConnection
+        CollectionFactory        $orderFactory,
+        OrderStatusFactory       $orderStatusFactory,
+        Data                     $helper,
+        Log                      $logging,
+        ResourceConnection       $resourceConnection
     ) {
         $this->accountConfig = $accountConfig;
         $this->configProviderMethodFactory = $configProviderMethodFactory;
@@ -94,11 +96,11 @@ class Order
                     )
                     ->addFieldToFilter(
                         'created_at',
-                        ['lt' => new \Zend_Db_Expr('NOW() - INTERVAL ' . $dueDays . ' DAY')]
+                        ['lt' => new Zend_Db_Expr('NOW() - INTERVAL ' . $dueDays . ' DAY')]
                     )
                     ->addFieldToFilter(
                         'created_at',
-                        ['gt' => new \Zend_Db_Expr('NOW() - INTERVAL ' . ($dueDays + 7) . ' DAY')]
+                        ['gt' => new Zend_Db_Expr('NOW() - INTERVAL ' . ($dueDays + 7) . ' DAY')]
                     );
 
                 $orderCollection->getSelect()
@@ -154,11 +156,11 @@ class Order
                         )
                         ->addFieldToFilter(
                             'created_at',
-                            ['lt' => new \Zend_Db_Expr('NOW() - INTERVAL ' . $dueDays . ' DAY')]
+                            ['lt' => new Zend_Db_Expr('NOW() - INTERVAL ' . $dueDays . ' DAY')]
                         )
                         ->addFieldToFilter(
                             'created_at',
-                            ['gt' => new \Zend_Db_Expr('NOW() - INTERVAL ' . ($dueDays + 7) . ' DAY')]
+                            ['gt' => new Zend_Db_Expr('NOW() - INTERVAL ' . ($dueDays + 7) . ' DAY')]
                         );
 
                     $orderCollection->getSelect()
@@ -168,7 +170,7 @@ class Order
                             ['method']
                         )
                         ->where('p.additional_information like "%isPayPerEmail%"'
-                            . ' OR p.method ="buckaroo_magento2_payperemail"');
+                            . ' OR p.method = "buckaroo_magento2_payperemail"');
 
                     $this->logging->addDebug(
                         __METHOD__ . '|PPEOrders query|' . $orderCollection->getSelect()->__toString()
@@ -189,11 +191,11 @@ class Order
         }
     }
 
-    public function cancel($order, $statusCode)
+    public function cancel($order, $statusCode, $statusMessage = '')
     {
         $this->logging->addDebug(__METHOD__ . '|1|' . var_export($order->getIncrementId(), true));
 
-        // Mostly the push api already canceled the order, so first check in wich state the order is.
+        // Check if the order is already canceled.
         if ($order->getState() == \Magento\Sales\Model\Order::STATE_CANCELED) {
             $this->logging->addDebug(__METHOD__ . '|5|');
             return true;
@@ -201,6 +203,7 @@ class Order
 
         $store = $order->getStore();
 
+        // Check if cancel on failed is enabled.
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
@@ -216,7 +219,7 @@ class Order
             $this->logging->addDebug(__METHOD__ . '|20|');
 
             if (in_array($order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode, ['klarnakp'])) {
-                $methodInstanceClass                 = get_class($order->getPayment()->getMethodInstance());
+                $methodInstanceClass = get_class($order->getPayment()->getMethodInstance());
                 $methodInstanceClass::$requestOnVoid = false;
             }
 
@@ -228,9 +231,13 @@ class Order
                 $statusCode,
                 $order
             );
+            $this->logging->addDebug(__METHOD__ . '|$failedStatus|' . $failedStatus);
+
 
             if ($failedStatus) {
+                $order->setState($failedStatus);
                 $order->setStatus($failedStatus);
+                $order->addStatusHistoryComment($statusMessage, $failedStatus);
             }
             $order->save();
             return true;

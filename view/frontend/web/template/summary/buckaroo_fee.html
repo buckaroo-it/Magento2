@@ -1,46 +1,19 @@
 <!-- ko if: isAvailable() -->
-<!-- ko if: displayBothPrices() -->
-<tr class="totals buckaroo_fee excl">
-    <th class="mark">
-        <span data-bind="text: $t(getTitle()) + ' ' + $t(excludingTaxMessage)"></span>
-    </th>
-    <td data-bind="text: getValue(), attr: {'data-th': $t(excludingTaxMessage)}" class="amount"></td>
-</tr>
-<tr class="totals buckaroo_fee incl">
-    <th class="mark">
-        <span data-bind="text: $t(getTitle()) + ' ' + $t(includingTaxMessage)"></span>
-    </th>
-    <td data-bind="text: getIncludingTaxValue(), attr: {'data-th': $t(includingTaxMessage)}" class="amount"></td>
-</tr>
-<!-- /ko -->
-<!-- ko if: displayPriceInclTax() -->
 <tr class="totals buckaroo_fee">
     <th class="mark">
-        <span data-bind="{i18n: getTitle()}"></span>
+        <span data-bind="text: $t(getTitle())"></span>
     </th>
-    <td data-bind="{text: getIncludingTaxValue(), attr: {'data-th': $t(getTitle())}}" class="amount"></td>
+    <td data-bind="text: getValue(), attr: {'data-th': $t(getTitle())}" class="amount"></td>
 </tr>
-<!-- /ko -->
-<!-- ko if: displayPriceExclTax() -->
-<tr class="totals buckaroo_fee">
-    <th class="mark">
-        <span data-bind="{text: getTitle()}"></span>
-    </th>
-    <td data-bind="{text: getValue(), attr: {'data-th': $t(getTitle())}}" class="amount"></td>
-</tr>
-<!-- /ko -->
 <!-- /ko -->
 
 <!-- ko if: typeof getAlreadyPayValue() === 'object' -->
 <!-- ko foreach: getAlreadyPayValue() -->
 <tr class="totals buckaroo_already_paid">
     <th class="mark">
-        <span data-bind="{text: label}"></span>
+        <span data-bind="text: label"></span>
     </th>
-    <td class="amount" data-bind="{text: amount}">
-<!--         <span data-bind="{text: amount}"></span>
-        <span data-bind="{click: $parent.removeGiftcard.bind($parent,transaction_id,servicecode,amount)}" class="giftcard-delete"></span> -->
-    </td>
+    <td class="amount" data-bind="text: amount"></td>
 </tr>
 <!-- /ko -->
 <!-- /ko -->
@@ -48,8 +21,8 @@
 <!-- ko if: getAlreadyPayValue() && (typeof getAlreadyPayValue() !== 'object') -->
 <tr class="totals buckaroo_already_paid">
     <th class="mark">
-        <span data-bind="{text: getAlreadyPayTitle()}"></span>
+        <span data-bind="text: getAlreadyPayTitle()"></span>
     </th>
-    <td data-bind="{text: getAlreadyPayValue(), attr: {'data-th': $t(getAlreadyPayTitle())}}" class="amount"></td>
+    <td data-bind="text: getAlreadyPayValue(), attr: {'data-th': $t(getAlreadyPayTitle())}" class="amount"></td>
 </tr>
 <!-- /ko -->

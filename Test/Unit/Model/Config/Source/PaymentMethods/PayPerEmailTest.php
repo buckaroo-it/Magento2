@@ -45,9 +45,6 @@ class PayPerEmailTest extends BaseTest
                 ['value' => 'giftcard',           'label' => 'Giftcards']
             ],
             [
-                ['value' => 'giropay',            'label' => 'Giropay']
-            ],
-            [
                 ['value' => 'ideal',              'label' => 'iDEAL']
             ],
             [
@@ -58,9 +55,6 @@ class PayPerEmailTest extends BaseTest
             ],
             [
                 ['value' => 'paypal',             'label' => 'PayPal']
-            ],
-            [
-                ['value' => 'sofortueberweisung', 'label' => 'Sofort Banking']
             ],
             [
                 ['value' => 'transfer',           'label' => 'Bank Transfer']

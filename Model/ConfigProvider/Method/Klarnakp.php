@@ -34,7 +34,6 @@ class Klarnakp extends AbstractConfigProvider
     const XPATH_KLARNAKP_SUBTEXT_STYLE          = 'payment/buckaroo_magento2_klarnakp/subtext_style';
     const XPATH_KLARNAKP_SUBTEXT_COLOR          = 'payment/buckaroo_magento2_klarnakp/subtext_color';
     const XPATH_KLARNAKP_PAYMENT_FEE            = 'payment/buckaroo_magento2_klarnakp/payment_fee';
-    const XPATH_KLARNAKP_PAYMENT_FEE_LABEL      = 'payment/buckaroo_magento2_klarnakp/payment_fee_label';
     const XPATH_KLARNAKP_SEND_EMAIL             = 'payment/buckaroo_magento2_klarnakp/send_email';
     const XPATH_KLARNAKP_ACTIVE_STATUS          = 'payment/buckaroo_magento2_klarnakp/active_status';
     const XPATH_KLARNAKP_ORDER_STATUS_SUCCESS   = 'payment/buckaroo_magento2_klarnakp/order_status_success';
@@ -98,9 +97,7 @@ class Klarnakp extends AbstractConfigProvider
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
-            \Buckaroo\Magento2\Model\Method\Klarnakp::PAYMENT_METHOD_CODE
-        );
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
 
         return [
             'payment' => [

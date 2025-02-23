@@ -568,8 +568,24 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
             $this->addCustomerLastPayByBankIssuer($setup);
         }
 
+        if (version_compare($context->getVersion(), '1.51.0', '<')) {
+            // Update buckaroo_magento2_mrcash title to 'Bancontact'
+            $setup->getConnection()->update(
+                $setup->getTable('core_config_data'),
+                ['value' => 'Bancontact'],
+                ['path = ?' => 'payment/buckaroo_magento2_mrcash/title']
+            );
+
+            // Update buckaroo_magento2_billink title to 'Billink'
+            $setup->getConnection()->update(
+                $setup->getTable('core_config_data'),
+                ['value' => 'Billink'],
+                ['path = ?' => 'payment/buckaroo_magento2_billink/title']
+            );
+        }
+
         $this->setCustomerIDIN($setup);
-        
+
         $this->setCustomerIsEighteenOrOlder($setup);
 
         $this->setProductIDIN($setup);
@@ -1398,12 +1414,6 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
             $data,
             $setup->getConnection()->quoteInto('path = ?', $path)
         );
-
-        $path = 'payment/buckaroo_magento2_giftcards/payment_fee_label';
-        $data = [
-            'path' => $path,
-            'value' => '',
-        ];
 
         $setup->getConnection()->update(
             $setup->getTable('core_config_data'),

@@ -106,23 +106,32 @@ define(
             ).done(
                 function (response) {
                     let jsonResponse = $.parseJSON(response);
-                    if (typeof jsonResponse === 'object' && jsonResponse.buckaroo_response && typeof jsonResponse.buckaroo_response.limitReachedMessage === 'string') {
+                    if (typeof jsonResponse === 'object' && jsonResponse.limitReachedMessage) {
                         alert({
                             title: $t('Error'),
-                            content: $t(jsonResponse.buckaroo_response.limitReachedMessage),
+                            content: $t(jsonResponse.limitReachedMessage),
                             buttons: [{
                                 text: $t('Close'),
                                 class: 'action primary accept',
                                 click: function () {
                                     this.closeModal(true);
+                                    window.location.reload();
                                 }
                             }]
                         });
                         $('.' + paymentData.method).remove();
-                    } else if (redirectOnSuccess) {
-                        window.location.replace(url.build('checkout/onepage/success/'));
+                    } else {
+                        if (jsonResponse.buckaroo_response) {
+                            window.checkoutConfig.payment.buckaroo.response = jsonResponse.buckaroo_response;
+                        } else {
+                            window.checkoutConfig.payment.buckaroo.response = jsonResponse;
+                        }
+
+                        if (redirectOnSuccess) {
+                            window.location.replace(url.build('checkout/onepage/success/'));
+                        }
                     }
-                    window.checkoutConfig.payment.buckaroo.response = jsonResponse.buckaroo_response;
+
                     fullScreenLoader.stopLoader();
                 }
             ).fail(

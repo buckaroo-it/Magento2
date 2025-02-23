@@ -18,23 +18,30 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-?>
-<?php if ($block->canShowCartButton()) : ?>
-    <div class="box-tocart">
-        <div class="fieldset">
-            <div class="actions">
-                <div id="paypal-express-wrapper" data-bind="afterRender: showPaypalExpressButton"></div>
-            </div>
-        </div>
-    </div>
-    <div class="buckaroo-paypal-express"></div>
+/** @var string $block */
 
-    <script>
-        showPaypalExpressButton = function() {
-            require(['jquery', 'buckaroo/paypal-express/pay'], function(jQuery, paypalExpressPay) {
-                paypalExpressPay.setConfig(<?= /* @noEscape */ json_encode($block->getConfig()); ?>, 'cart');
-                paypalExpressPay.init();
-            });
+?>
+<?php if ($block->canShowButton('Cart')) : ?>
+<div id="paypal-express-button-component" data-bind="scope:'paypalExpress'">
+    <!-- ko template: getTemplate() --><!-- /ko -->
+    <div class="buckaroo-paypal-express"></div>
+    <script type="text/x-magento-init">
+        {
+            "#paypal-express-button-component": {
+                "Magento_Ui/js/core/app": {
+                    "components": {
+                        "paypalExpress": {
+                            "component":"buckaroo/paypal-express/button",
+                            "template":"Buckaroo_Magento2/catalog/product/view/paypal-express",
+                            "config": {
+                                  "data": <?= /* @noEscape */ json_encode($block->getConfig()); ?>,
+                                  "page": "cart"
+                            }
+                        }
+                    }
+                }
+            }
         }
     </script>
+</div>
 <?php endif; ?>

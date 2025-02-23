@@ -53,6 +53,15 @@ class Ideal extends AbstractMethod
             $this->getInfoInstance()->setAdditionalInformation('issuer', $data['additional_data']['issuer']);
         }
 
+        $payment = $this->getInfoInstance();
+        $quote = $payment->getQuote();
+
+        if ($quote) {
+            $shippingCost = $quote->getShippingAddress()->getShippingInclTax();
+
+            $this->getInfoInstance()->setAdditionalInformation('shippingCost', $shippingCost);
+        }
+
         return $this;
     }
 
@@ -67,6 +76,7 @@ class Ideal extends AbstractMethod
                 'Name'             => 'ideal',
                 'Action'           => $this->getPayRemainder($payment, $transactionBuilder,'PayFastCheckout'),
                 'Version'          => 2,
+                'RequestParameter' => $this->getIdealFastCheckoutOrderRequestParameters($payment),
             ];
 
             /**
@@ -107,6 +117,20 @@ class Ideal extends AbstractMethod
                 'Name' => 'issuer',
             ]];
         }
+        return $parameters;
+    }
+
+    private function getIdealFastCheckoutOrderRequestParameters($payment): array
+    {
+        $parameters = [];
+
+        if ($this->isFastCheckout($payment) && $payment->getAdditionalInformation('shippingCost')) {
+            $parameters = [[
+                '_'    => $payment->getAdditionalInformation('shippingCost'),
+                'Name' => 'shippingCost',
+            ]];
+        }
+
         return $parameters;
     }
 

@@ -50,22 +50,12 @@ define(
                     selectedGender: null,
                 },
                 redirectAfterPlaceOrder: true,
-                paymentFeeLabel : window.checkoutConfig.payment.buckaroo.klarna.paymentFeeLabel,
-                subtext : window.checkoutConfig.payment.buckaroo.klarna.subtext,
-                subTextStyle : checkoutCommon.getSubtextStyle('klarna'),
-                currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
-                baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
+                paymentFeeLabel: window.checkoutConfig.payment.buckaroo.klarna.paymentFeeLabel,
+                subtext: window.checkoutConfig.payment.buckaroo.klarna.subtext,
+                subTextStyle: checkoutCommon.getSubtextStyle('klarna'),
+                currencyCode: window.checkoutConfig.quoteData.quote_currency_code,
+                baseCurrencyCode: window.checkoutConfig.quoteData.base_currency_code,
                 genderList: window.checkoutConfig.payment.buckaroo.klarna.genderList,
-                /**
-                 * @override
-                 */
-                initialize : function (options) {
-                    if (checkoutData.getSelectedPaymentMethod() == options.index) {
-                        window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-                    }
-
-                    return this._super(options);
-                },
 
                 initObservable: function () {
                     this._super().observe(
@@ -74,22 +64,22 @@ define(
                             'genderList'
                         ]
                     );
-                    
+
                     this.showFinancialWarning = ko.computed(
                         function () {
                             return quote.billingAddress() !== null &&
-                            quote.billingAddress().countryId == 'NL' &&
-                            window.checkoutConfig.payment.buckaroo.klarna.showFinancialWarning
+                                quote.billingAddress().countryId == 'NL' &&
+                                window.checkoutConfig.payment.buckaroo.klarna.showFinancialWarning
                         },
                         this
                     );
-                    
+
                     /**
                      * Check if the required fields are filled. If so: enable place order button (true) | if not: disable place order button (false)
                      */
                     this.buttoncheck = ko.computed(
-                    function () {
-                        return this.selectedGender() != null;
+                        function () {
+                            return this.selectedGender() != null;
                         },
                         this
                     );
@@ -134,8 +124,6 @@ define(
                 },
 
                 selectPaymentMethod: function () {
-                    window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-
                     selectPaymentMethodAction(this.getData());
                     checkoutData.setSelectedPaymentMethod(this.item.method);
                     return true;
@@ -151,14 +139,14 @@ define(
                     var text = $.mage.__('The transaction will be processed using %s.');
 
                     return text.replace('%s', this.baseCurrencyCode);
-                },             
+                },
 
                 getData: function () {
                     return {
                         "method": this.item.method,
                         "po_number": null,
                         "additional_data": {
-                            "customer_gender" : this.selectedGender()
+                            "customer_gender": this.selectedGender()
                         }
                     };
                 }

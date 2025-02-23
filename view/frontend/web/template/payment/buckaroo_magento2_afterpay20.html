@@ -14,7 +14,7 @@
                 </label>
             </div>
             <div class="bk-img-wrap">
-                <img data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/afterpay.svg') }" />
+                <img data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/riverty.svg') }" />
             </div>
         </div>
     </div>
@@ -108,7 +108,7 @@
                                     placeholder: $t('DD/MM/YYYY')
                                    }"
                                    name="payment[buckaroo_magento2_afterpay20][customer_DoB]">
-                            
+
                         </div>
                     </div>
                     <!-- /ko -->
@@ -128,7 +128,7 @@
                                 <a target="_blank"
                                  rel="noopener"
                                    data-bind="
-                                       i18n: 'Yes, I accept the terms and condition for the use of Riverty.',
+                                       i18n: 'The general Terms and Conditions for the Riverty payment method apply. The privacy policy of Riverty can be found here.',
                                        attr: { 'href': termsUrl }
                                    ">
                                 </a>
@@ -143,7 +143,6 @@
                     <!-- ko if: showFinancialWarning  -->
                     <span data-bind="i18n: `Je moet minimaal 18+ zijn om deze dienst te gebruiken. Als je op tijd betaalt, voorkom je extra kosten en zorg je dat je in de toekomst nogmaals gebruik kunt maken van de diensten van ${getTitle()}. Door verder te gaan, accepteer je de Algemene Voorwaarden en bevestig je dat je de Privacyverklaring en Cookieverklaring hebt gelezen.`">  </span>
                     <!-- /ko -->
-
                     <div class="field">
                         <span data-bind="i18n: 'Please make sure all fields are filled in correctly before proceeding.' ">  </span>
                     </div>

@@ -29,7 +29,6 @@ use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 class Mrcash extends AbstractConfigProvider
 {
     const XPATH_MRCASH_PAYMENT_FEE              = 'payment/buckaroo_magento2_mrcash/payment_fee';
-    const XPATH_MRCASH_PAYMENT_FEE_LABEL        = 'payment/buckaroo_magento2_mrcash/payment_fee_label';
     const XPATH_MRCASH_ACTIVE                   = 'payment/buckaroo_magento2_mrcash/active';
     const XPATH_MRCASH_SUBTEXT                  = 'payment/buckaroo_magento2_mrcash/subtext';
     const XPATH_MRCASH_SUBTEXT_STYLE            = 'payment/buckaroo_magento2_mrcash/subtext_style';
@@ -81,9 +80,7 @@ class Mrcash extends AbstractConfigProvider
      */
     public function getConfig()
     {
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
-            \Buckaroo\Magento2\Model\Method\Mrcash::PAYMENT_METHOD_CODE
-        );
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
 
         return [
             'payment' => [

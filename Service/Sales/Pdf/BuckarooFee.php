@@ -19,41 +19,52 @@
  */
 namespace Buckaroo\Magento2\Service\Sales\Pdf;
 
-use Magento\Framework\App\Config\ScopeConfigInterface;
+use Buckaroo\Magento2\Model\Config\Source\Display\Type as DisplayType;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Magento\Sales\Model\Order\Pdf\Total\DefaultTotal;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Tax\Helper\Data;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\ResourceModel\Sales\Order\Tax\CollectionFactory;
 use Buckaroo\Magento2\Helper\PaymentFee;
-use Buckaroo\Magento2\Model\Config\Source\Display\Type;
 use Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee as ConfigProviderBuckarooFee;
 
 class BuckarooFee extends DefaultTotal
 {
-    /** @var ScopeConfigInterface */
-    private $scopeConfig;
-
     /** @var PaymentFee */
     private $paymentFee;
 
     /**
-     * {@inheritdoc}
-     *
-     * @param ScopeInterface $scopeConfig
-     * @param PaymentFee     $paymentFee
+     * @var Account
+     */
+    protected $configProviderAccount;
+
+    /**
+     * @var ConfigProviderBuckarooFee
+     */
+    protected $configProviderBuckarooFee;
+
+    /**
+     * @param Data $taxHelper
+     * @param Calculation $taxCalculation
+     * @param CollectionFactory $ordersFactory
+     * @param PaymentFee $paymentFee
+     * @param Account $configProviderAccount
+     * @param ConfigProviderBuckarooFee $configProviderBuckarooFee
+     * @param array $data
      */
     public function __construct(
         Data $taxHelper,
         Calculation $taxCalculation,
         CollectionFactory $ordersFactory,
-        ScopeConfigInterface $scopeConfig,
         PaymentFee $paymentFee,
+        Account $configProviderAccount,
+        ConfigProviderBuckarooFee $configProviderBuckarooFee,
         array $data = []
     ) {
-        $this->scopeConfig = $scopeConfig;
         $this->paymentFee = $paymentFee;
-
+        $this->configProviderAccount = $configProviderAccount;
+        $this->configProviderBuckarooFee = $configProviderBuckarooFee;
         parent::__construct($taxHelper, $taxCalculation, $ordersFactory, $data);
     }
 
@@ -64,8 +75,10 @@ class BuckarooFee extends DefaultTotal
     {
         $store = $this->getOrder()->getStore();
         $amount = $this->getOrder()->formatPriceTxt($this->getAmount());
-        $label = $this->paymentFee->getBuckarooPaymentFeeLabel($this->getOrder());
+        $label = $this->paymentFee->getBuckarooPaymentFeeLabel();
         $fontSize = $this->getFontSize() ? $this->getFontSize() : 7;
+
+        $isFeeInclusiveOfTax = $this->configProviderBuckarooFee->getBuckarooFeeTaxClass($store);
 
         $amountInclTax = $this->getSource()->getBuckarooFeeInclTax();
 
@@ -75,45 +88,22 @@ class BuckarooFee extends DefaultTotal
 
         $amountInclTax = $this->getOrder()->formatPriceTxt($amountInclTax);
 
-        $displaySalesBuckarooFee = $this->scopeConfig->getValue(
-            ConfigProviderBuckarooFee::XPATH_BUCKAROOFEE_PRICE_DISPLAY_SALES,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-
-        switch ($displaySalesBuckarooFee) {
-            case Type::DISPLAY_TYPE_BOTH:
-                $totals = [
-                    [
-                        'amount' => $this->getAmountPrefix() . $amount,
-                        'label' => __($label . ' (Excl. Tax)') . ':',
-                        'font_size' => $fontSize,
-                    ],
-                    [
-                        'amount' => $this->getAmountPrefix() . $amountInclTax,
-                        'label' => __($label . ' (Incl. Tax)') . ':',
-                        'font_size' => $fontSize
-                    ],
-                ];
-                break;
-            case Type::DISPLAY_TYPE_INCLUDING_TAX:
-                $totals = [
-                    [
-                        'amount' => $this->getAmountPrefix() . $amountInclTax,
-                        'label' => __($label) . ':',
-                        'font_size' => $fontSize,
-                    ],
-                ];
-                break;
-            default:
-                $totals = [
-                    [
-                        'amount' => $this->getAmountPrefix() . $amount,
-                        'label' => __($label) . ':',
-                        'font_size' => $fontSize,
-                    ],
-                ];
-                break;
+        if ($isFeeInclusiveOfTax == DisplayType::DISPLAY_TYPE_INCLUDING_TAX) {
+            $totals = [
+                [
+                    'amount' => $this->getAmountPrefix() . $amountInclTax,
+                    'label' => __($label) . ':',
+                    'font_size' => $fontSize,
+                ],
+            ];
+        } else {
+            $totals = [
+                [
+                    'amount' => $this->getAmountPrefix() . $amount,
+                    'label' => __($label) . ':',
+                    'font_size' => $fontSize,
+                ],
+            ];
         }
 
         return $totals;

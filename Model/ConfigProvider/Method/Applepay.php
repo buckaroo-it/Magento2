@@ -132,19 +132,21 @@ class Applepay extends AbstractConfigProvider
         ];
     }
 
-    public function getAvailableButtons()
+
+    /**
+     * @return array
+     */
+    public function getAvailableButtons(): array
     {
-        $availableButtons = $this->scopeConfig->getValue(
+        $availableButtonsConfig = $this->scopeConfig->getValue(
             static::XPATH_APPLEPAY_AVAILABLE_BUTTONS,
             ScopeInterface::SCOPE_STORE
         );
-        if ($availableButtons) {
-            $availableButtons = explode(',', (string)$availableButtons);
-        } else {
-            $availableButtons = false;
-        }
 
-        return $availableButtons;
+        if (!$availableButtonsConfig) {
+            return [];
+        }
+        return array_map('trim', explode(',', (string)$availableButtonsConfig));
     }
 
     /**
@@ -170,4 +172,8 @@ class Applepay extends AbstractConfigProvider
         ];
     }
 
+    public function isApplePayEnabled($store = null)
+    {
+        return $this->getConfigFromXpath(self::XPATH_APPLEPAY_ACTIVE, $store);
+    }
 }

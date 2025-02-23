@@ -80,7 +80,7 @@ class Add
      * @param ShippingAddressManagementInterface $shippingAddressManagement
      * @param QuoteRepository|null $quoteRepository
      * @param ShippingMethod $appleShippingMethod
-     */
+    */
     public function __construct(
         CartRepositoryInterface $cartRepository,
         CartInterface $cart,
@@ -105,54 +105,63 @@ class Add
         $this->quoteRepository = $quoteRepository
             ?? ObjectManager::getInstance()->get(QuoteRepository::class);
         $this->appleShippingMethod = $appleShippingMethod;
-
     }
 
     public function process($request)
     {
         $cart_hash = $request->getParam('id');
-        
-        if($cart_hash) {
+
+        if ($cart_hash) {
             $cartId = $this->maskedQuoteIdToQuoteId->execute($cart_hash);
             $cart = $this->cartRepository->get($cartId);
+
         } else {
             $checkoutSession = ObjectManager::getInstance()->get(\Magento\Checkout\Model\Session::class);
             $cart = $checkoutSession->getQuote();
         }
 
         $product = $request->getParam('product');
+
+        // Check if product data is present and valid
+        if (!$product || !is_array($product) || !isset($product['id']) || !is_numeric($product['id'])) {
+            throw new \Exception('Product data is missing or invalid.');
+        }
+
         $cart->removeAllItems();
-        
+
         try {
             $productToBeAdded = $this->productRepository->getById($product['id']);
         } catch (NoSuchEntityException $e) {
             throw new NoSuchEntityException(__('Could not find a product with ID "%id"', ['id' => $product['id']]));
         }
-       
+
         $cartItem = new CartItem(
             $productToBeAdded->getSku(),
             $product['qty']
         );
 
-        if(isset($product['selected_options'])) {
+        if (isset($product['selected_options'])) {
             $cartItem->setSelectedOptions($product['selected_options']);
         }
 
         $cart->addProduct($productToBeAdded, $this->requestBuilder->build($cartItem));
         $this->cartRepository->save($cart);
-        
+
         $wallet = $request->getParam('wallet');
 
         $shippingMethodsResult = [];
         if (!$cart->getIsVirtual()) {
             $shippingAddressData = $this->applepayModel->processAddressFromWallet($wallet, 'shipping');
-            
-            
+
+            $cart->getShippingAddress()->addData($shippingAddressData);
+
+            $cart->setShippingAddress($cart->getShippingAddress());
+
             $shippingAddress = $this->quoteAddressFactory->create();
             $shippingAddress->addData($shippingAddressData);
 
-            $errors = $shippingAddress->validate(); 
-                    
+            $errors = $shippingAddress->validate();
+
             try {
                 $this->shippingAddressManagement->assign($cart->getId(), $shippingAddress);
             } catch (\Exception $e) {
@@ -161,16 +170,27 @@ class Add
             }
             $this->quoteRepository->save($cart);
             //this delivery address is already assigned to the cart
-            $shippingMethods = $this->appleShippingMethod->getAvailableMethods( $cart);
-            foreach ($shippingMethods as $index => $shippingMethod) {
-                $shippingMethodsResult[] = [
-                    'carrier_title' => $shippingMethod['carrier_title'],
-                    'price_incl_tax' => round($shippingMethod['amount'], 2),
-                    'method_code' => $shippingMethod['carrier_code'] . '_' .  $shippingMethod['method_code'],
-                    'method_title' => $shippingMethod['method_title'],
-                ];
+            try {
+                $shippingMethods = $this->appleShippingMethod->getAvailableMethods($cart);
+            } catch (\Exception $e) {
+                throw new \Exception(__('Unable to retrieve shipping methods.'));
             }
-            $cart->getShippingAddress()->setShippingMethod($shippingMethodsResult[0]['method_code']);
+            if (count($shippingMethods) == 0) {
+                return [];
+
+            } else {
+
+                foreach ($shippingMethods as $shippingMethod) {
+                    $shippingMethodsResult[] = [
+                        'carrier_title' => $shippingMethod->getCarrierTitle(),
+                        'price_incl_tax' => round($shippingMethod->getAmount(), 2),
+                        'method_code' => $shippingMethod->getCarrierCode() . '_' .  $shippingMethod->getMethodCode(),
+                        'method_title' => $shippingMethod->getMethodTitle(),
+                    ];
+                }
+
+                $cart->getShippingAddress()->setShippingMethod($shippingMethodsResult[0]['method_code']);
+            }
         }
         $cart->setTotalsCollectedFlag(false);
         $cart->collectTotals();
@@ -179,13 +199,17 @@ class Add
             $totals['discount'] = round($cart->getSubtotalWithDiscount() - $cart->getSubtotal(), 2);
         }
 
-
-
-        return [
+        $data = [
             'shipping_methods' => $shippingMethodsResult,
             'totals' => $totals
         ];
+
+        $this->quoteRepository->save($cart);
+        $this->cart->save();
+
+        return $data;
     }
+
     public function gatherTotals($address, $quoteTotals)
     {
         $shippingTotalInclTax = 0;

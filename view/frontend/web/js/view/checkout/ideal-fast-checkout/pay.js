@@ -1,22 +1,48 @@
 define([
-    'jquery',
+    'uiComponent',
     'mage/url',
+    'jquery',
     'Magento_Customer/js/customer-data',
     'mage/translate',
     'mage/storage'
-], function ($, urlBuilder, customerData, $t, storage) {
+], function (Component, urlBuilder, $, customerData, $t, storage) {
     'use strict';
 
-    return {
-        createQuoteAndPlaceOrder: function (productData) {
-            this.showLoader();
+    return Component.extend({
+        page: null,
+        paymentData: null,
 
-            this.page = productData.page;
-            productData.order_data = this.getOrderData();
+        initialize: function (config) {
+            this._super();
+
+            this.page = config.page;
+            this.paymentData = config.paymentData;
 
             var customerDataObject = customerData.get('customer');
             customerDataObject.subscribe(function (updatedCustomer) {
             }.bind(this));
+
+
+            $(document).on('click', '#fast-checkout-ideal-btn', function() {
+                this.onCheckout();
+            }.bind(this));
+        },
+
+        onCheckout: function () {
+            var qty = $("#qty").val();
+
+            var productData = {
+                qty: qty,
+                page: this.page,
+                paymentData: this.paymentData,
+                order_data: this.getOrderData()
+            };
+
+            this.createQuoteAndPlaceOrder(productData);
+        },
+
+        createQuoteAndPlaceOrder: function (productData) {
+            this.showLoader();
 
             this.processOrderFlow(productData)
                 .then(this.onQuoteCreateSuccess.bind(this, productData))
@@ -33,7 +59,7 @@ define([
 
         getOrderData: function () {
             let form = $("#product_addtocart_form");
-            return this.page === 'product' ? form.serialize() : null;
+            return this.page === "product" ? form.serialize() : null;
         },
 
         onQuoteCreateSuccess: function (productData, quoteResponse) {
@@ -123,5 +149,5 @@ define([
         hideLoader: function () {
             $('body').loader('hide');
         }
-    };
+    });
 });

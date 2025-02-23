@@ -22,7 +22,6 @@
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 /**
- * @method getPaymentFeeLabel()
  * @method getSellersProtection()
  * @method getSellersProtectionEligible()
  * @method getSellersProtectionIneligible()
@@ -32,7 +31,6 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 class Paypal extends AbstractConfigProvider
 {
     const XPATH_PAYPAL_PAYMENT_FEE                      = 'payment/buckaroo_magento2_paypal/payment_fee';
-    const XPATH_PAYPAL_PAYMENT_FEE_LABEL                = 'payment/buckaroo_magento2_paypal/payment_fee_label';
     const XPATH_PAYPAL_ACTIVE                           = 'payment/buckaroo_magento2_paypal/active';
     const XPATH_PAYPAL_SUBTEXT                          = 'payment/buckaroo_magento2_paypal/subtext';
     const XPATH_PAYPAL_SUBTEXT_STYLE                    = 'payment/buckaroo_magento2_paypal/subtext_style';
@@ -65,9 +63,7 @@ class Paypal extends AbstractConfigProvider
      */
     public function getConfig()
     {
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
-            \Buckaroo\Magento2\Model\Method\Paypal::PAYMENT_METHOD_CODE
-        );
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
 
         return [
             'payment' => [
@@ -108,7 +104,7 @@ class Paypal extends AbstractConfigProvider
         return $this->getConfigFromXpath(self::XPATH_PAYPAL_EXPRESS_MERCHANT_ID, $store);
     }
     /**
-     * Test if express button is enabled for the $page 
+     * Test if express button is enabled for the $page
      *
      * @param string $page
      *
@@ -123,5 +119,9 @@ class Paypal extends AbstractConfigProvider
 
         $pages = explode(",", $buttons);
         return in_array($page, $pages);
+    }
+    public function isPayPalEnabled($store = null)
+    {
+        return $this->getConfigFromXpath(self::XPATH_PAYPAL_ACTIVE, $store);
     }
 }

@@ -49,11 +49,11 @@ define(
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_klarnakp'
                 },
                 redirectAfterPlaceOrder: false,
-                paymentFeeLabel : window.checkoutConfig.payment.buckaroo.klarnakp.paymentFeeLabel,
-                subtext : window.checkoutConfig.payment.buckaroo.klarnakp.subtext,
-                subTextStyle : checkoutCommon.getSubtextStyle('klarnakp'),
-                currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
-                baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
+                paymentFeeLabel: window.checkoutConfig.payment.buckaroo.klarnakp.paymentFeeLabel,
+                subtext: window.checkoutConfig.payment.buckaroo.klarnakp.subtext,
+                subTextStyle: checkoutCommon.getSubtextStyle('klarnakp'),
+                currencyCode: window.checkoutConfig.quoteData.quote_currency_code,
+                baseCurrencyCode: window.checkoutConfig.quoteData.base_currency_code,
                 showFinancialWarning: window.checkoutConfig.payment.buckaroo.klarnakp.showFinancialWarning || true,
 
                 initObservable: function () {
@@ -61,23 +61,13 @@ define(
                     this.showFinancialWarning = ko.computed(
                         function () {
                             return quote.billingAddress() !== null &&
-                            quote.billingAddress().countryId == 'NL' &&
-                            window.checkoutConfig.payment.buckaroo.klarnakp.showFinancialWarning
+                                quote.billingAddress().countryId == 'NL' &&
+                                window.checkoutConfig.payment.buckaroo.klarnakp.showFinancialWarning
                         },
                         this
                     );
 
                     return this;
-                },
-                /**
-                 * @override
-                 */
-                initialize : function (options) {
-                    if (checkoutData.getSelectedPaymentMethod() == options.index) {
-                        window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-                    }
-
-                    return this._super(options);
                 },
 
                 /**
@@ -114,8 +104,6 @@ define(
                 },
 
                 selectPaymentMethod: function () {
-                    window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-
                     selectPaymentMethodAction(this.getData());
                     checkoutData.setSelectedPaymentMethod(this.item.method);
                     return true;

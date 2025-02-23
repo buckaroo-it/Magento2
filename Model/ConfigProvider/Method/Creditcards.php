@@ -27,7 +27,6 @@ use Buckaroo\Magento2\Helper\PaymentFee;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 
 /**
- * @method getPaymentFeeLabel()
  * @method getSellersProtection()
  * @method getSellersProtectionEligible()
  * @method getSellersProtectionIneligible()
@@ -37,7 +36,6 @@ use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 class Creditcards extends AbstractConfigProvider
 {
     const XPATH_CREDITCARDS_PAYMENT_FEE = 'payment/buckaroo_magento2_creditcards/payment_fee';
-    const XPATH_CREDITCARDS_PAYMENT_FEE_LABEL = 'payment/buckaroo_magento2_creditcards/payment_fee_label';
     const XPATH_CREDITCARDS_ACTIVE = 'payment/buckaroo_magento2_creditcards/active';
     const XPATH_CREDITCARDS_SUBTEXT                = 'payment/buckaroo_magento2_creditcards/subtext';
     const XPATH_CREDITCARDS_SUBTEXT_STYLE          = 'payment/buckaroo_magento2_creditcards/subtext_style';
@@ -87,9 +85,8 @@ class Creditcards extends AbstractConfigProvider
      */
     public function getConfig()
     {
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
-            \Buckaroo\Magento2\Model\Method\Creditcards::PAYMENT_METHOD_CODE
-        );
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
+
         $issuers = $this->formatIssuers();
 
         return [

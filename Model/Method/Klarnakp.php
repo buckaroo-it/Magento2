@@ -213,6 +213,7 @@ class Klarnakp extends AbstractMethod
         if ($this->getConfigData('payment_action') == 'order') {
             return false;
         }
+
         return $this->_canCapture;
     }
 
@@ -365,7 +366,7 @@ class Klarnakp extends AbstractMethod
         } else {
             $shippingSameAsBilling = $this->isAddressDataDifferent($payment) ? "false" : "true";
         }
-        
+
         $streetFormat = $this->addressFormatter->formatStreet($shippingAddress->getStreet());
 
         $shippingData = [
@@ -668,95 +669,62 @@ class Klarnakp extends AbstractMethod
         $cartData = $quote->getAllItems();
 
         $articles = [];
-        $group    = 1;
-        $max      = 99;
-        $i        = 1;
+        $count    = 1;
 
+        /** @var \Magento\Sales\Model\Order\Item $item */
         foreach ($cartData as $item) {
-            if (empty($item) || $item->hasParentItemId()) {
+            if (empty($item)
+                || $item->hasParentItemId()
+                || $item->getRowTotalInclTax() == 0
+            ) {
                 continue;
             }
 
-            $article = [
-                [
-                    '_' => $item->getName(),
-                    'Group' => 'Article',
-                    'GroupID' => $group,
-                    'Name' => 'ArticleTitle',
-                ],
-                [
-                    '_' => $item->getSku(),
-                    'Group' => 'Article',
-                    'GroupID' => $group,
-                    'Name' => 'ArticleNumber',
-                ],
-                [
-                    '_' => self::KLARNAKP_ARTICLE_TYPE_GENERAL,
-                    'Group' => 'Article',
-                    'GroupID' => $group,
-                    'Name' => 'ArticleType',
-                ],
-                [
-                    '_' => $this->calculateProductPrice($item, $includesTax),
-                    'Group' => 'Article',
-                    'GroupID' => $group,
-                    'Name' => 'ArticlePrice',
-                ],
-                [
-                    '_' => $item->getQty(),
-                    'Group' => 'Article',
-                    'GroupID' => $group,
-                    'Name' => 'ArticleQuantity',
-                ],
-                [
-                    '_' => $item->getTaxPercent() ?? 0,
-                    'Group' => 'Article',
-                    'GroupID' => $group,
-                    'Name' => 'ArticleVat',
-                ]
-            ];
+            $article = $this->getArticleArrayLine(
+                $count,
+                $item->getName(),
+                $item->getSku(),
+                $item->getQty(),
+                $this->calculateProductPrice($item, $includesTax),
+                $item->getTaxPercent() ?? 0
+            );
 
             // @codingStandardsIgnoreStart
             $articles = array_merge($articles, $article);
-            // @codingStandardsIgnoreEnd
-            $group++;
-
-            if ($i > $max) {
-                break;
+            if ($count < 99) {
+                $count++;
+                continue;
             }
+
+            break;
         }
 
-        $requestData = $articles;
-
-        $serviceLine = $this->getServiceCostLine($group, $payment->getOrder());
-
+        $serviceLine = $this->getServiceCostLine($count, $payment->getOrder());
         if (!empty($serviceLine)) {
-            $requestData = array_merge($articles, $serviceLine);
-            $group++;
+            $articles = array_merge($articles, $serviceLine);
+            $count++;
         }
 
-        // Add aditional shippin costs.
-        $shippingCosts = $this->getShippingCostsLine($payment->getOrder(), $group);
+        // Add additional shipping costs.
+        $shippingCosts = $this->getShippingCostsLine($payment->getOrder(), $count);
 
         if (!empty($shippingCosts)) {
-            $requestData = array_merge($requestData, $shippingCosts);
-            $group++;
+            $articles = array_merge($articles, $shippingCosts);
+            $count++;
+        }
+        $discountLine = $this->getDiscountLine($payment, $count);
+
+        if (!empty($discountLine)) {
+            $articles = array_merge($articles, $discountLine);
         }
 
-        $discountline = $this->getDiscountLine($payment, $group);
-
-        if (!empty($discountline)) {
-            $requestData = array_merge($requestData, $discountline);
-        }
-
-        $group++;
-        $reward = $this->getRewardLine($quote, $group);
+        $reward = $this->getRewardLine($quote, $count);
 
         if (!empty($reward)) {
-            $requestData = array_merge($requestData, $reward);
+            $articles = array_merge($articles, $reward);
         }
 
-        return $requestData;
+        return $articles;
     }
 
     /**
@@ -878,7 +846,7 @@ class Klarnakp extends AbstractMethod
     /**
      * @param OrderInterface $order
      * @param $group
-     *
+     * @param int $itemsTotalAmount
      * @return array
      */
     protected function getShippingCostsLine($order, $group, &$itemsTotalAmount = 0)
@@ -986,14 +954,6 @@ class Klarnakp extends AbstractMethod
         return $article;
     }
 
-    protected function getTaxCategory($order)
-    {
-        $items = $order->getItems();
-
-        foreach ($items as $data) {
-            return $this->getTaxPercent($data);
-        }
-    }
 
     /**
      * @param $data

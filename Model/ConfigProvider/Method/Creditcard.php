@@ -21,7 +21,6 @@
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 /**
- * @method getPaymentFeeLabel();
  * @method getMaestroUnsecureHold()
  * @method getMastercardUnsecureHold()
  * @method getVisaUnsecureHold()
@@ -46,7 +45,6 @@ class Creditcard extends AbstractConfigProvider
     /**#@-*/
 
     const XPATH_CREDITCARD_PAYMENT_FEE          = 'payment/buckaroo_magento2_creditcard/payment_fee';
-    const XPATH_CREDITCARD_PAYMENT_FEE_LABEL    = 'payment/buckaroo_magento2_creditcard/payment_fee_label';
     const XPATH_CREDITCARD_ACTIVE               = 'payment/buckaroo_magento2_creditcard/active';
     const XPATH_CREDITCARD_SUBTEXT              = 'payment/buckaroo_magento2_creditcard/subtext';
     const XPATH_CREDITCARD_SUBTEXT_STYLE        = 'payment/buckaroo_magento2_creditcard/subtext_style';
@@ -179,9 +177,7 @@ class Creditcard extends AbstractConfigProvider
     public function getConfig()
     {
         $issuers = $this->formatIssuers();
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
-            \Buckaroo\Magento2\Model\Method\Creditcard::PAYMENT_METHOD_CODE
-        );
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
 
         $selectionType = $this->scopeConfig->getValue(
             self::XPATH_SELECTION_TYPE,

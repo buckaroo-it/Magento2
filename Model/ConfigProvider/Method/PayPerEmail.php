@@ -25,7 +25,6 @@ use Buckaroo\Magento2\Model\Method\PayPerEmail as MethodPayPerEmail;
 /**
  * @method getCm3DueDate()
  * @method getMaxStepIndex()
- * @method getPaymentMethod()
  * @method getPaymentMethodAfterExpiry()
  * @method getSchemeKey()
  * @method getActiveStatusCm3()
@@ -42,7 +41,6 @@ class PayPerEmail extends AbstractConfigProvider
     const XPATH_PAYPEREMAIL_SUBTEXT_STYLE        = 'payment/buckaroo_magento2_payperemail/subtext_style';
     const XPATH_PAYPEREMAIL_SUBTEXT_COLOR        = 'payment/buckaroo_magento2_payperemail/subtext_color';
     const XPATH_PAYPEREMAIL_PAYMENT_FEE          = 'payment/buckaroo_magento2_payperemail/payment_fee';
-    const XPATH_PAYPEREMAIL_PAYMENT_FEE_LABEL    = 'payment/buckaroo_magento2_payperemail/payment_fee_label';
     const XPATH_PAYPEREMAIL_ACTIVE_STATUS        = 'payment/buckaroo_magento2_payperemail/active_status';
     const XPATH_PAYPEREMAIL_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_payperemail/order_status_success';
     const XPATH_PAYPEREMAIL_ORDER_STATUS_FAILED  = 'payment/buckaroo_magento2_payperemail/order_status_failed';
@@ -77,7 +75,7 @@ class PayPerEmail extends AbstractConfigProvider
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(MethodPayPerEmail::PAYMENT_METHOD_CODE);
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
 
         return [
             'payment' => [
@@ -132,13 +130,13 @@ class PayPerEmail extends AbstractConfigProvider
 
     public function getPaymentMethod($storeId = null)
     {
-        $paymentFee = $this->scopeConfig->getValue(
+        $paymentMethod = $this->scopeConfig->getValue(
             self::XPATH_PAYPEREMAIL_PAYMENT_METHOD,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $storeId
         );
 
-        return $paymentFee ? $paymentFee : false;
+        return $paymentMethod ? $paymentMethod : false;
     }
 
     /**

@@ -44,6 +44,7 @@ For precise cost details, please reach out to <a href="mailto:wecare@buckaroo.nl
             <label>Frontend label</label>
             <comment><![CDATA[Determines the frontend label shown.]]></comment>
             <config_path>payment/buckaroo_magento2_ideal/title</config_path>
+            <backend_model>Buckaroo\Magento2\Model\Config\Backend\EmptyToDelete</backend_model>
         </field>
 
         <field id="subtext" translate="label comment" type="text" sortOrder="25" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -121,15 +122,9 @@ For precise cost details, please reach out to <a href="mailto:wecare@buckaroo.nl
 
             <field id="payment_fee" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Payment fee</label>
-                <comment><![CDATA[The above amount is calculated based on de Tax settings in Stores > Configuration > Sales > Tax.]]></comment>
+                <comment><![CDATA[The above amount is calculated based on de Tax settings in Buckaroo > General configuration and account information > Buckaroo Payment Fee Tax Class.]]></comment>
                 <config_path>payment/buckaroo_magento2_ideal/payment_fee</config_path>
                 <backend_model>Buckaroo\Magento2\Model\Config\Backend\PaymentFee</backend_model>
-            </field>
-
-            <field id="payment_fee_label" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Payment fee frontend label</label>
-                <comment><![CDATA[This label will be displayed next to the fee on the checkout, order, invoice and creditmemo pages and pdfs.]]></comment>
-                <config_path>payment/buckaroo_magento2_ideal/payment_fee_label</config_path>
             </field>
 
             <field id="min_amount" translate="label comment tooltip" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">

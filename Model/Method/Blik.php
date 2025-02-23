@@ -20,17 +20,17 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
-class Sofortbanking extends AbstractMethod
+class Blik extends AbstractMethod
 {
     /**
      * Payment Code
      */
-    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_sofortbanking';
+    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_blik';
 
     /**
      * @var string
      */
-    public $buckarooPaymentMethodCode = 'sofortbanking';
+    public $buckarooPaymentMethodCode = 'blik';
 
     /**
      * Payment method code
@@ -47,9 +47,9 @@ class Sofortbanking extends AbstractMethod
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
 
         $services = [
-            'Name'             => 'Sofortueberweisung',
-            'Action'           => 'Pay',
-            'Version'          => 1,
+            'Name'    => 'blik',
+            'Action'  => 'Pay',
+            'Version' => 0,
         ];
 
         /**
@@ -93,6 +93,11 @@ class Sofortbanking extends AbstractMethod
      */
     public function getPaymentMethodName($payment)
     {
-        return 'sofortueberweisung';
+        return 'blik';
+    }
+
+    protected function getRefundTransactionBuilderChannel()
+    {
+        return 'Web';
     }
 }

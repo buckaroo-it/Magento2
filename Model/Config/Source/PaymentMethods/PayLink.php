@@ -38,14 +38,12 @@ class PayLink implements \Magento\Framework\Option\ArrayInterface
             ['value' => 'dankort',                'label' => __('Dankort')],
             ['value' => 'eps',                    'label' => __('EPS')],
             ['value' => 'giftcard',               'label' => __('Giftcards')],
-            ['value' => 'giropay',                'label' => __('Giropay')],
             ['value' => 'ideal',                  'label' => __('iDEAL')],
             ['value' => 'idealprocessing',        'label' => __('iDEAL Processing')],
             ['value' => 'maestro',                'label' => __('Maestro')],
             ['value' => 'mastercard',             'label' => __('Mastercard')],
             ['value' => 'paypal',                 'label' => __('PayPal')],
             ['value' => 'sepadirectdebit',        'label' => __('SEPA Direct Debit')],
-            ['value' => 'sofortueberweisung',     'label' => __('Sofort Banking')],
             ['value' => 'belfius',                'label' => __('Belfius')],
             ['value' => 'visa',                   'label' => __('Visa')],
             ['value' => 'visaelectron',           'label' => __('Visa Electron')],
@@ -54,6 +52,7 @@ class PayLink implements \Magento\Framework\Option\ArrayInterface
             ['value' => 'wechatpay',              'label' => __('WeChatPay')],
             ['value' => 'p24',                    'label' => __('P24')],
             ['value' => 'trustly',                'label' => __('Trustly')],
+            ['value' => 'blik',                   'label' => __('Blik')],
         ];
 
         return $options;

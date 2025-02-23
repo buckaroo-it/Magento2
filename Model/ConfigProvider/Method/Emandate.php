@@ -23,7 +23,6 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 class Emandate extends AbstractConfigProvider
 {
     const XPATH_EMANDATE_PAYMENT_FEE           = 'payment/buckaroo_magento2_emandate/payment_fee';
-    const XPATH_EMANDATE_PAYMENT_FEE_LABEL     = 'payment/buckaroo_magento2_emandate/payment_fee_label';
     const XPATH_EMANDATE_ACTIVE                = 'payment/buckaroo_magento2_emandate/active';
     const XPATH_EMANDATE_SUBTEXT               = 'payment/buckaroo_magento2_emandate/subtext';
     const XPATH_EMANDATE_SUBTEXT_STYLE         = 'payment/buckaroo_magento2_emandate/subtext_style';
@@ -110,9 +109,7 @@ class Emandate extends AbstractConfigProvider
         }
 
         $issuers = $this->formatIssuers();
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel(
-            \Buckaroo\Magento2\Model\Method\Emandate::PAYMENT_METHOD_CODE
-        );
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
 
         return [
             'payment' => [

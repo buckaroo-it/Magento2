@@ -45,11 +45,9 @@ class Toolbar
         'buckaroo_magento2_paypal',
         'buckaroo_magento2_payconiq',
         'buckaroo_magento2_sepadirectdebit',
-        'buckaroo_magento2_sofortbanking',
         'buckaroo_magento2_belfius',
         'buckaroo_magento2_transfer',
         'buckaroo_magento2_eps',
-        'buckaroo_magento2_giropay',
         'buckaroo_magento2_kbc',
         'buckaroo_magento2_klarna',
         'buckaroo_magento2_klarnakp',
@@ -62,7 +60,8 @@ class Toolbar
         'buckaroo_magento2_wechatpay',
         'buckaroo_magento2_p24',
         'buckaroo_magento2_trustly',
-        'buckaroo_magento2_pospayment'
+        'buckaroo_magento2_pospayment',
+        'buckaroo_magento2_blik',
     ];
 
     /**
