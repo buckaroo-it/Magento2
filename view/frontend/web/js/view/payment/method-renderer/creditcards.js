@@ -57,6 +57,8 @@ define(
 
             oauthTokenError: ko.observable(''),
             paymentError: ko.observable(''),
+            isPayButtonDisabled: ko.observable(false),
+            sdkClient: null,
 
             initialize: function (options) {
                 this._super(options);
@@ -74,37 +76,25 @@ define(
                         }
                     });
 
-                    // Check for error field in response
                     if (response.error) {
-                        // Display the error message in the observable
                         this.oauthTokenError("An error occurred, please try another payment method or try again later.");
                     } else {
                         const accessToken = response.data.access_token;
                         const issuers = response.data.issuers;
-                        // Success: Initialize hosted fields with access token
-                        await this.initHostedFields(accessToken,issuers);
+                        await this.initHostedFields(accessToken, issuers);
                     }
                 } catch (error) {
-                    // Catch any other errors (e.g., network issues)
                     this.oauthTokenError("An error occurred, please try another payment method or try again later.");
                 }
             },
 
             resetForm: function() {
-                // Remove hosted field iframes from DOM
+                // Remove hosted field iframes from DOM using jQuery
                 this.removeHostedFieldIframes();
-
                 // Re-fetch the OAuth token and reinitialize the hosted fields
                 this.getOAuthToken();
                 this.paymentError('');
-
-                // Re-enable the submit button
-                let payButton = document.getElementById("pay");
-                if (payButton) {
-                    payButton.disabled = false;
-                    payButton.style.cursor = "";
-                    payButton.style.opacity = "";
-                }
+                this.isPayButtonDisabled(false);
             },
 
             removeHostedFieldIframes: function() {
@@ -115,46 +105,39 @@ define(
                 $('#cc-cvc-wrapper iframe').remove();
             },
 
-            async initHostedFields(accessToken,issuers) {
+            async initHostedFields(accessToken, issuers) {
                 try {
-                    const sdkClient = new BuckarooHostedFieldsSdk.HFClient(accessToken);
-                    var locale = document.documentElement.lang;
-                    var languageCode = locale.split('_')[0];
-                    sdkClient.setLanguage(languageCode);
-                    sdkClient.setSupportedServices(issuers);
+                    this.sdkClient = new BuckarooHostedFieldsSdk.HFClient(accessToken);
+                    const locale = document.documentElement.lang;
+                    const languageCode = locale.split('_')[0];
+                    this.sdkClient.setLanguage(languageCode);
+                    this.sdkClient.setSupportedServices(issuers);
 
-                    await sdkClient.startSession(event => {
-                        sdkClient.handleValidation(event, 'cc-name-error', 'cc-number-error', 'cc-expiry-error', 'cc-cvc-error');
-
-                        let payButton = document.getElementById("pay");
-                        if (payButton) {
-                            let disabled = !sdkClient.formIsValid();
-                            payButton.disabled = disabled;
-                            if (disabled) {
-                                payButton.style.cursor = "not-allowed";
-                                payButton.style.opacity = "0.5";
-                            } else {
-                                payButton.style.cursor = "";
-                                payButton.style.opacity = "";
-                            }
-                        }
-
-                        this.service = sdkClient.getService();
+                    // Start session and update pay button state based on form validity
+                    await this.sdkClient.startSession((event) => {
+                        this.sdkClient.handleValidation(
+                            event,
+                            'cc-name-error',
+                            'cc-number-error',
+                            'cc-expiry-error',
+                            'cc-cvc-error'
+                        );
+                        this.isPayButtonDisabled(!this.sdkClient.formIsValid());
+                        this.service = this.sdkClient.getService();
                     });
 
-                    let cardLogoStyling = {
-                        height:"80%",
+                    const cardLogoStyling = {
+                        height: "80%",
                         position: 'absolute',
                         border: '1px solid #d6d6d6',
                         borderRadius: "4px",
-                        opacity:'1',
-                        transition:'all 0.3s ease',
-                        right:'5px',
-                        backgroundColor:'inherit'
+                        opacity: '1',
+                        transition: 'all 0.3s ease',
+                        right: '5px',
+                        backgroundColor: 'inherit'
                     };
 
-                    // Define styling and mount hosted fields as needed...
-                    let styling = {
+                    const styling = {
                         fontSize: "14px",
                         fontStyle: "normal",
                         fontWeight: 400,
@@ -171,69 +154,73 @@ define(
                         cardLogoStyling: cardLogoStyling
                     };
 
-                    await sdkClient.mountCardHolderName("#cc-name-wrapper", {
+                    // Mount hosted fields concurrently using Promise.all
+                    const mountCardHolderNamePromise = this.sdkClient.mountCardHolderName("#cc-name-wrapper", {
                         id: "ccname",
                         placeHolder: "John Doe",
                         labelSelector: "#cc-name-label",
                         baseStyling: styling
-                    }).then(field => field.focus());
+                    }).then(field => {
+                        field.focus();
+                        return field;
+                    });
 
-                    await sdkClient.mountCardNumber("#cc-number-wrapper", {
+                    const mountCardNumberPromise = this.sdkClient.mountCardNumber("#cc-number-wrapper", {
                         id: "cc",
                         placeHolder: "555x xxxx xxxx xxxx",
                         labelSelector: "#cc-number-label",
                         baseStyling: styling
                     });
 
-                    await sdkClient.mountCvc("#cc-cvc-wrapper", {
+                    const mountCvcPromise = this.sdkClient.mountCvc("#cc-cvc-wrapper", {
                         id: "cvc",
                         placeHolder: "1234",
                         labelSelector: "#cc-cvc-label",
                         baseStyling: styling
                     });
 
-                    await sdkClient.mountExpiryDate("#cc-expiry-wrapper", {
+                    const mountExpiryPromise = this.sdkClient.mountExpiryDate("#cc-expiry-wrapper", {
                         id: "expiry",
                         placeHolder: "MM / YY",
                         labelSelector: "#cc-expiry-label",
                         baseStyling: styling
                     });
 
-                    let payButton = document.getElementById("pay");
-                    if (payButton) {
-                        payButton.addEventListener("click", async function (event) {
-                            event.preventDefault();
-                            payButton.disabled = true; // Disable button to prevent double submissions
-
-                            try {
-                                let paymentToken = await sdkClient.submitSession();
-                                if (!paymentToken) {
-                                    throw new Error("Failed to get encrypted card data.");
-                                }
-                                this.encryptedCardData = paymentToken;
-                                this.service = sdkClient.getService();
-                                this.finalizePlaceOrder(event);
-                            } catch (error) {
-                                this.paymentError("Payment processing failed. Please try again.");
-                                payButton.disabled = false;
-                            }
-                        }.bind(this));
-                    }
+                    await Promise.all([
+                        mountCardHolderNamePromise,
+                        mountCardNumberPromise,
+                        mountCvcPromise,
+                        mountExpiryPromise
+                    ]);
                 } catch (error) {
                     console.error("Error initializing hosted fields:", error);
+                }
+            },
+
+            onPayClick: async function(data, event) {
+                event.preventDefault();
+                this.isPayButtonDisabled(true);
+                try {
+                    const paymentToken = await this.sdkClient.submitSession();
+                    if (!paymentToken) {
+                        throw new Error("Failed to get encrypted card data.");
+                    }
+                    this.encryptedCardData = paymentToken;
+                    this.service = this.sdkClient.getService();
+                    this.finalizePlaceOrder(event);
+                } catch (error) {
+                    this.paymentError("Payment processing failed. Please try again.");
+                    this.isPayButtonDisabled(false);
                 }
             },
 
             /**
              * Place order.
              *
-             * placeOrderAction has been changed from Magento_Checkout/js/action/place-order to our own version
-             * (Buckaroo_Magento2/js/action/place-order) to prevent redirect and handle the response.
+             * The placeOrderAction has been modified (Buckaroo_Magento2/js/action/place-order)
+             * to prevent redirection and handle the response.
              */
             finalizePlaceOrder: function (event) {
-                var self = this,
-                    placeOrder;
-
                 if (event) {
                     event.preventDefault();
                 }
@@ -245,26 +232,29 @@ define(
 
                 if (this.validate() && additionalValidators.validate()) {
                     this.isPlaceOrderActionAllowed(false);
-                    placeOrder = placeOrderAction(self.getData(), self.redirectAfterPlaceOrder, self.messageContainer);
+                    const placeOrder = placeOrderAction(
+                        this.getData(),
+                        this.redirectAfterPlaceOrder,
+                        this.messageContainer
+                    );
 
-                    $.when(placeOrder).fail(
-                        function () {
-                            self.isPlaceOrderActionAllowed(true);
-                            self.paymentError("Payment token is missing. Please try again.");
-                        }
-                    ).done(self.afterPlaceOrder.bind(self));
+                    $.when(placeOrder)
+                        .fail(() => {
+                            this.isPlaceOrderActionAllowed(true);
+                            this.paymentError("Payment token is missing. Please try again.");
+                        })
+                        .done(this.afterPlaceOrder.bind(this));
                     return true;
                 }
                 return false;
             },
 
             afterPlaceOrder: function () {
-                var response = window.checkoutConfig.payment.buckaroo.response;
+                const response = window.checkoutConfig.payment.buckaroo.response;
                 checkoutCommon.redirectHandle(response);
             },
 
             getData: function() {
-
                 return {
                     "method": this.item.method,
                     "po_number": null,
@@ -272,7 +262,7 @@ define(
                         "customer_encrypteddata": this.encryptedCardData,
                         "customer_creditcardcompany": this.service
                     }
-                }
+                };
             },
 
             selectPaymentMethod: function () {

@@ -86,7 +86,7 @@
             </div>
             <div class="actions-toolbar creditcards">
                 <div class="primary">
-                    <button id="pay" class="action primary checkout">
+                    <button id="buckaroo-pay" class="action primary checkout" data-bind="click: onPayClick, attr: { disabled: isPayButtonDisabled }">
                         <span data-bind="i18n: 'Place Order'"></span>
                     </button>
                 </div>
