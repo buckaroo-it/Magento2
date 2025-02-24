@@ -60,51 +60,65 @@ define(
             isPayButtonDisabled: ko.observable(false),
             sdkClient: null,
 
+            /**
+             * Initialize component and retrieve OAuth token.
+             */
             initialize: function (options) {
                 this._super(options);
                 this.getOAuthToken();
                 return this;
             },
 
+            /**
+             * Retrieve OAuth token via AJAX.
+             */
             async getOAuthToken() {
                 try {
                     const response = await $.ajax({
                         url: urlBuilder.build('/buckaroo/credentialschecker/gettoken'),
-                        type: "GET",
+                        type: 'GET',
                         headers: {
                             'X-Requested-From': 'MagentoFrontend'
                         }
                     });
-
                     if (response.error) {
-                        this.oauthTokenError("An error occurred, please try another payment method or try again later.");
+                        this.oauthTokenError($.mage.__("An error occurred, please try another payment method or try again later."));
                     } else {
                         const accessToken = response.data.access_token;
                         const issuers = response.data.issuers;
                         await this.initHostedFields(accessToken, issuers);
                     }
                 } catch (error) {
-                    this.oauthTokenError("An error occurred, please try another payment method or try again later.");
+                    this.oauthTokenError($.mage.__("An error occurred, please try another payment method or try again later."));
                 }
             },
 
+            /**
+             * Reset the payment form and reinitialize hosted fields.
+             */
             resetForm: function() {
-                // Remove hosted field iframes from DOM using jQuery
                 this.removeHostedFieldIframes();
-                // Re-fetch the OAuth token and reinitialize the hosted fields
                 this.getOAuthToken();
                 this.paymentError('');
                 this.isPayButtonDisabled(false);
             },
 
+            /**
+             * Remove hosted field iframes from the DOM.
+             */
             removeHostedFieldIframes: function() {
-                // Remove the iframes for the hosted fields by targeting their container
                 $('#cc-name-wrapper iframe').remove();
                 $('#cc-number-wrapper iframe').remove();
                 $('#cc-expiry-wrapper iframe').remove();
                 $('#cc-cvc-wrapper iframe').remove();
             },
 
+            /**
+             * Initialize hosted fields using the OAuth token and issuers.
+             *
+             * @param {String} accessToken
+             * @param {Array} issuers
+             */
             async initHostedFields(accessToken, issuers) {
                 try {
                     this.sdkClient = new BuckarooHostedFieldsSdk.HFClient(accessToken);
@@ -113,7 +127,7 @@ define(
                     this.sdkClient.setLanguage(languageCode);
                     this.sdkClient.setSupportedServices(issuers);
 
-                    // Start session and update pay button state based on form validity
+                    // Start the session and update the pay button state based on validation.
                     await this.sdkClient.startSession((event) => {
                         this.sdkClient.handleValidation(
                             event,
@@ -154,7 +168,7 @@ define(
                         cardLogoStyling: cardLogoStyling
                     };
 
-                    // Mount hosted fields concurrently using Promise.all
+                    // Mount hosted fields concurrently.
                     const mountCardHolderNamePromise = this.sdkClient.mountCardHolderName("#cc-name-wrapper", {
                         id: "ccname",
                         placeHolder: "John Doe",
@@ -197,6 +211,12 @@ define(
                 }
             },
 
+            /**
+             * Knockout click handler for the pay button.
+             *
+             * @param {Object} data - The view model data.
+             * @param {Event} event - The event object.
+             */
             onPayClick: async function(data, event) {
                 event.preventDefault();
                 this.isPayButtonDisabled(true);
@@ -209,27 +229,24 @@ define(
                     this.service = this.sdkClient.getService();
                     this.finalizePlaceOrder(event);
                 } catch (error) {
-                    this.paymentError("Payment processing failed. Please try again.");
+                    this.paymentError($.mage.__("Payment processing failed. Please try again."));
                     this.isPayButtonDisabled(false);
                 }
             },
 
             /**
-             * Place order.
+             * Finalize placing the order.
              *
-             * The placeOrderAction has been modified (Buckaroo_Magento2/js/action/place-order)
-             * to prevent redirection and handle the response.
+             * @param {Event} event
              */
             finalizePlaceOrder: function (event) {
                 if (event) {
                     event.preventDefault();
                 }
-
                 if (!this.encryptedCardData) {
-                    this.paymentError("Payment token is missing. Please try again.");
+                    this.paymentError($.mage.__("Payment token is missing. Please try again."));
                     return;
                 }
-
                 if (this.validate() && additionalValidators.validate()) {
                     this.isPlaceOrderActionAllowed(false);
                     const placeOrder = placeOrderAction(
@@ -237,11 +254,10 @@ define(
                         this.redirectAfterPlaceOrder,
                         this.messageContainer
                     );
-
                     $.when(placeOrder)
                         .fail(() => {
                             this.isPlaceOrderActionAllowed(true);
-                            this.paymentError("Payment token is missing. Please try again.");
+                            this.paymentError($.mage.__("Payment token is missing. Please try again."));
                         })
                         .done(this.afterPlaceOrder.bind(this));
                     return true;
@@ -249,11 +265,19 @@ define(
                 return false;
             },
 
+            /**
+             * After order placement, handle the redirect.
+             */
             afterPlaceOrder: function () {
                 const response = window.checkoutConfig.payment.buckaroo.response;
                 checkoutCommon.redirectHandle(response);
             },
 
+            /**
+             * Retrieve the payment data.
+             *
+             * @returns {Object}
+             */
             getData: function() {
                 return {
                     "method": this.item.method,
@@ -265,6 +289,11 @@ define(
                 };
             },
 
+            /**
+             * Select this payment method.
+             *
+             * @returns {Boolean}
+             */
             selectPaymentMethod: function () {
                 selectPaymentMethodAction(this.getData());
                 checkoutData.setSelectedPaymentMethod(this.item.method);

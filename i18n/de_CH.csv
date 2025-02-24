@@ -502,3 +502,6 @@
 "Card Number:","Kartennummer:"
 "Expiry Date:","Ablaufdatum:"
 "CVC:","CVC:"
+"An error occurred, please try another payment method or try again later."."Ein Fehler ist aufgetreten. Bitte versuchen Sie eine andere Zahlungsmethode oder versuchen Sie es später erneut."
+"Payment processing failed. Please try again.","Zahlungsverarbeitung fehlgeschlagen. Bitte versuchen Sie es erneut."
+"Payment token is missing. Please try again.","Zahlungstoken fehlt. Bitte versuchen Sie es erneut."

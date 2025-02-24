@@ -51,3 +51,6 @@
 "Card Number:","Numéro de carte:"
 "Expiry Date:","Date d'expiration:"
 "CVC:","CVC:"
+"An error occurred, please try another payment method or try again later."."Une erreur s'est produite, veuillez essayer un autre mode de paiement ou réessayer plus tard."
+"Payment processing failed. Please try again.","Le traitement du paiement a échoué. Veuillez réessayer."
+"Payment token is missing. Please try again.","Le jeton de paiement est manquant. Veuillez réessayer."

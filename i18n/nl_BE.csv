@@ -502,3 +502,6 @@
 "Card Number:","Kaartnummer:"
 "Expiry Date:","Vervaldatum:"
 "CVC:","CVC:"
+"An error occurred, please try another payment method or try again later."."Er is een fout opgetreden, probeer een andere betaalmethode of probeer het later opnieuw."
+"Payment processing failed. Please try again.","Betalingsverwerking mislukt. Probeer het opnieuw."
+"Payment token is missing. Please try again.","Betalingstoken ontbreekt. Probeer het opnieuw."
