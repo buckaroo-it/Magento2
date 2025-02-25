@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -33,7 +34,6 @@ use Buckaroo\Magento2\Model\Method\Afterpay;
 use Buckaroo\Magento2\Model\Method\Afterpay2;
 use Buckaroo\Magento2\Model\Method\Afterpay20;
 use Buckaroo\Magento2\Model\Method\Creditcard;
-use Buckaroo\Magento2\Model\Method\Creditcards;
 use Buckaroo\Magento2\Model\Method\Klarnakp;
 use Buckaroo\Magento2\Model\Method\Giftcards;
 use Buckaroo\Magento2\Model\Method\Paypal;
@@ -2148,7 +2148,6 @@ class Push implements PushInterface
             Afterpay2::PAYMENT_METHOD_CODE,
             Afterpay20::PAYMENT_METHOD_CODE,
             Creditcard::PAYMENT_METHOD_CODE,
-            Creditcards::PAYMENT_METHOD_CODE,
             Klarnakp::PAYMENT_METHOD_CODE
         ];
 
