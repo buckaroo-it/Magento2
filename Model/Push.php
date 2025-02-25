@@ -1726,15 +1726,6 @@ class Push implements PushInterface
         $this->logging->addDebug(__METHOD__ . '|Current Status: ' . $currentStatus);
         $this->logging->addDebug(__METHOD__ . '|Default Status for state ' . $orderState . ': ' . $defaultStatus);
 
-//        // If the order is canceled but we're meant to update it, force a state change.
-//        if ($this->order->getState() === Order::STATE_CANCELED && $orderState === Order::STATE_PROCESSING) {
-//            $this->logging->addDebug(__METHOD__ . '|Forcing re-open from canceled to processing.');
-//            $this->order->setState(Order::STATE_PROCESSING);
-//            $this->order->setStatus($defaultStatus);
-//            $this->order->addStatusHistoryComment($description, $newStatus);
-//            return;
-//        }
-
         if ($currentStatus !== $defaultStatus && $this->order->getState() === $orderState) {
             $this->logging->addDebug(__METHOD__ . '|Preserving custom status: ' . $currentStatus . '. Description: ' . $description);
             if ($this->dontSaveOrderUponSuccessPush) {
