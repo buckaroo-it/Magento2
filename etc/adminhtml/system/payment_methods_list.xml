@@ -34,7 +34,7 @@
 
         <include path="Buckaroo_Magento2::system/payment_methods/mrcash.xml"/>
 
-        <include path="Buckaroo_Magento2::system/payment_methods/afterpays.xml"/>
+        <include path="Buckaroo_Magento2::system/payment_methods/afterpay20.xml"/>
 
         <include path="Buckaroo_Magento2::system/payment_methods/payperemail.xml"/>
 

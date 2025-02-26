@@ -49,4 +49,8 @@
         <attribute type="expanded">1</attribute>
         <include path="Buckaroo_Magento2::system/payment_methods_list.xml"/>
     </group>
+    <group id="buckaroo_magento2_legacy_payment_section" translate="label" type="text" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="1">
+        <label><![CDATA[<div class="buckaroo-payment-byline">Legacy payment methods</div>]]></label>
+        <include path="Buckaroo_Magento2::system/legacy_payment_methods_list.xml"/>
+    </group>
 </include>
