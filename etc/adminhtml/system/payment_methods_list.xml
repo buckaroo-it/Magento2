@@ -34,9 +34,7 @@
 
         <include path="Buckaroo_Magento2::system/payment_methods/mrcash.xml"/>
 
-        <include path="Buckaroo_Magento2::system/payment_methods/afterpay.xml"/>
-
-        <include path="Buckaroo_Magento2::system/payment_methods/afterpay2.xml"/>
+        <include path="Buckaroo_Magento2::system/payment_methods/afterpays.xml"/>
 
         <include path="Buckaroo_Magento2::system/payment_methods/payperemail.xml"/>
 
@@ -49,8 +47,6 @@
         <include path="Buckaroo_Magento2::system/payment_methods/payconiq.xml"/>
 
         <include path="Buckaroo_Magento2::system/payment_methods/kbc.xml"/>
-
-        <include path="Buckaroo_Magento2::system/payment_methods/afterpay20.xml"/>
 
         <include path="Buckaroo_Magento2::system/payment_methods/billink.xml"/>
 

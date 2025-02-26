@@ -21,8 +21,8 @@
  -->
 <include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
     <!-- Afterpay Payment method group -->
-    <group id="buckaroo_magento2_afterpay2" translate="label" type="text" sortOrder="250" showInDefault="1" showInWebsite="1" showInStore="1">
-        <label>Riverty 2 (old)</label>
+    <group id="buckaroo_magento2_afterpay2" translate="label" type="text" sortOrder="240" showInDefault="1" showInWebsite="1" showInStore="1">
+        <label>Riverty (legacy gateway 2)</label>
         <frontend_model>Buckaroo\Magento2\Block\Config\Form\Field\Fieldset</frontend_model>
 
         <field id="active" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">

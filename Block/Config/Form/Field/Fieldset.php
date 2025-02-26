@@ -78,7 +78,7 @@ class Fieldset extends MagentoFieldset
      */
     protected function _getFrontendClass($element): string
     {
-        if ($element->getGroup()['id'] === 'buckaroo_magento2_klarna_group') {
+        if ($element->getGroup()['id'] === 'buckaroo_magento2_klarna_group' || 'buckaroo_magento2_afterpay_group') {
             $value = $this->getActiveStatusByGroup($element);
         } else {
             $value = $this->getElementValue($element);
@@ -241,6 +241,10 @@ class Fieldset extends MagentoFieldset
 
         if ($method == "klarna_group") {
             $method = "klarna";
+        }
+
+        if ($method == "afterpay_group") {
+            $method = "afterpay";
         }
 
         return $this->logoService->getPayment($method, true);
