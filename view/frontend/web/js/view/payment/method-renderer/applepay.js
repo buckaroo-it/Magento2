@@ -46,12 +46,9 @@ define(
                 },
 
                 submit: false,
-                
+
                 initObservable: function () {
                     this._super().observe([]);
-                    this.canShowPaymentMethod = ko.computed(function () {
-                        return applepayPay.canShowApplePay();
-                    }),
 
                     applepayPay.transactionResult.subscribe(
                         function () {
@@ -78,6 +75,11 @@ define(
 
                     return this;
                 },
+
+                canShowPaymentMethod: ko.computed(function () {
+                    return applepayPay.canShowApplePay();
+                }),
+
 
                 /**
                  * Place order.

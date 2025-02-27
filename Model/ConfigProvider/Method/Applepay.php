@@ -39,7 +39,7 @@ class Applepay extends AbstractConfigProvider
     public const XPATH_APPLEPAY_AVAILABLE_BUTTONS                 = 'available_buttons';
     public const XPATH_APPLEPAY_BUTTON_STYLE                      = 'button_style';
     public const XPATH_APPLEPAY_DONT_ASK_BILLING_INFO_IN_CHECKOUT = 'dont_ask_billing_info_in_checkout';
-    public const XPATH_ACCOUNT_MERCHANT_GUID                      = 'buckaroo_magento2/account/merchant_guid';
+    public const XPATH_ACCOUNT_MERCHANT_GUID                      = 'merchant_guid';
 
     /**
      * @var array

@@ -68,6 +68,8 @@ define(
 
                 BuckarooSdk.ApplePay.checkApplePaySupport(window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.guid).then(
                     function (applePaySupported) {
+                        this.devLog('==============applepaydebug/albina', window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.guid);
+                        this.devLog('==============applepaydebug/albina2', window.checkoutConfig.payment.buckaroo);
                         this.devLog('==============applepaydebug/8',[
                             applePaySupported,
                             this.isOnCheckout,
@@ -118,7 +120,7 @@ define(
 
             canShowApplePay:function () {
                 //ZAK
-                //return true;
+                 return true;
                 BuckarooSdk.ApplePay.checkApplePaySupport(window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.guid).then(
                     function (applePaySupported) {
                         this.canShowMethod(applePaySupported);
@@ -383,7 +385,7 @@ define(
                                     newLineItems: this.processLineItems('final', result.data.totals)
                                 };
 
-                                this.devLog('==============applepaydebug/30');
+                                this.devLog('==============applepaydebug/30', authorizationResult);
 
                                 return JSON.stringify(authorizationResult);
                             } else {
@@ -637,7 +639,7 @@ define(
             },
 
             devLog: function (msg, params) {
-                //window.buckarooDebug = 1;
+                window.buckarooDebug = 1;
                 if (window.buckarooDebug) {
                     console.log(msg, params);
                 }

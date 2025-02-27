@@ -76,7 +76,8 @@ class Add
             $this->quoteService->addProductToCart($product);
 
             $shippingMethodsResult = [];
-            if($this->quoteService->getQuote()->getIsVirtual()) {
+            $this->logger->addDebug('before iffalbinaaa');
+            if(!$this->quoteService->getQuote()->getIsVirtual()) {
                 // Get Shipping Address From Request
                 $shippingAddressRequest = $this->applePayFormatData->getShippingAddressObject($request['wallet']);
 
@@ -88,18 +89,23 @@ class Add
 
                 // Get Shipping Methods
                 $shippingMethods = $this->quoteService->getAvailableShippingMethods();
+                $this->logger->addDebug('albinaaa');
+                $this->logger->addDebug(json_encode($shippingMethods));
 
                 foreach ($shippingMethods as $shippingMethod) {
                     $shippingMethodsResult[] = [
                         'carrier_title' => $shippingMethod['carrier_title'],
-                        'price_incl_tax' => round($shippingMethod['amount'], 2),
-                        'method_code' => $shippingMethod['carrier_code'] . '_' .  $shippingMethod['method_code'],
+                        'price_incl_tax' => round($shippingMethod['price_incl_tax'], 2),
+                        'method_code' => $shippingMethod['method_code'],
                         'method_title' => $shippingMethod['method_title'],
                     ];
                 }
+                $this->logger->addDebug("aaaaalbina");
+                $this->logger->addDebug(json_encode($shippingMethodsResult));
                 $this->quoteService->setShippingMethod($shippingMethodsResult[0]['method_code']);
             }
 
+            $this->logger->addDebug(json_encode($shippingMethodsResult));
             //Set Payment Method
             $this->quoteService->setPaymentMethod(Applepay::CODE);
 
