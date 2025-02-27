@@ -29,6 +29,7 @@ use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Quote\Api\Data\EstimateAddressInterface;
 use Magento\Quote\Model\Quote;
+use Magento\Quote\Api\ShipmentEstimationInterface;
 
 class Common extends Action
 {
@@ -72,6 +73,12 @@ class Common extends Action
     protected $converter;
 
     /**
+     * @var ShipmentEstimationInterface
+     */
+    protected ShipmentEstimationInterface $shipmentEstimation;
+
+
+    /**
      * @param Context $context
      * @param PageFactory $resultPageFactory
      */
@@ -84,7 +91,8 @@ class Common extends Action
         \Magento\Checkout\Model\Cart $cart,
         \Magento\Quote\Model\Quote\TotalsCollector $totalsCollector,
         \Magento\Quote\Model\Cart\ShippingMethodConverter $converter,
-        CustomerSession $customerSession = null
+        CustomerSession $customerSession = null,
+        ShipmentEstimationInterface $shipmentEstimation
     ) {
         parent::__construct($context);
 
@@ -96,17 +104,10 @@ class Common extends Action
         $this->totalsCollector = $totalsCollector;
         $this->converter = $converter;
         $this->customerSession = $customerSession ?? ObjectManager::getInstance()->get(CustomerSession::class);
+        $this->shipmentEstimation = $shipmentEstimation;
     }
 
-    // @codingStandardsIgnoreStart
-    public function execute()
-    {
-        /**
-         * call the parent, method required part of the interface
-         */
-        parent::execute();
-    }
-    // @codingStandardsIgnoreEnd
+    public function execute(){}
 
     /**
      * @param $address
@@ -242,30 +243,24 @@ class Common extends Action
 
         $shippingMethodsResult = [];
         if (!$quote->getIsVirtual()) {
-            $shippingMethods = $this->getShippingMethods2($quote, $quote->getShippingAddress());
+            $shippingMethods = $this->shipmentEstimation->estimateByExtendedAddress(
+                $quote->getId(),
+                $quote->getShippingAddress()
+            );
+            $shippingMethodsResult = [];
 
-            if (count($shippingMethods) == 0) {
-                $errorMessage = __(
-                    'Apple Pay payment failed, because no shipping methods were found for the selected address. '.
-                    'Please select a different shipping address within the pop-up or within your Apple Pay Wallet.'
-                );
-                $this->messageManager->addErrorMessage($errorMessage);
-                return [];
-
-            } else {
-
+            if (count($shippingMethods)) {
                 foreach ($shippingMethods as $shippingMethod) {
                     $shippingMethodsResult[] = [
-                        'carrier_title' => $shippingMethod->getCarrierTitle(),
+                        'carrier_title'  => $shippingMethod->getCarrierTitle(),
                         'price_incl_tax' => round($shippingMethod->getAmount(), 2),
-                        'method_code' => $shippingMethod->getCarrierCode() . '_' .  $shippingMethod->getMethodCode(),
-                        'method_title' => $shippingMethod->getMethodTitle(),
+                        'method_code'    => $shippingMethod->getCarrierCode() . '_' . $shippingMethod->getMethodCode(),
+                        'method_title'   => $shippingMethod->getMethodTitle(),
                     ];
                 }
 
-                $this->logger->addDebug(__METHOD__ . '|2|');
-
-                $quote->getShippingAddress()->setShippingMethod($shippingMethodsResult[0]['method_code']);
+                $shippingMethod = array_shift($shippingMethods);
+                $quote->getShippingAddress()->setShippingMethod($shippingMethod->getCarrierCode() . '_' . $shippingMethod->getMethodCode());
             }
         }
         $quote->setTotalsCollectedFlag(false);

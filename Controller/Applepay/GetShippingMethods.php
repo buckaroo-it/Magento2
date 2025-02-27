@@ -24,7 +24,6 @@ use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
-use Buckaroo\Magento2\Service\Applepay\GetShippingMethods as GetShippingMethodsService;
 use Magento\Quote\Model\Cart\ShippingMethodConverter;
 use Magento\Quote\Model\Quote\TotalsCollector;
 use Magento\Customer\Model\Session as CustomerSession;
@@ -48,14 +47,14 @@ class GetShippingMethods extends Common
         PageFactory $resultPageFactory,
         \Magento\Framework\Translate\Inline\ParserInterface $inlineParser,
         \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory,
-        Log $logger,        
+        Log $logger,
         \Magento\Checkout\Model\Cart $cart,
         \Magento\Quote\Model\Quote\TotalsCollector $totalsCollector,
         \Magento\Quote\Model\Cart\ShippingMethodConverter $converter,
         CustomerSession $customerSession = null,
         MaskedQuoteIdToQuoteIdInterface $maskedQuoteIdToQuoteId,
         CartRepositoryInterface $cartRepository
-        
+
     ) {
         parent::__construct(
             $context,
@@ -85,16 +84,16 @@ class GetShippingMethods extends Common
             ) {
                 $cart_hash = $this->getRequest()->getParam('id');
                 $objectManager = \Magento\Framework\App\ObjectManager::getInstance();//instance of object manager
-                
+
                 if($cart_hash) {
                     $cartId = $this->maskedQuoteIdToQuoteId->execute($cart_hash);
                     $quote = $this->cartRepository->get($cartId);
                 } else {
-                    
+
                     $checkoutSession = $objectManager->get(\Magento\Checkout\Model\Session::class);
                     $quote = $checkoutSession->getQuote();
                 }
-        
+
                 if (!$quote->getIsVirtual() && !$this->setShippingAddress($quote, $wallet)) {
                     return $this->commonResponse(false, true);
                 }
