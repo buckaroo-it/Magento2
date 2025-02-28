@@ -114,7 +114,7 @@ class GetShippingMethods extends AbstractApplepay
                             $shippingMethodsResult[] = [
                                 'carrier_title'  => $shippingMethod->getCarrierTitle(),
                                 'price_incl_tax' => round($shippingMethod->getPriceInclTax(), 2),
-                                'method_code'    => $shippingMethod->getCarrierCode() . '_' . $shippingMethod->getMethodCode(),
+                                'method_code'    => $shippingMethod->getMethodCode(),
                                 'method_title'   => $shippingMethod->getMethodTitle(),
                             ];
                         }
@@ -135,7 +135,7 @@ class GetShippingMethods extends AbstractApplepay
                     'shipping_methods' => $shippingMethodsResult,
                     'totals' => $totals
                 ];
-            } catch (NoSuchEntityException|LocalizedException $exception) {
+            } catch (NoSuchEntityException|LocalizedException|\Exception $exception) {
                 $this->logger->addDebug(sprintf(
                     '[ApplePay] | [Controller] | [%s:%s] - Get Shipping Methods | [ERROR]: %s',
                     __METHOD__,
