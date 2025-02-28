@@ -113,7 +113,7 @@ class GetShippingMethods extends AbstractApplepay
                         foreach ($shippingMethods as $shippingMethod) {
                             $shippingMethodsResult[] = [
                                 'carrier_title'  => $shippingMethod->getCarrierTitle(),
-                                'price_incl_tax' => round($shippingMethod->getAmount(), 2),
+                                'price_incl_tax' => round($shippingMethod->getPriceInclTax(), 2),
                                 'method_code'    => $shippingMethod->getCarrierCode() . '_' . $shippingMethod->getMethodCode(),
                                 'method_title'   => $shippingMethod->getMethodTitle(),
                             ];
