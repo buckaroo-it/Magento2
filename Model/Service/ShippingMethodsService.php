@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Model\Service;
 
 use Buckaroo\Magento2\Logging\Log;
+use Magento\Framework\Exception\InputException;
 use Magento\Quote\Api\Data\AddressInterface;
 use Magento\Quote\Api\ShipmentEstimationInterface;
 use Magento\Quote\Model\Quote;
@@ -35,8 +36,10 @@ class ShippingMethodsService
     protected ShipmentEstimationInterface $shipmentEstimation;
 
     /**
-     * @param ShipmentEstimationInterface $shipmentEstimation
+     * @var Log $logger
      */
+    public Log $logger;
+
     public function __construct(
         ShipmentEstimationInterface $shipmentEstimation,
         Log $logger,
@@ -52,6 +55,7 @@ class ShippingMethodsService
      * @param Quote $quote
      * @param AddressInterface $address
      * @return array
+     * @throws InputException
      */
     public function getAvailableShippingMethods(Quote $quote, AddressInterface $address): array
     {
