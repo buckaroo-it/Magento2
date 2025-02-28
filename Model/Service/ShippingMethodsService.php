@@ -42,11 +42,10 @@ class ShippingMethodsService
 
     public function __construct(
         ShipmentEstimationInterface $shipmentEstimation,
-        Log $logger,
-
+        Log $logger
     ) {
-        $this->logger = $logger;
         $this->shipmentEstimation = $shipmentEstimation;
+        $this->logger = $logger;
     }
 
     /**
@@ -64,11 +63,11 @@ class ShippingMethodsService
             $quote->getShippingAddress()
         );
 
-        $this->logger->addDebug('Shipping methods'. var_export($shippingMethods, true));
+        $this->logger->addDebug('Shipping methods: ' . print_r($shippingMethods, true));
         $shippingMethodsResult = [];
         if (count($shippingMethods)) {
             foreach ($shippingMethods as $shippingMethod) {
-                $this->logger->addDebug('Shipping method'. var_export($shippingMethod, true));
+                $this->logger->addDebug('Shipping method'. print_r($shippingMethod, true));
                 $shippingMethodsResult[] = [
                     'carrier_title'  => $shippingMethod->getCarrierTitle(),
                     'price_incl_tax' => round($shippingMethod->getAmount(), 2),

@@ -101,7 +101,7 @@ class GetShippingMethods extends AbstractApplepay
                 if (!$this->quoteService->getQuote()->getIsVirtual()) {
                     $this->logger->addDebug(__METHOD__ . '|1.1.5|');
                     $shippingMethods = $this->quoteService->getAvailableShippingMethods();
-                    $this->logger->addDebug(__METHOD__ . '|1.1.6|' . var_export($shippingMethods, true));
+                    $this->logger->addDebug(__METHOD__ . '|1.1.6|' . print_r($shippingMethods, true));
                     if (count($shippingMethods) <= 0) {
                         $this->logger->addDebug(__METHOD__ . '|1.1.7|');
                         $errorMessage = __(
@@ -111,7 +111,7 @@ class GetShippingMethods extends AbstractApplepay
                     } else {
                         $this->logger->addDebug(__METHOD__ . '|1.1.8|');
                         foreach ($shippingMethods as $shippingMethod) {
-                            $this->logger->addDebug(__METHOD__ . '|1.1.9|'. var_export($shippingMethod, true));
+                            $this->logger->addDebug(__METHOD__ . '|1.1.9|'. print_r($shippingMethod, true));
                             $shippingMethodsResult[] = [
                                 'carrier_title'  => $shippingMethod['carrier_title'],
                                 'price_incl_tax' => $shippingMethod['price_incl_tax'],
