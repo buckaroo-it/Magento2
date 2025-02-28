@@ -57,6 +57,8 @@
     <preference for="Buckaroo\Magento2\Api\Data\BreakdownItemInterface" type="Buckaroo\Magento2\Model\Response\BreakdownItem" />
     <preference for="Buckaroo\Magento2\Api\Data\QuoteCreateResponseInterface" type="Buckaroo\Magento2\Model\Response\QuoteCreate" />
 
+    <preference for="Buckaroo\Magento2\Model\Service\QuoteBuilderInterface" type="Buckaroo\Magento2\Model\Service\QuoteBuilder" />
+
     <!-- paypal-express -->
     <preference for="Buckaroo\Magento2\Model\PaypalExpress\QuoteBuilderInterface" type="Buckaroo\Magento2\Model\PaypalExpress\QuoteBuilder" />
     <preference for="Buckaroo\Magento2\Api\PaypalExpressQuoteCreateInterface" type="Buckaroo\Magento2\Model\PaypalExpress\QuoteCreate" />
