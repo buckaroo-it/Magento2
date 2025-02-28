@@ -19,177 +19,280 @@
  */
 namespace Buckaroo\Magento2\Controller\Applepay;
 
+use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Logging\Log;
-use Buckaroo\Magento2\Model\Config\Source\InvoiceHandlingOptions;
-use Buckaroo\Magento2\Model\ConfigProvider\Account;
-use Magento\Framework\App\Action\Action;
-use Magento\Framework\App\Action\Context;
-use Magento\Framework\View\Result\Page;
-use Magento\Framework\View\Result\PageFactory;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderFactory;
+use Buckaroo\Magento2\Model\Service\QuoteAddressService;
+use Magento\Checkout\Model\ConfigProviderInterface;
+use Magento\Checkout\Model\Session as CheckoutSession;
+use Magento\Customer\Model\Group;
 use Magento\Customer\Model\Session as CustomerSession;
-use Buckaroo\Magento2\Model\Method\Applepay;
-class SaveOrder extends Common
+use Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\Framework\App\RequestInterface;
+use Magento\Framework\Controller\Result\Json;
+use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\DataObjectFactory;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Registry;
+use Magento\Quote\Model\Quote;
+use Magento\Quote\Model\QuoteManagement;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Model\Order;
+
+class SaveOrder extends AbstractApplepay
 {
-    protected $quoteManagement;
-    protected $customer;
-    private $objectFactory;
+    /**
+     * @var Registry|null
+     */
     protected $registry = null;
-    protected $order;
-    protected $checkoutSession;
-    protected $accountConfig;
-    private $configAccount;
 
     /**
-     * @param Context     $context
-     * @param PageFactory $resultPageFactory
+     * @var QuoteManagement
      */
+    protected $quoteManagement;
+
+    /**
+     * @var Order
+     */
+    protected $order;
+
+    /**
+     * @var CheckoutSession
+     */
+    protected $checkoutSession;
+
+    /**
+     * @var ConfigProviderInterface
+     */
+    protected $accountConfig;
+
+    /**
+     * @var DataObjectFactory
+     */
+    private $objectFactory;
+
+    /**
+     * @var OrderRepositoryInterface
+     */
+    private OrderRepositoryInterface $orderRepository;
+
+    /**
+     * @var SearchCriteriaBuilder
+     */
+    private SearchCriteriaBuilder $searchCriteriaBuilder;
+
+    /**
+     * @var QuoteAddressService
+     */
+    private QuoteAddressService $quoteAddressService;
+
+    /**
+     * @var CustomerSession
+     */
+    private CustomerSession $customerSession;
+
+
     public function __construct(
-        Context $context,
-        PageFactory $resultPageFactory,
-        \Magento\Framework\Translate\Inline\ParserInterface $inlineParser,
-        \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory,
+        JsonFactory $resultJsonFactory,
+        RequestInterface $request,
         Log $logger,
-        \Magento\Checkout\Model\Cart $cart,
-        Account $configAccount,
-        \Magento\Quote\Model\QuoteManagement $quoteManagement,
-        \Magento\Customer\Model\Session $customer,
-        \Magento\Framework\DataObjectFactory $objectFactory,
-        \Magento\Framework\Registry $registry,
-        \Magento\Sales\Model\Order $order,
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory,
-        \Magento\Quote\Model\Quote\TotalsCollector $totalsCollector,
-        \Magento\Quote\Model\Cart\ShippingMethodConverter $converter,
-        CustomerSession $customerSession = null
+        QuoteManagement $quoteManagement,
+        CustomerSession $customerSession,
+        DataObjectFactory $objectFactory,
+        OrderRepositoryInterface $orderRepository,
+        SearchCriteriaBuilder $searchCriteriaBuilder,
+        CheckoutSession $checkoutSession,
+        ConfigProviderFactory $configProviderFactory,
+        QuoteAddressService $quoteAddressService,
+        Registry $registry,
     ) {
         parent::__construct(
-            $context,
-            $resultPageFactory,
-            $inlineParser,
             $resultJsonFactory,
-            $logger,
-            $cart,
-            $totalsCollector,
-            $converter,
-            $customerSession
+            $request,
+            $logger
         );
-        $this->configAccount               = $configAccount;
         $this->quoteManagement = $quoteManagement;
-        $this->customer = $customer;
+        $this->customerSession = $customerSession;
         $this->objectFactory = $objectFactory;
-        $this->registry = $registry;
-        $this->order = $order;
+        $this->orderRepository = $orderRepository;
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->checkoutSession    = $checkoutSession;
+        $this->quoteAddressService  = $quoteAddressService;
         $this->accountConfig = $configProviderFactory->get('account');
+        $this->registry = $registry;
     }
     //phpcs:ignore:Generic.Metrics.NestingLevel
+
+    /**
+     * Save Order
+     *
+     * @return Json
+     * @throws LocalizedException
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
+     */
     public function execute()
     {
-        $isPost = $this->getRequest()->getPostValue();
+        $isPost = $this->getParams();
         $errorMessage = false;
         $data = [];
-        $shippingMethodsResult = [];
 
-        if ($isPost) {
-            if (($payment = $this->getRequest()->getParam('payment'))
-                &&
-                ($extra = $this->getRequest()->getParam('extra'))
+        if ($isPost
+            && ($payment = $isPost['payment'])
+            && ($extra = $isPost['extra'])
+        ) {
+            $this->logger->addDebug(sprintf(
+                '[ApplePay] | [Controller] | [%s:%s] - Save Order | request: %s',
+                __METHOD__,
+                __LINE__,
+                var_export($isPost, true)
+            ));
+
+            // Get Cart
+            $quote = $this->checkoutSession->getQuote();
+
+            // Set Address
+            if (!$quote->getIsVirtual() && !$this->quoteAddressService->setShippingAddress($quote, $payment['shippingContact'])) {
+                return $this->commonResponse(false, true);
+            }
+            if (
+                !$this->quoteAddressService->setBillingAddress(
+                    $quote,
+                    $payment['billingContact'],
+                    $payment['shippingContact']['phoneNumber'] ?? null
+                )
             ) {
-                $this->logger->addDebug(__METHOD__.'|1|');
-                $this->logger->addDebug(var_export($payment, true));
-                $this->logger->addDebug(var_export($extra, true));
+                return $this->commonResponse(false, true);
+            }
 
-                $objectManager = \Magento\Framework\App\ObjectManager::getInstance();//instance of object manager
-                $checkoutSession = $objectManager->get(\Magento\Checkout\Model\Session::class);
-                $quote = $checkoutSession->getQuote();
+            // Place Order
+            $this->submitQuote($quote, $extra, $payment);
 
-                if (!$quote->getIsVirtual() && !$this->setShippingAddress($quote, $payment['shippingContact'])) {
-                    return $this->commonResponse(false, true);
-                }
-                if (!$this->setBillingAddress($quote, $payment['billingContact'])) {
-                    return $this->commonResponse(false, true);
-                }
+            // Handle the response
+            $data = $this->handleResponse();
+        }
 
-                $this->logger->addDebug(__METHOD__.'|2|');
+        return $this->commonResponse($data, $errorMessage);
+    }
 
-                $emailAddress = $quote->getShippingAddress()->getEmail();
+    /**
+     * Submit quote
+     *
+     * @param Quote $quote
+     * @param array|string $extra
+     * @return void
+     * @throws LocalizedException
+     */
+    private function submitQuote($quote, $extra, $payment)
+    {
+        try {
+            $emailAddress = $quote->getShippingAddress()->getEmail();
 
-                if ($quote->getIsVirtual()) {
-                    $emailAddress =  isset($payment['shippingContact']['emailAddress']) ? $payment['shippingContact']['emailAddress']: null;
-                }
+            if ($quote->getIsVirtual()) {
+                $emailAddress = $payment['shippingContact']['emailAddress'] ?? null;
+            }
 
-                if (!($this->customer->getCustomer() && $this->customer->getCustomer()->getId())) {
-                    $quote->setCheckoutMethod('guest')
-                        ->setCustomerId(null)
-                        ->setCustomerEmail($emailAddress)
-                        ->setCustomerIsGuest(true)
-                        ->setCustomerGroupId(\Magento\Customer\Model\Group::NOT_LOGGED_IN_ID);
-                }
+            if (!($this->customerSession->getCustomer() && $this->customerSession->getCustomer()->getId())) {
+                $quote->setCheckoutMethod('guest')
+                    ->setCustomerId(null)
+                    ->setCustomerEmail($emailAddress)
+                    ->setCustomerIsGuest(true)
+                    ->setCustomerGroupId(Group::NOT_LOGGED_IN_ID);
+            }
 
-                $payment = $quote->getPayment();
-                $payment->setMethod(Applepay::PAYMENT_METHOD_CODE);
-                $quote->setPayment($payment);
+            $quote->collectTotals()->save();
 
+            $obj = $this->objectFactory->create();
+            $obj->setData($extra);
+            $quote->getPayment()->setMethod($obj->getMethod());
+            $quote->getPayment()->getMethodInstance()->assignData($obj);
 
-                $invoiceHandlingConfig = $this->configAccount->getInvoiceHandling($this->order->getStore());
+            $this->quoteManagement->submit($quote);
+        } catch (\Throwable $th) {
+            $this->logger->addError(sprintf(
+                '[ApplePay] | [Controller] | [%s:%s] - Submit Quote | [ERROR]: %s',
+                __METHOD__,
+                __LINE__,
+                $th->getMessage()
+            ));
+        }
+    }
 
-                if ($invoiceHandlingConfig == InvoiceHandlingOptions::SHIPMENT) {
-                    $payment->setAdditionalInformation(InvoiceHandlingOptions::INVOICE_HANDLING, $invoiceHandlingConfig);
-                    $payment->save();
-                    $quote->setPayment($payment);
-                }
-                $quote->collectTotals()->save();
+    /**
+     * Handle the response after placing order
+     *
+     * @return array
+     */
+    private function handleResponse()
+    {
+        $data = [];
+        if ($this->registry && $this->registry->registry('buckaroo_response')) {
+            $data = $this->registry->registry('buckaroo_response')[0];
+            $this->logger->addDebug(sprintf(
+                '[ApplePay] | [Controller] | [%s:%s] - Save Order Handle Response | buckarooResponse: %s',
+                __METHOD__,
+                __LINE__,
+                var_export($data, true)
+            ));
 
-                $obj = $this->objectFactory->create();
-                $obj->setData($extra);
-                $quote->getPayment()->getMethodInstance()->assignData($obj);
-
-                $order = $this->quoteManagement->submit($quote);
-
-                $data = [];
-                if ($this->registry && $this->registry->registry('buckaroo_response')) {
-                    $data = $this->registry->registry('buckaroo_response')[0];
-                    $this->logger->addDebug(__METHOD__.'|4|'.var_export($data, true));
-                    if (!empty($data->RequiredAction->RedirectURL)) {
-                        //test mode
-                        $this->logger->addDebug(__METHOD__.'|5|');
-                        $data = [
-                           'RequiredAction' => $data->RequiredAction
-                        ];
-                    } else {
-                        //live mode
-                        $this->logger->addDebug(__METHOD__.'|6|');
-                        if (!empty($data->Status->Code->Code)
-                            &&
-                            ($data->Status->Code->Code == '190')
-                            &&
-                            !empty($data->Order)
-                        ) {
-                            $this->order->loadByIncrementId($data->Order);
-
-                            if ($this->order->getId()) {
-                                $this->checkoutSession
-                                    ->setLastQuoteId($this->order->getQuoteId())
-                                    ->setLastSuccessQuoteId($this->order->getQuoteId())
-                                    ->setLastOrderId($this->order->getId())
-                                    ->setLastRealOrderId($this->order->getIncrementId())
-                                    ->setLastOrderStatus($this->order->getStatus());
-
-                                $store = $this->order->getStore();
-                                $url = $store->getBaseUrl() . '/' . $this->accountConfig->getSuccessRedirect($store);
-                                $this->logger->addDebug(__METHOD__.'|7|'.var_export($url, true));
-                                $data = [
-                                    'RequiredAction' => [
-                                        'RedirectURL' => $url
-                                    ]
-                                ];
-                            }
-                        }
-                    }
+            if (!empty($data->RequiredAction->RedirectURL)) {
+                //test mode
+                $data = [
+                    'RequiredAction' => $data->RequiredAction
+                ];
+            } else {
+                //live mode
+                if (!empty($data->Status->Code->Code)
+                    &&
+                    ($data->Status->Code->Code == '190')
+                    &&
+                    !empty($data->Order)
+                ) {
+                    $data = $this->processBuckarooResponse($data);
                 }
             }
         }
 
-        return $this->commonResponse($data, $errorMessage);
+        return $data;
+    }
+
+    /**
+     * Set Order and Quote Data on Checkout Session
+     *
+     * @param $data
+     * @return array
+     */
+    private function processBuckarooResponse($data): array
+    {
+        $searchCriteria = $this->searchCriteriaBuilder->addFilter(
+            'increment_id',
+            $data->Order
+        )->create();
+        $order = $this->orderRepository->getList($searchCriteria)->getFirstItem();
+
+
+        if ($this->order->getId()) {
+            $this->checkoutSession
+                ->setLastQuoteId($order->getQuoteId())
+                ->setLastSuccessQuoteId($order->getQuoteId())
+                ->setLastOrderId($order->getId())
+                ->setLastRealOrderId($order->getIncrementId())
+                ->setLastOrderStatus($order->getStatus());
+
+            $store = $order->getStore();
+            $url = $store->getBaseUrl() . '/' . $this->accountConfig->getSuccessRedirect($store);
+            $this->logger->addDebug(sprintf(
+                '[ApplePay] | [Controller] | [%s:%s] - Save Order - Redirect URL | redirectURL: %s',
+                __METHOD__,
+                __LINE__,
+                $url
+            ));
+            $data = [
+                'RequiredAction' => [
+                    'RedirectURL' => $url
+                ]
+            ];
+        }
+        return $data;
     }
 }

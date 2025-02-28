@@ -17,48 +17,90 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Controller\Applepay;
 
-use Magento\Framework\App\Action\Action;
-use Magento\Framework\App\Action\Context;
-use Magento\Framework\View\Result\Page;
-use Magento\Framework\View\Result\PageFactory;
+use Buckaroo\Magento2\Logging\Log;
+use Magento\Checkout\Model\Session as CheckoutSession;
+use Magento\Framework\App\RequestInterface;
+use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Quote\Model\QuoteRepository;
 
-class UpdateShippingMethods extends Common
+class UpdateShippingMethods extends AbstractApplepay
 {
+    /**
+     * @var CheckoutSession
+     */
+    private $checkoutSession;
+
+    /**
+     * @var QuoteRepository
+     */
+    private QuoteRepository $quoteRepository;
+
+
+    /**
+     * @param JsonFactory $resultJsonFactory
+     * @param RequestInterface $request
+     * @param Log $logger
+     * @param QuoteRepository $quoteRepository
+     * @param CheckoutSession $checkoutSession
+     */
+    public function __construct(
+        JsonFactory $resultJsonFactory,
+        RequestInterface $request,
+        Log $logger,
+        QuoteRepository $quoteRepository,
+        CheckoutSession $checkoutSession
+    ) {
+        parent::__construct(
+            $resultJsonFactory,
+            $request,
+            $logger
+        );
+
+        $this->checkoutSession = $checkoutSession;
+        $this->quoteRepository = $quoteRepository;
+    }
+
+    /**
+     * Set Shipping Method
+     */
     public function execute()
     {
-        $isPost = $this->getRequest()->getPostValue();
+        $postValues = $this->getParams();
         $errorMessage = false;
         $data = [];
 
-        if ($isPost) {
-            if ($wallet = $this->getRequest()->getParam('wallet')) {
-                $objectManager = \Magento\Framework\App\ObjectManager::getInstance();//instance of object manager
-                $checkoutSession = $objectManager->get(\Magento\Checkout\Model\Session::class);
-                $quoteRepository = $objectManager->get(\Magento\Quote\Model\QuoteRepository::class);
-                $quote = $checkoutSession->getQuote();
-                if (!$quote->getIsVirtual()) {
-                    ////shipping
-                    $quote->getShippingAddress()->setCollectShippingRates(true);
-                    $quote->getShippingAddress()->setShippingMethod($wallet['identifier']);
+        if (!empty($postValues) && isset($postValues['wallet'])) {
+            try {
+                // Get Cart
+                $quote = $this->checkoutSession->getQuote();
 
+                if (!$quote->getIsVirtual()) {
+                    // Set Shipping Method
+                    $quote->getShippingAddress()->setCollectShippingRates(true);
+                    $quote->getShippingAddress()->setShippingMethod($postValues['wallet']['identifier']);
+
+                    // Recalculate Totals after setting new shipping method
                     $quote->setTotalsCollectedFlag(false);
                     $quote->collectTotals();
                     $totals = $this->gatherTotals($quote->getShippingAddress(), $quote->getTotals());
-                    $quoteRepository->save($quote);
+
+                    // Save Cart
+                    $this->quoteRepository->save($quote);
                     $data = [
                         'shipping_methods' => [
-                            'code' => $wallet['identifier']
+                            'code' => $postValues['wallet']['identifier']
                         ],
                         'totals' => $totals
                     ];
-
-                    //resave proper method
-                    $quote->getShippingAddress()->setShippingMethod($wallet['identifier']);
-                    $quote->getShippingAddress()->save();
                 }
+            } catch (\Exception $exception) {
+                $errorMessage = "Setting the new Shipping Method failed.";
             }
+        } else {
+            $errorMessage = "The request for updating shipping method is wrong.";
         }
 
         return $this->commonResponse($data, $errorMessage);

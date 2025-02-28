@@ -20,86 +20,125 @@
 namespace Buckaroo\Magento2\Controller\Applepay;
 
 use Buckaroo\Magento2\Logging\Log;
-use Magento\Framework\App\Action\Action;
-use Magento\Framework\App\Action\Context;
-use Magento\Framework\View\Result\Page;
-use Magento\Framework\View\Result\PageFactory;
-use Magento\Quote\Model\Cart\ShippingMethodConverter;
-use Magento\Quote\Model\Quote\TotalsCollector;
-use Magento\Customer\Model\Session as CustomerSession;
-use Magento\Quote\Model\MaskedQuoteIdToQuoteIdInterface;
-use Magento\Quote\Api\CartRepositoryInterface;
+use Buckaroo\Magento2\Model\Service\ApplePayFormatData;
+use Buckaroo\Magento2\Model\Service\QuoteService;
+use Magento\Framework\App\RequestInterface;
+use Magento\Framework\Controller\Result\Json;
+use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Buckaroo\Magento2\Model\Method\Applepay;
 
-class GetShippingMethods extends Common
+class GetShippingMethods extends AbstractApplepay
 {
     /**
-     * @var MaskedQuoteIdToQuoteIdInterface
+     * @var QuoteService
      */
-    private MaskedQuoteIdToQuoteIdInterface $maskedQuoteIdToQuoteId;
+    private QuoteService $quoteService;
 
     /**
-     * @var CartRepositoryInterface
+     * @var ApplePayFormatData
      */
-    private CartRepositoryInterface $cartRepository;
+    private ApplePayFormatData $applePayFormatData;
 
+    /**
+     * @param JsonFactory $resultJsonFactory
+     * @param RequestInterface $request
+     * @param Log $logger
+     * @param QuoteService $quoteService
+     * @param ApplePayFormatData $applePayFormatData
+     */
     public function __construct(
-        Context $context,
-        PageFactory $resultPageFactory,
-        \Magento\Framework\Translate\Inline\ParserInterface $inlineParser,
-        \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory,
+        JsonFactory $resultJsonFactory,
+        RequestInterface $request,
         Log $logger,
-        \Magento\Checkout\Model\Cart $cart,
-        \Magento\Quote\Model\Quote\TotalsCollector $totalsCollector,
-        \Magento\Quote\Model\Cart\ShippingMethodConverter $converter,
-        CustomerSession $customerSession = null,
-        MaskedQuoteIdToQuoteIdInterface $maskedQuoteIdToQuoteId,
-        CartRepositoryInterface $cartRepository
-
+        QuoteService $quoteService,
+        ApplePayFormatData $applePayFormatData
     ) {
         parent::__construct(
-            $context,
-            $resultPageFactory,
-            $inlineParser,
             $resultJsonFactory,
-            $logger,
-            $cart,
-            $totalsCollector,
-            $converter,
-            $customerSession
+            $request,
+            $logger
         );
-        $this->maskedQuoteIdToQuoteId = $maskedQuoteIdToQuoteId;
-        $this->cartRepository = $cartRepository;
+        $this->quoteService = $quoteService;
+        $this->applePayFormatData = $applePayFormatData;
     }
+
     /**
-     * @return Page
+     * Return Shipping Methods
      */
     public function execute()
     {
-        $isPost = $this->getRequest()->getPostValue();
+        $postValues = $this->getParams();
+        $this->logger->addDebug(sprintf(
+            '[ApplePay] | [Controller] | [%s:%s] - Get Shipping Methods | request: %s',
+            __METHOD__,
+            __LINE__,
+            var_export($postValues, true)
+        ));
 
-        $errorMessage = false;
         $data = [];
-        if ($isPost) {
-            if (($wallet = $this->getRequest()->getParam('wallet'))
-            ) {
-                $cart_hash = $this->getRequest()->getParam('id');
-                $objectManager = \Magento\Framework\App\ObjectManager::getInstance();//instance of object manager
+        $errorMessage = false;
+        if (!empty($postValues) && isset($postValues['wallet'])) {
+            try {
+                // Get Cart
+                $cartHash = $postValues['id'] ?? null;
+                $this->quoteService->getQuote($cartHash);
 
-                if($cart_hash) {
-                    $cartId = $this->maskedQuoteIdToQuoteId->execute($cart_hash);
-                    $quote = $this->cartRepository->get($cartId);
-                } else {
+                // Get Shipping Address From Request
+                $shippingAddressRequest = $this->applePayFormatData->getShippingAddressObject($postValues['wallet']);
 
-                    $checkoutSession = $objectManager->get(\Magento\Checkout\Model\Session::class);
-                    $quote = $checkoutSession->getQuote();
+                // Add Shipping Address on Quote
+                $this->quoteService->addAddressToQuote($shippingAddressRequest);
+
+                //Set Payment Method
+                $this->quoteService->setPaymentMethod(Applepay::PAYMENT_METHOD_CODE);
+
+                // Get Shipping Methods
+                $shippingMethodsResult = [];
+                if (!$this->quoteService->getQuote()->getIsVirtual()) {
+                    $shippingMethods = $this->quoteService->getAvailableShippingMethods();
+                    if (count($shippingMethods) <= 0) {
+                        $errorMessage = __(
+                            'Apple Pay payment failed, because no shipping methods were found for the selected address. ' .
+                            'Please select a different shipping address within the pop-up or within your Apple Pay Wallet.'
+                        );
+                    } else {
+                        foreach ($shippingMethods as $shippingMethod) {
+                            $shippingMethodsResult[] = [
+                                'carrier_title'  => $shippingMethod->getCarrierTitle(),
+                                'price_incl_tax' => round($shippingMethod->getAmount(), 2),
+                                'method_code'    => $shippingMethod->getCarrierCode() . '_' . $shippingMethod->getMethodCode(),
+                                'method_title'   => $shippingMethod->getMethodTitle(),
+                            ];
+                        }
+
+                        $this->logger->addDebug(__METHOD__ . '|2|');
+
+                        $this->quoteService->setShippingMethod($shippingMethodsResult[0]['method_code']);
+                    }
                 }
 
-                if (!$quote->getIsVirtual() && !$this->setShippingAddress($quote, $wallet)) {
-                    return $this->commonResponse(false, true);
-                }
+                // Calculate Quote Totals
+                $this->quoteService->calculateQuoteTotals();
 
-                $data = $this->getShippingMethods($quote, $objectManager);
+                // Get Totals
+                $totals = $this->quoteService->gatherTotals();
+
+                $data = [
+                    'shipping_methods' => $shippingMethodsResult,
+                    'totals' => $totals
+                ];
+            } catch (\Exception $exception) {
+                $this->logger->addError(sprintf(
+                    '[ApplePay] | [Controller] | [%s:%s] - Get Shipping Methods | [ERROR]: %s',
+                    __METHOD__,
+                    __LINE__,
+                    $exception->getMessage()
+                ));
+                $errorMessage = __('Get shipping methods failed');
             }
+        } else {
+            $errorMessage = __('Details from Wallet ApplePay are not received.');
         }
 
         return $this->commonResponse($data, $errorMessage);
