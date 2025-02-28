@@ -25,7 +25,6 @@ use Buckaroo\Magento2\Service\Applepay\Add as AddService;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
-use Magento\Framework\Exception\NoSuchEntityException;
 
 class Add extends AbstractApplepay
 {
@@ -56,7 +55,6 @@ class Add extends AbstractApplepay
 
     /**
      * @return Json
-     * @throws NoSuchEntityException
      */
     public function execute()
     {

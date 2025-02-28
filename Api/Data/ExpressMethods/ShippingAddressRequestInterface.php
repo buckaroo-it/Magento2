@@ -17,7 +17,6 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Api\Data\ExpressMethods;
 

@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Service\Applepay;
 
 use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Model\Method\Applepay;
 use Buckaroo\Magento2\Model\Service\ApplePayFormatData;
 use Buckaroo\Magento2\Model\Service\QuoteService;
 
@@ -106,7 +107,7 @@ class Add
 
             $this->logger->addDebug(json_encode($shippingMethodsResult));
             //Set Payment Method
-            $this->quoteService->setPaymentMethod(\Buckaroo\Magento2\Model\Method\Applepay::PAYMENT_METHOD_CODE);
+            $this->quoteService->setPaymentMethod(Applepay::PAYMENT_METHOD_CODE);
 
             // Calculate Quote Totals
             $this->quoteService->calculateQuoteTotals();
