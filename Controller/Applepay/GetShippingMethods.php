@@ -25,6 +25,7 @@ use Buckaroo\Magento2\Model\Service\QuoteService;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Buckaroo\Magento2\Model\Method\Applepay;
 
@@ -89,16 +90,16 @@ class GetShippingMethods extends AbstractApplepay
                 $this->logger->addDebug(__METHOD__ . '|1.1.2|');
                 // Get Shipping Address From Request
                 $shippingAddressRequest = $this->applePayFormatData->getShippingAddressObject($postValues['wallet']);
-                $this->logger->addDebug(__METHOD__ . '|1.2|' . var_export($shippingAddressRequest, true));
                 // Add Shipping Address on Quote
                 $this->quoteService->addAddressToQuote($shippingAddressRequest);
-
+                $this->logger->addDebug(__METHOD__ . '|1.1.3|');
                 //Set Payment Method
                 $this->quoteService->setPaymentMethod(Applepay::PAYMENT_METHOD_CODE);
-
+                $this->logger->addDebug(__METHOD__ . '|1.1.4|');
                 // Get Shipping Methods
                 $shippingMethodsResult = [];
                 if (!$this->quoteService->getQuote()->getIsVirtual()) {
+                    $this->logger->addDebug(__METHOD__ . '|1.1.5|');
                     $shippingMethods = $this->quoteService->getAvailableShippingMethods();
                     if (count($shippingMethods) <= 0) {
                         $errorMessage = __(
@@ -131,14 +132,16 @@ class GetShippingMethods extends AbstractApplepay
                     'shipping_methods' => $shippingMethodsResult,
                     'totals' => $totals
                 ];
-            } catch (\Exception $exception) {
-                $this->logger->addError(sprintf(
+            } catch (NoSuchEntityException|LocalizedException $exception) {
+                $this->logger->addDebug(sprintf(
                     '[ApplePay] | [Controller] | [%s:%s] - Get Shipping Methods | [ERROR]: %s',
                     __METHOD__,
                     __LINE__,
                     $exception->getMessage()
                 ));
                 $errorMessage = __('Get shipping methods failed');
+
+                throw new \Exception($exception->getMessage());
             }
         } else {
             $errorMessage = __('Details from Wallet ApplePay are not received.');

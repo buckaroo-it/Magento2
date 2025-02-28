@@ -283,8 +283,7 @@ class QuoteService
      *
      * @param $shippingAddressRequest
      * @return void
-     * @throws NoSuchEntityException
-     * @throws LocalizedException
+     * @throws NoSuchEntityException|LocalizedException
      */
     public function addAddressToQuote($shippingAddressRequest)
     {
