@@ -140,8 +140,6 @@ class GetShippingMethods extends AbstractApplepay
                     $exception->getMessage()
                 ));
                 $errorMessage = __('Get shipping methods failed');
-
-                throw new \Exception($exception->getMessage());
             }
         } else {
             $errorMessage = __('Details from Wallet ApplePay are not received.');

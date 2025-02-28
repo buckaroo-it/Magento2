@@ -92,30 +92,17 @@ class ApplePayFormatData implements FormatFormDataInterface
      *
      * @param array $addressData
      * @return ShippingAddressRequestInterface
-     * @throws \Exception
      */
     public function getShippingAddressObject(array $addressData): ShippingAddressRequestInterface
     {
-        try {
-            $this->logger->debug('ApplePayFormatData: Received address data: ' . var_export($addressData, true));
-
-            $shippingAddressRequest = $this->shippingAddrRequestFactory->create();
-            $this->logger->debug('ApplePayFormatData: Created shipping address request instance');
-
-            $shippingAddressRequest->setCountryCode(
-                isset($addressData['countryCode']) ? strtoupper($addressData['countryCode']) : 'NL'
-            );
-            $shippingAddressRequest->setPostalCode($addressData['postalCode']);
-            $shippingAddressRequest->setCity($addressData['locality']);
-            $shippingAddressRequest->setState($addressData['administrativeArea'] ?: 'unknown');
-
-            $this->logger->debug('ApplePayFormatData: Returning shipping address request: ' . var_export($shippingAddressRequest, true));
-
-            return $shippingAddressRequest;
-        } catch (\Exception $e) {
-            $this->logger->debug('Error setting shipping address data: ' . $e->getMessage());
-            throw $e;
-        }
+        $shippingAddressRequest = $this->shippingAddrRequestFactory->create();
+        $shippingAddressRequest->setCountryCode(
+            isset($addressData['countryCode']) ? strtoupper($addressData['countryCode']) : 'NL'
+        );
+        $shippingAddressRequest->setPostalCode($addressData['postalCode']);
+        $shippingAddressRequest->setCity($addressData['locality']);
+        $shippingAddressRequest->setState($addressData['administrativeArea'] ?: 'unknown');
+        return $shippingAddressRequest;
     }
 
 }
