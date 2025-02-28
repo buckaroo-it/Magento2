@@ -111,11 +111,12 @@ class GetShippingMethods extends AbstractApplepay
                     } else {
                         $this->logger->addDebug(__METHOD__ . '|1.1.8|');
                         foreach ($shippingMethods as $shippingMethod) {
+                            $this->logger->addDebug(__METHOD__ . '|1.1.9|'. var_export($shippingMethod, true));
                             $shippingMethodsResult[] = [
-                                'carrier_title'  => $shippingMethod->getCarrierTitle(),
-                                'price_incl_tax' => round($shippingMethod->getPriceInclTax(), 2),
-                                'method_code'    => $shippingMethod->getMethodCode(),
-                                'method_title'   => $shippingMethod->getMethodTitle(),
+                                'carrier_title'  => $shippingMethod['carrier_title'],
+                                'price_incl_tax' => $shippingMethod['price_incl_tax'],
+                                'method_code'    => $shippingMethod['method_code'],
+                                'method_title'   => $shippingMethod['method_title'],
                             ];
                         }
 

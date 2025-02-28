@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Service;
 
+use Buckaroo\Magento2\Logging\Log;
 use Magento\Quote\Api\Data\AddressInterface;
 use Magento\Quote\Api\ShipmentEstimationInterface;
 use Magento\Quote\Model\Quote;
@@ -37,8 +38,11 @@ class ShippingMethodsService
      * @param ShipmentEstimationInterface $shipmentEstimation
      */
     public function __construct(
-        ShipmentEstimationInterface $shipmentEstimation
+        ShipmentEstimationInterface $shipmentEstimation,
+        Log $logger,
+
     ) {
+        $this->logger = $logger;
         $this->shipmentEstimation = $shipmentEstimation;
     }
 
@@ -56,12 +60,14 @@ class ShippingMethodsService
             $quote->getShippingAddress()
         );
 
+        $this->logger->addDebug('Shipping methods'. var_export($shippingMethods, true));
         $shippingMethodsResult = [];
         if (count($shippingMethods)) {
             foreach ($shippingMethods as $shippingMethod) {
+                $this->logger->addDebug('Shipping method'. var_export($shippingMethod, true));
                 $shippingMethodsResult[] = [
                     'carrier_title'  => $shippingMethod->getCarrierTitle(),
-                    'price_incl_tax' => round($shippingMethod->getPriceInclTax(), 2),
+                    'price_incl_tax' => round($shippingMethod->getAmount(), 2),
                     'method_code'    => $shippingMethod->getCarrierCode() . '_' . $shippingMethod->getMethodCode(),
                     'method_title'   => $shippingMethod->getMethodTitle(),
                 ];
