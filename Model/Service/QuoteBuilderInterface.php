@@ -20,6 +20,8 @@
 
 namespace Buckaroo\Magento2\Model\Service;
 
+use Magento\Quote\Model\Quote;
+
 interface QuoteBuilderInterface
 {
     /**
@@ -34,7 +36,7 @@ interface QuoteBuilderInterface
     /**
      * Build quote from form data and session
      *
-     * @return \Magento\Quote\Model\Quote
+     * @return Quote
      */
     public function build();
 }

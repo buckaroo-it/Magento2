@@ -79,14 +79,17 @@ class GetShippingMethods extends AbstractApplepay
         $data = [];
         $errorMessage = false;
         if (!empty($postValues) && isset($postValues['wallet'])) {
+            $this->logger->addDebug(__METHOD__ . '|1|');
             try {
                 // Get Cart
+                $this->logger->addDebug(__METHOD__ . '|1.1|');
                 $cartHash = $postValues['id'] ?? null;
+                $this->logger->addDebug(__METHOD__ . '|1.1.1|' . $cartHash);
                 $this->quoteService->getQuote($cartHash);
-
+                $this->logger->addDebug(__METHOD__ . '|1.1.2|');
                 // Get Shipping Address From Request
                 $shippingAddressRequest = $this->applePayFormatData->getShippingAddressObject($postValues['wallet']);
-
+                $this->logger->addDebug(__METHOD__ . '|1.2|' . var_export($shippingAddressRequest, true));
                 // Add Shipping Address on Quote
                 $this->quoteService->addAddressToQuote($shippingAddressRequest);
 
