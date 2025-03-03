@@ -106,7 +106,7 @@ class GetShippingMethods extends AbstractApplepay
                         $firstMethod = reset($shippingMethods);
                         $this->quoteService->setShippingMethod($firstMethod['method_code']);
 
-                        $this->logger->addDebug(__METHOD__ . '|1.1.7|'. print_r($shippingMethods, true));
+                        $this->logger->addDebug(__METHOD__ . '|1.1.7|'.$firstMethod['method_code']);
                         $shippingMethodsResult = $shippingMethods;
                     }
                 }
