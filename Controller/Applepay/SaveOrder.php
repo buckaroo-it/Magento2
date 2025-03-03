@@ -46,22 +46,22 @@ class SaveOrder extends AbstractApplepay
     /**
      * @var Registry|null
      */
-    protected $registry = null;
+    protected ?Registry $registry;
 
     /**
      * @var QuoteManagement
      */
-    protected $quoteManagement;
+    protected QuoteManagement $quoteManagement;
 
     /**
      * @var Order
      */
-    protected $order;
+    protected Order $order;
 
     /**
      * @var CheckoutSession
      */
-    protected $checkoutSession;
+    protected CheckoutSession $checkoutSession;
 
     /**
      * @var ConfigProviderInterface
@@ -71,7 +71,7 @@ class SaveOrder extends AbstractApplepay
     /**
      * @var DataObjectFactory
      */
-    private $objectFactory;
+    private DataObjectFactory $objectFactory;
 
     /**
      * @var OrderRepositoryInterface
@@ -93,6 +93,21 @@ class SaveOrder extends AbstractApplepay
      */
     private CustomerSession $customerSession;
 
+    /**
+     * @param JsonFactory            $resultJsonFactory
+     * @param RequestInterface       $request
+     * @param Log                    $logger
+     * @param QuoteManagement        $quoteManagement
+     * @param CustomerSession        $customerSession
+     * @param DataObjectFactory      $objectFactory
+     * @param OrderRepositoryInterface $orderRepository
+     * @param SearchCriteriaBuilder  $searchCriteriaBuilder
+     * @param CheckoutSession        $checkoutSession
+     * @param ConfigProviderFactory  $configProviderFactory
+     * @param QuoteAddressService    $quoteAddressService
+     * @param Registry               $registry
+     * @param Order                  $order
+     */
     public function __construct(
         JsonFactory $resultJsonFactory,
         RequestInterface $request,
@@ -108,70 +123,59 @@ class SaveOrder extends AbstractApplepay
         Registry $registry,
         Order $order
     ) {
-        parent::__construct(
-            $resultJsonFactory,
-            $request,
-            $logger
-        );
-        $this->quoteManagement = $quoteManagement;
-        $this->customerSession = $customerSession;
-        $this->objectFactory = $objectFactory;
-        $this->orderRepository = $orderRepository;
+        parent::__construct($resultJsonFactory, $request, $logger);
+        $this->quoteManagement      = $quoteManagement;
+        $this->customerSession      = $customerSession;
+        $this->objectFactory        = $objectFactory;
+        $this->orderRepository      = $orderRepository;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
-        $this->checkoutSession    = $checkoutSession;
+        $this->checkoutSession      = $checkoutSession;
         $this->quoteAddressService  = $quoteAddressService;
-        $this->accountConfig = $configProviderFactory->get('account');
-        $this->registry = $registry;
-        $this->order = $order;
+        $this->accountConfig        = $configProviderFactory->get('account');
+        $this->registry             = $registry;
+        $this->order                = $order;
     }
-    //phpcs:ignore:Generic.Metrics.NestingLevel
 
     /**
      * Save Order
      *
      * @return Json
      * @throws LocalizedException
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
-    public function execute()
+    public function execute(): Json
     {
         $isPost = $this->getParams();
         $errorMessage = false;
         $data = [];
 
-        if ($isPost
-            && ($payment = $isPost['payment'])
-            && ($extra = $isPost['extra'])
-        ) {
+        if ($isPost && isset($isPost['payment'], $isPost['extra'])) {
             $this->logger->addDebug(sprintf(
-                '[ApplePay] | [Controller] | [%s:%s] - Save Order | request: %s',
+                '[ApplePay] | [Controller] | [%s:%s] - Save Order | Request: %s',
                 __METHOD__,
                 __LINE__,
                 var_export($isPost, true)
             ));
 
-            // Get Cart
+            // Get the cart/quote.
             $quote = $this->checkoutSession->getQuote();
 
-            // Set Address
-            if (!$quote->getIsVirtual() && !$this->quoteAddressService->setShippingAddress($quote, $payment['shippingContact'])) {
-                return $this->commonResponse(false, true);
+            // Set shipping address if quote is not virtual.
+            if (!$quote->getIsVirtual() && !$this->quoteAddressService->setShippingAddress($quote, $isPost['payment']['shippingContact'])) {
+                return $this->commonResponse([], true);
             }
-            if (
-                !$this->quoteAddressService->setBillingAddress(
-                    $quote,
-                    $payment['billingContact'],
-                    $payment['shippingContact']['phoneNumber'] ?? null
-                )
-            ) {
-                return $this->commonResponse(false, true);
+            // Set billing address.
+            if (!$this->quoteAddressService->setBillingAddress(
+                $quote,
+                $isPost['payment']['billingContact'],
+                $isPost['payment']['shippingContact']['phoneNumber'] ?? null
+            )) {
+                return $this->commonResponse([], true);
             }
 
-            // Place Order
-            $this->submitQuote($quote, $extra, $payment);
+            // Process quote submission.
+            $this->submitQuote($quote, $isPost['extra'], $isPost['payment']);
 
-            // Handle the response
+            // Handle response.
             $data = $this->handleResponse();
         }
 
@@ -179,22 +183,23 @@ class SaveOrder extends AbstractApplepay
     }
 
     /**
-     * Submit quote
+     * Submit the quote.
      *
      * @param Quote $quote
      * @param array|string $extra
+     * @param array $payment
      * @return void
      * @throws LocalizedException
      */
-    private function submitQuote($quote, $extra, $payment)
+    private function submitQuote($quote, $extra, $payment): void
     {
         try {
             $emailAddress = $quote->getShippingAddress()->getEmail();
-
             if ($quote->getIsVirtual()) {
                 $emailAddress = $payment['shippingContact']['emailAddress'] ?? null;
             }
 
+            // If customer is not logged in, mark as guest.
             if (!($this->customerSession->getCustomer() && $this->customerSession->getCustomer()->getId())) {
                 $quote->setCheckoutMethod('guest')
                     ->setCustomerId(null)
@@ -203,28 +208,47 @@ class SaveOrder extends AbstractApplepay
                     ->setCustomerGroupId(Group::NOT_LOGGED_IN_ID);
             }
 
-            $payment = $quote->getPayment();
-            $payment->setMethod(Applepay::PAYMENT_METHOD_CODE);
-            $quote->setPayment($payment);
+            $paymentInstance = $quote->getPayment();
+            $paymentInstance->setMethod(Applepay::PAYMENT_METHOD_CODE);
+            $quote->setPayment($paymentInstance);
 
+            // Invoice handling.
             $invoiceHandlingConfig = $this->accountConfig->getInvoiceHandling($this->order->getStore());
-
             if ($invoiceHandlingConfig == InvoiceHandlingOptions::SHIPMENT) {
-                $payment->setAdditionalInformation(InvoiceHandlingOptions::INVOICE_HANDLING, $invoiceHandlingConfig);
-                $payment->save();
-                $quote->setPayment($payment);
+                $paymentInstance->setAdditionalInformation(InvoiceHandlingOptions::INVOICE_HANDLING, $invoiceHandlingConfig);
+                $paymentInstance->save();
+                $quote->setPayment($paymentInstance);
             }
 
+            // If no shipping method is set for non-virtual quotes, assign the first available rate.
+            if (!$quote->getIsVirtual() && !$quote->getShippingAddress()->getShippingMethod()) {
+                $rates = $quote->getShippingAddress()->getShippingRatesCollection();
+                if ($rates->getSize() > 0) {
+                    $firstRate = $rates->getFirstItem();
+                    $quote->getShippingAddress()->setShippingMethod($firstRate->getCode());
+                    $this->logger->addDebug(sprintf(
+                        '[ApplePay] | [Controller] | [%s:%s] - Default Shipping Method Set: %s',
+                        __METHOD__,
+                        __LINE__,
+                        $firstRate->getCode()
+                    ));
+                }
+            }
+
+            // Force totals recalculation.
+            $quote->setTotalsCollectedFlag(false);
             $quote->collectTotals()->save();
 
+            // Assign additional payment data.
             $obj = $this->objectFactory->create();
             $obj->setData($extra);
             $quote->getPayment()->getMethodInstance()->assignData($obj);
 
+            // Submit the quote.
             $this->quoteManagement->submit($quote);
         } catch (\Throwable $th) {
             $this->logger->addError(sprintf(
-                '[ApplePay] | [Controller] | [%s:%s] - Submit Quote | [ERROR]: %s',
+                '[ApplePay] | [Controller] | [%s:%s] - Submit Quote | ERROR: %s',
                 __METHOD__,
                 __LINE__,
                 $th->getMessage()
@@ -233,33 +257,31 @@ class SaveOrder extends AbstractApplepay
     }
 
     /**
-     * Handle the response after placing order
+     * Handle the response after order submission.
      *
      * @return array
      */
-    private function handleResponse()
+    private function handleResponse(): array
     {
         $data = [];
         if ($this->registry && $this->registry->registry('buckaroo_response')) {
             $data = $this->registry->registry('buckaroo_response')[0];
             $this->logger->addDebug(sprintf(
-                '[ApplePay] | [Controller] | [%s:%s] - Save Order Handle Response | buckarooResponse: %s',
+                '[ApplePay] | [Controller] | [%s:%s] - Save Order Handle Response | Response Data: %s',
                 __METHOD__,
                 __LINE__,
                 var_export($data, true)
             ));
 
             if (!empty($data->RequiredAction->RedirectURL)) {
-                //test mode
+                // Test mode response.
                 $data = [
                     'RequiredAction' => $data->RequiredAction
                 ];
             } else {
-                //live mode
-                if (!empty($data->Status->Code->Code)
-                    &&
-                    ($data->Status->Code->Code == '190')
-                    &&
+                // Live mode response.
+                if (!empty($data->Status->Code->Code) &&
+                    $data->Status->Code->Code == '190' &&
                     !empty($data->Order)
                 ) {
                     $data = $this->processBuckarooResponse($data);
@@ -271,9 +293,9 @@ class SaveOrder extends AbstractApplepay
     }
 
     /**
-     * Set Order and Quote Data on Checkout Session
+     * Process Buckaroo response and set order and quote data on session.
      *
-     * @param $data
+     * @param mixed $data
      * @return array
      */
     private function processBuckarooResponse($data): array
@@ -283,7 +305,6 @@ class SaveOrder extends AbstractApplepay
             $data->Order
         )->create();
         $order = $this->orderRepository->getList($searchCriteria)->getFirstItem();
-
 
         if ($this->order->getId()) {
             $this->checkoutSession
@@ -296,7 +317,7 @@ class SaveOrder extends AbstractApplepay
             $store = $order->getStore();
             $url = $store->getBaseUrl() . '/' . $this->accountConfig->getSuccessRedirect($store);
             $this->logger->addDebug(sprintf(
-                '[ApplePay] | [Controller] | [%s:%s] - Save Order - Redirect URL | redirectURL: %s',
+                '[ApplePay] | [Controller] | [%s:%s] - Save Order - Redirect URL: %s',
                 __METHOD__,
                 __LINE__,
                 $url

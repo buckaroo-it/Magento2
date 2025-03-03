@@ -26,10 +26,11 @@ use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\RequestInterface;
+
 abstract class AbstractApplepay implements HttpPostActionInterface
 {
     /**
-     * @var Log $logger
+     * @var Log
      */
     public Log $logger;
 
@@ -39,27 +40,27 @@ abstract class AbstractApplepay implements HttpPostActionInterface
     protected JsonFactory $resultJsonFactory;
 
     /**
-     * @var RequestInterface $request
+     * @var RequestInterface
      */
     protected RequestInterface $request;
 
     /**
-     * @param JsonFactory $resultJsonFactory
+     * @param JsonFactory     $resultJsonFactory
      * @param RequestInterface $request
-     * @param Log $logger
+     * @param Log             $logger
      */
     public function __construct(
         JsonFactory $resultJsonFactory,
         RequestInterface $request,
-        log $logger
+        Log $logger
     ) {
         $this->resultJsonFactory = $resultJsonFactory;
-        $this->request = $request;
-        $this->logger = $logger;
+        $this->request           = $request;
+        $this->logger            = $logger;
     }
 
     /**
-     * Get Params
+     * Retrieve request parameters.
      *
      * @return array
      */
@@ -69,10 +70,10 @@ abstract class AbstractApplepay implements HttpPostActionInterface
     }
 
     /**
-     * Get totals
+     * Gather totals from quote totals.
      *
-     * @param Address|null $address
-     * @param AddressTotal[] $quoteTotals
+     * @param Address|null     $address
+     * @param AddressTotal[]   $quoteTotals
      * @return array
      */
     public function gatherTotals(?Address $address, array $quoteTotals): array
@@ -83,26 +84,26 @@ abstract class AbstractApplepay implements HttpPostActionInterface
         }
 
         return [
-            'subtotal' => $quoteTotals['subtotal']->getValue(),
-            'discount' => isset($quoteTotals['discount']) ? $quoteTotals['discount']->getValue() : null,
-            'shipping' => $shippingTotalInclTax,
-            'grand_total' => $quoteTotals['grand_total']->getValue()
+            'subtotal'    => isset($quoteTotals['subtotal']) ? $quoteTotals['subtotal']->getValue() : 0,
+            'discount'    => isset($quoteTotals['discount']) ? $quoteTotals['discount']->getValue() : 0,
+            'shipping'    => $shippingTotalInclTax,
+            'grand_total' => isset($quoteTotals['grand_total']) ? $quoteTotals['grand_total']->getValue() : 0,
         ];
     }
 
     /**
-     * Return Json Response from array
+     * Create a common JSON response.
      *
      * @param array|string $data
-     * @param string|bool $errorMessage
+     * @param string|bool  $errorMessage
      * @return Json
      */
     protected function commonResponse($data, $errorMessage): Json
     {
         if ($errorMessage || empty($data)) {
-            $response = ['success' => 'false', 'error' => $errorMessage];
+            $response = ['success' => false, 'error' => $errorMessage];
         } else {
-            $response = ['success' => 'true', 'data' => $data];
+            $response = ['success' => true, 'data' => $data];
         }
 
         $resultJson = $this->resultJsonFactory->create();

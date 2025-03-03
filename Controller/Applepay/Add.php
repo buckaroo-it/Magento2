@@ -17,7 +17,6 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-
 namespace Buckaroo\Magento2\Controller\Applepay;
 
 use Buckaroo\Magento2\Logging\Log;
@@ -34,10 +33,10 @@ class Add extends AbstractApplepay
     protected AddService $addService;
 
     /**
-     * @param JsonFactory $resultJsonFactory
+     * @param JsonFactory    $resultJsonFactory
      * @param RequestInterface $request
-     * @param Log $logger
-     * @param AddService $addService
+     * @param Log            $logger
+     * @param AddService     $addService
      */
     public function __construct(
         JsonFactory $resultJsonFactory,
@@ -45,31 +44,30 @@ class Add extends AbstractApplepay
         Log $logger,
         AddService $addService
     ) {
-        parent::__construct(
-            $resultJsonFactory,
-            $request,
-            $logger
-        );
+        parent::__construct($resultJsonFactory, $request, $logger);
         $this->addService = $addService;
     }
 
     /**
+     * Execute adding a product to the cart.
+     *
      * @return Json
      */
-    public function execute()
+    public function execute(): Json
     {
+        $params = $this->getParams();
         $this->logger->addDebug(sprintf(
-            '[ApplePay] | [Controller] | [%s:%s] - Add Product to Cart | request: %s',
+            '[ApplePay] | [Controller] | [%s:%s] - Add Product to Cart | Request Params: %s',
             __METHOD__,
             __LINE__,
-            var_export($this->getParams(), true)
+            var_export($params, true)
         ));
 
-        $data = $this->addService->process($this->getParams());
+        $data = $this->addService->process($params);
         $errorMessage = $data['error'] ?? false;
 
         $this->logger->addDebug(sprintf(
-            '[ApplePay] | [Controller] | [%s:%s] - Add Product to Cart | response: %s',
+            '[ApplePay] | [Controller] | [%s:%s] - Add Product to Cart | Response Data: %s',
             __METHOD__,
             __LINE__,
             var_export($data, true)

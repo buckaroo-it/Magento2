@@ -1,12 +1,14 @@
 <?php
+declare(strict_types=1);
+
 /**
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the MIT License.
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * support@buckaroo.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -19,20 +21,27 @@
  */
 namespace Buckaroo\Magento2\Plugin;
 
-use \Buckaroo\Magento2\Helper\Data;
-use \Buckaroo\Magento2\Model\ConfigProvider\Account;
-use \Magento\Checkout\Model\Session;
-use \Magento\Customer\Model\Session as CustomerSession;
-use \Magento\Quote\Api\CartRepositoryInterface;
+use Buckaroo\Magento2\Helper\Data;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Magento\Checkout\Model\Session;
+use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Quote\Api\CartRepositoryInterface;
 
 class ShippingMethodManagement
 {
-    private $checkoutSession;
-    private $accountConfig;
-    private $customerSession;
-    private $helper;
-    private $quoteRepository;
+    private Session $checkoutSession;
+    private Account $accountConfig;
+    private CustomerSession $customerSession;
+    private Data $helper;
+    private CartRepositoryInterface $quoteRepository;
 
+    /**
+     * @param Session $checkoutSession
+     * @param CustomerSession $customerSession
+     * @param Account $accountConfig
+     * @param Data $helper
+     * @param CartRepositoryInterface $quoteRepository
+     */
     public function __construct(
         Session $checkoutSession,
         CustomerSession $customerSession,
@@ -41,32 +50,36 @@ class ShippingMethodManagement
         CartRepositoryInterface $quoteRepository
     ) {
         $this->checkoutSession = $checkoutSession;
-        $this->customerSession = $customerSession;
+        $this->customerSession   = $customerSession;
         $this->accountConfig   = $accountConfig;
         $this->helper          = $helper;
         $this->quoteRepository = $quoteRepository;
     }
 
-    public function beforeGet($cartId)
+    /**
+     * Before plugin for get() method.
+     *
+     * @param mixed $cartId
+     * @return void
+     */
+    public function beforeGet($cartId): void
     {
-        if (($lastRealOrder = $this->checkoutSession->getLastRealOrder())
-            && ($payment = $lastRealOrder->getPayment())
-        ) {
+        $lastRealOrder = $this->checkoutSession->getLastRealOrder();
+        if ($lastRealOrder && ($payment = $lastRealOrder->getPayment())) {
             if (strpos($payment->getMethod(), 'buckaroo_magento2') === false) {
                 return;
             }
 
             $order = $payment->getOrder();
-
             $this->helper->addDebug(__METHOD__ . '|1|');
+
             if ($this->accountConfig->getCartKeepAlive($order->getStore())
                 && $this->isNeedRecreate($order->getStore())
             ) {
                 $this->helper->addDebug(__METHOD__ . '|2|');
-                if ($this->checkoutSession->getQuote()
-                    && $this->checkoutSession->getQuote()->getId()
-                    && ($quote = $this->quoteRepository->getActive($this->checkoutSession->getQuote()->getId()))
-                ) {
+                $quote = $this->checkoutSession->getQuote();
+                if ($quote && $quote->getId()) {
+                    $quote = $this->quoteRepository->getActive((int)$quote->getId());
                     $this->helper->addDebug(__METHOD__ . '|3|');
                     if ($shippingAddress = $quote->getShippingAddress()) {
                         $this->helper->addDebug(__METHOD__ . '|4|');
@@ -81,8 +94,15 @@ class ShippingMethodManagement
         }
     }
 
-    public function isNeedRecreate($store)
+    /**
+     * Determine if the cart needs to be recreated.
+     *
+     * @param mixed $store
+     * @return bool
+     */
+    public function isNeedRecreate($store): bool
     {
+        // Currently always return false; adjust if your business logic requires recreation.
         return false;
     }
 }

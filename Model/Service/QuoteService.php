@@ -1,8 +1,10 @@
 <?php
+declare(strict_types=1);
+
 /**
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the MIT License.
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
  * If you are unable to obtain it through the world-wide-web, please send an email
@@ -14,10 +16,9 @@
  * versions in the future. If you wish to customize this module for your
  * needs please contact support@buckaroo.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright  Copyright (c) Buckaroo B.V.
+ * @license    https://tldrlegal.com/license/mit-license
  */
-
 namespace Buckaroo\Magento2\Model\Service;
 
 use Buckaroo\Magento2\Exception;
@@ -31,51 +32,26 @@ use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\MaskedQuoteIdToQuoteIdInterface;
 use Magento\Quote\Model\Quote;
-/**
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
- */
+
 class QuoteService
 {
-    /**
-     * @var Log
-     */
-    protected Log $logger;
-    /**
-     * @var \Buckaroo\Magento2\Model\Service\QuoteBuilderInterfaceFactory
-     */
-    protected $quoteBuilderInterfaceFactory;
-    /**
-     * @var MaskedQuoteIdToQuoteIdInterface
-     */
-    private $maskedQuoteIdToQuoteId;
-    /**
-     * @var CartRepositoryInterface
-     */
-    private CartRepositoryInterface $cartRepository;
-    /**
-     * @var CheckoutSession
-     */
-    private $checkoutSession;
+    private Log $logger;
 
-    /**
-     * @var ShippingMethodsService
-     */
+    private QuoteBuilderInterfaceFactory $quoteBuilderInterfaceFactory;
+
+    private MaskedQuoteIdToQuoteIdInterface $maskedQuoteIdToQuoteId;
+
+    private CartRepositoryInterface $cartRepository;
+
+    private CheckoutSession $checkoutSession;
+
     private ShippingMethodsService $shippingMethodsService;
 
-    /**
-     * @var AddProductToCartService
-     */
     private AddProductToCartService $addProductToCartService;
 
-    /**
-     * @var QuoteAddressService
-     */
     private QuoteAddressService $quoteAddressService;
 
-    /**
-     * @var Quote
-     */
-    protected $quote;
+    private ?Quote $quote = null;
 
     /**
      * @param Log $logger
@@ -88,33 +64,33 @@ class QuoteService
      * @param QuoteBuilderInterfaceFactory $quoteBuilderInterfaceFactory
      */
     public function __construct(
-        Log         $logger,
-        CartRepositoryInterface         $cartRepository,
+        Log $logger,
+        CartRepositoryInterface $cartRepository,
         MaskedQuoteIdToQuoteIdInterface $maskedQuoteIdToQuoteId,
-        AddProductToCartService         $addProductToCartService,
-        QuoteAddressService             $quoteAddressService,
-        ShippingMethodsService          $shippingMethodsService,
-        CheckoutSession                 $checkoutSession,
-        QuoteBuilderInterfaceFactory    $quoteBuilderInterfaceFactory
+        AddProductToCartService $addProductToCartService,
+        QuoteAddressService $quoteAddressService,
+        ShippingMethodsService $shippingMethodsService,
+        CheckoutSession $checkoutSession,
+        QuoteBuilderInterfaceFactory $quoteBuilderInterfaceFactory
     ) {
-        $this->logger = $logger;
-        $this->cartRepository = $cartRepository;
-        $this->maskedQuoteIdToQuoteId = $maskedQuoteIdToQuoteId;
-        $this->checkoutSession = $checkoutSession;
+        $this->logger                      = $logger;
+        $this->cartRepository              = $cartRepository;
+        $this->maskedQuoteIdToQuoteId      = $maskedQuoteIdToQuoteId;
+        $this->checkoutSession             = $checkoutSession;
         $this->quoteBuilderInterfaceFactory = $quoteBuilderInterfaceFactory;
-        $this->shippingMethodsService = $shippingMethodsService;
-        $this->addProductToCartService = $addProductToCartService;
-        $this->quoteAddressService = $quoteAddressService;
+        $this->shippingMethodsService      = $shippingMethodsService;
+        $this->addProductToCartService     = $addProductToCartService;
+        $this->quoteAddressService         = $quoteAddressService;
     }
 
     /**
-     * Get checkout quote instance by cart Hash
+     * Retrieve the checkout quote instance.
      *
      * @param int|string|null $cartHash
      * @return CartInterface
      * @throws NoSuchEntityException
      */
-    public function getQuote($cartHash = null)
+    public function getQuote($cartHash = null): CartInterface
     {
         if ($this->quote instanceof Quote) {
             return $this->quote;
@@ -122,7 +98,7 @@ class QuoteService
 
         if ($cartHash) {
             try {
-                $cartId = $this->maskedQuoteIdToQuoteId->execute($cartHash);
+                $cartId = (int)$this->maskedQuoteIdToQuoteId->execute((string)$cartHash);
                 $this->quote = $this->cartRepository->get($cartId);
             } catch (NoSuchEntityException $exception) {
                 throw new NoSuchEntityException(
@@ -133,9 +109,7 @@ class QuoteService
             try {
                 $this->quote = $this->checkoutSession->getQuote();
             } catch (\Exception $exception) {
-                throw new NoSuchEntityException(
-                    __('Could not get checkout quote instance by current session')
-                );
+                throw new NoSuchEntityException(__('Could not get checkout quote instance by current session'));
             }
         }
 
@@ -143,13 +117,13 @@ class QuoteService
     }
 
     /**
-     * Get empty checkout quote instance by cart Hash
+     * Retrieve an empty quote by removing all items.
      *
      * @param int|string|null $cartHash
      * @return CartInterface
      * @throws NoSuchEntityException
      */
-    public function getEmptyQuote($cartHash)
+    public function getEmptyQuote($cartHash = null): CartInterface
     {
         $this->quote = $this->getQuote($cartHash);
         $this->quote->removeAllItems();
@@ -157,63 +131,58 @@ class QuoteService
     }
 
     /**
-     * Create quote if in product page
+     * Create a new quote using form data.
      *
      * @param string $formData
-     *
      * @return Quote
      * @throws Exception
      */
     public function createQuote(string $formData): Quote
     {
         try {
-            /** @var QuoteBuilderInterface $quoteBuilder */
             $quoteBuilder = $this->quoteBuilderInterfaceFactory->create();
             $quoteBuilder->setFormData($formData);
             $this->quote = $quoteBuilder->build();
             return $this->quote;
         } catch (\Throwable $th) {
             $this->logger->addError(sprintf(
-                '[CREATE_QUOTE] | [Service] | [%s:%s] - Create quote if in product page | [ERROR]: %s',
+                '[CREATE_QUOTE] | [Service] | [%s:%s] - Create quote | ERROR: %s',
                 __METHOD__,
                 __LINE__,
                 $th->getMessage()
             ));
-            throw new Exception(__("Failed to create quote"), 1, $th);
+            throw new Exception(__('Failed to create quote'), 1, $th);
         }
     }
 
     /**
-     * Set paypal payment method on quote
+     * Set the payment method on the quote.
      *
      * @param string $paymentMethod
-     *
      * @return Quote
      */
-    public function setPaymentMethod($paymentMethod)
+    public function setPaymentMethod(string $paymentMethod): Quote
     {
         $payment = $this->quote->getPayment();
         $payment->setMethod($paymentMethod);
         $this->quote->setPayment($payment);
-
         return $this->quote;
     }
 
     /**
-     * Calculate quote totals, set store id required for quote masking,
-     * set customer email required for order validation
+     * Calculate and save quote totals.
      *
      * @return Quote
      */
-    public function calculateQuoteTotals()
+    public function calculateQuoteTotals(): Quote
     {
         $this->quote->setStoreId($this->quote->getStore()->getId());
 
         if ($this->quote->getCustomerEmail() === null) {
             $this->quote->setCustomerEmail('no-reply@example.com');
         }
-        $this->quote
-            ->setTotalsCollectedFlag(false)
+
+        $this->quote->setTotalsCollectedFlag(false)
             ->collectTotals();
 
         $this->cartRepository->save($this->quote);
@@ -222,25 +191,21 @@ class QuoteService
     }
 
     /**
-     * Format Totals
+     * Gather and format totals from the quote.
      *
      * @return array
      */
-    public function gatherTotals()
+    public function gatherTotals(): array
     {
         $quoteTotals = $this->quote->getTotals();
-
         $shippingAddress = $this->quote->getShippingAddress();
-        $shippingTotalInclTax = 0;
-        if ($shippingAddress !== null) {
-            $shippingTotalInclTax = $shippingAddress->getData('shipping_incl_tax');
-        }
+        $shippingTotalInclTax = $shippingAddress ? (float)$shippingAddress->getData('shipping_incl_tax') : 0.0;
 
         $totals = [
-            'subtotal' => $quoteTotals['subtotal']->getValue(),
-            'discount' => isset($quoteTotals['discount']) ? $quoteTotals['discount']->getValue() : null,
-            'shipping' => $shippingTotalInclTax,
-            'grand_total' => $quoteTotals['grand_total']->getValue()
+            'subtotal'    => (float)$quoteTotals['subtotal']->getValue(),
+            'discount'    => isset($quoteTotals['discount']) ? (float)$quoteTotals['discount']->getValue() : 0.0,
+            'shipping'    => $shippingTotalInclTax,
+            'grand_total' => (float)$quoteTotals['grand_total']->getValue(),
         ];
 
         if ($this->quote->getSubtotal() != $this->quote->getSubtotalWithDiscount()) {
@@ -254,7 +219,7 @@ class QuoteService
     }
 
     /**
-     * Set shipping method on shipping address
+     * Set the shipping method on the quote's shipping address.
      *
      * @param string $methodCode
      * @return void
@@ -266,32 +231,32 @@ class QuoteService
     }
 
     /**
-     * Add Product To Cart
+     * Add a product to the cart.
      *
      * @param DataObject $product
      * @return void
      * @throws NoSuchEntityException
      * @throws LocalizedException
      */
-    public function addProductToCart($product)
+    public function addProductToCart(DataObject $product): void
     {
         $this->quote = $this->addProductToCartService->addProductToCart($product, $this->quote);
     }
 
     /**
-     * Add Address To Cart
+     * Add a shipping address to the quote.
      *
-     * @param $shippingAddressRequest
+     * @param mixed $shippingAddressRequest
      * @return void
      * @throws NoSuchEntityException|LocalizedException
      */
-    public function addAddressToQuote($shippingAddressRequest)
+    public function addAddressToQuote($shippingAddressRequest): void
     {
         $this->quote = $this->quoteAddressService->addAddressToQuote($shippingAddressRequest, $this->quote);
     }
 
     /**
-     * Get Available Shipping Methods for specific Address
+     * Retrieve available shipping methods for the quote.
      *
      * @return array
      */
@@ -304,11 +269,11 @@ class QuoteService
     }
 
     /**
-     * Set First Shipping Method
+     * Set the first available shipping method on the quote.
      *
      * @return Quote
      */
-    public function addFirstShippingMethod()
+    public function addFirstShippingMethod(): Quote
     {
         return $this->shippingMethodsService->addFirstShippingMethod(
             $this->quote->getShippingAddress(),
@@ -317,11 +282,11 @@ class QuoteService
     }
 
     /**
-     * Return modified quote
+     * Return the current quote object.
      *
      * @return Quote
      */
-    public function getQuoteObject()
+    public function getQuoteObject(): Quote
     {
         return $this->quote;
     }
