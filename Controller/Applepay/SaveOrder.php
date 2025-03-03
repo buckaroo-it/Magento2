@@ -21,7 +21,9 @@ namespace Buckaroo\Magento2\Controller\Applepay;
 
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Model\Config\Source\InvoiceHandlingOptions;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderFactory;
+use Buckaroo\Magento2\Model\Method\Applepay;
 use Buckaroo\Magento2\Model\Service\QuoteAddressService;
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Checkout\Model\Session as CheckoutSession;
@@ -200,11 +202,22 @@ class SaveOrder extends AbstractApplepay
                     ->setCustomerGroupId(Group::NOT_LOGGED_IN_ID);
             }
 
+            $payment = $quote->getPayment();
+            $payment->setMethod(Applepay::PAYMENT_METHOD_CODE);
+            $quote->setPayment($payment);
+
+            $invoiceHandlingConfig = $this->accountConfig->getInvoiceHandling($this->order->getStore());
+
+            if ($invoiceHandlingConfig == InvoiceHandlingOptions::SHIPMENT) {
+                $payment->setAdditionalInformation(InvoiceHandlingOptions::INVOICE_HANDLING, $invoiceHandlingConfig);
+                $payment->save();
+                $quote->setPayment($payment);
+            }
+
             $quote->collectTotals()->save();
 
             $obj = $this->objectFactory->create();
             $obj->setData($extra);
-            $quote->getPayment()->setMethod($obj->getMethod());
             $quote->getPayment()->getMethodInstance()->assignData($obj);
 
             $this->quoteManagement->submit($quote);
