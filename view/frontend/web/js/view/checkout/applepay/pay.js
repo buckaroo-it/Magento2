@@ -103,30 +103,8 @@ define(
                                     var dataForm = $('#product_addtocart_form');
                                     dataForm.validation('isValid');
                                     setTimeout(function () {
-                                        if ($('.mage-error:visible').length === 0) {
-                                            // On product page, if the quote is not yet available, trigger add-to-cart first.
-                                            if (!self.quote) {
-                                                self.devLog('==============applepaydebug/productPage - no quote, triggering add-to-cart');
-                                                $.ajax({
-                                                    url: urlBuilder.build('buckaroo/applepay/add'),
-                                                    type: 'POST',
-                                                    data: {
-                                                        product: self.productSelected,
-                                                        wallet: {} // You might pass additional wallet data if needed.
-                                                    },
-                                                    global: false,
-                                                    dataType: 'json'
-                                                }).done(function (result) {
-                                                    // Optionally, update self.quote here if the response contains the cart data.
-                                                    self.devLog('==============applepaydebug/productPage - add-to-cart success', result);
-                                                    // After successful add-to-cart, proceed with payment.
-                                                    self.payment.beginPayment(e);
-                                                }).fail(function () {
-                                                    self.timeoutRedirect();
-                                                });
-                                            } else {
-                                                self.payment.beginPayment(e);
-                                            }
+                                        if ($('.mage-error:visible').length == 0) {
+                                            self.payment.beginPayment(e);
                                         }
                                     }, 100);
                                 });
@@ -223,7 +201,7 @@ define(
                 );
             },
 
-            processLineItems: function (type = 'final', directTotals) {
+            processLineItems: function (type = 'final', directTotals = false) {
                 var subTotal = '0.00';
                 var shippingInclTax = '0.00';
                 var totals = directTotals ? directTotals : this.getQuoteTotals();
@@ -246,7 +224,7 @@ define(
                 return lineItems;
             },
 
-            processTotalLineItems: function (type = 'final', directTotals) {
+            processTotalLineItems: function (type = 'final', directTotals = false) {
                 var grandTotal = '0.00';
                 var storeName = window.checkoutConfig.payment.buckaroo.applepay.storeName;
                 var totals = directTotals ? directTotals : this.getQuoteTotals();
@@ -538,7 +516,7 @@ define(
                 var transactionResult = payment;
                 var transactionData = this.formatTransactionResponse(transactionResult);
                 return {
-                    "method": 'applepay',
+                    "method": 'buckaroo_magento2_applepay',
                     "po_number": null,
                     "additional_data": {
                         "applepayTransaction": transactionData,
