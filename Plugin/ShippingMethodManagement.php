@@ -24,33 +24,30 @@ namespace Buckaroo\Magento2\Plugin;
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Magento\Checkout\Model\Session;
-use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Api\CartRepositoryInterface;
 
 class ShippingMethodManagement
 {
     private Session $checkoutSession;
     private Account $accountConfig;
-    private CustomerSession $customerSession;
     private Data $helper;
     private CartRepositoryInterface $quoteRepository;
 
     /**
      * @param Session $checkoutSession
-     * @param CustomerSession $customerSession
      * @param Account $accountConfig
      * @param Data $helper
      * @param CartRepositoryInterface $quoteRepository
      */
     public function __construct(
         Session $checkoutSession,
-        CustomerSession $customerSession,
         Account $accountConfig,
         Data $helper,
         CartRepositoryInterface $quoteRepository
     ) {
         $this->checkoutSession = $checkoutSession;
-        $this->customerSession   = $customerSession;
         $this->accountConfig   = $accountConfig;
         $this->helper          = $helper;
         $this->quoteRepository = $quoteRepository;
@@ -61,6 +58,7 @@ class ShippingMethodManagement
      *
      * @param mixed $cartId
      * @return void
+     * @throws NoSuchEntityException|LocalizedException
      */
     public function beforeGet($cartId): void
     {

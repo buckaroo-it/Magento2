@@ -1,6 +1,4 @@
 <?php
-declare(strict_types=1);
-
 /**
  * NOTICE OF LICENSE
  *
@@ -16,8 +14,8 @@ declare(strict_types=1);
  * versions in the future. If you wish to customize this module for your
  * needs please contact support@buckaroo.nl for more information.
  *
- * @copyright  Copyright (c) Buckaroo B.V.
- * @license    https://tldrlegal.com/license/mit-license
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
  */
 namespace Buckaroo\Magento2\Model\Service;
 
@@ -26,12 +24,12 @@ use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\Service\QuoteBuilderInterfaceFactory;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\DataObject;
+use Magento\Framework\Exception\InputException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Api\CartRepositoryInterface;
-use Magento\Quote\Api\Data\CartInterface;
-use Magento\Quote\Model\MaskedQuoteIdToQuoteIdInterface;
 use Magento\Quote\Model\Quote;
+use Magento\Quote\Model\MaskedQuoteIdToQuoteIdInterface;
 
 class QuoteService
 {
@@ -51,6 +49,7 @@ class QuoteService
 
     private QuoteAddressService $quoteAddressService;
 
+    /** @var Quote|null */
     private ?Quote $quote = null;
 
     /**
@@ -87,10 +86,10 @@ class QuoteService
      * Retrieve the checkout quote instance.
      *
      * @param int|string|null $cartHash
-     * @return CartInterface
+     * @return Quote
      * @throws NoSuchEntityException
      */
-    public function getQuote($cartHash = null): CartInterface
+    public function getQuote($cartHash = null): Quote
     {
         if ($this->quote instanceof Quote) {
             return $this->quote;
@@ -120,10 +119,10 @@ class QuoteService
      * Retrieve an empty quote by removing all items.
      *
      * @param int|string|null $cartHash
-     * @return CartInterface
+     * @return Quote
      * @throws NoSuchEntityException
      */
-    public function getEmptyQuote($cartHash = null): CartInterface
+    public function getEmptyQuote($cartHash): Quote
     {
         $this->quote = $this->getQuote($cartHash);
         $this->quote->removeAllItems();
@@ -259,6 +258,7 @@ class QuoteService
      * Retrieve available shipping methods for the quote.
      *
      * @return array
+     * @throws InputException
      */
     public function getAvailableShippingMethods(): array
     {

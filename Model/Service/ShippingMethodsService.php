@@ -57,11 +57,9 @@ class ShippingMethodsService
             $quote->getShippingAddress()
         );
 
-        $this->logger->addDebug('Shipping methods: ' . print_r($shippingMethods, true));
         $shippingMethodsResult = [];
         if (count($shippingMethods) > 0) {
             foreach ($shippingMethods as $shippingMethod) {
-                $this->logger->addDebug('Shipping method: ' . print_r($shippingMethod, true));
                 $shippingMethodsResult[] = [
                     'carrier_title'  => (string)$shippingMethod->getCarrierTitle(),
                     'price_incl_tax' => round((float)$shippingMethod->getAmount(), 2),
@@ -87,6 +85,7 @@ class ShippingMethodsService
      * @param Address $address
      * @param Quote $quote
      * @return Quote
+     * @throws InputException
      */
     public function addFirstShippingMethod(Address $address, Quote $quote): Quote
     {

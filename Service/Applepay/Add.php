@@ -81,7 +81,7 @@ class Add
             // If the quote is not virtual, then process shipping address and methods
             if (!$this->quoteService->getQuote()->getIsVirtual()) {
                 // Validate wallet data exists
-                if (!isset($request['wallet']) || empty($request['wallet'])) {
+                if (empty($request['wallet'])) {
                     throw new \Exception('Wallet data is missing in the request.');
                 }
 
