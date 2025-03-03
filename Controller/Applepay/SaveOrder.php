@@ -93,7 +93,6 @@ class SaveOrder extends AbstractApplepay
      */
     private CustomerSession $customerSession;
 
-
     public function __construct(
         JsonFactory $resultJsonFactory,
         RequestInterface $request,
@@ -107,6 +106,7 @@ class SaveOrder extends AbstractApplepay
         ConfigProviderFactory $configProviderFactory,
         QuoteAddressService $quoteAddressService,
         Registry $registry,
+        Order $order
     ) {
         parent::__construct(
             $resultJsonFactory,
@@ -122,6 +122,7 @@ class SaveOrder extends AbstractApplepay
         $this->quoteAddressService  = $quoteAddressService;
         $this->accountConfig = $configProviderFactory->get('account');
         $this->registry = $registry;
+        $this->order = $order;
     }
     //phpcs:ignore:Generic.Metrics.NestingLevel
 
