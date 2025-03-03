@@ -372,6 +372,7 @@ define(
                         async: false,
                         dataFilter: function (data, type) {
                             var result = JSON.parse(data);
+                            this.devLog('==============applepaydebug/52', result);
                             if (result.success == 'true') {
                                 this.shippingGroups = {};
                                 $.each(result.data.shipping_methods, function (index, rate) {
@@ -410,6 +411,7 @@ define(
                         async: false,
                         dataFilter: function (data, type) {
                             var result = JSON.parse(data);
+                            this.devLog('==============applepaydebug/52', result);
                             if (result.success == 'true') {
                                 this.shippingGroups = {};
                                 $.each(result.data.shipping_methods, function (index, rate) {
