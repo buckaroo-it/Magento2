@@ -150,8 +150,8 @@ define(
                 var self = this;
                 var lineItemsType = 'pending';
                 var shippingMethods = self.availableShippingMethodInformation();
-                var shippingContactCallback = self.onSelectedShippingContact.bind(this);
                 var shipmentMethodCallback = self.onSelectedShipmentMethod.bind(this);
+                var shippingContactCallback = self.onSelectedShippingContact.bind(this);
                 var requiredBillingContactFields = ["postalAddress", "name", "phone", "email"];
                 var requiredShippingContactFields = ["postalAddress", "name", "phone", "email"];
 
