@@ -64,7 +64,7 @@ define(
                 // Set checkout mode based on payMode.
                 this.setIsOnCheckout((this.payMode !== 'product' && this.payMode !== 'cart'));
 
-                BuckarooSDK.ApplePay.checkApplePaySupport(window.checkoutConfig.payment.buckaroo.applepay.guid)
+                BuckarooSdk.ApplePay.checkApplePaySupport(window.checkoutConfig.payment.buckaroo.applepay.guid)
                     .then(function (applePaySupported) {
                         if (this.payMode === 'product') {
                             this.initProductViewWatchers();
@@ -72,7 +72,7 @@ define(
 
                         if (applePaySupported) {
                             this.generateApplepayOptions();
-                            this.payment = new BuckarooSDK.ApplePay.ApplePayPayment('#apple-pay-wrapper', this.applepayOptions);
+                            this.payment = new BuckarooSdk.ApplePay.ApplePayPayment('#apple-pay-wrapper', this.applepayOptions);
                             this.payment.showPayButton(
                                 window.checkoutConfig.payment.buckaroo.applepay.buttonStyle || 'black',
                                 'buy'
@@ -106,7 +106,7 @@ define(
             },
 
             canShowApplePay: function () {
-                return BuckarooSDK.ApplePay.checkApplePaySupport(window.checkoutConfig.payment.buckaroo.applepay.guid)
+                return BuckarooSdk.ApplePay.checkApplePaySupport(window.checkoutConfig.payment.buckaroo.applepay.guid)
                     .then(function (applePaySupported) {
                         this.canShowMethod(applePaySupported);
                         return applePaySupported;
@@ -152,7 +152,7 @@ define(
                     }
                 }
 
-                this.applepayOptions = new BuckarooSDK.ApplePay.ApplePayOptions(
+                this.applepayOptions = new BuckarooSdk.ApplePay.ApplePayOptions(
                     window.checkoutConfig.payment.buckaroo.applepay.storeName,
                     country,
                     window.checkoutConfig.payment.buckaroo.applepay.currency,
