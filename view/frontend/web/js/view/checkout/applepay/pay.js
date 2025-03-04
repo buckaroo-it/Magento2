@@ -23,7 +23,6 @@ define(
         'mage/url',
         'Magento_Checkout/js/model/resource-url-manager',
         'buckaroo/applepay/shipping-handler',
-        'Magento_Checkout/js/action/select-shipping-method',
         'Magento_Checkout/js/model/payment/additional-validators',
         'underscore',
         'Magento_Checkout/js/model/shipping-rate-service',
@@ -36,7 +35,6 @@ define(
         urlBuilder,
         resourceUrlManager,
         shippingHandler,
-        selectShippingMethod,
         additionalValidators,
         _
     ) {
@@ -375,7 +373,7 @@ define(
                         data: {
                             product: this.productSelected,
                             wallet: event,
-                            shippingMethod: newShippingMethod
+                            shippingMethod: this.shippingMethod
                         },
                         global: false,
                         dataType: 'json',
