@@ -20,7 +20,6 @@
 
 namespace Buckaroo\Magento2\Block\Catalog\Product\View;
 
-use Magento\Checkout\Model\Cart;
 use Magento\Checkout\Model\CompositeConfigProvider;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\View\Element\Template;
@@ -29,9 +28,6 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay as ApplepayConfig;
 
 class Applepay extends Template
 {
-    /** @var Cart */
-    private $cart;
-
     /** @var CompositeConfigProvider */
     private $compositeConfigProvider;
 
@@ -40,21 +36,17 @@ class Applepay extends Template
 
     /**
      * @param Context                 $context
-     * @param Cart                    $cart
      * @param CompositeConfigProvider $compositeConfigProvider
      * @param ApplepayConfig          $applepayConfigProvider
      * @param array                   $data
      */
     public function __construct(
         Context $context,
-        Cart $cart,
         CompositeConfigProvider $compositeConfigProvider,
         ApplepayConfig $applepayConfigProvider,
         array $data = []
     ) {
         parent::__construct($context, $data);
-
-        $this->cart = $cart;
         $this->compositeConfigProvider = $compositeConfigProvider;
         $this->applepayConfigProvider = $applepayConfigProvider;
     }

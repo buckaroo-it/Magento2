@@ -35,6 +35,8 @@ define(
 
         return Component.extend({
             showPayButton: function () {
+                console.log('==============applepaydebug/catalog-cart-view/4');
+
                 applepayPay.setQuote(quote);
                 applepayPay.showPayButton('cart');
 
