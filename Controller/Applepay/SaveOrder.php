@@ -220,21 +220,6 @@ class SaveOrder extends AbstractApplepay
                 $quote->setPayment($paymentInstance);
             }
 
-            // If no shipping method is set for non-virtual quotes, assign the first available rate.
-            if (!$quote->getIsVirtual() && !$quote->getShippingAddress()->getShippingMethod()) {
-                $rates = $quote->getShippingAddress()->getShippingRatesCollection();
-                if ($rates->getSize() > 0) {
-                    $firstRate = $rates->getFirstItem();
-                    $quote->getShippingAddress()->setShippingMethod($firstRate->getCode());
-                    $this->logger->addDebug(sprintf(
-                        '[ApplePay] | [Controller] | [%s:%s] - Default Shipping Method Set: %s',
-                        __METHOD__,
-                        __LINE__,
-                        $firstRate->getCode()
-                    ));
-                }
-            }
-
             // Force totals recalculation.
             $quote->setTotalsCollectedFlag(false);
             $quote->collectTotals()->save();

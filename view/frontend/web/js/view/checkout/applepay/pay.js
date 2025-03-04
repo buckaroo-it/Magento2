@@ -452,10 +452,16 @@ define(
             updateQuoteRate: function (newRate) {
                 this.devLog('updateQuoteRate - New rate:', newRate);
                 shippingHandler.selectShippingMethod(newRate);
-                var subtotal = this.quote.totals().subtotal_incl_tax;
-                this.quote.totals().shipping_incl_tax = newRate['price_incl_tax'];
-                this.quote.totals().grand_total = subtotal + newRate['price_incl_tax'];
+
+                // Ensure we are doing numeric addition by converting strings to numbers
+                var subtotal = parseFloat(this.quote.totals().subtotal_incl_tax);
+                var shippingCost = parseFloat(newRate['price_incl_tax']);
+                var newGrandTotal = (subtotal + shippingCost).toFixed(2);
+
+                this.quote.totals().shipping_incl_tax = shippingCost;
+                this.quote.totals().grand_total = newGrandTotal;
                 this.quote.totals().custom_grand_total = true;
+
                 this.devLog('Quote totals updated:', this.quote.totals());
             },
 
