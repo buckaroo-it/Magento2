@@ -56,6 +56,7 @@ define(
                 this.devLog('==============applepaydebug/6', payMode);
                 this.payMode = payMode;
                 this.productSelected = {};
+                this.shippingMethod = null;
 
                 if (typeof window.checkoutConfig === 'undefined') {
                     return;
@@ -329,7 +330,7 @@ define(
                             var result = JSON.parse(data);
                             if (result.success == 'true') {
                                 this.shippingMethod = result.data.shipping_methods.code;
-                                this.devLog('==============applepaydebug/shippingMethod', shippingMethod);
+                                this.devLog('==============applepaydebug/shippingMethod', this.shippingMethod);
 
                                 var authorizationResult = {
                                     newTotal: this.processTotalLineItems('final', result.data.totals),
