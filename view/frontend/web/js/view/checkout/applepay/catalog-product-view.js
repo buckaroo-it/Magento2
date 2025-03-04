@@ -37,7 +37,6 @@ define(
                     && window.checkoutConfig.payment.buckaroo.applepay.availableButtons
                     && (window.checkoutConfig.payment.buckaroo.applepay.availableButtons.indexOf('Product') !== -1)
                 ) {
-                    console.log('==============applepaydebug/catalog-product-view/4');
                     applepayPay.setQuote(quote);
                     applepayPay.showPayButton('product');
                 }

@@ -160,10 +160,7 @@ class QuoteAddressService
 
         // Combine street lines into one string.
         $address['street'] = implode("\n", $address['street']);
-        // If the street does not include any digits, append a default house number.
-        if (!preg_match('/\d+/', $address['street'])) {
-            $address['street'] .= "\n0";
-        }
+
         if ($type === 'shipping') {
             $address['email'] = $wallet['emailAddress'] ?? '';
         }
