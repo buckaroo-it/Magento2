@@ -330,6 +330,9 @@ define(
                             var result = JSON.parse(data);
                             if (result.success == 'true') {
                                 this.shippingMethod = result.data.shipping_methods.code;
+
+                                var newShippingMethod = this.shippingGroups[result.data.shipping_methods.code];
+                                this.updateQuoteRate(newShippingMethod);
                                 this.devLog('==============applepaydebug/shippingMethod', this.shippingMethod);
 
                                 var authorizationResult = {
