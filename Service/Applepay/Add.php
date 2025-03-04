@@ -90,7 +90,8 @@ class Add
                 // Get Shipping Methods
                 $shippingMethods = $this->quoteService->getAvailableShippingMethods();
                 $this->logger->addDebug('albinaaa');
-                $this->logger->addDebug(json_encode($request));
+                $this->logger->addDebug(json_encode($shippingMethods));
+                $this->logger->addDebug(json_encode($this->quoteService->getShippingMethod()));
 
                 foreach ($shippingMethods as $shippingMethod) {
                     $shippingMethodsResult[] = [
