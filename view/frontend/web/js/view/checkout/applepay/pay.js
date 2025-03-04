@@ -36,10 +36,7 @@ define(
         resourceUrlManager,
         shippingHandler,
         additionalValidators,
-        _,
-        shippingRateService,
-        translate,
-        BuckarooSDK
+        _
     ) {
         'use strict';
 
