@@ -55,11 +55,11 @@ class QuoteAddressService
         ShippingAddressManagementInterface $shippingAddressManagement,
         Log $logger
     ) {
-        $this->customerSession             = $customerSession;
-        $this->customerRepository          = $customerRepository;
-        $this->quoteRepository             = $quoteRepository;
-        $this->shippingAddressManagement   = $shippingAddressManagement;
-        $this->logger                      = $logger;
+        $this->customerSession           = $customerSession;
+        $this->customerRepository        = $customerRepository;
+        $this->quoteRepository           = $quoteRepository;
+        $this->shippingAddressManagement = $shippingAddressManagement;
+        $this->logger                    = $logger;
     }
 
     /**
@@ -145,7 +145,7 @@ class QuoteAddressService
                 $wallet['addressLines'][1] ?? '80'
             ],
             'city'       => $wallet['locality'] ?? 'Heerenveen',
-            'country_id' => isset($wallet['countryCode']) ? strtoupper($wallet['countryCode']) : 'NL', // default to US if missing
+            'country_id' => isset($wallet['countryCode']) ? strtoupper($wallet['countryCode']) : 'NL',
             'region'     => $wallet['administrativeArea'] ?? 'Friesland',
             'region_id'  => '',
             'postcode'   => $wallet['postalCode'] ?? '',
@@ -160,6 +160,10 @@ class QuoteAddressService
 
         // Combine street lines into one string.
         $address['street'] = implode("\n", $address['street']);
+        // If the street does not include any digits, append a default house number.
+        if (!preg_match('/\d+/', $address['street'])) {
+            $address['street'] .= "\n0";
+        }
         if ($type === 'shipping') {
             $address['email'] = $wallet['emailAddress'] ?? '';
         }

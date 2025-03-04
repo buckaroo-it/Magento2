@@ -124,16 +124,16 @@ class SaveOrder extends AbstractApplepay
         Order $order
     ) {
         parent::__construct($resultJsonFactory, $request, $logger);
-        $this->quoteManagement      = $quoteManagement;
-        $this->customerSession      = $customerSession;
-        $this->objectFactory        = $objectFactory;
-        $this->orderRepository      = $orderRepository;
+        $this->quoteManagement       = $quoteManagement;
+        $this->customerSession       = $customerSession;
+        $this->objectFactory         = $objectFactory;
+        $this->orderRepository       = $orderRepository;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
-        $this->checkoutSession      = $checkoutSession;
-        $this->quoteAddressService  = $quoteAddressService;
-        $this->accountConfig        = $configProviderFactory->get('account');
-        $this->registry             = $registry;
-        $this->order                = $order;
+        $this->checkoutSession       = $checkoutSession;
+        $this->quoteAddressService   = $quoteAddressService;
+        $this->accountConfig         = $configProviderFactory->get('account');
+        $this->registry              = $registry;
+        $this->order                 = $order;
     }
 
     /**
@@ -149,6 +149,7 @@ class SaveOrder extends AbstractApplepay
         $data = [];
 
         if ($isPost && isset($isPost['payment'], $isPost['extra'])) {
+            // Log the full request for debugging.
             $this->logger->addDebug(sprintf(
                 '[ApplePay] | [Controller] | [%s:%s] - Save Order | Request: %s',
                 __METHOD__,
@@ -165,12 +166,16 @@ class SaveOrder extends AbstractApplepay
                 return $this->commonResponse([], true);
             }
 
-            // If the shipping method parameter is provided from the client, update the shipping method.
-            if ($isPost('shippingMethod')) {
-                $shippingMethod = $isPost('shippingMethod');
-                $shippingAddress->setShippingMethod(
-                    str_replace('__SPLIT__', '_', $shippingMethod['identifier'])
-                );
+            // If the shipping method parameter is provided from the client, update the shipping address.
+            $shippingMethodParam = $isPost('shippingMethod');
+            if ($shippingMethodParam && isset($shippingMethodParam['identifier'])) {
+                $this->logger->addDebug(sprintf(
+                    '[ApplePay] | [Controller] | [%s:%s] - Found Shipping Method in Request: %s',
+                    __METHOD__,
+                    __LINE__,
+                    var_export($shippingMethodParam, true)
+                ));
+                $shippingAddress->setShippingMethod($shippingMethodParam['identifier']);
             }
 
             // Set billing address.
@@ -229,21 +234,6 @@ class SaveOrder extends AbstractApplepay
                 $paymentInstance->save();
                 $quote->setPayment($paymentInstance);
             }
-
-            // If no shipping method is set for non-virtual quotes, assign the first available rate.
-//            if (!$quote->getIsVirtual() && !$quote->getShippingAddress()->getShippingMethod()) {
-//                $rates = $quote->getShippingAddress()->getShippingRatesCollection();
-//                if ($rates->getSize() > 0) {
-//                    $firstRate = $rates->getFirstItem();
-//                    $quote->getShippingAddress()->setShippingMethod($firstRate->getCode());
-//                    $this->logger->addDebug(sprintf(
-//                        '[ApplePay] | [Controller] | [%s:%s] - Default Shipping Method Set: %s',
-//                        __METHOD__,
-//                        __LINE__,
-//                        $firstRate->getCode()
-//                    ));
-//                }
-//            }
 
             // Force totals recalculation.
             $quote->setTotalsCollectedFlag(false);
