@@ -158,11 +158,21 @@ class SaveOrder extends AbstractApplepay
 
             // Get the cart/quote.
             $quote = $this->checkoutSession->getQuote();
+            $shippingAddress = $quote->getShippingAddress();
 
             // Set shipping address if quote is not virtual.
             if (!$quote->getIsVirtual() && !$this->quoteAddressService->setShippingAddress($quote, $isPost['payment']['shippingContact'])) {
                 return $this->commonResponse([], true);
             }
+
+            // If the shipping method parameter is provided from the client, update the shipping method.
+            if ($isPost('shippingMethod')) {
+                $shippingMethod = $isPost('shippingMethod');
+                $shippingAddress->setShippingMethod(
+                    str_replace('__SPLIT__', '_', $shippingMethod['identifier'])
+                );
+            }
+
             // Set billing address.
             if (!$this->quoteAddressService->setBillingAddress(
                 $quote,
@@ -219,6 +229,21 @@ class SaveOrder extends AbstractApplepay
                 $paymentInstance->save();
                 $quote->setPayment($paymentInstance);
             }
+
+            // If no shipping method is set for non-virtual quotes, assign the first available rate.
+//            if (!$quote->getIsVirtual() && !$quote->getShippingAddress()->getShippingMethod()) {
+//                $rates = $quote->getShippingAddress()->getShippingRatesCollection();
+//                if ($rates->getSize() > 0) {
+//                    $firstRate = $rates->getFirstItem();
+//                    $quote->getShippingAddress()->setShippingMethod($firstRate->getCode());
+//                    $this->logger->addDebug(sprintf(
+//                        '[ApplePay] | [Controller] | [%s:%s] - Default Shipping Method Set: %s',
+//                        __METHOD__,
+//                        __LINE__,
+//                        $firstRate->getCode()
+//                    ));
+//                }
+//            }
 
             // Force totals recalculation.
             $quote->setTotalsCollectedFlag(false);

@@ -36,20 +36,25 @@ define(
         resourceUrlManager,
         shippingHandler,
         additionalValidators,
-        _
+        _,
+        shippingRateService,
+        selectShippingMethod,
+        translate,
+        BuckarooSDK
     ) {
         'use strict';
 
         var transactionResult = ko.observable(null);
 
         return {
-            transactionResult : transactionResult,
+            transactionResult: transactionResult,
             canShowMethod: ko.observable(null),
-            applepayOptions : null,
-            isOnCheckout : false,
-            quote : null,
+            applepayOptions: null,
+            isOnCheckout: false,
+            quote: null,
             shippingGroups: {},
             payment: null,
+            selectedShippingMethod: null,
 
             showPayButton: function (payMode) {
                 this.devLog('==============applepaydebug/6 - Pay Mode', payMode);
@@ -276,14 +281,15 @@ define(
             onSelectedShipmentMethod: function (event) {
                 this.devLog('==============applepaydebug/27 - Selected Shipment Method Event:', event);
 
+                // For both product and cart modes, store the selected shipping method
                 if (this.payMode === 'product' || this.payMode === 'cart') {
+                    this.selectedShippingMethod = event;
                     return $.ajax({
                         url: urlBuilder.build('buckaroo/applepay/updateShippingMethods'),
                         type: 'POST',
                         data: { wallet: { identifier: event.identifier } },
                         global: false,
                         dataType: 'json',
-                        // Consider removing async:false for better UX
                         async: false,
                         dataFilter: function (data) {
                             this.devLog('Raw response in dataFilter:', data);
@@ -323,7 +329,7 @@ define(
                     return $.ajax({
                         url: urlBuilder.build('buckaroo/applepay/add'),
                         type: 'POST',
-                        data: {product: this.productSelected, wallet: event},
+                        data: { product: this.productSelected, wallet: event },
                         global: false,
                         dataType: 'json',
                         async: false,
@@ -351,51 +357,47 @@ define(
                         }.bind(this)
                     })
                         .fail(function (jqXHR, textStatus, errorThrown) {
-                            this.devLog('AJAX error in onSelectedShippingContact (product mode):', {
-                                textStatus,
-                                errorThrown
-                            });
+                            this.devLog('AJAX error in onSelectedShippingContact (product mode):', { textStatus, errorThrown });
                             this.timeoutRedirect();
                         }.bind(this));
                     return update;
                 } else if (this.payMode === 'cart') {
-                        return $.ajax({
-                            url: urlBuilder.build('buckaroo/applepay/getShippingMethods'),
-                            type: 'POST',
-                            data: { wallet: event },
-                            global: false,
-                            dataType: 'json',
-                            async: false,
-                            dataFilter: function (data, type) {
-                                this.devLog('Raw response in shipping contact (cart mode):', data);
-                                var result = JSON.parse(data);
-                                if (result.success === true) {  // Use a boolean check here
-                                    this.shippingGroups = {};
-                                    $.each(result.data.shipping_methods, function (index, rate) {
-                                        this.shippingGroups[rate['method_code']] = rate;
-                                    }.bind(this));
+                    return $.ajax({
+                        url: urlBuilder.build('buckaroo/applepay/getShippingMethods'),
+                        type: 'POST',
+                        data: { wallet: event },
+                        global: false,
+                        dataType: 'json',
+                        async: false,
+                        dataFilter: function (data, type) {
+                            this.devLog('Raw response in shipping contact (cart mode):', data);
+                            var result = JSON.parse(data);
+                            if (result.success === true) {  // Use a boolean check here
+                                this.shippingGroups = {};
+                                $.each(result.data.shipping_methods, function (index, rate) {
+                                    this.shippingGroups[rate['method_code']] = rate;
+                                }.bind(this));
 
-                                    var authorizationResult = {
-                                        errors: [],
-                                        newShippingMethods: this.availableShippingMethodInformation(),
-                                        newTotal: this.processTotalLineItems('final', result.data.totals),
-                                        newLineItems: this.processLineItems('final', result.data.totals)
-                                    };
-                                    this.devLog('Authorization result (shipping contact, cart):', authorizationResult);
-                                    return JSON.stringify(authorizationResult);
-                                } else {
-                                    this.devLog('Failed to get shipping methods (cart mode).', result);
-                                    this.timeoutRedirect();
-                                    return ''; // Explicitly return an empty string to avoid parser error
-                                }
-                            }.bind(this)
-                        })
-                            .fail(function (jqXHR, textStatus, errorThrown) {
-                                this.devLog('AJAX error in onSelectedShippingContact (cart mode):', { textStatus, errorThrown });
+                                var authorizationResult = {
+                                    errors: [],
+                                    newShippingMethods: this.availableShippingMethodInformation(),
+                                    newTotal: this.processTotalLineItems('final', result.data.totals),
+                                    newLineItems: this.processLineItems('final', result.data.totals)
+                                };
+                                this.devLog('Authorization result (shipping contact, cart):', authorizationResult);
+                                return JSON.stringify(authorizationResult);
+                            } else {
+                                this.devLog('Failed to get shipping methods (cart mode).', result);
                                 this.timeoutRedirect();
-                            }.bind(this));
-                    } else {
-                    // Fallback handling if not product or cart mode
+                                return ''; // Explicitly return an empty string to avoid parser error
+                            }
+                        }.bind(this)
+                    })
+                        .fail(function (jqXHR, textStatus, errorThrown) {
+                            this.devLog('AJAX error in onSelectedShippingContact (cart mode):', { textStatus, errorThrown });
+                            this.timeoutRedirect();
+                        }.bind(this));
+                } else {
                     var newShippingAddress = shippingHandler.setShippingAddress(event);
                     this.updateShippingMethods(newShippingAddress);
                     var authorizationResult = {
@@ -521,6 +523,8 @@ define(
                 return {
                     "method": 'applepay',
                     "po_number": null,
+                    // Include the selected shipping method from the client
+                    "shippingMethod": this.selectedShippingMethod,
                     "additional_data": {
                         "applepayTransaction": transactionData,
                         "billingContact": payment && payment.billingContact ? JSON.stringify(payment.billingContact) : ''
@@ -597,7 +601,6 @@ define(
                     console.log(msg, params || '');
                 }
             }
-
         };
     }
 );
