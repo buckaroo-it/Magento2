@@ -50,6 +50,7 @@ define(
             quote : null,
             shippingGroups: {},
             payment: null,
+            shippingMethod: null,
 
             showPayButton: function (payMode) {
                 this.devLog('==============applepaydebug/6', payMode);
