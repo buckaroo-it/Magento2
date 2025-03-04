@@ -103,7 +103,7 @@ class Add
                 }
                 $this->logger->addDebug("aaaaalbina");
                 $this->logger->addDebug(json_encode($shippingMethodsResult));
-                $this->quoteService->setShippingMethod($shippingMethodsResult[1]['method_code']);
+                $this->quoteService->setShippingMethod($this->quoteService->getShippingMethod());
             }
 
             $this->logger->addDebug(json_encode($shippingMethodsResult));
