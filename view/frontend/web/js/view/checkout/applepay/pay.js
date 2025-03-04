@@ -331,6 +331,8 @@ define(
                             if (result.success == 'true') {
                                 this.shippingMethod = result.data.shipping_methods.code;
 
+                                this.devLog('==============applepaydebug/shippingMethod', this.shippingMethod);
+
                                 var authorizationResult = {
                                     newTotal: this.processTotalLineItems('final', result.data.totals),
                                     newLineItems: this.processLineItems('final', result.data.totals)
@@ -384,7 +386,6 @@ define(
                                 this.shippingGroups = {};
                                 $.each(result.data.shipping_methods, function (index, rate) {
                                     this.shippingGroups[rate['method_code']] = rate;
-                                    this.updateQuoteRate(rate);
                                 }.bind(this));
 
                                 var authorizationResult = {
