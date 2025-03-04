@@ -333,12 +333,6 @@ define(
                             if (result.success == 'true') {
                                 this.shippingMethod = result.data.shipping_methods.code;
 
-                                var test = this.availableShippingMethodInformation();
-                                this.devLog('==============applepaydebug/shippingMethod', test);
-                                var newShippingMethod = this.test[event.identifier];
-                                this.updateQuoteRate(newShippingMethod);
-                                this.devLog('==============applepaydebug/shippingMethod', this.shippingMethod);
-
                                 var authorizationResult = {
                                     newTotal: this.processTotalLineItems('final', result.data.totals),
                                     newLineItems: this.processLineItems('final', result.data.totals)
@@ -374,11 +368,6 @@ define(
                 this.devLog('==============applepaydebug/28', event);
                 this.devLog('==============applepaydebug/random', this.shippingMethod);
 
-                var test = this.availableShippingMethodInformation();
-                this.devLog('==============applepaydebug/shippingMethod', test);
-                var newShippingMethod = this.test[event.identifier];
-                this.updateQuoteRate(newShippingMethod);
-
                 if (this.payMode == 'product') {
                     var update = $.ajax({
                         url: urlBuilder.build('buckaroo/applepay/add'),
@@ -397,6 +386,7 @@ define(
                                 this.shippingGroups = {};
                                 $.each(result.data.shipping_methods, function (index, rate) {
                                     this.shippingGroups[rate['method_code']] = rate;
+                                    this.updateQuoteRate(rate);
                                 }.bind(this));
 
                                 var authorizationResult = {
