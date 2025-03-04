@@ -309,6 +309,8 @@ define(
 
             onSelectedShipmentMethod: function (event) {
                 this.devLog('==============applepaydebug/27');
+                this.devLog('==============applepaydebug/albina', event);
+
 
                 if ((this.payMode == 'product') || (this.payMode == 'cart')) {
                     var update = $.ajax({
@@ -325,6 +327,9 @@ define(
                         dataFilter: function (data, type) {
                             var result = JSON.parse(data);
                             if (result.success == 'true') {
+                                this.shippingMethod = result.data.shipping_methods.code;
+                                this.devLog('==============applepaydebug/shippingMethod', shippingMethod);
+
                                 var authorizationResult = {
                                     newTotal: this.processTotalLineItems('final', result.data.totals),
                                     newLineItems: this.processLineItems('final', result.data.totals)
@@ -357,7 +362,9 @@ define(
             },
 
             onSelectedShippingContact: function (event) {
-                this.devLog('==============applepaydebug/28');
+                this.devLog('==============applepaydebug/28', event);
+                this.devLog('==============applepaydebug/random', this.shippingMethod);
+
 
                 if (this.payMode == 'product') {
                     var update = $.ajax({
@@ -365,7 +372,8 @@ define(
                         type: 'POST',
                         data: {
                             product: this.productSelected,
-                            wallet: event
+                            wallet: event,
+                            shippingMethod: this.shippingMethod
                         },
                         global: false,
                         dataType: 'json',
