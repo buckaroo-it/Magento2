@@ -23,6 +23,7 @@ define(
         'mage/url',
         'Magento_Checkout/js/model/resource-url-manager',
         'buckaroo/applepay/shipping-handler',
+        'Magento_Checkout/js/action/select-shipping-method',
         'Magento_Checkout/js/model/payment/additional-validators',
         'underscore',
         'Magento_Checkout/js/model/shipping-rate-service',
@@ -35,6 +36,7 @@ define(
         urlBuilder,
         resourceUrlManager,
         shippingHandler,
+        selectShippingMethod,
         additionalValidators,
         _
     ) {
@@ -331,7 +333,9 @@ define(
                             if (result.success == 'true') {
                                 this.shippingMethod = result.data.shipping_methods.code;
 
-                                var newShippingMethod = this.shippingGroups[result.data.shipping_methods.code];
+                                var test = this.availableShippingMethodInformation();
+                                this.devLog('==============applepaydebug/shippingMethod', test);
+                                var newShippingMethod = this.test[event.identifier];
                                 this.updateQuoteRate(newShippingMethod);
                                 this.devLog('==============applepaydebug/shippingMethod', this.shippingMethod);
 
@@ -370,6 +374,10 @@ define(
                 this.devLog('==============applepaydebug/28', event);
                 this.devLog('==============applepaydebug/random', this.shippingMethod);
 
+                var test = this.availableShippingMethodInformation();
+                this.devLog('==============applepaydebug/shippingMethod', test);
+                var newShippingMethod = this.test[event.identifier];
+                this.updateQuoteRate(newShippingMethod);
 
                 if (this.payMode == 'product') {
                     var update = $.ajax({
@@ -378,7 +386,7 @@ define(
                         data: {
                             product: this.productSelected,
                             wallet: event,
-                            shippingMethod: this.shippingMethod
+                            shippingMethod: newShippingMethod
                         },
                         global: false,
                         dataType: 'json',
