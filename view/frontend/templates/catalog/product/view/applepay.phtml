@@ -18,9 +18,10 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-?>
-<?php if ($block->canShowButton('Product')): ?>
-    <div id="apple-pay-catalog-product-view-component" data-bind="scope:'applepayproductcomponent'">
+/** @var string $block */
+
+if ($block->canShowButton('Product')): ?>
+    <div id="apple-pay-catalog-product-view-component" data-bind="scope:'buckarooApplepayProduct'">
         <!-- ko template: getTemplate() --><!-- /ko -->
 
         <script>
@@ -38,9 +39,9 @@
                 "#apple-pay-catalog-product-view-component": {
                     "Magento_Ui/js/core/app": {
                         "components": {
-                            "applepayproductcomponent": {
-                                "component":"buckaroo/applepay/catalog-product-view",
-                                "template":"Buckaroo_Magento2/catalog/product/view/applepay"
+                            "buckarooApplepayProduct": {
+                                "component": "buckaroo/applepay/catalog-product-view",
+                                "template": "Buckaroo_Magento2/catalog/product/view/applepay"
                             }
                         }
                     }

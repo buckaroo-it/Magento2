@@ -167,7 +167,7 @@ class SaveOrder extends AbstractApplepay
             }
 
             // If the shipping method parameter is provided from the client, update the shipping address.
-            $shippingMethodParam = $isPost('shippingMethod');
+            $shippingMethodParam = $isPost['extra']['shippingMethod'];
             if ($shippingMethodParam && isset($shippingMethodParam['identifier'])) {
                 $this->logger->addDebug(sprintf(
                     '[ApplePay] | [Controller] | [%s:%s] - Found Shipping Method in Request: %s',
