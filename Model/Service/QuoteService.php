@@ -329,6 +329,6 @@ class QuoteService
 
     public function getShippingMethod(){
 
-        return $this->quote->getShippingMethod();
+        return $this->quote->getShippingAddress()->getShippingMethod();
     }
 }
