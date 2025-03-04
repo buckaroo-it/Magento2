@@ -279,9 +279,9 @@ class SaveOrder extends AbstractApplepay
                     'RequiredAction' => $data->RequiredAction
                 ];
             } else {
-                // Live mode response.
+                //live mode
                 if (!empty($data->Status->Code->Code) &&
-                    $data->Status->Code->Code == '190' &&
+                    ($data->Status->Code->Code == '190') &&
                     !empty($data->Order)
                 ) {
                     $data = $this->processBuckarooResponse($data);
@@ -300,21 +300,16 @@ class SaveOrder extends AbstractApplepay
      */
     private function processBuckarooResponse($data): array
     {
-        $searchCriteria = $this->searchCriteriaBuilder->addFilter(
-            'increment_id',
-            $data->Order
-        )->create();
-        $order = $this->orderRepository->getList($searchCriteria)->getFirstItem();
-
+        $this->order->loadByIncrementId($data->Order);
         if ($this->order->getId()) {
             $this->checkoutSession
-                ->setLastQuoteId($order->getQuoteId())
-                ->setLastSuccessQuoteId($order->getQuoteId())
-                ->setLastOrderId($order->getId())
-                ->setLastRealOrderId($order->getIncrementId())
-                ->setLastOrderStatus($order->getStatus());
+                ->setLastQuoteId($this->order->getQuoteId())
+                ->setLastSuccessQuoteId($this->order->getQuoteId())
+                ->setLastOrderId($this->order->getId())
+                ->setLastRealOrderId($this->order->getIncrementId())
+                ->setLastOrderStatus($this->order->getStatus());
 
-            $store = $order->getStore();
+            $store = $this->order->getStore();
             $url = $store->getBaseUrl() . '/' . $this->accountConfig->getSuccessRedirect($store);
             $this->logger->addDebug(sprintf(
                 '[ApplePay] | [Controller] | [%s:%s] - Save Order - Redirect URL: %s',

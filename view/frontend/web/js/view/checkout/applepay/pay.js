@@ -38,7 +38,6 @@ define(
         additionalValidators,
         _,
         shippingRateService,
-        selectShippingMethod,
         translate,
         BuckarooSDK
     ) {
@@ -57,82 +56,65 @@ define(
             selectedShippingMethod: null,
 
             showPayButton: function (payMode) {
-                this.devLog('==============applepaydebug/6 - Pay Mode', payMode);
+                // Set pay mode and product selection.
                 this.payMode = payMode;
                 this.productSelected = {};
 
                 if (typeof window.checkoutConfig === 'undefined') {
-                    this.devLog('Checkout config is undefined.');
                     return;
                 }
 
-                // Set checkout mode based on payMode
+                // Set checkout mode based on payMode.
                 this.setIsOnCheckout((this.payMode !== 'product' && this.payMode !== 'cart'));
 
-                BuckarooSdk.ApplePay.checkApplePaySupport(window.checkoutConfig.payment.buckaroo.applepay.guid)
+                BuckarooSDK.ApplePay.checkApplePaySupport(window.checkoutConfig.payment.buckaroo.applepay.guid)
                     .then(function (applePaySupported) {
-                        this.devLog('==============applepaydebug/albina - GUID', window.checkoutConfig.payment.buckaroo.applepay.guid);
-                        this.devLog('==============applepaydebug/albina2 - Payment Config', window.checkoutConfig.payment.buckaroo);
-                        this.devLog('==============applepaydebug/8 - Support Check', [applePaySupported, this.isOnCheckout, window.checkoutConfig.payment.buckaroo.applepay]);
-
                         if (this.payMode === 'product') {
                             this.initProductViewWatchers();
                         }
 
                         if (applePaySupported) {
                             this.generateApplepayOptions();
-
-                            this.payment = new BuckarooSdk.ApplePay.ApplePayPayment('#apple-pay-wrapper', this.applepayOptions);
+                            this.payment = new BuckarooSDK.ApplePay.ApplePayPayment('#apple-pay-wrapper', this.applepayOptions);
                             this.payment.showPayButton(
                                 window.checkoutConfig.payment.buckaroo.applepay.buttonStyle || 'black',
                                 'buy'
                             );
 
                             if (this.payMode === 'product') {
-                                this.payment.button.off("click");
                                 var self = this;
+                                this.payment.button.off("click");
                                 this.payment.button.on("click", function (e) {
-                                    self.devLog('==============applepaydebug/24 - Button Clicked', e);
                                     var dataForm = $('#product_addtocart_form');
                                     dataForm.validation('isValid');
                                     setTimeout(function () {
                                         if ($('.mage-error:visible').length === 0) {
                                             self.payment.beginPayment(e);
-                                        } else {
-                                            self.devLog('Validation errors found.');
                                         }
                                     }, 100);
                                 });
                             }
-                        } else {
-                            this.devLog('Apple Pay is not supported on this device/browser.');
                         }
                     }.bind(this))
                     .catch(function (error) {
-                        this.devLog('Error during Apple Pay support check', error);
                     }.bind(this));
             },
 
             updateOptions: function () {
                 if (this.payment === null) {
-                    this.devLog('No payment instance to update.');
                     return;
                 }
                 this.generateApplepayOptions();
                 this.payment.options = this.applepayOptions;
-                this.devLog('Updated Apple Pay options:', this.applepayOptions);
             },
 
             canShowApplePay: function () {
-                // Removed the immediate return true to allow proper check
-                return BuckarooSdk.ApplePay.checkApplePaySupport(window.checkoutConfig.payment.buckaroo.applepay.guid)
+                return BuckarooSDK.ApplePay.checkApplePaySupport(window.checkoutConfig.payment.buckaroo.applepay.guid)
                     .then(function (applePaySupported) {
                         this.canShowMethod(applePaySupported);
-                        this.devLog('canShowApplePay - Support:', applePaySupported);
                         return applePaySupported;
                     }.bind(this))
                     .catch(function (error) {
-                        this.devLog('Error in canShowApplePay:', error);
                         this.canShowMethod(false);
                         return false;
                     }.bind(this));
@@ -140,12 +122,10 @@ define(
 
             setQuote: function (newQuote) {
                 this.quote = newQuote;
-                this.devLog('Quote set:', newQuote);
             },
 
             setIsOnCheckout: function (isOnCheckout) {
                 this.isOnCheckout = isOnCheckout;
-                this.devLog('isOnCheckout set to:', isOnCheckout);
             },
 
             generateApplepayOptions: function () {
@@ -175,9 +155,7 @@ define(
                     }
                 }
 
-                this.devLog('==============applepaydebug/13 - Options Params', [country, requiredBillingContactFields, requiredShippingContactFields]);
-
-                this.applepayOptions = new BuckarooSdk.ApplePay.ApplePayOptions(
+                this.applepayOptions = new BuckarooSDK.ApplePay.ApplePayOptions(
                     window.checkoutConfig.payment.buckaroo.applepay.storeName,
                     country,
                     window.checkoutConfig.payment.buckaroo.applepay.currency,
@@ -193,7 +171,6 @@ define(
                     requiredBillingContactFields,
                     requiredShippingContactFields
                 );
-                this.devLog('Generated applepayOptions:', this.applepayOptions);
             },
 
             processLineItems: function (type = 'final', directTotals = false) {
@@ -210,8 +187,6 @@ define(
                     var discountTotal = parseFloat(totals.discount).toFixed(2);
                     lineItems.push({ label: $.mage.__('Discount'), amount: discountTotal, type: type });
                 }
-
-                this.devLog('Processed line items:', lineItems);
                 return lineItems;
             },
 
@@ -224,9 +199,7 @@ define(
                     grandTotal = '0.00';
                 }
 
-                var totalItem = { label: storeName, amount: grandTotal, type: type };
-                this.devLog('Processed total line item:', totalItem);
-                return totalItem;
+                return { label: storeName, amount: grandTotal, type: type };
             },
 
             getQuoteTotals: function () {
@@ -239,16 +212,14 @@ define(
                 totals['shipping'] = this.quote.totals().shipping_incl_tax;
                 totals['grand_total'] = this.quote.totals().grand_total;
 
-                // Check if a custom grand total has been set
                 if (!this.quote.totals().custom_grand_total) {
                     var segments = this.quote.totals().total_segments;
-                    for (let i in segments) {
+                    for (var i in segments) {
                         if (segments[i]['code'] === 'grand_total') {
                             totals['grand_total'] = segments[i]['value'];
                         }
                     }
                 }
-                this.devLog('Quote totals computed:', totals);
                 return totals;
             },
 
@@ -263,12 +234,10 @@ define(
                         detail: rate['method_title']
                     });
                 });
-                this.devLog('Available shipping methods:', shippingMethods);
                 return shippingMethods;
             },
 
             timeoutRedirect: function (url = false) {
-                this.devLog('==============applepaydebug/38 - Redirect URL:', url);
                 setTimeout(function () {
                     if (url) {
                         window.location.href = url;
@@ -279,9 +248,6 @@ define(
             },
 
             onSelectedShipmentMethod: function (event) {
-                this.devLog('==============applepaydebug/27 - Selected Shipment Method Event:', event);
-
-                // For both product and cart modes, store the selected shipping method
                 if (this.payMode === 'product' || this.payMode === 'cart') {
                     this.selectedShippingMethod = event;
                     return $.ajax({
@@ -292,39 +258,32 @@ define(
                         dataType: 'json',
                         async: false,
                         dataFilter: function (data) {
-                            this.devLog('Raw response in dataFilter:', data);
                             var result = JSON.parse(data);
                             if (result.success === true) {
                                 var authorizationResult = {
                                     newTotal: this.processTotalLineItems('final', result.data.totals),
                                     newLineItems: this.processLineItems('final', result.data.totals)
                                 };
-                                this.devLog('Authorization result (shipment method):', authorizationResult);
                                 return JSON.stringify(authorizationResult);
                             } else {
-                                this.devLog('Update shipping methods failed.', result);
                                 this.timeoutRedirect();
                             }
                         }.bind(this)
                     })
                         .fail(function (jqXHR, textStatus, errorThrown) {
-                            this.devLog('AJAX error in onSelectedShipmentMethod:', { textStatus, errorThrown });
                             this.timeoutRedirect();
                         }.bind(this));
                 } else {
                     var newShippingMethod = this.shippingGroups[event.identifier];
                     this.updateQuoteRate(newShippingMethod);
-                    var authorizationResult = {
+                    return Promise.resolve({
                         newTotal: this.processTotalLineItems(),
                         newLineItems: this.processLineItems()
-                    };
-                    return Promise.resolve(authorizationResult);
+                    });
                 }
             },
 
             onSelectedShippingContact: function (event) {
-                this.devLog('==============applepaydebug/28 - Selected Shipping Contact Event:', event);
-
                 if (this.payMode === 'product') {
                     return $.ajax({
                         url: urlBuilder.build('buckaroo/applepay/add'),
@@ -334,33 +293,26 @@ define(
                         dataType: 'json',
                         async: false,
                         dataFilter: function (data) {
-                            this.devLog('Raw response in shipping contact dataFilter:', data);
                             var result = JSON.parse(data);
                             if (result.success === true) {
                                 this.shippingGroups = {};
                                 $.each(result.data.shipping_methods, function (index, rate) {
                                     this.shippingGroups[rate['method_code']] = rate;
                                 }.bind(this));
-
-                                var authorizationResult = {
+                                return JSON.stringify({
                                     errors: [],
                                     newShippingMethods: this.availableShippingMethodInformation(),
                                     newTotal: this.processTotalLineItems('final', result.data.totals),
                                     newLineItems: this.processLineItems('final', result.data.totals)
-                                };
-                                this.devLog('Authorization result (shipping contact):', authorizationResult);
-                                return JSON.stringify(authorizationResult);
+                                });
                             } else {
-                                this.devLog('Failed to add shipping contact.', result);
                                 this.timeoutRedirect();
                             }
                         }.bind(this)
                     })
                         .fail(function (jqXHR, textStatus, errorThrown) {
-                            this.devLog('AJAX error in onSelectedShippingContact (product mode):', { textStatus, errorThrown });
                             this.timeoutRedirect();
                         }.bind(this));
-                    return update;
                 } else if (this.payMode === 'cart') {
                     return $.ajax({
                         url: urlBuilder.build('buckaroo/applepay/getShippingMethods'),
@@ -369,49 +321,41 @@ define(
                         global: false,
                         dataType: 'json',
                         async: false,
-                        dataFilter: function (data, type) {
-                            this.devLog('Raw response in shipping contact (cart mode):', data);
+                        dataFilter: function (data) {
                             var result = JSON.parse(data);
-                            if (result.success === true) {  // Use a boolean check here
+                            if (result.success === true) {
                                 this.shippingGroups = {};
                                 $.each(result.data.shipping_methods, function (index, rate) {
                                     this.shippingGroups[rate['method_code']] = rate;
                                 }.bind(this));
-
-                                var authorizationResult = {
+                                return JSON.stringify({
                                     errors: [],
                                     newShippingMethods: this.availableShippingMethodInformation(),
                                     newTotal: this.processTotalLineItems('final', result.data.totals),
                                     newLineItems: this.processLineItems('final', result.data.totals)
-                                };
-                                this.devLog('Authorization result (shipping contact, cart):', authorizationResult);
-                                return JSON.stringify(authorizationResult);
+                                });
                             } else {
-                                this.devLog('Failed to get shipping methods (cart mode).', result);
                                 this.timeoutRedirect();
-                                return ''; // Explicitly return an empty string to avoid parser error
+                                return '';
                             }
                         }.bind(this)
                     })
                         .fail(function (jqXHR, textStatus, errorThrown) {
-                            this.devLog('AJAX error in onSelectedShippingContact (cart mode):', { textStatus, errorThrown });
                             this.timeoutRedirect();
                         }.bind(this));
                 } else {
                     var newShippingAddress = shippingHandler.setShippingAddress(event);
                     this.updateShippingMethods(newShippingAddress);
-                    var authorizationResult = {
+                    return Promise.resolve({
                         errors: [],
                         newShippingMethods: this.availableShippingMethodInformation(),
                         newTotal: this.processTotalLineItems(),
                         newLineItems: this.processLineItems()
-                    };
-                    return Promise.resolve(authorizationResult);
+                    });
                 }
             },
 
             updateShippingMethods: function (address) {
-                this.devLog('==============applepaydebug/16 - Updating shipping methods with address:', address);
                 var serviceUrl = resourceUrlManager.getUrlForEstimationShippingMethodsForNewAddress(this.quote);
                 var payload = JSON.stringify({
                     address: {
@@ -438,7 +382,6 @@ define(
                     contentType: 'application/json',
                     async: false
                 }).done(function (result) {
-                    this.devLog('updateShippingMethods - Result:', result);
                     this.shippingGroups = {};
                     var firstLoop = true;
                     $.each(result, function (index, rate) {
@@ -452,35 +395,22 @@ define(
             },
 
             updateQuoteRate: function (newRate) {
-                this.devLog('updateQuoteRate - New rate:', newRate);
                 shippingHandler.selectShippingMethod(newRate);
-
-                // Ensure we are doing numeric addition by converting strings to numbers
                 var subtotal = parseFloat(this.quote.totals().subtotal_incl_tax);
                 var shippingCost = parseFloat(newRate['price_incl_tax']);
                 var newGrandTotal = (subtotal + shippingCost).toFixed(2);
-
                 this.quote.totals().shipping_incl_tax = shippingCost;
                 this.quote.totals().grand_total = newGrandTotal;
                 this.quote.totals().custom_grand_total = true;
-
-                this.devLog('Quote totals updated:', this.quote.totals());
             },
 
             captureFunds: function (payment) {
-                this.devLog('==========applepaydebug/12 - Capturing funds with payment:', payment);
-
                 var authorizationResult = {
                     status: ApplePaySession.STATUS_SUCCESS,
                     errors: []
                 };
 
                 if ((this.payMode === 'product') || (this.payMode === 'cart')) {
-                    var authorizationFailedResult = {
-                        status: ApplePaySession.STATUS_FAILURE,
-                        errors: []
-                    };
-
                     return $.ajax({
                         url: urlBuilder.build('buckaroo/applepay/saveOrder'),
                         type: 'POST',
@@ -492,7 +422,6 @@ define(
                         dataType: 'json',
                         async: false,
                         dataFilter: function (data) {
-                            this.devLog('captureFunds dataFilter raw response:', data);
                             var result = JSON.parse(data);
                             if (result.success === true) {
                                 if (result.data && result.data.RequiredAction !== undefined && result.data.RequiredAction.RedirectURL !== undefined) {
@@ -508,7 +437,6 @@ define(
                         }.bind(this)
                     })
                         .fail(function (jqXHR, textStatus, errorThrown) {
-                            this.devLog('AJAX error in captureFunds:', { textStatus, errorThrown });
                             this.timeoutRedirect();
                         }.bind(this));
                 } else {
@@ -518,12 +446,10 @@ define(
             },
 
             getData: function (payment) {
-                this.devLog('getData - Payment data:', payment);
                 var transactionData = this.formatTransactionResponse(payment);
                 return {
                     "method": 'applepay',
                     "po_number": null,
-                    // Include the selected shipping method from the client
                     "shippingMethod": this.selectedShippingMethod,
                     "additional_data": {
                         "applepayTransaction": transactionData,
@@ -534,10 +460,8 @@ define(
 
             formatTransactionResponse: function (response) {
                 if (response === null || typeof response === 'undefined') {
-                    this.devLog('formatTransactionResponse - No response provided.');
                     return null;
                 }
-
                 var paymentData = response.token.paymentData;
                 var formattedData = {
                     "paymentData": {
@@ -551,24 +475,17 @@ define(
                         }
                     }
                 };
-
-                var formattedString = JSON.stringify(formattedData);
-                this.devLog('Formatted transaction response:', formattedString);
-                return formattedString;
+                return JSON.stringify(formattedData);
             },
 
             initProductViewWatchers: function () {
-                this.devLog('==============applepaydebug/initProductViewWatchers - Initializing product view watchers.');
                 this.productSelected = {};
                 this.productSelected.id = $('.price-box').attr('data-product-id');
                 this.productSelected.qty = $('#qty').val();
                 var self = this;
-
                 $('#qty').change(function () {
                     self.productSelected.qty = $(this).val();
-                    self.devLog('Product quantity changed:', self.productSelected.qty);
                 });
-
                 $('.product-options-wrapper div').click(function () {
                     var selected_options = {};
                     $('div.swatch-attribute').each(function (k, v) {
@@ -579,27 +496,19 @@ define(
                         }
                     });
                     self.productSelected.selected_options = selected_options;
-                    self.devLog('Selected product options:', selected_options);
                 });
             },
 
             isOsc: function () {
-                var oscButton = this.getOscButton();
-                this.devLog('isOsc - OSC Button:', oscButton);
-                return oscButton;
+                return this.getOscButton();
             },
 
             getOscButton: function () {
-                var button = document.querySelector('.action.primary.checkout.iosc-place-order-button');
-                this.devLog('getOscButton - Found OSC Button:', button);
-                return button;
+                return document.querySelector('.action.primary.checkout.iosc-place-order-button');
             },
 
             devLog: function (msg, params) {
-                window.buckarooDebug = 1;
-                if (window.buckarooDebug) {
-                    console.log(msg, params || '');
-                }
+                // Debug logging is disabled for production.
             }
         };
     }
