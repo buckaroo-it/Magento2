@@ -104,40 +104,36 @@ class GetShippingMethods extends AbstractApplepay
                 $shippingMethodsResult = [];
                 if (!$this->quoteService->getQuote()->getIsVirtual()) {
                     $shippingMethods = $this->quoteService->getAvailableShippingMethods();
-                    if (count($shippingMethods) <= 0) {
+                    $this->logger->addDebug(__METHOD__ . '|1.1.6|' . print_r($shippingMethods, true));
+                    if (empty($shippingMethods)) {
                         $errorMessage = __(
                             'Apple Pay payment failed, because no shipping methods were found for the selected address. ' .
                             'Please select a different shipping address within the pop-up or within your Apple Pay Wallet.'
                         );
                     } else {
-                        foreach ($shippingMethods as $shippingMethod) {
-                            $shippingMethodsResult[] = [
-                                'carrier_title'  => $shippingMethod->getCarrierTitle(),
-                                'price_incl_tax' => round($shippingMethod->getAmount(), 2),
-                                'method_code'    => $shippingMethod->getCarrierCode() . '_' . $shippingMethod->getMethodCode(),
-                                'method_title'   => $shippingMethod->getMethodTitle(),
-                            ];
-                        }
+                        // Set default shipping method using the first method.
+                        $firstMethod = reset($shippingMethods);
+                        $this->quoteService->setShippingMethod($firstMethod['method_code']);
 
-                        $this->logger->addDebug(__METHOD__ . '|2|');
-
-                        $this->quoteService->setShippingMethod($shippingMethodsResult[0]['method_code']);
+                        $this->logger->addDebug(__METHOD__ . '|1.1.7|' . $firstMethod['method_code']);
+                        $shippingMethodsResult = $shippingMethods;
                     }
                 }
-
-                // Calculate Quote Totals
+                $this->logger->addDebug(__METHOD__ . '|1.2|');
+                // Recalculate totals.
                 $this->quoteService->calculateQuoteTotals();
 
-                // Get Totals
+                // Gather totals.
                 $totals = $this->quoteService->gatherTotals();
 
                 $data = [
                     'shipping_methods' => $shippingMethodsResult,
                     'totals' => $totals
                 ];
-            } catch (\Exception $exception) {
-                $this->logger->addError(sprintf(
-                    '[ApplePay] | [Controller] | [%s:%s] - Get Shipping Methods | [ERROR]: %s',
+                $this->logger->addDebug(__METHOD__ . '|1.3|' . print_r($data, true));
+            } catch (NoSuchEntityException|LocalizedException $exception) {
+                $this->logger->addDebug(sprintf(
+                    '[ApplePay] | [Controller] | [%s:%s] - Get Shipping Methods | ERROR: %s',
                     __METHOD__,
                     __LINE__,
                     $exception->getMessage()

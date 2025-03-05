@@ -21,17 +21,17 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Service\Applepay;
 
-use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay;
+use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Model\Method\Applepay;
 use Buckaroo\Magento2\Model\Service\ApplePayFormatData;
 use Buckaroo\Magento2\Model\Service\QuoteService;
 
 class Add
 {
     /**
-     * @var BuckarooLoggerInterface
+     * @var Log
      */
-    private BuckarooLoggerInterface $logger;
+    private Log $logger;
 
     /**
      * @var QuoteService
@@ -44,12 +44,12 @@ class Add
     private ApplePayFormatData $applePayFormatData;
 
     /**
-     * @param BuckarooLoggerInterface $logger
+     * @param Log $logger
      * @param QuoteService $quoteService
      * @param ApplePayFormatData $applePayFormatData
      */
     public function __construct(
-        BuckarooLoggerInterface $logger,
+        Log $logger,
         QuoteService $quoteService,
         ApplePayFormatData $applePayFormatData
     ) {
@@ -67,7 +67,7 @@ class Add
     public function process(array $request)
     {
         try {
-            // Get Cart
+            // Get Cart (empty it first)
             $cartHash = $request['id'] ?? null;
             $this->quoteService->getEmptyQuote($cartHash);
 
@@ -76,44 +76,50 @@ class Add
             $this->quoteService->addProductToCart($product);
 
             $shippingMethodsResult = [];
-            $this->logger->addDebug('before iffalbinaaa');
-            if(!$this->quoteService->getQuote()->getIsVirtual()) {
-                // Get Shipping Address From Request
+            $this->logger->addDebug('Add::process - before shipping address processing');
+
+            // If the quote is not virtual, then process shipping address and methods
+            if (!$this->quoteService->getQuote()->getIsVirtual()) {
+                // Validate wallet data exists
+                if (empty($request['wallet'])) {
+                    throw new \Exception('Wallet data is missing in the request.');
+                }
+
+                // Get Shipping Address From Request using wallet data
                 $shippingAddressRequest = $this->applePayFormatData->getShippingAddressObject($request['wallet']);
 
-                // Add Shipping Address on Quote
+                // Add Shipping Address on Quote (only once)
                 $this->quoteService->addAddressToQuote($shippingAddressRequest);
 
-                // Add Shipping Address on Quote
-                $this->quoteService->addAddressToQuote($shippingAddressRequest);
-
-                // Get Shipping Methods
+                // Get Shipping Methods from the updated quote
                 $shippingMethods = $this->quoteService->getAvailableShippingMethods();
-                $this->logger->addDebug('albinaaa');
-                $this->logger->addDebug(json_encode($shippingMethods));
-                $this->logger->addDebug("testt: " . json_encode($this->quoteService->getShippingMethod()));
+                $this->logger->addDebug('Add::process - shipping methods retrieved', json_encode($shippingMethods));
 
-                foreach ($shippingMethods as $shippingMethod) {
-                    $shippingMethodsResult[] = [
-                        'carrier_title' => $shippingMethod['carrier_title'],
-                        'price_incl_tax' => round($shippingMethod['price_incl_tax'], 2),
-                        'method_code' => $shippingMethod['method_code'],
-                        'method_title' => $shippingMethod['method_title'],
-                    ];
+                if (!empty($shippingMethods)) {
+                    foreach ($shippingMethods as $shippingMethod) {
+                        $shippingMethodsResult[] = [
+                            'carrier_title' => $shippingMethod['carrier_title'],
+                            'price_incl_tax' => round($shippingMethod['price_incl_tax'], 2),
+                            'method_code' => $shippingMethod['method_code'],
+                            'method_title' => $shippingMethod['method_title'],
+                        ];
+                    }
+                    // Set the first available shipping method if available
+                    if (!empty($shippingMethodsResult)) {
+                        $this->quoteService->setShippingMethod($shippingMethodsResult[0]['method_code']);
+                    }
                 }
-                $this->logger->addDebug("aaaaalbina");
-                $this->logger->addDebug(json_encode($shippingMethodsResult));
-                $this->quoteService->setShippingMethod($this->quoteService->getShippingMethod());
             }
 
-            $this->logger->addDebug(json_encode($shippingMethodsResult));
-            //Set Payment Method
-            $this->quoteService->setPaymentMethod(Applepay::CODE);
+            $this->logger->addDebug('Add::process - shipping methods result', json_encode($shippingMethodsResult));
 
-            // Calculate Quote Totals
+            // Set Payment Method to Applepay
+            $this->quoteService->setPaymentMethod(Applepay::PAYMENT_METHOD_CODE);
+
+            // Calculate Quote Totals and save quote
             $this->quoteService->calculateQuoteTotals();
 
-            // Get Totals
+            // Gather Totals from the quote
             $totals = $this->quoteService->gatherTotals();
 
             return [
@@ -122,9 +128,7 @@ class Add
             ];
         } catch (\Exception $exception) {
             $this->logger->addError(sprintf(
-                '[ApplePay] | [Controller] | [%s:%s] - Add Product to Cart on Apple Pay | [ERROR]: %s',
-                __METHOD__,
-                __LINE__,
+                '[ApplePay] | [Service\Applepay\Add::process] - [ERROR]: %s',
                 $exception->getMessage()
             ));
             return false;

@@ -188,7 +188,7 @@ class QuoteAddressService
             'lastname'   => $wallet['familyName'] ?? 'Acceptatie',
             'street'     => [
                 '0' => $wallet['addressLines'][0] ?? 'Hoofdstraat',
-                '1' => $wallet['addressLines'][1] ?? '80'
+                '1' => $wallet['addressLines'][1] ?? null
             ],
             'city'       => $wallet['locality'] ?? 'Heerenveen',
             'country_id' => isset($wallet['countryCode']) ? strtoupper($wallet['countryCode']) : '8441ER',

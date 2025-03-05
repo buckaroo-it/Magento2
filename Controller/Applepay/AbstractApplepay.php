@@ -103,9 +103,9 @@ abstract class AbstractApplepay implements HttpPostActionInterface
     protected function commonResponse($data, $errorMessage): Json
     {
         if ($errorMessage || empty($data)) {
-            $response = ['success' => 'false', 'error' => $errorMessage];
+            $response = ['success' => false, 'error' => $errorMessage];
         } else {
-            $response = ['success' => 'true', 'data' => $data];
+            $response = ['success' => true, 'data' => $data];
         }
 
         $resultJson = $this->resultJsonFactory->create();
