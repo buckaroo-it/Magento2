@@ -53,6 +53,7 @@ define(
             selectedShippingMethod: null,
 
             showPayButton: function (payMode) {
+                this.devLog('==============applepaydebug/1');
                 // Set pay mode and product selection.
                 this.payMode = payMode;
                 this.productSelected = {};
@@ -63,17 +64,22 @@ define(
 
                 // Set checkout mode based on payMode.
                 if ((this.payMode == 'product') || (this.payMode == 'cart')) {
+                    this.devLog('==============applepaydebug/2');
                     this.setIsOnCheckout(false);
                 } else {
+                    this.devLog('==============applepaydebug/3');
+
                     this.setIsOnCheckout(true);
                 }
                 BuckarooSdk.ApplePay.checkApplePaySupport(window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.guid)
                     .then(function (applePaySupported) {
                         if (this.payMode === 'product') {
+                            this.devLog('==============applepaydebug/4');
                             this.initProductViewWatchers();
                         }
 
                         if (applePaySupported) {
+                            this.devLog('==============applepaydebug/5')
                             this.generateApplepayOptions();
                             this.payment = new BuckarooSdk.ApplePay.ApplePayPayment('#apple-pay-wrapper', this.applepayOptions);
                             this.payment.showPayButton(
@@ -82,6 +88,7 @@ define(
                             );
 
                             if (this.payMode === 'product') {
+                                this.devLog('==============applepaydebug/6');
                                 var self = this;
                                 this.payment.button.off("click");
                                 this.payment.button.on("click", function (e) {
@@ -109,6 +116,7 @@ define(
             },
 
             canShowApplePay: function () {
+                this.devLog('==============applepaydebug/7');
                 return BuckarooSdk.ApplePay.checkApplePaySupport(window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.guid)
                     .then(function (applePaySupported) {
                         this.canShowMethod(applePaySupported);
@@ -129,6 +137,7 @@ define(
             },
 
             generateApplepayOptions: function () {
+                this.devLog('==============applepaydebug/9');
                 var self = this;
                 var lineItemsType = this.isOnCheckout ? 'final' : 'pending';
                 var shippingMethods = this.isOnCheckout ? [] : self.availableShippingMethodInformation();
@@ -174,6 +183,7 @@ define(
             },
 
             processLineItems: function (type = 'final', directTotals = false) {
+                this.devLog('==============applepaydebug/10');
                 var totals = directTotals || this.getQuoteTotals();
                 var subTotal = totals.subtotal ? parseFloat(totals.subtotal).toFixed(2) : '0.00';
                 var shippingInclTax = totals.shipping ? parseFloat(totals.shipping).toFixed(2) : '0.00';
@@ -191,6 +201,7 @@ define(
             },
 
             processTotalLineItems: function (type = 'final', directTotals = false) {
+                this.devLog('==============applepaydebug/11');
                 var totals = directTotals || this.getQuoteTotals();
                 var grandTotal = totals.grand_total ? parseFloat(totals.grand_total).toFixed(2) : '0.00';
                 var storeName = window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.storeName;
@@ -203,6 +214,7 @@ define(
             },
 
             getQuoteTotals: function () {
+                this.devLog('==============applepaydebug/12');
                 var totals = {};
                 if (!this.quote || typeof this.quote.totals() === 'undefined') {
                     return totals;
@@ -224,6 +236,7 @@ define(
             },
 
             availableShippingMethodInformation: function () {
+                this.devLog('==============applepaydebug/13');
                 var shippingMethods = [];
                 $.each(this.shippingGroups, function (index, rate) {
                     var shippingInclTax = parseFloat(rate['price_incl_tax']).toFixed(2);
@@ -234,6 +247,7 @@ define(
                         detail: rate['method_title']
                     });
                 });
+                this.devLog('==============applepaydebug/14', $shippingMethods);
                 return shippingMethods;
             },
 
@@ -249,6 +263,7 @@ define(
 
             onSelectedShipmentMethod: function (event) {
                 if (this.payMode === 'product' || this.payMode === 'cart') {
+                    this.devLog('==============applepaydebug/15', event.identifier);
                     this.selectedShippingMethod = event;
                     return $.ajax({
                         url: urlBuilder.build('buckaroo/applepay/updateShippingMethods'),
@@ -274,6 +289,7 @@ define(
                             this.timeoutRedirect();
                         }.bind(this));
                 } else {
+                    this.devLog('==============applepaydebug/16');
                     var newShippingMethod = this.shippingGroups[event.identifier];
                     this.updateQuoteRate(newShippingMethod);
                     return Promise.resolve({
@@ -285,6 +301,7 @@ define(
 
             onSelectedShippingContact: function (event) {
                 if (this.payMode === 'product') {
+                    this.devLog('==============applepaydebug/17');
                     return $.ajax({
                         url: urlBuilder.build('buckaroo/applepay/add'),
                         type: 'POST',
@@ -294,6 +311,7 @@ define(
                         async: false,
                         dataFilter: function (data) {
                             var result = JSON.parse(data);
+                            this.devLog('==============applepaydebug/18',result);
                             if (result.success === true) {
                                 this.shippingGroups = {};
                                 $.each(result.data.shipping_methods, function (index, rate) {
@@ -344,6 +362,7 @@ define(
                             this.timeoutRedirect();
                         }.bind(this));
                 } else {
+                    this.devLog('==============applepaydebug/19');
                     var newShippingAddress = shippingHandler.setShippingAddress(event);
                     this.updateShippingMethods(newShippingAddress);
                     return Promise.resolve({
@@ -356,6 +375,7 @@ define(
             },
 
             updateShippingMethods: function (address) {
+                this.devLog('==============applepaydebug/20');
                 var serviceUrl = resourceUrlManager.getUrlForEstimationShippingMethodsForNewAddress(this.quote);
                 var payload = JSON.stringify({
                     address: {
@@ -395,6 +415,7 @@ define(
             },
 
             updateQuoteRate: function (newRate) {
+                this.devLog('==============applepaydebug/21',newRate);
                 shippingHandler.selectShippingMethod(newRate);
                 var subtotal = parseFloat(this.quote.totals().subtotal_incl_tax);
                 var shippingCost = parseFloat(newRate['price_incl_tax']);
@@ -411,6 +432,7 @@ define(
                 };
 
                 if ((this.payMode === 'product') || (this.payMode === 'cart')) {
+                    this.devLog('==============applepaydebug/22');
                     return $.ajax({
                         url: urlBuilder.build('buckaroo/applepay/saveOrder'),
                         type: 'POST',
@@ -423,6 +445,7 @@ define(
                         async: false,
                         dataFilter: function (data) {
                             var result = JSON.parse(data);
+                            this.devLog('==============applepaydebug/23', result);
                             if (result.success === true) {
                                 if (result.data && result.data.RequiredAction !== undefined && result.data.RequiredAction.RedirectURL !== undefined) {
                                     this.timeoutRedirect(result.data.RequiredAction.RedirectURL);
@@ -446,6 +469,7 @@ define(
             },
 
             getData: function (payment) {
+                this.devLog('==============applepaydebug/24', this.selectedShippingMethod);
                 var transactionData = this.formatTransactionResponse(payment);
                 return {
                     "method": 'applepay',
