@@ -93,7 +93,7 @@ class Add
 
                 // Get Shipping Methods from the updated quote
                 $shippingMethods = $this->quoteService->getAvailableShippingMethods();
-                $this->logger->addDebug('Add::process - shipping methods retrieved', json_encode($shippingMethods));
+                $this->logger->addDebug(json_encode($shippingMethods));
 
                 if (!empty($shippingMethods)) {
                     foreach ($shippingMethods as $shippingMethod) {
@@ -111,9 +111,9 @@ class Add
                 }
             }
 
-            $this->logger->addDebug('Add::process - shipping methods result', json_encode($shippingMethodsResult));
+            $this->logger->addDebug(json_encode($shippingMethodsResult));
 
-            // Set Payment Method to Applepay
+            // Set Payment Method to Apple Pay
             $this->quoteService->setPaymentMethod(Applepay::PAYMENT_METHOD_CODE);
 
             // Calculate Quote Totals and save quote
