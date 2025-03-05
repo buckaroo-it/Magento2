@@ -20,6 +20,8 @@
 namespace Buckaroo\Magento2\Model\Ideal;
 
 use Buckaroo\Magento2\Api\Data\QuoteCreateResponseInterface;
+use Magento\Customer\Api\Data\AddressInterface;
+use Magento\Framework\Exception\InputException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Model\Quote;
 use Buckaroo\Magento2\Logging\Log;
@@ -130,7 +132,7 @@ class QuoteCreate implements IdealQuoteCreateInterface
      * Get a customer's address by address ID
      *
      * @param int|null $addressId
-     * @return \Magento\Customer\Api\Data\AddressInterface|null
+     * @return AddressInterface|null
      * @throws LocalizedException
      */
     protected function getAddress($addressId)
@@ -142,7 +144,7 @@ class QuoteCreate implements IdealQuoteCreateInterface
         try {
             return $this->addressRepository->getById($addressId);
         } catch (NoSuchEntityException $e) {
-            $this->logger->error('Address not found', ['address_id' => $addressId]);
+            $this->logger->debug('Address not found', ['address_id' => $addressId]);
             return null;
         }
     }
@@ -150,10 +152,11 @@ class QuoteCreate implements IdealQuoteCreateInterface
     /**
      * Set the shipping and billing addresses for the quote
      *
-     * @param \Magento\Customer\Api\Data\AddressInterface|null $shippingAddressData
-     * @param \Magento\Customer\Api\Data\AddressInterface|null $billingAddressData
-     * @param \Magento\Customer\Api\Data\CustomerInterface $customer
+     * @param AddressInterface|null $shippingAddressData
+     * @param AddressInterface|null $billingAddressData
+     * @param CustomerInterface $customer
      * @return void
+     * @throws InputException
      */
     protected function setAddresses($shippingAddressData, $billingAddressData, $customer)
     {
@@ -197,6 +200,7 @@ class QuoteCreate implements IdealQuoteCreateInterface
      * Set default shipping and billing addresses for a guest
      *
      * @return void
+     * @throws InputException
      */
     protected function setDefaultShippingAddress()
     {
@@ -216,7 +220,7 @@ class QuoteCreate implements IdealQuoteCreateInterface
     /**
      * Set placeholder values for the address if no customer information is available
      *
-     * @param \Magento\Quote\Model\Quote\Address $address
+     * @param Address $address
      * @return void
      */
     protected function setPlaceholderAddress(Address $address)
@@ -253,6 +257,7 @@ class QuoteCreate implements IdealQuoteCreateInterface
      *
      * @param Address $address
      * @return void
+     * @throws InputException
      */
     protected function addFirstShippingMethod(Address $address)
     {
