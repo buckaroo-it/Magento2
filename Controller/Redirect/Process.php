@@ -505,6 +505,7 @@ class Process extends Action
     /**
      * @param $statusCode
      * @return ResponseInterface
+     * @throws LocalizedException
      */
     protected function handleFailed($statusCode)
     {
@@ -622,8 +623,9 @@ class Process extends Action
      * If possible, cancel the order
      *
      * @param $statusCode
-     *
+     * @param $statusMessage
      * @return bool
+     * @throws LocalizedException
      */
     protected function cancelOrder($statusCode, $statusMessage): bool
     {

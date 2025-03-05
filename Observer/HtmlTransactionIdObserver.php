@@ -61,15 +61,10 @@ class HtmlTransactionIdObserver implements ObserverInterface
         if ($this->isBuckarooPayment($order->getPayment()) && $txnId !== false) {
             $txtType = $transaction->getTxnType();
             if ($transaction->getTxnType() === TransactionInterface::TYPE_VOID) {
-                $parentId  = $transaction->getParentId();
-                if ($parentId) {
-                    try {
-                        $parentTransaction = $this->transactionRepository->get($parentId);
-                        if ($parentTransaction) {
-                            $txtType = $parentTransaction->getTxnType();
-                        }
-                    } catch (\Exception $e) {
-
+                if ($transaction->getParentId()) {
+                    $parentTransaction = $this->transactionRepository->get($transaction->getParentId());
+                    if ($parentTransaction) {
+                        $txtType = $parentTransaction->getTxnType();
                     }
                 }
             }
@@ -91,25 +86,6 @@ class HtmlTransactionIdObserver implements ObserverInterface
                     $transaction->getTxnId()
                 )
             );
-        }
-
-        // Makes sure a cancel/failed status cancels the order
-        if ($transaction->getTxnType() === TransactionInterface::TYPE_VOID) {
-            if ($order->getState() !== \Magento\Sales\Model\Order::STATE_CANCELED) {
-                $order->setState(\Magento\Sales\Model\Order::STATE_CANCELED);
-                $order->setStatus(\Magento\Sales\Model\Order::STATE_CANCELED);
-                $order->addCommentToStatusHistory('The request was canceled.', false, false);
-                $order->save();
-            }
-        }
-
-        // Deletes incorrect void Processing status in comment history
-        $historyItems = $order->getStatusHistories();
-        foreach ($historyItems as $history) {
-            if (strpos($history->getComment(), 'Processing') !== false &&
-                $order->getState() == \Magento\Sales\Model\Order::STATE_CANCELED) {
-                $this->statusHistoryRepository->delete($history);
-            }
         }
     }
 
