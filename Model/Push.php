@@ -624,12 +624,14 @@ class Push implements PushInterface
                 (isset($this->postData['brq_statuscode']) && $this->postData['brq_statuscode'] == 190)
             ) {
                 $this->order->setState(Order::STATE_PROCESSING);
-                $this->order->addStatusHistoryComment(
+                $this->order->addCommentToStatusHistory(
                     $this->postData['brq_statusmessage'],
                     $this->helper->getOrderStatusByState($this->order, Order::STATE_PROCESSING)
                 );
+                $this->logging->addDebug(__METHOD__ . '|4|');
             } else {
-                $this->order->addStatusHistoryComment($this->postData['brq_statusmessage']);
+                $this->order->addCommentToStatusHistory($this->postData['brq_statusmessage']);
+                $this->logging->addDebug(__METHOD__ . '|5|');
             }
         }
 
@@ -1304,16 +1306,21 @@ class Push implements PushInterface
      * @param $message
      *
      * @return bool
+     * @throws \Exception
      */
     public function processFailedPush($newStatus, $message)
     {
-        $this->logging->addDebug(__METHOD__ . '|1|' . var_export($newStatus, true));
+        $this->logging->addDebug(sprintf(
+            '[%s:%s] - Process the failed push response from Buckaroo | newStatus: %s',
+            __METHOD__,
+            __LINE__,
+            var_export($newStatus, true)
+        ));
 
         if (($this->order->getState() === Order::STATE_PROCESSING)
             && ($this->order->getStatus() === Order::STATE_PROCESSING)
         ) {
-            //do not update to failed if we had a success already
-            $this->logging->addDebug(__METHOD__ . '|2|');
+            $this->logging->addDebug('['. __METHOD__ .':'. __LINE__ . '] - Do not update to failed if we had a success');
             return false;
         }
 
@@ -1335,7 +1342,12 @@ class Push implements PushInterface
         $payment = $this->order->getPayment();
 
         if ($buckarooCancelOnFailed && $this->order->canCancel()) {
-            $this->logging->addDebug(__METHOD__ . '|' . 'Buckaroo push failed : ' . $message . ' : Cancel order.');
+            $this->logging->addDebug(sprintf(
+                '[%s:%s] - Process the failed push response from Buckaroo. Cancel Order: %s',
+                __METHOD__,
+                __LINE__,
+                $message
+            ));
 
             // BUCKM2-78: Never automatically cancelauthorize via push for afterpay
             // setting parameter which will cause to stop the cancel process on
@@ -1355,14 +1367,17 @@ class Push implements PushInterface
 
             try {
                 $this->order->cancel()->save();
-            } catch (\Throwable $t) {
-                $this->logging->addDebug(__METHOD__ . '|3|');
-                //  SignifydGateway/Gateway error on line 208"
+            } catch (\Throwable $th) {
+                $this->logging->addError(sprintf(
+                    '[%s:%s] - Process failed push from Buckaroo. Cancel Order| [ERROR]: %s',
+                    __METHOD__,
+                    __LINE__,
+                    $th->getMessage()
+                ));
             }
             return true;
         }
 
-        $this->logging->addDebug(__METHOD__ . '|4|');
         $force = false;
         if (($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_mrcash')
             && ($this->order->getState() === Order::STATE_NEW)
@@ -1718,47 +1733,34 @@ class Push implements PushInterface
      */
     protected function updateOrderStatus($orderState, $newStatus, $description, $force = false)
     {
-        $this->logging->addDebug(__METHOD__ . '|Start updateOrderStatus with parameters: ' . var_export([$orderState, $newStatus, $description, $force], true));
-
-        $currentStatus = $this->order->getStatus();
-        $defaultStatus = $this->helper->getOrderStatusByState($this->order, $orderState);
-
-        $this->logging->addDebug(__METHOD__ . '|Current Status: ' . $currentStatus);
-        $this->logging->addDebug(__METHOD__ . '|Default Status for state ' . $orderState . ': ' . $defaultStatus);
-
-        if ($currentStatus !== $defaultStatus && $this->order->getState() === $orderState) {
-            $this->logging->addDebug(__METHOD__ . '|Preserving custom status: ' . $currentStatus . '. Description: ' . $description);
+        $this->logging->addDebug(sprintf(
+            '[ORDER] | [Service] | [%s:%s] - Updates the order state and add a comment | data: %s',
+            __METHOD__,
+            __LINE__,
+            var_export([
+                'orderState' => $orderState,
+                'newStatus'  => $newStatus,
+                'description' => $description
+            ], true)
+        ));
+        if ($this->order->getState() == $orderState || $force) {
             if ($this->dontSaveOrderUponSuccessPush) {
-                $this->order->addStatusHistoryComment($description)
-                    ->setIsCustomerNotified(false)
-                    ->setEntityName('invoice')
-                    ->save();
-            } else {
-                $this->order->addStatusHistoryComment($description);
-            }
-            return;
-        }
-
-        if ($this->order->getState() == $orderState || $force == true) {
-            $this->logging->addDebug(__METHOD__ . '|Updating order state/status to new status: ' . $newStatus);
-            if ($this->dontSaveOrderUponSuccessPush) {
-                $this->order->addStatusHistoryComment($description)
+                $this->order->addCommentToStatusHistory($description)
                     ->setIsCustomerNotified(false)
                     ->setEntityName('invoice')
                     ->setStatus($newStatus)
                     ->save();
             } else {
-                $this->order->addStatusHistoryComment($description, $newStatus);
+                $this->order->addCommentToStatusHistory($description, $newStatus);
             }
         } else {
-            $this->logging->addDebug(__METHOD__ . '|Order state (' . $this->order->getState() . ') does not match expected state (' . $orderState . '). Preserving status.');
             if ($this->dontSaveOrderUponSuccessPush) {
-                $this->order->addStatusHistoryComment($description)
+                $this->order->addCommentToStatusHistory($description)
                     ->setIsCustomerNotified(false)
                     ->setEntityName('invoice')
                     ->save();
             } else {
-                $this->order->addStatusHistoryComment($description);
+                $this->order->addCommentToStatusHistory($description);
             }
         }
     }

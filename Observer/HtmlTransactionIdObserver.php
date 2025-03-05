@@ -61,10 +61,11 @@ class HtmlTransactionIdObserver implements ObserverInterface
         if ($this->isBuckarooPayment($order->getPayment()) && $txnId !== false) {
             $txtType = $transaction->getTxnType();
             if ($transaction->getTxnType() === TransactionInterface::TYPE_VOID) {
-                $parentId  = $transaction->getParentId();
-                $parentTransaction = $this->transactionRepository->get($parentId);
-                if ($parentTransaction) {
-                    $txtType = $parentTransaction->getTxnType();
+                if ($transaction->getParentId()) {
+                    $parentTransaction = $this->transactionRepository->get($transaction->getParentId());
+                    if ($parentTransaction) {
+                        $txtType = $parentTransaction->getTxnType();
+                    }
                 }
             }
 
@@ -85,7 +86,6 @@ class HtmlTransactionIdObserver implements ObserverInterface
                     $transaction->getTxnId()
                 )
             );
-
         }
     }
 
