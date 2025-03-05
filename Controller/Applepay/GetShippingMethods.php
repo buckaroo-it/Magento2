@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please email
- * to support@buckaroo.nl, so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,21 +17,18 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-
 namespace Buckaroo\Magento2\Controller\Applepay;
 
-use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
+use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay;
 use Buckaroo\Magento2\Model\Service\ApplePayFormatData;
 use Buckaroo\Magento2\Model\Service\QuoteService;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 
-/**
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
- */
 class GetShippingMethods extends AbstractApplepay
 {
     /**
@@ -45,39 +42,32 @@ class GetShippingMethods extends AbstractApplepay
     private ApplePayFormatData $applePayFormatData;
 
     /**
-     * @param JsonFactory $resultJsonFactory
+     * @param JsonFactory      $resultJsonFactory
      * @param RequestInterface $request
-     * @param BuckarooLoggerInterface $logger
-     * @param QuoteService $quoteService
+     * @param Log              $logger
+     * @param QuoteService     $quoteService
      * @param ApplePayFormatData $applePayFormatData
      */
     public function __construct(
         JsonFactory $resultJsonFactory,
         RequestInterface $request,
-        BuckarooLoggerInterface $logger,
+        Log $logger,
         QuoteService $quoteService,
         ApplePayFormatData $applePayFormatData
     ) {
-        parent::__construct(
-            $resultJsonFactory,
-            $request,
-            $logger
-        );
-        $this->quoteService = $quoteService;
-        $this->applePayFormatData = $applePayFormatData;
+        parent::__construct($resultJsonFactory, $request, $logger);
+        $this->quoteService         = $quoteService;
+        $this->applePayFormatData   = $applePayFormatData;
     }
 
     /**
      * Return Shipping Methods
-     *
-     * @return Json
      */
     public function execute()
     {
         $postValues = $this->getParams();
-
         $this->logger->addDebug(sprintf(
-            '[ApplePay] | [Controller] | [%s:%s] - Get Shipping Methods | request: %s',
+            '[ApplePay] | [Controller] | [%s:%s] - Get Shipping Methods | Request: %s',
             __METHOD__,
             __LINE__,
             var_export($postValues, true)
@@ -86,23 +76,24 @@ class GetShippingMethods extends AbstractApplepay
         $data = [];
         $errorMessage = false;
         if (!empty($postValues) && isset($postValues['wallet'])) {
+            $this->logger->addDebug(__METHOD__ . '|1|');
             try {
                 // Get Cart
+                $this->logger->addDebug(__METHOD__ . '|1.1|');
                 $cartHash = $postValues['id'] ?? null;
                 $this->quoteService->getQuote($cartHash);
 
-                // Get Shipping Address From Request
+                // Process shipping address from Apple Pay wallet data.
                 $shippingAddressRequest = $this->applePayFormatData->getShippingAddressObject($postValues['wallet']);
-
-                // Add Shipping Address on Quote
                 $this->quoteService->addAddressToQuote($shippingAddressRequest);
-
+                $this->logger->addDebug(__METHOD__ . '|1.1.3|');
                 //Set Payment Method
                 $this->quoteService->setPaymentMethod(Applepay::CODE);
 
-                // Get Shipping Methods
+                // Retrieve shipping methods.
                 $shippingMethodsResult = [];
                 if (!$this->quoteService->getQuote()->getIsVirtual()) {
+                    $this->logger->addDebug(__METHOD__ . '|1.1.5|');
                     $shippingMethods = $this->quoteService->getAvailableShippingMethods();
                     $this->logger->addDebug(__METHOD__ . '|1.1.6|' . print_r($shippingMethods, true));
                     if (empty($shippingMethods)) {
@@ -110,12 +101,12 @@ class GetShippingMethods extends AbstractApplepay
                             'Apple Pay payment failed, because no shipping methods were found for the selected address. ' .
                             'Please select a different shipping address within the pop-up or within your Apple Pay Wallet.'
                         );
-                    } else {
+                    }else {
                         // Set default shipping method using the first method.
                         $firstMethod = reset($shippingMethods);
                         $this->quoteService->setShippingMethod($firstMethod['method_code']);
 
-                        $this->logger->addDebug(__METHOD__ . '|1.1.7|' . $firstMethod['method_code']);
+                        $this->logger->addDebug(__METHOD__ . '|1.1.7|'.$firstMethod['method_code']);
                         $shippingMethodsResult = $shippingMethods;
                     }
                 }
@@ -128,10 +119,10 @@ class GetShippingMethods extends AbstractApplepay
 
                 $data = [
                     'shipping_methods' => $shippingMethodsResult,
-                    'totals' => $totals
+                    'totals'           => $totals
                 ];
-                $this->logger->addDebug(__METHOD__ . '|1.3|' . print_r($data, true));
-            } catch (NoSuchEntityException|LocalizedException $exception) {
+                $this->logger->addDebug(__METHOD__ . '|1.3|'. print_r($data, true));
+            } catch (NoSuchEntityException | LocalizedException $exception) {
                 $this->logger->addDebug(sprintf(
                     '[ApplePay] | [Controller] | [%s:%s] - Get Shipping Methods | ERROR: %s',
                     __METHOD__,
