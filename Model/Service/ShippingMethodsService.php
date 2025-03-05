@@ -1,12 +1,14 @@
 <?php
+declare(strict_types=1);
+
 /**
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the MIT License.
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
  * If you are unable to obtain it through the world-wide-web, please email
- * to support@buckaroo.nl, so we can send you a copy immediately.
+ * support@buckaroo.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -14,13 +16,13 @@
  * versions in the future. If you wish to customize this module for your
  * needs please contact support@buckaroo.nl for more information.
  *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @copyright  Copyright (c) Buckaroo B.V.
+ * @license    https://tldrlegal.com/license/mit-license
  */
-declare(strict_types=1);
-
 namespace Buckaroo\Magento2\Model\Service;
 
+use Buckaroo\Magento2\Logging\Log;
+use Magento\Framework\Exception\InputException;
 use Magento\Quote\Api\Data\AddressInterface;
 use Magento\Quote\Api\ShipmentEstimationInterface;
 use Magento\Quote\Model\Quote;
@@ -28,26 +30,25 @@ use Magento\Quote\Model\Quote\Address;
 
 class ShippingMethodsService
 {
-    /**
-     * @var ShipmentEstimationInterface
-     */
-    protected ShipmentEstimationInterface $shipmentEstimation;
+    private ShipmentEstimationInterface $shipmentEstimation;
 
-    /**
-     * @param ShipmentEstimationInterface $shipmentEstimation
-     */
+    public Log $logger;
+
     public function __construct(
-        ShipmentEstimationInterface $shipmentEstimation
+        ShipmentEstimationInterface $shipmentEstimation,
+        Log $logger
     ) {
         $this->shipmentEstimation = $shipmentEstimation;
+        $this->logger = $logger;
     }
 
     /**
-     * Get shipping methods by address
+     * Retrieve available shipping methods by the quote's address.
      *
      * @param Quote $quote
      * @param AddressInterface $address
      * @return array
+     * @throws InputException
      */
     public function getAvailableShippingMethods(Quote $quote, AddressInterface $address): array
     {
@@ -57,18 +58,19 @@ class ShippingMethodsService
         );
 
         $shippingMethodsResult = [];
-        if (count($shippingMethods)) {
+        if (count($shippingMethods) > 0) {
             foreach ($shippingMethods as $shippingMethod) {
                 $shippingMethodsResult[] = [
-                    'carrier_title'  => $shippingMethod->getCarrierTitle(),
-                    'price_incl_tax' => round($shippingMethod->getAmount(), 2),
+                    'carrier_title'  => (string)$shippingMethod->getCarrierTitle(),
+                    'price_incl_tax' => round((float)$shippingMethod->getAmount(), 2),
                     'method_code'    => $shippingMethod->getCarrierCode() . '_' . $shippingMethod->getMethodCode(),
-                    'method_title'   => $shippingMethod->getMethodTitle(),
+                    'method_title'   => (string)$shippingMethod->getMethodTitle(),
                 ];
             }
 
-            $shippingMethod = array_shift($shippingMethods);
-            $address->setShippingMethod($shippingMethod->getCarrierCode() . '_' . $shippingMethod->getMethodCode());
+            // Optionally, set the first available shipping method as default.
+            $firstMethod = array_shift($shippingMethods);
+            $address->setShippingMethod($firstMethod->getCarrierCode() . '_' . $firstMethod->getMethodCode());
         }
 
         $address->setCollectShippingRates(true);
@@ -78,11 +80,12 @@ class ShippingMethodsService
     }
 
     /**
-     * Add first found shipping method to the shipping address & recalculate shipping totals
+     * Add the first available shipping method to the address and recalculate rates.
      *
      * @param Address $address
      * @param Quote $quote
      * @return Quote
+     * @throws InputException
      */
     public function addFirstShippingMethod(Address $address, Quote $quote): Quote
     {
@@ -92,9 +95,9 @@ class ShippingMethodsService
                 $quote->getShippingAddress()
             );
 
-            if (count($shippingMethods)) {
-                $shippingMethod = array_shift($shippingMethods);
-                $address->setShippingMethod($shippingMethod->getCarrierCode() . '_' . $shippingMethod->getMethodCode());
+            if (count($shippingMethods) > 0) {
+                $firstMethod = array_shift($shippingMethods);
+                $address->setShippingMethod($firstMethod->getCarrierCode() . '_' . $firstMethod->getMethodCode());
             }
         }
         $address->setCollectShippingRates(true);
