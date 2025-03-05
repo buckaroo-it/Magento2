@@ -472,7 +472,7 @@ define(
                 this.devLog('==============applepaydebug/24', this.selectedShippingMethod);
                 var transactionData = this.formatTransactionResponse(payment);
                 return {
-                    "method": 'applepay',
+                    "method": 'buckaroo_magento2_applepay',
                     "po_number": null,
                     "shippingMethod": this.selectedShippingMethod,
                     "additional_data": {
