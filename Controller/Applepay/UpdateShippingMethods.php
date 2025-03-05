@@ -19,46 +19,95 @@
  */
 namespace Buckaroo\Magento2\Controller\Applepay;
 
-use Magento\Framework\App\Action\Action;
-use Magento\Framework\App\Action\Context;
-use Magento\Framework\View\Result\Page;
-use Magento\Framework\View\Result\PageFactory;
+use Buckaroo\Magento2\Logging\Log;
+use Magento\Checkout\Model\Session as CheckoutSession;
+use Magento\Framework\App\RequestInterface;
+use Magento\Framework\Controller\Result\Json;
+use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Quote\Model\QuoteRepository;
 
-class UpdateShippingMethods extends Common
+class UpdateShippingMethods extends AbstractApplepay
 {
-    public function execute()
+    /**
+     * @var CheckoutSession
+     */
+    private CheckoutSession $checkoutSession;
+
+    /**
+     * @var QuoteRepository
+     */
+    private QuoteRepository $quoteRepository;
+
+    /**
+     * @param JsonFactory      $resultJsonFactory
+     * @param RequestInterface $request
+     * @param Log              $logger
+     * @param QuoteRepository  $quoteRepository
+     * @param CheckoutSession  $checkoutSession
+     */
+    public function __construct(
+        JsonFactory $resultJsonFactory,
+        RequestInterface $request,
+        Log $logger,
+        QuoteRepository $quoteRepository,
+        CheckoutSession $checkoutSession
+    ) {
+        parent::__construct($resultJsonFactory, $request, $logger);
+        $this->quoteRepository  = $quoteRepository;
+        $this->checkoutSession  = $checkoutSession;
+    }
+
+    /**
+     * Update the shipping method and recalculate totals.
+     *
+     * @return Json
+     */
+    public function execute(): Json
     {
-        $isPost = $this->getRequest()->getPostValue();
+        $postValues = $this->getParams();
         $errorMessage = false;
         $data = [];
 
-        if ($isPost) {
-            if ($wallet = $this->getRequest()->getParam('wallet')) {
-                $objectManager = \Magento\Framework\App\ObjectManager::getInstance();//instance of object manager
-                $checkoutSession = $objectManager->get(\Magento\Checkout\Model\Session::class);
-                $quoteRepository = $objectManager->get(\Magento\Quote\Model\QuoteRepository::class);
-                $quote = $checkoutSession->getQuote();
-                if (!$quote->getIsVirtual()) {
-                    ////shipping
-                    $quote->getShippingAddress()->setCollectShippingRates(true);
-                    $quote->getShippingAddress()->setShippingMethod($wallet['identifier']);
+        if (!empty($postValues) && isset($postValues['wallet'])) {
+            try {
+                // Get the current quote.
+                $quote = $this->checkoutSession->getQuote();
 
+                if (!$quote->getIsVirtual()) {
+                    $shippingAddress = $quote->getShippingAddress();
+                    $shippingAddress->setCollectShippingRates(true);
+                    $shippingMethodCode = $postValues['wallet']['identifier'] ?? null;
+                    if (!$shippingMethodCode) {
+                        throw new \Exception("Shipping method identifier is missing.");
+                    }
+                    $shippingAddress->setShippingMethod($shippingMethodCode);
+
+                    // Force recalculation of totals after updating shipping method.
                     $quote->setTotalsCollectedFlag(false);
                     $quote->collectTotals();
-                    $totals = $this->gatherTotals($quote->getShippingAddress(), $quote->getTotals());
-                    $quoteRepository->save($quote);
-                    $data = [
-                        'shipping_methods' => [
-                            'code' => $wallet['identifier']
-                        ],
-                        'totals' => $totals
-                    ];
 
-                    //resave proper method
-                    $quote->getShippingAddress()->setShippingMethod($wallet['identifier']);
-                    $quote->getShippingAddress()->save();
+                    // Gather updated totals.
+                    $totals = $this->gatherTotals($shippingAddress, $quote->getTotals());
+
+                    // Save the updated quote.
+                    $this->quoteRepository->save($quote);
+
+                    $data = [
+                        'shipping_methods' => ['code' => $shippingMethodCode],
+                        'totals'           => $totals
+                    ];
                 }
+            } catch (\Exception $exception) {
+                $errorMessage = __("Setting the new Shipping Method failed: %1", $exception->getMessage());
+                $this->logger->addDebug(sprintf(
+                    '[ApplePay] | [Controller] | [%s:%s] - Update Shipping Methods | ERROR: %s',
+                    __METHOD__,
+                    __LINE__,
+                    $exception->getMessage()
+                ));
             }
+        } else {
+            $errorMessage = __("The request for updating shipping method is wrong.");
         }
 
         return $this->commonResponse($data, $errorMessage);
