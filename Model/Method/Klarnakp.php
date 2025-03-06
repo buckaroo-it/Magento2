@@ -718,6 +718,7 @@ class Klarnakp extends AbstractMethod
             $articles = array_merge($articles, $discountLine);
         }
 
+        $count++;
         $reward = $this->getRewardLine($quote, $count);
 
         if (!empty($reward)) {

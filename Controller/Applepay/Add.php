@@ -1,5 +1,4 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
@@ -18,68 +17,62 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-
 namespace Buckaroo\Magento2\Controller\Applepay;
 
 use Buckaroo\Magento2\Logging\Log;
-use Magento\Framework\App\Action\Context;
-use Magento\Framework\View\Result\Page;
-use Magento\Framework\View\Result\PageFactory;
-use Magento\Customer\Model\Session as CustomerSession;
 use Buckaroo\Magento2\Service\Applepay\Add as AddService;
+use Magento\Framework\App\RequestInterface;
+use Magento\Framework\Controller\Result\Json;
+use Magento\Framework\Controller\Result\JsonFactory;
 
-class Add extends Common
+class Add extends AbstractApplepay
 {
-    protected $formKey;
-    protected $product;
-    protected $addService;
-    protected $context;
+    /**
+     * @var AddService
+     */
+    protected AddService $addService;
 
     /**
-     * @param Context     $context
-     * @param PageFactory $resultPageFactory
+     * @param JsonFactory    $resultJsonFactory
+     * @param RequestInterface $request
+     * @param Log            $logger
+     * @param AddService     $addService
      */
     public function __construct(
-        Context $context,
-        PageFactory $resultPageFactory,
-        \Magento\Framework\Translate\Inline\ParserInterface $inlineParser,
-        \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory,
+        JsonFactory $resultJsonFactory,
+        RequestInterface $request,
         Log $logger,
-        AddService $addService = null,
-        \Magento\Checkout\Model\Cart $cart,
-        \Magento\Framework\Data\Form\FormKey $formKey,
-        \Magento\Catalog\Model\Product $product,
-        \Magento\Quote\Model\Quote\TotalsCollector $totalsCollector,
-        \Magento\Quote\Model\Cart\ShippingMethodConverter $converter,
-        CustomerSession $customerSession = null
-
+        AddService $addService
     ) {
-        parent::__construct(
-            $context,
-            $resultPageFactory,
-            $inlineParser,
-            $resultJsonFactory,
-            $logger,
-            $cart,
-            $totalsCollector,
-            $converter,
-            $customerSession
-        );
-
-        $this->formKey = $formKey;
-        $this->product = $product;
+        parent::__construct($resultJsonFactory, $request, $logger);
         $this->addService = $addService;
-        $this->context = $context;
     }
 
     /**
-     * @return Page
+     * Execute adding a product to the cart.
+     *
+     * @return Json
      */
-    public function execute()
+    public function execute(): Json
     {
-        return $this->commonResponse(
-            $this->addService->process($this->getRequest()),
-            false
-        );
+        $params = $this->getParams();
+        $this->logger->addDebug(sprintf(
+            '[ApplePay] | [Controller] | [%s:%s] - Add Product to Cart | Request Params: %s',
+            __METHOD__,
+            __LINE__,
+            var_export($params, true)
+        ));
+
+        $data = $this->addService->process($params);
+        $errorMessage = $data['error'] ?? false;
+
+        $this->logger->addDebug(sprintf(
+            '[ApplePay] | [Controller] | [%s:%s] - Add Product to Cart | Response Data: %s',
+            __METHOD__,
+            __LINE__,
+            var_export($data, true)
+        ));
+
+        return $this->commonResponse($data, $errorMessage);
     }
 }
