@@ -336,7 +336,9 @@ class Order
             ));
 
             if ($failedStatus) {
+                $order->setState($failedStatus);
                 $order->setStatus($failedStatus);
+                $order->addCommentToStatusHistory($statusMessage, $failedStatus);
             }
             $order->save();
             return true;
