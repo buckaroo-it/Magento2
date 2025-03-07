@@ -19,34 +19,34 @@
  */
 
 /** @var string $block */
-?>
-<?php if ($block->canShowButton('Product')): ?>
-<div id="apple-pay-catalog-product-view-component" data-bind="scope:'applepayproductcomponent'">
+
+if ($block->canShowButton('Product')): ?>
+    <div id="apple-pay-catalog-product-view-component" data-bind="scope:'buckarooApplepayProduct'">
         <!-- ko template: getTemplate() --><!-- /ko -->
 
-    <script>
-        if ('undefined' === typeof window.checkoutConfig) {
-            window.checkoutConfig = <?= /* @noEscape */ ($block->getApplepayConfig()); ?>;
-            window.isCustomerLoggedIn = window.checkoutConfig.isCustomerLoggedIn;
-            if ('undefined' === typeof window.checkoutConfig.totalsData) {
-                window.checkoutConfig.totalsData = {};
+        <script>
+            if ('undefined' === typeof window.checkoutConfig) {
+                window.checkoutConfig = <?= /* @noEscape */ ($block->getApplepayConfig()); ?>;
+                window.isCustomerLoggedIn = window.checkoutConfig.isCustomerLoggedIn;
+                if ('undefined' === typeof window.checkoutConfig.totalsData) {
+                    window.checkoutConfig.totalsData = {};
+                }
             }
-        }
-    </script>
+        </script>
 
-    <script type="text/x-magento-init">
-        {
-            "#apple-pay-catalog-product-view-component": {
-                "Magento_Ui/js/core/app": {
-                    "components": {
-                        "applepayproductcomponent": {
-                            "component":"buckaroo/applepay/catalog-product-view",
-                            "template":"Buckaroo_Magento2/catalog/product/view/applepay"
+        <script type="text/x-magento-init">
+            {
+                "#apple-pay-catalog-product-view-component": {
+                    "Magento_Ui/js/core/app": {
+                        "components": {
+                            "buckarooApplepayProduct": {
+                                "component": "buckaroo/applepay/catalog-product-view",
+                                "template": "Buckaroo_Magento2/catalog/product/view/applepay"
+                            }
                         }
                     }
                 }
             }
-        }
-    </script>
-</div>
+        </script>
+    </div>
 <?php endif; ?>

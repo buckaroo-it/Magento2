@@ -35,6 +35,7 @@
     <preference for="Mageplaza\Osc\Model\CheckoutManagement" type="Buckaroo\Magento2\Plugin\CheckoutManagement" />
     <preference for="Magento\Ui\Model\Export\ConvertToCsv" type="Buckaroo\Magento2\Model\Export\ConvertToCsv" />
     <preference for="Magento\Sales\Model\Order\CreditmemoFactory" type="Buckaroo\Magento2\Model\Order\CreditmemoFactory" />
+    <preference for="Buckaroo\Magento2\Api\Data\ExpressMethods\ShippingAddressRequestInterface" type="Buckaroo\Magento2\Model\Service\ShippingAddressRequest" />
 
     <!-- giftcard rest api -->
     <preference for="Buckaroo\Magento2\Model\Voucher\ApplyVoucherRequestInterface" type="Buckaroo\Magento2\Model\Voucher\ApplyVoucherRequest"/>
@@ -55,6 +56,8 @@
     <preference for="Buckaroo\Magento2\Api\Data\TotalBreakdownInterface" type="Buckaroo\Magento2\Model\Response\TotalBreakdown" />
     <preference for="Buckaroo\Magento2\Api\Data\BreakdownItemInterface" type="Buckaroo\Magento2\Model\Response\BreakdownItem" />
     <preference for="Buckaroo\Magento2\Api\Data\QuoteCreateResponseInterface" type="Buckaroo\Magento2\Model\Response\QuoteCreate" />
+
+    <preference for="Buckaroo\Magento2\Model\Service\QuoteBuilderInterface" type="Buckaroo\Magento2\Model\Service\QuoteBuilder" />
 
     <!-- paypal-express -->
     <preference for="Buckaroo\Magento2\Model\PaypalExpress\QuoteBuilderInterface" type="Buckaroo\Magento2\Model\PaypalExpress\QuoteBuilder" />

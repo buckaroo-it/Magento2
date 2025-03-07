@@ -30,7 +30,7 @@ class AfterExpiry implements \Magento\Framework\Option\ArrayInterface
     {
         $options = [
             ['value' => 'amex',                   'label' => __('American Express')],
-            ['value' => 'bancontactmrcash',       'label' => __('Bancontact / Mr Cash')],
+            ['value' => 'bancontactmrcash',       'label' => __('Bancontact')],
             ['value' => 'transfer',               'label' => __('Bank Transfer')],
             ['value' => 'cartebancaire',          'label' => __('Carte Bancaire')],
             ['value' => 'cartebleuevisa',         'label' => __('Carte Bleue')],

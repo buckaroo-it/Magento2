@@ -23,7 +23,7 @@
 Magento is an e-commerce platform owned by Adobe. There are two versions: Magento Open Source, the free, open source version written in PHP, and Magento Commerce, the paid cloud version.
 More than 250,000 merchants around the world use the Magento platform.
 
-The Buckaroo Payments Plugin ([Dutch](https://docs.buckaroo.io/docs/nl/magento-2) or [English](https://docs.buckaroo.io/docs/magento-2)) for Magento 2 enables a ready-to-sell payment gateway. You can choose from popular online payment methods in The Netherlands, Belgium, France, Germany and globally.
+The [Buckaroo Payments Plugin for Magento 2](https://docs.buckaroo.io/docs/magento-2-old) enables a ready-to-sell payment gateway. You can choose from popular online payment methods in The Netherlands, Belgium, France, Germany and globally.
 Start accepting payments within a few minutes.
 <br>
 
@@ -67,7 +67,7 @@ php bin/magento setup:di:compile
 
 ## Configuration
 
-For the configuration of the plugin, please refer to our [Dutch](https://docs.buckaroo.io/docs/nl/magento-2) or [English](https://docs.buckaroo.io/v1/docs/magento-2) support website.
+For the configuration of the plugin, please refer to our [configuration page](https://docs.buckaroo.io/docs/magento-2-old-configuration)
 You will find all the necessary information there.<br>
 But if you still have some unanswered questions, then please contact our [technical support team](mailto:support@buckaroo.nl).
 <br>
@@ -98,8 +98,7 @@ If you want to contribute as well, then please follow our [Contribution Guidelin
 <br>
 
 ## Additional information
-- **Knowledge base & FAQ:** Available in [Dutch](https://docs.buckaroo.io/docs/nl/magento-2) or [English](https://docs.buckaroo.io/docs/magento-2).
-- **Support:** https://docs.buckaroo.io
+- **Knowledge base & FAQ:** [docs.buckaroo.io](https://docs.buckaroo.io)
 - **Contact:** [support@buckaroo.nl](mailto:support@buckaroo.nl) or [+31 (0)30 711 50 50](tel:+310307115050)
 
 <b>Please note:</b><br>

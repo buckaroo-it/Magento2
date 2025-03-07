@@ -37,7 +37,7 @@ class PayPerEmail implements \Magento\Framework\Option\ArrayInterface
             ],
             [
                 'value' => 'bancontactmrcash',
-                'label' => __('Bancontact / Mr Cash'),
+                'label' => __('Bancontact'),
                 'code' => 'buckaroo_magento2_mrcash'
             ],
             [
