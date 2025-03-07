@@ -59,6 +59,7 @@ define(
             paymentError: ko.observable(''),
             isPayButtonDisabled: ko.observable(false),
             sdkClient: null,
+            tokenExpiresAt: null,
 
             /**
              * Initialize component and retrieve OAuth token.
@@ -86,6 +87,12 @@ define(
                     } else {
                         const accessToken = response.data.access_token;
                         const issuers = response.data.issuers;
+                        const expiresIn = response.data.expires_in; // lifetime in seconds
+
+                        this.tokenExpiresAt = Date.now() + expiresIn * 1000;
+
+                        this.scheduleTokenRefresh(expiresIn);
+
                         await this.initHostedFields(accessToken, issuers);
                     }
                 } catch (error) {
@@ -94,13 +101,13 @@ define(
             },
 
             /**
-             * Reset the payment form and reinitialize hosted fields.
+             * Schedule token refresh before expiry.
              */
-            resetForm: function() {
-                this.removeHostedFieldIframes();
-                this.getOAuthToken();
-                this.paymentError('');
-                this.isPayButtonDisabled(false);
+            scheduleTokenRefresh: function(expiresIn) {
+                const refreshTime = Math.max(expiresIn * 1000 - 1000, 0);
+                setTimeout(() => {
+                    this.resetHostedFields($.mage.__("We are refreshing the payment form, because the session has expired."));
+                }, refreshTime);
             },
 
             /**
@@ -111,6 +118,17 @@ define(
                 $('#cc-number-wrapper iframe').remove();
                 $('#cc-expiry-wrapper iframe').remove();
                 $('#cc-cvc-wrapper iframe').remove();
+            },
+
+            /**
+             * Unified function to reset hosted fields.
+             * @param {String} [errorMsg] Optional error message to display.
+             */
+            async resetHostedFields(errorMsg = '') {
+                this.removeHostedFieldIframes();
+                this.paymentError(errorMsg);
+                await this.getOAuthToken();
+                this.isPayButtonDisabled(false);
             },
 
             /**
@@ -140,6 +158,7 @@ define(
                         this.service = this.sdkClient.getService();
                     });
 
+                    // Styling for hosted fields.
                     const cardLogoStyling = {
                         height: "80%",
                         position: 'absolute',
@@ -220,6 +239,15 @@ define(
             onPayClick: async function(data, event) {
                 event.preventDefault();
                 this.isPayButtonDisabled(true);
+
+                // Check if the token has expired before processing payment.
+                if (Date.now() > this.tokenExpiresAt) {
+                    await this.resetHostedFields($.mage.__("We are refreshing the payment form, because the session has expired."));
+                    this.paymentError($.mage.__("Session expired, please try again."));
+                    this.isPayButtonDisabled(false);
+                    return;
+                }
+
                 try {
                     const paymentToken = await this.sdkClient.submitSession();
                     if (!paymentToken) {

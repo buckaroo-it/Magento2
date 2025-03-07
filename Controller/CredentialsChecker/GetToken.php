@@ -154,19 +154,19 @@ class GetToken extends Action
             $response = $this->sendPostRequest($url, $hostedFieldsClientId, $hostedFieldsClientSecret, $postData);
             $responseArray = json_decode($response, true);
 
-            // Check for successful response
+            // Check for successful response and include expires_in if available
             if (isset($responseArray['access_token'])) {
                 return $result->setData([
                     'error' => false,
                     'data' => [
                         'access_token' => $responseArray['access_token'],
-                        'issuers' => $issuers
+                        'expires_in'   => $responseArray['expires_in'],
+                        'issuers'      => $issuers
                     ]
                 ]);
             }
 
             // Handle error response
-            $message = isset($responseArray['message']) ? $responseArray['message'] : 'Unknown error occurred';
             return $result->setHttpResponseCode(400)->setData([
                 'error' => true,
                 'message' => 'Error fetching token.'
