@@ -19,17 +19,18 @@
  */
 namespace Buckaroo\Magento2\Controller\Applepay;
 
+use Buckaroo\Magento2\Api\Data\BuckarooResponseDataInterface;
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\Config\Source\InvoiceHandlingOptions;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderFactory;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay;
+use Buckaroo\Magento2\Model\Service\ExpressMethodsException;
 use Buckaroo\Magento2\Model\Service\QuoteAddressService;
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Group;
 use Magento\Customer\Model\Session as CustomerSession;
-use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
@@ -38,7 +39,6 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Registry;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\QuoteManagement;
-use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 
 class SaveOrder extends AbstractApplepay
@@ -51,7 +51,12 @@ class SaveOrder extends AbstractApplepay
     /**
      * @var QuoteManagement
      */
-    protected QuoteManagement $quoteManagement;
+    protected $quoteManagement;
+
+    /**
+     * @var BuckarooResponseDataInterface
+     */
+    protected BuckarooResponseDataInterface $buckarooResponseData;
 
     /**
      * @var Order
@@ -74,16 +79,6 @@ class SaveOrder extends AbstractApplepay
     private DataObjectFactory $objectFactory;
 
     /**
-     * @var OrderRepositoryInterface
-     */
-    private OrderRepositoryInterface $orderRepository;
-
-    /**
-     * @var SearchCriteriaBuilder
-     */
-    private SearchCriteriaBuilder $searchCriteriaBuilder;
-
-    /**
      * @var QuoteAddressService
      */
     private QuoteAddressService $quoteAddressService;
@@ -100,8 +95,7 @@ class SaveOrder extends AbstractApplepay
      * @param QuoteManagement          $quoteManagement
      * @param CustomerSession          $customerSession
      * @param DataObjectFactory        $objectFactory
-     * @param OrderRepositoryInterface $orderRepository
-     * @param SearchCriteriaBuilder    $searchCriteriaBuilder
+     * @param BuckarooResponseDataInterface $buckarooResponseData
      * @param CheckoutSession          $checkoutSession
      * @param ConfigProviderFactory    $configProviderFactory
      * @param QuoteAddressService      $quoteAddressService
@@ -115,8 +109,7 @@ class SaveOrder extends AbstractApplepay
         QuoteManagement $quoteManagement,
         CustomerSession $customerSession,
         DataObjectFactory $objectFactory,
-        OrderRepositoryInterface $orderRepository,
-        SearchCriteriaBuilder $searchCriteriaBuilder,
+        BuckarooResponseDataInterface $buckarooResponseData,
         CheckoutSession $checkoutSession,
         ConfigProviderFactory $configProviderFactory,
         QuoteAddressService $quoteAddressService,
@@ -127,8 +120,7 @@ class SaveOrder extends AbstractApplepay
         $this->quoteManagement       = $quoteManagement;
         $this->customerSession       = $customerSession;
         $this->objectFactory         = $objectFactory;
-        $this->orderRepository       = $orderRepository;
-        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->buckarooResponseData = $buckarooResponseData;
         $this->checkoutSession       = $checkoutSession;
         $this->quoteAddressService   = $quoteAddressService;
         $this->accountConfig         = $configProviderFactory->get('account');
@@ -140,7 +132,7 @@ class SaveOrder extends AbstractApplepay
      * Save Order
      *
      * @return Json
-     * @throws LocalizedException
+     * @throws LocalizedException|ExpressMethodsException
      */
     public function execute(): Json
     {
