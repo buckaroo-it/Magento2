@@ -226,21 +226,17 @@ class QuoteService
      *
      * @return array
      */
-    public function gatherTotals()
+    public function gatherTotals(): array
     {
         $quoteTotals = $this->quote->getTotals();
-
         $shippingAddress = $this->quote->getShippingAddress();
-        $shippingTotalInclTax = 0;
-        if ($shippingAddress !== null) {
-            $shippingTotalInclTax = $shippingAddress->getData('shipping_incl_tax');
-        }
+        $shippingTotalInclTax = $shippingAddress ? (float)$shippingAddress->getData('shipping_incl_tax') : 0.0;
 
         $totals = [
-            'subtotal' => $quoteTotals['subtotal']->getValue(),
-            'discount' => isset($quoteTotals['discount']) ? $quoteTotals['discount']->getValue() : null,
-            'shipping' => $shippingTotalInclTax,
-            'grand_total' => $quoteTotals['grand_total']->getValue()
+            'subtotal'    => (float)$quoteTotals['subtotal']->getValue(),
+            'discount'    => isset($quoteTotals['discount']) ? (float)$quoteTotals['discount']->getValue() : 0.0,
+            'shipping'    => $shippingTotalInclTax,
+            'grand_total' => (float)$quoteTotals['grand_total']->getValue(),
         ];
 
         if ($this->quote->getSubtotal() != $this->quote->getSubtotalWithDiscount()) {

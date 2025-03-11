@@ -36,6 +36,7 @@ class Applepay extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_applepay';
 
+    public const XPATH_APPLEPAY_ACTIVE                            = 'active';
     public const XPATH_APPLEPAY_AVAILABLE_BUTTONS                 = 'available_buttons';
     public const XPATH_APPLEPAY_BUTTON_STYLE                      = 'button_style';
     public const XPATH_APPLEPAY_DONT_ASK_BILLING_INFO_IN_CHECKOUT = 'dont_ask_billing_info_in_checkout';
@@ -225,5 +226,8 @@ class Applepay extends AbstractConfigProvider
         );
     }
 
-
+    public function isApplePayEnabled($store = null)
+    {
+        return $this->getConfigFromXpath(self::XPATH_APPLEPAY_ACTIVE, $store);
+    }
 }
