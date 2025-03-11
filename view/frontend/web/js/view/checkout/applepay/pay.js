@@ -71,7 +71,7 @@ define(
                         this.devLog('==============applepaydebug/8',[
                             applePaySupported,
                             this.isOnCheckout,
-                            window.checkoutConfig.payment.buckaroo.applepay
+                            window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay
                         ]);
 
                         if (this.payMode === 'product') {
@@ -525,7 +525,7 @@ define(
             },
 
             devLog: function (msg, params) {
-                window.buckarooDebug = 1;
+                //window.buckarooDebug = 1;
                 if (window.buckarooDebug) {
                     console.log(msg, params);
                 }
