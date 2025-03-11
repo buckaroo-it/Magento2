@@ -117,11 +117,9 @@ class Applepay extends AbstractConfigProvider
     }
 
     /**
-     * Returns an array of available buttons for the Apple Pay payment method.
-     *
-     * @return false|string[]
+     * @return array
      */
-    public function getAvailableButtons()
+    public function getAvailableButtons(): array
     {
         $availableButtons = $this->getMethodConfigValue(self::XPATH_APPLEPAY_AVAILABLE_BUTTONS);
 
@@ -228,6 +226,6 @@ class Applepay extends AbstractConfigProvider
 
     public function isApplePayEnabled($store = null)
     {
-        return $this->getConfigFromXpath(self::XPATH_APPLEPAY_ACTIVE, $store);
+        return $this->getMethodConfigValue(self::XPATH_APPLEPAY_ACTIVE);
     }
 }
