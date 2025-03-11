@@ -136,16 +136,16 @@ class QuoteAddressService
     {
         $address = [
             'prefix'     => '',
-            'firstname'  => $wallet['givenName'] ?? 'Test',
+            'firstname'  => $wallet['givenName'] ?? '',
             'middlename' => '',
-            'lastname'   => $wallet['familyName'] ?? 'Acceptatie',
+            'lastname'   => $wallet['familyName'] ?? '',
             'street'     => [
-                $wallet['addressLines'][0] ?? 'Hoofdstraat',
-                $wallet['addressLines'][1] ?? '80'
+                $wallet['addressLines'][0] ?? '',
+                $wallet['addressLines'][1] ?? null
             ],
-            'city'       => $wallet['locality'] ?? 'Heerenveen',
-            'country_id' => isset($wallet['countryCode']) ? strtoupper($wallet['countryCode']) : 'NL',
-            'region'     => $wallet['administrativeArea'] ?? 'Friesland',
+            'city'       => $wallet['locality'] ?? '',
+            'country_id' => isset($wallet['countryCode']) ? strtoupper($wallet['countryCode']) : '',
+            'region'     => $wallet['administrativeArea'] ?? '',
             'region_id'  => '',
             'postcode'   => $wallet['postalCode'] ?? '',
             'telephone'  => $wallet['phoneNumber'] ?? 'N/A',
@@ -173,7 +173,7 @@ class QuoteAddressService
      * @param array|bool $errors
      * @param string $addressType
      * @return bool
-     * @throws Exception
+     * @throws ExpressMethodsException
      */
     protected function setCommonAddressProceed($errors, string $addressType): bool
     {

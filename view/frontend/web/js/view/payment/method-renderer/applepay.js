@@ -49,6 +49,7 @@ define(
 
                 initObservable: function () {
                     this._super().observe([]);
+                    applepayPay.canShowApplePay();
 
                     applepayPay.transactionResult.subscribe(
                         function () {
@@ -77,7 +78,7 @@ define(
                 },
 
                 canShowPaymentMethod: ko.computed(function () {
-                    return applepayPay.canShowApplePay();
+                    return applepayPay.canShowMethod();
                 }),
 
 

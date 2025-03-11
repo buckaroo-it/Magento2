@@ -106,15 +106,14 @@ define(
             },
 
             canShowApplePay: function () {
-                return BuckarooSdk.ApplePay.checkApplePaySupport(window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.guid)
+                BuckarooSdk.ApplePay.checkApplePaySupport(window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.guid)
                     .then(function (applePaySupported) {
                         this.canShowMethod(applePaySupported);
-                        return applePaySupported;
                     }.bind(this))
                     .catch(function (error) {
                         this.canShowMethod(false);
-                        return false;
                     }.bind(this));
+                return this.canShowMethod();
             },
 
             setQuote: function (newQuote) {
