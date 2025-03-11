@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -20,33 +20,47 @@
 
 namespace Buckaroo\Magento2\Block\Catalog\Product\View;
 
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay as ApplepayConfig;
+use Magento\Checkout\Model\Cart;
 use Magento\Checkout\Model\CompositeConfigProvider;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay as ApplepayConfig;
 
 class Applepay extends Template
 {
-    /** @var CompositeConfigProvider */
+    /**
+     * @var Cart
+     */
+    private $cart;
+
+    /**
+     * @var CompositeConfigProvider
+     */
     private $compositeConfigProvider;
 
-    /** @var ApplepayConfig */
+    /**
+     * @var ApplepayConfig
+     */
     private $applepayConfigProvider;
 
     /**
-     * @param Context                 $context
+     * @param Context $context
+     * @param Cart $cart
      * @param CompositeConfigProvider $compositeConfigProvider
-     * @param ApplepayConfig          $applepayConfigProvider
-     * @param array                   $data
+     * @param ApplepayConfig $applepayConfigProvider
+     * @param array $data
      */
     public function __construct(
         Context $context,
+        Cart $cart,
         CompositeConfigProvider $compositeConfigProvider,
         ApplepayConfig $applepayConfigProvider,
         array $data = []
     ) {
         parent::__construct($context, $data);
+
+        $this->cart = $cart;
         $this->compositeConfigProvider = $compositeConfigProvider;
         $this->applepayConfigProvider = $applepayConfigProvider;
     }
@@ -54,7 +68,6 @@ class Applepay extends Template
     /**
      * @param $page
      * @return bool
-     * @throws NoSuchEntityException
      */
     public function canShowButton($page): bool
     {
@@ -67,7 +80,7 @@ class Applepay extends Template
             return false;
         }
 
-        return $this->applepayConfigProvider->isApplePayEnabled($this->_storeManager->getStore());
+        return $this->applepayConfigProvider->isApplePayEnabled();
     }
 
     /**
@@ -82,20 +95,13 @@ class Applepay extends Template
     }
 
     /**
-     * Get entire checkout configuration as JSON.
-     * Wrap in a try/catch to avoid "No such entity with cartId" exceptions.
+     * Get checkout config
      *
-     * @return string
+     * @return false|string
      */
     public function getCheckoutConfig()
     {
-        try {
-            $config = $this->compositeConfigProvider->getConfig();
-        } catch (NoSuchEntityException $e) {
-            $config = [];
-        }
-
-        return json_encode($config, JSON_HEX_TAG);
+        return json_encode($this->compositeConfigProvider->getConfig(), JSON_HEX_TAG);
     }
 
     /**
