@@ -21,7 +21,7 @@
  -->
 <include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
     <!-- Billink Payment method group -->
-    <group id="buckaroo_magento2_billink" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+    <group id="buckaroo_magento2_billink" translate="label" type="text" sortOrder="35" showInDefault="1" showInWebsite="1" showInStore="1">
         <label>Billink</label>
         <frontend_model>Buckaroo\Magento2\Block\Config\Form\Field\Fieldset</frontend_model>
 
@@ -71,6 +71,45 @@
             <comment><![CDATA[Determines the sorting of payment methods.]]></comment>
             <config_path>payment/buckaroo_magento2_billink/sort_order</config_path>
         </field>
+
+        <group id="buckaroo_magento2_default" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Method specific configuration</label>
+            <field id="customer_type" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Billink customer type</label>
+                <comment><![CDATA[This setting determines whether you accept Billink payments for B2C, B2B or both customer types. When B2B is selected, this method is only shown when a company name is entered in the checkout process.]]></comment>
+                <source_model>Buckaroo\Magento2\Model\Config\Source\BillinkCustomerType</source_model>
+                <config_path>payment/buckaroo_magento2_billink/customer_type</config_path>
+            </field>
+
+            <field id="min_amount_b2b" translate="label comment tooltip" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Min order amount for B2B (in Base Currency)</label>
+                <comment><![CDATA[Minimum order amount allowed.]]></comment>
+                <tooltip>The payment method shows only for orders with an order amount greater than the minimum amount.</tooltip>
+                <config_path>payment/buckaroo_magento2_billink/min_amount_b2b</config_path>
+                <backend_model>Buckaroo\Magento2\Model\Config\Backend\Price</backend_model>
+                <depends>
+                    <field id="customer_type" separator=",">both,b2b</field>
+                </depends>
+            </field>
+
+            <field id="max_amount_b2b" translate="label comment tooltip" type="text" sortOrder="35" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Max order amount for B2B (in Base Currency)</label>
+                <comment><![CDATA[Maximum order amount allowed.]]></comment>
+                <tooltip>The payment method shows only for orders with an order amount smaller than the maximum amount.</tooltip>
+                <config_path>payment/buckaroo_magento2_billink/max_amount_b2b</config_path>
+                <backend_model>Buckaroo\Magento2\Model\Config\Backend\Price</backend_model>
+                <depends>
+                    <field id="customer_type" separator=",">both,b2b</field>
+                </depends>
+            </field>
+
+            <field id="financial_warning" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Consumer Financial Warning</label>
+                <comment><![CDATA[Due to the regulations for BNPL methods in The Netherlands you’ll  have to warn customers about using a BNPL plan because it can be easy to get into debt. When enabled a warning will be showed in the checkout. Please note that this setting only applies for customers in The Netherlands.]]></comment>
+                <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                <config_path>payment/buckaroo_magento2_billink/financial_warning</config_path>
+            </field>
+        </group>
 
         <group id="buckaroo_magento2_advanced" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Advanced Configuration</label>
@@ -146,22 +185,6 @@
                     <comment><![CDATA[Maximum order amount allowed for B2C.]]></comment>
                     <tooltip>The payment method shows only for orders with an order amount smaller than the maximum amount.</tooltip>
                     <config_path>payment/buckaroo_magento2_billink/max_amount</config_path>
-                    <backend_model>Buckaroo\Magento2\Model\Config\Backend\Price</backend_model>
-                </field>
-
-                <field id="min_amount_b2b" translate="label comment tooltip" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Min order amount B2B (in Base Currency)</label>
-                    <comment><![CDATA[Minimum order amount allowed for B2B.]]></comment>
-                    <tooltip>The payment method shows only for orders with an order amount greater than the minimum amount.</tooltip>
-                    <config_path>payment/buckaroo_magento2_billink/min_amount_b2b</config_path>
-                    <backend_model>Buckaroo\Magento2\Model\Config\Backend\Price</backend_model>
-                </field>
-
-                <field id="max_amount_b2b" translate="label comment tooltip" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Max order amount B2B (in Base Currency)</label>
-                    <comment><![CDATA[Maximum order amount allowed for B2B.]]></comment>
-                    <tooltip>The payment method shows only for orders with an order amount smaller than the maximum amount.</tooltip>
-                    <config_path>payment/buckaroo_magento2_billink/max_amount_b2b</config_path>
                     <backend_model>Buckaroo\Magento2\Model\Config\Backend\Price</backend_model>
                 </field>
 
