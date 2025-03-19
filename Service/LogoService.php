@@ -80,12 +80,6 @@ class LogoService
             "knaken"           => "svg/gosettle.svg"
         ];
 
-        if ($backend === true) {
-            $mappings = array_merge($mappings, [
-                "paybybank" => "svg/paybybank.svg",
-            ]);
-        }
-
         $name = "svg/{$paymentCode}.svg";
 
         if (isset($mappings[$paymentCode])) {
