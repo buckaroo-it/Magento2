@@ -584,6 +584,15 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
             );
         }
 
+        if (version_compare($context->getVersion(), '1.52.0', '<')) {
+            // Update buckaroo_magento2_mrcash title to 'Bancontact'
+            $setup->getConnection()->update(
+                $setup->getTable('core_config_data'),
+                ['value' => 'goSettle'],
+                ['path = ?' => 'payment/buckaroo_magento2_knaken/title']
+            );
+        }
+
         $this->setCustomerIDIN($setup);
 
         $this->setCustomerIsEighteenOrOlder($setup);

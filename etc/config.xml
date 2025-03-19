@@ -290,7 +290,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Knaken</model>
                 <order_status>pending</order_status>
-                <title>Knaken Settle</title>
+                <title>goSettle</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>300</sort_order>
                 <order_email>1</order_email>
