@@ -585,7 +585,7 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
         }
 
         if (version_compare($context->getVersion(), '1.52.0', '<')) {
-            // Update buckaroo_magento2_mrcash title to 'Bancontact'
+            // Update buckaroo_magento2_knaken title to 'goSettle'
             $setup->getConnection()->update(
                 $setup->getTable('core_config_data'),
                 ['value' => 'goSettle'],
