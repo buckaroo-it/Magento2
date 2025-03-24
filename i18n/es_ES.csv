@@ -180,7 +180,7 @@
 "Buckaroo","Buckaroo"
 "Version &amp; Support","Versión y asistencia"
 "General configuration and account information","Configuración general e información de la cuenta"
-"Store key","Clave de la tienda"
+"Store key","Store key"
 "Debug information will be sent to these comma-separated email addresses","La información de corrección de errores se enviará a estas direcciones de correo electrónico separadas por comas"
 "Debugging","Corrección de errores"
 "Decide what to debug. Log files will be created within the var/log/Buckaroo/ directory.","Elija dónde realizar la corrección de errores. Los archivos de registro se crearán en el directorio var/log/Buckaroo/."

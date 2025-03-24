@@ -178,7 +178,7 @@
 "Buckaroo","Buckaroo"
 "Version &amp; Support","Version &amp; Soutien"
 "General configuration and account information","Configuration générale et informations sur le compte"
-"Store key","Clé du magasin"
+"Store key","Store key"
 "Debug information will be sent to these comma-separated email addresses","Les informations de débogage seront envoyées à ces adresses e-mail séparées par des virgules"
 "Debugging","Débogage"
 "Decide what to debug. Log files will be created within the var/log/Buckaroo/ directory.","Décidez quoi déboguer. Les fichiers journaux seront créés dans le répertoire var/log/Buckaroo/."
