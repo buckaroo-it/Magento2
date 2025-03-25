@@ -263,7 +263,7 @@ class Account extends AbstractConfigProvider
     }
 
     /**
-     * Get Merchant Key/Website Key from Buckaroo Payment Engine
+     * Get Merchant Store Key from Buckaroo Payment Engine
      *
      * @param null|int|string $store
      * @return mixed
