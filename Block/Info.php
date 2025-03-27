@@ -110,11 +110,12 @@ class Info extends \Magento\Payment\Block\Info
             "emandate" => "emandate.png",
             "pospayment" => "pos.png",
             "transfer" => "svg/sepa-credittransfer.svg",
-            "paybybank" => "paybybank.gif"
+            "paybybank" => "paybybank.gif",
+            "knaken" => "svg/gosettle.svg"
         ];
 
         $name = "svg/{$method}.svg";
-        
+
         if(isset($mappings[$method])) {
             $name = $mappings[$method];
         }
@@ -163,7 +164,7 @@ class Info extends \Magento\Payment\Block\Info
         if($code === 'cartebleuevisa') {
             $code = 'cartebleue';
         }
-        
+
         return $this->assetRepo->getUrl("Buckaroo_Magento2::images/creditcards/{$code}.svg");
     }
 }
