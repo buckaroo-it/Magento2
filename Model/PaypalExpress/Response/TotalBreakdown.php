@@ -121,6 +121,6 @@ class TotalBreakdown implements TotalBreakdownInterface
             return 0;
         }
 
-        return round($totals[$type]->getValue(), 2);
+        return round((float)$totals[$type]->getValue(), 2);
     }
 }

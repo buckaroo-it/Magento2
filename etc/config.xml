@@ -63,6 +63,7 @@
                 <privateInfoKeys></privateInfoKeys>
                 <paymentInfoKeys>buckaroo_original_transaction_key</paymentInfoKeys>
                 <show_issuers>1</show_issuers>
+                <ideal_logo_colors>Dark</ideal_logo_colors>
             </buckaroo_magento2_ideal>
 
             <buckaroo_magento2_paybybank>
