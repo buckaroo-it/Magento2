@@ -79,6 +79,7 @@
     <preference for="Buckaroo\Magento2\Model\Ideal\QuoteBuilderInterface" type="Buckaroo\Magento2\Model\Ideal\QuoteBuilder" />
     <preference for="Buckaroo\Magento2\Api\IdealQuoteCreateInterface" type="Buckaroo\Magento2\Model\Ideal\QuoteCreate" />
     <preference for="Buckaroo\Magento2\Api\Data\Ideal\ShippingAddressRequestInterface" type="Buckaroo\Magento2\Model\Ideal\Request\ShippingAddress" />
+    <preference for="Buckaroo\Magento2\Api\Data\Ideal\QuoteCreateResponseInterface" type="Buckaroo\Magento2\Model\Ideal\Response\QuoteCreate" />
     <!-- end ideal-fast-checkout -->
 <!--    END PREFERENCES-->
 

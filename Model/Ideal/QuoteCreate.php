@@ -19,7 +19,6 @@
  */
 namespace Buckaroo\Magento2\Model\Ideal;
 
-use Buckaroo\Magento2\Api\Data\PaypalExpress\QuoteCreateResponseInterface;
 use Magento\Customer\Api\Data\AddressInterface;
 use Magento\Framework\Exception\InputException;
 use Magento\Framework\Exception\LocalizedException;
@@ -35,10 +34,11 @@ use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Session as CustomerSession;
 use Buckaroo\Magento2\Api\IdealQuoteCreateInterface;
 use Buckaroo\Magento2\Model\Ideal\QuoteBuilderInterfaceFactory;
-use Buckaroo\Magento2\Api\Data\PaypalExpress\QuoteCreateResponseInterfaceFactory;
 use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Store\Model\StoreManagerInterface;
+use Buckaroo\Magento2\Api\Data\Ideal\QuoteCreateResponseInterface;
+use Buckaroo\Magento2\Api\Data\Ideal\QuoteCreateResponseInterfaceFactory;
 
 class QuoteCreate implements IdealQuoteCreateInterface
 {

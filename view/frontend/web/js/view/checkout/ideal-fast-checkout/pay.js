@@ -123,8 +123,16 @@ define([
         },
 
         updateOrder: function (jsonResponse) {
-            if (jsonResponse.buckaroo_response.RequiredAction && jsonResponse.buckaroo_response.RequiredAction.RedirectURL) {
-                window.location.replace(jsonResponse.buckaroo_response.RequiredAction.RedirectURL);
+            let redirectUrl = null;
+
+            if (jsonResponse.RequiredAction && jsonResponse.RequiredAction.RedirectURL) {
+                redirectUrl = jsonResponse.RequiredAction.RedirectURL;
+            } else if (jsonResponse.buckaroo_response && jsonResponse.buckaroo_response.RequiredAction && jsonResponse.buckaroo_response.RequiredAction.RedirectURL) {
+                redirectUrl = jsonResponse.buckaroo_response.RequiredAction.RedirectURL;
+            }
+
+            if (redirectUrl) {
+                window.location.replace(redirectUrl);
             } else {
                 window.location.replace(urlBuilder.build('checkout/onepage/success'));
             }

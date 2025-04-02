@@ -21,7 +21,7 @@
 
 namespace Buckaroo\Magento2\Api;
 
-use Buckaroo\Magento2\Api\Data\PaypalExpress\QuoteCreateResponseInterface;
+use Buckaroo\Magento2\Api\Data\Ideal\QuoteCreateResponseInterface;
 
 interface IdealQuoteCreateInterface
 {
@@ -29,11 +29,11 @@ interface IdealQuoteCreateInterface
      * Get order breakdown after shipping is applied
      *
      * @param string $page
-     * @param string|null $order_data
+     * @param string|null $orderData
      * @return QuoteCreateResponseInterface
      */
     public function execute(
         string $page,
-        string $order_data = null
+        string $orderData = null
     );
 }

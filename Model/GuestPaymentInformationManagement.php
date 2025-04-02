@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Model;
 
 use Buckaroo\Magento2\Api\Data\BuckarooResponseDataInterface;
 use Buckaroo\Magento2\Api\GuestPaymentInformationManagementInterface;
+use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Magento\Checkout\Api\PaymentInformationManagementInterface;
@@ -173,10 +174,11 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
      * Check if the payment method is allowed for the given billing address country.
      *
      * @param PaymentInterface $paymentMethod
-     * @param AddressInterface $billingAddress
+     * @param AddressInterface|null $billingAddress
      * @throws LocalizedException
+     * @throws Exception
      */
-    public function checkSpecificCountry(PaymentInterface $paymentMethod, AddressInterface $billingAddress)
+    public function checkSpecificCountry(PaymentInterface $paymentMethod, ?AddressInterface $billingAddress)
     {
         $paymentMethodCode = $this->normalizePaymentMethodCode($paymentMethod->getMethod());
 
