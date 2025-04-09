@@ -41,7 +41,7 @@
                 <active>0</active>
                 <model>IdealFacade</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo iDEAL</title>
+                <title>iDEAL</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>10</sort_order>
                 <order_email>1</order_email>
@@ -69,7 +69,7 @@
                 <active>0</active>
                 <model>PayByBankFacade</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo PayByBank</title>
+                <title>PayByBank</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>350</sort_order>
                 <order_email>1</order_email>
@@ -93,7 +93,7 @@
                 <active>0</active>
                 <model>SepaDirectDebitFacade</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo SEPA Direct Debit</title>
+                <title>SEPA Direct Debit</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>110</sort_order>
                 <reminder_leve1>4</reminder_leve1>
@@ -119,7 +119,7 @@
                 <active>0</active>
                 <model>PaypalFacade</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo PayPal</title>
+                <title>PayPal</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>90</sort_order>
                 <sellers_protection>1</sellers_protection>
@@ -150,7 +150,7 @@
                 <active>0</active>
                 <model>PayconiqFacade</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Payconiq</title>
+                <title>Payconiq</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>90</sort_order>
                 <order_email>1</order_email>
@@ -174,7 +174,7 @@
                 <active>0</active>
                 <model>CreditcardFacade</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Creditcard and Debit Card</title>
+                <title>Creditcard and Debit Card</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>30</sort_order>
                 <order_email>1</order_email>
@@ -205,7 +205,7 @@
                 <active>0</active>
                 <model>CreditcardEncryptedFacade</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Creditcards</title>
+                <title>Creditcards</title>
                 <sort_order>35</sort_order>
                 <order_email>1</order_email>
                 <payment_fee_label>Fee</payment_fee_label>
@@ -229,7 +229,7 @@
                 <active>0</active>
                 <model>TransferFacade</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Transfer</title>
+                <title>Transfer</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>100</sort_order>
                 <order_email>1</order_email>
@@ -285,7 +285,7 @@
                 <active>0</active>
                 <model>BelfiusFacade</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Belfius</title>
+                <title>Belfius</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>150</sort_order>
                 <order_email>1</order_email>
@@ -333,7 +333,7 @@
                 <active>0</active>
                 <model>AfterpayOldFacade</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Riverty</title>
+                <title>Riverty</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>150</sort_order>
                 <order_email>1</order_email>
@@ -360,7 +360,7 @@
                 <active>0</active>
                 <model>AfterpayOldFacade2</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Riverty 2</title>
+                <title>Riverty 2</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>160</sort_order>
                 <order_email>1</order_email>
@@ -386,7 +386,7 @@
                 <active>0</active>
                 <model>PayPerEmailFacade</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo PayPerEmail</title>
+                <title>PayPerEmail</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>170</sort_order>
                 <order_email>1</order_email>
@@ -416,7 +416,7 @@
                 <active>0</active>
                 <model>EpsFacade</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo EPS</title>
+                <title>EPS</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>180</sort_order>
                 <order_email>1</order_email>
@@ -440,7 +440,7 @@
                 <active>0</active>
                 <model>GiftcardsFacade</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Giftcards</title>
+                <title>Giftcards</title>
                 <sort_order>190</sort_order>
                 <order_email>1</order_email>
                 <payment_fee_label>Fee</payment_fee_label>
@@ -463,7 +463,7 @@
                 <active>0</active>
                 <model>KbcFacade</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo KBC</title>
+                <title>KBC</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>210</sort_order>
                 <order_email>1</order_email>
@@ -487,7 +487,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\Multibanco</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Multibanco</title>
+                <title>Multibanco</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>211</sort_order>
                 <order_email>1</order_email>
@@ -501,7 +501,7 @@
                 <active>0</active>
                 <model>Buckaroo\Magento2\Model\Method\MBWay</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo MBWay</title>
+                <title>MBWay</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>212</sort_order>
                 <order_email>1</order_email>
@@ -515,7 +515,7 @@
                 <active>0</active>
                 <model>PayLinkFacade</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo PayLink</title>
+                <title>PayLink</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>215</sort_order>
                 <order_email>1</order_email>
@@ -540,7 +540,7 @@
                 <active>0</active>
                 <model>KlarnaFacade</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Klarna: Pay later</title>
+                <title>Klarna: Pay later</title>
                 <sort_oder>220</sort_oder>
                 <order_email>1</order_email>
                 <payment_fee_label>Fee</payment_fee_label>
@@ -564,7 +564,7 @@
                 <active>0</active>
                 <model>KlarnaKpFacade</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Klarna: Pay later</title>
+                <title>Klarna: Pay later</title>
                 <sort_oder>220</sort_oder>
                 <order_email>1</order_email>
                 <payment_fee_label>Fee</payment_fee_label>
@@ -589,7 +589,7 @@
                 <active>0</active>
                 <model>KlarnaInFacade</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Klarna: Slice it</title>
+                <title>Klarna: Slice it</title>
                 <sort_oder>220</sort_oder>
                 <order_email>1</order_email>
                 <payment_fee_label>Fee</payment_fee_label>
@@ -613,7 +613,7 @@
                 <active>0</active>
                 <model>AfterpayFacade</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Riverty</title>
+                <title>Riverty</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>240</sort_order>
                 <order_email>1</order_email>
@@ -668,7 +668,7 @@
                 <active>0</active>
                 <model>ApplepayFacade</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Apple Pay</title>
+                <title>Apple Pay</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>240</sort_order>
                 <order_email>1</order_email>
@@ -713,7 +713,7 @@
                 <active>0</active>
                 <model>AlipayFacade</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Alipay</title>
+                <title>Alipay</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>270</sort_order>
                 <order_email>1</order_email>
@@ -736,7 +736,7 @@
                 <active>0</active>
                 <model>WechatpayFacade</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo WeChatPay</title>
+                <title>WeChatPay</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>280</sort_order>
                 <order_email>1</order_email>
@@ -759,7 +759,7 @@
                 <active>0</active>
                 <model>Przelewy24Facade</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Przelewy24</title>
+                <title>Przelewy24</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>290</sort_order>
                 <order_email>1</order_email>
@@ -782,7 +782,7 @@
                 <active>0</active>
                 <model>TrustlyFacade</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Trustly</title>
+                <title>Trustly</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>300</sort_order>
                 <order_email>1</order_email>
@@ -805,7 +805,7 @@
                 <active>0</active>
                 <model>PospaymentFacade</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Point of Sale</title>
+                <title>Point of Sale</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>320</sort_order>
                 <order_email>1</order_email>
@@ -828,7 +828,7 @@
                 <active>0</active>
                 <model>VoucherFacade</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Voucher</title>
+                <title>Voucher</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>340</sort_order>
                 <order_email>1</order_email>
@@ -852,7 +852,7 @@
                 <active>0</active>
                 <model>MultibancoFacade</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Multibanco</title>
+                <title>Multibanco</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>350</sort_order>
                 <order_email>1</order_email>
@@ -876,7 +876,7 @@
                 <active>0</active>
                 <model>MBWayFacade</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo MBWay</title>
+                <title>MBWay</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>360</sort_order>
                 <order_email>1</order_email>
@@ -900,7 +900,7 @@
                 <active>0</active>
                 <model>KnakenFacade</model>
                 <order_status>pending</order_status>
-                <title>Buckaroo Knaken</title>
+                <title>goSettle</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>360</sort_order>
                 <order_email>1</order_email>
