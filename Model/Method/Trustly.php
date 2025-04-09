@@ -65,6 +65,10 @@ class Trustly extends AbstractMethod
                     '_' => $billingAddress->getLastName(),
                     'Name' => 'CustomerLastName',
                 ],
+                [
+                    '_' => $billingAddress->getEmail(),
+                    'Name' => 'ConsumerEmail',
+                ],            
             ],
         ];
 
