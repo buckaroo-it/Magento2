@@ -21,8 +21,6 @@
 namespace Buckaroo\Magento2\Model\Method;
 
 use Magento\Framework\DataObject;
-use Magento\Framework\Exception\LocalizedException;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\IdealProcessing as IdealProcessingConfig;
 
 class IdealProcessing extends AbstractMethod
 {
@@ -54,11 +52,6 @@ class IdealProcessing extends AbstractMethod
     public function assignData(DataObject $data)
     {
         parent::assignData($data);
-        $data = $this->assignDataConvertToArray($data);
-
-        if (isset($data['additional_data']['issuer'])) {
-            $this->getInfoInstance()->setAdditionalInformation('issuer', $data['additional_data']['issuer']);
-        }
 
         return $this;
     }
@@ -74,45 +67,24 @@ class IdealProcessing extends AbstractMethod
             'Name'             => 'idealprocessing',
             'Action'           => $this->getPayRemainder($payment, $transactionBuilder),
             'Version'          => 2,
-            'RequestParameter' => $this->getOrderRequestParameters($payment)
+            'RequestParameter' => []
         ];
 
         $transactionBuilder->setOrder($payment->getOrder())
             ->setServices($services)
             ->setMethod('TransactionRequest');
 
-        if (!$this->canShowIssuers()) {
-            $transactionBuilder->setCustomVars(['ContinueOnIncomplete' => 'RedirectToHTML']);
-        }
-        
+        $transactionBuilder->setCustomVars(['ContinueOnIncomplete' => 'RedirectToHTML']);
+
         return $transactionBuilder;
     }
 
-    private function getOrderRequestParameters($payment): array
-    {
-        $parameters = [];
-
-        if ($this->canShowIssuers()) {
-            $parameters = [[
-                '_'    => $payment->getAdditionalInformation('issuer'),
-                'Name' => 'issuer',
-            ]];
-        }
-        return $parameters;
-    }
-
+    /**
+     * @return null
+     */
     protected function getRefundTransactionBuilderVersion()
     {
         return null;
-    }
-
-    /**
-     * Can show issuers in the checkout form
-     *
-     * @return boolean
-     */
-    private function canShowIssuers() {
-        return $this->getConfigData('show_issuers') == 1;
     }
 
     /**
@@ -140,31 +112,12 @@ class IdealProcessing extends AbstractMethod
     }
 
     /**
-     * Validate that we received a valid issuer ID.
+     * Validate additional data.
+     * Removed issuer validation logic.
      *
      * {@inheritdoc}
      */
     public function validateAdditionalData() {
-
-        /** @var IdealProcessingConfig $config */
-        $config = $this->objectManager->get(IdealProcessingConfig::class);
-
-        $paymentInfo = $this->getInfoInstance();
-
-        $chosenIssuer = $paymentInfo->getAdditionalInformation('issuer');
-
-        $valid = false;
-        foreach ($config->getIssuers() as $issuer) {
-            if ($issuer['code'] == $chosenIssuer) {
-                $valid = true;
-                break;
-            }
-        }
-
-        if (!$valid && $this->canShowIssuers()) {
-            throw new LocalizedException(__('Please select a issuer from the list'));
-        }
-
         return $this;
     }
 

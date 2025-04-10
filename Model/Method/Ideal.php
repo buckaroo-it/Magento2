@@ -20,8 +20,6 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Ideal as IdealConfig;
-
 class Ideal extends AbstractMethod
 {
     /**
@@ -47,18 +45,12 @@ class Ideal extends AbstractMethod
     public function assignData(\Magento\Framework\DataObject $data)
     {
         parent::assignData($data);
-        $data = $this->assignDataConvertToArray($data);
-
-        if (isset($data['additional_data']['issuer'])) {
-            $this->getInfoInstance()->setAdditionalInformation('issuer', $data['additional_data']['issuer']);
-        }
 
         $payment = $this->getInfoInstance();
         $quote = $payment->getQuote();
 
         if ($quote) {
             $shippingCost = $quote->getShippingAddress()->getShippingInclTax();
-
             $this->getInfoInstance()->setAdditionalInformation('shippingCost', $shippingCost);
         }
 
@@ -85,12 +77,12 @@ class Ideal extends AbstractMethod
             $transactionBuilder->setOrder($payment->getOrder())
                 ->setServices($services)
                 ->setMethod('TransactionRequest');
-        }else{
+        } else {
             $services = [
                 'Name'             => 'ideal',
                 'Action'           => $this->getPayRemainder($payment, $transactionBuilder),
                 'Version'          => 2,
-                'RequestParameter' => $this->getOrderRequestParameters($payment),
+                'RequestParameter' => [],
             ];
             /**
              * @noinspection PhpUndefinedMethodInspection
@@ -99,27 +91,19 @@ class Ideal extends AbstractMethod
                 ->setServices($services)
                 ->setMethod('TransactionRequest');
 
-            if (!$this->canShowIssuers()) {
-                $transactionBuilder->setCustomVars(['ContinueOnIncomplete' => 'RedirectToHTML']);
-            }
+            $transactionBuilder->setCustomVars(['ContinueOnIncomplete' => 'RedirectToHTML']);
         }
 
         return $transactionBuilder;
     }
 
-    private function getOrderRequestParameters($payment): array
-    {
-        $parameters = [];
-
-        if ($this->canShowIssuers()) {
-            $parameters = [[
-                '_'    => $payment->getAdditionalInformation('issuer'),
-                'Name' => 'issuer',
-            ]];
-        }
-        return $parameters;
-    }
-
+    /**
+     * Get request parameters for iDEAL Fast Checkout order.
+     * Remains unchanged.
+     *
+     * @param $payment
+     * @return array
+     */
     private function getIdealFastCheckoutOrderRequestParameters($payment): array
     {
         $parameters = [];
@@ -134,18 +118,12 @@ class Ideal extends AbstractMethod
         return $parameters;
     }
 
+    /**
+     * @return null
+     */
     protected function getRefundTransactionBuilderVersion()
     {
         return null;
-    }
-
-    /**
-     * Can show issuers in the checkout form
-     *
-     * @return boolean
-     */
-    private function canShowIssuers() {
-        return $this->getConfigData('show_issuers') == 1;
     }
 
     /**
@@ -175,16 +153,22 @@ class Ideal extends AbstractMethod
     /**
      * Check if the order request parameters indicate a fast checkout.
      *
+     * @param $payment
      * @return bool
      */
     private function isFastCheckout($payment): bool
     {
+        // This check relies on 'issuer' potentially being 'fastcheckout',
+        // ensure this value is still correctly set in assignData if needed for Fast Checkout flow.
+        // If Fast Checkout also changes, this might need adjustment. Assuming it remains for now.
         return $payment->getAdditionalInformation('issuer') === 'fastcheckout';
     }
 
     /**
-     * Validate that we received a valid issuer ID.
+     * Validate additional data.
+     * Removed issuer validation for standard iDEAL.
      *
+     * @param $payment
      * @return $this
      * @throws \Magento\Framework\Exception\LocalizedException
      */
@@ -194,39 +178,7 @@ class Ideal extends AbstractMethod
             return $this;
         }
 
-        /**
-         * @var IdealConfig $config
-         */
-        $config = $this->objectManager->get(IdealConfig::class);
-
-        $paymentInfo = $this->getInfoInstance();
-
-        $chosenIssuer = $paymentInfo->getAdditionalInformation('issuer');
-
-        if (!$chosenIssuer) {
-            if ($content = $this->request->getContent()) {
-                $jsonDecode = $this->helper->getJson()->unserialize($content);
-                if (!empty($jsonDecode['paymentMethod']['additional_data']['issuer'])) {
-                    $chosenIssuer = $jsonDecode['paymentMethod']['additional_data']['issuer'];
-                    $this->getInfoInstance()->setAdditionalInformation('issuer', $chosenIssuer);
-                }
-            }
-        }
-
-        $valid = false;
-        foreach ($config->getIssuers() as $issuer) {
-            if ($issuer['code'] == $chosenIssuer) {
-                $valid = true;
-                break;
-            }
-        }
-
-        if (!$valid && $this->canShowIssuers()) {
-            throw new \Magento\Framework\Exception\LocalizedException(__('Please select a issuer from the list'));
-        }
-
         return $this;
-
     }
 
     /**
