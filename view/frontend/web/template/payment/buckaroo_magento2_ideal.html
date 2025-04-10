@@ -38,61 +38,6 @@
             <!--/ko-->
         </div>
 
-        <!-- ko if: buckaroo.showIssuers -->
-        <div class="payment-method-second-col billing-address-form" >
-            <form data-bind="mageInit: { 'validation': [] },
-                  attr: {'data-hasrequired': $t('* Required Fields')}">
-                <fieldset class="fieldset payment">
-                    <div class="field required">
-                        <!-- ko if: buckaroo.selectionType == '1' -->
-                        <legend class="label" data-bind="i18n: 'Select a bank:'"></legend>
-                        <div class="bk-issuer-list addon">
-                            <!-- ko foreach: buckaroo.banks -->
-                            <label class="bank-types">
-                                <!-- ko if: logo !== null -->
-                                    <img class="bank-types-img"
-                                         data-bind="attr: {
-                                            'src': logo,
-                                            'width': 30,
-                                            'height': 23,
-                                            'alt': name
-                                         }"
-                                    />
-                                <!--/ko-->
-                                <input class="bank-types-input"
-                                    type="radio"
-                                    data-bind="value: id, checked: $parent.selectedBank,
-                                    event: { change: $parent.validateField.bind($parent) }"
-                                    data-validate="{'validate-one-required-by-name':true}"
-                                    name="bank"
-                                >
-                                <!-- ko text: name --><!--/ko-->
-                            </label>
-                            <!--/ko-->
-                        </div>
-                        <!--/ko-->
-
-                        <!-- ko if: buckaroo.selectionType == '2' -->
-                        <label for="buckaroo_magento2_ideal_issuer" data-bind="i18n: 'Select a bank:'"></label>
-                        <div class="control">
-                            <select id="buckaroo_magento2_ideal_issuer" class="field"
-                                    data-bind="value: selectedBank,
-                                    event: { change: validateField }"
-                                    data-validate="{required:true}"
-                                    name="buckaroo_magento2_ideal_issuer">
-                                <option data-bind="i18n: 'Select a bank', 'value': ''"></option>
-                                <!-- ko foreach: buckaroo.banks -->
-                                    <option data-bind="i18n: name, 'value': id"></option>
-                                <!--/ko-->
-                            </select>
-                        </div>
-                        <!--/ko-->
-                    </div>
-                </fieldset>
-            </form>
-        </div>
-        <!--/ko-->
-
         <div class="checkout-agreements-block">
             <!-- ko foreach: $parent.getRegion('before-place-order') -->
             <!-- ko template: getTemplate() --><!-- /ko -->
