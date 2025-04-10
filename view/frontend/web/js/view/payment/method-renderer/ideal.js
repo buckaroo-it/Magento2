@@ -48,66 +48,25 @@ define(
                 defaults: {
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_ideal'
                 },
-                banktypes: [],
                 redirectAfterPlaceOrder: false,
-                idealIssuer: null,
-                selectedBank: null,
-                selectedBankDropDown: null,
-                selectionType: null,
                 paymentFeeLabel: window.checkoutConfig.payment.buckaroo.ideal.paymentFeeLabel,
                 subtext: window.checkoutConfig.payment.buckaroo.ideal.subtext,
                 subTextStyle: checkoutCommon.getSubtextStyle('ideal'),
                 currencyCode: window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode: window.checkoutConfig.quoteData.base_currency_code,
-                showIssuers: window.checkoutConfig.payment.buckaroo.ideal.showIssuers,
 
+                /**
+                 * @override
+                 */
                 initObservable: function () {
-                    this._super().observe(['selectedBank', 'banktypes', 'selectionType']);
-
-                    this.banktypes = ko.observableArray(window.checkoutConfig.payment.buckaroo.ideal.banks);
-
-                    this.selectionType = window.checkoutConfig.payment.buckaroo.ideal.selectionType;
-
-                    /**
-                     * observe radio buttons
-                     * check if selected
-                     */
-                    var self = this;
-                    this.setSelectedBank = function (value) {
-                        self.selectedBank(value);
-                        return true;
-                    };
-
-                    /**
-                     * Check if the required fields are filled. If so: enable place order button (true) | ifnot: disable place order button (false)
-                     */
-                    this.buttoncheck = ko.computed(
-                        function () {
-                            return this.selectedBank() !== null || !this.showIssuers;
-                        },
-                        this
-                    );
-
-                    $('.iosc-place-order-button').on('click', function (e) {
-                        if (self.selectedBank() == null) {
-                            self.messageContainer.addErrorMessage({'message': $t('You need select a bank')});
-                        }
-                    });
+                    this._super();
 
                     return this;
                 },
 
-                setSelectedBankDropDown: function () {
-                    var el = document.getElementById("buckaroo_magento2_ideal_issuer");
-                    this.selectedBank(el.options[el.selectedIndex].value);
-                    return true;
-                },
-
                 /**
                  * Place order.
-                 *
-                 * placeOrderAction has been changed from Magento_Checkout/js/action/place-order to our own version
-                 * (Buckaroo_Magento2/js/action/place-order) to prevent redirect and handle the response.
+                 * Action has not changed, but getData() which it uses has.
                  */
                 placeOrder: function (data, event) {
                     var self = this,
@@ -131,56 +90,53 @@ define(
                     return false;
                 },
 
+                /**
+                 * After place order callback
+                 */
                 afterPlaceOrder: function () {
                     var response = window.checkoutConfig.payment.buckaroo.response;
                     checkoutCommon.redirectHandle(response);
                 },
 
+                /**
+                 * @override
+                 */
                 selectPaymentMethod: function () {
                     selectPaymentMethodAction(this.getData());
                     checkoutData.setSelectedPaymentMethod(this.item.method);
                     return true;
                 },
 
+                /**
+                 * @override
+                 */
                 getData: function () {
-                    var selectedBankCode = null;
-                    if (this.selectedBank()) {
-                        selectedBankCode = this.selectedBank().code;
-                    }
-
-                    if (this.idealIssuer) {
-                        selectedBankCode = this.idealIssuer;
-                    }
-
                     return {
                         "method": this.item.method,
                         "po_number": null,
                         "additional_data": {
-                            "issuer": selectedBankCode
                         }
                     };
                 },
 
+                /**
+                 * Check if payment should be done in base currency.
+                 * @returns {boolean}
+                 */
                 payWithBaseCurrency: function () {
                     var allowedCurrencies = window.checkoutConfig.payment.buckaroo.ideal.allowedCurrencies;
-
                     return allowedCurrencies.indexOf(this.currencyCode) < 0;
                 },
 
+                /**
+                 * Get the text for paying with the base currency.
+                 * @returns {string}
+                 */
                 getPayWithBaseCurrencyText: function () {
                     var text = $.mage.__('The transaction will be processed using %s.');
-
                     return text.replace('%s', this.baseCurrencyCode);
                 }
             }
         );
     }
 );
-
-
-
-
-
-
-
-
