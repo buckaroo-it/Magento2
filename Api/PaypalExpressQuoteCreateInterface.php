@@ -29,14 +29,14 @@ interface PaypalExpressQuoteCreateInterface
   /**
    * Get order breakdown after shipping is applied
    *
-   * @param ShippingAddressRequestInterface $shipping_address
+   * @param ShippingAddressRequestInterface $shippingAddress
    * @param string $page
-   * @param string|null $order_data
+   * @param string|null $orderData
    * @return QuoteCreateResponseInterface
    */
   public function execute(
-    ShippingAddressRequestInterface $shipping_address,
+    ShippingAddressRequestInterface $shippingAddress,
     string $page,
-    string $order_data = null
+    string $orderData = null
   );
 }

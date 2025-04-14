@@ -139,7 +139,7 @@ class DefaultProcessor implements PushProcessorInterface
      * @param BuckarooStatusCode $buckarooStatusCode
      * @param OrderStatusFactory $orderStatusFactory
      * @param Account $configAccount
-     */
+ */
     public function __construct(
         OrderRequestService $orderRequestService,
         PushTransactionType $pushTransactionType,
@@ -149,7 +149,7 @@ class DefaultProcessor implements PushProcessorInterface
         PaymentGroupTransaction $groupTransaction,
         BuckarooStatusCode $buckarooStatusCode,
         OrderStatusFactory $orderStatusFactory,
-        Account $configAccount
+        Account $configAccount,
     ) {
         $this->pushTransactionType = $pushTransactionType;
         $this->orderRequestService = $orderRequestService;
@@ -161,6 +161,7 @@ class DefaultProcessor implements PushProcessorInterface
         $this->buckarooStatusCode = $buckarooStatusCode;
         $this->orderStatusFactory = $orderStatusFactory;
         $this->configAccount = $configAccount;
+
     }
 
     /**
@@ -975,7 +976,6 @@ class DefaultProcessor implements PushProcessorInterface
 
         return $this->payment;
     }
-
     /**
      * Process the failed push response from Buckaroo and update the order accordingly.
      *
