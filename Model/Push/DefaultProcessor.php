@@ -49,6 +49,8 @@ use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Payment;
 use Magento\Sales\Model\Order\Payment as OrderPayment;
 use Magento\Sales\Model\Order\Payment\Transaction;
+use Magento\Framework\ObjectManagerInterface;
+
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -95,6 +97,11 @@ class DefaultProcessor implements PushProcessorInterface
     protected BuckarooLoggerInterface $logger;
 
     /**
+     * @var \Magento\Framework\ObjectManagerInterface
+     */
+    protected $objectManager;
+
+    /**
      * @var Data
      */
     protected Data $helper;
@@ -139,7 +146,8 @@ class DefaultProcessor implements PushProcessorInterface
      * @param BuckarooStatusCode $buckarooStatusCode
      * @param OrderStatusFactory $orderStatusFactory
      * @param Account $configAccount
-     */
+     * @param ObjectManagerInterface $objectManager
+ */
     public function __construct(
         OrderRequestService $orderRequestService,
         PushTransactionType $pushTransactionType,
@@ -149,7 +157,9 @@ class DefaultProcessor implements PushProcessorInterface
         PaymentGroupTransaction $groupTransaction,
         BuckarooStatusCode $buckarooStatusCode,
         OrderStatusFactory $orderStatusFactory,
-        Account $configAccount
+        Account $configAccount,
+        \Magento\Framework\ObjectManagerInterface $objectManager,
+
     ) {
         $this->pushTransactionType = $pushTransactionType;
         $this->orderRequestService = $orderRequestService;
@@ -161,6 +171,8 @@ class DefaultProcessor implements PushProcessorInterface
         $this->buckarooStatusCode = $buckarooStatusCode;
         $this->orderStatusFactory = $orderStatusFactory;
         $this->configAccount = $configAccount;
+        $this->objectManager      = $objectManager;
+
     }
 
     /**
@@ -203,6 +215,10 @@ class DefaultProcessor implements PushProcessorInterface
             return true;
         }
 
+        if ($this->isFastCheckout()) {
+            $this->updateOrderAddressesIfFastCheckout();
+        }
+
         if ($this->giftcardPartialPayment()) {
             return true;
         }
@@ -230,6 +246,17 @@ class DefaultProcessor implements PushProcessorInterface
         $this->pushRequest = $pushRequest;
         $this->order = $this->orderRequestService->getOrderByRequest();
         $this->payment = $this->order->getPayment();
+    }
+
+    /**
+     * Check if the transaction is a fast checkout.
+     *
+     * @return bool
+     */
+    private function isFastCheckout()
+    {
+        return isset($this->postData['brq_service_ideal_transactionflow']) &&
+            $this->postData['brq_service_ideal_transactionflow'] === 'Fast_Checkout';
     }
 
     /**
@@ -974,6 +1001,173 @@ class DefaultProcessor implements PushProcessorInterface
         );
 
         return $this->payment;
+    }
+
+    /**
+     * Extract and update order addresses if it's a fast checkout.
+     */
+    private function updateOrderAddressesIfFastCheckout()
+    {
+        $shippingAddress = $this->extractAddress('shippingaddress');
+        $billingAddress = $this->extractAddress('invoiceaddress');
+
+        // Update telephone numbers from contact info
+        $contactPhoneNumber = $this->extractContactPhoneNumber();
+
+        if ($shippingAddress && $billingAddress) {
+            // Update the phone numbers from contact info if available
+            if ($contactPhoneNumber) {
+                $shippingAddress['telephone'] = $contactPhoneNumber;
+                $billingAddress['telephone'] = $contactPhoneNumber;
+            }
+            $this->updateOrderWithAddresses($shippingAddress, $billingAddress);
+        }
+    }
+
+    /**
+     * Update order with extracted shipping and billing addresses.
+     *
+     * @param array $shippingAddress
+     * @param array $billingAddress
+     */
+    private function updateOrderWithAddresses($shippingAddress, $billingAddress)
+    {
+        $orderId = $this->order->getEntityId();
+        if ($orderId) {
+
+            $orderAddressRepository = $this->objectManager->get('\Magento\Sales\Api\OrderAddressRepositoryInterface');
+
+            try {
+                $order = $this->order->load($orderId);
+
+                $orderShippingAddress = $order->getShippingAddress();
+                if ($orderShippingAddress) {
+                    $orderShippingAddress->addData($shippingAddress);
+                    $orderAddressRepository->save($orderShippingAddress);
+                }
+
+                $orderBillingAddress = $order->getBillingAddress();
+                if ($orderBillingAddress) {
+                    $orderBillingAddress->addData($billingAddress);
+                    $orderAddressRepository->save($orderBillingAddress);
+                }
+
+                $this->updateCustomerInformation($order, $billingAddress);
+
+            } catch (\Exception $e) {
+                echo $e;
+            }
+        } else {
+            echo "Order ID not found.";
+        }
+    }
+
+    /**
+     * Update guest customer information.
+     *
+     * @param Order $order
+     * @param array $billingAddress
+     */
+    private function updateCustomerInformation(Order $order, array $billingAddress): void
+    {
+        if ($this->isGuestOrder($order)) {
+            $this->updateGuestInformation($order, $billingAddress);
+        } else {
+            $this->updateRegisteredCustomerInformation($order);
+        }
+
+        $order->save();
+    }
+
+    private function updateGuestInformation(Order $order, array $billingAddress): void
+    {
+        try {
+            $customerEmail = $this->postData['brq_service_ideal_contactdetailsemail'] ?? $order->getCustomerEmail();
+            $order->setCustomerEmail($customerEmail);
+            $order->setCustomerFirstname($billingAddress['firstname'] ?? $order->getCustomerFirstname());
+            $order->setCustomerLastname($billingAddress['lastname'] ?? $order->getCustomerLastname());
+        } catch (\Exception $e) {
+            echo $e->getMessage();
+        }
+    }
+
+    private function updateRegisteredCustomerInformation(Order $order): void
+    {
+        try {
+            $customer = $order->getCustomer();
+            if ($customer) {
+                $order->setCustomerFirstname($customer->getFirstname() ?? $order->getCustomerFirstname());
+                $order->setCustomerLastname($customer->getLastname() ?? $order->getCustomerLastname());
+                $order->setCustomerEmail($customer->getEmail() ?? $order->getCustomerEmail());
+            }
+        } catch (\Exception $e) {
+            echo $e->getMessage();
+        }
+    }
+    private function isGuestOrder(Order $order): bool
+    {
+        return !$order->getCustomerId();
+    }
+
+    /**
+     * Extract address from post data based on address type.
+     *
+     * @param string $addressType
+     * @return array|null
+     */
+    private function extractAddress($addressType)
+    {
+        $address = [];
+        $prefix = 'brq_service_ideal_' . $addressType;
+
+        $fieldsMap = [
+            'firstname' => 'firstname',
+            'lastname' => 'lastname',
+            'street' => 'street',
+            'housenumber' => 'housenumber',
+            'addition' => 'addition',
+            'postalcode' => 'postcode',
+            'city' => 'city',
+            'countryname' => 'country_id',
+            'companyname' => 'company'
+        ];
+
+        foreach ($fieldsMap as $key => $field) {
+            $paramKey = $prefix . $key;
+            if (isset($this->postData[$paramKey])) {
+                $decodedValue = urldecode($this->postData[$paramKey]);
+                $address[$field] = $decodedValue;
+            }
+        }
+
+        // Append house number to street if both are available
+        if (isset($address['street']) && isset($address['housenumber'])) {
+            $address['street'] .= ' ' . $address['housenumber'];
+
+            // Add the addition (like 'A') if it exists
+            if (isset($address['addition'])) {
+                $address['street'] .= ' ' .$address['addition'];
+                unset($address['addition']);
+            }
+            unset($address['housenumber']);
+        }
+
+        if (!empty($address['country_id'])) {
+            $address['country_id'] = "NL";
+        }
+
+        return !empty($address) ? $address : null;
+    }
+
+    /**
+     * Extract contact phone number from post data.
+     *
+     * @return string|null
+     */
+    private function extractContactPhoneNumber()
+    {
+        $phoneKey = 'brq_service_ideal_contactdetailsphonenumber';
+        return isset($this->postData[$phoneKey]) ? urldecode($this->postData[$phoneKey]) : null;
     }
 
     /**

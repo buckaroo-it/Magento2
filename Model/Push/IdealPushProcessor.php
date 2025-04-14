@@ -21,10 +21,13 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Push;
 
+use Buckaroo\Magento2\Model\Push\DefaultProcessor;
+use Buckaroo\Magento2\Model\Push\PushProcessorInterface;
+
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
-class IdealPushProcessor extends DefaultProcessor
+class IdealPushProcessor extends DefaultProcessor implements PushProcessorInterface
 {
     public const BUCK_PUSH_IDEAL_PAY = 'C021';
     protected const LOCK_PREFIX = 'bk_push_ideal_';
@@ -34,9 +37,6 @@ class IdealPushProcessor extends DefaultProcessor
      */
     protected function getSpecificPaymentDetails(): array
     {
-        return [
-            'consumer_iban' => $this->pushRequest->getServiceIdealConsumeriban(),
-            'consumer_name' => $this->pushRequest->getServiceIdealConsumername(),
-        ];
+        return [];
     }
 }

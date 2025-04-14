@@ -123,16 +123,8 @@ define([
         },
 
         updateOrder: function (jsonResponse) {
-            let redirectUrl = null;
-
             if (jsonResponse.RequiredAction && jsonResponse.RequiredAction.RedirectURL) {
-                redirectUrl = jsonResponse.RequiredAction.RedirectURL;
-            } else if (jsonResponse.buckaroo_response && jsonResponse.buckaroo_response.RequiredAction && jsonResponse.buckaroo_response.RequiredAction.RedirectURL) {
-                redirectUrl = jsonResponse.buckaroo_response.RequiredAction.RedirectURL;
-            }
-
-            if (redirectUrl) {
-                window.location.replace(redirectUrl);
+                window.location.replace(jsonResponse.RequiredAction.RedirectURL);
             } else {
                 window.location.replace(urlBuilder.build('checkout/onepage/success'));
             }
