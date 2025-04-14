@@ -34,9 +34,9 @@
         </field>
 
         <field id="merchant_key" translate="label comment tooltip" type="obscure" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>(Website) key</label>
-            <comment><![CDATA[Enter your Buckaroo merchant/website key.]]></comment>
-            <tooltip>The (Website) key can be retrieved in the Buckaroo Plaza under Settings > Websites. For support contact Buckaroo.</tooltip>
+            <label>Store key</label>
+            <comment><![CDATA[Enter your Buckaroo store key.]]></comment>
+            <tooltip>The Store key can be retrieved in the Buckaroo Plaza under Settings > Websites. For support contact Buckaroo.</tooltip>
             <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
             <config_path>buckaroo_magento2/account/merchant_key</config_path>
         </field>

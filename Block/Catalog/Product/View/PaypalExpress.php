@@ -129,7 +129,7 @@ class PaypalExpress extends Template
     }
 
     /**
-     * Get buckaroo website key
+     * Get buckaroo store key
      *
      * @return string
      * @throws NoSuchEntityException

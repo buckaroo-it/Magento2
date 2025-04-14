@@ -19,23 +19,27 @@
  */
 declare(strict_types=1);
 
-namespace Buckaroo\Magento2\Gateway\Request;
+namespace Buckaroo\Magento2\Model\Config\Source;
 
-use Magento\Payment\Gateway\Request\BuilderInterface;
+use Magento\Framework\Data\OptionSourceInterface;
 
-/**
- * Builds the data for the ContinueOnIncomplete parameter.
- * Now always sets it for standard iDEAL, as issuer selection is handled by Buckaroo.
- */
-class ContinueOnIncompleteDataBuilder implements BuilderInterface
+class BillinkCustomerType implements OptionSourceInterface
 {
+    public const CUSTOMER_TYPE_B2C = 'b2c';
+    public const CUSTOMER_TYPE_B2B = 'b2b';
+    public const CUSTOMER_TYPE_BOTH = 'both';
+
     /**
-     * @inheritdoc
-     * Always adds 'continueOnIncomplete' => '1' (or Buckaroo equivalent)
-     * as issuer selection is no longer handled within Magento checkout.
+     * Options getter
+     *
+     * @return array
      */
-    public function build(array $buildSubject): array
+    public function toOptionArray(): array
     {
-        return ['continueOnIncomplete' => '1'];
+        return [
+            ['value' => self::CUSTOMER_TYPE_BOTH, 'label' => __('Both')],
+            ['value' => self::CUSTOMER_TYPE_B2C, 'label' => __('B2C (Business-to-Consumer)')],
+            ['value' => self::CUSTOMER_TYPE_B2B, 'label' => __('B2B (Business-to-Business)')]
+        ];
     }
 }
