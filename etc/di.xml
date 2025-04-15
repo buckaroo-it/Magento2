@@ -1745,6 +1745,7 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooRemainderRequest</item>
+                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\EmailAddressDataBuilder</item>
                 <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddress\CountryDataBuilder</item>
                 <item name="customer_name" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddress\CustomerNameDataBuilder</item>
             </argument>
