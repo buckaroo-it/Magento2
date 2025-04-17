@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,55 +17,89 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Plugin;
 
+use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Magento\Quote\Model\Quote;
 use Magento\Framework\Exception\CouldNotSaveException;
 
-// @codingStandardsIgnoreStart
+class CheckoutManagement
+{
+    /**
+     * @var PaymentGroupTransaction
+     */
+    private PaymentGroupTransaction $paymentGroupTransaction;
 
-if (class_exists('\Mageplaza\Osc\Model\CheckoutManagement')) {
+    /**
+     * @var \Magento\Checkout\Model\Session
+     */
+    private $checkoutSession;
 
-    class CheckoutManagement extends \Mageplaza\Osc\Model\CheckoutManagement
-    {
-        public function updateItemQty($cartId, $itemId, $itemQty)
-        {
-            $quote = $this->checkoutSession->getQuote();
-            if ($this->getAlreadyPaid($this->checkoutSession->getQuote()) > 0) {
-                throw new CouldNotSaveException(__('Action is blocked, please finish current order'));
-            }
-
-            return parent::updateItemQty($cartId, $itemId, $itemQty);
-        }
-
-        public function removeItemById($cartId, $itemId)
-        {
-            if ($this->getAlreadyPaid($this->checkoutSession->getQuote()) > 0) {
-                throw new CouldNotSaveException(__('Action is blocked, please finish current order'));
-            }
-            return parent::removeItemById($cartId, $itemId);
-        }
-
-        /**
-         * Get quote already payed amount
-         *
-         * @param Magento\Quote\Model\Quote $quote
-         *
-         * @return float
-         */
-        private function getAlreadyPaid(Quote $quote)
-        {
-            $groupTransaction = \Magento\Framework\App\ObjectManager::getInstance()
-            ->get(\Buckaroo\Magento2\Helper\PaymentGroupTransaction::class);
-
-            return $groupTransaction->getAlreadyPaid($quote->getReservedOrderId());
-        }
+    /**
+     * @param PaymentGroupTransaction $paymentGroupTransaction
+     * @param \Magento\Checkout\Model\Session $checkoutSession
+     */
+    public function __construct(
+        PaymentGroupTransaction $paymentGroupTransaction,
+        \Magento\Checkout\Model\Session $checkoutSession
+    ) {
+        $this->paymentGroupTransaction = $paymentGroupTransaction;
+        $this->checkoutSession = $checkoutSession;
     }
 
-} else {
-    class CheckoutManagement
+    /**
+     * Block updating the item qty when group transaction order already started
+     *
+     * @param \Mageplaza\Osc\Model\CheckoutManagement $subject
+     * @param int $cartId
+     * @param int $itemId
+     * @param int|float $itemQty
+     * @return array
+     * @throws CouldNotSaveException
+     */
+    public function beforeUpdateItemQty(
+        \Mageplaza\Osc\Model\CheckoutManagement $subject,
+        int $cartId,
+        int $itemId,
+                                                $itemQty
+    ) {
+        if ($this->getAlreadyPaid($this->checkoutSession->getQuote()) > 0) {
+            throw new CouldNotSaveException(__('Action is blocked, please finish current order'));
+        }
+
+        return [$cartId, $itemId, $itemQty];
+    }
+
+    /**
+     * Block remove the item qty when group transaction order already started
+     *
+     * @param \Mageplaza\Osc\Model\CheckoutManagement $subject
+     * @param int $cartId
+     * @param int $itemId
+     * @return array
+     * @throws CouldNotSaveException
+     */
+    public function beforeRemoveItemById(
+        \Mageplaza\Osc\Model\CheckoutManagement $subject,
+        int $cartId,
+        int $itemId
+    ) {
+        if ($this->getAlreadyPaid($this->checkoutSession->getQuote()) > 0) {
+            throw new CouldNotSaveException(__('Action is blocked, please finish current order'));
+        }
+
+        return [$cartId, $itemId];
+    }
+
+    /**
+     * Get quote already paid amount
+     *
+     * @param Quote $quote
+     * @return float
+     */
+    private function getAlreadyPaid(Quote $quote): float
     {
+        return $this->paymentGroupTransaction->getAlreadyPaid($quote->getReservedOrderId());
     }
 }
-
-// @codingStandardsIgnoreEnd
