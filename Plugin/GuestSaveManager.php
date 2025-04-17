@@ -21,104 +21,49 @@ namespace Buckaroo\Magento2\Plugin;
 
 use Buckaroo\Magento2\Logging\Log;
 
-// @codingStandardsIgnoreStart
+class GuestSaveManager
+{
+    protected $quoteIdMaskFactory;
+    protected $cartRepository;
+    protected Log $logger;
 
-if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
-
-    class GuestSaveManager extends \Onestepcheckout\Iosc\Plugin\GuestSaveManager
-    {
-        protected $quoteIdMaskFactory;
-
-        protected $cartRepository;
-
-        protected $logger;
-
-        /**
-         * @var \Onestepcheckout\Iosc\Model\DataManager
-         */
-        protected $dataManager;
-        /**
-         * @var \Magento\Framework\App\Request\Http
-         */
-        protected $request;
-        /**
-         * @var \Onestepcheckout\Iosc\Model\MockManager
-         */
-        protected $mockManager;
-        /**
-         * @var  \Onestepcheckout\Iosc\Helper\Data
-         */
-        protected $helper;
-        /**
-         * @var \Magento\Checkout\Model\Session
-         */
-        protected $checkoutSession;
-
-
-        public function __construct(
-            \Onestepcheckout\Iosc\Model\DataManager $dataManager,
-            \Magento\Framework\App\Request\Http $request,
-            \Onestepcheckout\Iosc\Model\MockManager $mockManager,
-            \Onestepcheckout\Iosc\Helper\Data $helper,
-            \Magento\Checkout\Model\Session $checkoutSession,
-            \Magento\Quote\Model\QuoteIdMaskFactory $quoteIdMaskFactory,
-            \Magento\Quote\Api\CartRepositoryInterface $cartRepository,
-            Log $logger
-        ) {
-            $this->dataManager        = $dataManager;
-            $this->request            = $request;
-            $this->mockManager        = $mockManager;
-            $this->helper             = $helper;
-            $this->checkoutSession    = $checkoutSession;
-            $this->quoteIdMaskFactory = $quoteIdMaskFactory;
-            $this->cartRepository     = $cartRepository;
-            $this->logger             = $logger;
-            parent::__construct($dataManager, $request, $mockManager, $helper, $checkoutSession);
-        }
-
-        public function beforeSavePaymentInformationAndPlaceOrder(
-            $parent,
-            $cartId,
-            $email,
-            \Magento\Quote\Api\Data\PaymentInterface $paymentMethod,
-            \Magento\Quote\Api\Data\AddressInterface $billingAddress = null
-        ) {
-            if ($billingAddress == null) {
-                $quoteIdMask = $this->quoteIdMaskFactory->create()->load($cartId, 'masked_id');
-                $billingAddress = $this->cartRepository->getActive($quoteIdMask->getQuoteId())->getBillingAddress();
-            }
-            
-            parent::beforeSavePaymentInformationAndPlaceOrder(
-                $parent,
-                $cartId,
-                $email,
-                $paymentMethod,
-                $billingAddress
-            );
-        }
-
-        public function beforeSavePaymentInformation(
-            $parent,
-            $cartId,
-            $email,
-            \Magento\Quote\Api\Data\PaymentInterface $paymentMethod,
-            \Magento\Quote\Api\Data\AddressInterface $billingAddress = null
-        ) {
-            if ($billingAddress == null) {
-                $quoteIdMask = $this->quoteIdMaskFactory->create()->load($cartId, 'masked_id');
-                $billingAddress = $this->cartRepository->getActive($quoteIdMask->getQuoteId())->getBillingAddress();
-            }
-
-            parent::beforeSavePaymentInformation($parent, $cartId, $email, $paymentMethod, $billingAddress);
-        }
+    public function __construct(
+        \Magento\Quote\Model\QuoteIdMaskFactory $quoteIdMaskFactory,
+        \Magento\Quote\Api\CartRepositoryInterface $cartRepository,
+        Log $logger
+    ) {
+        $this->quoteIdMaskFactory = $quoteIdMaskFactory;
+        $this->cartRepository = $cartRepository;
+        $this->logger = $logger;
     }
 
-} else {
-    class GuestSaveManager
-    {
+    public function beforeSavePaymentInformationAndPlaceOrder(
+        \Onestepcheckout\Iosc\Plugin\GuestSaveManager $subject,
+                                                      $cartId,
+                                                      $email,
+        \Magento\Quote\Api\Data\PaymentInterface $paymentMethod,
+        \Magento\Quote\Api\Data\AddressInterface $billingAddress = null
+    ) {
+        if ($billingAddress == null) {
+            $quoteIdMask = $this->quoteIdMaskFactory->create()->load($cartId, 'masked_id');
+            $billingAddress = $this->cartRepository->getActive($quoteIdMask->getQuoteId())->getBillingAddress();
+        }
 
+        return [$cartId, $email, $paymentMethod, $billingAddress];
+    }
+
+    public function beforeSavePaymentInformation(
+        \Onestepcheckout\Iosc\Plugin\GuestSaveManager $subject,
+                                                      $cartId,
+                                                      $email,
+        \Magento\Quote\Api\Data\PaymentInterface $paymentMethod,
+        \Magento\Quote\Api\Data\AddressInterface $billingAddress = null
+    ) {
+        if ($billingAddress == null) {
+            $quoteIdMask = $this->quoteIdMaskFactory->create()->load($cartId, 'masked_id');
+            $billingAddress = $this->cartRepository->getActive($quoteIdMask->getQuoteId())->getBillingAddress();
+        }
+
+        return [$cartId, $email, $paymentMethod, $billingAddress];
     }
 }
-
-// @codingStandardsIgnoreEnd
-

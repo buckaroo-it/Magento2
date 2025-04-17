@@ -31,11 +31,17 @@
     <preference for="Buckaroo\Magento2\Api\GuestPaymentInformationManagementInterface" type="Buckaroo\Magento2\Model\GuestPaymentInformationManagement"/>
     <preference for="Magento\Quote\Model\Cart\CartTotalRepository" type="Buckaroo\Magento2\Model\Cart\CartTotalRepository" />
     <preference for="Magento\Sales\Model\ResourceModel\Order\Handler\State" type="Buckaroo\Magento2\Model\ResourceModel\Order\Handler\State" />
-    <preference for="Onestepcheckout\Iosc\Plugin\GuestSaveManager" type="Buckaroo\Magento2\Plugin\GuestSaveManager" />
-    <preference for="Mageplaza\Osc\Model\CheckoutManagement" type="Buckaroo\Magento2\Plugin\CheckoutManagement" />
     <preference for="Magento\Ui\Model\Export\ConvertToCsv" type="Buckaroo\Magento2\Model\Export\ConvertToCsv" />
     <preference for="Magento\Sales\Model\Order\CreditmemoFactory" type="Buckaroo\Magento2\Model\Order\CreditmemoFactory" />
     <preference for="Buckaroo\Magento2\Api\Data\ExpressMethods\ShippingAddressRequestInterface" type="Buckaroo\Magento2\Model\Service\ShippingAddressRequest" />
+
+    // TODO: check those two plugins if they are working after this change
+    <type name="Onestepcheckout\Iosc\Plugin\GuestSaveManager">
+        <plugin name="buckaroo_guest_save_manager" type="Buckaroo\Magento2\Plugin\GuestSaveManager" sortOrder="10" />
+    </type>
+    <type name="Mageplaza\Osc\Model\CheckoutManagement">
+        <plugin name="buckaroo_checkout_management" type="Buckaroo\Magento2\Plugin\CheckoutManagement" sortOrder="10" />
+    </type>
 
     <!-- giftcard rest api -->
     <preference for="Buckaroo\Magento2\Model\Voucher\ApplyVoucherRequestInterface" type="Buckaroo\Magento2\Model\Voucher\ApplyVoucherRequest"/>
