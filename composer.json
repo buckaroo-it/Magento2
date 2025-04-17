@@ -3,8 +3,8 @@
     "description": "Buckaroo Magento 2 extension",
     "require": {
         "php": "~7.4.0||~8.1.0||~8.2.0||~8.3.0",
-        "magento/module-payment": ">=100.3.*",
-        "magento/framework": ">=102.0.0"
+        "magento/module-payment": ">=100.3.3",
+        "magento/framework": ">=102.0.3"
     },
     "type": "magento2-module",
     "license": "CC-BY-NC-ND-3.0",
