@@ -66,8 +66,14 @@ define(
              */
             initialize: function (options) {
                 this._super(options);
-                this.getOAuthToken();
                 return this;
+            },
+
+            /**
+             * Called from afterRender in the template, ensuring DOM is ready.
+             */
+            initCreditCardFields: function () {
+                this.getOAuthToken();
             },
 
             /**
