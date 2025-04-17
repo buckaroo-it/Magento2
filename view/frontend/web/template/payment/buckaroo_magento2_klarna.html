@@ -1,5 +1,5 @@
 <div class="buckaroo_magento2_klarna payment-method" data-bind="css: {'_active': (getCode() == isChecked())}">
-    
+
     <div class="payment-method-title field choice bk-payment">
         <div class="bk-payment-wrap">
             <div class="bk-radio-wrap">
@@ -22,7 +22,7 @@
 
     <div class="payment-method-content">
 
-        
+
         <div class="payment-method-billing-address">
             <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
             <!-- ko template: getTemplate() --><!-- /ko -->
@@ -49,12 +49,16 @@
                     </div>
 
                     <!-- ko if: showFinancialWarning  -->
-                    <span data-bind="i18n: `Je moet minimaal 18+ zijn om deze dienst te gebruiken. Als je op tijd betaalt, voorkom je extra kosten en zorg je dat je in de toekomst nogmaals gebruik kunt maken van de diensten van ${getTitle()}. Door verder te gaan, accepteer je de Algemene Voorwaarden en bevestig je dat je de Privacyverklaring en Cookieverklaring hebt gelezen.`">  </span>
+                    <span
+                        data-bind="html: $t(
+                            'Je moet minimaal 18+ zijn om deze dienst te gebruiken. Als je op tijd betaalt, voorkom je extra kosten en zorg je dat je in de toekomst nogmaals gebruik kunt maken van de diensten van Achteraf betalen via ${getTitle()}. Door verder te gaan, accepteer je de <a href=\'https://cdn.klarna.com/1.0/shared/content/legal/terms/EID/nl_nl/invoice\' target=\'_blank\' rel=\'noopener\'>Algemene&nbsp;Voorwaarden</a> en bevestig je dat je de <a href=\'https://cdn.klarna.com/1.0/shared/content/legal/terms/0/nl_nl/privacy\' target=\'_blank\' rel=\'noopener\'>Privacyverklaring</a> en <a href=\'https://cdn.klarna.com/1.0/shared/content/legal/terms/nl-NL/cookie_purchase\' target=\'_blank\' rel=\'noopener\'>Cookieverklaring</a> hebt gelezen.'
+                        )">
+                    </span>
                     <!-- /ko -->
                 </fieldset>
             </form>
         </div>
-        
+
         <div class="actions-toolbar">
             <div class="primary">
                 <button id="button-action-checkout-klarna"
