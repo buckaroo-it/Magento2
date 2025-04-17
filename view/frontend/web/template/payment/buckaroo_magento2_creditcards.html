@@ -18,8 +18,9 @@
             </div>
         </div>
     </div>
-
-    <div class="payment-method-content">
+    <!-- ko if: (getCode() == isChecked()) -->
+    <div class="payment-method-content"
+         data-bind="afterRender: initCreditCardFields">
         <div class="payment-method-billing-address">
             <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
             <!-- ko template: getTemplate() --><!-- /ko -->
@@ -88,4 +89,5 @@
             </div>
         </form>
     </div>
+    <!-- /ko -->
 </div>
