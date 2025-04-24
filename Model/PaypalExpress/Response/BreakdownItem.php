@@ -21,7 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\PaypalExpress\Response;
 
-use Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterface;
+use Buckaroo\Magento2\Api\Data\BreakdownItemInterface;
 
 class BreakdownItem implements BreakdownItemInterface
 {
@@ -48,7 +48,7 @@ class BreakdownItem implements BreakdownItemInterface
     /**
      * @inheritdoc
      */
-    public function getCurrencyCode(): string
+    public function getCurrencyCode()
     {
         return $this->currencyCode;
     }
@@ -56,7 +56,7 @@ class BreakdownItem implements BreakdownItemInterface
     /**
      * @inheritdoc
      */
-    public function getValue(): string
+    public function getValue()
     {
         return number_format($this->total, 2);
     }
