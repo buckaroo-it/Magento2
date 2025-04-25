@@ -134,7 +134,7 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
     protected function getTransactionKey()
     {
         $transactionKey = $this->getRequest()->getParam('transaction_key');
-        $transactionKey = preg_replace('/[^\w]/', '', $transactionKey);
+        $transactionKey = preg_replace('/[^\w]/', '', $transactionKey ?? '');
 
         if (empty($transactionKey) || strlen($transactionKey) <= 0) {
             return false;
