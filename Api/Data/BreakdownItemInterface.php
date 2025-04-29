@@ -17,13 +17,21 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace Buckaroo\Magento2\Api\Data\PaypalExpress;
+namespace Buckaroo\Magento2\Api\Data;
 
-interface OrderCreateResponseInterface
+interface BreakdownItemInterface
 {
     /**
-     * Get increment cart id
+     * Get currency code
+     *
      * @return string
      */
-    public function getCartId();
+    public function getCurrencyCode();
+
+    /**
+     * Get amount
+     *
+     * @return float
+     */
+    public function getValue();
 }

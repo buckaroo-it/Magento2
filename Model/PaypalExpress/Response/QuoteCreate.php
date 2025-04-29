@@ -21,7 +21,7 @@
 namespace Buckaroo\Magento2\Model\PaypalExpress\Response;
 
 use Buckaroo\Magento2\Api\Data\PaypalExpress\QuoteCreateResponseInterface;
-use Buckaroo\Magento2\Api\Data\PaypalExpress\TotalBreakdownInterfaceFactory;
+use Buckaroo\Magento2\Api\Data\TotalBreakdownInterfaceFactory;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\QuoteIdMaskFactory;
 use Magento\Quote\Model\ResourceModel\Quote\QuoteIdMask as QuoteIdMaskResource;
@@ -77,7 +77,7 @@ class QuoteCreate implements QuoteCreateResponseInterface
     /**
      * @inheritdoc
      */
-    public function getCurrencyCode(): string
+    public function getCurrencyCode()
     {
         return $this->quote->getQuoteCurrencyCode();
     }
@@ -85,7 +85,7 @@ class QuoteCreate implements QuoteCreateResponseInterface
     /**
      * @inheritdoc
      */
-    public function getValue(): string
+    public function getValue()
     {
         return number_format($this->quote->getGrandTotal(), 2);
     }
