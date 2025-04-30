@@ -20,11 +20,13 @@
 /*global define*/
 define(
     [
+        'jquery',
         'buckaroo/checkout/payment/default',
         'ko',
         'Magento_Checkout/js/model/quote'
     ],
     function (
+        $,
         Component,
         ko,
         quote
@@ -37,7 +39,16 @@ define(
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_klarna',
                     selectedGender: null,
                 },
-              
+
+                getMessageText: function () {
+                    return $.mage
+                        .__('Je moet minimaal 18+ zijn om deze dienst te gebruiken. Als je op tijd betaalt, voorkom je extra kosten en zorg je dat je in de toekomst nogmaals gebruik kunt maken van de diensten van Achteraf betalen via ' +
+                            window.checkoutConfig.payment.buckaroo.buckaroo_magento2_klarna.title +
+                            '. Door verder te gaan, accepteer je de <a target="_blank" href="%s">Algemene&nbsp;Voorwaarden</a> en bevestig je dat je de <a target="_blank" href="%f">Privacyverklaring</a> en <a target="_blank" href="%c">Cookieverklaring</a> hebt gelezen.')
+                        .replace('%s', 'https://cdn.klarna.com/1.0/shared/content/legal/terms/EID/nl_nl/invoice')
+                        .replace('%f', 'https://cdn.klarna.com/1.0/shared/content/legal/terms/0/nl_nl/privacy')
+                        .replace('%c', 'https://cdn.klarna.com/1.0/shared/content/legal/terms/nl-NL/cookie_purchase');
+                },
 
                 initObservable: function () {
                     this._super().observe(['selectedGender']);
@@ -53,7 +64,7 @@ define(
 
                     return this;
                 },
-               
+
                 getData: function () {
                     return {
                         "method": this.item.method,
