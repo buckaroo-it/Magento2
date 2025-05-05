@@ -35,6 +35,12 @@
     <preference for="Magento\Sales\Model\Order\CreditmemoFactory" type="Buckaroo\Magento2\Model\Order\CreditmemoFactory" />
     <preference for="Buckaroo\Magento2\Api\Data\ExpressMethods\ShippingAddressRequestInterface" type="Buckaroo\Magento2\Model\Service\ShippingAddressRequest" />
 
+    <type name="Buckaroo\Magento2\Model\Push">
+        <plugin name="buckaroo_fix_ppe_statuscode"
+                type="Buckaroo\Magento2\Plugin\FixPPEStatusCode"
+                sortOrder="1"/>
+    </type>
+
     // TODO: check those two plugins if they are working after this change
     <type name="Onestepcheckout\Iosc\Plugin\GuestSaveManager">
         <plugin name="buckaroo_guest_save_manager" type="Buckaroo\Magento2\Plugin\GuestSaveManager" sortOrder="10" />
