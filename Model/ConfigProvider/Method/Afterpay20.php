@@ -32,6 +32,7 @@ class Afterpay20 extends AbstractConfigProvider
     public const XPATH_AFTERPAY20_MIN_AMOUNT_B2B = 'min_amount_b2b';
     public const XPATH_AFTERPAY20_MAX_AMOUNT_B2B = 'max_amount_b2b';
     public const XPATH_AFTERPAY20_SCA            = 'afterpay_sca';
+    public const XPATH_AFTERPAY20_PAYMENT_FEE            = 'payment/buckaroo_magento2_afterpay20/payment_fee';
 
     /**
      * @inheritdoc
@@ -82,5 +83,21 @@ class Afterpay20 extends AbstractConfigProvider
     public function isEnabledSCA($storeId = null): bool
     {
         return (bool)$this->getMethodConfigValue(self::XPATH_AFTERPAY20_SCA, $storeId);
+    }
+
+    /**
+     * @param null|int $storeId
+     *
+     * @return float
+     */
+    public function getPaymentFee($storeId = null)
+    {
+        $paymentFee = $this->scopeConfig->getValue(
+            self::XPATH_AFTERPAY20_PAYMENT_FEE,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+
+        return $paymentFee ?: 0;
     }
 }

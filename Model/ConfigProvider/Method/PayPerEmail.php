@@ -40,6 +40,8 @@ class PayPerEmail extends AbstractConfigProvider
     public const XPATH_PAYPEREMAIL_EXPIRE_DAYS                 = 'expire_days';
     public const XPATH_PAYPEREMAIL_CANCEL_PPE                  = 'cancel_ppe';
     public const XPATH_PAYPEREMAIL_CRON_CANCEL_PPE             = 'cron_cancel_ppe';
+    public const XPATH_PAYPEREMAIL_PAYMENT_FEE          = 'payment/buckaroo_magento2_payperemail/payment_fee';
+
 
     /**
      * Retrieve PayPerEmail assoc array of checkout configuration
@@ -224,5 +226,21 @@ class PayPerEmail extends AbstractConfigProvider
     public function getEnableB2b($store = null)
     {
         return $this->getMethodConfigValue(self::XPATH_PAYPEREMAIL_ENABLE_B2B, $store);
+    }
+
+    /**
+     * @param null|int $storeId
+     *
+     * @return float
+     */
+    public function getPaymentFee($storeId = null)
+    {
+        $paymentFee = $this->scopeConfig->getValue(
+            self::XPATH_PAYPEREMAIL_PAYMENT_FEE,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+
+        return $paymentFee ?: 0;
     }
 }

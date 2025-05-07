@@ -17,42 +17,21 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+namespace Buckaroo\Magento2\Api\Data;
 
-namespace Buckaroo\Magento2\Model\ResourceModel\Invoice;
-
-use Magento\Sales\Model\ResourceModel\Collection\AbstractCollection;
-
-class Collection extends AbstractCollection
+interface BreakdownItemInterface
 {
     /**
-     * @var string
+     * Get currency code
+     *
+     * @return string
      */
-    protected $_idFieldName = 'entity_id';
+    public function getCurrencyCode();
 
     /**
-     * Event prefix
+     * Get amount
      *
-     * @var string
+     * @return float
      */
-    protected $_eventPrefix = 'buckaroo_magento2_invoice_collection';
-
-    /**
-     * Event object
-     *
-     * @var string
-     */
-    protected $_eventObject = 'buckaroo_invoice_collection';
-
-    /**
-     * Model initialization
-     *
-     * @return void
-     */
-    protected function _construct()
-    {
-        $this->_init(
-            'Buckaroo\Magento2\Model\Invoice',
-            'Buckaroo\Magento2\Model\ResourceModel\Invoice'
-        );
-    }
+    public function getValue();
 }

@@ -17,15 +17,13 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-
 namespace Buckaroo\Magento2\Api\Data\PaypalExpress;
 
 interface OrderCreateResponseInterface
 {
     /**
      * Get increment cart id
-     *
      * @return string
      */
-    public function getCartId(): string;
+    public function getCartId();
 }

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
@@ -18,24 +17,20 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+namespace Buckaroo\Magento2\Api\Data;
 
-namespace Buckaroo\Magento2\Test\Unit\Model\ResourceModel;
-
-use Buckaroo\Magento2\Model\ResourceModel\Invoice;
-use Buckaroo\Magento2\Test\BaseTest;
-
-class InvoiceTest extends BaseTest
+interface TotalBreakdownInterface
 {
-    protected $instanceClass = Invoice::class;
-
-    public function testInstance()
-    {
-        $instance = $this->getInstance();
-        $mainTableProperty = $this->getProperty('_mainTable', $instance);
-        $idFieldNameProperty = $this->getProperty('_idFieldName', $instance);
-
-        $this->assertInstanceOf(Invoice::class, $instance);
-        $this->assertEquals('buckaroo_magento2_invoice', $mainTableProperty);
-        $this->assertEquals('entity_id', $idFieldNameProperty);
-    }
+    /**
+     * @return \Buckaroo\Magento2\Api\Data\BreakdownItemInterface
+     */
+    public function getItemTotal();
+    /**
+     * @return \Buckaroo\Magento2\Api\Data\BreakdownItemInterface
+     */
+    public function getShipping();
+    /**
+     * @return \Buckaroo\Magento2\Api\Data\BreakdownItemInterface
+     */
+    public function getTaxTotal();
 }

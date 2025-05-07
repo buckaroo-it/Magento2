@@ -24,6 +24,7 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 class MBWay extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_mbway';
+    public const XPATH_MBWAY_PAYMENT_FEE           = 'payment/buckaroo_magento2_mbway/payment_fee';
 
     /**
      * @return array
@@ -37,5 +38,21 @@ class MBWay extends AbstractConfigProvider
         return $this->fullConfig([
             'sendEmail' => $this->hasOrderEmail(),
         ]);
+    }
+
+    /**
+     * @param null|int $storeId
+     *
+     * @return float
+     */
+    public function getPaymentFee($storeId = null)
+    {
+        $paymentFee = $this->scopeConfig->getValue(
+            self::XPATH_MBWAY_PAYMENT_FEE,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+
+        return $paymentFee ?: 0;
     }
 }

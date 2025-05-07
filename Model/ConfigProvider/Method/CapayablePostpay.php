@@ -24,6 +24,8 @@ class CapayablePostpay extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_capayablepostpay';
 
+    public const XPATH_CAPAYABLEPOSTPAY_PAYMENT_FEE          = 'payment/buckaroo_magento2_capayablepostpay/payment_fee';
+
     /**
      * @var array
      */
@@ -46,9 +48,25 @@ class CapayablePostpay extends AbstractConfigProvider
         if (!$this->getActive()) {
             return [];
         }
-        
+
         return $this->fullConfig([
             'showFinancialWarning' => $this->canShowFinancialWarning(),
         ]);
+    }
+
+    /**
+     * @param null|int $storeId
+     *
+     * @return float
+     */
+    public function getPaymentFee($storeId = null)
+    {
+        $paymentFee = $this->scopeConfig->getValue(
+            self::XPATH_CAPAYABLEPOSTPAY_PAYMENT_FEE,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+
+        return $paymentFee ?: 0;
     }
 }

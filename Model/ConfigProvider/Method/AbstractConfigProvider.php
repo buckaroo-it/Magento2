@@ -59,7 +59,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     public const SUBTEXT       = 'subtext';
     public const SUBTEXT_STYLE = 'subtext_style';
     public const SUBTEXT_COLOR = 'subtext_color';
-
+    public const TITLE         = 'title';
     public const FINANCIAL_WARNING = 'financial_warning';
 
 
@@ -306,21 +306,20 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      *
      * @return string|null
      */
-    public function getBuckarooPaymentFeeLabel(): ?string
+    public function getBuckarooPaymentFeeLabel()
     {
-        $paymentFeeLabel = $this->getPaymentFeeLabel();
-
-        if (!$paymentFeeLabel) {
-            $paymentFeeLabel = $this->getAccoutPaymentFeeLabel();
-        }
-
-        if (!$paymentFeeLabel) {
-            $paymentFeeLabel = __('Buckaroo Fee');
-        }
-
-        return $paymentFeeLabel;
+        return $this->paymentFeeHelper->getBuckarooPaymentFeeLabel();
     }
 
+    /**
+     * Get buckaroo payment method title (excluding fee)
+     *
+     * @return string|null
+     */
+    public function getTitle($store = null): ?string
+    {
+        return $this->getMethodConfigValue(static::TITLE, $store);
+    }
     /**
      * Get Active Config Value
      *
@@ -363,8 +362,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      */
     public function getPaymentFee($store = null)
     {
-        $paymentFee = $this->getMethodConfigValue(static::PAYMENT_FEE, $store);
-        return $paymentFee ? (float)$paymentFee : false;
+        return false;
     }
 
     /**
@@ -514,6 +512,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
                     static::CODE => array_merge_recursive(
                         [
                             'paymentFeeLabel'   => $this->getBuckarooPaymentFeeLabel(),
+                            'title'             => $this->getTitle(),
                             'subtext'           => $this->getSubtext(),
                             'subtext_style'     => $this->getSubtextStyle(),
                             'subtext_color'     => $this->getSubtextColor(),

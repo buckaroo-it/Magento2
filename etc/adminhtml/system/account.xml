@@ -34,9 +34,9 @@
         </field>
 
         <field id="merchant_key" translate="label comment tooltip" type="obscure" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>(Website) key</label>
-            <comment><![CDATA[Enter your Buckaroo merchant/website key.]]></comment>
-            <tooltip>The (Website) key can be retrieved in the Buckaroo Plaza under Settings > Websites. For support contact Buckaroo.</tooltip>
+            <label>Store key</label>
+            <comment><![CDATA[Enter your Buckaroo store key.]]></comment>
+            <tooltip>The Store key can be retrieved in the Buckaroo Plaza under Settings > Websites. For support contact Buckaroo.</tooltip>
             <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
             <config_path>buckaroo_magento2/account/merchant_key</config_path>
         </field>
@@ -70,6 +70,13 @@
             <tooltip><![CDATA[Select the moment when the invoice should be created.]]></tooltip>
             <source_model>Buckaroo\Magento2\Model\Config\Source\InvoiceHandlingOptions</source_model>
             <config_path>buckaroo_magento2/account/invoice_handling</config_path>
+        </field>
+
+        <field id="buckaroo_fee_tax_class" translate="label tooltip" type="select" sortOrder="47" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Buckaroo Payment Fee Tax Class</label>
+            <!--            <comment>This sets whether buckaroo payment fee amounts entered from Magento Admin include tax.</comment>-->
+            <source_model>\Magento\Tax\Model\TaxClass\Source\Product</source_model>
+            <config_path>buckaroo_magento2/account/buckaroo_fee_tax_class</config_path>
         </field>
 
         <group id="buckaroo_magento2_refund_section" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="0" showInStore="0">
@@ -178,23 +185,6 @@
                     <label>Redirect url after 'Failure'</label>
                     <comment><![CDATA[Redirect after failed payments.]]></comment>
                     <config_path>buckaroo_magento2/account/failure_redirect</config_path>
-                </field>
-            </group>
-
-
-            <group id="buckaroo_magento2_fee" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Payment Fees</label>
-                    <field id="fee_percentage_mode" translate="label comment" type="select" sortOrder="150" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Fee percentage mode</label>
-                    <comment><![CDATA[This setting only applies to percentage-based Buckaroo fees.<br />Please choose over which amount the fee percentage is calculated.]]></comment>
-                    <source_model>Buckaroo\Magento2\Model\Config\Source\FeePercentageMode</source_model>
-                    <config_path>buckaroo_magento2/account/fee_percentage_mode</config_path>
-                </field>
-
-                <field id="payment_fee_label" translate="label comment" type="text" sortOrder="160" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Payment fee frontend label</label>
-                    <comment><![CDATA[This label will be displayed next to the fee on the checkout, order, invoice and creditmemo pages and pdfs.]]></comment>
-                    <config_path>buckaroo_magento2/account/payment_fee_label</config_path>
                 </field>
             </group>
 
