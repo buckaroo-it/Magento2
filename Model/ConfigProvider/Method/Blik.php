@@ -24,6 +24,7 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 class Blik extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_blik';
+    public const XPATH_BLIK_PAYMENT_FEE           = 'payment/buckaroo_magento2_blik/payment_fee';
 
     /**
      * @var array
@@ -31,4 +32,20 @@ class Blik extends AbstractConfigProvider
     protected $allowedCurrencies = [
         'PLN'
     ];
+
+    /**
+     * @param null|int $storeId
+     *
+     * @return float
+     */
+    public function getPaymentFee($storeId = null)
+    {
+        $paymentFee = $this->scopeConfig->getValue(
+            self::XPATH_BLIK_PAYMENT_FEE,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+
+        return $paymentFee ?: 0;
+    }
 }

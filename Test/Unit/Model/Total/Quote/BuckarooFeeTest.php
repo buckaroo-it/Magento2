@@ -18,7 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace Buckaroo\Magento2\Test\Unit\Model\Quote\Total;
+namespace Buckaroo\Magento2\Test\Unit\Model\Total\Quote;
 
 use Magento\Catalog\Helper\Data;
 use Magento\Framework\Pricing\PriceCurrencyInterface;

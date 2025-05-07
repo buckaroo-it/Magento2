@@ -46,15 +46,12 @@ define(
                 },
                 currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
-                config: null, 
+                config: null,
 
                 /**
                  * @override
                  */
                 initialize : function (options) {
-                    if (checkoutData.getSelectedPaymentMethod() == options.index) {
-                        window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-                    }
 
                     const init = this._super(options);
 
@@ -96,8 +93,6 @@ define(
                 },
 
                 selectPaymentMethod: function () {
-                    window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-
                     selectPaymentMethodAction(this.getData());
                     checkoutData.setSelectedPaymentMethod(this.item.method);
                     return true;
@@ -134,18 +129,18 @@ define(
                     }
                     let subtextColor = config.subtext_color || '#757575';
                     let subtextStyle = config.subtext_style || 'regular';
-    
+
                     let style = { color: subtextColor }
                     if (subtextStyle == 'bold') {
                         style.fontWeight = 'bold';
                     }
-    
+
                     if (subtextStyle == 'italic') {
                         style.fontStyle = 'italic';
                     }
                     return style;
                 }
-                
+
             }
         );
     }

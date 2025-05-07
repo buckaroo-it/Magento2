@@ -37,6 +37,8 @@ class Billink extends AbstractConfigProvider
     public const XPATH_BILLINK_CUSTOMER_TYPE  = 'customer_type';
     public const XPATH_BILLINK_MIN_AMOUNT_B2B = 'min_amount_b2b';
     public const XPATH_BILLINK_MAX_AMOUNT_B2B = 'max_amount_b2b';
+    public const XPATH_BILLINK_PAYMENT_FEE          = 'payment/buckaroo_magento2_billink/payment_fee';
+
 
     /**
      * @var BuckarooHelper
@@ -110,5 +112,21 @@ class Billink extends AbstractConfigProvider
     public function getCustomerType($storeId = null)
     {
         return $this->getMethodConfigValue(self::XPATH_BILLINK_CUSTOMER_TYPE, $storeId);
+    }
+
+    /**
+     * @param null|int $storeId
+     *
+     * @return float
+     */
+    public function getPaymentFee($storeId = null)
+    {
+        $paymentFee = $this->scopeConfig->getValue(
+            self::XPATH_BILLINK_PAYMENT_FEE,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+
+        return $paymentFee ?: 0;
     }
 }

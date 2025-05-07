@@ -24,6 +24,7 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 class Trustly extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_trustly';
+    public const XPATH_TRUSTLY_PAYMENT_FEE           = 'payment/buckaroo_magento2_trustly/payment_fee';
 
     /**
      * @var string[]
@@ -54,5 +55,20 @@ class Trustly extends AbstractConfigProvider
             'DKK',
             'NOK',
         ];
+    }
+    /**
+     * @param null|int $storeId
+     *
+     * @return float
+     */
+    public function getPaymentFee($storeId = null)
+    {
+        $paymentFee = $this->scopeConfig->getValue(
+            self::XPATH_TRUSTLY_PAYMENT_FEE,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+
+        return $paymentFee ?: 0;
     }
 }

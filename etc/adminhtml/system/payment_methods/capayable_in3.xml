@@ -48,7 +48,7 @@
             <comment><![CDATA[This controls the description which the user sees during checkout.]]></comment>
             <config_path>payment/buckaroo_magento2_capayablein3/subtext</config_path>
         </field>
-        
+
         <field id="subtext_style" translate="label comment" type="select" sortOrder="26" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Frontend subtext style</label>
             <comment><![CDATA[Choose a font style for the subtext.]]></comment>
@@ -66,7 +66,7 @@
         <field id="sort_order" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Frontend sort order</label>
             <comment><![CDATA[Determines the sorting of payment methods.]]></comment>
-            <config_path>payment/buckaroo_magento2_capayablein3/sort_order</config_path>  
+            <config_path>payment/buckaroo_magento2_capayablein3/sort_order</config_path>
         </field>
 
         <field id="financial_warning" translate="label comment" type="select" sortOrder="35" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -88,15 +88,9 @@
 
             <field id="payment_fee" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Payment fee</label>
-                <comment><![CDATA[The above amount is calculated based on de Tax settings in Stores > Configuration > Sales > Tax.]]></comment>
+                <comment><![CDATA[The above amount is calculated based on de Tax settings in Buckaroo > Settings > Buckaroo Payment Fee Tax Class.]]></comment>
                 <config_path>payment/buckaroo_magento2_capayablein3/payment_fee</config_path>
                 <backend_model>Buckaroo\Magento2\Model\Config\Backend\PaymentFee</backend_model>
-            </field>
-
-            <field id="payment_fee_label" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Payment fee frontend label</label>
-                <comment><![CDATA[This label will be displayed next to the fee on the checkout, order, invoice and creditmemo pages and pdfs.]]></comment>
-                <config_path>payment/buckaroo_magento2_capayablein3/payment_fee_label</config_path>
             </field>
 
             <field id="active_status" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -130,7 +124,7 @@
 
             <group id="buckaroo_magento2_visibility" translate="label" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Method visibility</label>
-                
+
                 <field id="min_amount" translate="label comment tooltip" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Min order amount (in Base Currency)</label>
                     <comment><![CDATA[Minimum order amount allowed.]]></comment>

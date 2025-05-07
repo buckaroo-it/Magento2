@@ -24,6 +24,8 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 class P24 extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_p24';
+    public const XPATH_P24_PAYMENT_FEE           = 'payment/buckaroo_magento2_p24/payment_fee';
+
 
     /**
      * @var string
@@ -39,5 +41,21 @@ class P24 extends AbstractConfigProvider
             'PLN',
             'EUR'
         ];
+    }
+
+    /**
+     * @param null|int $storeId
+     *
+     * @return float
+     */
+    public function getPaymentFee($storeId = null)
+    {
+        $paymentFee = $this->scopeConfig->getValue(
+            self::XPATH_P24_PAYMENT_FEE,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+
+        return $paymentFee ?: 0;
     }
 }

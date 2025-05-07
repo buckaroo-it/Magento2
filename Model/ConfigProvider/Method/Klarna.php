@@ -26,6 +26,7 @@ use Buckaroo\Magento2\Exception;
 class Klarna extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_klarna';
+    public const XPATH_KLARNA_PAYMENT_FEE            = 'payment/buckaroo_magento2_klarna/payment_fee';
 
     /**
      * @var array
@@ -70,12 +71,32 @@ class Klarna extends AbstractConfigProvider
         }
 
         return $this->fullConfig([
-            'paymentFee'           => $this->getPaymentFee(),
             'genderList'           => [
                 ['genderType' => 'male', 'genderTitle' => __('He/him')],
                 ['genderType' => 'female', 'genderTitle' => __('She/her')]
             ],
             'showFinancialWarning' => $this->canShowFinancialWarning(),
         ]);
+    }
+
+    /**
+     * @param null|int $storeId
+     *
+     * @return float
+     */
+    /**
+     * @param null|int $storeId
+     *
+     * @return float
+     */
+    public function getPaymentFee($storeId = null)
+    {
+        $paymentFee = $this->scopeConfig->getValue(
+            self::XPATH_KLARNA_PAYMENT_FEE,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+
+        return $paymentFee ?: 0;
     }
 }

@@ -40,6 +40,8 @@ class Giftcards extends AbstractConfigProvider
     public const XPATH_GIFTCARDS_GROUP_GIFTCARDS         = 'group_giftcards';
     public const XPATH_GIFTCARDS_SORT                    = 'sorted_giftcards';
     public const XPATH_ACCOUNT_ADVANCED_EXPORT_GIFTCARDS = 'buckaroo_magento2/account/advanced_export_giftcards';
+    public const XPATH_GIFTCARDS_PAYMENT_FEE          = 'payment/buckaroo_magento2_giftcards/payment_fee';
+
 
     /**
      * @var array
@@ -220,5 +222,21 @@ class Giftcards extends AbstractConfigProvider
     public function hasAdvancedExportGiftcards($store = null): bool
     {
         return (bool)$this->getMethodConfigValue(self::XPATH_ACCOUNT_ADVANCED_EXPORT_GIFTCARDS, $store);
+    }
+
+    /**
+     * @param null|int $storeId
+     *
+     * @return bool|float
+     */
+    public function getPaymentFee($storeId = null)
+    {
+        $paymentFee = $this->scopeConfig->getValue(
+            self::XPATH_GIFTCARDS_PAYMENT_FEE,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+
+        return $paymentFee ?: 0;
     }
 }

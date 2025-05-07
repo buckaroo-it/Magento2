@@ -306,19 +306,9 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      *
      * @return string|null
      */
-    public function getBuckarooPaymentFeeLabel(): ?string
+    public function getBuckarooPaymentFeeLabel()
     {
-        $paymentFeeLabel = $this->getPaymentFeeLabel();
-
-        if (!$paymentFeeLabel) {
-            $paymentFeeLabel = $this->getAccoutPaymentFeeLabel();
-        }
-
-        if (!$paymentFeeLabel) {
-            $paymentFeeLabel = __('Buckaroo Fee');
-        }
-
-        return $paymentFeeLabel;
+        return $this->paymentFeeHelper->getBuckarooPaymentFeeLabel();
     }
 
     /**
@@ -330,7 +320,6 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     {
         return $this->getMethodConfigValue(static::TITLE, $store);
     }
-
     /**
      * Get Active Config Value
      *
@@ -373,8 +362,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      */
     public function getPaymentFee($store = null)
     {
-        $paymentFee = $this->getMethodConfigValue(static::PAYMENT_FEE, $store);
-        return $paymentFee ? (float)$paymentFee : false;
+        return false;
     }
 
     /**

@@ -37,6 +37,8 @@ class Mrcash extends AbstractConfigProvider
     public const XPATH_MRCASH_USE_CLIENT_SIDE = 'client_side';
 
     public const MRCASH_REDIRECT_URL = '/buckaroo/mrcash/pay';
+    public const XPATH_MRCASH_PAYMENT_FEE              = 'payment/buckaroo_magento2_mrcash/payment_fee';
+
 
     /**
      * @var FormKey
@@ -102,5 +104,21 @@ class Mrcash extends AbstractConfigProvider
     private function getFormKey(): string
     {
         return $this->formKey->getFormKey();
+    }
+
+    /**
+     * @param null|int $storeId
+     *
+     * @return float
+     */
+    public function getPaymentFee($storeId = null)
+    {
+        $paymentFee = $this->scopeConfig->getValue(
+            self::XPATH_MRCASH_PAYMENT_FEE,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+
+        return $paymentFee ?: 0;
     }
 }

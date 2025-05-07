@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 class CapayableIn3 extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_capayablein3';
+    public const XPATH_CAPAYABLEIN3_PAYMENT_FEE          = 'payment/buckaroo_magento2_capayablein3/payment_fee';
 
     public const DEFAULT_NAME = 'iDEAL In3';
     public const V2_NAME = 'In3';
@@ -84,5 +85,21 @@ class CapayableIn3 extends AbstractConfigProvider
     public function isV2($storeId = null): bool
     {
         return $this->getMethodConfigValue(self::XPATH_CAPAYABLEIN3_API_VERSION, $storeId) === 'V2';
+    }
+
+    /**
+     * @param null|int $storeId
+     *
+     * @return float
+     */
+    public function getPaymentFee($storeId = null)
+    {
+        $paymentFee = $this->scopeConfig->getValue(
+            self::XPATH_CAPAYABLEIN3_PAYMENT_FEE,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+
+        return $paymentFee ?: 0;
     }
 }
