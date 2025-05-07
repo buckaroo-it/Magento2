@@ -24,7 +24,7 @@
 <?php foreach ($block->getTotals() as $_code => $_total): ?>
     <?php if (isset($_total['block_name']) && $_total['block_name'] == 'buckaroo_fee'): ?>
         <tr>
-            <td class="label"><?= $_total['label'] ?>
+            <td class="label"><?= $_total['label'] ?: __('Buckaroo Fee') ?>
                 <div id="buckaroo_fee_adv">
                 </div>
             </td>

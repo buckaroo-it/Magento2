@@ -33,6 +33,8 @@ class Transfer extends AbstractConfigProvider
     public const XPATH_TRANSFER_MAX_STEP_INDEX              = 'max_step_index';
     public const XPATH_TRANSFER_CM3_DUE_DATE                = 'cm3_due_date';
     public const XPATH_TRANSFER_PAYMENT_METHOD_AFTER_EXPIRY = 'payment_method_after_expiry';
+    public const XPATH_TRANSFER_PAYMENT_FEE            = 'payment/buckaroo_magento2_transfer/payment_fee';
+
 
     /**
      * @inheritdoc
@@ -129,5 +131,20 @@ class Transfer extends AbstractConfigProvider
     public function getPaymentMethodAfterExpiry($store = null)
     {
         return $this->getMethodConfigValue(self::XPATH_TRANSFER_PAYMENT_METHOD_AFTER_EXPIRY, $store);
+    }
+    /**
+     * @param null|int $storeId
+     *
+     * @return float
+     */
+    public function getPaymentFee($storeId = null)
+    {
+        $paymentFee = $this->scopeConfig->getValue(
+            self::XPATH_TRANSFER_PAYMENT_FEE,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+
+        return $paymentFee ?: 0;
     }
 }

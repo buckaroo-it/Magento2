@@ -32,6 +32,7 @@ class Paypal extends AbstractConfigProvider
     public const SELLERS_PROTECTION_INELIGIBLE                   = 'sellers_protection_ineligible';
     public const SELLERS_PROTECTION_ITEMNOTRECEIVED_ELIGIBLE     = 'sellers_protection_itemnotreceived_eligible';
     public const SELLERS_PROTECTION_UNAUTHORIZEDPAYMENT_ELIGIBLE = 'sellers_protection_unauthorizedpayment_eligible';
+    public const XPATH_PAYPAL_PAYMENT_FEE                      = 'payment/buckaroo_magento2_paypal/payment_fee';
 
     public const EXPRESS_BUTTONS           = 'available_buttons';
     public const EXPRESS_MERCHANT_ID       = 'express_merchant_id';
@@ -154,5 +155,21 @@ class Paypal extends AbstractConfigProvider
     public function getExpressButtons($store = null)
     {
         return $this->getMethodConfigValue(self::EXPRESS_BUTTONS, $store);
+    }
+
+    /**
+     * @param null|int $storeId
+     *
+     * @return float
+     */
+    public function getPaymentFee($storeId = null)
+    {
+        $paymentFee = $this->scopeConfig->getValue(
+            self::XPATH_PAYPAL_PAYMENT_FEE,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+
+        return $paymentFee ?: 0;
     }
 }

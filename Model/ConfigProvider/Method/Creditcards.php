@@ -33,6 +33,8 @@ class Creditcards extends AbstractConfigProvider
 
     public const XPATH_CREDITCARDS_ALLOWED_ISSUERS = 'allowed_creditcards';
     public const XPATH_USE_CARD_DESIGN             = 'card_design';
+    public const XPATH_CREDITCARDS_PAYMENT_FEE = 'payment/buckaroo_magento2_creditcards/payment_fee';
+
 
     protected array $issuers;
 
@@ -123,5 +125,21 @@ class Creditcards extends AbstractConfigProvider
     public function getDefaultCardImage(): string
     {
         return $this->getImageUrl('svg/creditcards', 'svg');
+    }
+
+    /**
+     * @param null|int $storeId
+     *
+     * @return float
+     */
+    public function getPaymentFee($storeId = null)
+    {
+        $paymentFee = $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_PAYMENT_FEE,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+
+        return $paymentFee ?: 0;
     }
 }

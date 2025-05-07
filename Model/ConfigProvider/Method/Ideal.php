@@ -35,6 +35,7 @@ class Ideal extends AbstractConfigProvider
     public const XPATH_SHOW_ISSUERS     = 'show_issuers';
     public const XPATH_GATEWAY_SETTINGS = 'gateway_settings';
     public const XPATH_SORTED_ISSUERS   = 'sorted_issuers';
+    public const XPATH_IDEAL_PAYMENT_FEE           = 'payment/buckaroo_magento2_ideal/payment_fee';
     /**
      * @var IssuersService
      */
@@ -154,5 +155,21 @@ class Ideal extends AbstractConfigProvider
             $issuer['logo'] = $this->issuersService->getImageUrlByIssuerId($issuer['id']);
             return $issuer;
         }, $this->issuersService->get());
+    }
+
+    /**
+     * @param null|int $storeId
+     *
+     * @return float
+     */
+    public function getPaymentFee($storeId = null)
+    {
+        $paymentFee = $this->scopeConfig->getValue(
+            self::XPATH_IDEAL_PAYMENT_FEE,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+
+        return $paymentFee ?: 0;
     }
 }

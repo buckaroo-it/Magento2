@@ -24,6 +24,7 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 class Voucher extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_voucher';
+    public const XPATH_VOUCHER_PAYMENT_FEE           = 'payment/buckaroo_magento2_voucher/payment_fee';
 
     /**
      * @var array
@@ -40,5 +41,21 @@ class Voucher extends AbstractConfigProvider
         return [
             'EUR',
         ];
+    }
+
+    /**
+     * @param null|int $storeId
+     *
+     * @return float
+     */
+    public function getPaymentFee($storeId = null)
+    {
+        $paymentFee = $this->scopeConfig->getValue(
+            self::XPATH_VOUCHER_PAYMENT_FEE,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+
+        return $paymentFee ?: 0;
     }
 }

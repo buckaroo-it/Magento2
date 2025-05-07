@@ -24,6 +24,8 @@ class Afterpay2 extends Afterpay
 {
     public const CODE = 'buckaroo_magento2_afterpay2';
 
+    public const XPATH_AFTERPAY2_PAYMENT_FEE            = 'payment/buckaroo_magento2_afterpay2/payment_fee';
+
     /**
      * @inheritdoc
      */
@@ -32,12 +34,28 @@ class Afterpay2 extends Afterpay
         if (!$this->getActive()) {
             return [];
         }
-        
+
         return $this->fullConfig([
             'sendEmail'            => $this->hasOrderEmail(),
             'businessMethod'       => $this->getBusiness(),
             'paymentMethod'        => $this->getPaymentMethod(),
             'showFinancialWarning' => $this->canShowFinancialWarning(),
         ]);
+    }
+
+    /**
+     * @param null|int $storeId
+     *
+     * @return float
+     */
+    public function getPaymentFee($storeId = null)
+    {
+        $paymentFee = $this->scopeConfig->getValue(
+            self::XPATH_AFTERPAY2_PAYMENT_FEE,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+
+        return $paymentFee ?: 0;
     }
 }

@@ -24,6 +24,7 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 class Wechatpay extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_wechatpay';
+    public const XPATH_WECHATPAY_PAYMENT_FEE           = 'payment/buckaroo_magento2_wechatpay/payment_fee';
 
     /**
      * @inheritdoc
@@ -44,5 +45,20 @@ class Wechatpay extends AbstractConfigProvider
             'SGD',
             'RUB',
         ];
+    }
+    /**
+     * @param null|int $storeId
+     *
+     * @return float
+     */
+    public function getPaymentFee($storeId = null)
+    {
+        $paymentFee = $this->scopeConfig->getValue(
+            self::XPATH_WECHATPAY_PAYMENT_FEE,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+
+        return $paymentFee ?: 0;
     }
 }

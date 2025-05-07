@@ -27,7 +27,9 @@ use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\Store;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider as MethodAbstractConfigProvider;
-
+/**
+ * @method mixed getBuckarooFeeTaxClass()
+ */
 class Account extends AbstractConfigProvider
 {
     /**
@@ -52,7 +54,6 @@ class Account extends AbstractConfigProvider
     public const XPATH_ACCOUNT_LOG_HANDLER                     = 'buckaroo_magento2/account/log_handler';
     public const XPATH_ACCOUNT_LOG_DBTRACE_DEPTH               = 'buckaroo_magento2/account/log_handler_db_depth';
     public const XPATH_ACCOUNT_LOG_RETENTION                   = 'buckaroo_magento2/account/log_retention';
-    public const XPATH_ACCOUNT_FEE_PERCENTAGE_MODE             = 'buckaroo_magento2/account/fee_percentage_mode';
     public const XPATH_ACCOUNT_PAYMENT_FEE_LABEL               = 'buckaroo_magento2/account/payment_fee_label';
     public const XPATH_ACCOUNT_ORDER_STATUS_NEW                = 'buckaroo_magento2/account/order_status_new';
     public const XPATH_ACCOUNT_ORDER_STATUS_PENDING            = 'buckaroo_magento2/account/order_status_pending';
@@ -67,6 +68,7 @@ class Account extends AbstractConfigProvider
     public const XPATH_ACCOUNT_IDIN                            = 'buckaroo_magento2/account/idin';
     public const XPATH_ACCOUNT_IDIN_MODE                       = 'buckaroo_magento2/account/idin_mode';
     public const XPATH_ACCOUNT_IDIN_CATEGORY                   = 'buckaroo_magento2/account/idin_category';
+    public const XPATH_ACCOUNT_BUCKAROO_FEE_TAX_CLASS          = 'buckaroo_magento2/account/buckaroo_fee_tax_class';
 
     /**
      * @var MethodFactory
@@ -113,7 +115,6 @@ class Account extends AbstractConfigProvider
             'debug_types'                       => $this->getLogLevel($store),
             'log_handler'                       => $this->getLogHandler($store),
             'log_retention'                     => $this->getLogRetention($store),
-            'fee_percentage_mode'               => $this->getFeePercentageMode($store),
             'payment_fee_label'                 => $this->getPaymentFeeLabel($store),
             'order_status_new'                  => $this->getOrderStatusNew($store),
             'order_status_pending'              => $this->getOrderStatusPending($store),
@@ -122,6 +123,7 @@ class Account extends AbstractConfigProvider
             'create_order_before_transaction'   => $this->getCreateOrderBeforeTransaction($store),
             'ip_header'                         => $this->getIpHeader($store),
             'cart_keep_alive'                   => $this->getCartKeepAlive($store),
+            'buckaroo_fee_tax_class'            => $this->getBuckarooFeeTaxClass($store),
             'customer_additional_info'          => $this->getCustomerAdditionalInfo($store),
             'idin'                              => $this->getIdin($store),
             'idin_mode'                         => $this->getIdinMode($store),
@@ -485,21 +487,6 @@ class Account extends AbstractConfigProvider
     {
         return $this->scopeConfig->getValue(
             self::XPATH_ACCOUNT_LOG_RETENTION,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
-     * Get Fee percentage mode (Subtotal/Subtotal incl. tax)
-     *
-     * @param null|int|string $store
-     * @return mixed
-     */
-    public function getFeePercentageMode($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            self::XPATH_ACCOUNT_FEE_PERCENTAGE_MODE,
             ScopeInterface::SCOPE_STORE,
             $store
         );

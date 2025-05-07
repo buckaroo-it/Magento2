@@ -26,6 +26,8 @@ class Pospayment extends AbstractConfigProvider
     public const CODE = 'buckaroo_magento2_pospayment';
 
     public const XPATH_POSPAYMENT_OTHER_PAYMENT_METHODS = 'other_payment_methods';
+    public const XPATH_POSPAYMENT_PAYMENT_FEE           = 'payment/buckaroo_magento2_pospayment/payment_fee';
+
 
     /**
      * @var array
@@ -43,5 +45,21 @@ class Pospayment extends AbstractConfigProvider
     public function getOtherPaymentMethods($store = null)
     {
         return $this->getMethodConfigValue(self::XPATH_POSPAYMENT_OTHER_PAYMENT_METHODS, $store);
+    }
+
+    /**
+     * @param null|int $storeId
+     *
+     * @return float
+     */
+    public function getPaymentFee($storeId = null)
+    {
+        $paymentFee = $this->scopeConfig->getValue(
+            self::XPATH_POSPAYMENT_PAYMENT_FEE,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+
+        return $paymentFee ?: 0;
     }
 }

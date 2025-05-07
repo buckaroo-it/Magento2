@@ -24,6 +24,7 @@ class Alipay extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_alipay';
 
+    public const XPATH_ALIPAY_PAYMENT_FEE           = 'payment/buckaroo_magento2_alipay/payment_fee';
     /**
      * @return array
      */
@@ -45,5 +46,21 @@ class Alipay extends AbstractConfigProvider
             'THB',
             'HKD'
         ];
+    }
+
+    /**
+     * @param null|int $storeId
+     *
+     * @return float
+     */
+    public function getPaymentFee($storeId = null)
+    {
+        $paymentFee = $this->scopeConfig->getValue(
+            self::XPATH_ALIPAY_PAYMENT_FEE,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+
+        return $paymentFee ?: 0;
     }
 }
