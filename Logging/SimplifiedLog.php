@@ -3,9 +3,9 @@
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
- * It is available through the world-wide-web at this URL:
+ * It is available through the world‑wide‑web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please email
+ * If you are unable to obtain it through the world‑wide‑web, please email
  * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
@@ -17,13 +17,15 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Logging;
 
 use Buckaroo\Magento2\Model\ConfigProvider\DebugConfiguration;
-use Monolog\DateTimeImmutable;
 use Monolog\Handler\HandlerInterface;
+use Monolog\JsonSerializableDateTimeImmutable;
+use Monolog\Level;
 use Monolog\Logger;
 
 class SimplifiedLog extends Logger implements BuckarooLoggerInterface
@@ -44,12 +46,12 @@ class SimplifiedLog extends Logger implements BuckarooLoggerInterface
     protected string $action = '';
 
     /**
-     * Log constructor.
+     * SimplifiedLog constructor.
      *
      * @param DebugConfiguration $debugConfiguration
      * @param HandlerInterface[] $handlers
-     * @param callable[] $processors
-     * @param string $name
+     * @param callable[]         $processors
+     * @param string             $name
      */
     public function __construct(
         DebugConfiguration $debugConfiguration,
@@ -63,58 +65,47 @@ class SimplifiedLog extends Logger implements BuckarooLoggerInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritDoc}
+     *
+     * Updated for Monolog 3.x compatibility (Magento 2.4.8+).
      */
     public function addRecord(
-        int $level,
-        string $message,
+        Level|int $level,
+        string|\Stringable $message,
         array $context = [],
-        DateTimeImmutable $datetime = null
+        ?JsonSerializableDateTimeImmutable $datetime = null
     ): bool {
-        if (!$this->debugConfiguration->canLog($level)) {
+        if (! $this->debugConfiguration->canLog($level)) {
             return false;
         }
 
-        $message = $this->action . $message;
+        $message = $this->action . (string) $message;
 
-        return parent::addRecord($level, $message, $context);
+        // Forward to parent with updated signature
+        return parent::addRecord($level, $message, $context, $datetime);
     }
 
-    /**
-     * Logs a debug message.
-     *
-     * @param string $message
-     * @return bool
-     */
+    /* ---------------------------------------------------------------------
+     * Convenience wrappers
+     * -------------------------------------------------------------------*/
+
     public function addDebug(string $message): bool
     {
         return $this->addRecord(Logger::DEBUG, $message);
     }
 
-    /**
-     * Logs an error message.
-     *
-     * @param string $message
-     * @return bool
-     */
     public function addError(string $message): bool
     {
         return $this->addRecord(Logger::ERROR, $message);
     }
 
-    /**
-     * Logs a warning message.
-     *
-     * @param string $message
-     * @return bool
-     */
     public function addWarning(string $message): bool
     {
         return $this->addRecord(Logger::WARNING, $message);
     }
 
     /**
-     * @inheritdoc
+     * {@inheritDoc}
      */
     public function debug($message, array $context = []): void
     {
@@ -122,7 +113,7 @@ class SimplifiedLog extends Logger implements BuckarooLoggerInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritDoc}
      */
     public function setAction(string $action): BuckarooLoggerInterface
     {
