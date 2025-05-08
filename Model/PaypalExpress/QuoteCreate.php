@@ -253,7 +253,6 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
     /**
      * Set paypal payment method on quote
      *
-     * @return Quote
      */
     protected function setPaymentMethod()
     {
