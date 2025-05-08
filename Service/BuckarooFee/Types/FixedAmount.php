@@ -47,6 +47,9 @@ class FixedAmount
         $this->taxCalculate = $taxCalculate;
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function calculate(CartInterface $cart, Total $total, float $amount){
 
         $tax = $this->taxCalculate->getTaxFromAmountIncludingTax($cart, $amount);
