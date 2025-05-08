@@ -146,6 +146,8 @@ class BuckarooFee extends AbstractTotal
      * @param  Quote $quote
      * @param  Total $total
      * @return array
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function fetch(Quote $quote, Total $total)
     {

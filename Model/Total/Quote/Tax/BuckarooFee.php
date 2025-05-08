@@ -39,6 +39,9 @@ use Magento\Tax\Helper\Data as TaxHelper;
 use Magento\Tax\Model\Config as TaxConfig;
 use Magento\Tax\Model\Sales\Total\Quote\CommonTaxCollector;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class BuckarooFee extends CommonTaxCollector
 {
     const QUOTE_TYPE = 'buckaroo_fee_tax';
@@ -86,6 +89,8 @@ class BuckarooFee extends CommonTaxCollector
      * @param TaxHelper|null $taxHelper
      * @param QuoteDetailsItemExtensionInterfaceFactory|null $quoteDetailsItemExtensionInterfaceFactory
      * @param CustomerAccountManagement|null $customerAccountManagement
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         TaxConfig $taxConfig,
