@@ -1,5 +1,4 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
@@ -34,6 +33,7 @@ use Buckaroo\Magento2\Model\Method\Afterpay;
 use Buckaroo\Magento2\Model\Method\Afterpay2;
 use Buckaroo\Magento2\Model\Method\Afterpay20;
 use Buckaroo\Magento2\Model\Method\Creditcard;
+use Buckaroo\Magento2\Model\Method\Creditcards;
 use Buckaroo\Magento2\Model\Method\Klarnakp;
 use Buckaroo\Magento2\Model\Method\Giftcards;
 use Buckaroo\Magento2\Model\Method\Paypal;
@@ -256,7 +256,6 @@ class Push implements PushInterface
     public function receivePush()
     {
         $this->getPostData();
-        //Start debug mailing/logging with the postdata.
         $this->logging->addDebug(__METHOD__ . '|1|' . var_export($this->originalPostData, true));
 
         $this->logging->addDebug(__METHOD__ . '|1_2|');
@@ -267,17 +266,23 @@ class Push implements PushInterface
         if (!$lockAcquired) {
             $this->logging->addDebug(__METHOD__ . '|lock not acquired|');
             throw new \Buckaroo\Magento2\Exception(
-                __('Lock push not acquired')
+                __('Lock push not acquired for order %1', $orderIncrementID)
             );
         }
 
         try {
             $response = $this->pushProcess();
-
             return $response;
         } catch (\Throwable $e) {
-            $this->logging->addDebug(__METHOD__ . '|Exception|' . $e->getMessage());
-            throw $e;
+            $errorMessage = sprintf(
+                'Exception in push processing for order %s (Transaction Type: %s): %s',
+                $orderIncrementID,
+                $this->getTransactionType() ?: 'unknown',
+                $e->getMessage()
+            );
+            $this->logging->addDebug(__METHOD__ . '|' . $errorMessage);
+            $this->logging->addDebug(__METHOD__ . '|Post Data|' . var_export($this->originalPostData, true));
+            throw new \Buckaroo\Magento2\Exception($errorMessage, $e);
         } finally {
             $this->lockManager->unlockOrder($orderIncrementID);
             $this->logging->addDebug(__METHOD__ . '|Lock released|');
@@ -685,7 +690,7 @@ class Push implements PushInterface
             }
             $trxId = $this->postData['brq_transactions'];
         }
-        $payment               = $this->order->getPayment();
+        $payment = $this->order->getPayment();
         $ignoredPaymentMethods = [
             Giftcards::PAYMENT_METHOD_CODE,
             Transfer::PAYMENT_METHOD_CODE
@@ -718,12 +723,11 @@ class Push implements PushInterface
                     && ($this->order->getStatus() == $orderStatus)
                     && ($receivedStatusCode == $statusCode)
                 ) {
-                    //allow duplicated pushes for 190 statuses in case if order stills to be new/pending
-                    $this->logging->addDebug(__METHOD__ . '|13|');
+                    $this->logging->addDebug(__METHOD__ . '|13|Allowing duplicate success push for order in NEW state');
                     return false;
                 }
 
-                $this->logging->addDebug(__METHOD__ . '|15|');
+                $this->logging->addDebug(__METHOD__ . '|15|Duplicate push detected, skipping');
                 return true;
             }
             if ($save) {
@@ -1013,11 +1017,20 @@ class Push implements PushInterface
 
     public function processCm3Push()
     {
-        $invoiceKey      = $this->postData['brq_invoicekey'];
+        $invoiceKey = $this->postData['brq_invoicekey'];
         $savedInvoiceKey = $this->order->getPayment()->getAdditionalInformation('buckaroo_cm3_invoice_key');
 
         if ($invoiceKey != $savedInvoiceKey) {
             return;
+        }
+
+        // Skip invoice creation for PayPerEmail in pending state
+        if ($this->isPayPerEmailB2BModePush() || $this->isPayPerEmailB2CModePush()) {
+            $statusCode = $this->getStatusCode();
+            if ($statusCode == $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_WAITING_ON_CONSUMER')) {
+                $this->logging->addDebug(__METHOD__ . '|Skipping CM3 invoice creation for pending PayPerEmail push|');
+                return;
+            }
         }
 
         if ($this->updateCm3InvoiceStatus()) {
@@ -1331,15 +1344,34 @@ class Push implements PushInterface
                 ' ' .
                 $this->postData['brq_service_antifraud_check'] .
                 ' ' .
-                $this->postData['brq_service_antifraud_details']
-            ;
+                $this->postData['brq_service_antifraud_details'];
         }
 
         $store = $this->order->getStore();
-
         $buckarooCancelOnFailed = $this->configAccount->getCancelOnFailed($store);
-
         $payment = $this->order->getPayment();
+
+        // Handle PayPerEmail cancellations
+        if ($payment->getMethod() == PayPerEmail::PAYMENT_METHOD_CODE) {
+            $this->logging->addDebug(__METHOD__ . '|Handling PayPerEmail cancellation|');
+            if ($this->order->canCancel()) {
+                $this->order->cancel();
+                $this->order->addStatusHistoryComment(
+                    __('Order canceled due to PayPerEmail transaction failure: %1', $message)
+                );
+                $this->order->save();
+
+                // Void any existing invoices
+                foreach ($this->order->getInvoiceCollection() as $invoice) {
+                    if ($invoice->canVoid()) {
+                        $invoice->void();
+                        $invoice->save();
+                        $this->logging->addDebug(__METHOD__ . '|Voided invoice: ' . $invoice->getIncrementId());
+                    }
+                }
+            }
+            return true;
+        }
 
         if ($buckarooCancelOnFailed && $this->order->canCancel()) {
             $this->logging->addDebug(sprintf(
@@ -1778,24 +1810,25 @@ class Push implements PushInterface
         if (!$this->forceInvoice) {
             if (!$this->order->canInvoice() || $this->order->hasInvoices()) {
                 $this->logging->addDebug('Order can not be invoiced');
-                //throw new \Buckaroo\Magento2\Exception(__('Order can not be invoiced'));
+                return false;
+            }
+        }
+
+        // Skip invoice creation for pending PayPerEmail transactions
+        if ($this->isPayPerEmailB2BModePush() || $this->isPayPerEmailB2CModePush()) {
+            $statusCode = $this->getStatusCode();
+            if ($statusCode == $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_WAITING_ON_CONSUMER')) {
+                $this->logging->addDebug(__METHOD__ . '|Skipping invoice creation for pending PayPerEmail transaction|');
                 return false;
             }
         }
 
         $this->logging->addDebug(__METHOD__ . '|5|');
 
-        /**
-         * Only when the order can be invoiced and has not been invoiced before.
-         */
-
         if (!$this->isGroupTransactionInfoType()) {
             $this->addTransactionData();
         }
 
-        /**
-         * @var \Magento\Sales\Model\Order\Payment $payment
-         */
         $payment = $this->order->getPayment();
         $invoiceHandlingConfig = $this->configAccount->getInvoiceHandling($this->order->getStore());
 
@@ -2034,8 +2067,30 @@ class Push implements PushInterface
         ) {
             $config = $this->configProviderMethodFactory->get(PayPerEmail::PAYMENT_METHOD_CODE);
             if ($config->getEnabledCronCancelPPE()) {
+                $this->logging->addDebug(__METHOD__ . '|Skipping cancellation due to cron configuration|');
                 return true;
             }
+
+            // Cancel the order and void any invoices
+            if ($this->order->canCancel()) {
+                $this->logging->addDebug(__METHOD__ . '|Canceling order for PayPerEmail failure|');
+                $this->order->cancel();
+                $this->order->addStatusHistoryComment(
+                    __('Order canceled due to PayPerEmail transaction failure: %1', $this->postData['brq_statusmessage'])
+                );
+                $this->order->save();
+
+                // Void any existing invoices
+                foreach ($this->order->getInvoiceCollection() as $invoice) {
+                    if ($invoice->canVoid()) {
+                        $invoice->void();
+                        $invoice->save();
+                        $this->logging->addDebug(__METHOD__ . '|Voided invoice: ' . $invoice->getIncrementId());
+                    }
+                }
+            }
+
+            return true;
         }
         return false;
     }
@@ -2150,6 +2205,7 @@ class Push implements PushInterface
             Afterpay2::PAYMENT_METHOD_CODE,
             Afterpay20::PAYMENT_METHOD_CODE,
             Creditcard::PAYMENT_METHOD_CODE,
+            Creditcards::PAYMENT_METHOD_CODE,
             Klarnakp::PAYMENT_METHOD_CODE
         ];
 

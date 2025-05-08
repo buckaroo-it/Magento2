@@ -20,7 +20,7 @@
     </div>
 
     <div class="payment-method-content">
-        
+
         <div class="payment-method-billing-address">
             <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
             <!-- ko template: getTemplate() --><!-- /ko -->
@@ -49,13 +49,13 @@
                     </div>
 
                     <!-- ko if: showFinancialWarning  -->
-                    <span data-bind="i18n: `Je moet minimaal 18+ zijn om deze dienst te gebruiken. Als je op tijd betaalt, voorkom je extra kosten en zorg je dat je in de toekomst nogmaals gebruik kunt maken van de diensten van ${getTitle()}. Door verder te gaan, accepteer je de Algemene Voorwaarden en bevestig je dat je de Privacyverklaring en Cookieverklaring hebt gelezen.`">  </span>
+                    <span data-bind="html: getMessageText()"></span>
                     <!-- /ko -->
-                    
+
                 </fieldset>
             </form>
         </div>
-        
+
         <div class="actions-toolbar">
             <div class="primary">
                 <button id="button-action-checkout-klarnain"

@@ -711,16 +711,14 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         $paymentFee = trim($this->configProviderMethodFactory->get($this->buckarooPaymentMethodCode)->getPaymentFee());
 
-        if(!$this->helper->getAlreadyPaid()){
-            if (!$paymentFee || (float) $paymentFee < 0.01) {
-                return $title;
-            }
+        if (!$paymentFee || (float) $paymentFee < 0.01) {
+            return $title;
+        }
 
-            if (strpos($paymentFee, '%') === false) {
-                $title .= ' + ' . $this->priceHelper->currency(number_format($paymentFee, 2), true, false);
-            } else {
-                $title .= ' + ' . $paymentFee;
-            }
+        if (strpos($paymentFee, '%') === false) {
+            $title .= ' + ' . $this->priceHelper->currency(number_format($paymentFee, 2), true, false);
+        } else {
+            $title .= ' + ' . $paymentFee;
         }
 
         return $title;

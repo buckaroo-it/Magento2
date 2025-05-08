@@ -22,17 +22,33 @@
 <include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
     <!-- Credit and debit card Payment method group -->
     <group id="buckaroo_magento2_creditcards" translate="label" type="text" sortOrder="35" showInDefault="1" showInWebsite="1" showInStore="1">
-        <label>Credit and debit cards (Client sided)</label>
+        <label>Credit and debit cards (Hosted fields)</label>
         <frontend_model>Buckaroo\Magento2\Block\Config\Form\Field\Fieldset</frontend_model>
 
         <field id="active" translate="label comment tooltip" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Enable credit and debit cards (Client sided)</label>
+            <label>Enable credit and debit cards (Hosted fields)</label>
             <comment><![CDATA[Enable or disable this payment method.]]></comment>
             <source_model>Buckaroo\Magento2\Model\Config\Source\Enablemode</source_model>
             <config_path>payment/buckaroo_magento2_creditcards/active</config_path>
             <tooltip>
                 <![CDATA[Check with Buckaroo whether Client Side Encryption is enabled, otherwise transactions will fail. If in doubt, please contact us.]]>
             </tooltip>
+        </field>
+
+        <field id="hosted_fields_client_id" translate="label comment tooltip" type="obscure" sortOrder="33" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Buckaroo Hosted Fields Client ID:</label>
+            <comment><![CDATA[Enter your Buckaroo Hosted Fields Client ID, obtainable from the Buckaroo Plaza at → Settings → <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank">Token registration</a>.]]></comment>
+            <tooltip>Please enter your Buckaroo Hosted Fields Client ID.</tooltip>
+            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+            <config_path>payment/buckaroo_magento2_creditcards/hosted_fields_client_id</config_path>
+        </field>
+
+        <field id="hosted_fields_client_secret" translate="label comment tooltip" type="obscure" sortOrder="34" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Buckaroo Hosted Fields Client Secret:</label>
+            <comment><![CDATA[Enter your Buckaroo Hosted Fields Client Secret, obtainable from the Buckaroo Plaza at → Settings → <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank">Token registration</a>.]]></comment>
+            <tooltip>Please enter your Buckaroo Hosted Fields Client Secret.</tooltip>
+            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+            <config_path>payment/buckaroo_magento2_creditcards/hosted_fields_client_secret</config_path>
         </field>
 
         <field id="title" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -73,7 +89,7 @@
             <label>Allowed credit and debit cards</label>
             <comment><![CDATA[Select payment method specific Credit and debit card.]]></comment>
             <config_path>payment/buckaroo_magento2_creditcards/allowed_issuers</config_path>
-            <source_model>Buckaroo\Magento2\Model\Config\Source\Creditcard</source_model>
+            <source_model>Buckaroo\Magento2\Model\Config\Source\Creditcards</source_model>
         </field>
 
         <group id="buckaroo_magento2_advanced" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -88,9 +104,15 @@
 
             <field id="payment_fee" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Payment fee</label>
-                <comment><![CDATA[The above amount is calculated based on de Tax settings in Buckaroo > General configuration and account information > Buckaroo Payment Fee Tax Class.]]></comment>
+                <comment><![CDATA[The above amount is calculated based on de Tax settings in Stores > Configuration > Sales > Tax.]]></comment>
                 <config_path>payment/buckaroo_magento2_creditcards/payment_fee</config_path>
                 <backend_model>Buckaroo\Magento2\Model\Config\Backend\PaymentFee</backend_model>
+            </field>
+
+            <field id="payment_fee_label" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Payment fee frontend label</label>
+                <comment><![CDATA[This label will be displayed next to the fee on the checkout, order, invoice and creditmemo pages and pdfs.]]></comment>
+                <config_path>payment/buckaroo_magento2_creditcards/payment_fee_label</config_path>
             </field>
 
             <field id="min_amount" translate="label comment tooltip" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">

@@ -21,7 +21,6 @@
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Magento\Store\Model\ScopeInterface;
-use Buckaroo\Magento2\Model\Method\IdealProcessing as IdealProcessingMethod;
 
 class IdealProcessing extends AbstractConfigProvider
 {
@@ -41,8 +40,6 @@ class IdealProcessing extends AbstractConfigProvider
     const XPATH_SPECIFIC_COUNTRY        = 'payment/buckaroo_magento2_idealprocessing/specificcountry';
     const XPATH_SELECTION_TYPE          = 'buckaroo_magento2/account/selection_type';
     const XPATH_SPECIFIC_CUSTOMER_GROUP = 'payment/buckaroo_magento2_idealprocessing/specificcustomergroup';
-    const XPATH_SHOW_ISSUERS            = 'payment/buckaroo_magento2_idealprocessing/show_issuers';
-    const XPATH_SORTED_ISSUERS          = 'payment/buckaroo_magento2_idealprocessing/sorted_issuers';
 
     /**
      * @var array
@@ -56,49 +53,26 @@ class IdealProcessing extends AbstractConfigProvider
      */
     public function getConfig($store = null)
     {
-        if (!$this->scopeConfig->getValue(static::XPATH_IDEALPROCESSING_ACTIVE, ScopeInterface::SCOPE_STORE)) {
+        if (!$this->scopeConfig->getValue(static::XPATH_IDEALPROCESSING_ACTIVE, ScopeInterface::SCOPE_STORE, $store)) {
             return [];
         }
 
-        $issuers = $this->formatIssuers();
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
 
-        $selectionType = $this->scopeConfig->getValue(
-            self::XPATH_SELECTION_TYPE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
+        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel($store);
 
         return [
             'payment' => [
                 'buckaroo' => [
                     'idealprocessing' => [
-                        'banks'             => $issuers,
                         'paymentFeeLabel'   => $paymentFeeLabel,
-                        'subtext'           => $this->getSubtext(),
-                        'subtext_style'     => $this->getSubtextStyle(),
-                        'subtext_color'     => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'selectionType'     => $selectionType,
-                        'showIssuers'       => $this->canShowIssuers()
+                        'subtext'           => $this->getSubtext($store),
+                        'subtext_style'     => $this->getSubtextStyle($store),
+                        'subtext_color'     => $this->getSubtextColor($store),
+                        'allowedCurrencies' => $this->getAllowedCurrencies($store),
                     ],
                 ],
             ],
         ];
-    }
-
-    /**
-     * Can show issuer selection in checkout
-     *
-     * @param string|null $storeId
-     *
-     * @return boolean
-     */
-    public function canShowIssuers(string $storeId = null): bool {
-        return $this->scopeConfig->getValue(
-            self::XPATH_SHOW_ISSUERS,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
-        ) == 1;
     }
 
     /**
@@ -116,28 +90,15 @@ class IdealProcessing extends AbstractConfigProvider
     }
 
     /**
-     * @param $storeId
-     * @return mixed
-     */
-    public function getSortedIssuers($storeId = null)
-    {
-        return $this->scopeConfig->getValue(
-            self::XPATH_SORTED_ISSUERS,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
-        ) ?? '';
-    }
-
-    /**
      * Generate the url to the desired asset.
      *
      * @param string $imgName
-     * @param string $extension
+     * @param string $extension // Default changed to svg as per original code usage
      *
      * @return string
      */
-    public function getImageUrl($imgName, string $extension = 'png')
+    public function getImageUrl($imgName, string $extension = 'svg')
     {
-        return parent::getImageUrl("ideal/{$imgName}", "svg");
+        return parent::getImageUrl("ideal/{$imgName}", $extension);
     }
 }
