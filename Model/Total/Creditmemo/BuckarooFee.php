@@ -35,11 +35,8 @@ class BuckarooFee extends \Magento\Sales\Model\Order\Creditmemo\Total\AbstractTo
 
     /**
      * @param RequestInterface $request
-     * @param ResourceConnection $resourceConnection
-     * @param Log $logger
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function __construct(RequestInterface $request, ResourceConnection $resourceConnection, Log $logger)
+    public function __construct(RequestInterface $request)
     {
         $this->request = $request;
         parent::__construct();
