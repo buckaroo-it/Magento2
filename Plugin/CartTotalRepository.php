@@ -39,6 +39,8 @@ class CartTotalRepository
      * @param \Closure        $proceed
      * @param int             $cartId
      * @return TotalsInterface
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function aroundGet(TotalRepository $subject, \Closure $proceed, $cartId)
     {
