@@ -285,7 +285,6 @@ class QuoteCreate implements IdealQuoteCreateInterface
     /**
      * Set the payment method on the quote
      *
-     * @return Quote
      */
     protected function setPaymentMethod()
     {

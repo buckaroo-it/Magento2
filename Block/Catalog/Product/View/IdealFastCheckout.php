@@ -74,7 +74,7 @@ class IdealFastCheckout extends Template
         return ($this->isModuleActive() &&
             $this->idealConfig->isFastCheckoutEnabled($this->_storeManager->getStore()) &&
             $this->idealConfig->canShowButtonForPage($page, $this->_storeManager->getStore()) &&
-            $this->idealConfig->isIDealEnabled($this->_storeManager->getStore()));
+            $this->idealConfig->isIDealEnabled());
     }
 
     /**
