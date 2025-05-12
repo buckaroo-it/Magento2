@@ -44,11 +44,6 @@
     <preference for="Magento\Payment\Gateway\Data\Order\OrderAdapter" type="Buckaroo\Magento2\Gateway\Data\Order\OrderAdapter"/>
     <preference for="Magento\Ui\Model\Export\ConvertToCsv" type="Buckaroo\Magento2\Model\Export\ConvertToCsv" />
 
-    <!-- 3rd Party Rewrite -->
-    <preference for="Onestepcheckout\Iosc\Plugin\GuestSaveManager" type="Buckaroo\Magento2\Plugin\GuestSaveManager" />
-    <preference for="Mageplaza\Osc\Model\CheckoutManagement" type="Buckaroo\Magento2\Plugin\CheckoutManagement" />
-
-
     <!-- Giftcard rest api -->
     <preference for="Buckaroo\Magento2\Model\Voucher\ApplyVoucherRequestInterface" type="Buckaroo\Magento2\Model\Voucher\ApplyVoucherRequest"/>
     <preference for="Buckaroo\Magento2\Model\Giftcard\Request\GiftcardInterface" type="Buckaroo\Magento2\Model\Giftcard\Request\Giftcard"/>

@@ -3,9 +3,9 @@
     "description": "Buckaroo Magento 2 extension",
     "require": {
         "php": "^8.0",
-        "magento/module-payment": "100.3.*|100.4.*",
-        "magento/framework": ">=102.0.0|>=103.0.0",
-        "buckaroo/sdk": "^1.14.1",
+        "magento/module-payment": ">=100.3.3",
+        "magento/framework": ">=103.0.0",
+        "buckaroo/sdk": "^1.18.0",
         "monolog/monolog": "^2.9",
         "phpunit/phpunit": "^9.5",
         "psr/log": "^2.0 || ^3.0",
