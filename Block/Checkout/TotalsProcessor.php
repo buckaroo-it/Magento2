@@ -16,7 +16,7 @@ class TotalsProcessor extends AbstractTotalsProcessor implements LayoutProcessor
      * @codeCoverageIgnore
      */
     public function __construct(
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
     ) {
         parent::__construct($scopeConfig);
     }
