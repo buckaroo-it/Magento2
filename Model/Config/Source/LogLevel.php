@@ -67,7 +67,7 @@ class LogLevel implements OptionSourceInterface
             // Monolog 3.x – use Level enum
             foreach (Level::cases() as $case) {
                 $options[] = [
-                    'value' => $case->value,           // int level value
+                    'value' => $case->value,
                     'label' => __(ucfirst(strtolower($case->name))),
                 ];
             }
