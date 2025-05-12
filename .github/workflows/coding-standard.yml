@@ -29,7 +29,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 8.1
+          php-version: 8.2
           tools: composer:v2
 
       - uses: actions/checkout@v3
@@ -48,25 +48,25 @@ jobs:
           curl $url > files_changed
           cat files_changed | grep '"filename"' | sed 's/\"filename\"\: \"//' | sed 's/\",//' | xargs ls
           echo '{"http-basic": {"repo.magento.com": {"username": "${{ secrets.REPO_USERNAME }}","password": "${{ secrets.REPO_PASS }}"}}}' > auth.json
-          composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition=2.4.6-p2 ~/m246
-          mkdir -p ~/m246/app/code/Buckaroo/Magento2/
-          rsync -r --exclude='m246' ./ ~/m246/app/code/Buckaroo/Magento2/
-          cd ~/m246
+          composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition=2.4.8 ~/m248
+          mkdir -p ~/m248/app/code/Buckaroo/Magento2/
+          rsync -r --exclude='m248' ./ ~/m248/app/code/Buckaroo/Magento2/
+          cd ~/m248
           bin/magento module:enable --all
           bin/magento setup:di:compile
 
       - name: Install PHPStan
         run: |
-          cd ~/m246
+          cd ~/m248
           composer require --dev phpstan/phpstan:^1.10
           ls -la vendor/bin/
 
       - name: Install Buckaroo SDK
         run: |
-          cd ~/m246
+          cd ~/m248
           composer require buckaroo/sdk
 
       - name: Run PHPStan
         run: |
-          cd ~/m246
+          cd ~/m248
           vendor/bin/phpstan analyse --level 1 app/code/Buckaroo/Magento2/ -c dev/tests/static/testsuite/Magento/Test/Php/_files/phpstan/phpstan.neon

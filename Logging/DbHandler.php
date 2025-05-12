@@ -18,54 +18,47 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
+declare(strict_types=1);
+
 namespace Buckaroo\Magento2\Logging;
 
-use Buckaroo\Magento2\Model\LogFactory;
 use Magento\Framework\Logger\Handler\Base;
-use Monolog\Logger;
+use Monolog\LogRecord;
+use Buckaroo\Magento2\Model\LogFactory;
 
 class DbHandler extends Base
 {
-    /**
-     * @var \Buckaroo\Magento2\Model\Log
-     */
-    protected $logFactory;
+    private LogFactory $logFactory;
 
-    // @codingStandardsIgnoreLine
-    protected $loggerType = Logger::DEBUG;
-
-    /**
-     * @param LogFactory $logFactory
-     */
-    public function __construct(
-        LogFactory $logFactory
-    ) {
+    public function __construct(LogFactory $logFactory)
+    {
         $this->logFactory = $logFactory;
     }
 
     /**
-     * @inheritdoc
+     * Accepts either the Monolog 2 array or the Monolog 3 LogRecord object.
      */
-    public function write(array $record): void
+    public function write(mixed $record): void
     {
-        $now = new \DateTime();
-        $logFactory = $this->logFactory->create();
-        try {
-            $logData = json_decode($record['message'], true);
-        } catch (\Exception $e) {
-            $logData = [];
+        if ($record instanceof LogRecord) {
+            $record = $record->toArray();
         }
 
-        $logFactory->setData([
-            'channel'     => $record['channel'],
-            'level'       => $record['level'],
-            'message'     => $record['message'],
+        $levelValue = $record['level']   ?? null;
+        $logData    = $record['context'] ?? [];
+        $now        = new \DateTimeImmutable('now');
+
+        $model = $this->logFactory->create();
+        $model->setData([
+            'channel'     => $record['channel'] ?? '',
+            'level'       => $levelValue,
+            'message'     => $record['message'] ?? '',
             'time'        => $now->format('Y-m-d H:i:s'),
-            'session_id'  => ($logData['sid']) ?? '',
-            'customer_id' => ($logData['cid']) ?? '',
-            'quote_id'    => ($logData['qid']) ?? '',
-            'order_id'    => ($logData['id']) ?? ''
+            'session_id'  => $logData['sid'] ?? '',
+            'customer_id' => $logData['cid'] ?? '',
+            'quote_id'    => $logData['qid'] ?? '',
+            'order_id'    => $logData['id'] ?? '',
         ]);
-        $logFactory->save();
+        $model->save();
     }
 }
