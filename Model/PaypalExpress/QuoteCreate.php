@@ -20,85 +20,263 @@
 
 namespace Buckaroo\Magento2\Model\PaypalExpress;
 
-use Buckaroo\Magento2\Model\Service\QuoteService;
-use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Paypal;
+use Magento\Quote\Model\Quote;
+use Buckaroo\Magento2\Logging\Log;
+use Magento\Quote\Model\Quote\Address;
+use Magento\Quote\Model\QuoteRepository;
+use Magento\Quote\Api\ShipmentEstimationInterface;
+use Magento\Customer\Api\CustomerRepositoryInterface;
+use Magento\Checkout\Model\Session as CheckoutSession;
+use Magento\Customer\Model\Session as CustomerSession;
 use Buckaroo\Magento2\Api\PaypalExpressQuoteCreateInterface;
+use Buckaroo\Magento2\Model\PaypalExpress\QuoteBuilderInterfaceFactory;
 use Buckaroo\Magento2\Api\Data\ExpressMethods\ShippingAddressRequestInterface;
 use Buckaroo\Magento2\Api\Data\PaypalExpress\QuoteCreateResponseInterfaceFactory;
-use Magento\Quote\Api\Data\CartInterface;
-use Magento\Quote\Model\Quote;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class QuoteCreate implements PaypalExpressQuoteCreateInterface
 {
+
     /**
-     * @var QuoteCreateResponseInterfaceFactory
+     * @var \Buckaroo\Magento2\Api\Data\PaypalExpress\QuoteCreateResponseInterfaceFactory
      */
     protected $responseFactory;
 
     /**
-     * @var BuckarooLoggerInterface
+     * @var \Buckaroo\Magento2\Model\PaypalExpress\QuoteBuilderInterfaceFactory
      */
-    protected BuckarooLoggerInterface $logger;
+    protected $quoteBuilderInterfaceFactory;
 
     /**
-     * @var QuoteService
+     * @var \Magento\Customer\Model\Session
      */
-    private $quoteService;
+    protected $customerSession;
 
     /**
-     * @var Quote|CartInterface
+     * @var \Magento\Checkout\Model\Session
      */
-    private $quote;
+    protected $checkoutSession;
 
     /**
-     * @param QuoteCreateResponseInterfaceFactory $responseFactory
-     * @param QuoteService $quoteService
-     * @param BuckarooLoggerInterface $logger
+     * @var \Magento\Quote\Model\QuoteRepository
      */
+    protected $quoteRepository;
+
+    /**
+     * @var \Magento\Customer\Api\CustomerRepositoryInterface
+     */
+    protected $customerRepository;
+
+    /**
+     * @var \Magento\Quote\Api\ShipmentEstimationInterface
+     */
+    protected $shipmentEstimation;
+
+    /**
+     * @var \Buckaroo\Magento2\Logging\Log
+     */
+    protected $logger;
+
+    /**
+     * @var \Magento\Quote\Model\Quote
+     */
+    protected $quote;
+
     public function __construct(
         QuoteCreateResponseInterfaceFactory $responseFactory,
-        QuoteService $quoteService,
-        BuckarooLoggerInterface $logger
+        QuoteBuilderInterfaceFactory $quoteBuilderInterfaceFactory,
+        CustomerSession $customerSession,
+        CustomerRepositoryInterface $customerRepository,
+        CheckoutSession $checkoutSession,
+        QuoteRepository $quoteRepository,
+        ShipmentEstimationInterface $shipmentEstimation,
+        Log $logger
     ) {
         $this->responseFactory = $responseFactory;
-        $this->quoteService = $quoteService;
+        $this->quoteBuilderInterfaceFactory = $quoteBuilderInterfaceFactory;
+        $this->customerSession = $customerSession;
+        $this->customerRepository = $customerRepository;
+        $this->checkoutSession = $checkoutSession;
+        $this->quoteRepository = $quoteRepository;
+        $this->shipmentEstimation = $shipmentEstimation;
         $this->logger = $logger;
     }
-
-    /**
-     * @inheritdoc
-     */
+    /** @inheritDoc */
     public function execute(
-        ShippingAddressRequestInterface $shippingAddress,
+        ShippingAddressRequestInterface $shipping_address,
         string $page,
-        string $orderData = null
+        string $form_data = null
     ) {
-        if ($page === 'product' && is_string($orderData)) {
-            $this->quote = $this->quoteService->createQuote($orderData);
+        if ($page === 'product' && is_string($form_data)) {
+            $this->quote = $this->createQuote($form_data);
         } else {
-            $this->quote = $this->quoteService->getQuote();
+            $this->quote = $this->checkoutSession->getQuote();
         }
 
         try {
-            $this->quoteService->addAddressToQuote($shippingAddress);
-            $this->quoteService->addFirstShippingMethod();
-            $this->quoteService->setPaymentMethod(Paypal::CODE);
+            $this->addAddressToQuote($shipping_address);
+            $this->setPaymentMethod();
         } catch (\Throwable $th) {
-            $this->logger->addError(sprintf(
-                '[CREATE_QUOTE - PayPal Express] | [Model] | [%s:%s] - Create Quote | [ERROR]: %s',
-                __METHOD__,
-                __LINE__,
-                $th->getMessage()
-            ));
+            $this->logger->addDebug(__METHOD__.$th->getMessage());
             throw new PaypalExpressException(__("Failed to add address quote"), 1, $th);
         }
 
-        $this->quoteService->calculateQuoteTotals();
 
-        return $this->responseFactory->create(["quote" => $this->quoteService->getQuoteObject()]);
+        $this->calculateQuoteTotals();
+        return $this->responseFactory->create(["quote" => $this->quote]);
+    }
+
+    /**
+     * Calculate quote totals, set store id required for quote masking,
+     * set customer email required for order validation
+     * @return void
+     */
+    protected function calculateQuoteTotals()
+    {
+        $this->quote->setStoreId($this->quote->getStore()->getId());
+
+        if ($this->quote->getCustomerEmail() === null) {
+            $this->quote->setCustomerEmail('no-reply@example.com');
+        }
+        $this->quote
+            ->setTotalsCollectedFlag(false)
+            ->collectTotals();
+
+        $this->quoteRepository->save($this->quote);
+    }
+    /**
+     * Add address from paypal express to quote
+     *
+     * @param ShippingAddressRequestInterface $shipping_address
+     */
+    protected function addAddressToQuote(ShippingAddressRequestInterface $shipping_address)
+    {
+        if ($this->customerSession->isLoggedIn()) {
+            $this->quote->assignCustomerWithAddressChange(
+                $this->customerRepository->getById($this->customerSession->getCustomerId())
+            );
+        }
+
+        $address = $this->quote->getShippingAddress();
+
+        $address->setCountryId($shipping_address->getCountryCode());
+        $address->setPostcode($shipping_address->getPostalCode());
+        $address->setCity($shipping_address->getCity());
+        $address->setRegion($shipping_address->getState());
+        $this->maybeFillAnyMissingAddressFields($shipping_address);
+
+        $this->quoteRepository->save($this->quote);
+        $this->addFirstShippingMethod($address);
+    }
+
+    /**
+     * Add first found shipping method to the shipping address &
+     * recalculate shipping totals
+     *
+     * @param Address $address
+     *
+     * @return void
+     */
+    protected function addFirstShippingMethod(Address $address)
+    {
+        if (empty($address->getShippingMethod())) {
+            $shippingMethods = $this->shipmentEstimation->estimateByExtendedAddress(
+                $this->quote->getId(),
+                $this->quote->getShippingAddress()
+            );
+
+            if (count($shippingMethods)) {
+                $shippingMethod = array_shift($shippingMethods);
+                $address->setShippingMethod($shippingMethod->getCarrierCode(). '_' .$shippingMethod->getMethodCode());
+            }
+        }
+        $address->setCollectShippingRates(true);
+        $address->collectShippingRates();
+    }
+
+    /**
+     * Fill any fields missing from the addresses
+     *
+     * @param ShippingAddressRequestInterface $shipping_address
+     *
+     * @return void
+     */
+    protected function maybeFillAnyMissingAddressFields(ShippingAddressRequestInterface $shipping_address)
+    {
+        $this->maybeFillShippingAddressFields();
+        $this->maybeFillBillingAddressFields($shipping_address);
+    }
+
+    /**
+     * If we didn't find any default shipping address we fill the empty fields
+     * required for quote validation
+     *
+     * @return void
+     */
+    protected function maybeFillShippingAddressFields()
+    {
+        $address = $this->quote->getShippingAddress();
+        if ($address->getId() === null) {
+            $address->setFirstname('unknown');
+            $address->setLastname('unknown');
+            $address->setEmail('no-reply@example.com');
+            $address->setStreet('unknown');
+        }
+    }
+
+    /**
+     * If we didn't find any default billing address we fill the empty fields
+     * required for quote validation
+     *
+     * @param ShippingAddressRequestInterface $shipping_address
+     *
+     * @return void
+     */
+    protected function maybeFillBillingAddressFields(ShippingAddressRequestInterface $shipping_address)
+    {
+        $address = $this->quote->getBillingAddress();
+        if ($address->getId() === null) {
+            $address->setFirstname('unknown');
+            $address->setLastname('unknown');
+            $address->setEmail('no-reply@example.com');
+            $address->setStreet('unknown');
+            $address->setCountryId($shipping_address->getCountryCode());
+            $address->setPostcode($shipping_address->getPostalCode());
+            $address->setCity($shipping_address->getCity());
+            $address->setRegion($shipping_address->getState());
+        }
+    }
+
+    /**
+     * Set paypal payment method on quote
+     *
+     */
+    protected function setPaymentMethod()
+    {
+        $payment = $this->quote->getPayment();
+        $payment->setMethod(Paypal::CODE);
+        $this->quote->setPayment($payment);
+    }
+
+    /**
+     * Create quote if in product page
+     *
+     * @param string $form_data
+     *
+     * @return Quote
+     */
+    protected function createQuote(string $form_data)
+    {
+        try {
+            $quoteBuilder = $this->quoteBuilderInterfaceFactory->create();
+            $quoteBuilder->setFormData($form_data);
+            return $quoteBuilder->build();
+        } catch (\Throwable $th) {
+            $this->logger->addDebug(__METHOD__.$th->getMessage());
+            throw new PaypalExpressException(__("Failed to create quote"), 1, $th);
+        }
     }
 }

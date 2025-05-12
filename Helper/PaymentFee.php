@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please email
- * to support@buckaroo.nl, so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -20,76 +20,60 @@
 
 namespace Buckaroo\Magento2\Helper;
 
-use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Model\Config\Source\Display\Type as DisplayType;
-use Buckaroo\Magento2\Model\ConfigProvider\Account;
-use Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee;
-use Buckaroo\Magento2\Model\ConfigProvider\Factory;
-use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
+use Buckaroo\Magento2\Model\ConfigProvider\Account as AccountConfigProvider;
+use Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee as BuckarooFeeConfigProvider;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as MethodConfigProviderFactory;
+use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
 use Magento\Framework\DataObject;
-use Magento\Quote\Model\Quote\Address\Total;
 use Magento\Sales\Model\Order;
-use Magento\Sales\Model\Order\Creditmemo;
 use Magento\Sales\Model\Order\Invoice;
-use Magento\Store\Model\Store;
+use Magento\Sales\Model\Order\Creditmemo;
+use Magento\Store\Api\Data\StoreInterface;
 
 class PaymentFee extends AbstractHelper
 {
-    /**
-     * @var bool
-     */
-    public $buckarooFee = false;
-
-    /**
-     * @var bool
-     */
-    public $buckarooFeeTax = false;
-
-    /**
-     * @var Account
-     */
+    /** @var AccountConfigProvider */
     protected $configProviderAccount;
 
-    /**
-     * @var BuckarooFee
-     */
+    /** @var BuckarooFeeConfigProvider */
     protected $configProviderBuckarooFee;
 
-    /**
-     * @var Factory
-     */
+    /** @var MethodConfigProviderFactory */
     protected $configProviderMethodFactory;
 
-    /**
-     * @var PaymentGroupTransaction
-     */
+    /** @var bool|float */
+    public $buckarooFee = false;
+
+    /** @var bool|float */
+    public $buckarooFeeTax = false;
+
+    /** @var PaymentGroupTransaction */
     protected $groupTransaction;
 
-    /**
-     * @var Collection
-     */
+    /** @var GiftcardCollection */
     protected $giftcardCollection;
 
     /**
-     * @param Context $context
-     * @param Account $configProviderAccount
-     * @param BuckarooFee $configProviderBuckarooFee
-     * @param Factory $configProviderMethodFactory
-     * @param PaymentGroupTransaction $groupTransaction
-     * @param Collection $giftcardCollection
+     * @param Context                     $context
+     * @param AccountConfigProvider       $configProviderAccount
+     * @param BuckarooFeeConfigProvider   $configProviderBuckarooFee
+     * @param MethodConfigProviderFactory $configProviderMethodFactory
+     * @param PaymentGroupTransaction     $groupTransaction
+     * @param GiftcardCollection          $giftcardCollection
      */
     public function __construct(
         Context $context,
-        Account $configProviderAccount,
-        BuckarooFee $configProviderBuckarooFee,
-        Factory $configProviderMethodFactory,
+        AccountConfigProvider $configProviderAccount,
+        BuckarooFeeConfigProvider $configProviderBuckarooFee,
+        MethodConfigProviderFactory $configProviderMethodFactory,
         PaymentGroupTransaction $groupTransaction,
-        Collection $giftcardCollection
+        GiftcardCollection $giftcardCollection
     ) {
         parent::__construct($context);
-
         $this->configProviderAccount = $configProviderAccount;
         $this->configProviderBuckarooFee = $configProviderBuckarooFee;
         $this->configProviderMethodFactory = $configProviderMethodFactory;
@@ -98,411 +82,181 @@ class PaymentFee extends AbstractHelper
     }
 
     /**
-     * Return totals of data object
+     * Retrieve totals array based on the data object.
      *
      * @param DataObject $dataObject
      * @return array
-     *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     * @throws Exception
      */
     public function getTotals($dataObject)
     {
         $totals = [];
-        $displayBothPrices = false;
-        $displayIncludeTaxPrice = false;
+        $store = $this->getStoreFromDataObject($dataObject);
 
+        $taxClassId = $this->configProviderBuckarooFee->getBuckarooFeeTaxClass($store);
+        $isIncludingTax = $this->isFeeDisplayTypeIncludingTax($taxClassId);
 
-        if ($dataObject instanceof Order
-            || $dataObject instanceof Invoice
-            || $dataObject instanceof Creditmemo
-        ) {
-            $displayBothPrices = $this->displaySalesBothPrices();
-            $displayIncludeTaxPrice = $this->displaySalesIncludeTaxPrice();
-        } elseif ($dataObject instanceof Total) {
-            $displayBothPrices = $this->displayCartBothPrices();
-            $displayIncludeTaxPrice = $this->displayCartIncludeTaxPrice();
-        }
+        $label = $this->getBuckarooPaymentFeeLabel();
+        $fee = $dataObject->getBuckarooFee();
+        $feeTaxAmount = $dataObject->getBuckarooFeeTaxAmount();
+        $baseFee = $dataObject->getBaseBuckarooFee();
+        $baseFeeTaxAmount = $dataObject->getBuckarooFeeBaseTaxAmount();
 
-        $label = $this->getBuckarooPaymentFeeLabel($dataObject);
-
-        /**
-         * Buckaroo fee for order totals
-         */
-        if ($displayBothPrices || $displayIncludeTaxPrice) {
-            if ($displayBothPrices) {
-                /**
-                 * @noinspection PhpUndefinedMethodInspection
-                 */
-                $this->addTotalToTotals(
-                    $totals,
-                    'buckaroo_fee_excl',
-                    $dataObject->getBuckarooFee(),
-                    $dataObject->getBaseBuckarooFee(),
-                    $label . __(' (Excl. Tax)'),
-                    false,
-                    true
-                );
-            }
-            /**
-             * @noinspection PhpUndefinedMethodInspection
-             */
+        // Add the fee total line depending on the display type
+        if ($isIncludingTax) {
             $this->addTotalToTotals(
                 $totals,
-                ($dataObject instanceof Creditmemo) ? 'buckaroo_fee' : 'buckaroo_fee_incl',
-                $dataObject->getBuckarooFee() + $dataObject->getBuckarooFeeTaxAmount(),
-                $dataObject->getBaseBuckarooFee() + $dataObject->getBuckarooFeeBaseTaxAmount(),
-                $label . __(' (Incl. Tax)'),
-                ($dataObject instanceof Creditmemo) ? 'buckaroo_fee' : false,
-                false,
-                [
-                    'incl_tax'     => true,
-                    'fee_with_tax' => $dataObject->getBuckarooFee() + $dataObject->getBuckarooFeeTaxAmount()
-                ]
+                'buckaroo_fee_incl',
+                $fee + $feeTaxAmount,
+                $baseFee + $baseFeeTaxAmount,
+                $label . __(' (Incl. Tax)')
             );
         } else {
-            /**
-             * @noinspection PhpUndefinedMethodInspection
-             */
             $this->addTotalToTotals(
                 $totals,
                 'buckaroo_fee',
-                $dataObject->getBuckarooFee(),
-                $dataObject->getBaseBuckarooFee(),
-                $label,
-                ($dataObject instanceof Creditmemo) ? 'buckaroo_fee' : false,
-                false,
-                [
-                    'incl_tax'     => false,
-                    'fee_with_tax' => $dataObject->getBuckarooFee() + $dataObject->getBuckarooFeeTaxAmount()
-                ]
+                $fee,
+                $baseFee,
+                $label . __(' (Excl. Tax)')
             );
         }
 
         $this->addAlreadyPayedTotals($dataObject, $totals);
 
-        //Set public object data
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $this->buckarooFee = $dataObject->getBuckarooFee();
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $this->buckarooFeeTax = $dataObject->getBuckarooFeeTaxAmount();
+        $this->buckarooFee = $fee;
+        $this->buckarooFeeTax = $feeTaxAmount;
+
         return $totals;
     }
 
     /**
-     * Check ability to display both prices for buckaroo fee in backend sales
-     *
-     * @param Store|int|null $store
-     * @return bool
-     */
-    public function displaySalesBothPrices($store = null)
-    {
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $configValue = $this->configProviderBuckarooFee->getPriceDisplaySales($store);
-
-        return $configValue == DisplayType::DISPLAY_TYPE_BOTH;
-    }
-
-    /**
-     * Check ability to display prices including tax for buckaroo fee in backend sales
-     *
-     * @param Store|int|null $store
-     * @return bool
-     */
-    public function displaySalesIncludeTaxPrice($store = null)
-    {
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $configValue = $this->configProviderBuckarooFee->getPriceDisplaySales($store);
-
-        return $configValue == DisplayType::DISPLAY_TYPE_BOTH ||
-            $configValue == DisplayType::DISPLAY_TYPE_INCLUDING_TAX;
-    }
-
-    /**
-     * Check ability to display both prices for buckaroo fee in shopping cart
-     *
-     * @param Store|int|null $store
-     * @return bool
-     */
-    public function displayCartBothPrices($store = null)
-    {
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $configValue = $this->configProviderBuckarooFee->getPriceDisplayCart($store);
-
-        return $configValue == DisplayType::DISPLAY_TYPE_BOTH;
-    }
-
-    /**
-     * Check ability to display prices including tax for buckaroo fee in shopping cart
-     *
-     * @param Store|int|null $store
-     * @return bool
-     */
-    public function displayCartIncludeTaxPrice($store = null)
-    {
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $configValue = $this->configProviderBuckarooFee->getPriceDisplayCart($store);
-
-        return $configValue == DisplayType::DISPLAY_TYPE_BOTH ||
-            $configValue == DisplayType::DISPLAY_TYPE_INCLUDING_TAX;
-    }
-
-    /**
-     * Return the correct label for the payment method
-     *
-     * @param Order|Invoice|Creditmemo|Total|DataObject|string|bool $dataObject
-     * @return string
-     * @throws Exception
-     */
-    public function getBuckarooPaymentFeeLabel($dataObject)
-    {
-        $method = false;
-        $label = false;
-
-        /**
-         * Parse data object for payment method
-         */
-        if ($dataObject instanceof Order) {
-            $method = $dataObject->getPayment()->getMethod();
-        } elseif ($dataObject instanceof Invoice
-            || $dataObject instanceof Creditmemo
-        ) {
-            $method = $dataObject->getOrder()->getPayment()->getMethod();
-        } elseif (is_string($dataObject)) {
-            $method = $dataObject;
-        }
-
-        /**
-         * If a method is found, and the method has a config provider, try to get the label from config
-         */
-        if ($method && $this->configProviderMethodFactory->has($method)) {
-            /**
-             * @noinspection PhpUndefinedMethodInspection
-             */
-            $label = $this->configProviderMethodFactory->get($method)->getPaymentFeeLabel();
-        }
-
-        /**
-         * If no label is set yet, get the default configurable label
-         */
-        if (!$label) {
-            $label = $this->configProviderAccount->getPaymentFeeLabel();
-        }
-
-        /**
-         * If no label is set yet, return a default label
-         */
-        if (!$label) {
-            $label = __('Buckaroo Fee');
-        }
-
-        return $label;
-    }
-
-    /**
-     * Add total into array totals
-     *
-     * @param array $totals
-     * @param string $code
-     * @param float $value
-     * @param float $baseValue
-     * @param string $label
-     * @return void
-     */
-    protected function addTotalToTotals(
-        &$totals,
-        $code,
-        $value,
-        $baseValue,
-        $label,
-        $blockName = false,
-        $transactionId = false,
-        $extraInfo = []
-    ) {
-        if ($value == 0 && $baseValue == 0) {
-            return;
-        }
-        $total = [
-            'code'       => $code,
-            'value'      => $value,
-            'base_value' => $baseValue,
-            'label'      => $label,
-            'extra_info' => $extraInfo
-        ];
-        if ($blockName) {
-            $total['block_name'] = $blockName;
-        }
-        if ($transactionId) {
-            $total['transaction_id'] = $transactionId;
-        }
-        $totals[] = $total;
-    }
-
-    /**
-     * Get Buckaroo fee
-     *
-     * @return mixed
-     */
-    public function getBuckarooFee()
-    {
-        return $this->buckarooFee;
-    }
-
-    /**
-     * Add already paid to totals
+     * Extract the store from the data object.
      *
      * @param DataObject $dataObject
-     * @param array $totals
+     * @return StoreInterface|null
+     */
+    protected function getStoreFromDataObject($dataObject)
+    {
+        if ($dataObject instanceof Order) {
+            return $dataObject->getStore();
+        } elseif ($dataObject instanceof Invoice || $dataObject instanceof Creditmemo) {
+            return $dataObject->getOrder()->getStore();
+        }
+
+        return null;
+    }
+
+    /**
+     * Determine if the fee display type is set to "Including Tax".
+     *
+     * @param mixed $displayType
+     * @return bool
+     */
+    protected function isFeeDisplayTypeIncludingTax($displayType)
+    {
+        return (int)$displayType === DisplayType::DISPLAY_TYPE_INCLUDING_TAX;
+    }
+
+    /**
+     * Add "already paid" totals for giftcards or vouchers if applicable.
+     *
+     * @param DataObject $dataObject
+     * @param array &$totals
      * @return void
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
-    public function addAlreadyPayedTotals($dataObject, &$totals)
+    public function addAlreadyPayedTotals($dataObject, array &$totals)
     {
         $orderId = $this->getOrderIncrementId($dataObject);
         $alreadyPayed = $this->groupTransaction->getAlreadyPaid($orderId);
 
-        if ($this->isAlreadyPayedNotCreditmemo($dataObject, $alreadyPayed)) {
-            $this->handleAlreadyPayedNotCreditmemo($totals, $alreadyPayed);
+        // For orders (not creditmemos), if there's an already paid amount, adjust totals accordingly
+        if (!$dataObject instanceof Creditmemo && $alreadyPayed > 0) {
+            // Remove the fee line if previously added
+            unset($totals['buckaroo_fee']);
+
+            $this->addTotalToTotals(
+                $totals,
+                'buckaroo_already_paid',
+                $alreadyPayed,
+                $alreadyPayed,
+                __('Paid with Giftcard / Voucher')
+            );
             return;
         }
 
+        // Handling creditmemo cases
         if ($orderId !== null && $alreadyPayed > 0) {
-            $this->processGiftcards($orderId, $totals);
-        }
-    }
+            $requestParams = $this->_request->getParams();
+            $items = $this->groupTransaction->getGroupTransactionItems($orderId);
+            $giftcards = [];
 
-    /**
-     * Determine if the function should return early.
-     */
-    private function isAlreadyPayedNotCreditmemo($dataObject, $alreadyPayed): bool
-    {
-        return !$dataObject instanceof Creditmemo && $alreadyPayed > 0;
-    }
-
-    /**
-     * Handle the early return logic.
-     */
-    private function handleAlreadyPayedNotCreditmemo(&$totals, $alreadyPayed)
-    {
-        unset($totals['buckaroo_fee']);
-        $this->addTotalToTotals(
-            $totals,
-            'buckaroo_already_paid',
-            $alreadyPayed,
-            $alreadyPayed,
-            __('Paid with Giftcard / Voucher')
-        );
-    }
-
-    /**
-     * Process giftcards and update totals.
-     */
-    private function processGiftcards($orderId, &$totals)
-    {
-        $requestParams = $this->_request->getParams();
-        $items = $this->groupTransaction->getGroupTransactionItems($orderId);
-        $giftcards = $this->extractGiftcardsFromRequest($requestParams);
-
-        foreach ($items as $giftcard) {
-            $this->updateTotalsWithGiftcard($giftcard, $giftcards, $totals);
-        }
-    }
-
-    /**
-     * Extract giftcards from the request.
-     */
-    private function extractGiftcardsFromRequest($requestParams): array
-    {
-        $giftcards = [];
-
-        if (isset($requestParams['creditmemo']['buckaroo_already_paid'])) {
-            foreach ($requestParams['creditmemo']['buckaroo_already_paid'] as $giftcardKey => $value) {
-                $transaction = explode('|', $giftcardKey);
-                $giftcards[$transaction[1]] = $value;
-            }
-        }
-
-        return $giftcards;
-    }
-
-    /**
-     * Update totals based on a single giftcard.
-     */
-    private function updateTotalsWithGiftcard($giftcard, $giftcards, &$totals)
-    {
-        $foundGiftcard = $this->giftcardCollection->getItemByColumnValue('servicecode', $giftcard['servicecode']);
-
-        $label = $this->getGiftcardLabel($foundGiftcard);
-
-        list($amountValue, $amountBaseValue) = $this->calculateAmountValues($giftcard, $giftcards, $foundGiftcard);
-
-        $this->addTotalToTotals(
-            $totals,
-            'buckaroo_already_paid',
-            -$amountValue,
-            -$amountBaseValue,
-            $label,
-            'buckaroo_already_paid',
-            $giftcard['transaction_id'] . '|' . $giftcard['servicecode'] . '|' . $giftcard['amount']
-        );
-    }
-
-    private function getGiftcardLabel($foundGiftcard) {
-        if ($foundGiftcard) {
-            return __('Paid with ' . $foundGiftcard['label']);
-        }
-        return __('Paid with Voucher');
-    }
-
-    private function calculateAmountValues($giftcard, $giftcards, $foundGiftcard)
-    {
-        $refundedAlreadyPaidSaved = $giftcard->getRefundedAmount() ?? 0;
-        $amountValue = $giftcard['amount'];
-        $amountBaseValue = $giftcard['amount'];
-
-        if (!empty($foundGiftcard['is_partial_refundable'])) {
-            $residual = floatval($giftcard['amount']) - floatval($refundedAlreadyPaidSaved);
-            if (array_key_exists($foundGiftcard['servicecode'], $giftcards)
-                && floatval($giftcards[$foundGiftcard['servicecode']]) <= $residual
-            ) {
-                $amountValue = floatval($giftcards[$foundGiftcard['servicecode']]);
-                $amountBaseValue = floatval($giftcards[$foundGiftcard['servicecode']]);
-            } else {
-                $amountBaseValue = $residual;
-                $amountValue = $residual;
-            }
-        } else {
-            if (!empty(floatval($refundedAlreadyPaidSaved))
-                && floatval($refundedAlreadyPaidSaved) === floatval($amountValue)
-            ) {
-                $amountBaseValue = 0;
-                $amountValue = 0;
-            } elseif (is_array($foundGiftcard) && array_key_exists($foundGiftcard['servicecode'], $giftcards)) {
-                if (empty(floatval($giftcards[$foundGiftcard['servicecode']]))) {
-                    $amountBaseValue = 0;
-                    $amountValue = 0;
+            if (isset($requestParams['creditmemo']['buckaroo_already_paid'])) {
+                foreach ($requestParams['creditmemo']['buckaroo_already_paid'] as $giftcardKey => $value) {
+                    $transaction = explode('|', $giftcardKey);
+                    $giftcards[$transaction[1]] = $value;
                 }
             }
-        }
 
-        return [$amountValue, $amountBaseValue];
+            foreach ($items as $giftcard) {
+                $foundGiftcard = $this->giftcardCollection->getItemByColumnValue(
+                    'servicecode',
+                    $giftcard['servicecode']
+                );
+
+                $label = __('Paid with Voucher');
+                if ($foundGiftcard) {
+                    $label = __('Paid with ' . $foundGiftcard['label']);
+                }
+
+                $refundedAlreadyPaidSaved = $giftcard->getRefundedAmount() ?? 0.0;
+                $amountValue = (float)$giftcard['amount'];
+                $amountBaseValue = $amountValue;
+
+                // Handle partially refundable giftcards
+                if (!empty($foundGiftcard['is_partial_refundable'])) {
+                    $residual = $amountValue - (float)$refundedAlreadyPaidSaved;
+
+                    if (
+                        array_key_exists($foundGiftcard['servicecode'], $giftcards) &&
+                        (float)$giftcards[$foundGiftcard['servicecode']] <= $residual
+                    ) {
+                        $amountValue = (float)$giftcards[$foundGiftcard['servicecode']];
+                        $amountBaseValue = $amountValue;
+                    } else {
+                        $amountValue = $residual;
+                        $amountBaseValue = $residual;
+                    }
+                } else {
+                    // Non-partially refundable logic
+                    if ((float)$refundedAlreadyPaidSaved === $amountValue) {
+                        $amountValue = 0;
+                        $amountBaseValue = 0;
+                    } elseif (
+                        is_array($foundGiftcard) &&
+                        array_key_exists($foundGiftcard['servicecode'], $giftcards) &&
+                        empty((float)$giftcards[$foundGiftcard['servicecode']])
+                    ) {
+                        $amountValue = 0;
+                        $amountBaseValue = 0;
+                    }
+                }
+
+                $this->addTotalToTotals(
+                    $totals,
+                    'buckaroo_already_paid',
+                    -$amountValue,
+                    -$amountBaseValue,
+                    $label,
+                    'buckaroo_already_paid',
+                    $giftcard['transaction_id'] . '|' . $giftcard['servicecode'] . '|' . $giftcard['amount']
+                );
+            }
+        }
     }
 
     /**
-     * Get order increment id from data object
+     * Get order increment ID from a data object (Order/Invoice/Creditmemo).
      *
      * @param mixed $dataObject
      * @return string|null
@@ -512,17 +266,24 @@ class PaymentFee extends AbstractHelper
         if ($dataObject instanceof Order) {
             return $dataObject->getIncrementId();
         }
-        if ($dataObject instanceof Invoice
-            || $dataObject instanceof Creditmemo
-        ) {
+        if ($dataObject instanceof Invoice || $dataObject instanceof Creditmemo) {
             return $dataObject->getOrder()->getIncrementId();
         }
-
         return null;
     }
 
     /**
-     * Get buckaroo fee tax
+     * Get the Buckaroo fee amount.
+     *
+     * @return mixed
+     */
+    public function getBuckarooFee()
+    {
+        return $this->buckarooFee;
+    }
+
+    /**
+     * Get the Buckaroo fee tax amount.
      *
      * @return mixed
      */
@@ -532,90 +293,77 @@ class PaymentFee extends AbstractHelper
     }
 
     /**
-     * Add payment fee to total
+     * Retrieve the correct label for the Buckaroo payment fee.
      *
-     * @param DataObject $dataObject
-     * @return array
+     * @return string
      */
-    public function getBuckarooPaymentFeeTotal($dataObject)
+    public function getBuckarooPaymentFeeLabel()
     {
-        $totals = [];
-
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $this->addTotalToTotals(
-            $totals,
-            'buckaroo_fee',
-            $dataObject->getBuckarooFee() + $dataObject->getBuckarooFeeTaxAmount(),
-            $dataObject->getBaseBuckarooFee() + $dataObject->getBuckarooFeeBaseTaxAmount(),
-            $this->getBuckarooPaymentFeeLabel($dataObject)
-        );
-
-        return $totals;
+        return __('Payment Fee');
     }
 
     /**
-     * Check if the fee calculation has to be done with taxes
+     * Extract the payment method code from order, invoice, creditmemo, or direct string.
      *
-     * @param Store|int|null $store
-     * @return bool
+     * @param mixed $dataObject
+     * @return string|false
      */
-    public function buckarooPaymentCalculationInclTax($store = null)
+    protected function extractPaymentMethodFromDataObject($dataObject)
     {
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $configValue = $this->configProviderBuckarooFee->getPaymentFeeTax($store);
+        if ($dataObject instanceof Order) {
+            return $dataObject->getPayment()->getMethod();
+        } elseif ($dataObject instanceof Invoice || $dataObject instanceof Creditmemo) {
+            return $dataObject->getOrder()->getPayment()->getMethod();
+        } elseif (is_string($dataObject)) {
+            return $dataObject;
+        }
 
-        return $configValue == DisplayType::DISPLAY_TYPE_INCLUDING_TAX;
+        return false;
     }
 
     /**
-     * Check if the fee calculation has to be done without  taxes
+     * Add a total entry into the provided totals array.
      *
-     * @param Store|int|null $store
-     * @return bool
+     * @param array  &$totals
+     * @param string $code
+     * @param float  $value
+     * @param float  $baseValue
+     * @param string $label
+     * @param string $blockName
+     * @param string $transactionId
+     * @param array  $extraInfo
+     * @return void
      */
-    public function buckarooPaymentFeeCalculationExclTax($store = null)
-    {
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $configValue = $this->configProviderBuckarooFee->getPaymentFeeTax($store);
+    protected function addTotalToTotals(
+        array &$totals,
+              $code,
+              $value,
+              $baseValue,
+              $label,
+              $blockName = false,
+              $transactionId = false,
+        array $extraInfo = []
+    ) {
+        // Only add totals if values are non-zero
+        if ($value == 0 && $baseValue == 0) {
+            return;
+        }
 
-        return $configValue == DisplayType::DISPLAY_TYPE_EXCLUDING_TAX;
-    }
+        $total = [
+            'code'       => $code,
+            'value'      => $value,
+            'base_value' => $baseValue,
+            'label'      => $label,
+            'extra_info' => $extraInfo
+        ];
 
-    /**
-     * Check ability to display prices excluding tax for buckaroo fee in shopping cart
-     *
-     * @param Store|int|null $store
-     * @return bool
-     */
-    public function displayCartExcludeTaxPrice($store = null)
-    {
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $configValue = $this->configProviderBuckarooFee->getPriceDisplayCart($store);
+        if ($blockName) {
+            $total['block_name'] = $blockName;
+        }
+        if ($transactionId) {
+            $total['transaction_id'] = $transactionId;
+        }
 
-        return $configValue == DisplayType::DISPLAY_TYPE_EXCLUDING_TAX;
-    }
-
-    /**
-     * Check ability to display prices excluding tax for buckaroo fee in backend sales
-     *
-     * @param Store|int|null $store
-     * @return bool
-     */
-    public function displaySalesExcludeTaxPrice($store = null)
-    {
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $configValue = $this->configProviderBuckarooFee->getPriceDisplaySales($store);
-
-        return $configValue == DisplayType::DISPLAY_TYPE_EXCLUDING_TAX;
+        $totals[] = $total;
     }
 }

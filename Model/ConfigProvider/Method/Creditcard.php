@@ -49,6 +49,8 @@ class Creditcard extends AbstractConfigProvider
     public const XPATH_SELECTION_TYPE                 = 'selection_type';
     public const XPATH_PAYMENT_FLOW                   = 'payment_action';
     public const DEFAULT_SORT_VALUE                   = '99';
+    const XPATH_CREDITCARD_PAYMENT_FEE          = 'payment/buckaroo_magento2_creditcard/payment_fee';
+
 
     /** @var array[] */
     protected array $issuers = [
@@ -327,5 +329,21 @@ class Creditcard extends AbstractConfigProvider
     public function getMaestroUnsecureHold($store = null)
     {
         return $this->getMethodConfigValue(self::XPATH_CREDITCARD_MAESTRO_UNSECURE_HOLD, $store);
+    }
+
+    /**
+     * @param null|int $storeId
+     *
+     * @return float
+     */
+    public function getPaymentFee($storeId = null)
+    {
+        $paymentFee = $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARD_PAYMENT_FEE,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+
+        return $paymentFee ?: 0;
     }
 }

@@ -40,6 +40,8 @@ class Ideal extends AbstractConfigProvider
     const XPATH_IDEAL_FAST_CHECKOUT_ENABLE = 'payment/buckaroo_magento2_ideal/ideal_fast_checkout';
     const XPATH_IDEAL_FAST_CHECKOUT_BUTTONS = 'payment/buckaroo_magento2_ideal/available_buttons';
     const XPATH_IDEAL_FAST_CHECKOUT_LOGO = 'payment/buckaroo_magento2_ideal/ideal_logo_colors';
+=======
+    public const XPATH_IDEAL_PAYMENT_FEE           = 'payment/buckaroo_magento2_ideal/payment_fee';
     /**
      * @var IssuersService
      */
@@ -87,15 +89,12 @@ class Ideal extends AbstractConfigProvider
             return [];
         }
 
-        return $this->fullConfig([
-            'banks'         => $this->formatIssuers(),
-            'selectionType' => $this->getSelectionType(),
-            'showIssuers'   => $this->canShowIssuers(),
-        ]);
+        return $this->fullConfig();
     }
 
     /**
      * Selection type radio checkbox or drop down
+     * This method might be obsolete now for frontend config, keep if used elsewhere.
      *
      * @param null|int|string $store
      * @return mixed
@@ -106,19 +105,8 @@ class Ideal extends AbstractConfigProvider
     }
 
     /**
-     * Can show issuer selection in checkout
-     *
-     * @param string|null $storeId
-     *
-     * @return boolean
-     */
-    public function canShowIssuers(string $storeId = null): bool
-    {
-        return $this->getMethodConfigValue(self::XPATH_SHOW_ISSUERS, $storeId) == 1;
-    }
-
-    /**
      * Get gateway setting ideal/idealprocessing
+     * Remains unchanged.
      *
      * @param null|int|string $storeId
      * @return string
@@ -130,16 +118,8 @@ class Ideal extends AbstractConfigProvider
     }
 
     /**
-     * @param $storeId
-     * @return string
-     */
-    public function getSortedIssuers($storeId = null): string
-    {
-        return $this->getMethodConfigValue(self::XPATH_SORTED_ISSUERS, $storeId) ?? '';
-    }
-
-    /**
      * Generate the url to the desired asset.
+     * Remains unchanged.
      *
      * @param string $imgName
      * @param string $extension
@@ -151,6 +131,12 @@ class Ideal extends AbstractConfigProvider
         return parent::getImageUrl("ideal/{$imgName}", "svg");
     }
 
+    /**
+     * Get all issuers formatted for admin or potentially other uses.
+     * Remains unchanged for now, although its primary use (via formatIssuers in getConfig) is removed.
+     *
+     * @return array
+     */
     public function getAllIssuers(): array
     {
         $issuers = $this->getIssuers();
@@ -164,7 +150,8 @@ class Ideal extends AbstractConfigProvider
     }
 
     /**
-     * Retrieve the list of issuers.
+     * Retrieve the list of issuers from the service.
+     * Remains unchanged for now.
      *
      * @return array
      */
@@ -174,7 +161,22 @@ class Ideal extends AbstractConfigProvider
             $issuer['logo'] = $this->issuersService->getImageUrlByIssuerId($issuer['id']);
             return $issuer;
         }, $this->issuersService->get());
+    }
 
+    /**
+     * @param null|int $storeId
+     *
+     * @return float
+     */
+    public function getPaymentFee($storeId = null)
+    {
+        $paymentFee = $this->scopeConfig->getValue(
+            self::XPATH_IDEAL_PAYMENT_FEE,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+
+        return $paymentFee ?: 0;
     }
 
     public function canShowButtonForPage($page, $store = null)

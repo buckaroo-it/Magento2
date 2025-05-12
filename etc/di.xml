@@ -22,7 +22,6 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
 <!--    PREFERENCES-->
     <!-- Interfaces -->
-    <preference for="Buckaroo\Magento2\Api\InvoiceRepositoryInterface" type="Buckaroo\Magento2\Model\InvoiceRepository"/>
     <preference for="Buckaroo\Magento2\Api\GiftcardRepositoryInterface" type="Buckaroo\Magento2\Model\GiftcardRepository"/>
     <preference for="Buckaroo\Magento2\Api\GroupTransactionRepositoryInterface" type="Buckaroo\Magento2\Model\GroupTransactionRepository"/>
     <preference for="Buckaroo\Magento2\Api\LogRepositoryInterface" type="Buckaroo\Magento2\Model\LogRepository"/>
@@ -63,15 +62,18 @@
     <!-- END Giftcard rest api -->
 
     <!-- Express payment methods: Apple Pay, PayPal Express, Ideal Fast Checkout -->
+    <preference for="Buckaroo\Magento2\Api\Data\BreakdownItemInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Response\BreakdownItem" />
+    <preference for="Buckaroo\Magento2\Api\Data\TotalBreakdownInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Response\TotalBreakdown" />
+    <preference for="Buckaroo\Magento2\Api\Data\PaypalExpress\QuoteCreateResponseInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Response\QuoteCreate" />
+
     <preference for="Buckaroo\Magento2\Model\Service\QuoteBuilderInterface" type="Buckaroo\Magento2\Model\Service\QuoteBuilder" />
     <!-- Paypal-Express -->
+    <preference for="Buckaroo\Magento2\Model\PaypalExpress\QuoteBuilderInterface" type="Buckaroo\Magento2\Model\PaypalExpress\QuoteBuilder" />
     <preference for="Buckaroo\Magento2\Api\PaypalExpressQuoteCreateInterface" type="Buckaroo\Magento2\Model\PaypalExpress\QuoteCreate" />
+    <preference for="Buckaroo\Magento2\Api\Data\ExpressMethods\ShippingAddressRequestInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Request\ShippingAddress" />
     <preference for="Buckaroo\Magento2\Api\PaypalExpressOrderCreateInterface" type="Buckaroo\Magento2\Model\PaypalExpress\OrderCreate" />
-    <preference for="Buckaroo\Magento2\Api\Data\PaypalExpress\QuoteCreateResponseInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Response\QuoteCreate" />
-    <preference for="Buckaroo\Magento2\Api\Data\PaypalExpress\TotalBreakdownInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Response\TotalBreakdown" />
-    <preference for="Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Response\BreakdownItem" />
-    <preference for="Buckaroo\Magento2\Api\Data\ExpressMethods\ShippingAddressRequestInterface" type="Buckaroo\Magento2\Model\Service\ShippingAddressRequest" />
     <preference for="Buckaroo\Magento2\Api\Data\PaypalExpress\OrderCreateResponseInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Response\OrderCreate" />
+
     <!-- END Paypal-Express -->
 
     <!-- Ideal-Fast-Checkout -->
@@ -428,6 +430,12 @@
         </arguments>
     </type>
 
+    <type name="Buckaroo\Magento2\Service\BuckarooFee\ResultFactory">
+        <arguments>
+            <argument name="instance" xsi:type="string">Buckaroo\Magento2\Service\BuckarooFee\Result</argument>
+        </arguments>
+    </type>
+
     <type name="Buckaroo\Magento2\Block\Adminhtml\Sales\Order\Creditmemo\Create\BankFields">
         <arguments>
             <argument name="refundFieldsFactory" xsi:type="object">Buckaroo\Magento2\Model\RefundFieldsFactory</argument>
@@ -598,6 +606,7 @@
                 <item name="account_config" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\ActiveAccountValidator</item>
                 <item name="area_code" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AreaCodeValidator</item>
                 <item name="based_on_amount" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AvailableBasedOnAmountValidator</item>
+                <item name="based_on_customer_type" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AvailableBasedOnCustomerType</item>
                 <item name="based_on_currency" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AvailableBasedOnCurrencyValidator</item>
                 <item name="based_on_customer_group" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AvailableBasedOnCustomerGroupValidator</item>
                 <item name="based_on_pos_settings" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AvailableBasedOnPOSValidator</item>
@@ -608,6 +617,7 @@
                 <item name="area_code" xsi:type="string">area_code</item>
                 <item name="based_on_ip" xsi:type="string">based_on_ip</item>
                 <item name="based_on_amount" xsi:type="string">based_on_amount</item>
+                <item name="based_on_customer_type" xsi:type="string">based_on_customer_type</item>
                 <item name="based_on_currency" xsi:type="string">based_on_currency</item>
                 <item name="based_on_customer_group" xsi:type="string">based_on_customer_group</item>
                 <item name="based_on_pos_settings" xsi:type="string">based_on_pos_settings</item>
@@ -1749,6 +1759,7 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooRemainderRequest</item>
+                <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\EmailAddressDataBuilder</item>
                 <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddress\CountryDataBuilder</item>
                 <item name="customer_name" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BillingAddress\CustomerNameDataBuilder</item>
             </argument>
@@ -3849,4 +3860,159 @@
     </virtualType>
     <!-- END Knaken Value handlers infrastructure -->
     <!-- END Payment Method: Knaken -->
+
+    <type name="Buckaroo\Magento2\Model\ConfigProvider\Method\Factory">
+        <arguments>
+            <argument name="configProviders" xsi:type="array">
+                <item name="ideal" xsi:type="array">
+                    <item name="type" xsi:type="string">ideal</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Ideal</item>
+                </item>
+                <item name="idealprocessing" xsi:type="array">
+                    <item name="type" xsi:type="string">idealprocessing</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\IdealProcessing</item>
+                </item>
+                <item name="creditcard" xsi:type="array">
+                    <item name="type" xsi:type="string">creditcard</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard</item>
+                </item>
+                <item name="creditcards" xsi:type="array">
+                    <item name="type" xsi:type="string">creditcards</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcards</item>
+                </item>
+                <item name="mrcash" xsi:type="array">
+                    <item name="type" xsi:type="string">mrcash</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Mrcash</item>
+                </item>
+                <item name="paypal" xsi:type="array">
+                    <item name="type" xsi:type="string">paypal</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Paypal</item>
+                </item>
+                <item name="payconiq" xsi:type="array">
+                    <item name="type" xsi:type="string">payconiq</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Payconiq</item>
+                </item>
+                <item name="sepadirectdebit" xsi:type="array">
+                    <item name="type" xsi:type="string">sepadirectdebit</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\SepaDirectDebit</item>
+                </item>
+                <item name="belfius" xsi:type="array">
+                    <item name="type" xsi:type="string">belfius</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Belfius</item>
+                </item>
+                <item name="transfer" xsi:type="array">
+                    <item name="type" xsi:type="string">transfer</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Transfer</item>
+                </item>
+                <item name="afterpay" xsi:type="array">
+                    <item name="type" xsi:type="string">afterpay</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay</item>
+                </item>
+                <item name="afterpay2" xsi:type="array">
+                    <item name="type" xsi:type="string">afterpay2</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay2</item>
+                </item>
+                <item name="afterpay20" xsi:type="array">
+                    <item name="type" xsi:type="string">afterpay20</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20</item>
+                </item>
+                <item name="billink" xsi:type="array">
+                    <item name="type" xsi:type="string">billink</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Billink</item>
+                </item>
+                <item name="payperemail" xsi:type="array">
+                    <item name="type" xsi:type="string">payperemail</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail</item>
+                </item>
+                <item name="paylink" xsi:type="array">
+                    <item name="type" xsi:type="string">paylink</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\PayLink</item>
+                </item>
+                <item name="eps" xsi:type="array">
+                    <item name="type" xsi:type="string">eps</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Eps</item>
+                </item>
+                <item name="giftcards" xsi:type="array">
+                    <item name="type" xsi:type="string">giftcards</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards</item>
+                </item>
+                <item name="kbc" xsi:type="array">
+                    <item name="type" xsi:type="string">kbc</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Kbc</item>
+                </item>
+                <item name="klarna" xsi:type="array">
+                    <item name="type" xsi:type="string">klarna</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Klarna</item>
+                </item>
+                <item name="klarnakp" xsi:type="array">
+                    <item name="type" xsi:type="string">klarnakp</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp</item>
+                </item>
+                <item name="klarnain" xsi:type="array">
+                    <item name="type" xsi:type="string">klarnain</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnain</item>
+                </item>
+                <item name="emandate" xsi:type="array">
+                    <item name="type" xsi:type="string">emandate</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Emandate</item>
+                </item>
+                <item name="applepay" xsi:type="array">
+                    <item name="type" xsi:type="string">applepay</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay</item>
+                </item>
+                <item name="capayablein3" xsi:type="array">
+                    <item name="type" xsi:type="string">capayablein3</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\CapayableIn3</item>
+                </item>
+                <item name="capayablepostpay" xsi:type="array">
+                    <item name="type" xsi:type="string">capayablepostpay</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\CapayablePostpay</item>
+                </item>
+                <item name="alipay" xsi:type="array">
+                    <item name="type" xsi:type="string">alipay</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Alipay</item>
+                </item>
+                <item name="wechatpay" xsi:type="array">
+                    <item name="type" xsi:type="string">wechatpay</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Wechatpay</item>
+                </item>
+                <item name="p24" xsi:type="array">
+                    <item name="type" xsi:type="string">p24</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\P24</item>
+                </item>
+                <item name="trustly" xsi:type="array">
+                    <item name="type" xsi:type="string">trustly</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Trustly</item>
+                </item>
+                <item name="pospayment" xsi:type="array">
+                    <item name="type" xsi:type="string">pospayment</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Pospayment</item>
+                </item>
+                <item name="voucher" xsi:type="array">
+                    <item name="type" xsi:type="string">voucher</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Voucher</item>
+                </item>
+                <item name="paybybank" xsi:type="array">
+                    <item name="type" xsi:type="string">paybybank</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\PayByBank</item>
+                </item>
+                <item name="mbway" xsi:type="array">
+                    <item name="type" xsi:type="string">mbway</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\MBWay</item>
+                </item>
+                <item name="multibanco" xsi:type="array">
+                    <item name="type" xsi:type="string">multibanco</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Multibanco</item>
+                </item>
+                <item name="knaken" xsi:type="array">
+                    <item name="type" xsi:type="string">knaken</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Knaken</item>
+                </item>
+                <item name="blik" xsi:type="array">
+                    <item name="type" xsi:type="string">blik</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Blik</item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
 </config>

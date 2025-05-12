@@ -332,7 +332,12 @@ define(
                             lang = `${cc}_${cc}`;
                         }
 
-                        if (['AT', 'DK', 'FI', 'SE', 'CH', 'NO'].indexOf(country) !== -1) {
+                        if (['AT', 'CH'].indexOf(country) !== -1) {
+                            const cc = country.toLowerCase()
+                            lang = `${cc}_de`;
+                        }
+
+                        if (['DK', 'FI', 'SE', 'NO'].indexOf(country) !== -1) {
                             const cc = country.toLowerCase()
                             lang = `${cc}_en`;
                         }
@@ -343,7 +348,7 @@ define(
                         }
 
                         if (['AT', 'CH'].indexOf(country) !== -1) {
-                            lang = `${cc}_en`;
+                            lang = `${cc}_de`;
                         }
                     }
 
@@ -352,7 +357,7 @@ define(
 
                 getFrenchTos: function () {
                     return $.mage
-                        .__('(Or click here for the French translation: <a target="_blank" href="%s">terms and condition</a>.)')
+                        .__('(Or click here for the French translation: <a target="_blank" href="%s">terms and conditions</a>.)')
                         .replace('%s', 'https://documents.riverty.com/terms_conditions/payment_methods/invoice/be_fr/');
                 },
 

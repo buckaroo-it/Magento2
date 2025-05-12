@@ -35,6 +35,8 @@ class Afterpay extends AbstractConfigProvider
     public const XPATH_AFTERPAY_LOW_TAX    = 'low_tax';
     public const XPATH_AFTERPAY_ZERO_TAX   = 'zero_tax';
     public const XPATH_AFTERPAY_NO_TAX     = 'no_tax';
+    public const XPATH_AFTERPAY_PAYMENT_FEE            = 'payment/buckaroo_magento2_afterpay/payment_fee';
+
 
     /**
      * @inheritdoc
@@ -176,5 +178,21 @@ class Afterpay extends AbstractConfigProvider
         }
 
         return $paymentMethodName;
+    }
+
+    /**
+     * @param null|int $storeId
+     *
+     * @return float
+     */
+    public function getPaymentFee($storeId = null)
+    {
+        $paymentFee = $this->scopeConfig->getValue(
+            self::XPATH_AFTERPAY_PAYMENT_FEE,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+
+        return $paymentFee ?: 0;
     }
 }

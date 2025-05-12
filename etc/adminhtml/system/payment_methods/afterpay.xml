@@ -22,7 +22,7 @@
 <include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
     <!-- Afterpay Payment method group -->
     <group id="buckaroo_magento2_afterpay" translate="label" type="text" sortOrder="240" showInDefault="1" showInWebsite="1" showInStore="1">
-        <label>Riverty (old)</label>
+        <label>Riverty (legacy gateway 1)</label>
         <frontend_model>Buckaroo\Magento2\Block\Config\Form\Field\Fieldset</frontend_model>
 
         <field id="active" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -38,7 +38,7 @@
             <config_path>payment/buckaroo_magento2_afterpay/payment_action</config_path>
             <source_model>Buckaroo\Magento2\Model\Config\Source\PaymentFlow</source_model>
         </field>
-            
+
         <field id="title" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Frontend label</label>
             <comment><![CDATA[Determines the frontend label shown.]]></comment>
@@ -50,7 +50,7 @@
             <comment><![CDATA[This controls the description which the user sees during checkout.]]></comment>
             <config_path>payment/buckaroo_magento2_afterpay/subtext</config_path>
         </field>
-        
+
         <field id="subtext_style" translate="label comment" type="select" sortOrder="26" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Frontend subtext style</label>
             <comment><![CDATA[Choose a font style for the subtext.]]></comment>
@@ -92,13 +92,6 @@
                 </depends>
             </field>
 
-            <field id="financial_warning" translate="label comment" type="select" sortOrder="35" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Consumer Financial Warning</label>
-                <comment><![CDATA[Due to the regulations for BNPL methods in The Netherlands you’ll  have to warn customers about using a BNPL plan because it can be easy to get into debt. When enabled a warning will be showed in the checkout. Please note that this setting only applies for customers in The Netherlands.]]></comment>
-                <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                <config_path>payment/buckaroo_magento2_afterpay/financial_warning</config_path>
-            </field>
-            
             <field id="high_tax" translate="label comment" type="multiselect" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>High VAT tax classes</label>
                 <comment><![CDATA[Select which tax classes count as 'high' VAT.]]></comment>
@@ -147,15 +140,9 @@
 
             <field id="payment_fee" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Payment fee</label>
-                <comment><![CDATA[The above amount is calculated based on de Tax settings in Stores > Configuration > Sales > Tax.]]></comment>
+                <comment><![CDATA[The above amount is calculated based on de Tax settings in Buckaroo > Settings > Buckaroo Payment Fee Tax Class.]]></comment>
                 <config_path>payment/buckaroo_magento2_afterpay/payment_fee</config_path>
                 <backend_model>Buckaroo\Magento2\Model\Config\Backend\PaymentFee</backend_model>
-            </field>
-
-            <field id="payment_fee_label" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Payment fee frontend label</label>
-                <comment><![CDATA[This label will be displayed next to the fee on the checkout, order, invoice and creditmemo pages and pdfs.]]></comment>
-                <config_path>payment/buckaroo_magento2_afterpay/payment_fee_label</config_path>
             </field>
 
             <field id="active_status" translate="label comment" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -247,7 +234,7 @@
             </group>
             <group id="buckaroo_magento2_spam" translate="label" type="text" sortOrder="150" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Spam Prevention</label>
-                
+
                 <field id="spam_prevention" translate="label comment" type="select" sortOrder="150" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Spam prevention</label>
                     <comment><![CDATA[Enabling this feature adds the option to hide this payment method after a certain number of failed attempts.]]></comment>

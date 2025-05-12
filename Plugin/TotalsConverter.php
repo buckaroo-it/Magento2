@@ -1,60 +1,37 @@
 <?php
 /**
- * NOTICE OF LICENSE
- *
- * This source file is subject to the MIT License
- * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please email
- * to support@buckaroo.nl, so we can send you a copy immediately.
- *
- * DISCLAIMER
- *
- * Do not edit or add to this file if you wish to upgrade this module to newer
- * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
- *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * Copyright © 2015 Magento. All rights reserved.
+ * See COPYING.txt for license details.
  */
-declare(strict_types=1);
-
 namespace Buckaroo\Magento2\Plugin;
-
-use Magento\Quote\Api\Data\TotalSegmentExtensionFactory;
-use Magento\Quote\Api\Data\TotalSegmentExtensionInterface;
-use Magento\Quote\Api\Data\TotalSegmentInterface;
-use Magento\Quote\Model\Quote\Address\Total;
 
 class TotalsConverter
 {
     /**
-     * @var TotalSegmentExtensionFactory
+     * @var \Magento\Quote\Api\Data\TotalSegmentExtensionFactory
      */
-    protected TotalSegmentExtensionFactory $totalSegmentExtensionFactory;
+    protected $totalSegmentExtensionFactory;
 
     /**
      * @var string
      */
-    protected string $code;
+    protected $code;
 
     /**
-     * @param TotalSegmentExtensionFactory $totalSegmentExtensionFactory
+     * @param \Magento\Quote\Api\Data\TotalSegmentExtensionFactory $totalSegmentExtensionFactory
      */
     public function __construct(
-        TotalSegmentExtensionFactory $totalSegmentExtensionFactory
+        \Magento\Quote\Api\Data\TotalSegmentExtensionFactory $totalSegmentExtensionFactory
     ) {
         $this->totalSegmentExtensionFactory = $totalSegmentExtensionFactory;
         $this->code = 'buckaroo_fee';
     }
 
     /**
-     * Set Buckaroo fee on totals
-     *
-     * @param \Magento\Quote\Model\Cart\TotalsConverter $subject
-     * @param \Closure $proceed
-     * @param Total[] $addressTotals
-     * @return TotalSegmentInterface[]
+     * @param \Magento\Quote\Model\Cart\TotalsConverter  $subject
+     * @param \Closure                                   $proceed
+     * @param \Magento\Quote\Model\Quote\Address\Total[] $addressTotals
+     * @return \Magento\Quote\Api\Data\TotalSegmentInterface[]
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
@@ -62,9 +39,9 @@ class TotalsConverter
         \Magento\Quote\Model\Cart\TotalsConverter $subject,
         \Closure $proceed,
         array $addressTotals = []
-    ): array {
+    ) {
         /**
-         * @var TotalSegmentInterface[] $totals
+         * @var \Magento\Quote\Api\Data\TotalSegmentInterface[] $totals
          */
         $totalSegments = $proceed($addressTotals);
         if (!isset($addressTotals[$this->code])) {
@@ -73,7 +50,7 @@ class TotalsConverter
 
         $total = $addressTotals[$this->code];
         /**
-         * @var TotalSegmentExtensionInterface $totalSegmentExtension
+         * @var \Magento\Quote\Api\Data\TotalSegmentExtensionInterface $totalSegmentExtension
          */
         /**
          * @noinspection PhpUndefinedMethodInspection

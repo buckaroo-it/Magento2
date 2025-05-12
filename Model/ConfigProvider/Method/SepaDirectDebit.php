@@ -31,6 +31,8 @@ class SepaDirectDebit extends AbstractConfigProvider
     public const XPATH_SEPADIRECTDEBIT_MAX_STEP_INDEX              = 'max_step_index';
     public const XPATH_SEPADIRECTDEBIT_CM3_DUE_DATE                = 'cm3_due_date';
     public const XPATH_SEPADIRECTDEBIT_PAYMENT_METHOD_AFTER_EXPIRY = 'payment_method_after_expiry';
+    public const XPATH_EPS_PAYMENT_FEE           = 'payment/buckaroo_magento2_eps/payment_fee';
+
 
     /**
      * Check if Credit Management is enabled
@@ -85,5 +87,21 @@ class SepaDirectDebit extends AbstractConfigProvider
     public function getPaymentMethodAfterExpiry($store = null)
     {
         return $this->getMethodConfigValue(self::XPATH_SEPADIRECTDEBIT_PAYMENT_METHOD_AFTER_EXPIRY, $store);
+    }
+
+    /**
+     * @param null|int $storeId
+     *
+     * @return float
+     */
+    public function getPaymentFee($storeId = null)
+    {
+        $paymentFee = $this->scopeConfig->getValue(
+            self::XPATH_EPS_PAYMENT_FEE,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+
+        return $paymentFee ?: 0;
     }
 }

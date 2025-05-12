@@ -26,7 +26,7 @@ use Buckaroo\Magento2\Exception;
 class Klarnain extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_klarnain';
-
+    public const XPATH_KLARNAIN_PAYMENT_FEE            = 'payment/buckaroo_magento2_klarnain/payment_fee';
     /**
      * @var array
      */
@@ -71,4 +71,21 @@ class Klarnain extends AbstractConfigProvider
             'showFinancialWarning' => $this->canShowFinancialWarning(),
         ]);
     }
+
+    /**
+     * @param null|int $storeId
+     *
+     * @return float
+     */
+    public function getPaymentFee($storeId = null)
+    {
+        $paymentFee = $this->scopeConfig->getValue(
+            self::XPATH_KLARNAIN_PAYMENT_FEE,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+
+        return $paymentFee ? : 0;
+    }
+
 }

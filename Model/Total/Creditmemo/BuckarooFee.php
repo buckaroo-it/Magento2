@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please email
- * to support@buckaroo.nl, so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,20 +17,19 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Total\Creditmemo;
 
 use Magento\Framework\App\RequestInterface;
-use Magento\Sales\Model\Order\Creditmemo;
-use Magento\Sales\Model\Order\Creditmemo\Total\AbstractTotal;
+use Magento\Framework\App\ResourceConnection;
+use Buckaroo\Magento2\Logging\Log;
 
-class BuckarooFee extends AbstractTotal
+class BuckarooFee extends \Magento\Sales\Model\Order\Creditmemo\Total\AbstractTotal
 {
     /**
      * Request instance
      *
-     * @var RequestInterface
+     * @var \Magento\Framework\App\RequestInterface
      */
     protected $request;
 
@@ -46,12 +45,13 @@ class BuckarooFee extends AbstractTotal
     /**
      * Collect totals for credit memo
      *
-     * @param Creditmemo $creditmemo
+     * @param  \Magento\Sales\Model\Order\Creditmemo $creditmemo
      * @return $this
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     *
      */
-    public function collect(Creditmemo $creditmemo): BuckarooFee
+    public function collect(\Magento\Sales\Model\Order\Creditmemo $creditmemo)
     {
         $order = $creditmemo->getOrder();
         $invoice = $creditmemo->getInvoice();

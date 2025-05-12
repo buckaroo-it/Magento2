@@ -21,36 +21,21 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request;
 
-use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 
 /**
- * @inheritdoc
+ * Builds the data for the ContinueOnIncomplete parameter.
+ * Now always sets it for standard iDEAL, as issuer selection is handled by Buckaroo.
  */
 class ContinueOnIncompleteDataBuilder implements BuilderInterface
 {
     /**
-     * @var string
+     * @inheritdoc
+     * Always adds 'continueOnIncomplete' => '1' (or Buckaroo equivalent)
+     * as issuer selection is no longer handled within Magento checkout.
      */
-    private string $continueOnIncompleteField;
-
-    /**
-     * @param string $continueOnIncompleteField
-     */
-    public function __construct(string $continueOnIncompleteField = 'show_issuers')
-    {
-        $this->continueOnIncompleteField = $continueOnIncompleteField;
-    }
-
     public function build(array $buildSubject): array
     {
-        $paymentDO = SubjectReader::readPayment($buildSubject);
-
-        $method = $paymentDO->getPayment()->getMethodInstance();
-        if ($method->getConfigData($this->continueOnIncompleteField) === '0') {
-            return ['continueOnIncomplete' => '1'];
-        }
-
-        return [];
+        return ['continueOnIncomplete' => '1'];
     }
 }

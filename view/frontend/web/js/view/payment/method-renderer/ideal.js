@@ -31,34 +31,30 @@ define(
             {
                 defaults: {
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_ideal',
-                    selectedBank: null,
                 },
                 redirectAfterPlaceOrder: false,
 
+                /**
+                 * @override
+                 */
                 initObservable: function () {
-                    this._super().observe(['selectedBank']);
+                    this._super();
                     return this;
                 },
 
+                /**
+                 * @override
+                 * @returns {Object}
+                 */
                 getData: function () {
                     return {
                         "method": this.item.method,
                         "po_number": null,
                         "additional_data": {
-                            "issuer": this.selectedBank()
                         }
                     };
                 },
-
             }
         );
     }
 );
-
-
-
-
-
-
-
-

@@ -28,7 +28,7 @@ class Klarnakp extends AbstractConfigProvider
     public const CODE = 'buckaroo_magento2_klarnakp';
 
     public const XPATH_KLARNAKP_CREATE_INVOICE_BY_SHIP = 'create_invoice_after_shipment';
-
+    public const XPATH_KLARNAKP_PAYMENT_FEE            = 'payment/buckaroo_magento2_klarnakp/payment_fee';
     /**
      * @var array
      */
@@ -94,5 +94,21 @@ class Klarnakp extends AbstractConfigProvider
         );
 
         return $createInvoiceAfterShipment ?: false;
+    }
+
+    /**
+     * @param null|int $storeId
+     *
+     * @return float
+     */
+    public function getPaymentFee($storeId = null)
+    {
+        $paymentFee = $this->scopeConfig->getValue(
+            self::XPATH_KLARNAKP_PAYMENT_FEE,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+
+        return $paymentFee ?: 0;
     }
 }

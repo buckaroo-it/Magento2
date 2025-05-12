@@ -1,65 +1,33 @@
 <?php
 /**
- * NOTICE OF LICENSE
- *
- * This source file is subject to the MIT License
- * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please email
- * to support@buckaroo.nl, so we can send you a copy immediately.
- *
- * DISCLAIMER
- *
- * Do not edit or add to this file if you wish to upgrade this module to newer
- * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
- *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * Copyright © 2015 Magento. All rights reserved.
+ * See COPYING.txt for license details.
  */
-
 namespace Buckaroo\Magento2\Block\Checkout;
 
-use Buckaroo\Magento2\Model\ConfigProvider\Account;
-use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Magento\Checkout\Block\Checkout\LayoutProcessorInterface;
 use Magento\Checkout\Model\Layout\AbstractTotalsProcessor;
-use Magento\Framework\App\Config\ScopeConfigInterface;
 
 class TotalsProcessor extends AbstractTotalsProcessor implements LayoutProcessorInterface
 {
     /**
-     * @var Factory
-     */
-    protected $configProviderFactory;
-
-    /**
-     * @param ScopeConfigInterface $scopeConfig
-     * @param Factory $configProviderFactory
+     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
      *
      * @codeCoverageIgnore
      */
     public function __construct(
-        ScopeConfigInterface $scopeConfig,
-        Factory $configProviderFactory
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
     ) {
         parent::__construct($scopeConfig);
-        $this->configProviderFactory = $configProviderFactory;
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function process($jsLayout)
     {
-        /**
-         * @var Account $configProvider
-         */
-        $configProvider = $this->configProviderFactory->get('account');
-        $paymentFeeLabel = $configProvider->getPaymentFeeLabel();
-
         $jsLayout['components']['checkout']['children']['sidebar']['children']['summary']['children']['totals']
-        ['children']['before_grandtotal']['children']['buckaroo_fee']['config']['title'] = $paymentFeeLabel;
+        ['children']['before_grandtotal']['children']['buckaroo_fee']['config']['title'] = 'Payment Fee';
         return $jsLayout;
     }
 }

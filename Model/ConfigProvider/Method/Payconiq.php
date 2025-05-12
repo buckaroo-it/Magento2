@@ -35,6 +35,7 @@ class Payconiq extends AbstractConfigProvider
     public const CODE = 'buckaroo_magento2_payconiq';
 
     public const PAYCONIC_REDIRECT_URL = '/buckaroo/payconiq/pay';
+    public const XPATH_PAYCONIQ_PAYMENT_FEE                      = 'payment/buckaroo_magento2_payconiq/payment_fee';
 
     /** @var FormKey */
     private FormKey $formKey;
@@ -85,5 +86,18 @@ class Payconiq extends AbstractConfigProvider
     private function getFormKey(): string
     {
         return $this->formKey->getFormKey();
+    }
+
+    /**
+     * @return float
+     */
+    public function getPaymentFee($storeId = null)
+    {
+        $paymentFee = $this->scopeConfig->getValue(
+            self::XPATH_PAYCONIQ_PAYMENT_FEE,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+
+        return $paymentFee ?: 0;
     }
 }

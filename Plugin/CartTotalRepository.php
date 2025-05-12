@@ -1,30 +1,11 @@
 <?php
 /**
- * NOTICE OF LICENSE
- *
- * This source file is subject to the MIT License
- * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please email
- * to support@buckaroo.nl, so we can send you a copy immediately.
- *
- * DISCLAIMER
- *
- * Do not edit or add to this file if you wish to upgrade this module to newer
- * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
- *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * Copyright © 2015 Magento. All rights reserved.
+ * See COPYING.txt for license details.
  */
-declare(strict_types=1);
-
 namespace Buckaroo\Magento2\Plugin;
 
-use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Api\Data\TotalsExtensionFactory;
-use Magento\Quote\Api\Data\TotalsExtensionInterface;
 use Magento\Quote\Api\Data\TotalsInterface;
 use Magento\Quote\Model\Cart\CartTotalRepository as TotalRepository;
 use Magento\Quote\Model\Quote;
@@ -32,46 +13,49 @@ use Magento\Quote\Model\Quote;
 class CartTotalRepository
 {
     /**
-     * @var CartRepositoryInterface
+     * @var \Magento\Quote\Api\CartRepositoryInterface
      */
-    protected CartRepositoryInterface $quoteRepository;
+    protected $quoteRepository;
 
     /**
-     * @var TotalsExtensionFactory
+     * @var \Magento\Quote\Api\Data\TotalsExtensionFactory
      */
-    protected TotalsExtensionFactory $totalsExtensionFactory;
+    protected $totalsExtensionFactory;
 
     /**
-     * @param CartRepositoryInterface $quoteRepository
-     * @param TotalsExtensionFactory $totalsExtensionFactory
+     * @param \Magento\Quote\Api\CartRepositoryInterface     $quoteRepository
+     * @param  \Magento\Quote\Api\Data\TotalsExtensionFactory $totalsExtensionFactory
      */
     public function __construct(
-        CartRepositoryInterface $quoteRepository,
-        TotalsExtensionFactory $totalsExtensionFactory
+        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
+        \Magento\Quote\Api\Data\TotalsExtensionFactory $totalsExtensionFactory
     ) {
         $this->quoteRepository = $quoteRepository;
         $this->totalsExtensionFactory = $totalsExtensionFactory;
     }
 
     /**
-     * Set Buckaroo fee after get the totals
-     *
      * @param TotalRepository $subject
-     * @param $totals
-     * @param int $cartId
+     * @param \Closure        $proceed
+     * @param int             $cartId
      * @return TotalsInterface
-     * @throws NoSuchEntityException
+     *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function afterGet(TotalRepository $subject, $totals, int $cartId): TotalsInterface
+    public function aroundGet(TotalRepository $subject, \Closure $proceed, $cartId)
     {
         /**
-         * @var Quote $quote
+         * @var TotalsInterface $totals
+         */
+        $totals = $proceed($cartId);
+
+        /**
+         * @var Quote  $quote
          */
         $quote = $this->quoteRepository->getActive($cartId);
 
         /**
-         * @var TotalsExtensionInterface $extensionAttributes
+         * @var \Magento\Quote\Api\Data\TotalsExtensionInterface $extensionAttributes
          */
         $extensionAttributes = $totals->getExtensionAttributes() ?: $this->totalsExtensionFactory->create();
 

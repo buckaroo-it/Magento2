@@ -27,12 +27,18 @@ use Magento\Framework\View\Asset\Repository;
 use Buckaroo\Magento2\Helper\Data as BuckarooHelper;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
+use Buckaroo\Magento2\Model\Config\Source\BillinkCustomerType;
 
 class Billink extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_billink';
 
     public const XPATH_BILLINK_BUSINESS  = 'business';
+    public const XPATH_BILLINK_CUSTOMER_TYPE  = 'customer_type';
+    public const XPATH_BILLINK_MIN_AMOUNT_B2B = 'min_amount_b2b';
+    public const XPATH_BILLINK_MAX_AMOUNT_B2B = 'max_amount_b2b';
+    public const XPATH_BILLINK_PAYMENT_FEE          = 'payment/buckaroo_magento2_billink/payment_fee';
+
 
     /**
      * @var BuckarooHelper
@@ -71,7 +77,7 @@ class Billink extends AbstractConfigProvider
 
         return $this->fullConfig([
             'sendEmail'         => $this->hasOrderEmail(),
-            'b2b'               => $this->isB2B(),
+            'is_b2b'               => $this->getCustomerType() !== BillinkCustomerType::CUSTOMER_TYPE_B2C,
             'genderList'        => [
                 ['genderType' => 'male', 'genderTitle' => __('He/him')],
                 ['genderType' => 'female', 'genderTitle' => __('She/her')],
@@ -98,12 +104,29 @@ class Billink extends AbstractConfigProvider
     }
 
     /**
-     * Get Customer Group
+     * Get customer type
      *
-     * @return bool
+     * @param null|int $storeId
+     * @return string
      */
-    public function isB2B()
+    public function getCustomerType($storeId = null)
     {
-        return $this->helper->checkCustomerGroup('buckaroo_magento2_billink');
+        return $this->getMethodConfigValue(self::XPATH_BILLINK_CUSTOMER_TYPE, $storeId);
+    }
+
+    /**
+     * @param null|int $storeId
+     *
+     * @return float
+     */
+    public function getPaymentFee($storeId = null)
+    {
+        $paymentFee = $this->scopeConfig->getValue(
+            self::XPATH_BILLINK_PAYMENT_FEE,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+
+        return $paymentFee ?: 0;
     }
 }

@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please email
- * to support@buckaroo.nl, so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,21 +17,14 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Total\Quote\Tax;
 
-use Magento\Framework\Phrase;
-use Magento\Quote\Api\Data\ShippingAssignmentInterface;
-use Magento\Quote\Model\Quote;
-use Magento\Quote\Model\Quote\Address\Total;
-use Magento\Quote\Model\Quote\Address\Total\AbstractTotal;
 use Magento\Tax\Model\Sales\Total\Quote\CommonTaxCollector;
 
-class BuckarooFeeAfterTax extends AbstractTotal
+class BuckarooFeeAfterTax extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
 {
     /**
-     * Set tax code
      */
     public function __construct()
     {
@@ -41,16 +34,16 @@ class BuckarooFeeAfterTax extends AbstractTotal
     /**
      * Collect buckaroo fee tax totals
      *
-     * @param Quote $quote
-     * @param ShippingAssignmentInterface $shippingAssignment
-     * @param Total $total
+     * @param \Magento\Quote\Model\Quote                          $quote
+     * @param \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment
+     * @param \Magento\Quote\Model\Quote\Address\Total            $total
      *
      * @return $this
      */
     public function collect(
-        Quote $quote,
-        ShippingAssignmentInterface $shippingAssignment,
-        Total $total
+        \Magento\Quote\Model\Quote $quote,
+        \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment,
+        \Magento\Quote\Model\Quote\Address\Total $total
     ) {
         /**
          * @noinspection PhpUndefinedMethodInspection
@@ -135,26 +128,26 @@ class BuckarooFeeAfterTax extends AbstractTotal
     /**
      * Assign buckaroo fee tax totals and labels to address object
      *
-     * @param Quote $quote
-     * @param Total $total
-     *
+     * @param \Magento\Quote\Model\Quote               $quote
+     * @param \Magento\Quote\Model\Quote\Address\Total $total
      * @return array
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     *
      */
-    public function fetch(Quote $quote, Total $total): array
+    public function fetch(\Magento\Quote\Model\Quote $quote, \Magento\Quote\Model\Quote\Address\Total $total)
     {
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
         return [
-            'code'                         => 'buckaroo_fee',
-            'title'                        => $this->getLabel(),
-            'buckaroo_fee'                 => $total->getBuckarooFee(),
-            'base_buckaroo_fee'            => $total->getBaseBuckarooFee(),
-            'buckaroo_fee_incl_tax'        => $total->getBuckarooFeeInclTax(),
-            'base_buckaroo_fee_incl_tax'   => $total->getBaseBuckarooFeeInclTax(),
-            'buckaroo_fee_tax_amount'      => $total->getBuckarooFeeTaxAmount(),
+            'code' => 'buckaroo_fee',
+            'title' => $this->getLabel(),
+            'buckaroo_fee' => $total->getBuckarooFee(),
+            'base_buckaroo_fee' => $total->getBaseBuckarooFee(),
+            'buckaroo_fee_incl_tax' => $total->getBuckarooFeeInclTax(),
+            'base_buckaroo_fee_incl_tax' => $total->getBaseBuckarooFeeInclTax(),
+            'buckaroo_fee_tax_amount' => $total->getBuckarooFeeTaxAmount(),
             'buckaroo_fee_base_tax_amount' => $total->getBuckarooFeeBaseTaxAmount(),
         ];
     }
@@ -162,9 +155,9 @@ class BuckarooFeeAfterTax extends AbstractTotal
     /**
      * Get Buckaroo label
      *
-     * @return Phrase
+     * @return \Magento\Framework\Phrase
      */
-    public function getLabel(): Phrase
+    public function getLabel()
     {
         return __('Payment Fee');
     }

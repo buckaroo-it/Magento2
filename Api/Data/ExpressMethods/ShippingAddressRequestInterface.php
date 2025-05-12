@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please email
- * to support@buckaroo.nl, so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,7 +17,6 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Api\Data\ExpressMethods;
 
@@ -35,25 +34,25 @@ interface ShippingAddressRequestInterface
     /**
      * Set country code
      *
-     * @param string $countryCode
+     * @param string $country_code
      *
      * @return void
      */
-    public function setCountryCode(string $countryCode);
+    public function setCountryCode(string $country_code);
 
     /**
      * Set postal code
      *
-     * @param string $postalCode
+     * @param string $postal_code
      *
      * @return void
      */
-    public function setPostalCode(string $postalCode);
+    public function setPostalCode(string $postal_code);
 
     /**
      * Set state
      *
-     * @param string $state
+     * @param string|null $state
      *
      * @return void
      */

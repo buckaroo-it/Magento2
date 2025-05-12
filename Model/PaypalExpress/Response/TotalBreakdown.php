@@ -21,9 +21,9 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\PaypalExpress\Response;
 
-use Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterface;
-use Buckaroo\Magento2\Api\Data\PaypalExpress\BreakdownItemInterfaceFactory;
-use Buckaroo\Magento2\Api\Data\PaypalExpress\TotalBreakdownInterface;
+use Buckaroo\Magento2\Api\Data\BreakdownItemInterface;
+use Buckaroo\Magento2\Api\Data\BreakdownItemInterfaceFactory;
+use Buckaroo\Magento2\Api\Data\TotalBreakdownInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Api\CartTotalRepositoryInterface;
 use Magento\Quote\Model\Quote;
