@@ -33,11 +33,11 @@ jobs:
           curl $url > files_changed
           cat files_changed | grep '"filename"' | sed 's/\"filename\"\: \"//' | sed 's/\",//' | xargs ls
           echo '{"http-basic": {"repo.magento.com": {"username": "${{ secrets.REPO_USERNAME }}","password": "${{ secrets.REPO_PASS }}"}}}' > auth.json
-          composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition=2.4.4 m244
-          mkdir -p m244/app/code/Buckaroo/Magento2/
-          rsync -r --exclude='m244' ./ m244/app/code/Buckaroo/Magento2/
-          cat files_changed | grep '"filename"' | sed 's/\"filename\"\: \"//' | sed 's/\",//' | xargs ./m244/vendor/bin/phpcs --standard=Magento2
-          cd m244
+          composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition=2.4.8 m248
+          mkdir -p m248/app/code/Buckaroo/Magento2/
+          rsync -r --exclude='m248' ./ m248/app/code/Buckaroo/Magento2/
+          cat files_changed | grep '"filename"' | sed 's/\"filename\"\: \"//' | sed 's/\",//' | xargs ./m248/vendor/bin/phpcs --standard=Magento2
+          cd m248
           bin/magento module:enable --all
           bin/magento setup:di:compile
           vendor/phpunit/phpunit/phpunit -c dev/tests/unit/phpunit.xml.dist app/code/Buckaroo/Magento2
