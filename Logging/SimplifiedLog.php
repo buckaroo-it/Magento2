@@ -47,10 +47,10 @@ class SimplifiedLog extends Logger implements BuckarooLoggerInterface
      * Portable implementation that works with Monolog 2 **and** 3.
      */
     public function addRecord(
-        mixed $level,                            // ← was Level|int
+        mixed $level,
         string|\Stringable $message,
         array $context = [],
-        \DateTimeInterface|null $datetime = null // ← portable type
+        \DateTimeInterface|null $datetime = null
     ): bool {
         if (! $this->debugConfiguration->canLog($level)) {
             return false;

@@ -41,7 +41,7 @@ class DbHandler extends Base
     public function write(mixed $record): void
     {
         if ($record instanceof LogRecord) {
-            $record = $record->toArray();   // normalise
+            $record = $record->toArray();
         }
 
         $levelValue = $record['level']   ?? null;
