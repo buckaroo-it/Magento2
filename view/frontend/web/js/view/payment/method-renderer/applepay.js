@@ -21,12 +21,16 @@
 define(
     [
         'jquery',
-        'buckaroo/checkout/payment/default',
+        'Magento_Checkout/js/view/payment/default',
         'Magento_Checkout/js/model/payment/additional-validators',
         'Buckaroo_Magento2/js/action/place-order',
         'Magento_Checkout/js/model/quote',
         'ko',
-        'buckaroo/applepay/pay'
+        'Magento_Checkout/js/checkout-data',
+        'Magento_Checkout/js/action/select-payment-method',
+        'buckaroo/applepay/pay',
+        'buckaroo/checkout/common',
+        'BuckarooSDK'
     ],
     function (
         $,
@@ -35,7 +39,10 @@ define(
         placeOrderAction,
         quote,
         ko,
+        checkoutData,
+        selectPaymentMethodAction,
         applepayPay,
+        checkoutCommon
     ) {
         'use strict';
 
@@ -44,7 +51,10 @@ define(
                 defaults: {
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_applepay'
                 },
-
+                currencyCode: window.checkoutConfig.quoteData.quote_currency_code,
+                baseCurrencyCode: window.checkoutConfig.quoteData.base_currency_code,
+                subtext: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.subtext,
+                subTextStyle: checkoutCommon.getSubtextStyle('applepay'),
                 submit: false,
 
                 initObservable: function () {
@@ -80,7 +90,6 @@ define(
                 canShowPaymentMethod: ko.computed(function () {
                     return applepayPay.canShowMethod();
                 }),
-
 
                 /**
                  * Place order.
@@ -134,7 +143,21 @@ define(
                     return false;
                 },
 
+                afterPlaceOrder: function () {
+                    var response = window.checkoutConfig.payment.buckaroo.response;
+                    applepayPay.devLog('==========applepaydebug/14');
+                    if (response.RequiredAction !== undefined && response.RequiredAction.RedirectURL !== undefined) {
+                        window.location.replace(response.RequiredAction.RedirectURL);
+                    }
+                },
 
+                selectPaymentMethod: function () {
+                    applepayPay.devLog('==========applepaydebug/71');
+                    selectPaymentMethodAction(this.getData());
+                    checkoutData.setSelectedPaymentMethod(this.item.method);
+
+                    return true;
+                },
 
                 showPayButton: function () {
                     applepayPay.devLog('==========applepaydebug/66');
@@ -143,6 +166,17 @@ define(
                     applepayPay.showPayButton();
                 },
 
+                payWithBaseCurrency: function () {
+                    var allowedCurrencies = window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.allowedCurrencies;
+
+                    return allowedCurrencies.indexOf(this.currencyCode) < 0;
+                },
+
+                getPayWithBaseCurrencyText: function () {
+                    var text = $.mage.__('The transaction will be processed using %s.');
+
+                    return text.replace('%s', this.baseCurrencyCode);
+                },
 
                 getData: function () {
                     var transactionResult = applepayPay.transactionResult();

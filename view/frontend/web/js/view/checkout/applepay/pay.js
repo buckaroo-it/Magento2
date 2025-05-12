@@ -66,14 +66,6 @@ define(
 
                 BuckarooSdk.ApplePay.checkApplePaySupport(window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.guid)
                     .then(function (applePaySupported) {
-                        this.devLog('==============applepaydebug/albina', window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.guid);
-                        this.devLog('==============applepaydebug/albina2', window.checkoutConfig.payment.buckaroo);
-                        this.devLog('==============applepaydebug/8',[
-                            applePaySupported,
-                            this.isOnCheckout,
-                            window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay
-                        ]);
-
                         if (this.payMode === 'product') {
                             this.initProductViewWatchers();
                         }
@@ -159,8 +151,6 @@ define(
                     }
                 }
 
-                this.devLog('==============applepaydebug/13', [country, requiredBillingContactFields, requiredShippingContactFields]);
-
                 this.applepayOptions = new BuckarooSdk.ApplePay.ApplePayOptions(
                     window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.storeName,
                     country,
@@ -244,8 +234,6 @@ define(
             },
 
             timeoutRedirect: function (url = false) {
-                this.devLog('==============applepaydebug/38', url);
-
                 setTimeout(function () {
                     if (url) {
                         window.location.href = url;
@@ -256,8 +244,6 @@ define(
             },
 
             onSelectedShipmentMethod: function (event) {
-                this.devLog('==============applepaydebug/27');
-
                 if (this.payMode === 'product' || this.payMode === 'cart') {
                     this.selectedShippingMethod = event;
                     return $.ajax({
@@ -274,9 +260,6 @@ define(
                                     newTotal: this.processTotalLineItems('final', result.data.totals),
                                     newLineItems: this.processLineItems('final', result.data.totals)
                                 };
-
-                                this.devLog('==============applepaydebug/37');
-
                                 return JSON.stringify(authorizationResult);
                             } else {
                                 this.timeoutRedirect();
@@ -369,8 +352,6 @@ define(
             },
 
             updateShippingMethods: function (address) {
-                this.devLog('==============applepaydebug/16');
-
                 var serviceUrl = resourceUrlManager.getUrlForEstimationShippingMethodsForNewAddress(this.quote);
                 var payload = JSON.stringify({
                     address: {
@@ -494,8 +475,6 @@ define(
             },
 
             initProductViewWatchers: function () {
-                this.devLog('==============applepaydebug/initProductViewWatchers');
-
                 this.productSelected = {};
                 this.productSelected.id = $('.price-box').attr('data-product-id');
                 this.productSelected.qty = $('#qty').val();
@@ -525,10 +504,7 @@ define(
             },
 
             devLog: function (msg, params) {
-                //window.buckarooDebug = 1;
-                if (window.buckarooDebug) {
-                    console.log(msg, params);
-                }
+                // Debug logging is disabled for production.
             }
         };
     }
