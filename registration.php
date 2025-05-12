@@ -24,8 +24,3 @@
     'Buckaroo_Magento2',
     __DIR__
 );
-
-// -----------------------------------------------------------------
-// Monolog 2 ↔ 3 compatibility layer
-// -----------------------------------------------------------------
-require_once __DIR__ . '/registration_monolog_shim.php';

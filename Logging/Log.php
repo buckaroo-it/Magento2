@@ -18,14 +18,14 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
+declare(strict_types=1);
+
 namespace Buckaroo\Magento2\Logging;
 
 use Buckaroo\Magento2\Model\ConfigProvider\DebugConfiguration;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\Session\SessionManager;
 use Monolog\Handler\HandlerInterface;
-use Monolog\Level;
-use Monolog\JsonSerializableDateTimeImmutable;
 use Monolog\Logger;
 
 class Log extends Logger implements BuckarooLoggerInterface
@@ -97,12 +97,20 @@ class Log extends Logger implements BuckarooLoggerInterface
 
     /**
      * @inheritdoc
+     *
+     * The base signature in Monolog 2 is:
+     *   addRecord(int $level, ...);
+     *
+     * In Monolog 3 it is:
+     *   addRecord(Level|int $level, ...);
+     *
+     * We use the *wider* type `mixed`, so both are satisfied.
      */
     public function addRecord(
-        Level|int $level,
+        mixed $level,                       // ← was Level|int
         string|\Stringable $message,
         array $context = [],
-        ?JsonSerializableDateTimeImmutable $datetime = null
+        \DateTimeInterface|null $datetime = null   // ← keeps it portable
     ): bool {
         if (! $this->debugConfiguration->canLog($level)) {
             return false;
@@ -146,7 +154,15 @@ class Log extends Logger implements BuckarooLoggerInterface
             'trace' => $logTrace,
         ], $flags);
 
-        // Delegate to parent with updated signature
+        // -----------------------------------------------------------------
+        // If the store runs on Monolog 3 and the caller gave us a plain int,
+        // convert it to the new enum so parent::addRecord() is happy.
+        // -----------------------------------------------------------------
+        if (\class_exists(\Monolog\Level::class) && \is_int($level)) {
+            /** @var \Monolog\Level $level */
+            $level = \Monolog\Level::from($level);
+        }
+
         return parent::addRecord($level, $message, $context, $datetime);
     }
 

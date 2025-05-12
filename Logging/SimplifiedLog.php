@@ -24,71 +24,52 @@ namespace Buckaroo\Magento2\Logging;
 
 use Buckaroo\Magento2\Model\ConfigProvider\DebugConfiguration;
 use Monolog\Handler\HandlerInterface;
-use Monolog\JsonSerializableDateTimeImmutable;
-use Monolog\Level;
 use Monolog\Logger;
 
 class SimplifiedLog extends Logger implements BuckarooLoggerInterface
 {
-    /**
-     * @var DebugConfiguration
-     */
     private DebugConfiguration $debugConfiguration;
 
-    /**
-     * @var array
-     */
-    protected array $message = [];
+    protected array  $message = [];
+    protected string $action  = '';
 
-    /**
-     * @var string
-     */
-    protected string $action = '';
-
-    /**
-     * SimplifiedLog constructor.
-     *
-     * @param DebugConfiguration $debugConfiguration
-     * @param HandlerInterface[] $handlers
-     * @param callable[]         $processors
-     * @param string             $name
-     */
     public function __construct(
         DebugConfiguration $debugConfiguration,
-        array $handlers = [],
+        array $handlers   = [],
         array $processors = [],
-        string $name = 'buckaroo'
+        string $name      = 'buckaroo'
     ) {
         $this->debugConfiguration = $debugConfiguration;
-
         parent::__construct($name, $handlers, $processors);
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * Updated for Monolog 3.x compatibility (Magento 2.4.8+).
+     * Portable implementation that works with Monolog 2 **and** 3.
      */
     public function addRecord(
-        Level|int $level,
+        mixed $level,                            // ← was Level|int
         string|\Stringable $message,
         array $context = [],
-        ?JsonSerializableDateTimeImmutable $datetime = null
+        \DateTimeInterface|null $datetime = null // ← portable type
     ): bool {
         if (! $this->debugConfiguration->canLog($level)) {
             return false;
         }
 
+        // Convert an int to the enum if the project runs on Monolog 3.
+        if (\class_exists(\Monolog\Level::class) && \is_int($level)) {
+            /** @var \Monolog\Level $level */
+            $level = \Monolog\Level::from($level);
+        }
+
         $message = $this->action . (string) $message;
 
-        // Forward to parent with updated signature
         return parent::addRecord($level, $message, $context, $datetime);
     }
 
     /* ---------------------------------------------------------------------
      * Convenience wrappers
      * -------------------------------------------------------------------*/
-
     public function addDebug(string $message): bool
     {
         return $this->addRecord(Logger::DEBUG, $message);
@@ -104,17 +85,11 @@ class SimplifiedLog extends Logger implements BuckarooLoggerInterface
         return $this->addRecord(Logger::WARNING, $message);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function debug($message, array $context = []): void
     {
         $this->addRecord(Logger::DEBUG, (string) $message, $context);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function setAction(string $action): BuckarooLoggerInterface
     {
         $this->action = $action;
