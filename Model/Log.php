@@ -36,7 +36,7 @@ class Log extends AbstractModel
      */
     protected LogInterfaceFactory $logDataFactory;
 
-    /**
+    /** ay
      * @var DataObjectHelper
      */
     protected DataObjectHelper $dataObjectHelper;

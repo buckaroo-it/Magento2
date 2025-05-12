@@ -67,7 +67,7 @@ class Calculate
             return $this->percentage->calculate($quote, $total, $paymentFee);
         }
 
-        return $this->fixedAmount->calculate($quote, $total, (float)$paymentFee);
+        return $this->fixedAmount->calculate($quote, (float)$paymentFee);
     }
 
     public function getPaymentFee(Quote $quote)

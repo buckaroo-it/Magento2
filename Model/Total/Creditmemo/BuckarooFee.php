@@ -32,10 +32,11 @@ class BuckarooFee extends \Magento\Sales\Model\Order\Creditmemo\Total\AbstractTo
      * @var \Magento\Framework\App\RequestInterface
      */
     protected $request;
+
     /**
      * @param RequestInterface $request
      */
-    public function __construct(RequestInterface $request, ResourceConnection $resourceConnection, Log $logger)
+    public function __construct(RequestInterface $request)
     {
         $this->request = $request;
         parent::__construct();
@@ -46,6 +47,9 @@ class BuckarooFee extends \Magento\Sales\Model\Order\Creditmemo\Total\AbstractTo
      *
      * @param  \Magento\Sales\Model\Order\Creditmemo $creditmemo
      * @return $this
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     *
      */
     public function collect(\Magento\Sales\Model\Order\Creditmemo $creditmemo)
     {
