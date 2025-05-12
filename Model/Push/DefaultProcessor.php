@@ -149,7 +149,7 @@ class DefaultProcessor implements PushProcessorInterface
         PaymentGroupTransaction $groupTransaction,
         BuckarooStatusCode $buckarooStatusCode,
         OrderStatusFactory $orderStatusFactory,
-        Account $configAccount,
+        Account $configAccount
     ) {
         $this->pushTransactionType = $pushTransactionType;
         $this->orderRequestService = $orderRequestService;

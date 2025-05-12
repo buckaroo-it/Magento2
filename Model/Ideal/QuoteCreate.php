@@ -40,6 +40,9 @@ use Magento\Store\Model\StoreManagerInterface;
 use Buckaroo\Magento2\Api\Data\Ideal\QuoteCreateResponseInterface;
 use Buckaroo\Magento2\Api\Data\Ideal\QuoteCreateResponseInterfaceFactory;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class QuoteCreate implements IdealQuoteCreateInterface
 {
     protected $responseFactory;
@@ -54,6 +57,9 @@ class QuoteCreate implements IdealQuoteCreateInterface
     protected $quote;
     protected $storeManager;
 
+    /**
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
+     */
     public function __construct(
         QuoteCreateResponseInterfaceFactory $responseFactory,
         QuoteBuilderInterfaceFactory $quoteBuilderInterfaceFactory,
