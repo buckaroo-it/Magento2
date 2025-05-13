@@ -1,5 +1,8 @@
 name: M2 Coding Standard
-on: [push, pull_request]
+
+on:
+  push:
+  pull_request:
 
 jobs:
   phpcs:
@@ -26,6 +29,9 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
+      # ───────────────────────────────────────────────────────────────
+      # PHP & Composer
+      # ───────────────────────────────────────────────────────────────
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -34,27 +40,52 @@ jobs:
 
       - uses: actions/checkout@v3
 
-      - name: Validate composer json
+      - name: Validate composer.json
         run: composer validate
 
       - name: Clear Composer cache
         run: composer clear-cache
 
+      # ───────────────────────────────────────────────────────────────
+      # Magento test installation
+      # ───────────────────────────────────────────────────────────────
       - name: Setup Magento
+        env:
+          COMPOSER_PROCESS_TIMEOUT: 0
+          COMPOSER_NO_INTERACTION: 1
+          COMPOSER_NO_AUDIT: 1
         run: |
+          # Pull‑request number
           pull_number=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
-          url="https://api.github.com/repos/buckaroo-it/Magento2/pulls/$pull_number/files"
-          echo $url
-          curl $url > files_changed
-          cat files_changed | grep '"filename"' | sed 's/\"filename\"\: \"//' | sed 's/\",//' | xargs ls
+          url="https://api.github.com/repos/buckaroo-it/Magento2/pulls/${pull_number}/files"
+          echo "Fetching file list: $url"
+
+          # Save only files still present in the checkout
+          curl -s "$url" \
+            | jq -r '.[] | select(.status != "removed") | .filename' \
+            | tee files_changed
+
+          # Optionally show them (‑r = no run if list is empty)
+          cat files_changed | xargs -r ls -la
+
+          # Magento auth.json
           echo '{"http-basic": {"repo.magento.com": {"username": "${{ secrets.REPO_USERNAME }}","password": "${{ secrets.REPO_PASS }}"}}}' > auth.json
-          composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition=2.4.8 ~/m248
+
+          # Create clean Magento 2.4.8 project
+          composer create-project --repository-url=https://repo.magento.com/ \
+            magento/project-community-edition=2.4.8 ~/m248
+
+          # Copy module under test into the fresh install
           mkdir -p ~/m248/app/code/Buckaroo/Magento2/
           rsync -r --exclude='m248' ./ ~/m248/app/code/Buckaroo/Magento2/
+
           cd ~/m248
           bin/magento module:enable --all
           bin/magento setup:di:compile
 
+      # ───────────────────────────────────────────────────────────────
+      # Static‑analysis tooling
+      # ───────────────────────────────────────────────────────────────
       - name: Install PHPStan
         run: |
           cd ~/m248
@@ -69,4 +100,7 @@ jobs:
       - name: Run PHPStan
         run: |
           cd ~/m248
-          vendor/bin/phpstan analyse --level 1 app/code/Buckaroo/Magento2/ -c dev/tests/static/testsuite/Magento/Test/Php/_files/phpstan/phpstan.neon
+          vendor/bin/phpstan analyse \
+            --level 1 \
+            app/code/Buckaroo/Magento2/ \
+            -c dev/tests/static/testsuite/Magento/Test/Php/_files/phpstan/phpstan.neon

@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
-<csp_whitelist xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Csp:etc/csp_white
-list.xsd">
+<csp_whitelist xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Csp:etc/csp_whitelist.xsd">
     <policies>
         <policy id="script-src">
             <values>
@@ -8,27 +7,51 @@ list.xsd">
                 <value id="buckaroo-checkout" type="host">https://checkout.buckaroo.nl</value>
                 <value id="buckaroo-checkout-test" type="host">https://testcheckout.buckaroo.nl</value>
                 <value id="buckaroo" type="host">https://buckaroo.nl</value>
+                <value id="paypal" type="host">https://www.paypal.com</value>
+                <value id="paypal-sandbox" type="host">https://www.sandbox.paypal.com</value>
                 <value id="applepay" type="host">https://applepay.cdn-apple.com</value>
+                <value id="buckaroo-hostedfields-alpha" type="host">https://hostedfields-externalapi.alpha.buckaroo.aws</value>
+                <value id="buckaroo-hostedfields" type="host">https://hostedfields-externalapi.prod-pci.buckaroo.io</value>
             </values>
         </policy>
         <policy id="style-src">
             <values>
+                <value id="buckaroo-static" type="host">https://static.buckaroo.nl</value>
                 <value id="buckaroo-checkout" type="host">https://checkout.buckaroo.nl</value>
                 <value id="buckaroo-checkout-test" type="host">https://testcheckout.buckaroo.nl</value>
+            </values>
+        </policy>
+        <policy id="frame-src">
+            <values>
+                <value id="paypal-frame" type="host">https://www.paypal.com</value>
+                <value id="paypal-sandbox-frame" type="host">https://www.sandbox.paypal.com</value>
             </values>
         </policy>
         <policy id="img-src">
             <values>
+                <value id="payconiq-img" type="host">https://portal.payconiq.com</value>
                 <value id="buckaroo-static-img" type="host">https://static.buckaroo.nl</value>
+                <value id="paypal-img" type="host">https://www.paypalobjects.com</value>
             </values>
         </policy>
         <policy id="connect-src">
             <values>
+                <value id="payconiq-ws" type="host">wss://websocketservice-externalapi.prod.buckaroo.io</value>
                 <value id="buckaroo-static" type="host">https://static.buckaroo.nl</value>
                 <value id="buckaroo-ws" type="host">wss://websockets.buckaroo.io/</value>
-                <value id="buckaroo-ws-externalapi" type="host">wss://websocketservice-externalapi.prod.buckaroo.io</value>
                 <value id="buckaroo-checkout" type="host">https://checkout.buckaroo.nl</value>
                 <value id="buckaroo-checkout-test" type="host">https://testcheckout.buckaroo.nl</value>
+                <value id="buckaroo-hostedfields-alpha-connect" type="host">https://hostedfields-externalapi.alpha.buckaroo.aws</value>
+                <value id="buckaroo-hostedfields-connect" type="host">https://hostedfields-externalapi.prod-pci.buckaroo.io</value>
+                <value id="applepay-buckaroo" type="host">https://applepay.buckaroo.io</value>
+                <value id="paypal" type="host">https://www.paypal.com</value>
+                <value id="paypal-sandbox" type="host">https://www.sandbox.paypal.com</value>
+            </values>
+        </policy>
+        <policy id="frame-src">
+            <values>
+                <value id="buckaroo-hostedfields-alpha-frame" type="host">https://hostedfields-externalapi.alpha.buckaroo.aws</value>
+                <value id="buckaroo-hostedfields-frame" type="host">https://hostedfields-externalapi.prod-pci.buckaroo.io</value>
             </values>
         </policy>
     </policies>

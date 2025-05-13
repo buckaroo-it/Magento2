@@ -70,7 +70,7 @@
                 <label>(Merchant) guid</label>
                 <comment><![CDATA[Enter your Buckaroo merchant guid.]]></comment>
                 <tooltip>The (Merchant) Guid can be retrieved in Buckaroo Plaza under My Buckaroo > General > Guid.</tooltip>
-                <config_path>buckaroo_magento2/account/merchant_guid</config_path>
+                <config_path>payment/buckaroo_magento2_applepay/merchant_guid</config_path>
             </field>
 
             <field id="available_buttons" translate="label comment" type="multiselect" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">

@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Service;
 
+use Magento\Framework\Exception\InputException;
 use Magento\Quote\Api\Data\AddressInterface;
 use Magento\Quote\Api\ShipmentEstimationInterface;
 use Magento\Quote\Model\Quote;
@@ -43,11 +44,12 @@ class ShippingMethodsService
     }
 
     /**
-     * Get shipping methods by address
+     * Retrieve available shipping methods by the quote's address.
      *
      * @param Quote $quote
      * @param AddressInterface $address
      * @return array
+     * @throws InputException
      */
     public function getAvailableShippingMethods(Quote $quote, AddressInterface $address): array
     {
@@ -57,18 +59,19 @@ class ShippingMethodsService
         );
 
         $shippingMethodsResult = [];
-        if (count($shippingMethods)) {
+        if (count($shippingMethods) > 0) {
             foreach ($shippingMethods as $shippingMethod) {
                 $shippingMethodsResult[] = [
-                    'carrier_title'  => $shippingMethod->getCarrierTitle(),
+                    'carrier_title'  => (string)$shippingMethod->getCarrierTitle(),
                     'price_incl_tax' => round($shippingMethod->getAmount(), 2),
                     'method_code'    => $shippingMethod->getCarrierCode() . '_' . $shippingMethod->getMethodCode(),
-                    'method_title'   => $shippingMethod->getMethodTitle(),
+                    'method_title'   => (string)$shippingMethod->getMethodTitle(),
                 ];
             }
 
-            $shippingMethod = array_shift($shippingMethods);
-            $address->setShippingMethod($shippingMethod->getCarrierCode() . '_' . $shippingMethod->getMethodCode());
+            // Optionally, set the first available shipping method as default.
+            $firstMethod = array_shift($shippingMethods);
+            $address->setShippingMethod($firstMethod->getCarrierCode() . '_' . $firstMethod->getMethodCode());
         }
 
         $address->setCollectShippingRates(true);
@@ -78,11 +81,12 @@ class ShippingMethodsService
     }
 
     /**
-     * Add first found shipping method to the shipping address & recalculate shipping totals
+     * Add the first available shipping method to the address and recalculate rates.
      *
      * @param Address $address
      * @param Quote $quote
      * @return Quote
+     * @throws InputException
      */
     public function addFirstShippingMethod(Address $address, Quote $quote): Quote
     {
@@ -92,9 +96,9 @@ class ShippingMethodsService
                 $quote->getShippingAddress()
             );
 
-            if (count($shippingMethods)) {
-                $shippingMethod = array_shift($shippingMethods);
-                $address->setShippingMethod($shippingMethod->getCarrierCode() . '_' . $shippingMethod->getMethodCode());
+            if (count($shippingMethods) > 0) {
+                $firstMethod = array_shift($shippingMethods);
+                $address->setShippingMethod($firstMethod->getCarrierCode() . '_' . $firstMethod->getMethodCode());
             }
         }
         $address->setCollectShippingRates(true);

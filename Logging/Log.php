@@ -47,9 +47,9 @@ class Log implements BuckarooLoggerInterface
      * -------------------------------------------------------------------*/
     public function addRecord(
         mixed $level,
-        string|\Stringable $message,
+        $message,
         array $context = [],
-        \DateTimeInterface|null $datetime = null
+        \DateTimeInterface $datetime = null
     ): bool {
         if (! $this->debugConfiguration->canLog($level)) {
             return false;

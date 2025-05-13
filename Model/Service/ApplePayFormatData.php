@@ -85,15 +85,18 @@ class ApplePayFormatData implements FormatFormDataInterface
      */
     public function getShippingAddressObject(array $addressData): ShippingAddressRequestInterface
     {
-        /** @var  ShippingAddressRequest $shippingAddressRequest */
         $shippingAddressRequest = $this->shippingAddrRequestFactory->create();
 
         $shippingAddressRequest->setCountryCode(
             isset($addressData['countryCode']) ? strtoupper($addressData['countryCode']) : 'NL'
         );
-        $shippingAddressRequest->setPostalCode($addressData['postalCode']);
-        $shippingAddressRequest->setCity($addressData['locality']);
-        $shippingAddressRequest->setState($addressData['administrativeArea'] ?? 'unknown');
+
+        $shippingAddressRequest->setPostalCode($addressData['postalCode'] ?? '');
+        $shippingAddressRequest->setCity($addressData['locality'] ?? '');
+        $shippingAddressRequest->setState(isset($addressData['administrativeArea']) && $addressData['administrativeArea']
+            ? $addressData['administrativeArea']
+            : 'unknown'
+        );
 
         return $shippingAddressRequest;
     }

@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please email
- * to support@buckaroo.nl, so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,12 +17,12 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-
 namespace Buckaroo\Magento2\Controller\Applepay;
 
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\App\RequestInterface;
+use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Quote\Model\QuoteRepository;
 
@@ -31,7 +31,7 @@ class UpdateShippingMethods extends AbstractApplepay
     /**
      * @var CheckoutSession
      */
-    private $checkoutSession;
+    private CheckoutSession $checkoutSession;
 
     /**
      * @var QuoteRepository
@@ -39,11 +39,11 @@ class UpdateShippingMethods extends AbstractApplepay
     private QuoteRepository $quoteRepository;
 
     /**
-     * @param JsonFactory $resultJsonFactory
+     * @param JsonFactory      $resultJsonFactory
      * @param RequestInterface $request
-     * @param BuckarooLoggerInterface $logger
-     * @param QuoteRepository $quoteRepository
-     * @param CheckoutSession $checkoutSession
+     * @param BuckarooLoggerInterface              $logger
+     * @param QuoteRepository  $quoteRepository
+     * @param CheckoutSession  $checkoutSession
      */
     public function __construct(
         JsonFactory $resultJsonFactory,
@@ -52,20 +52,17 @@ class UpdateShippingMethods extends AbstractApplepay
         QuoteRepository $quoteRepository,
         CheckoutSession $checkoutSession
     ) {
-        parent::__construct(
-            $resultJsonFactory,
-            $request,
-            $logger
-        );
-
-        $this->checkoutSession = $checkoutSession;
-        $this->quoteRepository = $quoteRepository;
+        parent::__construct($resultJsonFactory, $request, $logger);
+        $this->quoteRepository  = $quoteRepository;
+        $this->checkoutSession  = $checkoutSession;
     }
 
     /**
-     * Set Shipping Method
+     * Update the shipping method and recalculate totals.
+     *
+     * @return Json
      */
-    public function execute()
+    public function execute(): Json
     {
         $postValues = $this->getParams();
         $errorMessage = false;
@@ -73,33 +70,44 @@ class UpdateShippingMethods extends AbstractApplepay
 
         if (!empty($postValues) && isset($postValues['wallet'])) {
             try {
-                // Get Cart
+                // Get the current quote.
                 $quote = $this->checkoutSession->getQuote();
 
                 if (!$quote->getIsVirtual()) {
-                    // Set Shipping Method
-                    $quote->getShippingAddress()->setCollectShippingRates(true);
-                    $quote->getShippingAddress()->setShippingMethod($postValues['wallet']['identifier']);
+                    $shippingAddress = $quote->getShippingAddress();
+                    $shippingAddress->setCollectShippingRates(true);
+                    $shippingMethodCode = $postValues['wallet']['identifier'] ?? null;
+                    if (!$shippingMethodCode) {
+                        throw new \Exception("Shipping method identifier is missing.");
+                    }
+                    $shippingAddress->setShippingMethod($shippingMethodCode);
 
-                    // Recalculate Totals after setting new shipping method
+                    // Force recalculation of totals after updating shipping method.
                     $quote->setTotalsCollectedFlag(false);
                     $quote->collectTotals();
-                    $totals = $this->gatherTotals($quote->getShippingAddress(), $quote->getTotals());
 
-                    // Save Cart
+                    // Gather updated totals.
+                    $totals = $this->gatherTotals($shippingAddress, $quote->getTotals());
+
+                    // Save the updated quote.
                     $this->quoteRepository->save($quote);
+
                     $data = [
-                        'shipping_methods' => [
-                            'code' => $postValues['wallet']['identifier']
-                        ],
-                        'totals' => $totals
+                        'shipping_methods' => ['code' => $shippingMethodCode],
+                        'totals'           => $totals
                     ];
                 }
             } catch (\Exception $exception) {
-                $errorMessage = "Setting the new Shipping Method failed.";
+                $errorMessage = __("Setting the new Shipping Method failed: %1", $exception->getMessage());
+                $this->logger->addDebug(sprintf(
+                    '[ApplePay] | [Controller] | [%s:%s] - Update Shipping Methods | ERROR: %s',
+                    __METHOD__,
+                    __LINE__,
+                    $exception->getMessage()
+                ));
             }
         } else {
-            $errorMessage = "The request for updating shipping method is wrong.";
+            $errorMessage = __("The request for updating shipping method is wrong.");
         }
 
         return $this->commonResponse($data, $errorMessage);

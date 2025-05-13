@@ -36,10 +36,11 @@ class Applepay extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_applepay';
 
+    public const XPATH_APPLEPAY_ACTIVE                            = 'active';
     public const XPATH_APPLEPAY_AVAILABLE_BUTTONS                 = 'available_buttons';
     public const XPATH_APPLEPAY_BUTTON_STYLE                      = 'button_style';
     public const XPATH_APPLEPAY_DONT_ASK_BILLING_INFO_IN_CHECKOUT = 'dont_ask_billing_info_in_checkout';
-    public const XPATH_ACCOUNT_MERCHANT_GUID                      = 'buckaroo_magento2/account/merchant_guid';
+    public const XPATH_ACCOUNT_MERCHANT_GUID                      = 'merchant_guid';
 
     /**
      * @var array
@@ -116,11 +117,9 @@ class Applepay extends AbstractConfigProvider
     }
 
     /**
-     * Returns an array of available buttons for the Apple Pay payment method.
-     *
-     * @return false|string[]
+     * @return array
      */
-    public function getAvailableButtons()
+    public function getAvailableButtons(): array
     {
         $availableButtons = $this->getMethodConfigValue(self::XPATH_APPLEPAY_AVAILABLE_BUTTONS);
 
@@ -225,5 +224,11 @@ class Applepay extends AbstractConfigProvider
         );
     }
 
-
+    /**
+     * @throws NoSuchEntityException
+     */
+    public function isApplePayEnabled()
+    {
+        return $this->getMethodConfigValue(self::XPATH_APPLEPAY_ACTIVE, $this->storeManager->getStore());
+    }
 }
