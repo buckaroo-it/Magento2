@@ -105,9 +105,7 @@ class Add
                         ];
                     }
                     // Set the first available shipping method if available
-                    if (!empty($shippingMethodsResult)) {
-                        $this->quoteService->setShippingMethod($shippingMethodsResult[0]['method_code']);
-                    }
+                    $this->quoteService->setShippingMethod($shippingMethodsResult[0]['method_code']);
                 }
             }
 

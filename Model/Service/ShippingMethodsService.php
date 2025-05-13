@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Service;
 
+use Magento\Framework\Exception\InputException;
 use Magento\Quote\Api\Data\AddressInterface;
 use Magento\Quote\Api\ShipmentEstimationInterface;
 use Magento\Quote\Model\Quote;
@@ -62,7 +63,7 @@ class ShippingMethodsService
             foreach ($shippingMethods as $shippingMethod) {
                 $shippingMethodsResult[] = [
                     'carrier_title'  => (string)$shippingMethod->getCarrierTitle(),
-                    'price_incl_tax' => round((float)$shippingMethod->getAmount(), 2),
+                    'price_incl_tax' => round($shippingMethod->getAmount(), 2),
                     'method_code'    => $shippingMethod->getCarrierCode() . '_' . $shippingMethod->getMethodCode(),
                     'method_title'   => (string)$shippingMethod->getMethodTitle(),
                 ];

@@ -17,6 +17,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Controller\Applepay;
 
 use Buckaroo\Magento2\Api\Data\BuckarooResponseDataInterface;
@@ -36,7 +37,6 @@ use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\DataObjectFactory;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Registry;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\QuoteManagement;
 use Magento\Sales\Model\Order;
@@ -44,14 +44,9 @@ use Magento\Sales\Model\Order;
 class SaveOrder extends AbstractApplepay
 {
     /**
-     * @var Registry|null
-     */
-    protected ?Registry $registry;
-
-    /**
      * @var QuoteManagement
      */
-    protected $quoteManagement;
+    protected QuoteManagement $quoteManagement;
 
     /**
      * @var BuckarooResponseDataInterface
@@ -71,7 +66,7 @@ class SaveOrder extends AbstractApplepay
     /**
      * @var ConfigProviderInterface
      */
-    protected $accountConfig;
+    protected ConfigProviderInterface $accountConfig;
 
     /**
      * @var DataObjectFactory
@@ -89,18 +84,18 @@ class SaveOrder extends AbstractApplepay
     private CustomerSession $customerSession;
 
     /**
-     * @param JsonFactory              $resultJsonFactory
-     * @param RequestInterface         $request
-     * @param BuckarooLoggerInterface  $logger
-     * @param QuoteManagement          $quoteManagement
-     * @param CustomerSession          $customerSession
-     * @param DataObjectFactory        $objectFactory
+     * @param JsonFactory $resultJsonFactory
+     * @param RequestInterface $request
+     * @param BuckarooLoggerInterface $logger
+     * @param QuoteManagement $quoteManagement
+     * @param CustomerSession $customerSession
+     * @param DataObjectFactory $objectFactory
      * @param BuckarooResponseDataInterface $buckarooResponseData
-     * @param CheckoutSession          $checkoutSession
-     * @param ConfigProviderFactory    $configProviderFactory
-     * @param QuoteAddressService      $quoteAddressService
-     * @param Registry                 $registry
-     * @param Order                    $order
+     * @param CheckoutSession $checkoutSession
+     * @param ConfigProviderFactory $configProviderFactory
+     * @param QuoteAddressService $quoteAddressService
+     * @param Order $order
+     * @throws Exception
      */
     public function __construct(
         JsonFactory $resultJsonFactory,
@@ -113,7 +108,6 @@ class SaveOrder extends AbstractApplepay
         CheckoutSession $checkoutSession,
         ConfigProviderFactory $configProviderFactory,
         QuoteAddressService $quoteAddressService,
-        Registry $registry,
         Order $order
     ) {
         parent::__construct($resultJsonFactory, $request, $logger);
@@ -124,7 +118,6 @@ class SaveOrder extends AbstractApplepay
         $this->checkoutSession       = $checkoutSession;
         $this->quoteAddressService   = $quoteAddressService;
         $this->accountConfig         = $configProviderFactory->get('account');
-        $this->registry              = $registry;
         $this->order                 = $order;
     }
 
@@ -170,7 +163,7 @@ class SaveOrder extends AbstractApplepay
                 $shippingAddress->setShippingMethod($shippingMethodParam['identifier']);
             }
 
-            // Set billing address.
+            // Set a billing address.
             if (!$this->quoteAddressService->setBillingAddress(
                 $quote,
                 $isPost['payment']['billingContact'],
@@ -284,7 +277,7 @@ class SaveOrder extends AbstractApplepay
     /**
      * Process Buckaroo response and set order and quote data on session.
      *
-     * @param mixed $data
+     * @param $buckarooResponseData
      * @return array
      */
     private function processBuckarooResponse($buckarooResponseData): array
