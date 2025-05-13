@@ -6,6 +6,9 @@
  */
 -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="Buckaroo_Magento2::css/ideal-fast-checkout.css" />
+    </head>
     <body>
         <referenceBlock name="checkout.cart.methods">
             <block class="Buckaroo\Magento2\Block\Catalog\Product\View\Applepay" name="buckaroo_magento2.checkout.cart.applepay"
@@ -13,6 +16,9 @@
             </block>
             <block class="Buckaroo\Magento2\Block\Catalog\Product\View\PaypalExpress" name="buckaroo_magento2.checkout.cart.paypal.express"
                    after="checkout.cart.methods.onepage.bottom" template="Buckaroo_Magento2::checkout/cart/paypal-express.phtml">
+            </block>
+            <block class="Buckaroo\Magento2\Block\Catalog\Product\View\IdealFastCheckout" name="buckaroo_magento2.checkout.cart.ideal.fast.checkout"
+                   after="checkout.cart.methods.onepage.bottom" template="Buckaroo_Magento2::checkout/cart/ideal-fast-checkout.phtml">
             </block>
         </referenceBlock>
         <referenceBlock name="checkout.cart.order.actions">

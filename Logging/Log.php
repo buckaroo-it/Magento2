@@ -47,7 +47,7 @@ class Log implements BuckarooLoggerInterface
      * -------------------------------------------------------------------*/
     public function addRecord(
         mixed $level,
-        string|\Stringable $message,
+        \Stringable |string $message,
         array $context = [],
         \DateTimeInterface|null $datetime = null
     ): bool {

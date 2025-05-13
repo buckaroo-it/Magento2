@@ -36,6 +36,11 @@ class Ideal extends AbstractConfigProvider
     public const XPATH_GATEWAY_SETTINGS = 'gateway_settings';
     public const XPATH_SORTED_ISSUERS   = 'sorted_issuers';
     public const XPATH_IDEAL_PAYMENT_FEE           = 'payment/buckaroo_magento2_ideal/payment_fee';
+
+    // Ideal Fast Checkout
+    const XPATH_IDEAL_FAST_CHECKOUT_ENABLE = 'payment/buckaroo_magento2_ideal/ideal_fast_checkout';
+    const XPATH_IDEAL_FAST_CHECKOUT_BUTTONS = 'payment/buckaroo_magento2_ideal/available_buttons';
+    const XPATH_IDEAL_FAST_CHECKOUT_LOGO = 'payment/buckaroo_magento2_ideal/ideal_logo_colors';
     /**
      * @var IssuersService
      */
@@ -171,5 +176,36 @@ class Ideal extends AbstractConfigProvider
         );
 
         return $paymentFee ?: 0;
+    }
+
+    public function canShowButtonForPage($page, $store = null)
+    {
+        $buttons = $this->getExpressButtons($store);
+        if ($buttons === null) {
+            return false;
+        }
+
+        $pages = explode(",", $buttons);
+        return in_array($page, $pages);
+    }
+
+    public function getExpressButtons($store = null)
+    {
+        return $this->getConfigFromXpath(self::XPATH_IDEAL_FAST_CHECKOUT_BUTTONS, $store);
+    }
+
+    public function isFastCheckoutEnabled($store = null)
+    {
+        return $this->getConfigFromXpath(self::XPATH_IDEAL_FAST_CHECKOUT_ENABLE, $store);
+    }
+
+    public function isIDealEnabled()
+    {
+        return $this->getActive();
+    }
+
+    public function getLogoColor($store = null)
+    {
+        return $this->getConfigFromXpath(self::XPATH_IDEAL_FAST_CHECKOUT_LOGO, $store);
     }
 }
