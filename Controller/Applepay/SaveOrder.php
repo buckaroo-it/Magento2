@@ -26,21 +26,29 @@ use Buckaroo\Magento2\Service\Applepay\SaveOrderProcessor;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\Exception\LocalizedException;
 
 class SaveOrder extends AbstractApplepay
 {
+    /**
+     * @var SaveOrderProcessor
+     */
+    private SaveOrderProcessor $processor;
+
     public function __construct(
         JsonFactory            $resultJsonFactory,
         RequestInterface       $request,
         BuckarooLoggerInterface $logger,
-        private SaveOrderProcessor $processor
+        SaveOrderProcessor $processor
     ) {
         parent::__construct($resultJsonFactory, $request, $logger);
+        $this->processor = $processor;
     }
 
 
     /**
      * @throws ExpressMethodsException
+     * @throws LocalizedException
      */
     public function execute(): Json
     {

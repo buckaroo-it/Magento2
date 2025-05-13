@@ -21,6 +21,9 @@ use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\QuoteManagement;
 use Magento\Sales\Model\Order;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class SaveOrderProcessor
 {
     /** @var QuoteManagement */
