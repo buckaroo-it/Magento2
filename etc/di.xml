@@ -56,7 +56,7 @@
     <preference for="Buckaroo\Magento2\Api\Data\Giftcard\PayRequestInterface" type="Buckaroo\Magento2\Model\Giftcard\Api\PayRequest"/>
     <!-- END Giftcard rest api -->
 
-    <!-- Express payment methods: Applepay and Paypal-Express -->
+    <!-- Express payment methods: Apple Pay, PayPal Express, Ideal Fast Checkout -->
     <preference for="Buckaroo\Magento2\Api\Data\BreakdownItemInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Response\BreakdownItem" />
     <preference for="Buckaroo\Magento2\Api\Data\TotalBreakdownInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Response\TotalBreakdown" />
     <preference for="Buckaroo\Magento2\Api\Data\PaypalExpress\QuoteCreateResponseInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Response\QuoteCreate" />
@@ -69,6 +69,12 @@
     <preference for="Buckaroo\Magento2\Api\PaypalExpressOrderCreateInterface" type="Buckaroo\Magento2\Model\PaypalExpress\OrderCreate" />
     <preference for="Buckaroo\Magento2\Api\Data\PaypalExpress\OrderCreateResponseInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Response\OrderCreate" />
 
+    <!-- Ideal-Fast-Checkout -->
+    <preference for="Buckaroo\Magento2\Model\Ideal\QuoteBuilderInterface" type="Buckaroo\Magento2\Model\Ideal\QuoteBuilder" />
+    <preference for="Buckaroo\Magento2\Api\IdealQuoteCreateInterface" type="Buckaroo\Magento2\Model\Ideal\QuoteCreate" />
+    <preference for="Buckaroo\Magento2\Api\Data\Ideal\ShippingAddressRequestInterface" type="Buckaroo\Magento2\Model\Ideal\Request\ShippingAddress" />
+    <preference for="Buckaroo\Magento2\Api\Data\Ideal\QuoteCreateResponseInterface" type="Buckaroo\Magento2\Model\Ideal\Response\QuoteCreate" />
+    <!-- End Ideal-Fast-Checkout -->
     <!-- END Paypal-Express -->
 <!--    END PREFERENCES-->
 

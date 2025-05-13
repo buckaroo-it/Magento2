@@ -40,6 +40,7 @@ use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\QuoteIdMaskFactory;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Psr\Log\LoggerInterface;
+use Buckaroo\Magento2\Exception;
 
 /**
  * Class GuestPaymentInformationManagement
@@ -172,10 +173,10 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
      * Check if the payment method is allowed for the given billing address country.
      *
      * @param PaymentInterface $paymentMethod
-     * @param AddressInterface $billingAddress
+     * @param AddressInterface|null $billingAddress
      * @throws LocalizedException
      */
-    public function checkSpecificCountry(PaymentInterface $paymentMethod, AddressInterface $billingAddress)
+    public function checkSpecificCountry(PaymentInterface $paymentMethod, ?AddressInterface $billingAddress)
     {
         $paymentMethodCode = $this->normalizePaymentMethodCode($paymentMethod->getMethod());
 

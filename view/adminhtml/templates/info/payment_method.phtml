@@ -81,14 +81,3 @@ if ($method = $block->getPayPerEmailMethod()) { ?>
         <?php endforeach; ?>
     </div>
 <?php endif; ?>
-
-<?php if ($specificPaymentDetails = $block->getSpecificInformation()) : ?>
-    <div class="bk-payment-wrap">
-        <?php foreach ($specificPaymentDetails as $label => $value) : ?>
-            <?= $block->escapeHtml($label) ?>:
-            <?= $block->escapeHtml(implode(' ', $block->getValueAsArray($value))) ?>
-            <br>
-        <?php endforeach; ?>
-    </div>
-<?php endif; ?>
-
