@@ -224,8 +224,11 @@ class Applepay extends AbstractConfigProvider
         );
     }
 
-    public function isApplePayEnabled($store = null)
+    /**
+     * @throws NoSuchEntityException
+     */
+    public function isApplePayEnabled()
     {
-        return $this->getMethodConfigValue(self::XPATH_APPLEPAY_ACTIVE);
+        return $this->getMethodConfigValue(self::XPATH_APPLEPAY_ACTIVE, $this->storeManager->getStore());
     }
 }

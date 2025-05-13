@@ -3993,4 +3993,13 @@
             </argument>
         </arguments>
     </type>
+
+    <type name="Buckaroo\Magento2\Controller\Applepay\SaveOrder">
+        <arguments>
+            <argument name="processor" xsi:type="object">
+                Buckaroo\Magento2\Service\Applepay\SaveOrderProcessor
+            </argument>
+        </arguments>
+    </type>
+
 </config>
