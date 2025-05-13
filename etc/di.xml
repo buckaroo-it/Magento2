@@ -36,7 +36,7 @@
     <preference for="Buckaroo\Magento2\Api\Data\BuckarooRestOrderDataInterface" type="Buckaroo\Magento2\Model\BuckarooRestOrderData"/>
 
     <preference for="Buckaroo\Magento2\Model\Data\BuckarooGiftcardDataInterface" type="Buckaroo\Magento2\Model\Data\BuckarooGiftcardData"/>
-    <preference for="Buckaroo\Magento2\Logging\BuckarooLoggerInterface" type="Buckaroo\Magento2\Logging\SimplifiedLog" />
+    <preference for="Buckaroo\Magento2\Logging\BuckarooLoggerInterface" type="Buckaroo\Magento2\Logging\Log" />
 
     <!-- Magento Rewrite -->
     <preference for="Magento\Sales\Model\ResourceModel\Order\Handler\State" type="Buckaroo\Magento2\Model\ResourceModel\Order\Handler\State" />
@@ -455,15 +455,6 @@
     <type name="Buckaroo\Magento2\Logging\Log">
         <arguments>
             <argument name="name" xsi:type="string">buckaroo_logging</argument>
-            <argument name="handlers"  xsi:type="array">
-                <item name="exception" xsi:type="object">Buckaroo\Magento2\Logging\CriticalHandler</item>
-                <item name="debug" xsi:type="object">Buckaroo\Magento2\Logging\DebugHandler</item>
-            </argument>
-        </arguments>
-    </type>
-    <type name="Buckaroo\Magento2\Logging\SimplifiedLog">
-        <arguments>
-            <argument name="name" xsi:type="string">buckaroo_log</argument>
             <argument name="handlers"  xsi:type="array">
                 <item name="exception" xsi:type="object">Buckaroo\Magento2\Logging\CriticalHandler</item>
                 <item name="debug" xsi:type="object">Buckaroo\Magento2\Logging\DebugHandler</item>
@@ -4008,4 +3999,13 @@
             </argument>
         </arguments>
     </type>
+
+    <type name="Buckaroo\Magento2\Controller\Applepay\SaveOrder">
+        <arguments>
+            <argument name="processor" xsi:type="object">
+                Buckaroo\Magento2\Service\Applepay\SaveOrderProcessor
+            </argument>
+        </arguments>
+    </type>
+
 </config>

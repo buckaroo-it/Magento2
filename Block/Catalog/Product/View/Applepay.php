@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Block\Catalog\Product\View;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay as ApplepayConfig;
 use Magento\Checkout\Model\Cart;
 use Magento\Checkout\Model\CompositeConfigProvider;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
 
@@ -65,38 +66,32 @@ class Applepay extends Template
     }
 
     /**
-     * Can show apple pay button on product page
-     *
+     * @param $page
      * @return bool
      */
-    public function canShowProductButton()
+    public function canShowButton($page): bool
     {
-        if (($this->applepayConfigProvider->getActive() != 0)
-            && ($this->applepayConfigProvider->getAvailableButtons())
-            && (in_array('Product', $this->applepayConfigProvider->getAvailableButtons()))
-        ) {
-            return true;
+        if (!$this->isModuleActive()) {
+            return false;
         }
 
-        return false;
+        $availableButtons = $this->applepayConfigProvider->getAvailableButtons();
+        if (!in_array($page, $availableButtons, true)) {
+            return false;
+        }
+
+        return $this->applepayConfigProvider->isApplePayEnabled();
     }
 
     /**
-     * Can show apple pay button on cart
+     * Check if Buckaroo module is active
      *
      * @return bool
      */
-    public function canShowButton()
+    public function isModuleActive()
     {
-        if ($this->cart->getSummaryQty()
-            && ($this->applepayConfigProvider->getActive() != 0)
-            && ($this->applepayConfigProvider->getAvailableButtons())
-            && (in_array('Cart', $this->applepayConfigProvider->getAvailableButtons()))
-        ) {
-            return true;
-        }
-
-        return false;
+        $status = $this->applepayConfigProvider->getActive();
+        return $status == 1 || $status == 2;
     }
 
     /**
@@ -106,17 +101,13 @@ class Applepay extends Template
      */
     public function getCheckoutConfig()
     {
-        if (!$this->canShowButton()) {
-            return null;
-        }
-
         return json_encode($this->compositeConfigProvider->getConfig(), JSON_HEX_TAG);
     }
 
     /**
-     * Get apple pay config
+     * Get Apple Pay-specific config as JSON.
      *
-     * @return false|string
+     * @return string
      */
     public function getApplepayConfig()
     {

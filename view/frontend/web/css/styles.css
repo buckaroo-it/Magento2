@@ -12,6 +12,10 @@
     align-items: center;
 }
 
+.buckaroo-box-to-cart{
+    text-align: center;
+}
+
 .bk-mode-and-img {
     display: flex;
     align-items: stretch;
