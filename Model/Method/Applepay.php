@@ -99,11 +99,19 @@ class Applepay extends AbstractMethod
             'ContinueOnIncomplete' => '1',
         ];
 
+        $services = [
+            'Name'             => 'applepay',
+            'Action'           => 'Pay',
+            'Version'          => 2,
+            'RequestParameter' => [
+                'ContinueOnIncomplete' => '1',
+            ],
+        ];
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
         $transactionBuilder->setOrder($payment->getOrder())
-            ->setCustomVars($customVars)
+            ->setCustomVars($services)
             ->setMethod('TransactionRequest');
 
         return $transactionBuilder;
