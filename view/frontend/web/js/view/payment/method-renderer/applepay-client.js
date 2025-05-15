@@ -18,6 +18,20 @@
  */
 /*browser:true*/
 /*global define*/
+
+require.config({
+    map: {
+        '*': {
+            "buckaroo/applepay/catalog-cart-view": "Buckaroo_Magento2/js/view/checkout/applepay/catalog-cart-view",
+            "buckaroo/applepay/catalog-product-view": "Buckaroo_Magento2/js/view/checkout/applepay/catalog-product-view",
+            "buckaroo/applepay/pay": "Buckaroo_Magento2/js/view/checkout/applepay/pay",
+            "buckaroo/applepay/billing-handler": "Buckaroo_Magento2/js/view/checkout/applepay/handlers/billing-handler",
+            "buckaroo/applepay/shipping-handler": "Buckaroo_Magento2/js/view/checkout/applepay/handlers/shipping-handler",
+            "buckaroo/applepay/order-handler": "Buckaroo_Magento2/js/view/checkout/applepay/handlers/order-handler"
+        }
+    }
+});
+
 define(
     [
         'jquery',
