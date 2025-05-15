@@ -65,34 +65,45 @@ class Applepay extends AbstractMethod
     {
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
 
-        $requestParameters = [
-            [
-                '_'    => $payment->getAdditionalInformation('applepayTransaction'),
-                'Name' => 'PaymentData',
-            ]
-        ];
+//        $requestParameters = [
+//            [
+//                '_'    => $payment->getAdditionalInformation('applepayTransaction'),
+//                'Name' => 'PaymentData',
+//            ]
+//        ];
 
-        $billingContact = $payment->getAdditionalInformation('billingContact') ?
-            json_decode($payment->getAdditionalInformation('billingContact')) : null;
-        if ($billingContact && !empty($billingContact->givenName) && !empty($billingContact->familyName)) {
-            $requestParameters[] = [
-                '_'    => $billingContact->givenName . ' ' . $billingContact->familyName,
-                'Name' => 'CustomerCardName',
-            ];
-        }
+//        $billingContact = $payment->getAdditionalInformation('billingContact') ?
+//            json_decode($payment->getAdditionalInformation('billingContact')) : null;
+//        if ($billingContact && !empty($billingContact->givenName) && !empty($billingContact->familyName)) {
+//            $requestParameters[] = [
+//                '_'    => $billingContact->givenName . ' ' . $billingContact->familyName,
+//                'Name' => 'CustomerCardName',
+//            ];
+//        }
+//
+//        $services = [
+//            'Name'             => 'applepay',
+//            'Action'           => 'Pay',
+//            'Version'          => 0,
+//            'RequestParameter' => $requestParameters,
+//        ];
 
-        $services = [
-            'Name'             => 'applepay',
-            'Action'           => 'Pay',
-            'Version'          => 0,
-            'RequestParameter' => $requestParameters,
+//        /**
+//         * @noinspection PhpUndefinedMethodInspection
+//         */
+//        $transactionBuilder->setOrder($payment->getOrder())
+//            ->setServices($services)
+//            ->setMethod('TransactionRequest');
+
+        $customVars = [
+            'ContinueOnIncomplete' => '1',
         ];
 
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
         $transactionBuilder->setOrder($payment->getOrder())
-            ->setServices($services)
+            ->setCustomVars($customVars)
             ->setMethod('TransactionRequest');
 
         return $transactionBuilder;
