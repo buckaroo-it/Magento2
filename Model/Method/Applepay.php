@@ -106,7 +106,7 @@ class Applepay extends AbstractMethod
         $services = [
             'Name'             => 'applepay',
             'Action'           => 'Pay',
-            'Version'          => 2,
+            'Version'          => 0,
             'RequestParameter' => $requestParameters,
         ];
         /**
