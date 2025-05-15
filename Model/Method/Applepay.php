@@ -111,7 +111,7 @@ class Applepay extends AbstractMethod
          * @noinspection PhpUndefinedMethodInspection
          */
         $transactionBuilder->setOrder($payment->getOrder())
-            ->setCustomVars($services)
+            ->setServices($services)
             ->setMethod('TransactionRequest');
 
         return $transactionBuilder;
