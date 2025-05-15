@@ -111,8 +111,9 @@ class Applepay extends AbstractMethod
          */
         $transactionBuilder->setOrder($payment->getOrder())
             ->setServices($services)
-            ->setCustomVars($customVars)
             ->setMethod('TransactionRequest');
+
+        $transactionBuilder->setCustomVars(['ContinueOnIncomplete' => 'RedirectToHTML']);
 
         return $transactionBuilder;
     }
