@@ -65,55 +65,54 @@ class Applepay extends AbstractMethod
     {
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
 
-//        $requestParameters = [
-//            [
-//                '_'    => $payment->getAdditionalInformation('applepayTransaction'),
-//                'Name' => 'PaymentData',
-//            ]
-//        ];
+        $integrationMode = $this->scopeConfig->getValue(
+            'payment/buckaroo_magento2_applepay/integration_mode',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
 
-//        $billingContact = $payment->getAdditionalInformation('billingContact') ?
-//            json_decode($payment->getAdditionalInformation('billingContact')) : null;
-//        if ($billingContact && !empty($billingContact->givenName) && !empty($billingContact->familyName)) {
-//            $requestParameters[] = [
-//                '_'    => $billingContact->givenName . ' ' . $billingContact->familyName,
-//                'Name' => 'CustomerCardName',
-//            ];
-//        }
-//
-//        $services = [
-//            'Name'             => 'applepay',
-//            'Action'           => 'Pay',
-//            'Version'          => 0,
-//            'RequestParameter' => $requestParameters,
-//        ];
+        if ($integrationMode) {
+            // Client Side SDK logic
+            $requestParameters = [
+                [
+                    '_'    => $payment->getAdditionalInformation('applepayTransaction'),
+                    'Name' => 'PaymentData',
+                ]
+            ];
 
-//        /**
-//         * @noinspection PhpUndefinedMethodInspection
-//         */
-//        $transactionBuilder->setOrder($payment->getOrder())
-//            ->setServices($services)
-//            ->setMethod('TransactionRequest');
+            $billingContact = $payment->getAdditionalInformation('billingContact') ?
+                json_decode($payment->getAdditionalInformation('billingContact')) : null;
+            if ($billingContact && !empty($billingContact->givenName) && !empty($billingContact->familyName)) {
+                $requestParameters[] = [
+                    '_'    => $billingContact->givenName . ' ' . $billingContact->familyName,
+                    'Name' => 'CustomerCardName',
+                ];
+            }
 
-        $customVars = [
-            'ContinueOnIncomplete' => '1',
-        ];
+            $services = [
+                'Name'             => 'applepay',
+                'Action'           => 'Pay',
+                'Version'          => 0,
+                'RequestParameter' => $requestParameters,
+            ];
 
+            $transactionBuilder->setOrder($payment->getOrder())
+                ->setServices($services)
+                ->setMethod('TransactionRequest');
 
-        $services = [
-            'Name'             => 'applepay',
-            'Action'           => 'Pay',
-            'Version'          => 0,
-            'RequestParameter' => [],
-        ];
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $transactionBuilder->setOrder($payment->getOrder())
-            ->setServices($services)
-            ->setMethod('TransactionRequest');
+        } else {
+            // RedirectToHTML logic
+            $services = [
+                'Name'             => 'applepay',
+                'Action'           => 'Pay',
+                'Version'          => 0,
+                'RequestParameter' => [],
+            ];
 
-        $transactionBuilder->setCustomVars(['ContinueOnIncomplete' => 'RedirectToHTML']);
+            $transactionBuilder->setOrder($payment->getOrder())
+                ->setServices($services)
+                ->setMethod('TransactionRequest')
+                ->setCustomVars(['ContinueOnIncomplete' => 'RedirectToHTML']);
+        }
 
         return $transactionBuilder;
     }

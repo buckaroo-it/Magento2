@@ -125,6 +125,10 @@ class Applepay extends AbstractConfigProvider
                         'dontAskBillingInfoInCheckout' => (int) $this->scopeConfig->getValue(
                             static::XPATH_APPLEPAY_DONT_ASK_BILLING_INFO_IN_CHECKOUT,
                             ScopeInterface::SCOPE_STORE
+                        ),
+                        'integrationMode' => (bool) $this->scopeConfig->getValue(
+                            'payment/buckaroo_magento2_applepay/integration_mode',
+                            ScopeInterface::SCOPE_STORE
                         )
                     ],
                 ],
