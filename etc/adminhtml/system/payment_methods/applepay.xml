@@ -35,7 +35,6 @@
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
             <frontend_class>admin__field-small</frontend_class>
             <comment>Yes = Client Side SDK, No = RedirectToHTML</comment>
-            <default>1</default>
         </field>
 
         <field id="available_buttons" translate="label comment" type="multiselect" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="1">
