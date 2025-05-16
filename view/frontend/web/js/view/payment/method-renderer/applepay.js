@@ -9,5 +9,5 @@ define([
     var mode = window.checkoutConfig.payment.buckaroo.applepay.integrationMode;
 
     // Extend and return the appropriate renderer dynamically
-    return mode ? RedirectComponent : ClientComponent;
+    return mode ? ClientComponent : RedirectComponent;
 });
