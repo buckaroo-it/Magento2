@@ -65,10 +65,12 @@ class Applepay extends AbstractMethod
     {
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
 
-        $integrationMode = (bool) $this->_scopeConfig->getValue(
-            'payment/buckaroo_magento2_applepay/integration_mode',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
+        /**
+         * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay $applePayConfig
+         */
+        $applePayConfig = $this->configProviderMethodFactory->get($this->_code);
+
+        $integrationMode = $applePayConfig->getIntegrationMode();
 
         if ($integrationMode) {
             // Client Side SDK logic
