@@ -184,7 +184,7 @@ class Applepay extends AbstractConfigProvider
     {
         $integrationMode = $this->getConfigFromXpath(self::XPATH_APPLEPAY_INTEGRATION_MODE, $store);
 
-        if ($integrationMode === 1) {
+        if ($integrationMode == 1) {
             return true;
         }
 
