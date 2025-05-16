@@ -41,6 +41,8 @@ class Applepay extends AbstractConfigProvider
     const XPATH_APPLEPAY_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_applepay/available_in_backend';
     const XPATH_APPLEPAY_AVAILABLE_BUTTONS     = 'payment/buckaroo_magento2_applepay/available_buttons';
     const XPATH_APPLEPAY_BUTTON_STYLE     = 'payment/buckaroo_magento2_applepay/button_style';
+    const XPATH_APPLEPAY_INTEGRATION_MODE = 'payment/buckaroo_magento2_applepay/integration_mode';
+
     const XPATH_APPLEPAY_DONT_ASK_BILLING_INFO_IN_CHECKOUT = 'payment/'.
         'buckaroo_magento2_applepay/dont_ask_billing_info_in_checkout';
 
@@ -125,7 +127,8 @@ class Applepay extends AbstractConfigProvider
                         'dontAskBillingInfoInCheckout' => (int) $this->scopeConfig->getValue(
                             static::XPATH_APPLEPAY_DONT_ASK_BILLING_INFO_IN_CHECKOUT,
                             ScopeInterface::SCOPE_STORE
-                        )
+                        ),
+                        'integrationMode' => $this->getIntegrationMode($store),
                     ],
                 ],
             ],
@@ -175,5 +178,16 @@ class Applepay extends AbstractConfigProvider
     public function isApplePayEnabled($store = null)
     {
         return $this->getConfigFromXpath(self::XPATH_APPLEPAY_ACTIVE, $store);
+    }
+
+    public function getIntegrationMode($store = null): bool
+    {
+        $integrationMode = $this->getConfigFromXpath(self::XPATH_APPLEPAY_INTEGRATION_MODE, $store);
+
+        if ($integrationMode == 1) {
+            return true;
+        }
+
+        return false;
     }
 }

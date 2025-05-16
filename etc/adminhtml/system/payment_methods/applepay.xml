@@ -30,12 +30,22 @@
             <config_path>payment/buckaroo_magento2_applepay/active</config_path>
         </field>
 
+        <field id="integration_mode" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Apple Pay Integration Mode</label>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <frontend_class>admin__field-small</frontend_class>
+            <comment>Yes = Client Side SDK, No = RedirectToHTML</comment>
+        </field>
+
         <field id="available_buttons" translate="label comment" type="multiselect" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Enable or disable applepay buttons</label>
             <comment><![CDATA[Select which buttons you want to be active.]]></comment>
             <source_model>Buckaroo\Magento2\Model\Config\Source\AvailableButtons</source_model>
             <config_path>payment/buckaroo_magento2_applepay/available_buttons</config_path>
             <can_be_empty>1</can_be_empty>
+            <depends>
+                <field id="integration_mode">1</field>
+            </depends>
         </field>
 
         <field id="title" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
