@@ -183,7 +183,7 @@ class Applepay extends AbstractConfigProvider
         return $this->getConfigFromXpath(self::XPATH_APPLEPAY_ACTIVE, $store);
     }
 
-    public function applePayIntegrationMode($store = null)
+    public function getIntegrationMode($store = null)
     {
         return $this->getConfigFromXpath(self::XPATH_APPLEPAY_INTEGRATION_MODE, $store);
     }
