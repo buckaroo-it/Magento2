@@ -70,7 +70,7 @@ class Applepay extends AbstractMethod
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
 
-        if ($integrationMode) {
+        if (!$integrationMode) {
             // Client Side SDK logic
             $requestParameters = [
                 [
