@@ -35,6 +35,7 @@
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
             <frontend_class>admin__field-small</frontend_class>
             <comment>Yes = Client Side SDK, No = RedirectToHTML</comment>
+            <config_path>payment/buckaroo_magento2_applepay/integration_mode</config_path>
         </field>
 
         <field id="available_buttons" translate="label comment" type="multiselect" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="1">
