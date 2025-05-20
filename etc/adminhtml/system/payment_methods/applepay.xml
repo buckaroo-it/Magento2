@@ -31,10 +31,10 @@
         </field>
 
         <field id="integration_mode" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Apple Pay Integration Mode</label>
+            <label>Apple Pay checkout type</label>
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
             <frontend_class>admin__field-small</frontend_class>
-            <comment>Yes = Client Side SDK, No = RedirectToHTML</comment>
+            <comment>Yes = Inline (Integrated in checkout), No = Redirect (Buckaroo Hosted Payment Page)</comment>
             <config_path>payment/buckaroo_magento2_applepay/integration_mode</config_path>
         </field>
 
