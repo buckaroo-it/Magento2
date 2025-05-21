@@ -25,7 +25,6 @@ use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\PaymentFee;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard;
 use Buckaroo\Magento2\Test\BaseTest;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcards;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
 
 class CreditcardsTest extends BaseTest
@@ -79,7 +78,7 @@ class CreditcardsTest extends BaseTest
         $paymentFeeMock = $this->getFakeMock(PaymentFee::class)->setMethods(['getBuckarooPaymentFeeLabel'])->getMock();
         $paymentFeeMock->method('getBuckarooPaymentFeeLabel')->with(Creditcards::CODE)->willReturn('Fee');
 
-        $creditcardMock = $this->getFakeMock(Creditcard::class)->setMethods(['getIssuers'])->getMock();
+        $creditcardMock = $this->getFakeMock(Creditcards::class)->setMethods(['getIssuers'])->getMock();
         $creditcardMock->expects($this->once())->method('getIssuers')->willReturn([]);
 
         $instance = $this->getInstance([

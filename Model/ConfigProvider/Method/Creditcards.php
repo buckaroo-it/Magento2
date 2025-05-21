@@ -30,13 +30,44 @@ use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 class Creditcards extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_creditcards';
-
-    public const XPATH_CREDITCARDS_ALLOWED_ISSUERS = 'allowed_creditcards';
+    public const XPATH_CREDITCARDS_ALLOWED_ISSUERS = 'payment/buckaroo_magento2_creditcards/allowed_issuers';
     public const XPATH_USE_CARD_DESIGN             = 'card_design';
     public const XPATH_CREDITCARDS_PAYMENT_FEE = 'payment/buckaroo_magento2_creditcards/payment_fee';
 
+    /**
+     * Creditcard service codes.
+     */
+    public const CREDITCARD_SERVICE_CODE_MASTERCARD    = 'MasterCard';
+    public const CREDITCARD_SERVICE_CODE_VISA          = 'Visa';
+    public const CREDITCARD_SERVICE_CODE_AMEX          = 'Amex';
+    public const CREDITCARD_SERVICE_CODE_MAESTRO       = 'Maestro';
 
-    protected array $issuers;
+    public const XPATH_CREDITCARDS_HOSTED_FIELDS_CLIENT_ID = 'payment/buckaroo_magento2_creditcards/hosted_fields_client_id';
+    public const XPATH_CREDITCARDS_HOSTED_FIELDS_CLIENT_SECRET = 'payment/buckaroo_magento2_creditcards/hosted_fields_client_secret';
+
+
+    protected array $issuers = [
+        [
+            'name' => 'American Express',
+            'code' => self::CREDITCARD_SERVICE_CODE_AMEX,
+            'sort' => 0
+        ],
+        [
+            'name' => 'Maestro',
+            'code' => self::CREDITCARD_SERVICE_CODE_MAESTRO,
+            'sort' => 0
+        ],
+        [
+            'name' => 'MasterCard',
+            'code' => self::CREDITCARD_SERVICE_CODE_MASTERCARD,
+            'sort' => 0
+        ],
+        [
+            'name' => 'VISA',
+            'code' => self::CREDITCARD_SERVICE_CODE_VISA,
+            'sort' => 0
+        ]
+    ];
 
     /**
      * Creditcards constructor.
@@ -46,19 +77,16 @@ class Creditcards extends AbstractConfigProvider
      * @param AllowedCurrencies $allowedCurrencies
      * @param PaymentFee $paymentFeeHelper
      * @param LogoService $logoService
-     * @param Creditcard $creditcardConfigProvider
      */
     public function __construct(
         Repository $assetRepo,
         ScopeConfigInterface $scopeConfig,
         AllowedCurrencies $allowedCurrencies,
         PaymentFee $paymentFeeHelper,
-        LogoService $logoService,
-        Creditcard $creditcardConfigProvider
+        LogoService $logoService
     ) {
         parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper, $logoService);
 
-        $this->issuers = $creditcardConfigProvider->getIssuers();
     }
 
     /**
@@ -77,6 +105,12 @@ class Creditcards extends AbstractConfigProvider
             'defaultCardImage'  => $this->getDefaultCardImage(),
         ]);
     }
+
+    public function getIssuers(): array
+    {
+        return $this->issuers;
+    }
+
 
     /**
      * Add the active flag to the creditcard list. This is used in the checkout process.
@@ -141,5 +175,35 @@ class Creditcards extends AbstractConfigProvider
         );
 
         return $paymentFee ?: 0;
+    }
+
+    public function getHostedFieldsClientId()
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_HOSTED_FIELDS_CLIENT_ID,
+            ScopeInterface::SCOPE_STORE
+        );
+    }
+
+    public function getHostedFieldsClientSecret()
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_HOSTED_FIELDS_CLIENT_SECRET,
+            ScopeInterface::SCOPE_STORE
+        );
+    }
+
+    public function getSupportedServices(): array
+    {
+        $issuers = $this->issuers;
+        $supportedServices = [];
+
+        foreach ($issuers as $issuer) {
+            if ($issuer['active']) {
+                $supportedServices[] = $issuer['code'];
+            }
+        }
+
+        return $this->issuers;
     }
 }

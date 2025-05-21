@@ -19,3 +19,7 @@
 "Fr","Ve"
 "Sa","Sa"
 "Su","Di"
+"Buckaroo Hosted Fields Client ID:","Buckaroo Hosted Fields Client ID:"
+"Buckaroo Hosted Fields Client Secret:","Buckaroo Hosted Fields Client Secret:"
+"Enter your Buckaroo Hosted Fields Client ID, obtainable from the Buckaroo Plaza at → Settings → <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank">Token registration</a>.","Entrez votre Buckaroo Hosted Fields Client ID, disponible depuis le Buckaroo Plaza dans → Paramètres → <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank">Enregistrement du jeton</a>."
+"Enter your Buckaroo Hosted Fields Client Secret, obtainable from the Buckaroo Plaza at → Settings → <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank">Token registration</a>.","Entrez votre Buckaroo Hosted Fields Client Secret, disponible depuis le Buckaroo Plaza dans → Paramètres → <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank">Enregistrement du jeton</a>."
