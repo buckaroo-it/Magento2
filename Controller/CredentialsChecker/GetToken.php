@@ -1,4 +1,5 @@
 <?php
+
 namespace Buckaroo\Magento2\Controller\CredentialsChecker;
 
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcards;
@@ -20,14 +21,15 @@ class GetToken extends Action
     protected $curlClient;
 
     public function __construct(
-        Context $context,
-        JsonFactory $resultJsonFactory,
-        LoggerInterface $logger,
-        Creditcards $configProviderCreditcard,
-        EncryptorInterface $encryptor,
+        Context               $context,
+        JsonFactory           $resultJsonFactory,
+        LoggerInterface       $logger,
+        Creditcards           $configProviderCreditcard,
+        EncryptorInterface    $encryptor,
         StoreManagerInterface $storeManager,
-        Curl $curlClient
-    ) {
+        Curl                  $curlClient
+    )
+    {
         $this->resultJsonFactory = $resultJsonFactory;
         $this->logger = $logger;
         $this->configProviderCreditcard = $configProviderCreditcard;
@@ -40,7 +42,8 @@ class GetToken extends Action
     /**
      * Send POST request using Magento's Curl client.
      */
-    private function sendPostRequest($url, $username, $password, $postData) {
+    private function sendPostRequest($url, $username, $password, $postData)
+    {
         try {
             // Set Basic Auth credentials without base64_encode()
             $this->curlClient->setCredentials($username, $password);
@@ -147,7 +150,6 @@ class GetToken extends Action
             }
 
             // Handle error response
-            $message = isset($responseArray['message']) ? $responseArray['message'] : 'Unknown error occurred';
             return $result->setHttpResponseCode(400)->setData([
                 'error' => true,
                 'message' => 'Error fetching token.'
