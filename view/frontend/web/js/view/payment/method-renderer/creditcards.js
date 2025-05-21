@@ -24,8 +24,7 @@ define(
         'buckaroo/checkout/payment/default',
         'Magento_Checkout/js/model/payment/additional-validators',
         'Buckaroo_Magento2/js/action/place-order',
-        'ko',
-        'BuckarooClientSideEncryption'
+        'ko'
     ],
     function (
         $,
@@ -57,7 +56,7 @@ define(
                 return BuckarooClientSideEncryption.V001.validateCardholderName(value);
         },
             $.mage.__('Please enter a valid card holder name.'));
-        
+
         $.validator.addMethod('bkValidateYear', function (value) {
             if (value.length === 0) {
                 return false;
@@ -154,7 +153,7 @@ define(
                     this.issuerImage = ko.computed(
                         function () {
                             var cardLogo = this.buckaroo.defaultCardImage;
-                            
+
                             var issuer = this.buckaroo.creditcards.find(o => o.code === this.cardIssuer());
                             if (issuer) {
                                 cardLogo = issuer.img;
@@ -181,7 +180,7 @@ define(
                         this.encryptCardData().then(function() {
                             console.log('here');
                             placeOrder = placeOrderAction(self.getData(), self.redirectAfterPlaceOrder, self.messageContainer);
-    
+
                             $.when(placeOrder).fail(
                                 function () {
                                     self.isPlaceOrderActionAllowed(true);
@@ -193,7 +192,7 @@ define(
                     return false;
                 },
 
-                
+
                 validateCardNumber(data, event) {
                     this.validateField(data, event);
 
@@ -201,7 +200,7 @@ define(
                     this.cardIssuer(
                         this.determineIssuer(data.cardNumber())
                     )
-                    
+
                     //validate the cvc if exists
                     if (this.cvc().length) {
                         $('#buckaroo_magento2_creditcards_cvc').valid();

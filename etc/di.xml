@@ -3333,7 +3333,7 @@
                 <item name="order" xsi:type="string">CreditcardEncryptedOrderCommand</item>
                 <item name="authorize" xsi:type="string">CreditcardEncryptedAuthorizeCommand</item>
                 <item name="capture" xsi:type="string">CreditcardEncryptedCaptureCommand</item>
-                <item name="refund" xsi:type="string">CreditcardRefundCommand</item>
+                <item name="refund" xsi:type="string">BuckarooRefundCommand</item>
             </argument>
         </arguments>
     </virtualType>
