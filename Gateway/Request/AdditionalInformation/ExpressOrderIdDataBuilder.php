@@ -35,6 +35,7 @@ class ExpressOrderIdDataBuilder extends AbstractDataBuilder
 
         $expressOrderId = $paymentDO->getPayment()->getAdditionalInformation('express_order_id');
         if ($expressOrderId !== null) {
+            $paymentDO->getPayment()->setAdditionalInformation('skip_push', 1);
             return ['payPalOrderId' => $expressOrderId];
         }
 
