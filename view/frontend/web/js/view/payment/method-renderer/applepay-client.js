@@ -191,6 +191,9 @@ define(
                  */
                 formatTransactionResponse: function (response) {
                     if (null === response || 'undefined' === typeof response || !response) {
+                        if (window.console && window.console.error) {
+                            console.error('[Buckaroo Apple Pay] formatTransactionResponse: Invalid response data', response);
+                        }
                         return null;
                     }
 
@@ -198,6 +201,9 @@ define(
                         var paymentData = response.token.paymentData;
 
                         if (!paymentData || !paymentData.data || !paymentData.signature) {
+                            if (window.console && window.console.error) {
+                                console.error('[Buckaroo Apple Pay] Missing required payment data fields', paymentData);
+                            }
                             return null;
                         }
 
@@ -216,6 +222,9 @@ define(
 
                         return JSON.stringify(formattedData);
                     } catch (error) {
+                        if (window.console && window.console.error) {
+                            console.error('[Buckaroo Apple Pay] Error formatting transaction response:', error);
+                        }
                         return null;
                     }
                 }

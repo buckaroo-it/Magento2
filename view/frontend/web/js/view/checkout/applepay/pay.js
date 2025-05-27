@@ -449,6 +449,9 @@ define(
                 var transactionData = this.formatTransactionResponse(payment);
 
                 if (!transactionData || transactionData === 'null') {
+                    if (window.console && window.console.error) {
+                        console.error('[Buckaroo Apple Pay] Invalid transaction data in getData:', transactionData);
+                    }
                     throw new Error('Apple Pay transaction data is invalid. Please try again.');
                 }
 
@@ -465,17 +468,26 @@ define(
 
             formatTransactionResponse: function (response) {
                 if (response === null || typeof response === 'undefined') {
+                    if (window.console && window.console.error) {
+                        console.error('[Buckaroo Apple Pay] formatTransactionResponse: Invalid response data', response);
+                    }
                     return null;
                 }
 
                 try {
                     if (!response.token || !response.token.paymentData) {
+                        if (window.console && window.console.error) {
+                            console.error('[Buckaroo Apple Pay] Missing token or paymentData', response);
+                        }
                         return null;
                     }
 
                     var paymentData = response.token.paymentData;
 
                     if (!paymentData.data || !paymentData.signature || !paymentData.header) {
+                        if (window.console && window.console.error) {
+                            console.error('[Buckaroo Apple Pay] Missing required paymentData fields', paymentData);
+                        }
                         return null;
                     }
 
@@ -494,6 +506,9 @@ define(
 
                     return JSON.stringify(formattedData);
                 } catch (error) {
+                    if (window.console && window.console.error) {
+                        console.error('[Buckaroo Apple Pay] Error formatting transaction response:', error);
+                    }
                     return null;
                 }
             },
