@@ -19,6 +19,8 @@
  */
 namespace Buckaroo\Magento2\Model\Method;
 
+use Buckaroo\Magento2\Exception;
+
 class Applepay extends AbstractMethod
 {
     /** Payment Code */
@@ -43,9 +45,23 @@ class Applepay extends AbstractMethod
         $data = $this->assignDataConvertToArray($data);
 
         if (isset($data['additional_data']['applepayTransaction'])) {
-            $applepayEncoded = base64_encode($data['additional_data']['applepayTransaction']);
+            $transactionData = $data['additional_data']['applepayTransaction'];
 
+            $this->validateApplePayTransactionData($transactionData);
+
+            $applepayEncoded = base64_encode($transactionData);
             $this->getInfoInstance()->setAdditionalInformation('applepayTransaction', $applepayEncoded);
+
+            $this->logger2->addDebug(sprintf(
+                '[Apple Pay] Transaction data assigned for payment. Length: %d characters',
+                strlen($transactionData)
+            ));
+        } else {
+            $this->logger2->addError('[Apple Pay] Missing applepayTransaction data in payment assignment - preventing order creation');
+
+            throw new Exception(
+                __('Apple Pay transaction data is missing. Please try the payment again.')
+            );
         }
 
         if (!empty($data['additional_data']['billingContact'])) {
@@ -56,6 +72,53 @@ class Applepay extends AbstractMethod
         }
 
         return $this;
+    }
+
+    /**
+     * Validate Apple Pay transaction data before order creation
+     *
+     * @param string $transactionData
+     * @throws Exception
+     */
+    private function validateApplePayTransactionData($transactionData)
+    {
+        if (empty($transactionData) || $transactionData === 'null' || trim($transactionData) === '') {
+            $this->logger2->addError(sprintf(
+                '[Apple Pay] Invalid applepayTransaction data before order creation: %s',
+                var_export($transactionData, true)
+            ));
+
+            throw new Exception(
+                __('Apple Pay transaction data is invalid. Please try the payment again.')
+            );
+        }
+
+        $decodedJson = json_decode($transactionData, true);
+        if (json_last_error() !== JSON_ERROR_NONE || empty($decodedJson['paymentData'])) {
+            $this->logger2->addError(sprintf(
+                '[Apple Pay] Invalid JSON in applepayTransaction before order creation. Error: %s, Data: %s',
+                json_last_error_msg(),
+                substr($transactionData, 0, 100) . '...'
+            ));
+
+            throw new Exception(
+                __('Apple Pay transaction data format is invalid. Please try the payment again.')
+            );
+        }
+
+        $paymentData = $decodedJson['paymentData'];
+        if (empty($paymentData['data']) || empty($paymentData['signature']) || empty($paymentData['header'])) {
+            $this->logger2->addError('[Apple Pay] Missing required fields in paymentData before order creation');
+
+            throw new Exception(
+                __('Apple Pay transaction data is incomplete. Please try the payment again.')
+            );
+        }
+
+        $this->logger2->addDebug(sprintf(
+            '[Apple Pay] Valid applepayTransaction data validated before order creation. Length: %d characters',
+            strlen($transactionData)
+        ));
     }
 
     /**
@@ -74,9 +137,17 @@ class Applepay extends AbstractMethod
 
         if ($integrationMode) {
             // Client Side SDK logic
+            $applepayTransactionData = $payment->getAdditionalInformation('applepayTransaction');
+
+            if (empty($applepayTransactionData)) {
+                throw new Exception(
+                    __('Apple Pay transaction data is missing. Please try again.')
+                );
+            }
+
             $requestParameters = [
                 [
-                    '_'    => $payment->getAdditionalInformation('applepayTransaction'),
+                    '_'    => $applepayTransactionData,
                     'Name' => 'PaymentData',
                 ]
             ];

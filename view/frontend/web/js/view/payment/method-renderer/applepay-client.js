@@ -102,26 +102,20 @@ define(
                     var self = this,
                         placeOrder;
 
-                    applepayPay.devLog('==========applepaydebug/60');
-
                     if (applepayPay.isOsc()) {
                         var validationResult = additionalValidators.validate();
-                        applepayPay.devLog('==========applepaydebug/601', validationResult);
                         if (!validationResult) {
                             return false;
                         }
                     }
 
                     if (!this.submit) {
-                        applepayPay.devLog('==========applepaydebug/61');
                         var child = document.querySelector('.apple-pay-button');
                         if (child) {
                             child.click();
                         }
                         return false;
                     }
-
-                    applepayPay.devLog('==========applepaydebug/62');
                     this.submit = false;
 
                     if (event) {
@@ -146,14 +140,12 @@ define(
 
                 afterPlaceOrder: function () {
                     var response = window.checkoutConfig.payment.buckaroo.response;
-                    applepayPay.devLog('==========applepaydebug/14');
                     if (response.RequiredAction !== undefined && response.RequiredAction.RedirectURL !== undefined) {
                         window.location.replace(response.RequiredAction.RedirectURL);
                     }
                 },
 
                 selectPaymentMethod: function () {
-                    applepayPay.devLog('==========applepaydebug/71');
                     selectPaymentMethodAction(this.getData());
                     checkoutData.setSelectedPaymentMethod(this.item.method);
 
@@ -161,7 +153,6 @@ define(
                 },
 
                 showPayButton: function () {
-                    applepayPay.devLog('==========applepaydebug/66');
                     applepayPay.setIsOnCheckout(true);
                     applepayPay.setQuote(quote);
                     applepayPay.showPayButton();
@@ -199,26 +190,34 @@ define(
                  * @returns {string|null}
                  */
                 formatTransactionResponse: function (response) {
-                    if (null === response || 'undefined' === response) {
+                    if (null === response || 'undefined' === typeof response || !response) {
                         return null;
                     }
 
-                    var paymentData = response.token.paymentData;
+                    try {
+                        var paymentData = response.token.paymentData;
 
-                    var formattedData = {
-                        "paymentData": {
-                            "version": paymentData.version,
-                            "data": paymentData.data,
-                            "signature": paymentData.signature,
-                            "header": {
-                                "ephemeralPublicKey": paymentData.header.ephemeralPublicKey,
-                                "publicKeyHash": paymentData.header.publicKeyHash,
-                                "transactionId": paymentData.header.transactionId,
-                            }
+                        if (!paymentData || !paymentData.data || !paymentData.signature) {
+                            return null;
                         }
-                    };
 
-                    return JSON.stringify(formattedData);
+                        var formattedData = {
+                            "paymentData": {
+                                "version": paymentData.version,
+                                "data": paymentData.data,
+                                "signature": paymentData.signature,
+                                "header": {
+                                    "ephemeralPublicKey": paymentData.header.ephemeralPublicKey,
+                                    "publicKeyHash": paymentData.header.publicKeyHash,
+                                    "transactionId": paymentData.header.transactionId,
+                                }
+                            }
+                        };
+
+                        return JSON.stringify(formattedData);
+                    } catch (error) {
+                        return null;
+                    }
                 }
             }
         );

@@ -71,6 +71,10 @@ define(
             getData: function () {
                 var transactionData = this.formatTransactionResponse();
 
+                if (!transactionData || transactionData === 'null') {
+                    throw new Error('Apple Pay transaction data is invalid. Please try again.');
+                }
+
                 return {
                     "method": 'buckaroo_magento2_applepay',
                     "po_number": null,
@@ -81,26 +85,38 @@ define(
             },
 
             formatTransactionResponse: function () {
-                if (null === this.applepayTransaction || 'undefined' === this.applepayTransaction) {
+                if (null === this.applepayTransaction || 'undefined' === typeof this.applepayTransaction) {
                     return null;
                 }
 
-                var paymentData = this.applepayTransaction.token.paymentData;
-
-                var formattedData = {
-                    "paymentData": {
-                        "version": paymentData.version,
-                        "data": paymentData.data,
-                        "signature": paymentData.signature,
-                        "header": {
-                            "ephemeralPublicKey": paymentData.header.ephemeralPublicKey,
-                            "publicKeyHash": paymentData.header.publicKeyHash,
-                            "transactionId": paymentData.header.transactionId,
-                        }
+                try {
+                    if (!this.applepayTransaction.token || !this.applepayTransaction.token.paymentData) {
+                        return null;
                     }
-                };
 
-                return JSON.stringify(formattedData);
+                    var paymentData = this.applepayTransaction.token.paymentData;
+
+                    if (!paymentData.data || !paymentData.signature || !paymentData.header) {
+                        return null;
+                    }
+
+                    var formattedData = {
+                        "paymentData": {
+                            "version": paymentData.version,
+                            "data": paymentData.data,
+                            "signature": paymentData.signature,
+                            "header": {
+                                "ephemeralPublicKey": paymentData.header.ephemeralPublicKey,
+                                "publicKeyHash": paymentData.header.publicKeyHash,
+                                "transactionId": paymentData.header.transactionId,
+                            }
+                        }
+                    };
+
+                    return JSON.stringify(formattedData);
+                } catch (error) {
+                    return null;
+                }
             }
         };
     }
