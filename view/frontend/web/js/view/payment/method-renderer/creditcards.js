@@ -301,7 +301,12 @@ define(
              * After order placement, handle the redirect.
              */
             afterPlaceOrder: function () {
-                const response = window.checkoutConfig.payment.buckaroo.response;
+                var response = window.checkoutConfig.payment.buckaroo.response;
+
+                if (typeof response === 'string') {
+                    response = JSON.parse(response);
+                }
+
                 checkoutCommon.redirectHandle(response);
             },
 
