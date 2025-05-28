@@ -72,9 +72,6 @@ define(
                 var transactionData = this.formatTransactionResponse();
 
                 if (!transactionData || transactionData === 'null') {
-                    if (window.console && window.console.error) {
-                        console.error('[Buckaroo Apple Pay Order Handler] Invalid transaction data:', transactionData);
-                    }
                     throw new Error('Apple Pay transaction data is invalid. Please try again.');
                 }
 
@@ -89,26 +86,17 @@ define(
 
             formatTransactionResponse: function () {
                 if (null === this.applepayTransaction || 'undefined' === typeof this.applepayTransaction) {
-                    if (window.console && window.console.error) {
-                        console.error('[Buckaroo Apple Pay Order Handler] formatTransactionResponse: Invalid transaction data', this.applepayTransaction);
-                    }
                     return null;
                 }
 
                 try {
                     if (!this.applepayTransaction.token || !this.applepayTransaction.token.paymentData) {
-                        if (window.console && window.console.error) {
-                            console.error('[Buckaroo Apple Pay Order Handler] Missing token or paymentData', this.applepayTransaction);
-                        }
                         return null;
                     }
 
                     var paymentData = this.applepayTransaction.token.paymentData;
 
                     if (!paymentData.data || !paymentData.signature || !paymentData.header) {
-                        if (window.console && window.console.error) {
-                            console.error('[Buckaroo Apple Pay Order Handler] Missing required paymentData fields', paymentData);
-                        }
                         return null;
                     }
 
@@ -127,9 +115,6 @@ define(
 
                     return JSON.stringify(formattedData);
                 } catch (error) {
-                    if (window.console && window.console.error) {
-                        console.error('[Buckaroo Apple Pay Order Handler] Error formatting transaction response:', error);
-                    }
                     return null;
                 }
             }
