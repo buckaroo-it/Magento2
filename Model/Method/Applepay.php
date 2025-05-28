@@ -64,14 +64,12 @@ class Applepay extends AbstractMethod
             ));
         } else {
             if ($integrationMode) {
-                // SDK Mode - transaction data is required
                 $this->logger2->addError('[Apple Pay SDK Mode] Missing applepayTransaction data in payment assignment - preventing order creation');
 
                 throw new Exception(
                     __('Apple Pay payment failed. No transaction data was received from your device. Please try again or use a different payment method.')
                 );
             } else {
-                // Redirect Mode - no transaction data expected, payment will be handled on Buckaroo hosted page
                 $this->logger2->addDebug('[Apple Pay Redirect Mode] No transaction data in payment assignment - this is expected for redirect mode');
             }
         }
@@ -101,7 +99,6 @@ class Applepay extends AbstractMethod
         $integrationMode = $applePayConfig->getIntegrationMode();
 
         if ($integrationMode) {
-            // SDK Mode (Inline/Integrated) - transaction data is required
             $this->logger2->addDebug('[Apple Pay SDK Mode] Validating client-side transaction data');
 
             if (empty($transactionData) || $transactionData === 'null' || trim($transactionData) === '') {
@@ -115,7 +112,6 @@ class Applepay extends AbstractMethod
                 );
             }
 
-            // Try to decode JSON to ensure it's valid
             $decodedJson = json_decode($transactionData, true);
             if (json_last_error() !== JSON_ERROR_NONE || empty($decodedJson['paymentData'])) {
                 $this->logger2->addError(sprintf(
@@ -129,7 +125,6 @@ class Applepay extends AbstractMethod
                 );
             }
 
-            // Validate required fields in the JSON structure
             $paymentData = $decodedJson['paymentData'];
             if (empty($paymentData['data']) || empty($paymentData['signature']) || empty($paymentData['header'])) {
                 $this->logger2->addError('[Apple Pay SDK Mode] Missing required fields in paymentData before order creation');
@@ -144,7 +139,6 @@ class Applepay extends AbstractMethod
                 strlen($transactionData)
             ));
         } else {
-            // Redirect Mode (Hosted Payment Page) - no transaction data expected, payment handled by Buckaroo
             $this->logger2->addDebug('[Apple Pay Redirect Mode] Skipping transaction data validation - payment will be processed on Buckaroo hosted page');
 
             if (!empty($transactionData)) {
@@ -168,7 +162,6 @@ class Applepay extends AbstractMethod
         $integrationMode = $applePayConfig->getIntegrationMode();
 
         if ($integrationMode) {
-            // Client Side SDK logic
             $applepayTransactionData = $payment->getAdditionalInformation('applepayTransaction');
 
             if (empty($applepayTransactionData)) {
@@ -210,7 +203,6 @@ class Applepay extends AbstractMethod
                 ->setMethod('TransactionRequest');
 
         } else {
-            // RedirectToHTML logic
             $services = [
                 'Name'             => 'applepay',
                 'Action'           => 'Pay',
