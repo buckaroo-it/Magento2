@@ -24,7 +24,13 @@ define(
         'buckaroo/checkout/payment/default',
         'Magento_Checkout/js/model/payment/additional-validators',
         'Buckaroo_Magento2/js/action/place-order',
-        'ko'
+        'ko',
+        'mage/url',
+        'Magento_Checkout/js/checkout-data',
+        'Magento_Checkout/js/action/select-payment-method',
+        'buckaroo/checkout/common',
+        'BuckarooHostedFieldsSdk'
+
     ],
     function (
         $,
@@ -32,265 +38,299 @@ define(
         additionalValidators,
         placeOrderAction,
         ko,
+        urlBuilder,
+        checkoutData,
+        selectPaymentMethodAction,
+        checkoutCommon,
+        BuckarooHostedFieldsSdk
     ) {
         'use strict';
 
+        return Component.extend({
+            defaults: {
+                template: 'Buckaroo_Magento2/payment/buckaroo_magento2_creditcards',
+                encryptedCardData: null,
+                service: null
+            },
 
-        /**
-         * Add validation methods
-         */
-        $.validator.addMethod('validateCardNumber', function (value) {
-                return BuckarooClientSideEncryption.V001.validateCardNumber(value.replace(/\s+/g, ''));
-        },
-            $.mage.__('Please enter a valid creditcard number.'));
+            oauthTokenError: ko.observable(''),
+            paymentError: ko.observable(''),
+            isPayButtonDisabled: ko.observable(false),
+            sdkClient: null,
+            tokenExpiresAt: null,
 
-        $.validator.addMethod('validateCvc', function (value) {
-                return BuckarooClientSideEncryption.V001.validateCvc(
-                    value,
-                    $('#buckaroo_magento2_creditcards_issuer').val()
-                );
-        },
-            $.mage.__('Please enter a valid Cvc number.'));
+            /**
+             * Initialize component and retrieve OAuth token.
+             */
+            initialize: function (options) {
+                this._super(options);
+                return this;
+            },
 
-        $.validator.addMethod('validateCardHolderName', function (value) {
-                return BuckarooClientSideEncryption.V001.validateCardholderName(value);
-        },
-            $.mage.__('Please enter a valid card holder name.'));
+            /**
+             * Called from afterRender in the template, ensuring DOM is ready.
+             */
+            initCreditCardFields: function () {
+                this.getOAuthToken();
+            },
 
-        $.validator.addMethod('bkValidateYear', function (value) {
-            if (value.length === 0) {
-                return false;
-            }
-                const parts = value.split("/");
-                return BuckarooClientSideEncryption.V001.validateYear(parts[1]);
-        },
-            $.mage.__('Enter a valid year number.'));
-        $.validator.addMethod('bkValidateMonth', function (value) {
-            if (value.length === 0) {
-                return false;
-            }
-
-                const parts = value.split("/");
-                return BuckarooClientSideEncryption.V001.validateMonth(parts[0]);
-        },
-            $.mage.__('Enter a valid month number.'));
-
-        return Component.extend(
-            {
-                defaults: {
-                    template        : 'Buckaroo_Magento2/payment/buckaroo_magento2_creditcards',
-                    cardNumber      : '',
-                    cvc             : '',
-                    cardHolderName  : '',
-                    expireDate      : '',
-                    encryptedCardData : null,
-                    cardIssuer      : null,
-                },
-
-                initObservable: function () {
-                    /** Observed fields **/
-                    this._super().observe(
-                        [
-                            'cardNumber',
-                            'cvc',
-                            'cardHolderName',
-                            'expireDate',
-                            'cardIssuer'
-                        ]
-                    );
-
-                    this.setTestParameters()
-                    this.formatedCardNumber = ko.computed({
-                        read: function () {
-                            let cardNumber = this.cardNumber();
-                            if (cardNumber.length) {
-                                return this.cardNumber().match(new RegExp('.{1,4}', 'g')).join(" ");
-                            }
-                            return '';
-                        },
-                        write: function (value) {
-                            this.cardNumber(value.replace(/\s/g, ''));
-                        },
-                        owner: this
-                    });
-
-                    this.formatedExpirationDate = ko.computed({
-                        read: function () {
-                            let expireDate = this.expireDate();
-                            if (expireDate.length) {
-                                return expireDate.replace(
-                                    /^([1-9]\/|[2-9])$/g,
-                                    '0$1/' // 3 > 03/
-                                ).replace(
-                                    /^(0[1-9]|1[0-2])$/g,
-                                    '$1/' // 11 > 11/
-                                ).replace(
-                                    /^([0-1])([3-9])$/g,
-                                    '0$1/$2' // 13 > 01/3
-                                ).replace(
-                                    /^(0?[1-9]|1[0-2])([0-9]{2})$/g,
-                                    '$1/$2' // 141 > 01/41
-                                ).replace(
-                                    /^(0+\/|0+)$/g,
-                                    '0' // 0/ > 0 and 00 > 0
-                                ).replace(
-                                    /[^\d\/]|^[\/]*$/g,
-                                    '' // To allow only digits and `/`
-                                ).replace(
-                                    /\/\//g,
-                                    '/' // Prevent entering more than 1 `/`
-                                );
-                            }
-                            return '';
-                        },
-                        write: function (value) {
-                            this.expireDate(value);
-                        },
-                        owner: this
-                    });
-
-
-                    this.issuerImage = ko.computed(
-                        function () {
-                            var cardLogo = this.buckaroo.defaultCardImage;
-
-                            var issuer = this.buckaroo.creditcards.find(o => o.code === this.cardIssuer());
-                            if (issuer) {
-                                cardLogo = issuer.img;
-                            }
-
-                            return cardLogo;
-                        },
-                        this
-                    );
-
-                    return this;
-                },
-
-                placeOrder: function (data, event) {
-                    var self = this,
-                        placeOrder;
-
-                    if (event) {
-                        event.preventDefault();
-                    }
-
-                    if (this.validate() && additionalValidators.validate()) {
-                        this.isPlaceOrderActionAllowed(false);
-                        this.encryptCardData().then(function() {
-                            console.log('here');
-                            placeOrder = placeOrderAction(self.getData(), self.redirectAfterPlaceOrder, self.messageContainer);
-
-                            $.when(placeOrder).fail(
-                                function () {
-                                    self.isPlaceOrderActionAllowed(true);
-                                }
-                            ).done(self.afterPlaceOrder.bind(self));
-                        })
-                        return true;
-                    }
-                    return false;
-                },
-
-
-                validateCardNumber(data, event) {
-                    this.validateField(data, event);
-
-                    //set card issuer
-                    this.cardIssuer(
-                        this.determineIssuer(data.cardNumber())
-                    )
-
-                    //validate the cvc if exists
-                    if (this.cvc().length) {
-                        $('#buckaroo_magento2_creditcards_cvc').valid();
-                    }
-                },
-
-
-                /** Get the card issuer based on the creditcard number **/
-                determineIssuer: function (cardNumber) {
-                    var issuers = {
-                        'amex': {
-                            'regex': '^3[47][0-9]{13}$',
-                            'name': 'American Express'
-                        },
-                        'maestro': {
-                            'regex': '^(5018|5020|5038|6304|6759|6761|6763)[0-9]{8,15}$',
-                            'name': 'Maestro'
-                        },
-                        'dankort': {
-                            'regex': '^(5019|4571)[0-9]{12}$',
-                            'name': 'Dankort'
-                        },
-                        'mastercard': {
-                            'regex': '^(5[1-5]|2[2-7])[0-9]{14}$',
-                            'name': 'Mastercard'
-                        },
-                        'visaelectron': {
-                            'regex': '^(4026[0-9]{2}|417500|4508[0-9]{2}|4844[0-9]{2}|4913[0-9]{2}|4917[0-9]{2})[0-9]{10}$',
-                            'name': 'Visa Electron'
-                        },
-                        'visa': {
-                            'regex': '^4[0-9]{12}(?:[0-9]{3})?$',
-                            'name': 'Visa'
+            /**
+             * Retrieve OAuth token via AJAX.
+             */
+            async getOAuthToken() {
+                try {
+                    const response = await $.ajax({
+                        url: urlBuilder.build('/buckaroo/credentialschecker/gettoken'),
+                        type: 'GET',
+                        headers: {
+                            'X-Requested-From': 'MagentoFrontend'
                         }
+                    });
+                    if (response.error) {
+                        this.oauthTokenError($.mage.__("An error occurred, please try another payment method or try again later."));
+                    } else {
+                        const accessToken = response.data.access_token;
+                        const issuers = response.data.issuers;
+                        const expiresIn = response.data.expires_in; // lifetime in seconds
+
+                        this.tokenExpiresAt = Date.now() + expiresIn * 1000;
+
+                        this.scheduleTokenRefresh(expiresIn);
+
+                        await this.initHostedFields(accessToken, issuers);
+                    }
+                } catch (error) {
+                    this.oauthTokenError($.mage.__("An error occurred, please try another payment method or try again later."));
+                }
+            },
+
+            /**
+             * Schedule token refresh before expiry.
+             */
+            scheduleTokenRefresh: function(expiresIn) {
+                const refreshTime = Math.max(expiresIn * 1000 - 1000, 0);
+                setTimeout(() => {
+                    this.resetHostedFields($.mage.__("We are refreshing the payment form, because the session has expired."));
+                }, refreshTime);
+            },
+
+            /**
+             * Remove hosted field iframes from the DOM.
+             */
+            removeHostedFieldIframes: function() {
+                $('#cc-name-wrapper iframe').remove();
+                $('#cc-number-wrapper iframe').remove();
+                $('#cc-expiry-wrapper iframe').remove();
+                $('#cc-cvc-wrapper iframe').remove();
+            },
+
+            /**
+             * Unified function to reset hosted fields.
+             * @param {String} [errorMsg] Optional error message to display.
+             */
+            async resetHostedFields(errorMsg = '') {
+                this.removeHostedFieldIframes();
+                this.paymentError(errorMsg);
+                await this.getOAuthToken();
+                this.isPayButtonDisabled(false);
+            },
+
+            /**
+             * Initialize hosted fields using the OAuth token and issuers.
+             *
+             * @param {String} accessToken
+             * @param {Array} issuers
+             */
+            async initHostedFields(accessToken, issuers) {
+                try {
+                    this.sdkClient = new BuckarooHostedFieldsSdk.HFClient(accessToken);
+                    const locale = document.documentElement.lang;
+                    const languageCode = locale.split('_')[0];
+                    this.sdkClient.setLanguage(languageCode);
+                    this.sdkClient.setSupportedServices(issuers);
+
+                    // Start the session and update the pay button state based on validation.
+                    await this.sdkClient.startSession((event) => {
+                        this.sdkClient.handleValidation(
+                            event,
+                            'cc-name-error',
+                            'cc-number-error',
+                            'cc-expiry-error',
+                            'cc-cvc-error'
+                        );
+                        this.isPayButtonDisabled(!this.sdkClient.formIsValid());
+                        this.service = this.sdkClient.getService();
+                    });
+
+                    // Styling for hosted fields.
+                    const cardLogoStyling = {
+                        height: "80%",
+                        position: 'absolute',
+                        border: '1px solid #d6d6d6',
+                        borderRadius: "4px",
+                        opacity: '1',
+                        transition: 'all 0.3s ease',
+                        right: '5px',
+                        backgroundColor: 'inherit'
                     };
 
-                    for (var key in issuers) {
-                        if (cardNumber !== undefined && cardNumber.match(issuers[key].regex)) {
-                            return key;
-                        }
-                    }
+                    const styling = {
+                        fontSize: "14px",
+                        fontStyle: "normal",
+                        fontWeight: 400,
+                        fontFamily: 'Open Sans, Helvetica Neue, Helvetica, Arial, sans-serif',
+                        textAlign: 'left',
+                        background: '#fefefe',
+                        color: '#333333',
+                        placeholderColor: '#888888',
+                        borderRadius: '5px',
+                        padding: '8px 10px',
+                        boxShadow: 'none',
+                        transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+                        border: '1px solid #d6d6d6',
+                        cardLogoStyling: cardLogoStyling
+                    };
 
-                    return false;
-                },
+                    // Mount hosted fields concurrently.
+                    const mountCardHolderNamePromise = this.sdkClient.mountCardHolderName("#cc-name-wrapper", {
+                        id: "ccname",
+                        placeHolder: "John Doe",
+                        labelSelector: "#cc-name-label",
+                        baseStyling: styling
+                    }).then(field => {
+                        field.focus();
+                        return field;
+                    });
 
-                getData: function() {
-                    let cardIssuer = this.cardIssuer();
+                    const mountCardNumberPromise = this.sdkClient.mountCardNumber("#cc-number-wrapper", {
+                        id: "cc",
+                        placeHolder: "555x xxxx xxxx xxxx",
+                        labelSelector: "#cc-number-label",
+                        baseStyling: styling
+                    });
 
-                    if(cardIssuer == null) {
-                        cardIssuer = this.determineIssuer(this.cardNumber());
-                    }
-                    return {
-                        "method":  this.item.method,
-                        "po_number": null,
-                        "additional_data": {
-                            "customer_encrypteddata" : this.encryptedCardData,
-                            "customer_creditcardcompany" : cardIssuer
-                        }
-                    }
-                },
+                    const mountCvcPromise = this.sdkClient.mountCvc("#cc-cvc-wrapper", {
+                        id: "cvc",
+                        placeHolder: "1234",
+                        labelSelector: "#cc-cvc-label",
+                        baseStyling: styling
+                    });
 
-                encryptCardData: function () {
-                    return new Promise(function (resolve) {
-                        const parts = this.expireDate().split("/");
-                        const month = parts[0];
-                        const year = parts[1];
+                    const mountExpiryPromise = this.sdkClient.mountExpiryDate("#cc-expiry-wrapper", {
+                        id: "expiry",
+                        placeHolder: "MM / YY",
+                        labelSelector: "#cc-expiry-label",
+                        baseStyling: styling
+                    });
 
-                        BuckarooClientSideEncryption.V001.encryptCardData(
-                            this.cardNumber(),
-                            year,
-                            month,
-                            this.cvc(),
-                            this.cardHolderName(),
-                            function (encryptedCardData) {
-                                this.encryptedCardData = encryptedCardData;
-                                resolve()
-                            }.bind(this));
-                    }.bind(this))
-                },
-
-                setTestParameters() {
-                    if (this.buckaroo.isTestMode) {
-                        this.cardNumber('4563550000000005')
-                        this.cardIssuer('visa')
-                        this.cardHolderName('Test Acceptation')
-                        this.expireDate('01/' + (new Date(new Date().setFullYear(new Date().getFullYear() + 1)).getFullYear().toString().substr(-2)))
-                        this.cvc('123')
-                    }
+                    await Promise.all([
+                        mountCardHolderNamePromise,
+                        mountCardNumberPromise,
+                        mountCvcPromise,
+                        mountExpiryPromise
+                    ]);
+                } catch (error) {
+                    console.error("Error initializing hosted fields:", error);
                 }
+            },
+
+            /**
+             * Knockout click handler for the pay button.
+             *
+             * @param {Object} data - The view model data.
+             * @param {Event} event - The event object.
+             */
+            onPayClick: async function(data, event) {
+                event.preventDefault();
+                this.isPayButtonDisabled(true);
+
+                // Check if the token has expired before processing payment.
+                if (Date.now() > this.tokenExpiresAt) {
+                    await this.resetHostedFields($.mage.__("We are refreshing the payment form, because the session has expired."));
+                    this.paymentError($.mage.__("Session expired, please try again."));
+                    this.isPayButtonDisabled(false);
+                    return;
+                }
+
+                try {
+                    const paymentToken = await this.sdkClient.submitSession();
+                    if (!paymentToken) {
+                        throw new Error("Failed to get encrypted card data.");
+                    }
+                    this.encryptedCardData = paymentToken;
+                    this.service = this.sdkClient.getService();
+                    this.finalizePlaceOrder(event);
+                } catch (error) {
+                    this.paymentError($.mage.__("Payment processing failed. Please try again."));
+                    this.isPayButtonDisabled(false);
+                }
+            },
+
+            /**
+             * Finalize placing the order.
+             *
+             * @param {Event} event
+             */
+            finalizePlaceOrder: function (event) {
+                if (event) {
+                    event.preventDefault();
+                }
+                if (!this.encryptedCardData) {
+                    this.paymentError($.mage.__("Payment token is missing. Please try again."));
+                    return;
+                }
+                if (this.validate() && additionalValidators.validate()) {
+                    this.isPlaceOrderActionAllowed(false);
+                    const placeOrder = placeOrderAction(
+                        this.getData(),
+                        this.redirectAfterPlaceOrder,
+                        this.messageContainer
+                    );
+                    $.when(placeOrder)
+                        .fail(() => {
+                            this.isPlaceOrderActionAllowed(true);
+                            this.paymentError($.mage.__("Payment token is missing. Please try again."));
+                        })
+                        .done(this.afterPlaceOrder.bind(this));
+                    return true;
+                }
+                return false;
+            },
+
+            /**
+             * After order placement, handle the redirect.
+             */
+            afterPlaceOrder: function () {
+                const response = window.checkoutConfig.payment.buckaroo.response;
+                checkoutCommon.redirectHandle(response);
+            },
+
+            /**
+             * Retrieve the payment data.
+             *
+             * @returns {Object}
+             */
+            getData: function() {
+                return {
+                    "method": this.item.method,
+                    "po_number": null,
+                    "additional_data": {
+                        "customer_encrypteddata": this.encryptedCardData,
+                        "customer_creditcardcompany": this.service
+                    }
+                };
+            },
+
+            /**
+             * Select this payment method.
+             *
+             * @returns {Boolean}
+             */
+            selectPaymentMethod: function () {
+                selectPaymentMethodAction(this.getData());
+                checkoutData.setSelectedPaymentMethod(this.item.method);
+                return true;
             }
-        );
+        });
     }
 );

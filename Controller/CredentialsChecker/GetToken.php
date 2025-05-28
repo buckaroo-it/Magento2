@@ -1,4 +1,22 @@
 <?php
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
 
 namespace Buckaroo\Magento2\Controller\CredentialsChecker;
 
@@ -21,15 +39,14 @@ class GetToken extends Action
     protected $curlClient;
 
     public function __construct(
-        Context               $context,
-        JsonFactory           $resultJsonFactory,
-        LoggerInterface       $logger,
-        Creditcards           $configProviderCreditcard,
-        EncryptorInterface    $encryptor,
+        Context $context,
+        JsonFactory $resultJsonFactory,
+        LoggerInterface $logger,
+        Creditcards $configProviderCreditcard,
+        EncryptorInterface $encryptor,
         StoreManagerInterface $storeManager,
-        Curl                  $curlClient
-    )
-    {
+        Curl $curlClient
+    ) {
         $this->resultJsonFactory = $resultJsonFactory;
         $this->logger = $logger;
         $this->configProviderCreditcard = $configProviderCreditcard;
@@ -42,8 +59,7 @@ class GetToken extends Action
     /**
      * Send POST request using Magento's Curl client.
      */
-    private function sendPostRequest($url, $username, $password, $postData)
-    {
+    private function sendPostRequest($url, $username, $password, $postData) {
         try {
             // Set Basic Auth credentials without base64_encode()
             $this->curlClient->setCredentials($username, $password);
@@ -138,13 +154,14 @@ class GetToken extends Action
             $response = $this->sendPostRequest($url, $hostedFieldsClientId, $hostedFieldsClientSecret, $postData);
             $responseArray = json_decode($response, true);
 
-            // Check for successful response
+            // Check for successful response and include expires_in if available
             if (isset($responseArray['access_token'])) {
                 return $result->setData([
                     'error' => false,
                     'data' => [
                         'access_token' => $responseArray['access_token'],
-                        'issuers' => $issuers
+                        'expires_in'   => $responseArray['expires_in'],
+                        'issuers'      => $issuers
                     ]
                 ]);
             }

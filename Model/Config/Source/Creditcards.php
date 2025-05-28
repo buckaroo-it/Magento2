@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please email
- * to support@buckaroo.nl, so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,27 +17,22 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-declare(strict_types=1);
-
 namespace Buckaroo\Magento2\Model\Config\Source;
 
-use Magento\Framework\Data\OptionSourceInterface;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcards as ConfigCreditcards;
-
-class Creditcards implements OptionSourceInterface
+class Creditcards implements \Magento\Framework\Option\ArrayInterface
 {
     /**
-     * @var ConfigCreditcards
+     * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcards
      */
-    protected ConfigCreditcards $configProvider;
+    protected $configProvider;
 
     /**
      * Use the constructor to get the requested config provider.
      *
-     * @param ConfigCreditcards $configProvider
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcards $configProvider
      */
     public function __construct(
-        ConfigCreditcards $configProvider
+        \Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcards $configProvider
     ) {
         $this->configProvider = $configProvider;
     }
@@ -47,7 +42,7 @@ class Creditcards implements OptionSourceInterface
      *
      * @return array
      */
-    public function toOptionArray(): array
+    public function toOptionArray()
     {
         $output = [];
         foreach ($this->configProvider->getIssuers() as $issuer) {

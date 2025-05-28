@@ -26,6 +26,7 @@ use Buckaroo\Magento2\Service\LogoService;
 use Magento\Framework\View\Asset\Repository;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
+use Magento\Store\Model\ScopeInterface;
 
 class Creditcards extends AbstractConfigProvider
 {
@@ -119,7 +120,10 @@ class Creditcards extends AbstractConfigProvider
      */
     public function formatIssuers(): array
     {
-        $allowed = explode(',', (string)$this->getAllowedIssuers());
+        $allowed = explode(',', (string)$this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_ALLOWED_ISSUERS,
+            ScopeInterface::SCOPE_STORE
+        ));
 
         $issuers = $this->issuers;
         foreach ($issuers as $key => $issuer) {
@@ -128,17 +132,6 @@ class Creditcards extends AbstractConfigProvider
         }
 
         return $issuers;
-    }
-
-    /**
-     * Get Allowed Issuers
-     *
-     * @param null|int|string $store
-     * @return mixed
-     */
-    public function getAllowedIssuers($store = null)
-    {
-        return $this->getMethodConfigValue(self::XPATH_CREDITCARDS_ALLOWED_ISSUERS, $store);
     }
 
     /**
@@ -170,7 +163,7 @@ class Creditcards extends AbstractConfigProvider
     {
         $paymentFee = $this->scopeConfig->getValue(
             self::XPATH_CREDITCARDS_PAYMENT_FEE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            ScopeInterface::SCOPE_STORE,
             $storeId
         );
 
@@ -195,7 +188,7 @@ class Creditcards extends AbstractConfigProvider
 
     public function getSupportedServices(): array
     {
-        $issuers = $this->issuers;
+        $issuers = $this->formatIssuers();
         $supportedServices = [];
 
         foreach ($issuers as $issuer) {
@@ -204,6 +197,6 @@ class Creditcards extends AbstractConfigProvider
             }
         }
 
-        return $this->issuers;
+        return $supportedServices;
     }
 }

@@ -44,8 +44,7 @@ var config = {
             "buckaroo/paypal-express/pay": "Buckaroo_Magento2/js/view/checkout/paypal-express/pay",
             "buckaroo/paypal-express/button": "Buckaroo_Magento2/js/view/checkout/paypal-express/button",
             "buckaroo/ideal-fast-checkout/pay": "Buckaroo_Magento2/js/view/checkout/ideal-fast-checkout/pay",
-            "buckaroo/checkout/payment/default": "Buckaroo_Magento2/js/view/payment/method-renderer/default",
-            'buckaroo_magento2_creditcards': 'Buckaroo_Magento2/js/view/payment/method-renderer/creditcards'
+            "buckaroo/checkout/payment/default": "Buckaroo_Magento2/js/view/payment/method-renderer/default"
         }
     },
     shim: {
