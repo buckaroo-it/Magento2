@@ -111,6 +111,7 @@ define(
                         this.canShowMethod(applePaySupported);
                     }.bind(this))
                     .catch(function (error) {
+                        console.log(error)
                         this.canShowMethod(false);
                     }.bind(this));
                 return this.canShowMethod();
