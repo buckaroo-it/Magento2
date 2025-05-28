@@ -423,6 +423,7 @@
 
             <buckaroo_magento2_applepay>
                 <active>0</active>
+                <integration_mode>1</integration_mode>
                 <model>Buckaroo\Magento2\Model\Method\Applepay</model>
                 <order_status>pending</order_status>
                 <title>Apple Pay</title>

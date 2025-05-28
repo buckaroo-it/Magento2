@@ -407,6 +407,8 @@
 "Select a month","Wähle einen Monat"
 "Select a year","Wählen Sie ein Jahr aus"
 "Enable Apple Pay","Apple Pay aktivieren"
+"Apple Pay checkout type","Apple Pay Checkout-Typ"
+"Yes = Inline (Integrated in checkout), No = Redirect (Buckaroo Hosted Payment Page)", "Yes = Inline (In den Checkout integriert), No = Redirect (Buckaroo Hosted Payment Page)"
 "Your payment could not be processed","Ihre Zahlung konnte nicht verarbeitet werden"
 "Capayable Postpay","Capayable Nachzahlung"
 "Enable In3","In3 aktivieren"
