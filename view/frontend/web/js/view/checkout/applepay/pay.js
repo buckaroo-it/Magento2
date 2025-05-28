@@ -111,6 +111,7 @@ define(
                         this.canShowMethod(applePaySupported);
                     }.bind(this))
                     .catch(function (error) {
+                        console.log(error)
                         this.canShowMethod(false);
                     }.bind(this));
                 return this.canShowMethod();
@@ -375,8 +376,7 @@ define(
                     type: 'POST',
                     data: payload,
                     global: false,
-                    contentType: 'application/json',
-                    async: false
+                    contentType: 'application/json'
                 }).done(function (result) {
                     this.shippingGroups = {};
                     var firstLoop = true;
@@ -387,6 +387,8 @@ define(
                             firstLoop = false;
                         }
                     }.bind(this));
+                }.bind(this)).fail(function (jqXHR, textStatus, errorThrown) {
+                    this.shippingGroups = {};
                 }.bind(this));
             },
 
@@ -416,7 +418,6 @@ define(
                         },
                         global: false,
                         dataType: 'json',
-                        async: false,
                         dataFilter: function (data) {
                             var result = JSON.parse(data);
                             if (result.success === true) {
@@ -429,6 +430,10 @@ define(
                                 return JSON.stringify(authorizationResult);
                             } else {
                                 this.timeoutRedirect();
+                                return JSON.stringify({
+                                    status: ApplePaySession.STATUS_FAILURE,
+                                    errors: []
+                                });
                             }
                         }.bind(this)
                     })
@@ -443,6 +448,11 @@ define(
 
             getData: function (payment) {
                 var transactionData = this.formatTransactionResponse(payment);
+
+                if (!transactionData || transactionData === 'null') {
+                    throw new Error('Apple Pay transaction data is invalid. Please try again.');
+                }
+
                 return {
                     "method": 'applepay',
                     "po_number": null,
@@ -458,20 +468,35 @@ define(
                 if (response === null || typeof response === 'undefined') {
                     return null;
                 }
-                var paymentData = response.token.paymentData;
-                var formattedData = {
-                    "paymentData": {
-                        "version": paymentData.version,
-                        "data": paymentData.data,
-                        "signature": paymentData.signature,
-                        "header": {
-                            "ephemeralPublicKey": paymentData.header.ephemeralPublicKey,
-                            "publicKeyHash": paymentData.header.publicKeyHash,
-                            "transactionId": paymentData.header.transactionId,
-                        }
+
+                try {
+                    if (!response.token || !response.token.paymentData) {
+                        return null;
                     }
-                };
-                return JSON.stringify(formattedData);
+
+                    var paymentData = response.token.paymentData;
+
+                    if (!paymentData.data || !paymentData.signature || !paymentData.header) {
+                        return null;
+                    }
+
+                    var formattedData = {
+                        "paymentData": {
+                            "version": paymentData.version,
+                            "data": paymentData.data,
+                            "signature": paymentData.signature,
+                            "header": {
+                                "ephemeralPublicKey": paymentData.header.ephemeralPublicKey,
+                                "publicKeyHash": paymentData.header.publicKeyHash,
+                                "transactionId": paymentData.header.transactionId,
+                            }
+                        }
+                    };
+
+                    return JSON.stringify(formattedData);
+                } catch (error) {
+                    return null;
+                }
             },
 
             initProductViewWatchers: function () {
