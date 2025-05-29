@@ -295,7 +295,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             null,
             $order->getStore()
         );
-        $taxClassId = $this->configProviderBuckarooFee->getTaxClass($order->getStore());
+        $taxClassId = $this->configProviderBuckarooFee->getBuckarooFeeTaxClass($order->getStore());
         return $this->taxCalculation->getRate($request->setProductClassId($taxClassId));
     }
 

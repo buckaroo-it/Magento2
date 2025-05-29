@@ -85,7 +85,7 @@ class AfterpayOldHandler extends AbstractArticlesHandler
     protected function getTaxCategory($order)
     {
         $storeId = (int)$order->getStoreId();
-        $taxClassId = $this->configProviderBuckarooFee->getTaxClass($storeId);
+        $taxClassId = $this->configProviderBuckarooFee->getBuckarooFeeTaxClass($storeId);
 
         $taxCategory = self::DEFAULT_TAX_CATEGORY;
 
