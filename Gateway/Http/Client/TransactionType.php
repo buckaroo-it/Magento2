@@ -37,6 +37,7 @@ class TransactionType
     public const CREATE_CREDIT_NOTE = 'createCreditNote';
     public const PAYMENT_INVITATION = 'paymentInvitation';
     public const VERIFY = 'verify';
+    public const PAY_WITH_TOKEN = 'payWithToken';
 
     public const PAY_REMAINDER = 'payRemainder';
     public const PAY_REMAINDER_ENCRYPTED = 'payRemainderEncrypted';
