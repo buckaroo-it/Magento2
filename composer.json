@@ -7,7 +7,7 @@
         "magento/framework": ">=103.0.0",
         "buckaroo/sdk": "^1.18.0",
         "monolog/monolog": "^2.9 || ^3.0",
-        "phpunit/phpunit": "^9.5",
+        "phpunit/phpunit": "^9.5 || ^10.5",
         "psr/log": "^2.0 || ^3.0",
         "ext-json": "*",
         "ext-pcre": "*"
