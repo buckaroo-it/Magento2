@@ -20,6 +20,9 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
+use Magento\Store\Model\ScopeInterface;
+
+
 class Creditcard extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_creditcard';
@@ -262,7 +265,10 @@ class Creditcard extends AbstractConfigProvider
      */
     public function getAllowedCreditcards($store = null)
     {
-        return $this->getMethodConfigValue(self::XPATH_CREDITCARD_ALLOWED_CREDITCARDS, $store);
+        return $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARD_ALLOWED_CREDITCARDS,
+            ScopeInterface::SCOPE_STORE
+        );
     }
 
     /**
