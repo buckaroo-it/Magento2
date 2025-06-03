@@ -31,14 +31,20 @@ define(
             {
                 defaults: {
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_creditcard',
-                    selectedCard: null
                 },
                 redirectAfterPlaceOrder: false,
+                selectedCard: null,
+
                 initObservable: function () {
                     this._super().observe(['selectedCard']);
                     return this;
                 },
 
+                validateField: function () {
+                    var el = document.getElementById("buckaroo_magento2_creditcard_issuer");
+                    this.selectedCard(el.options[el.selectedIndex].value);
+                    return true;
+                },
 
                 getData: function () {
                     return {
