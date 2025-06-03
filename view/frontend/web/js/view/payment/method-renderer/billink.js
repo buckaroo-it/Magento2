@@ -120,6 +120,7 @@ define(
                     dob:null,
                     tos: true,
                     showPhone: false,
+                    showB2B: false,
                     showFrenchTosValue: null,
                     value: ""
                 },
@@ -150,7 +151,7 @@ define(
                     );
                     this.billingName = ko.computed(
                         function () {
-                            if ((this.buckaroo.b2b == true) && quote.billingAddress() !== null) {
+                            if ((this.buckaroo.is_b2b) && quote.billingAddress() !== null) {
                                 return quote.billingAddress().company;
                             }
                             if (quote.billingAddress() !== null) {
@@ -165,7 +166,7 @@ define(
                             return (
                                 quote.billingAddress() === null ||
                                 !validPhone(quote.billingAddress().telephone)
-                            ) && this.buckaroo.b2b != true;
+                            );
                         },
                         this
                     );
@@ -176,7 +177,7 @@ define(
                             let shipping = quote.shippingAddress();
                             let billing = quote.billingAddress();
 
-                            return this.buckaroo.b2b == true && (
+                            return this.buckaroo.is_b2b && (
                                 (shipping && shipping.company && shipping.company.trim().length > 0) ||
                                 (billing && billing.company && billing.company.trim().length > 0)
                             )
