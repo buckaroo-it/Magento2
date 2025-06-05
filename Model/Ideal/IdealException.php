@@ -19,7 +19,6 @@
  */
 namespace Buckaroo\Magento2\Model\Ideal;
 
-
 class IdealException extends \Exception
 {
 }

@@ -51,8 +51,8 @@ class PaypalButton extends Field
     protected function _getElementHtml(AbstractElement $element)
     {
         $elementId = $element->getId();
-        $this->colorElement = $element->getForm()->getElement( str_replace("preview","color",$elementId));
-        $this->shapeElement = $element->getForm()->getElement( str_replace("preview","rounded",$elementId));
+        $this->colorElement = $element->getForm()->getElement(str_replace("preview", "color", $elementId));
+        $this->shapeElement = $element->getForm()->getElement(str_replace("preview", "rounded", $elementId));
         return $this->_toHtml();
     }
 

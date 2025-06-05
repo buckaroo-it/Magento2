@@ -103,7 +103,7 @@ class CurrencyDataBuilder implements BuilderInterface
      * @return array
      * @throws Exception
      */
-    public function getAllowedCurrencies(MethodInterface $methodInstance = null): array
+    public function getAllowedCurrencies(?MethodInterface $methodInstance = null): array
     {
         if (empty($this->allowedCurrencies) && $methodInstance !== null) {
             $this->setAllowedCurrencies($methodInstance);
@@ -119,7 +119,7 @@ class CurrencyDataBuilder implements BuilderInterface
      * @return string
      * @throws Exception
      */
-    public function getCurrency(Order $order = null): string
+    public function getCurrency(?Order $order = null): string
     {
         if (empty($this->currency)) {
             $this->setCurrency($order);

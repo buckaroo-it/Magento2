@@ -60,7 +60,7 @@ class AmountDebitDataBuilder implements BuilderInterface
      * @param Order|null $order
      * @return float|null
      */
-    public function getAmount(Order $order = null): ?float
+    public function getAmount(?Order $order = null): ?float
     {
         if (empty($this->amount)) {
             $this->setAmount($order);

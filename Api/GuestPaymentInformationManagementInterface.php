@@ -20,6 +20,10 @@
 
 namespace Buckaroo\Magento2\Api;
 
+use Magento\Framework\Exception\CouldNotSaveException;
+use Magento\Quote\Api\Data\AddressInterface;
+use Magento\Quote\Api\Data\PaymentInterface;
+
 interface GuestPaymentInformationManagementInterface
 {
 
@@ -28,15 +32,15 @@ interface GuestPaymentInformationManagementInterface
      *
      * @param  string                                        $cartId
      * @param  string                                        $email
-     * @param  \Magento\Quote\Api\Data\PaymentInterface      $paymentMethod
-     * @param  \Magento\Quote\Api\Data\AddressInterface|null $billingAddress
-     * @throws \Magento\Framework\Exception\CouldNotSaveException
+     * @param  PaymentInterface      $paymentMethod
+     * @param  AddressInterface|null $billingAddress
+     * @throws CouldNotSaveException
      * @return string
      */
     public function buckarooSavePaymentInformationAndPlaceOrder(
         $cartId,
         $email,
-        \Magento\Quote\Api\Data\PaymentInterface $paymentMethod,
-        \Magento\Quote\Api\Data\AddressInterface $billingAddress = null
+        PaymentInterface $paymentMethod,
+        ?AddressInterface $billingAddress = null
     );
 }

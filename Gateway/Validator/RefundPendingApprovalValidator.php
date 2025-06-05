@@ -125,7 +125,7 @@ class RefundPendingApprovalValidator extends AbstractValidator
 
                 $orderItemsRefunded = [];
                 foreach ($creditmemoItems as $creditmemoItem) {
-                    if($creditmemoItem->getPrice() > 0) {
+                    if ($creditmemoItem->getPrice() > 0) {
                         $orderItemsRefunded[$creditmemoItem->getOrderItemId()] = ['qty' => (int)$creditmemoItem->getQty()];
                     }
                 }

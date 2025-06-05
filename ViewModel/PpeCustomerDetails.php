@@ -15,7 +15,7 @@ class PpeCustomerDetails implements ArgumentInterface
      * @var CustomerRepositoryInterface
      */
     protected CustomerRepositoryInterface $customerRepository;
-    
+
     /**
      * @var BuckarooLoggerInterface
      */

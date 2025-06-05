@@ -396,8 +396,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
             && $this->redirectRequest->hasAdditionalInformation('service_action_from_magento', 'reserve')
             && !empty($this->redirectRequest->getServiceKlarnakpReservationnumber()));
 
-        if(empty($this->order->getBuckarooReservationNumber()) && $isKlarnaKpReserve)
-        {
+        if (empty($this->order->getBuckarooReservationNumber()) && $isKlarnaKpReserve) {
             $this->order->setBuckarooReservationNumber($this->redirectRequest->getServiceKlarnakpReservationnumber());
             $this->order->save();
         }
@@ -894,7 +893,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
     private function isInvoiceCreatedAfterShipment(): bool
     {
         return $this->payment->getAdditionalInformation(
-                InvoiceHandlingOptions::INVOICE_HANDLING
-            ) == InvoiceHandlingOptions::SHIPMENT;
+            InvoiceHandlingOptions::INVOICE_HANDLING
+        ) == InvoiceHandlingOptions::SHIPMENT;
     }
 }

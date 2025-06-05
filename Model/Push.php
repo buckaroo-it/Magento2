@@ -113,8 +113,7 @@ class Push implements PushInterface
 
             if (!$validSignature) {
                 $this->logger->addDebug('
-                    [PUSH] | [Webapi] | [' . __METHOD__ . ':' . __LINE__ . '] - Invalid push signature'
-                );
+                    [PUSH] | [Webapi] | [' . __METHOD__ . ':' . __LINE__ . '] - Invalid push signature');
                 throw new BuckarooException(__('Signature from push is incorrect'));
             }
 

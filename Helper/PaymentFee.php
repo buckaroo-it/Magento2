@@ -217,8 +217,7 @@ class PaymentFee extends AbstractHelper
                 if (!empty($foundGiftcard['is_partial_refundable'])) {
                     $residual = $amountValue - (float)$refundedAlreadyPaidSaved;
 
-                    if (
-                        array_key_exists($foundGiftcard['servicecode'], $giftcards) &&
+                    if (array_key_exists($foundGiftcard['servicecode'], $giftcards) &&
                         (float)$giftcards[$foundGiftcard['servicecode']] <= $residual
                     ) {
                         $amountValue = (float)$giftcards[$foundGiftcard['servicecode']];
@@ -232,8 +231,7 @@ class PaymentFee extends AbstractHelper
                     if ((float)$refundedAlreadyPaidSaved === $amountValue) {
                         $amountValue = 0;
                         $amountBaseValue = 0;
-                    } elseif (
-                        is_array($foundGiftcard) &&
+                    } elseif (is_array($foundGiftcard) &&
                         array_key_exists($foundGiftcard['servicecode'], $giftcards) &&
                         empty((float)$giftcards[$foundGiftcard['servicecode']])
                     ) {
@@ -336,12 +334,12 @@ class PaymentFee extends AbstractHelper
      */
     protected function addTotalToTotals(
         array &$totals,
-              $code,
-              $value,
-              $baseValue,
-              $label,
-              $blockName = false,
-              $transactionId = false,
+        $code,
+        $value,
+        $baseValue,
+        $label,
+        $blockName = false,
+        $transactionId = false,
         array $extraInfo = []
     ) {
         // Only add totals if values are non-zero

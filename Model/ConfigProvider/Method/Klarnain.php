@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Buckaroo\Magento2\Exception;
+use Magento\Store\Model\ScopeInterface;
 
 class Klarnain extends AbstractConfigProvider
 {
@@ -73,19 +74,18 @@ class Klarnain extends AbstractConfigProvider
     }
 
     /**
-     * @param null|int $storeId
+     * @param null|int $store
      *
      * @return float
      */
-    public function getPaymentFee($storeId = null)
+    public function getPaymentFee($store = null)
     {
         $paymentFee = $this->scopeConfig->getValue(
             self::XPATH_KLARNAIN_PAYMENT_FEE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
+            ScopeInterface::SCOPE_STORE,
+            $store
         );
 
         return $paymentFee ? : 0;
     }
-
 }

@@ -95,8 +95,7 @@ class ApplePayFormatData implements FormatFormDataInterface
         $shippingAddressRequest->setCity($addressData['locality'] ?? '');
         $shippingAddressRequest->setState(isset($addressData['administrativeArea']) && $addressData['administrativeArea']
             ? $addressData['administrativeArea']
-            : 'unknown'
-        );
+            : 'unknown');
 
         return $shippingAddressRequest;
     }
