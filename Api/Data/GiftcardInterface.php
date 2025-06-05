@@ -56,11 +56,11 @@ interface GiftcardInterface
      * @return string|null $acquirer
      */
     public function getAcquirer();
-    
+
     /**
      * @param string|null $acquirer
      *
      * @return $this
      */
-    public function setAcquirer(string $acquirer = null);
+    public function setAcquirer(?string $acquirer = null);
 }

@@ -19,7 +19,6 @@
  */
 namespace Buckaroo\Magento2\Api\Data\Ideal;
 
-
 interface ShippingAddressRequestInterface
 {
     /**

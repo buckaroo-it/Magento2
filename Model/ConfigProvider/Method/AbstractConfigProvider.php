@@ -141,15 +141,15 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
         $issuers = $this->getIssuers();
         $codeToIssuerMap = [];
         foreach ($issuers as &$issuer) {
-            if(isset($issuer['imgName'])) {
+            if (isset($issuer['imgName'])) {
                 $issuer['img'] = $this->getImageUrl($issuer['imgName']);
             }
             $codeToIssuerMap[$issuer['code']] = $issuer;
         }
-        if(method_exists($this, 'getSortedIssuers')) {
+        if (method_exists($this, 'getSortedIssuers')) {
             $sortedCodes = $this->getSortedIssuers() ?? '';
-            $sortedCodes = $sortedCodes ? explode(',',$sortedCodes) : [];
-            if(!empty($sortedCodes)) {
+            $sortedCodes = $sortedCodes ? explode(',', $sortedCodes) : [];
+            if (!empty($sortedCodes)) {
                 $sortedIssuers = [];
                 foreach ($sortedCodes as $code) {
                     if (isset($codeToIssuerMap[$code])) {
@@ -527,7 +527,8 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
         ];
     }
 
-    public function getLogo():string {
+    public function getLogo():string
+    {
         return $this->logoService->getPayment(str_replace("buckaroo_magento2_", "", static::CODE));
     }
 }

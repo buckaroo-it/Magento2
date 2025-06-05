@@ -65,7 +65,8 @@ class AfterpayHandler extends AbstractArticlesHandler
         PayReminderService $payReminderService,
         \Magento\Catalog\Helper\Image $imageHelper
     ) {
-        parent::__construct($scopeConfig,
+        parent::__construct(
+            $scopeConfig,
             $buckarooLog,
             $quoteFactory,
             $taxCalculation,

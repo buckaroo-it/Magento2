@@ -168,16 +168,15 @@ class IssuersService
         );
     }
 
-    public function getImageUrlByIssuerId($issuerId)
+    public function getImageUrlByIssuerId(?string $issuerId): ?string
     {
-        if (
-            isset(self::ISSUERS_IMAGES[$issuerId])
-        ) {
+        if (isset(self::ISSUERS_IMAGES[$issuerId])) {
             $name = self::ISSUERS_IMAGES[$issuerId];
             return $this->getImageUrl("ideal/{$name}");
         }
+        return null;
     }
-    
+
     /**
      * Generate the url to the desired asset.
      *

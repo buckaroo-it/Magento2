@@ -361,7 +361,7 @@ class Push
 
         $refundedItems = $this->order->getPayment()->getAdditionalInformation(RefundConfigProvider::ADDITIONAL_INFO_PENDING_REFUND_ITEMS);
 
-        if($refundedItems) {
+        if ($refundedItems) {
             $items = $refundedItems;
         } else {
             foreach ($this->order->getAllItems() as $orderItem) {

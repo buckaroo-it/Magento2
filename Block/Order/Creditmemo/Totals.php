@@ -52,7 +52,7 @@ class Totals extends CreditmemoTotals
     /**
      * @inheritdoc
      */
-    public function getTotals($area = null)
+    public function getTotals(mixed $area = null)
     {
         $this->addBuckarooFeeTotals();
         return parent::getTotals($area);

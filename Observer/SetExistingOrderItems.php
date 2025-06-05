@@ -75,7 +75,6 @@ class SetExistingOrderItems implements ObserverInterface
                 }
             }
         }
-
     }
 
     protected function getOrderItemsByOrderId($orderId)

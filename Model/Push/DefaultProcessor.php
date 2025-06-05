@@ -354,7 +354,7 @@ class DefaultProcessor implements PushProcessorInterface
             && ($this->pushTransactionType->getPushType() == PushTransactionType::BUCK_PUSH_TYPE_TRANSACTION)
             && (!in_array($this->payment->getMethod(), $ignoredPaymentMethods) || $isRefund)
         ) {
-            if ($this->isDuplicateTransaction($receivedStatusCode,$trxId)
+            if ($this->isDuplicateTransaction($receivedStatusCode, $trxId)
             ) {
                 if ($this->isNewOrderAndReceivedSuccess($receivedStatusCode)) {
                     return false;
@@ -385,7 +385,8 @@ class DefaultProcessor implements PushProcessorInterface
             self::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES
         );
 
-        $this->logger->addDebug(sprintf('[%s:%s] - Check for duplicate transaction pushes | order: %s',
+        $this->logger->addDebug(sprintf(
+            '[%s:%s] - Check for duplicate transaction pushes | order: %s',
             __METHOD__,
             __LINE__,
             var_export([
@@ -414,8 +415,7 @@ class DefaultProcessor implements PushProcessorInterface
             && ($receivedStatusCode == BuckarooStatusCode::SUCCESS)
         ) {
             $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - allow duplicated pushes '
-                . 'for 190 statuses in case if order stills to be new/pending',
-            );
+                . 'for 190 statuses in case if order stills to be new/pending');
             return true;
         }
 
@@ -888,7 +888,7 @@ class DefaultProcessor implements PushProcessorInterface
             // In shipment mode, record the payment as authorized but don't capture yet
             // Store the invoice handling setting for later use
             $this->payment->setAdditionalInformation(
-                InvoiceHandlingOptions::INVOICE_HANDLING, 
+                InvoiceHandlingOptions::INVOICE_HANDLING,
                 InvoiceHandlingOptions::SHIPMENT
             );
             $this->payment->save();
@@ -1080,7 +1080,7 @@ class DefaultProcessor implements PushProcessorInterface
      */
     protected function processPendingPaymentPush($newStatus, string $statusMessage): bool
     {
-        if(!$this->canProcessPendingPush()) {
+        if (!$this->canProcessPendingPush()) {
             return true;
         }
 
@@ -1150,7 +1150,7 @@ class DefaultProcessor implements PushProcessorInterface
 
         // Check if this is shipment mode - payment authorized but not captured yet
         $isShipmentMode = ($this->configAccount->getInvoiceHandling() == InvoiceHandlingOptions::SHIPMENT);
-        
+
         if ($this->canPushInvoice() && !$isShipmentMode) {
             $description = 'Payment status : <strong>' . $message . "</strong><br/>";
             $amount = $this->order->getBaseTotalDue();

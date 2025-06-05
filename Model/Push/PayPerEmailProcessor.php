@@ -79,8 +79,7 @@ class PayPerEmailProcessor extends DefaultProcessor
         OrderStatusFactory      $orderStatusFactory,
         Account                 $configAccount,
         PayPerEmail             $configPayPerEmail
-    )
-    {
+    ) {
         parent::__construct(
             $orderRequestService,
             $pushTransactionType,

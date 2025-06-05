@@ -89,7 +89,7 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
             $customerDoB = $this->getOrder()->getCustomerDob() ?? '1990-01-01';
         }
 
-        if(!is_string($customerDoB) || strlen(trim($customerDoB)) === 0) {
+        if (!is_string($customerDoB) || strlen(trim($customerDoB)) === 0) {
             return null;
         }
 
@@ -98,7 +98,7 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
             strtotime(str_replace('/', '-', $customerDoB))
         );
 
-        if($birthDayStamp === false) {
+        if ($birthDayStamp === false) {
             return null;
         }
 

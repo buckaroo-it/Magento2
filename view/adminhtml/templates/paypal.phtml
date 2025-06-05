@@ -32,8 +32,8 @@
     }
     require(['jquery'], ($) => {
         let hasRendered = false
-        let color = '<?php echo $block->getButtonColor(); ?>';
-        let rounded = '<?php echo $block->getButtonShape(); ?>';
+        let color = '<?= $block->getButtonColor(); ?>';
+        let rounded = '<?= $block->getButtonShape(); ?>';
 
         if(!window.paypal){
             requirePayPal(renderButton)
@@ -60,13 +60,13 @@
             });
         }
 
-        $('#<?php echo $block->getButtonColorElement() ?>').change(function () {
+        $('#<?= $block->getButtonColorElement() ?>').change(function () {
            if($(this).val()!==color){
                color = $(this).val()
                renderButton()
            }
         })
-        $('#<?php echo $block->getButtonShapeElement() ?>').change(function () {
+        $('#<?= $block->getButtonShapeElement() ?>').change(function () {
             if($(this).val()!==rounded){
                 rounded = $(this).val()
                 renderButton()

@@ -135,18 +135,17 @@ class Fieldset extends MagentoFieldset
 
         foreach ($children as $child) {
             $childStatus = $this->getElementValueByConfigPath($child['children']['active']['config_path'] ?? '');
-            if($childStatus === '1') {
+            if ($childStatus === '1') {
                 $status = '1';
                 continue;
             }
-            if($childStatus === '2') {
+            if ($childStatus === '2') {
                 return '2';
             }
 
         }
 
         return $status;
-
     }
 
     /**
@@ -219,7 +218,8 @@ class Fieldset extends MagentoFieldset
      * @param AbstractElement $element
      * @return string
      */
-    private function getTabImgAndLink($element) {
+    private function getTabImgAndLink($element)
+    {
         $method = str_replace("buckaroo_magento2_", "", $element->getGroup()['id']);
         $logo = $this->getPaymentLogo($method);
         return '<div class="bk-tab-title"><img class="bk-ad-payment-logo" src="' . $logo . '">'.

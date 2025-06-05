@@ -181,7 +181,6 @@ class PayPerEmail extends AbstractConfigProvider
     public function getSchemeKey($store = null)
     {
         return $this->getMethodConfigValue(self::XPATH_PAYPEREMAIL_SCHEME_KEY, $store);
-
     }
 
     /**

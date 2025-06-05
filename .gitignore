@@ -1,3 +1,9 @@
 Build
 .DS_Store
 .idea/
+vendor/
+# Local testing files (keep for development only)
+run-local-tests.sh
+TESTING.md
+phpstan-local.neon
+composer.lock

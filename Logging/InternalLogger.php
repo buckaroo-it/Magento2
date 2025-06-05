@@ -35,7 +35,7 @@ class InternalLogger implements LoggerInterface
 
     public function __construct(
         string $name,
-        array $handlers   = [],
+        array $handlers = [],
         array $processors = []
     ) {
         $this->logger = new Logger($name, $handlers, $processors);

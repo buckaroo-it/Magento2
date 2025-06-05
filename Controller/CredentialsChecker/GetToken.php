@@ -59,7 +59,8 @@ class GetToken extends Action
     /**
      * Send POST request using Magento's Curl client.
      */
-    private function sendPostRequest($url, $username, $password, $postData) {
+    private function sendPostRequest($url, $username, $password, $postData)
+    {
         try {
             // Set Basic Auth credentials without base64_encode()
             $this->curlClient->setCredentials($username, $password);

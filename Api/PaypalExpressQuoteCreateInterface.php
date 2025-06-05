@@ -34,9 +34,9 @@ interface PaypalExpressQuoteCreateInterface
    * @param string|null $orderData
    * @return QuoteCreateResponseInterface
    */
-  public function execute(
-    ShippingAddressRequestInterface $shippingAddress,
-    string $page,
-    string $orderData = null
-  );
+    public function execute(
+        ShippingAddressRequestInterface $shippingAddress,
+        string $page,
+        ?string $orderData = null
+    );
 }

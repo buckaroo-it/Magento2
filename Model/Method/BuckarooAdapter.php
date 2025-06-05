@@ -272,8 +272,7 @@ class BuckarooAdapter extends Adapter
             $title = DefaultTitles::get($this->buckarooPaymentMethodCode);
         }
 
-        if (
-            strpos($this->buckarooPaymentMethodCode, "capayable") !== false &&
+        if (strpos($this->buckarooPaymentMethodCode, "capayable") !== false &&
             method_exists($configProvider, 'isV2') &&
             $configProvider->isV2() &&
             $title === CapayableIn3::DEFAULT_NAME

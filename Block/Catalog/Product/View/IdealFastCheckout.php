@@ -61,7 +61,6 @@ class IdealFastCheckout extends Template
         $this->encryptor = $encryptor;
         $this->idealConfig = $idealConfig;
         $this->assetRepo = $assetRepo;
-
     }
 
     /**
@@ -93,14 +92,14 @@ class IdealFastCheckout extends Template
      *
      * @return mixed
      */
-    public function getLogo() {
+    public function getLogo()
+    {
 
         $logoColor = $this->idealConfig->getLogoColor($this->_storeManager->getStore());
 
-        if ($logoColor == "Light"){
+        if ($logoColor == "Light") {
             $name = "ideal/ideal-fast-checkout-rgb-light.png";
-        }
-        else{
+        } else {
             $name = "ideal/ideal-fast-checkout-rgb-dark.png";
         }
         return $this->assetRepo->getUrl("Buckaroo_Magento2::images/{$name}");

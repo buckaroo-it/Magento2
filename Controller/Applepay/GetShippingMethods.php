@@ -101,7 +101,7 @@ class GetShippingMethods extends AbstractApplepay
                             'Apple Pay payment failed, because no shipping methods were found for the selected address. ' .
                             'Please select a different shipping address within the pop-up or within your Apple Pay Wallet.'
                         );
-                    }else {
+                    } else {
                         // Set default shipping method using the first method.
                         $firstMethod = reset($shippingMethods);
                         $this->quoteService->setShippingMethod($firstMethod['method_code']);

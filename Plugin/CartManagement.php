@@ -40,7 +40,7 @@ class CartManagement
      */
     protected LockManagerWrapper $lockManager;
 
-    
+
     public function __construct(
         CartRepositoryInterface $quoteRepository,
         LockManagerWrapper $lockManager
@@ -51,7 +51,7 @@ class CartManagement
 
     /**
      * Places an order for a specified cart.
-     * 
+     *
      * @param CartManagementInterface $cardManagement
      * @param \Closure                $proceed
      * @param int $cartId The cart ID.
@@ -71,8 +71,7 @@ class CartManagement
         $quote = $this->quoteRepository->getActive($cartId);
         $orderIncrementID = $quote->getReservedOrderId();
 
-        if (
-            $quote instanceof Quote &&
+        if ($quote instanceof Quote &&
             $orderIncrementID !== null &&
             $this->isBuckarooPayment($quote)
         ) {
@@ -93,7 +92,8 @@ class CartManagement
     }
 
 
-    private function isBuckarooPayment(Quote $quote) {
+    private function isBuckarooPayment(Quote $quote)
+    {
         return strpos($quote->getPayment()->getMethod(), "buckaroo_magento2_") !== false;
     }
 }

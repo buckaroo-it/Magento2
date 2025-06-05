@@ -38,6 +38,6 @@ interface PaymentInformationManagementInterface
     public function buckarooSavePaymentInformationAndPlaceOrder(
         $cartId,
         PaymentInterface $paymentMethod,
-        AddressInterface $billingAddress = null
+        ?AddressInterface $billingAddress = null
     );
 }

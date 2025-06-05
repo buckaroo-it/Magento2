@@ -87,7 +87,6 @@ class Creditcards extends AbstractConfigProvider
         LogoService $logoService
     ) {
         parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper, $logoService);
-
     }
 
     /**

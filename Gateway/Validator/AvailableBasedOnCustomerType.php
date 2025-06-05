@@ -51,8 +51,7 @@ class AvailableBasedOnCustomerType extends AbstractValidator
             && (
                 $paymentMethodInstance->getConfigData('customer_type', $storeId) == AfterpayCustomerType::CUSTOMER_TYPE_B2C
                 || $paymentMethodInstance->getConfigData('customer_type', $storeId) == BillinkCustomerType::CUSTOMER_TYPE_B2C
-            ))
-        {
+            )) {
             $isValid = false;
         }
         return $this->createResult($isValid);

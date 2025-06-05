@@ -174,7 +174,7 @@ class BuckarooFee extends CommonTaxCollector
 
         $result = $this->calculate->calculatePaymentFee($quote, $total);
 
-        if ($result === null){
+        if ($result === null) {
             return $this;
         }
 

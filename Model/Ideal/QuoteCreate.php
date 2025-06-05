@@ -92,7 +92,7 @@ class QuoteCreate implements IdealQuoteCreateInterface
      * @return QuoteCreateResponseInterface
      * @throws IdealException
      */
-    public function execute(string $page, string $form_data = null)
+    public function execute(string $page, ?string $form_data = null)
     {
         try {
             if ($page === 'product' && is_string($form_data)) {

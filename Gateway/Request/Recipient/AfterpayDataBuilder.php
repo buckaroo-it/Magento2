@@ -101,7 +101,7 @@ class AfterpayDataBuilder extends AbstractRecipientDataBuilder
      * @return bool
      * @throws LocalizedException
      */
-    private function isCustomerB2B(int $storeId = null): bool
+    private function isCustomerB2B(?int $storeId = null): bool
     {
         return $this->getConfigData('customer_type', $storeId) !== AfterpayCustomerType::CUSTOMER_TYPE_B2C;
     }
@@ -130,7 +130,7 @@ class AfterpayDataBuilder extends AbstractRecipientDataBuilder
      *
      * @return boolean
      */
-    private function isCompanyEmpty(string $company = null): bool
+    private function isCompanyEmpty(?string $company = null): bool
     {
         if (null === $company) {
             return true;

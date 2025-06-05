@@ -105,7 +105,7 @@ class BuckarooFee extends AbstractTotal
 
         $result = $this->calculate->calculatePaymentFee($quote, $total);
 
-        if ($result === null || $result->getAmount() < 0.01){
+        if ($result === null || $result->getAmount() < 0.01) {
             return $this;
         }
         $amount = $this->priceCurrency->convert($result->getRoundedAmount());

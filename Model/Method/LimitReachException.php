@@ -22,5 +22,5 @@ namespace Buckaroo\Magento2\Model\Method;
 
 class LimitReachException extends \Exception
 {
-    
+
 }

@@ -157,8 +157,7 @@ class Giftcard
     protected function createOrderFromQuote()
     {
         $this->logger->addDebug('
-          [Giftcard] | [Response] | [' . __METHOD__ . ':' . __LINE__ . '] - Create Order From Quote'
-        );
+          [Giftcard] | [Response] | [' . __METHOD__ . ':' . __LINE__ . '] - Create Order From Quote');
 
         $this->ensureCustomerEmail();
 

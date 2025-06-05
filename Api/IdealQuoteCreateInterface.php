@@ -34,6 +34,6 @@ interface IdealQuoteCreateInterface
      */
     public function execute(
         string $page,
-        string $orderData = null
+        ?string $orderData = null
     );
 }

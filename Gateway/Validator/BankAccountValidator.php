@@ -31,7 +31,6 @@ use Magento\Sales\Model\Order\Payment;
 /**
  * Class IssuerValidator
  *
- * @package Magento\Payment\Gateway\Validator
  * @api
  * @since 100.0.2
  */

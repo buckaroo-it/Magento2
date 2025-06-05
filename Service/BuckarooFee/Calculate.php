@@ -60,10 +60,10 @@ class Calculate
     {
         $paymentFee = $this->getPaymentFee($quote);
 
-        if ($paymentFee === null){
+        if ($paymentFee === null) {
             return null;
         }
-        if(strpos($paymentFee, '%') !== false){
+        if (strpos($paymentFee, '%') !== false) {
             return $this->percentage->calculate($quote, $total, $paymentFee);
         }
 
