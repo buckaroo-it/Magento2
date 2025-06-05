@@ -52,7 +52,7 @@ class AddressFormatter
     }
 
     /**
-     * Format street and telephone by order address
+     * Formats the address into a structured array.
      *
      * @param OrderAddressInterface $address
      * @return array
@@ -60,30 +60,30 @@ class AddressFormatter
     public function format(OrderAddressInterface $address): array
     {
         return [
-            'street'    => $this->formatStreet($address->getStreet()),
-            'telephone' => $this->formatTelephone($address->getTelephone(), $address->getCountryId())
+            'street' => $this->formatStreet($address->getStreet()),
+            'telephone' => $this->formatTelephone($address->getTelephone(), $address->getCountryId()),
         ];
     }
 
     /**
-     * Format street
+     * Formats the street address.
      *
-     * @param array $street
+     * @param array|string|null $street
      * @return array
      */
-    public function formatStreet(array $street): array
+    public function formatStreet($street): array
     {
         return $this->streetFormatter->format($street);
     }
 
     /**
-     * Format phone number
+     * Formats the phone number based on the country.
      *
-     * @param string $phoneNumber
+     * @param string|null $phoneNumber
      * @param string $country
      * @return array
      */
-    public function formatTelephone(string $phoneNumber, string $country): array
+    public function formatTelephone(?string $phoneNumber, string $country): array
     {
         return $this->phoneFormatter->format($phoneNumber, $country);
     }

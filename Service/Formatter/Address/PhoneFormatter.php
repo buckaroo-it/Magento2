@@ -34,7 +34,7 @@ class PhoneFormatter
     /**
      * @var array[]
      */
-    private array $validMobile = [
+    private const VALID_MOBILE = [
         'NL' => ['00316'],
         'BE' => ['003246', '003247', '003248', '003249'],
         'DE' => ['004915', '004916', '004917'],
@@ -44,7 +44,7 @@ class PhoneFormatter
     /**
      * @var array[]
      */
-    private array $invalidNotation = [
+    private const INVALID_NOTATION = [
         'NL' => ['00310', '0310', '310', '31'],
         'BE' => ['00320', '0320', '320', '32'],
     ];
@@ -52,19 +52,18 @@ class PhoneFormatter
     /**
      * @var array[]
      */
-    private array $startingNotation = [
-        'NL' => ['0', '0', '3', '1'],
-        'BE' => ['0', '0', '3', '2'],
-        'DE' => ['0', '0', '4', '9'],
-        'AT' => ['0', '0', '4', '3'],
+    private const STARTING_NOTATION = [
+        'NL' => '0031',
+        'BE' => '0032',
+        'DE' => '0049',
+        'AT' => '0043',
     ];
 
     /**
      * @param BuckarooLoggerInterface $logger
      */
-    public function __construct(
-        BuckarooLoggerInterface $logger
-    ) {
+    public function __construct(BuckarooLoggerInterface $logger)
+    {
         $this->logger = $logger;
     }
 
@@ -77,26 +76,37 @@ class PhoneFormatter
      */
     public function format(string $phoneNumber, string $country): array
     {
-        $this->logger->addDebug(sprintf(
-            '[PHONE_FORMATER] | [Service] | [%s:%s] - Format phone number by country | request: %s',
-            __METHOD__,
-            __LINE__,
-            var_export(['phoneNumber' => $phoneNumber, 'country' => $country], true)
-        ));
+        $this->logger->addDebug(__METHOD__ . ' - Starting format process', [
+            'phoneNumber' => $phoneNumber,
+            'country' => $country,
+        ]);
 
-        $return = ["orginal" => $phoneNumber, "clean" => false, "mobile" => false, "valid" => false];
+        $return = [
+            'original' => $phoneNumber,
+            'clean' => false,
+            'mobile' => false,
+            'valid' => false,
+        ];
 
-        $match = preg_replace('/[^0-9]/Uis', '', $phoneNumber);
-        if ($match) {
-            $phoneNumber = $match;
+        // If phone number is null or empty, return default
+        if (empty($phoneNumber)) {
+            return $return;
         }
 
-        $return['clean'] = $this->formatPhoneNumber($phoneNumber, $country);
-        $return['mobile'] = $this->isMobileNumber($return['clean'], $country);
-
-        if (strlen((string)$return['clean']) == 13) {
-            $return['valid'] = true;
+        // If country is unsupported, return the original phone number as clean
+        if (!isset(self::STARTING_NOTATION[$country])) {
+            $return['clean'] = $phoneNumber;
+            return $return;
         }
+
+        // Clean and format the phone number
+        $cleanedNumber = $this->cleanPhoneNumber($phoneNumber);
+        $formattedNumber = $this->formatPhoneNumber($cleanedNumber, $country);
+
+        // Check if the phone number is mobile and valid
+        $return['clean'] = $formattedNumber;
+        $return['mobile'] = $this->isMobileNumber($formattedNumber, $country);
+        $return['valid'] = strlen($formattedNumber) === 13;
 
         $this->logger->addDebug(sprintf(
             '[PHONE_FORMATER] | [Service] | [%s:%s] - Format phone number by country | response: %s',
@@ -109,6 +119,17 @@ class PhoneFormatter
     }
 
     /**
+     * Removes all non-numeric characters from the phone number.
+     *
+     * @param string $phoneNumber
+     * @return string
+     */
+    private function cleanPhoneNumber(string $phoneNumber): string
+    {
+        return preg_replace('/\D+/', '', $phoneNumber) ?? '';
+    }
+
+    /**
      * Format phone number by country
      *
      * @param string $phoneNumber
@@ -118,19 +139,17 @@ class PhoneFormatter
      */
     private function formatPhoneNumber(string $phoneNumber, string $country): string
     {
-        $phoneLength = strlen((string)$phoneNumber);
+        $startingNotation = self::STARTING_NOTATION[$country];
+        $phoneLength = strlen($phoneNumber);
 
-        if ($phoneLength > 10 && $phoneLength != 13) {
-            $phoneNumber = $this->isValidNotation($phoneNumber, $country);
+        // Apply invalid notation correction
+        if ($phoneLength > 10 && $phoneLength !== 13) {
+            $phoneNumber = $this->applyInvalidNotationCorrection($phoneNumber, $country);
         }
 
-        if ((
-                (in_array($country, ['NL', 'BE']) && ($phoneLength == 10))
-                ||
-                (in_array($country, ['AT', 'DE']))
-            ) && (isset($this->startingNotation[$country]))) {
-            $notationStart = implode($this->startingNotation[$country]);
-            $phoneNumber = $notationStart . substr($phoneNumber, 1);
+        // Prepend starting notation for supported local numbers
+        if ($phoneLength === 10 && strpos($phoneNumber, $startingNotation) !== 0) {
+            $phoneNumber = $startingNotation . substr($phoneNumber, 1);
         }
 
         return $phoneNumber;
@@ -143,54 +162,28 @@ class PhoneFormatter
      * @param string $country
      * @return string
      */
-    private function isValidNotation(string $phoneNumber, string $country): string
+    private function applyInvalidNotationCorrection(string $phoneNumber, string $country): string
     {
-        if (isset($this->invalidNotation[$country])) {
-            array_walk(
-                $this->invalidNotation[$country],
-                function ($invalid) use (&$phoneNumber, $country) {
-                    $phoneNumberPart = substr($phoneNumber, 0, strlen($invalid));
-
-                    if (strpos($phoneNumberPart, $invalid) !== false) {
-                        $phoneNumber = $this->formatNotation($phoneNumber, $invalid, $country);
-                    }
-                }
-            );
+        foreach (self::INVALID_NOTATION[$country] ?? [] as $invalidPrefix) {
+            if (strpos($phoneNumber, $invalidPrefix) === 0) {
+                $phoneNumber = $this->replaceInvalidNotation($phoneNumber, $invalidPrefix, $country);
+            }
         }
-
         return $phoneNumber;
     }
 
     /**
-     * Formats the given phone number to have the correct notation for the country
+     * Replaces invalid notation with a valid prefix.
      *
      * @param string $phoneNumber
-     * @param string $invalid
+     * @param string $invalidPrefix
      * @param string $country
      * @return string
      */
-    private function formatNotation(string $phoneNumber, string $invalid, string $country): string
+    private function replaceInvalidNotation(string $phoneNumber, string $invalidPrefix, string $country): string
     {
-        if (isset($this->startingNotation[$country])) {
-            $valid = substr($invalid, 0, -1);
-            $countryNotation = $this->startingNotation[$country];
-
-            if (substr($valid, 0, 2) == $countryNotation[2] . $countryNotation[3]) {
-                $valid = $countryNotation[0] . $countryNotation[1] . $valid;
-            }
-
-            if (substr($valid, 0, 2) == $countryNotation[1] . $countryNotation[2]) {
-                $valid = $countryNotation[0] . $valid;
-            }
-
-            if ($valid == $countryNotation[2]) {
-                $valid = $countryNotation[1] . $valid . $countryNotation[3];
-            }
-
-            $phoneNumber = substr_replace($phoneNumber, $valid, 0, strlen($invalid));
-        }
-
-        return $phoneNumber;
+        $validPrefix = self::STARTING_NOTATION[$country];
+        return preg_replace('/^' . preg_quote($invalidPrefix, '/') . '/', $validPrefix, $phoneNumber) ?? $phoneNumber;
     }
 
     /**
@@ -203,22 +196,11 @@ class PhoneFormatter
      */
     private function isMobileNumber(string $phoneNumber, string $country): bool
     {
-        $isMobile = false;
-
-        if (isset($this->validMobile[$country])) {
-            array_walk(
-                $this->validMobile[$country],
-                function ($value) use (&$isMobile, $phoneNumber) {
-                    $phoneNumberPart = substr($phoneNumber, 0, strlen($value));
-                    $phoneNumberHasValue = strpos($phoneNumberPart, $value);
-
-                    if ($phoneNumberHasValue !== false) {
-                        $isMobile = true;
-                    }
-                }
-            );
+        foreach (self::VALID_MOBILE[$country] ?? [] as $prefix) {
+            if (strpos($phoneNumber, $prefix) === 0) {
+                return true;
+            }
         }
-
-        return $isMobile;
+        return false;
     }
 }
