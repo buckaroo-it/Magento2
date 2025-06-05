@@ -56,8 +56,6 @@ class PhoneDataBuilder implements BuilderInterface
         $telephone = $paymentDO->getPayment()->getAdditionalInformation('customer_telephone');
         $telephone = $telephone ?: ($address ? $address->getTelephone() : '');
 
-        $telephone = $telephone ?? '';
-
         return $this->returnPhoneDetails($telephone, $telephone);
     }
 
