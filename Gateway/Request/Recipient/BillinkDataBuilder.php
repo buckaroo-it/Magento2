@@ -22,11 +22,21 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Gateway\Request\Recipient;
 
 use Buckaroo\Magento2\Exception;
+use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\Data;
+use Buckaroo\Magento2\Model\Config\Source\BillinkCustomerType;
+use Buckaroo\Resources\Constants\RecipientCategory;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Store\Model\Store;
 
 class BillinkDataBuilder extends AbstractRecipientDataBuilder
 {
+    /**
+     * @var ScopeConfigInterface
+     */
+    private ScopeConfigInterface $scopeConfig;
+
     /**
      * @var Data
      */
@@ -36,9 +46,10 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
      * @param Data $helper
      * @param string $addressType
      */
-    public function __construct(Data $helper, string $addressType = 'billing')
+    public function __construct(Data $helper, ScopeConfigInterface $scopeConfig, string $addressType = 'billing')
     {
         parent::__construct($addressType);
+        $this->scopeConfig = $scopeConfig;
         $this->helper = $helper;
     }
 
@@ -95,15 +106,62 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
     }
 
     /**
+     * Determines whether the customer is a B2B customer based on the store configuration.
+     *
+     * @param int|null $storeId
+     * @return bool
+     * @throws LocalizedException
+     */
+    private function isCustomerB2B(?int $storeId = null): bool
+    {
+        return $this->getConfigData('customer_type', $storeId) !== BillinkCustomerType::CUSTOMER_TYPE_B2C;
+    }
+
+    /**
+     * Check if company is empty
+     *
+     * @param string|null $company
+     *
+     * @return boolean
+     */
+    private function isCompanyEmpty(?string $company = null): bool
+    {
+        if (null === $company) {
+            return true;
+        }
+
+        return strlen(trim($company)) === 0;
+    }
+
+    /**
      * @inheritdoc
      */
     protected function getCategory(): string
     {
-        try {
-            return $this->helper->checkCustomerGroup('buckaroo_magento2_billink') ? 'B2B' : 'B2C';
-        } catch (Exception $e) {
-            return 'B2C';
+        $billingAddress = $this->getOrder()->getBillingAddress();
+        if ($this->isCustomerB2B($this->getOrder()->getStoreId()) &&
+            !$this->isCompanyEmpty($billingAddress->getCompany())
+        ) {
+            return 'B2B';
         }
+        return 'B2C';
+    }
+
+    /**
+     * Retrieve information from payment configuration
+     *
+     * @param string $field
+     * @param int|null $storeId
+     * @return mixed
+     * @throws LocalizedException
+     */
+    public function getConfigData(string $field, ?int $storeId = null)
+    {
+        if (null === $storeId) {
+            $storeId = $this->getOrder()->getStoreId();
+        }
+        $path = 'payment/' . $this->getPayment()->getMethodInstance()->getCode() . '/' . $field;
+        return $this->scopeConfig->getValue($path, ScopeInterface::SCOPE_STORE, $storeId);
     }
 
     /**
