@@ -267,7 +267,8 @@ class Creditcard extends AbstractConfigProvider
     {
         return $this->scopeConfig->getValue(
             self::XPATH_CREDITCARD_ALLOWED_CREDITCARDS,
-            ScopeInterface::SCOPE_STORE
+            ScopeInterface::SCOPE_STORE,
+            $store
         );
     }
 
