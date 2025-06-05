@@ -8,11 +8,28 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - php: '8.1'
+            magento: '2.4.6'
+          - php: '8.2'
+            magento: '2.4.6'
+          - php: '8.2'
+            magento: '2.4.7'
+          - php: '8.3'
+            magento: '2.4.7'
+          - php: '8.3'
+            magento: '2.4.8'
+          - php: '8.4'
+            magento: '2.4.8'
+    name: PHP ${{ matrix.php }} / Magento ${{ matrix.magento }}
     steps:
       - name: setup php
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 8.0
+          php-version: ${{ matrix.php }}
           tools: composer:v2
       - uses: actions/checkout@v2
       - name: validate composer json
@@ -22,22 +39,60 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ github.workspace }}/${{ env.namespace }}-source/vendor
-          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          key: ${{ runner.os }}-php${{ matrix.php }}-mg${{ matrix.magento }}-${{ hashFiles('**/composer.lock') }}
           restore-keys: |
-            ${{ runner.os }}-php-
+            ${{ runner.os }}-php${{ matrix.php }}-mg${{ matrix.magento }}-
       - name: PHPUnit and PHPCS
         run: |
-          pull_number=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
-          url="https://api.github.com/repos/buckaroo-it/Magento2/pulls/$pull_number/files"
-          echo $url
-          curl $url > files_changed
-          cat files_changed | grep '"filename"' | sed 's/\"filename\"\: \"//' | sed 's/\",//' | xargs ls
+          echo "Setting up Magento ${{ matrix.magento }} with PHP ${{ matrix.php }}"
+          
+          # Handle pull request files for PHPCS - only for PR events
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            pull_number="${{ github.event.number }}"
+            if [ "$pull_number" != "null" ] && [ -n "$pull_number" ]; then
+              url="https://api.github.com/repos/buckaroo-it/Magento2/pulls/$pull_number/files"
+              echo "Fetching changed files: $url"
+              curl -s "$url" > files_changed.json
+              if [ -s files_changed.json ]; then
+                cat files_changed.json | jq -r '.[].filename' > files_changed.txt
+                echo "Changed files:"
+                cat files_changed.txt
+              else
+                echo "No files found, will skip PHPCS on changed files"
+                touch files_changed.txt
+              fi
+            else
+              echo "No valid pull request number, will skip PHPCS on changed files"
+              touch files_changed.txt
+            fi
+          else
+            echo "Not a pull request, skipping file change detection"
+            touch files_changed.txt
+          fi
+          
+          # Set up Magento project
           echo '{"http-basic": {"repo.magento.com": {"username": "${{ secrets.REPO_USERNAME }}","password": "${{ secrets.REPO_PASS }}"}}}' > auth.json
-          composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition=2.4.8 m248
-          mkdir -p m248/app/code/Buckaroo/Magento2/
-          rsync -r --exclude='m248' ./ m248/app/code/Buckaroo/Magento2/
-          cat files_changed | grep '"filename"' | sed 's/\"filename\"\: \"//' | sed 's/\",//' | xargs ./m248/vendor/bin/phpcs --standard=Magento2
-          cd m248
+          composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition=${{ matrix.magento }} m2-${{ matrix.magento }}
+          
+          # Copy module files
+          mkdir -p m2-${{ matrix.magento }}/app/code/Buckaroo/Magento2/
+          rsync -r --exclude='m2-*' ./ m2-${{ matrix.magento }}/app/code/Buckaroo/Magento2/
+          
+          # Run PHPCS on changed files (if any)
+          if [ -s files_changed.txt ]; then
+            echo "Running PHPCS on changed files..."
+            while IFS= read -r file; do
+              if [ -f "$file" ]; then
+                echo "Checking file: $file"
+                ./m2-${{ matrix.magento }}/vendor/bin/phpcs --standard=Magento2 "$file" || true
+              fi
+            done < files_changed.txt
+          else
+            echo "No changed files to check with PHPCS"
+          fi
+          
+          # Set up Magento and run tests
+          cd m2-${{ matrix.magento }}
           bin/magento module:enable --all
           bin/magento setup:di:compile
           vendor/phpunit/phpunit/phpunit -c dev/tests/unit/phpunit.xml.dist app/code/Buckaroo/Magento2

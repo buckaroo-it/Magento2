@@ -126,7 +126,7 @@ class Applepay extends AbstractConfigProvider
         if ($availableButtons) {
             $availableButtons = explode(',', (string)$availableButtons);
         } else {
-            $availableButtons = false;
+            $availableButtons = [];
         }
 
         return $availableButtons;
