@@ -37,6 +37,18 @@ class Pospayment extends AbstractConfigProvider
     ];
 
     /**
+     * @inheritdoc
+     */
+    public function getConfig(): array
+    {
+        if (!$this->getActive()) {
+            return [];
+        }
+
+        return $this->fullConfig();
+    }
+
+    /**
      * Get Other payment methods for POS
      *
      * @param $store

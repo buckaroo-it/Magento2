@@ -11,7 +11,7 @@ jobs:
     continue-on-error: true
     steps:
       - uses: actions/checkout@v3
-      - uses: extdn/github-actions-m2/magento-coding-standard/8.1@master
+      - uses: extdn/github-actions-m2/magento-coding-standard/8.3@master
         with:
           phpcs_severity: 10
           phpcs_report: full
@@ -35,7 +35,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 8.0
+          php-version: 8.3
           tools: composer:v2
 
       - uses: actions/checkout@v3
@@ -55,23 +55,33 @@ jobs:
           COMPOSER_NO_INTERACTION: 1
           COMPOSER_NO_AUDIT: 1
         run: |
-          # Pull‑request number
-          pull_number=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
-          url="https://api.github.com/repos/buckaroo-it/Magento2/pulls/${pull_number}/files"
-          echo "Fetching file list: $url"
-
-          # Save only files still present in the checkout
-          curl -s "$url" \
-            | jq -r '.[] | select(.status != "removed") | .filename' \
-            | tee files_changed
-
-          # Optionally show them (‑r = no run if list is empty)
-          cat files_changed | xargs -r ls -la
+          # Handle pull request files properly
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            pull_number="${{ github.event.number }}"
+            if [ "$pull_number" != "null" ] && [ -n "$pull_number" ]; then
+              url="https://api.github.com/repos/buckaroo-it/Magento2/pulls/${pull_number}/files"
+              echo "Fetching file list: $url"
+              
+              # Save only files still present in the checkout
+              curl -s "$url" \
+                | jq -r '.[] | select(.status != "removed") | .filename' \
+                | tee files_changed
+              
+              # Optionally show them (‑r = no run if list is empty)
+              cat files_changed | xargs -r ls -la || echo "Some files may have been moved or renamed"
+            else
+              echo "No valid pull request number, skipping file change detection"
+              touch files_changed
+            fi
+          else
+            echo "Not a pull request, skipping file change detection"
+            touch files_changed
+          fi
 
           # Magento auth.json
           echo '{"http-basic": {"repo.magento.com": {"username": "${{ secrets.REPO_USERNAME }}","password": "${{ secrets.REPO_PASS }}"}}}' > auth.json
 
-          # Create clean Magento 2.4.8 project
+          # Create clean Magento 2.4.8 project with PHP 8.3 (compatible combination)
           composer create-project --repository-url=https://repo.magento.com/ \
             magento/project-community-edition=2.4.8 ~/m248
 

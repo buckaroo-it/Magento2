@@ -48,7 +48,7 @@ class ActiveAccountValidator extends AbstractValidator
     }
 
     /**
-     * Validates if Buckaroo Module is enabled
+     * Validates if Buckaroo Module is enabled and has valid credentials
      *
      * @param array $validationSubject
      * @return ResultInterface
@@ -64,8 +64,20 @@ class ActiveAccountValidator extends AbstractValidator
          * @var Account $accountConfig
          */
         $accountConfig = $this->configProviderFactory->get('account');
+
+        // Check if account is enabled
         if ($accountConfig->getActive() == 0) {
             $isValid = false;
+        }
+
+        // Check if credentials are configured
+        if ($isValid) {
+            $merchantKey = $accountConfig->getMerchantKey();
+            $secretKey = $accountConfig->getSecretKey();
+
+            if (empty($merchantKey) || empty($secretKey)) {
+                $isValid = false;
+            }
         }
 
         return $this->createResult($isValid);
