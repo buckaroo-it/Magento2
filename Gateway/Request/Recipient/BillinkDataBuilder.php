@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Gateway\Request\Recipient;
 
 use Buckaroo\Magento2\Exception;
+use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Model\Config\Source\BillinkCustomerType;
 use Buckaroo\Resources\Constants\RecipientCategory;
@@ -34,7 +35,7 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
     /**
      * @var ScopeConfigInterface
      */
-    protected ScopeConfigInterface $scopeConfig;
+    private ScopeConfigInterface $scopeConfig;
 
     /**
      * @var Data
@@ -111,7 +112,7 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
      * @return bool
      * @throws LocalizedException
      */
-    private function isCustomerB2B(int $storeId = null): bool
+    private function isCustomerB2B(?int $storeId = null): bool
     {
         return $this->getConfigData('customer_type', $storeId) !== BillinkCustomerType::CUSTOMER_TYPE_B2C;
     }
@@ -123,7 +124,7 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
      *
      * @return boolean
      */
-    private function isCompanyEmpty(string $company = null): bool
+    private function isCompanyEmpty(?string $company = null): bool
     {
         if (null === $company) {
             return true;
@@ -137,33 +138,30 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
      */
     protected function getCategory(): string
     {
-        $category = 'B2C';
         $billingAddress = $this->getOrder()->getBillingAddress();
-
         if ($this->isCustomerB2B($this->getOrder()->getStoreId()) &&
             !$this->isCompanyEmpty($billingAddress->getCompany())
         ) {
-            $category = 'B2B';
+            return 'B2B';
         }
-
-        return $category;
+        return 'B2C';
     }
 
     /**
      * Retrieve information from payment configuration
      *
      * @param string $field
-     * @param int|string|null|Store $storeId
+     * @param int|null $storeId
      * @return mixed
      * @throws LocalizedException
      */
-    public function getConfigData(string $field, $storeId = null)
+    public function getConfigData(string $field, ?int $storeId = null)
     {
         if (null === $storeId) {
             $storeId = $this->getOrder()->getStoreId();
         }
         $path = 'payment/' . $this->getPayment()->getMethodInstance()->getCode() . '/' . $field;
-        return $this->scopeConfig->getValue($path, \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $storeId);
+        return $this->scopeConfig->getValue($path, ScopeInterface::SCOPE_STORE, $storeId);
     }
 
     /**
