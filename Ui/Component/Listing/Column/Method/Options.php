@@ -26,6 +26,7 @@ use Magento\Framework\View\Element\UiComponent\ContextInterface;
 use Magento\Framework\View\Element\UiComponentFactory;
 use Magento\Ui\Component\Listing\Columns\Column;
 use Magento\Sales\Model\ResourceModel\Order\CollectionFactory as OrderCollectionFactory;
+use Magento\Framework\DB\Sql\Expression;
 
 
 class Options extends Column
@@ -105,7 +106,7 @@ class Options extends Column
                 []
             )
             ->columns([
-                'giftcard_codes' => new \Zend_Db_Expr("GROUP_CONCAT(DISTINCT group_transaction.servicecode SEPARATOR '-')")
+                'giftcard_codes' => new Expression("GROUP_CONCAT(DISTINCT group_transaction.servicecode SEPARATOR '-')")
             ])
             ->where('order.increment_id IN (?)', $incrementIds)
             ->group('order.increment_id');
