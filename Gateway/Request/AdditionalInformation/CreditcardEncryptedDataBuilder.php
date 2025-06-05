@@ -53,7 +53,7 @@ class CreditcardEncryptedDataBuilder implements BuilderInterface
 
         return [
             'name' => $additionalInformation['customer_creditcardcompany'],
-            'encryptedCardData' => $additionalInformation['customer_encrypteddata']
+            'sessionId' => $additionalInformation['customer_encrypteddata']
         ];
     }
 }

@@ -461,7 +461,7 @@ class Data extends AbstractHelper
             ['value' => 'billink',       'label' => __('Billink')],
             ['value' => 'capayablein3',       'label' => __('In3')],
             ['value' => 'creditcard',       'label' => __('Credit and debit cards')],
-            ['value' => 'creditcards',       'label' => __('Credit and debit cards (Client sided)')],
+            ['value' => 'creditcards',       'label' => __('Credit and debit cards (Hosted Fields)')],
             ['value' => 'eps',       'label' => __('EPS')],
             ['value' => 'giftcards',       'label' => __('Giftcards')],
             ['value' => 'ideal',       'label' => __('iDEAL')],

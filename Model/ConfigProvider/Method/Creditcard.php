@@ -20,6 +20,9 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
+use Magento\Store\Model\ScopeInterface;
+
+
 class Creditcard extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_creditcard';
@@ -43,7 +46,7 @@ class Creditcard extends AbstractConfigProvider
     public const XPATH_CREDITCARD_VISA_UNSECURE_HOLD       = 'visa_unsecure_hold';
     public const XPATH_CREDITCARD_MAESTRO_UNSECURE_HOLD    = 'maestro_unsecure_hold';
 
-    public const XPATH_CREDITCARD_ALLOWED_CREDITCARDS = 'allowed_issuers';
+    public const XPATH_CREDITCARD_ALLOWED_CREDITCARDS = 'payment/buckaroo_magento2_creditcard/allowed_issuers';
     public const XPATH_SORTED_ISSUERS                 = 'sorted_issuers';
     public const XPATH_CREDITCARD_GROUP_CREDITCARD    = 'group_creditcards';
     public const XPATH_SELECTION_TYPE                 = 'selection_type';
@@ -262,7 +265,11 @@ class Creditcard extends AbstractConfigProvider
      */
     public function getAllowedCreditcards($store = null)
     {
-        return $this->getMethodConfigValue(self::XPATH_CREDITCARD_ALLOWED_CREDITCARDS, $store);
+        return $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARD_ALLOWED_CREDITCARDS,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
     }
 
     /**

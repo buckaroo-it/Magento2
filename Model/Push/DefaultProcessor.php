@@ -885,6 +885,12 @@ class DefaultProcessor implements PushProcessorInterface
         $this->addTransactionData();
 
         if ($this->configAccount->getInvoiceHandling() == InvoiceHandlingOptions::SHIPMENT) {
+            // In shipment mode, record the payment as authorized but don't capture yet
+            // Store the invoice handling setting for later use
+            $this->payment->setAdditionalInformation(
+                InvoiceHandlingOptions::INVOICE_HANDLING, 
+                InvoiceHandlingOptions::SHIPMENT
+            );
             $this->payment->save();
             return true;
         }
@@ -1142,15 +1148,23 @@ class DefaultProcessor implements PushProcessorInterface
         $forceState = false;
         $this->dontSaveOrderUponSuccessPush = false;
 
-        if ($this->canPushInvoice()) {
+        // Check if this is shipment mode - payment authorized but not captured yet
+        $isShipmentMode = ($this->configAccount->getInvoiceHandling() == InvoiceHandlingOptions::SHIPMENT);
+        
+        if ($this->canPushInvoice() && !$isShipmentMode) {
             $description = 'Payment status : <strong>' . $message . "</strong><br/>";
             $amount = $this->order->getBaseTotalDue();
             $description .= 'Total amount of ' .
                 $this->order->getBaseCurrency()->formatTxt($amount) . ' has been paid';
         } else {
             $description = 'Authorization status : <strong>' . $message . "</strong><br/>";
-            $description .= 'Total amount of ' . $this->order->getBaseCurrency()->formatTxt($amount)
-                . ' has been authorized. Please create an invoice to capture the authorized amount.';
+            if ($isShipmentMode) {
+                $description .= 'Total amount of ' . $this->order->getBaseCurrency()->formatTxt($amount)
+                    . ' has been authorized. Payment will be captured when order is shipped.';
+            } else {
+                $description .= 'Total amount of ' . $this->order->getBaseCurrency()->formatTxt($amount)
+                    . ' has been authorized. Please create an invoice to capture the authorized amount.';
+            }
             $forceState = true;
         }
 
