@@ -67,7 +67,25 @@ class UpdateOrderStatus implements ObserverInterface
         $createOrderBeforeTransaction = $this->account->getCreateOrderBeforeTransaction($order->getStore());
 
         if ($newStatus && !$createOrderBeforeTransaction) {
-            $order->setStatus($newStatus);
+            $currentStatus = $order->getStatus();
+
+            if ($currentStatus === 'pending') {
+                $allowedStatuses = ['pending_payment', 'pending_review'];
+
+                if (in_array($newStatus, $allowedStatuses)) {
+                    $order->setStatus($newStatus);
+                    $order->addCommentToStatusHistory(
+                        'Order status updated by Buckaroo payment placement to: ' . $newStatus,
+                        $newStatus
+                    );
+                } else {
+                    if (in_array($newStatus, ['processing', 'complete', 'canceled'])) {
+                        $order->addCommentToStatusHistory(
+                            'Buckaroo payment placed. Status will be updated by payment processor response.',
+                        );
+                    }
+                }
+            }
         }
     }
 }

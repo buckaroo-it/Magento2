@@ -97,7 +97,6 @@ class CommandInterface
     ) {
         $message = $proceed($payment, $amount, $order);
 
-
         try {
             /** @var MethodInterface $methodInstance */
             $methodInstance = $payment->getMethodInstance();
@@ -105,34 +104,14 @@ class CommandInterface
             $paymentCode = $methodInstance->getCode();
             $buckarooPaymentCode = substr($paymentCode, 0, 18);
 
-            $this->logger->addDebug(sprintf(
-                '[UPDATE_STATUS] | [Plugin] | [%s:%s] - Update order state and status |' .
-                ' paymentMethod: %s | paymentAction: %s',
-                __METHOD__,
-                __LINE__,
-                $paymentCode,
-                $paymentAction
-            ));
+            $this->logUpdateStatusStart($paymentCode, $paymentAction);
 
-            if ($buckarooPaymentCode == 'buckaroo_magento2_' && $paymentAction && $order->canInvoice()) {
-                $orderState = Order::STATE_NEW;
-                $orderStatus = $this->helper->getOrderStatusByState($order, $orderState);
-
-                if ($this->skipUpdateOrderStateAndStatus($orderStatus, $order, $methodInstance)) {
-                    $this->logger->addDebug(sprintf(
-                        '[UPDATE_STATUS] | [Plugin] | [%s:%s] - Skip Update order state and status |' .
-                        ' paymentMethod: %s | paymentAction: %s, orderStatus: %s',
-                        __METHOD__,
-                        __LINE__,
-                        $paymentCode,
-                        $paymentAction,
-                        $orderStatus
-                    ));
+            if ($buckarooPaymentCode == 'buckaroo_magento2_' && $paymentAction) {
+                if (!$this->canUpdateOrderStatus($order, $paymentCode)) {
                     return $message;
                 }
-
-                $order->setState($orderState);
-                $order->setStatus($orderStatus);
+                
+                $this->updateOrderStateAndStatus($order, $methodInstance, $paymentCode, $paymentAction);
             }
 
             return $message;
@@ -141,6 +120,117 @@ class CommandInterface
             $this->logger->addDebug(__METHOD__ . '|Exception|' . $e->getMessage());
             throw $e;
         }
+    }
+
+    /**
+     * Log the start of order status update process
+     *
+     * @param string $paymentCode
+     * @param string $paymentAction
+     * @return void
+     */
+    private function logUpdateStatusStart(string $paymentCode, string $paymentAction): void
+    {
+        $this->logger->addDebug(sprintf(
+            '[UPDATE_STATUS] | [Plugin] | [%s:%s] - Update order state and status |' .
+            ' paymentMethod: %s | paymentAction: %s',
+            __METHOD__,
+            __LINE__,
+            $paymentCode,
+            $paymentAction
+        ));
+    }
+
+    /**
+     * Check if order status can be updated based on current state and invoice capability
+     *
+     * @param OrderInterface $order
+     * @param string $paymentCode
+     * @return bool
+     */
+    private function canUpdateOrderStatus(OrderInterface $order, string $paymentCode): bool
+    {
+        $currentState = $order->getState();
+        $currentStatus = $order->getStatus();
+        
+        // Skip if order is already canceled, failed, or closed
+        if (in_array($currentState, [
+            Order::STATE_CANCELED,
+            Order::STATE_CLOSED,
+            Order::STATE_COMPLETE
+        ])) {
+            $this->logger->addDebug(sprintf(
+                '[UPDATE_STATUS] | [Plugin] | [%s:%s] - Skip Update order state and status - order in final state |' .
+                ' paymentMethod: %s | currentState: %s | currentStatus: %s',
+                __METHOD__,
+                __LINE__,
+                $paymentCode,
+                $currentState,
+                $currentStatus
+            ));
+            return false;
+        }
+        
+        // Only proceed if order can actually be invoiced
+        if (!$order->canInvoice()) {
+            $this->logger->addDebug(sprintf(
+                '[UPDATE_STATUS] | [Plugin] | [%s:%s] - Skip Update order state and status - order cannot be invoiced |' .
+                ' paymentMethod: %s | currentState: %s | currentStatus: %s',
+                __METHOD__,
+                __LINE__,
+                $paymentCode,
+                $currentState,
+                $currentStatus
+            ));
+            return false;
+        }
+        
+        return true;
+    }
+
+    /**
+     * Update order state and status
+     *
+     * @param OrderInterface $order
+     * @param MethodInterface $methodInstance
+     * @param string $paymentCode
+     * @param string $paymentAction
+     * @return void
+     */
+    private function updateOrderStateAndStatus(
+        OrderInterface $order,
+        MethodInterface $methodInstance,
+        string $paymentCode,
+        string $paymentAction
+    ): void {
+        $orderState = Order::STATE_NEW;
+        $orderStatus = $this->helper->getOrderStatusByState($order, $orderState);
+
+        if ($this->skipUpdateOrderStateAndStatus($orderStatus, $order, $methodInstance)) {
+            $this->logger->addDebug(sprintf(
+                '[UPDATE_STATUS] | [Plugin] | [%s:%s] - Skip Update order state and status |' .
+                ' paymentMethod: %s | paymentAction: %s, orderStatus: %s',
+                __METHOD__,
+                __LINE__,
+                $paymentCode,
+                $paymentAction,
+                $orderStatus
+            ));
+            return;
+        }
+
+        $order->setState($orderState);
+        $order->setStatus($orderStatus);
+        
+        $this->logger->addDebug(sprintf(
+            '[UPDATE_STATUS] | [Plugin] | [%s:%s] - Updated order state and status |' .
+            ' paymentMethod: %s | newState: %s | newStatus: %s',
+            __METHOD__,
+            __LINE__,
+            $paymentCode,
+            $orderState,
+            $orderStatus
+        ));
     }
 
     /**

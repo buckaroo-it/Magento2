@@ -27,6 +27,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\Factory as MethodFactory;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Transfer;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Model\Order as MagentoOrder;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Api\StoreRepositoryInterface;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
@@ -189,7 +190,8 @@ class Order
                     foreach ($orderCollection as $order) {
                         $this->cancel(
                             $order,
-                            $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_REJECTED')
+                            $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_REJECTED'),
+                            'Order automatically canceled due to expired transfer payment'
                         );
                     }
                 }
@@ -269,7 +271,8 @@ class Order
                         foreach ($orderCollection as $order) {
                             $this->cancel(
                                 $order,
-                                $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_REJECTED')
+                                $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_REJECTED'),
+                                'Order automatically canceled due to expired Pay Per Email payment'
                             );
                         }
                     }
@@ -281,12 +284,13 @@ class Order
     /**
      * Cancel the given order with the specified status code.
      *
-     * @param \Magento\Sales\Model\Order $order
+     * @param MagentoOrder $order
      * @param int|null $statusCode
+     * @param string|null $statusMessage
      * @return bool
      * @throws LocalizedException
      */
-    public function cancel(\Magento\Sales\Model\Order $order, ?int $statusCode)
+    public function cancel(MagentoOrder $order, ?int $statusCode, ?string $statusMessage = null)
     {
         $paymentMethodCode = $order->getPayment()->getMethod();
         $paymentMethodName = str_replace('buckaroo_magento2_', '', $paymentMethodCode);
@@ -299,7 +303,7 @@ class Order
             var_export($order->getIncrementId(), true)
         ));
 
-        if ($order->getState() == \Magento\Sales\Model\Order::STATE_CANCELED) {
+        if ($order->getState() == MagentoOrder::STATE_CANCELED) {
             $this->logger->addDebug(sprintf(
                 '[CANCEL_ORDER - %s] | [Service] | [%s:%s] - Cancel Order - already canceled',
                 $paymentMethodName,
@@ -334,7 +338,11 @@ class Order
             ));
 
             if ($failedStatus) {
+                $order->setState(MagentoOrder::STATE_CANCELED);
                 $order->setStatus($failedStatus);
+
+                $statusMessage = $statusMessage ?: 'Order canceled due to payment failure';
+                $order->addCommentToStatusHistory($statusMessage, $failedStatus, false);
             }
             $order->save();
             return true;

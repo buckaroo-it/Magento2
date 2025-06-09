@@ -279,12 +279,12 @@ class PayPerEmailProcessor extends DefaultProcessor
                 && $this->pushRequest->hasPostData('statuscode', BuckarooStatusCode::SUCCESS)
             ) {
                 $this->order->setState(Order::STATE_PROCESSING);
-                $this->order->addStatusHistoryComment(
+                $this->order->addCommentToStatusHistory(
                     $this->pushRequest->getStatusmessage(),
                     $this->helper->getOrderStatusByState($this->order, Order::STATE_PROCESSING)
                 );
             } else {
-                $this->order->addStatusHistoryComment($this->pushRequest->getStatusmessage());
+                $this->order->addCommentToStatusHistory($this->pushRequest->getStatusmessage());
             }
         }
     }
@@ -409,7 +409,7 @@ class PayPerEmailProcessor extends DefaultProcessor
             $this->payment->registerCaptureNotification($amount);
             $this->payment->save();
             $this->order->setState('complete');
-            $this->order->addStatusHistoryComment($paymentDetails['description'], 'complete');
+            $this->order->addCommentToStatusHistory($paymentDetails['description'], 'complete');
             $this->order->save();
 
             if ($transactionKey = $this->getTransactionKey()) {

@@ -25,6 +25,8 @@ use Buckaroo\Magento2\Service\CheckPaymentType;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Api\Data\TransactionInterface;
+use Magento\Sales\Api\TransactionRepositoryInterface;
 use Magento\Sales\Model\Order\Payment\Transaction;
 
 class HtmlTransactionIdObserver implements ObserverInterface
@@ -35,12 +37,22 @@ class HtmlTransactionIdObserver implements ObserverInterface
     private $checkPaymentType;
 
     /**
-     * @param CheckPaymentType $checkPaymentType
+     * @var TransactionRepositoryInterface
      */
-    public function __construct(CheckPaymentType $checkPaymentType)
-    {
+    private $transactionRepository;
+
+    /**
+     * @param CheckPaymentType $checkPaymentType
+     * @param TransactionRepositoryInterface $transactionRepository
+     */
+    public function __construct(
+        CheckPaymentType $checkPaymentType,
+        TransactionRepositoryInterface $transactionRepository
+    ) {
         $this->checkPaymentType = $checkPaymentType;
+        $this->transactionRepository = $transactionRepository;
     }
+
     /**
      * Update txn_id to a link for the plaza transaction
      *
@@ -52,14 +64,39 @@ class HtmlTransactionIdObserver implements ObserverInterface
         /** @var Transaction $transaction */
         $transaction = $observer->getDataObject();
         $order = $transaction->getOrder();
+
         $txnIdArray = explode("-", $transaction->getTxnId());
         $txnId = reset($txnIdArray);
+
         if ($this->checkPaymentType->isBuckarooPayment($order->getPayment()) && $txnId !== false) {
-            $transaction->setData(
-                'html_txn_id',
+            $txtType = $transaction->getTxnType();
+
+            // Handle void transactions by checking parent transaction type
+            if ($transaction->getTxnType() === TransactionInterface::TYPE_VOID) {
+                if ($transaction->getParentId()) {
+                    $parentTransaction = $this->transactionRepository->get($transaction->getParentId());
+                    if ($parentTransaction) {
+                        $txtType = $parentTransaction->getTxnType();
+                    }
+                }
+            }
+
+            // Use different URLs based on transaction type
+            if ($txtType == 'authorization') {
+                $transaction->setData('html_txn_id',
+                    sprintf(
+                        '<a href="https://plaza.buckaroo.nl/Transaction/DataRequest/Details/%s" target="_blank">%s</a>',
+                        $txnId,
+                        $transaction->getTxnId()
+                    )
+                );
+                return;
+            }
+
+            // Default URL for non-authorization transactions
+            $transaction->setData('html_txn_id',
                 sprintf(
-                    '<a href="https://plaza.buckaroo.nl/Transaction/Transactions/Details?transactionKey=%s"'
-                    . ' target="_blank">%s</a>',
+                    '<a href="https://plaza.buckaroo.nl/Transaction/Transactions/Details?transactionKey=%s" target="_blank">%s</a>',
                     $txnId,
                     $transaction->getTxnId()
                 )

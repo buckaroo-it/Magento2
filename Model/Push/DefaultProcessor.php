@@ -555,17 +555,29 @@ class DefaultProcessor implements PushProcessorInterface
     protected function setOrderStatusMessage(): void
     {
         if (!empty($this->pushRequest->getStatusmessage())) {
+            // Refresh order state to get the most current state
+            $this->order = $this->order->load($this->order->getId());
+
             if ($this->order->getState() === Order::STATE_NEW
                 && empty($this->pushRequest->getRelatedtransactionPartialpayment())
                 && $this->pushRequest->hasPostData('statuscode', BuckarooStatusCode::SUCCESS)
             ) {
                 $this->order->setState(Order::STATE_PROCESSING);
-                $this->order->addStatusHistoryComment(
+                $this->order->addCommentToStatusHistory(
                     $this->pushRequest->getStatusmessage(),
                     $this->helper->getOrderStatusByState($this->order, Order::STATE_PROCESSING)
                 );
             } else {
-                $this->order->addStatusHistoryComment($this->pushRequest->getStatusmessage());
+                // Log the reason why we're not setting to processing
+                if ($this->order->getState() !== Order::STATE_NEW) {
+                    $this->logger->addDebug(sprintf(
+                        '[%s:%s] - Skip setting order to processing, current state: %s (not NEW)',
+                        __METHOD__,
+                        __LINE__,
+                        $this->order->getState()
+                    ));
+                }
+                $this->order->addCommentToStatusHistory($this->pushRequest->getStatusmessage());
             }
         }
     }
@@ -795,6 +807,23 @@ class DefaultProcessor implements PushProcessorInterface
                     )
                 ) && ($this->pushRequest->getStatusCode() == 190))
         ) {
+            // Check if order is in a valid state to be updated to processing
+            $validStatesForProcessing = [
+                Order::STATE_NEW,
+                Order::STATE_PENDING_PAYMENT,
+                Order::STATE_PAYMENT_REVIEW
+            ];
+
+            if (!in_array($this->order->getState(), $validStatesForProcessing)) {
+                $this->logger->addDebug(sprintf(
+                    '[%s:%s] - Skip setting order to processing, current state: %s is not valid for processing transition',
+                    __METHOD__,
+                    __LINE__,
+                    $this->order->getState()
+                ));
+                return;
+            }
+
             $this->logger->addDebug(sprintf(
                 '[%s:%s] - Process succeeded push authorization | paymentMethod: %s',
                 __METHOD__,
@@ -1030,6 +1059,9 @@ class DefaultProcessor implements PushProcessorInterface
                 $message
             ));
 
+            // Add a clear cancellation message to order history before canceling
+            $this->order->addCommentToStatusHistory('Payment failed. Canceling order due to payment failure: ' . $message);
+
             // BUCKM2-78: Never automatically cancelauthorize via push for afterpay
             // setting parameter which will cause to stop the cancel process on
             // Buckaroo/Model/Method/BuckarooAdapter.php:880
@@ -1066,6 +1098,10 @@ class DefaultProcessor implements PushProcessorInterface
         ) {
             $force = true;
         }
+
+        // Add clear failure message to order history
+        $this->order->addCommentToStatusHistory('Payment failed: ' . $message);
+
         $this->orderRequestService->updateOrderStatus(Order::STATE_CANCELED, $newStatus, $description, $force);
 
         return true;
