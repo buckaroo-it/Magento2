@@ -47,8 +47,8 @@ class FixedAmount
         $this->taxCalculate = $taxCalculate;
     }
 
-    public function calculate(CartInterface $cart, float $amount){
-
+    public function calculate(CartInterface $cart, float $amount)
+    {
         $tax = $this->taxCalculate->getTaxFromAmountIncludingTax($cart, $amount);
         /** @var Result $result */
         $result = $this->resultFactory->create();

@@ -22,7 +22,7 @@
 ?>
 <!-- Set up a container element for the button -->
 <div id="applepay-button-wrapper">
-    <apple-pay-button lang="en-US" buttonstyle="<?php echo $block->getButtonStyle();?>" hidden="false"></apple-pay-button>
+    <apple-pay-button lang="en-US" buttonstyle="<?= $block->getButtonStyle();?>" hidden="false"></apple-pay-button>
 </div>
 <script>
     function requireApplePay(callback){
@@ -34,7 +34,7 @@
     }
     require(['jquery'], ($) => {
         const buttonElement = $('apple-pay-button');
-        let buttonStyle = "<?php echo $block->getButtonStyle();?>";
+        let buttonStyle = "<?= $block->getButtonStyle();?>";
         function renderButton(){
             buttonElement.attr('lang',document.firstElementChild.lang)
             buttonElement.attr('buttonStyle',buttonStyle)
@@ -45,7 +45,7 @@
         } else {
             renderButton()
         }
-        $('#<?php echo $block->getButtonStyleElement() ?>').change(function () {
+        $('#<?= $block->getButtonStyleElement() ?>').change(function () {
             if($(this).val()!==buttonStyle){
                 buttonStyle = $(this).val()
                 renderButton()

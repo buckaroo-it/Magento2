@@ -102,8 +102,7 @@ class LogoService
 
     public function getGiftcardLogo(array $giftcard): string
     {
-        if (
-            isset($giftcard['logo']) &&
+        if (isset($giftcard['logo']) &&
             is_string($giftcard['logo']) &&
             strlen(trim($giftcard['logo']))
         ) {

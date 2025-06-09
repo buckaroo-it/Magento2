@@ -34,8 +34,7 @@ class CancelOrder
         OrderRepositoryInterface $orderRepositoryInterface,
         OrderManagementInterface $orderManagementInterface,
         BuckarooLoggerInterface $logger
-    )
-    {
+    ) {
         $this->orderRepositoryInterface = $orderRepositoryInterface;
         $this->orderManagementInterface = $orderManagementInterface;
         $this->logger = $logger;
@@ -59,7 +58,7 @@ class CancelOrder
 
             $order = $this->orderRepositoryInterface->get((int)$orderId);
 
-            if($order->getState() === Order::STATE_NEW && $order->getId() == $orderId) {
+            if ($order->getState() === Order::STATE_NEW && $order->getId() == $orderId) {
                 $this->orderManagementInterface->cancel($order->getEntityId());
                 $order->addCommentToStatusHistory(
                     __('Canceled on browser back button')
@@ -73,6 +72,5 @@ class CancelOrder
         } catch (\Throwable $th) {
             $this->logger->addError(__METHOD__." ".(string)$th);
         }
-
     }
 }

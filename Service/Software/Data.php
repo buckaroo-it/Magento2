@@ -85,8 +85,7 @@ class Data
         $platformName = $this->getProductMetaData()->getName() . ' - ' . $this->getProductMetaData()->getEdition();
 
         $platformInfo = $payment !== null ? $payment->getAdditionalInformation('buckaroo_platform_info') : null;
-        if ($platformInfo !== null)
-        {
+        if ($platformInfo !== null) {
             $platformName.= $platformInfo;
         }
 

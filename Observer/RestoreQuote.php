@@ -143,7 +143,8 @@ class RestoreQuote implements ObserverInterface
                         'lastRealOrder: %s - %s| previousOrderId: %s',
                         __METHOD__,
                         __LINE__,
-                        $lastRealOrder->getIncrementId(), $lastRealOrder->getEntityId(),
+                        $lastRealOrder->getIncrementId(),
+                        $lastRealOrder->getEntityId(),
                         $previousOrderId
                     ));
 

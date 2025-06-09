@@ -91,7 +91,7 @@ class ReturnUrlDataBuilder implements BuilderInterface
     public function getReturnUrl(Order $order): ?string
     {
         $returnUrl = $this->getReturnUrlFromPayment($order);
-        if($returnUrl !== null) {
+        if ($returnUrl !== null) {
             $this->setReturnUrl($returnUrl);
             return $this->returnUrl;
         }
@@ -132,15 +132,13 @@ class ReturnUrlDataBuilder implements BuilderInterface
 
     public function getReturnUrlFromPayment(Order $order): ?string
     {
-        if (
-            $order->getPayment() === null ||
+        if ($order->getPayment() === null ||
             $order->getPayment()->getAdditionalInformation(self::ADDITIONAL_RETURN_URL) === null
         ) {
             return null;
         }
         $returnUrl = (string)$order->getPayment()->getAdditionalInformation(self::ADDITIONAL_RETURN_URL);
-        if (
-            !filter_var($returnUrl, FILTER_VALIDATE_URL) === false &&
+        if (!filter_var($returnUrl, FILTER_VALIDATE_URL) === false &&
             in_array(parse_url($returnUrl, PHP_URL_SCHEME), ['http', 'https'])
         ) {
             return $returnUrl;

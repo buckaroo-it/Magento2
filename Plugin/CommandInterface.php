@@ -102,37 +102,37 @@ class CommandInterface
             /** @var MethodInterface $methodInstance */
             $methodInstance = $payment->getMethodInstance();
             $paymentAction = $methodInstance->getConfigPaymentAction();
-        $paymentCode = $methodInstance->getCode();
-        $buckarooPaymentCode = substr($paymentCode, 0, 18);
+            $paymentCode = $methodInstance->getCode();
+            $buckarooPaymentCode = substr($paymentCode, 0, 18);
 
-        $this->logger->addDebug(sprintf(
-            '[UPDATE_STATUS] | [Plugin] | [%s:%s] - Update order state and status |' .
-            ' paymentMethod: %s | paymentAction: %s',
-            __METHOD__,
-            __LINE__,
-            $paymentCode,
-            $paymentAction
-        ));
+            $this->logger->addDebug(sprintf(
+                '[UPDATE_STATUS] | [Plugin] | [%s:%s] - Update order state and status |' .
+                ' paymentMethod: %s | paymentAction: %s',
+                __METHOD__,
+                __LINE__,
+                $paymentCode,
+                $paymentAction
+            ));
 
-        if ($buckarooPaymentCode == 'buckaroo_magento2_' && $paymentAction && $order->canInvoice()) {
-            $orderState = Order::STATE_NEW;
-            $orderStatus = $this->helper->getOrderStatusByState($order, $orderState);
+            if ($buckarooPaymentCode == 'buckaroo_magento2_' && $paymentAction && $order->canInvoice()) {
+                $orderState = Order::STATE_NEW;
+                $orderStatus = $this->helper->getOrderStatusByState($order, $orderState);
 
-            if ($this->skipUpdateOrderStateAndStatus($orderStatus, $order, $methodInstance)) {
-                $this->logger->addDebug(sprintf(
-                    '[UPDATE_STATUS] | [Plugin] | [%s:%s] - Skip Update order state and status |' .
-                    ' paymentMethod: %s | paymentAction: %s, orderStatus: %s',
-                    __METHOD__,
-                    __LINE__,
-                    $paymentCode,
-                    $paymentAction,
-                    $orderStatus
-                ));
-                return $message;
-            }
+                if ($this->skipUpdateOrderStateAndStatus($orderStatus, $order, $methodInstance)) {
+                    $this->logger->addDebug(sprintf(
+                        '[UPDATE_STATUS] | [Plugin] | [%s:%s] - Skip Update order state and status |' .
+                        ' paymentMethod: %s | paymentAction: %s, orderStatus: %s',
+                        __METHOD__,
+                        __LINE__,
+                        $paymentCode,
+                        $paymentAction,
+                        $orderStatus
+                    ));
+                    return $message;
+                }
 
-            $order->setState($orderState);
-            $order->setStatus($orderStatus);
+                $order->setState($orderState);
+                $order->setStatus($orderStatus);
             }
 
             return $message;

@@ -45,11 +45,7 @@ use Magento\Sales\Model\Order;
 use Psr\Log\LoggerInterface;
 
 /**
- * Class GatewayCommand
- *
- * @api
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
- * @since 100.0.2
  */
 class GatewayCommand implements CommandInterface
 {

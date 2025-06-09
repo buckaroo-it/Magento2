@@ -22,7 +22,6 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Magento\Store\Model\ScopeInterface;
 
-
 class Creditcard extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_creditcard';

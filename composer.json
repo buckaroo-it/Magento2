@@ -39,13 +39,22 @@
         }
     },
     "require-dev": {
-        "satooshi/php-coveralls": "^1.0",
-        "php-webdriver/webdriver": "^1.1"
+        "php-webdriver/webdriver": "^1.1",
+        "squizlabs/php_codesniffer": "^3.7",
+        "phpmd/phpmd": "^2.13",
+        "phpstan/phpstan": "^1.10",
+        "magento/magento-coding-standard": "^37"
     },
     "repositories": {
         "magento": {
             "type": "composer",
             "url": "https://repo.magento.com/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "magento/composer-dependency-version-audit-plugin": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true
         }
     }
 }

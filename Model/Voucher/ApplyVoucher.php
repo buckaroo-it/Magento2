@@ -37,8 +37,6 @@ use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\QuoteIdMaskFactory;
 
 /**
- * Class ApplyVoucher
- *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class ApplyVoucher implements ApplyVoucherInterface

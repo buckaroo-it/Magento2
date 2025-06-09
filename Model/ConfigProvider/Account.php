@@ -27,6 +27,7 @@ use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\Store;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider as MethodAbstractConfigProvider;
+
 /**
  * @method mixed getBuckarooFeeTaxClass()
  */

@@ -21,22 +21,22 @@
 <?php
 
 if ($block->getMethod() instanceof \Magento\Payment\Model\Method\Adapter) {
-    $bpePaymentCode = $block->escapeHtml($block->getMethod()->getCode());
+    $bpePaymentCode = $escaper->escapeHtml($block->getMethod()->getCode());
 } else {
-    $bpePaymentCode = $block->escapeHtml($block->getMethod()->buckarooPaymentMethodCode);
+    $bpePaymentCode = $escaper->escapeHtml($block->getMethod()->buckarooPaymentMethodCode);
 } ?>
 
 <?php
 if ($giftCards = $block->getGiftCards()) {
     foreach ($giftCards as $giftCard) { ?>
-        <div class="buckaroo_magento2_payment_<?= $block->escapeHtml($giftCard['code']); ?>">
-            <?= $block->escapeHtml($giftCard['label']) ?>
+        <div class="buckaroo_magento2_payment_<?= $escaper->escapeHtml($giftCard['code']); ?>">
+            <?= $escaper->escapeHtml($giftCard['label']) ?>
         </div>
         <?php
     }
 }
 ?>
 
-<div class="payment-method buckaroo_magento2_payment_<?= $block->escapeHtml($bpePaymentCode) ?>">
-    <?= $block->escapeHtml($block->getMethod()->getTitle()) ?>
+<div class="payment-method buckaroo_magento2_payment_<?= $escaper->escapeHtml($bpePaymentCode) ?>">
+    <?= $escaper->escapeHtml($block->getMethod()->getTitle()) ?>
 </div>

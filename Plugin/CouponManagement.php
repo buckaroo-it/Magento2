@@ -87,7 +87,8 @@ class CouponManagement
         return [$cartId];
     }
 
-    private function isGroupTransaction($cartId): bool {
+    private function isGroupTransaction($cartId): bool
+    {
          /** @var  \Magento\Quote\Model\Quote $quote */
          $quote = $this->quoteRepository->getActive($cartId);
         return $this->groupTransaction->getAlreadyPaid($quote->getReservedOrderId()) > 0;

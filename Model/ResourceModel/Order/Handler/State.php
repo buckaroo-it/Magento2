@@ -48,8 +48,7 @@ class State extends \Magento\Sales\Model\ResourceModel\Order\Handler\State
     public function __construct(
         Factory                 $configProviderMethodFactory,
         BuckarooLoggerInterface $logger
-    )
-    {
+    ) {
         $this->configProviderMethodFactory = $configProviderMethodFactory;
         $this->logger = $logger;
     }

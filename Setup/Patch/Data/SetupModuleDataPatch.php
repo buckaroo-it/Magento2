@@ -41,7 +41,7 @@ use Magento\Customer\Model\Customer;
  */
 class SetupModuleDataPatch implements DataPatchInterface
 {
-   
+
     /**
      * @var GiftcardCollection
      */

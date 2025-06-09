@@ -48,7 +48,8 @@ class Percentage
     }
 
 
-    public function calculate(CartInterface $cart, Total $total, $percentage){
+    public function calculate(CartInterface $cart, Total $total, $percentage)
+    {
         $percentage = (float) rtrim($percentage, '%');
         if ($percentage <= 0) {
             return null;

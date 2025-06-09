@@ -70,7 +70,7 @@ class PaymentGroupTransaction extends AbstractHelper
      * @param GroupTransactionCollectionFactory $grTrCollectionFactory
      * @param GroupTransactionResource $resourceModel
      * @param ResourceConnection|null $resourceConnection
- */
+     */
     public function __construct(
         Context $context,
         GroupTransactionFactory $groupTransactionFactory,

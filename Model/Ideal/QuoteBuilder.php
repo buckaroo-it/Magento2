@@ -67,8 +67,7 @@ class QuoteBuilder implements QuoteBuilderInterface
         ProductRepositoryInterface $productRepository,
         DataObjectFactory          $dataObjectFactory,
         CustomerSession            $customer
-    )
-    {
+    ) {
         $this->quoteFactory = $quoteFactory;
         $this->productRepository = $productRepository;
         $this->dataObjectFactory = $dataObjectFactory;

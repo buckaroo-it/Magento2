@@ -90,7 +90,8 @@ class VerificationMethod extends MagentoFieldset
      * @param AbstractElement $element
      * @return string
      */
-    private function getTabImgAndLink($element) {
+    private function getTabImgAndLink($element)
+    {
         $code = str_replace("buckaroo_magento2_", "", $element->getGroup()['id']);
         $logo = $this->getLogo($code);
         return '<div class="bk-tab-title"><img class="bk-ad-payment-logo" src="' . $logo . '">'.

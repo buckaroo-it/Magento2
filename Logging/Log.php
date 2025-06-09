@@ -30,13 +30,13 @@ use Psr\Log\LoggerInterface;
 class Log implements BuckarooLoggerInterface
 {
     private DebugConfiguration $debugConfiguration;
-    private Logger             $logger;
+    private Logger $logger;
 
     public function __construct(
         DebugConfiguration $debugConfiguration,
-        array $handlers   = [],
+        array $handlers = [],
         array $processors = [],
-        string $name      = 'buckaroo'
+        string $name = 'buckaroo'
     ) {
         $this->debugConfiguration = $debugConfiguration;
         $this->logger             = new Logger($name, $handlers, $processors);
@@ -64,9 +64,18 @@ class Log implements BuckarooLoggerInterface
     }
 
     /* ----------------------------------------------------------------- */
-    public function addDebug(string $message): bool   { return $this->addRecord(Logger::DEBUG,   $message); }
-    public function addError(string $message): bool   { return $this->addRecord(Logger::ERROR,   $message); }
-    public function addWarning(string $message): bool { return $this->addRecord(Logger::WARNING, $message); }
+    public function addDebug(string $message): bool
+    {
+        return $this->addRecord(Logger::DEBUG, $message);
+    }
+    public function addError(string $message): bool
+    {
+        return $this->addRecord(Logger::ERROR, $message);
+    }
+    public function addWarning(string $message): bool
+    {
+        return $this->addRecord(Logger::WARNING, $message);
+    }
 
     public function debug($message, array $context = []): void
     {

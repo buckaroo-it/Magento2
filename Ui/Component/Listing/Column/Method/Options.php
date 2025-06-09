@@ -28,7 +28,6 @@ use Magento\Ui\Component\Listing\Columns\Column;
 use Magento\Sales\Model\ResourceModel\Order\CollectionFactory as OrderCollectionFactory;
 use Magento\Framework\DB\Sql\Expression;
 
-
 class Options extends Column
 {
     /**
