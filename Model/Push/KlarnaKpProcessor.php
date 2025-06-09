@@ -30,6 +30,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Magento\Sales\Api\Data\TransactionInterface;
+use Magento\Sales\Model\Order;
 
 class KlarnaKpProcessor extends DefaultProcessor
 {
@@ -149,5 +150,60 @@ class KlarnaKpProcessor extends DefaultProcessor
         }
 
         return true;
+    }
+
+    /**
+     * Process succeeded push authorization for Klarna KP.
+     * Handles the special case where a canceled order can become successful within 48 hours.
+     *
+     * @return void
+     * @throws \Exception
+     */
+    protected function processSucceededPushAuthorization(): void
+    {
+        if ($this->pushRequest->getStatusCode() == 190) {
+            // For Klarna KP, we need to handle the special case where canceled orders
+            // can be completed within 48 hours (as per Klarna's policy)
+            $validStatesForProcessing = [
+                Order::STATE_NEW,
+                Order::STATE_PENDING_PAYMENT,
+                Order::STATE_PAYMENT_REVIEW,
+                Order::STATE_CANCELED
+            ];
+
+            if (!in_array($this->order->getState(), $validStatesForProcessing)) {
+                $this->logger->addDebug(sprintf(
+                    '[KLARNA_KP] | [%s:%s] - Skip setting order to processing, current state: %s is not valid for processing transition',
+                    __METHOD__,
+                    __LINE__,
+                    $this->order->getState()
+                ));
+                return;
+            }
+
+            // If order was canceled, we need to reset it first (using parent logic)
+            if ($this->order->getState() === Order::STATE_CANCELED) {
+                // This will be handled by the canUpdateOrderStatus() method in parent class
+                $this->logger->addDebug(sprintf(
+                    '[KLARNA_KP] | [%s:%s] - Order was canceled, will be reset by canUpdateOrderStatus logic',
+                    __METHOD__,
+                    __LINE__
+                ));
+            }
+
+            $this->logger->addDebug(sprintf(
+                '[KLARNA_KP] | [%s:%s] - Process succeeded push authorization | paymentMethod: %s | currentState: %s',
+                __METHOD__,
+                __LINE__,
+                $this->payment->getMethod(),
+                $this->order->getState()
+            ));
+
+            // Only set to processing if not already canceled (the canUpdateOrderStatus will handle canceled->new transition)
+            if ($this->order->getState() !== Order::STATE_CANCELED) {
+                $this->order->setState(Order::STATE_PROCESSING);
+                $this->order->save();
+            }
+        }
     }
 }

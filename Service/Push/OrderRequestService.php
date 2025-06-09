@@ -197,7 +197,7 @@ class OrderRequestService
     {
         $note = 'Buckaroo attempted to update this order, but failed: ' . $message;
         try {
-            $this->order->addStatusToHistory($this->order->getStatus(), $note);
+            $this->order->addCommentToStatusHistory($note, $this->order->getStatus());
             $this->order->save();
         } catch (\Exception $e) {
             $this->logger->addError(sprintf(
@@ -237,6 +237,10 @@ class OrderRequestService
                 'description' => $description
             ], true)
         ));
+        
+        // Always set the order state - this is crucial for admin dropdown
+        $this->order->setState($orderState);
+        
         if ($this->order->getState() == $orderState || $force) {
             if ($dontSaveOrderUponSuccessPush) {
                 $this->order->addCommentToStatusHistory($description)
@@ -246,6 +250,7 @@ class OrderRequestService
                     ->save();
             } else {
                 $this->order->addCommentToStatusHistory($description, $newStatus);
+                $this->order->save(); // Save the order to persist state and status changes
             }
         } else {
             if ($dontSaveOrderUponSuccessPush) {
@@ -255,8 +260,17 @@ class OrderRequestService
                     ->save();
             } else {
                 $this->order->addCommentToStatusHistory($description);
+                $this->order->save(); // Save the order to persist changes
             }
         }
+        
+        $this->logger->addDebug(sprintf(
+            '[ORDER] | [Service] | [%s:%s] - Order state and status updated successfully | finalState: %s | finalStatus: %s',
+            __METHOD__,
+            __LINE__,
+            $this->order->getState(),
+            $this->order->getStatus()
+        ));
     }
 
     /**

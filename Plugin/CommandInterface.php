@@ -114,7 +114,43 @@ class CommandInterface
                 $paymentAction
             ));
 
-            if ($buckarooPaymentCode == 'buckaroo_magento2_' && $paymentAction && $order->canInvoice()) {
+            if ($buckarooPaymentCode == 'buckaroo_magento2_' && $paymentAction) {
+                // Additional check: don't update status for orders that are already in final states
+                $currentState = $order->getState();
+                $currentStatus = $order->getStatus();
+                
+                // Skip if order is already canceled, failed, or closed
+                if (in_array($currentState, [
+                    Order::STATE_CANCELED,
+                    Order::STATE_CLOSED,
+                    Order::STATE_COMPLETE
+                ])) {
+                    $this->logger->addDebug(sprintf(
+                        '[UPDATE_STATUS] | [Plugin] | [%s:%s] - Skip Update order state and status - order in final state |' .
+                        ' paymentMethod: %s | currentState: %s | currentStatus: %s',
+                        __METHOD__,
+                        __LINE__,
+                        $paymentCode,
+                        $currentState,
+                        $currentStatus
+                    ));
+                    return $message;
+                }
+                
+                // Only proceed if order can actually be invoiced
+                if (!$order->canInvoice()) {
+                    $this->logger->addDebug(sprintf(
+                        '[UPDATE_STATUS] | [Plugin] | [%s:%s] - Skip Update order state and status - order cannot be invoiced |' .
+                        ' paymentMethod: %s | currentState: %s | currentStatus: %s',
+                        __METHOD__,
+                        __LINE__,
+                        $paymentCode,
+                        $currentState,
+                        $currentStatus
+                    ));
+                    return $message;
+                }
+                
                 $orderState = Order::STATE_NEW;
                 $orderStatus = $this->helper->getOrderStatusByState($order, $orderState);
 
@@ -133,6 +169,16 @@ class CommandInterface
 
                 $order->setState($orderState);
                 $order->setStatus($orderStatus);
+                
+                $this->logger->addDebug(sprintf(
+                    '[UPDATE_STATUS] | [Plugin] | [%s:%s] - Updated order state and status |' .
+                    ' paymentMethod: %s | newState: %s | newStatus: %s',
+                    __METHOD__,
+                    __LINE__,
+                    $paymentCode,
+                    $orderState,
+                    $orderStatus
+                ));
             }
 
             return $message;

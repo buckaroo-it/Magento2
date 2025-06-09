@@ -192,7 +192,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
             $invoice->register();
             $invoice->getOrder()->setCustomerNoteNotify(false);
             $invoice->getOrder()->setIsInProcess(true);
-            $this->order->addStatusHistoryComment($message, false);
+            $this->order->addCommentToStatusHistory($message);
             $transactionSave = $this->transactionFactory->create()->addObject($invoice)->addObject(
                 $invoice->getOrder()
             );
@@ -209,7 +209,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
                 $description = 'Total amount of '
                     . $this->order->getBaseCurrency()->formatTxt($this->order->getTotalInvoiced())
                     . ' has been paid';
-                $this->order->addStatusHistoryComment($description, false);
+                $this->order->addCommentToStatusHistory($description);
                 $this->order->save();
             }
         } catch (\Exception $e) {
@@ -219,7 +219,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
                 __LINE__,
                 $e->getMessage()
             ));
-            $this->order->addStatusHistoryComment('Exception message: ' . $e->getMessage(), false);
+            $this->order->addCommentToStatusHistory('Exception message: ' . $e->getMessage());
             $this->order->save();
             return null;
         }
