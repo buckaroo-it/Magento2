@@ -39,6 +39,7 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Store\Model\StoreManagerInterface;
 use Buckaroo\Magento2\Api\Data\Ideal\QuoteCreateResponseInterface;
 use Buckaroo\Magento2\Api\Data\Ideal\QuoteCreateResponseInterfaceFactory;
+use Buckaroo\Magento2\Service\ExpressPayment\ProductValidationService;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -56,6 +57,7 @@ class QuoteCreate implements IdealQuoteCreateInterface
     protected $logger;
     protected $quote;
     protected $storeManager;
+    protected $productValidationService;
 
     /**
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
@@ -70,7 +72,8 @@ class QuoteCreate implements IdealQuoteCreateInterface
         QuoteRepository $quoteRepository,
         ShipmentEstimationInterface $shipmentEstimation,
         Log $logger,
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
+        ProductValidationService $productValidationService
     ) {
         $this->responseFactory = $responseFactory;
         $this->quoteBuilderInterfaceFactory = $quoteBuilderInterfaceFactory;
@@ -82,20 +85,27 @@ class QuoteCreate implements IdealQuoteCreateInterface
         $this->shipmentEstimation = $shipmentEstimation;
         $this->logger = $logger;
         $this->storeManager = $storeManager;
+        $this->productValidationService = $productValidationService;
     }
 
     /**
      * Execute quote creation and address handling
      *
      * @param string $page
-     * @param string|null $form_data
+     * @param string|null $orderData
      * @return QuoteCreateResponseInterface
      * @throws IdealException
      */
-    public function execute(string $page, ?string $form_data = null)
+    public function execute(string $page, ?string $orderData = null)
     {
         try {
-            if ($page === 'product' && is_string($form_data)) {
+            // Handle the case where frontend sends data differently
+            // The frontend sends: {page: "product", order_data: "product=158&..."}
+            // But this API receives: execute($page, $orderData)
+            // So $orderData might be null and we need to get it from the request
+            $form_data = $orderData;
+            
+            if ($page === 'product' && $form_data) {
                 $this->quote = $this->createQuote($form_data);
             } else {
                 $this->quote = $this->checkoutSession->getQuote();
@@ -112,9 +122,12 @@ class QuoteCreate implements IdealQuoteCreateInterface
             }
 
             $this->setPaymentMethod();
+        } catch (IdealException $idealEx) {
+            $this->logger->debug('iDEAL Quote Creation Error: ' . $idealEx->getMessage());
+            throw $idealEx;
         } catch (\Throwable $th) {
-            $this->logger->debug('Error during quote creation: ' . $th->getMessage());
-            throw new IdealException("Failed to create quote");
+            $this->logger->debug('Quote Creation Error: ' . $th->getMessage());
+            throw new IdealException("Failed to create quote: " . $th->getMessage());
         }
 
         $this->restoreStoreContext();
@@ -303,12 +316,43 @@ class QuoteCreate implements IdealQuoteCreateInterface
     protected function createQuote(string $form_data)
     {
         try {
+            // Parse form data to get product ID and options
+            $data = [];
+            parse_str($form_data, $data);
+
+            $productId = $data['product'] ?? null;
+            $qty = $data['qty'] ?? 1;
+
+            if (!$productId) {
+                throw new IdealException("Product ID is required");
+            }
+
+            // Prepare options for validation (super_attribute for configurable products)
+            $options = [];
+            if (isset($data['super_attribute']) && is_array($data['super_attribute'])) {
+                $options = $data['super_attribute'];
+            }
+
+            // Validate product before creating quote
+            $validationResult = $this->productValidationService->validateProduct($productId, $options, $qty);
+
+            if (!$validationResult['is_valid']) {
+                $errors = $validationResult['errors'];
+                $errorMessage = "Product validation failed: " . implode(', ', $errors);
+                throw new IdealException($errorMessage);
+            }
+
             $quoteBuilder = $this->quoteBuilderInterfaceFactory->create();
             $quoteBuilder->setFormData($form_data);
-            return $quoteBuilder->build();
+            $quote = $quoteBuilder->build();
+            
+            return $quote;
+        } catch (IdealException $idealEx) {
+            // Re-throw iDEAL exceptions to preserve the specific error message
+            throw $idealEx;
         } catch (\Throwable $th) {
-            $this->logger->addDebug(__METHOD__ . ' ' . $th->getMessage());
-            throw new IdealException("Failed to create quote");
+            $this->logger->debug('Quote Creation Error: ' . $th->getMessage());
+            throw new IdealException("Failed to create quote: " . $th->getMessage());
         }
     }
 }

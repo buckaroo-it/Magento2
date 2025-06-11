@@ -125,15 +125,20 @@ class QuoteBuilder implements QuoteBuilderInterface
         if ($productId === null) {
             throw new IdealException("A product is required", 1);
         }
-        $product = $this->productRepository->getById($productId);
-        $item = $this->quote->addProduct($product, $this->formData);
 
-        if (!$item instanceof Item) {
-            $exceptionMessage = "Cannot add product to cart";
-            if (is_string($item)) {
-                $exceptionMessage = $item;
+        try {
+            $product = $this->productRepository->getById($productId);
+            $item = $this->quote->addProduct($product, $this->formData);
+
+            if (!$item instanceof Item) {
+                $exceptionMessage = "Cannot add product to cart";
+                if (is_string($item)) {
+                    $exceptionMessage = $item;
+                }
+                throw new IdealException($exceptionMessage, 1);
             }
-            throw new IdealException($exceptionMessage, 1);
+        } catch (\Exception $e) {
+            throw new IdealException("Failed to add product to quote: " . $e->getMessage(), 1);
         }
     }
 

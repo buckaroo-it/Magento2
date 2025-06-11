@@ -30,7 +30,7 @@ define(
         'Magento_Checkout/js/action/select-payment-method',
         'buckaroo/applepay/pay',
         'buckaroo/checkout/common',
-        'BuckarooSDK'
+        'BuckarooSdk'
     ],
     function (
         $,

@@ -25,6 +25,7 @@ use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay;
 use Buckaroo\Magento2\Model\Service\ApplePayFormatData;
 use Buckaroo\Magento2\Model\Service\QuoteService;
+use Buckaroo\Magento2\Service\ExpressPayment\ProductValidationService;
 
 class Add
 {
@@ -44,18 +45,26 @@ class Add
     private ApplePayFormatData $applePayFormatData;
 
     /**
+     * @var ProductValidationService
+     */
+    private ProductValidationService $productValidationService;
+
+    /**
      * @param BuckarooLoggerInterface $logger
      * @param QuoteService $quoteService
      * @param ApplePayFormatData $applePayFormatData
+     * @param ProductValidationService $productValidationService
      */
     public function __construct(
         BuckarooLoggerInterface $logger,
         QuoteService $quoteService,
-        ApplePayFormatData $applePayFormatData
+        ApplePayFormatData $applePayFormatData,
+        ProductValidationService $productValidationService
     ) {
         $this->logger = $logger;
         $this->quoteService = $quoteService;
         $this->applePayFormatData = $applePayFormatData;
+        $this->productValidationService = $productValidationService;
     }
 
     /**
@@ -67,6 +76,21 @@ class Add
     public function process(array $request)
     {
         try {
+            // Validate product before proceeding
+            $productData = $request['product'] ?? [];
+            $productId = $productData['id'] ?? null;
+            $qty = $productData['qty'] ?? 1;
+            $selectedOptions = $productData['selected_options'] ?? [];
+
+            if (!$productId) {
+                throw new \Exception('Product ID is required.');
+            }
+
+            $validation = $this->productValidationService->validateProduct((int)$productId, $selectedOptions, (float)$qty);
+            if (!$validation['is_valid']) {
+                throw new \Exception('Product validation failed: ' . implode(', ', $validation['errors']));
+            }
+
             // Get Cart (empty it first)
             $cartHash = $request['id'] ?? null;
             $this->quoteService->getEmptyQuote($cartHash);

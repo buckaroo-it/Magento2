@@ -33,6 +33,7 @@ use Buckaroo\Magento2\Api\PaypalExpressQuoteCreateInterface;
 use Buckaroo\Magento2\Model\PaypalExpress\QuoteBuilderInterfaceFactory;
 use Buckaroo\Magento2\Api\Data\ExpressMethods\ShippingAddressRequestInterface;
 use Buckaroo\Magento2\Api\Data\PaypalExpress\QuoteCreateResponseInterfaceFactory;
+use Buckaroo\Magento2\Service\ExpressPayment\ProductValidationService;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -85,6 +86,11 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
      */
     protected $quote;
 
+    /**
+     * @var \Buckaroo\Magento2\Service\ExpressPayment\ProductValidationService
+     */
+    protected $productValidationService;
+
     public function __construct(
         QuoteCreateResponseInterfaceFactory $responseFactory,
         QuoteBuilderInterfaceFactory $quoteBuilderInterfaceFactory,
@@ -93,7 +99,8 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
         CheckoutSession $checkoutSession,
         QuoteRepository $quoteRepository,
         ShipmentEstimationInterface $shipmentEstimation,
-        Log $logger
+        Log $logger,
+        ProductValidationService $productValidationService
     ) {
         $this->responseFactory = $responseFactory;
         $this->quoteBuilderInterfaceFactory = $quoteBuilderInterfaceFactory;
@@ -103,6 +110,7 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
         $this->quoteRepository = $quoteRepository;
         $this->shipmentEstimation = $shipmentEstimation;
         $this->logger = $logger;
+        $this->productValidationService = $productValidationService;
     }
     /** @inheritDoc */
     public function execute(
@@ -271,6 +279,25 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
     protected function createQuote(string $form_data)
     {
         try {
+            // Parse form data to get product ID and options
+            $data = [];
+            parse_str($form_data, $data);
+
+            $productId = $data['product'] ?? null;
+            $qty = $data['qty'] ?? 1;
+
+            if (!$productId) {
+                throw new PaypalExpressException(__("Product ID is required"), 1);
+            }
+
+            // Validate product before creating quote
+            $validationResult = $this->productValidationService->validateProduct($productId, $data, $qty);
+
+            if (!$validationResult['is_valid']) {
+                $errors = $validationResult['errors'];
+                throw new PaypalExpressException(__(implode(', ', $errors)), 1);
+            }
+
             $quoteBuilder = $this->quoteBuilderInterfaceFactory->create();
             $quoteBuilder->setFormData($form_data);
             return $quoteBuilder->build();

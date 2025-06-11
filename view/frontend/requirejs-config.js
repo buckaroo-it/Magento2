@@ -24,10 +24,10 @@ var config = {
             },
         },
     },
+
     map: {
         '*': {
-            "BuckarooSDK": "//checkout.buckaroo.nl/api/buckaroosdk/script",
-            // "BuckarooSDK": "//testcheckout.buckaroo.nl/api/buckaroosdk/script",
+            "BuckarooSdk": "Buckaroo_Magento2/js/lib/buckaroo-sdk",
             "buckaroo/applepay/catalog-cart-view": "Buckaroo_Magento2/js/view/checkout/applepay/catalog-cart-view",
             "buckaroo/applepay/catalog-product-view": "Buckaroo_Magento2/js/view/checkout/applepay/catalog-product-view",
             "buckaroo/applepay/pay": "Buckaroo_Magento2/js/view/checkout/applepay/pay",
@@ -47,8 +47,9 @@ var config = {
             "buckaroo/checkout/payment/default": "Buckaroo_Magento2/js/view/payment/method-renderer/default"
         }
     },
+
     shim: {
-        'BuckarooSDK': {
+        'BuckarooSdk': {
             deps: ['jquery']
         }
     }

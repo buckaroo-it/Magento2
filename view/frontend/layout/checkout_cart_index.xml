@@ -1,8 +1,22 @@
 <?xml version="1.0"?>
 <!--
 /**
- * Copyright © 2015 Magento. All rights reserved.
- * See COPYING.txt for license details.
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
  */
 -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
@@ -10,17 +24,22 @@
         <css src="Buckaroo_Magento2::css/ideal-fast-checkout.css" />
     </head>
     <body>
-        <referenceBlock name="checkout.cart.methods">
-            <block class="Buckaroo\Magento2\Block\Catalog\Product\View\Applepay" name="buckaroo_magento2.checkout.cart.applepay"
-                   after="checkout.cart.methods.onepage.bottom" template="Buckaroo_Magento2::checkout/cart/applepay.phtml">
-            </block>
-            <block class="Buckaroo\Magento2\Block\Catalog\Product\View\PaypalExpress" name="buckaroo_magento2.checkout.cart.paypal.express"
-                   after="checkout.cart.methods.onepage.bottom" template="Buckaroo_Magento2::checkout/cart/paypal-express.phtml">
-            </block>
-            <block class="Buckaroo\Magento2\Block\Catalog\Product\View\IdealFastCheckout" name="buckaroo_magento2.checkout.cart.ideal.fast.checkout"
-                   after="checkout.cart.methods.onepage.bottom" template="Buckaroo_Magento2::checkout/cart/ideal-fast-checkout.phtml">
-            </block>
-        </referenceBlock>
+
+        <referenceContainer name="checkout.cart.shortcut.buttons">
+            <block class="Buckaroo\Magento2\Block\Catalog\Product\View\PaypalExpress"
+                   name="buckaroo.paypal.express.cart.button"
+                   template="Buckaroo_Magento2::checkout/cart/paypal-express.phtml"
+                   after="-"/>
+            <block class="Buckaroo\Magento2\Block\Catalog\Product\View\Applepay" 
+                   name="buckaroo_magento2.checkout.cart.applepay"
+                   template="Buckaroo_Magento2::checkout/cart/applepay.phtml"
+                   after="buckaroo.paypal.express.cart.button"/>
+            <block class="Buckaroo\Magento2\Block\Catalog\Product\View\IdealFastCheckout" 
+                   name="buckaroo_magento2.checkout.cart.ideal.fast.checkout"
+                   template="Buckaroo_Magento2::checkout/cart/ideal-fast-checkout.phtml"
+                   after="buckaroo_magento2.checkout.cart.applepay"/>
+        </referenceContainer>
+
         <referenceBlock name="checkout.cart.order.actions">
             <block class="Buckaroo\Magento2\Block\Cart\BuckarooConfig" name="checkout.cart.order.actions.buckaroo-fee_options" template="cart/buckaroo_config.phtml" cacheable="false"/>
         </referenceBlock>
@@ -47,7 +66,6 @@
                                         </item>
                                    </item>
                                 </item>
-
                             </item>
                         </item>
                     </item>
