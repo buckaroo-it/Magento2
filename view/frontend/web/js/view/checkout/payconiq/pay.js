@@ -22,7 +22,7 @@ define(
         'mageUtils',
         'mage/url',
         'mage/translate',
-        'BuckarooSDK'
+        'BuckarooSdk'
     ],
     function (
         $,

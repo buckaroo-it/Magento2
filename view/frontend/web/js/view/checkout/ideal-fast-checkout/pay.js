@@ -29,6 +29,11 @@ define([
         },
 
         onCheckout: function () {
+            // Validate product for express checkout if on product page
+            if (this.page === 'product' && !this.validateProductForExpressCheckout()) {
+                return false;
+            }
+
             var qty = $("#qty").val();
 
             var productData = {
@@ -51,7 +56,12 @@ define([
 
         processOrderFlow: function (productData) {
             return new Promise((resolve, reject) => {
-                $.post(urlBuilder.build("rest/V1/buckaroo/ideal/quote/create"), productData)
+                var apiData = {
+                    page: productData.page,
+                    orderData: productData.order_data
+                };
+
+                $.post(urlBuilder.build("rest/V1/buckaroo/ideal/quote/create"), apiData)
                     .done((response) => resolve(response))
                     .fail((error) => reject(error));
             });
@@ -148,6 +158,83 @@ define([
 
         hideLoader: function () {
             $('body').loader('hide');
+        },
+
+        /**
+         * Validate product before allowing express checkout
+         * @returns {boolean}
+         */
+        validateProductForExpressCheckout: function () {
+            var form = $('#product_addtocart_form');
+            if (!form.length) {
+                this.displayErrorMessage('Unable to find product form.');
+                return false;
+            }
+
+            var productId = $('[name="product"]', form).val();
+            var qty = $('[name="qty"]', form).val() || 1;
+
+            if (!productId) {
+                this.displayErrorMessage('Unable to identify product.');
+                return false;
+            }
+
+            // Check if configurable product has all required options selected
+            var missingOptions = [];
+
+            // Check swatch attributes (color/size swatches)
+            if ($('div.swatch-attribute').length > 0) {
+                $('div.swatch-attribute').each(function() {
+                    var attributeId = $(this).attr('attribute-id') || $(this).attr('data-attribute-id');
+                    var optionSelected = $(this).attr('option-selected') || $(this).attr('data-option-selected');
+                    var label = $(this).find('.swatch-attribute-label').text().replace('*', '').trim();
+
+                    if (!optionSelected && attributeId) {
+                        missingOptions.push(label || 'Option');
+                    }
+                });
+            }
+
+            // Check dropdown configurable options (select dropdowns)
+            $('select[name*="super_attribute"]').each(function() {
+                var selectValue = $(this).val();
+                var fieldElement = $(this).closest('.field');
+                var label = fieldElement.find('label span').text().trim();
+
+                if (!selectValue || selectValue === '') {
+                    missingOptions.push(label || 'Dropdown Option');
+                }
+            });
+
+            if (missingOptions.length > 0) {
+                this.displayErrorMessage('Please select: ' + missingOptions.join(', '));
+                return false;
+            }
+
+            // Check for required custom options
+            var hasRequiredOptions = false;
+            $('.product-options-wrapper .field.required').each(function() {
+                var input = $(this).find('input, select, textarea');
+                var value = input.val();
+
+                if (!value || value === '') {
+                    hasRequiredOptions = true;
+                    return false;
+                }
+            });
+
+            if (hasRequiredOptions) {
+                this.displayErrorMessage('This product has required options. Please make your selections before proceeding.');
+                return false;
+            }
+
+            // Validate quantity
+            if (qty < 1) {
+                this.displayErrorMessage('Please enter a valid quantity.');
+                return false;
+            }
+
+            return true;
         }
     });
 });
