@@ -171,50 +171,103 @@ class ProductValidationService
      */
     private function validateConfigurableProduct(ProductInterface $product, array $options, float $qty, array $result): array
     {
-        /** @var Product $productModel */
-        $productModel = $product;
-
-        /** @var Configurable $typeInstance */
-        $typeInstance = $product->getTypeInstance();
-
-        // Get required attributes
-        $attributes = $typeInstance->getConfigurableAttributes($productModel);
-        $requiredAttributeIds = [];
-
-        foreach ($attributes as $attribute) {
-            $requiredAttributeIds[] = $attribute->getAttributeId();
-        }
-
-        // Check if all required attributes are selected
-        $missingAttributes = [];
-        foreach ($requiredAttributeIds as $attributeId) {
-            if (!isset($options[$attributeId]) || empty($options[$attributeId])) {
-                // Find the attribute with the matching ID
-                foreach ($attributes as $attribute) {
-                    if ($attribute->getAttributeId() == $attributeId) {
-                        $productAttribute = $attribute->getProductAttribute();
-                        $missingAttributes[] = $productAttribute->getFrontendLabel() ?: $productAttribute->getAttributeCode();
-                        break;
-                    }
-                }
-            }
-        }
-
-        if (!empty($missingAttributes)) {
+        // Validate required attributes selection
+        $attributeValidation = $this->validateConfigurableAttributes($product, $options);
+        if (!$attributeValidation['is_valid']) {
             $result['is_valid'] = false;
-            $result['errors'][] = __('Please select: %1', implode(', ', $missingAttributes));
+            $result['errors'] = array_merge($result['errors'], $attributeValidation['errors']);
             return $result;
         }
 
-        // Find the specific simple product based on selected options
-        $childProduct = $typeInstance->getProductByAttributes($options, $productModel);
-
+        // Get child product based on selected options
+        $childProduct = $this->getChildProductByOptions($product, $options);
         if (!$childProduct) {
             $result['is_valid'] = false;
             $result['errors'][] = __('The selected product combination is not available.');
             return $result;
         }
 
+        // Validate child product
+        return $this->validateChildProduct($childProduct, $qty, $result);
+    }
+
+    /**
+     * Validate configurable product attributes selection
+     *
+     * @param ProductInterface $product
+     * @param array $options
+     * @return array
+     */
+    private function validateConfigurableAttributes(ProductInterface $product, array $options): array
+    {
+        $result = ['is_valid' => true, 'errors' => []];
+
+        /** @var Product $productModel */
+        $productModel = $product;
+        /** @var Configurable $typeInstance */
+        $typeInstance = $product->getTypeInstance();
+        $attributes = $typeInstance->getConfigurableAttributes($productModel);
+
+        $missingAttributes = $this->findMissingAttributes($attributes, $options);
+
+        if (!empty($missingAttributes)) {
+            $result['is_valid'] = false;
+            $result['errors'][] = __('Please select: %1', implode(', ', $missingAttributes));
+        }
+
+        return $result;
+    }
+
+    /**
+     * Find missing required attributes
+     *
+     * @param array $attributes
+     * @param array $options
+     * @return array
+     */
+    private function findMissingAttributes(array $attributes, array $options): array
+    {
+        $missingAttributes = [];
+
+        foreach ($attributes as $attribute) {
+            $attributeId = $attribute->getAttributeId();
+            
+            if (!isset($options[$attributeId]) || empty($options[$attributeId])) {
+                $productAttribute = $attribute->getProductAttribute();
+                $missingAttributes[] = $productAttribute->getFrontendLabel() ?: $productAttribute->getAttributeCode();
+            }
+        }
+
+        return $missingAttributes;
+    }
+
+    /**
+     * Get child product by selected options
+     *
+     * @param ProductInterface $product
+     * @param array $options
+     * @return ProductInterface|null
+     */
+    private function getChildProductByOptions(ProductInterface $product, array $options): ?ProductInterface
+    {
+        /** @var Product $productModel */
+        $productModel = $product;
+        /** @var Configurable $typeInstance */
+        $typeInstance = $product->getTypeInstance();
+
+        return $typeInstance->getProductByAttributes($options, $productModel);
+    }
+
+    /**
+     * Validate child product stock and options
+     *
+     * @param ProductInterface $childProduct
+     * @param float $qty
+     * @param array $result
+     * @return array
+     */
+    private function validateChildProduct(ProductInterface $childProduct, float $qty, array $result): array
+    {
         // Check stock for the selected child product
         $stockResult = $this->checkProductStock($childProduct, $qty);
         if (!$stockResult['is_in_stock']) {
@@ -253,45 +306,71 @@ class ProductValidationService
         try {
             // Check if MSI is enabled
             if ($this->moduleManager->isEnabled('Magento_Inventory') && $this->getSalableQuantityDataBySku) {
-                // Use MSI for stock checking
-                $salableQty = $this->getSalableQuantityDataBySku->execute($product->getSku());
-
-                if (empty($salableQty)) {
-                    $result['errors'][] = __('Product is out of stock.');
-                    return $result;
-                }
-
-                $totalSalableQty = 0;
-                foreach ($salableQty as $stockData) {
-                    $totalSalableQty += $stockData['qty'];
-                }
-
-                if ($totalSalableQty < $qty) {
-                    $result['errors'][] = __('The requested quantity is not available. Available quantity: %1', $totalSalableQty);
-                    return $result;
-                }
-
-                $result['is_in_stock'] = true;
+                $result = $this->checkMsiStock($product, $qty, $result);
             } else {
-                // Fallback to legacy stock checking
-                $stockItem = $this->stockRegistry->getStockItem($product->getId());
-
-                if (!$stockItem->getIsInStock()) {
-                    $result['errors'][] = __('Product is out of stock.');
-                    return $result;
-                }
-
-                if ($stockItem->getManageStock() && $stockItem->getQty() < $qty) {
-                    $result['errors'][] = __('The requested quantity is not available. Available quantity: %1', $stockItem->getQty());
-                    return $result;
-                }
-
-                $result['is_in_stock'] = true;
+                $result = $this->checkLegacyStock($product, $qty, $result);
             }
         } catch (\Exception $e) {
             $result['errors'][] = __('Error checking stock: %1', $e->getMessage());
         }
 
+        return $result;
+    }
+
+    /**
+     * Check stock using MSI (Multi Source Inventory)
+     *
+     * @param ProductInterface $product
+     * @param float $qty
+     * @param array $result
+     * @return array
+     */
+    private function checkMsiStock(ProductInterface $product, float $qty, array $result): array
+    {
+        $salableQty = $this->getSalableQuantityDataBySku->execute($product->getSku());
+
+        if (empty($salableQty)) {
+            $result['errors'][] = __('Product is out of stock.');
+            return $result;
+        }
+
+        $totalSalableQty = 0;
+        foreach ($salableQty as $stockData) {
+            $totalSalableQty += $stockData['qty'];
+        }
+
+        if ($totalSalableQty < $qty) {
+            $result['errors'][] = __('The requested quantity is not available. Available quantity: %1', $totalSalableQty);
+            return $result;
+        }
+
+        $result['is_in_stock'] = true;
+        return $result;
+    }
+
+    /**
+     * Check stock using legacy stock registry
+     *
+     * @param ProductInterface $product
+     * @param float $qty
+     * @param array $result
+     * @return array
+     */
+    private function checkLegacyStock(ProductInterface $product, float $qty, array $result): array
+    {
+        $stockItem = $this->stockRegistry->getStockItem($product->getId());
+
+        if (!$stockItem->getIsInStock()) {
+            $result['errors'][] = __('Product is out of stock.');
+            return $result;
+        }
+
+        if ($stockItem->getManageStock() && $stockItem->getQty() < $qty) {
+            $result['errors'][] = __('The requested quantity is not available. Available quantity: %1', $stockItem->getQty());
+            return $result;
+        }
+
+        $result['is_in_stock'] = true;
         return $result;
     }
 
