@@ -35,13 +35,9 @@ class ArticlesDataBuilder extends AbstractDataBuilder
 
         $articles = [];
 
-        foreach ($this->getOrder()->getAllItems() as $item) {
-
+        // Use getAllVisibleItems() which is already optimized and doesn't trigger parent_item_id queries
+        foreach ($this->getOrder()->getAllVisibleItems() as $item) {
             /** @var OrderItemInterface $item */
-            if ($item->getParentItem() != null) {
-                continue;
-            }
-
             $articles[] = [
                 'identifier'  => $item->getSku(),
                 'description' => $item->getName(),
