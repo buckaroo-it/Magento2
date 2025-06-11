@@ -1,5 +1,3 @@
-<?php
-
 /**
  * NOTICE OF LICENSE
  *
@@ -18,25 +16,32 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-?>
-<?php if ($block->canShowCartButton() && !$block->isIdinVerificationRequired()): ?>
-    <div class="box-tocart">
-        <div class="fieldset">
-            <div class="actions">
-                <div id="paypal-express-wrapper"></div>
-            </div>
-        </div>
-    </div>
-    <div class="buckaroo-paypal-express"></div>
-    
-    <script type="text/x-magento-init">
-    {
-        "#paypal-express-wrapper": {
-            "Buckaroo_Magento2/js/view/checkout/cart/paypal-express": {
-                "config": <?= /* @noEscape */ json_encode($block->getConfig()); ?>,
-                "context": "cart"
-            }
+
+define([
+    'uiComponent'
+], function (Component) {
+    'use strict';
+
+    return Component.extend({
+        
+        defaults: {
+            config: {}
+        },
+
+        /**
+         * Initialize component
+         */
+        initialize: function () {
+            this._super();
+            this.setBuckarooConfig();
+            return this;
+        },
+
+        /**
+         * Set buckaroo configuration on window object
+         */
+        setBuckarooConfig: function () {
+            window.buckarooConfig = this.config;
         }
-    }
-    </script>
-<?php endif; ?>
+    });
+}); 

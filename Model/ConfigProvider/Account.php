@@ -28,9 +28,6 @@ use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\Store;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider as MethodAbstractConfigProvider;
 
-/**
- * @method mixed getBuckarooFeeTaxClass()
- */
 class Account extends AbstractConfigProvider
 {
     /**
@@ -668,6 +665,21 @@ class Account extends AbstractConfigProvider
     {
         return $this->scopeConfig->getValue(
             self::XPATH_ACCOUNT_IDIN_CATEGORY,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Get Buckaroo fee tax class
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getBuckarooFeeTaxClass($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_ACCOUNT_BUCKAROO_FEE_TAX_CLASS,
             ScopeInterface::SCOPE_STORE,
             $store
         );

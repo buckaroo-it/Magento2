@@ -20,90 +20,102 @@
 // @codingStandardsIgnoreFile
 ?>
 
-<?php $code = $block->escapeHtml($block->getMethodCode()); ?>
-
-<fieldset class="admin__fieldset payment-method" id="payment_form_<?= $code; ?>" style="display:block">
-    <legend>Billing address</legend>
-    <div class="admin__field _required">
-        <label class="label admin__field-label" for="buckaroo_magento2_payperemail_genderSelect">
-            <span><?= $block->escapeHtml(__('Salutation:')); ?></span>
+<?php $_code = $block->escapeHtml($block->getMethodCode()) ?>
+<div id="payment_form_<?= $_code ?>" class="payment-method">
+    <div class="payment-method-title field choice">
+        <input type="radio" 
+               id="p_method_<?= $_code ?>" 
+               value="<?= $_code ?>" 
+               name="payment[method]" 
+               title="<?= $block->escapeHtmlAttr($block->getMethodTitle()) ?>"
+               <?php if($block->isChecked()): ?>checked="checked"<?php endif; ?> />
+        <label for="p_method_<?= $_code ?>" class="label">
+            <span><?= $block->escapeHtml($block->getMethodTitle()) ?></span>
         </label>
-        <div class="admin__field-control control">
-
-            <select id="buckaroo_magento2_payperemail_genderSelect" name="payment[customer_gender]"
-                    class="required-entry select admin__control-select">
-                    <option value="1"><?= $block->escapeHtml(__('Mr.')); ?></option>
-                    <option value="2"><?= $block->escapeHtml(__('Mrs.')); ?></option>
-                    <option value="0"><?= $block->escapeHtml(__('They/them')); ?></option>
-                    <option value="9"><?= $block->escapeHtml(__('Not Applicable')); ?></option>
-            </select>
-        </div>
     </div>
+    <fieldset class="admin__fieldset payment-method" id="payment_form_<?= $_code; ?>">
+        <legend>Billing address</legend>
+        <div class="admin__field _required">
+            <label class="label admin__field-label" for="buckaroo_magento2_payperemail_genderSelect">
+                <span><?= $block->escapeHtml(__('Salutation:')); ?></span>
+            </label>
+            <div class="admin__field-control control">
 
-    <?php $customerDetails = $block->getPPeCustomerDetails(); ?>
-    <div class="admin__field _required">
-        <label class="label admin__field-label" for="buckaroo_magento2_payperemail_BillingFirstName">
-            <span><?= $block->escapeHtml(__('Billing First Name:')); ?></span>
-        </label>
-        <div class="admin__field-control control">
-            <input id="buckaroo_magento2_payperemail_BillingFirstName"
-                   class="input-text field"
-                   type="text"
-                   value="<?= $customerDetails ? $block->escapeHtml($customerDetails['firstName']) : ''; ?>"
-                   data-bind="valueUpdate: 'keyup', attr: { 'data-validate': JSON.stringify({ 'required': true }) }"
-                   name="payment[customer_billingFirstName]"
-            >
+                <select id="buckaroo_magento2_payperemail_genderSelect" name="payment[customer_gender]"
+                        class="required-entry select admin__control-select">
+                        <option value="1"><?= $block->escapeHtml(__('Mr.')); ?></option>
+                        <option value="2"><?= $block->escapeHtml(__('Mrs.')); ?></option>
+                        <option value="0"><?= $block->escapeHtml(__('They/them')); ?></option>
+                        <option value="9"><?= $block->escapeHtml(__('Not Applicable')); ?></option>
+                </select>
+            </div>
         </div>
-    </div>
 
-    <div class="admin__field">
-        <label class="label admin__field-label" for="buckaroo_magento2_payperemail_BillingMiddleName">
-            <span><?= $block->escapeHtml(__('Billing Middle Name:')); ?></span>
-        </label>
-        <div class="admin__field-control control">
-            <input id="buckaroo_magento2_payperemail_BillingMiddleName"
-                   class="input-text field"
-                   type="text"
-                   value="<?= $customerDetails ? $block->escapeHtml($customerDetails['middleName']) : ''; ?>"
-                   name="payment[customer_billingMiddleName]"
-            >
+        <?php $customerDetails = $block->getPPeCustomerDetails(); ?>
+        <div class="admin__field _required">
+            <label class="label admin__field-label" for="buckaroo_magento2_payperemail_BillingFirstName">
+                <span><?= $block->escapeHtml(__('Billing First Name:')); ?></span>
+            </label>
+            <div class="admin__field-control control">
+                <input id="buckaroo_magento2_payperemail_BillingFirstName"
+                       class="input-text field"
+                       type="text"
+                       value="<?= $customerDetails ? $block->escapeHtml($customerDetails['firstName']) : ''; ?>"
+                       data-bind="valueUpdate: 'keyup', attr: { 'data-validate': JSON.stringify({ 'required': true }) }"
+                       name="payment[customer_billingFirstName]"
+                >
+            </div>
         </div>
-    </div>
 
-    <div class="admin__field _required">
-        <label class="label admin__field-label" for="buckaroo_magento2_payperemail_BillingLastName">
-            <span><?= $block->escapeHtml(__('Billing Last Name:')); ?></span>
-        </label>
-        <div class="admin__field-control control">
-            <input id="buckaroo_magento2_payperemail_BillingLastName"
-                   class="input-text field"
-                   type="text"
-                   value="<?= $customerDetails ? $block->escapeHtml($customerDetails['lastName']) : ''; ?>"
-                   data-bind="valueUpdate: 'keyup', attr: { 'data-validate': JSON.stringify({ 'required': true }) }"
-                   name="payment[customer_billingLastName]"
-            >
+        <div class="admin__field">
+            <label class="label admin__field-label" for="buckaroo_magento2_payperemail_BillingMiddleName">
+                <span><?= $block->escapeHtml(__('Billing Middle Name:')); ?></span>
+            </label>
+            <div class="admin__field-control control">
+                <input id="buckaroo_magento2_payperemail_BillingMiddleName"
+                       class="input-text field"
+                       type="text"
+                       value="<?= $customerDetails ? $block->escapeHtml($customerDetails['middleName']) : ''; ?>"
+                       name="payment[customer_billingMiddleName]"
+                >
+            </div>
         </div>
-    </div>
 
-    <div class="admin__field _required">
-        <label class="label admin__field-label" for="buckaroo_magento2_payperemail_Email">
-            <span><?= $block->escapeHtml(__('Email:')); ?></span>
-        </label>
-        <div class="admin__field-control control">
-            <input id="buckaroo_magento2_payperemail_Email"
-                   class="input-text field"
-                   type="text"
-                   value="<?= $customerDetails ? $block->escapeHtml($customerDetails['email']) : ''; ?>"
-                   data-bind="
-                       valueUpdate: 'keyup',
-                       attr: { 'data-validate': JSON.stringify({ 'required': true, 'validate-email': true }) }
-                   "
-                   name="payment[customer_email]"
-            >
+        <div class="admin__field _required">
+            <label class="label admin__field-label" for="buckaroo_magento2_payperemail_BillingLastName">
+                <span><?= $block->escapeHtml(__('Billing Last Name:')); ?></span>
+            </label>
+            <div class="admin__field-control control">
+                <input id="buckaroo_magento2_payperemail_BillingLastName"
+                       class="input-text field"
+                       type="text"
+                       value="<?= $customerDetails ? $block->escapeHtml($customerDetails['lastName']) : ''; ?>"
+                       data-bind="valueUpdate: 'keyup', attr: { 'data-validate': JSON.stringify({ 'required': true }) }"
+                       name="payment[customer_billingLastName]"
+                >
+            </div>
         </div>
-    </div>
 
-</fieldset>
+        <div class="admin__field _required">
+            <label class="label admin__field-label" for="buckaroo_magento2_payperemail_Email">
+                <span><?= $block->escapeHtml(__('Email:')); ?></span>
+            </label>
+            <div class="admin__field-control control">
+                <input id="buckaroo_magento2_payperemail_Email"
+                       class="input-text field"
+                       type="text"
+                       value="<?= $customerDetails ? $block->escapeHtml($customerDetails['email']) : ''; ?>"
+                       data-bind="
+                           valueUpdate: 'keyup',
+                           attr: { 'data-validate': JSON.stringify({ 'required': true, 'validate-email': true }) }
+                       "
+                       name="payment[customer_email]"
+                >
+            </div>
+        </div>
+
+    </fieldset>
+</div>
 <script>
     [
         ['email', 'buckaroo_magento2_payperemail_Email'],

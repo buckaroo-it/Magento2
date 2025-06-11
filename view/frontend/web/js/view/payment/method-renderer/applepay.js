@@ -54,7 +54,6 @@ define(
                 currencyCode: window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode: window.checkoutConfig.quoteData.base_currency_code,
                 subtext: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.subtext,
-                subTextStyle: checkoutCommon.getSubtextStyle('applepay'),
                 submit: false,
 
                 initObservable: function () {
@@ -90,6 +89,29 @@ define(
                 canShowPaymentMethod: ko.computed(function () {
                     return applepayPay.canShowMethod();
                 }),
+
+                /**
+                 * Get subtext styling
+                 * @returns {Object}
+                 */
+                getSubtextStyle: function () {
+                    var config = this.buckaroo;
+                    if (config === undefined) {
+                        return {};
+                    }
+                    var subtextColor = config.subtext_color || '#757575';
+                    var subtextStyle = config.subtext_style || 'regular';
+
+                    var style = { color: subtextColor };
+                    if (subtextStyle === 'bold') {
+                        style.fontWeight = 'bold';
+                    }
+
+                    if (subtextStyle === 'italic') {
+                        style.fontStyle = 'italic';
+                    }
+                    return style;
+                },
 
                 /**
                  * Place order.

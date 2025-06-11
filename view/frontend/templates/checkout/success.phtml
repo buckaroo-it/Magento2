@@ -18,13 +18,16 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 ?>
-<script>
-    window.onload = function(){
-        require(['Magento_Customer/js/customer-data'], function (customerData) {
-            var sections = ['cart'];
-            customerData.initStorage();
-            customerData.reload(sections, true);
-            customerData.invalidate(sections);
-            console.log('Reload shopping cart on success');});
+<script type="text/x-magento-init">
+{
+    "*": {
+        "Magento_Ui/js/core/app": {
+            "components": {
+                "buckarooSuccessPageReload": {
+                    "component": "Buckaroo_Magento2/js/view/checkout/success-reload"
+                }
+            }
+        }
     }
+}
 </script>

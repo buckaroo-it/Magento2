@@ -18,7 +18,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 ?>
-<?php if ($block->canShowProductButton()): ?>
+<?php if ($block->canShowProductButton() && !$block->isIdinVerificationRequired()): ?>
 <div id="paypal-express-button-component" data-bind="scope:'paypalExpress'">
     <!-- ko template: getTemplate() --><!-- /ko -->
     <div class="buckaroo-paypal-express"></div>

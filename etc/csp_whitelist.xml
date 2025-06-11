@@ -31,6 +31,7 @@
             <values>
                 <value id="payconiq-img" type="host">https://portal.payconiq.com</value>
                 <value id="buckaroo-static-img" type="host">https://static.buckaroo.nl</value>
+                <value id="buckaroo-media-img" type="host">https://www.buckaroo.nl</value>
                 <value id="paypal-img" type="host">https://www.paypalobjects.com</value>
             </values>
         </policy>
