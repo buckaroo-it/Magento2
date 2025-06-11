@@ -5,9 +5,65 @@ on:
   pull_request:
     branches: [ develop ]
   workflow_dispatch:
+
+# Prevent duplicate runs: cancel in-progress runs for the same PR/branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  build:
+  # Job to check if we should run based on the event type and PR status
+  check-conditions:
     runs-on: ubuntu-latest
+    outputs:
+      should-run: ${{ steps.decide.outputs.should-run }}
+      reason: ${{ steps.decide.outputs.reason }}
+    steps:
+      - name: Decide if checks should run
+        id: decide
+        run: |
+          echo "Event: ${{ github.event_name }}"
+          echo "Ref: ${{ github.ref }}"
+          
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            # Always run on PR events
+            echo "should-run=true" >> $GITHUB_OUTPUT
+            echo "reason=Running because this is a Pull Request event" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" == "push" ]; then
+            # For push events, check if there's an open PR for this branch
+            branch_name="${{ github.ref_name }}"
+            echo "Checking if PR exists for branch: $branch_name"
+            
+            # Use GitHub API to check for open PRs
+            pr_response=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              "https://api.github.com/repos/${{ github.repository }}/pulls?head=${{ github.repository_owner }}:$branch_name&state=open")
+            
+            pr_count=$(echo "$pr_response" | jq length)
+            echo "Open PRs for this branch: $pr_count"
+            
+            if [ "$pr_count" -eq 0 ]; then
+              # No PR exists, run checks on push
+              echo "should-run=true" >> $GITHUB_OUTPUT
+              echo "reason=Running because push to branch with no open PR" >> $GITHUB_OUTPUT
+            else
+              # PR exists, skip push checks (they'll run on PR)
+              echo "should-run=false" >> $GITHUB_OUTPUT
+              echo "reason=Skipping because open PR exists (checks will run on PR)" >> $GITHUB_OUTPUT
+            fi
+          elif [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            # Always run on manual trigger
+            echo "should-run=true" >> $GITHUB_OUTPUT
+            echo "reason=Running because manually triggered" >> $GITHUB_OUTPUT
+          else
+            echo "should-run=false" >> $GITHUB_OUTPUT
+            echo "reason=Unknown event type" >> $GITHUB_OUTPUT
+          fi
+
+  build:
+    needs: check-conditions
+    runs-on: ubuntu-latest
+    # Only run if conditions check passed
+    if: needs.check-conditions.outputs.should-run == 'true'
     strategy:
       fail-fast: false
       matrix:
@@ -26,6 +82,10 @@ jobs:
             magento: '2.4.8'
     name: PHP ${{ matrix.php }} / Magento ${{ matrix.magento }}
     steps:
+      - name: Show execution reason
+        run: |
+          echo "✅ Running checks: ${{ needs.check-conditions.outputs.reason }}"
+
       - name: setup php
         uses: shivammathur/setup-php@v2
         with:
