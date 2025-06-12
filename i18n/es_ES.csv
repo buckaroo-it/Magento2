@@ -462,3 +462,6 @@
 "Buckaroo Hosted Fields Client Secret:","Buckaroo Hosted Fields Client Secret:"
 "Enter your Buckaroo Hosted Fields Client ID, obtainable from the Buckaroo Plaza at → Settings → <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank">Token registration</a>.","Ingrese su Buckaroo Hosted Fields Client ID, disponible en Buckaroo Plaza en → Configuración → <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank">Registro de token</a>."
 "Enter your Buckaroo Hosted Fields Client Secret, obtainable from the Buckaroo Plaza at → Settings → <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank">Token registration</a>.","Ingrese su Buckaroo Hosted Fields Client Secret, disponible en Buckaroo Plaza en → Configuración → <a href="https://plaza.buckaroo.nl/Configuration/TokenApi/Applications" target="_blank">Registro de token</a>."
+"Apple Pay checkout type","Tipo de pago con Apple Pay en el checkout"
+"Inline (Integrated in checkout)","Integrado (Integrado en el checkout)"
+"Redirect (Buckaroo Hosted Payment Page)","Redirección (Página de pago alojada por Buckaroo)"

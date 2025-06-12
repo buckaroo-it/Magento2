@@ -58,37 +58,53 @@ define(
 
                 initObservable: function () {
                     this._super().observe([]);
-                    applepayPay.canShowApplePay();
+                    
+                    // Check integration mode and use appropriate template
+                    if (this.getIntegrationMode() === '1') {
+                        this.template = 'Buckaroo_Magento2/payment/buckaroo_magento2_applepay_redirect';
+                    } else {
+                        applepayPay.canShowApplePay();
 
-                    applepayPay.transactionResult.subscribe(
-                        function () {
-                            this.submit = true;
-                            this.placeOrder(null, null);
-                        }.bind(this)
-                    );
+                        applepayPay.transactionResult.subscribe(
+                            function () {
+                                this.submit = true;
+                                this.placeOrder(null, null);
+                            }.bind(this)
+                        );
 
-                    quote.totals.subscribe(
-                        function () {
-                            if (applepayPay.canShowApplePay()) {
+                        quote.totals.subscribe(
+                            function () {
+                                if (applepayPay.canShowApplePay()) {
+                                    applepayPay.updateOptions();
+                                }
+                            }.bind(this)
+                        );
+
+                        $(window).on('hashchange', function () {
+                            var hashString = window.location.hash.replace('#', '');
+
+                            if (hashString === 'payment' && applepayPay.canShowApplePay()) {
                                 applepayPay.updateOptions();
                             }
-                        }.bind(this)
-                    );
-
-                    $(window).on('hashchange', function () {
-                        var hashString = window.location.hash.replace('#', '');
-
-                        if (hashString === 'payment' && applepayPay.canShowApplePay()) {
-                            applepayPay.updateOptions();
-                        }
-                    }.bind(this));
+                        }.bind(this));
+                    }
 
                     return this;
                 },
 
                 canShowPaymentMethod: ko.computed(function () {
-                    return applepayPay.canShowMethod();
-                }),
+                    if (this.getIntegrationMode() === '1') {
+                        // For redirect mode, always show if method is enabled
+                        return true;
+                    } else {
+                        // For inline mode, check Apple Pay support
+                        return applepayPay.canShowMethod();
+                    }
+                }.bind(this)),
+
+                getIntegrationMode: function () {
+                    return window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.integrationMode || '0';
+                },
 
                 /**
                  * Get subtext styling
@@ -123,46 +139,70 @@ define(
                     var self = this,
                         placeOrder;
 
-                    applepayPay.devLog('==========applepaydebug/60');
+                    // Check if this is redirect mode
+                    if (this.getIntegrationMode() === '1') {
+                        // Redirect mode - simple place order
+                        if (event) {
+                            event.preventDefault();
+                        }
 
-                    if (applepayPay.isOsc()) {
-                        var validationResult = additionalValidators.validate();
-                        applepayPay.devLog('==========applepaydebug/601', validationResult);
-                        if (!validationResult) {
+                        if (this.validate() && additionalValidators.validate()) {
+                            this.isPlaceOrderActionAllowed(false);
+                            placeOrder = placeOrderAction(this.getData(), this.redirectAfterPlaceOrder, this.messageContainer);
+
+                            $.when(placeOrder).fail(
+                                function () {
+                                    self.isPlaceOrderActionAllowed(true);
+                                }
+                            ).done(this.afterPlaceOrder.bind(this));
+
+                            return true;
+                        }
+
+                        return false;
+                    } else {
+                        // Inline mode - existing logic
+                        applepayPay.devLog('==========applepaydebug/60');
+
+                        if (applepayPay.isOsc()) {
+                            var validationResult = additionalValidators.validate();
+                            applepayPay.devLog('==========applepaydebug/601', validationResult);
+                            if (!validationResult) {
+                                return false;
+                            }
+                        }
+
+                        if (!this.submit) {
+                            applepayPay.devLog('==========applepaydebug/61');
+                            var child = document.querySelector('.apple-pay-button');
+                            if (child) {
+                                child.click();
+                            }
                             return false;
                         }
-                    }
 
-                    if (!this.submit) {
-                        applepayPay.devLog('==========applepaydebug/61');
-                        var child = document.querySelector('.apple-pay-button');
-                        if (child) {
-                            child.click();
+                        applepayPay.devLog('==========applepaydebug/62');
+                        this.submit = false;
+
+                        if (event) {
+                            event.preventDefault();
                         }
+
+                        if (this.validate() && additionalValidators.validate()) {
+                            this.isPlaceOrderActionAllowed(false);
+                            placeOrder = placeOrderAction(this.getData(), this.redirectAfterPlaceOrder, this.messageContainer);
+
+                            $.when(placeOrder).fail(
+                                function () {
+                                    self.isPlaceOrderActionAllowed(true);
+                                }
+                            ).done(this.afterPlaceOrder.bind(this));
+
+                            return true;
+                        }
+
                         return false;
                     }
-
-                    applepayPay.devLog('==========applepaydebug/62');
-                    this.submit = false;
-
-                    if (event) {
-                        event.preventDefault();
-                    }
-
-                    if (this.validate() && additionalValidators.validate()) {
-                        this.isPlaceOrderActionAllowed(false);
-                        placeOrder = placeOrderAction(this.getData(), this.redirectAfterPlaceOrder, this.messageContainer);
-
-                        $.when(placeOrder).fail(
-                            function () {
-                                self.isPlaceOrderActionAllowed(true);
-                            }
-                        ).done(this.afterPlaceOrder.bind(this));
-
-                        return true;
-                    }
-
-                    return false;
                 },
 
                 afterPlaceOrder: function () {
@@ -182,10 +222,13 @@ define(
                 },
 
                 showPayButton: function () {
-                    applepayPay.devLog('==========applepaydebug/66');
-                    applepayPay.setIsOnCheckout(true);
-                    applepayPay.setQuote(quote);
-                    applepayPay.showPayButton();
+                    // Only show Apple Pay button in inline mode
+                    if (this.getIntegrationMode() === '0') {
+                        applepayPay.devLog('==========applepaydebug/66');
+                        applepayPay.setIsOnCheckout(true);
+                        applepayPay.setQuote(quote);
+                        applepayPay.showPayButton();
+                    }
                 },
 
                 payWithBaseCurrency: function () {

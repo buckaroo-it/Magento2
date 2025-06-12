@@ -665,3 +665,6 @@
 "Fr","Vr"
 "Sa","Za"
 "Su","Zo"
+"Apple Pay checkout type","Apple Pay afrekenmodus"
+"Inline (Integrated in checkout)","Inline (Geïntegreerd in de checkout)"
+"Redirect (Buckaroo Hosted Payment Page)","Redirect (Buckaroo betaalpagina)"
