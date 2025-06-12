@@ -5,21 +5,17 @@
         <div id="buckaroo_magento2_payconiq_qr"></div>
 
         <button id="buckaroo_magento2_payconiq_cancel" type="button" title="Cancel" data-bind="click: cancelPayment">
-            <span><?= /* @noEscape */ __('Cancel')?></span>
+            <span><?= $block->escapeHtml(__('Cancel')) ?></span>
         </button>
     </div>
 </div>
 
-<script>
-    require(['buckaroo/payconiq/pay'], function (payconiqPay) {
-        var transactionKey = "<?= /* @noEscape */ $block->getTransactionKey(); ?>";
-
-        payconiqPay.setTransactionKey(transactionKey);
-        payconiqPay.showQrCode();
-    });
-    cancelPayment = function() {
-        require(['buckaroo/payconiq/pay'], function (payconiqPay) {
-            payconiqPay.cancelPayment();
-        });
+<script type="text/x-magento-init">
+{
+    "*": {
+        "Buckaroo_Magento2/js/view/checkout/payconiq/pay-wrapper": {
+            "transactionKey": "<?= $block->escapeJs($block->getTransactionKey()); ?>"
+        }
     }
+}
 </script>

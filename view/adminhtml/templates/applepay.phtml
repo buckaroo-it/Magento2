@@ -22,39 +22,15 @@
 ?>
 <!-- Set up a container element for the button -->
 <div id="applepay-button-wrapper">
-    <apple-pay-button lang="en-US" buttonstyle="<?= $block->getButtonStyle();?>" hidden="false"></apple-pay-button>
+    <apple-pay-button lang="en-US" buttonstyle="<?= $block->escapeHtmlAttr($block->getButtonStyle());?>" hidden="false"></apple-pay-button>
 </div>
-<script>
-    function requireApplePay(callback){
-        const e = document.createElement("script");
-        e.src = `https://applepay.cdn-apple.com/jsapi/v1.1.0/apple-pay-button.js`;
-        e.type = "text/javascript";
-        e.addEventListener("load", callback);
-        document.getElementsByTagName("head")[0].appendChild(e);
+<script type="text/x-magento-init">
+{
+    "#applepay-button-wrapper": {
+        "Buckaroo_Magento2/js/view/adminhtml/applepay": {
+            "buttonStyle": "<?= $block->escapeJs($block->getButtonStyle()); ?>",
+            "buttonStyleElement": "<?= $block->escapeJs($block->getButtonStyleElement()); ?>"
+        }
     }
-    require(['jquery'], ($) => {
-        const buttonElement = $('apple-pay-button');
-        let buttonStyle = "<?= $block->getButtonStyle();?>";
-        function renderButton(){
-            buttonElement.attr('lang',document.firstElementChild.lang)
-            buttonElement.attr('buttonStyle',buttonStyle)
-            buttonElement.attr('type',"buy")
-        }
-        if(!customElements.get('apple-pay-button')){
-            requireApplePay(renderButton)
-        } else {
-            renderButton()
-        }
-        $('#<?= $block->getButtonStyleElement() ?>').change(function () {
-            if($(this).val()!==buttonStyle){
-                buttonStyle = $(this).val()
-                renderButton()
-            }
-        })
-    })
+}
 </script>
-<style>
-    #applepay-button-wrapper > apple-pay-button {
-        display: inline;
-    }
-</style>

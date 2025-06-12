@@ -21,56 +21,15 @@
 ?>
 <!-- Set up a container element for the button -->
 <div id="paypal-button-container"></div>
-<script>
-    function requirePayPal(callback){
-        const e = document.createElement("script");
-        const clientTestIp = 'AfHztAEfaf3f76tNy8j_Z86w5y-fGbqbBt04PXppVFtJatje79gVSB27DwBENnyFgfhFvKzgJbegNpHv'
-        e.src = `https://www.paypal.com/sdk/js?client-id=${clientTestIp}`;
-        e.type = "text/javascript";
-        e.addEventListener("load", callback);
-        document.getElementsByTagName("head")[0].appendChild(e);
+<script type="text/x-magento-init">
+{
+    "#paypal-button-container": {
+        "Buckaroo_Magento2/js/view/adminhtml/paypal": {
+            "buttonColor": "<?= $block->escapeJs($block->getButtonColor()); ?>",
+            "buttonShape": "<?= $block->escapeJs($block->getButtonShape()); ?>",
+            "buttonColorElement": "<?= $block->escapeJs($block->getButtonColorElement()); ?>",
+            "buttonShapeElement": "<?= $block->escapeJs($block->getButtonShapeElement()); ?>"
+        }
     }
-    require(['jquery'], ($) => {
-        let hasRendered = false
-        let color = '<?= $block->getButtonColor(); ?>';
-        let rounded = '<?= $block->getButtonShape(); ?>';
-
-        if(!window.paypal){
-            requirePayPal(renderButton)
-        } else {
-            renderButton()
-        }
-        function renderButton() {
-            const paypalSDK = window.paypal
-            if(hasRendered) {
-                paypalSDK.Buttons().close();
-                $('#paypal-button-container').empty()
-            }
-            paypalSDK.Buttons({
-                onInit(data, actions) {
-                    // Disable the buttons
-                    actions.disable();
-                },
-                style: {
-                    color: color,
-                    shape: rounded === '1' ? 'pill' : 'rect'
-                }
-            }).render('#paypal-button-container').then(() => {
-                hasRendered = true;
-            });
-        }
-
-        $('#<?= $block->getButtonColorElement() ?>').change(function () {
-           if($(this).val()!==color){
-               color = $(this).val()
-               renderButton()
-           }
-        })
-        $('#<?= $block->getButtonShapeElement() ?>').change(function () {
-            if($(this).val()!==rounded){
-                rounded = $(this).val()
-                renderButton()
-            }
-        })
-    })
+}
 </script>

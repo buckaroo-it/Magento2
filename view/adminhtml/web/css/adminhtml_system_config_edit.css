@@ -355,3 +355,23 @@ a.bk-plugin-zone {
 .bk-in3-main-wrap {
     border: 1px solid #adadad;
 }
+
+/* Apple Pay button wrapper for admin */
+#applepay-button-wrapper > apple-pay-button {
+    display: inline;
+}
+
+/* Admin payment method styling */
+.buckaroo_magento2_payment_ {
+    margin-bottom: 10px;
+}
+
+/* Credit memo refund checkbox */
+#isRefund {
+    display: none;
+}
+
+/* Pay per email fieldset */
+.admin__fieldset.payment-method {
+    display: block;
+}

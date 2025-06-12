@@ -1,0 +1,47 @@
+#fast-checkout-ideal-btn {
+    height: 45px;
+    padding: 0;
+    border: none;
+    background: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0;
+    width: 100%;
+}
+
+#fast-checkout-ideal-btn img {
+    max-height: 100%;
+    max-width: 100%;
+    display: block;
+    margin: auto;
+}
+
+.buckaroo-box-to-cart{
+    text-align: center;
+}
+
+/* iDIN product page styles */
+#buckaroo_idin_product {
+    background: #d4eded;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 10px 0;
+    border-radius: 5px;
+    max-width: 500px;
+    height: 55px;
+    box-sizing: border-box;
+}
+
+#buckaroo_idin_product img {
+    height: 45px;
+    flex-shrink: 0;
+}
+
+#buckaroo_idin_product span {
+    flex: 1;
+    line-height: 1.2;
+    font-size: 13px;
+}
