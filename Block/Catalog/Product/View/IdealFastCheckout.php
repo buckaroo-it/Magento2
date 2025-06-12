@@ -169,21 +169,15 @@ class IdealFastCheckout extends Template
     {
         $idinMode = (int)$this->configProviderAccount->getIdinMode();
 
-        // Check if iDIN is enabled
         if (!$this->configProviderAccount->getIdin() || $idinMode === null) {
             return false;
         }
 
-        $product = $this->getProduct();
-
         if ($idinMode === 0) {
-            // Global mode - required for all products
             return true;
         } elseif ($idinMode === 1) {
-            // Per Product mode - check product attribute
             return $this->isProductPageWithIdinRequired();
         } elseif ($idinMode === 2) {
-            // Per Category mode - check if current product(s) are in selected categories
             return $this->isInIdinRequiredCategory();
         }
 
