@@ -121,16 +121,22 @@ class Idin extends Template
      */
     public function canShowProductIdin()
     {
-        $idinMode = $this->idinConfigProvider->getIdinMode();
+        $idinMode = (int)$this->idinConfigProvider->getIdinMode();
         $result = false;
 
-        if ($idinMode !== 0) {
+        // Check if iDIN is enabled (not disabled)
+        if ($this->idinConfigProvider->getIdin() && $idinMode !== null) {
             $product = $this->getProduct();
 
-            if ($idinMode === 1) {
+            if ($idinMode === 0) {
+                // Global mode - show for all products
+                $result = true;
+            } elseif ($idinMode === 1) {
+                // Per Product mode - check product attribute
                 $customAttribute = $product->getCustomAttribute('buckaroo_product_idin');
                 $result = $customAttribute !== null && $customAttribute->getValue() == 1;
             } elseif ($idinMode === 2) {
+                // Per Category mode - check if product is in selected categories
                 $idinCategories = explode(',', (string)$this->idinConfigProvider->getIdinCategory());
                 foreach ($product->getCategoryIds() as $category) {
                     if (in_array($category, $idinCategories)) {

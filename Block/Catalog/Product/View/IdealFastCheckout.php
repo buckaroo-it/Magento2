@@ -22,7 +22,10 @@
 namespace Buckaroo\Magento2\Block\Catalog\Product\View;
 
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Ideal;
+use Magento\Catalog\Model\Product;
 use Magento\Framework\Encryption\Encryptor;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Registry;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Asset\Repository;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
@@ -47,6 +50,15 @@ class IdealFastCheckout extends Template
     protected $ideal;
     protected Repository $assetRepo;
 
+    /**
+     * @var Registry
+     */
+    private $registry;
+
+    /**
+     * @var Product
+     */
+    private $product;
 
     public function __construct(
         Context $context,
@@ -54,6 +66,7 @@ class IdealFastCheckout extends Template
         Encryptor $encryptor,
         Ideal $idealConfig,
         Repository $assetRepo,
+        Registry $registry = null,
         array $data = []
     ) {
         parent::__construct($context, $data);
@@ -61,6 +74,7 @@ class IdealFastCheckout extends Template
         $this->encryptor = $encryptor;
         $this->idealConfig = $idealConfig;
         $this->assetRepo = $assetRepo;
+        $this->registry = $registry;
     }
 
     /**
@@ -143,5 +157,90 @@ class IdealFastCheckout extends Template
             ->getStore()
             ->getCurrentCurrency()
             ->getCode();
+    }
+
+    /**
+     * Check if iDIN verification is required for this product
+     *
+     * @return bool
+     * @throws LocalizedException
+     */
+    public function isIdinVerificationRequired()
+    {
+        $idinMode = (int)$this->configProviderAccount->getIdinMode();
+
+        if (!$this->configProviderAccount->getIdin() || $idinMode === null) {
+            return false;
+        }
+
+        if ($idinMode === 0) {
+            return true;
+        } elseif ($idinMode === 1) {
+            return $this->isProductPageWithIdinRequired();
+        } elseif ($idinMode === 2) {
+            return $this->isInIdinRequiredCategory();
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Check if current product page requires iDIN (Per Product mode)
+     *
+     * @return bool
+     */
+    private function isProductPageWithIdinRequired()
+    {
+        try {
+            $product = $this->getProduct();
+            if (!$product) {
+                return false; // Not a product page or cart page
+            }
+            $customAttribute = $product->getCustomAttribute('buckaroo_product_idin');
+            return $customAttribute !== null && $customAttribute->getValue() == 1;
+        } catch (LocalizedException $e) {
+            return false; // Not a product page
+        }
+    }
+
+    /**
+     * Check if products are in iDIN required category (Per Category mode)
+     *
+     * @return bool
+     */
+    private function isInIdinRequiredCategory()
+    {
+        try {
+            $product = $this->getProduct();
+            if (!$product) {
+                return false;
+            }
+
+            $idinCategories = explode(',', (string)$this->configProviderAccount->getIdinCategory());
+            foreach ($product->getCategoryIds() as $category) {
+                if (in_array($category, $idinCategories)) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (LocalizedException $e) {
+            return false; // Not a product page
+        }
+    }
+
+    /**
+     * Retrieve current product model (returns null if not on product page)
+     *
+     * @return Product|null
+     */
+    private function getProduct()
+    {
+        if ($this->product === null && $this->registry) {
+            $this->product = $this->registry->registry('product');
+        }
+
+        // Return null if no product or invalid product
+        return ($this->product && $this->product->getId()) ? $this->product : null;
     }
 }
