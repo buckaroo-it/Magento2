@@ -1080,6 +1080,40 @@ class DefaultProcessor implements PushProcessorInterface
 
             try {
                 $this->order->cancel()->save();
+
+                if (class_exists(\Magento\GiftCardAccount\Model\GiftcardAccountRepository::class)) {
+                    $giftCards = $this->order->getGiftCards();
+                    if (!empty($giftCards)) {
+                        $giftCardData = json_decode($giftCards, true);
+
+                        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+                        $giftCardRepo = $objectManager->get(\Magento\GiftCardAccount\Model\GiftcardAccountRepository::class);
+
+                        foreach ($giftCardData as $card) {
+                            try {
+                                $giftCardAccount = $giftCardRepo->getById($card['gift_card_account_id']);
+                                $originalBalance = $giftCardAccount->getBalance();
+                                $giftCardAccount->setBalance($originalBalance + $card['amount']);
+                                $giftCardRepo->save($giftCardAccount);
+
+                                $this->order->addCommentToStatusHistory(sprintf(
+                                    'Refunded €%.2f back to gift card #%s after failed payment.',
+                                    $card['amount'],
+                                    $card['gift_card_account_id']
+                                ));
+                            } catch (\Exception $e) {
+                                $this->logger->addError(sprintf(
+                                    '[%s:%s] - Gift card refund failed | GiftCard #%s | ERROR: %s',
+                                    __METHOD__,
+                                    __LINE__,
+                                    $card['gift_card_account_id'],
+                                    $e->getMessage()
+                                ));
+                            }
+                        }
+                    }
+                }
+
             } catch (\Throwable $th) {
                 $this->logger->addError(sprintf(
                     '[%s:%s] - Process failed push from Buckaroo. Cancel Order| [ERROR]: %s',
@@ -1088,6 +1122,7 @@ class DefaultProcessor implements PushProcessorInterface
                     $th->getMessage()
                 ));
             }
+
             return true;
         }
 
