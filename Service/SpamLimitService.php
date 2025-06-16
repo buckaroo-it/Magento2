@@ -188,6 +188,6 @@ class SpamLimitService
     {
         $this->checkoutSession->setRestoreQuoteLastOrder($payment->getOrder()->getId());
         $this->checkoutSession->setBuckarooFailedMaxAttempts(true);
-        $payment->setAdditionalInformation(BuckarooAdapter::PAYMENT_ATTEMPTS_REACHED_MESSAGE, $message);
+        $payment->getPayment()->setAdditionalInformation(BuckarooAdapter::PAYMENT_ATTEMPTS_REACHED_MESSAGE, $message);
     }
 }
