@@ -505,6 +505,13 @@
         </arguments>
     </type>
 
+    <!-- DefaultProcessor with optional gift card repository for Adobe Commerce -->
+    <type name="Buckaroo\Magento2\Model\Push\DefaultProcessor">
+        <arguments>
+            <argument name="giftCardRepository" xsi:type="object">Magento\GiftCardAccount\Model\GiftcardAccountRepository</argument>
+        </arguments>
+    </type>
+
     <!-- PHP SDK - Map Payment Methods -->
     <type name="Buckaroo\Magento2\Model\Adapter\BuckarooAdapter">
         <arguments>

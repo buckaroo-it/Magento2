@@ -130,6 +130,11 @@ class DefaultProcessor implements PushProcessorInterface
     protected OrderStatusFactory $orderStatusFactory;
 
     /**
+     * @var \Magento\GiftCardAccount\Model\GiftcardAccountRepository|null
+     */
+    private $giftCardRepository;
+
+    /**
      * @param OrderRequestService $orderRequestService
      * @param PushTransactionType $pushTransactionType
      * @param BuckarooLoggerInterface $logger
@@ -139,6 +144,7 @@ class DefaultProcessor implements PushProcessorInterface
      * @param BuckarooStatusCode $buckarooStatusCode
      * @param OrderStatusFactory $orderStatusFactory
      * @param Account $configAccount
+     * @param \Magento\GiftCardAccount\Model\GiftcardAccountRepository|null $giftCardRepository
      */
     public function __construct(
         OrderRequestService $orderRequestService,
@@ -149,7 +155,8 @@ class DefaultProcessor implements PushProcessorInterface
         PaymentGroupTransaction $groupTransaction,
         BuckarooStatusCode $buckarooStatusCode,
         OrderStatusFactory $orderStatusFactory,
-        Account $configAccount
+        Account $configAccount,
+        $giftCardRepository = null
     ) {
         $this->pushTransactionType = $pushTransactionType;
         $this->orderRequestService = $orderRequestService;
@@ -161,6 +168,7 @@ class DefaultProcessor implements PushProcessorInterface
         $this->buckarooStatusCode = $buckarooStatusCode;
         $this->orderStatusFactory = $orderStatusFactory;
         $this->configAccount = $configAccount;
+        $this->giftCardRepository = $giftCardRepository;
     }
 
     /**
@@ -1080,40 +1088,7 @@ class DefaultProcessor implements PushProcessorInterface
 
             try {
                 $this->order->cancel()->save();
-
-                if (class_exists(\Magento\GiftCardAccount\Model\GiftcardAccountRepository::class)) {
-                    $giftCards = $this->order->getGiftCards();
-                    if (!empty($giftCards)) {
-                        $giftCardData = json_decode($giftCards, true);
-
-                        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-                        $giftCardRepo = $objectManager->get(\Magento\GiftCardAccount\Model\GiftcardAccountRepository::class);
-
-                        foreach ($giftCardData as $card) {
-                            try {
-                                $giftCardAccount = $giftCardRepo->getById($card['gift_card_account_id']);
-                                $originalBalance = $giftCardAccount->getBalance();
-                                $giftCardAccount->setBalance($originalBalance + $card['amount']);
-                                $giftCardRepo->save($giftCardAccount);
-
-                                $this->order->addCommentToStatusHistory(sprintf(
-                                    'Refunded €%.2f back to gift card #%s after failed payment.',
-                                    $card['amount'],
-                                    $card['gift_card_account_id']
-                                ));
-                            } catch (\Exception $e) {
-                                $this->logger->addError(sprintf(
-                                    '[%s:%s] - Gift card refund failed | GiftCard #%s | ERROR: %s',
-                                    __METHOD__,
-                                    __LINE__,
-                                    $card['gift_card_account_id'],
-                                    $e->getMessage()
-                                ));
-                            }
-                        }
-                    }
-                }
-
+                $this->refundGiftCardsOnFailedPayment();
             } catch (\Throwable $th) {
                 $this->logger->addError(sprintf(
                     '[%s:%s] - Process failed push from Buckaroo. Cancel Order| [ERROR]: %s',
@@ -1308,5 +1283,143 @@ class DefaultProcessor implements PushProcessorInterface
         $words = explode('_', $field);
         $transformedWords = array_map('ucfirst', $words);
         return __(implode(' ', $transformedWords));
+    }
+
+    /**
+     * Refund gift cards when payment fails and order is cancelled
+     *
+     * @return void
+     */
+    private function refundGiftCardsOnFailedPayment(): void
+    {
+        // Skip if Adobe Commerce gift card functionality is not available
+        if (!class_exists(\Magento\GiftCardAccount\Model\GiftcardAccountRepository::class)) {
+            return;
+        }
+
+        $giftCards = $this->order->getGiftCards();
+        if (empty($giftCards)) {
+            return;
+        }
+
+        $giftCardData = json_decode($giftCards, true);
+        if (!is_array($giftCardData)) {
+            $this->logger->addError(sprintf(
+                '[%s:%s] - Invalid gift card data format for order #%s',
+                __METHOD__,
+                __LINE__,
+                $this->order->getIncrementId()
+            ));
+            return;
+        }
+
+        $giftCardRepo = $this->getGiftCardRepository();
+        if (!$giftCardRepo) {
+            return;
+        }
+
+        foreach ($giftCardData as $card) {
+            $this->processGiftCardRefund($card, $giftCardRepo);
+        }
+    }
+
+    /**
+     * Get gift card repository instance
+     *
+     * @return \Magento\GiftCardAccount\Model\GiftcardAccountRepository|null
+     */
+    private function getGiftCardRepository()
+    {
+        if ($this->giftCardRepository !== null) {
+            return $this->giftCardRepository;
+        }
+
+        if (class_exists(\Magento\GiftCardAccount\Model\GiftcardAccountRepository::class)) {
+            try {
+                $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+                return $objectManager->get(\Magento\GiftCardAccount\Model\GiftcardAccountRepository::class);
+            } catch (\Exception $e) {
+                $this->logger->addError(sprintf(
+                    '[%s:%s] - Could not get gift card repository: %s',
+                    __METHOD__,
+                    __LINE__,
+                    $e->getMessage()
+                ));
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Process individual gift card refund
+     *
+     * @param array $card
+     * @param \Magento\GiftCardAccount\Model\GiftcardAccountRepository $giftCardRepo
+     * @return void
+     */
+    private function processGiftCardRefund(array $card, $giftCardRepo): void
+    {
+        // Validate required card data
+        if (!isset($card['gift_card_account_id']) || !isset($card['amount'])) {
+            $this->logger->addError(sprintf(
+                '[%s:%s] - Invalid gift card data structure for order #%s',
+                __METHOD__,
+                __LINE__,
+                $this->order->getIncrementId()
+            ));
+            return;
+        }
+
+        $giftCardId = $card['gift_card_account_id'];
+        $amount = (float)$card['amount'];
+
+        if ($amount <= 0) {
+            $this->logger->addWarning(sprintf(
+                '[%s:%s] - Gift card #%s has zero or negative amount: %f',
+                __METHOD__,
+                __LINE__,
+                $giftCardId,
+                $amount
+            ));
+            return;
+        }
+
+        try {
+            $giftCardAccount = $giftCardRepo->getById($giftCardId);
+            $originalBalance = $giftCardAccount->getBalance();
+            $newBalance = $originalBalance + $amount;
+
+            $giftCardAccount->setBalance($newBalance);
+            $giftCardRepo->save($giftCardAccount);
+
+            // Use dynamic currency formatting instead of hard-coded €
+            $formattedAmount = $this->order->getBaseCurrency()->formatTxt($amount);
+
+            $this->order->addCommentToStatusHistory(sprintf(
+                'Refunded %s back to gift card #%s after failed payment.',
+                $formattedAmount,
+                $giftCardId
+            ));
+
+            $this->logger->addDebug(sprintf(
+                '[%s:%s] - Successfully refunded %s to gift card #%s for order #%s',
+                __METHOD__,
+                __LINE__,
+                $formattedAmount,
+                $giftCardId,
+                $this->order->getIncrementId()
+            ));
+
+        } catch (\Exception $e) {
+            $this->logger->addError(sprintf(
+                '[%s:%s] - Gift card refund failed | Order #%s | GiftCard #%s | ERROR: %s',
+                __METHOD__,
+                __LINE__,
+                $this->order->getIncrementId(),
+                $giftCardId,
+                $e->getMessage()
+            ));
+        }
     }
 }
