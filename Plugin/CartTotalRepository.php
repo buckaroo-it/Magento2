@@ -5,7 +5,11 @@
  */
 namespace Buckaroo\Magento2\Plugin;
 
+use Closure;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Api\Data\TotalsExtensionFactory;
+use Magento\Quote\Api\Data\TotalsExtensionInterface;
 use Magento\Quote\Api\Data\TotalsInterface;
 use Magento\Quote\Model\Cart\CartTotalRepository as TotalRepository;
 use Magento\Quote\Model\Quote;
@@ -13,22 +17,22 @@ use Magento\Quote\Model\Quote;
 class CartTotalRepository
 {
     /**
-     * @var \Magento\Quote\Api\CartRepositoryInterface
+     * @var CartRepositoryInterface
      */
     protected $quoteRepository;
 
     /**
-     * @var \Magento\Quote\Api\Data\TotalsExtensionFactory
+     * @var TotalsExtensionFactory
      */
     protected $totalsExtensionFactory;
 
     /**
-     * @param \Magento\Quote\Api\CartRepositoryInterface     $quoteRepository
-     * @param  \Magento\Quote\Api\Data\TotalsExtensionFactory $totalsExtensionFactory
+     * @param CartRepositoryInterface     $quoteRepository
+     * @param TotalsExtensionFactory $totalsExtensionFactory
      */
     public function __construct(
-        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
-        \Magento\Quote\Api\Data\TotalsExtensionFactory $totalsExtensionFactory
+        CartRepositoryInterface $quoteRepository,
+        TotalsExtensionFactory $totalsExtensionFactory
     ) {
         $this->quoteRepository = $quoteRepository;
         $this->totalsExtensionFactory = $totalsExtensionFactory;
@@ -36,13 +40,14 @@ class CartTotalRepository
 
     /**
      * @param TotalRepository $subject
-     * @param \Closure        $proceed
-     * @param int             $cartId
+     * @param Closure $proceed
+     * @param int $cartId
      * @return TotalsInterface
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @throws NoSuchEntityException
      */
-    public function aroundGet(TotalRepository $subject, \Closure $proceed, $cartId)
+    public function aroundGet(TotalRepository $subject, Closure $proceed, $cartId)
     {
         /**
          * @var TotalsInterface $totals
@@ -55,18 +60,35 @@ class CartTotalRepository
         $quote = $this->quoteRepository->getActive($cartId);
 
         /**
-         * @var \Magento\Quote\Api\Data\TotalsExtensionInterface $extensionAttributes
+         * @var TotalsExtensionInterface $extensionAttributes
          */
         $extensionAttributes = $totals->getExtensionAttributes() ?: $this->totalsExtensionFactory->create();
+
+        // Try to get values from quote extension attributes first, fallback to direct properties
+        $quoteExtensionAttributes = $quote->getExtensionAttributes();
 
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
-        $extensionAttributes->setBuckarooFee($quote->getBuckarooFee());
+        $buckarooFee = $quoteExtensionAttributes && $quoteExtensionAttributes->getBuckarooFee() !== null
+            ? $quoteExtensionAttributes->getBuckarooFee()
+            : $quote->getBuckarooFee();
+
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
-        $extensionAttributes->setBaseBuckarooFee($quote->getBaseBuckarooFee());
+        $baseBuckarooFee = $quoteExtensionAttributes && $quoteExtensionAttributes->getBaseBuckarooFee() !== null
+            ? $quoteExtensionAttributes->getBaseBuckarooFee()
+            : $quote->getBaseBuckarooFee();
+
+        /**
+         * @noinspection PhpUndefinedMethodInspection
+         */
+        $extensionAttributes->setBuckarooFee($buckarooFee);
+        /**
+         * @noinspection PhpUndefinedMethodInspection
+         */
+        $extensionAttributes->setBaseBuckarooFee($baseBuckarooFee);
 
         /**
          * @noinspection PhpUndefinedMethodInspection

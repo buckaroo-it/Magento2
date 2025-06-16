@@ -24,6 +24,7 @@ use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Service\BuckarooFee\Calculate;
 use Magento\Framework\Phrase;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
+use Magento\Quote\Api\Data\CartExtensionFactory;
 use Magento\Quote\Api\Data\ShippingAssignmentInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\Quote\Address\Total;
@@ -47,18 +48,29 @@ class BuckarooFee extends AbstractTotal
      */
     protected $calculate;
 
+    /**
+     * @var LoggerInterface
+     */
     protected $logger;
+
+    /**
+     * @var CartExtensionFactory
+     */
+    protected $cartExtensionFactory;
 
     /**
      * @param PriceCurrencyInterface $priceCurrency
      * @param PaymentGroupTransaction $groupTransaction
-     * @param \Buckaroo\Magento2\Service\BuckarooFee\Calculate $calculate
+     * @param Calculate $calculate
+     * @param LoggerInterface $logger
+     * @param CartExtensionFactory $cartExtensionFactory
      */
     public function __construct(
         PriceCurrencyInterface $priceCurrency,
         PaymentGroupTransaction $groupTransaction,
         Calculate $calculate,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        CartExtensionFactory $cartExtensionFactory
     ) {
         $this->setCode('buckaroo_fee');
 
@@ -66,6 +78,7 @@ class BuckarooFee extends AbstractTotal
         $this->groupTransaction = $groupTransaction;
         $this->calculate = $calculate;
         $this->logger = $logger;
+        $this->cartExtensionFactory = $cartExtensionFactory;
     }
 
     /**
@@ -109,6 +122,15 @@ class BuckarooFee extends AbstractTotal
             return $this;
         }
         $amount = $this->priceCurrency->convert($result->getRoundedAmount());
+
+        $extensionAttributes = $quote->getExtensionAttributes();
+        if (!$extensionAttributes) {
+            $extensionAttributes = $this->cartExtensionFactory->create();
+        }
+
+        $extensionAttributes->setBuckarooFee($amount);
+        $extensionAttributes->setBaseBuckarooFee($result->getRoundedAmount());
+        $quote->setExtensionAttributes($extensionAttributes);
 
         /**
          * @noinspection PhpUndefinedMethodInspection

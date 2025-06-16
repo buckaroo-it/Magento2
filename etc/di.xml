@@ -146,6 +146,10 @@
     <!-- END Cancel Order Plugins -->
 
     <!-- Quote -->
+    <type name="Magento\Quote\Api\CartRepositoryInterface">
+        <plugin name="buckaroo_magento2_add_quote_extension_attributes" type="Buckaroo\Magento2\Plugin\QuoteRepositoryPlugin" />
+    </type>
+
     <type name="Magento\Quote\Api\CartManagementInterface">
         <plugin name="buckaroo_magento2_plugin_cart_managment" type="Buckaroo\Magento2\Plugin\CartManagement" />
     </type>
