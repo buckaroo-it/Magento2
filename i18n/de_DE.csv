@@ -490,3 +490,6 @@
 "Fr","Fr"
 "Sa","Sa"
 "Su","So"
+"Apple Pay checkout type","Apple Pay Checkout-Typ"
+"Inline (Integrated in checkout)","Inline (In den Checkout integriert)"
+"Redirect (Buckaroo Hosted Payment Page)","Redirect (Buckaroo Hosted Payment Page)"

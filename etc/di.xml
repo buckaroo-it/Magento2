@@ -2707,7 +2707,7 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
-                <item name="applepay" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\ApplepayDataBuilder</item>
+                <item name="applepay" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\ApplepayRedirectDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>

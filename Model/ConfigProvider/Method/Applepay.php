@@ -39,6 +39,7 @@ class Applepay extends AbstractConfigProvider
     public const XPATH_APPLEPAY_ACTIVE                            = 'active';
     public const XPATH_APPLEPAY_AVAILABLE_BUTTONS                 = 'available_buttons';
     public const XPATH_APPLEPAY_BUTTON_STYLE                      = 'button_style';
+    public const XPATH_APPLEPAY_INTEGRATION_MODE                  = 'integration_mode';
     public const XPATH_APPLEPAY_DONT_ASK_BILLING_INFO_IN_CHECKOUT = 'dont_ask_billing_info_in_checkout';
     public const XPATH_ACCOUNT_MERCHANT_GUID                      = 'merchant_guid';
 
@@ -102,6 +103,7 @@ class Applepay extends AbstractConfigProvider
             'availableButtons'             => $this->getAvailableButtons(),
             'buttonStyle'                  => $this->getButtonStyle(),
             'dontAskBillingInfoInCheckout' => (int)$this->getDontAskBillingInfoInCheckout(),
+            'integrationMode'              => $this->getIntegrationMode(),
         ]);
     }
 
@@ -230,5 +232,15 @@ class Applepay extends AbstractConfigProvider
     public function isApplePayEnabled()
     {
         return $this->getMethodConfigValue(self::XPATH_APPLEPAY_ACTIVE, $this->storeManager->getStore());
+    }
+
+    /**
+     * Get Integration Mode
+     *
+     * @return string
+     */
+    public function getIntegrationMode(): string
+    {
+        return $this->getMethodConfigValue(self::XPATH_APPLEPAY_INTEGRATION_MODE, $this->storeManager->getStore()) ?: '0';
     }
 }
