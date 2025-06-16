@@ -56,5 +56,8 @@
             "magento/composer-dependency-version-audit-plugin": true,
             "dealerdirect/phpcodesniffer-composer-installer": true
         }
+    },
+    "conflict": {
+        "buckaroo/magento2secondchance": "*"
     }
 }

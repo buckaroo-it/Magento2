@@ -53,6 +53,13 @@
             <include path="Buckaroo_Magento2::system/verification_methods.xml"/>
         </section>
 
+        <section id="buckaroo_magento2_second_chance" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Second Chance</label>
+            <tab>buckaroo_module</tab>
+            <resource>Buckaroo_Magento2::configuration</resource>
+            <include path="Buckaroo_Magento2::system/second_chance.xml"/>
+        </section>
+
         <section id="payment">
             <include path="Buckaroo_Magento2::system/payment_methods.xml"/>
         </section>

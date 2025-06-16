@@ -71,4 +71,12 @@
     <event name="sales_quote_merge_before">
         <observer name="prevent_merge_quote" instance="Buckaroo\Magento2\Observer\PreventMergeQuoteObserver"/>
     </event>
+
+    <event name="controller_action_predispatch_adminhtml_system_config_edit">
+        <observer name="check_second_chance_module_conflict" instance="Buckaroo\Magento2\Observer\CheckSecondChanceModuleConflict"/>
+    </event>
+
+    <event name="sales_order_save_after">
+        <observer name="create_second_chance_record" instance="Buckaroo\Magento2\Observer\CreateSecondChanceRecord"/>
+    </event>
 </config>
