@@ -348,6 +348,7 @@ class Idin extends AbstractConfigProvider
      * @param null $store
      * @return bool
      * @throws NoSuchEntityException
+     * @SuppressWarnings(PHPMD.BooleanGetMethodName)
      */
     public function getActive($store = null): bool
     {
