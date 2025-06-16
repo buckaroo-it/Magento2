@@ -171,7 +171,6 @@ class GatewayCommand implements CommandInterface
             $result = $this->validator->validate(array_merge($commandSubject, ['response' => $response]));
             if (!$result->isValid()) {
                 try {
-                    $paymentInstance = $paymentDO->getPayment()->getMethodInstance();
                     $this->spamLimitService->updateRateLimiterCount($paymentDO->getPayment()->getMethodInstance());
                 } catch (LimitReachException $th) {
                     $this->spamLimitService->setMaxAttemptsFlags($paymentDO, $th->getMessage());
