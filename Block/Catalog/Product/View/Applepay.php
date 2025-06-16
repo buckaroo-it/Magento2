@@ -78,7 +78,7 @@ class Applepay extends Template
         CompositeConfigProvider $compositeConfigProvider,
         ApplepayConfig $applepayConfigProvider,
         AccountConfig $accountConfigProvider,
-        Registry $registry = null,
+        ?Registry $registry = null,
         array $data = []
     ) {
         parent::__construct($context, $data);

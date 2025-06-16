@@ -71,7 +71,7 @@ class CreditmemoFactory extends MagentoCreditmemoFactory
         OrderFactory $convertOrderFactory,
         Config $taxConfig,
         BuckarooLoggerInterface $logger,
-        Json $serializer = null
+        ?Json $serializer = null
     ) {
         $this->logger = $logger;
         parent::__construct($convertOrderFactory, $taxConfig, $serializer);

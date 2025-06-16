@@ -284,7 +284,7 @@ class Data extends AbstractHelper
      *
      * @throws BuckarooException
      */
-    public function getMode(string $paymentMethod = null, $store = null): int
+    public function getMode(?string $paymentMethod = null, $store = null): int
     {
         $baseMode = $this->configProviderAccount->getActive();
 

@@ -122,7 +122,7 @@ class GatewayCommand implements CommandInterface
         CancelOrder                 $cancelOrder,
         HandlerInterface            $handler = null,
         ValidatorInterface          $validator = null,
-        ErrorMessageMapperInterface $errorMessageMapper = null,
+        ?ErrorMessageMapperInterface $errorMessageMapper = null,
         SkipCommandInterface        $skipCommand = null
     ) {
         $this->requestBuilder = $requestBuilder;

@@ -102,7 +102,7 @@ class BuckarooAdapter
         ProductMetadataInterface $productMetadata,
         Resolver $localeResolver,
         StoreManagerInterface $storeManager,
-        array $mapPaymentMethods = null
+        ?array $mapPaymentMethods = null
     ) {
         $this->mapPaymentMethods = $mapPaymentMethods;
         $this->logger = $logger;

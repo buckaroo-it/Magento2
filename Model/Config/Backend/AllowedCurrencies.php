@@ -74,8 +74,8 @@ class AllowedCurrencies extends Value
         ConfigAllowedCurrencies $configProvider,
         CurrencyBundle $currencyBundle,
         ResolverInterface $localeResolver,
-        AbstractResource $resource = null,
-        AbstractDb $resourceCollection = null,
+        ?AbstractResource $resource = null,
+        ?AbstractDb $resourceCollection = null,
         array $data = []
     ) {
         parent::__construct($context, $registry, $config, $cacheTypeList, $resource, $resourceCollection, $data);

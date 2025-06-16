@@ -71,7 +71,7 @@ class PaypalExpress extends Template
         Account $configProviderAccount,
         Encryptor $encryptor,
         Paypal $paypalConfig,
-        Registry $registry = null,
+        ?Registry $registry = null,
         array $data = []
     ) {
         parent::__construct($context, $data);

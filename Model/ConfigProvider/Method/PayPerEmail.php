@@ -81,7 +81,7 @@ class PayPerEmail extends AbstractConfigProvider
      * @param int|null $storeId
      * @return false|mixed
      */
-    public function getPaymentMethod(int $storeId = null)
+    public function getPaymentMethod(?int $storeId = null)
     {
         $paymentMethod = $this->getMethodConfigValue(self::XPATH_PAYPEREMAIL_PAYMENT_METHOD, $storeId);
 
