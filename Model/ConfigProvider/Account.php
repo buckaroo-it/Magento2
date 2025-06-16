@@ -212,7 +212,7 @@ class Account extends AbstractConfigProvider
      * @param string|null $label
      * @return string
      */
-    public function getParsedLabel(Store $store, OrderInterface $order, string $label = null)
+    public function getParsedLabel(Store $store, OrderInterface $order, ?string $label = null)
     {
         if ($label === null) {
             $label = $this->getTransactionLabel($store);

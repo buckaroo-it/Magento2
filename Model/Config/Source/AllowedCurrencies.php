@@ -86,7 +86,7 @@ class AllowedCurrencies implements OptionSourceInterface
      * @return array
      * @throws BuckarooException
      */
-    public function __call(string $method, array $params = null)
+    public function __call(string $method, ?array $params = null)
     {
         return $this->toOptionArray($method);
     }
@@ -98,7 +98,7 @@ class AllowedCurrencies implements OptionSourceInterface
      * @return array Format: array(array('value' => '<value>', 'label' => '<label>'), ...)
      * @throws BuckarooException
      */
-    public function toOptionArray(string $method = null): array
+    public function toOptionArray(?string $method = null): array
     {
         $currencies = $this->allowedCurrenciesConfig->getAllowedCurrencies();
         if ($method) {

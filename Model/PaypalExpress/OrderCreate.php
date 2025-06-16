@@ -110,7 +110,7 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
     /** @inheritDoc */
     public function execute(
         string $paypal_order_id,
-        string $cart_id = null
+        ?string $cart_id = null
     ) {
         try {
             $orderId = $this->createOrder($paypal_order_id, $cart_id);

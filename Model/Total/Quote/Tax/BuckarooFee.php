@@ -104,8 +104,8 @@ class BuckarooFee extends CommonTaxCollector
         PaymentGroupTransaction $groupTransaction,
         Calculate $calculate,
         \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
-        TaxHelper $taxHelper = null,
-        QuoteDetailsItemExtensionInterfaceFactory $quoteDetailsItemExtensionInterfaceFactory = null,
+        ?TaxHelper $taxHelper = null,
+        ?QuoteDetailsItemExtensionInterfaceFactory $quoteDetailsItemExtensionInterfaceFactory = null,
         ?CustomerAccountManagement $customerAccountManagement = null
     ) {
         $parent = new \ReflectionClass(parent::class);

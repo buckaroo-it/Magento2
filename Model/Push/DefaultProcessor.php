@@ -323,7 +323,7 @@ class DefaultProcessor implements PushProcessorInterface
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
      */
-    protected function receivePushCheckDuplicates(int $receivedStatusCode = null, string $trxId = null): bool
+    protected function receivePushCheckDuplicates(?int $receivedStatusCode = null, ?string $trxId = null): bool
     {
         $save = false;
         if (!$receivedStatusCode) {

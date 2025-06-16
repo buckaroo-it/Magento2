@@ -44,7 +44,7 @@ class BankFields extends Template
      */
     public function __construct(
         Context $context,
-        RefundFieldsFactory $refundFieldsFactory = null
+        ?RefundFieldsFactory $refundFieldsFactory = null
     ) {
         $this->refundFieldsFactory = $refundFieldsFactory;
         parent::__construct($context);

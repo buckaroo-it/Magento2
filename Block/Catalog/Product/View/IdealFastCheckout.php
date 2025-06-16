@@ -66,7 +66,7 @@ class IdealFastCheckout extends Template
         Encryptor $encryptor,
         Ideal $idealConfig,
         Repository $assetRepo,
-        Registry $registry = null,
+        ?Registry $registry = null,
         array $data = []
     ) {
         parent::__construct($context, $data);

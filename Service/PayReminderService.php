@@ -78,7 +78,7 @@ class PayReminderService
      * @param string|null $incrementId
      * @return float
      */
-    public function getAlreadyPaid(string $incrementId = null): float
+    public function getAlreadyPaid(?string $incrementId = null): float
     {
         if (empty($this->alreadyPaid)) {
             $this->setAlreadyPaid($this->paymentGroupTransaction->getAlreadyPaid($incrementId));
