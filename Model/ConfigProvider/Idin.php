@@ -237,12 +237,14 @@ class Idin extends AbstractConfigProvider
     /**
      * Check if idin is enabled
      *
+     * @param mixed $store
      * @return boolean
      * @throws NoSuchEntityException
      */
-    protected function isIdinEnabled(): bool
+    protected function isIdinEnabled($store = null): bool
     {
-        return $this->configProviderAccount->getIdin($this->storeManager->getStore()) != 0;
+        $storeToUse = $store ?: $this->storeManager->getStore();
+        return $this->configProviderAccount->getIdin($storeToUse) != 0;
     }
 
     /**
@@ -338,5 +340,18 @@ class Idin extends AbstractConfigProvider
             $all[] = ['name' => 'TEST BANK', 'code' => 'BANKNL2Y'];
         }
         return $all;
+    }
+
+    /**
+     * Get active status for idin method
+     *
+     * @param null $store
+     * @return bool
+     * @throws NoSuchEntityException
+     * @SuppressWarnings(PHPMD.BooleanGetMethodName)
+     */
+    public function getActive($store = null): bool
+    {
+        return $this->isIdinEnabled($store);
     }
 }
