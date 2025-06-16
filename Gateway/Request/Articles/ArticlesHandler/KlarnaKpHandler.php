@@ -30,8 +30,19 @@ class KlarnaKpHandler extends AbstractArticlesHandler
      */
     protected function getAdditionalLines(): array
     {
-        return ['articles' => [$this->getRewardLine()]];
-    }
+        $articles = [];
+
+        $rewardLine = $this->getRewardLine();
+        if (!empty($rewardLine)) {
+            $articles[] = $rewardLine;
+        }
+
+        $giftCardLine = $this->getGiftCardLine();
+        if (!empty($giftCardLine)) {
+            $articles[] = $giftCardLine;
+        }
+
+        return ['articles' => $articles];    }
 
     /**
      * Get the reward cost lines
@@ -50,6 +61,28 @@ class KlarnaKpHandler extends AbstractArticlesHandler
         return $this->getArticleArrayLine(
             'Discount Reward Points',
             5,
+            1,
+            -$discount,
+            0
+        );
+    }
+
+    /**
+     * Get the gift card discount line
+     *
+     * @return array
+     */
+    public function getGiftCardLine(): array
+    {
+        $discount = (float)$this->getQuote()->getGiftCardsAmount(); // or getBaseGiftCardsAmount()
+
+        if ($discount <= 0) {
+            return [];
+        }
+
+        return $this->getArticleArrayLine(
+            'Discount Gift Card',
+            6,
             1,
             -$discount,
             0
