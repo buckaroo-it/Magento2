@@ -410,6 +410,10 @@
                     <item name="type" xsi:type="string">blik</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Blik</item>
                 </item>
+                <item name="idin" xsi:type="array">
+                    <item name="type" xsi:type="string">idin</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Idin</item>
+                </item>
             </argument>
         </arguments>
     </type>
@@ -4000,6 +4004,10 @@
                 <item name="blik" xsi:type="array">
                     <item name="type" xsi:type="string">blik</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Blik</item>
+                </item>
+                <item name="idin" xsi:type="array">
+                    <item name="type" xsi:type="string">idin</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Idin</item>
                 </item>
             </argument>
         </arguments>

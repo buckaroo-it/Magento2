@@ -339,4 +339,16 @@ class Idin extends AbstractConfigProvider
         }
         return $all;
     }
+
+    /**
+     * Get active status for idin method
+     *
+     * @param null $store
+     * @return bool
+     * @throws NoSuchEntityException
+     */
+    public function getActive($store = null): bool
+    {
+        return $this->isIdinEnabled();
+    }
 }
