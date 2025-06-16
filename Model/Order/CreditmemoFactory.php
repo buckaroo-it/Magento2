@@ -117,7 +117,6 @@ class CreditmemoFactory extends MagentoCreditmemoFactory
      */
     public function createByInvoice(Invoice $invoice, array $data = []): Creditmemo
     {
-        $order = $invoice->getOrder();
         $this->initBuckarooFeeData($data, $invoice);
         return parent::createByInvoice($invoice, $data);
     }
