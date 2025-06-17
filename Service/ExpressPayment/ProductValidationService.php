@@ -221,17 +221,17 @@ class ProductValidationService
     /**
      * Find missing required attributes
      *
-     * @param array $attributes
+     * @param mixed $attributes
      * @param array $options
      * @return array
      */
-    private function findMissingAttributes(array $attributes, array $options): array
+    private function findMissingAttributes(mixed $attributes, array $options): array
     {
         $missingAttributes = [];
 
         foreach ($attributes as $attribute) {
             $attributeId = $attribute->getAttributeId();
-            
+
             if (!isset($options[$attributeId]) || empty($options[$attributeId])) {
                 $productAttribute = $attribute->getProductAttribute();
                 $missingAttributes[] = $productAttribute->getFrontendLabel() ?: $productAttribute->getAttributeCode();
