@@ -27,9 +27,13 @@ interface SecondChanceInterface extends ExtensibleDataInterface
     const ENTITY_ID = 'entity_id';
     const ORDER_ID = 'order_id';
     const STORE_ID = 'store_id';
+    const CUSTOMER_EMAIL = 'customer_email';
     const TOKEN = 'token';
     const STATUS = 'status';
+    const STEP = 'step';
     const CREATED_AT = 'created_at';
+    const FIRST_EMAIL_SENT = 'first_email_sent';
+    const SECOND_EMAIL_SENT = 'second_email_sent';
     const LAST_ORDER_ID = 'last_order_id';
 
     /**
@@ -78,6 +82,21 @@ interface SecondChanceInterface extends ExtensibleDataInterface
     public function setStoreId($storeId);
 
     /**
+     * Get customer email
+     *
+     * @return string|null
+     */
+    public function getCustomerEmail();
+
+    /**
+     * Set customer email
+     *
+     * @param string $customerEmail
+     * @return \Buckaroo\Magento2\Api\Data\SecondChanceInterface
+     */
+    public function setCustomerEmail($customerEmail);
+
+    /**
      * Get token
      *
      * @return string|null
@@ -108,6 +127,21 @@ interface SecondChanceInterface extends ExtensibleDataInterface
     public function setStatus($status);
 
     /**
+     * Get step
+     *
+     * @return int|null
+     */
+    public function getStep();
+
+    /**
+     * Set step
+     *
+     * @param int $step
+     * @return \Buckaroo\Magento2\Api\Data\SecondChanceInterface
+     */
+    public function setStep($step);
+
+    /**
      * Get created at
      *
      * @return string|null
@@ -121,6 +155,36 @@ interface SecondChanceInterface extends ExtensibleDataInterface
      * @return \Buckaroo\Magento2\Api\Data\SecondChanceInterface
      */
     public function setCreatedAt($createdAt);
+
+    /**
+     * Get first email sent
+     *
+     * @return string|null
+     */
+    public function getFirstEmailSent();
+
+    /**
+     * Set first email sent
+     *
+     * @param string $firstEmailSent
+     * @return \Buckaroo\Magento2\Api\Data\SecondChanceInterface
+     */
+    public function setFirstEmailSent($firstEmailSent);
+
+    /**
+     * Get second email sent
+     *
+     * @return string|null
+     */
+    public function getSecondEmailSent();
+
+    /**
+     * Set second email sent
+     *
+     * @param string $secondEmailSent
+     * @return \Buckaroo\Magento2\Api\Data\SecondChanceInterface
+     */
+    public function setSecondEmailSent($secondEmailSent);
 
     /**
      * Get last order ID
@@ -153,4 +217,4 @@ interface SecondChanceInterface extends ExtensibleDataInterface
     public function setExtensionAttributes(
         \Buckaroo\Magento2\Api\Data\SecondChanceExtensionInterface $extensionAttributes
     );
-} 
+}

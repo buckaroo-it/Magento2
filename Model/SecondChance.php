@@ -84,7 +84,7 @@ class SecondChance extends \Magento\Framework\Model\AbstractModel implements Sec
      */
     public function getSecondChanceId()
     {
-        return $this->_get(self::ENTITY_ID);
+        return $this->getData(self::ENTITY_ID);
     }
 
     /**
@@ -105,7 +105,7 @@ class SecondChance extends \Magento\Framework\Model\AbstractModel implements Sec
      */
     public function getOrderId()
     {
-        return $this->_get(self::ORDER_ID);
+        return $this->getData(self::ORDER_ID);
     }
 
     /**
@@ -119,6 +119,8 @@ class SecondChance extends \Magento\Framework\Model\AbstractModel implements Sec
         return $this->setData(self::ORDER_ID, $orderId);
     }
 
+
+
     /**
      * Get store ID
      *
@@ -126,7 +128,7 @@ class SecondChance extends \Magento\Framework\Model\AbstractModel implements Sec
      */
     public function getStoreId()
     {
-        return $this->_get(self::STORE_ID);
+        return $this->getData(self::STORE_ID);
     }
 
     /**
@@ -141,13 +143,34 @@ class SecondChance extends \Magento\Framework\Model\AbstractModel implements Sec
     }
 
     /**
+     * Get customer email
+     *
+     * @return string|null
+     */
+    public function getCustomerEmail()
+    {
+        return $this->getData(self::CUSTOMER_EMAIL);
+    }
+
+    /**
+     * Set customer email
+     *
+     * @param string $customerEmail
+     * @return \Buckaroo\Magento2\Api\Data\SecondChanceInterface
+     */
+    public function setCustomerEmail($customerEmail)
+    {
+        return $this->setData(self::CUSTOMER_EMAIL, $customerEmail);
+    }
+
+    /**
      * Get token
      *
      * @return string|null
      */
     public function getToken()
     {
-        return $this->_get(self::TOKEN);
+        return $this->getData(self::TOKEN);
     }
 
     /**
@@ -168,7 +191,7 @@ class SecondChance extends \Magento\Framework\Model\AbstractModel implements Sec
      */
     public function getStatus()
     {
-        return $this->_get(self::STATUS);
+        return $this->getData(self::STATUS);
     }
 
     /**
@@ -183,13 +206,34 @@ class SecondChance extends \Magento\Framework\Model\AbstractModel implements Sec
     }
 
     /**
+     * Get step
+     *
+     * @return int|null
+     */
+    public function getStep()
+    {
+        return $this->getData(self::STEP);
+    }
+
+    /**
+     * Set step
+     *
+     * @param int $step
+     * @return \Buckaroo\Magento2\Api\Data\SecondChanceInterface
+     */
+    public function setStep($step)
+    {
+        return $this->setData(self::STEP, $step);
+    }
+
+    /**
      * Get created at
      *
      * @return string|null
      */
     public function getCreatedAt()
     {
-        return $this->_get(self::CREATED_AT);
+        return $this->getData(self::CREATED_AT);
     }
 
     /**
@@ -204,13 +248,55 @@ class SecondChance extends \Magento\Framework\Model\AbstractModel implements Sec
     }
 
     /**
+     * Get first email sent
+     *
+     * @return string|null
+     */
+    public function getFirstEmailSent()
+    {
+        return $this->getData(self::FIRST_EMAIL_SENT);
+    }
+
+    /**
+     * Set first email sent
+     *
+     * @param string $firstEmailSent
+     * @return \Buckaroo\Magento2\Api\Data\SecondChanceInterface
+     */
+    public function setFirstEmailSent($firstEmailSent)
+    {
+        return $this->setData(self::FIRST_EMAIL_SENT, $firstEmailSent);
+    }
+
+    /**
+     * Get second email sent
+     *
+     * @return string|null
+     */
+    public function getSecondEmailSent()
+    {
+        return $this->getData(self::SECOND_EMAIL_SENT);
+    }
+
+    /**
+     * Set second email sent
+     *
+     * @param string $secondEmailSent
+     * @return \Buckaroo\Magento2\Api\Data\SecondChanceInterface
+     */
+    public function setSecondEmailSent($secondEmailSent)
+    {
+        return $this->setData(self::SECOND_EMAIL_SENT, $secondEmailSent);
+    }
+
+    /**
      * Get last order ID
      *
      * @return string|null
      */
     public function getLastOrderId()
     {
-        return $this->_get(self::LAST_ORDER_ID);
+        return $this->getData(self::LAST_ORDER_ID);
     }
 
     /**
@@ -245,4 +331,4 @@ class SecondChance extends \Magento\Framework\Model\AbstractModel implements Sec
     ) {
         return $this->_setExtensionAttributes($extensionAttributes);
     }
-} 
+}

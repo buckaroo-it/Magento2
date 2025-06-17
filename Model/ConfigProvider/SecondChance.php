@@ -103,11 +103,25 @@ class SecondChance
      */
     public function getFirstEmailTemplate($store = null): string
     {
-        return (string) $this->scopeConfig->getValue(
+        $template = (string) $this->scopeConfig->getValue(
             self::XPATH_SECOND_CHANCE_TEMPLATE1,
             ScopeInterface::SCOPE_STORE,
             $store
         );
+        
+        // Force correct template ID if it's set to an incorrect value
+        if ($template === 'buckaroo_second_chance' || empty($template)) {
+            $result = 'buckaroo_second_chance_first';
+        } else {
+            $result = $template;
+        }
+        
+        // Debug logging for template selection
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $logger = $objectManager->get(\Buckaroo\Magento2\Logging\Log::class);
+        $logger->addDebug('getFirstEmailTemplate - Config value: "' . $template . '", Final result: "' . $result . '"');
+        
+        return $result;
     }
 
     /**
@@ -118,11 +132,18 @@ class SecondChance
      */
     public function getSecondEmailTemplate($store = null): string
     {
-        return (string) $this->scopeConfig->getValue(
+        $template = (string) $this->scopeConfig->getValue(
             self::XPATH_SECOND_CHANCE_TEMPLATE2,
             ScopeInterface::SCOPE_STORE,
             $store
         );
+        
+        // Force correct template ID if it's set to an incorrect value
+        if ($template === 'buckaroo_second_chance' || empty($template)) {
+            return 'buckaroo_second_chance_second';
+        } else {
+            return $template;
+        }
     }
 
     /**
@@ -198,5 +219,123 @@ class SecondChance
             ScopeInterface::SCOPE_STORE,
             $store
         );
+    }
+
+    /**
+     * Get SecondChance delete after days (alias for getPruneDays)
+     *
+     * @param \Magento\Store\Api\Data\StoreInterface|int|null $store
+     * @return int
+     */
+    public function getSecondChanceDeleteAfterDays($store = null): int
+    {
+        return $this->getPruneDays($store);
+    }
+
+    /**
+     * Get SecondChance delay based on step
+     *
+     * @param int $step
+     * @param \Magento\Store\Api\Data\StoreInterface|int|null $store
+     * @return int
+     */
+    public function getSecondChanceDelay($step, $store = null): int
+    {
+        if ($step == 1) {
+            return $this->getFirstEmailTiming($store);
+        }
+        return $this->getSecondEmailTiming($store);
+    }
+
+    /**
+     * Get SecondChance email limit
+     *
+     * @param \Magento\Store\Api\Data\StoreInterface|int|null $store
+     * @return int
+     */
+    public function getSecondChanceEmailLimit($store = null): int
+    {
+        // Return 0 for no limit, could be configurable later
+        return 0;
+    }
+
+    /**
+     * Check if SecondChance multiple is enabled (alias for canSendMultipleEmails)
+     *
+     * @param \Magento\Store\Api\Data\StoreInterface|int|null $store
+     * @return bool
+     */
+    public function isSecondChanceMultipleEnabled($store = null): bool
+    {
+        return $this->canSendMultipleEmails($store);
+    }
+
+    /**
+     * Get SecondChance email template based on step
+     *
+     * @param int $step
+     * @param \Magento\Store\Api\Data\StoreInterface|int|null $store
+     * @return string
+     */
+    public function getSecondChanceEmailTemplate($step, $store = null): string
+    {
+        if ($step == 1) {
+            return $this->getFirstEmailTemplate($store);
+        }
+        return $this->getSecondEmailTemplate($store);
+    }
+
+    /**
+     * Get SecondChance sender name
+     *
+     * @param \Magento\Store\Api\Data\StoreInterface|int|null $store
+     * @return string
+     */
+    public function getSecondChanceSenderName($store = null): string
+    {
+        // Try to get configured sender first, fall back to sales
+        $senderName = (string) $this->scopeConfig->getValue(
+            'buckaroo_magento2/second_chance/sender_name',
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+        
+        if (empty($senderName)) {
+            $senderName = (string) $this->scopeConfig->getValue(
+                'trans_email/ident_sales/name',
+                ScopeInterface::SCOPE_STORE,
+                $store
+            );
+        }
+        
+        // Use default if still empty
+        return $senderName ?: 'Buckaroo';
+    }
+
+    /**
+     * Get SecondChance sender email
+     *
+     * @param \Magento\Store\Api\Data\StoreInterface|int|null $store
+     * @return string
+     */
+    public function getSecondChanceSenderEmail($store = null): string
+    {
+        // Try to get configured sender first, fall back to sales
+        $senderEmail = (string) $this->scopeConfig->getValue(
+            'buckaroo_magento2/second_chance/sender_email',
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+        
+        if (empty($senderEmail)) {
+            $senderEmail = (string) $this->scopeConfig->getValue(
+                'trans_email/ident_sales/email',
+                ScopeInterface::SCOPE_STORE,
+                $store
+            );
+        }
+        
+        // Use default if still empty
+        return $senderEmail ?: 'noreply@buckaroo.nl';
     }
 } 

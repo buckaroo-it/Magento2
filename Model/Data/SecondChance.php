@@ -67,6 +67,8 @@ class SecondChance extends AbstractExtensibleObject implements SecondChanceInter
         return $this->setData(self::ORDER_ID, $orderId);
     }
 
+
+
     /**
      * Get store ID
      *
@@ -86,6 +88,27 @@ class SecondChance extends AbstractExtensibleObject implements SecondChanceInter
     public function setStoreId($storeId)
     {
         return $this->setData(self::STORE_ID, $storeId);
+    }
+
+    /**
+     * Get customer email
+     *
+     * @return string|null
+     */
+    public function getCustomerEmail()
+    {
+        return $this->_get(self::CUSTOMER_EMAIL);
+    }
+
+    /**
+     * Set customer email
+     *
+     * @param string $customerEmail
+     * @return \Buckaroo\Magento2\Api\Data\SecondChanceInterface
+     */
+    public function setCustomerEmail($customerEmail)
+    {
+        return $this->setData(self::CUSTOMER_EMAIL, $customerEmail);
     }
 
     /**
@@ -131,6 +154,27 @@ class SecondChance extends AbstractExtensibleObject implements SecondChanceInter
     }
 
     /**
+     * Get step
+     *
+     * @return int|null
+     */
+    public function getStep()
+    {
+        return $this->_get(self::STEP);
+    }
+
+    /**
+     * Set step
+     *
+     * @param int $step
+     * @return \Buckaroo\Magento2\Api\Data\SecondChanceInterface
+     */
+    public function setStep($step)
+    {
+        return $this->setData(self::STEP, $step);
+    }
+
+    /**
      * Get created at
      *
      * @return string|null
@@ -149,6 +193,48 @@ class SecondChance extends AbstractExtensibleObject implements SecondChanceInter
     public function setCreatedAt($createdAt)
     {
         return $this->setData(self::CREATED_AT, $createdAt);
+    }
+
+    /**
+     * Get first email sent
+     *
+     * @return string|null
+     */
+    public function getFirstEmailSent()
+    {
+        return $this->_get(self::FIRST_EMAIL_SENT);
+    }
+
+    /**
+     * Set first email sent
+     *
+     * @param string $firstEmailSent
+     * @return \Buckaroo\Magento2\Api\Data\SecondChanceInterface
+     */
+    public function setFirstEmailSent($firstEmailSent)
+    {
+        return $this->setData(self::FIRST_EMAIL_SENT, $firstEmailSent);
+    }
+
+    /**
+     * Get second email sent
+     *
+     * @return string|null
+     */
+    public function getSecondEmailSent()
+    {
+        return $this->_get(self::SECOND_EMAIL_SENT);
+    }
+
+    /**
+     * Set second email sent
+     *
+     * @param string $secondEmailSent
+     * @return \Buckaroo\Magento2\Api\Data\SecondChanceInterface
+     */
+    public function setSecondEmailSent($secondEmailSent)
+    {
+        return $this->setData(self::SECOND_EMAIL_SENT, $secondEmailSent);
     }
 
     /**
@@ -193,4 +279,4 @@ class SecondChance extends AbstractExtensibleObject implements SecondChanceInter
     ) {
         return $this->_setExtensionAttributes($extensionAttributes);
     }
-} 
+}

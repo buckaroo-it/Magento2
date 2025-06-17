@@ -311,8 +311,8 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
         
         $store->expects($this->once())
             ->method('getUrl')
-            ->with('buckaroo/secondchance', ['token' => 'test_token'])
-            ->willReturn('http://example.com/buckaroo/secondchance?token=test_token');
+            ->with('buckaroo/checkout/secondchance', ['token' => 'test_token'])
+            ->willReturn('http://example.com/buckaroo/checkout/secondchance?token=test_token');
         $store->expects($this->once())->method('getId')->willReturn(1);
         
         $this->configProvider->expects($this->once())

@@ -143,7 +143,7 @@ class Recreate
      * @param \Magento\Quote\Model\Quote $quote
      * @return \Magento\Quote\Model\Quote|false
      */
-    protected function recreate($quote)
+    public function recreate($quote)
     {
         $this->logger->addDebug(__METHOD__ . '|1|');
         try {
@@ -236,7 +236,7 @@ class Recreate
 
         try {
             $oldQuote = $this->quoteFactory->create()->load($order->getQuoteId());
-            
+
             if (!$oldQuote->getId()) {
                 $this->logger->addError('Original quote not found for order: ' . $order->getIncrementId());
                 return null;
@@ -245,7 +245,7 @@ class Recreate
             // Create new quote
             $quote = $this->quoteFactory->create();
             $quote->setStore($order->getStore());
-            
+
             // Copy customer data
             if ($order->getCustomerId()) {
                 $quote->setCustomerId($order->getCustomerId());
@@ -280,29 +280,66 @@ class Recreate
             // Copy addresses
             if ($order->getBillingAddress()) {
                 $billingAddress = $quote->getBillingAddress();
-                $billingAddress->importOrderAddress($order->getBillingAddress());
+                $orderBillingAddress = $order->getBillingAddress();
+
+                $billingAddress->setFirstname($orderBillingAddress->getFirstname())
+                    ->setLastname($orderBillingAddress->getLastname())
+                    ->setCompany($orderBillingAddress->getCompany())
+                    ->setStreet($orderBillingAddress->getStreet())
+                    ->setCity($orderBillingAddress->getCity())
+                    ->setRegionId($orderBillingAddress->getRegionId())
+                    ->setRegion($orderBillingAddress->getRegion())
+                    ->setPostcode($orderBillingAddress->getPostcode())
+                    ->setCountryId($orderBillingAddress->getCountryId())
+                    ->setTelephone($orderBillingAddress->getTelephone())
+                    ->setFax($orderBillingAddress->getFax())
+                    ->setEmail($order->getCustomerEmail());
             }
 
             if ($order->getShippingAddress()) {
                 $shippingAddress = $quote->getShippingAddress();
-                $shippingAddress->importOrderAddress($order->getShippingAddress());
-                
+                $orderShippingAddress = $order->getShippingAddress();
+
+                $shippingAddress->setFirstname($orderShippingAddress->getFirstname())
+                    ->setLastname($orderShippingAddress->getLastname())
+                    ->setCompany($orderShippingAddress->getCompany())
+                    ->setStreet($orderShippingAddress->getStreet())
+                    ->setCity($orderShippingAddress->getCity())
+                    ->setRegionId($orderShippingAddress->getRegionId())
+                    ->setRegion($orderShippingAddress->getRegion())
+                    ->setPostcode($orderShippingAddress->getPostcode())
+                    ->setCountryId($orderShippingAddress->getCountryId())
+                    ->setTelephone($orderShippingAddress->getTelephone())
+                    ->setFax($orderShippingAddress->getFax())
+                    ->setEmail($order->getCustomerEmail());
+
                 // Set shipping method
                 $shippingAddress->setShippingMethod($order->getShippingMethod());
                 $shippingAddress->setCollectShippingRates(true);
             }
 
-            // Additional merge for custom data
+            // Save quote first before setting payment method
+            $quote->setIsActive(true);
+            $quote->save();
+
+            // Additional merge for custom data (after quote is saved)
             $this->additionalMerge($oldQuote, $quote, $response);
 
-            $quote->setIsActive(true);
-            $quote->collectTotals();
+            // Collect totals after payment is properly set
+            try {
+                $quote->collectTotals();
+            } catch (\Exception $e) {
+                $this->logger->addError('Error collecting totals, proceeding without payment method: ' . $e->getMessage());
+                // If payment method causes issues, remove it and try again
+                $quote->getPayment()->setMethod(null);
+                $quote->collectTotals();
+            }
             $quote->save();
 
             // Set in checkout session
             $this->checkoutSession->replaceQuote($quote);
             $this->checkoutSession->setQuoteId($quote->getId());
-            
+
             $this->logger->addDebug('Quote recreated successfully: ' . $quote->getId());
             return $quote;
 
@@ -327,7 +364,8 @@ class Recreate
             try {
                 $payment = $quote->getPayment();
                 $payment->setMethod($oldQuote->getPayment()->getMethod());
-                
+                $payment->setQuote($quote);
+
                 // Copy additional payment data
                 $additionalData = $oldQuote->getPayment()->getAdditionalInformation();
                 if ($additionalData) {
