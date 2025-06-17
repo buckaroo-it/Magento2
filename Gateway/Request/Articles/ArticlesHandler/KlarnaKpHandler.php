@@ -30,7 +30,19 @@ class KlarnaKpHandler extends AbstractArticlesHandler
      */
     protected function getAdditionalLines(): array
     {
-        return ['articles' => [$this->getRewardLine()]];
+        $articles = [];
+
+        $rewardLine = $this->getRewardLine();
+        if (!empty($rewardLine)) {
+            $articles[] = $rewardLine;
+        }
+
+        $giftCardLine = $this->getGiftCardLine();
+        if (!empty($giftCardLine)) {
+            $articles[] = $giftCardLine;
+        }
+
+        return ['articles' => $articles];
     }
 
     /**
@@ -40,19 +52,62 @@ class KlarnaKpHandler extends AbstractArticlesHandler
      */
     public function getRewardLine()
     {
-        $article = [];
-        $discount = (float)$this->getQuote()->getRewardCurrencyAmount();
+        try {
+            $quote = $this->getQuote();
+            $discount = (float)$quote->getRewardCurrencyAmount();
 
-        if ($discount <= 0) {
-            return $article;
+            if ($discount <= 0) {
+                return [];
+            }
+
+            $this->buckarooLog->addDebug(__METHOD__ . '|Reward points discount found: ' . $discount);
+
+            return $this->getArticleArrayLine(
+                'Discount Reward Points',
+                5,
+                1,
+                -$discount,
+                0
+            );
+        } catch (\Error $e) {
+            $this->buckarooLog->addDebug(__METHOD__ . '|getRewardCurrencyAmount method not available - Adobe Commerce reward points may not be installed');
+            return [];
+        } catch (\Exception $e) {
+            $this->buckarooLog->addError(__METHOD__ . '|Error getting reward points amount: ' . $e->getMessage());
+            return [];
         }
+    }
 
-        return $this->getArticleArrayLine(
-            'Discount Reward Points',
-            5,
-            1,
-            -$discount,
-            0
-        );
+    /**
+     * Get the gift card discount line
+     *
+     * @return array
+     */
+    public function getGiftCardLine(): array
+    {
+        try {
+            $quote = $this->getQuote();
+            $discount = (float)$quote->getGiftCardsAmount();
+
+            if ($discount <= 0) {
+                return [];
+            }
+
+            $this->buckarooLog->addDebug(__METHOD__ . '|Gift card discount found: ' . $discount);
+
+            return $this->getArticleArrayLine(
+                'Discount Gift Card',
+                6,
+                1,
+                -$discount,
+                0
+            );
+        } catch (\Error $e) {
+            $this->buckarooLog->addDebug(__METHOD__ . '|getGiftCardsAmount method not available - Adobe Commerce gift cards may not be installed');
+            return [];
+        } catch (\Exception $e) {
+            $this->buckarooLog->addError(__METHOD__ . '|Error getting gift card amount: ' . $e->getMessage());
+            return [];
+        }
     }
 }
