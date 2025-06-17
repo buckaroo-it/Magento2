@@ -171,7 +171,7 @@ class Recreate
      */
     public function recreateById($quoteId)
     {
-        $this->logger->addDebug(__METHOD__ . '|1|' . $quoteId);
+
         try {
             $oldQuote = $this->quoteFactory->create()->load($quoteId);
         } catch (\Exception $e) {

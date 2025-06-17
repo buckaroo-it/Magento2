@@ -351,8 +351,6 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
      */
     public function getSecondChanceCollection($step, $store)
     {
-        $this->logging->addDebug(__METHOD__ . '|step:' . $step . '|store:' . $store->getId());
-
         $collection = $this->secondChanceCollectionFactory->create();
         $collection->addFieldToFilter('store_id', $store->getId());
         $collection->addFieldToFilter('status', 'pending');
@@ -361,32 +359,23 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         $delay = $this->configProvider->getSecondChanceDelay($step, $store);
         $delayDate = date('Y-m-d H:i:s', strtotime('-' . $delay . ' hours'));
         $collection->addFieldToFilter('created_at', ['lt' => $delayDate]);
-        
-        $this->logging->addDebug('SecondChance Collection Query - Step: ' . $step . ', Delay: ' . $delay . ' hours, DelayDate: ' . $delayDate);
 
         $limit = $this->configProvider->getSecondChanceEmailLimit($store);
         if ($limit > 0) {
             $collection->setPageSize($limit);
         }
-        
-        $this->logging->addDebug('SecondChance Collection - Found ' . $collection->getSize() . ' records to process');
 
         foreach ($collection as $item) {
-            $this->logging->addDebug('Processing SecondChance record - ID: ' . $item->getId() . ', Order: ' . $item->getOrderId() . ', Status: ' . $item->getStatus());
-            
             try {
                 // Check if this step email is enabled
                 if ($step == 1 && !$this->configProvider->isFirstEmailEnabled($store)) {
-                    $this->logging->addDebug('First email is disabled, skipping step 1 for order: ' . $item->getOrderId());
                     continue;
                 }
                 
                 if ($step == 2 && !$this->configProvider->isSecondEmailEnabled($store)) {
-                    $this->logging->addDebug('Second email is disabled, skipping step 2 for order: ' . $item->getOrderId());
                     continue;
                 }
 
-                $this->logging->addDebug('Loading order: ' . $item->getOrderId());
                 $order = $this->orderFactory->create()->loadByIncrementId($item->getOrderId());
                 if (!$order->getId()) {
                     $this->logging->addError('Order not found: ' . $item->getOrderId());
@@ -394,63 +383,44 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
                     continue;
                 }
 
-                $this->logging->addDebug('Order loaded - State: ' . $order->getState() . ', Status: ' . $order->getStatus());
-
                 // Check if order is still pending/cancelled
                 if (!in_array($order->getState(), ['pending_payment', 'canceled'])) {
-                    $this->logging->addDebug('Order state not eligible: ' . $order->getState() . ' (needs pending_payment or canceled)');
                     $this->setFinalStatus($item, 'order_paid');
                     continue;
                 }
 
                 // Check products in stock (only if enabled)
                 $stockCheckEnabled = $this->configProvider->shouldSkipOutOfStock($store);
-                $this->logging->addDebug('Stock check enabled: ' . ($stockCheckEnabled ? 'Yes' : 'No'));
-                
                 if ($stockCheckEnabled && !$this->checkOrderProductsIsInStock($order)) {
-                    $this->logging->addDebug('Products out of stock, skipping email');
                     $this->setFinalStatus($item, 'out_of_stock');
                     continue;
                 }
 
                 // Check for multiple emails
                 $multipleEnabled = $this->configProvider->isSecondChanceMultipleEnabled($store);
-                $this->logging->addDebug('Multiple emails enabled: ' . ($multipleEnabled ? 'Yes' : 'No'));
-                
                 if (!$this->checkForMultipleEmail($order, $multipleEnabled)) {
-                    $this->logging->addDebug('Multiple emails not allowed for order: ' . $order->getIncrementId());
                     $this->setFinalStatus($item, 'multiple_not_allowed');
                     continue;
                 }
 
-                // Get email template and sender info for debugging
-                $templateId = $this->configProvider->getSecondChanceEmailTemplate($step, $store);
-                $senderName = $this->configProvider->getSecondChanceSenderName($store);
-                $senderEmail = $this->configProvider->getSecondChanceSenderEmail($store);
-                
-                $this->logging->addDebug('Email details - Template: ' . $templateId . ', Sender: ' . $senderName . ' <' . $senderEmail . '>');
-
                 // Send email
-                $this->logging->addDebug('Attempting to send email for step: ' . $step);
                 $this->sendMail($order, $item, $step);
-                $this->logging->addDebug('Email sent successfully for step: ' . $step);
 
                 // Update step tracking and status
                 if ($step == 1) {
                     $item->setFirstEmailSent($this->dateTime->gmtDate());
                     $item->setStep(1);
-                    $this->logging->addDebug('Updated record with first email sent timestamp');
                 } elseif ($step == 2) {
                     $item->setSecondEmailSent($this->dateTime->gmtDate());
                     $item->setStep(2);
                     // Mark as completed after second email
                     $this->setFinalStatus($item, 'completed');
-                    $this->logging->addDebug('Updated record with second email sent timestamp and marked as completed');
                 }
 
                 $this->resource->save($item);
 
-                $this->logging->addDebug('SecondChance step ' . $step . ' processed successfully for order: ' . $order->getIncrementId());
+                // Log successful processing for key steps only
+                $this->logging->addDebug('SecondChance email sent successfully for step ' . $step . ', Order: ' . $order->getIncrementId());
 
             } catch (\Exception $e) {
                 $this->logging->addError('SecondChance processing error for step ' . $step . ', Order: ' . $item->getOrderId() . ' - Error: ' . $e->getMessage());
@@ -466,19 +436,13 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
      */
     public function sendMail($order, $secondChance, $step)
     {
-        $this->logging->addDebug(__METHOD__ . '|order:' . $order->getIncrementId() . '|step:' . $step);
-
         $store = $order->getStore();
-        $this->logging->addDebug('Store loaded: ' . $store->getId() . ' - ' . $store->getName());
         
         // Generate checkout URL with token
         $checkoutUrl = $store->getUrl('buckaroo/checkout/secondchance', ['token' => $secondChance->getToken()]);
-        $this->logging->addDebug('Checkout URL generated: ' . $checkoutUrl);
 
         // Get template ID
         $templateId = $this->configProvider->getSecondChanceEmailTemplate($step, $store);
-        $this->logging->addDebug('Template ID for step ' . $step . ': ' . $templateId);
-        
         if (empty($templateId)) {
             throw new \Exception('Email template ID is empty for step ' . $step);
         }
@@ -486,9 +450,6 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         // Get sender
         $senderName = $this->configProvider->getSecondChanceSenderName($store);
         $senderEmail = $this->configProvider->getSecondChanceSenderEmail($store);
-        
-        $this->logging->addDebug('Sender details - Name: ' . $senderName . ', Email: ' . $senderEmail);
-        
         if (empty($senderEmail)) {
             throw new \Exception('Sender email is empty');
         }
@@ -499,8 +460,6 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         ];
 
         // Prepare template variables
-        $this->logging->addDebug('Preparing template variables...');
-        
         try {
             $paymentHtml = $this->getPaymentHtml($order);
             $billingAddress = $this->getFormattedBillingAddress($order);
@@ -516,19 +475,14 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
                 'billing_address' => $billingAddress,
                 'shipping_address' => $shippingAddress,
             ];
-            
-            $this->logging->addDebug('Template variables prepared successfully');
-            
         } catch (\Exception $e) {
             $this->logging->addError('Error preparing template variables: ' . $e->getMessage());
             throw $e;
         }
 
         try {
-            $this->logging->addDebug('Suspending inline translation...');
             $this->inlineTranslation->suspend();
 
-            $this->logging->addDebug('Building email transport...');
             $transport = $this->transportBuilder
                 ->setTemplateIdentifier($templateId)
                 ->setTemplateOptions([
@@ -540,12 +494,8 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
                 ->addTo($order->getCustomerEmail(), $order->getCustomerName())
                 ->getTransport();
 
-            $this->logging->addDebug('Sending email to: ' . $order->getCustomerEmail());
             $transport->sendMessage();
-
             $this->inlineTranslation->resume();
-
-            $this->logging->addDebug('SecondChance email sent successfully to: ' . $order->getCustomerEmail());
 
         } catch (\Exception $e) {
             $this->inlineTranslation->resume();

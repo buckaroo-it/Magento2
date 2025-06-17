@@ -116,10 +116,7 @@ class SecondChance
             $result = $template;
         }
         
-        // Debug logging for template selection
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $logger = $objectManager->get(\Buckaroo\Magento2\Logging\Log::class);
-        $logger->addDebug('getFirstEmailTemplate - Config value: "' . $template . '", Final result: "' . $result . '"');
+
         
         return $result;
     }

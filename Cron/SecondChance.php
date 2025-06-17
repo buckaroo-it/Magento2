@@ -61,47 +61,25 @@ class SecondChance
 
     public function execute()
     {
-        $this->logging->addDebug(__METHOD__ . '|Starting SecondChance cron execution at ' . date('Y-m-d H:i:s'));
-        
         try {
             $stores = $this->storeRepository->getList();
-            $this->logging->addDebug(__METHOD__ . '|Found ' . count($stores) . ' stores to check');
             
             foreach ($stores as $store) {
                 if ($store->getId() == 0) {
                     continue; // Skip admin store
                 }
                 
-                $this->logging->addDebug(__METHOD__ . '|Checking store: ' . $store->getId() . ' (' . $store->getName() . ')');
-                
                 if ($this->configProvider->isSecondChanceEnabled($store)) {
-                    $this->logging->addDebug(__METHOD__ . '|SecondChance is ENABLED for store: ' . $store->getId());
-                    
-                    // Log configuration details
-                    $firstEmailEnabled = $this->configProvider->isFirstEmailEnabled($store);
-                    $secondEmailEnabled = $this->configProvider->isSecondEmailEnabled($store);
-                    $firstTiming = $this->configProvider->getFirstEmailTiming($store);
-                    $secondTiming = $this->configProvider->getSecondEmailTiming($store);
-                    
-                    $this->logging->addDebug(__METHOD__ . '|Store config - First email: ' . ($firstEmailEnabled ? 'Yes' : 'No') . ' (' . $firstTiming . 'h), Second email: ' . ($secondEmailEnabled ? 'Yes' : 'No') . ' (' . $secondTiming . 'h)');
-                    
                     // Process step 2 first (second email), then step 1 (first email)
                     foreach ([2, 1] as $step) {
-                        $this->logging->addDebug(__METHOD__ . '|Processing step ' . $step . ' for store ' . $store->getId());
-                        
                         try {
                             $this->secondChanceRepository->getSecondChanceCollection($step, $store);
-                            $this->logging->addDebug(__METHOD__ . '|Completed processing step ' . $step . ' for store ' . $store->getId());
                         } catch (\Exception $e) {
                             $this->logging->addError(__METHOD__ . '|Error processing step ' . $step . ' for store ' . $store->getId() . ': ' . $e->getMessage());
                         }
                     }
-                } else {
-                    $this->logging->addDebug(__METHOD__ . '|SecondChance is DISABLED for store: ' . $store->getId());
                 }
             }
-            
-            $this->logging->addDebug(__METHOD__ . '|SecondChance cron execution completed successfully at ' . date('Y-m-d H:i:s'));
             
         } catch (\Exception $e) {
             $this->logging->addError(__METHOD__ . '|SecondChance cron execution failed: ' . $e->getMessage());
