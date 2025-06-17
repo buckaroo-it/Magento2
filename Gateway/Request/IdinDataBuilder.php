@@ -99,9 +99,7 @@ class IdinDataBuilder implements BuilderInterface
             'returnURLError'       => $returnUrl,
             'returnURLCancel'      => $returnUrl,
             'returnURLReject'      => $returnUrl,
-            'issuer'               => $this->configProviderAccount->getIdin() === Enablemode::ENABLE_LIVE
-                ? $buildSubject['issuer']
-                : 'BANKNL2Y',
+            'issuer'               => $buildSubject['issuer'] ?? '',
             'additionalParameters' => [
                 'service_action_from_magento' => 'verify',
                 'initiated_by_magento' => 1,
