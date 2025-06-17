@@ -67,8 +67,6 @@ class SecondChance extends AbstractExtensibleObject implements SecondChanceInter
         return $this->setData(self::ORDER_ID, $orderId);
     }
 
-
-
     /**
      * Get store ID
      *
