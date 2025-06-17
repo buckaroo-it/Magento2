@@ -54,7 +54,7 @@ define(
             return false;
         },
         $.mage.__('You should be at least 18 years old.'));
-        
+
         const validPhone = function (value) {
             if (quote.billingAddress() === null) {
                 return false;
@@ -112,7 +112,6 @@ define(
                 defaults                : {
                     template : 'Buckaroo_Magento2/payment/buckaroo_magento2_billink',
                     selectedGender: null,
-                    billingName: '',
                     date: '',
                     phone: '',
                     cocNumber:'',
@@ -151,12 +150,13 @@ define(
                     );
                     this.billingName = ko.computed(
                         function () {
-                            if ((this.buckaroo.is_b2b) && quote.billingAddress() !== null) {
-                                return quote.billingAddress().company;
-                            }
                             if (quote.billingAddress() !== null) {
+                                if (quote.billingAddress().company && quote.billingAddress().company.trim().length > 0) {
+                                    return quote.billingAddress().company;
+                                }
                                 return quote.billingAddress().firstname + " " + quote.billingAddress().lastname;
                             }
+                            return '';
                         },
                         this
                     );
@@ -198,6 +198,7 @@ define(
                         "method": this.item.method,
                         "po_number": null,
                         "additional_data": {
+                            "customer_billingName" : this.billingName(),
                             "customer_telephone" : phone,
                             "customer_gender" : this.selectedGender(),
                             "customer_chamberOfCommerce" : this.cocNumber(),
