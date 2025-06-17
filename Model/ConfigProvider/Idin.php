@@ -346,12 +346,13 @@ class Idin extends AbstractConfigProvider
      * Get active status for idin method
      *
      * @param null $store
-     * @return bool
+     * @return int
      * @throws NoSuchEntityException
      * @SuppressWarnings(PHPMD.BooleanGetMethodName)
      */
-    public function getActive($store = null): bool
+    public function getActive($store = null): int
     {
-        return $this->isIdinEnabled($store);
+        $storeToUse = $store ?: $this->storeManager->getStore();
+        return (int)$this->configProviderAccount->getIdin($storeToUse);
     }
 }
