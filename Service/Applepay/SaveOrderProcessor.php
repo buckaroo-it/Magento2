@@ -188,7 +188,7 @@ class SaveOrderProcessor
         /** @var Account $accountConfig */
         $accountConfig = $this->configProviderFactory->get('account');
 
-        $url = $this->order->getStore()->getBaseUrl() . '/'
+        $url = $this->order->getStore()->getBaseUrl()
             . $accountConfig->getSuccessRedirect($this->order->getStore());
 
         $this->logger->addDebug('[ApplePay] Redirect URL: ' . $url);

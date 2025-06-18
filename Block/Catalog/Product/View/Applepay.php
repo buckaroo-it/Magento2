@@ -105,7 +105,18 @@ class Applepay extends Template
             return false;
         }
 
-        return $this->applepayConfigProvider->isApplePayEnabled();
+        if (!$this->applepayConfigProvider->isApplePayEnabled()) {
+            return false;
+        }
+
+        if (in_array($page, ['Product', 'Cart'], true)) {
+            $integrationMode = $this->applepayConfigProvider->getIntegrationMode();
+            if ($integrationMode === '1') {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -147,7 +158,7 @@ class Applepay extends Template
     public function isIdinVerificationRequired()
     {
         $idinMode = (int)$this->accountConfigProvider->getIdinMode();
-        
+
         // Check if iDIN is enabled
         if (!$this->accountConfigProvider->getIdin() || $idinMode === null) {
             return false;
@@ -193,7 +204,7 @@ class Applepay extends Template
         if (!$product) {
             return false;
         }
-        
+
         $idinCategories = explode(',', (string)$this->accountConfigProvider->getIdinCategory());
         foreach ($product->getCategoryIds() as $category) {
             if (in_array($category, $idinCategories)) {
