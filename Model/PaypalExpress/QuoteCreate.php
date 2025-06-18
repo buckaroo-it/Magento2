@@ -21,6 +21,7 @@
 namespace Buckaroo\Magento2\Model\PaypalExpress;
 
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Paypal;
+use Buckaroo\Magento2\Service\ExpressPayment\ProductValidationService;
 use Magento\Quote\Model\Quote;
 use Buckaroo\Magento2\Logging\Log;
 use Magento\Quote\Model\Quote\Address;
@@ -33,7 +34,6 @@ use Buckaroo\Magento2\Api\PaypalExpressQuoteCreateInterface;
 use Buckaroo\Magento2\Model\PaypalExpress\QuoteBuilderInterfaceFactory;
 use Buckaroo\Magento2\Api\Data\ExpressMethods\ShippingAddressRequestInterface;
 use Buckaroo\Magento2\Api\Data\PaypalExpress\QuoteCreateResponseInterfaceFactory;
-use Buckaroo\Magento2\Service\ExpressPayment\ProductValidationService;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -87,7 +87,7 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
     protected $quote;
 
     /**
-     * @var \Buckaroo\Magento2\Service\ExpressPayment\ProductValidationService
+     * @var ProductValidationService
      */
     protected $productValidationService;
 
@@ -232,6 +232,7 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
             $address->setLastname('unknown');
             $address->setEmail('no-reply@example.com');
             $address->setStreet('unknown');
+            $address->setTelephone('0000000');
         }
     }
 
@@ -251,6 +252,7 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
             $address->setLastname('unknown');
             $address->setEmail('no-reply@example.com');
             $address->setStreet('unknown');
+            $address->setTelephone('0000000');
             $address->setCountryId($shipping_address->getCountryCode());
             $address->setPostcode($shipping_address->getPostalCode());
             $address->setCity($shipping_address->getCity());
