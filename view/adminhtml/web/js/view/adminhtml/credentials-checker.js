@@ -29,8 +29,14 @@ define([
         /**
          * Initialize component
          */
-        initialize: function () {
+        initialize: function (config) {
             this._super();
+
+            // Set element from config if provided
+            if (config && config.element) {
+                this.element = $(config.element)[0];
+            }
+
             this.bindEvents();
             return this;
         },
@@ -40,9 +46,25 @@ define([
          */
         bindEvents: function () {
             var self = this;
-            $(this.element).click(function () {
-                self.checkCredentials();
-            });
+
+            if (this.element) {
+                $(this.element).off('click.buckaroo-checker').on('click.buckaroo-checker', function (e) {
+                    e.preventDefault();
+                    self.checkCredentials();
+                });
+            } else {
+                // Fallback: try to find the button by ID
+                setTimeout(function() {
+                    var button = $('#buckaroo_magento2_credentials_checker_button');
+                    if (button.length) {
+                        self.element = button[0];
+                        button.off('click.buckaroo-checker').on('click.buckaroo-checker', function (e) {
+                            e.preventDefault();
+                            self.checkCredentials();
+                        });
+                    }
+                }, 500);
+            }
         },
 
         /**
@@ -51,29 +73,53 @@ define([
         checkCredentials: function () {
             var self = this;
 
+            // Get form data
+            var mode = $("#buckaroo_magento2_settings_magento2_account_section_active").val();
+            var secretKey = $("#buckaroo_magento2_settings_buckaroo_magento2_account_section_secret_key").val();
+            var merchantKey = $("#buckaroo_magento2_settings_buckaroo_magento2_account_section_merchant_key").val();
+
+            // Validate required fields
+            if (!secretKey || !merchantKey) {
+                self.showMessage('Please fill in both Secret Key and Merchant Key before testing credentials.', true);
+                return;
+            }
+
+            // Show loading message
+            self.showMessage('Checking credentials...', false);
+
             $.ajax({
                 url: urlBuilder.build('/buckaroo/credentialschecker/index'),
                 type: 'POST',
                 dataType: 'json',
                 showLoader: true,
+                timeout: 30000,
                 data: {
-                    mode: $("#buckaroo_magento2_settings_magento2_account_section_active").val(),
-                    secretKey: $("#buckaroo_magento2_settings_buckaroo_magento2_account_section_secret_key").val(),
-                    merchantKey: $("#buckaroo_magento2_settings_buckaroo_magento2_account_section_merchant_key").val()
+                    mode: mode,
+                    secretKey: secretKey,
+                    merchantKey: merchantKey,
+                    form_key: window.FORM_KEY || $('input[name="form_key"]').val()
                 }
             }).done(function (response) {
-                if (response) {
-                    if (response.success) {
-                        self.showMessage('Your credentials have been verified successfully!');
-                        return true;
-                    } else {
-                        if (response.error_message) {
-                            self.showMessage(response.error_message, true);
-                            return false;
-                        }
-                    }
+                if (response && response.success) {
+                    self.showMessage('✓ Your credentials have been verified successfully!', false);
+                } else {
+                    var errorMsg = (response && response.error_message) ? response.error_message : 'Unknown error occurred during validation';
+                    self.showMessage('✗ ' + errorMsg, true);
                 }
-                self.showMessage('general error', true);
+            }).fail(function (jqXHR, textStatus) {
+                var errorMessage = 'Network error: Unable to validate credentials.';
+
+                if (jqXHR.status === 404) {
+                    errorMessage = 'Error: Credentials validation endpoint not found.';
+                } else if (jqXHR.status === 403) {
+                    errorMessage = 'Error: Access denied. Please check admin permissions.';
+                } else if (jqXHR.status === 500) {
+                    errorMessage = 'Error: Server error occurred. Please check server logs.';
+                } else if (textStatus === 'timeout') {
+                    errorMessage = 'Error: Request timed out. Please try again.';
+                }
+
+                self.showMessage('✗ ' + errorMessage, true);
             });
         },
 
@@ -85,10 +131,23 @@ define([
         showMessage: function (text, isError) {
             isError = isError || false;
             var msgEl = $('#buckaroo_magento2_credentials_checker_msg');
+
             if (msgEl.length) {
-                msgEl.css('color', isError ? 'red' : 'green');
-                msgEl.html(text);
+                msgEl.css({
+                    'color': isError ? 'red' : 'green',
+                    'font-weight': 'bold'
+                }).html(text).show();
+
+                // Auto-clear success messages after 5 seconds
+                if (!isError) {
+                    setTimeout(function() {
+                        msgEl.fadeOut(500);
+                    }, 5000);
+                }
+            } else {
+                // Fallback to alert if message element is missing
+                alert((isError ? 'Error: ' : 'Success: ') + text);
             }
         }
     });
-}); 
+});
