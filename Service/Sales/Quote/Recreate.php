@@ -42,19 +42,9 @@ class Recreate
     private $cartRepository;
 
     /**
-     * @var Cart
-     */
-    private $cart;
-
-    /**
      * @var CheckoutSession
      */
     private $checkoutSession;
-
-    /**
-     * @var CustomerSession
-     */
-    protected $customerSession;
 
     /**
      * @var QuoteFactory
@@ -72,21 +62,6 @@ class Recreate
     protected $messageManager;
 
     /**
-     * @var \Magento\Quote\Model\QuoteRepository
-     */
-    protected $quoteRepository;
-
-    /**
-     * @var CartManagementInterface
-     */
-    protected $quoteManagement;
-
-    /**
-     * @var QuoteAddressResource
-     */
-    protected $quoteAddressResource;
-
-    /**
      * @var Log
      */
     protected $logger;
@@ -100,42 +75,27 @@ class Recreate
      * Constructor
      *
      * @param CartRepositoryInterface $cartRepository
-     * @param Cart $cart
-     * @param \Magento\Quote\Model\QuoteRepository $quoteRepository
      * @param CheckoutSession $checkoutSession
-     * @param CustomerSession $customerSession
      * @param QuoteFactory $quoteFactory
      * @param ProductFactory $productFactory
-     * @param CartManagementInterface $quoteManagement
      * @param ManagerInterface $messageManager
-     * @param QuoteAddressResource $quoteAddressResource
      * @param Log $logger
      * @param StoreManagerInterface $storeManager
      */
     public function __construct(
         CartRepositoryInterface $cartRepository,
-        Cart $cart,
-        \Magento\Quote\Model\QuoteRepository $quoteRepository,
         CheckoutSession $checkoutSession,
-        CustomerSession $customerSession,
         QuoteFactory $quoteFactory,
         ProductFactory $productFactory,
-        CartManagementInterface $quoteManagement,
         ManagerInterface $messageManager,
-        QuoteAddressResource $quoteAddressResource,
         Log $logger,
         StoreManagerInterface $storeManager
     ) {
         $this->cartRepository       = $cartRepository;
-        $this->cart                 = $cart;
         $this->checkoutSession      = $checkoutSession;
-        $this->customerSession      = $customerSession;
         $this->quoteFactory         = $quoteFactory;
         $this->productFactory       = $productFactory;
-        $this->quoteRepository      = $quoteRepository;
         $this->messageManager       = $messageManager;
-        $this->quoteManagement      = $quoteManagement;
-        $this->quoteAddressResource = $quoteAddressResource;
         $this->logger               = $logger;
         $this->storeManager         = $storeManager;
     }
@@ -232,6 +192,8 @@ class Recreate
      * @param \Magento\Sales\Model\Order $order
      * @param array $response
      * @return \Magento\Quote\Model\Quote|null
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function duplicate($order, $response = [])
     {

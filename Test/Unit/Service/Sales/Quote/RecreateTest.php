@@ -39,6 +39,9 @@ use Magento\Sales\Model\Order\Item;
 use Magento\Store\Model\Store;
 use Magento\Sales\Model\Order\Address;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
 {
     protected $instanceClass = Recreate::class;
