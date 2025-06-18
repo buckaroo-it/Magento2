@@ -31,6 +31,9 @@ use Magento\Quote\Model\ResourceModel\Quote\Address as QuoteAddressResource;
 use Buckaroo\Magento2\Logging\Log;
 use Magento\Store\Model\StoreManagerInterface;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class Recreate
 {
     /**

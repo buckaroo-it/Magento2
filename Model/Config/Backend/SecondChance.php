@@ -18,6 +18,7 @@ class SecondChance extends Value
      *
      * @return $this
      * @throws ValidatorException
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function beforeSave()
     {

@@ -42,6 +42,11 @@ use Buckaroo\Magento2\Api\Data\SecondChanceInterface;
 use Magento\Catalog\Model\Product\Type;
 use Buckaroo\Magento2\Service\Sales\Quote\Recreate as QuoteRecreateService;
 
+/**
+ * @SuppressWarnings(PHPMD.TooManyFields)
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveParameterList)
+ */
 class SecondChanceRepository implements SecondChanceRepositoryInterface
 {
     protected $secondChanceFactory;
@@ -57,14 +62,9 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     private $collectionProcessor;
     protected $logging;
     protected $configProvider;
-    protected $checkoutSession;
-    protected $customerSession;
     protected $dateTime;
     protected $mathRandom;
     protected $orderFactory;
-    protected $customerFactory;
-    private $orderIncrementIdChecker;
-    protected $quoteFactory;
     protected $addressFactory;
     protected $stockRegistry;
     protected $inlineTranslation;
@@ -101,14 +101,9 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         ExtensibleDataObjectConverter $extensibleDataObjectConverter,
         \Buckaroo\Magento2\Logging\Log $logging,
         \Buckaroo\Magento2\Model\ConfigProvider\SecondChance $configProvider,
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Customer\Model\Session $customerSession,
         \Magento\Framework\Math\Random $mathRandom,
         \Magento\Framework\Stdlib\DateTime\DateTime $dateTime,
         \Magento\Sales\Model\OrderFactory $orderFactory,
-        \Magento\Customer\Model\CustomerFactory $customerFactory,
-        \Magento\Sales\Model\OrderIncrementIdChecker $orderIncrementIdChecker,
-        \Magento\Quote\Model\QuoteFactory $quoteFactory,
         \Magento\Customer\Model\AddressFactory $addressFactory,
         \Magento\CatalogInventory\Api\StockRegistryInterface $stockRegistry,
         \Magento\Framework\Translate\Inline\StateInterface $inlineTranslation,
@@ -131,14 +126,9 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         $this->extensibleDataObjectConverter    = $extensibleDataObjectConverter;
         $this->logging                          = $logging;
         $this->configProvider                   = $configProvider;
-        $this->checkoutSession                  = $checkoutSession;
-        $this->customerSession                  = $customerSession;
         $this->mathRandom                       = $mathRandom;
         $this->dateTime                         = $dateTime;
         $this->orderFactory                     = $orderFactory;
-        $this->customerFactory                  = $customerFactory;
-        $this->orderIncrementIdChecker          = $orderIncrementIdChecker;
-        $this->quoteFactory                     = $quoteFactory;
         $this->addressFactory                   = $addressFactory;
         $this->stockRegistry                    = $stockRegistry;
         $this->inlineTranslation                = $inlineTranslation;
@@ -353,6 +343,8 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
 
     /**
      * Get SecondChance collection for cron processing
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     public function getSecondChanceCollection($step, $store)
     {
