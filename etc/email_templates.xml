@@ -19,10 +19,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 -->
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:App/etc/routes.xsd">
-    <router id="standard">
-        <route id="buckaroo" frontName="buckaroo">
-            <module name="Buckaroo_Magento2" />
-        </route>
-    </router>
-</config>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Email:etc/email_templates.xsd">
+    <template id="buckaroo_second_chance_first" label="Buckaroo Second Chance - First Email" file="buckaroo_second_chance_first.html" type="html" module="Buckaroo_Magento2" area="frontend"/>
+    <template id="buckaroo_second_chance_second" label="Buckaroo Second Chance - Second Email" file="buckaroo_second_chance_second.html" type="html" module="Buckaroo_Magento2" area="frontend"/>
+</config> 

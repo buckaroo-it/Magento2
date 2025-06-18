@@ -4037,4 +4037,9 @@
         </arguments>
     </type>
 
+    <!-- SecondChance API and Repository Configuration -->
+    <preference for="Buckaroo\Magento2\Api\Data\SecondChanceInterface" type="Buckaroo\Magento2\Model\Data\SecondChance"/>
+    <preference for="Buckaroo\Magento2\Api\Data\SecondChanceSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
+    <preference for="Buckaroo\Magento2\Api\SecondChanceRepositoryInterface" type="Buckaroo\Magento2\Model\SecondChanceRepository"/>
+
 </config>

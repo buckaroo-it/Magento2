@@ -78,13 +78,23 @@ class Calculate
             return null;
         }
 
-        $methodInstance = $quote->getPayment()->getMethodInstance();
-        $buckarooPaymentMethodCode = $methodInstance->buckarooPaymentMethodCode;
-        if (!$this->configProviderMethodFactory->has($buckarooPaymentMethodCode)) {
+        try {
+            $methodInstance = $quote->getPayment()->getMethodInstance();
+
+            if (!$methodInstance || !isset($methodInstance->buckarooPaymentMethodCode)) {
+                return null;
+            }
+
+            $buckarooPaymentMethodCode = $methodInstance->buckarooPaymentMethodCode;
+            if (!$this->configProviderMethodFactory->has($buckarooPaymentMethodCode)) {
+                return null;
+            }
+
+            $configProvider = $this->configProviderMethodFactory->get($buckarooPaymentMethodCode);
+            return trim($configProvider->getPaymentFee($quote->getStore()));
+        } catch (\Exception $e) {
+            // If payment method instance cannot be loaded, return null (no fee)
             return null;
         }
-
-        $configProvider = $this->configProviderMethodFactory->get($buckarooPaymentMethodCode);
-        return trim($configProvider->getPaymentFee($quote->getStore()));
     }
 }

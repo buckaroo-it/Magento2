@@ -34,6 +34,9 @@ use Magento\Framework\Module\Manager as ModuleManager;
 use Magento\Framework\Phrase;
 use Magento\InventorySalesAdminUi\Model\GetSalableQuantityDataBySku;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class ProductValidationService
 {
     /**

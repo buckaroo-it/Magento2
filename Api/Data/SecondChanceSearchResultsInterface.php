@@ -1,5 +1,4 @@
-<?xml version="1.0"?>
-<!--
+<?php
 /**
  * NOTICE OF LICENSE
  *
@@ -18,11 +17,25 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
--->
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:App/etc/routes.xsd">
-    <router id="standard">
-        <route id="buckaroo" frontName="buckaroo">
-            <module name="Buckaroo_Magento2" />
-        </route>
-    </router>
-</config>
+
+namespace Buckaroo\Magento2\Api\Data;
+
+use Magento\Framework\Api\SearchResultsInterface;
+
+interface SecondChanceSearchResultsInterface extends SearchResultsInterface
+{
+    /**
+     * Get SecondChance list.
+     *
+     * @return \Buckaroo\Magento2\Api\Data\SecondChanceInterface[]
+     */
+    public function getItems();
+
+    /**
+     * Set SecondChance list.
+     *
+     * @param \Buckaroo\Magento2\Api\Data\SecondChanceInterface[] $items
+     * @return $this
+     */
+    public function setItems(array $items);
+} 
