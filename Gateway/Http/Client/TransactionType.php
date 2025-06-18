@@ -38,6 +38,7 @@ class TransactionType
     public const PAYMENT_INVITATION = 'paymentInvitation';
     public const VERIFY = 'verify';
     public const PAY_WITH_TOKEN = 'payWithToken';
+    public const AUTHORIZE_WITH_TOKEN = 'authorizeWithToken';
 
     public const PAY_REMAINDER = 'payRemainder';
     public const PAY_REMAINDER_ENCRYPTED = 'payRemainderEncrypted';
