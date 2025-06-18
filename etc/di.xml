@@ -89,6 +89,10 @@
         <plugin name="buckaroo_magento2_add_order_extension_attributes" type="Buckaroo\Magento2\Plugin\OrderExtensionAttribute" />
     </type>
 
+    <type name="Magento\Sales\Model\Order\Email\Sender\OrderSender">
+        <plugin name="buckaroo_magento2_prevent_core_order_email" type="Buckaroo\Magento2\Plugin\OrderSender" />
+    </type>
+
     <type name="Magento\Sales\Api\CreditmemoRepositoryInterface">
         <plugin name="buckaroo_magento2_add_creditmemo_extension_attributes" type="Buckaroo\Magento2\Plugin\CreditmemoExtensionAttribute" />
     </type>

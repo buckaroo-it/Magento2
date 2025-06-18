@@ -49,6 +49,7 @@ use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Payment;
 use Magento\Sales\Model\Order\Payment as OrderPayment;
 use Magento\Sales\Model\Order\Payment\Transaction;
+use Buckaroo\Magento2\Model\Transaction\Status\Response;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -857,17 +858,11 @@ class DefaultProcessor implements PushProcessorInterface
                 || $paymentMethod->getConfigData('order_email', $store)
             )
         ) {
-            $this->logger->addDebug(sprintf(
-                '[%s:%s] - Send Order Email | orderConfirmationEmail: %s',
-                __METHOD__,
-                __LINE__,
-                var_export($this->configAccount->getOrderConfirmationEmail($store), true)
-            ));
-
-            $this->orderRequestService->sendOrderEmail(
-                $this->order,
-                (bool)$this->configAccount->getOrderConfirmationEmailSync($store)
-            );
+            $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Send order email');
+            $syncMode = (bool)$this->configAccount->getOrderConfirmationEmailSync($store);
+            $this->orderRequestService->sendOrderEmail($this->order, $syncMode);
+        } else {
+            $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Skip sending order email (EmailSent: ' . ($this->order->getEmailSent() ? 'Yes' : 'No') . ', OrderCanceled: ' . ($orderIsCanceledOrWillBeCanceled ? 'Yes' : 'No') . ')');
         }
     }
 
@@ -1125,14 +1120,21 @@ class DefaultProcessor implements PushProcessorInterface
         $store = $this->order->getStore();
         $paymentMethod = $this->payment->getMethodInstance();
 
+        $statusCode = $this->pushRequest->getStatusCode();
+        $statusCodeInt = $statusCode !== null ? (int)$statusCode : 0;
+        $isSuccessfulPayment = $this->isSuccessfulPaymentStatus($statusCodeInt);
+
         if (!$this->order->getEmailSent()
+            && $isSuccessfulPayment
             && (
                 $this->configAccount->getOrderConfirmationEmail($store)
                 || $paymentMethod->getConfigData('order_email', $store)
             )
         ) {
-            $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Process Pending Push - SEND EMAIL');
+            $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Process Pending Push - SEND EMAIL (Success Status: ' . $statusCode . ')');
             $this->orderRequestService->sendOrderEmail($this->order);
+        } else {
+            $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Process Pending Push - SKIP EMAIL (Status: ' . $statusCode . ', EmailSent: ' . ($this->order->getEmailSent() ? 'Yes' : 'No') . ', OrderCanceled: ' . ($orderIsCanceledOrWillBeCanceled ? 'Yes' : 'No') . ')');
         }
 
         $description = 'Payment Push Status: ' . __($statusMessage);
@@ -1273,5 +1275,16 @@ class DefaultProcessor implements PushProcessorInterface
         $words = explode('_', $field);
         $transformedWords = array_map('ucfirst', $words);
         return __(implode(' ', $transformedWords));
+    }
+
+    /**
+     * Checks if a given status code is a successful payment status.
+     *
+     * @param int $statusCode
+     * @return bool
+     */
+    private function isSuccessfulPaymentStatus(int $statusCode): bool
+    {
+        return $statusCode === Response::STATUSCODE_SUCCESS;
     }
 }

@@ -90,8 +90,18 @@ class SendOrderConfirmation implements ObserverInterface
         /**
          * @noinspection PhpUndefinedFieldInspection
          */
-        if (!$methodInstance->usesRedirect
-            && !$order->getEmailSent()
+        if ($methodInstance->usesRedirect) {
+            $this->logger->addDebug(sprintf(
+                '[SEND_MAIL] | [Observer] | [%s:%s] - Skip sending order confirmation email - redirect payment method | order: %s | method: %s',
+                __METHOD__,
+                __LINE__,
+                $order->getId(),
+                $payment->getMethod()
+            ));
+            return;
+        }
+
+        if (!$order->getEmailSent()
             && $sendOrderConfirmationEmail
             && $order->getIncrementId()
             && !$createOrderBeforeTransaction
@@ -103,6 +113,16 @@ class SendOrderConfirmation implements ObserverInterface
                 $order->getId()
             ));
             $this->orderSender->send($order, true);
+        } else {
+            $this->logger->addDebug(sprintf(
+                '[SEND_MAIL] | [Observer] | [%s:%s] - Skip sending order confirmation email | order: %s | emailSent: %s | confirmationEmail: %s | createOrderBefore: %s',
+                __METHOD__,
+                __LINE__,
+                $order->getId(),
+                $order->getEmailSent() ? 'Yes' : 'No',
+                $sendOrderConfirmationEmail ? 'Yes' : 'No',
+                $createOrderBeforeTransaction ? 'Yes' : 'No'
+            ));
         }
     }
 }
