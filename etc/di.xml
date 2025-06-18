@@ -3338,7 +3338,7 @@
                 <item name="order" xsi:type="string">CreditcardEncryptedOrderCommand</item>
                 <item name="authorize" xsi:type="string">CreditcardEncryptedAuthorizeCommand</item>
                 <item name="capture" xsi:type="string">CreditcardEncryptedCaptureCommand</item>
-                <item name="refund" xsi:type="string">BuckarooRefundCommand</item>
+                <item name="refund" xsi:type="string">CreditcardEncryptedRefundCommand</item>
             </argument>
         </arguments>
     </virtualType>
@@ -3428,9 +3428,25 @@
         </arguments>
     </virtualType>
     <!-- END CreditcardEncrypted Capture Command -->
+
+    <!-- CreditcardEncrypted Refund Command -->
+    <virtualType name="CreditcardEncryptedRefundCommand" type="BuckarooRefundCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">CreditcardEncryptedRefundRequest</argument>
+        </arguments>
+    </virtualType>
+    <!-- CreditcardEncrypted Refund Command - Request Builder -->
+    <virtualType name="CreditcardEncryptedRefundRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="refund" xsi:type="string">BuckarooRefundRequest</item>
+                <item name="creditcard_type" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\CreditcardEncryptedDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END CreditcardEncrypted Refund Command -->
     <!-- END CreditcardEncrypted Commands infrastructure -->
     <!-- END Payment Method: CreditcardEncrypted -->
-
 
     <!-- Payment Method: Pospayment -->
     <!-- Pospayment Payment Method Facade configuration -->
