@@ -524,13 +524,13 @@ class Data extends AbstractHelper
      * @param string $paymentMethodCode
      * @param ConfigProviderInterface $configProvider
      * @param bool $forceB2C
-     * @return int|null
+     * @return string|null
      */
     private function determineCustomerGroup(
         string $paymentMethodCode,
         ConfigProviderInterface $configProvider,
         bool $forceB2C
-    ): ?int {
+    ): ?string {
         if (!$forceB2C && $this->isSpecialPaymentMethod($paymentMethodCode, $configProvider)) {
             return $configProvider->getSpecificCustomerGroupB2B();
         }
