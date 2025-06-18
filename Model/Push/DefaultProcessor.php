@@ -1108,6 +1108,9 @@ class DefaultProcessor implements PushProcessorInterface
      * @param string|false|null $newStatus
      * @param string $statusMessage
      * @return bool
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @throws \Exception
      */
     protected function processPendingPaymentPush($newStatus, string $statusMessage): bool
     {
@@ -1117,6 +1120,21 @@ class DefaultProcessor implements PushProcessorInterface
 
         $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Process Pending Push');
 
+        $this->processPendingPaymentEmail();
+        $description = $this->buildPendingPaymentDescription($statusMessage);
+        $this->orderRequestService->updateOrderStatus(Order::STATE_PENDING_PAYMENT, $newStatus, $description);
+
+        return true;
+    }
+
+    /**
+     * Process email sending for pending payment push
+     *
+     * @return void
+     * @throws LocalizedException
+     */
+    private function processPendingPaymentEmail(): void
+    {
         $store = $this->order->getStore();
         $paymentMethod = $this->payment->getMethodInstance();
         $orderIsCanceledOrWillBeCanceled = $this->order->isCanceled() || $this->order->getState() === Order::STATE_CANCELED;
@@ -1125,21 +1143,44 @@ class DefaultProcessor implements PushProcessorInterface
         $statusCodeInt = $statusCode !== null ? (int)$statusCode : 0;
         $isSuccessfulPayment = $this->isSuccessfulPaymentStatus($statusCodeInt);
 
-        if (!$this->order->getEmailSent()
-            && $isSuccessfulPayment
-            && (
-                $this->configAccount->getOrderConfirmationEmail($store)
-                || $paymentMethod->getConfigData('order_email', $store)
-            )
-        ) {
+        if ($this->shouldSendPendingPaymentEmail($isSuccessfulPayment, $store, $paymentMethod)) {
             $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Process Pending Push - SEND EMAIL (Success Status: ' . $statusCode . ')');
             $this->orderRequestService->sendOrderEmail($this->order);
         } else {
             $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Process Pending Push - SKIP EMAIL (Status: ' . $statusCode . ', EmailSent: ' . ($this->order->getEmailSent() ? 'Yes' : 'No') . ', OrderCanceled: ' . ($orderIsCanceledOrWillBeCanceled ? 'Yes' : 'No') . ')');
         }
+    }
 
+    /**
+     * Check if pending payment email should be sent
+     *
+     * @param bool $isSuccessfulPayment
+     * @param mixed $store
+     * @param mixed $paymentMethod
+     * @return bool
+     */
+    private function shouldSendPendingPaymentEmail(bool $isSuccessfulPayment, $store, $paymentMethod): bool
+    {
+        return !$this->order->getEmailSent()
+            && $isSuccessfulPayment
+            && (
+                $this->configAccount->getOrderConfirmationEmail($store)
+                || $paymentMethod->getConfigData('order_email', $store)
+            );
+    }
+
+    /**
+     * Build description for pending payment
+     *
+     * @param string $statusMessage
+     * @return string
+     * @throws LocalizedException
+     */
+    private function buildPendingPaymentDescription(string $statusMessage): string
+    {
         $description = 'Payment Push Status: ' . __($statusMessage);
         $transferDetails = $this->getTransferDetails();
+
         if (!empty($transferDetails)) {
             $this->payment->setAdditionalInformation('transfer_details', $transferDetails);
             foreach ($transferDetails as $key => $transferDetail) {
@@ -1147,9 +1188,7 @@ class DefaultProcessor implements PushProcessorInterface
             }
         }
 
-        $this->orderRequestService->updateOrderStatus(Order::STATE_PENDING_PAYMENT, $newStatus, $description);
-
-        return true;
+        return $description;
     }
 
     /**
