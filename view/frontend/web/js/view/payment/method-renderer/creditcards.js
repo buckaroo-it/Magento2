@@ -56,6 +56,7 @@ define(
             oauthTokenError: ko.observable(''),
             paymentError: ko.observable(''),
             isPayButtonDisabled: ko.observable(false),
+            isResetting: ko.observable(false),
             sdkClient: null,
             tokenExpiresAt: null,
 
@@ -129,11 +130,47 @@ define(
              * @param {String} [errorMsg] Optional error message to display.
              */
             async resetHostedFields(errorMsg = '') {
+                // Prevent multiple simultaneous reset operations
+                if (this.isResetting()) {
+                    return;
+                }
+                
+                this.isResetting(true);
                 this.removeHostedFieldIframes();
-                this.paymentError(errorMsg);
-                await this.getOAuthToken();
-                this.isPayButtonDisabled(false);
+                
+                // Clear all errors first
+                this.oauthTokenError('');
+                this.paymentError('');
+                
+                // Only display error message if it's actually a string
+                if (typeof errorMsg === 'string' && errorMsg.length > 0) {
+                    this.paymentError(errorMsg);
+                }
+                
+                try {
+                    await this.getOAuthToken();
+                } catch (error) {
+                    console.error("Error during resetHostedFields:", error);
+                    this.paymentError($.mage.__("An error occurred while refreshing the payment form. Please try again."));
+                } finally {
+                    this.isPayButtonDisabled(false);
+                    this.isResetting(false);
+                }
             },
+
+            /**
+             * Click handler for the clear button.
+             */
+            clearFields: function() {
+                // Prevent multiple clicks while already resetting
+                if (this.isResetting()) {
+                    return false;
+                }
+                this.resetHostedFields();
+                return false; // Prevent default action
+            },
+
+
 
             /**
              * Initialize hosted fields using the OAuth token and issuers.
@@ -191,6 +228,8 @@ define(
                         cardLogoStyling: cardLogoStyling
                     };
 
+
+
                     // Mount hosted fields concurrently.
                     const mountCardHolderNamePromise = this.sdkClient.mountCardHolderName("#cc-name-wrapper", {
                         id: "ccname",
@@ -231,6 +270,7 @@ define(
                     ]);
                 } catch (error) {
                     console.error("Error initializing hosted fields:", error);
+                    this.paymentError($.mage.__("An error occurred while initializing the payment form. Please try again."));
                 }
             },
 
