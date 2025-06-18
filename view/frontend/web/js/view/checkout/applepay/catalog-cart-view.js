@@ -35,15 +35,19 @@ define(
 
         return Component.extend({
             showPayButton: function () {
-                applepayPay.setQuote(quote);
-                applepayPay.showPayButton('cart');
+                if (window.checkoutConfig.payment
+                    && window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.integrationMode === '0'
+                ) {
+                    applepayPay.setQuote(quote);
+                    applepayPay.showPayButton('cart');
 
-                applepayPay.transactionResult.subscribe(
-                    function () {
-                        orderHandler.setApplepayTransaction(applepayPay.transactionResult());
-                        orderHandler.placeOrder();
-                    }.bind(this)
-                );
+                    applepayPay.transactionResult.subscribe(
+                        function () {
+                            orderHandler.setApplepayTransaction(applepayPay.transactionResult());
+                            orderHandler.placeOrder();
+                        }.bind(this)
+                    );
+                }
             }
         });
     }
