@@ -317,7 +317,7 @@ class SecondChance extends \Magento\Framework\Model\AbstractModel implements Sec
      */
     public function getExtensionAttributes()
     {
-        return $this->_getExtensionAttributes();
+        return $this->getData('extension_attributes');
     }
 
     /**
@@ -329,6 +329,6 @@ class SecondChance extends \Magento\Framework\Model\AbstractModel implements Sec
     public function setExtensionAttributes(
         \Buckaroo\Magento2\Api\Data\SecondChanceExtensionInterface $extensionAttributes
     ) {
-        return $this->_setExtensionAttributes($extensionAttributes);
+        return $this->setData('extension_attributes', $extensionAttributes);
     }
 }

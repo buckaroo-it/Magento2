@@ -50,6 +50,7 @@ class SecondChanceMigrationNotice extends Field
      *
      * @param AbstractElement $element
      * @return string
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     protected function _getElementHtml(AbstractElement $element)
     {
@@ -82,6 +83,7 @@ class SecondChanceMigrationNotice extends Field
      *
      * @param AbstractElement $element
      * @return string
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     protected function _renderScopeLabel(AbstractElement $element)
     {
@@ -93,6 +95,7 @@ class SecondChanceMigrationNotice extends Field
      *
      * @param AbstractElement $element
      * @return string
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     protected function _renderInheritCheckbox(AbstractElement $element)
     {

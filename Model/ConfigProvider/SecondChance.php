@@ -249,6 +249,7 @@ class SecondChance
      *
      * @param \Magento\Store\Api\Data\StoreInterface|int|null $store
      * @return int
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function getSecondChanceEmailLimit($store = null): int
     {

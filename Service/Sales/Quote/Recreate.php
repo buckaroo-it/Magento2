@@ -356,6 +356,7 @@ class Recreate
      * @param \Magento\Quote\Model\Quote $oldQuote
      * @param \Magento\Quote\Model\Quote $quote
      * @param array $response
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     private function additionalMerge($oldQuote, $quote, $response = [])
     {

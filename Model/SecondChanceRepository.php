@@ -36,6 +36,7 @@ use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Reflection\DataObjectProcessor;
+use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Buckaroo\Magento2\Api\Data\SecondChanceInterface;
 use Magento\Catalog\Model\Product\Type;
@@ -288,17 +289,20 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     }
 
     /**
-     * Create SecondChance record for order
+     * Create a SecondChance record for order
+     *
+     * @param OrderInterface $order
+     * @return SecondChanceInterface|null
      */
     public function createSecondChance($order)
     {
         if (!$this->configProvider->isSecondChanceEnabled($order->getStore())) {
-            return;
+            return null;
         }
 
         try {
             $token = $this->mathRandom->getRandomString(32);
-            
+
             $secondChance = $this->dataSecondChanceFactory->create();
             $secondChance->setOrderId($order->getIncrementId());
             $secondChance->setStoreId($order->getStoreId());
@@ -308,10 +312,11 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
             $secondChance->setStep(0);
             $secondChance->setCreatedAt($this->dateTime->gmtDate());
 
-            $this->save($secondChance);
-            
+            $savedSecondChance = $this->save($secondChance);
+
             $this->logging->addDebug('SecondChance record created for order: ' . $order->getIncrementId());
-            
+
+            return $savedSecondChance;
         } catch (\Exception $e) {
             $this->logging->addError('Failed to create SecondChance record: ' . $e->getMessage());
             throw $e;
@@ -371,7 +376,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
                 if ($step == 1 && !$this->configProvider->isFirstEmailEnabled($store)) {
                     continue;
                 }
-                
+
                 if ($step == 2 && !$this->configProvider->isSecondEmailEnabled($store)) {
                     continue;
                 }
@@ -437,7 +442,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     public function sendMail($order, $secondChance, $step)
     {
         $store = $order->getStore();
-        
+
         // Generate checkout URL with token
         $checkoutUrl = $store->getUrl('buckaroo/checkout/secondchance', ['token' => $secondChance->getToken()]);
 
@@ -446,14 +451,14 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         if (empty($templateId)) {
             throw new \Exception('Email template ID is empty for step ' . $step);
         }
-        
+
         // Get sender
         $senderName = $this->configProvider->getSecondChanceSenderName($store);
         $senderEmail = $this->configProvider->getSecondChanceSenderEmail($store);
         if (empty($senderEmail)) {
             throw new \Exception('Sender email is empty');
         }
-        
+
         $sender = [
             'name' => $senderName,
             'email' => $senderEmail,
@@ -464,7 +469,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
             $paymentHtml = $this->getPaymentHtml($order);
             $billingAddress = $this->getFormattedBillingAddress($order);
             $shippingAddress = $this->getFormattedShippingAddress($order);
-            
+
             $templateVars = [
                 'order' => $order,
                 'checkout_url' => $checkoutUrl,
@@ -532,7 +537,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     /**
      * Get payment method HTML
      */
-    private function getPaymentHtml(\Magento\Sales\Api\Data\OrderInterface $order)
+    private function getPaymentHtml(OrderInterface $order)
     {
         $payment = $order->getPayment();
         return $this->paymentHelper->getInfoBlockHtml($payment, $order->getStoreId());
@@ -549,7 +554,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
                     $item->getProductId(),
                     $order->getStore()->getWebsiteId()
                 );
-                
+
                 if (!$stockItem->getIsInStock() || $stockItem->getQty() < $item->getQtyOrdered()) {
                     return false;
                 }
@@ -568,36 +573,6 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
             $this->resource->save($item);
         } catch (\Exception $e) {
             $this->logging->addError('Error updating SecondChance status: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * Set customer address for quote recreation
-     */
-    private function setCustomerAddress($customer, $order)
-    {
-        $billingAddress = $order->getBillingAddress();
-        $shippingAddress = $order->getShippingAddress();
-
-        if ($billingAddress) {
-            $customerAddress = $this->addressFactory->create();
-            $customerAddress->setCustomerId($customer->getId())
-                ->setFirstname($billingAddress->getFirstname())
-                ->setLastname($billingAddress->getLastname())
-                ->setStreet($billingAddress->getStreet())
-                ->setCity($billingAddress->getCity())
-                ->setRegionId($billingAddress->getRegionId())
-                ->setPostcode($billingAddress->getPostcode())
-                ->setCountryId($billingAddress->getCountryId())
-                ->setTelephone($billingAddress->getTelephone())
-                ->setIsDefaultBilling(true);
-            
-            if ($shippingAddress && 
-                $billingAddress->getData() == $shippingAddress->getData()) {
-                $customerAddress->setIsDefaultShipping(true);
-            }
-            
-            $customerAddress->save();
         }
     }
 
