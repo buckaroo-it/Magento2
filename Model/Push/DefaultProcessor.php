@@ -862,7 +862,7 @@ class DefaultProcessor implements PushProcessorInterface
             $syncMode = (bool)$this->configAccount->getOrderConfirmationEmailSync($store);
             $this->orderRequestService->sendOrderEmail($this->order, $syncMode);
         } else {
-            $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Skip sending order email (EmailSent: ' . ($this->order->getEmailSent() ? 'Yes' : 'No') . ', OrderCanceled: ' . ($orderIsCanceledOrWillBeCanceled ? 'Yes' : 'No') . ')');
+            $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Skip sending order email (EmailSent: ' . ($this->order->getEmailSent() ? 'Yes' : 'No') . ')');
         }
     }
 
@@ -1119,6 +1119,7 @@ class DefaultProcessor implements PushProcessorInterface
 
         $store = $this->order->getStore();
         $paymentMethod = $this->payment->getMethodInstance();
+        $orderIsCanceledOrWillBeCanceled = $this->order->isCanceled() || $this->order->getState() === Order::STATE_CANCELED;
 
         $statusCode = $this->pushRequest->getStatusCode();
         $statusCodeInt = $statusCode !== null ? (int)$statusCode : 0;

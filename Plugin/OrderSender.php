@@ -50,6 +50,8 @@ class OrderSender
      * @param Order $order
      * @param bool $forceSyncMode
      * @return bool
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function aroundSend(
         MagentoOrderSender $subject,
