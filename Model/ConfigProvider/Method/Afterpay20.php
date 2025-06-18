@@ -69,7 +69,7 @@ class Afterpay20 extends AbstractConfigProvider
      */
     public function isInvoiceCreatedAfterShipment($storeId = null): bool
     {
-        $createInvoiceAfterShipment = $this->getMethodConfigValue(self::XPATH_AFTERPAY20_CUSTOMER_TYPE, $storeId);
+        $createInvoiceAfterShipment = $this->getMethodConfigValue(self::XPATH_AFTERPAY20_CREATE_INVOICE_BY_SHIP, $storeId);
 
         return $createInvoiceAfterShipment ?: false;
     }
