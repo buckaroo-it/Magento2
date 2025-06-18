@@ -64,6 +64,8 @@ class SendOrderConfirmation implements ObserverInterface
      * @param Observer $observer
      * @return void
      * @throws LocalizedException
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function execute(Observer $observer)
     {
@@ -75,27 +77,72 @@ class SendOrderConfirmation implements ObserverInterface
          */
         $payment = $observer->getPayment();
 
-        if (strpos($payment->getMethod(), 'buckaroo_magento2') === false) {
+        if (!$this->isBuckarooPayment($payment)) {
             return;
         }
 
         $order = $payment->getOrder();
-
         $methodInstance = $payment->getMethodInstance();
+
+        if ($this->shouldSkipForRedirectMethod($methodInstance, $order, $payment)) {
+            return;
+        }
+
+        $this->processOrderEmailSending($order, $methodInstance);
+    }
+
+    /**
+     * Check if the payment method is a Buckaroo payment
+     *
+     * @param Payment $payment
+     * @return bool
+     */
+    private function isBuckarooPayment(Payment $payment): bool
+    {
+        return strpos($payment->getMethod(), 'buckaroo_magento2') !== false;
+    }
+
+    /**
+     * Check if should skip email sending for redirect payment method
+     *
+     * @param mixed $methodInstance
+     * @param mixed $order
+     * @param Payment $payment
+     * @return bool
+     */
+    private function shouldSkipForRedirectMethod($methodInstance, $order, Payment $payment): bool
+    {
+        /**
+         * @noinspection PhpUndefinedFieldInspection
+         */
+        if ($methodInstance->usesRedirect) {
+            $this->logger->addDebug(sprintf(
+                '[SEND_MAIL] | [Observer] | [%s:%s] - Skip sending order confirmation email - redirect payment method | order: %s | method: %s',
+                __METHOD__,
+                __LINE__,
+                $order->getId(),
+                $payment->getMethod()
+            ));
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Process order email sending logic
+     *
+     * @param mixed $order
+     * @param mixed $methodInstance
+     * @return void
+     */
+    private function processOrderEmailSending($order, $methodInstance): void
+    {
         $sendOrderConfirmationEmail = $this->accountConfig->getOrderConfirmationEmail($order->getStore())
             || $methodInstance->getConfigData('order_email', $order->getStoreId());
 
         $createOrderBeforeTransaction = $this->accountConfig->getCreateOrderBeforeTransaction($order->getStore());
 
-        /**
-         * @noinspection PhpUndefinedFieldInspection
-         */
-        if (!$methodInstance->usesRedirect
-            && !$order->getEmailSent()
-            && $sendOrderConfirmationEmail
-            && $order->getIncrementId()
-            && !$createOrderBeforeTransaction
-        ) {
+        if ($this->shouldSendOrderEmail($order, $sendOrderConfirmationEmail, $createOrderBeforeTransaction)) {
             $this->logger->addDebug(sprintf(
                 '[SEND_MAIL] | [Observer] | [%s:%s] - Send order confirmation on email | order: %s',
                 __METHOD__,
@@ -103,6 +150,32 @@ class SendOrderConfirmation implements ObserverInterface
                 $order->getId()
             ));
             $this->orderSender->send($order, true);
+        } else {
+            $this->logger->addDebug(sprintf(
+                '[SEND_MAIL] | [Observer] | [%s:%s] - Skip sending order confirmation email | order: %s | emailSent: %s | confirmationEmail: %s | createOrderBefore: %s',
+                __METHOD__,
+                __LINE__,
+                $order->getId(),
+                $order->getEmailSent() ? 'Yes' : 'No',
+                $sendOrderConfirmationEmail ? 'Yes' : 'No',
+                $createOrderBeforeTransaction ? 'Yes' : 'No'
+            ));
         }
+    }
+
+    /**
+     * Check if order email should be sent
+     *
+     * @param mixed $order
+     * @param bool $sendOrderConfirmationEmail
+     * @param bool $createOrderBeforeTransaction
+     * @return bool
+     */
+    private function shouldSendOrderEmail($order, bool $sendOrderConfirmationEmail, bool $createOrderBeforeTransaction): bool
+    {
+        return !$order->getEmailSent()
+            && $sendOrderConfirmationEmail
+            && $order->getIncrementId()
+            && !$createOrderBeforeTransaction;
     }
 }
