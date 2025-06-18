@@ -1293,9 +1293,9 @@ class DefaultProcessor implements PushProcessorInterface
     private function refundGiftCardsOnFailedPayment(): void
     {
         // Skip if Adobe Commerce gift card functionality is not available
-/*        if (!class_exists(\Magento\GiftCardAccount\Model\GiftcardAccountRepository::class)) {
+        if (!class_exists(\Magento\GiftCardAccount\Model\GiftcardAccountRepository::class)) {
             return;
-        }*/
+        }
 
         $giftCards = $this->order->getGiftCards();
         if (empty($giftCards)) {
@@ -1334,7 +1334,7 @@ class DefaultProcessor implements PushProcessorInterface
             return $this->giftCardRepository;
         }
 
-        /*if (class_exists(\Magento\GiftCardAccount\Model\GiftcardAccountRepository::class)) {*/
+        if (class_exists(\Magento\GiftCardAccount\Model\GiftcardAccountRepository::class)) {
             try {
                 $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
                 return $objectManager->get(\Magento\GiftCardAccount\Model\GiftcardAccountRepository::class);
@@ -1346,7 +1346,7 @@ class DefaultProcessor implements PushProcessorInterface
                     $e->getMessage()
                 ));
             }
-/*        }*/
+        }
 
         return null;
     }
