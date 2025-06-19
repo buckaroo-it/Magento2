@@ -196,7 +196,7 @@ class Idin extends AbstractConfigProvider
      * @return array
      * @throws NoSuchEntityException
      */
-    public function getIdinStatus(Quote $quote, CustomerInterface $customer = null): array
+    public function getIdinStatus(Quote $quote, ?CustomerInterface $customer = null): array
     {
         if (!$this->checkCountry($customer) ||
             !$this->isIdinEnabled()
@@ -253,7 +253,7 @@ class Idin extends AbstractConfigProvider
      * @param CustomerInterface|null $customer
      * @return boolean
      */
-    protected function isCustomerVerified(CustomerInterface $customer = null): bool
+    protected function isCustomerVerified(?CustomerInterface $customer = null): bool
     {
         if ($customer === null) {
             return $this->checkoutSession->getCustomerIDINIsEighteenOrOlder() === true;
@@ -346,12 +346,13 @@ class Idin extends AbstractConfigProvider
      * Get active status for idin method
      *
      * @param null $store
-     * @return bool
+     * @return int
      * @throws NoSuchEntityException
      * @SuppressWarnings(PHPMD.BooleanGetMethodName)
      */
-    public function getActive($store = null): bool
+    public function getActive($store = null): int
     {
-        return $this->isIdinEnabled($store);
+        $storeToUse = $store ?: $this->storeManager->getStore();
+        return (int)$this->configProviderAccount->getIdin($storeToUse);
     }
 }

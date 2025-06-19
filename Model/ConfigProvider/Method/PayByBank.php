@@ -168,26 +168,6 @@ class PayByBank extends AbstractConfigProvider
     }
 
     /**
-     * @inheritdoc
-     */
-    public function getPaymentFee($store = null)
-    {
-        return 0;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getPaymentFeeLabel($store = null)
-    {
-        return $this->scopeConfig->getValue(
-            Account::XPATH_ACCOUNT_PAYMENT_FEE_LABEL,
-            ScopeInterface::SCOPE_STORE,
-            $store
-        );
-    }
-
-    /**
      * @param $storeId
      * @return mixed
      */

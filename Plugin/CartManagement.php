@@ -65,7 +65,7 @@ class CartManagement
         CartManagementInterface $cardManagement,
         \Closure $proceed,
         $cartId,
-        PaymentInterface $paymentMethod = null
+        ?PaymentInterface $paymentMethod = null
     ) {
         /** @var Quote $quote */
         $quote = $this->quoteRepository->getActive($cartId);

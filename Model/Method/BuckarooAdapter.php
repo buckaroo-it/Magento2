@@ -112,11 +112,11 @@ class BuckarooAdapter extends Adapter
         $infoBlockType,
         Factory $configProviderMethodFactory,
         Data $priceHelper,
-        RequestInterface $request = null,
-        CommandPoolInterface $commandPool = null,
-        ValidatorPoolInterface $validatorPool = null,
-        CommandManagerInterface $commandExecutor = null,
-        LoggerInterface $logger = null,
+        ?RequestInterface $request = null,
+        ?CommandPoolInterface $commandPool = null,
+        ?ValidatorPoolInterface $validatorPool = null,
+        ?CommandManagerInterface $commandExecutor = null,
+        ?LoggerInterface $logger = null,
         bool $usesRedirect = true
     ) {
         parent::__construct(
@@ -152,7 +152,7 @@ class BuckarooAdapter extends Adapter
     /**
      * @inheritdoc
      */
-    public function isAvailable(CartInterface $quote = null)
+    public function isAvailable(?CartInterface $quote = null)
     {
         if (null == $quote) {
             return false;

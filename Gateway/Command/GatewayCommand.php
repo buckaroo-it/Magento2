@@ -122,7 +122,7 @@ class GatewayCommand implements CommandInterface
         CancelOrder                 $cancelOrder,
         HandlerInterface            $handler = null,
         ValidatorInterface          $validator = null,
-        ErrorMessageMapperInterface $errorMessageMapper = null,
+        ?ErrorMessageMapperInterface $errorMessageMapper = null,
         SkipCommandInterface        $skipCommand = null
     ) {
         $this->requestBuilder = $requestBuilder;
@@ -171,10 +171,9 @@ class GatewayCommand implements CommandInterface
             $result = $this->validator->validate(array_merge($commandSubject, ['response' => $response]));
             if (!$result->isValid()) {
                 try {
-                    $paymentInstance = $paymentDO->getPayment()->getMethodInstance();
                     $this->spamLimitService->updateRateLimiterCount($paymentDO->getPayment()->getMethodInstance());
                 } catch (LimitReachException $th) {
-                    $this->spamLimitService->setMaxAttemptsFlags($paymentInstance, $th->getMessage());
+                    $this->spamLimitService->setMaxAttemptsFlags($paymentDO, $th->getMessage());
                     return;
                 }
                 $this->processErrors($result);

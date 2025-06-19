@@ -1,0 +1,107 @@
+<!--
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+-->
+<!--@subject {{trans "Complete your order - %store_name" store_name=$store.getFrontendName()}} @-->
+<!--@vars {
+"var billing_address|raw":"Billing Address",
+"var shipping_address|raw":"Shipping Address",
+"var order.increment_id":"Order Id",
+"var payment_html|raw":"Payment Details",
+"var checkout_url":"Checkout URL",
+"var customer_name":"Customer Name",
+"var customer_email":"Customer Email"
+} @-->
+
+{{template config_path="design/email/header_template"}}
+
+<table>
+    <tr class="email-intro">
+        <td>
+            <p class="greeting">{{trans "Hello %customer_name," customer_name=$customer_name}}</p>
+            <p>
+                {{trans 'We noticed you didn\'t complete your purchase. Don\'t worry, your items are still waiting for you!' |raw}}
+            </p>
+            <p>
+                {{trans 'You can <a href="%checkout_url" style="color: #1979c3; text-decoration: none;">complete your order now</a> from %store_name.' store_name=$store.frontend_name checkout_url=$checkout_url |raw}}
+            </p>
+            <p>
+                {{trans 'If you have any questions about your order, feel free to contact us at <a href="mailto:%store_email" style="color: #1979c3; text-decoration: none;">%store_email</a>.' store_email=$store.getStoreEmail() |raw}}
+            </p>
+        </td>
+    </tr>
+    <tr class="email-summary">
+        <td>
+            <h1>{{trans 'Your Order <span class="no-link">#%increment_id</span>' increment_id=$order.increment_id |raw}}</h1>
+            <p>{{trans 'Order Total: %order_total' order_total=$order.formatPrice($order.getGrandTotal()) |raw}}</p>
+        </td>
+    </tr>
+    <tr class="email-information">
+        <td>
+            <table class="order-details">
+                <tr>
+                    <td class="address-details">
+                        <h3>{{trans "Billing Information"}}</h3>
+                        <p>{{var billing_address|raw}}</p>
+                    </td>
+                    {{depend shipping_address}}
+                    <td class="address-details">
+                        <h3>{{trans "Shipping Information"}}</h3>
+                        <p>{{var shipping_address|raw}}</p>
+                    </td>
+                    {{/depend}}
+                </tr>
+                <tr>
+                    <td class="method-info">
+                        <h3>{{trans "Payment Method"}}</h3>
+                        {{var payment_html|raw}}
+                    </td>
+                    {{depend order.shipping_description}}
+                    <td class="method-info">
+                        <h3>{{trans "Shipping Method"}}</h3>
+                        <p>{{var order.shipping_description}}</p>
+                    </td>
+                    {{/depend}}
+                </tr>
+            </table>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="{{var checkout_url}}" style="background-color: #1979c3; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+                    {{trans "Complete Your Order"}}
+                </a>
+            </div>
+            
+            <table class="order-items">
+                <thead>
+                    <tr>
+                        <th>{{trans "Product"}}</th>
+                        <th>{{trans "SKU"}}</th>
+                        <th>{{trans "Qty"}}</th>
+                        <th>{{trans "Price"}}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{layout handle="sales_email_order_items" order=$order area="frontend"}}
+                </tbody>
+            </table>
+        </td>
+    </tr>
+</table>
+
+{{template config_path="design/email/footer_template"}}

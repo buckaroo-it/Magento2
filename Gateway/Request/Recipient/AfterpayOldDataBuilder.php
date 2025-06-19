@@ -142,7 +142,7 @@ class AfterpayOldDataBuilder extends AbstractRecipientDataBuilder
      *
      * @return boolean
      */
-    private function isCompanyEmpty(string $company = null): bool
+    private function isCompanyEmpty(?string $company = null): bool
     {
         if (null === $company) {
             return true;

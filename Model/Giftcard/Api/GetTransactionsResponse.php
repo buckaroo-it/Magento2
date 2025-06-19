@@ -70,7 +70,7 @@ class GetTransactionsResponse extends DataObject implements GetTransactionsRespo
         CartRepositoryInterface $cartRepository,
         PaymentGroupTransaction $groupTransaction,
         TransactionResponseInterfaceFactory $trResponseFactory,
-        string $cartId = null
+        ?string $cartId = null
     ) {
         $this->quoteIdMaskFactory = $quoteIdMaskFactory;
         $this->cartRepository = $cartRepository;

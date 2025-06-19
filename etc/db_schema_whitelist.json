@@ -15,5 +15,25 @@
             "BUCKAROO_MAGENTO2_LOG_LOG_ID": true,
             "BUCKAROO_MAGENTO2_LOG_ORDER_ID": true
         }
+    },
+    "buckaroo_magento2_second_chance": {
+        "column": {
+            "entity_id": true,
+            "order_id": true,
+            "store_id": true,
+            "token": true,
+            "status": true,
+            "created_at": true,
+            "last_order_id": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        },
+        "index": {
+            "BUCKAROO_MAGENTO2_SECOND_CHANCE_ENTITY_ID": true,
+            "BUCKAROO_MAGENTO2_SECOND_CHANCE_TOKEN": true,
+            "BUCKAROO_MAGENTO2_SECOND_CREATED_AT": true,
+            "BUCKAROO_MAGENTO2_SECOND_STORE_ID": true
+        }
     }
 }

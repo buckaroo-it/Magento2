@@ -719,3 +719,21 @@
     width: 100%;
     display: none;
 }
+
+
+.actions-toolbar.creditcards .primary .action.primary{
+    width: 100%;
+    line-height: 2.2rem;
+    padding: 14px 17px;
+    font-size: 1.8rem;
+}
+
+.actions-toolbar.creditcards .primary a {
+    color: #6b7280; /* Gray text */
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.actions-toolbar.creditcards .primary a:hover {
+    color: #374151; /* Darker gray on hover */
+}

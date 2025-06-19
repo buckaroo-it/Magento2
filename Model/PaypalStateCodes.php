@@ -581,7 +581,7 @@ class PaypalStateCodes
      *
      * @return bool|array
      */
-    public function getValuesFromCodes(string $countryCode = null, string $stateCode = null)
+    public function getValuesFromCodes(?string $countryCode = null, ?string $stateCode = null)
     {
         // We need a countryCode + stateCode and for it to exist in codes
         if (!$countryCode || !$stateCode || !isset($this->codes[$countryCode])) {
@@ -604,7 +604,7 @@ class PaypalStateCodes
      * @param string|null $value
      * @return false|string
      */
-    public function getCodeFromValue(string $countryCode = null, string $value = null)
+    public function getCodeFromValue(?string $countryCode = null, ?string $value = null)
     {
         // We need a countryCode + value and for it to exist in codes
         if (!$countryCode || !$value || !isset($this->codes[$countryCode])) {

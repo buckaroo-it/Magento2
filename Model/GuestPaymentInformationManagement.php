@@ -208,10 +208,10 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
     /**
      * Retrieve the order increment ID by order ID.
      *
-     * @param int $orderId
+     * @param mixed $orderId
      * @return string
      */
-    protected function getOrderIncrementId(int $orderId): string
+    protected function getOrderIncrementId(mixed $orderId): string
     {
         $order = $this->orderRepository->get($orderId);
         return $order->getIncrementId();

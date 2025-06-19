@@ -284,7 +284,7 @@ class Data extends AbstractHelper
      *
      * @throws BuckarooException
      */
-    public function getMode(string $paymentMethod = null, $store = null): int
+    public function getMode(?string $paymentMethod = null, $store = null): int
     {
         $baseMode = $this->configProviderAccount->getActive();
 
@@ -524,13 +524,13 @@ class Data extends AbstractHelper
      * @param string $paymentMethodCode
      * @param ConfigProviderInterface $configProvider
      * @param bool $forceB2C
-     * @return int|null
+     * @return string|null
      */
     private function determineCustomerGroup(
         string $paymentMethodCode,
         ConfigProviderInterface $configProvider,
         bool $forceB2C
-    ): ?int {
+    ): ?string {
         if (!$forceB2C && $this->isSpecialPaymentMethod($paymentMethodCode, $configProvider)) {
             return $configProvider->getSpecificCustomerGroupB2B();
         }

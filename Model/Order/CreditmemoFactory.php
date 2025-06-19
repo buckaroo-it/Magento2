@@ -71,7 +71,7 @@ class CreditmemoFactory extends MagentoCreditmemoFactory
         OrderFactory $convertOrderFactory,
         Config $taxConfig,
         BuckarooLoggerInterface $logger,
-        Json $serializer = null
+        ?Json $serializer = null
     ) {
         $this->logger = $logger;
         parent::__construct($convertOrderFactory, $taxConfig, $serializer);
@@ -86,22 +86,18 @@ class CreditmemoFactory extends MagentoCreditmemoFactory
      */
     public function createByOrder(Order $order, array $data = []): Creditmemo
     {
-        $creditmemo = $this->convertor->toCreditmemo($order);
-        $this->initBuckarooFeeData($creditmemo, $data, $order);
+        $this->initBuckarooFeeData($data, $order);
         return parent::createByOrder($order, $data);
     }
 
     /**
      * Initialize creditmemo state based on requested parameters
      *
-     * @param Creditmemo $creditmemo
      * @param array $data
      * @param Order|Invoice $salesModel
      * @return void
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function initBuckarooFeeData(Creditmemo $creditmemo, array $data, $salesModel)
+    public function initBuckarooFeeData(array $data, $salesModel)
     {
         if (isset($data['extension_attributes']['buckaroo_fee'])) {
             $salesModel->setBuckarooFee((double)$data['extension_attributes']['buckaroo_fee']);
@@ -121,9 +117,7 @@ class CreditmemoFactory extends MagentoCreditmemoFactory
      */
     public function createByInvoice(Invoice $invoice, array $data = []): Creditmemo
     {
-        $order = $invoice->getOrder();
-        $creditmemo = $this->convertor->toCreditmemo($order);
-        $this->initBuckarooFeeData($creditmemo, $data, $invoice);
+        $this->initBuckarooFeeData($data, $invoice);
         return parent::createByInvoice($invoice, $data);
     }
 }

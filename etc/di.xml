@@ -89,6 +89,10 @@
         <plugin name="buckaroo_magento2_add_order_extension_attributes" type="Buckaroo\Magento2\Plugin\OrderExtensionAttribute" />
     </type>
 
+    <type name="Magento\Sales\Model\Order\Email\Sender\OrderSender">
+        <plugin name="buckaroo_magento2_prevent_core_order_email" type="Buckaroo\Magento2\Plugin\OrderSender" />
+    </type>
+
     <type name="Magento\Sales\Api\CreditmemoRepositoryInterface">
         <plugin name="buckaroo_magento2_add_creditmemo_extension_attributes" type="Buckaroo\Magento2\Plugin\CreditmemoExtensionAttribute" />
     </type>
@@ -703,6 +707,11 @@
     <virtualType name="TransactionPayWithToken" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
         <arguments>
             <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::PAY_WITH_TOKEN</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="TransactionAuthorizeWithToken" type="Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction">
+        <arguments>
+            <argument name="action" xsi:type="const">Buckaroo\Magento2\Gateway\Http\Client\TransactionType::AUTHORIZE_WITH_TOKEN</argument>
         </arguments>
     </virtualType>
     <!-- END Gateway Client Types -->
@@ -3342,7 +3351,7 @@
                 <item name="order" xsi:type="string">CreditcardEncryptedOrderCommand</item>
                 <item name="authorize" xsi:type="string">CreditcardEncryptedAuthorizeCommand</item>
                 <item name="capture" xsi:type="string">CreditcardEncryptedCaptureCommand</item>
-                <item name="refund" xsi:type="string">BuckarooRefundCommand</item>
+                <item name="refund" xsi:type="string">CreditcardEncryptedRefundCommand</item>
             </argument>
         </arguments>
     </virtualType>
@@ -3391,7 +3400,7 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">CreditcardEncryptedAuthorizeRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
-            <argument name="client" xsi:type="object">TransactionAuthorizeEncrypted</argument>
+            <argument name="client" xsi:type="object">TransactionAuthorizeWithToken</argument>
             <argument name="handler" xsi:type="object">AuthorizeResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
             <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
@@ -3432,9 +3441,25 @@
         </arguments>
     </virtualType>
     <!-- END CreditcardEncrypted Capture Command -->
+
+    <!-- CreditcardEncrypted Refund Command -->
+    <virtualType name="CreditcardEncryptedRefundCommand" type="BuckarooRefundCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">CreditcardEncryptedRefundRequest</argument>
+        </arguments>
+    </virtualType>
+    <!-- CreditcardEncrypted Refund Command - Request Builder -->
+    <virtualType name="CreditcardEncryptedRefundRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="refund" xsi:type="string">BuckarooRefundRequest</item>
+                <item name="creditcard_type" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\CreditcardEncryptedDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END CreditcardEncrypted Refund Command -->
     <!-- END CreditcardEncrypted Commands infrastructure -->
     <!-- END Payment Method: CreditcardEncrypted -->
-
 
     <!-- Payment Method: Pospayment -->
     <!-- Pospayment Payment Method Facade configuration -->
@@ -4020,6 +4045,12 @@
             </argument>
         </arguments>
     </type>
+
+    <!-- SecondChance API and Repository Configuration -->
+    <preference for="Buckaroo\Magento2\Api\Data\SecondChanceInterface" type="Buckaroo\Magento2\Model\Data\SecondChance"/>
+    <preference for="Buckaroo\Magento2\Api\Data\SecondChanceSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
+    <preference for="Buckaroo\Magento2\Api\SecondChanceRepositoryInterface" type="Buckaroo\Magento2\Model\SecondChanceRepository"/>
+
 
     <preference for="Buckaroo\Magento2\Api\GiftCardRefundServiceInterface" type="Buckaroo\Magento2\Model\Service\GiftCardRefundService" />
 

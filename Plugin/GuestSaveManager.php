@@ -21,6 +21,8 @@
 namespace Buckaroo\Magento2\Plugin;
 
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
+use Magento\Quote\Api\Data\AddressInterface;
+use Magento\Quote\Api\Data\PaymentInterface;
 
 // @codingStandardsIgnoreStart
 
@@ -97,8 +99,8 @@ if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
          * @param $parent
          * @param $cartId
          * @param $email
-         * @param \Magento\Quote\Api\Data\PaymentInterface $paymentMethod
-         * @param \Magento\Quote\Api\Data\AddressInterface|null $billingAddress
+         * @param PaymentInterface $paymentMethod
+         * @param AddressInterface|null $billingAddress
          * @return void
          * @throws \Magento\Framework\Exception\NoSuchEntityException
          */
@@ -106,8 +108,8 @@ if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
             $parent,
             $cartId,
             $email,
-            \Magento\Quote\Api\Data\PaymentInterface $paymentMethod,
-            \Magento\Quote\Api\Data\AddressInterface $billingAddress = null
+            PaymentInterface $paymentMethod,
+            ?AddressInterface $billingAddress = null
         ) {
             if ($billingAddress == null) {
                 $quoteIdMask = $this->quoteIdMaskFactory->create()->load($cartId, 'masked_id');
@@ -130,8 +132,8 @@ if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
          * @param $parent
          * @param $cartId
          * @param $email
-         * @param \Magento\Quote\Api\Data\PaymentInterface $paymentMethod
-         * @param \Magento\Quote\Api\Data\AddressInterface|null $billingAddress
+         * @param PaymentInterface $paymentMethod
+         * @param AddressInterface|null $billingAddress
          * @return void
          * @throws \Magento\Framework\Exception\NoSuchEntityException
          */
@@ -139,8 +141,8 @@ if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
             $parent,
             $cartId,
             $email,
-            \Magento\Quote\Api\Data\PaymentInterface $paymentMethod,
-            \Magento\Quote\Api\Data\AddressInterface $billingAddress = null
+            PaymentInterface $paymentMethod,
+            ?AddressInterface $billingAddress = null
         ) {
             if ($billingAddress == null) {
                 $quoteIdMask = $this->quoteIdMaskFactory->create()->load($cartId, 'masked_id');

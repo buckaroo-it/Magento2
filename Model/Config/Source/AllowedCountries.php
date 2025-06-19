@@ -76,7 +76,7 @@ class AllowedCountries implements OptionSourceInterface
      * @return array Format: array(array('value' => '<value>', 'label' => '<label>'), ...)
      * @throws BuckarooException
      */
-    public function toOptionArray(string $method = null): array
+    public function toOptionArray(?string $method = null): array
     {
         if (!$method || !is_string($method)) {
             return $this->localeLists->getOptionCountries();
@@ -112,7 +112,7 @@ class AllowedCountries implements OptionSourceInterface
      * @return array
      * @throws BuckarooException
      */
-    public function __call(string $method, array $params = null)
+    public function __call(string $method, ?array $params = null)
     {
         return $this->toOptionArray($method);
     }

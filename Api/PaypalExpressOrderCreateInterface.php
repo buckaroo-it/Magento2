@@ -31,6 +31,6 @@ interface PaypalExpressOrderCreateInterface
      */
     public function execute(
         string $paypal_order_id,
-        string $cart_id = null
+        ?string $cart_id = null
     );
 }
