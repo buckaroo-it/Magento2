@@ -1090,6 +1090,7 @@ class DefaultProcessor implements PushProcessorInterface
 
             try {
                 $this->order->cancel()->save();
+                $this->logger->addDebug('[processFailedPush] - Calling refundGiftCardsOnFailedPayment()');
                 $this->refundGiftCardsOnFailedPayment();
             } catch (\Throwable $th) {
                 $this->logger->addError(sprintf(
@@ -1295,7 +1296,11 @@ class DefaultProcessor implements PushProcessorInterface
     private function refundGiftCardsOnFailedPayment(): void
     {
         $giftCards = $this->order->getGiftCards();
+
+        $this->logger->addDebug('[refundGiftCardsOnFailedPayment] Raw gift card data: ' . var_export($giftCards, true));
+
         if (empty($giftCards)) {
+            $this->logger->addDebug('[refundGiftCardsOnFailedPayment] No gift card data found on order.');
             return;
         }
 
