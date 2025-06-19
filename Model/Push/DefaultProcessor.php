@@ -49,6 +49,7 @@ use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Payment;
 use Magento\Sales\Model\Order\Payment as OrderPayment;
 use Magento\Sales\Model\Order\Payment\Transaction;
+use Magento\GiftCardAccount\Model\GiftcardAccountRepository;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -156,7 +157,7 @@ class DefaultProcessor implements PushProcessorInterface
         BuckarooStatusCode        $buckarooStatusCode,
         OrderStatusFactory        $orderStatusFactory,
         Account                   $configAccount,
-        GiftcardAccountRepository $giftCardRepository,
+        GiftcardAccountRepository $giftCardRepository
     )
     {
         $this->pushTransactionType = $pushTransactionType;
