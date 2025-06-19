@@ -506,12 +506,6 @@
         </arguments>
     </type>
 
-    <type name="Buckaroo\Magento2\Model\Service\GiftCardRefundService">
-        <arguments>
-            <argument name="giftCardRepo" xsi:type="object">Magento\GiftCardAccount\Model\GiftcardAccountRepository</argument>
-        </arguments>
-    </type>
-
     <!-- PHP SDK - Map Payment Methods -->
     <type name="Buckaroo\Magento2\Model\Adapter\BuckarooAdapter">
         <arguments>

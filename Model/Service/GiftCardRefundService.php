@@ -22,7 +22,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Model\Service;
 
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
-use Magento\GiftCardAccount\Model\GiftcardAccountRepository;
+use Magento\GiftCardAccount\Api\GiftCardAccountRepositoryInterface;
 use Magento\Sales\Model\Order;
 
 class GiftCardRefundService
@@ -31,7 +31,7 @@ class GiftCardRefundService
     private $logger;
 
     public function __construct(
-        GiftcardAccountRepository $giftCardRepo,
+        GiftCardAccountRepositoryInterface  $giftCardRepo,
         BuckarooLoggerInterface $logger
     ) {
         $this->giftCardRepo = $giftCardRepo;
