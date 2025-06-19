@@ -97,7 +97,7 @@ class GiftCardRefundService implements GiftCardRefundServiceInterface
 
             // Check if Adobe Commerce features are available
             if (!$this->isAdobeCommerceAvailable) {
-                $this->logger->addInfo('[GiftCardRefundService] Magento Open Source detected - gift card refunds not supported, skipping for order #' . $order->getIncrementId());
+                $this->logger->addDebug('[GiftCardRefundService] Magento Open Source detected - gift card refunds not supported, skipping for order #' . $order->getIncrementId());
                 return;
             }
 
@@ -121,7 +121,7 @@ class GiftCardRefundService implements GiftCardRefundServiceInterface
                 return;
             }
 
-            $this->logger->addInfo('[GiftCardRefundService] Processing ' . count($data) . ' gift card refunds for order #' . $order->getIncrementId());
+            $this->logger->addDebug('[GiftCardRefundService] Processing ' . count($data) . ' gift card refunds for order #' . $order->getIncrementId());
 
             // Process each gift card
             $successCount = 0;
@@ -131,7 +131,7 @@ class GiftCardRefundService implements GiftCardRefundServiceInterface
                 }
             }
 
-            $this->logger->addInfo('[GiftCardRefundService] Successfully processed ' . $successCount . '/' . count($data) . ' gift card refunds for order #' . $order->getIncrementId());
+            $this->logger->addDebug('[GiftCardRefundService] Successfully processed ' . $successCount . '/' . count($data) . ' gift card refunds for order #' . $order->getIncrementId());
 
         } catch (\Throwable $e) {
             $this->logger->addError('[GiftCardRefundService] Unexpected error processing gift card refunds for order #' . $order->getIncrementId() . ': ' . $e->getMessage());
@@ -149,7 +149,7 @@ class GiftCardRefundService implements GiftCardRefundServiceInterface
             $amount = (float)($card['a'] ?? 0);
 
             if (!$id || $amount <= 0) {
-                $this->logger->addDebug(sprintf(
+                $this->logger->addWarning(sprintf(
                     '[GiftCardRefundService] Skipping invalid card: ID=%s, Amount=%.2f',
                     var_export($id, true),
                     $amount
@@ -160,7 +160,7 @@ class GiftCardRefundService implements GiftCardRefundServiceInterface
             try {
                 $account = $this->giftCardRepo->get($id);
             } catch (\Exception $e) {
-                $this->logger->addDebug(sprintf(
+                $this->logger->addWarning(sprintf(
                     '[GiftCardRefundService] Failed to load gift card #%s: %s',
                     $id,
                     $e->getMessage()
@@ -172,7 +172,7 @@ class GiftCardRefundService implements GiftCardRefundServiceInterface
             $newBalance = $currentBalance + $amount;
 
             if ($newBalance < 0) {
-                $this->logger->addDebug(sprintf(
+                $this->logger->addWarning(sprintf(
                     '[GiftCardRefundService] Invalid new balance %.2f for gift card #%s',
                     $newBalance,
                     $id
@@ -185,7 +185,7 @@ class GiftCardRefundService implements GiftCardRefundServiceInterface
             try {
                 $this->giftCardRepo->save($account);
             } catch (\Exception $e) {
-                $this->logger->addDebug(sprintf(
+                $this->logger->addError(sprintf(
                     '[GiftCardRefundService] Failed to save gift card #%s: %s',
                     $id,
                     $e->getMessage()
@@ -220,7 +220,7 @@ class GiftCardRefundService implements GiftCardRefundServiceInterface
                     $id
                 ));
             } catch (\Exception $e) {
-                $this->logger->addDebug(sprintf(
+                $this->logger->addWarning(sprintf(
                     '[GiftCardRefundService] Failed to save history for gift card #%s: %s (History is non-critical, continuing)',
                     $id,
                     $e->getMessage()
@@ -243,7 +243,7 @@ class GiftCardRefundService implements GiftCardRefundServiceInterface
 
             return true;
         } catch (\Throwable $e) {
-            $this->logger->addDebug(sprintf(
+            $this->logger->addError(sprintf(
                 '[GiftCardRefundService] Error refunding gift card: %s',
                 $e->getMessage()
             ));
