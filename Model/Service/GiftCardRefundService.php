@@ -23,30 +23,28 @@ namespace Buckaroo\Magento2\Model\Service;
 
 use Buckaroo\Magento2\Api\GiftCardRefundServiceInterface;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
-use Magento\GiftCardAccount\Api\GiftCardAccountRepositoryInterface;
-use Magento\GiftCardAccount\Model\HistoryFactory;
-use Magento\GiftCardAccount\Model\History;
 use Magento\Sales\Model\Order;
 
 /**
- * Gift card refund service for Adobe Commerce
+ * Gift card refund service that works for both Magento Open Source and Adobe Commerce
+ * Uses Adobe Commerce functionality when available, gracefully handles when not available
  * 
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class GiftCardRefundService implements GiftCardRefundServiceInterface
 {
-    private GiftCardAccountRepositoryInterface $giftCardRepo;
-    private HistoryFactory $historyFactory;
     private BuckarooLoggerInterface $logger;
+    private ?bool $isAdobeCommerceAvailable = null;
+    
+    // Optional dependencies that may not exist in Magento Open Source
+    private $giftCardRepo = null;
+    private $historyFactory = null;
 
     public function __construct(
-        GiftCardAccountRepositoryInterface $giftCardRepo,
-        HistoryFactory $historyFactory,
         BuckarooLoggerInterface $logger
     ) {
-        $this->giftCardRepo = $giftCardRepo;
-        $this->historyFactory = $historyFactory;
         $this->logger = $logger;
+        $this->initializeAdobeCommerceDependencies();
     }
 
     public function refund(Order $order): void
@@ -56,6 +54,19 @@ class GiftCardRefundService implements GiftCardRefundServiceInterface
         $giftCards = $order->getGiftCards();
         if (empty($giftCards)) {
             $this->logger->addDebug('[GiftCardRefundService] No gift cards found for order #' . $order->getIncrementId());
+            return;
+        }
+
+        if (!$this->isAdobeCommerceAvailable()) {
+            $this->logger->addDebug(
+                '[GiftCardRefundService] Gift card refund is not available in Magento Open Source. ' .
+                'Order #' . $order->getIncrementId() . ' contains gift cards that cannot be automatically refunded.'
+            );
+
+            $order->addCommentToStatusHistory(
+                'Order contains gift cards. Automatic gift card refund is only available in Adobe Commerce. ' .
+                'Please process gift card refunds manually if needed.'
+            );
             return;
         }
 
@@ -70,6 +81,38 @@ class GiftCardRefundService implements GiftCardRefundServiceInterface
         foreach ($data as $card) {
             $this->refundCard($order, $card);
         }
+    }
+
+    /**
+     * Initialize Adobe Commerce dependencies if available
+     */
+    private function initializeAdobeCommerceDependencies(): void
+    {
+        if ($this->isAdobeCommerceAvailable()) {
+            try {
+                $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+                $this->giftCardRepo = $objectManager->get('Magento\GiftCardAccount\Api\GiftCardAccountRepositoryInterface');
+                $this->historyFactory = $objectManager->get('Magento\GiftCardAccount\Model\HistoryFactory');
+            } catch (\Throwable $e) {
+                $this->logger->addDebug('[GiftCardRefundService] Failed to initialize Adobe Commerce dependencies: ' . $e->getMessage());
+                $this->isAdobeCommerceAvailable = false;
+            }
+        }
+    }
+
+    /**
+     * Check if Adobe Commerce gift card functionality is available
+     */
+    private function isAdobeCommerceAvailable(): bool
+    {
+        if ($this->isAdobeCommerceAvailable === null) {
+            $this->isAdobeCommerceAvailable = 
+                interface_exists('Magento\GiftCardAccount\Api\GiftCardAccountRepositoryInterface') &&
+                class_exists('Magento\GiftCardAccount\Model\HistoryFactory') &&
+                class_exists('Magento\GiftCardAccount\Model\History');
+        }
+
+        return $this->isAdobeCommerceAvailable;
     }
 
     /**
@@ -131,7 +174,7 @@ class GiftCardRefundService implements GiftCardRefundServiceInterface
                 $history = $this->historyFactory->create();
                 $history->setGiftcardAccount($account);
                 $history->setGiftcardAccountId($id)
-                    ->setAction(History::ACTION_CREATED)
+                    ->setAction(constant('Magento\GiftCardAccount\Model\History::ACTION_CREATED'))
                     ->setBalanceAmount($amount)
                     ->setUpdatedBalance($newBalance)
                     ->setAdditionalInfo('Refunded from cancelled order #' . $order->getIncrementId());
@@ -175,4 +218,4 @@ class GiftCardRefundService implements GiftCardRefundServiceInterface
             ));
         }
     }
-}
+} 
