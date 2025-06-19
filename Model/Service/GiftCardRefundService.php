@@ -79,7 +79,7 @@ class GiftCardRefundService
                 return;
             }
 
-            $account = $this->giftCardRepo->getById($id);
+            $account = $this->giftCardRepo->get($id);
 
             $this->logger->addDebug(sprintf(
                 '[GiftCardRefundService] Loaded gift card #%s | Current balance: %.2f | Refund amount: %.2f',
@@ -90,7 +90,7 @@ class GiftCardRefundService
 
             $this->giftCardManager->returnGiftCardToAccount($order, $id, $amount);
 
-            $reloaded = $this->giftCardRepo->getById($id);
+            $reloaded = $this->giftCardRepo->get($id);
             $this->logger->addDebug(sprintf(
                 '[GiftCardRefundService] After save: gift card #%s balance is now %.2f',
                 $id,
