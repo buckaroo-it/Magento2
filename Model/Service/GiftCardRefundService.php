@@ -19,11 +19,11 @@
  */
 declare(strict_types=1);
 
-namespace Buckaroo\Magento2\Model\Push;
+namespace Buckaroo\Magento2\Model\Service;
 
-use Magento\Sales\Model\Order;
-use Magento\GiftCardAccount\Model\GiftcardAccountRepository;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
+use Magento\GiftCardAccount\Model\GiftcardAccountRepository;
+use Magento\Sales\Model\Order;
 
 class GiftCardRefundService
 {

@@ -39,6 +39,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Transfer;
 use Buckaroo\Magento2\Model\GroupTransaction;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
+use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\LocalizedException;
@@ -49,7 +50,6 @@ use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Payment;
 use Magento\Sales\Model\Order\Payment as OrderPayment;
 use Magento\Sales\Model\Order\Payment\Transaction;
-use Buckaroo\Magento2\Model\Push\GiftCardRefundService;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)

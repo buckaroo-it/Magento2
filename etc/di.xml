@@ -505,15 +505,10 @@
         </arguments>
     </type>
 
-    <type name="Buckaroo\Magento2\Model\Push\DefaultProcessor">
-        <arguments>
-            <argument name="giftCardRefundService" xsi:type="object">Buckaroo\Magento2\Service\GiftCardRefundService</argument>
-        </arguments>
-    </type>
-
+    <!-- Define dependencies for GiftCardRefundService -->
     <type name="Buckaroo\Magento2\Service\GiftCardRefundService">
         <arguments>
-            <argument name="giftCardRepository" xsi:type="object">Magento\GiftCardAccount\Model\GiftcardAccountRepository</argument>
+            <argument name="giftCardRepo" xsi:type="object">Magento\GiftCardAccount\Model\GiftcardAccountRepository</argument>
         </arguments>
     </type>
 
