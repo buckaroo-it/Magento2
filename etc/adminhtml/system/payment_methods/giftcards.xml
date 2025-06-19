@@ -42,7 +42,7 @@
             <comment><![CDATA[This controls the description which the user sees during checkout.]]></comment>
             <config_path>payment/buckaroo_magento2_giftcards/subtext</config_path>
         </field>
-        
+
         <field id="subtext_style" translate="label comment" type="select" sortOrder="26" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Frontend subtext style</label>
             <comment><![CDATA[Choose a font style for the subtext.]]></comment>
@@ -75,9 +75,9 @@
                 <source_model>Buckaroo\Magento2\Model\Config\Source\Giftcards</source_model>
             </field>
 
-            <field id="sort_giftcards" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+            <field id="sorted_giftcards" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Sort Giftcards</label>
-                <frontend_model>Buckaroo\Magento2\Block\Adminhtml\Giftcard\Sort</frontend_model>
+                <frontend_model>Buckaroo\Magento2\Block\Adminhtml\Form\Field\SortIssuers</frontend_model>
                 <comment><![CDATA[Select sort order Giftcards.]]></comment>
                 <config_path>payment/buckaroo_magento2_giftcards/sorted_giftcards</config_path>
             </field>
@@ -98,14 +98,14 @@
                 <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 <config_path>buckaroo_magento2/account/advanced_export_giftcards</config_path>
             </field>
-            
+
             <field id="order_email" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Send order confirmation email</label>
                 <comment><![CDATA[Enable to send an order confirmation email to the customer when the creating of the order is successful. Specific for this payment method.]]></comment>
                 <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 <config_path>payment/buckaroo_magento2_giftcards/order_email</config_path>
             </field>
-            
+
             <field id="active_status" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Method specific status enabled</label>
                 <comment><![CDATA[Enable or disable specific status.]]></comment>

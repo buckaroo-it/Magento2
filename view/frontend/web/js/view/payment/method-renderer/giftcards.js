@@ -120,16 +120,42 @@ define(
                 },
 
                 validate: function() {
-                    return this.alreadyFullPayed() === true || this.buckaroo.groupGiftcards === true;
+                    // If already fully paid, validation passes
+                    if (this.alreadyFullPayed() === true) {
+                        return true;
+                    }
+                    
+                    // For grouped mode (redirect), no validation needed
+                    if (this.buckaroo.groupGiftcards === true) {
+                        return true;
+                    }
+                    
+                    // For individual mode, check if a giftcard is selected
+                    if (!this.buckaroo.groupGiftcards && this.currentGiftcard()) {
+                        return true;
+                    }
+                    
+                    return false;
                 },
 
                 validateForm: function () {
-                    return $('.buckaroo_magento2_' + this.currentGiftcard() + ' .payment-method-second-col form').valid();
-                },
-
-                selectGiftCardPaymentMethod: function (code) {
-                    this.selectPaymentMethod();
-                    this.setTestParameters(code);
+                    // For individual giftcard mode, find the form within the specific giftcard container
+                    if (!this.buckaroo.groupGiftcards) {
+                        var giftcardSelector = '.buckaroo_magento2_' + this.currentGiftcard() + ' form';
+                        var $form = $(giftcardSelector);
+                        if ($form.length > 0) {
+                            return $form.valid();
+                        }
+                    }
+                    
+                    // For grouped mode or fallback, use the general form selector
+                    var $generalForm = $('.buckaroo_magento2_giftcards .payment-method-second-col form');
+                    if ($generalForm.length > 0) {
+                        return $generalForm.valid();
+                    }
+                    
+                    // If no form found, return true to avoid blocking
+                    return true;
                 },
 
                 getData: function () {
@@ -197,16 +223,71 @@ define(
                     });
 
                 },
-                setTestParameters(giftcardCode) {
-                    let cardNumber =''
+                /**
+                 * Select giftcard method in individual mode
+                 */
+                selectGiftcardMethod: function(giftcardCode) {
+                    this.selectPaymentMethod();
+                    this.currentGiftcard(giftcardCode);
+                    this.setTestParameters(giftcardCode);
+                    return true;
+                },
+
+                /**
+                 * Debug function to check groupGiftcards value
+                 */
+                debugGroupGiftcards: function() {
+                    console.log('=== GIFTCARDS DEBUG ===');
+                    console.log('buckaroo:', this.buckaroo);
+                    console.log('groupGiftcards raw value:', this.buckaroo.groupGiftcards);
+                    console.log('groupGiftcards type:', typeof this.buckaroo.groupGiftcards);
+                    console.log('groupGiftcards == 0:', this.buckaroo.groupGiftcards == 0);
+                    console.log('groupGiftcards === false:', this.buckaroo.groupGiftcards === false);
+                    console.log('groupGiftcards === "0":', this.buckaroo.groupGiftcards === '0');
+                    console.log('groupGiftcards == 1:', this.buckaroo.groupGiftcards == 1);
+                    console.log('groupGiftcards === true:', this.buckaroo.groupGiftcards === true);
+                    console.log('groupGiftcards === "1":', this.buckaroo.groupGiftcards === '1');
+                    console.log('Should show individual:', this.shouldShowIndividual());
+                    console.log('Should show grouped:', this.shouldShowGrouped());
+                    console.log('======================');
+                    return true;
+                },
+
+                /**
+                 * Determine if individual giftcards should show
+                 */
+                shouldShowIndividual: function() {
+                    var groupGiftcards = this.buckaroo.groupGiftcards;
+                    return (groupGiftcards == 0 || groupGiftcards === false || groupGiftcards === '0' || groupGiftcards === 0);
+                },
+
+                /**
+                 * Determine if grouped giftcards should show
+                 */
+                shouldShowGrouped: function() {
+                    var groupGiftcards = this.buckaroo.groupGiftcards;
+                    return (groupGiftcards == 1 || groupGiftcards === true || groupGiftcards === '1' || groupGiftcards === 1);
+                },
+
+                setTestParameters: function(giftcardCode) {
+                    // Allow function to work with both direct code parameter and event object
+                    var code = giftcardCode;
+                    if (typeof giftcardCode === 'object' && giftcardCode.target) {
+                        code = giftcardCode.target.value;
+                    }
+                    if (!code && this.currentGiftcard()) {
+                        code = this.currentGiftcard();
+                    }
+
+                    let cardNumber = '';
                     let pin = '';
                     if (this.buckaroo.isTestMode && !this.buckaroo.groupGiftcards) {
-                        if (["boekenbon","vvvgiftcard","yourgift","customgiftcard","customgiftcard1","customgiftcard2"].indexOf(giftcardCode) !== -1) {
+                        if (["boekenbon","vvvgiftcard","yourgift","customgiftcard","customgiftcard1","customgiftcard2"].indexOf(code) !== -1) {
                             cardNumber = '0000000000000000001';
                             pin = '1000';
                         }
 
-                        if (giftcardCode === 'fashioncheque') {
+                        if (code === 'fashioncheque') {
                             cardNumber = '1000001000';
                             pin = '2000';
                         }

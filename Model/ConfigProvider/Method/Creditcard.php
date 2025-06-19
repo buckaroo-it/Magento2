@@ -136,20 +136,37 @@ class Creditcard extends AbstractConfigProvider
     }
 
     /**
-     * Get all issuers not sorted
+     * Get all available issuers filtered by allowed selection
      *
      * @return array
      */
     public function getAllIssuers(): array
     {
-        $issuers = $this->getIssuers();
-        $issuersPrepared = [];
-        foreach ($issuers as $issuer) {
-            $issuer['img'] = $this->getImageUrl($issuer['code']);
-            $issuersPrepared[$issuer['code']] = $issuer;
+        $allowedCodes = $this->getAllowedCreditcards();
+        
+        if (empty($allowedCodes)) {
+            return [];
         }
-
-        return $issuersPrepared;
+        
+        $allowedCodesArray = explode(',', $allowedCodes);
+        
+        // Convert allowed codes to lowercase for case-insensitive comparison
+        $allowedLowercase = array_map('strtolower', $allowedCodesArray);
+        
+        $allIssuers = [];
+        
+        foreach ($this->getIssuers() as $issuer) {
+            // Compare with case-insensitive logic
+            if (in_array(strtolower($issuer['code']), $allowedLowercase)) {
+                $allIssuers[$issuer['code']] = [
+                    'name' => $issuer['name'],
+                    'code' => $issuer['code'],
+                    'img' => $this->getImageUrl($issuer['code'])
+                ];
+            }
+        }
+        
+        return $allIssuers;
     }
 
     /**
@@ -253,7 +270,14 @@ class Creditcard extends AbstractConfigProvider
      */
     public function getSortedIssuers($storeId = null): ?string
     {
-        return $this->getMethodConfigValue(self::XPATH_SORTED_ISSUERS, $storeId);
+        $sortedIssuers = $this->getMethodConfigValue(self::XPATH_SORTED_ISSUERS, $storeId);
+        
+        // Convert __EMPTY__ placeholder back to empty string
+        if ($sortedIssuers === '__EMPTY__') {
+            return '';
+        }
+        
+        return $sortedIssuers;
     }
 
     /**

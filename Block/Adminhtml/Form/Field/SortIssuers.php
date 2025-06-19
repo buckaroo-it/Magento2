@@ -150,7 +150,10 @@ class SortIssuers extends Field
 
     private function getSelector($elementName)
     {
-        return str_replace('sorted_issuers', 'allowed_issuers', $elementName);
+        $selector = str_replace('sorted_issuers', 'allowed_issuers', $elementName);
+        $selector = str_replace('sorted_giftcards', 'allowed_giftcards', $selector);
+
+        return $selector;
     }
 
     public function getConfiguration($elementName = '')

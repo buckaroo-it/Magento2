@@ -24,12 +24,14 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Helper\PaymentFee;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
+use Buckaroo\Magento2\Model\Config\Source\Giftcards as GiftcardsSource;
 use Buckaroo\Magento2\Service\LogoService;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\UrlInterface;
 use Magento\Framework\View\Asset\Repository;
+use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 class Giftcards extends AbstractConfigProvider
@@ -38,7 +40,7 @@ class Giftcards extends AbstractConfigProvider
 
     public const XPATH_GIFTCARDS_ALLOWED_GIFTCARDS       = 'allowed_giftcards';
     public const XPATH_GIFTCARDS_GROUP_GIFTCARDS         = 'group_giftcards';
-    public const XPATH_GIFTCARDS_SORT                    = 'sorted_giftcards';
+    public const XPATH_GIFTCARDS_SORTED_GIFTCARDS        = 'sorted_giftcards';
     public const XPATH_ACCOUNT_ADVANCED_EXPORT_GIFTCARDS = 'buckaroo_magento2/account/advanced_export_giftcards';
     public const XPATH_GIFTCARDS_PAYMENT_FEE          = 'payment/buckaroo_magento2_giftcards/payment_fee';
 
@@ -61,6 +63,11 @@ class Giftcards extends AbstractConfigProvider
     private ResourceConnection $resourceConnection;
 
     /**
+     * @var GiftcardsSource
+     */
+    private GiftcardsSource $giftcardsSource;
+
+    /**
      * @param Repository $assetRepo
      * @param ScopeConfigInterface $scopeConfig
      * @param AllowedCurrencies $allowedCurrencies
@@ -68,6 +75,7 @@ class Giftcards extends AbstractConfigProvider
      * @param LogoService $logoService
      * @param StoreManagerInterface $storeManager
      * @param ResourceConnection $resourceConnection
+     * @param GiftcardsSource $giftcardsSource
      */
     public function __construct(
         Repository $assetRepo,
@@ -76,11 +84,13 @@ class Giftcards extends AbstractConfigProvider
         PaymentFee $paymentFeeHelper,
         LogoService $logoService,
         StoreManagerInterface $storeManager,
-        ResourceConnection $resourceConnection
+        ResourceConnection $resourceConnection,
+        GiftcardsSource $giftcardsSource
     ) {
         parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper, $logoService);
         $this->storeManager = $storeManager;
         $this->resourceConnection = $resourceConnection;
+        $this->giftcardsSource = $giftcardsSource;
     }
 
     /**
@@ -114,10 +124,11 @@ class Giftcards extends AbstractConfigProvider
 
     public function getAvailableGiftcards()
     {
-        $sort = (string)$this->getSort();
+        $sort = (string)$this->getSortedGiftcards();
+        $sortedArray = [];
 
         if (!empty($sort)) {
-            $sorted = explode(',', (string)$this->getSort());
+            $sorted = explode(',', $sort);
             $sortedPosition = 1;
             foreach ($sorted as $cardName) {
                 $sortedArray[$cardName] = $sortedPosition++;
@@ -127,8 +138,10 @@ class Giftcards extends AbstractConfigProvider
         $connection = $this->resourceConnection->getConnection();
         $tableName = $this->resourceConnection->getTableName('buckaroo_magento2_giftcard');
         $result = $connection->fetchAll("SELECT * FROM " . $tableName);
+
+        $allGiftCards = [];
         foreach ($result as $item) {
-            $item['sort'] = $sortedArray[$item['label']] ?? '99';
+            $item['sort'] = $sortedArray[$item['servicecode']] ?? '99';
             $allGiftCards[$item['servicecode']] = $item;
         }
 
@@ -162,16 +175,7 @@ class Giftcards extends AbstractConfigProvider
         return $cards;
     }
 
-    /**
-     * Get Giftcards Sort Order
-     *
-     * @param $store
-     * @return mixed|null
-     */
-    public function getSort($store = null)
-    {
-        return $this->getMethodConfigValue(self::XPATH_GIFTCARDS_SORT, $store);
-    }
+
 
     /**
      * Get Allowed Giftcards
@@ -182,6 +186,117 @@ class Giftcards extends AbstractConfigProvider
     public function getAllowedGiftcards($store = null)
     {
         return $this->getMethodConfigValue(self::XPATH_GIFTCARDS_ALLOWED_GIFTCARDS, $store);
+    }
+
+    /**
+     * Get Sorted Giftcards
+     *
+     * @param $store
+     * @return mixed|null
+     */
+    public function getSortedGiftcards($store = null)
+    {
+        return $this->getMethodConfigValue(self::XPATH_GIFTCARDS_SORTED_GIFTCARDS, $store);
+    }
+
+    /**
+     * Get Sorted Issuers (alias for getSortedGiftcards for SortIssuers block compatibility)
+     *
+     * @param $store
+     * @return mixed|null
+     */
+    public function getSortedIssuers($store = null)
+    {
+        $sorted = $this->getSortedGiftcards($store);
+
+        // Handle empty placeholder - return empty string instead of __EMPTY__
+        if ($sorted === '__EMPTY__') {
+            return '';
+        }
+
+        return $sorted;
+    }
+
+    /**
+     * Get all available giftcard issuers for the SortIssuers block
+     * Uses the same source model as the admin multiselect to ensure consistency
+     *
+     * @return array
+     * @throws NoSuchEntityException
+     */
+    public function getAllIssuers(): array
+    {
+        // Get only allowed giftcards
+        $allowedCards = $this->getAllowedGiftcards();
+        if (empty($allowedCards)) {
+            return [];
+        }
+
+        $allowedCodesArray = explode(',', (string)$allowedCards);
+
+        // Remove any empty values from the array
+        $allowedCodesArray = array_filter($allowedCodesArray, function($value) {
+            return !empty(trim($value));
+        });
+
+        if (empty($allowedCodesArray)) {
+            return [];
+        }
+
+        // Use the same source model as the admin multiselect
+        $allGiftcards = $this->giftcardsSource->toOptionArray();
+
+        $issuers = [];
+
+        foreach ($allGiftcards as $giftcard) {
+            $code = $giftcard['value'];
+            $name = $giftcard['label'];
+
+            // Skip empty values or "no giftcards" message
+            if (empty($code) || strpos($name, 'You have not yet added') !== false) {
+                continue;
+            }
+
+            // Only include if this giftcard is in the allowed list
+            if (!in_array($code, $allowedCodesArray)) {
+                continue;
+            }
+
+            $logo = $this->getGiftcardLogo($code);
+
+            // Try to get custom logo from database
+            $connection = $this->resourceConnection->getConnection();
+            $tableName = $this->resourceConnection->getTableName('buckaroo_magento2_giftcard');
+            $dbRecord = $connection->fetchRow(
+                "SELECT logo FROM " . $tableName . " WHERE servicecode = ?",
+                [$code]
+            );
+
+            if ($dbRecord && !empty($dbRecord['logo'])) {
+                $logo = $this->storeManager->getStore()->getBaseUrl(
+                    UrlInterface::URL_TYPE_MEDIA
+                ) . $dbRecord['logo'];
+            }
+
+            $issuers[$code] = [
+                'code' => $code,
+                'name' => $name,
+                'img' => $logo
+            ];
+        }
+
+        return $issuers;
+    }
+
+    /**
+     * Format issuers for display
+     *
+     * @return array
+     * @throws NoSuchEntityException
+     */
+    public function formatIssuers(): array
+    {
+        return $this->getAllIssuers();
     }
 
     /**
@@ -233,7 +348,7 @@ class Giftcards extends AbstractConfigProvider
     {
         $paymentFee = $this->scopeConfig->getValue(
             self::XPATH_GIFTCARDS_PAYMENT_FEE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            ScopeInterface::SCOPE_STORE,
             $storeId
         );
 
