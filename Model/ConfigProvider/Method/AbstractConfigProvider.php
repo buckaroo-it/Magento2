@@ -462,7 +462,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      *
      * @return boolean
      */
-    protected function canShowFinancialWarning($store = null): bool
+    public function canShowFinancialWarning($store = null): bool
     {
         return $this->getMethodConfigValue(static::FINANCIAL_WARNING, $store) !== "0";
     }
