@@ -49,6 +49,8 @@ use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Payment;
 use Magento\Sales\Model\Order\Payment as OrderPayment;
 use Magento\Sales\Model\Order\Payment\Transaction;
+use Magento\GiftCard\Api\GiftCardRepositoryInterface;
+use Magento\GiftCard\Api\GiftCardManagementInterface;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -129,10 +131,8 @@ class DefaultProcessor implements PushProcessorInterface
      */
     protected OrderStatusFactory $orderStatusFactory;
 
-    /**
-     * @var \Magento\GiftCardAccount\Model\GiftcardAccountRepository|null
-     */
-    private $giftCardRepository;
+    private GiftCardRepositoryInterface $giftCardRepository;
+    private GiftCardManagementInterface $giftCardManagement;
 
     /**
      * @param OrderRequestService $orderRequestService
@@ -144,7 +144,6 @@ class DefaultProcessor implements PushProcessorInterface
      * @param BuckarooStatusCode $buckarooStatusCode
      * @param OrderStatusFactory $orderStatusFactory
      * @param Account $configAccount
-     * @param \Magento\GiftCardAccount\Model\GiftcardAccountRepository|null $giftCardRepository
      */
     public function __construct(
         OrderRequestService $orderRequestService,
@@ -156,7 +155,9 @@ class DefaultProcessor implements PushProcessorInterface
         BuckarooStatusCode $buckarooStatusCode,
         OrderStatusFactory $orderStatusFactory,
         Account $configAccount,
-        $giftCardRepository = null
+        GiftCardRepositoryInterface $giftCardRepository,
+        GiftCardManagementInterface $giftCardManagement
+
     ) {
         $this->pushTransactionType = $pushTransactionType;
         $this->orderRequestService = $orderRequestService;
@@ -169,6 +170,7 @@ class DefaultProcessor implements PushProcessorInterface
         $this->orderStatusFactory = $orderStatusFactory;
         $this->configAccount = $configAccount;
         $this->giftCardRepository = $giftCardRepository;
+        $this->giftCardManagement = $giftCardRepository;
     }
 
     /**
@@ -1286,17 +1288,12 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * Refund gift cards when payment fails and order is cancelled
+     * Refund gift cards when payment fails and order is cancelled (Adobe Commerce)
      *
      * @return void
      */
     private function refundGiftCardsOnFailedPayment(): void
     {
-        // Skip if Adobe Commerce gift card functionality is not available
-        if (!class_exists(\Magento\GiftCardAccount\Model\GiftcardAccountRepository::class)) {
-            return;
-        }
-
         $giftCards = $this->order->getGiftCards();
         if (empty($giftCards)) {
             return;
@@ -1313,13 +1310,8 @@ class DefaultProcessor implements PushProcessorInterface
             return;
         }
 
-        $giftCardRepo = $this->getGiftCardRepository();
-        if (!$giftCardRepo) {
-            return;
-        }
-
         foreach ($giftCardData as $card) {
-            $this->processGiftCardRefund($card, $giftCardRepo);
+            $this->processGiftCardRefund($card);
         }
     }
 
@@ -1352,15 +1344,13 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * Process individual gift card refund
+     * Process individual gift card refund (Adobe Commerce)
      *
      * @param array $card
-     * @param \Magento\GiftCardAccount\Model\GiftcardAccountRepository $giftCardRepo
      * @return void
      */
-    private function processGiftCardRefund(array $card, $giftCardRepo): void
+    private function processGiftCardRefund(array $card): void
     {
-        // Validate required card data
         if (!isset($card['gift_card_account_id']) || !isset($card['amount'])) {
             $this->logger->addError(sprintf(
                 '[%s:%s] - Invalid gift card data structure for order #%s',
@@ -1386,16 +1376,13 @@ class DefaultProcessor implements PushProcessorInterface
         }
 
         try {
-            $giftCardAccount = $giftCardRepo->getById($giftCardId);
-            $originalBalance = $giftCardAccount->getBalance();
-            $newBalance = $originalBalance + $amount;
+            $giftCard = $this->giftCardRepository->getById($giftCardId);
+            $code = $giftCard->getCode();
 
-            $giftCardAccount->setBalance($newBalance);
-            $giftCardRepo->save($giftCardAccount);
+            // This handles audit trail and transaction history automatically
+            $this->giftCardManagement->refund($code, $amount);
 
-            // Use dynamic currency formatting instead of hard-coded €
             $formattedAmount = $this->order->getBaseCurrency()->formatTxt($amount);
-
             $this->order->addCommentToStatusHistory(sprintf(
                 'Refunded %s back to gift card #%s after failed payment.',
                 $formattedAmount,
@@ -1410,7 +1397,6 @@ class DefaultProcessor implements PushProcessorInterface
                 $giftCardId,
                 $this->order->getIncrementId()
             ));
-
         } catch (\Exception $e) {
             $this->logger->addError(sprintf(
                 '[%s:%s] - Gift card refund failed | Order #%s | GiftCard #%s | ERROR: %s',
