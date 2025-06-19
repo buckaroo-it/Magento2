@@ -62,14 +62,14 @@ class GiftCardRefundService
     private function refundCard(Order $order, array $card): void
     {
         try {
-            $id = $card['gift_card_account_id'] ?? null;
-            $amount = (float)($card['amount'] ?? 0);
+            $id = $card['i'] ?? null;             // correct: gift_card_account_id
+            $amount = (float)($card['a'] ?? 0);   // correct: refund amount
 
             if (!$id || $amount <= 0) {
                 $this->logger->addDebug(sprintf(
-                    '[GiftCardRefundService] Skipping invalid card data: ID=%s, Amount=%s',
+                    '[GiftCardRefundService] Skipping invalid card: ID=%s, Amount=%.2f',
                     var_export($id, true),
-                    var_export($amount, true)
+                    $amount
                 ));
                 return;
             }
@@ -85,12 +85,9 @@ class GiftCardRefundService
 
             $newBalance = $account->getBalance() + $amount;
             $account->setBalance($newBalance);
-
             $this->giftCardRepo->save($account);
 
-            // Fetch again to confirm saved
             $reloaded = $this->giftCardRepo->getById($id);
-
             $this->logger->addDebug(sprintf(
                 '[GiftCardRefundService] After save: gift card #%s balance is now %.2f',
                 $id,
@@ -105,8 +102,7 @@ class GiftCardRefundService
 
         } catch (\Throwable $e) {
             $this->logger->error(sprintf(
-                '[GiftCardRefundService] Error refunding gift card #%s: %s',
-                $card['gift_card_account_id'] ?? 'n/a',
+                '[GiftCardRefundService] Error refunding gift card: %s',
                 $e->getMessage()
             ));
         }
