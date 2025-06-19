@@ -52,7 +52,8 @@ class GiftCardRefundService
             $this->logger->error("Invalid gift card data for order {$order->getIncrementId()}");
             return;
         }
-
+        $this->logger->addDebug('[GiftCardRefundService] Raw gift card JSON: ' . $giftCards);
+        $this->logger->addDebug('[GiftCardRefundService] Parsed gift card data: ' . print_r($data, true));
         foreach ($data as $card) {
             $this->refundCard($order, $card);
         }
