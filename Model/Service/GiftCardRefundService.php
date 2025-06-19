@@ -45,7 +45,7 @@ class GiftCardRefundService
 
     public function refund(Order $order): void
     {
-        $this->logger->addDebug('[GiftCardRefundService] - started');
+        $this->logger->addDebug('[GiftCardRefundService] Processing refund for order #' . $order->getIncrementId());
 
         $giftCards = $order->getGiftCards();
         if (empty($giftCards)) {
@@ -58,8 +58,7 @@ class GiftCardRefundService
             return;
         }
 
-        $this->logger->addDebug('[GiftCardRefundService] Raw gift card JSON: ' . $giftCards);
-        $this->logger->addDebug('[GiftCardRefundService] Parsed gift card data: ' . print_r($data, true));
+        $this->logger->addDebug('[GiftCardRefundService] Found ' . count($data) . ' gift cards to refund');
 
         foreach ($data as $card) {
             $this->refundCard($order, $card);
@@ -69,8 +68,8 @@ class GiftCardRefundService
     private function refundCard(Order $order, array $card): void
     {
         try {
-            $id = $card['i'] ?? null;             // gift_card_account_id
-            $amount = (float)($card['a'] ?? 0);   // refund amount
+            $id = $card['i'] ?? null;
+            $amount = (float)($card['a'] ?? 0);
 
             if (!$id || $amount <= 0) {
                 $this->logger->addDebug(sprintf(
@@ -93,18 +92,7 @@ class GiftCardRefundService
             }
 
             $currentBalance = $account->getBalance();
-            $this->logger->addDebug(sprintf(
-                '[GiftCardRefundService] Loaded gift card #%s | Current balance: %.2f | Refund amount: %.2f',
-                $id,
-                $currentBalance,
-                $amount
-            ));
-
             $newBalance = $currentBalance + $amount;
-            $this->logger->addDebug(sprintf(
-                '[GiftCardRefundService] newbalance: %.2f',
-                $newBalance
-            ));
 
             if ($newBalance < 0) {
                 $this->logger->addDebug(sprintf(
@@ -116,12 +104,6 @@ class GiftCardRefundService
             }
 
             $account->setBalance($newBalance);
-
-            $this->logger->addDebug(sprintf(
-                '[GiftCardRefundService] Gift card #%s prepared for save with balance %.2f',
-                $id,
-                $newBalance
-            ));
 
             try {
                 $this->giftCardRepo->save($account);
@@ -138,10 +120,16 @@ class GiftCardRefundService
             try {
                 $history = $this->historyFactory->create();
                 $history->setGiftcardAccountId($id)
+                    ->setGiftcardAccount($account)
                     ->setAction(History::ACTION_CREATED)
                     ->setBalanceAmount($amount)
                     ->setUpdatedBalance($newBalance)
                     ->setAdditionalInfo('Refunded from cancelled order #' . $order->getIncrementId());
+
+                if ($history->getGiftcardAccount() === null) {
+                    throw new \Exception('Gift card account not properly assigned to history record');
+                }
+
                 $history->save();
             } catch (\Exception $e) {
                 $this->logger->addDebug(sprintf(
@@ -152,7 +140,8 @@ class GiftCardRefundService
             }
 
             $this->logger->addDebug(sprintf(
-                '[GiftCardRefundService] Successfully processed gift card #%s, balance updated to %.2f',
+                '[GiftCardRefundService] Successfully refunded %.2f to gift card #%s (balance: %.2f)',
+                $amount,
                 $id,
                 $newBalance
             ));
