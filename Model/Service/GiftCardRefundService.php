@@ -23,23 +23,23 @@ namespace Buckaroo\Magento2\Model\Service;
 
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\GiftCardAccount\Api\GiftCardAccountRepositoryInterface;
-use Magento\GiftCardAccount\Api\GiftCardAccountManagementInterface;
+use Magento\GiftCardAccount\Model\Manager as GiftCardManager;
 use Magento\Sales\Model\Order;
 
 class GiftCardRefundService
 {
     private $giftCardRepo;
-    private $giftCardManagement;
+    private $giftCardManager;
 
     private $logger;
 
     public function __construct(
         GiftCardAccountRepositoryInterface  $giftCardRepo,
-        GiftCardAccountManagementInterface $giftCardManagement,
+        GiftCardManager $giftCardManager,
         BuckarooLoggerInterface $logger
     ) {
         $this->giftCardRepo = $giftCardRepo;
-        $this->giftCardManagement = $giftCardManagement;
+        $this->giftCardManager = $giftCardManager;
         $this->logger = $logger;
     }
 
@@ -88,7 +88,7 @@ class GiftCardRefundService
                 $amount
             ));
 
-            $this->giftCardManagement->refund($account->getCode(), $amount);
+            $this->giftCardManager->returnGiftCardToAccount($order, $id, $amount);
 
             $reloaded = $this->giftCardRepo->getById($id);
             $this->logger->addDebug(sprintf(

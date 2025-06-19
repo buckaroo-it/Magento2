@@ -24,7 +24,7 @@
     <!-- Interfaces -->
     <preference for="Buckaroo\Magento2\Api\GiftcardRepositoryInterface" type="Buckaroo\Magento2\Model\GiftcardRepository"/>
     <preference for="Magento\GiftCardAccount\Api\GiftCardAccountRepositoryInterface" type="Magento\GiftCardAccount\Model\GiftCardAccountRepository"/>
-    <preference for="Magento\GiftCardAccount\Api\GiftCardAccountManagementInterface" type="Magento\GiftCardAccount\Model\GiftCardAccountManagement" />    <preference for="Buckaroo\Magento2\Api\GroupTransactionRepositoryInterface" type="Buckaroo\Magento2\Model\GroupTransactionRepository"/>
+    <preference for="Buckaroo\Magento2\Api\GroupTransactionRepositoryInterface" type="Buckaroo\Magento2\Model\GroupTransactionRepository"/>
     <preference for="Buckaroo\Magento2\Api\LogRepositoryInterface" type="Buckaroo\Magento2\Model\LogRepository"/>
     <preference for="Buckaroo\Magento2\Api\Data\LogInterface" type="Buckaroo\Magento2\Model\Data\Log"/>
     <preference for="Buckaroo\Magento2\Api\Data\LogSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
