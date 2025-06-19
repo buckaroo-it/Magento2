@@ -29,6 +29,7 @@ use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Paypal as PaypalConfig;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
+use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\TransactionInterface;
@@ -47,6 +48,7 @@ class PaypalProcessor extends DefaultProcessor
      * @param BuckarooStatusCode $buckarooStatusCode
      * @param OrderStatusFactory $orderStatusFactory
      * @param Account $configAccount
+     * @param GiftCardRefundService $giftCardRefundService
      * @param PaypalConfig $paypalConfig
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
@@ -61,6 +63,7 @@ class PaypalProcessor extends DefaultProcessor
         BuckarooStatusCode $buckarooStatusCode,
         OrderStatusFactory $orderStatusFactory,
         Account $configAccount,
+        GiftCardRefundService $giftCardRefundService,
         PaypalConfig $paypalConfig
     ) {
         parent::__construct(
@@ -72,7 +75,8 @@ class PaypalProcessor extends DefaultProcessor
             $groupTransaction,
             $buckarooStatusCode,
             $orderStatusFactory,
-            $configAccount
+            $configAccount,
+            $giftCardRefundService
         );
         $this->paypalConfig = $paypalConfig;
     }
