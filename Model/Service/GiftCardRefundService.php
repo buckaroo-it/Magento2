@@ -81,49 +81,87 @@ class GiftCardRefundService
                 return;
             }
 
-            $account = $this->giftCardRepo->get($id);
+            try {
+                $account = $this->giftCardRepo->get($id);
+            } catch (\Exception $e) {
+                $this->logger->addDebug(sprintf(
+                    '[GiftCardRefundService] Failed to load gift card #%s: %s',
+                    $id,
+                    $e->getMessage()
+                ));
+                return;
+            }
 
+            $currentBalance = $account->getBalance();
             $this->logger->addDebug(sprintf(
                 '[GiftCardRefundService] Loaded gift card #%s | Current balance: %.2f | Refund amount: %.2f',
                 $id,
-                $account->getBalance(),
+                $currentBalance,
                 $amount
             ));
 
-            $newBalance = $account->getBalance() + $amount;
+            $newBalance = $currentBalance + $amount;
             $this->logger->addDebug(sprintf(
-                '[GiftCardRefundService] newbalance: %s',
+                '[GiftCardRefundService] newbalance: %.2f',
                 $newBalance
             ));
+
+            if ($newBalance < 0) {
+                $this->logger->addDebug(sprintf(
+                    '[GiftCardRefundService] Invalid new balance %.2f for gift card #%s',
+                    $newBalance,
+                    $id
+                ));
+                return;
+            }
+
             $account->setBalance($newBalance);
 
             $this->logger->addDebug(sprintf(
-                '[GiftCardRefundService] account: : %s',
-                $account
+                '[GiftCardRefundService] Gift card #%s prepared for save with balance %.2f',
+                $id,
+                $newBalance
             ));
-            $this->giftCardRepo->save($account);
 
+            try {
+                $this->giftCardRepo->save($account);
+            } catch (\Exception $e) {
+                $this->logger->addDebug(sprintf(
+                    '[GiftCardRefundService] Failed to save gift card #%s: %s',
+                    $id,
+                    $e->getMessage()
+                ));
+                return;
+            }
 
-
-            // Log history entry (optional but useful for tracking)
-            $history = $this->historyFactory->create();
-            $history->setGiftcardAccountId($id)
-                ->setAction(History::ACTION_CREATED)
-                ->setBalanceAmount($amount)
-                ->setUpdatedBalance($newBalance)
-                ->setAdditionalInfo(__('Refunded from cancelled order #%1', $order->getIncrementId()));
-            $history->save();
+            // Log history entry with proper error handling
+            try {
+                $history = $this->historyFactory->create();
+                $history->setGiftcardAccountId($id)
+                    ->setAction(History::ACTION_CREATED)
+                    ->setBalanceAmount($amount)
+                    ->setUpdatedBalance($newBalance)
+                    ->setAdditionalInfo('Refunded from cancelled order #' . $order->getIncrementId());
+                $history->save();
+            } catch (\Exception $e) {
+                $this->logger->addDebug(sprintf(
+                    '[GiftCardRefundService] Failed to save history for gift card #%s: %s',
+                    $id,
+                    $e->getMessage()
+                ));
+            }
 
             $this->logger->addDebug(sprintf(
-                '[GiftCardRefundService] After save: gift card #%s balance is now %.2f',
+                '[GiftCardRefundService] Successfully processed gift card #%s, balance updated to %.2f',
                 $id,
                 $newBalance
             ));
 
             $order->addCommentToStatusHistory(sprintf(
-                'Refunded %.2f to gift card #%s.',
+                'Refunded %.2f to gift card #%s. New balance: %.2f',
                 $amount,
-                $id
+                $id,
+                $newBalance
             ));
 
         } catch (\Throwable $e) {
