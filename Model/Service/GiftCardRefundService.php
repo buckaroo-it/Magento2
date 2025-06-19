@@ -23,23 +23,23 @@ namespace Buckaroo\Magento2\Model\Service;
 
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\GiftCardAccount\Api\GiftCardAccountRepositoryInterface;
-use Magento\GiftCardAccount\Model\Manager as GiftCardManager;
+use Magento\GiftCardAccount\Model\HistoryFactory;
+use Magento\GiftCardAccount\Model\History;
 use Magento\Sales\Model\Order;
 
 class GiftCardRefundService
 {
-    private $giftCardRepo;
-    private $giftCardManager;
-
-    private $logger;
+    private GiftCardAccountRepositoryInterface $giftCardRepo;
+    private HistoryFactory $historyFactory;
+    private BuckarooLoggerInterface $logger;
 
     public function __construct(
-        GiftCardAccountRepositoryInterface  $giftCardRepo,
-        GiftCardManager $giftCardManager,
+        GiftCardAccountRepositoryInterface $giftCardRepo,
+        HistoryFactory $historyFactory,
         BuckarooLoggerInterface $logger
     ) {
         $this->giftCardRepo = $giftCardRepo;
-        $this->giftCardManager = $giftCardManager;
+        $this->historyFactory = $historyFactory;
         $this->logger = $logger;
     }
 
@@ -57,8 +57,10 @@ class GiftCardRefundService
             $this->logger->addDebug("Invalid gift card data for order {$order->getIncrementId()}");
             return;
         }
+
         $this->logger->addDebug('[GiftCardRefundService] Raw gift card JSON: ' . $giftCards);
         $this->logger->addDebug('[GiftCardRefundService] Parsed gift card data: ' . print_r($data, true));
+
         foreach ($data as $card) {
             $this->refundCard($order, $card);
         }
@@ -67,8 +69,8 @@ class GiftCardRefundService
     private function refundCard(Order $order, array $card): void
     {
         try {
-            $id = $card['i'] ?? null;             // correct: gift_card_account_id
-            $amount = (float)($card['a'] ?? 0);   // correct: refund amount
+            $id = $card['i'] ?? null;             // gift_card_account_id
+            $amount = (float)($card['a'] ?? 0);   // refund amount
 
             if (!$id || $amount <= 0) {
                 $this->logger->addDebug(sprintf(
@@ -88,13 +90,23 @@ class GiftCardRefundService
                 $amount
             ));
 
-            $this->giftCardManager->returnGiftCardToAccount($order, $id, $amount);
+            $newBalance = $account->getBalance() + $amount;
+            $account->setBalance($newBalance);
+            $this->giftCardRepo->save($account);
 
-            $reloaded = $this->giftCardRepo->get($id);
+            // Log history entry (optional but useful for tracking)
+            $history = $this->historyFactory->create();
+            $history->setGiftcardAccountId($id)
+                ->setAction(History::ACTION_CREATED)
+                ->setBalanceAmount($amount)
+                ->setUpdatedBalance($newBalance)
+                ->setAdditionalInfo(__('Refunded from cancelled order #%1', $order->getIncrementId()));
+            $history->save();
+
             $this->logger->addDebug(sprintf(
                 '[GiftCardRefundService] After save: gift card #%s balance is now %.2f',
                 $id,
-                $reloaded->getBalance()
+                $newBalance
             ));
 
             $order->addCommentToStatusHistory(sprintf(
