@@ -40,6 +40,8 @@ class GiftCardRefundService
 
     public function refund(Order $order): void
     {
+        $this->logger->addDebug('[GiftCardRefundService] - refund method called');
+
         $giftCards = $order->getGiftCards();
         if (empty($giftCards)) {
             return;
