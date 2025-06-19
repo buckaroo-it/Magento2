@@ -116,24 +116,30 @@ class GiftCardRefundService
                 return;
             }
 
-            // Log history entry with proper error handling
             try {
                 $history = $this->historyFactory->create();
+
+                $history->setGiftcardAccount($account);
+
                 $history->setGiftcardAccountId($id)
-                    ->setGiftcardAccount($account)
                     ->setAction(History::ACTION_CREATED)
                     ->setBalanceAmount($amount)
                     ->setUpdatedBalance($newBalance)
                     ->setAdditionalInfo('Refunded from cancelled order #' . $order->getIncrementId());
 
-                if ($history->getGiftcardAccount() === null) {
+                if ($history->getGiftcardAccount() === null || $history->getGiftcardAccountId() !== $id) {
                     throw new \Exception('Gift card account not properly assigned to history record');
                 }
 
                 $history->save();
+
+                $this->logger->addDebug(sprintf(
+                    '[GiftCardRefundService] History record created successfully for gift card #%s',
+                    $id
+                ));
             } catch (\Exception $e) {
                 $this->logger->addDebug(sprintf(
-                    '[GiftCardRefundService] Failed to save history for gift card #%s: %s',
+                    '[GiftCardRefundService] Failed to save history for gift card #%s: %s (History is non-critical, continuing)',
                     $id,
                     $e->getMessage()
                 ));
