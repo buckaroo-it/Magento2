@@ -505,8 +505,7 @@
         </arguments>
     </type>
 
-    <!-- Define dependencies for GiftCardRefundService -->
-    <type name="Buckaroo\Magento2\Service\GiftCardRefundService">
+    <type name="Buckaroo\Magento2\Model\Service\GiftCardRefundService">
         <arguments>
             <argument name="giftCardRepo" xsi:type="object">Magento\GiftCardAccount\Model\GiftcardAccountRepository</argument>
         </arguments>
