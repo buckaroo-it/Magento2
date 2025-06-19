@@ -49,8 +49,6 @@ use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Payment;
 use Magento\Sales\Model\Order\Payment as OrderPayment;
 use Magento\Sales\Model\Order\Payment\Transaction;
-use Magento\GiftCard\Api\GiftCardRepositoryInterface;
-use Magento\GiftCard\Api\GiftCardManagementInterface;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -58,7 +56,7 @@ use Magento\GiftCard\Api\GiftCardManagementInterface;
  */
 class DefaultProcessor implements PushProcessorInterface
 {
-    public const BUCKAROO_RECEIVED_TRANSACTIONS          = 'buckaroo_received_transactions';
+    public const BUCKAROO_RECEIVED_TRANSACTIONS = 'buckaroo_received_transactions';
     public const BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES = 'buckaroo_received_transactions_statuses';
 
     /**
@@ -131,8 +129,10 @@ class DefaultProcessor implements PushProcessorInterface
      */
     protected OrderStatusFactory $orderStatusFactory;
 
-    private GiftCardRepositoryInterface $giftCardRepository;
-    private GiftCardManagementInterface $giftCardManagement;
+    /**
+     * @var \Magento\GiftCardAccount\Model\GiftcardAccountRepository|null
+     */
+    private $giftCardRepository;
 
     /**
      * @param OrderRequestService $orderRequestService
@@ -144,21 +144,21 @@ class DefaultProcessor implements PushProcessorInterface
      * @param BuckarooStatusCode $buckarooStatusCode
      * @param OrderStatusFactory $orderStatusFactory
      * @param Account $configAccount
+     * @param GiftcardAccountRepository $giftCardRepository
      */
     public function __construct(
-        OrderRequestService $orderRequestService,
-        PushTransactionType $pushTransactionType,
-        BuckarooLoggerInterface $logger,
-        Data $helper,
-        TransactionInterface $transaction,
-        PaymentGroupTransaction $groupTransaction,
-        BuckarooStatusCode $buckarooStatusCode,
-        OrderStatusFactory $orderStatusFactory,
-        Account $configAccount,
-        GiftCardRepositoryInterface $giftCardRepository,
-        GiftCardManagementInterface $giftCardManagement
-
-    ) {
+        OrderRequestService       $orderRequestService,
+        PushTransactionType       $pushTransactionType,
+        BuckarooLoggerInterface   $logger,
+        Data                      $helper,
+        TransactionInterface      $transaction,
+        PaymentGroupTransaction   $groupTransaction,
+        BuckarooStatusCode        $buckarooStatusCode,
+        OrderStatusFactory        $orderStatusFactory,
+        Account                   $configAccount,
+        GiftcardAccountRepository $giftCardRepository,
+    )
+    {
         $this->pushTransactionType = $pushTransactionType;
         $this->orderRequestService = $orderRequestService;
         $this->logger = $logger;
@@ -170,7 +170,6 @@ class DefaultProcessor implements PushProcessorInterface
         $this->orderStatusFactory = $orderStatusFactory;
         $this->configAccount = $configAccount;
         $this->giftCardRepository = $giftCardRepository;
-        $this->giftCardManagement = $giftCardRepository;
     }
 
     /**
@@ -194,7 +193,7 @@ class DefaultProcessor implements PushProcessorInterface
 
         // Check if the order can be updated
         if (!$this->canUpdateOrderStatus()) {
-            $this->logger->addDebug('['. __METHOD__ .':'. __LINE__ . '] - Order can not receive updates');
+            $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Order can not receive updates');
 
             $this->orderRequestService->setOrderNotificationNote(__('The order has already been processed.'));
             throw new BuckarooException(
@@ -401,7 +400,7 @@ class DefaultProcessor implements PushProcessorInterface
             __LINE__,
             var_export([
                 'receivedTrxStatuses' => $receivedTrxStatuses,
-                'receivedStatusCode'  => $receivedStatusCode
+                'receivedStatusCode' => $receivedStatusCode
             ], true)
         ));
 
@@ -912,11 +911,11 @@ class DefaultProcessor implements PushProcessorInterface
      */
     protected function saveInvoice(): bool
     {
-        $this->logger->addDebug('['. __METHOD__ .':'. __LINE__ . '] - Save Invoice');
+        $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Save Invoice');
 
         if (!$this->forceInvoice
             && (!$this->order->canInvoice() || $this->order->hasInvoices())) {
-            $this->logger->addDebug('['. __METHOD__ .':'. __LINE__ . '] - Order can not be invoiced');
+            $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Order can not be invoiced');
 
             return false;
         }
@@ -954,13 +953,13 @@ class DefaultProcessor implements PushProcessorInterface
             if (!empty($this->pushRequest->getInvoiceNumber())
                 && $this->groupTransaction->isGroupTransaction($this->pushRequest->getInvoiceNumber())) {
                 $this->logger->addDebug(
-                    '['. __METHOD__ .':'. __LINE__ . '] - Set invoice state PAID group transaction'
+                    '[' . __METHOD__ . ':' . __LINE__ . '] - Set invoice state PAID group transaction'
                 );
                 $invoice->setState(Invoice::STATE_PAID);
             }
 
             if (!$invoice->getEmailSent() && $this->configAccount->getInvoiceEmail($this->order->getStore())) {
-                $this->logger->addDebug('['. __METHOD__ .':'. __LINE__ . '] - Send Invoice Email ');
+                $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Send Invoice Email ');
                 $this->orderRequestService->sendInvoiceEmail($invoice, true);
             }
         }
@@ -1043,7 +1042,7 @@ class DefaultProcessor implements PushProcessorInterface
         if (($this->order->getState() === Order::STATE_PROCESSING)
             && ($this->order->getStatus() === Order::STATE_PROCESSING)
         ) {
-            $this->logger->addDebug('['. __METHOD__ .':'. __LINE__ . '] - Do not update to failed if we had a success');
+            $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Do not update to failed if we had a success');
             return false;
         }
 
@@ -1344,7 +1343,7 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * Process individual gift card refund (Adobe Commerce)
+     * Process individual gift card refund (GiftCardAccount version)
      *
      * @param array $card
      * @return void
@@ -1376,11 +1375,15 @@ class DefaultProcessor implements PushProcessorInterface
         }
 
         try {
-            $giftCard = $this->giftCardRepository->getById($giftCardId);
-            $code = $giftCard->getCode();
+            $giftCardRepo = $this->getGiftCardRepository();
+            if (!$giftCardRepo) {
+                return;
+            }
 
-            // This handles audit trail and transaction history automatically
-            $this->giftCardManagement->refund($code, $amount);
+            $giftCard = $giftCardRepo->getById($giftCardId);
+            $newBalance = $giftCard->getBalance() + $amount;
+            $giftCard->setBalance($newBalance);
+            $giftCardRepo->save($giftCard);
 
             $formattedAmount = $this->order->getBaseCurrency()->formatTxt($amount);
             $this->order->addCommentToStatusHistory(sprintf(
