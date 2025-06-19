@@ -71,6 +71,8 @@ define(
                 },
                 redirectAfterPlaceOrder: false,
 
+
+
                 initObservable: function () {
                     this._super().observe(['alreadyFullPayed','cardNumber','pin', 'currentGiftcard']);
                     return this;
@@ -124,17 +126,17 @@ define(
                     if (this.alreadyFullPayed() === true) {
                         return true;
                     }
-                    
+
                     // For grouped mode (redirect), no validation needed
                     if (this.buckaroo.groupGiftcards === true) {
                         return true;
                     }
-                    
+
                     // For individual mode, check if a giftcard is selected
                     if (!this.buckaroo.groupGiftcards && this.currentGiftcard()) {
                         return true;
                     }
-                    
+
                     return false;
                 },
 
@@ -147,13 +149,13 @@ define(
                             return $form.valid();
                         }
                     }
-                    
+
                     // For grouped mode or fallback, use the general form selector
                     var $generalForm = $('.buckaroo_magento2_giftcards .payment-method-second-col form');
                     if ($generalForm.length > 0) {
                         return $generalForm.valid();
                     }
-                    
+
                     // If no form found, return true to avoid blocking
                     return true;
                 },
@@ -233,40 +235,22 @@ define(
                     return true;
                 },
 
-                /**
-                 * Debug function to check groupGiftcards value
-                 */
-                debugGroupGiftcards: function() {
-                    console.log('=== GIFTCARDS DEBUG ===');
-                    console.log('buckaroo:', this.buckaroo);
-                    console.log('groupGiftcards raw value:', this.buckaroo.groupGiftcards);
-                    console.log('groupGiftcards type:', typeof this.buckaroo.groupGiftcards);
-                    console.log('groupGiftcards == 0:', this.buckaroo.groupGiftcards == 0);
-                    console.log('groupGiftcards === false:', this.buckaroo.groupGiftcards === false);
-                    console.log('groupGiftcards === "0":', this.buckaroo.groupGiftcards === '0');
-                    console.log('groupGiftcards == 1:', this.buckaroo.groupGiftcards == 1);
-                    console.log('groupGiftcards === true:', this.buckaroo.groupGiftcards === true);
-                    console.log('groupGiftcards === "1":', this.buckaroo.groupGiftcards === '1');
-                    console.log('Should show individual:', this.shouldShowIndividual());
-                    console.log('Should show grouped:', this.shouldShowGrouped());
-                    console.log('======================');
-                    return true;
-                },
+
 
                 /**
-                 * Determine if individual giftcards should show
+                 * Determine if individual giftcards should show (Inline mode)
+                 * @returns {boolean} True for inline mode, false for redirect mode
                  */
                 shouldShowIndividual: function() {
-                    var groupGiftcards = this.buckaroo.groupGiftcards;
-                    return (groupGiftcards == 0 || groupGiftcards === false || groupGiftcards === '0' || groupGiftcards === 0);
+                    return !this.buckaroo.groupGiftcards;
                 },
 
                 /**
-                 * Determine if grouped giftcards should show
+                 * Determine if grouped giftcards should show (Redirect mode) 
+                 * @returns {boolean} True for redirect mode, false for inline mode
                  */
                 shouldShowGrouped: function() {
-                    var groupGiftcards = this.buckaroo.groupGiftcards;
-                    return (groupGiftcards == 1 || groupGiftcards === true || groupGiftcards === '1' || groupGiftcards === 1);
+                    return !!this.buckaroo.groupGiftcards;
                 },
 
                 setTestParameters: function(giftcardCode) {

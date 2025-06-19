@@ -25,9 +25,9 @@ use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Helper\PaymentFee;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 use Buckaroo\Magento2\Model\Config\Source\Giftcards as GiftcardsSource;
+use Buckaroo\Magento2\Model\ResourceModel\Giftcard\CollectionFactory as GiftcardCollectionFactory;
 use Buckaroo\Magento2\Service\LogoService;
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\UrlInterface;
 use Magento\Framework\View\Asset\Repository;
@@ -58,9 +58,9 @@ class Giftcards extends AbstractConfigProvider
     private StoreManagerInterface $storeManager;
 
     /**
-     * @var ResourceConnection
+     * @var GiftcardCollectionFactory
      */
-    private ResourceConnection $resourceConnection;
+    private GiftcardCollectionFactory $giftcardCollectionFactory;
 
     /**
      * @var GiftcardsSource
@@ -84,12 +84,12 @@ class Giftcards extends AbstractConfigProvider
         PaymentFee $paymentFeeHelper,
         LogoService $logoService,
         StoreManagerInterface $storeManager,
-        ResourceConnection $resourceConnection,
+        GiftcardCollectionFactory $giftcardCollectionFactory,
         GiftcardsSource $giftcardsSource
     ) {
         parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper, $logoService);
         $this->storeManager = $storeManager;
-        $this->resourceConnection = $resourceConnection;
+        $this->giftcardCollectionFactory = $giftcardCollectionFactory;
         $this->giftcardsSource = $giftcardsSource;
     }
 
@@ -106,7 +106,7 @@ class Giftcards extends AbstractConfigProvider
         }
 
         return $this->fullConfig([
-            'groupGiftcards'     => $this->getGroupGiftcards() == true,
+            'groupGiftcards'     => (int)$this->getGroupGiftcards() === 1,
             'availableGiftcards' => $this->getAvailableGiftcards(),
         ]);
     }
@@ -135,14 +135,18 @@ class Giftcards extends AbstractConfigProvider
             }
         }
 
-        $connection = $this->resourceConnection->getConnection();
-        $tableName = $this->resourceConnection->getTableName('buckaroo_magento2_giftcard');
-        $result = $connection->fetchAll("SELECT * FROM " . $tableName);
-
+        // Use proper collection instead of raw SQL
+        $giftcardCollection = $this->giftcardCollectionFactory->create();
+        
         $allGiftCards = [];
-        foreach ($result as $item) {
-            $item['sort'] = $sortedArray[$item['servicecode']] ?? '99';
-            $allGiftCards[$item['servicecode']] = $item;
+        foreach ($giftcardCollection as $giftcard) {
+            $servicecode = $giftcard->getServicecode();
+            $allGiftCards[$servicecode] = [
+                'servicecode' => $servicecode,
+                'label' => $giftcard->getLabel(),
+                'logo' => $giftcard->getLogo(),
+                'sort' => $sortedArray[$servicecode] ?? '99'
+            ];
         }
 
         $availableCards = $this->getAllowedGiftcards();
@@ -264,18 +268,15 @@ class Giftcards extends AbstractConfigProvider
 
             $logo = $this->getGiftcardLogo($code);
 
-            // Try to get custom logo from database
-            $connection = $this->resourceConnection->getConnection();
-            $tableName = $this->resourceConnection->getTableName('buckaroo_magento2_giftcard');
-            $dbRecord = $connection->fetchRow(
-                "SELECT logo FROM " . $tableName . " WHERE servicecode = ?",
-                [$code]
-            );
-
-            if ($dbRecord && !empty($dbRecord['logo'])) {
+            // Try to get custom logo from collection
+            $giftcardCollection = $this->giftcardCollectionFactory->create();
+            $giftcardCollection->addFieldToFilter('servicecode', $code);
+            $giftcard = $giftcardCollection->getFirstItem();
+            
+            if ($giftcard->getId() && $giftcard->getLogo()) {
                 $logo = $this->storeManager->getStore()->getBaseUrl(
                     UrlInterface::URL_TYPE_MEDIA
-                ) . $dbRecord['logo'];
+                ) . $giftcard->getLogo();
             }
 
             $issuers[$code] = [
