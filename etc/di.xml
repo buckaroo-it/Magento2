@@ -4052,13 +4052,7 @@
     <preference for="Buckaroo\Magento2\Api\SecondChanceRepositoryInterface" type="Buckaroo\Magento2\Model\SecondChanceRepository"/>
 
 
+    <!-- Gift Card Refund Service - Adobe Commerce Direct Injection -->
     <preference for="Buckaroo\Magento2\Api\GiftCardRefundServiceInterface" type="Buckaroo\Magento2\Model\Service\GiftCardRefundService" />
-
-    <!-- Gift Card Refund Service Configuration -->
-    <type name="Buckaroo\Magento2\Model\Service\GiftCardRefundService">
-        <arguments>
-            <argument name="objectManager" xsi:type="object">Magento\Framework\ObjectManagerInterface</argument>
-        </arguments>
-    </type>
 
 </config>
