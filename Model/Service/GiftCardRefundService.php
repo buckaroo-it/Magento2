@@ -21,51 +21,122 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Service;
 
+use Buckaroo\Magento2\Api\GiftCardRefundServiceInterface;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
-use Magento\GiftCardAccount\Api\GiftCardAccountRepositoryInterface;
-use Magento\GiftCardAccount\Model\HistoryFactory;
-use Magento\GiftCardAccount\Model\History;
+use Magento\Framework\ObjectManagerInterface;
 use Magento\Sales\Model\Order;
 
-class GiftCardRefundService
+/**
+ * Production-ready gift card refund service
+ * Automatically detects and handles both Adobe Commerce and Magento Open Source environments
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
+class GiftCardRefundService implements GiftCardRefundServiceInterface
 {
-    private GiftCardAccountRepositoryInterface $giftCardRepo;
-    private HistoryFactory $historyFactory;
+    private $giftCardRepo;
+    private $historyFactory;
     private BuckarooLoggerInterface $logger;
+    private ObjectManagerInterface $objectManager;
+    private bool $isAdobeCommerceAvailable;
 
     public function __construct(
-        GiftCardAccountRepositoryInterface $giftCardRepo,
-        HistoryFactory $historyFactory,
-        BuckarooLoggerInterface $logger
+        BuckarooLoggerInterface $logger,
+        ObjectManagerInterface $objectManager
     ) {
-        $this->giftCardRepo = $giftCardRepo;
-        $this->historyFactory = $historyFactory;
         $this->logger = $logger;
+        $this->objectManager = $objectManager;
+        $this->isAdobeCommerceAvailable = $this->detectAdobeCommerce();
+        $this->initializeDependencies();
     }
 
+    /**
+     * Detect if Adobe Commerce is available
+     */
+    private function detectAdobeCommerce(): bool
+    {
+        return class_exists(\Magento\GiftCardAccount\Api\GiftCardAccountRepositoryInterface::class) &&
+               class_exists(\Magento\GiftCardAccount\Model\HistoryFactory::class);
+    }
+
+    /**
+     * Initialize Adobe Commerce dependencies if available
+     */
+    private function initializeDependencies(): void
+    {
+        if (!$this->isAdobeCommerceAvailable) {
+            $this->logger->addDebug('[GiftCardRefundService] Adobe Commerce not detected - gift card refunds will be skipped');
+            return;
+        }
+
+        try {
+            $this->giftCardRepo = $this->objectManager->get(\Magento\GiftCardAccount\Api\GiftCardAccountRepositoryInterface::class);
+            $this->historyFactory = $this->objectManager->get(\Magento\GiftCardAccount\Model\HistoryFactory::class);
+            $this->logger->addDebug('[GiftCardRefundService] Adobe Commerce gift card services initialized successfully');
+        } catch (\Exception $e) {
+            $this->logger->addError('[GiftCardRefundService] Failed to initialize Adobe Commerce dependencies: ' . $e->getMessage());
+            $this->giftCardRepo = null;
+            $this->historyFactory = null;
+            $this->isAdobeCommerceAvailable = false;
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function refund(Order $order): void
     {
-        $this->logger->addDebug('[GiftCardRefundService] Processing refund for order #' . $order->getIncrementId());
+        try {
+            $this->logger->addDebug('[GiftCardRefundService] Processing refund for order #' . $order->getIncrementId());
 
-        $giftCards = $order->getGiftCards();
-        if (empty($giftCards)) {
-            return;
-        }
+            // Check if Adobe Commerce features are available
+            if (!$this->isAdobeCommerceAvailable) {
+                $this->logger->addInfo('[GiftCardRefundService] Magento Open Source detected - gift card refunds not supported, skipping for order #' . $order->getIncrementId());
+                return;
+            }
 
-        $data = json_decode($giftCards, true);
-        if (!is_array($data)) {
-            $this->logger->addDebug("Invalid gift card data for order {$order->getIncrementId()}");
-            return;
-        }
+            // Validate dependencies are properly initialized
+            if (!$this->giftCardRepo || !$this->historyFactory) {
+                $this->logger->addWarning('[GiftCardRefundService] Gift card services not available, skipping refund for order #' . $order->getIncrementId());
+                return;
+            }
 
-        $this->logger->addDebug('[GiftCardRefundService] Found ' . count($data) . ' gift cards to refund');
+            // Get gift card data from order
+            $giftCards = $order->getGiftCards();
+            if (empty($giftCards)) {
+                $this->logger->addDebug('[GiftCardRefundService] No gift cards found for order #' . $order->getIncrementId());
+                return;
+            }
 
-        foreach ($data as $card) {
-            $this->refundCard($order, $card);
+            // Parse gift card data
+            $data = json_decode($giftCards, true);
+            if (!is_array($data)) {
+                $this->logger->addWarning('[GiftCardRefundService] Invalid gift card data format for order #' . $order->getIncrementId());
+                return;
+            }
+
+            $this->logger->addInfo('[GiftCardRefundService] Processing ' . count($data) . ' gift card refunds for order #' . $order->getIncrementId());
+
+            // Process each gift card
+            $successCount = 0;
+            foreach ($data as $card) {
+                if ($this->refundCard($order, $card)) {
+                    $successCount++;
+                }
+            }
+
+            $this->logger->addInfo('[GiftCardRefundService] Successfully processed ' . $successCount . '/' . count($data) . ' gift card refunds for order #' . $order->getIncrementId());
+
+        } catch (\Throwable $e) {
+            $this->logger->addError('[GiftCardRefundService] Unexpected error processing gift card refunds for order #' . $order->getIncrementId() . ': ' . $e->getMessage());
         }
     }
 
-    private function refundCard(Order $order, array $card): void
+    /**
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     */
+    private function refundCard(Order $order, array $card): bool
     {
         try {
             $id = $card['i'] ?? null;
@@ -77,7 +148,7 @@ class GiftCardRefundService
                     var_export($id, true),
                     $amount
                 ));
-                return;
+                return false;
             }
 
             try {
@@ -88,7 +159,7 @@ class GiftCardRefundService
                     $id,
                     $e->getMessage()
                 ));
-                return;
+                return false;
             }
 
             $currentBalance = $account->getBalance();
@@ -100,7 +171,7 @@ class GiftCardRefundService
                     $newBalance,
                     $id
                 ));
-                return;
+                return false;
             }
 
             $account->setBalance($newBalance);
@@ -113,7 +184,7 @@ class GiftCardRefundService
                     $id,
                     $e->getMessage()
                 ));
-                return;
+                return false;
             }
 
             try {
@@ -159,11 +230,13 @@ class GiftCardRefundService
                 $newBalance
             ));
 
+            return true;
         } catch (\Throwable $e) {
             $this->logger->addDebug(sprintf(
                 '[GiftCardRefundService] Error refunding gift card: %s',
                 $e->getMessage()
             ));
+            return false;
         }
     }
 }

@@ -23,7 +23,6 @@
 <!--    PREFERENCES-->
     <!-- Interfaces -->
     <preference for="Buckaroo\Magento2\Api\GiftcardRepositoryInterface" type="Buckaroo\Magento2\Model\GiftcardRepository"/>
-    <preference for="Magento\GiftCardAccount\Api\GiftCardAccountRepositoryInterface" type="Magento\GiftCardAccount\Model\GiftCardAccountRepository"/>
     <preference for="Buckaroo\Magento2\Api\GroupTransactionRepositoryInterface" type="Buckaroo\Magento2\Model\GroupTransactionRepository"/>
     <preference for="Buckaroo\Magento2\Api\LogRepositoryInterface" type="Buckaroo\Magento2\Model\LogRepository"/>
     <preference for="Buckaroo\Magento2\Api\Data\LogInterface" type="Buckaroo\Magento2\Model\Data\Log"/>
@@ -4019,6 +4018,15 @@
             <argument name="processor" xsi:type="object">
                 Buckaroo\Magento2\Service\Applepay\SaveOrderProcessor
             </argument>
+        </arguments>
+    </type>
+
+    <preference for="Buckaroo\Magento2\Api\GiftCardRefundServiceInterface" type="Buckaroo\Magento2\Model\Service\GiftCardRefundService" />
+
+    <!-- Gift Card Refund Service Configuration -->
+    <type name="Buckaroo\Magento2\Model\Service\GiftCardRefundService">
+        <arguments>
+            <argument name="objectManager" xsi:type="object">Magento\Framework\ObjectManagerInterface</argument>
         </arguments>
     </type>
 

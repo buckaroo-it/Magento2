@@ -33,6 +33,9 @@ use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\Order;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class KlarnaKpProcessor extends DefaultProcessor
 {
     /**

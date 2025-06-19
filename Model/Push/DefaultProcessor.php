@@ -142,6 +142,9 @@ class DefaultProcessor implements PushProcessorInterface
      * @param BuckarooStatusCode $buckarooStatusCode
      * @param OrderStatusFactory $orderStatusFactory
      * @param Account $configAccount
+     * @param GiftCardRefundService $giftCardRefundService
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         OrderRequestService       $orderRequestService,

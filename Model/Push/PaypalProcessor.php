@@ -34,6 +34,9 @@ use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\TransactionInterface;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class PaypalProcessor extends DefaultProcessor
 {
     private PaypalConfig $paypalConfig;
