@@ -23,13 +23,13 @@ namespace Buckaroo\Magento2\Model\Service;
 
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\GiftCardAccount\Api\GiftCardAccountRepositoryInterface;
-use Magento\GiftCardAccount\Api\GiftCardManagementInterface;
+use Magento\GiftCardAccount\Api\GiftCardAccountManagementInterface;
 use Magento\Sales\Model\Order;
 
 class GiftCardRefundService
 {
     private $giftCardRepo;
-    private GiftCardManagementInterface $giftCardManagement;
+    private $giftCardManagement;
 
     private $logger;
 
