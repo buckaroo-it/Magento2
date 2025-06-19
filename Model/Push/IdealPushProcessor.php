@@ -28,7 +28,6 @@ class IdealPushProcessor extends DefaultProcessor implements PushProcessorInterf
 {
     public const BUCK_PUSH_IDEAL_PAY = 'C021';
     protected const LOCK_PREFIX = 'bk_push_ideal_';
-
     /**
      * @inheritdoc
      */
