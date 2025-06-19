@@ -35,7 +35,7 @@ class GiftCardRefundService
 
     public function __construct(
         GiftCardAccountRepositoryInterface  $giftCardRepo,
-        GiftCardManagementInterface $giftCardManagement,
+        GiftCardAccountManagementInterface $giftCardManagement,
         BuckarooLoggerInterface $logger
     ) {
         $this->giftCardRepo = $giftCardRepo;
