@@ -91,8 +91,19 @@ class GiftCardRefundService
             ));
 
             $newBalance = $account->getBalance() + $amount;
+            $this->logger->addDebug(sprintf(
+                '[GiftCardRefundService] newbalance: %s',
+                $newBalance
+            ));
             $account->setBalance($newBalance);
+
+            $this->logger->addDebug(sprintf(
+                '[GiftCardRefundService] account: : %s',
+                $account
+            ));
             $this->giftCardRepo->save($account);
+
+
 
             // Log history entry (optional but useful for tracking)
             $history = $this->historyFactory->create();
