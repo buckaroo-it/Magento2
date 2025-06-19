@@ -40,7 +40,7 @@ class GiftCardRefundService
 
     public function refund(Order $order): void
     {
-        $this->logger->addDebug('[GiftCardRefundService] - refund method called');
+        $this->logger->addDebug('[GiftCardRefundService] - started');
 
         $giftCards = $order->getGiftCards();
         if (empty($giftCards)) {
@@ -63,18 +63,51 @@ class GiftCardRefundService
         try {
             $id = $card['gift_card_account_id'] ?? null;
             $amount = (float)($card['amount'] ?? 0);
+
             if (!$id || $amount <= 0) {
+                $this->logger->addDebug(sprintf(
+                    '[GiftCardRefundService] Skipping invalid card data: ID=%s, Amount=%s',
+                    var_export($id, true),
+                    var_export($amount, true)
+                ));
                 return;
             }
 
             $account = $this->giftCardRepo->getById($id);
-            $account->setBalance($account->getBalance() + $amount);
+
+            $this->logger->addDebug(sprintf(
+                '[GiftCardRefundService] Loaded gift card #%s | Current balance: %.2f | Refund amount: %.2f',
+                $id,
+                $account->getBalance(),
+                $amount
+            ));
+
+            $newBalance = $account->getBalance() + $amount;
+            $account->setBalance($newBalance);
+
             $this->giftCardRepo->save($account);
 
-            $order->addCommentToStatusHistory("Refunded {$amount} to gift card #{$id}");
+            // Fetch again to confirm saved
+            $reloaded = $this->giftCardRepo->getById($id);
+
+            $this->logger->addDebug(sprintf(
+                '[GiftCardRefundService] After save: gift card #%s balance is now %.2f',
+                $id,
+                $reloaded->getBalance()
+            ));
+
+            $order->addCommentToStatusHistory(sprintf(
+                'Refunded %.2f to gift card #%s.',
+                $amount,
+                $id
+            ));
 
         } catch (\Throwable $e) {
-            $this->logger->error("Failed to refund gift card: " . $e->getMessage());
+            $this->logger->error(sprintf(
+                '[GiftCardRefundService] Error refunding gift card #%s: %s',
+                $card['gift_card_account_id'] ?? 'n/a',
+                $e->getMessage()
+            ));
         }
     }
 }
