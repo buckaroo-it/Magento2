@@ -97,7 +97,6 @@ define(
                 },
                 redirectAfterPlaceOrder: false,
                 dp: datePicker,
-           
 
                 initObservable: function () {
                     this._super().observe([
