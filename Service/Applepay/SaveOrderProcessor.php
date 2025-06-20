@@ -145,6 +145,9 @@ class SaveOrderProcessor
             $this->objectFactory->create(['data' => $extra])
         );
 
+        /* Reserve order ID to enable proper locking mechanism */
+        $quote->reserveOrderId();
+
         /* Save */
         $this->quoteManagement->submit($quote);
     }
