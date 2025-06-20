@@ -228,10 +228,10 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
     {
         $address = $this->quote->getShippingAddress();
         if ($address->getId() === null) {
-            $address->setFirstname('unknown');
-            $address->setLastname('unknown');
-            $address->setEmail('no-reply@example.com');
-            $address->setStreet('unknown');
+            $address->setFirstname($this->quote->getCustomerFirstname() ?: 'Guest');
+            $address->setLastname($this->quote->getCustomerLastname() ?: 'Customer');
+            $address->setEmail($this->quote->getCustomerEmail() ?: 'no-reply@example.com');
+            $address->setStreet('Street');
             $address->setTelephone('0000000');
         }
     }
@@ -248,10 +248,10 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
     {
         $address = $this->quote->getBillingAddress();
         if ($address->getId() === null) {
-            $address->setFirstname('unknown');
-            $address->setLastname('unknown');
-            $address->setEmail('no-reply@example.com');
-            $address->setStreet('unknown');
+            $address->setFirstname($this->quote->getCustomerFirstname() ?: 'Guest');
+            $address->setLastname($this->quote->getCustomerLastname() ?: 'Customer');
+            $address->setEmail($this->quote->getCustomerEmail() ?: 'no-reply@example.com');
+            $address->setStreet('Street');
             $address->setTelephone('0000000');
             $address->setCountryId($shipping_address->getCountryCode());
             $address->setPostcode($shipping_address->getPostalCode());

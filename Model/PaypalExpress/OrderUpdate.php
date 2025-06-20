@@ -92,10 +92,20 @@ class OrderUpdate
      */
     public function updateAddress($address)
     {
+        // Skip update if address is already properly filled (not "unknown")
+        if ($address->getFirstname() !== 'unknown' && $address->getFirstname() !== 'Guest') {
+            return $address;
+        }
+
         $this->updateItem($address, OrderAddressInterface::FIRSTNAME, 'payerFirstname');
         $this->updateItem($address, OrderAddressInterface::LASTNAME, 'payerLastname');
         $this->updateItem($address, OrderAddressInterface::STREET, 'address_line_1');
         $this->updateItem($address, OrderAddressInterface::EMAIL, 'payerEmail');
+        $this->updateItem($address, OrderAddressInterface::CITY, 'payerCity');
+        $this->updateItem($address, OrderAddressInterface::COUNTRY_ID, 'payerCountry');
+        $this->updateItem($address, OrderAddressInterface::POSTCODE, 'payerPostalCode');
+        $this->updateItem($address, OrderAddressInterface::TELEPHONE, 'payerPhone');
+
         return $address;
     }
 
@@ -126,4 +136,6 @@ class OrderUpdate
             $order->setCustomerEmail($this->responseAddressInfo['payerEmail']);
         };
     }
+
+
 }
