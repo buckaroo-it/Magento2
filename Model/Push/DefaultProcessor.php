@@ -39,6 +39,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Transfer;
 use Buckaroo\Magento2\Model\GroupTransaction;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
+use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\LocalizedException;
@@ -57,7 +58,7 @@ use Buckaroo\Magento2\Model\Transaction\Status\Response;
  */
 class DefaultProcessor implements PushProcessorInterface
 {
-    public const BUCKAROO_RECEIVED_TRANSACTIONS          = 'buckaroo_received_transactions';
+    public const BUCKAROO_RECEIVED_TRANSACTIONS = 'buckaroo_received_transactions';
     public const BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES = 'buckaroo_received_transactions_statuses';
 
     /**
@@ -129,6 +130,8 @@ class DefaultProcessor implements PushProcessorInterface
      * @var OrderStatusFactory
      */
     protected OrderStatusFactory $orderStatusFactory;
+    private GiftCardRefundService $giftCardRefundService;
+
 
     /**
      * @param OrderRequestService $orderRequestService
@@ -140,18 +143,23 @@ class DefaultProcessor implements PushProcessorInterface
      * @param BuckarooStatusCode $buckarooStatusCode
      * @param OrderStatusFactory $orderStatusFactory
      * @param Account $configAccount
+     * @param GiftCardRefundService $giftCardRefundService
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
-        OrderRequestService $orderRequestService,
-        PushTransactionType $pushTransactionType,
-        BuckarooLoggerInterface $logger,
-        Data $helper,
-        TransactionInterface $transaction,
-        PaymentGroupTransaction $groupTransaction,
-        BuckarooStatusCode $buckarooStatusCode,
-        OrderStatusFactory $orderStatusFactory,
-        Account $configAccount
-    ) {
+        OrderRequestService       $orderRequestService,
+        PushTransactionType       $pushTransactionType,
+        BuckarooLoggerInterface   $logger,
+        Data                      $helper,
+        TransactionInterface      $transaction,
+        PaymentGroupTransaction   $groupTransaction,
+        BuckarooStatusCode        $buckarooStatusCode,
+        OrderStatusFactory        $orderStatusFactory,
+        Account                   $configAccount,
+        GiftCardRefundService     $giftCardRefundService
+    )
+    {
         $this->pushTransactionType = $pushTransactionType;
         $this->orderRequestService = $orderRequestService;
         $this->logger = $logger;
@@ -162,6 +170,7 @@ class DefaultProcessor implements PushProcessorInterface
         $this->buckarooStatusCode = $buckarooStatusCode;
         $this->orderStatusFactory = $orderStatusFactory;
         $this->configAccount = $configAccount;
+        $this->giftCardRefundService = $giftCardRefundService;
     }
 
     /**
@@ -185,7 +194,7 @@ class DefaultProcessor implements PushProcessorInterface
 
         // Check if the order can be updated
         if (!$this->canUpdateOrderStatus()) {
-            $this->logger->addDebug('['. __METHOD__ .':'. __LINE__ . '] - Order can not receive updates');
+            $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Order can not receive updates');
 
             $this->orderRequestService->setOrderNotificationNote(__('The order has already been processed.'));
             throw new BuckarooException(
@@ -392,7 +401,7 @@ class DefaultProcessor implements PushProcessorInterface
             __LINE__,
             var_export([
                 'receivedTrxStatuses' => $receivedTrxStatuses,
-                'receivedStatusCode'  => $receivedStatusCode
+                'receivedStatusCode' => $receivedStatusCode
             ], true)
         ));
 
@@ -897,11 +906,11 @@ class DefaultProcessor implements PushProcessorInterface
      */
     protected function saveInvoice(): bool
     {
-        $this->logger->addDebug('['. __METHOD__ .':'. __LINE__ . '] - Save Invoice');
+        $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Save Invoice');
 
         if (!$this->forceInvoice
             && (!$this->order->canInvoice() || $this->order->hasInvoices())) {
-            $this->logger->addDebug('['. __METHOD__ .':'. __LINE__ . '] - Order can not be invoiced');
+            $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Order can not be invoiced');
 
             return false;
         }
@@ -939,13 +948,13 @@ class DefaultProcessor implements PushProcessorInterface
             if (!empty($this->pushRequest->getInvoiceNumber())
                 && $this->groupTransaction->isGroupTransaction($this->pushRequest->getInvoiceNumber())) {
                 $this->logger->addDebug(
-                    '['. __METHOD__ .':'. __LINE__ . '] - Set invoice state PAID group transaction'
+                    '[' . __METHOD__ . ':' . __LINE__ . '] - Set invoice state PAID group transaction'
                 );
                 $invoice->setState(Invoice::STATE_PAID);
             }
 
             if (!$invoice->getEmailSent() && $this->configAccount->getInvoiceEmail($this->order->getStore())) {
-                $this->logger->addDebug('['. __METHOD__ .':'. __LINE__ . '] - Send Invoice Email ');
+                $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Send Invoice Email ');
                 $this->orderRequestService->sendInvoiceEmail($invoice, true);
             }
         }
@@ -1028,7 +1037,7 @@ class DefaultProcessor implements PushProcessorInterface
         if (($this->order->getState() === Order::STATE_PROCESSING)
             && ($this->order->getStatus() === Order::STATE_PROCESSING)
         ) {
-            $this->logger->addDebug('['. __METHOD__ .':'. __LINE__ . '] - Do not update to failed if we had a success');
+            $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Do not update to failed if we had a success');
             return false;
         }
 
@@ -1075,6 +1084,8 @@ class DefaultProcessor implements PushProcessorInterface
 
             try {
                 $this->order->cancel()->save();
+                $this->logger->addDebug('[processFailedPush] - Calling refundGiftCardsOnFailedPayment()');
+                $this->giftCardRefundService->refund($this->order);
             } catch (\Throwable $th) {
                 $this->logger->addError(sprintf(
                     '[%s:%s] - Process failed push from Buckaroo. Cancel Order| [ERROR]: %s',
@@ -1083,6 +1094,7 @@ class DefaultProcessor implements PushProcessorInterface
                     $th->getMessage()
                 ));
             }
+
             return true;
         }
 

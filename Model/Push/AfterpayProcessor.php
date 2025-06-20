@@ -28,6 +28,7 @@ use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
+use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Magento\Sales\Api\Data\TransactionInterface;
 
@@ -48,6 +49,7 @@ class AfterpayProcessor extends DefaultProcessor
      * @param BuckarooStatusCode $buckarooStatusCode
      * @param OrderStatusFactory $orderStatusFactory
      * @param Account $configAccount
+     * @param GiftCardRefundService $giftCardRefundService
      * @param Afterpay20 $afterpayConfig
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
@@ -62,6 +64,7 @@ class AfterpayProcessor extends DefaultProcessor
         BuckarooStatusCode $buckarooStatusCode,
         OrderStatusFactory $orderStatusFactory,
         Account $configAccount,
+        GiftCardRefundService $giftCardRefundService,
         Afterpay20 $afterpayConfig
     ) {
         parent::__construct(
@@ -73,7 +76,8 @@ class AfterpayProcessor extends DefaultProcessor
             $groupTransaction,
             $buckarooStatusCode,
             $orderStatusFactory,
-            $configAccount
+            $configAccount,
+            $giftCardRefundService
         );
         $this->afterpayConfig = $afterpayConfig;
     }

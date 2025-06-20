@@ -30,6 +30,7 @@ use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Model\Refund\Push as RefundPush;
+use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Magento\Sales\Api\Data\TransactionInterface;
 
@@ -53,6 +54,7 @@ class RefundProcessor extends DefaultProcessor
      * @param BuckarooStatusCode $buckarooStatusCode
      * @param OrderStatusFactory $orderStatusFactory
      * @param Account $configAccount
+     * @param GiftCardRefundService $giftCardRefundService
      * @param RefundPush $refundPush
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
@@ -67,6 +69,7 @@ class RefundProcessor extends DefaultProcessor
         BuckarooStatusCode $buckarooStatusCode,
         OrderStatusFactory $orderStatusFactory,
         Account $configAccount,
+        GiftCardRefundService $giftCardRefundService,
         RefundPush $refundPush
     ) {
         parent::__construct(
@@ -78,7 +81,8 @@ class RefundProcessor extends DefaultProcessor
             $groupTransaction,
             $buckarooStatusCode,
             $orderStatusFactory,
-            $configAccount
+            $configAccount,
+            $giftCardRefundService
         );
         $this->refundPush = $refundPush;
     }

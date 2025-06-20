@@ -19,20 +19,21 @@
  */
 declare(strict_types=1);
 
-namespace Buckaroo\Magento2\Model\Push;
+namespace Buckaroo\Magento2\Api;
+
+use Magento\Sales\Model\Order;
 
 /**
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * Interface for gift card refund operations
+ * Senior developers always define interfaces for services
  */
-class IdealPushProcessor extends DefaultProcessor implements PushProcessorInterface
+interface GiftCardRefundServiceInterface
 {
-    public const BUCK_PUSH_IDEAL_PAY = 'C021';
-    protected const LOCK_PREFIX = 'bk_push_ideal_';
     /**
-     * @inheritdoc
+     * Refund gift cards for a cancelled order
+     *
+     * @param Order $order
+     * @return void
      */
-    protected function getSpecificPaymentDetails(): array
-    {
-        return [];
-    }
-}
+    public function refund(Order $order): void;
+} 

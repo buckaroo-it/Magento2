@@ -28,10 +28,14 @@ use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
+use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\Order;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class KlarnaKpProcessor extends DefaultProcessor
 {
     /**
@@ -49,6 +53,7 @@ class KlarnaKpProcessor extends DefaultProcessor
      * @param BuckarooStatusCode $buckarooStatusCode
      * @param OrderStatusFactory $orderStatusFactory
      * @param Account $configAccount
+     * @param GiftCardRefundService $giftCardRefundService
      * @param Klarnakp $klarnakpConfig
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
@@ -63,6 +68,7 @@ class KlarnaKpProcessor extends DefaultProcessor
         BuckarooStatusCode $buckarooStatusCode,
         OrderStatusFactory $orderStatusFactory,
         Account $configAccount,
+        GiftCardRefundService $giftCardRefundService,
         Klarnakp $klarnakpConfig
     ) {
         parent::__construct(
@@ -74,7 +80,8 @@ class KlarnaKpProcessor extends DefaultProcessor
             $groupTransaction,
             $buckarooStatusCode,
             $orderStatusFactory,
-            $configAccount
+            $configAccount,
+            $giftCardRefundService
         );
         $this->klarnakpConfig = $klarnakpConfig;
     }

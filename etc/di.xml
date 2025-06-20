@@ -4051,4 +4051,7 @@
     <preference for="Buckaroo\Magento2\Api\Data\SecondChanceSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
     <preference for="Buckaroo\Magento2\Api\SecondChanceRepositoryInterface" type="Buckaroo\Magento2\Model\SecondChanceRepository"/>
 
+
+    <!-- Gift Card Refund Service - Adobe Commerce -->
+    <preference for="Buckaroo\Magento2\Api\GiftCardRefundServiceInterface" type="Buckaroo\Magento2\Model\Service\GiftCardRefundService" />
 </config>
