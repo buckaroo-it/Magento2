@@ -58,6 +58,9 @@ class LogoService
      */
     public function getPayment(string $paymentCode, bool $backend = false): string
     {
+        // Convert to lowercase for case-insensitive server compatibility
+        $paymentCode = strtolower($paymentCode);
+        
         $mappings = [
             "afterpay2"        => "svg/riverty.svg",
             "afterpay20"       => "svg/riverty.svg",
@@ -123,6 +126,9 @@ class LogoService
      */
     public function getGiftcardLogoDefaults(string $code): string
     {
+        // Convert to lowercase for case-insensitive server compatibility
+        $code = strtolower($code);
+        
         $name = "svg/giftcards.svg";
 
         $mappings = [
@@ -161,6 +167,9 @@ class LogoService
         if ($code === 'cartebleuevisa') {
             $code = 'cartebleue';
         }
+
+        // Convert to lowercase for case-insensitive server compatibility
+        $code = strtolower($code);
 
         return $this->assetRepo->getUrl("Buckaroo_Magento2::images/creditcards/{$code}.svg");
     }

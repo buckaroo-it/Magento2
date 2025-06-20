@@ -19,8 +19,7 @@
  */
 
 /** @var string $block */
-?>
-<?php if ($block->canShowButton('Cart')): ?>
+if ($block->canShowButton('Cart')): ?>
     <div id="apple-pay-catalog-cart-view-component" data-bind="scope:'buckarooApplepayCart'">
         <!-- ko template: getTemplate() --><!-- /ko -->
 
