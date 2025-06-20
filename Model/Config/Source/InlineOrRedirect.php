@@ -35,11 +35,11 @@ class InlineOrRedirect implements OptionSourceInterface
         return [
             [
                 'value' => 0,
-                'label' => __("Inline")
+                'label' => __("Inline (Integrated in checkout)")
             ],
             [
                 'value' => 1,
-                'label' => __("Redirect"),
+                'label' => __("Redirect (Buckaroo Hosted Payment Page)"),
             ],
         ];
     }
