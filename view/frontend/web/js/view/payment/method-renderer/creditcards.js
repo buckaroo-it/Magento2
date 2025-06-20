@@ -134,19 +134,21 @@ define(
                 if (this.isResetting()) {
                     return;
                 }
-                
+
                 this.isResetting(true);
                 this.removeHostedFieldIframes();
-                
-                // Clear all errors first
+
+                // Clear all payment data and errors
+                this.encryptedCardData = null;
+                this.service = null;
                 this.oauthTokenError('');
                 this.paymentError('');
-                
+
                 // Only display error message if it's actually a string
                 if (typeof errorMsg === 'string' && errorMsg.length > 0) {
                     this.paymentError(errorMsg);
                 }
-                
+
                 try {
                     await this.getOAuthToken();
                 } catch (error) {
@@ -166,7 +168,7 @@ define(
                 if (this.isResetting()) {
                     return false;
                 }
-                this.resetHostedFields();
+                this.resetHostedFields($.mage.__("Payment form has been cleared."));
                 return false; // Prevent default action
             },
 
@@ -197,6 +199,11 @@ define(
                         );
                         this.isPayButtonDisabled(!this.sdkClient.formIsValid());
                         this.service = this.sdkClient.getService();
+
+                        // Clear payment error when form becomes valid
+                        if (this.sdkClient.formIsValid()) {
+                            this.paymentError('');
+                        }
                     });
 
                     // Styling for hosted fields.
@@ -301,7 +308,8 @@ define(
                     this.service = this.sdkClient.getService();
                     this.finalizePlaceOrder(event);
                 } catch (error) {
-                    this.paymentError($.mage.__("Payment processing failed. Please try again."));
+                    // Reset hosted fields session when payment token generation fails
+                    await this.resetHostedFields($.mage.__("Payment processing failed. Please try again."));
                     this.isPayButtonDisabled(false);
                 }
             },
@@ -327,9 +335,9 @@ define(
                         this.messageContainer
                     );
                     $.when(placeOrder)
-                        .fail(() => {
+                        .fail(async (jqXHR) => {
                             this.isPlaceOrderActionAllowed(true);
-                            this.paymentError($.mage.__("Payment token is missing. Please try again."));
+                            await this.resetHostedFields($.mage.__("Payment failed. Please try again."));
                         })
                         .done(this.afterPlaceOrder.bind(this));
                     return true;
