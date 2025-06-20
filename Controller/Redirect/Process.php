@@ -764,6 +764,9 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
     {
         $this->setCustomerAndRestoreQuote('failed');
 
+        // Set the flag to enable quote restoration via the RestoreQuote observer
+        $this->checkoutSession->setRestoreQuoteLastOrder($this->order->getId());
+
         $this->logger->addDebug(sprintf(
             '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect Failure To Checkout',
             $this->payment->getMethod(),
@@ -782,6 +785,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
      */
     protected function setCustomerAndRestoreQuote(string $status): void
     {
+        // Handle customer login if needed (only for registered customers who aren't logged in)
         if (!$this->customerSession->isLoggedIn() && $this->order->getCustomerId() > 0) {
             $this->logger->addDebug(sprintf(
                 '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect %s To Checkout - Customer is not logged in',
@@ -793,23 +797,6 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
             try {
                 $customer = $this->customerRepository->getById($this->order->getCustomerId());
                 $this->customerSession->setCustomerDataAsLoggedIn($customer);
-
-                if (!$this->checkoutSession->getLastRealOrderId() && $this->order->getIncrementId()) {
-                    $this->checkoutSession->setLastRealOrderId($this->order->getIncrementId());
-                    if ($status == 'success' || !$this->getSkipHandleFailedRecreate()) {
-                        $this->checkoutSession->restoreQuote();
-                        $this->logger->addDebug(sprintf(
-                            '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect %s To Checkout - Restore Quote',
-                            $this->payment->getMethod(),
-                            __METHOD__,
-                            __LINE__,
-                            $status
-                        ));
-                    }
-                    if ($status == 'failed') {
-                        $this->setSkipHandleFailedRecreate();
-                    }
-                }
             } catch (\Exception $e) {
                 $this->logger->addError(sprintf(
                     '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect %s To Checkout ' .
@@ -820,6 +807,27 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
                     $status,
                     $e->getMessage()
                 ));
+            }
+        }
+
+        // Handle session setup and quote restoration for all scenarios
+        if (!$this->checkoutSession->getLastRealOrderId() && $this->order->getIncrementId()) {
+            $this->checkoutSession->setLastRealOrderId($this->order->getIncrementId());
+            
+            // For success or when we want to restore failed quotes
+            if ($status == 'success' || !$this->getSkipHandleFailedRecreate()) {
+                $this->checkoutSession->restoreQuote();
+                $this->logger->addDebug(sprintf(
+                    '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect %s To Checkout - Restore Quote',
+                    $this->payment->getMethod(),
+                    __METHOD__,
+                    __LINE__,
+                    $status
+                ));
+            }
+            
+            if ($status == 'failed') {
+                $this->setSkipHandleFailedRecreate();
             }
         }
     }

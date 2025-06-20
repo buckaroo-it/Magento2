@@ -137,6 +137,11 @@ class RestoreQuote implements ObserverInterface
                         $lastRealOrder->getData('status') === 'pending' &&
                         $payment->getMethodInstance()->usesRedirect
                     ) || $this->canRestoreFailedFromSpam()
+                    || (
+                        $this->checkoutSession->getRestoreQuoteLastOrder() &&
+                        $lastRealOrder->getData('state') === 'canceled' &&
+                        $payment->getMethodInstance()->usesRedirect
+                    )
                 ) {
                     $this->logger->addDebug(sprintf(
                         '[RESTORE_QUOTE] | [Observer] | [%s:%s] - Restore Quote | ' .
