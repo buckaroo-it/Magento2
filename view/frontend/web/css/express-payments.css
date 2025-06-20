@@ -1,3 +1,4 @@
+/* Express Payment Buttons - Consistent Width Styling */
 #fast-checkout-ideal-btn {
     height: 45px;
     padding: 0;
@@ -6,8 +7,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 20px 0;
+    margin: 10px 0;
     width: 100%;
+    max-width: 350px;
+    box-sizing: border-box;
+    cursor: pointer;
 }
 
 #fast-checkout-ideal-btn img {
@@ -17,8 +21,69 @@
     margin: auto;
 }
 
-.buckaroo-box-to-cart{
+/* PayPal Express Button Container */
+.buckaroo-paypal-express {
+    width: 100%;
+    max-width: 350px;
+    margin: 10px 0;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+/* Apple Pay Button Container */
+#apple-pay-wrapper {
+    width: 100%;
+    max-width: 350px;
+    margin: 10px 0;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+/* Apple Pay Button Styling */
+#apple-pay-wrapper > apple-pay-button {
+    width: 100% !important;
+    height: 45px !important;
+    -apple-pay-button-style: black;
+    -apple-pay-button-type: buy;
+    cursor: pointer;
+}
+
+/* Express Payment Component Containers - Cursor Pointer */
+#apple-pay-catalog-product-view-component,
+#apple-pay-catalog-cart-view-component,
+#paypal-express-button-component,
+#fast-checkout-ideal-btn-component {
+    cursor: pointer;
+}
+
+/* PayPal Express Cart Container */
+.buckaroo-paypal-express .box-tocart {
+    cursor: pointer;
+}
+
+/* Ensure all payment button containers have consistent centering */
+.buckaroo-box-to-cart {
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.buckaroo-box-to-cart .fieldset {
+    width: 100%;
+    max-width: 350px;
+}
+
+.buckaroo-box-to-cart .actions {
+    width: 100%;
+}
+
+/* PayPal Express button component container */
+#paypal-express-button-component {
+    width: 100%;
+    max-width: 350px;
+    margin: 10px 0;
+    box-sizing: border-box;
 }
 
 /* iDIN product page styles */
