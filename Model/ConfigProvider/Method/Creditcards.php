@@ -255,7 +255,7 @@ class Creditcards extends AbstractConfigProvider
             ScopeInterface::SCOPE_STORE
         ));
 
-        if (empty($allowed) || (count($allowed) === 1 && empty($allowed[0]))) {
+        if (count($allowed) === 1 && empty($allowed[0])) {
             return [];
         }
 
