@@ -58,6 +58,22 @@ define(
         return {
             addPickerClass(input, inst) {
                 $(inst.dpDiv).addClass('bk-datepicker');
+                
+                // Fix positioning by ensuring the datepicker appears near the input field
+                setTimeout(() => {
+                    const $input = $(input);
+                    const $datepicker = $(inst.dpDiv);
+                    const offset = $input.offset();
+                    
+                    if (offset) {
+                        $datepicker.css({
+                            'position': 'absolute',
+                            'z-index': '9999',
+                            'top': offset.top + $input.outerHeight() + 'px',
+                            'left': offset.left + 'px'
+                        });
+                    }
+                }, 10);
             },
 
             removePickerClass(input, inst) {

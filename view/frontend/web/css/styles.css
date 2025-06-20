@@ -64,6 +64,8 @@
     box-shadow: 0 0 2px 0px rgba(0,0,0,.35);
     padding: 10px;
     width: 240px;
+    position: absolute !important;
+    z-index: 9999 !important;
 }
 #ui-datepicker-div.bk-datepicker table,
 #ui-datepicker-div.bk-datepicker th,
