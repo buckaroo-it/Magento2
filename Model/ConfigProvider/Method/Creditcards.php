@@ -32,6 +32,7 @@ class Creditcards extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_creditcards';
     public const XPATH_CREDITCARDS_ALLOWED_ISSUERS = 'payment/buckaroo_magento2_creditcards/allowed_issuers';
+    public const XPATH_CREDITCARDS_SORTED_ISSUERS = 'payment/buckaroo_magento2_creditcards/sorted_issuers';
     public const XPATH_USE_CARD_DESIGN             = 'card_design';
     public const XPATH_CREDITCARDS_PAYMENT_FEE = 'payment/buckaroo_magento2_creditcards/payment_fee';
 
@@ -124,10 +125,29 @@ class Creditcards extends AbstractConfigProvider
             ScopeInterface::SCOPE_STORE
         ));
 
+        $sort = (string)$this->getSortedIssuers();
+        $sortedArray = [];
+
+        if (!empty($sort)) {
+            $sorted = explode(',', $sort);
+            $sortedPosition = 1;
+            foreach ($sorted as $issuerCode) {
+                $sortedArray[$issuerCode] = $sortedPosition++;
+            }
+        }
+
         $issuers = $this->issuers;
         foreach ($issuers as $key => $issuer) {
             $issuers[$key]['active'] = in_array($issuer['code'], $allowed);
             $issuers[$key]['img'] = $this->getCreditcardLogo($issuer['code']);
+            $issuers[$key]['sort'] = $sortedArray[$issuer['code']] ?? '99';
+        }
+
+        // Sort by custom order if defined
+        if (!empty($sortedArray)) {
+            usort($issuers, function ($issuerA, $issuerB) {
+                return $issuerA['sort'] - $issuerB['sort'];
+            });
         }
 
         return $issuers;
@@ -197,5 +217,63 @@ class Creditcards extends AbstractConfigProvider
         }
 
         return $supportedServices;
+    }
+
+    /**
+     * Get Sorted Issuers
+     *
+     * @param $store
+     * @return mixed|null
+     */
+    public function getSortedIssuers($store = null)
+    {
+        $sorted = $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_SORTED_ISSUERS,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+        
+        // Handle empty placeholder - return empty string instead of __EMPTY__
+        if ($sorted === '__EMPTY__') {
+            return '';
+        }
+        
+        return $sorted;
+    }
+
+    /**
+     * Get all available credit card issuers for the SortIssuers block
+     * Only returns credit cards that are selected in "Allowed credit and debit cards"
+     *
+     * @return array
+     */
+    public function getAllIssuers(): array
+    {
+        // Get only allowed credit cards
+        $allowed = explode(',', (string)$this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_ALLOWED_ISSUERS,
+            ScopeInterface::SCOPE_STORE
+        ));
+
+        if (count($allowed) === 1 && empty($allowed[0])) {
+            return [];
+        }
+
+        // Convert allowed codes to lowercase for case-insensitive comparison
+        $allowedLowercase = array_map('strtolower', $allowed);
+
+        $issuers = [];
+        foreach ($this->issuers as $issuer) {
+            // Compare with case-insensitive logic
+            if (in_array(strtolower($issuer['code']), $allowedLowercase)) {
+                $issuers[$issuer['code']] = [
+                    'code' => $issuer['code'],
+                    'name' => $issuer['name'],
+                    'img' => $this->getCreditcardLogo($issuer['code'])
+                ];
+            }
+        }
+
+        return $issuers;
     }
 }

@@ -18,8 +18,13 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 // @codingStandardsIgnoreFile
-$paymentMethod = $block->getConfiguration('providerType');
-$issuers = $block->getIssuers();
+try {
+    $paymentMethod = $block->getConfiguration('providerType');
+    $issuers = $block->getIssuers();
+} catch (\Exception $e) {
+    $paymentMethod = 'unknown';
+    $issuers = [];
+}
 ?>
 <div class="issuers_sort_wrapper">
     <input type="hidden" name="<?= $block->getConfiguration('name') ?>" id="sort_<?= $paymentMethod ?>"
@@ -54,39 +59,76 @@ $issuers = $block->getIssuers();
 
         function createParagraphElement(code) {
             if (!issuers[code]) {
-                console.error('Issuer not found for code:', code);
                 return;
             }
 
             $(listSelector).append(
                 '<p class="sort_issuer" data-code="' + code + '">' +
-                '<img src="' + issuers[code]['img'] + '">' + issuers[code]['name'] + '</p>'
+                '<img src="' + issuers[code]['img'] + '" style="width: 20px; height: 20px; margin-right: 5px;">' + 
+                issuers[code]['name'] + '</p>'
             );
         }
 
-        if (inputText !== '') {
-            let cardSortedArray = inputText.split(',');
-            cardSortedArray.forEach(createParagraphElement);
-        } else {
-            $(selector + ' option:selected').each(function () {
-                createParagraphElement($(this).val());
-            });
+        function initializeSortingList() {
+            $(listSelector + ' p').remove();
+            
+            if (inputText !== '' && inputText !== '__EMPTY__') {
+                let cardSortedArray = inputText.split(',');
+                cardSortedArray.forEach(function(code) {
+                    if (code && code.trim() !== '') {
+                        createParagraphElement(code.trim());
+                    }
+                });
+            } else {
+                $(selector + ' option:selected').each(function () {
+                    let code = $(this).val();
+                    if (code && code !== '') {
+                        createParagraphElement(code);
+                    }
+                });
+            }
+            
+            updateSortedList();
         }
 
-        $(selector).change(function () {
-            $(listSelector + ' p').remove();
-
+        function refreshSortingList() {
+            // Get currently selected items from multiselect
+            let selectedCodes = [];
             $(selector + ' option:selected').each(function () {
-                createParagraphElement($(this).val());
+                let code = $(this).val();
+                if (code && code !== '') {
+                    selectedCodes.push(code);
+                }
             });
-        });
+            
+            // Remove existing elements
+            $(listSelector + ' p').remove();
+            
+            // Add elements for selected codes
+            selectedCodes.forEach(function(code) {
+                if (issuers[code]) {
+                    createParagraphElement(code);
+                }
+            });
+            
+            updateSortedList();
+        }
 
         function updateSortedList() {
             let codes = [];
             $(listSelector + ' p').each(function () {
-                codes.push($(this).data('code'));
+                let code = $(this).data('code');
+                if (code && code !== '') {
+                    codes.push(code);
+                }
             });
             let cardList = codes.join(',');
+            
+            // Use placeholder for empty values so Magento saves them properly
+            if (cardList === '') {
+                cardList = '__EMPTY__';
+            }
+            
             $('#sort_<?= $paymentMethod ?>').val(cardList);
         }
 
@@ -96,7 +138,22 @@ $issuers = $block->getIssuers();
             $(selectorWrapper).toggleClass('sortable_disable', isDisabled);
         }
 
+        // Event handlers for multiselect changes
+        $(selector).on('change input click', function () {
+            setTimeout(refreshSortingList, 50);
+        });
+
+        // Handle keyboard events
+        $(selector).on('keyup keydown', function(e) {
+            if (e.which === 13 || e.which === 32) { // Enter or Space
+                setTimeout(refreshSortingList, 50);
+            }
+        });
+
+        // Initialize everything when DOM is ready
         $(document).ready(function () {
+            initializeSortingList();
+            
             if (ccInherit.is(":checked")) {
                 sortableOnOff('disable');
             }
@@ -109,5 +166,30 @@ $issuers = $block->getIssuers();
                 sortableOnOff();
             }
         });
+        
+        // Interval check as fallback to ensure sync
+        setInterval(function() {
+            let currentSelected = [];
+            $(selector + ' option:selected').each(function () {
+                let code = $(this).val();
+                if (code && code !== '') {
+                    currentSelected.push(code);
+                }
+            });
+            
+            let currentSorting = [];
+            $(listSelector + ' p').each(function () {
+                let code = $(this).data('code');
+                if (code && code !== '') {
+                    currentSorting.push(code);
+                }
+            });
+            
+            // Check if they match
+            if (currentSelected.length !== currentSorting.length || 
+                !currentSelected.every(code => currentSorting.includes(code))) {
+                refreshSortingList();
+            }
+        }, 2000);
     });
 </script>

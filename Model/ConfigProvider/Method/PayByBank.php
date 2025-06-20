@@ -37,6 +37,7 @@ class PayByBank extends AbstractConfigProvider
 
     public const XPATH_ACCOUNT_SELECTION_TYPE = 'buckaroo_magento2/account/selection_type';
     public const XPATH_SORTED_ISSUERS           = 'payment/buckaroo_magento2_paybybank/sorted_issuers';
+    public const XPATH_ALLOWED_ISSUERS          = 'payment/buckaroo_magento2_paybybank/allowed_issuers';
 
 
     protected array $issuers = [
@@ -173,9 +174,60 @@ class PayByBank extends AbstractConfigProvider
      */
     public function getSortedIssuers($storeId = null)
     {
-        return $this->scopeConfig->getValue(
+        $sortedIssuers = $this->scopeConfig->getValue(
             self::XPATH_SORTED_ISSUERS,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        ) ?? '';
+
+        // Convert __EMPTY__ placeholder back to empty string
+        if ($sortedIssuers === '__EMPTY__') {
+            return '';
+        }
+
+        return $sortedIssuers;
+    }
+
+    /**
+     * Get all available PayByBank issuers filtered by allowed selection
+     *
+     * @return array
+     */
+    public function getAllIssuers(): array
+    {
+        $allowedCodes = $this->getAllowedIssuers();
+
+        if (empty($allowedCodes)) {
+            return [];
+        }
+
+        $allowedCodesArray = explode(',', $allowedCodes);
+        $allIssuers = [];
+
+        foreach ($this->issuers as $issuer) {
+            if (in_array($issuer['code'], $allowedCodesArray)) {
+                $allIssuers[$issuer['code']] = [
+                    'name' => $issuer['name'],
+                    'code' => $issuer['code'],
+                    'img' => $this->getImageUrl($issuer['imgName'])
+                ];
+            }
+        }
+
+        return $allIssuers;
+    }
+
+    /**
+     * Get allowed PayByBank issuers configuration
+     *
+     * @param $storeId
+     * @return string
+     */
+    public function getAllowedIssuers($storeId = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_ALLOWED_ISSUERS,
+            ScopeInterface::SCOPE_STORE,
             $storeId
         ) ?? '';
     }

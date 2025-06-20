@@ -1,4 +1,4 @@
-<!-- ko if: buckaroo.groupGiftcards -->
+<!-- ko if: shouldShowGrouped() -->
 <div class="buckaroo_magento2_giftcards buckaroo_magento2_giftcards_group payment-method" data-bind="css: {'_active': (getCode() == isChecked())}">
     <div class="payment-method-title field choice bk-payment">
         <div class="bk-payment-wrap">
@@ -71,8 +71,7 @@
 
 <!-- /ko -->
 
-<!-- ko if: buckaroo.groupGiftcards === false && buckaroo.availableGiftcards.length -->
-
+<!-- ko if: shouldShowIndividual() -->
 <div class="buckaroo_magento2_all_giftcards" data-bind="afterRender: $parent.checkForPayments, foreach: { data: buckaroo.availableGiftcards, as: 'giftcard', noChildContext: false }">
     <div data-bind="attr: { 'class': 'buckaroo_magento2_all_giftcard payment-method buckaroo_magento2_' + code }, css: {'_active': ($parent.getCode() == $parent.isChecked() && $parent.currentGiftcard() == code)}">
 
@@ -83,7 +82,7 @@
                        name="payment[method]"
                        class="radio"
                        data-bind="attr: {'id': code}, value: code, checked: $parent.currentGiftcard,
-                       event: { change:$parent.selectGiftCardPaymentMethod.bind($parent, code)}"/>
+                       event: { change:$parent.selectGiftcardMethod.bind($parent, code)}"/>
                 <label class="label" data-bind="attr: {'for': code}" >
                     <!-- ko text: title --><!-- /ko -->
                 </label>
@@ -110,7 +109,7 @@
                 <!--/ko-->
             </div>
 
-        <div class="payment-method-second-col billing-address-form">
+        
             <form method="post"
                   data-bind="
                   mageInit: { 'validation': [] },
@@ -129,7 +128,7 @@
                                         valueUpdate: 'blur',
                                         value: $parent.cardNumber,
                                         attr: {
-                                            'data-card': code, 
+                                            'data-card': code,
                                             'data-validate': JSON.stringify({ 'required': true })
                                         }">
                             </div>
@@ -166,7 +165,6 @@
                     </div>
                 </fieldset>
             </form>
-        </div>
 
             <div class="checkout-agreements-block">
                 <!-- ko foreach: $parents[1].getRegion('before-place-order') -->

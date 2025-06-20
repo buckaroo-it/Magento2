@@ -71,6 +71,8 @@ define(
                 },
                 redirectAfterPlaceOrder: false,
 
+
+
                 initObservable: function () {
                     this._super().observe(['alreadyFullPayed','cardNumber','pin', 'currentGiftcard']);
                     return this;
@@ -120,16 +122,42 @@ define(
                 },
 
                 validate: function() {
-                    return this.alreadyFullPayed() === true || this.buckaroo.groupGiftcards === true;
+                    // If already fully paid, validation passes
+                    if (this.alreadyFullPayed() === true) {
+                        return true;
+                    }
+
+                    // For grouped mode (redirect), no validation needed
+                    if (this.buckaroo.groupGiftcards === true) {
+                        return true;
+                    }
+
+                    // For individual mode, check if a giftcard is selected
+                    if (!this.buckaroo.groupGiftcards && this.currentGiftcard()) {
+                        return true;
+                    }
+
+                    return false;
                 },
 
                 validateForm: function () {
-                    return $('.buckaroo_magento2_' + this.currentGiftcard() + ' .payment-method-second-col form').valid();
-                },
+                    // For individual giftcard mode, find the form within the specific giftcard container
+                    if (!this.buckaroo.groupGiftcards) {
+                        var giftcardSelector = '.buckaroo_magento2_' + this.currentGiftcard() + ' form';
+                        var $form = $(giftcardSelector);
+                        if ($form.length > 0) {
+                            return $form.valid();
+                        }
+                    }
 
-                selectGiftCardPaymentMethod: function (code) {
-                    this.selectPaymentMethod();
-                    this.setTestParameters(code);
+                    // For grouped mode or fallback, use the general form selector
+                    var $generalForm = $('.buckaroo_magento2_giftcards .payment-method-second-col form');
+                    if ($generalForm.length > 0) {
+                        return $generalForm.valid();
+                    }
+
+                    // If no form found, return true to avoid blocking
+                    return true;
                 },
 
                 getData: function () {
@@ -197,16 +225,53 @@ define(
                     });
 
                 },
-                setTestParameters(giftcardCode) {
-                    let cardNumber =''
+                /**
+                 * Select giftcard method in individual mode
+                 */
+                selectGiftcardMethod: function(giftcardCode) {
+                    this.selectPaymentMethod();
+                    this.currentGiftcard(giftcardCode);
+                    this.setTestParameters(giftcardCode);
+                    return true;
+                },
+
+
+
+                /**
+                 * Determine if individual giftcards should show (Inline mode)
+                 * @returns {boolean} True for inline mode, false for redirect mode
+                 */
+                shouldShowIndividual: function() {
+                    return !this.buckaroo.groupGiftcards;
+                },
+
+                /**
+                 * Determine if grouped giftcards should show (Redirect mode) 
+                 * @returns {boolean} True for redirect mode, false for inline mode
+                 */
+                shouldShowGrouped: function() {
+                    return !!this.buckaroo.groupGiftcards;
+                },
+
+                setTestParameters: function(giftcardCode) {
+                    // Allow function to work with both direct code parameter and event object
+                    var code = giftcardCode;
+                    if (typeof giftcardCode === 'object' && giftcardCode.target) {
+                        code = giftcardCode.target.value;
+                    }
+                    if (!code && this.currentGiftcard()) {
+                        code = this.currentGiftcard();
+                    }
+
+                    let cardNumber = '';
                     let pin = '';
                     if (this.buckaroo.isTestMode && !this.buckaroo.groupGiftcards) {
-                        if (["boekenbon","vvvgiftcard","yourgift","customgiftcard","customgiftcard1","customgiftcard2"].indexOf(giftcardCode) !== -1) {
+                        if (["boekenbon","vvvgiftcard","yourgift","customgiftcard","customgiftcard1","customgiftcard2"].indexOf(code) !== -1) {
                             cardNumber = '0000000000000000001';
                             pin = '1000';
                         }
 
-                        if (giftcardCode === 'fashioncheque') {
+                        if (code === 'fashioncheque') {
                             cardNumber = '1000001000';
                             pin = '2000';
                         }

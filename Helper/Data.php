@@ -392,22 +392,7 @@ class Data extends AbstractHelper
         }
     }
 
-    /**
-     * Retrieve the sort order for the available gift card types
-     *
-     * @return mixed
-     * @throws NoSuchEntityException
-     */
-    public function getConfigGiftCardsSort()
-    {
-        return $this->scopeConfig->getValue(
-            'payment/buckaroo_magento2_giftcards/sorted_giftcards',
-            $this->scopeDefiner->getScope(),
-            ($this->scopeDefiner->getScope() == ScopeInterface::SCOPE_WEBSITES) ?
-                $this->storeManager->getStore() :
-                null
-        );
-    }
+
 
     /**
      * Check if two amounts are equal within a reasonable margin of error.
