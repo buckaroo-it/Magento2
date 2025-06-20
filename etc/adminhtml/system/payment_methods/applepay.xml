@@ -79,6 +79,9 @@
                 <source_model>Buckaroo\Magento2\Model\Config\Source\AvailableButtons</source_model>
                 <config_path>payment/buckaroo_magento2_applepay/available_buttons</config_path>
                 <can_be_empty>1</can_be_empty>
+                <depends>
+                    <field id="integration_mode">0</field>
+                </depends>
             </field>
 
             <field id="button_style" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">

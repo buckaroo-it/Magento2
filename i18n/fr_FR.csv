@@ -494,3 +494,4 @@
 "Apple Pay checkout type","Type de passage en caisse Apple Pay"
 "Inline (Integrated in checkout)","Intégré (Intégré au passage en caisse)"
 "Redirect (Buckaroo Hosted Payment Page)","Redirection (Page de paiement hébergée par Buckaroo)"
+"Select Inline to embed Apple Pay directly within the Magento checkout. Select Redirect to send customers to Buckaroo's secure Hosted Payment Page. Note: When using the Redirect option, Apple Pay can only be offered in the checkout (not in other areas like the mini-cart or product page).","Sélectionnez Intégré pour intégrer Apple Pay directement dans le passage en caisse de Magento. Sélectionnez Redirection pour rediriger les clients vers la page de paiement sécurisée hébergée par Buckaroo. Remarque: Lorsque l'option Redirection est utilisée, Apple Pay ne peut être proposé que dans le passage en caisse (et non dans d'autres zones comme le mini-panier ou la page produit)."
