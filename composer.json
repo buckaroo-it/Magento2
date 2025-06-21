@@ -63,16 +63,9 @@
     "replace": {
         "buckaroo/magento2secondchance": "*"
     },
-    "scripts": {
-        "pre-install-cmd": [
-            "@check-second-chance-conflict"
-        ],
-        "pre-update-cmd": [
-            "@check-second-chance-conflict"
-        ],
-        "check-second-chance-conflict": [
-            "php Scripts/check-upgrade-conflict.php"
-        ]
+    "suggest": {
+        "buckaroo/magento2secondchance":
+        "No longer needed – remove it, then run composer require buckaroo/magento2:^2 -W"
     },
     "extra": {
         "map": [
