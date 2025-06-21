@@ -158,6 +158,7 @@ class LogCleaner
                 }
             }
         }
+
     }
 
     /**
