@@ -84,9 +84,41 @@ class PaypalFormatData implements FormatFormDataInterface
             isset($addressData['countryCode']) ? strtoupper($addressData['countryCode']) : 'NL'
         );
         $shippingAddressRequest->setPostalCode($addressData['postalCode']);
-        $shippingAddressRequest->setCity($addressData['locality']);
+        
+        // Sanitize city to meet validation requirements (A-Z, a-z, 0-9, -, ', spaces only)
+        $city = $addressData['locality'] ?? '';
+        $sanitizedCity = $this->sanitizeCityName($city);
+        $shippingAddressRequest->setCity($sanitizedCity);
+        
         $shippingAddressRequest->setState($addressData['administrativeArea'] ?? 'unknown');
 
         return $shippingAddressRequest;
+    }
+
+    /**
+     * Sanitize city name to meet Buckaroo validation requirements
+     * Only allows A-Z, a-z, 0-9, -, ', spaces
+     *
+     * @param string $cityName
+     * @return string
+     */
+    private function sanitizeCityName(string $cityName): string
+    {
+        if (empty($cityName)) {
+            return 'City';
+        }
+        
+        // Remove any characters that are not A-Z, a-z, 0-9, -, ', or spaces
+        $sanitized = preg_replace('/[^A-Za-z0-9\-\'\s]/', '', $cityName);
+        
+        // Remove extra spaces and trim
+        $sanitized = preg_replace('/\s+/', ' ', trim($sanitized));
+        
+        // If sanitization results in empty string, use a default value
+        if (empty($sanitized)) {
+            $sanitized = 'City';
+        }
+        
+        return $sanitized;
     }
 }
