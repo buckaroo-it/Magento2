@@ -71,7 +71,7 @@
             "@check-second-chance-conflict"
         ],
         "check-second-chance-conflict": [
-            "php scripts/check-upgrade-conflict.php"
+            "php Scripts/check-upgrade-conflict.php"
         ]
     },
     "extra": {
