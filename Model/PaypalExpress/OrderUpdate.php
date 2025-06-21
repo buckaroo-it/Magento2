@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Model\PaypalExpress;
 use Buckaroo\Magento2\Api\Data\BuckarooResponseDataInterface;
 use Magento\Sales\Api\Data\OrderAddressInterface;
 use Magento\Sales\Api\Data\OrderInterface;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 
 class OrderUpdate
 {
@@ -37,12 +38,20 @@ class OrderUpdate
     private BuckarooResponseDataInterface $buckarooResponseData;
 
     /**
+     * @var BuckarooLoggerInterface
+     */
+    private BuckarooLoggerInterface $logger;
+
+    /**
      * @param BuckarooResponseDataInterface $buckarooResponseData
+     * @param BuckarooLoggerInterface $logger
      */
     public function __construct(
-        BuckarooResponseDataInterface $buckarooResponseData
+        BuckarooResponseDataInterface $buckarooResponseData,
+        BuckarooLoggerInterface $logger
     ) {
         $this->buckarooResponseData = $buckarooResponseData;
+        $this->logger = $logger;
         $this->responseAddressInfo = $this->getAddressInfoFromPayRequest();
     }
 
@@ -112,11 +121,138 @@ class OrderUpdate
     protected function updateItem($address, $addressField, $responseField)
     {
         if ($this->valueExists($responseField)) {
+            $value = $this->responseAddressInfo[$responseField];
+            
+            // Sanitize address data based on field type
+            $value = $this->sanitizeAddressField($addressField, $value);
+            
             $address->setData(
                 $addressField,
-                $this->responseAddressInfo[$responseField]
+                $value
             );
         }
+    }
+
+    /**
+     * Sanitize address field data based on Magento validation requirements
+     *
+     * @param string $fieldType
+     * @param string $value
+     * @return string
+     */
+    private function sanitizeAddressField(string $fieldType, string $value): string
+    {
+        $originalValue = $value;
+        
+        switch ($fieldType) {
+            case 'city':
+                $value = $this->sanitizeCityName($value);
+                break;
+            case 'firstname':
+            case 'lastname':
+                $value = $this->sanitizePersonName($value);
+                break;
+            case 'telephone':
+                $value = $this->sanitizePhoneNumber($value);
+                break;
+            case 'postcode':
+                $value = $this->sanitizePostcode($value);
+                break;
+            default:
+                $value = trim($value);
+        }
+        
+        // Log if sanitization changed the value
+        if ($originalValue !== $value) {
+            $this->logger->addDebug(sprintf(
+                'PayPal Express address data sanitized for field "%s": "%s" -> "%s"',
+                $fieldType,
+                $originalValue,
+                $value
+            ));
+        }
+        
+        return $value;
+    }
+
+    /**
+     * Sanitize person name (firstname/lastname)
+     *
+     * @param string $name
+     * @return string
+     */
+    private function sanitizePersonName(string $name): string
+    {
+        // Remove special characters that might cause issues
+        $sanitized = preg_replace('/[^\p{L}\p{M}\s\-\'\.]/u', '', $name);
+        $sanitized = preg_replace('/\s+/', ' ', trim($sanitized));
+        
+        if (empty($sanitized)) {
+            $sanitized = 'Guest';
+        }
+        
+        return $sanitized;
+    }
+
+    /**
+     * Sanitize phone number
+     *
+     * @param string $phone
+     * @return string
+     */
+    private function sanitizePhoneNumber(string $phone): string
+    {
+        // Keep numbers, spaces, dashes, parentheses, and plus sign
+        $sanitized = preg_replace('/[^\d\s\-\(\)\+]/', '', $phone);
+        $sanitized = trim($sanitized);
+        
+        if (empty($sanitized)) {
+            $sanitized = '0000000000';
+        }
+        
+        return $sanitized;
+    }
+
+    /**
+     * Sanitize postcode
+     *
+     * @param string $postcode
+     * @return string
+     */
+    private function sanitizePostcode(string $postcode): string
+    {
+        // Allow alphanumeric characters, spaces, and dashes
+        $sanitized = preg_replace('/[^A-Za-z0-9\s\-]/', '', $postcode);
+        $sanitized = preg_replace('/\s+/', ' ', trim($sanitized));
+        
+        if (empty($sanitized)) {
+            $sanitized = '00000';
+        }
+        
+        return $sanitized;
+    }
+
+    /**
+     * Sanitize city name to meet Magento validation requirements
+     * Only allows A-Z, a-z, 0-9, -, ', spaces
+     *
+     * @param string $cityName
+     * @return string
+     */
+    private function sanitizeCityName(string $cityName): string
+    {
+        // Remove any characters that are not A-Z, a-z, 0-9, -, ', or spaces
+        $sanitized = preg_replace('/[^A-Za-z0-9\-\'\s]/', '', $cityName);
+        
+        // Remove extra spaces and trim
+        $sanitized = preg_replace('/\s+/', ' ', trim($sanitized));
+        
+        // If sanitization results in empty string, use a default value
+        if (empty($sanitized)) {
+            $sanitized = 'City';
+        }
+        
+        return $sanitized;
     }
 
     private function valueExists($key): bool
