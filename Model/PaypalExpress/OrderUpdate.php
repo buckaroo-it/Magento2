@@ -56,17 +56,66 @@ class OrderUpdate
     }
 
     /**
-     * Get payment response
+     * Alternative method to get PayPal data from push notification
+     * This handles the case where PayPal data comes through push notifications
+     *
+     * @return array|null
+     */
+    private function getAddressInfoFromPushData(): ?array
+    {
+        $fullResponse = $this->buckarooResponseData->getResponse()->toArray();
+
+        // Extract PayPal data from push notification format
+        $paypalData = [];
+        if (is_array($fullResponse)) {
+            foreach ($fullResponse as $key => $value) {
+                // Look for brq_SERVICE_paypal_ prefixed fields
+                if (strpos($key, 'brq_SERVICE_paypal_') === 0) {
+                    // Remove the prefix to get the clean field name
+                    $cleanKey = str_replace('brq_SERVICE_paypal_', '', $key);
+                    $paypalData[$cleanKey] = $value;
+                }
+            }
+        }
+
+        return !empty($paypalData) ? $paypalData : null;
+    }
+
+    /**
+     * Enhanced version of getAddressInfoFromPayRequest that tries both sources
      *
      * @return array|null
      */
     private function getAddressInfoFromPayRequest(): ?array
     {
         $buckarooResponse = $this->buckarooResponseData->getResponse()->toArray();
+
+        // First try the Services[0].Parameters structure (which is what we see in the logs)
+        if (!empty($buckarooResponse) && isset($buckarooResponse['Services'])) {
+            foreach ($buckarooResponse['Services'] as $service) {
+                if (isset($service['Name']) && $service['Name'] === 'paypal' && isset($service['Parameters'])) {
+                    $paypalData = $this->formatAddressData($service['Parameters']);
+                    if (!empty($paypalData)) {
+                        return $paypalData;
+                    }
+                }
+            }
+        }
+
+        // Fallback: try the old API response format
         if (!empty($buckarooResponse)
             && isset($buckarooResponse['Services']['Service']['ResponseParameter'])
         ) {
-            return $this->formatAddressData($buckarooResponse['Services']['Service']['ResponseParameter']);
+            $apiData = $this->formatAddressData($buckarooResponse['Services']['Service']['ResponseParameter']);
+            if (!empty($apiData)) {
+                return $apiData;
+            }
+        }
+
+        // If API response doesn't have data, try push notification format
+        $pushData = $this->getAddressInfoFromPushData();
+        if (!empty($pushData)) {
+            return $pushData;
         }
 
         return null;
@@ -86,7 +135,12 @@ class OrderUpdate
         }
 
         foreach ($addressData as $addressItem) {
-            if (isset($addressItem->_) && isset($addressItem->Name)) {
+            // Handle new structure: {"Name": "fieldName", "Value": "fieldValue"}
+            if (isset($addressItem['Name']) && isset($addressItem['Value'])) {
+                $data[$addressItem['Name']] = $addressItem['Value'];
+            }
+            // Handle old structure: object with Name and _ properties
+            elseif (isset($addressItem->_) && isset($addressItem->Name)) {
                 $data[$addressItem->Name] = $addressItem->_;
             }
         }
@@ -96,8 +150,8 @@ class OrderUpdate
     /**
      * Update order address with pay response data
      *
-     * @param \Magento\Sales\Api\Data\OrderAddressInterface
-     * @return \Magento\Sales\Api\Data\OrderAddressInterface
+     * @param mixed $address
+     * @return mixed
      */
     public function updateAddress($address)
     {
@@ -106,26 +160,91 @@ class OrderUpdate
             return $address;
         }
 
+        // Update basic info
         $this->updateItem($address, OrderAddressInterface::FIRSTNAME, 'payerFirstname');
         $this->updateItem($address, OrderAddressInterface::LASTNAME, 'payerLastname');
-        $this->updateItem($address, OrderAddressInterface::STREET, 'address_line_1');
         $this->updateItem($address, OrderAddressInterface::EMAIL, 'payerEmail');
-        $this->updateItem($address, OrderAddressInterface::CITY, 'payerCity');
+
+        // Update address fields with correct PayPal field mappings
+        $this->updateStreetAddress($address);
+        $this->updateItem($address, OrderAddressInterface::CITY, 'admin_area_2');
+        $this->updateItem($address, OrderAddressInterface::POSTCODE, 'postal_code');
         $this->updateItem($address, OrderAddressInterface::COUNTRY_ID, 'payerCountry');
-        $this->updateItem($address, OrderAddressInterface::POSTCODE, 'payerPostalCode');
-        $this->updateItem($address, OrderAddressInterface::TELEPHONE, 'payerPhone');
+
+        // Phone is optional since PayPal doesn't always provide it
+        $this->updateItemOptional($address, OrderAddressInterface::TELEPHONE, 'payerPhone');
 
         return $address;
+    }
+
+    /**
+     * Update street address combining address_line_1 and address_line_2
+     *
+     * @param mixed $address
+     * @return void
+     */
+    private function updateStreetAddress($address)
+    {
+        $street = [];
+
+        // Get address line 1
+        if ($this->valueExists('address_line_1')) {
+            $street[] = $this->responseAddressInfo['address_line_1'];
+        }
+
+        // Get address line 2 (house number, etc.)
+        if ($this->valueExists('address_line_2')) {
+            $street[] = $this->responseAddressInfo['address_line_2'];
+        }
+
+        if (!empty($street)) {
+            // Combine and sanitize street address
+            $streetValue = implode(' ', $street);
+            $streetValue = $this->sanitizeAddressField('street', $streetValue);
+            $address->setData(OrderAddressInterface::STREET, [$streetValue]);
+        }
+    }
+
+    /**
+     * Update item but don't use default values if the field doesn't exist
+     *
+     * @param mixed $address
+     * @param string $addressField
+     * @param string $responseField
+     * @return void
+     */
+    private function updateItemOptional($address, $addressField, $responseField)
+    {
+        if ($this->valueExists($responseField)) {
+            $value = $this->responseAddressInfo[$responseField];
+
+            // Ensure we have a string value
+            if (!is_string($value)) {
+                $value = (string) $value;
+            }
+
+            // Only set if we have a meaningful value
+            if (!empty(trim($value))) {
+                $value = $this->sanitizeAddressField($addressField, $value);
+                $address->setData($addressField, $value);
+            }
+        }
+        // Don't set any default value - leave field empty
     }
 
     protected function updateItem($address, $addressField, $responseField)
     {
         if ($this->valueExists($responseField)) {
             $value = $this->responseAddressInfo[$responseField];
-            
+
+            // Ensure we have a string value
+            if (!is_string($value)) {
+                $value = (string) $value;
+            }
+
             // Sanitize address data based on field type
             $value = $this->sanitizeAddressField($addressField, $value);
-            
+
             $address->setData(
                 $addressField,
                 $value
@@ -142,8 +261,6 @@ class OrderUpdate
      */
     private function sanitizeAddressField(string $fieldType, string $value): string
     {
-        $originalValue = $value;
-        
         switch ($fieldType) {
             case 'city':
                 $value = $this->sanitizeCityName($value);
@@ -161,17 +278,7 @@ class OrderUpdate
             default:
                 $value = trim($value);
         }
-        
-        // Log if sanitization changed the value
-        if ($originalValue !== $value) {
-            $this->logger->addDebug(sprintf(
-                'PayPal Express address data sanitized for field "%s": "%s" -> "%s"',
-                $fieldType,
-                $originalValue,
-                $value
-            ));
-        }
-        
+
         return $value;
     }
 
@@ -186,11 +293,11 @@ class OrderUpdate
         // Remove special characters that might cause issues
         $sanitized = preg_replace('/[^\p{L}\p{M}\s\-\'\.]/u', '', $name);
         $sanitized = preg_replace('/\s+/', ' ', trim($sanitized));
-        
+
         if (empty($sanitized)) {
             $sanitized = 'Guest';
         }
-        
+
         return $sanitized;
     }
 
@@ -205,11 +312,7 @@ class OrderUpdate
         // Keep numbers, spaces, dashes, parentheses, and plus sign
         $sanitized = preg_replace('/[^\d\s\-\(\)\+]/', '', $phone);
         $sanitized = trim($sanitized);
-        
-        if (empty($sanitized)) {
-            $sanitized = '0000000000';
-        }
-        
+
         return $sanitized;
     }
 
@@ -224,11 +327,11 @@ class OrderUpdate
         // Allow alphanumeric characters, spaces, and dashes
         $sanitized = preg_replace('/[^A-Za-z0-9\s\-]/', '', $postcode);
         $sanitized = preg_replace('/\s+/', ' ', trim($sanitized));
-        
+
         if (empty($sanitized)) {
             $sanitized = '00000';
         }
-        
+
         return $sanitized;
     }
 
@@ -241,17 +344,26 @@ class OrderUpdate
      */
     private function sanitizeCityName(string $cityName): string
     {
+        if (empty($cityName)) {
+            return 'City';
+        }
+
         // Remove any characters that are not A-Z, a-z, 0-9, -, ', or spaces
         $sanitized = preg_replace('/[^A-Za-z0-9\-\'\s]/', '', $cityName);
-        
+
         // Remove extra spaces and trim
         $sanitized = preg_replace('/\s+/', ' ', trim($sanitized));
-        
+
         // If sanitization results in empty string, use a default value
         if (empty($sanitized)) {
             $sanitized = 'City';
         }
-        
+
+        // Final validation check
+        if (!preg_match('/^[A-Za-z0-9\-\'\s]+$/', $sanitized)) {
+            $sanitized = 'City';
+        }
+
         return $sanitized;
     }
 
