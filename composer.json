@@ -64,15 +64,6 @@
         "buckaroo/magento2secondchance": "*"
     },
     "suggest": {
-        "buckaroo/magento2secondchance":
-        "No longer needed – remove it, then run composer require buckaroo/magento2:^2 -W"
-    },
-    "extra": {
-        "map": [
-            [
-                "*",
-                "Buckaroo/Magento2"
-            ]
-        ]
+        "buckaroo/magento2secondchance": "No longer needed – remove it"
     }
 }
