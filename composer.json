@@ -59,5 +59,11 @@
     },
     "conflict": {
         "buckaroo/magento2secondchance": "*"
+    },
+    "replace": {
+        "buckaroo/magento2secondchance": "*"
+    },
+    "suggest": {
+        "buckaroo/magento2secondchance": "No longer needed – remove it"
     }
 }
