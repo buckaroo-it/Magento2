@@ -49,7 +49,7 @@ class Log implements BuckarooLoggerInterface
         mixed $level,
         $message,
         array $context = [],
-        \DateTimeInterface $datetime = null
+        ?\DateTimeInterface $datetime = null
     ): bool {
         if (! $this->debugConfiguration->canLog($level)) {
             return false;

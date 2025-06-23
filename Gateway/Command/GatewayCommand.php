@@ -120,10 +120,10 @@ class GatewayCommand implements CommandInterface
         LoggerInterface             $logger,
         SpamLimitService            $spamLimitService,
         CancelOrder                 $cancelOrder,
-        HandlerInterface            $handler = null,
-        ValidatorInterface          $validator = null,
+        ?HandlerInterface            $handler = null,
+        ?ValidatorInterface          $validator = null,
         ?ErrorMessageMapperInterface $errorMessageMapper = null,
-        SkipCommandInterface        $skipCommand = null
+        ?SkipCommandInterface        $skipCommand = null
     ) {
         $this->requestBuilder = $requestBuilder;
         $this->transferFactory = $transferFactory;

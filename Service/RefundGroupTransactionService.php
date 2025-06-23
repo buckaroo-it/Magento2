@@ -96,7 +96,7 @@ class RefundGroupTransactionService
         BuilderInterface $requestDataBuilder,
         TransferFactoryInterface $transferFactory,
         ClientInterface $clientInterface,
-        HandlerInterface $handler = null
+        ?HandlerInterface $handler = null
     ) {
         $this->requestDataBuilder = $requestDataBuilder;
         $this->transferFactory = $transferFactory;
