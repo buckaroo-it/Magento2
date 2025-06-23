@@ -21,7 +21,6 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request\AdditionalInformation;
 
-use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 
@@ -66,7 +65,7 @@ class ApplepayConditionalDataBuilder implements BuilderInterface
         $integrationMode = $this->applepayConfig->getIntegrationMode();
 
         // Use the appropriate data builder based on integration mode
-        if ($integrationMode === '0') {
+        if ($integrationMode === '0' || $integrationMode === 0) {
             // Inline mode - no return URLs needed
             return $this->inlineDataBuilder->build($buildSubject);
         } else {
@@ -74,4 +73,4 @@ class ApplepayConditionalDataBuilder implements BuilderInterface
             return $this->redirectDataBuilder->build($buildSubject);
         }
     }
-} 
+}

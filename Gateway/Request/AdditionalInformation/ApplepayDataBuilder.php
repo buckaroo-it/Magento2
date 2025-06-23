@@ -33,17 +33,18 @@ class ApplepayDataBuilder implements BuilderInterface
     public function build(array $buildSubject): array
     {
         $paymentDO = SubjectReader::readPayment($buildSubject);
+        $applepayTransaction = $paymentDO->getPayment()->getAdditionalInformation('applepayTransaction');
 
         return [
             'paymentData' => base64_encode(
-                (string)$paymentDO->getPayment()->getAdditionalInformation('applepayTransaction')
+                (string)$applepayTransaction
             ),
             'customerCardName' => $this->getCustomerCardName($paymentDO),
         ];
     }
 
     /**
-     * Get customer card name from Apple Pay transaction
+     * Get the customer card name from Apple Pay transaction
      *
      * @param PaymentDataObjectInterface $paymentDO
      * @return string|null
@@ -53,6 +54,7 @@ class ApplepayDataBuilder implements BuilderInterface
         $billingContact = \json_decode(
             stripslashes((string)$paymentDO->getPayment()->getAdditionalInformation('billingContact'))
         );
+
         if ($billingContact &&
             !empty($billingContact->givenName) &&
             !empty($billingContact->familyName)

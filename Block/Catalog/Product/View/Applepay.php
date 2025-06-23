@@ -25,8 +25,6 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay as ApplepayConfig;
 use Magento\Catalog\Model\Product;
 use Magento\Checkout\Model\Cart;
 use Magento\Checkout\Model\CompositeConfigProvider;
-use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Registry;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
@@ -111,7 +109,7 @@ class Applepay extends Template
 
         if (in_array($page, ['Product', 'Cart'], true)) {
             $integrationMode = $this->applepayConfigProvider->getIntegrationMode();
-            if ($integrationMode === '1') {
+            if ($integrationMode === '1' || $integrationMode === 1) {
                 return false;
             }
         }

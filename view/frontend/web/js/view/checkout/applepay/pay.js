@@ -113,14 +113,15 @@ define(
             },
 
             canShowApplePay: function () {
-                BuckarooSdk.ApplePay.checkApplePaySupport(window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.guid)
+                return BuckarooSdk.ApplePay.checkApplePaySupport(window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.guid)
                     .then(function (applePaySupported) {
                         this.canShowMethod(applePaySupported);
+                        return applePaySupported;
                     }.bind(this))
                     .catch(function (error) {
                         this.canShowMethod(false);
+                        return false;
                     }.bind(this));
-                return this.canShowMethod();
             },
 
             setQuote: function (newQuote) {
@@ -511,107 +512,10 @@ define(
             },
 
             devLog: function (msg, params) {
-                // Debug logging is disabled for production.
-            },
-
-            /**
-             * Validate product before allowing express checkout
-             * @returns {boolean}
-             */
-            validateProductForExpressCheckout: function () {
-                var productId = this.productSelected.id;
-                var qty = this.productSelected.qty || 1;
-                var selectedOptions = this.productSelected.selected_options || {};
-
-                if (!productId) {
-                    this.showValidationError('Unable to identify product.');
-                    return false;
+                //window.buckarooDebug = 1;
+                if (window.buckarooDebug) {
+                    console.log(msg, params);
                 }
-
-                // Check if configurable product has all required options selected
-                var missingOptions = [];
-
-                // Check swatch attributes (color/size swatches)
-                if ($('div.swatch-attribute').length > 0) {
-                    $('div.swatch-attribute').each(function() {
-                        var attributeId = $(this).attr('attribute-id') || $(this).attr('data-attribute-id');
-                        var optionSelected = $(this).attr('option-selected') || $(this).attr('data-option-selected');
-                        var label = $(this).find('.swatch-attribute-label').text().replace('*', '').trim();
-
-                        if (!optionSelected && attributeId) {
-                            missingOptions.push(label || 'Option');
-                        }
-                    });
-                }
-
-                // Check dropdown configurable options (select dropdowns)
-                $('select[name*="super_attribute"]').each(function() {
-                    var selectValue = $(this).val();
-                    var fieldElement = $(this).closest('.field');
-                    var label = fieldElement.find('label span').text().trim();
-
-                    if (!selectValue || selectValue === '') {
-                        missingOptions.push(label || 'Dropdown Option');
-                    }
-                });
-
-                if (missingOptions.length > 0) {
-                    this.showValidationError('Please select: ' + missingOptions.join(', '));
-                    return false;
-                }
-
-                // Check for required custom options
-                var hasRequiredOptions = false;
-                $('.product-options-wrapper .field.required').each(function() {
-                    var input = $(this).find('input, select, textarea');
-                    var value = input.val();
-                    var label = $(this).find('label').text().replace('*', '').trim();
-
-                    if (!value || value === '') {
-                        hasRequiredOptions = true;
-                        return false;
-                    }
-                });
-
-                if (hasRequiredOptions) {
-                    this.showValidationError('This product has required options. Please make your selections before proceeding.');
-                    return false;
-                }
-
-                // Validate quantity
-                if (qty < 1) {
-                    this.showValidationError('Please enter a valid quantity.');
-                    return false;
-                }
-
-                return true;
-            },
-
-            /**
-             * Show validation error message
-             * @param {string} message
-             */
-            showValidationError: function (message) {
-                // Remove existing error messages
-                $('.buckaroo-express-error').remove();
-
-                // Create error message element
-                var errorDiv = $('<div class="message-error error message buckaroo-express-error"><div>' + message + '</div></div>');
-
-                // Insert error message before the Apple Pay button
-                $('#apple-pay-wrapper').before(errorDiv);
-
-                // Auto-remove error after 5 seconds
-                setTimeout(function() {
-                    errorDiv.fadeOut(500, function() {
-                        $(this).remove();
-                    });
-                }, 5000);
-
-                // Scroll to error message
-                $('html, body').animate({
-                    scrollTop: errorDiv.offset().top - 100
-                }, 500);
             }
         };
     }
