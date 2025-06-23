@@ -927,8 +927,8 @@
                 <order_state_incorrect>holded</order_state_incorrect>
             </states>
             <second_chance>
-                <second_chance_template>buckaroo_second_chance</second_chance_template>
-                <second_chance_template2>buckaroo_second_chance2</second_chance_template2>
+                <second_chance_template>buckaroo_second_chance_first</second_chance_template>
+                <second_chance_template2>buckaroo_second_chance_second</second_chance_template2>
                 <second_chance_email>1</second_chance_email>
                 <second_chance_email2>1</second_chance_email2>
                 <multiple_emails_send>1</multiple_emails_send>
