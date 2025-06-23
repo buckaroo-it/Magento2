@@ -13,7 +13,7 @@
             <schedule>*/5 * * * *</schedule>
         </job>
         <job instance="Buckaroo\Magento2\Cron\SecondChance" method="execute" name="buckaroo_magento2_second_chance_cron">
-            <schedule>*/5 * * * *</schedule>
+            <schedule>*/2 * * * *</schedule>
         </job>
     </group>
 </config>
