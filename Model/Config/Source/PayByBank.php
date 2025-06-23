@@ -59,4 +59,4 @@ class PayByBank implements OptionSourceInterface
 
         return $output;
     }
-} 
+}

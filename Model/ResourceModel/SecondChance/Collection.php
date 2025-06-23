@@ -41,4 +41,4 @@ class Collection extends AbstractCollection
             \Buckaroo\Magento2\Model\ResourceModel\SecondChance::class
         );
     }
-} 
+}

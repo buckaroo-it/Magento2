@@ -33,4 +33,4 @@ class SecondChance extends AbstractDb
     {
         $this->_init('buckaroo_magento2_second_chance', 'entity_id');
     }
-} 
+}

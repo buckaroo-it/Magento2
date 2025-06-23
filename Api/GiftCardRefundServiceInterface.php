@@ -36,4 +36,4 @@ interface GiftCardRefundServiceInterface
      * @return void
      */
     public function refund(Order $order): void;
-} 
+}

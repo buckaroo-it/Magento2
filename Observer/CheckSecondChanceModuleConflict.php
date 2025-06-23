@@ -51,4 +51,4 @@ class CheckSecondChanceModuleConflict implements ObserverInterface
     {
         $this->conflictDetector->checkAndNotify();
     }
-} 
+}

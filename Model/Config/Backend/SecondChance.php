@@ -48,4 +48,4 @@ class SecondChance extends Value
 
         return parent::beforeSave();
     }
-} 
+}

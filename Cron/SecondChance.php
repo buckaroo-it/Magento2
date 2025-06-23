@@ -88,4 +88,4 @@ class SecondChance
         
         return $this;
     }
-} 
+}

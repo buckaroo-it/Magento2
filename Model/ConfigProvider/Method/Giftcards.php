@@ -239,7 +239,7 @@ class Giftcards extends AbstractConfigProvider
         $allowedCodesArray = explode(',', (string)$allowedCards);
 
         // Remove any empty values from the array
-        $allowedCodesArray = array_filter($allowedCodesArray, function($value) {
+        $allowedCodesArray = array_filter($allowedCodesArray, function ($value) {
             return !empty(trim($value));
         });
 

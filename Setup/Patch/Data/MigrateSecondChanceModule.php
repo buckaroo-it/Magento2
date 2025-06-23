@@ -157,4 +157,4 @@ class MigrateSecondChanceModule implements DataPatchInterface
     {
         return [];
     }
-} 
+}

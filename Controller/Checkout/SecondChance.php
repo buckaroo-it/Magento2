@@ -79,4 +79,4 @@ class SecondChance extends \Magento\Framework\App\Action\Action
     {
         return $this->_redirect($path, $arguments);
     }
-} 
+}

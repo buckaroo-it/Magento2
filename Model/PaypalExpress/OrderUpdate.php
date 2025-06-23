@@ -407,6 +407,4 @@ class OrderUpdate
             $order->setCustomerEmail($this->responseAddressInfo['payerEmail']);
         };
     }
-
-
 }

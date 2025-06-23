@@ -102,4 +102,4 @@ class CreateSecondChanceRecord implements ObserverInterface
             $this->logging->addError('Error creating SecondChance record for order ' . $order->getIncrementId() . ': ' . $e->getMessage());
         }
     }
-} 
+}
