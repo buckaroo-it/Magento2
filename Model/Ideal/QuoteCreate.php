@@ -104,7 +104,7 @@ class QuoteCreate implements IdealQuoteCreateInterface
             // But this API receives: execute($page, $orderData)
             // So $orderData might be null and we need to get it from the request
             $form_data = $orderData;
-            
+
             if ($page === 'product' && $form_data) {
                 $this->quote = $this->createQuote($form_data);
             } else {
@@ -116,8 +116,23 @@ class QuoteCreate implements IdealQuoteCreateInterface
                 $defaultBillingAddress = $this->getAddress($customer->getDefaultBilling());
                 $defaultShippingAddress = $this->getAddress($customer->getDefaultShipping());
 
-                $this->setAddresses($defaultShippingAddress, $defaultBillingAddress, $customer);
+                $this->logger->debug('iDEAL Fast Checkout - Customer address check', [
+                    'customer_id' => $customer->getId(),
+                    'has_default_addresses' => [
+                        'billing' => $defaultBillingAddress !== null,
+                        'shipping' => $defaultShippingAddress !== null
+                    ]
+                ]);
+
+                if ($defaultBillingAddress === null && $defaultShippingAddress === null) {
+                    $this->logger->debug('iDEAL Fast Checkout - Using placeholder addresses for customer without defaults');
+                    $this->setDefaultShippingAddress();
+                } else {
+                    $this->logger->debug('iDEAL Fast Checkout - Using customer default addresses');
+                    $this->setAddresses($defaultShippingAddress, $defaultBillingAddress, $customer);
+                }
             } else {
+                $this->logger->debug('iDEAL Fast Checkout - Setting guest addresses');
                 $this->setDefaultShippingAddress();
             }
 
@@ -140,10 +155,17 @@ class QuoteCreate implements IdealQuoteCreateInterface
      */
     protected function restoreStoreContext()
     {
-        if ($this->quote && $this->quote->getStoreId()) {
+        if ($this->quote) {
+            // Ensure the quote has a store ID set
+            if (!$this->quote->getStoreId()) {
+                $this->quote->setStoreId($this->storeManager->getStore()->getId());
+                $this->logger->debug('iDEAL Fast Checkout - Store ID set on quote');
+            }
+
+            // Set the current store context
             $this->storeManager->setCurrentStore($this->quote->getStoreId());
         } else {
-            $this->logger->debug('Store ID not set on quote.');
+            $this->logger->debug('iDEAL Fast Checkout - Quote not available for store context');
         }
     }
 
@@ -192,7 +214,15 @@ class QuoteCreate implements IdealQuoteCreateInterface
             $shippingAddress->setCountryId($shippingAddressData->getCountryId());
             $shippingAddress->setTelephone($shippingAddressData->getTelephone());
         } else {
-            $this->setPlaceholderAddress($shippingAddress);
+            // If no shipping address, use customer data with placeholder address
+            $shippingAddress->setFirstname($customer->getFirstname() ?? 'Guest');
+            $shippingAddress->setLastname($customer->getLastname() ?? 'User');
+            $shippingAddress->setEmail($customer->getEmail() ?? 'guest@example.com');
+            $shippingAddress->setStreet(['123 Placeholder St']);
+            $shippingAddress->setCity('Placeholder City');
+            $shippingAddress->setPostcode('00000');
+            $shippingAddress->setCountryId('NL');
+            $shippingAddress->setTelephone('0000000000');
         }
 
         if ($billingAddressData) {
@@ -205,7 +235,15 @@ class QuoteCreate implements IdealQuoteCreateInterface
             $billingAddress->setCountryId($billingAddressData->getCountryId());
             $billingAddress->setTelephone($billingAddressData->getTelephone());
         } else {
-            $this->setPlaceholderAddress($billingAddress);
+            // If no billing address, use customer data with placeholder address
+            $billingAddress->setFirstname($customer->getFirstname() ?? 'Guest');
+            $billingAddress->setLastname($customer->getLastname() ?? 'User');
+            $billingAddress->setEmail($customer->getEmail() ?? 'guest@example.com');
+            $billingAddress->setStreet(['123 Placeholder St']);
+            $billingAddress->setCity('Placeholder City');
+            $billingAddress->setPostcode('00000');
+            $billingAddress->setCountryId('NL');
+            $billingAddress->setTelephone('0000000000');
         }
 
         $this->quote->setShippingAddress($shippingAddress);
@@ -263,6 +301,11 @@ class QuoteCreate implements IdealQuoteCreateInterface
     {
         $this->restoreStoreContext();
 
+        // Ensure store ID is set before calculating totals
+        if (!$this->quote->getStoreId()) {
+            $this->quote->setStoreId($this->storeManager->getStore()->getId());
+        }
+
         if ($this->quote->getCustomerEmail() === null) {
             $this->quote->setCustomerEmail('no-reply@example.com');
         }
@@ -288,11 +331,20 @@ class QuoteCreate implements IdealQuoteCreateInterface
 
             if (count($shippingMethods)) {
                 $shippingMethod = array_shift($shippingMethods);
-                $address->setShippingMethod($shippingMethod->getCarrierCode() . '_' . $shippingMethod->getMethodCode());
+                $methodCode = $shippingMethod->getCarrierCode() . '_' . $shippingMethod->getMethodCode();
+                $address->setShippingMethod($methodCode);
+
+                $this->logger->debug('iDEAL Fast Checkout - Shipping method set', [
+                    'method_code' => $methodCode
+                ]);
+            } else {
+                $this->logger->debug('iDEAL Fast Checkout - No shipping methods available');
             }
         }
         $address->setCollectShippingRates(true);
         $address->collectShippingRates();
+
+        $this->quoteRepository->save($this->quote);
     }
 
     /**
@@ -345,7 +397,7 @@ class QuoteCreate implements IdealQuoteCreateInterface
             $quoteBuilder = $this->quoteBuilderInterfaceFactory->create();
             $quoteBuilder->setFormData($form_data);
             $quote = $quoteBuilder->build();
-            
+
             return $quote;
         } catch (IdealException $idealEx) {
             // Re-throw iDEAL exceptions to preserve the specific error message

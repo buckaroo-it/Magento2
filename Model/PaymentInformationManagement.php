@@ -123,7 +123,18 @@ class PaymentInformationManagement extends MagentoPaymentInformationManagement i
     ): string {
         $this->checkSpecificCountry($paymentMethod, $billingAddress);
 
-        $orderId = $this->savePaymentInformationAndPlaceOrder($cartId, $paymentMethod, $billingAddress);
+        try {
+            $orderId = $this->savePaymentInformationAndPlaceOrder($cartId, $paymentMethod, $billingAddress);
+
+            $this->logger->debug('iDEAL Fast Checkout - Order placed successfully', [
+                'order_id' => $orderId
+            ]);
+        } catch (\Exception $e) {
+            $this->logger->debug('iDEAL Fast Checkout - Order placement failed', [
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
+        }
 
         if ($buckarooResponse = $this->buckarooResponseData->getResponse()) {
             $buckarooResponse = $buckarooResponse->toArray();
