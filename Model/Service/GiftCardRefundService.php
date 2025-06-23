@@ -28,7 +28,7 @@ use Magento\Sales\Model\Order;
 /**
  * Gift card refund service that works for both Magento Open Source and Adobe Commerce
  * Uses Adobe Commerce functionality when available, gracefully handles when not available
- * 
+ *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class GiftCardRefundService implements GiftCardRefundServiceInterface
@@ -106,7 +106,7 @@ class GiftCardRefundService implements GiftCardRefundServiceInterface
     private function isAdobeCommerceAvailable(): bool
     {
         if ($this->isAdobeCommerceAvailable === null) {
-            $this->isAdobeCommerceAvailable = 
+            $this->isAdobeCommerceAvailable =
                 interface_exists('Magento\GiftCardAccount\Api\GiftCardAccountRepositoryInterface') &&
                 class_exists('Magento\GiftCardAccount\Model\HistoryFactory') &&
                 class_exists('Magento\GiftCardAccount\Model\History');
@@ -218,4 +218,4 @@ class GiftCardRefundService implements GiftCardRefundServiceInterface
             ));
         }
     }
-} 
+}

@@ -119,7 +119,7 @@ class PaymentInformationManagement extends MagentoPaymentInformationManagement i
     public function buckarooSavePaymentInformationAndPlaceOrder(
         $cartId,
         PaymentInterface $paymentMethod,
-        AddressInterface $billingAddress = null
+        ?AddressInterface $billingAddress = null
     ): string {
         $this->checkSpecificCountry($paymentMethod, $billingAddress);
 

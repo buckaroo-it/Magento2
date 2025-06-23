@@ -158,8 +158,7 @@ class DefaultProcessor implements PushProcessorInterface
         OrderStatusFactory        $orderStatusFactory,
         Account                   $configAccount,
         GiftCardRefundService     $giftCardRefundService
-    )
-    {
+    ) {
         $this->pushTransactionType = $pushTransactionType;
         $this->orderRequestService = $orderRequestService;
         $this->logger = $logger;

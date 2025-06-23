@@ -83,7 +83,8 @@ class HtmlTransactionIdObserver implements ObserverInterface
 
             // Use different URLs based on transaction type
             if ($txtType == 'authorization') {
-                $transaction->setData('html_txn_id',
+                $transaction->setData(
+                    'html_txn_id',
                     sprintf(
                         '<a href="https://plaza.buckaroo.nl/Transaction/DataRequest/Details/%s" target="_blank">%s</a>',
                         $txnId,
@@ -94,7 +95,8 @@ class HtmlTransactionIdObserver implements ObserverInterface
             }
 
             // Default URL for non-authorization transactions
-            $transaction->setData('html_txn_id',
+            $transaction->setData(
+                'html_txn_id',
                 sprintf(
                     '<a href="https://plaza.buckaroo.nl/Transaction/Transactions/Details?transactionKey=%s" target="_blank">%s</a>',
                     $txnId,

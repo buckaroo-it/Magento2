@@ -67,7 +67,7 @@ class Data
      *
      * @return array
      */
-    public function get(OrderPaymentInterface $payment = null)
+    public function get(?OrderPaymentInterface $payment = null)
     {
         $platformData = $this->getPlatformData($payment);
         $moduleData = $this->getModuleData();
@@ -80,7 +80,7 @@ class Data
      *
      * @return array
      */
-    private function getPlatformData(OrderPaymentInterface $payment = null): array
+    private function getPlatformData(?OrderPaymentInterface $payment = null): array
     {
         $platformName = $this->getProductMetaData()->getName() . ' - ' . $this->getProductMetaData()->getEdition();
 

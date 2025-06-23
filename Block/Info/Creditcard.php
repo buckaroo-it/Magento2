@@ -63,7 +63,7 @@ class Creditcard extends Info
         LogoService $logoService,
         UrlInterface $baseUrl,
         array $data = [],
-        ConfigProviderCreditcard $configProvider = null
+        ?ConfigProviderCreditcard $configProvider = null
     ) {
         parent::__construct($context, $groupTransaction, $giftcardCollection, $logoService, $baseUrl, $data);
         $this->configProvider = $configProvider;

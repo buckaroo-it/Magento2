@@ -101,4 +101,4 @@ class SecondChanceMigrationNotice extends Field
     {
         return '';
     }
-} 
+}

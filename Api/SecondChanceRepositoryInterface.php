@@ -137,4 +137,4 @@ interface SecondChanceRepositoryInterface
      * @return void
      */
     public function sendMail($order, $secondChance, $step);
-} 
+}

@@ -82,4 +82,4 @@ class SecondChancePrune
         $this->logging->addDebug(__METHOD__ . '|SecondChance prune execution completed');
         return $this;
     }
-} 
+}

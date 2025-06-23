@@ -38,4 +38,4 @@ interface SecondChanceSearchResultsInterface extends SearchResultsInterface
      * @return $this
      */
     public function setItems(array $items);
-} 
+}

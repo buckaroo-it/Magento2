@@ -141,4 +141,4 @@ class ModuleConflictDetector
             $this->showConflictNotification();
         }
     }
-} 
+}

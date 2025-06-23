@@ -336,4 +336,4 @@ class SecondChance
         // Use default if still empty
         return $senderEmail ?: 'noreply@buckaroo.nl';
     }
-} 
+}
