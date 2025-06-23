@@ -82,44 +82,67 @@ class OrderUpdate
     }
 
     /**
-     * Enhanced version of getAddressInfoFromPayRequest that tries both sources
+     * Locate PayPal address info in the response, regardless of format
      *
      * @return array|null
      */
     private function getAddressInfoFromPayRequest(): ?array
     {
-        $buckarooResponse = $this->buckarooResponseData->getResponse()->toArray();
-
-        // First try the Services[0].Parameters structure (which is what we see in the logs)
-        if (!empty($buckarooResponse) && isset($buckarooResponse['Services'])) {
-            foreach ($buckarooResponse['Services'] as $service) {
-                if (isset($service['Name']) && $service['Name'] === 'paypal' && isset($service['Parameters'])) {
-                    $paypalData = $this->formatAddressData($service['Parameters']);
-                    if (!empty($paypalData)) {
-                        return $paypalData;
-                    }
-                }
-            }
+        $response = $this->buckarooResponseData->getResponse()->toArray();
+        if (!$response) {
+            return null;
         }
 
-        // Fallback: try the old API response format
-        if (!empty($buckarooResponse)
-            && isset($buckarooResponse['Services']['Service']['ResponseParameter'])
-        ) {
-            $apiData = $this->formatAddressData($buckarooResponse['Services']['Service']['ResponseParameter']);
-            if (!empty($apiData)) {
-                return $apiData;
-            }
-        }
+        $extractors = [
+            fn() => $this->extractFromServiceParameters($response['Services'] ?? null),
+            fn() => $this->extractFromLegacyApi($response),
+            fn() => $this->getAddressInfoFromPushData(),
+        ];
 
-        // If API response doesn't have data, try push notification format
-        $pushData = $this->getAddressInfoFromPushData();
-        if (!empty($pushData)) {
-            return $pushData;
+        foreach ($extractors as $extractor) {
+            $data = $extractor();
+            if (!empty($data)) {
+                return $data;
+            }
         }
 
         return null;
     }
+
+    /**
+     * New API format – Services[n].Parameters
+     */
+    private function extractFromServiceParameters(?array $services): ?array
+    {
+        if (!$services) {
+            return null;
+        }
+
+        foreach ($services as $service) {
+            if (($service['Name'] ?? '') === 'paypal' && isset($service['Parameters'])) {
+                $data = $this->formatAddressData($service['Parameters']);
+                if ($data) {
+                    return $data;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Legacy API format – Services.Service.ResponseParameter
+     */
+    private function extractFromLegacyApi(array $response): ?array
+    {
+        $params = $response['Services']['Service']['ResponseParameter'] ?? null;
+        if (!$params) {
+            return null;
+        }
+
+        $data = $this->formatAddressData($params);
+        return $data ?: null;
+    }
+
 
     /**
      * Format address data in key/value pairs

@@ -57,9 +57,6 @@
             "dealerdirect/phpcodesniffer-composer-installer": true
         }
     },
-    "conflict": {
-        "buckaroo/magento2secondchance": "*"
-    },
     "replace": {
         "buckaroo/magento2secondchance": "*"
     },
