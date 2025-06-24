@@ -30,8 +30,8 @@ Start accepting payments within a few minutes.
 
 To use the Buckaroo plugin, please be aware of the following minimum requirements:
 - A Buckaroo account ([Dutch](https://www.buckaroo.nl/start) or [English](https://www.buckaroo.eu/solutions/request-form))
-- Magento version Magento 2.4.4 up to 2.4.6
-- PHP 7.4 , 8.0 , 8.1, 8.2
+- Magento version Magento 2.4.6 up to 2.4.8
+- PHP 8.0 , 8.1, 8.2, 8.3, 8.4
 <br>
 
 ## Installation
@@ -40,9 +40,8 @@ We recommend you to install the Buckaroo Magento 2 Payments plugin with composer
 
 **Run the following commands in the Magento 2 root folder:**
 ```
-composer require buckaroo/magento2:2.0.0-RC1
+composer require buckaroo/magento2:2.0.0-RC2
 php bin/magento module:enable Buckaroo_Magento2
-php bin/magento setup:db-declaration:generate-whitelist --module-name=Buckaroo_Magento2
 php bin/magento setup:upgrade
 php bin/magento setup:di:compile
 php bin/magento setup:static-content:deploy
@@ -55,7 +54,7 @@ php bin/magento setup:static-content:deploy
 To do this, please run the following commands in your Magento 2 root folder:**
 
 ```
-composer update buckaroo/magento2:2.0.0-RC1
+composer update buckaroo/magento2:2.0.0-RC2
 php bin/magento setup:upgrade
 php bin/magento setup:di:compile
 php bin/magento setup:static-content:deploy
