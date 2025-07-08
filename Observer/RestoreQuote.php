@@ -113,35 +113,17 @@ class RestoreQuote implements ObserverInterface
         $previousOrderId = $lastRealOrder->getId();
 
         if ($payment = $lastRealOrder->getPayment()) {
-            if ($this->shouldSkipFurtherEventHandling()
-                || strpos($payment->getMethod(), 'buckaroo_magento2') === false
-                || in_array($payment->getMethod(), [Payconiq::CODE])) {
+            if ($this->isValidPayment($payment)) {
                 return;
             }
 
-            if ($this->accountConfig->getCartKeepAlive($lastRealOrder->getStore())) {
-                if ($this->checkoutSession->getQuote()
-                    && $this->checkoutSession->getQuote()->getId()
-                    && ($quote = $this->quoteRepository->getActive($this->checkoutSession->getQuote()->getId()))
-                ) {
-                    if ($shippingAddress = $quote->getShippingAddress()) {
-                        if (!$shippingAddress->getShippingMethod()) {
-                            $shippingAddress->load($shippingAddress->getAddressId());
-                        }
-                    }
-                }
+            if ($this->isCartKeepAlive($lastRealOrder)) {
+                $this->prepareQuoteShippingAddress();
 
-                if ((
-                        $this->checkoutSession->getRestoreQuoteLastOrder() &&
-                        $lastRealOrder->getData('state') === 'new' &&
-                        $lastRealOrder->getData('status') === 'pending' &&
-                        $payment->getMethodInstance()->usesRedirect
-                    ) || $this->canRestoreFailedFromSpam()
-                    || (
-                        $this->checkoutSession->getRestoreQuoteLastOrder() &&
-                        $lastRealOrder->getData('state') === 'canceled' &&
-                        $payment->getMethodInstance()->usesRedirect
-                    )
+                if (
+                    $this->isNewPendingLastOrder($lastRealOrder, $payment)
+                    || $this->canRestoreFailedFromSpam()
+                    || $this->isCanceledLastOrderWithRedirect($lastRealOrder, $payment)
                 ) {
                     $this->logger->addDebug(sprintf(
                         '[RESTORE_QUOTE] | [Observer] | [%s:%s] - Restore Quote | ' .
@@ -170,6 +152,47 @@ class RestoreQuote implements ObserverInterface
 
             $this->checkoutSession->setRestoreQuoteLastOrder(false);
             $this->checkoutSession->unsBuckarooFailedMaxAttempts();
+        }
+    }
+
+    /**
+     * Validate payment method for restore quote logic
+     *
+     * @param $payment
+     * @return bool
+     */
+    private function isValidPayment($payment): bool
+    {
+        return $this->shouldSkipFurtherEventHandling()
+            || strpos($payment->getMethod(), 'buckaroo_magento2') === false
+            || in_array($payment->getMethod(), [Payconiq::CODE]);
+    }
+
+    /**
+     * Check if cart keep alive is enabled for the order's store
+     *
+     * @param $lastRealOrder
+     * @return bool
+     */
+    private function isCartKeepAlive($lastRealOrder): bool
+    {
+        return $this->accountConfig->getCartKeepAlive($lastRealOrder->getStore());
+    }
+
+    /**
+     * Prepare quote and shipping address if needed
+     */
+    private function prepareQuoteShippingAddress(): void
+    {
+        if ($this->checkoutSession->getQuote()
+            && $this->checkoutSession->getQuote()->getId()
+            && ($quote = $this->quoteRepository->getActive($this->checkoutSession->getQuote()->getId()))
+        ) {
+            if ($shippingAddress = $quote->getShippingAddress()) {
+                if (!$shippingAddress->getShippingMethod()) {
+                    $shippingAddress->load($shippingAddress->getAddressId());
+                }
+            }
         }
     }
 
@@ -231,5 +254,34 @@ class RestoreQuote implements ObserverInterface
             ->getPayment()
             ->setAdditionalInformation('buckaroo_cancel_order_id', $previousOrderId);
         $this->quoteRepository->save($this->checkoutSession->getQuote());
+    }
+
+    /**
+     * Check if the last real order is new, pending, and uses redirect
+     *
+     * @param $lastRealOrder
+     * @param $payment
+     * @return bool
+     */
+    private function isNewPendingLastOrder($lastRealOrder, $payment): bool
+    {
+        return $this->checkoutSession->getRestoreQuoteLastOrder()
+            && $lastRealOrder->getData('state') === 'new'
+            && $lastRealOrder->getData('status') === 'pending'
+            && $payment->getMethodInstance()->usesRedirect;
+    }
+
+    /**
+     * Check if the last real order is canceled and uses redirect
+     *
+     * @param $lastRealOrder
+     * @param $payment
+     * @return bool
+     */
+    private function isCanceledLastOrderWithRedirect($lastRealOrder, $payment): bool
+    {
+        return $this->checkoutSession->getRestoreQuoteLastOrder()
+            && $lastRealOrder->getData('state') === 'canceled'
+            && $payment->getMethodInstance()->usesRedirect;
     }
 }
