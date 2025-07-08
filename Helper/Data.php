@@ -54,7 +54,6 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class Data extends AbstractHelper
 {
-    public const MODE_INACTIVE = 0;
     public const MODE_TEST     = 1;
     public const MODE_LIVE     = 2;
 
@@ -69,11 +68,6 @@ class Data extends AbstractHelper
      * @var Factory
      */
     public $configProviderMethodFactory;
-
-    /**
-     * @var CheckPaymentType
-     */
-    public $checkPaymentType;
 
     /**
      * Buckaroo_Magento2 status codes
@@ -121,39 +115,9 @@ class Data extends AbstractHelper
     protected $groupTransaction;
 
     /**
-     * @var BuckarooLoggerInterface
-     */
-    protected BuckarooLoggerInterface $logger;
-
-    /**
-     * @var CustomerRepositoryInterface
-     */
-    protected $customerRepository;
-
-    /**
      * @var Json
      */
     protected $json;
-
-    /**
-     * @var StoreManagerInterface
-     */
-    private $storeManager;
-
-    /**
-     * @var ScopeDefiner
-     */
-    private $scopeDefiner;
-
-    /**
-     * @var State
-     */
-    private $state;
-
-    /**
-     * @var CustomerSession
-     */
-    private $customerSession;
 
     /**
      * @param Context $context
@@ -162,14 +126,7 @@ class Data extends AbstractHelper
      * @param Header $httpHeader
      * @param CheckoutSession $checkoutSession
      * @param PaymentGroupTransaction $groupTransaction
-     * @param BuckarooLoggerInterface $logger
-     * @param CustomerRepositoryInterface $customerRepository
-     * @param StoreManagerInterface $storeManager
-     * @param ScopeDefiner $scopeDefiner
      * @param Json $json
-     * @param State $state
-     * @param CustomerSession $customerSession
-     * @param CheckPaymentType $checkPaymentType
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -179,14 +136,7 @@ class Data extends AbstractHelper
         Header $httpHeader,
         CheckoutSession $checkoutSession,
         PaymentGroupTransaction $groupTransaction,
-        BuckarooLoggerInterface $logger,
-        CustomerRepositoryInterface $customerRepository,
-        StoreManagerInterface $storeManager,
-        ScopeDefiner $scopeDefiner,
-        Json $json,
-        State $state,
-        CustomerSession $customerSession,
-        CheckPaymentType $checkPaymentType
+        Json $json
     ) {
         parent::__construct($context);
 
@@ -195,14 +145,7 @@ class Data extends AbstractHelper
         $this->httpHeader = $httpHeader;
         $this->checkoutSession = $checkoutSession;
         $this->groupTransaction = $groupTransaction;
-        $this->logger = $logger;
-        $this->customerRepository = $customerRepository;
-        $this->storeManager = $storeManager;
-        $this->scopeDefiner = $scopeDefiner;
         $this->json = $json;
-        $this->state = $state;
-        $this->customerSession = $customerSession;
-        $this->checkPaymentType = $checkPaymentType;
     }
 
     /**
@@ -334,67 +277,6 @@ class Data extends AbstractHelper
     }
 
     /**
-     * Check if the transaction is part of a group transaction
-     *
-     * @return bool
-     */
-    public function isGroupTransaction(): bool
-    {
-        return $this->groupTransaction->isGroupTransaction($this->getOrderId());
-    }
-
-    /**
-     * Retrieve the reserved order ID for the current quote
-     *
-     * If the order ID is not yet reserved, reserve it now and save the quote.
-     *
-     * @return string
-     *
-     * @throws LocalizedException
-     * @throws NoSuchEntityException
-     */
-    public function getOrderId()
-    {
-        $orderId = $this->checkoutSession->getQuote()->getReservedOrderId();
-        if (!$orderId) {
-            $orderId = $this->checkoutSession->getQuote()->reserveOrderId()->getReservedOrderId();
-            $this->checkoutSession->getQuote()->save();
-        }
-        return $orderId;
-    }
-
-    /**
-     * Returns the current quote object.
-     *
-     * @return CartInterface|Quote
-     * @throws LocalizedException
-     * @throws NoSuchEntityException
-     */
-    public function getQuote()
-    {
-        return $this->checkoutSession->getQuote();
-    }
-
-    /**
-     * Get current store
-     *
-     * @return StoreInterface|null
-     */
-    public function getStore(): ?StoreInterface
-    {
-        try {
-            return $this->storeManager->getStore();
-        } catch (\Exception $e) {
-            $this->logger->addError(
-                '[Helper] | [Helper] | [' . __METHOD__ . ':' . __LINE__ . '] - Get Store | [ERROR]: ' . $e->getMessage()
-            );
-            return null;
-        }
-    }
-
-
-
-    /**
      * Check if two amounts are equal within a reasonable margin of error.
      *
      * @param float $amount1
@@ -471,112 +353,6 @@ class Data extends AbstractHelper
     }
 
     /**
-     * Check if customer group is allowed for the payment method
-     *
-     * @param string $paymentMethod
-     * @param bool $forceB2C
-     * @return bool
-     * @throws BuckarooException
-     * @throws LocalizedException
-     */
-    public function checkCustomerGroup(string $paymentMethod, bool $forceB2C = false): bool
-    {
-        if (!$this->checkPaymentType->isBuckarooMethod($paymentMethod)) {
-            return true;
-        }
-
-        $paymentMethodCode = $this->getBuckarooMethod($paymentMethod);
-        $configProvider = $this->configProviderMethodFactory->get($paymentMethodCode);
-
-        $configCustomerGroup = $this->determineCustomerGroup($paymentMethodCode, $configProvider, $forceB2C);
-
-        if ($configCustomerGroup === null || $configCustomerGroup == Group::CUST_GROUP_ALL) {
-            return true;
-        }
-
-        if ($configCustomerGroup == -1) {
-            return false;
-        }
-
-        $configCustomerGroupArr = explode(',', $configCustomerGroup);
-
-        return $this->checkCustomerGroupArea($configCustomerGroupArr);
-    }
-
-    /**
-     * Determine the appropriate customer group configuration.
-     *
-     * @param string $paymentMethodCode
-     * @param ConfigProviderInterface $configProvider
-     * @param bool $forceB2C
-     * @return string|null
-     */
-    private function determineCustomerGroup(
-        string $paymentMethodCode,
-        ConfigProviderInterface $configProvider,
-        bool $forceB2C
-    ): ?string {
-        if (!$forceB2C && $this->isSpecialPaymentMethod($paymentMethodCode, $configProvider)) {
-            return $configProvider->getSpecificCustomerGroupB2B();
-        }
-
-        return $configProvider->getSpecificCustomerGroup();
-    }
-
-    /**
-     * Check if the payment method is one of the special cases.
-     *
-     * @param string $paymentMethodCode
-     * @param ConfigProviderInterface $configProvider
-     * @return bool
-     */
-    private function isSpecialPaymentMethod(string $paymentMethodCode, ConfigProviderInterface $configProvider): bool
-    {
-        return ($paymentMethodCode == 'billink')
-            || (($paymentMethodCode == 'afterpay' || $paymentMethodCode == 'afterpay2')
-                && $configProvider->getBusiness() == Business::BUSINESS_B2B)
-            || ($paymentMethodCode == 'payperemail' && $configProvider->isEnabledB2B());
-    }
-
-    /**
-     * Check if the customer group is allowed based on the area (admin or front).
-     *
-     * @param array $configCustomerGroupArr
-     * @return bool
-     * @throws LocalizedException
-     */
-    private function checkCustomerGroupArea(array $configCustomerGroupArr): bool
-    {
-        if ($this->state->getAreaCode() == Area::AREA_ADMINHTML) {
-            return $this->checkCustomerGroupAdminArea($configCustomerGroupArr);
-        } else {
-            return $this->checkCustomerGroupFrontArea($configCustomerGroupArr);
-        }
-    }
-
-    /**
-     * Checks if a given payment method is a Buckaroo method
-     *
-     * @param string $paymentMethod
-     * @return bool
-     */
-    public function isBuckarooMethod(string $paymentMethod): bool
-    {
-        return strpos($paymentMethod, 'buckaroo_magento2_') !== false;
-    }
-
-    /**
-     * Extracts the Buckaroo payment method code from the full payment method code.
-     *
-     * @param string $paymentMethod
-     * @return string
-     */
-    public function getBuckarooMethod(string $paymentMethod): string
-    {
-        return strtolower(str_replace('buckaroo_magento2_', '', $paymentMethod));
-    }
-
-    /**
      * Get order status by state
      *
      * @param $order
@@ -593,44 +369,5 @@ class Data extends AbstractHelper
         }
 
         return $orderStatus;
-    }
-
-    /**
-     * Checks if the customer group in the admin area is allowed to use the Buckaroo payment method.
-     *
-     * @param array $configCustomerGroupArr
-     * @return bool
-     * @throws LocalizedException
-     * @throws NoSuchEntityException
-     */
-    private function checkCustomerGroupAdminArea(array $configCustomerGroupArr): bool
-    {
-        if (($customerId = $this->_getRequest()->getParam('customer_id')) && ($customerId > 0)
-            && ($customer = $this->customerRepository->getById($customerId))
-            && $customerGroup = $customer->getGroupId()) {
-                return in_array($customerGroup, $configCustomerGroupArr);
-        }
-
-        return true;
-    }
-
-    /**
-     * Check if the current logged in customer's group matches with the allowed customer groups
-     *
-     * @param array $configCustomerGroupArr
-     * @return bool
-     */
-    private function checkCustomerGroupFrontArea(array $configCustomerGroupArr): bool
-    {
-        if ($this->customerSession->isLoggedIn()) {
-            if ($customerGroup = $this->customerSession->getCustomer()->getGroupId()) {
-                return in_array($customerGroup, $configCustomerGroupArr);
-            }
-        } else {
-            if (!in_array(Group::NOT_LOGGED_IN_ID, $configCustomerGroupArr)) {
-                return false;
-            }
-        }
-        return true;
     }
 }
