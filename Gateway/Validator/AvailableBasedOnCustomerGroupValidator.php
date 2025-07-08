@@ -23,7 +23,7 @@ namespace Buckaroo\Magento2\Gateway\Validator;
 
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
-use Buckaroo\Magento2\Helper\Data;
+use Buckaroo\Magento2\Helper\Customer;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;
@@ -32,20 +32,20 @@ use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
 class AvailableBasedOnCustomerGroupValidator extends AbstractValidator
 {
     /**
-     * @var Data
+     * @var Customer
      */
-    public Data $helper;
+    public $customerHelper;
 
     /**
-     * @param Data $helper
+     * @param Customer $customerHelper
      * @param ResultInterfaceFactory $resultFactory
      */
     public function __construct(
-        Data $helper,
+        Customer $customerHelper,
         ResultInterfaceFactory $resultFactory
     ) {
         parent::__construct($resultFactory);
-        $this->helper = $helper;
+        $this->customerHelper = $customerHelper;
     }
 
     /**
@@ -70,9 +70,9 @@ class AvailableBasedOnCustomerGroupValidator extends AbstractValidator
         $paymentMethodInstance = SubjectReader::readPaymentMethodInstance($validationSubject);
         $paymentMethodCode = $paymentMethodInstance->getCode();
 
-        $checkCustomerGroup = $this->helper->checkCustomerGroup($paymentMethodCode);
+        $checkCustomerGroup = $this->customerHelper->checkCustomerGroup($paymentMethodCode);
         if ($paymentMethodCode === 'buckaroo_magento2_billink' && !$checkCustomerGroup) {
-            $checkCustomerGroup = $this->helper->checkCustomerGroup($paymentMethodCode, true);
+            $checkCustomerGroup = $this->customerHelper->checkCustomerGroup($paymentMethodCode, true);
         }
 
         if (!$checkCustomerGroup) {

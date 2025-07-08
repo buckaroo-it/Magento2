@@ -30,6 +30,7 @@ use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
 use Magento\Payment\Helper\Data as PaymentHelper;
+use \Buckaroo\Magento2\Helper\Customer;
 
 class AvailableBasedOnPOSValidator extends AbstractValidator
 {
@@ -49,21 +50,29 @@ class AvailableBasedOnPOSValidator extends AbstractValidator
     private PaymentHelper $paymentHelper;
 
     /**
+     * @var Customer
+     */
+    public $customerHelper;
+
+    /**
      * @param ResultInterfaceFactory $resultFactory
      * @param Pospayment $pospaymentConfiguration
      * @param BuckarooHelper $helper
      * @param PaymentHelper $paymentHelper
+     * @param Customer $customerHelper
      */
     public function __construct(
         ResultInterfaceFactory $resultFactory,
         Pospayment $pospaymentConfiguration,
         BuckarooHelper $helper,
-        PaymentHelper $paymentHelper
+        PaymentHelper $paymentHelper,
+        Customer $customerHelper
     ) {
         parent::__construct($resultFactory);
         $this->pospaymentConfiguration = $pospaymentConfiguration;
         $this->helper = $helper;
         $this->paymentHelper = $paymentHelper;
+        $this->customerHelper = $customerHelper;
     }
 
     /**
@@ -113,7 +122,7 @@ class AvailableBasedOnPOSValidator extends AbstractValidator
     {
         $otherPaymentMethods = $this->pospaymentConfiguration->getOtherPaymentMethods();
         if ($otherPaymentMethods && in_array(
-            $this->helper->getBuckarooMethod($paymentMethodCode),
+            $this->customerHelper->getBuckarooMethod($paymentMethodCode),
             explode(',', $otherPaymentMethods)
         )) {
             return true;
