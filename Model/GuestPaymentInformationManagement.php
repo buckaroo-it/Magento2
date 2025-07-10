@@ -25,22 +25,16 @@ use Buckaroo\Magento2\Api\Data\BuckarooResponseDataInterface;
 use Buckaroo\Magento2\Api\GuestPaymentInformationManagementInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
-use Magento\Checkout\Api\PaymentInformationManagementInterface;
 use Magento\Checkout\Model\GuestPaymentInformationManagement as MagentoGuestPaymentInformationManagement;
-use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Api\Data\AddressInterface;
 use Magento\Quote\Api\Data\PaymentInterface;
-use Magento\Quote\Api\GuestBillingAddressManagementInterface;
-use Magento\Quote\Api\GuestCartManagementInterface;
-use Magento\Quote\Api\GuestPaymentMethodManagementInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\QuoteIdMaskFactory;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Psr\Log\LoggerInterface;
-use Buckaroo\Magento2\Exception;
 
 /**
  * Class GuestPaymentInformationManagement
@@ -50,7 +44,7 @@ use Buckaroo\Magento2\Exception;
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
-class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationManagement implements GuestPaymentInformationManagementInterface
+class GuestPaymentInformationManagement implements GuestPaymentInformationManagementInterface
 {
     /**
      * @var Factory
@@ -73,54 +67,48 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
     private BuckarooResponseDataInterface $buckarooResponseData;
 
     /**
-     * @param GuestBillingAddressManagementInterface $billingAddressManagement
-     * @param GuestPaymentMethodManagementInterface $paymentMethodManagement
-     * @param GuestCartManagementInterface $cartManagement
-     * @param PaymentInformationManagementInterface $paymentInformationManagement
-     * @param QuoteIdMaskFactory $quoteIdMaskFactory
-     * @param CartRepositoryInterface $cartRepository
+     * @var MagentoGuestPaymentInformationManagement
+     */
+    protected MagentoGuestPaymentInformationManagement $guestPaymentInformationManagement;
+
+    /**
+     * @var QuoteIdMaskFactory
+     */
+    private QuoteIdMaskFactory $quoteIdMaskFactory;
+
+    /**
+     * @var CartRepositoryInterface
+     */
+    private CartRepositoryInterface $cartRepository;
+
+    /**
      * @param BuckarooResponseDataInterface $buckarooResponseData
      * @param LoggerInterface $logger
      * @param Factory $configProviderMethodFactory
      * @param OrderRepositoryInterface $orderRepository
-     * @param ProductMetadataInterface $productMetadata
+     * @param MagentoGuestPaymentInformationManagement $guestPaymentInformationManagement
+     * @param QuoteIdMaskFactory $quoteIdMaskFactory
+     * @param CartRepositoryInterface $cartRepository
      * @codeCoverageIgnore
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
-        GuestBillingAddressManagementInterface $billingAddressManagement,
-        GuestPaymentMethodManagementInterface $paymentMethodManagement,
-        GuestCartManagementInterface $cartManagement,
-        PaymentInformationManagementInterface $paymentInformationManagement,
-        QuoteIdMaskFactory $quoteIdMaskFactory,
-        CartRepositoryInterface $cartRepository,
         BuckarooResponseDataInterface $buckarooResponseData,
         LoggerInterface $logger,
         Factory $configProviderMethodFactory,
         OrderRepositoryInterface $orderRepository,
-        ProductMetadataInterface $productMetadata
+        MagentoGuestPaymentInformationManagement $guestPaymentInformationManagement,
+        QuoteIdMaskFactory $quoteIdMaskFactory,
+        CartRepositoryInterface $cartRepository
     ) {
-        $magentoVersion = $productMetadata->getVersion();
-        $lastParam = null;
-
-        if (version_compare($magentoVersion, '2.4.6', '>=')) {
-            $lastParam = $logger;
-        }
-
-        parent::__construct(
-            $billingAddressManagement,
-            $paymentMethodManagement,
-            $cartManagement,
-            $paymentInformationManagement,
-            $quoteIdMaskFactory,
-            $cartRepository,
-            $lastParam
-        );
         $this->buckarooResponseData = $buckarooResponseData;
         $this->logger = $logger;
         $this->configProviderMethodFactory = $configProviderMethodFactory;
         $this->orderRepository = $orderRepository;
+        $this->guestPaymentInformationManagement = $guestPaymentInformationManagement;
+        $this->quoteIdMaskFactory = $quoteIdMaskFactory;
+        $this->cartRepository = $cartRepository;
     }
 
     /**
@@ -128,16 +116,16 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
      *
      * @param  int                                           $cartId
      * @param  string                                        $email
-     * @param  \Magento\Quote\Api\Data\PaymentInterface      $paymentMethod
-     * @param  \Magento\Quote\Api\Data\AddressInterface|null $billingAddress
-     * @throws \Magento\Framework\Exception\CouldNotSaveException
+     * @param PaymentInterface $paymentMethod
+     * @param AddressInterface|null $billingAddress
      * @return string
+     * @throws CouldNotSaveException|LocalizedException
      */
     public function buckarooSavePaymentInformationAndPlaceOrder(
-        $cartId,
-        $email,
-        \Magento\Quote\Api\Data\PaymentInterface $paymentMethod,
-        ?\Magento\Quote\Api\Data\AddressInterface $billingAddress = null
+                                                  $cartId,
+                                                  $email,
+        PaymentInterface                          $paymentMethod,
+        ?AddressInterface $billingAddress = null
     ) {
 
         $this->checkSpecificCountry($paymentMethod, $billingAddress);
@@ -147,7 +135,7 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
         $quote = $this->cartRepository->getActive($quoteIdMask->getQuoteId());
         $quote->reserveOrderId();
 
-        $orderId = $this->savePaymentInformationAndPlaceOrder($cartId, $email, $paymentMethod, $billingAddress);
+        $orderId = $this->guestPaymentInformationManagement->savePaymentInformationAndPlaceOrder($cartId, $email, $paymentMethod, $billingAddress);
 
         if ($buckarooResponse = $this->buckarooResponseData->getResponse()) {
             $buckarooResponse = $buckarooResponse->toArray();
