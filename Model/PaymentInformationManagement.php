@@ -25,16 +25,11 @@ use Buckaroo\Magento2\Api\Data\BuckarooResponseDataInterface;
 use Buckaroo\Magento2\Api\PaymentInformationManagementInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
-use Magento\Checkout\Model\PaymentDetailsFactory;
 use Magento\Checkout\Model\PaymentInformationManagement as MagentoPaymentInformationManagement;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Quote\Api\BillingAddressManagementInterface;
-use Magento\Quote\Api\CartManagementInterface;
-use Magento\Quote\Api\CartTotalRepositoryInterface;
 use Magento\Quote\Api\Data\AddressInterface;
 use Magento\Quote\Api\Data\PaymentInterface;
-use Magento\Quote\Api\PaymentMethodManagementInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Psr\Log\LoggerInterface;
 
@@ -47,8 +42,7 @@ use Psr\Log\LoggerInterface;
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
-class PaymentInformationManagement extends MagentoPaymentInformationManagement implements
-    PaymentInformationManagementInterface
+class PaymentInformationManagement implements PaymentInformationManagementInterface
 {
     /**
      * @var Factory
@@ -71,40 +65,30 @@ class PaymentInformationManagement extends MagentoPaymentInformationManagement i
     private BuckarooResponseDataInterface $buckarooResponseData;
 
     /**
-     * @param BillingAddressManagementInterface $billingAddressManagement
-     * @param PaymentMethodManagementInterface $paymentMethodManagement
-     * @param CartManagementInterface $cartManagement
-     * @param PaymentDetailsFactory $paymentDetailsFactory
-     * @param CartTotalRepositoryInterface $cartTotalsRepository
+     * @var MagentoPaymentInformationManagement
+     */
+    protected MagentoPaymentInformationManagement $paymentInformationManagement;
+
+    /**
      * @param BuckarooResponseDataInterface $buckarooResponseData
      * @param LoggerInterface $logger
      * @param Factory $configProviderMethodFactory
      * @param OrderRepositoryInterface $orderRepository
-     *
+     * @param MagentoPaymentInformationManagement $paymentInformationManagement
      * @codeCoverageIgnore
      */
     public function __construct(
-        BillingAddressManagementInterface $billingAddressManagement,
-        PaymentMethodManagementInterface $paymentMethodManagement,
-        CartManagementInterface $cartManagement,
-        PaymentDetailsFactory $paymentDetailsFactory,
-        CartTotalRepositoryInterface $cartTotalsRepository,
         BuckarooResponseDataInterface $buckarooResponseData,
         LoggerInterface $logger,
         Factory $configProviderMethodFactory,
-        OrderRepositoryInterface $orderRepository
+        OrderRepositoryInterface $orderRepository,
+        MagentoPaymentInformationManagement $paymentInformationManagement
     ) {
-        parent::__construct(
-            $billingAddressManagement,
-            $paymentMethodManagement,
-            $cartManagement,
-            $paymentDetailsFactory,
-            $cartTotalsRepository
-        );
         $this->buckarooResponseData = $buckarooResponseData;
         $this->logger = $logger;
         $this->configProviderMethodFactory = $configProviderMethodFactory;
         $this->orderRepository = $orderRepository;
+        $this->paymentInformationManagement = $paymentInformationManagement;
     }
 
     /**
@@ -124,7 +108,7 @@ class PaymentInformationManagement extends MagentoPaymentInformationManagement i
         $this->checkSpecificCountry($paymentMethod, $billingAddress);
 
         try {
-            $orderId = $this->savePaymentInformationAndPlaceOrder($cartId, $paymentMethod, $billingAddress);
+            $orderId = $this->paymentInformationManagement->savePaymentInformationAndPlaceOrder($cartId, $paymentMethod, $billingAddress);
 
             $this->logger->debug('iDEAL Fast Checkout - Order placed successfully', [
                 'order_id' => $orderId
