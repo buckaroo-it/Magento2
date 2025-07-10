@@ -34,7 +34,7 @@ class BuckarooAlreadyPay extends AbstractTotal
     /**
      * @var PriceCurrencyInterface
      */
-    public $priceCurrency;
+    protected $priceCurrency;
 
     /**
      * @var PaymentGroupTransaction
@@ -47,6 +47,8 @@ class BuckarooAlreadyPay extends AbstractTotal
     protected $giftcardCollection;
 
     /**
+     * Constructor
+     *
      * @param PriceCurrencyInterface $priceCurrency
      * @param PaymentGroupTransaction $groupTransaction
      * @param Collection $giftcardCollection
@@ -57,8 +59,8 @@ class BuckarooAlreadyPay extends AbstractTotal
         Collection $giftcardCollection
     ) {
         $this->setCode('buckaroo_already_paid');
-        $this->priceCurrency = $priceCurrency;
-        $this->groupTransaction = $groupTransaction;
+        $this->priceCurrency      = $priceCurrency;
+        $this->groupTransaction   = $groupTransaction;
         $this->giftcardCollection = $giftcardCollection;
     }
 
@@ -77,39 +79,39 @@ class BuckarooAlreadyPay extends AbstractTotal
 
         $customTitle = [];
         if ($orderId) {
-            $items = $this->groupTransaction->getGroupTransactionItemsNotRefunded($orderId);
+            try {
+                $items = $this->groupTransaction->getGroupTransactionItemsNotRefunded($orderId);
 
-            foreach ($items as $giftcard) {
-                $foundGiftcard = $this->giftcardCollection->getItemByColumnValue(
-                    'servicecode',
-                    $giftcard['servicecode']
-                );
+                foreach ($items as $giftcard) {
+                    $foundGiftcard = $this->giftcardCollection->getItemByColumnValue(
+                        'servicecode',
+                        $giftcard['servicecode']
+                    );
 
-                if ($foundGiftcard !== null || $giftcard['servicecode'] === 'buckaroovoucher') {
-                    if ($giftcard['servicecode'] === 'buckaroovoucher') {
-                        $label = __('Voucher');
-                    } else {
-                        $label = $foundGiftcard['label'];
+                    if ($foundGiftcard !== null || $giftcard['servicecode'] === 'buckaroovoucher') {
+                        if ($giftcard['servicecode'] === 'buckaroovoucher') {
+                            $label = __('Voucher');
+                        } else {
+                            $label = $foundGiftcard['label'];
+                        }
+
+                        $customTitle[] = [
+                            'label'          => __('Paid with') . ' ' . $label,
+                            'amount'         => -$giftcard['amount'],
+                            'servicecode'    => $giftcard['servicecode'],
+                            'serviceamount'  => $giftcard['amount'],
+                            'transaction_id' => $giftcard['transaction_id'],
+                        ];
                     }
-
-                    $customTitle[] = [
-                        'label'          => __('Paid with') . ' ' . $label,
-                        'amount'         => -$giftcard['amount'],
-                        'servicecode'    => $giftcard['servicecode'],
-                        'serviceamount'  => $giftcard['amount'],
-                        'transaction_id' => $giftcard['transaction_id'],
-                    ];
                 }
+            } catch (\Exception $e) {
             }
         }
 
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
         return [
             'code'  => $this->getCode(),
             'title' => $customTitle ? __(json_encode($customTitle)) : $this->getLabel(),
-            'value' => $this->groupTransaction->getAlreadyPaid($orderId),
+            'value' => -$this->groupTransaction->getAlreadyPaid($orderId),
         ];
     }
 
