@@ -282,7 +282,7 @@ class Push implements PushInterface
             );
             $this->logging->addDebug(__METHOD__ . '|' . $errorMessage);
             $this->logging->addDebug(__METHOD__ . '|Post Data|' . var_export($this->originalPostData, true));
-            throw new \Buckaroo\Magento2\Exception($errorMessage, $e);
+            throw new \Buckaroo\Magento2\Exception(new \Magento\Framework\Phrase($errorMessage), $e);
         } finally {
             $this->lockManager->unlockOrder($orderIncrementID);
             $this->logging->addDebug(__METHOD__ . '|Lock released|');
