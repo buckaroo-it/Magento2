@@ -29,7 +29,7 @@
     <preference for="Buckaroo\Magento2\Api\Data\LogSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
 
     <preference for="Buckaroo\Magento2\Api\PushInterface" type="Buckaroo\Magento2\Model\Push"/>
-    <preference for="Buckaroo\Magento2\Api\TransactionStatusResponseInterface" type="Buckaroo\Magento2\Model\Transaction\Status\Response" />
+    <preference for="Buckaroo\Magento2\Api\Data\TransactionStatusResponseInterface" type="Buckaroo\Magento2\Model\Transaction\Status\Response" />
     <preference for="Buckaroo\Magento2\Api\PaymentInformationManagementInterface" type="Buckaroo\Magento2\Model\PaymentInformationManagement"/>
     <preference for="Buckaroo\Magento2\Api\GuestPaymentInformationManagementInterface" type="Buckaroo\Magento2\Model\GuestPaymentInformationManagement"/>
     <preference for="Buckaroo\Magento2\Api\Data\BuckarooResponseDataInterface" type="Buckaroo\Magento2\Model\Data\BuckarooResponseData"/>
