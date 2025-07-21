@@ -291,6 +291,7 @@ define(
                                         class: 'action primary accept',
                                         click: function () {
                                             this.closeModal(true);
+                                            window.location.reload();
                                         }
                                     }]
                                 });
