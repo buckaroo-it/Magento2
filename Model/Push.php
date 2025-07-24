@@ -274,15 +274,8 @@ class Push implements PushInterface
             $response = $this->pushProcess();
             return $response;
         } catch (\Throwable $e) {
-            $errorMessage = sprintf(
-                'Exception in push processing for order %s (Transaction Type: %s): %s',
-                $orderIncrementID,
-                $this->getTransactionType() ?: 'unknown',
-                $e->getMessage()
-            );
-            $this->logging->addDebug(__METHOD__ . '|' . $errorMessage);
-            $this->logging->addDebug(__METHOD__ . '|Post Data|' . var_export($this->originalPostData, true));
-            throw new \Buckaroo\Magento2\Exception($errorMessage, $e);
+            $this->logging->addDebug(__METHOD__ . '|Exception|' . $e->getMessage());
+            throw $e;
         } finally {
             $this->lockManager->unlockOrder($orderIncrementID);
             $this->logging->addDebug(__METHOD__ . '|Lock released|');
@@ -899,7 +892,13 @@ class Push implements PushInterface
     public function getTransactionType()
     {
         //If an order has an invoice key, then it should only be processed by invoice pushes
-        $savedInvoiceKey = (string)$this->order->getPayment()->getAdditionalInformation('buckaroo_cm3_invoice_key');
+        $payment = $this->order->getPayment();
+        if (!$payment) {
+            $this->logging->addDebug(__METHOD__ . '|Payment object is null for order ' . $this->order->getIncrementId());
+            return false;
+        }
+        
+        $savedInvoiceKey = (string)$payment->getAdditionalInformation('buckaroo_cm3_invoice_key');
 
         if (isset($this->postData['brq_invoicekey'])
             && isset($this->postData['brq_schemekey'])
