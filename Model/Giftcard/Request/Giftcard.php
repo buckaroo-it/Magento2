@@ -236,6 +236,9 @@ class Giftcard implements GiftcardInterface
                             ], [
                                 "Name" => $this->getParameterNameCardPin(),
                                 "Value" => $this->pin
+                            ], [
+                                "Name" => "Email",
+                                "Value" => $this->getCustomerEmail()
                             ]
                         ]
                     ]
