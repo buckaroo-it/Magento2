@@ -60,7 +60,7 @@ class Capayable extends AbstractMethod
 {
     public const DEFAULT_NAME = 'iDEAL In3';
     public const V2_NAME = 'In3';
-    
+
     /** Payment Code */
     const PAYMENT_METHOD_CODE = '';
 
@@ -286,7 +286,7 @@ class Capayable extends AbstractMethod
         if ($payment->getAdditionalInformation('customer_telephone') !== null) {
             $phone = $payment->getAdditionalInformation('customer_telephone');
         }
-        
+
         $now = new \DateTime();
         $phoneData = $this->addressFormatter->formatTelephone(
             $phone,
@@ -561,5 +561,20 @@ class Capayable extends AbstractMethod
     protected function getRefundTransactionBuilderChannel()
     {
         return '';
+    }
+
+    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
+    {
+        $orderId = $quote ? $quote->getReservedOrderId() : null;
+
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+
+        $paymentGroupTransaction = $objectManager->get(\Buckaroo\Magento2\Helper\PaymentGroupTransaction::class);
+
+        if ($paymentGroupTransaction->getAlreadyPaid($orderId) > 0) {
+            return false;
+        }
+
+        return true;
     }
 }

@@ -106,6 +106,19 @@ class Creditcard extends AbstractMethod
         if (null === $ccConfig->getAllowedCreditcards()) {
             return false;
         }
+
+        /**
+         * Check if payment group transaction is already paid
+         */
+        $orderId = $quote ? $quote->getReservedOrderId() : null;
+        if ($orderId) {
+            $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+            $paymentGroupTransaction = $objectManager->get(\Buckaroo\Magento2\Helper\PaymentGroupTransaction::class);
+
+            if ($paymentGroupTransaction->getAlreadyPaid($orderId) > 0) {
+                return false;
+            }
+        }
         /**
          * Return the regular isAvailable result
          */
@@ -204,4 +217,6 @@ class Creditcard extends AbstractMethod
     {
         return $payment->getAdditionalInformation('card_type');
     }
+
+
 }
