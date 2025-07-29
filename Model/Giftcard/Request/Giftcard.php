@@ -47,7 +47,7 @@ class Giftcard implements GiftcardInterface
      */
     protected $store;
 
-    /** 
+    /**
      * @var Encryptor $encryptor
      */
     private $encryptor;
@@ -352,7 +352,7 @@ class Giftcard implements GiftcardInterface
         );
     }
     /**
-     * Get request mode 
+     * Get request mode
      *
      * @return int
      */
@@ -453,5 +453,33 @@ class Giftcard implements GiftcardInterface
         return $this->giftcardRepository
             ->getByServiceCode($this->cardId)
             ->getAcquirer();
+    }
+
+    /**
+     * Get customer email
+     *
+     * @return string
+     */
+    private function getCustomerEmail()
+    {
+        if ($this->quote === null) {
+            return '';
+        }
+
+        $billingAddress = $this->quote->getBillingAddress();
+        if ($billingAddress && $billingAddress->getEmail()) {
+            return $billingAddress->getEmail();
+        }
+
+        $customer = $this->quote->getCustomer();
+        if ($customer && $customer->getEmail()) {
+            return $customer->getEmail();
+        }
+
+        if ($this->quote->getCustomerEmail()) {
+            return $this->quote->getCustomerEmail();
+        }
+
+        return '';
     }
 }
