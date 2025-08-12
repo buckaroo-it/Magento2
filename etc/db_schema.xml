@@ -167,4 +167,20 @@
             <column name="store_id"/>
         </index>
     </table>
+
+    <table name="buckaroo_magento2_analytics" resource="default" engine="innodb" comment="Buckaroo Analytics">
+        <column name="analytics_id" xsi:type="int" unsigned="true" nullable="false" identity="true" comment="Analytics ID"/>
+            <constraint xsi:type="primary" referenceId="PRIMARY">
+                <column name="analytics_id"/>
+            </constraint>
+        <column name="quote_id" xsi:type="int" unsigned="true" nullable="true" comment="Quote ID"/>
+        <column name="client_id" xsi:type="varchar" nullable="true" length="255" comment="Client ID"/>
+        <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP" comment="Created At"/>
+        <index referenceId="BUCKAROO_MAGENTO2_ANALYTICS_ANALYTICS_ID" indexType="btree">
+            <column name="analytics_id"/>
+        </index>
+        <index referenceId="BUCKAROO_MAGENTO2_ANALYTICS_QUOTE_ID" indexType="btree">
+            <column name="quote_id"/>
+        </index>
+    </table>
 </schema>
