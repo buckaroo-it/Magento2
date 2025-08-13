@@ -25,6 +25,8 @@ define(
         'Magento_Ui/js/modal/alert',
         'mage/url',
         'mage/translate',
+        'Magento_Checkout/js/action/get-totals',
+        'Magento_Customer/js/customer-data',
     ],
     function (
         $,
@@ -32,6 +34,8 @@ define(
         alert,
         url,
         $t,
+        getTotalsAction,
+        customerData,
     ) {
         'use strict';
 
@@ -70,6 +74,11 @@ define(
                             }
 
                             this.isSubmitting(false);
+
+                            // Ensure checkout summary totals are refreshed so custom totals appear immediately
+                            var deferred = $.Deferred();
+                            getTotalsAction([], deferred);
+                            customerData.reload(['cart'], true);
 
                             if (data.error) {
                                 self.displayErrorModal(self, data.error);

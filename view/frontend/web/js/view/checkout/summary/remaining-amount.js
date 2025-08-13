@@ -11,14 +11,17 @@ define([
             template: 'Buckaroo_Magento2/checkout/summary/remaining-amount'
         },
         isDisplayed: function () {
-            return this.getAlreadyPaidTotal() < 0;
+            return this.getRemainingAmount() > 0;
         },
         getValue: function () {
+            return this.getFormattedPrice(this.getRemainingAmount());
+        },
+        getRemainingAmount: function () {
             var remainingAmount = 0;
             if (totals.getSegment('remaining_amount')) {
                 remainingAmount = totals.getSegment('remaining_amount').value;
             }
-            return this.getFormattedPrice(remainingAmount);
+            return parseFloat(remainingAmount) || 0;
         },
         getAlreadyPaidTotal: function () {
             var remainingAmount = 0;
