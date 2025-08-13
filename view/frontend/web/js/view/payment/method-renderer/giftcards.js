@@ -28,6 +28,8 @@ define(
         'mage/translate',
         'mage/url',
         'Magento_Ui/js/modal/alert',
+        'Magento_Checkout/js/action/get-totals',
+        'Magento_Customer/js/customer-data',
     ],
     function (
         $,
@@ -38,6 +40,8 @@ define(
         $t,
         url,
         alert,
+        getTotalsAction,
+        customerData,
     ) {
         'use strict';
 
@@ -58,6 +62,13 @@ define(
             });
             $('.buckaroo_magento2_flow_authorize').remove();
             checkLabels();
+        }
+
+        function refreshTotals()
+        {
+            var deferred = $.Deferred();
+            getTotalsAction([], deferred);
+            customerData.reload(['cart'], true);
         }
 
         return Component.extend(
@@ -197,6 +208,8 @@ define(
                             }
                             checkPayments();
                         }
+                        // Refresh checkout summary totals so 'Already Paid' and 'Remaining Amount' appear immediately
+                        refreshTotals();
                         if (data.error) {
                                 alert({
                                     title: $t('Error'),
