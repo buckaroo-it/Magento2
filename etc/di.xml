@@ -109,46 +109,6 @@
         <plugin name="buckaroo_magento2_plugin_commandInterface" type="Buckaroo\Magento2\Plugin\CommandInterface" />
     </type>
 
-    <!-- Cancel Order Plugins -->
-    <type name="Magento\Sales\Model\Order">
-        <plugin name="buckaroo_magento2_plugin_afterpay" type="Buckaroo\Magento2\Plugin\Method\Afterpay"/>
-        <plugin name="buckaroo_magento2_plugin_afterpay2" type="Buckaroo\Magento2\Plugin\Method\Afterpay2"/>
-        <plugin name="buckaroo_magento2_plugin_klarna" type="Buckaroo\Magento2\Plugin\Method\Klarna"/>
-        <plugin name="buckaroo_magento2_plugin_klarnakp" type="Buckaroo\Magento2\Plugin\Method\Klarnakp"/>
-        <plugin name="buckaroo_magento2_plugin_klarnain" type="Buckaroo\Magento2\Plugin\Method\Klarnain"/>
-    </type>
-
-    <type name="Buckaroo\Magento2\Plugin\Method\Afterpay">
-        <arguments>
-            <argument name="paymentMethod" xsi:type="object">AfterpayOldFacade</argument>
-        </arguments>
-    </type>
-
-    <type name="Buckaroo\Magento2\Plugin\Method\Afterpay2">
-        <arguments>
-            <argument name="paymentMethod" xsi:type="object">AfterpayFacade</argument>
-        </arguments>
-    </type>
-
-    <type name="Buckaroo\Magento2\Plugin\Method\Klarna">
-        <arguments>
-            <argument name="paymentMethod" xsi:type="object">KlarnaFacade</argument>
-        </arguments>
-    </type>
-
-    <type name="Buckaroo\Magento2\Plugin\Method\Klarnakp">
-        <arguments>
-            <argument name="paymentMethod" xsi:type="object">KlarnaKpFacade</argument>
-        </arguments>
-    </type>
-
-    <type name="Buckaroo\Magento2\Plugin\Method\Klarnain">
-        <arguments>
-            <argument name="paymentMethod" xsi:type="object">KlarnaInFacade</argument>
-        </arguments>
-    </type>
-    <!-- END Cancel Order Plugins -->
-
     <!-- Quote -->
     <type name="Magento\Quote\Api\CartManagementInterface">
         <plugin name="buckaroo_magento2_plugin_cart_managment" type="Buckaroo\Magento2\Plugin\CartManagement" />
