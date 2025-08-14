@@ -1483,6 +1483,30 @@ class Push implements PushInterface
 
         $this->logging->addDebug(__METHOD__ . '|2|');
 
+        // Check if this is a capture transaction (C800) that should create an invoice
+        $isCapture = isset($this->postData['brq_transaction_type']) && $this->postData['brq_transaction_type'] === 'C800';
+        $isCaptureMutation = isset($this->postData['brq_mutationtype']) && strtolower($this->postData['brq_mutationtype']) === 'collecting';
+
+        if ($isCapture || $isCaptureMutation) {
+            $this->logging->addDebug(__METHOD__ . '|CAPTURE_DETECTED|' . var_export([
+                'brq_transaction_type' => $this->postData['brq_transaction_type'] ?? 'not_set',
+                'brq_mutationtype' => $this->postData['brq_mutationtype'] ?? 'not_set'
+            ], true));
+
+            // Force invoice creation for capture transactions
+            $description = 'Capture status : <strong>' . $message . "</strong><br/>";
+            $description .= 'Total amount of ' . $this->order->getBaseCurrency()->formatTxt($amount) . ' has been captured.';
+
+            if (!$this->saveInvoice()) {
+                $this->logging->addDebug(__METHOD__ . '|CAPTURE_INVOICE_FAILED|');
+                return false;
+            }
+
+            $this->updateOrderStatus($state, $newStatus, $description, $forceState);
+            $this->logging->addDebug(__METHOD__ . '|CAPTURE_COMPLETE|');
+            return true;
+        }
+
         if ($paymentMethod->canPushInvoice($this->postData)) {
             $this->logging->addDebug(__METHOD__ . '|3|');
             $description = 'Payment status : <strong>' . $message . "</strong><br/>";

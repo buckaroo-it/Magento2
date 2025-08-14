@@ -25,15 +25,24 @@ use Buckaroo\Magento2\Model\Method\AbstractMethod;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 use Buckaroo\Magento2\Api\PaymentInformationManagementInterface;
 use Magento\Checkout\Model\PaymentInformationManagement as MagentoPaymentInformationManagement;
-use Psr\Log\LoggerInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Registry;
+use Magento\Quote\Api\Data\AddressInterface;
+use Magento\Quote\Api\Data\PaymentInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 
 // @codingStandardsIgnoreStart
-class PaymentInformationManagement extends MagentoPaymentInformationManagement implements PaymentInformationManagementInterface
+class PaymentInformationManagement implements PaymentInformationManagementInterface
 // @codingStandardsIgnoreEnd
 {
-
+    /**
+     * @var Registry
+     */
     protected $registry = null;
-    protected $logger = null;
+
+    /**
+     * @var Log
+     */
     protected $logging = null;
 
     /**
@@ -42,68 +51,56 @@ class PaymentInformationManagement extends MagentoPaymentInformationManagement i
     public $configProviderMethodFactory;
 
     /**
-     * @var \Magento\Sales\Api\OrderRepositoryInterface
+     * @var OrderRepositoryInterface
      */
     protected $orderRepository;
 
     /**
-     * @param \Magento\Quote\Api\BillingAddressManagementInterface $billingAddressManagement
-     * @param \Magento\Quote\Api\PaymentMethodManagementInterface  $paymentMethodManagement
-     * @param \Magento\Quote\Api\CartManagementInterface           $cartManagement
-     * @param \Magento\Checkout\Model\PaymentDetailsFactory        $paymentDetailsFactory
-     * @param \Magento\Quote\Api\CartTotalRepositoryInterface      $cartTotalsRepository
-     * @param \Magento\Framework\Registry                          $registry
-     * @param LoggerInterface $logger
-     * @param Log $logging
-     * @param Factory                                              $configProviderMethodFactory
-     * @param \Magento\Sales\Api\OrderRepositoryInterface          $orderRepository
+     * @var MagentoPaymentInformationManagement
+     */
+    protected $paymentInformationManagement;
+
+    /**
+     * @param Registry                              $registry
+     * @param Log                                   $logging
+     * @param Factory                               $configProviderMethodFactory
+     * @param OrderRepositoryInterface              $orderRepository
+     * @param MagentoPaymentInformationManagement   $paymentInformationManagement
      *
      * @codeCoverageIgnore
      */
     public function __construct(
-        \Magento\Quote\Api\BillingAddressManagementInterface $billingAddressManagement,
-        \Magento\Quote\Api\PaymentMethodManagementInterface $paymentMethodManagement,
-        \Magento\Quote\Api\CartManagementInterface $cartManagement,
-        \Magento\Checkout\Model\PaymentDetailsFactory $paymentDetailsFactory,
-        \Magento\Quote\Api\CartTotalRepositoryInterface $cartTotalsRepository,
-        \Magento\Framework\Registry $registry,
-        \Psr\Log\LoggerInterface $logger,
+        Registry $registry,
         Log                      $logging,
         Factory $configProviderMethodFactory,
-        \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
+        OrderRepositoryInterface $orderRepository,
+        MagentoPaymentInformationManagement $paymentInformationManagement
     ) {
-        parent::__construct(
-            $billingAddressManagement,
-            $paymentMethodManagement,
-            $cartManagement,
-            $paymentDetailsFactory,
-            $cartTotalsRepository
-        );
         $this->registry = $registry;
-        $this->logger = $logger;
         $this->logging = $logging;
         $this->configProviderMethodFactory  = $configProviderMethodFactory;
         $this->orderRepository = $orderRepository;
+        $this->paymentInformationManagement = $paymentInformationManagement;
     }
 
     /**
      * Set payment information and place order for a specified cart.
      *
      * @param  int                                           $cartId
-     * @param  \Magento\Quote\Api\Data\PaymentInterface      $paymentMethod
-     * @param  \Magento\Quote\Api\Data\AddressInterface|null $billingAddress
-     * @throws \Magento\Framework\Exception\CouldNotSaveException
+     * @param  PaymentInterface      $paymentMethod
+     * @param  AddressInterface|null $billingAddress
      * @return string
+     * @throws LocalizedException
      */
     public function buckarooSavePaymentInformationAndPlaceOrder(
         $cartId,
-        \Magento\Quote\Api\Data\PaymentInterface $paymentMethod,
-        \Magento\Quote\Api\Data\AddressInterface $billingAddress = null
+        PaymentInterface $paymentMethod,
+        AddressInterface $billingAddress = null
     ) {
 
         $this->checkSpecificCountry($paymentMethod, $billingAddress);
 
-        $orderId = $this->savePaymentInformationAndPlaceOrder($cartId, $paymentMethod, $billingAddress);
+        $orderId = $this->paymentInformationManagement->savePaymentInformationAndPlaceOrder($cartId, $paymentMethod, $billingAddress);
 
         $this->logging->debug('-[RESULT]----------------------------------------');
         //phpcs:ignore:Magento2.Functions.DiscouragedFunction
@@ -146,7 +143,7 @@ class PaymentInformationManagement extends MagentoPaymentInformationManagement i
     /**
      * @param $paymentMethod
      * @param $billingAddress
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws LocalizedException
      */
     public function checkSpecificCountry($paymentMethod, $billingAddress)
     {
@@ -159,7 +156,7 @@ class PaymentInformationManagement extends MagentoPaymentInformationManagement i
             $configSpecificCountry = $this->configProviderMethodFactory->get($paymentMethodCode)->getSpecificCountry();
 
             if (!in_array($countryId, $configSpecificCountry)) {
-                throw new \Magento\Framework\Exception\LocalizedException(
+                throw new LocalizedException(
                     __('The requested Payment Method is not available for the given billing country.')
                 );
             }

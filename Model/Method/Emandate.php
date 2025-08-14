@@ -74,7 +74,7 @@ class Emandate extends AbstractMethod
 
     /** @var EmandateConfig */
     private $emandateConfig;
-    
+
     public function __construct(
         ObjectManagerInterface $objectManager,
         Context $context,
@@ -265,7 +265,7 @@ class Emandate extends AbstractMethod
     public function validateAdditionalData() {
 
         $paymentInfo = $this->getInfoInstance();
-  
+
         $availableIssuers = $this->emandateConfig->getIssuers();
         $chosenIssuer = $paymentInfo->getAdditionalInformation('issuer');
         $valid = false;
@@ -331,5 +331,20 @@ class Emandate extends AbstractMethod
     public function getPaymentMethodName($payment)
     {
         return $this->buckarooPaymentMethodCode;
+    }
+
+    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
+    {
+        $orderId = $quote ? $quote->getReservedOrderId() : null;
+
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+
+        $paymentGroupTransaction = $objectManager->get(\Buckaroo\Magento2\Helper\PaymentGroupTransaction::class);
+
+        if ($paymentGroupTransaction->getAlreadyPaid($orderId) > 0) {
+            return false;
+        }
+
+        return true;
     }
 }

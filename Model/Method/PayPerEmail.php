@@ -172,6 +172,19 @@ class PayPerEmail extends AbstractMethod
         }
 
         /**
+         * Check if payment group transaction is already paid
+         */
+        $orderId = $quote ? $quote->getReservedOrderId() : null;
+        if ($orderId) {
+            $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+            $paymentGroupTransaction = $objectManager->get(\Buckaroo\Magento2\Helper\PaymentGroupTransaction::class);
+            
+            if ($paymentGroupTransaction->getAlreadyPaid($orderId) > 0) {
+                return false;
+            }
+        }
+
+        /**
          * Return the regular isAvailable result
          */
         return parent::isAvailable($quote);
@@ -362,4 +375,6 @@ class PayPerEmail extends AbstractMethod
         }
         return $methods;
     }
+
+
 }

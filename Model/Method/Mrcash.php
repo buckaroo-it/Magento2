@@ -181,4 +181,19 @@ class Mrcash extends AbstractMethod
     {
         return 'bancontactmrcash';
     }
+
+    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
+    {
+        $orderId = $quote ? $quote->getReservedOrderId() : null;
+
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+
+        $paymentGroupTransaction = $objectManager->get(\Buckaroo\Magento2\Helper\PaymentGroupTransaction::class);
+
+        if ($paymentGroupTransaction->getAlreadyPaid($orderId) > 0) {
+            return false;
+        }
+
+        return true;
+    }
 }
