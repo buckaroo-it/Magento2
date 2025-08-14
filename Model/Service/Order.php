@@ -282,12 +282,12 @@ class Order
      *
      * @param \Magento\Sales\Model\Order $order
      * @param int|null $statusCode
-     * @param $statusMessage
+     * @param string $statusMessage
      * @return bool
      * @throws LocalizedException
      * @throws \Exception
      */
-    public function cancel(\Magento\Sales\Model\Order $order, ?int $statusCode, $statusMessage)
+    public function cancel(\Magento\Sales\Model\Order $order, ?int $statusCode, string $statusMessage = '')
     {
         $paymentMethodCode = $order->getPayment()->getMethod();
         $paymentMethodName = str_replace('buckaroo_magento2_', '', $paymentMethodCode);
