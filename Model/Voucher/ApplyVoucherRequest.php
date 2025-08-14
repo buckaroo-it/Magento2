@@ -20,22 +20,16 @@
 
 namespace Buckaroo\Magento2\Model\Voucher;
 
-use Buckaroo\Magento2\Gateway\Http\SDKTransferFactory;
-use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
-use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\Giftcard\Request\GiftcardException;
-use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\App\RequestInterface;
-use Magento\Framework\Data\Form\FormKey;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
-use Magento\Framework\UrlInterface;
-use Magento\Payment\Gateway\Http\ClientException;
-use Magento\Payment\Gateway\Http\ClientInterface;
-use Magento\Payment\Gateway\Http\ConverterException;
+use Magento\Payment\Gateway\Command\CommandException;
+use Magento\Payment\Gateway\Command\CommandPoolInterface;
+use Magento\Payment\Gateway\Data\PaymentDataObjectFactory;
+use Magento\Payment\Model\InfoInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\Quote;
+use Magento\Quote\Model\Quote\Payment;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
@@ -50,34 +44,9 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
     protected $store;
 
     /**
-     * @var Account
-     */
-    protected $configProviderAccount;
-
-    /**
-     * @var RequestInterface
-     */
-    protected $httpRequest;
-
-    /**
      * @var CartInterface
      */
     protected $quote;
-
-    /**
-     * @var SDKTransferFactory
-     */
-    protected $transferFactory;
-
-    /**
-     * @var ClientInterface
-     */
-    protected ClientInterface $clientInterface;
-
-    /**
-     * @var PaymentGroupTransaction
-     */
-    protected $groupTransaction;
 
     /**
      * @var string
@@ -85,56 +54,33 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
     protected $voucherCode;
 
     /**
-     * @var ScopeConfigInterface
+     * @var CommandPoolInterface
      */
-    private ScopeConfigInterface $scopeConfig;
+    private CommandPoolInterface $commandPool;
 
     /**
-     * @var UrlInterface
+     * @var PaymentDataObjectFactory
      */
-    private UrlInterface $urlBuilder;
+    private PaymentDataObjectFactory $paymentDataObjectFactory;
 
     /**
-     * @var FormKey
-     */
-    private FormKey $formKey;
-
-    /**
-     * @param ScopeConfigInterface $scopeConfig
-     * @param Account $configProviderAccount
-     * @param UrlInterface $urlBuilder
-     * @param FormKey $formKey
      * @param StoreManagerInterface $storeManager
-     * @param SDKTransferFactory $transferFactory
-     * @param ClientInterface $clientInterface
-     * @param RequestInterface $httpRequest
-     * @param PaymentGroupTransaction $groupTransaction
+     * @param CommandPoolInterface $commandPool
+     * @param PaymentDataObjectFactory $paymentDataObjectFactory
      * @throws NoSuchEntityException
      */
     public function __construct(
-        ScopeConfigInterface $scopeConfig,
-        Account $configProviderAccount,
-        UrlInterface $urlBuilder,
-        FormKey $formKey,
         StoreManagerInterface $storeManager,
-        SDKTransferFactory $transferFactory,
-        ClientInterface $clientInterface,
-        RequestInterface $httpRequest,
-        PaymentGroupTransaction $groupTransaction
+        CommandPoolInterface $commandPool,
+        PaymentDataObjectFactory $paymentDataObjectFactory
     ) {
-        $this->scopeConfig = $scopeConfig;
-        $this->configProviderAccount = $configProviderAccount;
-        $this->urlBuilder = $urlBuilder;
-        $this->formKey = $formKey;
         $this->store = $storeManager->getStore();
-        $this->transferFactory = $transferFactory;
-        $this->clientInterface = $clientInterface;
-        $this->httpRequest = $httpRequest;
-        $this->groupTransaction = $groupTransaction;
+        $this->commandPool = $commandPool;
+        $this->paymentDataObjectFactory = $paymentDataObjectFactory;
     }
 
     /**
-     * Send gift card request
+     * Send voucher request
      *
      * @return mixed
      * @throws GiftcardException
@@ -146,141 +92,42 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
             throw new GiftcardException("Field `voucherCode` is required");
         }
 
-        $transferO = $this->transferFactory->create(
-            $this->getBody()
-        );
+        if ($this->quote === null) {
+            throw new GiftcardException("Quote is required");
+        }
 
         try {
-            $response = $this->clientInterface->placeRequest($transferO);
-            return $response['object'] ?? [];
-        } catch (ClientException|ConverterException $e) {
+            // Create a mock payment object for the data object factory
+            $payment = $this->createMockPayment();
+
+            $command = $this->commandPool->get('voucher_apply');
+            $command->execute([
+                'payment' => $this->paymentDataObjectFactory->create($payment),
+                'amount' => $this->quote->getGrandTotal()
+            ]);
+
+            // The command execution will handle the response through response handlers
+            // For now, return a success indicator
+            return ['status' => 'success'];
+        } catch (CommandException $e) {
             throw new GiftcardException($e->getMessage(), 0, $e);
         }
     }
 
     /**
-     * Get request body
+     * Create a mock payment object with voucher data
      *
-     * @return array
-     * @throws \Exception
+     * @return InfoInterface
      */
-    protected function getBody(): array
+    private function createMockPayment(): InfoInterface
     {
-        $incrementId = $this->getIncrementId();
-        $originalTransactionKey = $this->groupTransaction->getGroupTransactionOriginalTransactionKey($incrementId);
+        /** @var Payment $payment */
+        $payment = $this->quote->getPayment();
 
-        $ip = $this->getIp($this->store);
-        $body = [
-            "payment_method"  => "buckaroovoucher",
-            "currency"        => $this->getCurrency(),
-            'amountDebit'     => $this->getAmount(),
-            "invoice"         => $incrementId,
-            "order"           => $incrementId,
-            "returnURL"       => $this->getReturnUrl(),
-            "returnURLCancel" => $this->getReturnUrl(),
-            "returnURLError"  => $this->getReturnUrl(),
-            "returnURLReject" => $this->getReturnUrl(),
-            "pushURL"         => $this->urlBuilder->getDirectUrl('rest/V1/buckaroo/push'),
-            'clientIP'        => [
-                'address' => $ip !== false ? $ip : 'unknown',
-                'type'    => strpos($ip, ':') === false ? '0' : '1',
-            ],
-            'vouchercode'     => $this->voucherCode
-        ];
-        if ($originalTransactionKey !== null) {
-            $body['originalTransactionKey'] = $originalTransactionKey;
-        }
-        return $body;
-    }
+        // Set voucher code in additional information
+        $payment->setAdditionalInformation('voucher_code', $this->voucherCode);
 
-    /**
-     * Get order increment id
-     *
-     * @return string
-     * @throws \Exception
-     */
-    public function getIncrementId(): string
-    {
-        /** @var Quote $quote */
-        $quote = $this->quote;
-        if ($quote->getReservedOrderId() !== null) {
-            return $quote->getReservedOrderId();
-        }
-        $quote->reserveOrderId()->save();
-        return $quote->getReservedOrderId();
-    }
-
-    /**
-     * Get client IP
-     *
-     * @param null|int|string|StoreInterface $store
-     * @return false|string
-     * @throws \Exception
-     */
-    protected function getIp($store)
-    {
-        if (!$this->httpRequest instanceof RequestInterface) {
-            throw new \Exception(
-                "Required parameter `httpRequest` must be instance of Magento\Framework\App\RequestInterface"
-            );
-        }
-
-        $ipHeaders = $this->configProviderAccount->getIpHeader($store);
-
-        $headers = [];
-        if ($ipHeaders) {
-            $ipHeaders = explode(',', strtoupper($ipHeaders));
-            foreach ($ipHeaders as $ipHeader) {
-                $headers[] = 'HTTP_' . str_replace('-', '_', $ipHeader);
-            }
-        }
-
-        $remoteAddress = new RemoteAddress(
-            $this->httpRequest,
-            $headers
-        );
-
-        return $remoteAddress->getRemoteAddress();
-    }
-
-    /**
-     * Get Currency for giftcard
-     *
-     * @return string|null
-     */
-    protected function getCurrency(): ?string
-    {
-        $currency = $this->quote->getCurrency();
-        if ($currency !== null) {
-            return $currency->getBaseCurrencyCode();
-        }
-
-        return null;
-    }
-
-    /**
-     * Get quote grand total
-     *
-     * @return float
-     */
-    protected function getAmount(): float
-    {
-        /** @var Quote $quote */
-        $quote = $this->quote;
-        return $quote->getGrandTotal();
-    }
-
-    /**
-     * Get return url
-     *
-     * @return string
-     * @throws LocalizedException
-     */
-    protected function getReturnUrl(): string
-    {
-        return $this->urlBuilder
-                ->setScope($this->store->getId())
-                ->getRouteUrl('buckaroo/redirect/process') . '?form_key=' . $this->formKey->getFormKey();
+        return $payment;
     }
 
     /**
