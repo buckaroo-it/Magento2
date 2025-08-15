@@ -25,7 +25,7 @@ class CapayableIn3 extends AbstractConfigProvider
     public const CODE = 'buckaroo_magento2_capayablein3';
     public const XPATH_CAPAYABLEIN3_PAYMENT_FEE          = 'payment/buckaroo_magento2_capayablein3/payment_fee';
 
-    public const DEFAULT_NAME = 'iDEAL In3';
+    public const DEFAULT_NAME = 'In3';
     public const V2_NAME = 'In3';
 
     const XPATH_CAPAYABLEIN3_API_VERSION  = 'api_version';
@@ -67,7 +67,7 @@ class CapayableIn3 extends AbstractConfigProvider
      */
     public function getLogo($storeId = null): string
     {
-        $logo = 'ideal-in3.svg';
+        $logo = 'in3.svg';
 
         if ($this->isV2($storeId)) {
             $logo = 'in3.svg';
