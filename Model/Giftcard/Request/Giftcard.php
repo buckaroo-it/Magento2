@@ -238,6 +238,7 @@ class Giftcard implements GiftcardInterface
                 'address' => $ip !== false ? $ip : 'unknown',
                 'type'    => strpos($ip, ':') === false ? '0' : '1',
             ],
+            "email" => $this->getCustomerEmail(),
             $this->getParameterNameCardNumber() => $this->cardNumber,
             $this->getParameterNameCardPin()    => $this->pin,
             "name"                              => $this->cardId
@@ -440,6 +441,34 @@ class Giftcard implements GiftcardInterface
     {
         $this->quote = $quote;
         return $this;
+    }
+
+    /**
+     * Get customer email
+     *
+     * @return string
+     */
+    private function getCustomerEmail()
+    {
+        if ($this->quote === null) {
+            return '';
+        }
+
+        $billingAddress = $this->quote->getBillingAddress();
+        if ($billingAddress && $billingAddress->getEmail()) {
+            return $billingAddress->getEmail();
+        }
+
+        $customer = $this->quote->getCustomer();
+        if ($customer && $customer->getEmail()) {
+            return $customer->getEmail();
+        }
+
+        if ($this->quote->getCustomerEmail()) {
+            return $this->quote->getCustomerEmail();
+        }
+
+        return '';
     }
 
     /**
