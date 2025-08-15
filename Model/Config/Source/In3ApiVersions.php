@@ -33,7 +33,7 @@ class In3ApiVersions implements \Magento\Framework\Data\OptionSourceInterface
     public function toOptionArray()
     {
         return [
-            ['value' => self::VERSION_3, 'label' => __('V3 (iDEAL In3)')],
+            ['value' => self::VERSION_3, 'label' => __('V3 (In3)')],
             ['value' => self::VERSION_2, 'label' => __('V2 (Capayable/In3)')]
         ];
     }

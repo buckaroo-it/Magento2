@@ -46,7 +46,7 @@ class DefaultTitles
         'klarnakp'         => 'Klarna: Pay later (authorize/capture)',
         'klarnain'         => 'Klarna: Slice it',
         'applepay'         => 'Apple Pay',
-        'capayablein3'     => 'iDEAL In3',
+        'capayablein3'     => 'In3',
         'capayablepostpay' => 'In3',
         'alipay'           => 'Alipay',
         'wechatpay'        => 'WeChat Pay',
