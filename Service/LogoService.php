@@ -60,12 +60,12 @@ class LogoService
     {
         // Convert to lowercase for case-insensitive server compatibility
         $paymentCode = strtolower($paymentCode);
-        
+
         $mappings = [
             "afterpay2"        => "svg/riverty.svg",
             "afterpay20"       => "svg/riverty.svg",
-            "capayablein3"     => "svg/ideal-in3.svg",
-            "capayablepostpay" => "svg/ideal-in3.svg",
+            "capayablein3"     => "svg/in3.svg",
+            "capayablepostpay" => "svg/in3.svg",
             "creditcard"       => "svg/creditcards.svg",
             "creditcards"      => "svg/creditcards.svg",
             "giftcards"        => "svg/giftcards.svg",
@@ -128,7 +128,7 @@ class LogoService
     {
         // Convert to lowercase for case-insensitive server compatibility
         $code = strtolower($code);
-        
+
         $name = "svg/giftcards.svg";
 
         $mappings = [
