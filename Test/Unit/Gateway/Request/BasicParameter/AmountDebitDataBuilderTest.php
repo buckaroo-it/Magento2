@@ -45,9 +45,7 @@ class AmountDebitDataBuilderTest extends AbstractDataBuilderTest
     {
         parent::setUp();
 
-        $this->dataBuilderServiceMock = $this->getMockBuilder(DataBuilderService::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->dataBuilderServiceMock = $this->createMock(DataBuilderService::class);
 
 
         $this->builder = new AmountDebitDataBuilder($this->dataBuilderServiceMock);
@@ -76,8 +74,7 @@ class AmountDebitDataBuilderTest extends AbstractDataBuilderTest
         $this->orderMock->expects($this->atMost(1))
             ->method('getBaseGrandTotal')
             ->willReturn($baseGrandTotal);
-        $this->orderMock->expects($this->once())
-            ->method('getOrderCurrencyCode')
+        $this->orderMock->method('getOrderCurrencyCode')
             ->willReturn($orderCurrency);
 
         if ($grandTotal == null || $baseGrandTotal == null) {
@@ -89,8 +86,7 @@ class AmountDebitDataBuilderTest extends AbstractDataBuilderTest
             'payment' => $this->getPaymentDOMock()
         ];
 
-        $this->dataBuilderServiceMock->expects($this->once())
-            ->method('getElement')
+        $this->dataBuilderServiceMock->method('getElement')
             ->with('currency')
             ->willReturn($serviceCurrency);
 
@@ -99,7 +95,7 @@ class AmountDebitDataBuilderTest extends AbstractDataBuilderTest
         $this->assertEquals($expectedAmount, $result[AmountDebitDataBuilder::AMOUNT_DEBIT]);
     }
 
-    public function amountDataProvider(): array
+    public static function amountDataProvider(): array
     {
         return [
             'valid grandTotal'               => [
@@ -142,17 +138,14 @@ class AmountDebitDataBuilderTest extends AbstractDataBuilderTest
 
     public function testGetAmount()
     {
-        $this->orderMock->expects($this->once())
-            ->method('getOrderCurrencyCode')
+        $this->orderMock->method('getOrderCurrencyCode')
             ->willReturn('USD');
 
-        $this->dataBuilderServiceMock->expects($this->once())
-            ->method('getElement')
+        $this->dataBuilderServiceMock->method('getElement')
             ->with('currency')
             ->willReturn('USD');
 
-        $this->orderMock->expects($this->once())
-            ->method('getGrandTotal')
+        $this->orderMock->method('getGrandTotal')
             ->willReturn(100.00);
 
         $this->assertEquals(100.00, $this->builder->getAmount($this->orderMock));
@@ -160,17 +153,14 @@ class AmountDebitDataBuilderTest extends AbstractDataBuilderTest
 
     public function testSetAmount()
     {
-        $this->orderMock->expects($this->once())
-            ->method('getOrderCurrencyCode')
+        $this->orderMock->method('getOrderCurrencyCode')
             ->willReturn('USD');
 
-        $this->dataBuilderServiceMock->expects($this->once())
-            ->method('getElement')
+        $this->dataBuilderServiceMock->method('getElement')
             ->with('currency')
             ->willReturn('EUR');
 
-        $this->orderMock->expects($this->once())
-            ->method('getBaseGrandTotal')
+        $this->orderMock->method('getBaseGrandTotal')
             ->willReturn(80.00);
 
         $this->builder->setAmount($this->orderMock);

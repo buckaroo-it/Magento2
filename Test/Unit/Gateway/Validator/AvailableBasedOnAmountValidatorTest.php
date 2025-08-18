@@ -22,9 +22,7 @@ class AvailableBasedOnAmountValidatorTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->resultFactoryMock = $this->getMockBuilder(ResultInterfaceFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->resultFactoryMock = $this->createMock(ResultInterfaceFactory::class);
 
         $this->validator = new AvailableBasedOnAmountValidator(
             $this->resultFactoryMock
@@ -36,9 +34,7 @@ class AvailableBasedOnAmountValidatorTest extends TestCase
      */
     public function testValidate($maximum, $minimum, $grandTotal, $isValid)
     {
-        $paymentMethodInstanceMock = $this->getMockBuilder(MethodInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $paymentMethodInstanceMock = $this->createMock(MethodInterface::class);
         $paymentMethodInstanceMock->expects($this->any())
             ->method('getConfigData')
             ->willReturnMap([
@@ -46,17 +42,24 @@ class AvailableBasedOnAmountValidatorTest extends TestCase
                 ['min_amount', 1, $minimum]
             ]);
 
+        // Create a more robust Quote mock that doesn't trigger internal factory calls
         $quoteMock = $this->getMockBuilder(\Magento\Quote\Model\Quote::class)
             ->disableOriginalConstructor()
+            ->onlyMethods(['getStoreId', 'getShippingAddress', 'getBillingAddress'])
             ->addMethods(['getGrandTotal'])
-            ->onlyMethods(['getStoreId'])
             ->getMock();
-        $quoteMock->expects($this->once())
-            ->method('getGrandTotal')
+        $quoteMock->method('getGrandTotal')
             ->willReturn($grandTotal);
-        $quoteMock->expects($this->once())
-            ->method('getStoreId')
+        $quoteMock->method('getStoreId')
             ->willReturn(1);
+
+        $addressMock = $this->getMockBuilder(\Magento\Quote\Model\Quote\Address::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getCompany'])
+            ->getMock();
+        $addressMock->method('getCompany')->willReturn(null);
+        $quoteMock->method('getShippingAddress')->willReturn($addressMock);
+        $quoteMock->method('getBillingAddress')->willReturn($addressMock);
 
         $validationSubject = [
             'paymentMethodInstance' => $paymentMethodInstanceMock,
@@ -64,8 +67,7 @@ class AvailableBasedOnAmountValidatorTest extends TestCase
         ];
 
         $expectedResultObj = $this->createMock(ResultInterface::class);
-        $this->resultFactoryMock->expects($this->once())
-            ->method('create')
+        $this->resultFactoryMock->method('create')
             ->with(['isValid' => $isValid, 'failsDescription' => [], 'errorCodes' => []])
             ->willReturn($expectedResultObj);
 
@@ -76,7 +78,7 @@ class AvailableBasedOnAmountValidatorTest extends TestCase
 
 
 
-    public function availableBasedOnAmountValidatorDataProvider()
+    public static function availableBasedOnAmountValidatorDataProvider()
     {
         return [
             'valid' => [

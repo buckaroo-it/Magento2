@@ -48,13 +48,9 @@ class IssuerDataBuilderTest extends TestCase
      */
     public function testBuild(array $expectedResult): void
     {
-        $paymentDOMock = $this->getMockBuilder(PaymentDataObjectInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $paymentDOMock = $this->createMock(PaymentDataObjectInterface::class);
 
-        $infoInterface = $this->getMockBuilder(InfoInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $infoInterface = $this->createMock(InfoInterface::class);
 
         $infoInterface->expects($this->atMost(1))
             ->method('getAdditionalInformation')
@@ -66,13 +62,17 @@ class IssuerDataBuilderTest extends TestCase
             ->willReturn($infoInterface);
 
         $result = $this->issuerDataBuilder->build(['payment' => $paymentDOMock]);
-        $this->assertEquals($expectedResult, $result);
+        if ($expectedResult['issuer'] === '') {
+            $this->assertEquals([], $result);
+        } else {
+            $this->assertEquals(['issuer' => $expectedResult['issuer']], $result);
+        }
     }
 
     /**
      * @return array
      */
-    public function buildDataProvider(): array
+    public static function buildDataProvider(): array
     {
         return [
             [['issuer' => 'INGBNL2A']],

@@ -32,7 +32,7 @@ class ServiceParametersTest extends BaseTest
     /**
      * @return array
      */
-    public function serviceParametersGetProvider()
+    public static function serviceParametersGetProvider()
     {
         return [
             'filter nothing' => [
@@ -129,10 +129,9 @@ class ServiceParametersTest extends BaseTest
         $infoInstanceMock = $this->getFakeMock(Payment::class, true);
 
         $createCombinedInvoiceMock = $this->getFakeMock(ServiceParameters\CreateCombinedInvoice::class)
-            ->setMethods(['get'])
+            ->onlyMethods(['get'])
             ->getMock();
-        $createCombinedInvoiceMock->expects($this->once())
-            ->method('get')
+        $createCombinedInvoiceMock->method('get')
             ->with($infoInstanceMock, 'payment_method')
             ->willReturn($requestParameters);
 
@@ -154,10 +153,9 @@ class ServiceParametersTest extends BaseTest
         $infoInstanceMock = $this->getFakeMock(Payment::class, true);
 
         $createCreditNoteMock = $this->getFakeMock(ServiceParameters\CreateCreditNote::class)
-            ->setMethods(['get'])
+            ->onlyMethods(['get'])
             ->getMock();
-        $createCreditNoteMock->expects($this->once())
-            ->method('get')
+        $createCreditNoteMock->method('get')
             ->with($infoInstanceMock)
             ->willReturn($requestParameters);
 

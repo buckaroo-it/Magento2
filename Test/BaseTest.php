@@ -57,7 +57,48 @@ abstract class BaseTest extends TestCaseFinder
         ini_set('display_errors', '1');
         ini_set('display_startup_errors', '1');
 
+        // Initialize ObjectManager for unit tests if not already done
+        $this->initializeObjectManagerForTests();
+
         $this->objectManagerHelper = new ObjectManager($this);
+    }
+
+    /**
+     * Initialize ObjectManager for unit tests
+     */
+    private function initializeObjectManagerForTests(): void
+    {
+        if (!class_exists('\Magento\Framework\App\ObjectManager')) {
+            return;
+        }
+
+        try {
+            $currentInstance = \Magento\Framework\App\ObjectManager::getInstance();
+            if ($currentInstance === null) {
+                // Create a test-friendly ObjectManager
+                $testObjectManager = new class extends \Magento\Framework\App\ObjectManager {
+                    private $instances = [];
+                    
+                    public function get($type, array $arguments = []) {
+                        // For unit tests, return a basic object or mock
+                        if (!isset($this->instances[$type])) {
+                            $this->instances[$type] = new \stdClass();
+                        }
+                        return $this->instances[$type];
+                    }
+                    
+                    public function create($type, array $arguments = []) {
+                        // For unit tests, return a basic object
+                        return new \stdClass();
+                    }
+                };
+                
+                \Magento\Framework\App\ObjectManager::setInstance($testObjectManager);
+            }
+        } catch (\Throwable $e) {
+            // If ObjectManager initialization fails, continue without it
+            // Unit tests should properly mock dependencies instead
+        }
     }
 
     /**

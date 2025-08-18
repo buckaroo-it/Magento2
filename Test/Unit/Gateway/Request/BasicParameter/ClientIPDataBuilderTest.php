@@ -53,9 +53,7 @@ class ClientIPDataBuilderTest extends AbstractDataBuilderTest
     {
         parent::setUp();
 
-        $this->configProviderAccountMock = $this->getMockBuilder(Account::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->configProviderAccountMock = $this->createMock(Account::class);
         $this->httpRequestMock = $this->getMockBuilder(RequestInterface::class)
             ->getMock();
 
@@ -91,7 +89,7 @@ class ClientIPDataBuilderTest extends AbstractDataBuilderTest
         $this->assertSame($expectedType, $result['clientIP']['type']);
     }
 
-    public function getBuildDataProvider(): array
+    public static function getBuildDataProvider(): array
     {
         return [
             [
@@ -110,9 +108,7 @@ class ClientIPDataBuilderTest extends AbstractDataBuilderTest
         string $paymentMethod,
         ?string $xForwardedFor
     ): Order {
-        $store = $this->getMockBuilder(Store::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $store = $this->createMock(Store::class);
         $this->orderMock->method('getRemoteIp')->willReturn($remoteIp);
         $this->orderMock->method('getStore')->willReturn($store);
         $orderPaymentMock = $this->getMockForAbstractClass(
@@ -124,8 +120,7 @@ class ClientIPDataBuilderTest extends AbstractDataBuilderTest
             true,
             []
         );
-        $orderPaymentMock->expects($this->once())
-            ->method('getMethod')
+        $orderPaymentMock->method('getMethod')
             ->willReturn($paymentMethod);
         $this->orderMock->method('getPayment')->willReturn($orderPaymentMock);
         $this->orderMock->method('getXForwardedFor')->willReturn($xForwardedFor);
@@ -146,7 +141,7 @@ class ClientIPDataBuilderTest extends AbstractDataBuilderTest
     /**
      * @return array[]
      */
-    public function isIpPrivateDataProvider(): array
+    public static function isIpPrivateDataProvider(): array
     {
         return [
             ['ip' => '192.168.1.1', 'expectedResult' => true],

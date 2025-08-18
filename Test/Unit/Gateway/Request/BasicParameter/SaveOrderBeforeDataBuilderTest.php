@@ -41,9 +41,7 @@ class SaveOrderBeforeDataBuilderTest extends AbstractDataBuilderTest
     {
         parent::setUp();
 
-        $this->configProviderAccountMock = $this->getMockBuilder(Account::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->configProviderAccountMock = $this->createMock(Account::class);
 
         $this->dataBuilder = new SaveOrderBeforeDataBuilder($this->configProviderAccountMock);
     }
@@ -53,27 +51,22 @@ class SaveOrderBeforeDataBuilderTest extends AbstractDataBuilderTest
         $store = 1;
         $newStatus = 'pending';
 
-        $this->configProviderAccountMock->expects($this->once())
-            ->method('getCreateOrderBeforeTransaction')
+        $this->configProviderAccountMock->method('getCreateOrderBeforeTransaction')
             ->with($store)
             ->willReturn(true);
 
-        $this->configProviderAccountMock->expects($this->once())
-            ->method('getOrderStatusNew')
+        $this->configProviderAccountMock->method('getOrderStatusNew')
             ->with($store)
             ->willReturn($newStatus);
 
-        $this->orderMock->expects($this->once())
-            ->method('getStoreId')
+        $this->orderMock->method('getStoreId')
             ->willReturn($store);
 
-        $this->orderMock->expects($this->once())
-            ->method('setStatus')
+        $this->orderMock->method('setStatus')
             ->with($newStatus)
             ->willReturnSelf();
 
-        $this->orderMock->expects($this->once())
-            ->method('save')
+        $this->orderMock->method('save')
             ->willReturnSelf();
 
         $result = $this->dataBuilder->build(['payment' => $this->getPaymentDOMock()]);

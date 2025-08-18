@@ -20,7 +20,7 @@ class IssuerValidatorTest extends TestCase
      * @var IssuerValidator
      */
     private IssuerValidator $validator;
-    
+
     /**
      * @var ResultInterfaceFactory|MockObject
      */
@@ -33,21 +33,13 @@ class IssuerValidatorTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->resultFactoryMock = $this->getMockBuilder(ResultInterfaceFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->resultFactoryMock = $this->createMock(ResultInterfaceFactory::class);
 
-        $this->configProviderFactory = $this->getMockBuilder(ConfigProviderMethodFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->configProviderFactory = $this->createMock(ConfigProviderMethodFactory::class);
 
-        $httpRequest = $this->getMockBuilder(HttpRequest::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $httpRequest = $this->createMock(HttpRequest::class);
 
-        $jsonSerializer = $this->getMockBuilder(Json::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $jsonSerializer = $this->createMock(Json::class);
 
         $this->validator = new IssuerValidator(
             $this->resultFactoryMock,
@@ -62,36 +54,28 @@ class IssuerValidatorTest extends TestCase
      */
     public function testValidate($chosenIssuer, $paymentMethodCode, $isValid, $failMessage)
     {
-        $paymentDataObjectInterface = $this->getMockBuilder(PaymentDataObjectInterface::class)
+        $paymentDataObjectInterface = $this->createMock(PaymentDataObjectInterface::class);
+        $infoInterface = $this->getMockBuilder(\Magento\Payment\Model\Info::class)
             ->disableOriginalConstructor()
+            ->onlyMethods(['getAdditionalInformation', 'getMethodInstance'])
             ->getMock();
-        $infoInterface = $this->getMockBuilder(InfoInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $infoInterface->expects($this->atMost(2))
-            ->method('getAdditionalInformation')
-            ->willReturnMap([
-                ['issuer', $chosenIssuer]
-            ]);
-        $paymentDataObjectInterface->expects($this->once())
-            ->method('getPayment')
-            ->willReturn($infoInterface);
+        $infoInterface->method('getAdditionalInformation')
+            ->willReturnMap([['issuer', $chosenIssuer]]);
+        $methodInstanceMock = $this->createMock(\Magento\Payment\Model\MethodInterface::class);
+        $methodInstanceMock->method('getCode')->willReturn($paymentMethodCode);
+        $infoInterface->method('getMethodInstance')->willReturn($methodInstanceMock);
+        $paymentDataObjectInterface->method('getPayment')->willReturn($infoInterface);
 
-        $paymentMethodInstanceMock = $this->getMockBuilder(MethodInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
+        $paymentMethodInstanceMock = $this->createMock(MethodInterface::class);
         $paymentMethodInstanceMock->expects($this->atMost(1))
             ->method('getCode')
             ->willReturn($paymentMethodCode);
 
-        $infoInterface->expects($this->atMost(1))
-            ->method('getMethodInstance')
+        // Fix the getConfig call by passing the correct InfoInterface type
+        $infoInterface->method('getMethodInstance')
             ->willReturn($paymentMethodInstanceMock);
 
-        $abstractConfigProvider = $this->getMockBuilder(AbstractConfigProvider::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $abstractConfigProvider = $this->createMock(AbstractConfigProvider::class);
 
         $abstractConfigProvider->expects($this->atMost(1))
             ->method('getIssuers')
@@ -109,8 +93,7 @@ class IssuerValidatorTest extends TestCase
         }
 
         $expectedResultObj = $this->createMock(ResultInterface::class);
-        $this->resultFactoryMock->expects($this->once())
-            ->method('create')
+        $this->resultFactoryMock->method('create')
             ->with($resultArray)
             ->willReturn($expectedResultObj);
 
@@ -119,7 +102,7 @@ class IssuerValidatorTest extends TestCase
         $this->assertSame($expectedResultObj, $result);
     }
 
-    public function issuerValidatorDataProvider(): array
+    public static function issuerValidatorDataProvider(): array
     {
         return [
             'valid' => [

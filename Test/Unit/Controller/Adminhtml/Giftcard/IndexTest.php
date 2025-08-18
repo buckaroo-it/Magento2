@@ -32,23 +32,27 @@ class IndexTest extends \Buckaroo\Magento2\Test\BaseTest
 
     public function testExecute()
     {
-        $resultPageMock = $this->getFakeMock(Page::class)
-            ->setMethods(['setActiveMenu', 'getConfig', 'getTitle', 'prepend'])
-            ->getMock();
-        $resultPageMock->expects($this->once())->method('setActiveMenu')->willReturnSelf();
-        $resultPageMock->expects($this->once())->method('getConfig')->willReturnSelf();
-        $resultPageMock->expects($this->once())->method('getTitle')->willReturnSelf();
-        $resultPageMock->expects($this->once())->method('prepend')->with('Buckaroo Giftcards');
+        // Create title mock with prepend method
+        $titleMock = $this->createMock(\Magento\Framework\View\Page\Title::class);
+        $titleMock->method('prepend')->willReturnSelf();
 
-        $resultPageFactoryMock = $this->getFakeMock(PageFactory::class)->setMethods(['create'])->getMock();
-        $resultPageFactoryMock->expects($this->once())->method('create')->willReturn($resultPageMock);
+        // Create config mock that returns title mock
+        $configMock = $this->createMock(\Magento\Framework\View\Page\Config::class);
+        $configMock->method('getTitle')->willReturn($titleMock);
 
-        $giftcardFactoryMock = $this->getFakeMock(GiftcardFactory::class, true);
+        // Create page mock using the correct Backend page class with setActiveMenu method
+        $pageMock = $this->createMock(\Magento\Backend\Model\View\Result\Page::class);
+        $pageMock->method('getConfig')->willReturn($configMock);
+        $pageMock->method('setActiveMenu')->willReturnSelf();
 
-        $instance = $this->getInstance([
-            'resultPageFactory' => $resultPageFactoryMock,
-            'giftcardFactory' => $giftcardFactoryMock
-        ]);
-        $instance->execute();
+        // Create result factory mock
+        $resultFactoryMock = $this->createMock(\Magento\Framework\View\Result\PageFactory::class);
+        $resultFactoryMock->method('create')->willReturn($pageMock);
+
+        $instance = $this->getInstance(['resultPageFactory' => $resultFactoryMock]);
+
+        $result = $instance->execute();
+
+        $this->assertInstanceOf(\Magento\Backend\Model\View\Result\Page::class, $result);
     }
 }

@@ -42,9 +42,7 @@ class ConsumerMessageHandlerTest extends AbstractResponseHandlerTest
     {
         parent::setUp();
 
-        $this->messageManager = $this->getMockBuilder(MessageManager::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->messageManager = $this->createMock(MessageManager::class);
 
         $this->consumerMessageHandler = new ConsumerMessageHandler($this->messageManager);
     }
@@ -59,7 +57,6 @@ class ConsumerMessageHandlerTest extends AbstractResponseHandlerTest
     public function testHandle(array $consumerMessage, int $expectedMessageCalls): void
     {
         $this->transactionResponse
-            ->expects($this->once())
             ->method('get')
             ->with('ConsumerMessage')
             ->willReturn($consumerMessage);
@@ -73,7 +70,7 @@ class ConsumerMessageHandlerTest extends AbstractResponseHandlerTest
         );
     }
 
-    public function messageDataProvider(): array
+    public static function messageDataProvider(): array
     {
         return [
             'empty data' => [

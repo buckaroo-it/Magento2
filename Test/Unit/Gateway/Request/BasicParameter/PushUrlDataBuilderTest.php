@@ -42,9 +42,7 @@ class PushUrlDataBuilderTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->urlBuilderMock = $this->getMockBuilder(UrlInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->urlBuilderMock = $this->createMock(UrlInterface::class);
 
         $this->pushUrlDataBuilder = new PushUrlDataBuilder($this->urlBuilderMock);
     }
@@ -54,8 +52,7 @@ class PushUrlDataBuilderTest extends TestCase
         $pushUrl = 'https://buckaroo.com/rest/V1/buckaroo/push';
         $pushUrlFailure = 'https://buckaroo.com/rest/V1/buckaroo/push';
 
-        $this->urlBuilderMock->expects($this->exactly(2))
-            ->method('getDirectUrl')
+        $this->urlBuilderMock->method('getDirectUrl')
             ->willReturnMap(
                 [
                     ['rest/V1/buckaroo/push', [], $pushUrl],

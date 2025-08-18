@@ -41,7 +41,7 @@ class AllOrSpecificCountriesTest extends BaseTest
         $this->assertCount(2, $result);
 
         foreach ($result as $option) {
-            $this->assertContains($option['label']->getText(), $expectedOptions);
+            $this->assertTrue(in_array($option['label']->getText(), $expectedOptions));
         }
     }
 
