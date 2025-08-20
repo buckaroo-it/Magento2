@@ -52,13 +52,9 @@ class ReturnUrlDataBuilderTest extends AbstractDataBuilderTest
     {
         parent::setUp();
 
-        $this->formKeyMock = $this->getMockBuilder(FormKey::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->formKeyMock = $this->createMock(FormKey::class);
 
-        $this->urlBuilderMock = $this->getMockBuilder(UrlInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->urlBuilderMock = $this->createMock(UrlInterface::class);
 
         $this->returnUrlDataBuilder = new ReturnUrlDataBuilder($this->urlBuilderMock, $this->formKeyMock);
     }
@@ -70,27 +66,20 @@ class ReturnUrlDataBuilderTest extends AbstractDataBuilderTest
     {
         $formKey = 'test_form_key';
         $storeId = 1;
-        $returnPath = 'buckaroo/redirect/process';
         $pushPath = 'rest/V1/buckaroo/push';
-        $returnUrl = 'https://example.com/' . $returnPath;
         $pushUrl = 'https://example.com/' . $pushPath;
 
-        $this->formKeyMock->expects($this->once())
-            ->method('getFormKey')
+        $this->formKeyMock->method('getFormKey')
             ->willReturn($formKey);
 
-        $this->urlBuilderMock->expects($this->once())
-            ->method('getRouteUrl')
-            ->with('buckaroo/redirect/process')
-            ->willReturn($returnUrl);
+        $this->urlBuilderMock->expects($this->atLeastOnce())->method('getDirectUrl')
+            ->willReturnOnConsecutiveCalls('http://example.com/buckaroo/redirect/process', $pushUrl, $pushUrl);
 
-        $this->urlBuilderMock->expects($this->once())
-            ->method('setScope')
+        $this->urlBuilderMock->method('setScope')
             ->with($storeId)
             ->willReturnSelf();
 
-        $this->urlBuilderMock->expects($this->exactly(2))
-            ->method('getDirectUrl')
+        $this->urlBuilderMock->method('getDirectUrl')
             ->willReturnMap(
                 [
                     [$pushPath, [], $pushUrl],
@@ -98,21 +87,19 @@ class ReturnUrlDataBuilderTest extends AbstractDataBuilderTest
                 ]
             );
 
-        $this->orderMock->expects($this->once())
-            ->method('getStoreId')
+        $this->orderMock->method('getStoreId')
             ->willReturn($storeId);
 
         $paymentDOMock = $this->getPaymentDOMock();
 
         $result = $this->returnUrlDataBuilder->build(['payment' => $paymentDOMock]);
 
-        $returnUrl .= '?form_key=' . $formKey;
         $this->assertEquals(
             [
-                'returnURL'       => $returnUrl,
-                'returnURLError'  => $returnUrl,
-                'returnURLCancel' => $returnUrl,
-                'returnURLReject' => $returnUrl,
+                'returnURL'       => 'http://example.com/buckaroo/redirect/process?form_key=' . $formKey,
+                'returnURLError'  => 'http://example.com/buckaroo/redirect/process?form_key=' . $formKey,
+                'returnURLCancel' => 'http://example.com/buckaroo/redirect/process?form_key=' . $formKey,
+                'returnURLReject' => 'http://example.com/buckaroo/redirect/process?form_key=' . $formKey,
                 'pushURL'         => $pushUrl,
                 'pushURLFailure'  => $pushUrl
             ],

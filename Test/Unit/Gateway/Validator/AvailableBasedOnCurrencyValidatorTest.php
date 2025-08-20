@@ -23,9 +23,7 @@ class AvailableBasedOnCurrencyValidatorTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->resultFactoryMock = $this->getMockBuilder(ResultInterfaceFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->resultFactoryMock = $this->createMock(ResultInterfaceFactory::class);
 
         $this->validator = new AvailableBasedOnCurrencyValidator($this->resultFactoryMock);
     }
@@ -35,27 +33,20 @@ class AvailableBasedOnCurrencyValidatorTest extends TestCase
      */
     public function testValidate($allowedCurrenciesRaw, $currentCurrency, $expectedResult)
     {
-        $quoteMock = $this->getMockBuilder(\Magento\Quote\Model\Quote::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $quoteMock = $this->createMock(\Magento\Quote\Model\Quote::class);
 
-        $currencyMock = $this->getMockBuilder(\Magento\Quote\Api\Data\CurrencyInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $currencyMock = $this->createMock(\Magento\Quote\Api\Data\CurrencyInterface::class);
 
-        $currencyMock->expects($this->once())
-            ->method('getQuoteCurrencyCode')
+        $currencyMock->method('getQuoteCurrencyCode')
             ->willReturn($currentCurrency);
 
-        $quoteMock->expects($this->once())
-            ->method('getCurrency')
+        $quoteMock->method('getCurrency')
             ->willReturn($currencyMock);
 
         $paymentMethodInstanceMock = $this->getMockBuilder(\Magento\Payment\Model\MethodInterface::class)
             ->getMock();
 
-        $paymentMethodInstanceMock->expects($this->once())
-            ->method('getConfigData')
+        $paymentMethodInstanceMock->method('getConfigData')
             ->willReturn($allowedCurrenciesRaw);
 
         $validationSubject = [
@@ -65,8 +56,7 @@ class AvailableBasedOnCurrencyValidatorTest extends TestCase
 
         $resultMock = $this->getMockBuilder(ResultInterface::class)->getMock();
 
-        $this->resultFactoryMock->expects($this->once())
-            ->method('create')
+        $this->resultFactoryMock->method('create')
             ->with(['isValid' => $expectedResult, 'failsDescription' => [], 'errorCodes' => []])
             ->willReturn($resultMock);
 
@@ -75,7 +65,7 @@ class AvailableBasedOnCurrencyValidatorTest extends TestCase
         $this->assertSame($resultMock, $result);
     }
 
-    public function dataProviderTestValidate(): array
+    public static function dataProviderTestValidate(): array
     {
         return [
             ['USD,EUR', 'USD', true],

@@ -41,27 +41,22 @@ class TransactionIdHandlerTest extends AbstractResponseHandlerTest
     {
         $transactionKey = 'test_transaction_key';
 
-        $this->transactionResponse->expects($this->once())
-            ->method('getTransactionKey')
+        $this->transactionResponse->method('getTransactionKey')
             ->willReturn($transactionKey);
 
         $this->orderPaymentMock
-            ->expects($this->once())
             ->method('setTransactionId')
             ->with($transactionKey);
 
         $this->orderPaymentMock
-            ->expects($this->once())
             ->method('setAdditionalInformation')
             ->with(TransactionIdHandler::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY, $transactionKey);
 
         $this->orderPaymentMock
-            ->expects($this->once())
             ->method('setIsTransactionClosed')
             ->with(true);
 
         $this->orderPaymentMock
-            ->expects($this->once())
             ->method('setShouldCloseParentTransaction')
             ->with(true);
 

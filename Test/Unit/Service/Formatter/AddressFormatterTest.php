@@ -35,6 +35,8 @@ class AddressFormatterTest extends BaseTest
 
         $addressMock = $this->getFakeMock(\Magento\Sales\Api\Data\OrderAddressInterface::class)->getMock();
         $addressMock->method('getCountryId')->willReturn('NL');
+        $addressMock->method('getStreet')->willReturn(['Street', '1', 'A']);
+        $addressMock->method('getTelephone')->willReturn('1234567890');
 
         $instance = $this->getInstance(['streetFormatter' => $streetFormatter, 'phoneFormatter' => $phoneFormatter]);
         $result = $instance->format($addressMock);

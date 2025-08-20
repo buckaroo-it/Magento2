@@ -492,7 +492,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
             $url,
         ));
 
-        return $this->handleProcessedResponse($url);
+        return $this->handleProcessedResponse($url ?? 'checkout/onepage/success');
     }
 
     /**
@@ -743,7 +743,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
 
         $url = $this->accountConfig->getFailureRedirect($store);
 
-        return $this->handleProcessedResponse($url);
+        return $this->handleProcessedResponse($url ?? 'checkout/cart');
     }
 
     /**
@@ -813,7 +813,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
         // Handle session setup and quote restoration for all scenarios
         if (!$this->checkoutSession->getLastRealOrderId() && $this->order->getIncrementId()) {
             $this->checkoutSession->setLastRealOrderId($this->order->getIncrementId());
-            
+
             // For success or when we want to restore failed quotes
             if ($status == 'success' || !$this->getSkipHandleFailedRecreate()) {
                 $this->checkoutSession->restoreQuote();
@@ -825,7 +825,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
                     $status
                 ));
             }
-            
+
             if ($status == 'failed') {
                 $this->setSkipHandleFailedRecreate();
             }

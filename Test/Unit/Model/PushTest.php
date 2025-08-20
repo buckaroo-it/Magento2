@@ -1,41 +1,21 @@
 <?php
-// phpcs:ignoreFile
-/**
- * NOTICE OF LICENSE
- *
- * This source file is subject to the MIT License
- * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
- *
- * DISCLAIMER
- *
- * Do not edit or add to this file if you wish to upgrade this module to newer
- * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
- *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
- */
+declare(strict_types=1);
+
 namespace Buckaroo\Magento2\Test\Unit\Model;
 
-use Buckaroo\Magento2\Logging\Log;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards;
-use Buckaroo\Magento2\Model\Push\PushTransactionType;
-use Magento\Directory\Model\Currency;
-use Magento\Framework\Webapi\Rest\Request;
-use Magento\Payment\Model\MethodInterface;
-use Magento\Sales\Api\Data\TransactionInterface;
-use Magento\Sales\Model\Order;
-use Magento\Sales\Model\Order\Email\Sender\OrderSender;
-use Magento\Sales\Model\Order\Invoice;
-use Magento\Sales\Model\Order\Payment;
-use Buckaroo\Magento2\Model\ConfigProvider\Account;
-use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
+use Buckaroo\Magento2\Api\Data\PushRequestInterface;
+use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
-use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Model\LockManagerWrapper;
 use Buckaroo\Magento2\Model\Push;
+use Buckaroo\Magento2\Model\Push\PushProcessorsFactory;
+use Buckaroo\Magento2\Model\Push\PushProcessorInterface;
+use Buckaroo\Magento2\Model\Push\PushTransactionType;
+use Buckaroo\Magento2\Model\RequestPush\RequestPushFactory;
+use Buckaroo\Magento2\Service\Push\OrderRequestService;
+use Magento\Sales\Model\Order;
+use Magento\Store\Model\Store;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -44,978 +24,167 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
 {
     protected $instanceClass = Push::class;
 
-    /**
-     * @return array
-     */
-    public function giftcardPartialPaymentProvider()
+    /** @var MockObject|BuckarooLoggerInterface */
+    private $loggerMock;
+
+    /** @var MockObject|RequestPushFactory */
+    private $requestPushFactoryMock;
+
+    /** @var MockObject|PushProcessorsFactory */
+    private $pushProcessorsFactoryMock;
+
+    /** @var MockObject|OrderRequestService */
+    private $orderRequestServiceMock;
+
+    /** @var MockObject|PushTransactionType */
+    private $pushTransactionTypeMock;
+
+    /** @var MockObject|LockManagerWrapper */
+    private $lockManagerMock;
+
+    /** @var MockObject|PushRequestInterface */
+    private $pushRequestMock;
+
+    public function setUp(): void
     {
-        return [
-            'processed partial giftcard payment' => [
-                Giftcards::CODE,
-                5,
-                2,
-                'abc',
-                true
-            ],
-            'incorrect method code' => [
-                'fake_method_code',
-                4,
-                1,
-                'def',
-                false
-            ],
-            'push amount equals order amount' => [
-                Giftcards::CODE,
-                3,
-                6,
-                'ghi',
-                false
-            ],
-            'no related transaction key' => [
-                Giftcards::CODE,
-                8,
-                7,
-                null,
-                false
-            ],
-        ];
+        parent::setUp();
+
+        $this->loggerMock = $this->getFakeMock(BuckarooLoggerInterface::class)->getMock();
+        $this->requestPushFactoryMock = $this->getFakeMock(RequestPushFactory::class)->getMock();
+        $this->pushProcessorsFactoryMock = $this->getFakeMock(PushProcessorsFactory::class)->getMock();
+        $this->orderRequestServiceMock = $this->getFakeMock(OrderRequestService::class)->getMock();
+        $this->pushTransactionTypeMock = $this->getFakeMock(PushTransactionType::class)->getMock();
+        $this->lockManagerMock = $this->getFakeMock(LockManagerWrapper::class)->getMock();
+
+        $this->pushRequestMock = $this->getFakeMock(PushRequestInterface::class)->getMock();
+        $this->requestPushFactoryMock->method('create')->willReturn($this->pushRequestMock);
     }
 
-    /**
-     * @return array
-     */
-    public function getPostDataProvider()
+    public function getInstance(array $args = []): Push
     {
-        return [
-            'valid post data' => [
-                [],
-                ['brq_INVOICENUMBER' => '0001', 'brq_STATUSCODE' => 190],
-                ['brq_INVOICENUMBER' => '0001', 'brq_STATUSCODE' => 190],
-                ['brq_invoicenumber' => '0001', 'brq_statuscode' => 190]
-            ],
-            'sid in post' => [
-                ['SID' => '123ABC'],
-                ['brq_INVOICENUMBER' => '0001', 'brq_STATUSCODE' => 190],
-                ['brq_INVOICENUMBER' => '0001', 'brq_STATUSCODE' => 190],
-                ['brq_invoicenumber' => '0001', 'brq_statuscode' => 190]
-            ],
-            'sid in get' => [
-                [],
-                ['brq_INVOICENUMBER' => '0001', 'SID' => '123ABC', 'brq_STATUSCODE' => 190],
-                ['brq_INVOICENUMBER' => '0001', 'brq_STATUSCODE' => 190],
-                ['brq_invoicenumber' => '0001', 'brq_statuscode' => 190]
-            ],
-            'mixed post and get data' => [
-                ['brq_CURRENCY' => 'EUR', 'getData' => 'DEF456'],
-                ['SID' => '789GHI', 'brq_INVOICENUMBER' => '0001', 'brq_STATUSCODE' => 190],
-                ['brq_INVOICENUMBER' => '0001', 'brq_STATUSCODE' => 190],
-                ['brq_invoicenumber' => '0001', 'brq_statuscode' => 190]
-            ]
-        ];
+        return parent::getInstance([
+            'logger' => $this->loggerMock,
+            'requestPushFactory' => $this->requestPushFactoryMock,
+            'pushProcessorsFactory' => $this->pushProcessorsFactoryMock,
+            'orderRequestService' => $this->orderRequestServiceMock,
+            'pushTransactionType' => $this->pushTransactionTypeMock,
+            'lockManager' => $this->lockManagerMock,
+        ] + $args);
     }
 
-    /**
-     * @param $getData
-     * @param $postData
-     * @param $expectedPost
-     * @param $expectedPostLowerCase
-     *
-     * @dataProvider getPostDataProvider
-     */
-    public function testGetPostData($getData, $postData, $expectedPost, $expectedPostLowerCase)
+    public function testReceivePushSuccess()
     {
-        $requestMock = $this->getFakeMock(Request::class)->setMethods(null)->getMock();
-        $requestMock->setQueryValue($getData);
-        $requestMock->setPostValue($postData);
+        $storeMock = $this->getFakeMock(Store::class)->getMock();
 
-        $instance = $this->getInstance(['request' => $requestMock]);
-        $this->invoke('getPostData', $instance);
-        $this->assertEquals($expectedPost, $instance->originalPostData);
-        $this->assertEquals($expectedPostLowerCase, $instance->postData);
-    }
+        $orderMock = $this->getFakeMock(Order::class)->getMock();
+        $orderMock->method('getIncrementId')->willReturn('123456');
+        $orderMock->method('getStore')->willReturn($storeMock);
 
-    /**
-     * @return array
-     */
-    public function loadOrderProvider()
-    {
-        return [
-            'by invoicenumber' => [
-                ['brq_invoicenumber' => '#1234'],
-                321
-            ],
-            'by ordernumber' => [
-                ['brq_ordernumber' => '#5678'],
-                765
-            ],
-        ];
-    }
+        $this->orderRequestServiceMock->expects($this->once())
+            ->method('getOrderByRequest')
+            ->with($this->pushRequestMock)
+            ->willReturn($orderMock);
 
-    /**
-     * @param $postData
-     * @param $orderId
-     *
-     * @dataProvider loadOrderProvider
-     */
-    public function testLoadOrder($postData, $orderId)
-    {
-        $orderMock = $this->getFakeMock(Order::class)->setMethods(['loadByIncrementId'])->getMock();
-        $orderMock->expects($this->once())
-            ->method('loadByIncrementId')
-            ->willReturnCallback(
-                function () use ($orderMock, $orderId) {
-                    $orderMock->setId($orderId);
-                }
-            );
+        $this->lockManagerMock->expects($this->once())
+            ->method('lockOrder')
+            ->with('123456', 5)
+            ->willReturn(true);
 
-        $instance = $this->getInstance(['order' => $orderMock]);
-        $instance->postData = $postData;
-        $this->invoke('loadOrder', $instance);
-        $this->assertEquals($orderId, $orderMock->getId());
-    }
+        $this->pushRequestMock->expects($this->once())
+            ->method('validate')
+            ->with($storeMock)
+            ->willReturn(true);
 
-    public function testLoadOrderWillThrowException()
-    {
-        $debuggerMock = $this->getFakeMock(Log::class)->setMethods(['addDebug', '__destruct'])->getMock();
-        $debuggerMock->expects($this->once())
-            ->method('addDebug')
-            ->with('Order could not be loaded by brq_invoicenumber or brq_ordernumber');
+        $this->pushTransactionTypeMock->expects($this->once())
+            ->method('getPushTransactionType')
+            ->with($this->pushRequestMock, $orderMock)
+            ->willReturn($this->getFakeMock(PushTransactionType::class)->getMock());
 
-        $transactionMock = $this->getFakeMock(TransactionInterface::class)
-            ->setMethods(['load', 'getOrder'])
-            ->getMockForAbstractClass();
-        $this->markTestIncomplete(
-            'This test needs to be reviewed.'
-        );
-        $transactionMock->expects($this->once())->method('load')->with('', 'txn_id');
-        $transactionMock->expects($this->once())->method('getOrder')->willReturn(null);
+        $processorMock = $this->getFakeMock(PushProcessorInterface::class)->getMock();
+        $processorMock->expects($this->once())
+            ->method('processPush')
+            ->with($this->pushRequestMock)
+            ->willReturn(true);
 
-        $instance = $this->getInstance(['transaction' => $transactionMock, 'logger' => $debuggerMock]);
+        $this->pushProcessorsFactoryMock->expects($this->once())
+            ->method('get')
+            ->with($this->anything())  // since it's the mock type object
+            ->willReturn($processorMock);
 
-        $this->expectException(Exception::class);
-        $this->invoke('loadOrder', $instance);
-    }
-
-    public function getTransactionKeyProvider()
-    {
-        return [
-            'no key' => [
-                [
-                    'brq_some_key' => 'abc',
-                    'brq_amount' => '1.23'
-                ],
-                ''
-            ],
-            'transaction key' => [
-                [
-                    'brq_transactions' => '456def',
-                    'brq_comment' => 'Transaction Comment'
-                ],
-                '456def'
-            ],
-            'datarequest key' => [
-                [
-                    'brq_status' => 'success',
-                    'brq_datarequest' => 'ghi789'
-                ],
-                'ghi789'
-            ]
-        ];
-    }
-
-    /**
-     * @param $postData
-     * @param $expected
-     *
-     * @dataProvider getTransactionKeyProvider
-     */
-    public function testGetTransactionKey($postData, $expected)
-    {
-        $instance = $this->getInstance();
-        $this->setProperty('postData', $postData, $instance);
-
-        $result = $this->invoke('getTransactionKey', $instance);
-        $this->assertEquals($expected, $result);
-    }
-
-    /**
-     * @return array
-     */
-    public function getTransactionTypeProvider()
-    {
-        return [
-            'invalid type' => [
-                ['brq_service_creditmanagement3_invoicekey' => 'key'],
-                null,
-                false
-            ],
-            'invoice type' => [
-                ['brq_invoicekey' => 'send key', 'brq_schemekey' => 'scheme key'],
-                'saved key',
-                PushTransactionType::BUCK_PUSH_TYPE_INVOICE
-            ],
-            'datarequest type' => [
-                ['brq_datarequest' => 'request push'],
-                null,
-                PushTransactionType::BUCK_PUSH_TYPE_DATAREQUEST
-            ],
-            'transaction type' => [
-                [],
-                null,
-                PushTransactionType::BUCK_PUSH_TYPE_TRANSACTION
-            ],
-        ];
-    }
-
-    /**
-     * @param $methodCode
-     * @param $orderAmount
-     * @param $pushAmount
-     * @param $relatedTransaction
-     * @param $expected
-     *
-     * @dataProvider giftcardPartialPaymentProvider
-     */
-    public function testGiftcardPartialPayment($methodCode, $orderAmount, $pushAmount, $relatedTransaction, $expected)
-    {
-        $postData = [
-            'brq_amount' => $pushAmount,
-            'brq_relatedtransaction_partialpayment' => $relatedTransaction
-        ];
-
-        $paymentMock = $this->getFakeMock(Payment::class)
-            ->setMethods(['getMethod', 'setAdditionalInformation', 'getAdditionalInformation'])
-            ->getMock();
-        $paymentMock->expects($this->once())->method('getMethod')->willReturn($methodCode);
-        $paymentMock->method('getAdditionalInformation')
-            ->with(BuckarooAdapter::BUCKAROO_ALL_TRANSACTIONS)->willReturn([]);
-        $paymentMock->method('setAdditionalInformation')
-            ->withConsecutive(
-                [BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY],
-                [BuckarooAdapter::BUCKAROO_ALL_TRANSACTIONS]
-            );
-
-        $orderMock = $this->getFakeMock(Order::class)->setMethods(['getPayment', 'getGrandTotal'])->getMock();
-        $orderMock->expects($this->atLeastOnce())->method('getPayment')->willReturn($paymentMock);
-        $orderMock->method('getGrandTotal')->willReturn($orderAmount);
+        $this->lockManagerMock->expects($this->once())
+            ->method('unlockOrder')
+            ->with('123456');
 
         $instance = $this->getInstance();
-        $instance->order = $orderMock;
-        $instance->postData = $postData;
-        $this->markTestIncomplete(
-            'This test needs to be reviewed.'
-        );
-        $result = $this->invoke('giftcardPartialPayment', $instance);
-
-        $this->assertEquals($expected, $result);
-    }
-
-    /**
-     * @param $postData
-     * @param $savedInvoiceKey
-     * @param $expected
-     *
-     * @dataProvider getTransactionTypeProvider
-     */
-    public function testGetTransactionType($postData, $savedInvoiceKey, $expected)
-    {
-        $orderMock = $this->getFakeMock(Order::class)
-            ->setMethods(['getPayment', 'getAdditionalInformation'])
-            ->getMock();
-        $orderMock->method('getPayment')->willReturnSelf();
-        $orderMock->method('getAdditionalInformation')->with('buckaroo_cm3_invoice_key')->willReturn($savedInvoiceKey);
-
-        $instance = $this->getInstance(['order' => $orderMock]);
-        $instance->postData = $postData;
-
-        $result = $instance->getTransactionType();
-
-        $this->assertEquals($expected, $result);
-    }
-
-    /**
-     * @return array
-     */
-    public function sendCm3ConfirmationMailProvider()
-    {
-        return [
-            'mail send via account config' => [
-                false,
-                true,
-                false,
-                ['brq_invoicestatuscode' => 10],
-                1
-            ],
-            'mail send via method config' => [
-                true,
-                false,
-                false,
-                ['brq_invoicestatuscode' => 10],
-                1
-            ],
-            'mail already sent' => [
-                false,
-                true,
-                true,
-                ['brq_invoicestatuscode' => 10],
-                0
-            ],
-            'incorrect post status code' => [
-                false,
-                true,
-                false,
-                ['brq_invoicestatuscode' => 5],
-                0
-            ],
-            'incorrect post parameter' => [
-                false,
-                true,
-                false,
-                ['brq_invoicekey' => 10],
-                0
-            ],
-            'configuration disabled' => [
-                false,
-                false,
-                false,
-                ['brq_invoicestatuscode' => 10],
-                0
-            ],
-        ];
-    }
-
-    /**
-     * @param $configData
-     * @param $accountConfig
-     * @param $emailSent
-     * @param $postData
-     * @param $sendTimesCalled
-     *
-     * @dataProvider sendCm3ConfirmationMailProvider
-     */
-    public function testSendCm3ConfirmationMail($configData, $accountConfig, $emailSent, $postData, $sendTimesCalled)
-    {
-        $methodMock = $this->getMockBuilder(BuckarooAdapter::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getConfigData'])
-            ->getMockForAbstractClass();
-        $methodMock->method('getConfigData')->with('order_email', 1)->willReturn($configData);
-
-        $orderMock = $this->getFakeMock(Order::class)
-            ->setMethods(['getStore', 'getPayment', 'getMethodInstance', 'getEmailSent'])
-            ->getMock();
-        $orderMock->expects($this->once())->method('getStore')->willReturn(1);
-        $orderMock->expects($this->once())->method('getPayment')->willReturnSelf();
-        $orderMock->expects($this->once())->method('getMethodInstance')->willReturn($methodMock);
-        $orderMock->expects($this->once())->method('getEmailSent')->willReturn($emailSent);
-
-        $configAccountMock = $this->getFakeMock(Account::class)->setMethods(['getOrderConfirmationEmail'])->getMock();
-        $configAccountMock->expects($this->once())->method('getOrderConfirmationEmail')->with(1)->willReturn($accountConfig);
-
-        $orderSenderMock = $this->getFakeMock(OrderSender::class)->setMethods(['send'])->getMock();
-        $orderSenderMock->expects($this->exactly($sendTimesCalled))->method('send')->with($orderMock);
-
-        $instance = $this->getInstance([
-            'order' => $orderMock,
-            'orderSender' => $orderSenderMock,
-            'configAccount' => $configAccountMock
-        ]);
-        $instance->postData = $postData;
-
-        $this->invoke('sendCm3ConfirmationMail', $instance);
-    }
-
-    /**
-     * @param $state
-     *
-     * @dataProvider processPendingPaymentPushDataProvider
-     */
-    public function testProcessPendingPaymentPush($state)
-    {
-        $this->markTestIncomplete(
-            'This test needs to be reviewed.'
-        );
-        $message = 'testMessage';
-        $status = 'testStatus';
-
-        $expectedDescription = 'Payment push status : '.$message;
-
-        $pendingPaymentState = Order::STATE_PROCESSING;
-
-        $orderMock = $this->getFakeMock(Order::class)
-            ->setMethods([
-                'getState', 'getStore', 'getPayment', 'getMethodInstance', 'getEmailSent', 'addStatusHistoryComment'
-            ])
-            ->getMock();
-        $orderMock->expects($this->once())->method('getState')->willReturn($state);
-        $orderMock->expects($this->once())->method('getStore')->willReturn(0);
-        $orderMock->expects($this->once())->method('getPayment')->willReturnSelf();
-        $orderMock->expects($this->once())->method('getMethodInstance')->willReturnSelf();
-        $orderMock->expects($this->once())->method('getEmailSent')->willReturn(true);
-
-        if ($state == $pendingPaymentState) {
-            $orderMock->expects($this->once())->method('addStatusHistoryComment')->with($expectedDescription, $status);
-        } else {
-            $orderMock->expects($this->once())->method('addStatusHistoryComment')->with($expectedDescription);
-        }
-
-        $instance = $this->getInstance();
-        $instance->order = $orderMock;
-
-        $result = $instance->processPendingPaymentPush($message);
+        $result = $instance->receivePush();
 
         $this->assertTrue($result);
     }
 
-    public function processPendingPaymentPushDataProvider()
+    public function testReceivePushInvalidSignature()
     {
-        return [
-            [
-                Order::STATE_PROCESSING,
-            ],
-            [
-                Order::STATE_NEW,
-            ],
-        ];
+        $storeMock = $this->getFakeMock(Store::class)->getMock();
+
+        $orderMock = $this->getFakeMock(Order::class)->getMock();
+        $orderMock->method('getIncrementId')->willReturn('123456');
+        $orderMock->method('getStore')->willReturn($storeMock);
+
+        $this->orderRequestServiceMock->method('getOrderByRequest')->willReturn($orderMock);
+        $this->lockManagerMock->method('lockOrder')->willReturn(true);
+
+        $this->pushRequestMock->method('validate')->with($storeMock)->willReturn(false);
+
+        $this->lockManagerMock->expects($this->once())->method('unlockOrder')->with('123456');
+
+        $instance = $this->getInstance();
+
+        $this->expectException(BuckarooException::class);
+        $this->expectExceptionMessage('Signature from push is incorrect');
+
+        $instance->receivePush();
     }
 
-    /**
-     * @param $state
-     * @param $canCancel
-     * @param $cancelOnFailed
-     *
-     * @dataProvider processFailedPushDataProvider
-     */
-    public function testProcessFailedPush($state, $canCancel, $cancelOnFailed)
+    public function testReceivePushLockNotAcquired()
     {
-        $message = 'testMessage';
-        $status = 'testStatus';
+        $orderMock = $this->getFakeMock(Order::class)->getMock();
+        $orderMock->method('getIncrementId')->willReturn('123456');
 
-        $expectedDescription = 'Payment status : '.$message;
+        $this->orderRequestServiceMock->method('getOrderByRequest')->willReturn($orderMock);
+        $this->lockManagerMock->method('lockOrder')->willReturn(false);
 
-        $canceledPaymentState = Order::STATE_CANCELED;
+        $this->lockManagerMock->expects($this->never())->method('unlockOrder');
 
-        $configAccountMock = $this->getFakeMock(Account::class)->setMethods(['getCancelOnFailed'])->getMock();
-        $configAccountMock->expects($this->once())->method('getCancelOnFailed')->willReturn($cancelOnFailed);
+        $instance = $this->getInstance();
 
-        $orderMock = $this->getFakeMock(Order::class)
-            ->setMethods(['getState', 'getStore', 'addStatusHistoryComment', 'canCancel', 'getPayment', 'cancel', 'save'])
-            ->getMock();
-        $orderMock->expects($this->atLeastOnce())->method('getState')->willReturn($state);
-        $orderMock->expects($this->once())->method('getStore')->willReturnSelf();
+        $this->expectException(BuckarooException::class);
+        $this->expectExceptionMessage('Lock push not acquired');
 
-        $addHistoryCommentExpects = $orderMock->expects($this->once());
-        $addHistoryCommentExpects->method('addStatusHistoryComment');
-
-        if ($state == $canceledPaymentState) {
-            $addHistoryCommentExpects->with($expectedDescription, $status);
-        } else {
-            $addHistoryCommentExpects->with($expectedDescription);
-        }
-
-        if ($cancelOnFailed) {
-            $methodInstanceMock = $this->getMockForAbstractClass(MethodInterface::class);
-            $paymentMock = $this->getMockBuilder(Payment::class)
-                ->disableOriginalConstructor()
-                ->setMethods(['getMethodInstance'])
-                ->getMock();
-            $paymentMock->method('getMethodInstance')->willReturn($methodInstanceMock);
-
-            $orderMock->expects($this->once())->method('canCancel')->willReturn($canCancel);
-            $orderMock->expects($this->exactly((int)$canCancel))->method('getPayment')->willReturn($paymentMock);
-
-            if ($canCancel) {
-                $orderMock->expects($this->once())->method('cancel')->willReturnSelf();
-                $orderMock->expects($this->once())->method('save')->willReturnSelf();
-            }
-        }
-
-        $instance = $this->getInstance([
-            'configAccount' => $configAccountMock
-        ]);
-        $instance->order = $orderMock;
-        $this->markTestIncomplete(
-            'This test needs to be reviewed.'
-        );
-        $result = $instance->processFailedPush($status, $message);
-        $this->assertTrue($result);
+        $instance->receivePush();
     }
 
-    public function processFailedPushDataProvider()
+    public function testReceivePushExceptionHandling()
     {
-        return [
-            [
-                Order::STATE_CANCELED,
-                true,
-                true,
-            ],
-            [
-                Order::STATE_CANCELED,
-                true,
-                false,
-            ],
-            [
-                Order::STATE_CANCELED,
-                false,
-                true,
-            ],
-            [
-                Order::STATE_CANCELED,
-                false,
-                false,
-            ],
-            [
-                Order::STATE_PROCESSING,
-                true,
-                true,
-            ],
-            [
-                Order::STATE_PROCESSING,
-                true,
-                false,
-            ],
-            [
-                Order::STATE_PROCESSING,
-                false,
-                true,
-            ],
-            [
-                Order::STATE_PROCESSING,
-                false,
-                false,
-            ],
-        ];
-    }
+        $storeMock = $this->getFakeMock(Store::class)->getMock();
 
-    /**
-     * @param      $state
-     * @param      $orderEmailSent
-     * @param      $sendOrderConfirmationEmail
-     * @param      $paymentAction
-     * @param      $amount
-     * @param bool                       $textAmount
-     * @param bool                       $autoInvoice
-     * @param bool                       $orderCanInvoice
-     * @param bool                       $orderHasInvoices
-     * @param array                      $postData
-     *
-     * @dataProvider processSucceededPushDataProvider
-     *
-     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     * @SuppressWarnings(PHPMD.NPathComplexity)
-     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
-     */
-    public function testProcessSucceededPush(
-        $state,
-        $orderEmailSent,
-        $sendOrderConfirmationEmail,
-        $paymentAction,
-        $amount,
-        $textAmount,
-        $autoInvoice = false,
-        $orderCanInvoice = false,
-        $orderHasInvoices = false,
-        $postData = []
-    ) {
-        $message = 'testMessage';
-        $status = 'testStatus';
-        $successPaymentState = Order::STATE_PROCESSING;
+        $orderMock = $this->getFakeMock(Order::class)->getMock();
+        $orderMock->method('getIncrementId')->willReturn('123456');
+        $orderMock->method('getStore')->willReturn($storeMock);
 
-        $configAccountMock = $this->getFakeMock(Account::class)
-            ->setMethods(['getOrderConfirmationEmail'])
-            ->getMock();
-        $configAccountMock->method('getOrderConfirmationEmail')->willReturn($sendOrderConfirmationEmail);
+        $this->orderRequestServiceMock->method('getOrderByRequest')->willReturn($orderMock);
+        $this->lockManagerMock->method('lockOrder')->willReturn(true);
 
-        $paymentMock = $this->getFakeMock(Payment::class)
-            ->setMethods(['getMethodInstance', 'getConfigData', 'canPushInvoice', 'registerCaptureNotification', 'save'])
-            ->getMock();
-        $paymentMock->expects($this->once())->method('getMethodInstance')->willReturnSelf();
-        $paymentMock->method('getConfigData')->willReturn($paymentAction);
-        $paymentMock->method('canPushInvoice')->willReturn(($paymentAction == 'authorize' ? false : true));
+        $this->pushRequestMock->method('validate')->with($storeMock)->willReturn(true);
 
-        $currencyMock = $this->getFakeMock(Currency::class)->setMethods(['formatTxt'])->getMock();
-        $currencyMock->expects($this->once())->method('formatTxt')->willReturn($textAmount);
+        $this->pushTransactionTypeMock->method('getPushTransactionType')
+            ->willThrowException(new BuckarooException(__('Test exception')));
 
-        $orderMock = $this->getFakeMock(Order::class)
-            ->setMethods([
-                'getEmailSent', 'getGrandTotal', 'getBaseGrandTotal', 'getTotalDue', 'getStore', 'getState',
-                'getPayment', 'getBaseCurrency', 'addStatusHistoryComment', 'canInvoice', 'hasInvoices', 'save', 'getInvoiceCollection'
-            ])
-            ->getMock();
-        $orderMock->expects($this->once())->method('getEmailSent')->willReturn($orderEmailSent);
-        $orderMock->method('getGrandTotal')->willReturn($amount);
-        $orderMock->method('getBaseGrandTotal')->willReturn($amount);
-        $orderMock->method('getTotalDue')->willReturn($amount);
-        $orderMock->expects($this->once())->method('getStore')->willReturnSelf();
-        $orderMock->method('getState')->willReturn($state);
-        $orderMock->expects($this->once())->method('getPayment')->willReturn($paymentMock);
-        $orderMock->expects($this->once())->method('getBaseCurrency')->willReturn($currencyMock);
+        $this->lockManagerMock->expects($this->once())->method('unlockOrder')->with('123456');
 
-        $orderSenderMock = $this->getFakeMock(OrderSender::class)->setMethods(['send'])->getMock();
+        $instance = $this->getInstance();
 
-        $instance = $this->getInstance([
-            'configAccount' => $configAccountMock,
-            'orderSender' => $orderSenderMock
-        ]);
+        $this->expectException(BuckarooException::class);
+        $this->expectExceptionMessage('Test exception');
 
-        if (!$orderEmailSent && $sendOrderConfirmationEmail) {
-            $orderSenderMock->expects($this->once())->method('send')->with($orderMock);
-        }
-
-        $forced = false;
-
-        if (!$autoInvoice || ($autoInvoice && $orderCanInvoice && !$orderHasInvoices)) {
-            if ($paymentAction != 'authorize') {
-                $expectedDescription = 'Payment status : <strong>' . $message . "</strong><br/>";
-                $expectedDescription .= 'Total amount of ' . $textAmount . ' has been paid';
-            } else {
-                $expectedDescription = 'Authorization status : <strong>' . $message . "</strong><br/>";
-                $expectedDescription .= 'Total amount of ' . $textAmount . ' has been ' .
-                    'authorized. Please create an invoice to capture the authorized amount.';
-                $forced = true;
-            }
-
-            if ($state == $successPaymentState || $forced) {
-                $orderMock->expects($this->once())
-                    ->method('addStatusHistoryComment')
-                    ->willReturn($expectedDescription, $status);
-            } else {
-                $orderMock->expects($this->once())->method('addStatusHistoryComment')->willReturn($expectedDescription);
-            }
-        }
-
-        if ($autoInvoice) {
-            $orderMock->expects($this->once())->method('canInvoice')->willReturn($orderCanInvoice);
-            $orderMock->method('hasInvoices')->willReturn($orderCanInvoice);
-
-            if (!$orderCanInvoice || $orderHasInvoices) {
-                $this->expectException(Exception::class);
-            } else {
-                $paymentMock->expects($this->once())->method('registerCaptureNotification')->with($amount);
-                $paymentMock->expects($this->once())->method('save');
-
-                $orderMock->expects($this->once())->method('save');
-
-                $instance->postData = $postData;
-
-                $invoiceMock = $this->getFakeMock(Invoice::class)
-                    ->setMethods(['getEmailSent', 'setTransactionId', 'save'])
-                    ->getMock();
-                $invoiceMock->expects($this->once())->method('getEmailSent')->willReturn(false);
-
-                $orderMock->expects($this->once())->method('getInvoiceCollection')->willReturn([$invoiceMock]);
-
-                if (isset($postData['brq_transactions'])) {
-                    $invoiceMock->expects($this->once())
-                        ->method('setTransactionId')
-                        ->with($postData['brq_transactions'])
-                        ->willReturnSelf();
-                    $invoiceMock->expects($this->once())->method('save');
-                }
-            }
-        }
-
-        $instance->order = $orderMock;
-        $this->markTestIncomplete(
-            'This test needs to be reviewed.'
-        );
-        $result = $instance->processSucceededPush($status, $message);
-        $this->assertTrue($result);
-    }
-
-    /**
-     * @return array
-     *
-     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
-     */
-    public function processSucceededPushDataProvider()
-    {
-        return [
-            /**
-             * Parameter order:
-             * $state
-             * $orderEmailSent
-             * $sendOrderConfirmationEmail
-             * $paymentAction
-             * $amount
-             * $textAmount
-             * $autoInvoice
-             * $orderCanInvoice
-             * $orderHasInvoices
-             * $postData
-             */
-            /** CANCELED && AUTHORIZE */
-            0 => [
-                Order::STATE_CANCELED,
-                true,
-                true,
-                'authorize',
-                '15.95',
-                '$15.95',
-                false,
-                false,
-                false,
-                false,
-                [],
-            ],
-            1 => [
-                Order::STATE_CANCELED,
-                false,
-                true,
-                'authorize',
-                '15.95',
-                '$15.95',
-                false,
-                false,
-                false,
-                [],
-            ],
-            2 => [
-                Order::STATE_CANCELED,
-                true,
-                false,
-                'authorize',
-                '15.95',
-                '$15.95',
-                false,
-                false,
-                false,
-                [],
-            ],
-            3 => [
-                Order::STATE_CANCELED,
-                false,
-                false,
-                'authorize',
-                '15.95',
-                '$15.95',
-                false,
-                false,
-                false,
-                [],
-            ],
-            /** CANCELED && NOT AUTHORIZE */
-            4 => [
-                Order::STATE_CANCELED,
-                true,
-                true,
-                'not_authorize',
-                '15.95',
-                '$15.95',
-                true,
-                false,
-                false,
-                [],
-            ],
-            5 => [
-                Order::STATE_CANCELED,
-                false,
-                true,
-                'not_authorize',
-                '15.95',
-                '$15.95',
-                true,
-                false,
-                false,
-                [],
-            ],
-            6 => [
-                Order::STATE_CANCELED,
-                true,
-                false,
-                'not_authorize',
-                '15.95',
-                '$15.95',
-                true,
-                false,
-                false,
-                [],
-            ],
-            7 => [
-                Order::STATE_CANCELED,
-                false,
-                false,
-                'not_authorize',
-                '15.95',
-                '$15.95',
-                true,
-                false,
-                false,
-                [],
-            ],
-            /** CANCELED && NOT AUTHORIZE && AUTO INVOICE*/
-            8 => [
-                Order::STATE_CANCELED,
-                true,
-                true,
-                'not_authorize',
-                '15.95',
-                '$15.95',
-                true,
-                false,
-                false,
-                [],
-            ],
-            9 => [
-                Order::STATE_CANCELED,
-                true,
-                true,
-                'not_authorize',
-                '15.95',
-                '$15.95',
-                true,
-                false,
-                true,
-                [],
-            ],
-            10 => [
-                Order::STATE_CANCELED,
-                true,
-                true,
-                'not_authorize',
-                '15.95',
-                '$15.95',
-                true,
-                true,
-                true,
-                [],
-            ],
-            /** PROCESSING && AUTHORIZE*/
-            11 => [
-                Order::STATE_PROCESSING,
-                true,
-                true,
-                'authorize',
-                '15.95',
-                '$15.95',
-                false,
-                false,
-                false,
-                [],
-            ],
-            12 => [
-                Order::STATE_PROCESSING,
-                false,
-                true,
-                'authorize',
-                '15.95',
-                '$15.95',
-                false,
-                false,
-                false,
-                [],
-            ],
-            13 => [
-                Order::STATE_PROCESSING,
-                true,
-                false,
-                'authorize',
-                '15.95',
-                '$15.95',
-                false,
-                false,
-                false,
-                [],
-            ],
-            14 => [
-                Order::STATE_PROCESSING,
-                false,
-                false,
-                'authorize',
-                '15.95',
-                '$15.95',
-                false,
-                false,
-                false,
-                [],
-            ],
-            /** PROCESSING && NOT AUTHORIZE*/
-            15 => [
-                Order::STATE_PROCESSING,
-                true,
-                true,
-                'not_authorize',
-                '15.95',
-                '$15.95',
-                true,
-                false,
-                false,
-                [],
-            ],
-            16 => [
-                Order::STATE_PROCESSING,
-                false,
-                true,
-                'not_authorize',
-                '15.95',
-                '$15.95',
-                true,
-                false,
-                false,
-                [],
-            ],
-            17 => [
-                Order::STATE_PROCESSING,
-                true,
-                false,
-                'not_authorize',
-                '15.95',
-                '$15.95',
-                true,
-                false,
-                false,
-                [],
-            ],
-            18 => [
-                Order::STATE_PROCESSING,
-                false,
-                false,
-                'not_authorize',
-                '15.95',
-                '$15.95',
-                true,
-                false,
-                false,
-                [],
-            ],
-            /** PROCESSING && NOT AUTHORIZE && AUTO INVOICE */
-            19 => [
-                Order::STATE_PROCESSING,
-                true,
-                true,
-                'not_authorize',
-                '15.95',
-                '$15.95',
-                true,
-                false,
-                false,
-                [],
-            ],
-            20 => [
-                Order::STATE_PROCESSING,
-                true,
-                true,
-                'not_authorize',
-                '15.95',
-                '$15.95',
-                true,
-                false,
-                true,
-                [],
-            ],
-            21 => [
-                Order::STATE_PROCESSING,
-                true,
-                true,
-                'not_authorize',
-                '15.95',
-                '$15.95',
-                true,
-                true,
-                true,
-                [],
-            ],
-        ];
+        $instance->receivePush();
     }
 }

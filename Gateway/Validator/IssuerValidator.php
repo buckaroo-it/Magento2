@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Validator;
 
+use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Magento\Framework\App\Request\Http as HttpRequest;
@@ -77,8 +78,9 @@ class IssuerValidator extends AbstractValidator
      */
     public function validate(array $validationSubject): ResultInterface
     {
-        /** @var Payment $paymentInfo */
-        $paymentInfo = $validationSubject['payment'];
+        $paymentDO = SubjectReader::readPayment($validationSubject);
+        /** @var InfoInterface $paymentInfo */
+        $paymentInfo = $paymentDO->getPayment();
         $config = $this->getConfig($paymentInfo);
 
         if (method_exists($config, 'canShowIssuers') && !$config->canShowIssuers()) {

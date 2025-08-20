@@ -57,17 +57,11 @@ abstract class AbstractResponseHandlerTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->orderMock = $this->getMockBuilder(Order::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->orderMock = $this->createMock(Order::class);
 
-        $this->paymentMethodInstanceMock = $this->getMockBuilder(MethodInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->paymentMethodInstanceMock = $this->createMock(MethodInterface::class);
 
-        $this->orderPaymentMock = $this->getMockBuilder(Payment::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->orderPaymentMock = $this->createMock(Payment::class);
 
 
         $this->transactionResponse = $this->createMock(TransactionResponse::class);
@@ -78,13 +72,9 @@ abstract class AbstractResponseHandlerTest extends TestCase
      */
     protected function getPaymentDOMock()
     {
-        $paymentDOMock = $this->getMockBuilder(PaymentDataObjectInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $paymentDOMock = $this->createMock(PaymentDataObjectInterface::class);
 
-        $orderAdapter = $this->getMockBuilder(OrderAdapter::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $orderAdapter = $this->createMock(OrderAdapter::class);
 
         $orderAdapter->expects($this->atMost(1))
             ->method('getOrder')

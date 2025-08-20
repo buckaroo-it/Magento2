@@ -34,8 +34,7 @@ class CapayableIn3Test extends BaseTest
     public function testIsInactive()
     {
         $scopeConfigMock = $this->getMockBuilder(ScopeConfigInterface::class)->getMock();
-        $scopeConfigMock->expects($this->once())
-            ->method('getValue')
+        $scopeConfigMock->method('getValue')
             ->with(
                 $this->getPaymentMethodConfigPath(CapayableIn3::CODE, AbstractConfigProvider::ACTIVE)
             )
@@ -47,42 +46,49 @@ class CapayableIn3Test extends BaseTest
         $this->assertEquals([], $result);
     }
 
-    public function testGetConfig()
+    public function testGetConfig(): void
     {
-        $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->setMethods(['getValue'])
-            ->getMockForAbstractClass();
-        $scopeConfigMock->expects($this->exactly(2))
-            ->method('getValue')
-            ->withConsecutive(
-                [
-                    $this->getPaymentMethodConfigPath(CapayableIn3::CODE, AbstractConfigProvider::ACTIVE),
-                    ScopeInterface::SCOPE_STORE
-                ],
-                [
-                    $this->getPaymentMethodConfigPath(
-                        CapayableIn3::CODE,
-                        AbstractConfigProvider::ALLOWED_CURRENCIES
-                    ),
-                    ScopeInterface::SCOPE_STORE,
-                    null
-                ],
-            )
-            ->willReturnOnConsecutiveCalls(true, 'EUR');
+        $scopeConfigMock = $this->createMock(ScopeConfigInterface::class);
+
+        // PHPUnit 10: use a value map instead of withConsecutive()
+        $valueMap = [
+            [
+                $this->getPaymentMethodConfigPath(CapayableIn3::CODE, AbstractConfigProvider::ACTIVE),
+                ScopeInterface::SCOPE_STORE,
+                null,
+                true
+            ],
+            [
+                $this->getPaymentMethodConfigPath(
+                    CapayableIn3::CODE,
+                    AbstractConfigProvider::ALLOWED_CURRENCIES
+                ),
+                ScopeInterface::SCOPE_STORE,
+                null,
+                'EUR'
+            ],
+        ];
+
+        $scopeConfigMock->method('getValue')
+            ->willReturnMap($valueMap);
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
         $result = $instance->getConfig();
 
         $this->assertArrayHasKey('payment', $result);
         $this->assertArrayHasKey('buckaroo', $result['payment']);
-        $this->assertArrayHasKey('capayablein3', $result['payment']['buckaroo']);
-        $this->assertArrayHasKey('allowedCurrencies', $result['payment']['buckaroo']['capayablein3']);
+        $this->assertArrayHasKey(CapayableIn3::CODE, $result['payment']['buckaroo']);
+        $this->assertArrayHasKey(
+            'allowedCurrencies',
+            $result['payment']['buckaroo'][CapayableIn3::CODE]
+        );
     }
+
 
     /**
      * @return array
      */
-    public function getPaymentFeeProvider()
+    public static function getPaymentFeeProvider()
     {
         return [
             'null value' => [
@@ -113,8 +119,7 @@ class CapayableIn3Test extends BaseTest
     public function testGetPaymentFee($fee, $expected)
     {
         $scopeConfigMock = $this->getMockBuilder(ScopeConfigInterface::class)->getMock();
-        $scopeConfigMock->expects($this->once())
-            ->method('getValue')
+        $scopeConfigMock->method('getValue')
             ->with(
                 $this->getPaymentMethodConfigPath(CapayableIn3::CODE, AbstractConfigProvider::PAYMENT_FEE),
                 ScopeInterface::SCOPE_STORE

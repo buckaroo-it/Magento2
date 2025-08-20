@@ -30,7 +30,7 @@ class EditTest extends \Buckaroo\Magento2\Test\BaseTest
 {
     protected $instanceClass = Edit::class;
 
-    public function headerTextProvider()
+    public static function headerTextProvider()
     {
         return [
             [
@@ -64,7 +64,7 @@ class EditTest extends \Buckaroo\Magento2\Test\BaseTest
      */
     public function testGetHeaderText($id, $label, $expectedArgument, $expectedText)
     {
-        $giftcardModel = $this->getFakeMock(Giftcard::class)->setMethods(['getId', 'getLabel'])->getMock();
+        $giftcardModel = $this->getFakeMock(Giftcard::class)->onlyMethods(['getLabel'])->getMock();
         $giftcardModel->method('getId')->willReturn($id);
         $giftcardModel->method('getLabel')->willReturn($label);
 

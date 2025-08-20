@@ -24,10 +24,11 @@ namespace Buckaroo\Magento2\Test\Unit\Gateway\Request\BasicParameter;
 use Buckaroo\Magento2\Gateway\Request\BasicParameter\CurrencyDataBuilder;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
-use Buckaroo\Magento2\Test\Unit\Gateway\Request\AbstractDataBuilderTest;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
+use Buckaroo\Magento2\Test\BaseTest;
 use PHPUnit\Framework\MockObject\MockObject;
 
-class CurrencyDataBuilderTest extends AbstractDataBuilderTest
+class CurrencyDataBuilderTest extends BaseTest
 {
     /**
      * @var MockObject|Factory
@@ -39,14 +40,15 @@ class CurrencyDataBuilderTest extends AbstractDataBuilderTest
      */
     private $currencyDataBuilder;
 
-    protected function setUp(): void
+    protected $paymentMethodInstanceMock;
+    protected $orderMock;
+
+    public function setUp(): void
     {
         parent::setUp();
-
-        $this->configProviderMethodFactoryMock = $this->getMockBuilder(Factory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
+        $this->paymentMethodInstanceMock = $this->createMock(\Magento\Payment\Model\MethodInterface::class);
+        $this->orderMock = $this->getFakeMock(\Magento\Sales\Model\Order::class)->getMock();
+        $this->configProviderMethodFactoryMock = $this->createMock(Factory::class);
         $this->currencyDataBuilder = new CurrencyDataBuilder($this->configProviderMethodFactoryMock);
     }
 
@@ -67,18 +69,16 @@ class CurrencyDataBuilderTest extends AbstractDataBuilderTest
             ->method('getCode')
             ->willReturn($paymentMethodCode);
 
-        $configProvider = $this->getMockBuilder(ConfigProviderInterface::class)
+        $configProviderMock = $this->getMockBuilder(AbstractConfigProvider::class)
             ->disableOriginalConstructor()
-            ->getMock();
-
-        $configProvider->expects($this->atMost(1))
-            ->method('getAllowedCurrencies')
-            ->willReturn($allowedCurrencies);
+            ->onlyMethods(['getAllowedCurrencies'])
+            ->getMockForAbstractClass();
+        $configProviderMock->method('getAllowedCurrencies')->willReturn($allowedCurrencies);
 
         $this->configProviderMethodFactoryMock->expects($this->atMost(1))
             ->method('get')
             ->with($paymentMethodCode)
-            ->willReturn($configProvider);
+            ->willReturn($configProviderMock);
 
         if ($expectedResult instanceof \Buckaroo\Magento2\Exception) {
             $this->expectExceptionObject($expectedResult);
@@ -92,7 +92,31 @@ class CurrencyDataBuilderTest extends AbstractDataBuilderTest
         );
     }
 
-    public function currencyDataProvider()
+    /**
+     * Create PaymentDataObject mock
+     *
+     * @return \PHPUnit\Framework\MockObject\MockObject
+     */
+    private function getPaymentDOMock()
+    {
+        // Use the already prepared order mock so currency codes are available
+        $orderAdapterMock = $this->getMockBuilder(\Magento\Payment\Gateway\Data\OrderAdapterInterface::class)
+            ->addMethods(['getOrder'])
+            ->getMockForAbstractClass();
+        $orderAdapterMock->method('getOrder')->willReturn($this->orderMock);
+
+        $paymentMock = $this->createMock(\Magento\Payment\Model\InfoInterface::class);
+        // Ensure method instance is available for setAllowedCurrencies()
+        $paymentMock->method('getMethodInstance')->willReturn($this->paymentMethodInstanceMock);
+
+        $paymentDOMock = $this->createMock(\Magento\Payment\Gateway\Data\PaymentDataObjectInterface::class);
+        $paymentDOMock->method('getOrder')->willReturn($orderAdapterMock);
+        $paymentDOMock->method('getPayment')->willReturn($paymentMock);
+        
+        return $paymentDOMock;
+    }
+
+    public static function currencyDataProvider()
     {
         return [
             [

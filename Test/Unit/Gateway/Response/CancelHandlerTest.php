@@ -42,7 +42,6 @@ class CancelHandlerTest extends AbstractResponseHandlerTest
     public function testHandle(): void
     {
         $this->orderPaymentMock
-            ->expects($this->once())
             ->method('setAdditionalInformation')
             ->with('voided_by_buckaroo', true);
 

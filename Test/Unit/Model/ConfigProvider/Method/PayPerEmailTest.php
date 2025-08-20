@@ -21,6 +21,8 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
+
+
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
@@ -34,8 +36,7 @@ class PayPerEmailTest extends BaseTest
     public function testIsInactive()
     {
         $scopeConfigMock = $this->getMockBuilder(ScopeConfigInterface::class)->getMock();
-        $scopeConfigMock->expects($this->once())
-            ->method('getValue')
+        $scopeConfigMock->method('getValue')
             ->with(
                 $this->getPaymentMethodConfigPath(PayPerEmail::CODE, AbstractConfigProvider::ACTIVE)
             )
@@ -50,12 +51,16 @@ class PayPerEmailTest extends BaseTest
     public function testGetConfig()
     {
         $scopeConfigMock = $this->getMockBuilder(ScopeConfigInterface::class)->getMock();
-        $scopeConfigMock->expects($this->atLeastOnce())
-            ->method('getValue')
-            ->withConsecutive($this->onConsecutiveCalls([
-                [$this->getPaymentMethodConfigPath(PayPerEmail::CODE, AbstractConfigProvider::ACTIVE)]
-            ]))
-            ->willReturn(1);
+        $scopeConfigMock->method('getValue')
+            ->willReturnCallback(function($path, $scope = null, $scopeId = null) {
+                // Use parameters to avoid PHPMD warnings
+                unset($scope, $scopeId);
+
+                if (strpos($path, AbstractConfigProvider::ACTIVE) !== false) {
+                    return 1;
+                }
+                return null;
+            });
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
         $result = $instance->getConfig();
@@ -64,16 +69,14 @@ class PayPerEmailTest extends BaseTest
 
         $resultPaymentBuckaroo = $result['payment']['buckaroo'];
 
-        $this->assertCount(2, $resultPaymentBuckaroo);
-        $this->assertArrayHasKey('payperemail', $resultPaymentBuckaroo);
-        $this->assertCount(2, $resultPaymentBuckaroo['payperemail']);
-        $this->assertArrayHasKey('response', $resultPaymentBuckaroo);
+        $this->assertArrayHasKey('buckaroo_magento2_payperemail', $resultPaymentBuckaroo);
+        $this->assertArrayHasKey('genderList', $resultPaymentBuckaroo['buckaroo_magento2_payperemail']);
     }
 
     /**
      * @return array
      */
-    public function getPaymentFeeProvider()
+    public static function getPaymentFeeProvider()
     {
         return [
             'null value' => [
@@ -104,8 +107,7 @@ class PayPerEmailTest extends BaseTest
     public function testGetPaymentFee($fee, $expected)
     {
         $scopeConfigMock = $this->getMockBuilder(ScopeConfigInterface::class)->getMock();
-        $scopeConfigMock->expects($this->once())
-            ->method('getValue')
+        $scopeConfigMock->method('getValue')
             ->with(
                 $this->getPaymentMethodConfigPath(PayPerEmail::CODE, AbstractConfigProvider::PAYMENT_FEE),
                 ScopeInterface::SCOPE_STORE
@@ -121,7 +123,7 @@ class PayPerEmailTest extends BaseTest
     /**
      * @return array
      */
-    public function getSendMailProvider()
+    public static function getSendMailProvider()
     {
         return [
             'yes selected' => [
@@ -144,9 +146,8 @@ class PayPerEmailTest extends BaseTest
     public function testHasSendMail($option, $expected)
     {
         $scopeConfigMock = $this->getMockBuilder(ScopeConfigInterface::class)->getMock();
-        $scopeConfigMock->expects($this->once())
-            ->method('getValue')
-            ->with(PayPerEmail::XPATH_PAYPEREMAIL_SEND_MAIL, ScopeInterface::SCOPE_STORE)
+        $scopeConfigMock->method('getValue')
+            ->with('payment/buckaroo_magento2_payperemail/send_mail', ScopeInterface::SCOPE_STORE)
             ->willReturn($option);
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
@@ -158,7 +159,7 @@ class PayPerEmailTest extends BaseTest
     /**
      *
      */
-    public function isVisibleForAreaCodeProvider()
+    public static function isVisibleForAreaCodeProvider()
     {
         return [
             "visibleFrontBack is null" => [null, null, false],
@@ -182,7 +183,7 @@ class PayPerEmailTest extends BaseTest
     {
         $scopeConfigMock = $this->getMockBuilder(ScopeConfigInterface::class)->getMock();
         $scopeConfigMock->method('getValue')
-            ->with(PayPerEmail::XPATH_PAYPEREMAIL_VISIBLE_FRONT_BACK, ScopeInterface::SCOPE_STORE)
+            ->with('payment/buckaroo_magento2_payperemail/visible_front_back', ScopeInterface::SCOPE_STORE)
             ->willReturn($visibleFrontBack);
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);

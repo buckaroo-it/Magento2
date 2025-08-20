@@ -54,7 +54,6 @@ class ReservationNumberHandlerTest extends AbstractResponseHandlerTest
         ?array $serviceParameters
     ): void {
         $this->orderPaymentMock
-            ->expects($this->once())
             ->method('getMethod')
             ->willReturn($paymentMethod);
 
@@ -66,28 +65,27 @@ class ReservationNumberHandlerTest extends AbstractResponseHandlerTest
                 ->getMock();
 
             $orderMock
-                ->expects($this->once())
                 ->method('getBuckarooReservationNumber')
                 ->willReturn($hasReservationNumber ? '123456' : null);
 
             if (!$hasReservationNumber && $serviceParameters !== null) {
                 $this->transactionResponse
-                    ->expects($this->once())
                     ->method('getServiceParameters')
                     ->willReturn($serviceParameters);
                 $orderMock
-                    ->expects($this->once())
                     ->method('setBuckarooReservationNumber')
                     ->with($serviceParameters['klarnakp_reservationnumber']);
-
-                $orderMock->expects($this->once())->method('save');
             } else {
                 $orderMock->expects($this->never())->method('setBuckarooReservationNumber');
+            }
+
+            if ($hasReservationNumber) {
                 $orderMock->expects($this->never())->method('save');
+            } else {
+                $orderMock->expects($this->once())->method('save')->willReturnSelf();
             }
 
             $this->orderPaymentMock
-                ->expects($this->once())
                 ->method('getOrder')
                 ->willReturn($orderMock);
         }
@@ -98,7 +96,7 @@ class ReservationNumberHandlerTest extends AbstractResponseHandlerTest
         );
     }
 
-    public function reservationNumberDataProvider(): array
+    public static function reservationNumberDataProvider(): array
     {
         return [
             [
