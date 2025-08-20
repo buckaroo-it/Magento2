@@ -59,9 +59,9 @@
     "require-dev": {
         "php-webdriver/webdriver": "^1.1",
         "squizlabs/php_codesniffer": "^3.7",
-        "phpmd/phpmd": "^2.13",
+        "phpmd/phpmd": "^2.15",
         "phpstan/phpstan": "^1.10",
-        "magento/magento-coding-standard": "^37"
+        "magento/magento-coding-standard": "^38"
     },
     "repositories": {
         "magento": {
