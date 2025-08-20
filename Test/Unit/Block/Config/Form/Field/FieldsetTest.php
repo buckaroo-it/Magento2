@@ -153,14 +153,15 @@ class FieldsetTest extends BaseTest
     {
         $requestMock = $this->getFakeMock(RequestInterface::class)->getMockForAbstractClass();
         $requestMock->method('getParam')
-            ->willReturnCallback(function($arg1, $arg2 = null) {
-                    static $callCount = 0;
-                    $callCount++;
-                    // TODO: Implement proper argument checking based on call count
-                    // Original withConsecutive args: ['store'], ['website']
-                    return null;
-                })
-            ->willReturnOnConsecutiveCalls($store, $website);
+            ->willReturnCallback(function($param, $default = null) use ($store, $website) {
+                // Use the parameters to avoid PHPMD warnings
+                if ($param === 'store') {
+                    return $store;
+                } elseif ($param === 'website') {
+                    return $website;
+                }
+                return $default;
+            });
 
         $contextMock = $this->getFakeMock(Context::class)->onlyMethods(['getRequest'])->getMock();
         $contextMock->method('getRequest')->willReturn($requestMock);

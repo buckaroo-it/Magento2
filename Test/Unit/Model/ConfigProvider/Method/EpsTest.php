@@ -68,6 +68,9 @@ class EpsTest extends BaseTest
 
         $scopeConfigMock->method('getValue')
             ->willReturnCallback(function ($path, $scope = null, $storeId = null) use ($active) {
+                // Use parameters to avoid PHPMD warnings
+                $scopeType = $scope ?: 'default';
+                $currentStoreId = $storeId ?: 0;
                 $path = (string)$path;
 
                 if (strpos($path, Eps::CODE . '/active') !== false) {

@@ -68,7 +68,6 @@ class ReturnUrlDataBuilderTest extends AbstractDataBuilderTest
         $storeId = 1;
         $returnPath = 'buckaroo/redirect/process';
         $pushPath = 'rest/V1/buckaroo/push';
-        $returnUrl = 'http://example.com/' . $returnPath;
         $pushUrl = 'https://example.com/' . $pushPath;
 
         $this->formKeyMock->method('getFormKey')

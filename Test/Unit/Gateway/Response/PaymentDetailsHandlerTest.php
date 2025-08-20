@@ -83,13 +83,8 @@ class PaymentDetailsHandlerTest extends AbstractResponseHandlerTest
 
     public function testAddToRegistry(): void
     {
-        $key = 'buckaroo_response';
-        $value = ['some_key' => 'some_value'];
-
-        // Note: register() method is not available on BuckarooResponseDataInterface
-        // This interface doesn't have a register method
-
-        // Test method may not exist - skip reflection test
+        // Test method may not exist - skip reflection test since the interface
+        // doesn't have a register method
         $this->assertTrue(true); // Basic assertion to complete test
     }
 }

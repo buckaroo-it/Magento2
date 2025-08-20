@@ -96,7 +96,7 @@ class ProcessTest extends BaseTest
             'brq_transactions' => null,
             'brq_datarequest' => null
         ];
-        
+
         $response = $this->getFakeMock(ResponseInterface::class)->getMockForAbstractClass();
 
         $request = $this->getFakeMock(RequestInterface::class)->onlyMethods(['getParams', 'getParam'])
@@ -163,7 +163,7 @@ class ProcessTest extends BaseTest
         $redirectFactoryMock = $this->createMock(\Magento\Framework\Controller\Result\RedirectFactory::class);
         $redirectFactoryMock->method('create')->willReturn($redirectMock);
 
-        // Mock RequestPushFactory  
+        // Mock RequestPushFactory
         $pushRequestMock = $this->getFakeMock(\Buckaroo\Magento2\Api\Data\PushRequestInterface::class)
             ->addMethods(['getOriginalRequest', 'getData'])
             ->onlyMethods(['getStatusCode'])
@@ -185,7 +185,7 @@ class ProcessTest extends BaseTest
             'helper' => $helperMock,
             'requestPushFactory' => $requestPushFactoryMock
         ]);
-        
+
         $result = $instance->execute();
         $this->assertNotNull($result);
     }
@@ -333,7 +333,6 @@ class ProcessTest extends BaseTest
             $this->setProperty('transaction', $transaction, $instance);
         }
 
-        $transactionItemMock = $this->createMock(\Magento\Sales\Model\Order\Payment\Transaction::class);
 
         try {
             $result = $this->invoke('getTransaction', $instance);

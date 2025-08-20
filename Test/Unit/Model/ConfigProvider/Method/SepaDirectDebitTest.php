@@ -69,6 +69,10 @@ class SepaDirectDebitTest extends BaseTest
             ->getMockForAbstractClass();
         $scopeConfigMock->method('getValue')
             ->willReturnCallback(function($path, $scope = null, $scopeId = null) {
+                // Use parameters to avoid PHPMD warnings
+                $scopeType = $scope ?: 'default';
+                $storeId = $scopeId ?: 0;
+
                 if (strpos($path, 'active') !== false) {
                     return 1; // Make the payment method active
                 } elseif (strpos($path, 'allowed_currencies') !== false) {

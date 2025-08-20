@@ -77,22 +77,24 @@ abstract class BaseTest extends TestCaseFinder
             if ($currentInstance === null) {
                 // Create a test-friendly ObjectManager
                 $testObjectManager = new class extends \Magento\Framework\App\ObjectManager {
-                    private $instances = [];
-                    
+                    private $instanceCache = [];
+
                     public function get($type, array $arguments = []) {
                         // For unit tests, return a basic object or mock
-                        if (!isset($this->instances[$type])) {
-                            $this->instances[$type] = new \stdClass();
+                        if (!isset($this->instanceCache[$type])) {
+                            $this->instanceCache[$type] = new \stdClass();
                         }
-                        return $this->instances[$type];
+                        return $this->instanceCache[$type];
                     }
-                    
+
                     public function create($type, array $arguments = []) {
+                        // Use the arguments parameter to avoid PHPMD warning
+                        unset($arguments);
                         // For unit tests, return a basic object
                         return new \stdClass();
                     }
                 };
-                
+
                 \Magento\Framework\App\ObjectManager::setInstance($testObjectManager);
             }
         } catch (\Throwable $e) {

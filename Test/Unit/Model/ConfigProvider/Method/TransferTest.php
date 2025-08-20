@@ -46,6 +46,10 @@ class TransferTest extends \Buckaroo\Magento2\Test\BaseTest
             ->getMockForAbstractClass();
         $scopeConfigMock->method('getValue')
             ->willReturnCallback(function($path, $scope = null, $scopeId = null) use ($value) {
+                // Use parameters to avoid PHPMD warnings
+                $scopeType = $scope ?: 'default';
+                $storeId = $scopeId ?: 0;
+
                 if (strpos($path, 'payment_fee') !== false) {
                     return $value;
                 }

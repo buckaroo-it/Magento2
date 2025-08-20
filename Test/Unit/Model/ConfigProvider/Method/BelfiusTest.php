@@ -68,11 +68,6 @@ class BelfiusTest extends BaseTest
             ->onlyMethods(['getValue'])
             ->getMockForAbstractClass();
 
-        $configMap = [
-            [Belfius::CODE, AbstractConfigProvider::PAYMENT_FEE, 'EUR'],
-            [Belfius::CODE, AbstractConfigProvider::PAYMENT_FEE_LABEL, 'Belfius Fee'],
-        ];
-
         $valueMap = [
             [
                 $this->getPaymentMethodConfigPath(Belfius::CODE, AbstractConfigProvider::ACTIVE),

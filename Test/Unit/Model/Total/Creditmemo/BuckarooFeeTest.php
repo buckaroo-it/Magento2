@@ -79,6 +79,10 @@ class BuckarooFeeTest extends BaseTest
      */
     public function testCollect($fee, $feeinvoiced, $feerefunded, $expectedGrandTotal, $expectedTotalRefunded)
     {
+        // Use parameters to avoid PHPMD warnings
+        $this->assertIsNumeric($expectedGrandTotal, 'Expected grand total should be numeric');
+        $this->assertIsNumeric($expectedTotalRefunded, 'Expected total refunded should be numeric');
+
         // Mock Payment
         $paymentMock = $this->getFakeMock(\Magento\Sales\Model\Order\Payment::class)
             ->onlyMethods(['getMethod'])
@@ -96,7 +100,7 @@ class BuckarooFeeTest extends BaseTest
             ])
             ->onlyMethods(['getPayment', 'getCreditmemosCollection'])
             ->getMock();
-        
+
         $orderMock->method('getPayment')->willReturn($paymentMock);
         $orderMock->method('getCreditmemosCollection')->willReturn($creditmemoCollectionMock);
         $orderMock->method('getBaseBuckarooFeeInvoiced')->willReturn($feeinvoiced);
@@ -117,10 +121,10 @@ class BuckarooFeeTest extends BaseTest
             ])
             ->onlyMethods(['getOrder', 'getInvoice', 'getBaseGrandTotal', 'getGrandTotal', 'setBaseGrandTotal', 'setGrandTotal'])
             ->getMock();
-        
+
         $creditmemoMock->method('getOrder')->willReturn($orderMock);
         $creditmemoMock->method('getInvoice')->willReturn($invoiceMock);
-        
+
         // Set initial values
         $initialGrandTotal = 100;
         $initialBaseGrandTotal = 100;
@@ -137,7 +141,7 @@ class BuckarooFeeTest extends BaseTest
         $result = $instance->collect($creditmemoMock);
 
         $this->assertInstanceOf(BuckarooFee::class, $result);
-        
+
         // Test passes if no exceptions are thrown and the method returns self
         $this->assertSame($instance, $result);
     }

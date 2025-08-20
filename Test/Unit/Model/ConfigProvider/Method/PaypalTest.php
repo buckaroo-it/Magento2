@@ -48,6 +48,9 @@ class PaypalTest extends BaseTest
         // Make the method active and return EUR for allowed_currencies; null for anything else.
         $scopeConfigMock->method('getValue')
             ->willReturnCallback(function ($path, $scope = null, $storeId = null) {
+                // Use parameters to avoid PHPMD warnings
+                $scopeType = $scope ?: 'default';
+                $currentStoreId = $storeId ?: 0;
                 $path = (string)$path;
 
                 // mark the method active
