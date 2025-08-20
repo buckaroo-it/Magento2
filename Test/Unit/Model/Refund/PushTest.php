@@ -18,117 +18,6 @@ use Magento\Sales\Model\Order\Email\Sender\CreditmemoSender;
 use PHPUnit\Framework\MockObject\MockObject;
 use Magento\Framework\Exception\LocalizedException;
 
-abstract class PushRequestStub implements PushRequestInterface
-{
-    public function hasAdditionalInformation($key, $value)
-    {
-        return $this->getAdditionalInformation($key) === $value;
-    }
-
-    public function getAmountCredit()
-    {
-        return 0.0;
-    }
-
-    public function validate($store = null): bool
-    {
-        return true;
-    }
-
-    public function getAmountDebit()
-    {
-        return null;
-    }
-
-    public function getAmount()
-    {
-        return null;
-    }
-
-    public function getCurrency(): ?string
-    {
-        return null;
-    }
-
-    public function getCustomerName(): ?string
-    {
-        return null;
-    }
-
-    public function getDescription(): ?string
-    {
-        return null;
-    }
-
-    public function getInvoiceNumber(): ?string
-    {
-        return null;
-    }
-
-    public function getMutationType(): ?string
-    {
-        return null;
-    }
-
-    public function getOrderNumber(): ?string
-    {
-        return null;
-    }
-
-    public function getPayment(): ?string
-    {
-        return null;
-    }
-
-    public function getStatusCode(): ?string
-    {
-        return null;
-    }
-
-    public function getStatusCodeDetail(): ?string
-    {
-        return null;
-    }
-
-    public function getStatusMessage(): ?string
-    {
-        return null;
-    }
-
-    public function isTest(): bool
-    {
-        return false;
-    }
-
-    public function getTransactionMethod(): ?string
-    {
-        return null;
-    }
-
-    public function getTransactionType(): ?string
-    {
-        return null;
-    }
-
-    public function getTransactions(): ?string
-    {
-        return null;
-    }
-
-    public function setTransactions($transactions)
-    {
-    }
-
-    public function setAmount($amount): void
-    {
-    }
-
-    public function getAdditionalInformation(string $propertyName): ?string
-    {
-        return null;
-    }
-}
-
 class PushTest extends \Buckaroo\Magento2\Test\BaseTest
 {
     protected $instanceClass = Push::class;
@@ -176,7 +65,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
     public function testReceiveRefundPushSuccess()
     {
         $postDataMock = $this->getMockForAbstractClass(
-            PushRequestStub::class,
+            PushRequestInterface::class,
             [],
             '',
             true,
@@ -294,7 +183,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
     {
         // Test the actual functionality - when createCreditmemo returns false
         $postDataMock = $this->getMockForAbstractClass(
-            PushRequestStub::class,
+            PushRequestInterface::class,
             [],
             '',
             true,
