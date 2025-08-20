@@ -16,7 +16,6 @@ class AbstractTransactionBuilderAfterGetUrl
     }
 
     public function afterGetReturnUrl(
-        $subject,
         $result
     ) {
         try {

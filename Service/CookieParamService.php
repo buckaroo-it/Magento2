@@ -81,9 +81,9 @@ class CookieParamService
 
         $urlParamNames = array_column($pairs, 'url_param');
 
-        foreach ($queryParams as $key => $queryParam) {
-            if (!in_array($key, $urlParamNames)) {
-                unset($queryParams[$key]);
+        foreach ($queryParams as $queryParam) {
+            if (!in_array($queryParam, $urlParamNames)) {
+                unset($queryParams[$queryParam]);
             }
         }
 
