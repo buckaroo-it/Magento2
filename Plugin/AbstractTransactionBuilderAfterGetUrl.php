@@ -14,8 +14,11 @@ class AbstractTransactionBuilderAfterGetUrl
     ) {
         $this->cookieParamService = $cookieParamService;
     }
-
+    /**
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function afterGetReturnUrl(
+        $subject,
         $result
     ) {
         try {
