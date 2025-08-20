@@ -40,8 +40,7 @@ class PayconiqTest extends BaseTest
         $scopeConfigMock->method('getValue')
             ->willReturnCallback(function($path, $scope = null, $scopeId = null) {
                 // Use parameters to avoid PHPMD warnings
-                $scopeType = $scope ?: 'default';
-                $storeId = $scopeId ?: 0;
+                unset($scope, $scopeId);
 
                 if (strpos($path, AbstractConfigProvider::ACTIVE) !== false) {
                     return 1;

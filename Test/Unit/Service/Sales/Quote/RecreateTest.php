@@ -161,6 +161,9 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->assertNull($result);
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     */
     public function testDuplicate()
     {
         $order = $this->getFakeMock(Order::class)->getMock();

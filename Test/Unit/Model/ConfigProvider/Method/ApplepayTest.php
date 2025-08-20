@@ -26,6 +26,9 @@ class ApplepayTest extends BaseTest
     }
 
     #[DataProvider('configProvider')]
+    /**
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     */
     public function testGetConfig(bool $active): void
     {
         // 1) Scope config

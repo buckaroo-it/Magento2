@@ -76,32 +76,6 @@ abstract class BaseTest extends TestCase
         try {
             $currentInstance = \Magento\Framework\App\ObjectManager::getInstance();
             if ($currentInstance === null) {
-                // Create a test-friendly ObjectManager mock that implements the same interface
-                // without extending the actual ObjectManager to avoid constructor parameter issues
-                $testObjectManager = new class {
-                    private $instanceCache = [];
-
-                    public function get($type, array $arguments = []) {
-                        // For unit tests, return a basic object or mock
-                        if (!isset($this->instanceCache[$type])) {
-                            $this->instanceCache[$type] = new \stdClass();
-                        }
-                        return $this->instanceCache[$type];
-                    }
-
-                    public function create($type, array $arguments = []) {
-                        // Use the arguments parameter to avoid PHPMD warning
-                        unset($arguments);
-                        // For unit tests, return a basic object
-                        return new \stdClass();
-                    }
-
-                    public function configure(array $configuration) {
-                        // No-op for test implementation
-                        return $this;
-                    }
-                };
-
                 // Since we can't extend ObjectManager directly, we'll just skip setting it
                 // Unit tests should properly mock their dependencies instead
             }

@@ -87,6 +87,9 @@ class ProcessTest extends BaseTest
         $this->assertInstanceOf(\Magento\Framework\App\ResponseInterface::class, $result);
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     */
     public function testExecuteCanShowPage()
     {
         $params = [

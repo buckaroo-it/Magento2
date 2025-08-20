@@ -17,6 +17,9 @@ use Magento\Sales\Model\Order;
 use Magento\Store\Model\Store;
 use PHPUnit\Framework\MockObject\MockObject;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class PushTest extends \Buckaroo\Magento2\Test\BaseTest
 {
     protected $instanceClass = Push::class;

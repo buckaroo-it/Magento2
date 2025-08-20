@@ -49,8 +49,7 @@ class PaypalTest extends BaseTest
         $scopeConfigMock->method('getValue')
             ->willReturnCallback(function ($path, $scope = null, $storeId = null) {
                 // Use parameters to avoid PHPMD warnings
-                $scopeType = $scope ?: 'default';
-                $currentStoreId = $storeId ?: 0;
+                unset($scope, $storeId);
                 $path = (string)$path;
 
                 // mark the method active

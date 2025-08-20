@@ -66,15 +66,6 @@ class IssuerValidatorTest extends TestCase
         $infoInterface->method('getMethodInstance')->willReturn($methodInstanceMock);
         $paymentDataObjectInterface->method('getPayment')->willReturn($infoInterface);
 
-        $paymentMethodInstanceMock = $this->createMock(MethodInterface::class);
-        $paymentMethodInstanceMock->expects($this->atMost(1))
-            ->method('getCode')
-            ->willReturn($paymentMethodCode);
-
-        // Fix the getConfig call by passing the correct InfoInterface type
-        $infoInterface->method('getMethodInstance')
-            ->willReturn($paymentMethodInstanceMock);
-
         $abstractConfigProvider = $this->createMock(AbstractConfigProvider::class);
 
         $abstractConfigProvider->expects($this->atMost(1))

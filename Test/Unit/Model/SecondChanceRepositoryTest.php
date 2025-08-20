@@ -207,7 +207,7 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
             'resource' => $resource,
         ]);
 
-        $result = $this->invokeArgs('createSecondChance', [$order], $instance);
+        $this->invokeArgs('createSecondChance', [$order], $instance);
 
         // Add assertion to verify the method completes successfully
         $this->assertTrue(true, 'createSecondChance method completed without exceptions');

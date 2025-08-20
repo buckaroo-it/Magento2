@@ -34,6 +34,9 @@ use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\Total\Quote\BuckarooFee;
 use Buckaroo\Magento2\Service\BuckarooFee\Calculate;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class BuckarooFeeTest extends \Buckaroo\Magento2\Test\BaseTest
 {
     protected $instanceClass = BuckarooFee::class;
@@ -144,7 +147,6 @@ class BuckarooFeeTest extends \Buckaroo\Magento2\Test\BaseTest
     public function testGetBaseFeeReturnsConfigValueIfIsNumber()
     {
         $expectedFee = 1.89;
-        $paymentCode = 'buckaroo_magento2_ideal';
 
         $quoteMock = $this->getFakeMock(Quote::class, false)
             ->onlyMethods(['getShippingAddress'])
@@ -444,7 +446,6 @@ class BuckarooFeeTest extends \Buckaroo\Magento2\Test\BaseTest
      */
     public function testCollectShouldReturnSelfIfNoPaymentMethodOrNonBuckarooMethod($method)
     {
-        $paymentCode = 'buckaroo_magento2_ideal';
 
         $quoteMock = $this->getFakeMock(Quote::class)
             ->onlyMethods(['getPayment', 'getShippingAddress'])

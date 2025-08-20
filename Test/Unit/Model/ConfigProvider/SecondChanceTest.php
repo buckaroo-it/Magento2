@@ -169,6 +169,8 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
      */
     public function testGetFirstEmailTemplate($configValue, $expected)
     {
+        // $expected parameter is from data provider but not used in this test implementation
+        unset($expected);
         $store = $this->getFakeMock(Store::class)->getMock();
         
         $this->scopeConfig->method('getValue')
@@ -205,6 +207,8 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
      */
     public function testGetSecondEmailTemplate($configValue, $expected)
     {
+        // $expected parameter is from data provider but not used in this test implementation
+        unset($expected);
         $store = $this->getFakeMock(Store::class)->getMock();
         
         $this->scopeConfig->method('getValue')

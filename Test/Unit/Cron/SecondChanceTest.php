@@ -83,6 +83,7 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
         // Should process steps 2 and 1 for enabled stores
         $this->secondChanceRepository->method('getSecondChanceCollection')
             ->willReturnCallback(function($arg1, $arg2 = null) {
+                    unset($arg1, $arg2); // Suppress unused parameter warnings
                     static $callCount = 0;
                     $callCount++;
                     // TODO: Implement proper argument checking based on call count
@@ -127,6 +128,7 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
         // Both stores have SecondChance disabled
         $this->configProvider->method('isSecondChanceEnabled')
             ->willReturnCallback(function($arg1, $arg2 = null) {
+                    unset($arg1, $arg2); // Suppress unused parameter warnings
                     static $callCount = 0;
                     $callCount++;
                     // TODO: Implement proper argument checking based on call count

@@ -18,6 +18,9 @@ use Magento\Sales\Model\Order\Email\Sender\CreditmemoSender;
 use PHPUnit\Framework\MockObject\MockObject;
 use Magento\Framework\Exception\LocalizedException;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class PushTest extends \Buckaroo\Magento2\Test\BaseTest
 {
     protected $instanceClass = Push::class;

@@ -56,8 +56,7 @@ class CapayablePostpayTest extends BaseTest
         $scopeConfigMock->method('getValue')
             ->willReturnCallback(function($path, $scope = null, $scopeId = null) {
                 // Use parameters to avoid PHPMD warnings
-                $scopePrefix = $scope ?: 'default';
-                $storeId = $scopeId ?: 0;
+                unset($scope, $scopeId);
 
                 // Check the actual path being requested and return appropriate values
                 if (strpos($path, 'active') !== false) {
