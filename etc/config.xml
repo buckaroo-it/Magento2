@@ -933,6 +933,31 @@
                 <second_chance_email2>1</second_chance_email2>
                 <multiple_emails_send>1</multiple_emails_send>
             </second_chance>
+            <analytics>
+                <enable_ga_client_id_tracking>0</enable_ga_client_id_tracking>
+                <cookie_param_pair>
+                    <item1>
+                        <cookie>_ga</cookie>
+                        <url_param>clientId</url_param>
+                        <replace_regex>/^[^\.]*\.[^\.]*\./</replace_regex>
+                    </item1>
+                    <item2>
+                        <cookie>_gcl_aw</cookie>
+                        <url_param>gclid</url_param>
+                        <replace_regex>/^[^\.]*\.[^\.]*\./</replace_regex>
+                    </item2>
+                    <item3>
+                        <cookie>_uetmsclkid</cookie>
+                        <url_param>msclkid</url_param>
+                        <replace_regex>/^_uet/</replace_regex>
+                    </item3>
+                    <item4>
+                        <cookie>sqzllocal</cookie>
+                        <url_param>sqzllocal</url_param>
+                        <replace_regex></replace_regex>
+                    </item4>
+                </cookie_param_pair>
+            </analytics>
         </buckaroo_magento2>
 
     </default>

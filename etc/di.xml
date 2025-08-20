@@ -4014,4 +4014,16 @@
 
     <!-- Gift Card Refund Service - Adobe Commerce -->
     <preference for="Buckaroo\Magento2\Api\GiftCardRefundServiceInterface" type="Buckaroo\Magento2\Model\Service\GiftCardRefundService" />
+
+    <!-- Analytics API and Repository Configuration -->
+    <preference for="Buckaroo\Magento2\Api\AnalyticsRepositoryInterface" type="Buckaroo\Magento2\Model\Analytics\AnalyticsRepository"/>
+    <preference for="Buckaroo\Magento2\Api\Data\AnalyticsInterface" type="Buckaroo\Magento2\Model\Analytics\Data\Analytics"/>
+    <preference for="Buckaroo\Magento2\Api\Data\AnalyticsSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
+    <preference for="Buckaroo\Magento2\Controller\Redirect\Process" type="Buckaroo\Magento2\Controller\Redirect\AnalyticsProcess" />
+    <type name="Buckaroo\Magento2\Gateway\Http\TransactionBuilder\AbstractTransactionBuilder">
+        <plugin name="Plugin_Buckaroo_Magento2_Gateway_Http_TransactionBuilder_AbstractTransactionBuilder" type="Buckaroo\Magento2\Plugin\AbstractTransactionBuilderAfterGetUrl" sortOrder="10" disabled="false"/>
+    </type>
+    <type name="Buckaroo\Magento2\Gateway\Request\BasicParameter\ReturnUrlDataBuilder">
+        <plugin name="Plugin_Buckaroo_Magento2_Gateway_Request_ReturnUrlDataBuilder" type="Buckaroo\Magento2\Plugin\AbstractTransactionBuilderAfterGetUrl" sortOrder="10" disabled="false"/>
+    </type>
 </config>
