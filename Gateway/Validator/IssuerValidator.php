@@ -77,8 +77,8 @@ class IssuerValidator extends AbstractValidator
      */
     public function validate(array $validationSubject): ResultInterface
     {
-        $paymentDO = $validationSubject['payment'];
-        $paymentInfo = $paymentDO->getPayment();
+        /** @var Payment $paymentInfo */
+        $paymentInfo = $validationSubject['payment'];
         $config = $this->getConfig($paymentInfo);
 
         if (method_exists($config, 'canShowIssuers') && !$config->canShowIssuers()) {
