@@ -202,12 +202,13 @@ class BuckarooFeeTest extends \Buckaroo\Magento2\Test\BaseTest
         $quoteAmount,
         $expectedValue
     ) {
-        // Use all parameters to avoid PHPMD warnings
+        // Use all parameters to avoid PHPMD warnings - validate based on actual data types
         $this->assertIsString($paymentCode, 'Payment code should be a string');
-        $this->assertIsNumeric($fee, 'Fee should be numeric');
+        $this->assertIsString($fee, 'Fee should be a string (can contain percentage)');
         $this->assertIsString($feeMode, 'Fee mode should be a string');
         $this->assertIsString($quoteMethod, 'Quote method should be a string');
         $this->assertIsNumeric($quoteAmount, 'Quote amount should be numeric');
+        $this->assertIsNumeric($expectedValue, 'Expected value should be numeric');
 
         $quoteMock = $this->getFakeMock(Quote::class)
             ->onlyMethods(['getShippingAddress'])
@@ -261,12 +262,13 @@ class BuckarooFeeTest extends \Buckaroo\Magento2\Test\BaseTest
         $quoteAmount,
         $expectedValue
     ) {
-        // Use all parameters to avoid PHPMD warnings
+        // Use all parameters to avoid PHPMD warnings - validate based on actual data types
         $this->assertIsString($paymentCode, 'Payment code should be a string');
-        $this->assertIsNumeric($fee, 'Fee should be numeric');
+        $this->assertIsString($fee, 'Fee should be a string (can contain percentage)');
         $this->assertIsString($feeMode, 'Fee mode should be a string');
         $this->assertIsString($quoteMethod, 'Quote method should be a string');
         $this->assertIsNumeric($quoteAmount, 'Quote amount should be numeric');
+        $this->assertIsNumeric($expectedValue, 'Expected value should be numeric');
 
         $quoteMock = $this->getFakeMock(Quote::class)
             ->onlyMethods(['getShippingAddress'])
