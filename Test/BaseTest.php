@@ -22,11 +22,12 @@
 namespace Buckaroo\Magento2\Test;
 
 use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @SuppressWarnings(PHPMD.NumberOfChildren)
  */
-abstract class BaseTest extends TestCaseFinder
+abstract class BaseTest extends TestCase
 {
     protected const DEFAULT_PATH_PATTERN = 'payment/%s/%s';
     /**
@@ -75,8 +76,9 @@ abstract class BaseTest extends TestCaseFinder
         try {
             $currentInstance = \Magento\Framework\App\ObjectManager::getInstance();
             if ($currentInstance === null) {
-                // Create a test-friendly ObjectManager
-                $testObjectManager = new class extends \Magento\Framework\App\ObjectManager {
+                // Create a test-friendly ObjectManager mock that implements the same interface
+                // without extending the actual ObjectManager to avoid constructor parameter issues
+                $testObjectManager = new class {
                     private $instanceCache = [];
 
                     public function get($type, array $arguments = []) {
@@ -93,9 +95,15 @@ abstract class BaseTest extends TestCaseFinder
                         // For unit tests, return a basic object
                         return new \stdClass();
                     }
+
+                    public function configure(array $configuration) {
+                        // No-op for test implementation
+                        return $this;
+                    }
                 };
 
-                \Magento\Framework\App\ObjectManager::setInstance($testObjectManager);
+                // Since we can't extend ObjectManager directly, we'll just skip setting it
+                // Unit tests should properly mock their dependencies instead
             }
         } catch (\Throwable $e) {
             // If ObjectManager initialization fails, continue without it

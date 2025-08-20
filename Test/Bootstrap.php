@@ -28,7 +28,7 @@ define('BUCKAROO_TEST_BOOTSTRAP_INCLUDED', true);
 // Try multiple possible paths for Magento's unit test bootstrap
 $possiblePaths = [
     __DIR__ . '/../../../../../dev/tests/unit/framework/bootstrap.php',
-    __DIR__ . '/../../../../dev/tests/unit/framework/bootstrap.php', 
+    __DIR__ . '/../../../../dev/tests/unit/framework/bootstrap.php',
     __DIR__ . '/../../../../../vendor/magento/magento2-base/dev/tests/unit/framework/bootstrap.php',
     __DIR__ . '/../../../../vendor/magento/magento2-base/dev/tests/unit/framework/bootstrap.php'
 ];
@@ -47,12 +47,12 @@ if (!$bootstrapIncluded) {
     // Set up basic error reporting
     error_reporting(E_ALL);
     ini_set('display_errors', 1);
-    
+
     // Initialize basic Magento constants if not already defined
     if (!defined('BP')) {
         define('BP', __DIR__ . '/../../../../../');
     }
-    
+
     // Autoloader should already be available via Composer
 }
 
@@ -64,22 +64,29 @@ if (!class_exists('Magento\Framework\App\ObjectManager') || !method_exists('Mage
         $om = \Magento\Framework\App\ObjectManager::getInstance();
         if (!$om) {
             // Create a basic ObjectManager mock for unit tests
-            $objectManagerMock = new class extends \Magento\Framework\App\ObjectManager {
+            // Don't extend ObjectManager directly to avoid constructor parameter issues
+            $objectManagerMock = new class {
                 private $instances = [];
-                
+
                 public function get($type, array $arguments = []) {
                     if (!isset($this->instances[$type])) {
                         $this->instances[$type] = new \stdClass();
                     }
                     return $this->instances[$type];
                 }
-                
+
                 public function create($type, array $arguments = []) {
                     return new \stdClass();
                 }
+
+                public function configure(array $configuration) {
+                    // No-op for test implementation
+                    return $this;
+                }
             };
-            
-            \Magento\Framework\App\ObjectManager::setInstance($objectManagerMock);
+
+            // Since we can't extend ObjectManager directly, we'll skip setting it
+            // Unit tests should properly mock their dependencies instead
         }
     } catch (\Throwable $e) {
         // ObjectManager setup failed, continue without it
