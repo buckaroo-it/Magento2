@@ -21,19 +21,26 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
 {
     protected $instanceClass = Push::class;
 
-    private MockObject|BuckarooLoggerInterface $loggerMock;
+    /** @var MockObject|BuckarooLoggerInterface */
+    private $loggerMock;
 
-    private MockObject|RequestPushFactory $requestPushFactoryMock;
+    /** @var MockObject|RequestPushFactory */
+    private $requestPushFactoryMock;
 
-    private MockObject|PushProcessorsFactory $pushProcessorsFactoryMock;
+    /** @var MockObject|PushProcessorsFactory */
+    private $pushProcessorsFactoryMock;
 
-    private MockObject|OrderRequestService $orderRequestServiceMock;
+    /** @var MockObject|OrderRequestService */
+    private $orderRequestServiceMock;
 
-    private MockObject|PushTransactionType $pushTransactionTypeMock;
+    /** @var MockObject|PushTransactionType */
+    private $pushTransactionTypeMock;
 
-    private MockObject|LockManagerWrapper $lockManagerMock;
+    /** @var MockObject|LockManagerWrapper */
+    private $lockManagerMock;
 
-    private MockObject|PushRequestInterface $pushRequestMock;
+    /** @var MockObject|PushRequestInterface */
+    private $pushRequestMock;
 
     public function setUp(): void
     {

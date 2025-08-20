@@ -15,14 +15,15 @@ abstract class AbstractRequestBuilderTest extends TestCase
 {
     /**
      * Get a payment data object mock for tests
+     * @return MockObject
      */
-    protected function getPaymentDOMock(): MockObject|PaymentDataObjectInterface
+    protected function getPaymentDOMock()
     {
         $paymentDOMock = $this->createMock(PaymentDataObjectInterface::class);
         $paymentMock = $this->createMock(InfoInterface::class);
-        
+
         $paymentDOMock->method('getPayment')->willReturn($paymentMock);
-        
+
         return $paymentDOMock;
     }
 }

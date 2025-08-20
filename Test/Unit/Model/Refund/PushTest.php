@@ -22,19 +22,26 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
 {
     protected $instanceClass = Push::class;
 
-    private MockObject|CreditmemoFactory $creditmemoFactoryMock;
+    /** @var MockObject|CreditmemoFactory */
+    private $creditmemoFactoryMock;
 
-    private MockObject|CreditmemoManagementInterface $creditmemoManagementMock;
+    /** @var MockObject|CreditmemoManagementInterface */
+    private $creditmemoManagementMock;
 
-    private MockObject|CreditmemoSender $creditEmailSenderMock;
+    /** @var MockObject|CreditmemoSender */
+    private $creditEmailSenderMock;
 
-    private MockObject|Refund $configRefundMock;
+    /** @var MockObject|Refund */
+    private $configRefundMock;
 
-    private MockObject|Data $helperMock;
+    /** @var MockObject|Data */
+    private $helperMock;
 
-    private MockObject|BuckarooLoggerInterface $loggerMock;
+    /** @var MockObject|BuckarooLoggerInterface */
+    private $loggerMock;
 
-    private MockObject|ScopeConfigInterface $scopeConfigMock;
+    /** @var MockObject|ScopeConfigInterface */
+    private $scopeConfigMock;
 
     public function setUp(): void
     {
