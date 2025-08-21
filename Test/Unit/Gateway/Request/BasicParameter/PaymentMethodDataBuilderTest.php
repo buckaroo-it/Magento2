@@ -55,20 +55,20 @@ class PaymentMethodDataBuilderTest extends AbstractDataBuilderTest
     /**
      * @return array
      */
-    public function buildDataProvider(): array
+    public static function buildDataProvider(): array
     {
         return [
             [
                 'payment_method' => 'buckaroo_magento2_ideal',
-                'expected_results' => 'ideal'
+                'expectedResult' => 'ideal'
             ],
             [
                 'payment_method' => 'buckaroo_magento2_creditcard',
-                'expected_results' => 'creditcard'
+                'expectedResult' => 'creditcard'
             ],
             [
                 'payment_method' => 'paypal',
-                'expected_results' => 'paypal'
+                'expectedResult' => 'paypal'
             ],
         ];
     }

@@ -21,6 +21,8 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
+
+
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
@@ -33,27 +35,37 @@ class CreditcardTest extends BaseTest
 
     public function testGetConfig()
     {
-        $this->markTestIncomplete(
-            'This test needs to be reviewed.'
-        );
         $issuers = 'amex,visa';
         $allowedCurrencies = 'USD,EUR';
 
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->setMethods(['getValue'])
+            ->onlyMethods(['getValue'])
             ->getMockForAbstractClass();
-        $scopeConfigMock->method('getValue')
-            ->withConsecutive(
-                [Creditcard::XPATH_CREDITCARD_ALLOWED_CREDITCARDS, ScopeInterface::SCOPE_STORE],
-                [
-                    $this->getPaymentMethodConfigPath(
-                        Creditcard::CODE,
-                        AbstractConfigProvider::ALLOWED_CURRENCIES
-                    ),
-                    ScopeInterface::SCOPE_STORE,
-                    null
-                ]
-            )->willReturnOnConsecutiveCalls($issuers, $allowedCurrencies);
+        
+        // Mock the getValue calls for different config paths
+        $scopeConfigMock->method('getValue')->willReturnMap([
+            // Make the creditcard method active
+            [
+                $this->getPaymentMethodConfigPath(Creditcard::CODE, AbstractConfigProvider::ACTIVE),
+                ScopeInterface::SCOPE_STORE,
+                null,
+                1
+            ],
+            // Set allowed creditcards
+            [
+                Creditcard::XPATH_CREDITCARD_ALLOWED_CREDITCARDS,
+                ScopeInterface::SCOPE_STORE,
+                null,
+                $issuers
+            ],
+            // Set allowed currencies
+            [
+                $this->getPaymentMethodConfigPath(Creditcard::CODE, AbstractConfigProvider::ALLOWED_CURRENCIES),
+                ScopeInterface::SCOPE_STORE,
+                null,
+                $allowedCurrencies
+            ]
+        ]);
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
         $result = $instance->getConfig();
@@ -61,9 +73,9 @@ class CreditcardTest extends BaseTest
         $this->assertIsArray($result);
         $this->assertArrayHasKey('payment', $result);
         $this->assertArrayHasKey('buckaroo', $result['payment']);
-        $this->assertArrayHasKey('creditcard', $result['payment']['buckaroo']);
-        $this->assertArrayHasKey('cards', $result['payment']['buckaroo']['creditcard']);
-        $this->assertIsArray($result['payment']['buckaroo']['creditcard']['cards']);
+        $this->assertArrayHasKey('buckaroo_magento2_creditcard', $result['payment']['buckaroo']);
+        $this->assertArrayHasKey('cards', $result['payment']['buckaroo']['buckaroo_magento2_creditcard']);
+        $this->assertIsArray($result['payment']['buckaroo']['buckaroo_magento2_creditcard']['cards']);
     }
 
     /**
@@ -72,7 +84,7 @@ class CreditcardTest extends BaseTest
     public function testGetActive()
     {
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->setMethods(['getValue'])
+            ->onlyMethods(['getValue'])
             ->getMockForAbstractClass();
         $scopeConfigMock->method('getValue')
             ->with(

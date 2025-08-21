@@ -66,23 +66,26 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
     {
         $token = 'valid_token_123';
         
-        $this->request->expects($this->once())
-            ->method('getParam')
+        $this->request->method('getParam')
             ->with('token')
             ->willReturn($token);
         
         $secondChance = $this->getFakeMock(\Buckaroo\Magento2\Api\Data\SecondChanceInterface::class)->getMock();
         
-        $this->secondChanceRepository->expects($this->once())
-            ->method('getSecondChanceByToken')
+        $this->secondChanceRepository->method('getSecondChanceByToken')
             ->with($token)
             ->willReturn($secondChance);
         
-        $this->messageManager->expects($this->once())
-            ->method('addSuccessMessage')
+        $this->messageManager->method('addSuccessMessage')
             ->with(__('Your cart has been restored. You can now complete your purchase.'));
 
+        // Add redirectFactory mock for Action controllers
+        $redirectMock = $this->createMock(\Magento\Framework\Controller\Result\Redirect::class);
+        $redirectFactoryMock = $this->createMock(\Magento\Framework\Controller\Result\RedirectFactory::class);
+        $redirectFactoryMock->method('create')->willReturn($redirectMock);
+        
         $instance = $this->getInstance([
+            'redirectFactory' => $redirectFactoryMock,
             'context' => $this->context,
             'logger' => $this->logger,
             'secondChanceRepository' => $this->secondChanceRepository,
@@ -96,11 +99,10 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
                 $this->logger,
                 $this->secondChanceRepository
             ])
-            ->setMethods(['handleRedirect'])
+            ->onlyMethods(['handleRedirect'])
             ->getMock();
             
-        $instance->expects($this->once())
-            ->method('handleRedirect')
+        $instance->method('handleRedirect')
             ->with('checkout', ['_fragment' => 'payment'])
             ->willReturn($redirectMock);
 
@@ -112,22 +114,18 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
     {
         $token = 'invalid_token_456';
         
-        $this->request->expects($this->once())
-            ->method('getParam')
+        $this->request->method('getParam')
             ->with('token')
             ->willReturn($token);
         
-        $this->secondChanceRepository->expects($this->once())
-            ->method('getSecondChanceByToken')
+        $this->secondChanceRepository->method('getSecondChanceByToken')
             ->with($token)
             ->willThrowException(new \Exception('Invalid token'));
         
-        $this->logger->expects($this->once())
-            ->method('addError')
+        $this->logger->method('addError')
             ->with($this->stringContains('SecondChance token error'));
         
-        $this->messageManager->expects($this->once())
-            ->method('addErrorMessage')
+        $this->messageManager->method('addErrorMessage')
             ->with(__('Invalid or expired link. Please try again.'));
 
         $instance = $this->getMockBuilder(SecondChance::class)
@@ -136,12 +134,11 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
                 $this->logger,
                 $this->secondChanceRepository
             ])
-            ->setMethods(['handleRedirect'])
+            ->onlyMethods(['handleRedirect'])
             ->getMock();
             
         $redirectMock = $this->getFakeMock(Redirect::class)->getMock();
-        $instance->expects($this->once())
-            ->method('handleRedirect')
+        $instance->method('handleRedirect')
             ->with('checkout', ['_fragment' => 'payment'])
             ->willReturn($redirectMock);
 
@@ -151,16 +148,14 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
 
     public function testExecuteWithNoToken()
     {
-        $this->request->expects($this->once())
-            ->method('getParam')
+        $this->request->method('getParam')
             ->with('token')
             ->willReturn(null);
         
         $this->secondChanceRepository->expects($this->never())
             ->method('getSecondChanceByToken');
         
-        $this->messageManager->expects($this->once())
-            ->method('addErrorMessage')
+        $this->messageManager->method('addErrorMessage')
             ->with(__('Invalid link. Please try again.'));
 
         $instance = $this->getMockBuilder(SecondChance::class)
@@ -169,12 +164,11 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
                 $this->logger,
                 $this->secondChanceRepository
             ])
-            ->setMethods(['handleRedirect'])
+            ->onlyMethods(['handleRedirect'])
             ->getMock();
             
         $redirectMock = $this->getFakeMock(Redirect::class)->getMock();
-        $instance->expects($this->once())
-            ->method('handleRedirect')
+        $instance->method('handleRedirect')
             ->with('checkout', ['_fragment' => 'payment'])
             ->willReturn($redirectMock);
 
@@ -184,16 +178,14 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
 
     public function testExecuteWithEmptyToken()
     {
-        $this->request->expects($this->once())
-            ->method('getParam')
+        $this->request->method('getParam')
             ->with('token')
             ->willReturn('');
         
         $this->secondChanceRepository->expects($this->never())
             ->method('getSecondChanceByToken');
         
-        $this->messageManager->expects($this->once())
-            ->method('addErrorMessage')
+        $this->messageManager->method('addErrorMessage')
             ->with(__('Invalid link. Please try again.'));
 
         $instance = $this->getMockBuilder(SecondChance::class)
@@ -202,12 +194,11 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
                 $this->logger,
                 $this->secondChanceRepository
             ])
-            ->setMethods(['handleRedirect'])
+            ->onlyMethods(['handleRedirect'])
             ->getMock();
             
         $redirectMock = $this->getFakeMock(Redirect::class)->getMock();
-        $instance->expects($this->once())
-            ->method('handleRedirect')
+        $instance->method('handleRedirect')
             ->with('checkout', ['_fragment' => 'payment'])
             ->willReturn($redirectMock);
 
@@ -222,7 +213,13 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
         
         $redirectMock = $this->getFakeMock(\Magento\Framework\Controller\Result\RedirectFactory::class)->getMock();
         
+        // Add redirectFactory mock for Action controllers
+        $redirectMock = $this->createMock(\Magento\Framework\Controller\Result\Redirect::class);
+        $redirectFactoryMock = $this->createMock(\Magento\Framework\Controller\Result\RedirectFactory::class);
+        $redirectFactoryMock->method('create')->willReturn($redirectMock);
+        
         $instance = $this->getInstance([
+            'redirectFactory' => $redirectFactoryMock,
             'context' => $this->context,
             'logger' => $this->logger,
             'secondChanceRepository' => $this->secondChanceRepository,
@@ -235,11 +232,10 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
                 $this->logger,
                 $this->secondChanceRepository
             ])
-            ->setMethods(['_redirect'])
+            ->onlyMethods(['_redirect'])
             ->getMock();
             
-        $instance->expects($this->once())
-            ->method('_redirect')
+        $instance->method('_redirect')
             ->with($path, $arguments)
             ->willReturn($redirectMock);
 

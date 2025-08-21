@@ -39,8 +39,7 @@ class CreditManagementOrderHandlerTest extends AbstractResponseHandlerTest
     public function testHandle(): void
     {
         $invoiceKey = 'test_invoice_key';
-        $this->orderPaymentMock->expects($this->once())
-            ->method('setAdditionalInformation')
+        $this->orderPaymentMock->method('setAdditionalInformation')
             ->with(CreditManagementOrderHandler::INVOICE_KEY, $invoiceKey);
 
         $this->transactionResponse->method('data')

@@ -46,13 +46,9 @@ abstract class AbstractDataBuilderTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->orderMock = $this->getMockBuilder(Order::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->orderMock = $this->createMock(Order::class);
 
-        $this->paymentMethodInstanceMock = $this->getMockBuilder(MethodInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->paymentMethodInstanceMock = $this->createMock(MethodInterface::class);
     }
 
     /**
@@ -60,32 +56,22 @@ abstract class AbstractDataBuilderTest extends TestCase
      */
     protected function getPaymentDOMock()
     {
-        $paymentDOMock = $this->getMockBuilder(PaymentDataObjectInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $paymentDOMock = $this->createMock(PaymentDataObjectInterface::class);
 
-        $orderAdapter = $this->getMockBuilder(OrderAdapter::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $orderAdapter = $this->createMock(OrderAdapter::class);
 
-        $orderAdapter->expects($this->atMost(1))
-            ->method('getOrder')
+        $orderAdapter->method('getOrder')
             ->willReturn($this->orderMock);
 
-        $paymentDOMock->expects($this->atMost(1))
-            ->method('getOrder')
+        $paymentDOMock->method('getOrder')
             ->willReturn($orderAdapter);
 
-        $infoInterface = $this->getMockBuilder(InfoInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $infoInterface = $this->createMock(InfoInterface::class);
 
-        $infoInterface->expects($this->atMost(1))
-            ->method('getMethodInstance')
+        $infoInterface->method('getMethodInstance')
             ->willReturn($this->paymentMethodInstanceMock);
 
-        $paymentDOMock->expects($this->atMost(1))
-            ->method('getPayment')
+        $paymentDOMock->method('getPayment')
             ->willReturn($infoInterface);
 
         return $paymentDOMock;

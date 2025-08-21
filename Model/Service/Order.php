@@ -290,7 +290,7 @@ class Order
      * @return bool
      * @throws LocalizedException
      */
-    public function cancel(MagentoOrder $order, ?int $statusCode, ?string $statusMessage = null)
+    public function cancel(MagentoOrder $order, ?int $statusCode, ?string $statusMessage = null): bool
     {
         $paymentMethodCode = $order->getPayment()->getMethod();
         $paymentMethodName = str_replace('buckaroo_magento2_', '', $paymentMethodCode);

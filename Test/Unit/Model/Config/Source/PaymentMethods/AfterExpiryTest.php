@@ -1,25 +1,9 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
- *
- * This source file is subject to the MIT License
- * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
- *
- * DISCLAIMER
- *
- * Do not edit or add to this file if you wish to upgrade this module to newer
- * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
- *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * (license header omitted for brevity)
  */
-
-namespace Buckaroo\Magento2\Test\Unit\Model\Config\Source\PayPerEmail;
+namespace Buckaroo\Magento2\Test\Unit\Model\Config\Source\PaymentMethods;
 
 use Buckaroo\Magento2\Model\Config\Source\PaymentMethods\AfterExpiry;
 use Buckaroo\Magento2\Test\BaseTest;
@@ -31,55 +15,57 @@ class AfterExpiryTest extends BaseTest
     /**
      * @return array
      */
-    public function toOptionArrayProvider()
+    public static function toOptionArrayProvider()
     {
         return [
-            [
-                ['value' => 'amex',               'label' => 'American Express']
-            ],
-            [
-                ['value' => 'eps',                'label' => 'EPS']
-            ],
-            [
-                ['value' => 'giftcard',           'label' => 'Giftcards']
-            ],
-            [
-                ['value' => 'ideal',              'label' => 'iDEAL']
-            ],
-            [
-                ['value' => 'mastercard',         'label' => 'Mastercard']
-            ],
-            [
-                ['value' => 'paypal',             'label' => 'PayPal']
-            ],
-            [
-                ['value' => 'transfer',           'label' => 'Bank Transfer']
-            ],
-            [
-                ['value' => 'visa',               'label' => 'Visa']
-            ],
-            [
-                ['value' => 'maestro',            'label' => 'Maestro']
-            ],
-            [
-                ['value' => 'visaelectron',       'label' => 'Visa Electron']
-            ],
-            [
-                ['value' => 'vpay',               'label' => 'V PAY']
-            ]
+            [['value' => 'amex',         'label' => 'American Express']],
+            [['value' => 'eps',          'label' => 'EPS']],
+            [['value' => 'giftcard',     'label' => 'Giftcards']],
+            [['value' => 'ideal',        'label' => 'iDEAL']],
+            [['value' => 'mastercard',   'label' => 'Mastercard']],
+            [['value' => 'paypal',       'label' => 'PayPal']],
+            [['value' => 'transfer',     'label' => 'Bank Transfer']],
+            [['value' => 'visa',         'label' => 'Visa']],
+            [['value' => 'maestro',      'label' => 'Maestro']],
+            [['value' => 'visaelectron', 'label' => 'Visa Electron']],
+            [['value' => 'vpay',         'label' => 'V PAY']],
         ];
     }
 
     /**
-     * @param $paymentOption
-     *
+     * @param array $paymentOption
      * @dataProvider toOptionArrayProvider
      */
     public function testToOptionArray($paymentOption)
     {
         $instance = $this->getInstance();
-        $result = $instance->toOptionArray();
+        $result   = $instance->toOptionArray();
 
-        $this->assertContains($paymentOption, $result);
+        // Normalize result into [value => label] with scalar strings
+        $map = [];
+        foreach ((array)$result as $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+            $value = array_key_exists('value', $row) ? (string)$row['value'] : null;
+            $label = array_key_exists('label', $row) ? (string)$row['label'] : null;
+            if ($value !== null) {
+                $map[$value] = $label;
+            }
+        }
+
+        $expectedValue = (string)$paymentOption['value'];
+        $expectedLabel = (string)$paymentOption['label'];
+
+        $this->assertArrayHasKey(
+            $expectedValue,
+            $map,
+            "Payment option '{$expectedValue}' not found. Got: " . json_encode(array_keys($map))
+        );
+        $this->assertSame(
+            $expectedLabel,
+            $map[$expectedValue],
+            "Label mismatch for '{$expectedValue}'. Got '{$map[$expectedValue]}'"
+        );
     }
 }

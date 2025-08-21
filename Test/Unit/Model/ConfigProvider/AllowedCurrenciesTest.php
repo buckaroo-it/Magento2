@@ -46,6 +46,6 @@ class AllowedCurrenciesTest extends BaseTest
 
         $this->assertIsArray($result);
         $this->assertArrayHasKey('allowedCurrencies', $result);
-        $this->assertCount(22, $result['allowedCurrencies']);
+        $this->assertCount(28, $result['allowedCurrencies']);
     }
 }

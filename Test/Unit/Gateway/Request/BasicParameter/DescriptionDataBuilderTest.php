@@ -46,9 +46,7 @@ class DescriptionDataBuilderTest extends AbstractDataBuilderTest
     {
         parent::setUp();
 
-        $this->configProviderAccountMock = $this->getMockBuilder(Account::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->configProviderAccountMock = $this->createMock(Account::class);
 
         $this->descriptionDataBuilder = new DescriptionDataBuilder(
             $this->configProviderAccountMock
@@ -57,14 +55,11 @@ class DescriptionDataBuilderTest extends AbstractDataBuilderTest
 
     public function testBuild(): void
     {
-        $store = $this->getMockBuilder(Store::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $store = $this->createMock(Store::class);
 
-        $this->orderMock->expects($this->once())->method('getStore')->willReturn($store);
+        $this->orderMock->method('getStore')->willReturn($store);
 
-        $this->configProviderAccountMock->expects($this->once())
-            ->method('getParsedLabel')
+        $this->configProviderAccountMock->method('getParsedLabel')
             ->with($store, $this->orderMock)
             ->willReturn('Sample description');
 

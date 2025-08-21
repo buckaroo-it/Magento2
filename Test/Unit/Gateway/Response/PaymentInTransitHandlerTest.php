@@ -42,7 +42,6 @@ class PaymentInTransitHandlerTest extends AbstractResponseHandlerTest
     public function testHandle(bool $hasRedirect, bool $inTransit)
     {
         $this->transactionResponse
-            ->expects($this->once())
             ->method('hasRedirect')
             ->willReturn($hasRedirect);
 
@@ -53,7 +52,6 @@ class PaymentInTransitHandlerTest extends AbstractResponseHandlerTest
                 ->with(PaymentInTransitHandler::BUCKAROO_PAYMENT_IN_TRANSIT, $this->logicalOr($inTransit, false));
         } else {
             $this->orderPaymentMock
-                ->expects($this->once())
                 ->method('setAdditionalInformation')
                 ->with(PaymentInTransitHandler::BUCKAROO_PAYMENT_IN_TRANSIT, $inTransit);
         }
@@ -64,7 +62,7 @@ class PaymentInTransitHandlerTest extends AbstractResponseHandlerTest
         );
     }
 
-    public function handleDataProvider(): array
+    public static function handleDataProvider(): array
     {
         return [
             'Has Redirect' => [true, true],

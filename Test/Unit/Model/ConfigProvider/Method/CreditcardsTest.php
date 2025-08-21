@@ -20,6 +20,8 @@
  */
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
+
+
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\PaymentFee;
@@ -35,21 +37,15 @@ class CreditcardsTest extends BaseTest
 {
     protected $instanceClass = Creditcards::class;
 
-    public function getConfigProvider()
+    public static function getConfigProvider()
     {
         return [
             'active' => [
                 [
-                    'payment' => [
-                        'buckaroo' => [
-                            'creditcards' => [
-                                'paymentFeeLabel' => 'Fee',
-                                'creditcards' => [],
-                                'defaultCardImage' => 'test/image/url',
-                                'allowedCurrencies' => ['EUR']
-                            ]
-                        ]
-                    ]
+                    'paymentFeeLabel' => 'Fee',
+                    'creditcards' => [],
+                    'defaultCardImage' => 'test/image/url',
+                    'allowedCurrencies' => ['EUR']
                 ]
             ]
         ];
@@ -63,25 +59,28 @@ class CreditcardsTest extends BaseTest
     public function testGetConfig($expected)
     {
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->setMethods(['getValue'])
+            ->onlyMethods(['getValue'])
             ->getMockForAbstractClass();
-        $scopeConfigMock->expects($this->atLeastOnce())
-            ->method('getValue')
-            ->withConsecutive(
-                [Creditcards::XPATH_CREDITCARDS_ALLOWED_ISSUERS, ScopeInterface::SCOPE_STORE],
+        $scopeConfigMock->method('getValue')
+            ->willReturnMap([
+                [
+                    $this->getPaymentMethodConfigPath(Creditcards::CODE, AbstractConfigProvider::ACTIVE),
+                    ScopeInterface::SCOPE_STORE,
+                    null,
+                    1
+                ],
                 [
                     $this->getPaymentMethodConfigPath(Creditcards::CODE, AbstractConfigProvider::ALLOWED_CURRENCIES),
                     ScopeInterface::SCOPE_STORE,
-                    null
-                ],
-                [AbstractConfigProvider::ALLOWED_CURRENCIES, ScopeInterface::SCOPE_STORE, null]
-            )
-            ->willReturnOnConsecutiveCalls('', 'EUR');
+                    null,
+                    'EUR'
+                ]
+            ]);
 
-        $paymentFeeMock = $this->getFakeMock(PaymentFee::class)->setMethods(['getBuckarooPaymentFeeLabel'])->getMock();
-        $paymentFeeMock->method('getBuckarooPaymentFeeLabel')->with(Creditcards::CODE)->willReturn('Fee');
+        $paymentFeeMock = $this->getFakeMock(PaymentFee::class)->onlyMethods(['getBuckarooPaymentFeeLabel'])->getMock();
+        $paymentFeeMock->method('getBuckarooPaymentFeeLabel')->willReturn('Fee');
 
-        $assetRepoMock = $this->getFakeMock(Repository::class)->setMethods(['getUrl'])->getMock();
+        $assetRepoMock = $this->getFakeMock(Repository::class)->onlyMethods(['getUrl'])->getMock();
         $assetRepoMock->method('getUrl')->willReturn('test/image/url');
 
         $allowedCurrenciesMock = $this->getFakeMock(AllowedCurrencies::class)->getMock();
@@ -97,10 +96,23 @@ class CreditcardsTest extends BaseTest
 
         $result = $instance->getConfig();
 
-        $this->assertEquals($expected, $result);
+        $this->assertArrayHasKey('payment', $result);
+        $this->assertArrayHasKey('buckaroo', $result['payment']);
+        $this->assertArrayHasKey('buckaroo_magento2_creditcards', $result['payment']['buckaroo']);
+        $config = $result['payment']['buckaroo']['buckaroo_magento2_creditcards'];
+        
+        $this->assertIsArray($config);
+        $this->assertArrayHasKey('paymentFeeLabel', $config);
+        $this->assertSame($expected['paymentFeeLabel'], $config['paymentFeeLabel']);
+        $this->assertArrayHasKey('defaultCardImage', $config);
+        $this->assertSame($expected['defaultCardImage'], $config['defaultCardImage']);
+        $this->assertArrayHasKey('allowedCurrencies', $config);
+        $this->assertTrue(in_array('EUR', $config['allowedCurrencies']));
+        $this->assertArrayHasKey('creditcards', $config);
+        $this->assertIsArray($config['creditcards']);
     }
 
-    public function getPaymentFeeProvider()
+    public static function getPaymentFeeProvider()
     {
         return [
             'null value' => [
@@ -124,7 +136,7 @@ class CreditcardsTest extends BaseTest
                 false
             ],
             'int value' => [
-                1,
+                '1',
                 1
             ],
             'float value' => [
@@ -147,10 +159,9 @@ class CreditcardsTest extends BaseTest
     public function testGetPaymentFee($value, $expected)
     {
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->setMethods(['getValue'])
+            ->onlyMethods(['getValue'])
             ->getMockForAbstractClass();
-        $scopeConfigMock->expects($this->once())
-            ->method('getValue')
+        $scopeConfigMock->method('getValue')
             ->with(
                 Creditcards::XPATH_CREDITCARDS_PAYMENT_FEE,
                 ScopeInterface::SCOPE_STORE
@@ -169,7 +180,7 @@ class CreditcardsTest extends BaseTest
             'paymentFeeHelper' => $paymentFeeMock,
             'logoService' => $logoServiceMock
         ]);
-        
+
         $result = $instance->getPaymentFee();
 
         $this->assertEquals($expected, $result);

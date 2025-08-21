@@ -48,17 +48,11 @@ class OrderNumberDataBuilderTest extends AbstractDataBuilderTest
      */
     public function testBuild(): void
     {
-        $paymentDO = $this->getMockBuilder(PaymentDataObjectInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $paymentDO = $this->createMock(PaymentDataObjectInterface::class);
 
-        $order = $this->getMockBuilder(Order::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $order = $this->createMock(Order::class);
 
-        $orderAdapter = $this->getMockBuilder(OrderAdapter::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $orderAdapter = $this->createMock(OrderAdapter::class);
 
         $orderAdapter->method('getOrder')->willReturn($order);
         $paymentDO->method('getOrder')->willReturn($orderAdapter);

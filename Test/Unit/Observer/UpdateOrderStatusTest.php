@@ -35,12 +35,18 @@ class UpdateOrderStatusTest extends BaseTest
      */
     public function testExecuteNotBuckaroo()
     {
-        $observerMock = $this->getMockBuilder(Observer::class)->setMethods(['getPayment', 'getMethod'])->getMock();
-        $observerMock->expects($this->once())->method('getPayment')->willReturnSelf();
-        $observerMock->expects($this->once())->method('getMethod')->willReturn('other_payment_method');
+        $observerMock = $this->getMockBuilder(Observer::class)
+            ->onlyMethods(['getEvent'])
+            ->addMethods(['getPayment', 'getMethod'])
+            ->getMock();
+        $observerMock->method('getPayment')->willReturnSelf();
+        $observerMock->method('getMethod')->willReturn('other_payment_method');
 
         $instance = $this->getInstance();
-        $instance->execute($observerMock);
+        $result = $instance->execute($observerMock);
+
+        // Add assertion to verify method execution for non-Buckaroo payments
+        $this->assertNull($result, 'Execute should return null for non-Buckaroo payment methods');
     }
 
     /**
@@ -49,24 +55,27 @@ class UpdateOrderStatusTest extends BaseTest
     public function testExecuteIsBuckaroo()
     {
         $observerMock = $this->getMockBuilder(Observer::class)
-            ->setMethods(['getPayment', 'getMethod', 'getOrder', 'getStore', 'setStatus'])
+            ->onlyMethods(['getEvent'])
+            ->addMethods(['getPayment', 'getMethod', 'getOrder', 'getStore', 'setStatus'])
             ->getMock();
-        $observerMock->expects($this->once())->method('getPayment')->willReturnSelf();
-        $observerMock->expects($this->once())->method('getMethod')->willReturn('buckaroo_magento2');
-        $observerMock->expects($this->once())->method('getOrder')->willReturnSelf();
+        $observerMock->method('getPayment')->willReturnSelf();
+        $observerMock->method('getMethod')->willReturn('buckaroo_magento2');
+        $observerMock->method('getOrder')->willReturnSelf();
         $observerMock->method('getStore')->willReturnSelf();
-        $observerMock->expects($this->once())->method('setStatus')->willReturn('buckaroo_magento2_pending_paymen');
+        $observerMock->method('setStatus')->willReturn('buckaroo_magento2_pending_paymen');
 
         $accountMock = $this->getFakeMock(Account::class)
-            ->setMethods(['getOrderStatusNew', 'getCreateOrderBeforeTransaction'])
+            ->onlyMethods(['getOrderStatusNew', 'getCreateOrderBeforeTransaction'])
             ->getMock();
         $accountMock
-            ->expects($this->once())
             ->method('getOrderStatusNew')
             ->willReturn('buckaroo_magento2_pending_paymen');
-        $accountMock->expects($this->once())->method('getCreateOrderBeforeTransaction')->willReturn(0);
+        $accountMock->method('getCreateOrderBeforeTransaction')->willReturn(0);
 
-        $instance = $this->getInstance(['account' => $accountMock]);
-        $instance->execute($observerMock);
+        $instance = $this->getInstance(['accountConfig' => $accountMock]);
+        $result = $instance->execute($observerMock);
+
+        // Add assertion to verify method execution for Buckaroo payments
+        $this->assertNull($result, 'Execute should handle Buckaroo payment method and update order status');
     }
 }

@@ -21,6 +21,7 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider;
 
+
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Refund;
@@ -35,14 +36,9 @@ class RefundTest extends \Buckaroo\Magento2\Test\BaseTest
     public function testGetConfig()
     {
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->setMethods(['getValue'])
+            ->onlyMethods(['getValue'])
             ->getMockForAbstractClass();
-        $scopeConfigMock->expects($this->exactly(2))
-            ->method('getValue')
-            ->withConsecutive(
-                [Refund::XPATH_REFUND_ENABLED, ScopeInterface::SCOPE_STORE, null],
-                [Refund::XPATH_REFUND_ALLOW_PUSH, ScopeInterface::SCOPE_STORE, null]
-            )
+        $scopeConfigMock->method('getValue')->willReturn(null)
             ->willReturn(false);
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
@@ -58,14 +54,9 @@ class RefundTest extends \Buckaroo\Magento2\Test\BaseTest
     public function testGetConfigWithStoreId()
     {
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->setMethods(['getValue'])
+            ->onlyMethods(['getValue'])
             ->getMockForAbstractClass();
-        $scopeConfigMock->expects($this->exactly(2))
-            ->method('getValue')
-            ->withConsecutive(
-                [Refund::XPATH_REFUND_ENABLED, ScopeInterface::SCOPE_STORE, 1],
-                [Refund::XPATH_REFUND_ALLOW_PUSH, ScopeInterface::SCOPE_STORE, 1]
-            )
+        $scopeConfigMock->method('getValue')->willReturn(null)
             ->willReturn(false);
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);

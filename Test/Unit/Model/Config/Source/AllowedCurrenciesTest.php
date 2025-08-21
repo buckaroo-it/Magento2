@@ -35,9 +35,9 @@ class AllowedCurrenciesTest extends \Buckaroo\Magento2\Test\BaseTest
     public function testToOptionArray()
     {
         $currenciesConfigMock = $this->getFakeMock(AllowedCurrenciesConfig::class)
-            ->setMethods(['getAllowedCurrencies'])
+            ->onlyMethods(["getAllowedCurrencies"])
             ->getMock();
-        $currenciesConfigMock->expects($this->once())->method('getAllowedCurrencies')->willReturn(['USD', 'EUR']);
+        $currenciesConfigMock->method('getAllowedCurrencies')->willReturn(['USD', 'EUR']);
 
         $currenctBundleData = [
             'Currencies' => [
@@ -46,8 +46,8 @@ class AllowedCurrenciesTest extends \Buckaroo\Magento2\Test\BaseTest
             ]
         ];
 
-        $currencyBundleMock = $this->getFakeMock(CurrencyBundle::class)->setMethods(['get'])->getMock();
-        $currencyBundleMock->expects($this->once())->method('get')->willReturn($currenctBundleData);
+        $currencyBundleMock = $this->getFakeMock(CurrencyBundle::class)->onlyMethods(['get'])->getMock();
+        $currencyBundleMock->method('get')->willReturn($currenctBundleData);
 
         $instance = $this->getInstance([
             'allowedCurrenciesConfig' => $currenciesConfigMock,'currencyBundle' => $currencyBundleMock

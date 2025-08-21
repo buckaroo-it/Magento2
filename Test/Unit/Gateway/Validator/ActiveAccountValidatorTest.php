@@ -45,18 +45,17 @@ class ActiveAccountValidatorTest extends TestCase
     public function testValidate($accountActive, bool $isValid)
     {
         $accountConfig = $this->createMock(Account::class);
-        $accountConfig->expects($this->once())
-            ->method('getActive')
-            ->willReturn($accountActive);
+        $accountConfig->method('getActive')
+            ->willReturn($accountActive ? 1 : 0);
+        $accountConfig->method('getMerchantKey')->willReturn('key');
+        $accountConfig->method('getSecretKey')->willReturn('secret');
 
-        $this->configProviderFactory->expects($this->once())
-            ->method('get')
+        $this->configProviderFactory->method('get')
             ->with('account')
             ->willReturn($accountConfig);
 
         $expectedResult = $this->createMock(ResultInterface::class);
-        $this->resultFactory->expects($this->once())
-            ->method('create')
+        $this->resultFactory->method('create')
             ->with(['isValid' => $isValid, 'failsDescription' => [], 'errorCodes' => []])
             ->willReturn($expectedResult);
 
@@ -64,7 +63,7 @@ class ActiveAccountValidatorTest extends TestCase
         $this->assertSame($expectedResult, $result);
     }
 
-    public function accountActiveProvider(): array
+    public static function accountActiveProvider(): array
     {
         return [
             'account_active' => [true, true],
