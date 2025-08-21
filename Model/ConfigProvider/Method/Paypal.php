@@ -161,20 +161,16 @@ class Paypal extends AbstractConfigProvider
 
     /**
      * @param null $store
-     * @return float|false
+     * @return string|int|float
      */
     public function getPaymentFee($store = null)
     {
-        $value = $this->scopeConfig->getValue(
+        $paymentFee = $this->scopeConfig->getValue(
             self::XPATH_PAYPAL_PAYMENT_FEE,
             ScopeInterface::SCOPE_STORE,
             $store
         );
 
-        if ($value === null || $value === false || $value === '' || (is_numeric($value) && (float)$value == 0.0)) {
-            return false;
-        }
-
-        return (float)$value;
+        return $paymentFee ?: 0;
     }
 }
