@@ -75,8 +75,8 @@
         </field>
 
         <field id="subtext_color" translate="label comment" sortOrder="27" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Frontend subtext color</label>
-            <comment><![CDATA[Choose a font color for the subtext.]]></comment>
+            <label>Payment Method Description Color</label>
+            <comment><![CDATA[Color for the payment method description text shown under the title. This is different from the input field text color configured below.]]></comment>
             <config_path>payment/buckaroo_magento2_creditcards/subtext_color</config_path>
             <frontend_model>Buckaroo\Magento2\Block\Config\Form\Field\ColorPicker</frontend_model>
         </field>
@@ -102,6 +102,84 @@
                 <frontend_model>Buckaroo\Magento2\Block\Adminhtml\Form\Field\SortIssuers</frontend_model>
                 <comment><![CDATA[Select sort order on credit and debit card.]]></comment>
                 <config_path>payment/buckaroo_magento2_creditcards/sorted_issuers</config_path>
+            </field>
+        </group>
+
+        <group id="buckaroo_magento2_hosted_fields_placeholders" translate="label" type="text" sortOrder="45" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Hosted Fields Placeholder Configuration</label>
+
+            <field id="placeholder_cardholder_name" translate="label comment" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Cardholder Name Placeholder</label>
+                <comment><![CDATA[Customize the placeholder text for the cardholder name field. Leave empty to use default "John Doe".]]></comment>
+                <config_path>payment/buckaroo_magento2_creditcards/placeholder_cardholder_name</config_path>
+            </field>
+
+            <field id="placeholder_card_number" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Card Number Placeholder</label>
+                <comment><![CDATA[Customize the placeholder text for the card number field. Leave empty to use default "555x xxxx xxxx xxxx".]]></comment>
+                <config_path>payment/buckaroo_magento2_creditcards/placeholder_card_number</config_path>
+            </field>
+
+            <field id="placeholder_expiry_date" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Expiry Date Placeholder</label>
+                <comment><![CDATA[Customize the placeholder text for the expiry date field. Leave empty to use default "MM / YY".]]></comment>
+                <config_path>payment/buckaroo_magento2_creditcards/placeholder_expiry_date</config_path>
+            </field>
+
+            <field id="placeholder_cvc" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>CVC Placeholder</label>
+                <comment><![CDATA[Customize the placeholder text for the CVC field. Leave empty to use default "1234".]]></comment>
+                <config_path>payment/buckaroo_magento2_creditcards/placeholder_cvc</config_path>
+            </field>
+        </group>
+
+        <group id="buckaroo_magento2_hosted_fields_styling" translate="label" type="text" sortOrder="46" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Hosted Fields Styling Configuration</label>
+
+            <field id="field_text_color" translate="label comment" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Input Field Text Color</label>
+                <comment><![CDATA[Color for the text typed inside credit card input fields. This is different from the payment method description color above. Leave empty to use default "#333333".]]></comment>
+                <config_path>payment/buckaroo_magento2_creditcards/field_text_color</config_path>
+                <frontend_model>Buckaroo\Magento2\Block\Config\Form\Field\ColorPicker</frontend_model>
+            </field>
+
+            <field id="field_background_color" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Background Color</label>
+                <comment><![CDATA[Background color for hosted fields. Leave empty to use default "#fefefe".]]></comment>
+                <config_path>payment/buckaroo_magento2_creditcards/field_background_color</config_path>
+                <frontend_model>Buckaroo\Magento2\Block\Config\Form\Field\ColorPicker</frontend_model>
+            </field>
+
+            <field id="field_border_color" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Border Color</label>
+                <comment><![CDATA[Border color for hosted fields. Leave empty to use default "#d6d6d6".]]></comment>
+                <config_path>payment/buckaroo_magento2_creditcards/field_border_color</config_path>
+                <frontend_model>Buckaroo\Magento2\Block\Config\Form\Field\ColorPicker</frontend_model>
+            </field>
+
+            <field id="field_placeholder_color" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Placeholder Color</label>
+                <comment><![CDATA[Color for placeholder text in hosted fields. Leave empty to use default "#888888".]]></comment>
+                <config_path>payment/buckaroo_magento2_creditcards/field_placeholder_color</config_path>
+                <frontend_model>Buckaroo\Magento2\Block\Config\Form\Field\ColorPicker</frontend_model>
+            </field>
+
+            <field id="field_font_size" translate="label comment" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Font Size</label>
+                <comment><![CDATA[Font size for hosted fields (e.g., "14px", "16px"). Leave empty to use default "14px".]]></comment>
+                <config_path>payment/buckaroo_magento2_creditcards/field_font_size</config_path>
+            </field>
+
+            <field id="field_font_family" translate="label comment" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Font Family</label>
+                <comment><![CDATA[Font family for hosted fields. Leave empty to use default "Open Sans, Helvetica Neue, Helvetica, Arial, sans-serif".]]></comment>
+                <config_path>payment/buckaroo_magento2_creditcards/field_font_family</config_path>
+            </field>
+
+            <field id="field_border_radius" translate="label comment" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Border Radius</label>
+                <comment><![CDATA[Border radius for hosted fields (e.g., "5px", "10px"). Leave empty to use default "5px".]]></comment>
+                <config_path>payment/buckaroo_magento2_creditcards/field_border_radius</config_path>
             </field>
         </group>
 
