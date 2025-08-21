@@ -104,6 +104,21 @@ class Creditcards extends AbstractConfigProvider
         return $this->fullConfig([
             'creditcards'       => $this->formatIssuers(),
             'defaultCardImage'  => $this->getDefaultCardImage(),
+            'placeholders'      => [
+                'cardholderName' => $this->getPlaceholderCardholderName(),
+                'cardNumber'     => $this->getPlaceholderCardNumber(),
+                'expiryDate'     => $this->getPlaceholderExpiryDate(),
+                'cvc'            => $this->getPlaceholderCvc(),
+            ],
+            'styling'           => [
+                'textColor'         => $this->getFieldTextColor(),
+                'backgroundColor'   => $this->getFieldBackgroundColor(),
+                'borderColor'       => $this->getFieldBorderColor(),
+                'placeholderColor'  => $this->getFieldPlaceholderColor(),
+                'fontSize'          => $this->getFieldFontSize(),
+                'fontFamily'        => $this->getFieldFontFamily(),
+                'borderRadius'      => $this->getFieldBorderRadius(),
+            ],
         ]);
     }
 
@@ -203,6 +218,193 @@ class Creditcards extends AbstractConfigProvider
             self::XPATH_CREDITCARDS_HOSTED_FIELDS_CLIENT_SECRET,
             ScopeInterface::SCOPE_STORE
         );
+    }
+
+    /**
+     * Get placeholder text for cardholder name field
+     * 
+     * @param null|int $storeId
+     * @return string
+     */
+    public function getPlaceholderCardholderName($storeId = null): string
+    {
+        $placeholder = $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_PLACEHOLDER_CARDHOLDER_NAME,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+        
+        return !empty($placeholder) ? $placeholder : 'John Doe';
+    }
+
+    /**
+     * Get placeholder text for card number field
+     * 
+     * @param null|int $storeId
+     * @return string
+     */
+    public function getPlaceholderCardNumber($storeId = null): string
+    {
+        $placeholder = $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_PLACEHOLDER_CARD_NUMBER,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+        
+        return !empty($placeholder) ? $placeholder : '555x xxxx xxxx xxxx';
+    }
+
+    /**
+     * Get placeholder text for expiry date field
+     * 
+     * @param null|int $storeId
+     * @return string
+     */
+    public function getPlaceholderExpiryDate($storeId = null): string
+    {
+        $placeholder = $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_PLACEHOLDER_EXPIRY_DATE,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+        
+        return !empty($placeholder) ? $placeholder : 'MM / YY';
+    }
+
+    /**
+     * Get placeholder text for CVC field
+     * 
+     * @param null|int $storeId
+     * @return string
+     */
+    public function getPlaceholderCvc($storeId = null): string
+    {
+        $placeholder = $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_PLACEHOLDER_CVC,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+        
+        return !empty($placeholder) ? $placeholder : '1234';
+    }
+
+    /**
+     * Get text color for hosted fields
+     * 
+     * @param null|int $storeId
+     * @return string
+     */
+    public function getFieldTextColor($storeId = null): string
+    {
+        $color = $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_FIELD_TEXT_COLOR,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+        
+        return !empty($color) ? $color : '#333333';
+    }
+
+    /**
+     * Get background color for hosted fields
+     * 
+     * @param null|int $storeId
+     * @return string
+     */
+    public function getFieldBackgroundColor($storeId = null): string
+    {
+        $color = $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_FIELD_BACKGROUND_COLOR,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+        
+        return !empty($color) ? $color : '#fefefe';
+    }
+
+    /**
+     * Get border color for hosted fields
+     * 
+     * @param null|int $storeId
+     * @return string
+     */
+    public function getFieldBorderColor($storeId = null): string
+    {
+        $color = $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_FIELD_BORDER_COLOR,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+        
+        return !empty($color) ? $color : '#d6d6d6';
+    }
+
+    /**
+     * Get placeholder color for hosted fields
+     * 
+     * @param null|int $storeId
+     * @return string
+     */
+    public function getFieldPlaceholderColor($storeId = null): string
+    {
+        $color = $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_FIELD_PLACEHOLDER_COLOR,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+        
+        return !empty($color) ? $color : '#888888';
+    }
+
+    /**
+     * Get font size for hosted fields
+     * 
+     * @param null|int $storeId
+     * @return string
+     */
+    public function getFieldFontSize($storeId = null): string
+    {
+        $fontSize = $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_FIELD_FONT_SIZE,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+        
+        return !empty($fontSize) ? $fontSize : '14px';
+    }
+
+    /**
+     * Get font family for hosted fields
+     * 
+     * @param null|int $storeId
+     * @return string
+     */
+    public function getFieldFontFamily($storeId = null): string
+    {
+        $fontFamily = $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_FIELD_FONT_FAMILY,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+        
+        return !empty($fontFamily) ? $fontFamily : 'Open Sans, Helvetica Neue, Helvetica, Arial, sans-serif';
+    }
+
+    /**
+     * Get border radius for hosted fields
+     * 
+     * @param null|int $storeId
+     * @return string
+     */
+    public function getFieldBorderRadius($storeId = null): string
+    {
+        $borderRadius = $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_FIELD_BORDER_RADIUS,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+        
+        return !empty($borderRadius) ? $borderRadius : '5px';
     }
 
     public function getSupportedServices(): array
