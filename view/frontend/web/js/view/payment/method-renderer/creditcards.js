@@ -221,20 +221,25 @@ define(
                     // Get configured styling or fallback to defaults
                     const configuredStyling = this.buckaroo.styling || {};
                     
+                    // Helper function to get non-empty value or default
+                    const getStyleValue = (value, defaultValue) => {
+                        return (value && value.trim() !== '') ? value : defaultValue;
+                    };
+                    
                     const styling = {
-                        fontSize: configuredStyling.fontSize || "14px",
+                        fontSize: getStyleValue(configuredStyling.fontSize, "14px"),
                         fontStyle: "normal",
                         fontWeight: 400,
-                        fontFamily: configuredStyling.fontFamily || 'Open Sans, Helvetica Neue, Helvetica, Arial, sans-serif',
+                        fontFamily: getStyleValue(configuredStyling.fontFamily, 'Open Sans, Helvetica Neue, Helvetica, Arial, sans-serif'),
                         textAlign: 'left',
-                        background: configuredStyling.backgroundColor || '#fefefe',
-                        color: configuredStyling.textColor || '#333333',
-                        placeholderColor: configuredStyling.placeholderColor || '#888888',
-                        borderRadius: configuredStyling.borderRadius || '5px',
+                        background: getStyleValue(configuredStyling.backgroundColor, '#fefefe'),
+                        color: getStyleValue(configuredStyling.textColor, '#333333'),
+                        placeholderColor: getStyleValue(configuredStyling.placeholderColor, '#888888'),
+                        borderRadius: getStyleValue(configuredStyling.borderRadius, '5px'),
                         padding: '8px 10px',
                         boxShadow: 'none',
                         transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
-                        border: '1px solid ' + (configuredStyling.borderColor || '#d6d6d6'),
+                        border: '1px solid ' + getStyleValue(configuredStyling.borderColor, '#d6d6d6'),
                         cardLogoStyling: cardLogoStyling
                     };
 
