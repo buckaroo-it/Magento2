@@ -225,7 +225,7 @@ class GatewayCommand implements CommandInterface
             }
             $errorMessage = rtrim($errorMessage);
         } else {
-            $errorMessage ='Transaction has been declined. Please try again later.';
+            $errorMessage = 'Transaction has been declined. Please try again later.';
         }
 
         throw new CommandException(__($errorMessage));

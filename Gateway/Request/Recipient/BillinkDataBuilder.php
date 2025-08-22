@@ -106,7 +106,7 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
     }
 
     /**
-     * Determines whether the customer is a B2B customer based on the store configuration.
+     * Determines whether the customer type configuration allows B2B customers.
      *
      * @param int|null $storeId
      * @return bool
@@ -114,7 +114,9 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
      */
     private function isCustomerB2B(?int $storeId = null): bool
     {
-        return $this->getConfigData('customer_type', $storeId) !== BillinkCustomerType::CUSTOMER_TYPE_B2C;
+        $customerType = $this->getConfigData('customer_type', $storeId);
+
+        return $customerType !== BillinkCustomerType::CUSTOMER_TYPE_B2C;
     }
 
     /**
@@ -139,11 +141,23 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
     protected function getCategory(): string
     {
         $billingAddress = $this->getOrder()->getBillingAddress();
-        if ($this->isCustomerB2B($this->getOrder()->getStoreId()) &&
-            !$this->isCompanyEmpty($billingAddress->getCompany())
-        ) {
+        $shippingAddress = $this->getOrder()->getShippingAddress();
+        $storeId = $this->getOrder()->getStoreId();
+        $customerTypeConfig = $this->getConfigData('customer_type', $storeId);
+
+        // Check company in both billing and shipping addresses
+        $billingCompany = $billingAddress ? $billingAddress->getCompany() : '';
+        $shippingCompany = $shippingAddress ? $shippingAddress->getCompany() : '';
+        $hasCompany = !$this->isCompanyEmpty($billingCompany) || !$this->isCompanyEmpty($shippingCompany);
+
+        if ($customerTypeConfig === BillinkCustomerType::CUSTOMER_TYPE_B2C) {
+            return 'B2C';
+        }
+
+        if ($hasCompany && ($customerTypeConfig === BillinkCustomerType::CUSTOMER_TYPE_B2B || $customerTypeConfig === BillinkCustomerType::CUSTOMER_TYPE_BOTH)) {
             return 'B2B';
         }
+
         return 'B2C';
     }
 
@@ -183,9 +197,11 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
      */
     protected function getGender(): string
     {
-        if ($this->payment->getAdditionalInformation('customer_gender') === '1') {
+        $gender = $this->payment->getAdditionalInformation('customer_gender');
+
+        if ($gender === '1' || $gender === 1) {
             return 'Male';
-        } elseif ($this->payment->getAdditionalInformation('customer_gender') === '2') {
+        } elseif ($gender === '2' || $gender === 2) {
             return 'Female';
         } else {
             return 'Unknown';
