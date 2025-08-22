@@ -33,7 +33,23 @@ class VATNumberDataBuilder implements BuilderInterface
     {
         $paymentDO = SubjectReader::readPayment($buildSubject);
         $payment = $paymentDO->getPayment();
+        $order = $paymentDO->getOrder()->getOrder();
 
-        return ['vATNumber' => $payment->getAdditionalInformation('customer_VATNumber') ?? ''];
+        $vatNumber = $payment->getAdditionalInformation('customer_VATNumber') ?? '';
+
+        if ($payment->getMethodInstance()->getCode() === 'buckaroo_magento2_billink') {
+            $billingAddress = $order->getBillingAddress();
+            $shippingAddress = $order->getShippingAddress();
+
+            $billingCompany = $billingAddress ? trim($billingAddress->getCompany() ?? '') : '';
+            $shippingCompany = $shippingAddress ? trim($shippingAddress->getCompany() ?? '') : '';
+            $hasCompany = !empty($billingCompany) || !empty($shippingCompany);
+
+            if (empty($vatNumber) && !$hasCompany) {
+                return [];
+            }
+        }
+
+        return ['vATNumber' => $vatNumber];
     }
 }
