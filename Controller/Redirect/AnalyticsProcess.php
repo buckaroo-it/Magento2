@@ -57,28 +57,23 @@ class AnalyticsProcess extends Process
 
         $this->redirectSuccessApplePay();
 
+        // Only include analytics-related query parameters, not all Buckaroo response data
         $queryArguments = [];
-        parse_str((string)parse_url($url, PHP_URL_QUERY), $queryArguments);
-
-        $filteredQueryArguments = [];
         if (class_exists(\Buckaroo\Magento2\Service\CookieParamService::class)) {
             $cookieParamService = $this->_objectManager->get(
                 \Buckaroo\Magento2\Service\CookieParamService::class
             );
 
-            $filteredQueryArguments = $cookieParamService->getQueryArgumentsByCookies($this->getRequest()->getParams());
+            $queryArguments = $cookieParamService->getQueryArgumentsByCookies($this->getRequest()->getParams());
         }
 
-        if (!empty($filteredQueryArguments)) {
-            if (strpos($url, '?') !== false) {
-                $url = substr($url, 0, strpos($url, '?'));
-            }
-            $queryArguments = array_merge($queryArguments, $filteredQueryArguments);
+        if (strpos($url, '?') !== false) {
+            $url = substr($url, 0, strpos($url, '?'));
         }
 
         if (method_exists($this, 'handleProcessedResponse')) {
-            return $this->handleProcessedResponse($url, ['_query' =>$queryArguments]);
+            return $this->handleProcessedResponse($url, ['_query' => $queryArguments]);
         }
-        return $this->_redirect($url, ['_query' =>$queryArguments]);
+        return $this->_redirect($url, ['_query' => $queryArguments]);
     }
-} 
+}
