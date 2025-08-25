@@ -35,9 +35,7 @@ class AreaCodeValidatorTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->state = $this->getMockBuilder(State::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->state = $this->createMock(State::class);
 
         $this->validator = new AreaCodeValidator(
             $this->resultFactory,
@@ -51,26 +49,19 @@ class AreaCodeValidatorTest extends TestCase
     public function testValidate($areaCode, $configData, $expectedResult)
     {
         $validationSubject = [
-            'paymentMethodInstance' => $this->getMockBuilder(MethodInterface::class)
-                ->disableOriginalConstructor()
-                ->getMock()
+            'paymentMethodInstance' => $this->createMock(MethodInterface::class)
         ];
 
-        $this->state->expects($this->once())
-            ->method('getAreaCode')
+        $this->state->method('getAreaCode')
             ->willReturn($areaCode);
 
-        $validationSubject['paymentMethodInstance']->expects($this->once())
-            ->method('getConfigData')
+        $validationSubject['paymentMethodInstance']->method('getConfigData')
             ->with('available_in_backend')
             ->willReturn($configData);
 
-        $resultMock = $this->getMockBuilder(ResultInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $resultMock = $this->createMock(ResultInterface::class);
 
-        $this->resultFactory->expects($this->once())
-            ->method('create')
+        $this->resultFactory->method('create')
             ->with(['isValid' => $expectedResult, 'failsDescription' => [], 'errorCodes' => []])
             ->willReturn($resultMock);
 
@@ -79,7 +70,7 @@ class AreaCodeValidatorTest extends TestCase
         $this->assertSame($resultMock, $result);
     }
 
-    public function validateDataProvider()
+    public static function validateDataProvider()
     {
         return [
             'backend with config data 0' => [

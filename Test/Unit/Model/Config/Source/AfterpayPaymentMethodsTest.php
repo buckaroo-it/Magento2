@@ -31,7 +31,7 @@ class AfterpayPaymentMethodsTest extends BaseTest
     /**
      * @return array
      */
-    public function toOptionArrayProvider()
+    public static function toOptionArrayProvider()
     {
         return [
             [
@@ -53,6 +53,13 @@ class AfterpayPaymentMethodsTest extends BaseTest
         $instance = $this->getInstance();
         $result = $instance->toOptionArray();
 
-        $this->assertContains($paymentOption, $result);
+        $found = false;
+        foreach ($result as $opt) {
+            if ($opt['value'] == $paymentOption['value'] && $opt['label']->getText() == $paymentOption['label']) {
+                $found = true;
+                break;
+            }
+        }
+        $this->assertTrue($found);
     }
 }

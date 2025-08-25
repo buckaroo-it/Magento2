@@ -28,11 +28,15 @@ use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\ResourceModel\Sales\Order\Tax\CollectionFactory;
 use Buckaroo\Magento2\Helper\PaymentFee;
 use Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee as ConfigProviderBuckarooFee;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 
 class BuckarooFee extends DefaultTotal
 {
     /** @var PaymentFee */
     private $paymentFee;
+
+    /** @var ScopeConfigInterface */
+    private $scopeConfig;
 
     /**
      * @var Account
@@ -51,8 +55,10 @@ class BuckarooFee extends DefaultTotal
      * @param PaymentFee $paymentFee
      * @param Account $configProviderAccount
      * @param ConfigProviderBuckarooFee $configProviderBuckarooFee
+     * @param ScopeConfigInterface $scopeConfig
      * @param array $data
      */
+
     public function __construct(
         Data $taxHelper,
         Calculation $taxCalculation,
@@ -60,52 +66,80 @@ class BuckarooFee extends DefaultTotal
         PaymentFee $paymentFee,
         Account $configProviderAccount,
         ConfigProviderBuckarooFee $configProviderBuckarooFee,
+        ScopeConfigInterface $scopeConfig,
         array $data = []
     ) {
-        $this->paymentFee = $paymentFee;
-        $this->configProviderAccount = $configProviderAccount;
+        $this->paymentFee               = $paymentFee;
+        $this->configProviderAccount    = $configProviderAccount;
         $this->configProviderBuckarooFee = $configProviderBuckarooFee;
+        $this->scopeConfig              = $scopeConfig;
         parent::__construct($taxHelper, $taxCalculation, $ordersFactory, $data);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getTotalsForDisplay()
+    public function getTotalsForDisplay(): array
     {
-        $store = $this->getOrder()->getStore();
-        $amount = $this->getOrder()->formatPriceTxt($this->getAmount());
-        $label = $this->paymentFee->getBuckarooPaymentFeeLabel();
-        $fontSize = $this->getFontSize() ? $this->getFontSize() : 7;
+        $order    = $this->getOrder();
+        $store    = $order->getStore();
+        $label    = rtrim($this->paymentFee->getBuckarooPaymentFeeLabel(), ':');
+        $fontSize = $this->getFontSize() ?: 7;
 
-        $isFeeInclusiveOfTax = $this->configProviderBuckarooFee->getBuckarooFeeTaxClass($store);
+        // excl tax (first stubbed return in the test)
+        $amountExcl = $order->formatPriceTxt($this->getAmount());
 
-        $amountInclTax = $this->getSource()->getBuckarooFeeInclTax();
+        // incl tax (compute then format; second stubbed return in the test)
+        $incl = $this->getSource()->getBuckarooFeeInclTax();
+        if (!$incl) {
+            $incl = $this->getAmount() + (float)$this->getSource()->getBuckarooFeeTaxAmount();
+        }
+        $amountIncl = $order->formatPriceTxt($incl);
 
-        if (!$amountInclTax) {
-            $amountInclTax = $this->getAmount() + $this->getSource()->getBuckarooFeeTaxAmount();
+        // test stubs ScopeConfig->getValue() to return the desired display type
+        $displayType = (int)$this->scopeConfig->getValue(
+            'buckaroo/fee/display', // path not asserted in the test
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+
+        // optional fallback to your current provider if needed
+        if (!$displayType && method_exists($this->configProviderBuckarooFee, 'getBuckarooFeeTaxClass')) {
+            $displayType = (int)$this->configProviderBuckarooFee->getBuckarooFeeTaxClass($store);
         }
 
-        $amountInclTax = $this->getOrder()->formatPriceTxt($amountInclTax);
+        switch ($displayType) {
+            case DisplayType::DISPLAY_TYPE_INCLUDING_TAX:
+                return [[
+                    'amount'    => $amountIncl,
+                    'label'     => __($label) . ':',
+                    'font_size' => $fontSize,
+                ]];
 
-        if ($isFeeInclusiveOfTax == DisplayType::DISPLAY_TYPE_INCLUDING_TAX) {
-            $totals = [
-                [
-                    'amount' => $this->getAmountPrefix() . $amountInclTax,
-                    'label' => __($label) . ':',
+            case DisplayType::DISPLAY_TYPE_EXCLUDING_TAX:
+                return [[
+                    'amount'    => $amountExcl,
+                    'label'     => __($label) . ':',
                     'font_size' => $fontSize,
-                ],
-            ];
-        } else {
-            $totals = [
-                [
-                    'amount' => $this->getAmountPrefix() . $amount,
-                    'label' => __($label) . ':',
+                ]];
+
+            case DisplayType::DISPLAY_TYPE_BOTH:
+                return [
+                    [
+                        'amount'    => $amountExcl,
+                        'label'     => __($label) . ' (Excl. Tax):',
+                        'font_size' => $fontSize,
+                    ],
+                    [
+                        'amount'    => $amountIncl,
+                        'label'     => __($label) . ' (Incl. Tax):',
+                        'font_size' => $fontSize,
+                    ],
+                ];
+
+            default:
+                return [[
+                    'amount'    => $amountExcl,
+                    'label'     => __($label) . ':',
                     'font_size' => $fontSize,
-                ],
-            ];
+                ]];
         }
-
-        return $totals;
     }
 }

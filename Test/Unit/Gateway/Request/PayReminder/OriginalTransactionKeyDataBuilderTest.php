@@ -45,9 +45,7 @@ class OriginalTransactionKeyDataBuilderTest extends AbstractDataBuilderTest
     {
         parent::setUp();
 
-        $this->payReminderServiceMock = $this->getMockBuilder(PayReminderService::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->payReminderServiceMock = $this->createMock(PayReminderService::class);
 
         $this->originalTransactionKeyDataBuilder = new OriginalTransactionKeyDataBuilder($this->payReminderServiceMock);
     }
@@ -63,18 +61,15 @@ class OriginalTransactionKeyDataBuilderTest extends AbstractDataBuilderTest
     {
         $incrementId = '100000001';
 
-        $this->orderMock->expects($this->once())
-            ->method('getIncrementId')
+        $this->orderMock->method('getIncrementId')
             ->willReturn($incrementId);
 
-        $this->payReminderServiceMock->expects($this->once())
-            ->method('getServiceAction')
+        $this->payReminderServiceMock->method('getServiceAction')
             ->with($incrementId)
             ->willReturn($serviceAction);
 
         if ($serviceAction === 'payRemainder') {
-            $this->payReminderServiceMock->expects($this->once())
-                ->method('getOriginalTransactionKey')
+            $this->payReminderServiceMock->method('getOriginalTransactionKey')
                 ->with($this->orderMock)
                 ->willReturn($originalTransactionKey);
         }
@@ -86,7 +81,7 @@ class OriginalTransactionKeyDataBuilderTest extends AbstractDataBuilderTest
     /**
      * @return array
      */
-    public function buildDataProvider(): array
+    public static function buildDataProvider(): array
     {
         return [
             [

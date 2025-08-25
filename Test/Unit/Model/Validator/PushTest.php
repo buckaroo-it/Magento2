@@ -24,7 +24,7 @@ namespace Buckaroo\Magento2\Test\Unit\Model\Validator;
 use Buckaroo\Magento2\Model\Validator\Push;
 use Buckaroo\Magento2\Test\BaseTest;
 
-class PayPerEmailTest extends BaseTest
+class PushTest extends BaseTest
 {
     protected $instanceClass = Push::class;
 
@@ -38,7 +38,7 @@ class PayPerEmailTest extends BaseTest
     /**
      * @return array
      */
-    public function decodePushValueProvider()
+    public static function decodePushValueProvider()
     {
         return [
             'normal value' => [

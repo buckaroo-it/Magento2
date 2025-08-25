@@ -21,6 +21,8 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
+
+
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Test\BaseTest;
@@ -34,28 +36,57 @@ class GiftcardsTest extends BaseTest
      */
     public function testGetConfig()
     {
-        $this->markTestIncomplete(
-            'This test needs to be reviewed.'
-        );
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->setMethods(['getValue'])
+            ->onlyMethods(['getValue'])
             ->getMockForAbstractClass();
-        $scopeConfigMock->expects($this->exactly(2))
-            ->method('getValue')
-            ->withConsecutive(
-                ['payment/buckaroo_magento2_giftcards/active', ScopeInterface::SCOPE_STORE],
-                ['payment/buckaroo_magento2_giftcards/allowed_currencies', ScopeInterface::SCOPE_STORE, null]
-            )
-            ->willReturnOnConsecutiveCalls(true, '');
+        $scopeConfigMock->method('getValue')->willReturnMap([
+            // Make the giftcards method active
+            [
+                $this->getPaymentMethodConfigPath(Giftcards::CODE, 'active'),
+                ScopeInterface::SCOPE_STORE,
+                null,
+                1
+            ],
+            // Set allowed currencies
+            [
+                $this->getPaymentMethodConfigPath(Giftcards::CODE, 'allowed_currencies'),
+                ScopeInterface::SCOPE_STORE,
+                null,
+                'EUR'
+            ]
+        ]);
 
-        $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
+        // Mock Giftcard Collection
+        $giftcardCollectionMock = $this->createMock(\Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection::class);
+        $giftcardCollectionMock->method('getIterator')->willReturn(new \ArrayIterator([]));
+        
+        // Mock Giftcard Collection Factory
+        $giftcardCollectionFactoryMock = $this->createMock(\Buckaroo\Magento2\Model\ResourceModel\Giftcard\CollectionFactory::class);
+        $giftcardCollectionFactoryMock->method('create')->willReturn($giftcardCollectionMock);
+        
+        // Mock Store Manager
+        $storeMock = $this->createMock(\Magento\Store\Model\Store::class);
+        $storeMock->method('getBaseUrl')->willReturn('https://example.com/media/');
+        $storeManagerMock = $this->createMock(\Magento\Store\Model\StoreManagerInterface::class);
+        $storeManagerMock->method('getStore')->willReturn($storeMock);
+        
+        // Mock Giftcards Source
+        $giftcardsSourceMock = $this->createMock(\Buckaroo\Magento2\Model\Config\Source\Giftcards::class);
+        $giftcardsSourceMock->method('toOptionArray')->willReturn([]);
+
+        $instance = $this->getInstance([
+            'scopeConfig' => $scopeConfigMock,
+            'storeManager' => $storeManagerMock,
+            'giftcardCollectionFactory' => $giftcardCollectionFactoryMock,
+            'giftcardsSource' => $giftcardsSourceMock
+        ]);
         $result = $instance->getConfig();
 
         $this->assertArrayHasKey('payment', $result);
         $this->assertArrayHasKey('buckaroo', $result['payment']);
-        $this->assertArrayHasKey('giftcards', $result['payment']['buckaroo']);
-        $this->assertArrayHasKey('paymentFeeLabel', $result['payment']['buckaroo']['giftcards']);
-        $this->assertArrayHasKey('allowedCurrencies', $result['payment']['buckaroo']['giftcards']);
+        $this->assertArrayHasKey('buckaroo_magento2_giftcards', $result['payment']['buckaroo']);
+        $this->assertArrayHasKey('paymentFeeLabel', $result['payment']['buckaroo']['buckaroo_magento2_giftcards']);
+        $this->assertArrayHasKey('allowedCurrencies', $result['payment']['buckaroo']['buckaroo_magento2_giftcards']);
     }
 
     /**
@@ -64,10 +95,9 @@ class GiftcardsTest extends BaseTest
     public function testGetPaymentFee()
     {
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->setMethods(['getValue'])
+            ->onlyMethods(['getValue'])
             ->getMockForAbstractClass();
-        $scopeConfigMock->expects($this->once())
-            ->method('getValue')
+        $scopeConfigMock->method('getValue')
             ->with('payment/buckaroo_magento2_giftcards/active', ScopeInterface::SCOPE_STORE)
             ->willReturn(false);
 

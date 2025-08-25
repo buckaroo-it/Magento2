@@ -28,31 +28,32 @@ class CalculationTest extends BaseTest
 {
     protected $instanceClass = Calculation::class;
 
-    /**
-     * @return array
-     */
-    public function toOptionArrayProvider()
+    public static function toOptionArrayProvider()
     {
         return [
-            [
-                ['value' => 1, 'label' => 'Excluding Tax']
-            ],
-            [
-                ['value' => 2, 'label' => 'Including Tax']
-            ]
+            [['value' => 1, 'label' => 'Excluding Tax']],
+            [['value' => 2, 'label' => 'Including Tax']],
         ];
     }
 
     /**
-     * @param $paymentOption
-     *
+     * @param array $paymentOption
      * @dataProvider toOptionArrayProvider
      */
     public function testToOptionArray($paymentOption)
     {
         $instance = $this->getInstance();
-        $result = $instance->toOptionArray();
+        $result   = $instance->toOptionArray();
 
-        $this->assertContains($paymentOption, $result);
+        // Normalize Magento results: cast labels to string, values to int
+        $normalized = array_map(function ($opt) {
+            return [
+                'value' => (int)($opt['value'] ?? null),
+                'label' => (string)($opt['label'] ?? ''),
+            ];
+        }, $result);
+
+        // We only require that each expected option exists in the returned list
+        $this->assertTrue(in_array($paymentOption, $normalized));
     }
 }

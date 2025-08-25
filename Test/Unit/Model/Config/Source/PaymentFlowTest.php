@@ -2,21 +2,7 @@
 
 /**
  * NOTICE OF LICENSE
- *
- * This source file is subject to the MIT License
- * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
- *
- * DISCLAIMER
- *
- * Do not edit or add to this file if you wish to upgrade this module to newer
- * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
- *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * (header trimmed)
  */
 
 namespace Buckaroo\Magento2\Test\Unit\Model\Config\Source;
@@ -28,31 +14,47 @@ class PaymentFlowTest extends BaseTest
 {
     protected $instanceClass = PaymentFlow::class;
 
-    /**
-     * @return array
-     */
-    public function toOptionArrayProvider()
+    public static function toOptionArrayProvider(): array
     {
         return [
-            [
-                ['value' => 'order',     'label' => 'Combined']
-            ],
-            [
-                ['value' => 'authorize', 'label' => 'Separate authorize and capture']
-            ]
+            [['value' => 'order',     'label' => 'Combined']],
+            [['value' => 'authorize', 'label' => 'Separate authorize and capture']],
         ];
     }
 
     /**
-     * @param $paymentOption
-     *
      * @dataProvider toOptionArrayProvider
      */
-    public function testToOptionArray($paymentOption)
+    public function testToOptionArray(array $expected)
     {
         $instance = $this->getInstance();
-        $result = $instance->toOptionArray();
+        $result   = $instance->toOptionArray();
 
-        $this->assertContains($paymentOption, $result);
+        // Normalize to [value => (string)label]
+        $map = [];
+        foreach ((array)$result as $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+            $value = isset($row['value']) ? (string)$row['value'] : null;
+            $label = isset($row['label']) ? (string)$row['label'] : null;
+            if ($value !== null) {
+                $map[$value] = $label;
+            }
+        }
+
+        $value = (string)$expected['value'];
+        $label = (string)$expected['label'];
+
+        $this->assertArrayHasKey(
+            $value,
+            $map,
+            "Option '{$value}' not found. Available: " . json_encode(array_keys($map))
+        );
+        $this->assertSame(
+            $label,
+            $map[$value],
+            "Label mismatch for '{$value}'. Got '{$map[$value]}'"
+        );
     }
 }

@@ -33,7 +33,7 @@ class SupportTabTest extends BaseTest
 
     public function testGetVersionNumber()
     {
-        $softwareDataMock = $this->getFakeMock(Data::class)->setMethods(null)->getMock();
+        $softwareDataMock = $this->getFakeMock(Data::class)->getMock();
         $instance = $this->getInstance(['softwareData' => $softwareDataMock]);
         $result = $instance->getVersionNumber();
 
@@ -66,7 +66,7 @@ class SupportTabTest extends BaseTest
         $this->assertEquals($returnValue, $instance->phpVersionCheck());
     }
 
-    public function getVersionsDataProvider(): array
+    public static function getVersionsDataProvider(): array
     {
         return [
             ['2.4.5', '8.1, 8.2, 8.3', 1],

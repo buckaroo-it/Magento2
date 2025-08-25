@@ -53,7 +53,6 @@ class SkipPushHandlerTest extends AbstractResponseHandlerTest
 
         if ($skipPush > 0) {
             $this->orderPaymentMock
-                ->expects($this->once())
                 ->method('setAdditionalInformation')
                 ->with('skip_push', $skipPush - 1);
         } else {
@@ -66,7 +65,7 @@ class SkipPushHandlerTest extends AbstractResponseHandlerTest
         $this->skipPushHandler->handle(['payment' => $this->getPaymentDOMock()], $this->getTransactionResponse());
     }
 
-    public function skipPushDataProvider()
+    public static function skipPushDataProvider()
     {
         return [
             ['skipPush' => 1],

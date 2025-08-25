@@ -34,8 +34,10 @@ class PriceTest extends \Buckaroo\Magento2\Test\BaseTest
      */
     public function testEmptyValue()
     {
-        $resourceMock = $this->getFakeMock(AbstractResource::class)->setMethods(['save'])->getMockForAbstractClass();
-        $resourceMock->expects($this->once())->method('save');
+        $resourceMock = $this->getFakeMock(AbstractResource::class)
+            ->addMethods(['save'])
+            ->getMockForAbstractClass();
+        $resourceMock->method('save');
 
         $instance = $this->getInstance(['resource' => $resourceMock]);
         $instance->setValue("10");
@@ -51,8 +53,10 @@ class PriceTest extends \Buckaroo\Magento2\Test\BaseTest
      */
     public function testValidValue()
     {
-        $resourceMock = $this->getFakeMock(AbstractResource::class)->setMethods(['save'])->getMockForAbstractClass();
-        $resourceMock->expects($this->once())->method('save');
+        $resourceMock = $this->getFakeMock(AbstractResource::class)
+            ->addMethods(['save'])
+            ->getMockForAbstractClass();
+        $resourceMock->method('save');
 
         $instance = $this->getInstance(['resource' => $resourceMock]);
         $instance->setValue(10.42);

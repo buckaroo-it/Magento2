@@ -31,7 +31,7 @@ class StreetFormatterTest extends BaseTest
     /**
      * @return array
      */
-    public function formatProvider()
+    public static function formatProvider()
     {
         return [
             'street only' => [

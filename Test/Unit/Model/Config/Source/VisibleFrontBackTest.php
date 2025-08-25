@@ -31,7 +31,7 @@ class VisibleFrontBackTest extends BaseTest
     /**
      * @return array
      */
-    public function toOptionArrayProvider()
+    public static function toOptionArrayProvider()
     {
         return [
             [
@@ -56,18 +56,25 @@ class VisibleFrontBackTest extends BaseTest
         $instance = $this->getInstance();
         $result = $instance->toOptionArray();
 
-        $this->assertContains($visibleFrontBack, $result);
+        $found = false;
+        foreach ($result as $opt) {
+            if ($opt['value'] == $visibleFrontBack['value'] && (string)$opt['label'] == $visibleFrontBack['label']) {
+                $found = true;
+                break;
+            }
+        }
+        $this->assertTrue($found);
     }
 
     /**
      * @return array
      */
-    public function toArrayProvider()
+    public static function toArrayProvider()
     {
         return [
-                ['frontend' => 'Frontend'],
-                ['backend' => 'Backend'],
-                ['both' => 'Frontend and Backend'],
+                ['Frontend'],
+                ['Backend'],
+                ['Frontend and Backend'],
         ];
     }
 
@@ -81,6 +88,14 @@ class VisibleFrontBackTest extends BaseTest
         $instance = $this->getInstance();
         $result = $instance->toArray();
 
-        $this->assertContains($visibleFrontBack, $result);
+        // Map display text to actual keys
+        $keyMap = [
+            'Frontend' => 'frontend',
+            'Backend' => 'backend',
+            'Frontend and Backend' => 'both'
+        ];
+        
+        $key = $keyMap[$visibleFrontBack];
+        $this->assertEquals($visibleFrontBack, $result[$key]);
     }
 }

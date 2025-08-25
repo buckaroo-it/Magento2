@@ -35,10 +35,9 @@ class CreateCreditNoteTest extends BaseTest
         $orderMock = $this->getFakeMock(Order::class)->getMock();
 
         $infoInstanceMock = $this->getFakeMock(Payment::class)
-            ->setMethods(['getAdditionalInformation', 'getOrder'])
+            ->onlyMethods(['getAdditionalInformation', 'getOrder'])
             ->getMock();
-        $infoInstanceMock->expects($this->once())
-            ->method('getAdditionalInformation')
+        $infoInstanceMock->method('getAdditionalInformation')
             ->with('buckaroo_cm3_invoice_key')
             ->willReturn('abc');
         $infoInstanceMock->method('getOrder')->willReturn($orderMock);
@@ -57,7 +56,7 @@ class CreateCreditNoteTest extends BaseTest
         foreach ($result['RequestParameter'] as $array) {
             $this->assertArrayHasKey('_', $array);
             $this->assertArrayHasKey('Name', $array);
-            $this->assertContains($array['Name'], $possibleParameters);
+            $this->assertTrue(in_array($array['Name'], $possibleParameters));
         }
     }
 }

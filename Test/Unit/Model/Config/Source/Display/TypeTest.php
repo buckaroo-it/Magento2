@@ -31,7 +31,7 @@ class TypeTest extends BaseTest
     /**
      * @return array
      */
-    public function toOptionArrayProvider()
+    public static function toOptionArrayProvider()
     {
         return [
             [
@@ -56,6 +56,13 @@ class TypeTest extends BaseTest
         $instance = $this->getInstance();
         $result = $instance->toOptionArray();
 
-        $this->assertContains($paymentOption, $result);
+        $found = false;
+        foreach ($result as $option) {
+            if ($option['value'] === $paymentOption['value']) {
+                $found = true;
+                break;
+            }
+        }
+        $this->assertTrue($found);
     }
 }

@@ -51,13 +51,9 @@ class AmountCreditDataBuilderTest extends AbstractDataBuilderTest
     {
         parent::setUp();
 
-        $this->dataBuilderServiceMock = $this->getMockBuilder(DataBuilderService::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->dataBuilderServiceMock = $this->createMock(DataBuilderService::class);
 
-        $this->refundGroupServiceMock = $this->getMockBuilder(RefundGroupTransactionService::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->refundGroupServiceMock = $this->createMock(RefundGroupTransactionService::class);
 
         $this->amountCreditDataBuilder = new AmountCreditDataBuilder(
             $this->dataBuilderServiceMock,
@@ -94,7 +90,7 @@ class AmountCreditDataBuilderTest extends AbstractDataBuilderTest
     /**
      * @return array
      */
-    public function buildDataProvider(): array
+    public static function buildDataProvider(): array
     {
         return [
             [100.00, 100.00, 100.00],

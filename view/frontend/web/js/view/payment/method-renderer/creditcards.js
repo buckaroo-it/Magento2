@@ -218,29 +218,44 @@ define(
                         backgroundColor: 'inherit'
                     };
 
+                    // Get configured styling or fallback to defaults
+                    const configuredStyling = this.buckaroo.styling || {};
+                    
+                    // Helper function to get non-empty value or default
+                    const getStyleValue = (value, defaultValue) => {
+                        return (value && value.trim() !== '') ? value : defaultValue;
+                    };
+                    
                     const styling = {
-                        fontSize: "14px",
+                        fontSize: getStyleValue(configuredStyling.fontSize, "14px"),
                         fontStyle: "normal",
                         fontWeight: 400,
-                        fontFamily: 'Open Sans, Helvetica Neue, Helvetica, Arial, sans-serif',
+                        fontFamily: getStyleValue(configuredStyling.fontFamily, 'Open Sans, Helvetica Neue, Helvetica, Arial, sans-serif'),
                         textAlign: 'left',
-                        background: '#fefefe',
-                        color: '#333333',
-                        placeholderColor: '#888888',
-                        borderRadius: '5px',
+                        background: getStyleValue(configuredStyling.backgroundColor, '#fefefe'),
+                        color: getStyleValue(configuredStyling.textColor, '#333333'),
+                        placeholderColor: getStyleValue(configuredStyling.placeholderColor, '#888888'),
+                        borderRadius: getStyleValue(configuredStyling.borderRadius, '5px'),
                         padding: '8px 10px',
                         boxShadow: 'none',
                         transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
-                        border: '1px solid #d6d6d6',
+                        border: '1px solid ' + getStyleValue(configuredStyling.borderColor, '#d6d6d6'),
                         cardLogoStyling: cardLogoStyling
                     };
 
 
 
+                    // Get configured placeholders or fallback to defaults
+                    const placeholders = this.buckaroo.placeholders || {};
+                    const cardholderNamePlaceholder = placeholders.cardholderName || "John Doe";
+                    const cardNumberPlaceholder = placeholders.cardNumber || "555x xxxx xxxx xxxx";
+                    const cvcPlaceholder = placeholders.cvc || "1234";
+                    const expiryDatePlaceholder = placeholders.expiryDate || "MM / YY";
+
                     // Mount hosted fields concurrently.
                     const mountCardHolderNamePromise = this.sdkClient.mountCardHolderName("#cc-name-wrapper", {
                         id: "ccname",
-                        placeHolder: "John Doe",
+                        placeHolder: cardholderNamePlaceholder,
                         labelSelector: "#cc-name-label",
                         baseStyling: styling
                     }).then(field => {
@@ -250,21 +265,21 @@ define(
 
                     const mountCardNumberPromise = this.sdkClient.mountCardNumber("#cc-number-wrapper", {
                         id: "cc",
-                        placeHolder: "555x xxxx xxxx xxxx",
+                        placeHolder: cardNumberPlaceholder,
                         labelSelector: "#cc-number-label",
                         baseStyling: styling
                     });
 
                     const mountCvcPromise = this.sdkClient.mountCvc("#cc-cvc-wrapper", {
                         id: "cvc",
-                        placeHolder: "1234",
+                        placeHolder: cvcPlaceholder,
                         labelSelector: "#cc-cvc-label",
                         baseStyling: styling
                     });
 
                     const mountExpiryPromise = this.sdkClient.mountExpiryDate("#cc-expiry-wrapper", {
                         id: "expiry",
-                        placeHolder: "MM / YY",
+                        placeHolder: expiryDatePlaceholder,
                         labelSelector: "#cc-expiry-label",
                         baseStyling: styling
                     });

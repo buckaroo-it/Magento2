@@ -217,6 +217,21 @@
                 <can_use_internal>1</can_use_internal>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
+                
+                <!-- Hosted Fields Placeholder Defaults -->
+                <placeholder_cardholder_name>John Doe</placeholder_cardholder_name>
+                <placeholder_card_number>555x xxxx xxxx xxxx</placeholder_card_number>
+                <placeholder_expiry_date>MM / YY</placeholder_expiry_date>
+                <placeholder_cvc>1234</placeholder_cvc>
+                
+                <!-- Hosted Fields Styling Defaults -->
+                <field_text_color>#333333</field_text_color>
+                <field_background_color>#fefefe</field_background_color>
+                <field_border_color>#d6d6d6</field_border_color>
+                <field_placeholder_color>#888888</field_placeholder_color>
+                <field_font_size>14px</field_font_size>
+                <field_font_family>Open Sans, Helvetica Neue, Helvetica, Arial, sans-serif</field_font_family>
+                <field_border_radius>5px</field_border_radius>
             </buckaroo_magento2_creditcards>
 
             <buckaroo_magento2_transfer>
@@ -666,7 +681,7 @@
                 <active>0</active>
                 <model>CapayableFacade</model>
                 <order_status>pending</order_status>
-                <title>iDEAL In3</title>
+                <title>In3</title>
                 <allowspecific>0</allowspecific>
                 <sort_order>250</sort_order>
                 <order_email>1</order_email>

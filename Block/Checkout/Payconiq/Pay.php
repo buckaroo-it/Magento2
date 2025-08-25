@@ -45,6 +45,11 @@ class Pay extends Template
      */
     public function getTransactionKey()
     {
-        return preg_replace('/[^\w]/', '', $this->response['Key']);
+        $transactionKey = $this->response['Key'];
+        if ($transactionKey === null) {
+            $transactionKey = '';
+        }
+        $transactionKey = preg_replace('/[^0-9]/', '', $transactionKey);
+        return $transactionKey;
     }
 }

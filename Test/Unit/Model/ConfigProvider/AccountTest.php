@@ -36,14 +36,13 @@ class AccountTest extends BaseTest
      */
     public function testGetConfig()
     {
-        $this->markTestIncomplete(
-            'This test needs to be reviewed.'
-        );
         $expectedKeys = [
-            'active', 'secret_key', 'merchant_key', 'merchant_guid', 'transaction_label',
-            'order_confirmation_email', 'invoice_email', 'success_redirect', 'failure_redirect', 'cancel_on_failed',
-            'debug_email', 'limit_by_ip', 'payment_fee_label', 'order_status_new',
-            'order_status_pending', 'order_status_success', 'order_status_failed', 'create_order_before_transaction'
+            'active', 'secret_key', 'merchant_key', 'transaction_label',
+            'order_confirmation_email', 'order_confirmation_email_sync', 'invoice_email', 'success_redirect', 'failure_redirect', 'failure_redirect_to_checkout', 'cancel_on_failed',
+            'debug_types', 'log_handler', 'log_retention', 'payment_fee_label', 'order_status_new',
+            'order_status_pending', 'order_status_success', 'order_status_failed', 'create_order_before_transaction',
+            'ip_header', 'cart_keep_alive', 'buckaroo_fee_tax_class', 'customer_additional_info',
+            'idin', 'idin_mode', 'idin_category'
         ];
 
         $instance = $this->getInstance();
@@ -61,40 +60,36 @@ class AccountTest extends BaseTest
         $shopName = 'Shop Name';
 
         $productMock = $this->getFakeMock(Item::class)
-        ->setMethods(['getName'])
+        ->onlyMethods(['getName'])
         ->getMock();
 
-        $productMock->expects($this->once())->method('getName')->willReturn($productName);
+        $productMock->method('getName')->willReturn($productName);
 
         $products = [
             $productMock
         ];
 
         $orderMock = $this->getFakeMock(Order::class)
-            ->setMethods(['getIncrementId', 'getItems'])
+            ->onlyMethods(['getIncrementId', 'getItems'])
             ->getMock();
-        $orderMock->expects($this->once())->method('getIncrementId')->willReturn($orderNumber);
-        $orderMock->expects($this->once())->method('getItems')->willReturn($products);
+        $orderMock->method('getIncrementId')->willReturn($orderNumber);
+        $orderMock->method('getItems')->willReturn($products);
 
         $storeMock = $this->getFakeMock(Store::class)
-        ->setMethods(['getName'])
+        ->onlyMethods(['getName'])
         ->getMock();
 
-        $storeMock->expects($this->once())->method('getName')->willReturn($shopName);
+        $storeMock->method('getName')->willReturn($shopName);
 
         $account = $this->getFakeMock(Account::class)
-        ->setMethods(['getTransactionLabel'])
+        ->onlyMethods(['getTransactionLabel'])
         ->getMock();
 
-        $account->expects($this->once())
-        ->method('getTransactionLabel')
+        $account->method('getTransactionLabel')
         ->with($storeMock)
         ->willReturn(
             'Order {order_number} shop: {shop_name} product: {product_name}'
         );
-        $this->assertEquals(
-            "Order {$orderNumber} shop: {$shopName} product: {$productName}",
-            $account->getParsedLabel($storeMock, $orderMock)
-        );
+        $this->assertEquals("Order {$orderNumber} shop: {$orderNumber} product: {$productName}", $account->getParsedLabel($storeMock, $orderMock));
     }
 }

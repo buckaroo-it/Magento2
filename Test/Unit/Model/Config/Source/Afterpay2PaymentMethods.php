@@ -31,7 +31,7 @@ class Afterpay2PaymentMethodsTest extends BaseTest
     /**
      * @return array
      */
-    public function toOptionArrayProvider()
+    public static function toOptionArrayProvider()
     {
         return [
             [
@@ -53,6 +53,6 @@ class Afterpay2PaymentMethodsTest extends BaseTest
         $instance = $this->getInstance();
         $result = $instance->toOptionArray();
 
-        $this->assertContains($paymentOption, $result);
+        $this->assertTrue(in_array($paymentOption, $result));
     }
 }

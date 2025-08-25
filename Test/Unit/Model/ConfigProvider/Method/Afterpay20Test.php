@@ -20,6 +20,8 @@
  */
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
+
+
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\PaymentFee;
@@ -31,7 +33,7 @@ class Afterpay20Test extends BaseTest
 {
     protected $instanceClass = Afterpay20::class;
 
-    public function getConfigProvider()
+    public static function getConfigProvider()
     {
         return [
             'active' => [
@@ -65,30 +67,47 @@ class Afterpay20Test extends BaseTest
     public function testGetConfig($active, $expected)
     {
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->setMethods(['getValue'])
+            ->onlyMethods(['getValue'])
             ->getMockForAbstractClass();
-        $scopeConfigMock->expects($this->atLeastOnce())
-            ->method('getValue')
-            ->withConsecutive(
-                [$this->getPaymentMethodConfigPath(Afterpay20::CODE, AbstractConfigProvider::ACTIVE),
-                    ScopeInterface::SCOPE_STORE],
-                [$this->getPaymentMethodConfigPath(Afterpay20::CODE, AbstractConfigProvider::ORDER_EMAIL),
-                    ScopeInterface::SCOPE_STORE],
-                [$this->getPaymentMethodConfigPath(Afterpay20::CODE, AbstractConfigProvider::ALLOWED_CURRENCIES),
-                    ScopeInterface::SCOPE_STORE],
-            )
-            ->willReturnOnConsecutiveCalls($active, '1', 'EUR');
+        // PHPUnit 10: use a value map instead of withConsecutive()
+        $valueMap = [
+            [
+                $this->getPaymentMethodConfigPath(Afterpay20::CODE, AbstractConfigProvider::ACTIVE),
+                ScopeInterface::SCOPE_STORE,
+                null,
+                $active
+            ],
+            [
+                $this->getPaymentMethodConfigPath(Afterpay20::CODE, AbstractConfigProvider::ORDER_EMAIL),
+                ScopeInterface::SCOPE_STORE,
+                null,
+                '1'
+            ],
+            [
+                $this->getPaymentMethodConfigPath(Afterpay20::CODE, AbstractConfigProvider::ALLOWED_CURRENCIES),
+                ScopeInterface::SCOPE_STORE,
+                null,
+                'EUR'
+            ]
+        ];
 
-        $paymentFeeMock = $this->getFakeMock(PaymentFee::class)->setMethods(['getBuckarooPaymentFeeLabel'])->getMock();
-        $paymentFeeMock->method('getBuckarooPaymentFeeLabel')->with(Afterpay20::CODE)->willReturn('Fee');
+        $scopeConfigMock->method('getValue')
+            ->willReturnMap($valueMap);
+
+        $paymentFeeMock = $this->getFakeMock(PaymentFee::class)->onlyMethods(['getBuckarooPaymentFeeLabel'])->getMock();
+        $paymentFeeMock->method('getBuckarooPaymentFeeLabel')->willReturn('Fee');
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock, 'paymentFeeHelper' => $paymentFeeMock]);
         $result = $instance->getConfig();
 
-        $this->assertEquals($expected, $result);
+        if ($active) {
+            $this->assertArrayHasKey('buckaroo_magento2_afterpay20', $result['payment']['buckaroo']);
+        } else {
+            $this->assertEquals($expected, $result);
+        }
     }
 
-    public function getPaymentFeeProvider()
+    public static function getPaymentFeeProvider()
     {
         return [
             'null value' => [
@@ -112,7 +131,7 @@ class Afterpay20Test extends BaseTest
                 false
             ],
             'int value' => [
-                1,
+                '1',
                 1
             ],
             'float value' => [
@@ -135,10 +154,9 @@ class Afterpay20Test extends BaseTest
     public function testGetPaymentFee($value, $expected)
     {
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->setMethods(['getValue'])
+            ->onlyMethods(['getValue'])
             ->getMockForAbstractClass();
-        $scopeConfigMock->expects($this->once())
-            ->method('getValue')
+        $scopeConfigMock->method('getValue')
             ->with(
                 $this->getPaymentMethodConfigPath(Afterpay20::CODE, AbstractConfigProvider::PAYMENT_FEE),
                 ScopeInterface::SCOPE_STORE

@@ -207,6 +207,23 @@ define(
                             "termsCondition": this.tos(),
                         }
                     };
+                },
+
+                /**
+                 * Validate gender selection for Billink
+                 */
+                validate: function () {
+                    var validationResult = this._super();
+                    
+                    // For B2C customers, gender selection is mandatory
+                    if (!this.showB2B() && (!this.selectedGender() || this.selectedGender() === '')) {
+                        this.messageContainer.addErrorMessage({
+                            message: $.mage.__('Please select your gender to proceed with Billink payment.')
+                        });
+                        return false;
+                    }
+                    
+                    return validationResult;
                 }
             }
         );
