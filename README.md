@@ -40,7 +40,7 @@ We recommend you to install the Buckaroo Magento 2 Payments plugin with composer
 
 **Run the following commands in the Magento 2 root folder:**
 ```
-composer require buckaroo/magento2:2.0.0-RC2
+composer require buckaroo/magento2:2.0.0-RC3
 php bin/magento module:enable Buckaroo_Magento2
 php bin/magento setup:upgrade
 php bin/magento setup:di:compile
@@ -54,7 +54,7 @@ php bin/magento setup:static-content:deploy
 To do this, please run the following commands in your Magento 2 root folder:**
 
 ```
-composer update buckaroo/magento2:2.0.0-RC2
+composer update buckaroo/magento2:2.0.0-RC3
 php bin/magento setup:upgrade
 php bin/magento setup:di:compile
 php bin/magento setup:static-content:deploy
