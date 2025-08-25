@@ -105,19 +105,6 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
         return $birthDayStamp;
     }
 
-    /**
-     * Determines whether the customer type configuration allows B2B customers.
-     *
-     * @param int|null $storeId
-     * @return bool
-     * @throws LocalizedException
-     */
-    private function isCustomerB2B(?int $storeId = null): bool
-    {
-        $customerType = $this->getConfigData('customer_type', $storeId);
-
-        return $customerType !== BillinkCustomerType::CUSTOMER_TYPE_B2C;
-    }
 
     /**
      * Check if company is empty
