@@ -40,6 +40,12 @@
                 sortOrder="1"/>
     </type>
 
+    <type name="Magento\Sales\Api\OrderManagementInterface">
+        <plugin name="buckaroo_order_management_stock_fix"
+                type="Buckaroo\Magento2\Plugin\OrderManagement"
+                sortOrder="10"/>
+    </type>
+
     // TODO: check those two plugins if they are working after this change
     <type name="Onestepcheckout\Iosc\Plugin\GuestSaveManager">
         <plugin name="buckaroo_guest_save_manager" type="Buckaroo\Magento2\Plugin\GuestSaveManager" sortOrder="10" />
