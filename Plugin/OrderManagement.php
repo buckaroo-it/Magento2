@@ -23,6 +23,8 @@ namespace Buckaroo\Magento2\Plugin;
 use Magento\Sales\Api\OrderManagementInterface;
 use Buckaroo\Magento2\Model\Service\OrderCancellationService;
 use Buckaroo\Magento2\Logging\Log;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Framework\App\ResourceConnection;
 
 /**
  * Plugin to prevent stock release when canceling orders that never reserved stock
@@ -40,15 +42,31 @@ class OrderManagement
     private $logger;
 
     /**
+     * @var OrderRepositoryInterface
+     */
+    private $orderRepository;
+
+    /**
+     * @var ResourceConnection
+     */
+    private $resourceConnection;
+
+    /**
      * @param OrderCancellationService $orderCancellationService
      * @param Log $logger
+     * @param ResourceConnection $resourceConnection
+     * @param OrderRepositoryInterface $orderRepository
      */
     public function __construct(
         OrderCancellationService $orderCancellationService,
-        Log $logger
+        Log $logger,
+        ResourceConnection $resourceConnection,
+        OrderRepositoryInterface $orderRepository
     ) {
         $this->orderCancellationService = $orderCancellationService;
         $this->logger = $logger;
+        $this->resourceConnection = $resourceConnection;
+        $this->orderRepository = $orderRepository;
     }
 
     /**
@@ -60,9 +78,7 @@ class OrderManagement
     public function beforeCancel(OrderManagementInterface $subject, $orderId)
     {
         try {
-            $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-            $orderRepository = $objectManager->get(\Magento\Sales\Api\OrderRepositoryInterface::class);
-            $order = $orderRepository->get($orderId);
+            $order = $this->orderRepository->get($orderId);
 
             $this->logger->addDebug(sprintf(
                 '[ORDER_CANCEL_PLUGIN] Checking order %s (State: %s, Status: %s, Payment: %s)',
@@ -137,10 +153,8 @@ class OrderManagement
     private function wasStockReservedForOrder($order): bool
     {
         try {
-            $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-            $resourceConnection = $objectManager->get(\Magento\Framework\App\ResourceConnection::class);
-            $connection = $resourceConnection->getConnection();
-            $table = $resourceConnection->getTableName('inventory_reservation');
+            $connection = $this->resourceConnection->getConnection();
+            $table = $this->resourceConnection->getTableName('inventory_reservation');
 
             $select = $connection->select()
                 ->from($table, ['cnt' => new \Zend_Db_Expr('COUNT(*)')])
