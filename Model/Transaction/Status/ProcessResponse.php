@@ -21,6 +21,7 @@
 
 namespace Buckaroo\Magento2\Model\Transaction\Status;
 
+use Buckaroo\Magento2\Model\Service\OrderCancellationService;
 use Magento\Sales\Model\Order;
 use Magento\Checkout\Model\Session;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
@@ -63,14 +64,21 @@ class ProcessResponse
 
     protected $paymentConfig;
 
+    /**
+     * @var OrderCancellationService
+     */
+    private $orderCancellationService;
+
     public function __construct(
         OrderStatusFactory $statusFactory,
         ConfigFactory $configFactory,
-        Session $checkoutSession
+        Session $checkoutSession,
+        OrderCancellationService $orderCancellationService
     ) {
         $this->statusFactory = $statusFactory;
         $this->configFactory = $configFactory;
         $this->checkoutSession = $checkoutSession;
+        $this->orderCancellationService = $orderCancellationService;
     }
     public function process(
         TransactionResponseInterface $response,
@@ -191,9 +199,7 @@ class ProcessResponse
     protected function cancelOrder()
     {
         if (!$this->order->isCanceled()) {
-            $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-            $orderCancellationService = $objectManager->get(\Buckaroo\Magento2\Model\Service\OrderCancellationService::class);
-            $orderCancellationService->cancelOrder($this->order, 'Transaction failed.', true);
+            $this->orderCancellationService->cancelOrder($this->order, 'Transaction failed.', true);
         }
     }
     /**
