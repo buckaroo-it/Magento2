@@ -323,7 +323,9 @@ class Order
                 $methodInstanceClass::$requestOnVoid = false;
             }
 
-            $order->cancel();
+            $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+            $orderCancellationService = $objectManager->get(\Buckaroo\Magento2\Model\Service\OrderCancellationService::class);
+            $orderCancellationService->cancelOrder($order, $statusMessage, true);
 
             $failedStatus = $this->orderStatusFactory->get($statusCode, $order);
 

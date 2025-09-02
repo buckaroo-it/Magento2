@@ -20,9 +20,8 @@
 
 namespace Buckaroo\Magento2\Plugin;
 
-use Magento\Framework\App\ResourceConnection;
 use Magento\Sales\Api\OrderManagementInterface;
-use Magento\Sales\Model\Order;
+use Buckaroo\Magento2\Model\Service\OrderCancellationService;
 use Buckaroo\Magento2\Logging\Log;
 
 /**
@@ -31,9 +30,9 @@ use Buckaroo\Magento2\Logging\Log;
 class OrderManagement
 {
     /**
-     * @var ResourceConnection
+     * @var OrderCancellationService
      */
-    private $resourceConnection;
+    private $orderCancellationService;
 
     /**
      * @var Log
@@ -41,14 +40,14 @@ class OrderManagement
     private $logger;
 
     /**
-     * @param ResourceConnection $resourceConnection
+     * @param OrderCancellationService $orderCancellationService
      * @param Log $logger
      */
     public function __construct(
-        ResourceConnection $resourceConnection,
+        OrderCancellationService $orderCancellationService,
         Log $logger
     ) {
-        $this->resourceConnection = $resourceConnection;
+        $this->orderCancellationService = $orderCancellationService;
         $this->logger = $logger;
     }
 
@@ -92,7 +91,7 @@ class OrderManagement
                         $order->getIncrementId()
                     ));
 
-                    $this->cancelOrderWithoutStockRelease($order);
+                    $this->orderCancellationService->cancelOrder($order, 'Manual cancellation from admin panel.', false);
 
                     throw new \Exception('Order canceled without stock release');
                 }
@@ -112,10 +111,10 @@ class OrderManagement
     /**
      * Check if this is a Buckaroo order in pending state
      *
-     * @param Order $order
+     * @param \Magento\Sales\Model\Order $order
      * @return bool
      */
-    private function isBuckarooPendingOrder(Order $order): bool
+    private function isBuckarooPendingOrder($order): bool
     {
         $payment = $order->getPayment();
         if (!$payment) {
@@ -124,7 +123,7 @@ class OrderManagement
 
         $method = $payment->getMethod();
         $isBuckaroo = strpos($method, 'buckaroo_magento2_') === 0;
-        $isPending = $order->getState() === Order::STATE_NEW && $order->getStatus() === 'pending';
+        $isPending = $order->getState() === \Magento\Sales\Model\Order::STATE_NEW && $order->getStatus() === 'pending';
 
         return $isBuckaroo && $isPending;
     }
@@ -132,14 +131,16 @@ class OrderManagement
     /**
      * Check if stock was actually reserved for this order
      *
-     * @param Order $order
+     * @param \Magento\Sales\Model\Order $order
      * @return bool
      */
-    private function wasStockReservedForOrder(Order $order): bool
+    private function wasStockReservedForOrder($order): bool
     {
         try {
-            $connection = $this->resourceConnection->getConnection();
-            $table = $this->resourceConnection->getTableName('inventory_reservation');
+            $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+            $resourceConnection = $objectManager->get(\Magento\Framework\App\ResourceConnection::class);
+            $connection = $resourceConnection->getConnection();
+            $table = $resourceConnection->getTableName('inventory_reservation');
 
             $select = $connection->select()
                 ->from($table, ['cnt' => new \Zend_Db_Expr('COUNT(*)')])
@@ -158,35 +159,6 @@ class OrderManagement
         } catch (\Throwable $e) {
             $this->logger->addDebug('[STOCK_CHECK] Error checking stock reservations: ' . $e->getMessage());
             return true;
-        }
-    }
-
-    /**
-     * Cancel the order without releasing stock
-     *
-     * @param Order $order
-     * @return void
-     */
-    private function cancelOrderWithoutStockRelease(Order $order): void
-    {
-        try {
-            $order->setState(Order::STATE_CANCELED);
-            $order->setStatus(Order::STATE_CANCELED);
-
-            $order->addCommentToStatusHistory(
-                __('Order canceled manually. No stock was released as this order never reserved inventory.'),
-                false,
-                false
-            );
-
-            $order->save();
-
-            $this->logger->addDebug(sprintf(
-                '[ORDER_CANCEL_PLUGIN] Order %s canceled without stock release',
-                $order->getIncrementId()
-            ));
-        } catch (\Throwable $e) {
-            $this->logger->addDebug('[ORDER_CANCEL_PLUGIN] Error canceling order without stock release: ' . $e->getMessage());
         }
     }
 }

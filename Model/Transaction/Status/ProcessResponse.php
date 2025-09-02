@@ -108,10 +108,10 @@ class ProcessResponse
     protected function isProcessing()
     {
         return $this->response->isStatusCode([
-            Response::STATUSCODE_WAITING_ON_USER_INPUT, 
-            Response::STATUSCODE_PENDING_PROCESSING,    
-            Response::STATUSCODE_WAITING_ON_CONSUMER,   
-            Response::STATUSCODE_PAYMENT_ON_HOLD,      
+            Response::STATUSCODE_WAITING_ON_USER_INPUT,
+            Response::STATUSCODE_PENDING_PROCESSING,
+            Response::STATUSCODE_WAITING_ON_CONSUMER,
+            Response::STATUSCODE_PAYMENT_ON_HOLD,
         ]);
     }
 
@@ -191,11 +191,13 @@ class ProcessResponse
     protected function cancelOrder()
     {
         if (!$this->order->isCanceled()) {
-            $this->order->cancel();
+            $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+            $orderCancellationService = $objectManager->get(\Buckaroo\Magento2\Model\Service\OrderCancellationService::class);
+            $orderCancellationService->cancelOrder($this->order, 'Transaction failed.', true);
         }
     }
     /**
-     * Set class properties 
+     * Set class properties
      *
      * @return void
      */

@@ -897,7 +897,7 @@ class Push implements PushInterface
             $this->logging->addDebug(__METHOD__ . '|Payment object is null for order ' . $this->order->getIncrementId());
             return false;
         }
-        
+
         $savedInvoiceKey = (string)$payment->getAdditionalInformation('buckaroo_cm3_invoice_key');
 
         if (isset($this->postData['brq_invoicekey'])
@@ -1354,11 +1354,9 @@ class Push implements PushInterface
         if ($payment->getMethod() == PayPerEmail::PAYMENT_METHOD_CODE) {
             $this->logging->addDebug(__METHOD__ . '|Handling PayPerEmail cancellation|');
             if ($this->order->canCancel()) {
-                $this->order->cancel();
-                $this->order->addStatusHistoryComment(
-                    __('Order canceled due to PayPerEmail transaction failure: %1', $message)
-                );
-                $this->order->save();
+                $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+                $orderCancellationService = $objectManager->get(\Buckaroo\Magento2\Model\Service\OrderCancellationService::class);
+                $orderCancellationService->cancelOrder($this->order, sprintf('PayPerEmail transaction failure: %s', $message), true);
 
                 // Void any existing invoices
                 foreach ($this->order->getInvoiceCollection() as $invoice) {
@@ -1397,7 +1395,9 @@ class Push implements PushInterface
             $this->updateOrderStatus(Order::STATE_CANCELED, $newStatus, $description);
 
             try {
-                $this->order->cancel()->save();
+                $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+                $orderCancellationService = $objectManager->get(\Buckaroo\Magento2\Model\Service\OrderCancellationService::class);
+                $orderCancellationService->cancelOrder($this->order, $description, true);
             } catch (\Throwable $th) {
                 $this->logging->addError(sprintf(
                     '[%s:%s] - Process failed push from Buckaroo. Cancel Order| [ERROR]: %s',
@@ -2097,11 +2097,9 @@ class Push implements PushInterface
             // Cancel the order and void any invoices
             if ($this->order->canCancel()) {
                 $this->logging->addDebug(__METHOD__ . '|Canceling order for PayPerEmail failure|');
-                $this->order->cancel();
-                $this->order->addStatusHistoryComment(
-                    __('Order canceled due to PayPerEmail transaction failure: %1', $this->postData['brq_statusmessage'])
-                );
-                $this->order->save();
+                $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+                $orderCancellationService = $objectManager->get(\Buckaroo\Magento2\Model\Service\OrderCancellationService::class);
+                $orderCancellationService->cancelOrder($this->order, sprintf('PayPerEmail transaction failure: %s', $this->postData['brq_statusmessage']), true);
 
                 // Void any existing invoices
                 foreach ($this->order->getInvoiceCollection() as $invoice) {

@@ -94,7 +94,9 @@ class Cancel
             $payment->save();
         }
 
-        $order->cancel()->save();
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $orderCancellationService = $objectManager->get(\Buckaroo\Magento2\Model\Service\OrderCancellationService::class);
+        $orderCancellationService->cancelOrder($order, 'Cancelled by consumer.', true);
     }
 
     /**
