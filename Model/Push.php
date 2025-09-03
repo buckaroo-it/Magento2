@@ -1039,27 +1039,73 @@ class Push implements PushInterface
 
     private function updateCm3InvoiceStatus()
     {
-        $isPaid     = filter_var(strtolower($this->postData['brq_ispaid']), FILTER_VALIDATE_BOOLEAN);
+        $isPaid     = filter_var(strtolower($this->postData['brq_ispaid'] ?? ''), FILTER_VALIDATE_BOOLEAN);
         $canInvoice = ($this->order->canInvoice() && !$this->order->hasInvoices());
         $store      = $this->order->getStore();
 
-        $amount        = floatval($this->postData['brq_amountdebit']);
-        $amount        = $this->order->getBaseCurrency()->formatTxt($amount);
-        $statusMessage = 'Payment push status : Creditmanagement invoice with a total amount of '
-            . $amount . ' has been paid';
+        $debitFloat   = (float)($this->postData['brq_amountdebit'] ?? 0);
+        $creditnFloat = (float)($this->postData['brq_amountcreditnotes'] ?? 0);
+        $debitCents   = (int)round($debitFloat * 100);
+        $creditCents  = (int)round($creditnFloat * 100);
 
-        if (!$isPaid && !$canInvoice) {
-            $statusMessage = 'Payment push status : Creditmanagement invoice has been (partially) refunded';
+        $event = strtolower((string)($this->postData['brq_event'] ?? ''));
+        $src   = strtolower((string)($this->postData['brq_eventparameters_triggersource'] ?? ''));
+
+        $isCreditNoteEvent = ($event === 'createdcreditnote' || $src === 'creditnotefromgateway');
+        $zeroNet = ($debitCents > 0 && $debitCents === $creditCents);
+
+        if ($isCreditNoteEvent) {
+            if ($debitCents > 0 && $creditCents > 0 && $creditCents < $debitCents) {
+                $statusMessage = sprintf(
+                    'Payment push status: Creditmanagement invoice partially refunded (debit=%s, creditNotes=%s, open=%s)',
+                    number_format($debitFloat, 2, '.', ''),
+                    number_format($creditnFloat, 2, '.', ''),
+                    number_format(max(($debitCents - $creditCents)/100, 0), 2, '.', '')
+                );
+            } elseif ($zeroNet) {
+                $statusMessage = sprintf(
+                    'Payment push status: Creditmanagement invoice fully refunded (debit=%s, creditNotes=%s)',
+                    number_format($debitFloat, 2, '.', ''),
+                    number_format($creditnFloat, 2, '.', '')
+                );
+            } else {
+                $statusMessage = sprintf(
+                    'Payment push status: Credit note created (debit=%s, creditNotes=%s)',
+                    number_format($debitFloat, 2, '.', ''),
+                    number_format($creditnFloat, 2, '.', '')
+                );
+            }
+
+            $this->updateOrderStatus($this->order->getState(), $this->order->getStatus(), $statusMessage);
+            return true;
         }
 
-        if (!$isPaid && $canInvoice) {
+        if ($isPaid && $debitCents > 0 && $creditCents === 0) {
+            $amountTxt     = $this->order->getBaseCurrency()->formatTxt($debitFloat);
+            $statusMessage = 'Payment push status : Creditmanagement invoice with a total amount of '
+                . $amountTxt . ' has been paid';
+        } elseif ($creditCents > 0 && $creditCents < $debitCents) {
+            $statusMessage = sprintf(
+                'Payment push status: Creditmanagement invoice partially refunded (debit=%s, creditNotes=%s)',
+                number_format($debitFloat, 2, '.', ''),
+                number_format($creditnFloat, 2, '.', '')
+            );
+        } elseif (!$isPaid && $canInvoice) {
             $statusMessage = 'Payment push status : Waiting for consumer';
+        } else {
+            $statusMessage = sprintf(
+                'Payment push status: debit=%s, creditNotes=%s, paid=%s',
+                number_format($debitFloat, 2, '.', ''),
+                number_format($creditnFloat, 2, '.', ''),
+                $isPaid ? 'true' : 'false'
+            );
         }
 
-        if ($isPaid && $canInvoice) {
+        if ($isPaid && $canInvoice && $creditCents === 0 && $debitCents > 0) {
             $originalKey                        = AbstractMethod::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY;
             $this->postData['brq_transactions'] = $this->order->getPayment()->getAdditionalInformation($originalKey);
             $this->postData['brq_amount']       = $this->postData['brq_amountdebit'];
+            $this->logging->addDebug(__METHOD__ . '|This can be invoiced CM3');
 
             if (!$this->saveInvoice()) {
                 return false;
@@ -1067,7 +1113,6 @@ class Push implements PushInterface
         }
 
         $this->updateOrderStatus($this->order->getState(), $this->order->getStatus(), $statusMessage);
-
         return true;
     }
 
