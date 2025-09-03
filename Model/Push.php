@@ -42,6 +42,7 @@ use Buckaroo\Magento2\Model\Method\SepaDirectDebit;
 use Buckaroo\Magento2\Model\Method\Transfer;
 use Buckaroo\Magento2\Model\Method\Voucher;
 use Buckaroo\Magento2\Model\Refund\Push as RefundPush;
+use Buckaroo\Magento2\Model\Service\OrderCancellationService;
 use Buckaroo\Magento2\Model\Validator\Push as ValidatorPush;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Filesystem\DirectoryList;
@@ -173,6 +174,11 @@ class Push implements PushInterface
     protected FilterBuilder $filterBuilder;
 
     /**
+     * @var OrderCancellationService
+     */
+    private $orderCancellationService;
+
+    /**
      * @param TransactionRepositoryInterface $transactionRepository
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param FilterBuilder $filterBuilder
@@ -196,6 +202,7 @@ class Push implements PushInterface
      * @param ConfigProvider\Method\Afterpay20 $afterpayConfig
      * @param File $fileSystemDriver
      * @param LockManagerWrapper $lockManager
+     * @param OrderCancellationService $orderCancellationService
      */
     public function __construct(
         TransactionRepositoryInterface $transactionRepository,
@@ -220,7 +227,8 @@ class Push implements PushInterface
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp $klarnakpConfig,
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20 $afterpayConfig,
         File $fileSystemDriver,
-        LockManagerWrapper $lockManager
+        LockManagerWrapper $lockManager,
+        OrderCancellationService $orderCancellationService
     ) {
         $this->transactionRepository       = $transactionRepository;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
@@ -246,6 +254,7 @@ class Push implements PushInterface
         $this->afterpayConfig     = $afterpayConfig;
         $this->fileSystemDriver   = $fileSystemDriver;
         $this->lockManager = $lockManager;
+        $this->orderCancellationService = $orderCancellationService;
     }
 
     /**
@@ -897,7 +906,7 @@ class Push implements PushInterface
             $this->logging->addDebug(__METHOD__ . '|Payment object is null for order ' . $this->order->getIncrementId());
             return false;
         }
-        
+
         $savedInvoiceKey = (string)$payment->getAdditionalInformation('buckaroo_cm3_invoice_key');
 
         if (isset($this->postData['brq_invoicekey'])
@@ -1354,11 +1363,7 @@ class Push implements PushInterface
         if ($payment->getMethod() == PayPerEmail::PAYMENT_METHOD_CODE) {
             $this->logging->addDebug(__METHOD__ . '|Handling PayPerEmail cancellation|');
             if ($this->order->canCancel()) {
-                $this->order->cancel();
-                $this->order->addStatusHistoryComment(
-                    __('Order canceled due to PayPerEmail transaction failure: %1', $message)
-                );
-                $this->order->save();
+                $this->orderCancellationService->cancelOrder($this->order, sprintf('PayPerEmail transaction failure: %s', $message), true);
 
                 // Void any existing invoices
                 foreach ($this->order->getInvoiceCollection() as $invoice) {
@@ -1397,7 +1402,7 @@ class Push implements PushInterface
             $this->updateOrderStatus(Order::STATE_CANCELED, $newStatus, $description);
 
             try {
-                $this->order->cancel()->save();
+                $this->orderCancellationService->cancelOrder($this->order, $description, true);
             } catch (\Throwable $th) {
                 $this->logging->addError(sprintf(
                     '[%s:%s] - Process failed push from Buckaroo. Cancel Order| [ERROR]: %s',
@@ -2097,11 +2102,7 @@ class Push implements PushInterface
             // Cancel the order and void any invoices
             if ($this->order->canCancel()) {
                 $this->logging->addDebug(__METHOD__ . '|Canceling order for PayPerEmail failure|');
-                $this->order->cancel();
-                $this->order->addStatusHistoryComment(
-                    __('Order canceled due to PayPerEmail transaction failure: %1', $this->postData['brq_statusmessage'])
-                );
-                $this->order->save();
+                $this->orderCancellationService->cancelOrder($this->order, sprintf('PayPerEmail transaction failure: %s', $this->postData['brq_statusmessage']), true);
 
                 // Void any existing invoices
                 foreach ($this->order->getInvoiceCollection() as $invoice) {
