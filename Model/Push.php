@@ -1106,21 +1106,44 @@ class Push implements PushInterface
     {
         $payment = $this->order->getPayment();
 
-        if ($payment->getMethod() != Giftcards::PAYMENT_METHOD_CODE
-            || (isset($this->postData['brq_amount']) && $this->postData['brq_amount'] >= $this->order->getGrandTotal())
-            || empty($this->postData['brq_relatedtransaction_partialpayment'])
-        ) {
+        if ($payment->getMethod() != Giftcards::PAYMENT_METHOD_CODE) {
             return false;
         }
+
+        $isPartialAmount = isset($this->postData['brq_amount']) && $this->postData['brq_amount'] < $this->order->getGrandTotal();
+
+        $hasPartialFlag = !empty($this->postData['brq_relatedtransaction_partialpayment']);
+
+        $isCaptureTransaction = (
+            (isset($this->postData['brq_transaction_type']) && $this->postData['brq_transaction_type'] === 'C800') ||
+            (isset($this->postData['brq_mutationtype']) && strtolower($this->postData['brq_mutationtype']) === 'collecting')
+        );
+
+        $isPartialPayment = ($isPartialAmount && $hasPartialFlag) || ($isPartialAmount && $isCaptureTransaction);
+
+        if (!$isPartialPayment) {
+            return false;
+        }
+
+        $this->logging->addDebug(__METHOD__ . '|PARTIAL_GIFTCARD_DETECTED|' . var_export([
+            'payment_amount' => $this->postData['brq_amount'] ?? 'not_set',
+            'order_total' => $this->order->getGrandTotal(),
+            'has_partial_flag' => $hasPartialFlag,
+            'is_capture' => $isCaptureTransaction
+        ], true));
 
         if ($this->groupTransaction->isGroupTransaction($this->postData['brq_invoicenumber'])) {
             return false;
         }
 
         if (!$this->isGroupTransactionInfoType()) {
+            $transactionKey = $hasPartialFlag
+                ? $this->postData['brq_relatedtransaction_partialpayment']
+                : ($this->postData['brq_transactions'] ?? '');
+
             $payment->setAdditionalInformation(
                 AbstractMethod::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY,
-                $this->postData['brq_relatedtransaction_partialpayment']
+                $transactionKey
             );
 
             $this->addGiftcardPartialPaymentToPaymentInformation();
