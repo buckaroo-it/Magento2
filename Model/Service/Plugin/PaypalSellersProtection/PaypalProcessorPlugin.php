@@ -17,23 +17,22 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Service\Plugin\PaypalSellersProtection;
 
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Paypal;
+use Buckaroo\Magento2\Model\Push\DefaultProcessor;
+use Buckaroo\Magento2\Model\Push\PaypalProcessor;
 use Magento\Sales\Model\Order;
 
-class Push
+class PaypalProcessorPlugin
 {
-    /**#@+
-     * PayPal Seller's Protection eligibility types.
-     */
     public const ELIGIBILITY_INELIGIBLE = 'Ineligible';
     public const ELIGIBILITY_TYPE_ELIGIBLE = 'Eligible';
     public const ELIGIBILITY_TYPE_ITEM_NOT_RECEIVED = 'ItemNotReceivedEligible';
     public const ELIGIBILITY_TYPE_UNAUTHORIZED_PAYMENT = 'UnauthorizedPaymentEligible';
     public const ELIGIBILITY_TYPE_NONE = 'None';
-    /**#@-*/
 
     /**
      * @var Paypal
@@ -50,43 +49,50 @@ class Push
     }
 
     /**
-     * Change status on order by PayPal status
+     * Append Seller Protection info after success processing
      *
-     * @param \Buckaroo\Magento2\Model\Push $push
+     * @param DefaultProcessor|PaypalProcessor $subject
      * @param boolean $result
+     * @param string $newStatus
+     * @param string $message
      * @return bool
-     * @throws \InvalidArgumentException
      */
     public function afterProcessSucceededPush(
-        \Buckaroo\Magento2\Model\Push $push,
-        $result
+        DefaultProcessor $subject,
+        $result,
+        string $newStatus,
+        string $message
     ) {
+        if (!$subject instanceof PaypalProcessor) {
+            return $result;
+        }
+
+        $pushRequest = $this->getProtectedProperty($subject, 'pushRequest');
+        $order = $this->getProtectedProperty($subject, 'order');
+
         if (!$this->configProviderPaypal->getSellersProtection()
-            || empty($push->pushRequest->getServicePaypalProtectioneligibility())
-            || empty($push->pushRequest->getServicePaypalProtectioneligibilitytype())
+            || empty($pushRequest) || empty($order)
         ) {
             return $result;
         }
 
-        $eligibilityTypes =
-            static::ELIGIBILITY_INELIGIBLE !== $push->pushRequest->getServicePaypalProtectioneligibility()
-                ? $push->pushRequest->getServicePaypalProtectioneligibilitytype()
-                : static::ELIGIBILITY_TYPE_NONE;
+        $eligibility = $pushRequest->getServicePaypalProtectioneligibility();
+        $eligibilityType = $pushRequest->getServicePaypalProtectioneligibilitytype();
 
-        // Handle the given eligibility types separately,
-        // since we know Buckaroo can provide us with
-        // multiple types in a single response.
-        $this->handleEligibilityTypes(
-            explode(',', $eligibilityTypes),
-            $push->order
-        );
+        if (empty($eligibility) || empty($eligibilityType)) {
+            return $result;
+        }
+
+        $eligibilityTypes = self::ELIGIBILITY_INELIGIBLE !== $eligibility
+            ? $eligibilityType
+            : self::ELIGIBILITY_TYPE_NONE;
+
+        $this->handleEligibilityTypes(explode(',', $eligibilityTypes), $order);
 
         return $result;
     }
 
     /**
-     * Proxy the handling of eligibility types.
-     *
      * @param string|string[] $eligibilityTypes
      * @param Order $order
      * @return void
@@ -97,53 +103,67 @@ class Push
             $eligibilityTypes = [$eligibilityTypes];
         }
 
-        // Append multiple status updates to the order,
-        // this way the merchant has a more detailed
-        // log of what is happening with payments.
         array_walk($eligibilityTypes, function ($eligibilityType) use ($order) {
             $this->handleEligibilityType($eligibilityType, $order);
         });
     }
 
     /**
-     * Handle the specified eligibility type.
-     *
      * @param string $eligibilityType
      * @param Order $order
      * @return void
-     * @throws \InvalidArgumentException
      */
     protected function handleEligibilityType($eligibilityType, $order)
     {
         switch ($eligibilityType) {
-            case static::ELIGIBILITY_TYPE_ELIGIBLE:
+            case self::ELIGIBILITY_TYPE_ELIGIBLE:
                 $comment = __(
-                    'Merchant is protected by PayPal Seller Protection Policy for both Unauthorized Payment and Item' .
-                    ' Not Received.'
+                    'Merchant is protected by PayPal Seller Protection Policy for both Unauthorized Payment and Item'
+                    . ' Not Received.'
                 );
 
                 $status = $this->configProviderPaypal->getSellersProtectionEligible();
                 break;
-            case static::ELIGIBILITY_TYPE_ITEM_NOT_RECEIVED:
+            case self::ELIGIBILITY_TYPE_ITEM_NOT_RECEIVED:
                 $comment = __('Merchant is protected by Paypal Seller Protection Policy for Item Not Received.');
 
                 $status = $this->configProviderPaypal->getSellersProtectionItemnotreceivedEligible();
                 break;
-            case static::ELIGIBILITY_TYPE_UNAUTHORIZED_PAYMENT:
+            case self::ELIGIBILITY_TYPE_UNAUTHORIZED_PAYMENT:
                 $comment = __('Merchant is protected by Paypal Seller Protection Policy for Unauthorized Payment.');
 
                 $status = $this->configProviderPaypal->getSellersProtectionUnauthorizedpaymentEligible();
                 break;
-            case static::ELIGIBILITY_TYPE_NONE:
+            case self::ELIGIBILITY_TYPE_NONE:
                 $comment = __('Merchant is not protected under the Seller Protection Policy.');
 
                 $status = $this->configProviderPaypal->getSellersProtectionIneligible();
                 break;
             default:
                 throw new \InvalidArgumentException('Invalid eligibility type(s): ' . $eligibilityType);
-                //phpcs:ignore:Squiz.PHP.NonExecutableCode
-                break;
         }
+
         $order->addCommentToStatusHistory($comment, $status ?: false);
     }
+
+    /**
+     * @param object $subject
+     * @param string $name
+     * @return mixed|null
+     */
+    private function getProtectedProperty(object $subject, string $name)
+    {
+        $ref = new \ReflectionClass($subject);
+        do {
+            if ($ref->hasProperty($name)) {
+                $prop = $ref->getProperty($name);
+                $prop->setAccessible(true);
+                return $prop->getValue($subject);
+            }
+            $ref = $ref->getParentClass();
+        } while ($ref);
+        return null;
+    }
 }
+
+
