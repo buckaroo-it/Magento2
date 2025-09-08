@@ -19,7 +19,7 @@
  */
 declare(strict_types=1);
 
-namespace Buckaroo\Magento2\Model\Service\Plugin\PaypalSellersProtection;
+namespace Buckaroo\Magento2\Plugin;
 
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Paypal;
 use Buckaroo\Magento2\Model\Push\DefaultProcessor;
@@ -165,5 +165,6 @@ class PaypalProcessorPlugin
         return null;
     }
 }
+
 
 

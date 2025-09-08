@@ -143,11 +143,11 @@
     </type>
 
     <type name="Buckaroo\Magento2\Model\Push\DefaultProcessor">
-        <plugin name="buckaroo_magento2_mpi_push" type="Buckaroo\Magento2\Model\Service\Plugin\Mpi\DefaultProcessorPlugin" />
+        <plugin name="buckaroo_magento2_mpi_push" type="Buckaroo\Magento2\Plugin\DefaultProcessorPlugin" />
     </type>
     <type name="Buckaroo\Magento2\Model\Push\PaypalProcessor">
         <plugin name="buckaroo_magento2_paypal_sellersprotection_push"
-                type="Buckaroo\Magento2\Model\Service\Plugin\PaypalSellersProtection\PaypalProcessorPlugin" />
+                type="Buckaroo\Magento2\Plugin\PaypalProcessorPlugin" />
     </type>
 <!--    END PLUGINS-->
 

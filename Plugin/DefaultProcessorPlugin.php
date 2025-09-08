@@ -19,7 +19,7 @@
  */
 declare(strict_types=1);
 
-namespace Buckaroo\Magento2\Model\Service\Plugin\Mpi;
+namespace Buckaroo\Magento2\Plugin;
 
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
@@ -157,5 +157,6 @@ class DefaultProcessorPlugin
         return null;
     }
 }
+
 
 
