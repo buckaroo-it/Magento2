@@ -51,14 +51,13 @@ class DefaultProcessorPlugin
      * @param string $message
      * @return boolean
      *
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @throws LocalizedException
      */
     public function afterProcessSucceededPush(
         DefaultProcessor $subject,
-        $result,
-        string $newStatus,
-        string $message
+        $result
     ) {
         $order = $this->getProtectedProperty($subject, 'order');
         $pushRequest = $this->getProtectedProperty($subject, 'pushRequest');

@@ -59,9 +59,7 @@ class PaypalProcessorPlugin
      */
     public function afterProcessSucceededPush(
         DefaultProcessor $subject,
-        $result,
-        string $newStatus,
-        string $message
+        $result
     ) {
         if (!$subject instanceof PaypalProcessor) {
             return $result;
