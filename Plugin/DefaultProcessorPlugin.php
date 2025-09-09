@@ -17,14 +17,16 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
-namespace Buckaroo\Magento2\Model\Service\Plugin\Mpi;
+namespace Buckaroo\Magento2\Plugin;
 
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
+use Buckaroo\Magento2\Model\Push\DefaultProcessor;
 use Magento\Framework\Exception\LocalizedException;
 
-class Push
+class DefaultProcessorPlugin
 {
     /**
      * @var Creditcard
@@ -43,27 +45,35 @@ class Push
     /**
      * After Process Succeeded Push
      *
-     * @param \Buckaroo\Magento2\Model\Push $push
+     * @param DefaultProcessor $subject
      * @param boolean $result
+     * @param string $newStatus
+     * @param string $message
      * @return boolean
      *
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @throws LocalizedException
      */
     public function afterProcessSucceededPush(
-        \Buckaroo\Magento2\Model\Push $push,
+        DefaultProcessor $subject,
         $result
     ) {
-        $payment = $push->order->getPayment();
+        $order = $this->getProtectedProperty($subject, 'order');
+        $pushRequest = $this->getProtectedProperty($subject, 'pushRequest');
+
+        if (!$order || !$pushRequest) {
+            return $result;
+        }
+
+        $payment = $order->getPayment();
         $method = $payment->getMethod();
 
         if (strpos($method, 'buckaroo_magento2') === false) {
             return $result;
         }
 
-        /**
-         * @var BuckarooAdapter $paymentMethodInstance
-         */
+        /** @var BuckarooAdapter $paymentMethodInstance */
         $paymentMethodInstance = $payment->getMethodInstance();
         $card = $paymentMethodInstance->getInfoInstance()->getAdditionalInformation('card_type');
 
@@ -74,13 +84,20 @@ class Push
         $authenticationFunction = 'getService' . ucfirst($card) . 'Authentication';
         $enrolledFunction = 'getService' . ucfirst($card) . 'Enrolled';
 
-        if (empty($push->pushRequest->$authenticationFunction())
-            || empty($push->pushRequest->$enrolledFunction())
+        if (!\is_object($pushRequest)
+            || !\method_exists($pushRequest, $authenticationFunction)
+            || !\method_exists($pushRequest, $enrolledFunction)
         ) {
             return $result;
         }
 
-        $authentication = $push->pushRequest->$authenticationFunction();
+        if (empty($pushRequest->$authenticationFunction())
+            || empty($pushRequest->$enrolledFunction())
+        ) {
+            return $result;
+        }
+
+        $authentication = $pushRequest->$authenticationFunction();
 
         if ($authentication == 'U' || $authentication == 'N') {
             switch ($card) {
@@ -99,24 +116,46 @@ class Push
             }
 
             if ($putOrderOnHold) {
-                $push->order
+                $order
                     ->hold()
                     ->addCommentToStatusHistory(
                         __('Order has been put on hold, because it is unsecure.')
                     );
 
-                $push->order->save();
+                $order->save();
             }
         }
 
         $paymentMethodInstance->getInfoInstance()->setAdditionalInformation(
             'buckaroo_mpi_status',
             [
-                'enrolled'       => $push->pushRequest->$enrolledFunction(),
-                'authentication' => $push->pushRequest->$authenticationFunction(),
+                'enrolled'       => $pushRequest->$enrolledFunction(),
+                'authentication' => $pushRequest->$authenticationFunction(),
             ]
         );
 
         return $result;
     }
+
+    /**
+     * @param object $subject
+     * @param string $name
+     * @return mixed|null
+     */
+    private function getProtectedProperty(object $subject, string $name)
+    {
+        $ref = new \ReflectionClass($subject);
+        do {
+            if ($ref->hasProperty($name)) {
+                $prop = $ref->getProperty($name);
+                $prop->setAccessible(true);
+                return $prop->getValue($subject);
+            }
+            $ref = $ref->getParentClass();
+        } while ($ref);
+        return null;
+    }
 }
+
+
+
