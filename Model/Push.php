@@ -1459,6 +1459,12 @@ class Push implements PushInterface
     {
         $this->logging->addDebug(__METHOD__ . '|1|' . var_export($newStatus, true));
 
+        if (!empty($this->postData['brq_relatedtransaction_partialpayment']))
+        {
+            $this->logging->addDebug(__METHOD__ . '|1_1|' . '|Partial payment detected state change skipped');
+            return true;
+        }
+
         $amount = $this->order->getTotalDue();
 
         if (isset($this->postData['brq_amount']) && !empty($this->postData['brq_amount'])) {
