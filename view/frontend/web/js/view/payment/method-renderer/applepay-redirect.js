@@ -28,7 +28,9 @@ define(
         'mage/translate',
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/action/select-payment-method',
-        'buckaroo/checkout/common'
+        'buckaroo/checkout/common',
+        'buckaroo/applepay/pay',
+        'BuckarooSdk'
     ],
     function (
         $,
@@ -39,7 +41,8 @@ define(
         $t,
         checkoutData,
         selectPaymentMethodAction,
-        checkoutCommon
+        checkoutCommon,
+        applepayPay
     ) {
         'use strict';
 
@@ -59,9 +62,16 @@ define(
                  */
                 initObservable: function () {
                     this._super();
+                    
+                    // Initialize Apple Pay availability check for redirect mode
+                    applepayPay.canShowApplePay();
 
                     return this;
                 },
+
+                canShowPaymentMethod: ko.computed(function () {
+                    return applepayPay.canShowMethod();
+                }),
 
                 /**
                  * Handle redirect mode order placement

@@ -59,28 +59,31 @@ define(
 
                 initObservable: function () {
                     this._super().observe([]);
-                    applepayPay.canShowApplePay();
 
-                    applepayPay.transactionResult.subscribe(
-                        function () {
-                            this.submit = true;
-                            this.placeOrder(null, null);
-                        }.bind(this)
-                    );
+                    applepayPay.canShowApplePay().then(function(canShow) {
+                        if (canShow) {
+                            applepayPay.transactionResult.subscribe(
+                                function () {
+                                    this.submit = true;
+                                    this.placeOrder(null, null);
+                                }.bind(this)
+                            );
 
-                    quote.totals.subscribe(
-                        function () {
-                            if (applepayPay.canShowApplePay()) {
-                                applepayPay.updateOptions();
-                            }
-                        }.bind(this)
-                    );
+                            quote.totals.subscribe(
+                                function () {
+                                    if (applepayPay.canShowMethod()) {
+                                        applepayPay.updateOptions();
+                                    }
+                                }.bind(this)
+                            );
 
-                    $(window).on('hashchange', function () {
-                        var hashString = window.location.hash.replace('#', '');
+                            $(window).on('hashchange', function () {
+                                var hashString = window.location.hash.replace('#', '');
 
-                        if (hashString === 'payment' && applepayPay.canShowApplePay()) {
-                            applepayPay.updateOptions();
+                                if (hashString === 'payment' && applepayPay.canShowMethod()) {
+                                    applepayPay.updateOptions();
+                                }
+                            }.bind(this));
                         }
                     }.bind(this));
 
@@ -152,9 +155,13 @@ define(
                 },
 
                 showPayButton: function () {
-                    applepayPay.setIsOnCheckout(true);
-                    applepayPay.setQuote(quote);
-                    applepayPay.showPayButton();
+                    applepayPay.canShowApplePay().then(function(canShow) {
+                        if (canShow) {
+                            applepayPay.setIsOnCheckout(true);
+                            applepayPay.setQuote(quote);
+                            applepayPay.showPayButton();
+                        }
+                    });
                 },
 
                 payWithBaseCurrency: function () {
