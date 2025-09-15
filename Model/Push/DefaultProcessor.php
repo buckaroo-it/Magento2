@@ -1086,10 +1086,7 @@ class DefaultProcessor implements PushProcessorInterface
                 $this->order->cancel()->save();
 
                 if (!$this->isMagentoGiftCardRefundActive()) {
-                    $this->logger->addDebug('[processFailedPush] - Calling refundGiftCardsOnFailedPayment() - native observers not active');
                     $this->giftCardRefundService->refund($this->order);
-                } else {
-                    $this->logger->addDebug('[processFailedPush] - Skipping gift card refund - Magento observers will handle it');
                 }
             } catch (\Throwable $th) {
                 $this->logger->addError(sprintf(
@@ -1346,55 +1343,38 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * Check if Magento's native gift card refund observers will actually be triggered
-     * This prevents duplicate refunds by checking the critical configuration that controls event flow
+     * Check if Magento's native gift card refund observers will be triggered
+     * Prevents duplicate refunds by checking if redirect setting triggers Magento observers
      *
      * @return bool
      */
     private function isMagentoGiftCardRefundActive(): bool
     {
         try {
-            // Quick exit if classes don't exist
+            // Use Buckaroo refund if Adobe Commerce gift card classes don't exist
             if (!$this->hasGiftCardAccountClasses()) {
-                $this->logger->addDebug('[DefaultProcessor] GiftCard classes not available - using Buckaroo refund');
                 return false;
             }
 
-            // Check the critical configuration that controls whether Magento observers will be triggered
+            // Check if redirect setting will trigger Magento observers
             $failureRedirectEnabled = $this->isFailureRedirectToCheckoutEnabled();
-
-            // Critical check: Only skip Buckaroo refund if Magento observers will actually be triggered
-            // If redirect is disabled, Magento observers won't run, so we MUST use Buckaroo refund
+            
             if (!$failureRedirectEnabled) {
-                $this->logger->addDebug('[DefaultProcessor] Failure redirect DISABLED - Magento observers will NOT trigger');
-                $this->logger->addDebug('[DefaultProcessor] Using Buckaroo refund since Magento won\'t handle it');
+                // Redirect disabled: Magento observers won't trigger, use Buckaroo refund
                 return false;
             }
 
-            // If redirect is enabled, Magento observers should trigger, so skip Buckaroo to prevent duplicates
-            $observersConfigured = $this->areGiftCardObserversConfigured();
-
-            if (!$observersConfigured) {
-                $this->logger->addDebug('[DefaultProcessor] Observer detection failed - but redirect is ENABLED');
-                $this->logger->addDebug('[DefaultProcessor] Being conservative: assuming Magento observers will work via redirect flow');
-            } else {
-                $this->logger->addDebug('[DefaultProcessor] Gift card observers detected and configured');
-            }
-
-            $this->logger->addDebug('[DefaultProcessor] Skipping Buckaroo refund - Magento observers should handle via redirect');
-            return true; // Skip Buckaroo refund when redirect will trigger Magento observers
+            // Redirect enabled: Skip Buckaroo refund to prevent duplicates
+            return true;
 
         } catch (\Throwable $e) {
-            // Safe fallback: use Buckaroo refund if detection fails
-            $this->logger->addError('[DefaultProcessor] Error detecting Magento gift card observer status: ' . $e->getMessage() . ' - using Buckaroo refund as fallback');
+            $this->logger->addError('Gift card observer detection failed: ' . $e->getMessage() . ' - using Buckaroo fallback');
             return false;
         }
     }
 
     /**
-     * Check if Adobe Commerce gift card account classes exist
-     *
-     * @return bool
+     * Check if Adobe Commerce gift card classes exist
      */
     private function hasGiftCardAccountClasses(): bool
     {
@@ -1403,11 +1383,7 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * Check if the Buckaroo configuration that triggers Magento gift card observers is enabled
-     * This is the critical setting that determines whether restoreQuote() will be called,
-     * which triggers the 'restore_quote' event that activates Magento's gift card refund observers
-     *
-     * @return bool
+     * Check if failure redirect setting is enabled (triggers Magento observers)
      */
     private function isFailureRedirectToCheckoutEnabled(): bool
     {
@@ -1417,31 +1393,4 @@ class DefaultProcessor implements PushProcessorInterface
         return (bool) $accountConfig->getFailureRedirectToCheckout($this->order->getStore());
     }
 
-    /**
-     * Verify that gift card refund observers are actually configured for the relevant events
-     * This is a final safety check to ensure observers exist and aren't disabled
-     *
-     * @return bool
-     */
-    private function areGiftCardObserversConfigured(): bool
-    {
-        $configReader = ObjectManager::getInstance()
-            ->get('Magento\Framework\Event\Config\Reader');
-
-        $config = $configReader->read();
-        $relevantEvents = ['sales_model_service_quote_submit_failure', 'restore_quote'];
-
-        foreach ($relevantEvents as $eventName) {
-            if (isset($config[$eventName]['observers'])) {
-                foreach ($config[$eventName]['observers'] as $observer) {
-                    if (isset($observer['instance']) &&
-                        strpos($observer['instance'], 'RevertGiftCardAccountBalance') !== false) {
-                        return true; // Found the observer
-                    }
-                }
-            }
-        }
-
-        return false; // Observer not found
-    }
 }
