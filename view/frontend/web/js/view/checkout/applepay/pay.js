@@ -71,6 +71,8 @@ define(
                         }
 
                         if (applePaySupported) {
+                            $('#apple-pay-wrapper').show();
+
                             this.generateApplepayOptions();
                             this.payment = new BuckarooSdk.ApplePay.ApplePayPayment('#apple-pay-wrapper', this.applepayOptions);
                             this.payment.showPayButton(
