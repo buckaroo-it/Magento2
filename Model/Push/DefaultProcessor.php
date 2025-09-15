@@ -41,6 +41,7 @@ use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
+use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
@@ -1083,8 +1084,10 @@ class DefaultProcessor implements PushProcessorInterface
 
             try {
                 $this->order->cancel()->save();
-                $this->logger->addDebug('[processFailedPush] - Calling refundGiftCardsOnFailedPayment()');
-                $this->giftCardRefundService->refund($this->order);
+
+                if (!$this->isMagentoGiftCardRefundActive()) {
+                    $this->giftCardRefundService->refund($this->order);
+                }
             } catch (\Throwable $th) {
                 $this->logger->addError(sprintf(
                     '[%s:%s] - Process failed push from Buckaroo. Cancel Order| [ERROR]: %s',
@@ -1338,4 +1341,56 @@ class DefaultProcessor implements PushProcessorInterface
     {
         return $statusCode === Response::STATUSCODE_SUCCESS;
     }
+
+    /**
+     * Check if Magento's native gift card refund observers will be triggered
+     * Prevents duplicate refunds by checking if redirect setting triggers Magento observers
+     *
+     * @return bool
+     */
+    private function isMagentoGiftCardRefundActive(): bool
+    {
+        try {
+            // Use Buckaroo refund if Adobe Commerce gift card classes don't exist
+            if (!$this->hasGiftCardAccountClasses()) {
+                return false;
+            }
+
+            // Check if redirect setting will trigger Magento observers
+            $failureRedirectEnabled = $this->isFailureRedirectToCheckoutEnabled();
+            
+            if (!$failureRedirectEnabled) {
+                // Redirect disabled: Magento observers won't trigger, use Buckaroo refund
+                return false;
+            }
+
+            // Redirect enabled: Skip Buckaroo refund to prevent duplicates
+            return true;
+
+        } catch (\Throwable $e) {
+            $this->logger->addError('Gift card observer detection failed: ' . $e->getMessage() . ' - using Buckaroo fallback');
+            return false;
+        }
+    }
+
+    /**
+     * Check if Adobe Commerce gift card classes exist
+     */
+    private function hasGiftCardAccountClasses(): bool
+    {
+        return interface_exists('Magento\GiftCardAccount\Api\GiftCardAccountRepositoryInterface') &&
+               class_exists('Magento\GiftCardAccount\Observer\RevertGiftCardAccountBalance');
+    }
+
+    /**
+     * Check if failure redirect setting is enabled (triggers Magento observers)
+     */
+    private function isFailureRedirectToCheckoutEnabled(): bool
+    {
+        $accountConfig = ObjectManager::getInstance()
+            ->get('Buckaroo\Magento2\Model\ConfigProvider\Account');
+
+        return (bool) $accountConfig->getFailureRedirectToCheckout($this->order->getStore());
+    }
+
 }
