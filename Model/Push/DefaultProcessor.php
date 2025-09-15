@@ -769,12 +769,53 @@ class DefaultProcessor implements PushProcessorInterface
 
         $this->dontSaveOrderUponSuccessPush = false;
 
+        // Handle capture transactions sent by Buckaroo (C800 or mutationtype=collecting)
+        $isCaptureTx = $this->pushRequest->hasPostData('transaction_type', 'C800');
+        $isCaptureMutation = $this->pushRequest->hasPostData('mutationtype', 'collecting')
+            || $this->pushRequest->hasPostData('mutationtype', 'Collecting');
+
+        if ($isCaptureTx || $isCaptureMutation) {
+            $this->logger->addDebug(sprintf(
+                '[%s:%s] - CAPTURE_DETECTED | data: %s',
+                __METHOD__,
+                __LINE__,
+                var_export([
+                    'transaction_type' => $this->pushRequest->getData()['brq_transaction_type'] ?? null,
+                    'mutationtype' => $this->pushRequest->getData()['brq_mutationtype'] ?? null,
+                ], true)
+            ));
+
+            // Build capture description using current amount context
+            $amount = $this->order->getBaseTotalDue();
+            if (!empty($this->pushRequest->getAmount())) {
+                $amount = (float)$this->pushRequest->getAmount();
+            }
+            $description = 'Capture status : <strong>' . $message . '</strong><br/>'
+                . 'Total amount of ' . $this->order->getBaseCurrency()->formatTxt($amount) . ' has been captured.';
+
+            if (!$this->saveInvoice()) {
+                $this->logger->addDebug(sprintf('[%s:%s] - CAPTURE_INVOICE_FAILED', __METHOD__, __LINE__));
+                return false;
+            }
+
+            $this->orderRequestService->updateOrderStatus(
+                Order::STATE_PROCESSING,
+                $newStatus,
+                $description,
+                false,
+                $this->dontSaveOrderUponSuccessPush
+            );
+            $this->logger->addDebug(sprintf('[%s:%s] - CAPTURE_COMPLETE', __METHOD__, __LINE__));
+            return true;
+        }
+
         if ($this->canPushInvoice()) {
             $saveInvoice = $this->invoiceShouldBeSaved($paymentDetails);
             if ($saveInvoice && !$this->saveInvoice()) {
                 return false;
             }
         }
+
 
         if ($this->groupTransaction->isGroupTransaction($this->pushRequest->getInvoiceNumber())) {
             $paymentDetails['forceState'] = true;
@@ -792,6 +833,8 @@ class DefaultProcessor implements PushProcessorInterface
 
         return true;
     }
+
+
 
     /**
      * Process succeeded push authorization.
@@ -1358,7 +1401,7 @@ class DefaultProcessor implements PushProcessorInterface
 
             // Check if redirect setting will trigger Magento observers
             $failureRedirectEnabled = $this->isFailureRedirectToCheckoutEnabled();
-            
+
             if (!$failureRedirectEnabled) {
                 // Redirect disabled: Magento observers won't trigger, use Buckaroo refund
                 return false;
