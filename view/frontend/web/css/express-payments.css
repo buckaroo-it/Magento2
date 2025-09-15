@@ -37,7 +37,6 @@
     margin: 10px 0;
     box-sizing: border-box;
     cursor: pointer;
-    display: none; /* Initially hidden - shown by JavaScript after Apple Pay support check */
 }
 
 /* Apple Pay Button Styling */
