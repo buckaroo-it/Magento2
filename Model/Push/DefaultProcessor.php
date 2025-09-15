@@ -1363,26 +1363,26 @@ class DefaultProcessor implements PushProcessorInterface
             // Check the critical configuration that controls whether Magento observers will be triggered
             $failureRedirectEnabled = $this->isFailureRedirectToCheckoutEnabled();
 
+            // Critical check: Only skip Buckaroo refund if Magento observers will actually be triggered
+            // If redirect is disabled, Magento observers won't run, so we MUST use Buckaroo refund
             if (!$failureRedirectEnabled) {
-                $this->logger->addDebug('[DefaultProcessor] Failure redirect to checkout DISABLED in config - but checking if observers exist anyway due to redirect flow');
+                $this->logger->addDebug('[DefaultProcessor] Failure redirect DISABLED - Magento observers will NOT trigger');
+                $this->logger->addDebug('[DefaultProcessor] Using Buckaroo refund since Magento won\'t handle it');
+                return false;
             }
 
-            // Conservative approach: If classes exist, assume observers will work
-            // This prevents duplicate refunds which is worse than missing refunds
-            // TODO: Fix observer detection method - it's currently not working correctly
-
+            // If redirect is enabled, Magento observers should trigger, so skip Buckaroo to prevent duplicates
             $observersConfigured = $this->areGiftCardObserversConfigured();
 
             if (!$observersConfigured) {
-                $this->logger->addDebug('[DefaultProcessor] Observer detection failed or observers not found - but being conservative');
-                $this->logger->addDebug('[DefaultProcessor] Since gift card classes exist, assuming Magento observers may still work');
-                $this->logger->addDebug('[DefaultProcessor] Skipping Buckaroo refund to prevent potential duplicates');
+                $this->logger->addDebug('[DefaultProcessor] Observer detection failed - but redirect is ENABLED');
+                $this->logger->addDebug('[DefaultProcessor] Being conservative: assuming Magento observers will work via redirect flow');
             } else {
                 $this->logger->addDebug('[DefaultProcessor] Gift card observers detected and configured');
-                $this->logger->addDebug('[DefaultProcessor] Skipping Buckaroo refund to prevent duplicates');
             }
 
-            return true; // Always skip Buckaroo refund when classes exist to prevent duplicates
+            $this->logger->addDebug('[DefaultProcessor] Skipping Buckaroo refund - Magento observers should handle via redirect');
+            return true; // Skip Buckaroo refund when redirect will trigger Magento observers
 
         } catch (\Throwable $e) {
             // Safe fallback: use Buckaroo refund if detection fails
