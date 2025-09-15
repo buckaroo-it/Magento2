@@ -151,6 +151,15 @@ define(
                 isCustomerLoggedIn: customer.isLoggedIn,
                 dp: datePicker,
 
+                getMessageText: function () {
+                    return $.mage
+                        .__('Je moet minimaal 18+ zijn om deze dienst te gebruiken. Als je op tijd betaalt, voorkom je extra kosten en zorg je dat je in de toekomst nogmaals gebruik kunt maken van de diensten van Achteraf betalen via ' +
+                            window.checkoutConfig.payment.buckaroo.buckaroo_magento2_afterpay20.title +
+                            '. Door verder te gaan, accepteer je de <a target="_blank" href="%s">Algemene&nbsp;Voorwaarden</a> en bevestig je dat je de <a target="_blank" href="%f">Privacyverklaring</a> en <a target="_blank" href="%c">Cookieverklaring</a> hebt gelezen.')
+                        .replace('%s', 'https://documents.riverty.com/terms_conditions/payment_methods/invoice/nl_nl/default')
+                        .replace('%f', 'https://www.riverty.com/nl-nl/privacybeleid/')
+                        .replace('%c', 'https://www.riverty.com/nl-nl/cookies/');
+                },
 
                 initObservable: function () {
                     this._super().observe(
