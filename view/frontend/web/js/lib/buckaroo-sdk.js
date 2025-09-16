@@ -633,41 +633,11 @@ var BuckarooSdk;
     var ApplePay;
     (function (ApplePay) {
         ApplePay.checkApplePaySupport = function (merchantIdentifier) {
-            console.log('[Apple Pay Debug] Starting support check...');
-            console.log('[Apple Pay Debug] Merchant ID:', merchantIdentifier);
-            console.log('[Apple Pay Debug] User Agent:', navigator.userAgent);
-            console.log('[Apple Pay Debug] Protocol:', window.location.protocol);
-            console.log('[Apple Pay Debug] Hostname:', window.location.hostname);
-            
-            if (!("ApplePaySession" in window)) {
-                console.log('[Apple Pay Debug] ApplePaySession not in window - Browser does not support Apple Pay');
+            if (!("ApplePaySession" in window))
                 return Promise.resolve(false);
-            }
-            
-            if (ApplePaySession === undefined) {
-                console.log('[Apple Pay Debug] ApplePaySession is undefined');
+            if (ApplePaySession === undefined)
                 return Promise.resolve(false);
-            }
-            
-            console.log('[Apple Pay Debug] ApplePaySession available, checking canMakePayments...');
-            var canMakePayments = ApplePaySession.canMakePayments();
-            console.log('[Apple Pay Debug] canMakePayments():', canMakePayments);
-            
-            if (!canMakePayments) {
-                console.log('[Apple Pay Debug] canMakePayments returned false - No payment methods available');
-                return Promise.resolve(false);
-            }
-            
-            console.log('[Apple Pay Debug] Checking canMakePaymentsWithActiveCard with merchant ID...');
-            return ApplePaySession.canMakePaymentsWithActiveCard(merchantIdentifier)
-                .then(function(result) {
-                    console.log('[Apple Pay Debug] canMakePaymentsWithActiveCard result:', result);
-                    return result;
-                })
-                .catch(function(error) {
-                    console.error('[Apple Pay Debug] canMakePaymentsWithActiveCard error:', error);
-                    return false;
-                });
+            return ApplePaySession.canMakePaymentsWithActiveCard(merchantIdentifier);
         };
         var ApplePayPayment = /** @class */ (function () {
             function ApplePayPayment(buttonSelector, options) {
