@@ -507,9 +507,22 @@ class Klarnakp extends AbstractMethod
     {
         $order = $payment->getOrder();
 
+        $reservationNumber = $order->getBuckarooReservationNumber();
+
+        if (empty($reservationNumber)) {
+            $this->logger2->addError(__METHOD__ . '|Reservation number not found for order: ' . $order->getIncrementId());
+
+            // Try to reload the order and check again
+            $reloadedOrder = $order->load($order->getId());
+            $reloadedReservationNumber = $reloadedOrder->getBuckarooReservationNumber();
+            if (empty($reloadedReservationNumber)) {
+                $this->logger2->addError(__METHOD__ . '|Reservation number still missing after reload - Order: ' . $order->getIncrementId());
+            }
+        }
+
         $reservationr = [
             [
-                '_'    => $order->getBuckarooReservationNumber(),
+                '_'    => $reservationNumber,
                 'Name' => 'ReservationNumber',
             ]
         ];
@@ -542,9 +555,15 @@ class Klarnakp extends AbstractMethod
     {
         $order = $payment->getOrder();
 
+        $reservationNumber = $order->getBuckarooReservationNumber();
+
+        if (empty($reservationNumber)) {
+            $this->logger2->addError(__METHOD__ . '|Reservation number not found for order: ' . $order->getIncrementId());
+        }
+
         $additionalinformation = [
             [
-                '_' => $order->getBuckarooReservationNumber(),
+                '_' => $reservationNumber,
                 'Name' => 'ReservationNumber',
             ]
         ];
@@ -723,6 +742,13 @@ class Klarnakp extends AbstractMethod
 
         if (!empty($reward)) {
             $articles = array_merge($articles, $reward);
+            $count++;
+        }
+
+        $giftCard = $this->getGiftCardLine($quote, $count);
+
+        if (!empty($giftCard)) {
+            $articles = array_merge($articles, $giftCard);
         }
 
         return $articles;
@@ -791,47 +817,118 @@ class Klarnakp extends AbstractMethod
      */
     public function getRewardLine($quote, $group)
     {
-        $article = [];
-        $discount = (float)$quote->getRewardCurrencyAmount();
+        try {
+            $discount = (float)$quote->getRewardCurrencyAmount();
 
-        if ($discount <= 0) {
+            if ($discount <= 0) {
+                return [];
+            }
+
+            $this->logger2->addDebug(__METHOD__ . '|Reward points discount found: ' . $discount);
+
+            $article = [
+                [
+                    '_' => 4,
+                    'Group' => 'Article',
+                    'GroupID' => $group,
+                    'Name' => 'ArticleNumber',
+                ],
+                [
+                    '_' => -$discount,
+                    'Group' => 'Article',
+                    'GroupID' => $group,
+                    'Name' => 'ArticlePrice',
+                ],
+                [
+                    '_' => 1,
+                    'Group' => 'Article',
+                    'GroupID' => $group,
+                    'Name' => 'ArticleQuantity',
+                ],
+                [
+                    '_' => 'Discount Reward Points',
+                    'Group' => 'Article',
+                    'GroupID' => $group,
+                    'Name' => 'ArticleTitle',
+                ],
+                [
+                    '_' => 0,
+                    'Group' => 'Article',
+                    'GroupID' => $group,
+                    'Name' => 'ArticleVat',
+                ],
+            ];
+
             return $article;
+        } catch (\Error $e) {
+            $this->logger2->addDebug(__METHOD__ . '|getRewardCurrencyAmount method not available - Adobe Commerce reward points may not be installed');
+            return [];
+        } catch (\Exception $e) {
+            $this->logger2->addError(__METHOD__ . '|Error getting reward points amount: ' . $e->getMessage());
+            return [];
         }
+    }
 
-        $article = [
-            [
-                '_' => 4,
-                'Group' => 'Article',
-                'GroupID' => $group,
-                'Name' => 'ArticleNumber',
-            ],
-            [
-                '_' => -$discount,
-                'Group' => 'Article',
-                'GroupID' => $group,
-                'Name' => 'ArticlePrice',
-            ],
-            [
-                '_' => 1,
-                'Group' => 'Article',
-                'GroupID' => $group,
-                'Name' => 'ArticleQuantity',
-            ],
-            [
-                '_' => 'Discount Reward Points',
-                'Group' => 'Article',
-                'GroupID' => $group,
-                'Name' => 'ArticleTitle',
-            ],
-            [
-                '_' => 0,
-                'Group' => 'Article',
-                'GroupID' => $group,
-                'Name' => 'ArticleVat',
-            ],
-        ];
+    /**
+     * Get the gift card discount line
+     *
+     * @param Quote $quote
+     * @param $group
+     *
+     * @return array
+     */
+    public function getGiftCardLine($quote, $group)
+    {
+        try {
+            $discount = (float)$quote->getGiftCardsAmount();
 
-        return $article;
+            if ($discount <= 0) {
+                return [];
+            }
+
+            $this->logger2->addDebug(__METHOD__ . '|Gift card discount found: ' . $discount);
+
+            $article = [
+                [
+                    '_' => 5,
+                    'Group' => 'Article',
+                    'GroupID' => $group,
+                    'Name' => 'ArticleNumber',
+                ],
+                [
+                    '_' => -$discount,
+                    'Group' => 'Article',
+                    'GroupID' => $group,
+                    'Name' => 'ArticlePrice',
+                ],
+                [
+                    '_' => 1,
+                    'Group' => 'Article',
+                    'GroupID' => $group,
+                    'Name' => 'ArticleQuantity',
+                ],
+                [
+                    '_' => 'Discount Gift Card',
+                    'Group' => 'Article',
+                    'GroupID' => $group,
+                    'Name' => 'ArticleTitle',
+                ],
+                [
+                    '_' => 0,
+                    'Group' => 'Article',
+                    'GroupID' => $group,
+                    'Name' => 'ArticleVat',
+                ],
+            ];
+
+            return $article;
+        } catch (\Error $e) {
+            $this->logger2->addDebug(__METHOD__ . '|getGiftCardsAmount method not available - Adobe Commerce gift cards may not be installed');
+            return [];
+        } catch (\Exception $e) {
+            $this->logger2->addError(__METHOD__ . '|Error getting gift card amount: ' . $e->getMessage());
+            return [];
+        }
     }
 
     /**
