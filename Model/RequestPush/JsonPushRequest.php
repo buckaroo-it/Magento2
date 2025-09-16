@@ -165,7 +165,23 @@ class JsonPushRequest extends AbstractPushRequest implements PushRequestInterfac
      */
     public function getMutationType(): ?string
     {
-        return $this->request["MutationType"] ?? null;
+        $mutationType = $this->request["MutationType"] ?? null;
+
+        // Convert integer mutation type to string equivalent for compatibility
+        if (is_int($mutationType)) {
+            switch ($mutationType) {
+                case 1:
+                    return 'Collecting';
+                case 2:
+                    return 'Processing';
+                case 3:
+                    return 'Refund';
+                default:
+                    return (string)$mutationType;
+            }
+        }
+
+        return $mutationType;
     }
 
     /**
