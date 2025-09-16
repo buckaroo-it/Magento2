@@ -130,9 +130,10 @@ define(
                     return $.mage
                         .__('Je moet minimaal 18+ zijn om deze dienst te gebruiken. Als je op tijd betaalt, voorkom je extra kosten en zorg je dat je in de toekomst nogmaals gebruik kunt maken van de diensten van Achteraf betalen via ' +
                             window.checkoutConfig.payment.buckaroo.buckaroo_magento2_billink.title +
-                            '. Door verder te gaan, accepteer je de <a target="_blank" href="%s">Algemene&nbsp;Voorwaarden</a> en bevestig je dat je de <a target="_blank" href="%f">Privacyverklaring</a> en Cookieverklaring hebt gelezen.')
+                            '. Door verder te gaan, accepteer je de <a target="_blank" href="%s">Algemene&nbsp;Voorwaarden</a> en bevestig je dat je de <a target="_blank" href="%f">Privacyverklaring</a> en <a target="_blank" href="%c">Cookieverklaring</a> hebt gelezen.')
                         .replace('%s', 'https://www.billink.nl/gebruikersvoorwaarden')
                         .replace('%f', 'https://www.billink.nl/privacy-statement')
+                        .replace('%c', 'https://www.billink.nl/privacy-statement')
                 },
 
                 initObservable: function () {
