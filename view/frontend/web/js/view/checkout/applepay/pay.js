@@ -113,12 +113,15 @@ define(
             },
 
             canShowApplePay: function () {
+                console.log('[Apple Pay Component] Starting canShowApplePay check...');
                 return BuckarooSdk.ApplePay.checkApplePaySupport(window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.guid)
                     .then(function (applePaySupported) {
+                        console.log('[Apple Pay Component] Support check result:', applePaySupported);
                         this.canShowMethod(applePaySupported);
                         return applePaySupported;
                     }.bind(this))
                     .catch(function (error) {
+                        console.error('[Apple Pay Component] Support check error:', error);
                         this.canShowMethod(false);
                         return false;
                     }.bind(this));
