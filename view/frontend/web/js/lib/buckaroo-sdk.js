@@ -637,10 +637,6 @@ var BuckarooSdk;
                 return Promise.resolve(false);
             if (ApplePaySession === undefined)
                 return Promise.resolve(false);
-
-            if (!ApplePaySession.canMakePayments())
-                return Promise.resolve(false);
-
             return ApplePaySession.canMakePaymentsWithActiveCard(merchantIdentifier);
         };
         var ApplePayPayment = /** @class */ (function () {
