@@ -40,7 +40,7 @@
 }
 
 /* Hide Apple Pay wrapper in checkout payment method selection - use Place Order button instead */
-.payment-method .buckaroo_magento2_applepay #apple-pay-wrapper {
+.buckaroo_magento2_applepay.payment-method #apple-pay-wrapper {
     display: none !important;
 }
 
