@@ -55,6 +55,8 @@ class JsonPushRequest extends AbstractPushRequest implements PushRequestInterfac
         $this->originalRequest = $requestData;
         if (isset($requestData['Transaction'])) {
             $this->request = $requestData['Transaction'];
+        } elseif (isset($requestData['DataRequest'])) {
+            $this->request = $requestData['DataRequest'];
         } else {
             throw new Exception(__('Json request could not be processed, please use httppost'));
         }
