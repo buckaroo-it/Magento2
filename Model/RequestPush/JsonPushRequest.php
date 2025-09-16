@@ -174,8 +174,6 @@ class JsonPushRequest extends AbstractPushRequest implements PushRequestInterfac
                     return 'Collecting';
                 case 2:
                     return 'Processing';
-                case 3:
-                    return 'Refund';
                 default:
                     return (string)$mutationType;
             }
