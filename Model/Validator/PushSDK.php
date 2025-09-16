@@ -21,7 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Validator;
 
-use Buckaroo\Exceptions\BuckarooException;
+use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Model\Adapter\BuckarooAdapter;
 use Buckaroo\Magento2\Model\ValidatorInterface;
 use Magento\Framework\UrlInterface;
