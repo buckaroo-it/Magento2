@@ -62,7 +62,11 @@
             <!--/ko-->
         </div>
 
-        <!-- Apple Pay button wrapper removed - using only Place Order button for checkout -->
+        <div class="actions-toolbar" data-bind="visible: canShowPaymentMethod()" style="display: none;">
+            <div class="primary">
+                <div id="apple-pay-wrapper" data-bind="afterRender: showPayButton"></div>
+            </div>
+        </div>
 
         <!-- ko if: payWithBaseCurrency() -->
         <div class="buckaroo_magento2_currency-notification">
