@@ -690,6 +690,10 @@
     display: inline;
 }
 
+.buckaroo_magento2_applepay.payment-method #apple-pay-wrapper {
+    display: none !important;
+}
+
 /* iDIN product page styles */
 #buckaroo_idin_product {
     background: #d4eded;
