@@ -55,6 +55,8 @@ class JsonPushRequest extends AbstractPushRequest implements PushRequestInterfac
         $this->originalRequest = $requestData;
         if (isset($requestData['Transaction'])) {
             $this->request = $requestData['Transaction'];
+        } elseif (isset($requestData['DataRequest'])) {
+            $this->request = $requestData['DataRequest'];
         } else {
             throw new Exception(__('Json request could not be processed, please use httppost'));
         }
@@ -165,7 +167,21 @@ class JsonPushRequest extends AbstractPushRequest implements PushRequestInterfac
      */
     public function getMutationType(): ?string
     {
-        return $this->request["MutationType"] ?? null;
+        $mutationType = $this->request["MutationType"] ?? null;
+
+        // Convert integer mutation type to string equivalent for compatibility
+        if (is_int($mutationType)) {
+            switch ($mutationType) {
+                case 1:
+                    return 'Collecting';
+                case 2:
+                    return 'Processing';
+                default:
+                    return (string)$mutationType;
+            }
+        }
+
+        return $mutationType;
     }
 
     /**

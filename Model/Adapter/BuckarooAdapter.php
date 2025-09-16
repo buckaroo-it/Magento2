@@ -24,9 +24,9 @@ namespace Buckaroo\Magento2\Model\Adapter;
 use Buckaroo\BuckarooClient;
 use Buckaroo\Config\Config;
 use Buckaroo\Config\DefaultConfig;
-use Buckaroo\Exceptions\BuckarooException;
 use Buckaroo\Handlers\Reply\ReplyHandler;
 use Buckaroo\Magento2\Exception;
+use Magento\Framework\Phrase;
 use Buckaroo\Magento2\Gateway\Request\CreditManagement\BuilderComposite;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\Config\Source\Enablemode;
@@ -175,16 +175,19 @@ class BuckarooAdapter
             $this->encryptor->decrypt($configProviderAccount->getMerchantKey()),
             $this->encryptor->decrypt($configProviderAccount->getSecretKey()),
             $clientMode,
-            null,
-            null,
-            null,
-            null,
+            null, // currency
+            null, // returnURL
+            null, // returnURLCancel
+            null, // pushURL
             $this->productMetadata->getName() . ' - ' . $this->productMetadata->getEdition(),
             $this->productMetadata->getVersion(),
             'Buckaroo',
             'Magento2',
             Data::BUCKAROO_VERSION,
-            str_replace('_', '-', $this->localeResolver->getLocale())
+            str_replace('_', '-', $this->localeResolver->getLocale()),
+            null, // Disable SDK logging - SDK's BuckarooException handles null gracefully in log() method
+            null, // timeout
+            null  // connectTimeout
         ));
     }
 
@@ -200,7 +203,22 @@ class BuckarooAdapter
     {
         $this->buckaroo = new BuckarooClient(new DefaultConfig(
             $merchantKey,
-            $secretKey
+            $secretKey,
+            null, // mode
+            null, // currency
+            null, // returnURL
+            null, // returnURLCancel
+            null, // pushURL
+            null, // platformName
+            null, // platformVersion
+            null, // moduleSupplier
+            null, // moduleName
+            null, // moduleVersion
+            null, // culture
+            null, // channel
+            null, // Disable SDK logging - SDK handles null gracefully
+            null, // timeout
+            null  // connectTimeout
         ));
         return $this->buckaroo->confirmCredential();
     }
@@ -323,14 +341,18 @@ class BuckarooAdapter
     /**
      * Validate request
      *
-     * @throws BuckarooException
-     * @throws \Exception
+     * @throws Exception
      */
     public function validate($postData, $authHeader, $uri): bool
     {
-        $this->setClientSdk();
-        $replyHandler = new ReplyHandler($this->buckaroo->client()->config(), $postData, $authHeader, $uri);
-        $replyHandler->validate();
-        return $replyHandler->isValid();
+        try {
+            $this->setClientSdk();
+            $replyHandler = new ReplyHandler($this->buckaroo->client()->config(), $postData, $authHeader, $uri);
+            $replyHandler->validate();
+            return $replyHandler->isValid();
+        } catch (\Buckaroo\Exceptions\BuckarooException $e) {
+            throw new Exception(new Phrase($e->getMessage()), $e, $e->getCode());
+        }
     }
 }
+

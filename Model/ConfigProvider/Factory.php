@@ -81,10 +81,7 @@ class Factory
 
         if (empty($configProviderClass)) {
             throw new BuckarooException(
-                new Phrase(
-                    'Unknown ConfigProvider type requested: %1.',
-                    [$providerType]
-                )
+                __('Unknown ConfigProvider type requested: %1.', $providerType)
             );
         }
 
