@@ -220,12 +220,12 @@ define(
 
                     // Get configured styling or fallback to defaults
                     const configuredStyling = this.buckaroo.styling || {};
-                    
+
                     // Helper function to get non-empty value or default
                     const getStyleValue = (value, defaultValue) => {
                         return (value && value.trim() !== '') ? value : defaultValue;
                     };
-                    
+
                     const styling = {
                         fontSize: getStyleValue(configuredStyling.fontSize, "14px"),
                         fontStyle: "normal",
@@ -290,9 +290,34 @@ define(
                         mountCvcPromise,
                         mountExpiryPromise
                     ]);
+
+                    this.initCvcTooltip();
                 } catch (error) {
                     console.error("Error initializing hosted fields:", error);
                     this.paymentError($.mage.__("An error occurred while initializing the payment form. Please try again."));
+                }
+            },
+
+            /**
+             * Initialize CVC tooltip functionality
+             */
+            initCvcTooltip: function() {
+                const tooltipButton = $('.buckaroo-cvc-tooltip-button');
+                const tooltip = $('.buckaroo-cvc-tooltip');
+
+                if (tooltipButton.length && tooltip.length) {
+                    tooltipButton.on('mouseenter', function() {
+                        tooltip.stop(true, true).fadeIn(200);
+                    });
+
+                    tooltipButton.on('mouseleave', function() {
+                        tooltip.stop(true, true).fadeOut(150);
+                    });
+
+                    tooltipButton.on('click', function(e) {
+                        e.preventDefault();
+                        return false;
+                    });
                 }
             },
 
