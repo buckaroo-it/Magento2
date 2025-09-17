@@ -117,7 +117,6 @@ class Order
         $this->helper = $helper;
         $this->logger = $logger;
         $this->resourceConnection = $resourceConnection;
-        $this->orderCancellationService = $orderCancellationService;
     }
 
     /**
@@ -326,7 +325,7 @@ class Order
                 $methodInstanceClass::$requestOnVoid = false;
             }
 
-            $this->orderCancellationService->cancelOrder($order, $statusMessage, true);
+            $order->cancel();
 
             $failedStatus = $this->orderStatusFactory->get($statusCode, $order);
 
@@ -351,28 +350,4 @@ class Order
 
         return false;
     }
-
-    /**
-     * Cancel the order and clean up its status history if it is a Klarna order.
-     *
-     * @param \Magento\Sales\Model\Order $order
-     * @return void
-     * @throws \Exception
-     */
-    protected function cancelAndCleanupOrder(\Magento\Sales\Model\Order $order): void
-    {
-        // Check if the order's payment method is Klarna (adjust the check as needed)
-        $paymentMethod = $order->getPayment()->getMethod();
-        if (strpos($paymentMethod, 'klarnakp') === false) {
-            // If it is not a Klarna order, skip the cleanup process.
-            return;
-        }
-
-        // Cancel the order and set its state and status to "canceled"
-        $order->setState(\Magento\Sales\Model\Order::STATE_CANCELED);
-        $order->setStatus(\Magento\Sales\Model\Order::STATE_CANCELED);
-        $order->addCommentToStatusHistory('The request was canceled.', false, false);
-        $order->save();
-    }
-
 }

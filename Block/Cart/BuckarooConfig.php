@@ -64,6 +64,6 @@ class BuckarooConfig extends Template
     public function getBuckarooConfigJson()
     {
         $configProvider = $this->configProviderFactory->get('buckaroo_fee');
-        return $this->jsonEncoder->serialize($configProvider->getConfig());
+        return $this->jsonEncoder->encode($configProvider->getConfig());
     }
 }

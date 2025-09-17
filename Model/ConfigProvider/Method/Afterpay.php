@@ -83,7 +83,7 @@ class Afterpay extends AbstractConfigProvider
      *
      * @return bool|int
      */
-    public function getPaymentMethod($storeId = null)
+    public function getPaymentMethod()
     {
         $paymentMethod = (int)$this->getMethodConfigValue(self::XPATH_AFTERPAY_PAYMENT_METHODS);
 

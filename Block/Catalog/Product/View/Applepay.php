@@ -72,6 +72,7 @@ class Applepay extends Template
      */
     public function __construct(
         Context $context,
+        Cart $cart,
         CompositeConfigProvider $compositeConfigProvider,
         ApplepayConfig $applepayConfigProvider,
         AccountConfig $accountConfigProvider,
@@ -79,6 +80,8 @@ class Applepay extends Template
         array $data = []
     ) {
         parent::__construct($context, $data);
+
+        $this->cart = $cart;
         $this->compositeConfigProvider = $compositeConfigProvider;
         $this->applepayConfigProvider = $applepayConfigProvider;
         $this->accountConfigProvider = $accountConfigProvider;
@@ -88,7 +91,6 @@ class Applepay extends Template
     /**
      * @param $page
      * @return bool
-     * @throws NoSuchEntityException
      */
     public function canShowButton($page): bool
     {

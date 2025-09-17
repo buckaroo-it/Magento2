@@ -90,38 +90,29 @@ define([
             } else {
               reject(response.message);
             }
+          },
+          () => {
+            reject($t("Cannot create payment"));
+          }
+        );
 
-            this.options = Object.assign(
-                {
-                    containerSelector: ".buckaroo-paypal-express",
-                    buckarooWebsiteKey: "",
-                    paypalMerchantId: "",
-                    currency: "EUR",
-                    amount: 0.1,
-                    createPaymentHandler: this.createPaymentHandler.bind(this),
-                    onShippingChangeHandler: this.onShippingChangeHandler.bind(this),
-                    onSuccessCallback: this.onSuccessCallback.bind(this),
-                    onErrorCallback: this.onErrorCallback.bind(this),
-                    onCancelCallback: this.onCancelCallback.bind(this),
-                    onInitCallback: this.onInitCallback.bind(this),
-                    onClickCallback: this.onClickCallback.bind(this),
-                },
-                config
-            );
-        },
-        result: null,
+      })
 
-        cart_id: null,
-        /**
-         * Api events
-         */
-        onShippingChangeHandler(data, actions) {
-            if (
-                this.page === 'product' &&
-                $("#product_addtocart_form").valid() === false
-            ) {
-                return actions.reject();
-            }
+    },
+    createPaymentHandler(data) {
+      return this.createTransaction(data.orderID);
+    },
+    onSuccessCallback() {
+      if (this.result.message) {
+        this.displayErrorMessage(message);
+      } else {
+        if (this.result.cart_id && this.result.cart_id.length) {
+          window.location.replace(urlBuilder.build('checkout/onepage/success/'));
+        } else {
+          this.displayErrorMessage($t("Cannot create payment"));
+        }
+      }
+    },
 
     onErrorCallback(reason) {
         // custom error behavior
@@ -197,13 +188,13 @@ define([
           message = $t("Cannot create payment");
         }
 
-            }
-            customerData.set('messages', {
-                messages: [{
-                    type: 'error',
-                    text: message
-                }]
-            });
+      }
+      customerData.set('messages', {
+        messages: [{
+          type: 'error',
+          text: message
+        }]
+      });
 
     },
 

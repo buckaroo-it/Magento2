@@ -165,7 +165,7 @@ class Ideal extends AbstractConfigProvider
     /**
      * @param null|int $storeId
      *
-     * @return float|false
+     * @return float
      */
     public function getPaymentFee($storeId = null)
     {

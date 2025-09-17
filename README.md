@@ -68,7 +68,7 @@ php bin/magento setup:di:compile
 
 ## Configuration
 
-For the configuration of the plugin, please refer to our [configuration page](https://docs.buckaroo.io/docs/magento-2-old-configuration)
+For the configuration of the plugin, please refer to our [Dutch](https://docs.buckaroo.io/docs/nl/magento-2) or [English](https://docs.buckaroo.io/v1/docs/magento-2) support website.
 You will find all the necessary information there.<br>
 But if you still have some unanswered questions, then please contact our [technical support team](mailto:support@buckaroo.nl).
 <br>
@@ -98,9 +98,9 @@ If you want to contribute as well, then please follow our [Contribution Guidelin
 <br>
 
 ## Additional information
-- **Knowledge base & FAQ:** [docs.buckaroo.io](https://docs.buckaroo.io)
+- **Knowledge base & FAQ:** Available in [Dutch](https://docs.buckaroo.io/docs/nl/magento-2) or [English](https://docs.buckaroo.io/docs/magento-2).
+- **Support:** https://docs.buckaroo.io
 - **Contact:** [support@buckaroo.nl](mailto:support@buckaroo.nl) or [+31 (0)30 711 50 50](tel:+310307115050)
 
 <b>Please note:</b><br>
 This file has been prepared with the greatest possible care and is subject to language and/or spelling errors.
-

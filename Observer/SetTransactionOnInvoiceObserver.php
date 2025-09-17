@@ -69,7 +69,7 @@ class SetTransactionOnInvoiceObserver implements ObserverInterface
     }
 
     /**
-     * Set transaction id on invoiced for invoice after shipment
+     * Set transaction id on invoiced for invoice after shippment
      *
      * @param Observer $observer
      * @return $this

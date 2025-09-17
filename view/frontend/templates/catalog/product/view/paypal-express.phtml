@@ -17,7 +17,6 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-/** @var string $block */
 ?>
 <?php if ($block->canShowProductButton() && !$block->isIdinVerificationRequired()): ?>
 <div id="paypal-express-button-component" data-bind="scope:'paypalExpress'">
@@ -31,10 +30,7 @@
                         "paypalExpress": {
                             "component":"buckaroo/paypal-express/button",
                             "template":"Buckaroo_Magento2/catalog/product/view/paypal-express",
-                            "config": {
-                                  "data": <?= /* @noEscape */ json_encode($block->getConfig()); ?>,
-                                  "page": "product"
-                            }
+                            "data":  <?= /* @noEscape */ json_encode($block->getConfig()); ?>
                         }
                     }
                 }

@@ -156,15 +156,13 @@ class Push implements ValidatorInterface
      */
     public function calculateSignature(array $postData, $store = null): string
     {
-        ksort($postData, SORT_FLAG_CASE | SORT_STRING);
+        $copyData = $postData;
+        unset($copyData['brq_signature']);
+        unset($copyData['BRQ_SIGNATURE']);
 
-        $data = array_filter($postData, function ($key) {
-            $acceptable_top_level = ['brq', 'add', 'cust', 'BRQ', 'ADD', 'CUST'];
+        $sortableArray = $this->buckarooArraySort($copyData);
 
-            return (
-                    $key != 'brq_signature' && $key != 'BRQ_SIGNATURE') &&
-                in_array(explode('_', $key)[0], $acceptable_top_level);
-        }, ARRAY_FILTER_USE_KEY);
+        $signatureString = '';
 
         foreach ($sortableArray as $brqKey => $value) {
             $value = $this->decodePushValue($brqKey, $value);

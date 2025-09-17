@@ -39,7 +39,7 @@
             <config_path>payment/buckaroo_magento2_paylink/payment_method</config_path>
             <validate>required-entry</validate>
             <depends>
-                <field id="active" separator=",">1,2</field>
+                <field id="active">1</field>
             </depends>
         </field>
 

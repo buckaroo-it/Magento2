@@ -94,11 +94,6 @@ define(
                     bankaccountnumber: '',
                     bicnumber: ''
                 },
-                paymentFeeLabel: window.checkoutConfig.payment.buckaroo.sepadirectdebit.paymentFeeLabel,
-                subtext: window.checkoutConfig.payment.buckaroo.sepadirectdebit.subtext,
-                subTextStyle: checkoutCommon.getSubtextStyle('sepadirectdebit'),
-                currencyCode: window.checkoutConfig.quoteData.quote_currency_code,
-                baseCurrencyCode: window.checkoutConfig.quoteData.base_currency_code,
 
                 initObservable: function () {
                     this._super().observe([
@@ -114,7 +109,7 @@ define(
                     /**
                      * Repair IBAN value to uppercase
                      */
-                    this.bankaccountnumber.extend({uppercase: true});
+                    this.bankaccountnumber.extend({ uppercase: true });
 
                     return this;
                 },

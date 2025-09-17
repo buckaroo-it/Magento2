@@ -259,14 +259,11 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
             ));
 
         } catch (\Exception $e) {
-            $this->addErrorMessage(__('Could not process the request.'));
+            $this->addErrorMessage('Could not process the request.');
             $this->logger->addError(__METHOD__ . '|Exception|' . $e->getMessage());
-            return $this->_redirect('/');
         } finally {
-            if ($lockAcquired && isset($orderIncrementID)) {
-                $this->lockManager->unlockOrder($orderIncrementID);
-                $this->logger->addDebug(__METHOD__ . '|Lock released|');
-            }
+            $this->lockManager->unlockOrder($orderIncrementID);
+            $this->logger->addDebug(__METHOD__ . '|Lock released|');
         }
 
         return $this->processRedirectByStatus($statusCode);
@@ -591,18 +588,18 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
     {
         if (method_exists($this->order, 'getCouponCode')) {
             $couponCode = $this->order->getCouponCode();
-            $couponFactory = $this->_objectManager->get(CouponFactory::class);
+            $couponFactory = $this->_objectManager->get(\Magento\SalesRule\Model\CouponFactory::class);
             if (!(is_object($couponFactory) && method_exists($couponFactory, 'load'))) {
                 return;
             }
 
             $coupon = $couponFactory->load($couponCode, 'code');
-            $resourceModel = $this->_objectManager->get(CouponResourceInterface::class);
+            $resourceModel = $this->_objectManager->get(\Magento\SalesRule\Model\Spi\CouponResourceInterface::class);
             if (!(is_object($resourceModel) && method_exists($resourceModel, 'delete'))) {
                 return;
             }
 
-            if ($coupon && is_int($coupon->getCouponId())) {
+            if (is_int($coupon->getCouponId())) {
                 $resourceModel->delete($coupon);
             }
         }

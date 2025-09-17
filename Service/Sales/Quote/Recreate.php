@@ -106,13 +106,13 @@ class Recreate
      * @param \Magento\Quote\Model\Quote $quote
      * @return \Magento\Quote\Model\Quote|false
      */
-    public function recreate($quote, $response = [])
+    public function recreate($quote)
     {
         $this->logger->addDebug(__METHOD__ . '|1|');
         try {
-            $quote->setIsActive(1);
+            $quote->setIsActive(true);
+            $quote->setTriggerRecollect('1');
             $quote->setReservedOrderId(null);
-
             $quote->setBuckarooFee(null);
             $quote->setBaseBuckarooFee(null);
             $quote->setBuckarooFeeTaxAmount(null);

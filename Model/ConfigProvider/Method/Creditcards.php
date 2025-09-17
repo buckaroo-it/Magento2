@@ -233,22 +233,6 @@ class Creditcards extends AbstractConfigProvider
         );
     }
 
-    public function getHostedFieldsClientId()
-    {
-        return $this->scopeConfig->getValue(
-            self::XPATH_CREDITCARDS_HOSTED_FIELDS_CLIENT_ID,
-            ScopeInterface::SCOPE_STORE
-        );
-    }
-
-    public function getHostedFieldsClientSecret()
-    {
-        return $this->scopeConfig->getValue(
-            self::XPATH_CREDITCARDS_HOSTED_FIELDS_CLIENT_SECRET,
-            ScopeInterface::SCOPE_STORE
-        );
-    }
-
     /**
      * Get placeholder text for cardholder name field
      *
@@ -484,19 +468,5 @@ class Creditcards extends AbstractConfigProvider
         }
 
         return $issuers;
-    }
-
-    public function getSupportedServices(): array
-    {
-        $issuers = $this->formatIssuers();
-        $supportedServices = [];
-
-        foreach ($issuers as $issuer) {
-            if ($issuer['active']) {
-                $supportedServices[] = $issuer['code'];
-            }
-        }
-
-        return $supportedServices;
     }
 }

@@ -75,13 +75,11 @@ class ProcessResponse
     public function __construct(
         OrderStatusFactory $statusFactory,
         ConfigFactory $configFactory,
-        Session $checkoutSession,
-        OrderCancellationService $orderCancellationService
+        Session $checkoutSession
     ) {
         $this->statusFactory = $statusFactory;
         $this->configFactory = $configFactory;
         $this->checkoutSession = $checkoutSession;
-        $this->orderCancellationService = $orderCancellationService;
     }
 
     /**
