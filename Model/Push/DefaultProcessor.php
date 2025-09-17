@@ -769,12 +769,15 @@ class DefaultProcessor implements PushProcessorInterface
 
         $this->dontSaveOrderUponSuccessPush = false;
 
-        // Handle capture transactions sent by Buckaroo (C800 or mutationtype=collecting)
+        // Handle capture transactions sent by Buckaroo (C800, mutationtype=collecting)
         $isCaptureTx = $this->pushRequest->hasPostData('transaction_type', 'C800');
         $isCaptureMutation = $this->pushRequest->hasPostData('mutationtype', 'collecting')
             || $this->pushRequest->hasPostData('mutationtype', 'Collecting');
+        $isKlarnaMethod = $this->pushRequest->hasPostData('transaction_method', ['klarnakp', 'KlarnaKp']);
+        $hasKlarnaCaptureId = $isKlarnaMethod && !empty($this->pushRequest->getServiceKlarnakpCaptureid());
+        $isSuccessStatus = ((int)$this->pushRequest->getStatusCode() === $this->buckarooStatusCode::SUCCESS);
 
-        if ($isCaptureTx || $isCaptureMutation) {
+        if ($isCaptureTx || $isCaptureMutation || ($hasKlarnaCaptureId && $isSuccessStatus)) {
             $this->logger->addDebug(sprintf(
                 '[%s:%s] - CAPTURE_DETECTED | data: %s',
                 __METHOD__,
@@ -782,6 +785,8 @@ class DefaultProcessor implements PushProcessorInterface
                 var_export([
                     'transaction_type' => $this->pushRequest->getData()['brq_transaction_type'] ?? null,
                     'mutationtype' => $this->pushRequest->getData()['brq_mutationtype'] ?? null,
+                    'transaction_method' => $this->pushRequest->getData()['brq_transaction_method'] ?? null,
+                    'klarnakp_capture_id' => $this->pushRequest->getServiceKlarnakpCaptureid() ?? null,
                 ], true)
             ));
 
