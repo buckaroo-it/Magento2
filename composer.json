@@ -46,8 +46,8 @@
         "docs": "https://docs.buckaroo.io/"
     },
     "homepage": "https://www.buckaroo.nl",
-    "version" : "v2.0.0-RC3",
-    "minimum-stability": "RC",
+    "version" : "v2.0.0",
+    "minimum-stability": "stable",
     "autoload": {
         "files": [
             "registration.php"
