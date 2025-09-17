@@ -36,7 +36,6 @@
             <label>Frontend label</label>
             <comment><![CDATA[Determines the frontend label shown.]]></comment>
             <config_path>payment/buckaroo_magento2_klarna/title</config_path>
-            <backend_model>Buckaroo\Magento2\Model\Config\Backend\EmptyToDelete</backend_model>
         </field>
 
         <field id="subtext" translate="label comment" type="text" sortOrder="25" showInDefault="1" showInWebsite="1" showInStore="1">

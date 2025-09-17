@@ -48,13 +48,13 @@ define(
         'use strict';
 
         $.validator.addMethod('validateCOC', function (value) {
-                if (!value) {
-                    return false;
-                }
+            if (!value) {
+                return false;
+            }
 
-                if (value.match(/[^0-9]/)) {
-                    return false;
-                }
+            if (value.match(/[^0-9]/)) {
+                return false;
+            }
 
             return value.length <= 8;
         },
@@ -240,7 +240,7 @@ define(
 
                     this.showFrenchTos = ko.computed(
                         function () {
-                            return this.country() === 'BE' && !this.showCOC()
+                            return this.country() === 'BE'
                         },
                         this
                     );
@@ -291,7 +291,7 @@ define(
                             var value = $.mage.cookies.get(item);
                             if (value) {
                                 $.mage.cookies.clear(item);
-                                $.mage.cookies.set(item, value, {path: '/'});
+                                $.mage.cookies.set(item, value, { path: '/' });
                             }
                         });
 
@@ -360,6 +360,7 @@ define(
                             lang = `${cc}_de`;
                         }
                     }
+
                     return `${url}/${lang}/`;
                 },
 

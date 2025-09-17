@@ -131,7 +131,7 @@ class GuestPaymentInformationManagement implements GuestPaymentInformationManage
         $this->checkSpecificCountry($paymentMethod, $billingAddress);
 
         $quoteIdMask = $this->quoteIdMaskFactory->create()->load($cartId, 'masked_id');
-
+        /** @var Quote $quote */
         $quote = $this->cartRepository->getActive($quoteIdMask->getQuoteId());
         $quote->reserveOrderId();
 

@@ -37,17 +37,17 @@ define(
             {
                 defaults: {
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_capayablepostpay',
-                    selectedGender: null,
-                    genderValidate: null,
-                    firstname: '',
-                    lastname: '',
-                    CustomerName: null,
-                    BillingName: null,
-                    dateValidate: null,
-                    selectedOrderAs: 1,
-                    CocNumber: null,
-                    CompanyName: null,
-                    value: ''
+                    selectedGender : null,
+                    genderValidate : null,
+                    firstname : '',
+                    lastname : '',
+                    CustomerName : null,
+                    BillingName : null,
+                    dateValidate : null,
+                    selectedOrderAs : 1,
+                    CocNumber : null,
+                    CompanyName : null,
+                    value:''
                 },
                 redirectAfterPlaceOrder: true,
                 dp: datePicker,
@@ -124,14 +124,14 @@ define(
 
                 getData : function () {
                     return {
-                        "method": this.item.method,
+                        "method" : this.item.method,
                         "additional_data": {
-                            "customer_gender": this.genderValidate(),
-                            "customer_billingName": this.BillingName(),
-                            "customer_DoB": this.dateValidate(),
-                            "customer_orderAs": this.selectedOrderAs(),
-                            "customer_cocnumber": this.CocNumber(),
-                            "customer_companyName": this.CompanyName()
+                            "customer_gender" : this.genderValidate(),
+                            "customer_billingName" : this.BillingName(),
+                            "customer_DoB" : this.dateValidate(),
+                            "customer_orderAs" : this.selectedOrderAs(),
+                            "customer_cocnumber" : this.CocNumber(),
+                            "customer_companyName" : this.CompanyName()
                         }
                     };
                 }

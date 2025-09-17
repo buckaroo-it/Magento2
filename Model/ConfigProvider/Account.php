@@ -123,7 +123,6 @@ class Account extends AbstractConfigProvider
             'cart_keep_alive'                   => $this->getCartKeepAlive($store),
             'buckaroo_fee_tax_class'            => $this->getBuckarooFeeTaxClass(),
             'customer_additional_info'          => $this->getCustomerAdditionalInfo($store),
-            'buckaroo_fee_tax_class'            => $this->getBuckarooFeeTaxClass($store),
             'idin'                              => $this->getIdin($store),
             'idin_mode'                         => $this->getIdinMode($store),
             'idin_category'                     => $this->getIdinCategory($store)

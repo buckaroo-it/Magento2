@@ -345,21 +345,22 @@ class PaymentGroupTransaction extends AbstractHelper
             return [];
         }
 
-        $tableName = $this->resourceModel->getTable('buckaroo_magento2_giftcard');
-        $connection = $this->resourceModel->getConnection();
-
-        $collection = $this->grTrCollectionFactory->create()
-            ->addFieldToFilter('order_id', ['eq' => $orderId])
-            ->addFieldToFilter('status', ['eq' => '190']);
-
-        if ($connection->isTableExists($tableName)) {
-            $collection->getSelect()->joinLeft(
-                [$tableName],
-                "main_table.servicecode = {$tableName}.servicecode",
-                ["{$tableName}.label"]
+        $collection = $this->grTrCollectionFactory->create();
+        $collection
+            ->addFieldToFilter(
+                'order_id',
+                ['eq' => $orderId]
+            )
+            ->addFieldToFilter(
+                'status',
+                ['eq' => '190']
+            )
+            ->getSelect()
+            ->joinLeft(
+                ['buckaroo_magento2_giftcard'],
+                'main_table.servicecode = buckaroo_magento2_giftcard.servicecode',
+                ['buckaroo_magento2_giftcard.label']
             );
-        }
-
         return $collection->getItems();
     }
 
@@ -371,20 +372,18 @@ class PaymentGroupTransaction extends AbstractHelper
      */
     public function getByTransactionIdWithName(string $transactionId)
     {
-        $tableName = $this->resourceModel->getTable('buckaroo_magento2_giftcard');
-        $connection = $this->resourceModel->getConnection();
-
-        $collection = $this->grTrCollectionFactory->create()
-            ->addFieldToFilter('transaction_id', ['eq' => $transactionId]);
-
-        if ($connection->isTableExists($tableName)) {
-            $collection->getSelect()->joinLeft(
-                [$tableName],
-                "main_table.servicecode = {$tableName}.servicecode",
-                ["{$tableName}.label"]
+        $collection = $this->grTrCollectionFactory->create();
+        $collection
+            ->addFieldToFilter(
+                'transaction_id',
+                ['eq' => $transactionId]
+            )
+            ->getSelect()
+            ->joinLeft(
+                ['buckaroo_magento2_giftcard'],
+                'main_table.servicecode = buckaroo_magento2_giftcard.servicecode',
+                ['buckaroo_magento2_giftcard.label']
             );
-        }
-
         return $collection->getFirstItem();
     }
 

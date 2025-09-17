@@ -135,7 +135,6 @@ class PhoneFormatter
      * @param string $phoneNumber
      * @param string $country
      *
-     * @param string $phoneNumber
      * @return string
      */
     private function formatPhoneNumber(string $phoneNumber, string $country): string
@@ -193,8 +192,6 @@ class PhoneFormatter
      * @param string $phoneNumber
      * @param string $country
      *
-     * @param string $phoneNumber
-     * @param string $country
      * @return bool
      */
     private function isMobileNumber(string $phoneNumber, string $country): bool

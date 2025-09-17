@@ -168,7 +168,6 @@ class BuckarooFee extends CommonTaxCollector
         }
         $orderId = $quote->getReservedOrderId();
 
-        // Check if already paid amount is affecting the calculation
         if ($this->groupTransaction->getAlreadyPaid($orderId) > 0) {
             return $this;
         }

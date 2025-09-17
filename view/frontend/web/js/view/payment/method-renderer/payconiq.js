@@ -42,6 +42,7 @@ define(
 
                 afterPlaceOrder: function () {
                     var response = window.checkoutConfig.payment.buckaroo.response;
+                    response = $.parseJSON(response);
                     if (response.RequiredAction !== undefined && response.RequiredAction.RedirectURL !== undefined) {
                         var formKey = $.mage.cookies.get('form_key');
                         window.history.pushState(
@@ -64,3 +65,11 @@ define(
         );
     }
 );
+
+
+
+
+
+
+
+

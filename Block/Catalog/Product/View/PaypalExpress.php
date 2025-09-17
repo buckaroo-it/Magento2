@@ -89,9 +89,10 @@ class PaypalExpress extends Template
      */
     public function canShowProductButton()
     {
-        return $this->isModuleActive() &&
-            $this->paypalConfig->canShowButtonForPage($page, $this->_storeManager->getStore()) &&
-            $this->paypalConfig->isPayPalEnabled($this->_storeManager->getStore());
+        return $this->paypalConfig->canShowButtonForPage(
+            'Product',
+            $this->_storeManager->getStore()
+        );
     }
 
     /**
@@ -102,8 +103,10 @@ class PaypalExpress extends Template
      */
     public function canShowCartButton()
     {
-        $status = $this->configProviderAccount->getActive();
-        return $status == 1 || $status == 2;
+        return $this->paypalConfig->canShowButtonForPage(
+            'Cart',
+            $this->_storeManager->getStore()
+        );
     }
 
     /**

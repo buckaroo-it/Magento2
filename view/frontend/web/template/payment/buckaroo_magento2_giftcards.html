@@ -105,7 +105,7 @@
 
             <div class="payment-method-billing-address">
                 <!-- ko foreach: $parent.getRegion($parent.getBillingAddressFormName()) -->
-                <!-- ko template: getTemplate()--><!-- /ko -->
+                        <!-- ko template: getTemplate()--><!-- /ko -->
                 <!--/ko-->
             </div>
 
@@ -132,10 +132,11 @@
                                             'data-validate': JSON.stringify({ 'required': true })
                                         }">
                             </div>
+                        </div>
 
-                            <div class="fieldset width-100">
+                    <div class="fieldset width-100">
 
-                                <div class="magnet_stripe width-100"></div>
+                        <div class="magnet_stripe width-100"></div>
 
                         <div class="field required card_security width-100" >
                             <label class="label width-65-l" for="buckaroo_magento2_giftcards_pin"> <span data-bind="i18n: 'PIN / Security code:'"> </span> </label>
@@ -150,14 +151,16 @@
                                             'data-validate': JSON.stringify({ 'required': true })
                                         }">
                             </div>
+                        </div>
+                    </div>
 
-                            <div class="field width-100">
-                                <span data-bind="i18n: 'Please make sure all fields are filled in correctly before proceeding.' "></span>
-                                <span class="apply-gift-card action primary" data-bind="
+                    <div class="field width-100">
+                        <span data-bind="i18n: 'Please make sure all fields are filled in correctly before proceeding.' "></span>
+                        <span class="apply-gift-card action primary" data-bind="
                             click: $parent.applyGiftcard.bind($parent),
                             i18n: 'Apply Gift Card'">
                         </span>
-                            </div>
+                    </div>
 
                     </div>
                 </fieldset>
@@ -165,7 +168,7 @@
 
             <div class="checkout-agreements-block">
                 <!-- ko foreach: $parents[1].getRegion('before-place-order') -->
-                <!-- ko template: getTemplate() --><!-- /ko -->
+                        <!-- ko template: getTemplate() --><!-- /ko -->
                 <!--/ko-->
             </div>
 

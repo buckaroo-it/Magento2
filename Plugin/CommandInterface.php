@@ -83,11 +83,6 @@ class CommandInterface
      * @param string|float|int $amount
      * @param OrderInterface $order
      *
-     * @param MagentoCommandInterface $commandInterface
-     * @param \Closure $proceed
-     * @param OrderPaymentInterface $payment
-     * @param mixed $amount
-     * @param OrderInterface $order
      * @return mixed
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
@@ -118,7 +113,9 @@ class CommandInterface
                 
                 $this->updateOrderStateAndStatus($order, $methodInstance, $paymentCode, $paymentAction);
             }
+
             return $message;
+
         } catch (\Exception $e) {
             $this->logger->addDebug(__METHOD__ . '|Exception|' . $e->getMessage());
             throw $e;

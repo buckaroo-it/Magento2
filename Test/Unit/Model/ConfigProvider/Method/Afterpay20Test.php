@@ -43,7 +43,7 @@ class Afterpay20Test extends BaseTest
                         'buckaroo' => [
                             'afterpay20' => [
                                 'sendEmail' => '1',
-                                'paymentFeeLabel' => 'Payment Fee',
+                                'paymentFeeLabel' => 'Fee',
                                 'allowedCurrencies' => ['EUR']
                             ],
                             'response' => []

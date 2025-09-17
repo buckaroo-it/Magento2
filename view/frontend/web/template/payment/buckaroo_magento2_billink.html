@@ -42,7 +42,7 @@
 
                     <!-- ko if: buckaroo.b2b != true -->
                     <div class="field required">
-                        <label class="label" for="buckaroo_magento2_bilink_genderSelect"> <span data-bind="i18n: 'Salutation:'"> </span> </label>
+                        <label class="label" for="buckaroo_magento2_payperemail_genderSelect"> <span data-bind="i18n: 'Salutation:'"> </span> </label>
                         <div class="control">
                         <select id="buckaroo_magento2_billink_genderSelect" name="payment[buckaroo_magento2_billink][customer_gender]" class="select"
                         data-bind="options: buckaroo.genderList,
@@ -57,8 +57,7 @@
                     </div>
                     <!-- /ko -->
 
-                    <!-- Commented out the Billing Name Field -->
-                    <!-- <div class="field required">
+                    <div class="field required">
                         <label class="label" for="buckaroo_magento2_billink_BillingName"> <span data-bind="i18n: 'Billing Name:'"> </span> </label>
                         <div class="control">
                             <input id="buckaroo_magento2_billink_BillingName"
@@ -70,9 +69,9 @@
                                    name="payment[buckaroo_magento2_billink][customer_billingName]"
                                    disabled >
                         </div>
-                    </div> -->
+                    </div>
 
-                    <!-- ko if: showPhone() -->
+                    <!-- ko if: showPhone -->
                     <div class="field required" >
                         <label class="label" for="buckaroo_magento2_billink_Telephone"> <span data-bind="i18n: 'Telephone:'"> </span> </label>
                         <div class="control">
@@ -133,7 +132,7 @@
                                    data-validate="{required:true}">
                         </div>
                     </div>
-
+          
                     <div class="field">
                         <legend class="label"> <span data-bind="i18n: 'VAT number:'"> </span> </legend>
                         <div class="control">
@@ -176,7 +175,7 @@
                     <!-- ko if: showFinancialWarning  -->
                         <div class="field" data-bind="html: getMessageText()"></div>
                     <!-- /ko -->
-
+                    
                     <div class="field">
                         <span data-bind="i18n: 'Please make sure all fields are filled in correctly before proceeding.' ">  </span>
                     </div>

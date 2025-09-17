@@ -98,7 +98,7 @@ define(
 
                 placeOrder: function (data, event) {
                     var self = this,
-                        placeOrder;
+                    placeOrder;
 
                     if (event) {
                         event.preventDefault();
@@ -229,7 +229,6 @@ define(
                                         class: 'action primary accept',
                                         click: function () {
                                             this.closeModal(true);
-                                            window.location.reload();
                                         }
                                     }]
                                 });

@@ -386,7 +386,8 @@ define(
                     type: 'POST',
                     data: payload,
                     global: false,
-                    contentType: 'application/json'
+                    contentType: 'application/json',
+                    async: false
                 }).done(function (result) {
                     this.shippingGroups = {};
                     var firstLoop = true;
@@ -397,8 +398,6 @@ define(
                             firstLoop = false;
                         }
                     }.bind(this));
-                }.bind(this)).fail(function (jqXHR, textStatus, errorThrown) {
-                    this.shippingGroups = {};
                 }.bind(this));
             },
 
@@ -441,10 +440,6 @@ define(
                                 return JSON.stringify(authorizationResult);
                             } else {
                                 this.timeoutRedirect();
-                                return JSON.stringify({
-                                    status: ApplePaySession.STATUS_FAILURE,
-                                    errors: []
-                                });
                             }
                         }.bind(this)
                     })
@@ -460,7 +455,7 @@ define(
             getData: function (payment) {
                 var transactionData = this.formatTransactionResponse(payment);
                 return {
-                    "method": 'applepay',
+                    "method": 'buckaroo_magento2_applepay',
                     "po_number": null,
                     "shippingMethod": this.selectedShippingMethod,
                     "additional_data": {
@@ -520,7 +515,10 @@ define(
             },
 
             devLog: function (msg, params) {
-                // Debug logging is disabled for production.
+                //window.buckarooDebug = 1;
+                if (window.buckarooDebug) {
+                    console.log(msg, params);
+                }
             }
         };
     }

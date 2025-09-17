@@ -278,9 +278,4 @@ abstract class BaseTest extends TestCase
     {
         return sprintf(self::DEFAULT_PATH_PATTERN, $code, $configPath);
     }
-
-    protected function assertInternalType(string $type, $value)
-    {
-        $this->assertEquals($type, gettype($value));
-    }
 }

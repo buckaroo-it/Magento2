@@ -31,6 +31,7 @@ class CartTotalsProcessor extends AbstractTotalsProcessor implements LayoutProce
         Factory $configProviderFactory
     ) {
         parent::__construct($scopeConfig);
+        $this->configProviderFactory = $configProviderFactory;
     }
 
     /**
@@ -45,7 +46,7 @@ class CartTotalsProcessor extends AbstractTotalsProcessor implements LayoutProce
         $paymentFeeLabel = $configProvider->getPaymentFeeLabel();
 
         $jsLayout['components']['block-totals']['children']['before_grandtotal']['children']['buckaroo-fee-order-level']
-        ['config']['title'] = "Payment Fee";
+        ['config']['title'] = $paymentFeeLabel;
         return $jsLayout;
     }
 }
