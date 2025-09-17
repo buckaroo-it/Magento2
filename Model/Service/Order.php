@@ -85,6 +85,11 @@ class Order
     private Factory $configProviderFactory;
 
     /**
+     * @var OrderCancellationService
+     */
+    private $orderCancellationService;
+
+    /**
      * @param Account $accountConfig
      * @param MethodFactory $configProviderMethodFactory
      * @param Factory $configProviderFactory
@@ -94,6 +99,7 @@ class Order
      * @param Data $helper
      * @param Log $logger
      * @param ResourceConnection $resourceConnection
+     * @param OrderCancellationService $orderCancellationService
      */
     public function __construct(
         Account $accountConfig,
@@ -104,7 +110,8 @@ class Order
         OrderStatusFactory $orderStatusFactory,
         Data $helper,
         Log $logger,
-        ResourceConnection $resourceConnection
+        ResourceConnection $resourceConnection,
+        OrderCancellationService $orderCancellationService
     ) {
         $this->accountConfig = $accountConfig;
         $this->configProviderMethodFactory = $configProviderMethodFactory;
@@ -115,6 +122,7 @@ class Order
         $this->helper = $helper;
         $this->logger = $logger;
         $this->resourceConnection = $resourceConnection;
+        $this->orderCancellationService = $orderCancellationService;
     }
 
     /**
@@ -323,7 +331,7 @@ class Order
                 $methodInstanceClass::$requestOnVoid = false;
             }
 
-            $order->cancel();
+            $this->orderCancellationService->cancelOrder($order, $statusMessage, true);
 
             $failedStatus = $this->orderStatusFactory->get($statusCode, $order);
 

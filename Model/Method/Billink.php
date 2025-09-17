@@ -20,6 +20,7 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
+use Magento\Quote\Model\Quote;
 use Magento\Tax\Model\Config;
 use Magento\Tax\Model\Calculation;
 use Magento\Framework\Phrase;
@@ -366,6 +367,20 @@ class Billink extends AbstractMethod
 
         if (!empty($shippingCosts)) {
             $articles = array_merge($articles, $shippingCosts);
+            $count++;
+        }
+
+        $reward = $this->getRewardLine($quote, $count);
+
+        if (!empty($reward)) {
+            $articles = array_merge($articles, $reward);
+            $count++;
+        }
+
+        $giftCard = $this->getGiftCardLine($quote, $count);
+
+        if (!empty($giftCard)) {
+            $articles = array_merge($articles, $giftCard);
         }
 
         return $articles;
@@ -523,6 +538,82 @@ class Billink extends AbstractMethod
         }
 
         return $articles;
+    }
+
+    /**
+     * Get the reward cost lines
+     *
+     * @param Quote $quote
+     * @param $group
+     *
+     * @return array
+     */
+    public function getRewardLine($quote, $group)
+    {
+        try {
+            $discount = (float)$quote->getRewardCurrencyAmount();
+
+            if ($discount <= 0) {
+                return [];
+            }
+
+            $this->logger2->addDebug(__METHOD__ . '|Reward points discount found: ' . $discount);
+
+            $article = $this->getArticleArrayLine(
+                $group,
+                'Discount Reward Points',
+                'reward-points',
+                1,
+                -$discount,
+                0
+            );
+
+            return $article;
+        } catch (\Error $e) {
+            $this->logger2->addDebug(__METHOD__ . '|getRewardCurrencyAmount method not available - Adobe Commerce reward points may not be installed');
+            return [];
+        } catch (\Exception $e) {
+            $this->logger2->addError(__METHOD__ . '|Error getting reward points amount: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Get the gift card discount line
+     *
+     * @param Quote $quote
+     * @param $group
+     *
+     * @return array
+     */
+    public function getGiftCardLine($quote, $group)
+    {
+        try {
+            $discount = (float)$quote->getGiftCardsAmount();
+
+            if ($discount <= 0) {
+                return [];
+            }
+
+            $this->logger2->addDebug(__METHOD__ . '|Gift card discount found: ' . $discount);
+
+            $article = $this->getArticleArrayLine(
+                $group,
+                'Discount Gift Card',
+                'gift-card',
+                1,
+                -$discount,
+                0
+            );
+
+            return $article;
+        } catch (\Error $e) {
+            $this->logger2->addDebug(__METHOD__ . '|getGiftCardsAmount method not available - Adobe Commerce gift cards may not be installed');
+            return [];
+        } catch (\Exception $e) {
+            $this->logger2->addError(__METHOD__ . '|Error getting gift card amount: ' . $e->getMessage());
+            return [];
+        }
     }
 
     /**
@@ -913,7 +1004,7 @@ class Billink extends AbstractMethod
             }
 
             /**
-             * @var \Magento\Quote\Model\Quote $quote
+             * @var Quote $quote
              */
             $total = $quote->getGrandTotal();
 
