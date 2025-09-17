@@ -24,7 +24,7 @@ jobs:
         run: |
           echo "Event: ${{ github.event_name }}"
           echo "Ref: ${{ github.ref }}"
-          
+
           if [ "${{ github.event_name }}" == "pull_request" ]; then
             # Always run on PR events
             echo "should-run=true" >> $GITHUB_OUTPUT
@@ -33,14 +33,14 @@ jobs:
             # For push events, check if there's an open PR for this branch
             branch_name="${{ github.ref_name }}"
             echo "Checking if PR exists for branch: $branch_name"
-            
+
             # Use GitHub API to check for open PRs
             pr_response=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
               "https://api.github.com/repos/${{ github.repository }}/pulls?head=${{ github.repository_owner }}:$branch_name&state=open")
-            
+
             pr_count=$(echo "$pr_response" | jq length)
             echo "Open PRs for this branch: $pr_count"
-            
+
             if [ "$pr_count" -eq 0 ]; then
               # No PR exists, run checks on push
               echo "should-run=true" >> $GITHUB_OUTPUT
@@ -96,7 +96,7 @@ jobs:
         run: composer validate
       - name: Cache Composer packages
         id: composer-cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ${{ github.workspace }}/${{ env.namespace }}-source/vendor
           key: ${{ runner.os }}-php${{ matrix.php }}-mg${{ matrix.magento }}-${{ hashFiles('**/composer.lock') }}
@@ -105,7 +105,7 @@ jobs:
       - name: PHPUnit and PHPCS
         run: |
           echo "Setting up Magento ${{ matrix.magento }} with PHP ${{ matrix.php }}"
-          
+
           # Handle pull request files for PHPCS - only for PR events
           if [ "${{ github.event_name }}" == "pull_request" ]; then
             pull_number="${{ github.event.number }}"
@@ -129,15 +129,15 @@ jobs:
             echo "Not a pull request, skipping file change detection"
             touch files_changed.txt
           fi
-          
+
           # Set up Magento project
           echo '{"http-basic": {"repo.magento.com": {"username": "${{ secrets.REPO_USERNAME }}","password": "${{ secrets.REPO_PASS }}"}}}' > auth.json
           composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition=${{ matrix.magento }} m2-${{ matrix.magento }}
-          
+
           # Copy module files
           mkdir -p m2-${{ matrix.magento }}/app/code/Buckaroo/Magento2/
           rsync -r --exclude='m2-*' ./ m2-${{ matrix.magento }}/app/code/Buckaroo/Magento2/
-          
+
           # Run PHPCS on changed files (if any)
           if [ -s files_changed.txt ]; then
             echo "Running PHPCS on changed files..."
@@ -150,7 +150,7 @@ jobs:
           else
             echo "No changed files to check with PHPCS"
           fi
-          
+
           # Set up Magento and run tests
           cd m2-${{ matrix.magento }}
           bin/magento module:enable --all
