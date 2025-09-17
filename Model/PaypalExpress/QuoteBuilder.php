@@ -136,7 +136,7 @@ class QuoteBuilder implements QuoteBuilderInterface
             throw new PaypalExpressException($exceptionMessage, 1);
         }
     }
-/**
+    /**
      * Format form data
      *
      * @param string $form_data

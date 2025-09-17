@@ -31,7 +31,7 @@ define(
         'Magento_Checkout/js/action/select-payment-method',
         'buckaroo/applepay/pay',
         'buckaroo/checkout/common',
-        'BuckarooSDK'
+        'BuckarooSdk'
     ],
     function (
         $,
@@ -54,34 +54,36 @@ define(
                 },
                 currencyCode: window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode: window.checkoutConfig.quoteData.base_currency_code,
-                subtext: window.checkoutConfig.payment.buckaroo.applepay.subtext,
-                subTextStyle: checkoutCommon.getSubtextStyle('applepay'),
+                subtext: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.subtext,
                 submit: false,
 
                 initObservable: function () {
                     this._super().observe([]);
-                    applepayPay.canShowApplePay();
 
-                    applepayPay.transactionResult.subscribe(
-                        function () {
-                            this.submit = true;
-                            this.placeOrder(null, null);
-                        }.bind(this)
-                    );
+                    applepayPay.canShowApplePay().then(function(canShow) {
+                        if (canShow) {
+                            applepayPay.transactionResult.subscribe(
+                                function () {
+                                    this.submit = true;
+                                    this.placeOrder(null, null);
+                                }.bind(this)
+                            );
 
-                    quote.totals.subscribe(
-                        function () {
-                            if (applepayPay.canShowApplePay()) {
-                                applepayPay.updateOptions();
-                            }
-                        }.bind(this)
-                    );
+                            quote.totals.subscribe(
+                                function () {
+                                    if (applepayPay.canShowMethod()) {
+                                        applepayPay.updateOptions();
+                                    }
+                                }.bind(this)
+                            );
 
-                    $(window).on('hashchange', function () {
-                        var hashString = window.location.hash.replace('#', '');
+                            $(window).on('hashchange', function () {
+                                var hashString = window.location.hash.replace('#', '');
 
-                        if (hashString === 'payment' && applepayPay.canShowApplePay()) {
-                            applepayPay.updateOptions();
+                                if (hashString === 'payment' && applepayPay.canShowMethod()) {
+                                    applepayPay.updateOptions();
+                                }
+                            }.bind(this));
                         }
                     }.bind(this));
 
@@ -153,13 +155,17 @@ define(
                 },
 
                 showPayButton: function () {
-                    applepayPay.setIsOnCheckout(true);
-                    applepayPay.setQuote(quote);
-                    applepayPay.showPayButton();
+                    applepayPay.canShowApplePay().then(function(canShow) {
+                        if (canShow) {
+                            applepayPay.setIsOnCheckout(true);
+                            applepayPay.setQuote(quote);
+                            applepayPay.showPayButton();
+                        }
+                    });
                 },
 
                 payWithBaseCurrency: function () {
-                    var allowedCurrencies = window.checkoutConfig.payment.buckaroo.applepay.allowedCurrencies;
+                    var allowedCurrencies = window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.allowedCurrencies;
 
                     return allowedCurrencies.indexOf(this.currencyCode) < 0;
                 },
@@ -191,9 +197,9 @@ define(
                  */
                 formatTransactionResponse: function (response) {
                     if (null === response || 'undefined' === typeof response || !response) {
-                    if (window.console && window.console.error) {
-                        console.error('[Buckaroo Apple Pay Client] formatTransactionResponse: Invalid response data from Apple Pay SDK', response);
-                    }
+                        if (window.console && window.console.error) {
+                            console.error('[Buckaroo Apple Pay Client] formatTransactionResponse: Invalid response data from Apple Pay SDK', response);
+                        }
                         return null;
                     }
 
@@ -201,9 +207,9 @@ define(
                         var paymentData = response.token.paymentData;
 
                         if (!paymentData || !paymentData.data || !paymentData.signature) {
-                        if (window.console && window.console.error) {
-                            console.error('[Buckaroo Apple Pay Client] Missing required payment data fields from Apple Pay SDK', paymentData);
-                        }
+                            if (window.console && window.console.error) {
+                                console.error('[Buckaroo Apple Pay Client] Missing required payment data fields from Apple Pay SDK', paymentData);
+                            }
                             return null;
                         }
 

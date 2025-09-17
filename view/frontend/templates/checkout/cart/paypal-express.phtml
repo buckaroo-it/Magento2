@@ -1,5 +1,4 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
@@ -18,30 +17,26 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-/** @var string $block */
 
-?>
-<?php if ($block->canShowButton('Cart')) : ?>
-<div id="paypal-express-button-component" data-bind="scope:'paypalExpress'">
-    <!-- ko template: getTemplate() --><!-- /ko -->
+/** @var string $block */
+if ($block->canShowCartButton() && !$block->isIdinVerificationRequired()): ?>
+    <div class="box-tocart">
+        <div class="fieldset">
+            <div class="actions">
+                <div id="paypal-express-wrapper"></div>
+            </div>
+        </div>
+    </div>
     <div class="buckaroo-paypal-express"></div>
+
     <script type="text/x-magento-init">
-        {
-            "#paypal-express-button-component": {
-                "Magento_Ui/js/core/app": {
-                    "components": {
-                        "paypalExpress": {
-                            "component":"buckaroo/paypal-express/button",
-                            "template":"Buckaroo_Magento2/catalog/product/view/paypal-express",
-                            "config": {
-                                  "data": <?= /* @noEscape */ json_encode($block->getConfig()); ?>,
-                                  "page": "cart"
-                            }
-                        }
-                    }
-                }
+    {
+        "#paypal-express-wrapper": {
+            "Buckaroo_Magento2/js/view/checkout/cart/paypal-express": {
+                "config": <?= /* @noEscape */ json_encode($block->getConfig()); ?>,
+                "context": "cart"
             }
         }
+    }
     </script>
-</div>
 <?php endif; ?>

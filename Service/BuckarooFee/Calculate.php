@@ -35,18 +35,18 @@ class Calculate
     protected $configProviderMethodFactory;
 
     /**
-     * @var FixedAmount
+     * @var \Buckaroo\Magento2\Service\BuckarooFee\Types\FixedAmount
      */
     private $fixedAmount;
 
     /**
-     * @var Percentage
+     * @var \Buckaroo\Magento2\Service\BuckarooFee\Types\Percentage
      */
     private $percentage;
 
     /**
      * @param Factory $configProviderMethodFactory
-     * @param FixedAmount $fixedAmount
+     * @param \Buckaroo\Magento2\Service\BuckarooFee\Types\FixedAmount $fixedAmount
      * @param Percentage $percentage
      */
     public function __construct(Factory $configProviderMethodFactory, FixedAmount $fixedAmount, Percentage $percentage)
@@ -60,14 +60,14 @@ class Calculate
     {
         $paymentFee = $this->getPaymentFee($quote);
 
-        if ($paymentFee === null){
+        if ($paymentFee === null) {
             return null;
         }
-        if(strpos($paymentFee, '%') !== false){
+        if (strpos($paymentFee, '%') !== false) {
             return $this->percentage->calculate($quote, $total, $paymentFee);
         }
 
-        return $this->fixedAmount->calculate($quote, $total, (float)$paymentFee);
+        return $this->fixedAmount->calculate($quote, (float)$paymentFee);
     }
 
     public function getPaymentFee(Quote $quote)
@@ -78,17 +78,23 @@ class Calculate
             return null;
         }
 
-        $methodInstance = $quote->getPayment()->getMethodInstance();
-        if (!$methodInstance instanceof AbstractMethod) {
+        try {
+            $methodInstance = $quote->getPayment()->getMethodInstance();
+
+            if (!$methodInstance || !isset($methodInstance->buckarooPaymentMethodCode)) {
+                return null;
+            }
+
+            $buckarooPaymentMethodCode = $methodInstance->buckarooPaymentMethodCode;
+            if (!$this->configProviderMethodFactory->has($buckarooPaymentMethodCode)) {
+                return null;
+            }
+
+            $configProvider = $this->configProviderMethodFactory->get($buckarooPaymentMethodCode);
+            return trim($configProvider->getPaymentFee($quote->getStore()));
+        } catch (\Exception $e) {
+            // If payment method instance cannot be loaded, return null (no fee)
             return null;
         }
-
-        $buckarooPaymentMethodCode = $methodInstance->buckarooPaymentMethodCode;
-        if (!$this->configProviderMethodFactory->has($buckarooPaymentMethodCode)) {
-            return null;
-        }
-
-        $configProvider = $this->configProviderMethodFactory->get($buckarooPaymentMethodCode);
-        return trim($configProvider->getPaymentFee($quote->getStore()));
     }
 }

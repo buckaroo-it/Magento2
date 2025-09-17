@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Test\Unit\Model\Config\Source;
 
 use Buckaroo\Magento2\Model\Config\Source\AllOrSpecificCountries;
@@ -39,7 +41,7 @@ class AllOrSpecificCountriesTest extends BaseTest
         $this->assertCount(2, $result);
 
         foreach ($result as $option) {
-            $this->assertContains($option['label']->getText(), $expectedOptions);
+            $this->assertTrue(in_array($option['label']->getText(), $expectedOptions));
         }
     }
 

@@ -1,5 +1,5 @@
-<!-- ko if: isCredicardGroupMode() -->
-<div class="buckaroo_magento2_creditcard payment-method" data-bind="css: {'_active': (getCode() == isChecked()), 'buckaroo_magento2_flow_authorize': paymentFlow == 'authorize'}">
+<!-- ko if: buckaroo.groupCreditcards === '1' -->
+<div class="buckaroo_magento2_creditcard payment-method" data-bind="css: {'_active': (getCode() == isChecked()), 'buckaroo_magento2_flow_authorize': buckaroo.paymentFlow == 'authorize'}">
     <div class="payment-method-title field choice bk-payment">
         <div class="bk-payment-wrap">
             <div class="bk-radio-wrap">
@@ -9,13 +9,21 @@
                        data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
                 <label class="label" data-bind="attr: {'for': getCode()}" >
                         <!-- ko text: getTitle() --><!-- /ko -->
-                        <!-- ko if: subtext !== null && subtext.length > 0 -->
-                       <p class="bk-description" data-bind="text: subtext, style: subTextStyle"></p>
+                        <!-- ko if: buckaroo.subtext !== null && buckaroo.subtext.length > 0 -->
+                       <p class="bk-description" data-bind="text:buckaroo.subtext, style: getSubtextStyle()"></p>
                         <!-- /ko -->
                 </label>
             </div>
-            <div class="bk-img-wrap">
-                <img data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/creditcards.svg') }" />
+            <div class="bk-mode-and-img">
+                <!-- ko if: buckaroo.isTestMode -->
+                <div class="bk-test-mode"><div class="bk-test-text" data-bind="i18n: 'Test Mode'"></div></div>
+                <!-- /ko -->
+                <div class="bk-img-wrap">
+                    <img
+                        data-bind="attr: {src: buckaroo.logo }"
+                        alt="Credicards Logo"
+                    />
+                </div>
             </div>
         </div>
     </div>
@@ -37,27 +45,39 @@
                     <legend class="label" data-bind="i18n: 'Select a Credit Card or Debit Card:'"></legend>
                     <div class="control">
 
-                        <!-- ko if: selectionType == '1' -->
-                            <!-- ko foreach: creditcards -->
+                        <!-- ko if: buckaroo.selectionType == '1' -->
+                            <!-- ko foreach: buckaroo.cards -->
                                 <label class="card-types">
-                                    <img class="card-types-img" data-bind="attr: {
-                                             'src': img,
-                                             'width': 30,
-                                             'height': 20 }"
-                                            />
-                                    <input class="card-types-input" type="radio" data-bind="value: code, click: $parent.setSelectedCard" data-validate="{'validate-one-required-by-name':true}" name="card"> <!-- ko text: name --><!--/ko-->
+                                    <img
+                                        class="card-types-img"
+                                        data-bind="attr: {
+                                            'src': img,
+                                            'width': 30,
+                                            'height': 20,
+                                            'alt': name + ' Logo'
+                                        }"
+                                    />
+                                    <input
+                                        class="card-types-input"
+                                        type="radio"
+                                        data-bind="value: code, checked: $parent.selectedCard
+                                        event: { change: $parent.validateField.bind($parent) }"
+                                        data-validate="{'validate-one-required-by-name':true}"
+                                        name="card"
+                                    >
+                                    <!-- ko text: name --><!--/ko-->
                                 </label>
                             <!--/ko-->
                         <!--/ko-->
 
-                        <!-- ko if: selectionType == '2' -->
+                        <!-- ko if: buckaroo.selectionType == '2' -->
                             <select id="buckaroo_magento2_creditcard_issuer" class="field"
-                                    data-bind="value: creditcardIssuer,
-                                    event: { change: setSelectedBankDropDown },
-                                    attr: { 'data-validate': JSON.stringify({ 'required-entry': true }) }"
+                                    data-bind="value: selectedCard,
+                                    event: { change: validateField }"
+                                    data-validate="{required:true}"
                                     name="card">
                                 <option data-bind="i18n: 'Select a Credit Card or Debit Card', 'value': ''"></option>
-                                <!-- ko foreach: creditcards -->
+                                <!-- ko foreach: buckaroo.cards -->
                                     <option data-bind="i18n: name, 'value': code"></option>
                                 <!--/ko-->
                             </select>
@@ -83,7 +103,7 @@
                         click: placeOrder,
                         attr: {title: $t('Place Order')},
                         enable: (getCode() == isChecked()),
-                        css: {disabled: !isPlaceOrderActionAllowed() || !buttoncheck() }
+                        css: {disabled: !isPlaceOrderActionAllowed() }
                         "
                         disabled>
                     <span data-bind="i18n: 'Place Order'"></span>
@@ -101,8 +121,8 @@
 
 <!-- /ko -->
 
-<!-- ko ifnot: isCredicardGroupMode() -->
-<div class="buckaroo_magento2_all_creditcards" data-bind="foreach: { data: creditcards, as: 'creditcard', noChildContext: false }">
+<!-- ko if: buckaroo.groupCreditcards !== '1' -->
+<div class="buckaroo_magento2_all_creditcards" data-bind="foreach: { data: buckaroo.cards, as: 'creditcard', noChildContext: false }">
     <div data-bind="attr: { 'class': 'buckaroo_magento2_all_creditcard payment-method buckaroo_magento2_' + code }, css: {'_active': ($parent.getCode() == $parent.isChecked() && $parent.selectedCard() == code)}">
 
         <div class="payment-method-title field choice bk-payment">
@@ -111,13 +131,21 @@
                     <input type="radio"
                            name="payment[method]"
                            class="radio"
-                           data-bind="attr: {'id': code, 'data-method': 'buckaroo_magento2_creditcard'}, value: code,  click: $parent.selectCreditCardPaymentMethod.bind($parent, code), checked: $parent.isCheckedCreditCardPaymentMethod.bind($parent, code), visible: $parent.isRadioButtonVisible()"/>
+                           data-bind="attr: {'id': code, 'data-method': 'buckaroo_magento2_creditcard'}, value: code,
+                           event: { change: $parent.selectPaymentMethod.bind($parent)},
+                           checked: $parent.selectedCard,
+                           visible: $parent.isRadioButtonVisible()"/>
                     <label class="label" data-bind="attr: {'for': code}">
                         <!-- ko text: name --><!-- /ko -->
                     </label>
                 </div>
-                <div class="bk-img-wrap">
-                    <img data-bind="attr: { src: img }"/>
+                <div class="bk-mode-and-img">
+                    <!-- ko if: $parent.buckaroo.isTestMode -->
+                    <div class="bk-test-mode"><div class="bk-test-text" data-bind="i18n: 'Test Mode'"></div></div>
+                    <!-- /ko -->
+                    <div class="bk-img-wrap">
+                        <img data-bind="attr: { src: img, alt: name }" />
+                    </div>
                 </div>
             </div>
         </div>
@@ -141,14 +169,12 @@
 
             <div class="actions-toolbar">
                 <div class="primary">
-                    <button id="button-action-checkout-giftcards"
-                            class="action primary checkout"
+                    <button class="action primary checkout"
                             type="submit"
                             data-bind="
                             click: $parent.placeOrder.bind($parent),
                             attr: {title: $t('Place Order')},
                             enable: ($parent.getCode() == $parent.isChecked()),
-                            css: {disabled: !$parent.buttoncheck()}
                             "
                             disabled>
                         <span data-bind="i18n: 'Place Order'"></span>

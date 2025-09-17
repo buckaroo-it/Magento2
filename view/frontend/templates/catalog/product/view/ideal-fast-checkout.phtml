@@ -21,11 +21,11 @@
 
 /** @var string $block */
 
-if ($block->canShowButton('Product')): ?>
+if ($block->canShowButton('Product') && !$block->isIdinVerificationRequired()): ?>
 
     <div id="fast-checkout-ideal-btn-component" data-bind="scope: 'fastCheckoutIdeal'">
         <button id="fast-checkout-ideal-btn" type="button">
-            <img src="<?= $block->escapeHtml($block->getLogo()) ?>" alt="<?= __('Ideal Fast Checkout') ?>"/>
+            <img src="<?= $escaper->escapeHtml($block->getLogo()) ?>" alt="<?= __('Ideal Fast Checkout') ?>"/>
         </button>
     </div>
 

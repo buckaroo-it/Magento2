@@ -8,7 +8,7 @@ declare(strict_types=1);
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
  * If you are unable to obtain it through the world-wide-web, please email
- * support@buckaroo.nl so we can send you a copy immediately.
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -19,46 +19,67 @@ declare(strict_types=1);
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
+
 namespace Buckaroo\Magento2\Plugin;
 
-use Buckaroo\Magento2\Helper\Data;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Store\Model\Store;
 
 class ShippingMethodManagement
 {
+    /**
+     * @var Session
+     */
     private Session $checkoutSession;
+
+    /**
+     * @var Account
+     */
     private Account $accountConfig;
-    private Data $helper;
+
+    /**
+     * @var BuckarooLoggerInterface
+     */
+    private BuckarooLoggerInterface $logger;
+
+    /**
+     * @var CartRepositoryInterface
+     */
     private CartRepositoryInterface $quoteRepository;
 
     /**
      * @param Session $checkoutSession
      * @param Account $accountConfig
-     * @param Data $helper
+     * @param BuckarooLoggerInterface $logger
      * @param CartRepositoryInterface $quoteRepository
      */
     public function __construct(
         Session $checkoutSession,
         Account $accountConfig,
-        Data $helper,
+        BuckarooLoggerInterface $logger,
         CartRepositoryInterface $quoteRepository
     ) {
         $this->checkoutSession = $checkoutSession;
         $this->accountConfig   = $accountConfig;
-        $this->helper          = $helper;
+        $this->logger          = $logger;
         $this->quoteRepository = $quoteRepository;
     }
 
     /**
-     * Before plugin for get() method.
+     * Ensures that the shipping address is loaded and shipping rates are collected.
      *
-     * @param mixed $cartId
+     * @param int $cartId
      * @return void
-     * @throws NoSuchEntityException|LocalizedException
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function beforeGet($cartId): void
     {
@@ -69,20 +90,31 @@ class ShippingMethodManagement
             }
 
             $order = $payment->getOrder();
-            $this->helper->addDebug(__METHOD__ . '|1|');
+
+            $this->logger->addDebug(sprintf(
+                '[SET_SHIPPING] | [Plugin] | [%s:%s] - START - Ensures that the shipping address is loaded '
+                . ' and shipping rates are collected. | lastRealOrder: %s',
+                __METHOD__,
+                __LINE__,
+                $lastRealOrder->getIncrementId(),
+            ));
 
             if ($this->accountConfig->getCartKeepAlive($order->getStore())
                 && $this->isNeedRecreate($order->getStore())
             ) {
-                $this->helper->addDebug(__METHOD__ . '|2|');
                 $quote = $this->checkoutSession->getQuote();
                 if ($quote && $quote->getId()) {
                     $quote = $this->quoteRepository->getActive((int)$quote->getId());
-                    $this->helper->addDebug(__METHOD__ . '|3|');
                     if ($shippingAddress = $quote->getShippingAddress()) {
-                        $this->helper->addDebug(__METHOD__ . '|4|');
                         if (!$shippingAddress->getShippingMethod()) {
-                            $this->helper->addDebug(__METHOD__ . '|5|');
+                            $this->logger->addDebug(sprintf(
+                                '[SET_SHIPPING] | [Plugin] | [%s:%s] - SET SHIPPING ADDRESS - Ensures that '
+                                . 'the shipping address is loaded. | lastRealOrder: %s | shippingAddressId: %s',
+                                __METHOD__,
+                                __LINE__,
+                                $lastRealOrder->getIncrementId(),
+                                $shippingAddress->getAddressId()
+                            ));
                             $shippingAddress->load($shippingAddress->getAddressId());
                         }
                         $shippingAddress->setCollectShippingRates(true);
@@ -93,10 +125,12 @@ class ShippingMethodManagement
     }
 
     /**
-     * Determine if the cart needs to be recreated.
+     * Function that is used by external plugins
      *
-     * @param mixed $store
-     * @return bool
+     * @param Store $store
+     * @return false
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function isNeedRecreate($store): bool
     {

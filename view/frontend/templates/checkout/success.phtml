@@ -18,18 +18,16 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 ?>
-<div id="buckaroo-cart-reloader" data-bind="scope: 'buckarooCartReloader'"></div>
-
 <script type="text/x-magento-init">
-    {
-        "#buckaroo-cart-reloader": {
-            "Magento_Ui/js/core/app": {
-                "components": {
-                    "buckarooCartReloader": {
-                        "component": "Buckaroo_Magento2/js/action/cart-reload"
-                    }
+{
+    "*": {
+        "Magento_Ui/js/core/app": {
+            "components": {
+                "buckarooSuccessPageReload": {
+                    "component": "Buckaroo_Magento2/js/view/checkout/success-reload"
                 }
             }
         }
     }
+}
 </script>

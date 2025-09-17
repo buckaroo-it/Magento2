@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,20 +17,26 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Controller\Payconiq;
 
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\Action\HttpGetActionInterface;
+use Magento\Framework\App\Action\HttpPostActionInterface;
+use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
 
-class Pay extends Action
+class Pay extends Action implements HttpGetActionInterface, HttpPostActionInterface
 {
-    /** @var  PageFactory */
-    protected $resultPageFactory;
+    /**
+     * @var PageFactory
+     */
+    protected PageFactory $resultPageFactory;
 
     /**
-     * @param Context     $context
+     * @param Context $context
      * @param PageFactory $resultPageFactory
      */
     public function __construct(
@@ -42,25 +48,27 @@ class Pay extends Action
     }
 
     /**
-     * @return Page
+     * Display Payconiq page
+     *
+     * @return Page|ResponseInterface
      */
     public function execute()
     {
         $canShowPage = $this->canShowPage();
 
         if (!$canShowPage) {
-            $this->_forward('defaultNoRoute');
-            return;
+            return $this->_redirect('defaultNoRoute');
         }
 
-        $resultPage = $this->resultPageFactory->create();
-        return $resultPage;
+        return $this->resultPageFactory->create();
     }
 
     /**
+     * Check if Payconiq page should be displayed
+     *
      * @return bool
      */
-    protected function canShowPage()
+    protected function canShowPage(): bool
     {
         $key = $this->getRequest()->getParam('Key');
 

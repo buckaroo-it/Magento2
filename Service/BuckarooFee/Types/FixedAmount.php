@@ -20,11 +20,11 @@
 
 namespace Buckaroo\Magento2\Service\BuckarooFee\Types;
 
+use Buckaroo\Magento2\Service\BuckarooFee\ResultFactory;
 use Buckaroo\Magento2\Service\Tax\TaxCalculate;
+use Buckaroo\Magento2\Service\BuckarooFee\Result;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\Quote\Address\Total;
-use Buckaroo\Magento2\Service\BuckarooFee\Result;
-use Buckaroo\Magento2\Service\BuckarooFee\ResultFactory;
 
 class FixedAmount
 {
@@ -47,8 +47,8 @@ class FixedAmount
         $this->taxCalculate = $taxCalculate;
     }
 
-    public function calculate(CartInterface $cart, Total $total, float $amount){
-
+    public function calculate(CartInterface $cart, float $amount)
+    {
         $tax = $this->taxCalculate->getTaxFromAmountIncludingTax($cart, $amount);
         /** @var Result $result */
         $result = $this->resultFactory->create();

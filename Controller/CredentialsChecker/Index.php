@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -20,198 +20,135 @@
 
 namespace Buckaroo\Magento2\Controller\CredentialsChecker;
 
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Exception as BuckarooException;
+use Buckaroo\Magento2\Model\Adapter\BuckarooAdapter;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory;
+use Magento\Checkout\Model\ConfigProviderInterface;
+use Magento\Framework\App\Action\Action;
+use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\Action\HttpPostActionInterface;
+use Magento\Framework\Controller\Result\Json;
+use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Encryption\Encryptor;
 
-class Index extends \Magento\Framework\App\Action\Action
+class Index extends Action implements HttpPostActionInterface
 {
     /**
-     * @var array
-     */
-    protected $response;
-
-    /**
-     * @var Log
-     */
-    protected $logger;
-
-    /**
-     * @var \Magento\Framework\Controller\Result\JsonFactory
-     */
-    protected $resultJsonFactory;
-
-    /**
-     * @var \Magento\Checkout\Model\ConfigProviderInterface
+     * @var ConfigProviderInterface
      */
     protected $accountConfig;
 
-    private $urlBuilder;
-    private $formKey;
-    private $helper;
+    /**
+     * @var Encryptor
+     */
     private $encryptor;
+
+    /**
+     * @var Account
+     */
     private $configProviderAccount;
-    private $transactionBuilderFactory;
-    private $gateway;
-    private $validatorFactory;
+
+    /**
+     * @var BuckarooAdapter
+     */
     private $client;
 
     /**
-     * @param \Magento\Framework\App\Action\Context               $context
-     * @param Log                                                 $logger
-     * @param \Magento\Sales\Model\Order                          $order
+     * Check Credentials in Admin
      *
-     * @throws \Buckaroo\Magento2\Exception
+     * @param Context $context
+     * @param Factory $configProviderFactory
+     * @param Encryptor $encryptor
+     * @param Account $configProviderAccount
+     * @param BuckarooAdapter $client
+     * @throws BuckarooException
      */
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        Log $logger,
-        \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory,
-        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory,
-        \Magento\Framework\UrlInterface $urlBuilder,
-        \Magento\Framework\Data\Form\FormKey $formKey,
-        \Buckaroo\Magento2\Helper\Data $helper,
+        Context $context,
+        Factory $configProviderFactory,
         Encryptor $encryptor,
         Account $configProviderAccount,
-        \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory,
-        \Buckaroo\Magento2\Gateway\GatewayInterface $gateway,
-        \Buckaroo\Magento2\Model\ValidatorFactory $validatorFactory,
-        \Buckaroo\Magento2\Gateway\Http\Client\Json $client
+        BuckarooAdapter $client
     ) {
         parent::__construct($context);
-        $this->logger             = $logger;
-        $this->resultJsonFactory  = $resultJsonFactory;
-        $this->accountConfig      = $configProviderFactory->get('account');
-        $this->urlBuilder         = $urlBuilder;
-        $this->formKey            = $formKey;
-        $this->helper             = $helper;
-        $this->encryptor          = $encryptor;
+        $this->accountConfig = $configProviderFactory->get('account');
+        $this->encryptor = $encryptor;
         $this->configProviderAccount = $configProviderAccount;
-        $this->transactionBuilderFactory = $transactionBuilderFactory;
-        $this->gateway            = $gateway;
-        $this->validatorFactory   = $validatorFactory;
         $this->client = $client;
     }
 
-    public function execute()
+    /**
+     * Check Buckaroo Credentials Secret Key and Merchant Key
+     *
+     * @return Json
+     * @throws \Exception
+     */
+    public function execute(): Json
     {
-        if ($params = $this->getRequest()->getParams()) {
-            if (!empty($params['secretKey']) && !empty($params['merchantKey'])) {
-
-                if (preg_match('/[^\*]/', $params['secretKey'])) {
-                    $secretKey =  $params['secretKey'];
-                } else {
-                    $secretKey =  $this->encryptor->decrypt($this->configProviderAccount->getSecretKey());
-                }
-
-                if (preg_match('/[^\*]/', $params['merchantKey'])) {
-                    $merchantKey =  $params['merchantKey'];
-                } else {
-                    $merchantKey =  $this->encryptor->decrypt($this->configProviderAccount->getMerchantKey());
-                }
-
-                $mode = $params['mode'] ?? \Buckaroo\Magento2\Helper\Data::MODE_TEST;
-
-                if (!$this->testXml($mode, $merchantKey, $message)) {
-                    return $this->doResponse([
-                        'success' => false,
-                        'error_message' => $message
-                    ]);
-                }
-
-                if (!$this->testJson($mode, $merchantKey, $secretKey, $message)) {
-                    return $this->doResponse([
-                        'success' => false,
-                        'error_message' => $message
-                    ]);
-                }
-
-                return $this->doResponse([
-                    'success' => true
-                ]);
-            }
+        $params = $this->getRequest()->getParams();
+        if (empty($params) || empty($params['secretKey']) || empty($params['merchantKey'])) {
+            return $this->doResponse([
+                'success' => false,
+                'error_message' => __('Failed to start validation process due to lack of data')
+            ]);
         }
 
-        return $this->doResponse([
-            'success' => false,
-            'error_message' => __('Failed to start validation process due to lack of data')
-        ]);
+        $secretKey = $this->resolveCredential($params['secretKey'], 'secretKey');
+        $merchantKey = $this->resolveCredential($params['merchantKey'], 'merchantKey');
+
+        return $this->validateCredentials($merchantKey, $secretKey);
     }
 
-    private function testXml($mode, $merchantKey, &$message)
+    /**
+     * Resolves the provided credential by checking if it contains any non-asterisk characters.
+     * If it contains any real characters, the raw credential is returned.
+     * Otherwise, the credential is decrypted from the stored configuration.
+     *
+     * @param string $credential The raw credential input.
+     * @param string $type The type of the credential ('secretKey' or 'merchantKey').
+     * @return string The resolved credential, either as provided or decrypted.
+     * @throws \Exception
+     */
+    private function resolveCredential(string $credential, string $type): string
     {
-
-        $services = [
-            'Name'             => 'Idin',
-            'Action'           => 'verify',
-            'Version'          => 0,
-            'RequestParameter' => [
-                [
-                    '_'    => 'BANKNL2Y',
-                    'Name' => 'issuerId',
-                ],
-            ],
-        ];
-
-        $transactionBuilder = $this->transactionBuilderFactory->get('datarequest');
-        $transactionBuilder->setMerchantKey($merchantKey);
-        $transaction        = $transactionBuilder
-            ->setServices($services)
-            ->setMethod('DataRequest')
-            ->setReturnUrl('')
-            ->build();
-
-        try {
-            $response = $this->gateway->setMode($mode)->authorize($transaction);
-        } catch (\Exception $e) {
-            $message = __('It seems like "Merchant key" and/or "Certificate file" are incorrect');
-            return false;
-        }
-
-        if (!$this->validatorFactory->get('transaction_response')->validate($response)) {
-            $message = __('It seems like "Certificate file" is incorrect');
-            return false;
-        }
-
-        return true;
+        return preg_match('/[^\*]/', $credential) ? $credential :
+            $this->encryptor->decrypt($this->configProviderAccount->{"get{$type}"}());
     }
 
-    private function testJson($mode, $merchantKey, $secretKey, &$message)
+    /**
+     * Validates the credentials by sending them to the Buckaroo client for confirmation.
+     * If the credentials are valid, a success response is generated.
+     * Otherwise, an error message is returned stating the credentials are invalid.
+     *
+     * @param string $merchantKey The merchant key to validate.
+     * @param string $secretKey The secret key to validate.
+     * @return Json The JSON response indicating whether the credentials are valid.
+     * @throws \Exception
+     */
+    private function validateCredentials(string $merchantKey, string $secretKey): Json
     {
-        $this->client->setSecretKey($secretKey);
-        $this->client->setWebsiteKey($merchantKey);
-
-        $data = [
-            "Services" => [
-                "ServiceList" => [
-                    [
-                        "Action" => "Pay",
-                        "Name" => "ideal",
-                        "Parameters" => [
-                            [
-                                "Name" => 'issuer',
-                                "Value" => 'ABNANL2A'
-                            ]
-                        ]
-                    ]
-                ]
-            ]
-        ];
-
-        $this->client->doRequest($data, $mode);
-
-        if ($this->client->getStatus() ==  200) {
-            return true;
+        if ($this->client->confirmCredential($merchantKey, $secretKey)) {
+            return $this->doResponse([
+                'success' => true
+            ]);
         } else {
-            $message = __('It seems like "Merchant key" and/or "Secret key" are incorrect');
-            return false;
+            return $this->doResponse([
+                'success' => false,
+                'error_message' => 'The credentials are not valid!'
+            ]);
         }
     }
 
-    private function doResponse($response)
+    /**
+     * Set Response on resultJson
+     *
+     * @param array $response
+     * @return Json
+     */
+    private function doResponse(array $response): Json
     {
         $this->_actionFlag->set('', self::FLAG_NO_POST_DISPATCH, true);
-        $resultJson = $this->resultJsonFactory->create();
-        return $resultJson->setData($response);
+        return $this->resultFactory->create(ResultFactory::TYPE_JSON)->setData($response);
     }
 }

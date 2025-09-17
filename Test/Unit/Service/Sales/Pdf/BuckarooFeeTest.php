@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Test\Unit\Service\Sales\Pdf;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -33,7 +35,7 @@ class BuckarooFeeTest extends BaseTest
     /**
      * @return array
      */
-    public function getTotalsForDisplayProvider()
+    public static function getTotalsForDisplayProvider()
     {
         return [
             'display incl. tax' => [
@@ -91,15 +93,14 @@ class BuckarooFeeTest extends BaseTest
     public function testGetTotalsForDisplay($amountExclTax, $amountInclTax, $label, $displayType, $expected)
     {
         $scopeInterfaceMock = $this->getMockForAbstractClass(ScopeConfigInterface::class);
-        $scopeInterfaceMock->expects($this->once())->method('getValue')->willReturn($displayType);
+        $scopeInterfaceMock->method('getValue')->willReturn($displayType);
 
-        $paymentFeeMock = $this->getFakeMock(PaymentFee::class)->setMethods(['getBuckarooPaymentFeeLabel'])->getMock();
-        $paymentFeeMock->expects($this->once())->method('getBuckarooPaymentFeeLabel')->willReturn($label);
+        $paymentFeeMock = $this->getFakeMock(PaymentFee::class)->onlyMethods(['getBuckarooPaymentFeeLabel'])->getMock();
+        $paymentFeeMock->method('getBuckarooPaymentFeeLabel')->willReturn($label);
 
-        $orderMock = $this->getFakeMock(Order::class)->setMethods(['getStore', 'formatPriceTxt'])->getMock();
-        $orderMock->expects($this->once())->method('getStore')->willReturn(0);
-        $orderMock->expects($this->exactly(2))
-            ->method('formatPriceTxt')
+        $orderMock = $this->getFakeMock(Order::class)->onlyMethods(['getStore', 'formatPriceTxt'])->getMock();
+        $orderMock->method('getStore')->willReturn(0);
+        $orderMock->method('formatPriceTxt')
             ->willReturnOnConsecutiveCalls($amountExclTax, $amountInclTax);
 
         $invoiceMock = $this->getFakeMock(Order\Invoice::class)->getMock();

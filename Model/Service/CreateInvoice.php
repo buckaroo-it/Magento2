@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,29 +17,35 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-
 declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Service;
 
 use Buckaroo\Magento2\Helper\Data;
-use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
-use Buckaroo\Magento2\Logging\Log;
-use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\Method\AbstractMethod;
+use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Magento\Framework\DB\TransactionFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Registry;
 use Magento\Sales\Model\Order;
-use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
 use Magento\Sales\Model\Order\Invoice;
+use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
+use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
 use Magento\Sales\Model\Order\Payment\Transaction;
 use Magento\Sales\Model\Service\InvoiceService;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class CreateInvoice
 {
     protected Log $logger;
-    protected Registry $registry;
+
+    /**
+     * @var Account
+     */
     private Account $configAccount;
     private PaymentGroupTransaction $groupTransaction;
     private InvoiceSender $invoiceSender;
@@ -47,6 +53,21 @@ class CreateInvoice
     private InvoiceService $invoiceService;
     private TransactionFactory $transactionFactory;
 
+    /**
+     * @var Registry
+     */
+    protected $registry;
+
+    /**
+     * @param Account $configAccount
+     * @param Log $logger
+     * @param PaymentGroupTransaction $groupTransaction
+     * @param InvoiceSender $invoiceSender
+     * @param InvoiceService $invoiceService
+     * @param TransactionFactory $transactionFactory
+     * @param Registry $registry
+     * @param Data $helper
+     */
     public function __construct(
         Account $configAccount,
         Log $logger,
@@ -81,13 +102,9 @@ class CreateInvoice
             return true;
         }
 
+        $invoiceItems = $this->prepareInvoiceItems($order, $invoiceItems);
+
         $data['capture_case'] = 'offline';
-
-        if (empty($invoiceItems)) {
-            $invoiceItems = $this->getInvoiceItems($order);
-        }
-
-        // Prepare invoice with the provided items.
         $invoice = $this->invoiceService->prepareInvoice($order, $invoiceItems);
 
         if (!$invoice->getTotalQty()) {
@@ -115,7 +132,7 @@ class CreateInvoice
 
         $payment = $order->getPayment();
         $transactionKey = (string)$payment->getAdditionalInformation(
-            AbstractMethod::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY
+            BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY
         );
 
         if (strlen($transactionKey) <= 0) {
@@ -157,6 +174,7 @@ class CreateInvoice
         return $invoiceItems;
     }
 
+
     /**
      * Add transaction data to the payment.
      *
@@ -169,11 +187,11 @@ class CreateInvoice
     public function addTransactionData($payment, $transactionKey = false, $datas = false)
     {
         $transactionKey = $transactionKey ?: $payment->getAdditionalInformation(
-            AbstractMethod::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY
+            BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY
         );
 
         if (strlen($transactionKey) <= 0) {
-            throw new \Exception('There was no transaction ID found');
+            throw new \Buckaroo\Magento2\Exception(__('There was no transaction ID found'));
         }
 
         if (!$datas) {
@@ -187,10 +205,15 @@ class CreateInvoice
         $payment->setTransactionId($transactionKey . '-capture');
         $payment->setParentTransactionId($transactionKey);
         $payment->setAdditionalInformation(
-            AbstractMethod::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY,
+            BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY,
             $transactionKey
         );
 
         return $payment;
+    }
+
+    private function prepareInvoiceItems(Order $order, array $invoiceItems): array
+    {
+        return empty($invoiceItems) ? $this->getInvoiceItems($order) : $invoiceItems;
     }
 }

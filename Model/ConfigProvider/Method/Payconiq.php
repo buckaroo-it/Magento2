@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,99 +17,75 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\Data\Form\FormKey;
-use Magento\Framework\View\Asset\Repository;
+use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Helper\PaymentFee;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
+use Buckaroo\Magento2\Service\LogoService;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Data\Form\FormKey;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\View\Asset\Repository;
 
-/**
- * @method getSellersProtection()
- * @method getSellersProtectionEligible()
- * @method getSellersProtectionIneligible()
- * @method getSellersProtectionItemnotreceivedEligible()
- * @method getSellersProtectionUnauthorizedpaymentEligible()
- */
 class Payconiq extends AbstractConfigProvider
 {
-    const XPATH_PAYCONIQ_PAYMENT_FEE                      = 'payment/buckaroo_magento2_payconiq/payment_fee';
-    const XPATH_PAYCONIQ_ACTIVE                           = 'payment/buckaroo_magento2_payconiq/active';
-    const XPATH_PAYCONIQ_SUBTEXT                          = 'payment/buckaroo_magento2_payconiq/subtext';
-    const XPATH_PAYCONIQ_SUBTEXT_STYLE                    = 'payment/buckaroo_magento2_payconiq/subtext_style';
-    const XPATH_PAYCONIQ_SUBTEXT_COLOR                    = 'payment/buckaroo_magento2_payconiq/subtext_color';
-    const XPATH_PAYCONIQ_ACTIVE_STATUS                    = 'payment/buckaroo_magento2_payconiq/active_status';
-    const XPATH_PAYCONIQ_ORDER_STATUS_SUCCESS             = 'payment/buckaroo_magento2_payconiq/order_status_success';
-    const XPATH_PAYCONIQ_ORDER_STATUS_FAILED              = 'payment/buckaroo_magento2_payconiq/order_status_failed';
-    const XPATH_PAYCONIQ_AVAILABLE_IN_BACKEND             = 'payment/buckaroo_magento2_payconiq/available_in_backend';
-    const XPATH_PAYCONIQ_SELLERS_PROTECTION               = 'payment/buckaroo_magento2_payconiq/sellers_protection';
-    const XPATH_PAYCONIQ_SELLERS_PROTECTION_ELIGIBLE      = 'payment/'.
-        'buckaroo_magento2_payconiq/sellers_protection_eligible';
-    const XPATH_PAYCONIQ_SELLERS_PROTECTION_INELIGIBLE    = 'payment/'.
-        'buckaroo_magento2_payconiq/sellers_protection_ineligible';
-    const XPATH_PAYCONIQ_SELLERS_PROTECTION_ITEMNOTRECEIVED_ELIGIBLE = 'payment/'.
-        'buckaroo_magento2_payconiq/sellers_protection_itemnotreceived_eligible';
-    const XPATH_PAYCONIQ_SELLERS_PROTECTION_UNAUTHORIZEDPAYMENT_ELIGIBLE = 'payment/'.
-        'buckaroo_magento2_payconiq/sellers_protection_unauthorizedpayment_eligible';
+    public const CODE = 'buckaroo_magento2_payconiq';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_payconiq/allowed_currencies';
-
-    const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_payconiq/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_payconiq/specificcountry';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_payconiq/specificcustomergroup';
-
-    const PAYCONIC_REDIRECT_URL = '/buckaroo/payconiq/pay';
+    public const PAYCONIC_REDIRECT_URL = '/buckaroo/payconiq/pay';
+    public const XPATH_PAYCONIQ_PAYMENT_FEE                      = 'payment/buckaroo_magento2_payconiq/payment_fee';
 
     /** @var FormKey */
-    private $formKey;
+    private FormKey $formKey;
 
     /**
-     * @param Repository           $assetRepo
+     * @param Repository $assetRepo
      * @param ScopeConfigInterface $scopeConfig
-     * @param AllowedCurrencies    $allowedCurrencies
-     * @param PaymentFee           $paymentFeeHelper
-     * @param FormKey              $formKey
+     * @param AllowedCurrencies $allowedCurrencies
+     * @param PaymentFee $paymentFeeHelper
+     * @param FormKey $formKey
      */
     public function __construct(
         Repository $assetRepo,
         ScopeConfigInterface $scopeConfig,
         AllowedCurrencies $allowedCurrencies,
         PaymentFee $paymentFeeHelper,
+        LogoService $logoService,
         FormKey $formKey
     ) {
-        parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper);
+        parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper, $logoService);
 
         $this->formKey = $formKey;
     }
 
-    private function getFormKey()
+    /**
+     * @inheritdoc
+     *
+     * @throws Exception
+     * @throws LocalizedException
+     */
+    public function getConfig(): array
     {
-        return $this->formKey->getFormKey();
+        if (!$this->getActive()) {
+            return [];
+        }
+
+        return $this->fullConfig([
+            'redirecturl' => static::PAYCONIC_REDIRECT_URL . '?form_key=' . $this->getFormKey(),
+        ]);
     }
 
     /**
-     * @return array
+     * Get Magento Form Key
+     *
+     * @return string
+     * @throws LocalizedException
      */
-    public function getConfig()
+    private function getFormKey(): string
     {
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
-
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'payconiq' => [
-                        'paymentFeeLabel' => $paymentFeeLabel,
-                        'subtext'   => $this->getSubtext(),
-                        'subtext_style'   => $this->getSubtextStyle(),
-                        'subtext_color'   => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'redirecturl' => self::PAYCONIC_REDIRECT_URL . '?form_key=' . $this->getFormKey()
-                    ],
-                ],
-            ],
-        ];
+        return $this->formKey->getFormKey();
     }
 
     /**
@@ -122,6 +98,6 @@ class Payconiq extends AbstractConfigProvider
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
 
-        return $paymentFee ? $paymentFee : false;
+        return $paymentFee ?: 0;
     }
 }

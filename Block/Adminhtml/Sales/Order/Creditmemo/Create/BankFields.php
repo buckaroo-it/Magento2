@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -20,33 +20,33 @@
 
 namespace Buckaroo\Magento2\Block\Adminhtml\Sales\Order\Creditmemo\Create;
 
-class BankFields extends \Magento\Backend\Block\Template
-{
+use Buckaroo\Magento2\Model\RefundFieldsFactory;
+use Magento\Backend\Block\Template;
+use Magento\Backend\Block\Template\Context;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Block\Adminhtml\Order\Payment;
 
-    protected $orderPaymentBlock    = 'order_payment';
+class BankFields extends Template
+{
+    /**
+     * @var string
+     */
+    protected $orderPaymentBlock = 'order_payment';
 
     /**
-     * @var \Buckaroo\Magento2\Model\RefundFieldsFactory
+     * @var RefundFieldsFactory
      */
     protected $refundFieldsFactory;
 
     /**
-     * @var \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory
-     */
-    protected $transactionBuilder;
-
-    /**
-     * @param \Magento\Backend\Block\Template\Context              $context
-     * @param \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory
-     * @param \Buckaroo\Magento2\Model\RefundFieldsFactory              $refundFieldsFactory
+     * @param Context $context
+     * @param RefundFieldsFactory|null $refundFieldsFactory
      */
     public function __construct(
-        \Magento\Backend\Block\Template\Context $context,
-        \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory = null,
-        \Buckaroo\Magento2\Model\RefundFieldsFactory $refundFieldsFactory = null
+        Context $context,
+        ?RefundFieldsFactory $refundFieldsFactory = null
     ) {
         $this->refundFieldsFactory = $refundFieldsFactory;
-        $this->transactionBuilder = $transactionBuilderFactory;
         parent::__construct($context);
     }
 
@@ -54,6 +54,7 @@ class BankFields extends \Magento\Backend\Block\Template
      * Get the payment method and dynamically find which extra fields (if any) need to be shown.
      *
      * @return array
+     * @throws LocalizedException
      */
     public function getExtraFields()
     {
@@ -61,8 +62,8 @@ class BankFields extends \Magento\Backend\Block\Template
         $paymentMethod = $this->getPaymentMethod();
 
         /**
-        * If no payment method is found, return the empty array.
-        */
+         * If no payment method is found, return the empty array.
+         */
         if (!$paymentMethod) {
             return $extraFields;
         }
@@ -74,8 +75,8 @@ class BankFields extends \Magento\Backend\Block\Template
         $fields = $this->refundFieldsFactory->get($paymentMethod);
 
         /**
-        * Parse the code and label in the same array, to keep the data paired.
-        */
+         * Parse the code and label in the same array, to keep the data paired.
+         */
         if ($fields) {
             foreach ($fields as $field) {
                 $extraFields[$field['label']] = $field['code'];
@@ -88,8 +89,8 @@ class BankFields extends \Magento\Backend\Block\Template
     /**
      * Returns the Payment Method name. If something goes wrong, this will return false.
      *
-     * @return string | false (when not found)
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @return string|false (when not found)
+     * @throws LocalizedException
      */
     public function getPaymentMethod()
     {
@@ -97,14 +98,14 @@ class BankFields extends \Magento\Backend\Block\Template
 
         $layout = $this->getLayout();
         /**
-         * @var \Magento\Sales\Block\Adminhtml\Order\Payment $paymentBlock
+         * @var Payment $paymentBlock
          */
         $paymentBlock = $layout->getBlock($this->orderPaymentBlock);
 
         if ($paymentBlock) {
             /**
-            * @noinspection PhpUndefinedMethodInspection
-            */
+             * @noinspection PhpUndefinedMethodInspection
+             */
             $paymentMethod = $paymentBlock->getPayment()->getMethod();
         }
 

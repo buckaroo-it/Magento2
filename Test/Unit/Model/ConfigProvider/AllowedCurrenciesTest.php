@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider;
 
 use Buckaroo\Magento2\Test\BaseTest;
@@ -42,8 +44,8 @@ class AllowedCurrenciesTest extends BaseTest
         $instance = $this->getInstance();
         $result = $instance->getConfig();
 
-        $this->assertInternalType('array', $result);
+        $this->assertIsArray($result);
         $this->assertArrayHasKey('allowedCurrencies', $result);
-        $this->assertCount(22, $result['allowedCurrencies']);
+        $this->assertCount(28, $result['allowedCurrencies']);
     }
 }

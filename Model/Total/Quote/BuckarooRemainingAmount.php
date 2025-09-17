@@ -20,6 +20,7 @@
 
 namespace Buckaroo\Magento2\Model\Total\Quote;
 
+use Magento\Framework\Phrase;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\Quote\Address\Total;
 use Magento\Quote\Model\Quote\Address\Total\AbstractTotal;
@@ -49,6 +50,7 @@ class BuckarooRemainingAmount extends AbstractTotal
      * @param Quote $quote
      * @param Total $total
      * @return array
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function fetch(Quote $quote, Total $total)
     {
@@ -79,7 +81,7 @@ class BuckarooRemainingAmount extends AbstractTotal
     /**
      * Get Buckaroo label.
      *
-     * @return \Magento\Framework\Phrase
+     * @return Phrase
      */
     public function getLabel()
     {

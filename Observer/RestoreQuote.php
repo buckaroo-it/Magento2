@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -20,42 +20,78 @@
 
 namespace Buckaroo\Magento2\Observer;
 
-use Buckaroo\Magento2\Helper\Data;
-use Magento\Checkout\Model\Session;
-use Buckaroo\Magento2\Model\Service\Order;
-use Buckaroo\Magento2\Model\Method\Payconiq;
-use Magento\Quote\Api\CartRepositoryInterface;
-use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Payconiq;
 use Buckaroo\Magento2\Model\Giftcard\Remove as GiftcardRemove;
+use Buckaroo\Magento2\Model\Service\Order;
+use Magento\Checkout\Model\Session;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
-use Magento\Quote\Model\Quote;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Quote\Api\CartRepositoryInterface;
 
 class RestoreQuote implements ObserverInterface
 {
-    private $checkoutSession;
+    /**
+     * @var Account
+     */
     protected $accountConfig;
-    private $helper;
+
+    /**
+     * @var CartRepositoryInterface
+     */
     protected $quoteRepository;
+
+    /**
+     * @var Order
+     */
     protected $orderService;
+
+    /**
+     * @var GiftcardRemove
+     */
     protected $giftcardRemoveService;
+
+    /**
+     * @var PaymentGroupTransaction
+     */
     protected $groupTransaction;
 
+    /**
+     * @var Session
+     */
+    private $checkoutSession;
+
+    /**
+     * @var BuckarooLoggerInterface
+     */
+    private BuckarooLoggerInterface $logger;
+
+    /**
+     * @param Session $checkoutSession
+     * @param Account $accountConfig
+     * @param BuckarooLoggerInterface $logger
+     * @param CartRepositoryInterface $quoteRepository
+     * @param Order $orderService
+     * @param GiftcardRemove $giftcardRemoveService
+     * @param PaymentGroupTransaction $groupTransaction
+     */
     public function __construct(
         Session $checkoutSession,
         Account $accountConfig,
-        Data $helper,
+        BuckarooLoggerInterface $logger,
         CartRepositoryInterface $quoteRepository,
         Order $orderService,
         GiftcardRemove $giftcardRemoveService,
         PaymentGroupTransaction $groupTransaction
     ) {
+        $this->orderService = $orderService;
         $this->checkoutSession = $checkoutSession;
         $this->accountConfig = $accountConfig;
-        $this->helper = $helper;
+        $this->logger = $logger;
         $this->quoteRepository = $quoteRepository;
-        $this->orderService = $orderService;
         $this->giftcardRemoveService = $giftcardRemoveService;
         $this->groupTransaction = $groupTransaction;
     }
@@ -65,47 +101,109 @@ class RestoreQuote implements ObserverInterface
      *
      * @param Observer $observer
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @throws LocalizedException
      */
-    public function execute(Observer $observer)
+    public function execute(Observer $observer): void
     {
-        $this->helper->addDebug(__METHOD__ . '|1|' . var_export($this->checkoutSession->getData(), true));
-
         $lastRealOrder = $this->checkoutSession->getLastRealOrder();
         $previousOrderId = $lastRealOrder->getId();
 
         if ($payment = $lastRealOrder->getPayment()) {
-            if ($this->shouldSkipFurtherEventHandling() || $this->isPayconiqPaymentMethod($payment)) {
-                $this->helper->addDebug(__METHOD__ . '|10|');
+            if ($this->isValidPayment($payment)) {
                 return;
             }
 
-            if ($this->accountConfig->getCartKeepAlive($lastRealOrder->getStore())) {
-                $this->helper->addDebug(__METHOD__ . '|20|');
+            if ($this->isCartKeepAlive($lastRealOrder)) {
+                $this->prepareQuoteShippingAddress();
 
-                $quote = $this->getActiveQuote();
-                if ($quote) {
-                    $this->processShippingAddress($quote);
-                }
+                if (
+                    $this->isNewPendingLastOrder($lastRealOrder, $payment)
+                    || $this->canRestoreFailedFromSpam()
+                    || $this->isCanceledLastOrderWithRedirect($lastRealOrder, $payment)
+                ) {
+                    $this->logger->addDebug(sprintf(
+                        '[RESTORE_QUOTE] | [Observer] | [%s:%s] - Restore Quote | ' .
+                        'lastRealOrder: %s - %s| previousOrderId: %s',
+                        __METHOD__,
+                        __LINE__,
+                        $lastRealOrder->getIncrementId(),
+                        $lastRealOrder->getEntityId(),
+                        $previousOrderId
+                    ));
 
-                if ($this->shouldRestoreQuote($lastRealOrder, $payment)) {
-                    $this->helper->addDebug(__METHOD__ . '|40|');
                     $this->checkoutSession->restoreQuote();
-
-                    if ($this->isFastCheckout($payment)) {
-                        $this->clearRestoredQuoteAddresses($this->checkoutSession->getQuote());
-                    }
-
-                    $this->rollbackPartialPayment($lastRealOrder->getIncrementId());
+                    $this->checkoutSession->getQuote()->setOrigOrderId(null);
+                    $this->rollbackPartialPayment($lastRealOrder->getIncrementId(), $payment);
                     $this->setOrderToCancel($previousOrderId);
                 }
             }
 
-            $this->helper->addDebug(__METHOD__ . '|50|');
-            $this->helper->setRestoreQuoteLastOrder(false);
+            $this->logger->addDebug(sprintf(
+                '[RESTORE_QUOTE] | [Observer] | [%s:%s] - Restore Skipped: '
+                . 'Quote restoration was not carried out. | lastRealOrder: %s',
+                __METHOD__,
+                __LINE__,
+                $lastRealOrder->getIncrementId(),
+            ));
+
+            $this->checkoutSession->setRestoreQuoteLastOrder(false);
             $this->checkoutSession->unsBuckarooFailedMaxAttempts();
         }
+    }
 
-        $this->helper->addDebug(__METHOD__ . '|55|');
+    /**
+     * Validate payment method for restore quote logic
+     *
+     * @param $payment
+     * @return bool
+     */
+    private function isValidPayment($payment): bool
+    {
+        return $this->shouldSkipFurtherEventHandling()
+            || strpos($payment->getMethod(), 'buckaroo_magento2') === false
+            || in_array($payment->getMethod(), [Payconiq::CODE]);
+    }
+
+    /**
+     * Check if cart keep alive is enabled for the order's store
+     *
+     * @param $lastRealOrder
+     * @return bool
+     */
+    private function isCartKeepAlive($lastRealOrder): bool
+    {
+        return $this->accountConfig->getCartKeepAlive($lastRealOrder->getStore());
+    }
+
+    /**
+     * Prepare quote and shipping address if needed
+     */
+    private function prepareQuoteShippingAddress(): void
+    {
+        if ($this->checkoutSession->getQuote()
+            && $this->checkoutSession->getQuote()->getId()
+            && ($quote = $this->quoteRepository->getActive($this->checkoutSession->getQuote()->getId()))
+        ) {
+            if ($shippingAddress = $quote->getShippingAddress()) {
+                if (!$shippingAddress->getShippingMethod()) {
+                    $shippingAddress->load($shippingAddress->getAddressId());
+                }
+            }
+        }
+    }
+
+    /**
+     * Skip restore quote
+     *
+     * @return false
+     */
+    public function shouldSkipFurtherEventHandling()
+    {
+        return false;
     }
 
     /**
@@ -231,16 +329,42 @@ class RestoreQuote implements ObserverInterface
 
     public function canRestoreFailedFromSpam()
     {
-        return $this->helper->getRestoreQuoteLastOrder() &&
+        return $this->checkoutSession->getRestoreQuoteLastOrder() &&
             $this->checkoutSession->getBuckarooFailedMaxAttempts() === true;
     }
 
-    public function shouldSkipFurtherEventHandling()
+    /**
+     * Rollback Partial Payment
+     *
+     * @param string $incrementId
+     * @param $payment
+     * @return void
+     */
+    public function rollbackPartialPayment(string $incrementId, $payment): void
     {
-        return false;
+        try {
+            $transactions = $this->groupTransaction->getGroupTransactionItems($incrementId);
+            foreach ($transactions as $transaction) {
+                $this->giftcardRemoveService->remove($transaction->getTransactionId(), $incrementId, $payment);
+            }
+        } catch (\Throwable $th) {
+            $this->logger->addError(sprintf(
+                '[RESTORE_QUOTE] | [Observer] | [%s:%s] - Rollback Partial Payment | [ERROR]: %s',
+                __METHOD__,
+                __LINE__,
+                $th->getMessage()
+            ));
+        }
     }
 
-    private function setOrderToCancel($previousOrderId)
+    /**
+     * Set previous order id on the payment object for the next payment
+     *
+     * @param int $previousOrderId
+     * @return void
+     * @throws LocalizedException
+     */
+    private function setOrderToCancel(int $previousOrderId)
     {
         $this->checkoutSession->getQuote()
             ->getPayment()
@@ -248,15 +372,32 @@ class RestoreQuote implements ObserverInterface
         $this->quoteRepository->save($this->checkoutSession->getQuote());
     }
 
-    public function rollbackPartialPayment($incrementId)
+    /**
+     * Check if the last real order is new, pending, and uses redirect
+     *
+     * @param $lastRealOrder
+     * @param $payment
+     * @return bool
+     */
+    private function isNewPendingLastOrder($lastRealOrder, $payment): bool
     {
-        try {
-            $transactions = $this->groupTransaction->getGroupTransactionItems($incrementId);
-            foreach ($transactions as $transaction) {
-                $this->giftcardRemoveService->remove($transaction->getTransactionId(), $incrementId);
-            }
-        } catch (\Throwable $th) {
-            $this->helper->addDebug(__METHOD__ . (string)$th);
-        }
+        return $this->checkoutSession->getRestoreQuoteLastOrder()
+            && $lastRealOrder->getData('state') === 'new'
+            && $lastRealOrder->getData('status') === 'pending'
+            && $payment->getMethodInstance()->usesRedirect;
+    }
+
+    /**
+     * Check if the last real order is canceled and uses redirect
+     *
+     * @param $lastRealOrder
+     * @param $payment
+     * @return bool
+     */
+    private function isCanceledLastOrderWithRedirect($lastRealOrder, $payment): bool
+    {
+        return $this->checkoutSession->getRestoreQuoteLastOrder()
+            && $lastRealOrder->getData('state') === 'canceled'
+            && $payment->getMethodInstance()->usesRedirect;
     }
 }

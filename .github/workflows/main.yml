@@ -5,14 +5,91 @@ on:
   pull_request:
     branches: [ develop ]
   workflow_dispatch:
+
+# Prevent duplicate runs: cancel in-progress runs for the same PR/branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  build:
+  # Job to check if we should run based on the event type and PR status
+  check-conditions:
     runs-on: ubuntu-latest
+    outputs:
+      should-run: ${{ steps.decide.outputs.should-run }}
+      reason: ${{ steps.decide.outputs.reason }}
     steps:
+      - name: Decide if checks should run
+        id: decide
+        run: |
+          echo "Event: ${{ github.event_name }}"
+          echo "Ref: ${{ github.ref }}"
+          
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            # Always run on PR events
+            echo "should-run=true" >> $GITHUB_OUTPUT
+            echo "reason=Running because this is a Pull Request event" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" == "push" ]; then
+            # For push events, check if there's an open PR for this branch
+            branch_name="${{ github.ref_name }}"
+            echo "Checking if PR exists for branch: $branch_name"
+            
+            # Use GitHub API to check for open PRs
+            pr_response=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              "https://api.github.com/repos/${{ github.repository }}/pulls?head=${{ github.repository_owner }}:$branch_name&state=open")
+            
+            pr_count=$(echo "$pr_response" | jq length)
+            echo "Open PRs for this branch: $pr_count"
+            
+            if [ "$pr_count" -eq 0 ]; then
+              # No PR exists, run checks on push
+              echo "should-run=true" >> $GITHUB_OUTPUT
+              echo "reason=Running because push to branch with no open PR" >> $GITHUB_OUTPUT
+            else
+              # PR exists, skip push checks (they'll run on PR)
+              echo "should-run=false" >> $GITHUB_OUTPUT
+              echo "reason=Skipping because open PR exists (checks will run on PR)" >> $GITHUB_OUTPUT
+            fi
+          elif [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            # Always run on manual trigger
+            echo "should-run=true" >> $GITHUB_OUTPUT
+            echo "reason=Running because manually triggered" >> $GITHUB_OUTPUT
+          else
+            echo "should-run=false" >> $GITHUB_OUTPUT
+            echo "reason=Unknown event type" >> $GITHUB_OUTPUT
+          fi
+
+  build:
+    needs: check-conditions
+    runs-on: ubuntu-latest
+    # Only run if conditions check passed
+    if: needs.check-conditions.outputs.should-run == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - php: '8.1'
+            magento: '2.4.6'
+          - php: '8.2'
+            magento: '2.4.6'
+          - php: '8.2'
+            magento: '2.4.7'
+          - php: '8.3'
+            magento: '2.4.7'
+          - php: '8.3'
+            magento: '2.4.8'
+          - php: '8.4'
+            magento: '2.4.8'
+    name: PHP ${{ matrix.php }} / Magento ${{ matrix.magento }}
+    steps:
+      - name: Show execution reason
+        run: |
+          echo "✅ Running checks: ${{ needs.check-conditions.outputs.reason }}"
+
       - name: setup php
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 7.3
+          php-version: ${{ matrix.php }}
           tools: composer:v2
       - uses: actions/checkout@v2
       - name: validate composer json
@@ -22,22 +99,60 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ github.workspace }}/${{ env.namespace }}-source/vendor
-          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          key: ${{ runner.os }}-php${{ matrix.php }}-mg${{ matrix.magento }}-${{ hashFiles('**/composer.lock') }}
           restore-keys: |
-            ${{ runner.os }}-php-
+            ${{ runner.os }}-php${{ matrix.php }}-mg${{ matrix.magento }}-
       - name: PHPUnit and PHPCS
         run: |
-          pull_number=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
-          url="https://api.github.com/repos/buckaroo-it/Magento2/pulls/$pull_number/files"
-          echo $url
-          curl $url > files_changed
-          cat files_changed | grep '"filename"' | sed 's/\"filename\"\: \"//' | sed 's/\",//' | xargs ls
+          echo "Setting up Magento ${{ matrix.magento }} with PHP ${{ matrix.php }}"
+          
+          # Handle pull request files for PHPCS - only for PR events
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            pull_number="${{ github.event.number }}"
+            if [ "$pull_number" != "null" ] && [ -n "$pull_number" ]; then
+              url="https://api.github.com/repos/buckaroo-it/Magento2/pulls/$pull_number/files"
+              echo "Fetching changed files: $url"
+              curl -s "$url" > files_changed.json
+              if [ -s files_changed.json ]; then
+                cat files_changed.json | jq -r '.[].filename' > files_changed.txt
+                echo "Changed files:"
+                cat files_changed.txt
+              else
+                echo "No files found, will skip PHPCS on changed files"
+                touch files_changed.txt
+              fi
+            else
+              echo "No valid pull request number, will skip PHPCS on changed files"
+              touch files_changed.txt
+            fi
+          else
+            echo "Not a pull request, skipping file change detection"
+            touch files_changed.txt
+          fi
+          
+          # Set up Magento project
           echo '{"http-basic": {"repo.magento.com": {"username": "${{ secrets.REPO_USERNAME }}","password": "${{ secrets.REPO_PASS }}"}}}' > auth.json
-          composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition=2.3.6 m23
-          mkdir -p m23/app/code/Buckaroo/Magento2/
-          rsync -r --exclude='m23' ./ m23/app/code/Buckaroo/Magento2/
-          cat files_changed | grep '"filename"' | sed 's/\"filename\"\: \"//' | sed 's/\",//' | xargs ./m23/vendor/bin/phpcs --standard=Magento2
-          cd m23
+          composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition=${{ matrix.magento }} m2-${{ matrix.magento }}
+          
+          # Copy module files
+          mkdir -p m2-${{ matrix.magento }}/app/code/Buckaroo/Magento2/
+          rsync -r --exclude='m2-*' ./ m2-${{ matrix.magento }}/app/code/Buckaroo/Magento2/
+          
+          # Run PHPCS on changed files (if any)
+          if [ -s files_changed.txt ]; then
+            echo "Running PHPCS on changed files..."
+            while IFS= read -r file; do
+              if [ -f "$file" ]; then
+                echo "Checking file: $file"
+                ./m2-${{ matrix.magento }}/vendor/bin/phpcs --standard=Magento2 "$file" || true
+              fi
+            done < files_changed.txt
+          else
+            echo "No changed files to check with PHPCS"
+          fi
+          
+          # Set up Magento and run tests
+          cd m2-${{ matrix.magento }}
           bin/magento module:enable --all
           bin/magento setup:di:compile
           vendor/phpunit/phpunit/phpunit -c dev/tests/unit/phpunit.xml.dist app/code/Buckaroo/Magento2

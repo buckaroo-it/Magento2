@@ -6,8 +6,8 @@ define([
 ], function (Component, ClientComponent, RedirectComponent, quote) {
     'use strict';
 
-    var mode = window.checkoutConfig.payment.buckaroo.applepay.integrationMode;
+    var mode = window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.integrationMode;
 
     // Extend and return the appropriate renderer dynamically
-    return mode ? ClientComponent : RedirectComponent;
+    return mode === '0' ? ClientComponent : RedirectComponent;
 });

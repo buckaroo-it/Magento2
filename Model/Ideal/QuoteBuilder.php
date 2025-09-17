@@ -27,8 +27,6 @@ use Magento\Checkout\Model\Type\Onepage;
 use Magento\Framework\DataObjectFactory;
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Customer\Model\Session as CustomerSession;
-use Buckaroo\Magento2\Model\Ideal\QuoteBuilderInterface;
-use Buckaroo\Magento2\Model\Ideal\IdealException;
 
 class QuoteBuilder implements QuoteBuilderInterface
 {
@@ -69,8 +67,7 @@ class QuoteBuilder implements QuoteBuilderInterface
         ProductRepositoryInterface $productRepository,
         DataObjectFactory          $dataObjectFactory,
         CustomerSession            $customer
-    )
-    {
+    ) {
         $this->quoteFactory = $quoteFactory;
         $this->productRepository = $productRepository;
         $this->dataObjectFactory = $dataObjectFactory;
@@ -128,15 +125,20 @@ class QuoteBuilder implements QuoteBuilderInterface
         if ($productId === null) {
             throw new IdealException("A product is required", 1);
         }
-        $product = $this->productRepository->getById($productId);
-        $item = $this->quote->addProduct($product, $this->formData);
 
-        if (!$item instanceof Item) {
-            $exceptionMessage = "Cannot add product to cart";
-            if (is_string($item)) {
-                $exceptionMessage = $item;
+        try {
+            $product = $this->productRepository->getById($productId);
+            $item = $this->quote->addProduct($product, $this->formData);
+
+            if (!$item instanceof Item) {
+                $exceptionMessage = "Cannot add product to cart";
+                if (is_string($item)) {
+                    $exceptionMessage = $item;
+                }
+                throw new IdealException($exceptionMessage, 1);
             }
-            throw new IdealException($exceptionMessage, 1);
+        } catch (\Exception $e) {
+            throw new IdealException("Failed to add product to quote: " . $e->getMessage(), 1);
         }
     }
 

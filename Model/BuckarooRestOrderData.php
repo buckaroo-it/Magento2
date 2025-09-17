@@ -20,9 +20,9 @@
 
 namespace Buckaroo\Magento2\Model;
 
-use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Api\Data\BuckarooRestOrderDataInterface;
 use Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterfaceFactory;
+use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 
 class BuckarooRestOrderData implements BuckarooRestOrderDataInterface
 {
@@ -39,15 +39,17 @@ class BuckarooRestOrderData implements BuckarooRestOrderDataInterface
         string $orderIncrementId,
         PaymentGroupTransaction $groupTransaction,
         TransactionResponseInterfaceFactory $trResponseFactory
-        ) {
+    ) {
         $this->orderIncrementId = $orderIncrementId;
         $this->groupTransaction = $groupTransaction;
         $this->trResponseFactory = $trResponseFactory;
     }
+
     /**
      * @return \Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterface[]
      */
-    public function getGroupTransactions() {
+    public function getGroupTransactions()
+    {
         return $this->formatFound(
             $this->groupTransaction->getActiveItemsWithName(
                 $this->orderIncrementId

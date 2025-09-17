@@ -1,0 +1,127 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+ -->
+<include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
+
+    <group id="second_chance" translate="label comment" type="text" sortOrder="500" showInDefault="1" showInWebsite="1" showInStore="1">
+        <label>Second Chance</label>
+
+        <field id="enable_second_chance" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Second Chance enabled</label>
+            <comment><![CDATA[Enables or disables Second Chance mode]]></comment>
+            <tooltip>Set to 'Yes' will enable Second Chance mode.</tooltip>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <config_path>buckaroo_magento2/second_chance/enable_second_chance</config_path>
+        </field>
+
+        <field id="second_chance_email" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Second Chance 1 email enabled</label>
+            <comment><![CDATA[Enables or disables Second Chance 1 email]]></comment>
+            <tooltip>Set to 'Yes' will enable Second Chance 1 email.</tooltip>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <config_path>buckaroo_magento2/second_chance/second_chance_email</config_path>
+            <depends>
+                <field id="enable_second_chance">1</field>
+            </depends>
+        </field>
+
+        <field id="buckaroo_second_chance" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+            <label>Second chance Template</label>
+            <comment>Email template chosen based on theme fallback when 'Default' option is selected.</comment>
+            <config_path>buckaroo_magento2/second_chance/second_chance_template</config_path>
+            <source_model>Buckaroo\Magento2\Model\Config\Source\Email\Template</source_model>
+            <depends>
+                <field id="second_chance_email">1</field>
+            </depends>
+        </field>
+
+        <field id="second_chance_timing" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Due hours (between 0 and 24hr)</label>
+            <comment><![CDATA[Timing for this second-chance email .]]></comment>
+            <config_path>buckaroo_magento2/second_chance/second_chance_timing</config_path>
+            <backend_model>Buckaroo\Magento2\Model\Config\Backend\SecondChance</backend_model>
+            <depends>
+                <field id="second_chance_email">1</field>
+            </depends>
+        </field>
+
+        <field id="second_chance_email2" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Second Chance 2 email enabled</label>
+            <comment><![CDATA[Enables or disables Second Chance 2 email]]></comment>
+            <tooltip>Set to 'Yes' will enable Second Chance 2 email.</tooltip>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <config_path>buckaroo_magento2/second_chance/second_chance_email2</config_path>
+            <depends>
+                <field id="enable_second_chance">1</field>
+            </depends>
+        </field>
+
+        <field id="buckaroo_second_chance2" translate="label comment" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+            <label>Second chance second e-mail Template</label>
+            <comment>Second email template chosen based on theme fallback when 'Default' option is selected.</comment>
+            <config_path>buckaroo_magento2/second_chance/second_chance_template2</config_path>
+            <source_model>Buckaroo\Magento2\Model\Config\Source\Email\Template</source_model>
+            <depends>
+                <field id="second_chance_email2">1</field>
+            </depends>
+        </field>
+
+        <field id="second_chance_timing2" translate="label comment" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Due hours (between 0 and 72hr)</label>
+            <comment><![CDATA[Timing for sender after the first one second-chance email.]]></comment>
+            <config_path>buckaroo_magento2/second_chance/second_chance_timing2</config_path>
+            <backend_model>Buckaroo\Magento2\Model\Config\Backend\SecondChance</backend_model>
+            <depends>
+                <field id="second_chance_email2">1</field>
+            </depends>
+        </field>
+
+        <field id="no_send_second_chance" translate="label comment" type="select" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Don't send payment reminder when product is out of stock</label>
+            <comment><![CDATA[Don't send payment reminder when product is out of stock]]></comment>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <config_path>buckaroo_magento2/second_chance/no_send_second_chance</config_path>
+            <depends>
+                <field id="enable_second_chance">1</field>
+            </depends>
+        </field>
+
+        <field id="second_chance_prune_days" translate="label comment" type="text" sortOrder="90" showInDefault="1" showInStore="1">
+            <label>Prune older second chance entries (days)</label>
+            <comment><![CDATA[Timing in days, 0 to disable this.]]></comment>
+            <config_path>buckaroo_magento2/second_chance/prune_days</config_path>
+            <depends>
+                <field id="enable_second_chance">1</field>
+            </depends>
+        </field>
+
+        <field id="multiple_emails_send" translate="label comment" type="select" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Multiple emails send per once</label>
+            <comment><![CDATA[If user got multiple second chance tries, send all of them]]></comment>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <config_path>buckaroo_magento2/second_chance/multiple_emails_send</config_path>
+            <depends>
+                <field id="enable_second_chance">1</field>
+            </depends>
+        </field>
+    </group>
+
+</include>

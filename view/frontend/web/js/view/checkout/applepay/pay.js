@@ -27,7 +27,7 @@ define(
         'underscore',
         'Magento_Checkout/js/model/shipping-rate-service',
         'mage/translate',
-        'BuckarooSDK'
+        'BuckarooSdk'
     ],
     function (
         $,
@@ -64,7 +64,7 @@ define(
                 // Set checkout mode based on payMode.
                 this.setIsOnCheckout((this.payMode !== 'product' && this.payMode !== 'cart'));
 
-                BuckarooSdk.ApplePay.checkApplePaySupport(window.checkoutConfig.payment.buckaroo.applepay.guid)
+                BuckarooSdk.ApplePay.checkApplePaySupport(window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.guid)
                     .then(function (applePaySupported) {
                         if (this.payMode === 'product') {
                             this.initProductViewWatchers();
@@ -74,7 +74,7 @@ define(
                             this.generateApplepayOptions();
                             this.payment = new BuckarooSdk.ApplePay.ApplePayPayment('#apple-pay-wrapper', this.applepayOptions);
                             this.payment.showPayButton(
-                                window.checkoutConfig.payment.buckaroo.applepay.buttonStyle || 'black',
+                                window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.buttonStyle || 'black',
                                 'buy'
                             );
 
@@ -82,6 +82,13 @@ define(
                                 var self = this;
                                 this.payment.button.off("click");
                                 this.payment.button.on("click", function (e) {
+                                    e.preventDefault();
+
+                                    // Validate product before proceeding
+                                    if (!self.validateProductForExpressCheckout()) {
+                                        return false;
+                                    }
+
                                     var dataForm = $('#product_addtocart_form');
                                     dataForm.validation('isValid');
                                     setTimeout(function () {
@@ -106,15 +113,18 @@ define(
             },
 
             canShowApplePay: function () {
-                BuckarooSdk.ApplePay.checkApplePaySupport(window.checkoutConfig.payment.buckaroo.applepay.guid)
+                console.log('[Apple Pay Component] Starting canShowApplePay check...');
+                return BuckarooSdk.ApplePay.checkApplePaySupport(window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.guid)
                     .then(function (applePaySupported) {
+                        console.log('[Apple Pay Component] Support check result:', applePaySupported);
                         this.canShowMethod(applePaySupported);
+                        return applePaySupported;
                     }.bind(this))
                     .catch(function (error) {
-                        console.log(error)
+                        console.error('[Apple Pay Component] Support check error:', error);
                         this.canShowMethod(false);
+                        return false;
                     }.bind(this));
-                return this.canShowMethod();
             },
 
             setQuote: function (newQuote) {
@@ -134,7 +144,7 @@ define(
                 var requiredBillingContactFields = ["postalAddress", "name", "phone", "email"];
                 var requiredShippingContactFields = ["postalAddress", "name", "phone", "email"];
 
-                var country = window.checkoutConfig.payment.buckaroo.applepay.country;
+                var country = window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.country;
                 if (this.quote && (null !== this.quote.shippingAddress())) {
                     country = this.quote.shippingAddress().countryId;
                 }
@@ -147,17 +157,17 @@ define(
                 if (this.isOnCheckout) {
                     requiredBillingContactFields = ["postalAddress"];
                     requiredShippingContactFields = [];
-                    if (window.checkoutConfig.payment.buckaroo.applepay.dontAskBillingInfoInCheckout) {
+                    if (window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.dontAskBillingInfoInCheckout) {
                         requiredBillingContactFields = [];
                     }
                 }
 
                 this.applepayOptions = new BuckarooSdk.ApplePay.ApplePayOptions(
-                    window.checkoutConfig.payment.buckaroo.applepay.storeName,
+                    window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.storeName,
                     country,
-                    window.checkoutConfig.payment.buckaroo.applepay.currency,
-                    window.checkoutConfig.payment.buckaroo.applepay.cultureCode,
-                    window.checkoutConfig.payment.buckaroo.applepay.guid,
+                    window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.currency,
+                    window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.cultureCode,
+                    window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.guid,
                     self.processLineItems(lineItemsType),
                     self.processTotalLineItems(lineItemsType),
                     "shipping",
@@ -190,7 +200,7 @@ define(
             processTotalLineItems: function (type = 'final', directTotals = false) {
                 var totals = directTotals || this.getQuoteTotals();
                 var grandTotal = totals.grand_total ? parseFloat(totals.grand_total).toFixed(2) : '0.00';
-                var storeName = window.checkoutConfig.payment.buckaroo.applepay.storeName;
+                var storeName = window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.storeName;
 
                 if (isNaN(grandTotal)) {
                     grandTotal = '0.00';
@@ -418,6 +428,7 @@ define(
                         },
                         global: false,
                         dataType: 'json',
+                        async: false,
                         dataFilter: function (data) {
                             var result = JSON.parse(data);
                             if (result.success === true) {
@@ -448,11 +459,6 @@ define(
 
             getData: function (payment) {
                 var transactionData = this.formatTransactionResponse(payment);
-
-                if (!transactionData || transactionData === 'null') {
-                    throw new Error('Apple Pay transaction data is invalid. Please try again.');
-                }
-
                 return {
                     "method": 'applepay',
                     "po_number": null,
@@ -468,35 +474,20 @@ define(
                 if (response === null || typeof response === 'undefined') {
                     return null;
                 }
-
-                try {
-                    if (!response.token || !response.token.paymentData) {
-                        return null;
-                    }
-
-                    var paymentData = response.token.paymentData;
-
-                    if (!paymentData.data || !paymentData.signature || !paymentData.header) {
-                        return null;
-                    }
-
-                    var formattedData = {
-                        "paymentData": {
-                            "version": paymentData.version,
-                            "data": paymentData.data,
-                            "signature": paymentData.signature,
-                            "header": {
-                                "ephemeralPublicKey": paymentData.header.ephemeralPublicKey,
-                                "publicKeyHash": paymentData.header.publicKeyHash,
-                                "transactionId": paymentData.header.transactionId,
-                            }
+                var paymentData = response.token.paymentData;
+                var formattedData = {
+                    "paymentData": {
+                        "version": paymentData.version,
+                        "data": paymentData.data,
+                        "signature": paymentData.signature,
+                        "header": {
+                            "ephemeralPublicKey": paymentData.header.ephemeralPublicKey,
+                            "publicKeyHash": paymentData.header.publicKeyHash,
+                            "transactionId": paymentData.header.transactionId,
                         }
-                    };
-
-                    return JSON.stringify(formattedData);
-                } catch (error) {
-                    return null;
-                }
+                    }
+                };
+                return JSON.stringify(formattedData);
             },
 
             initProductViewWatchers: function () {

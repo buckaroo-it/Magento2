@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,11 +20,10 @@
 
 namespace Buckaroo\Magento2\Model\Transaction\Status;
 
-use Buckaroo\Magento2\Api\TransactionResponseInterface;
+use Buckaroo\Magento2\Api\Data\TransactionStatusResponseInterface;
 
-class Response implements TransactionResponseInterface
+class Response implements TransactionStatusResponseInterface
 {
-
     public const STATUSCODE_SUCCESS               = 190;
     public const STATUSCODE_FAILED                = 490;
     public const STATUSCODE_VALIDATION_FAILURE    = 491;
@@ -39,22 +37,43 @@ class Response implements TransactionResponseInterface
     public const STATUSCODE_CANCELLED_BY_USER     = 890;
     public const STATUSCODE_CANCELLED_BY_MERCHANT = 891;
 
+    /**
+     * Codes below are created by dev, not by Buckaroo.
+     */
+    public const ORDER_FAILED = 11014;
+
+    /**
+     * Array that will keep the transaction response
+     *
+     * @var array
+     */
     private array $data;
 
-
+    /**
+     * Set transaction response
+     *
+     * @param array $data
+     */
     public function __construct(array $data)
     {
         $this->data = $data;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function getStatusCode()
     {
         $status =  $this->get('Status');
         if (isset($status['Code']['Code'])) {
             return $status['Code']['Code'];
         }
+        return null;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function getServiceCode()
     {
         return $this->get('ServiceCode');
@@ -65,24 +84,27 @@ class Response implements TransactionResponseInterface
      *
      * @param string $key
      *
-     * @return mixed|array|null
+     * @return array|bool|float|int|string|null
      */
     public function get(string $key)
     {
-        if (
-            isset($this->data[$key]) &&
+        if (isset($this->data[$key]) &&
             (
-                (is_string($this->data[$key]) &&
+                (
+                    is_string($this->data[$key]) &&
                     strlen(trim($this->data[$key])) > 0
                 ) ||
-                (is_array($this->data[$key]) &&
+                (
+                    is_array($this->data[$key]) &&
                     count($this->data[$key]) > 0
-                )  ||
+                ) ||
                 is_scalar($this->data[$key])
             )
         ) {
             return $this->data[$key];
         }
+
+        return null;
     }
 
     /**
@@ -92,14 +114,14 @@ class Response implements TransactionResponseInterface
      *
      * @return boolean
      */
-    public function isStatusCode($statusCode)
+    public function isStatusCode($statusCode): bool
     {
         if (is_array($statusCode)) {
             return in_array($this->getStatusCode(), $statusCode);
         }
 
         if (!is_scalar($statusCode)) {
-           return false;
+            return false;
         }
 
         return $this->getStatusCode() === (int)$statusCode;

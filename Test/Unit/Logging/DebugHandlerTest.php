@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Test\Unit\Logging;
 
 use Monolog\Logger;
@@ -40,6 +42,6 @@ class DebugHandlerTest extends BaseTest
         $instance = $this->getInstance();
         $property = $this->getProperty('fileName', $instance);
 
-        $this->assertEquals('/var/log/Buckaroo/debug.log', $property);
+        $this->assertMatchesRegularExpression('/\/var\/log\/Buckaroo\/\d{4}-\d{2}-\d{2}\.log/', $property);
     }
 }

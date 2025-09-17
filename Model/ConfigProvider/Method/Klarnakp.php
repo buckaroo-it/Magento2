@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,42 +17,18 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-/**
- * @method getDueDate()
- * @method getSendEmail()
- */
+use Buckaroo\Magento2\Exception;
+
 class Klarnakp extends AbstractConfigProvider
 {
-    const XPATH_ALLOWED_CURRENCIES            = 'buckaroo/buckaroo_magento2_klarnakp/allowed_currencies';
-    const XPATH_ALLOW_SPECIFIC                = 'payment/buckaroo_magento2_klarnakp/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY              = 'payment/buckaroo_magento2_klarnakp/specificcountry';
-    const XPATH_KLARNAKP_ACTIVE                 = 'payment/buckaroo_magento2_klarnakp/active';
-    const XPATH_KLARNAKP_SUBTEXT                = 'payment/buckaroo_magento2_klarnakp/subtext';
-    const XPATH_KLARNAKP_SUBTEXT_STYLE          = 'payment/buckaroo_magento2_klarnakp/subtext_style';
-    const XPATH_KLARNAKP_SUBTEXT_COLOR          = 'payment/buckaroo_magento2_klarnakp/subtext_color';
-    const XPATH_KLARNAKP_PAYMENT_FEE            = 'payment/buckaroo_magento2_klarnakp/payment_fee';
-    const XPATH_KLARNAKP_SEND_EMAIL             = 'payment/buckaroo_magento2_klarnakp/send_email';
-    const XPATH_KLARNAKP_ACTIVE_STATUS          = 'payment/buckaroo_magento2_klarnakp/active_status';
-    const XPATH_KLARNAKP_ORDER_STATUS_SUCCESS   = 'payment/buckaroo_magento2_klarnakp/order_status_success';
-    const XPATH_KLARNAKP_ORDER_STATUS_FAILED    = 'payment/buckaroo_magento2_klarnakp/order_status_failed';
-    const XPATH_KLARNAKP_AVAILABLE_IN_BACKEND   = 'payment/buckaroo_magento2_klarnakp/available_in_backend';
-    const XPATH_KLARNAKP_DUE_DATE               = 'payment/buckaroo_magento2_klarnakp/due_date';
-    const XPATH_KLARNAKP_ALLOWED_CURRENCIES     = 'payment/buckaroo_magento2_klarnakp/allowed_currencies';
-    const XPATH_KLARNAKP_BUSINESS               = 'payment/buckaroo_magento2_klarnakp/business';
-    const XPATH_KLARNAKP_PAYMENT_METHODS        = 'payment/buckaroo_magento2_klarnakp/payment_method';
-    const XPATH_KLARNAKP_HIGH_TAX               = 'payment/buckaroo_magento2_klarnakp/high_tax';
-    const XPATH_KLARNAKP_MIDDLE_TAX             = 'payment/buckaroo_magento2_klarnakp/middle_tax';
-    const XPATH_KLARNAKP_LOW_TAX                = 'payment/buckaroo_magento2_klarnakp/low_tax';
-    const XPATH_KLARNAKP_ZERO_TAX               = 'payment/buckaroo_magento2_klarnakp/zero_tax';
-    const XPATH_KLARNAKP_NO_TAX                 = 'payment/buckaroo_magento2_klarnakp/no_tax';
-    const XPATH_KLARNAKP_GET_INVOICE            = 'payment/buckaroo_magento2_klarnakp/send_invoice';
-    const XPATH_KLARNAKP_CREATE_INVOICE_BY_SHIP = 'payment/buckaroo_magento2_klarnakp/create_invoice_after_shipment';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_klarnakp/specificcustomergroup';
-    const XPATH_FINANCIAL_WARNING               = 'payment/buckaroo_magento2_klarnakp/financial_warning';
+    public const CODE = 'buckaroo_magento2_klarnakp';
 
+    public const XPATH_KLARNAKP_CREATE_INVOICE_BY_SHIP = 'create_invoice_after_shipment';
+    public const XPATH_KLARNAKP_PAYMENT_FEE            = 'payment/buckaroo_magento2_klarnakp/payment_fee';
     /**
      * @var array
      */
@@ -88,36 +64,36 @@ class Klarnakp extends AbstractConfigProvider
         'SE'
     ];
 
-    public function getConfig()
+    /**
+     * @inheritdoc
+     *
+     * @throws Exception
+     */
+    public function getConfig(): array
     {
-        if (!$this->scopeConfig->getValue(
-            static::XPATH_KLARNAKP_ACTIVE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        )) {
+        if (!$this->getActive()) {
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
+        return $this->fullConfig([
+            'showFinancialWarning' => $this->canShowFinancialWarning(),
+        ]);
+    }
 
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'klarnakp' => [
-                        'sendEmail'         => (bool) $this->getSendEmail(),
-                        'paymentFeeLabel'   => $paymentFeeLabel,
-                        'subtext'   => $this->getSubtext(),
-                        'subtext_style'   => $this->getSubtextStyle(),
-                        'subtext_color'   => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'businessMethod'    => $this->getBusiness(),
-                        'paymentMethod'     => $this->getPaymentMethod(),
-                        'paymentFee'        => $this->getPaymentFee(),
-                        'showFinancialWarning' => $this->canShowFinancialWarning(self::XPATH_FINANCIAL_WARNING)
-                    ],
-                    'response' => [],
-                ],
-            ],
-        ];
+    /**
+     * Get Create Invoice After Shipment
+     *
+     * @param null|int|string $store
+     * @return bool
+     */
+    public function isInvoiceCreatedAfterShipment($store = null): bool
+    {
+        $createInvoiceAfterShipment = (bool)$this->getMethodConfigValue(
+            self::XPATH_KLARNAKP_CREATE_INVOICE_BY_SHIP,
+            $store
+        );
+
+        return $createInvoiceAfterShipment ?: false;
     }
 
     /**
@@ -133,43 +109,6 @@ class Klarnakp extends AbstractConfigProvider
             $storeId
         );
 
-        return $paymentFee ? $paymentFee : 0;
-    }
-
-    public function getInvoiceSendMethod($storeId = null)
-    {
-        return $this->getConfigFromXpath(static::XPATH_KLARNAKP_GET_INVOICE, $storeId);
-    }
-
-    /**
-     * @param null|int $storeId
-     *
-     * @return bool
-     */
-    public function getEnabled($storeId = null)
-    {
-        $enabled = $this->scopeConfig->getValue(
-            self::XPATH_KLARNAKP_ACTIVE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
-
-        return $enabled ? $enabled : false;
-    }
-
-    /**
-     * @param null|int $storeId
-     *
-     * @return bool
-     */
-    public function getCreateInvoiceAfterShipment($storeId = null)
-    {
-        $createInvoiceAfterShipment = $this->scopeConfig->getValue(
-            self::XPATH_KLARNAKP_CREATE_INVOICE_BY_SHIP,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
-
-        return $createInvoiceAfterShipment ? $createInvoiceAfterShipment : false;
+        return $paymentFee ?: 0;
     }
 }

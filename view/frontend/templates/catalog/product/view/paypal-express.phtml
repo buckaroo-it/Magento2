@@ -19,7 +19,7 @@
  */
 /** @var string $block */
 ?>
-<?php if ($block->canShowButton('Product')): ?>
+<?php if ($block->canShowProductButton() && !$block->isIdinVerificationRequired()): ?>
 <div id="paypal-express-button-component" data-bind="scope:'paypalExpress'">
     <!-- ko template: getTemplate() --><!-- /ko -->
     <div class="buckaroo-paypal-express"></div>

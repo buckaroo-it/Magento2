@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,26 +17,14 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 class Blik extends AbstractConfigProvider
 {
-    const XPATH_BLIK_PAYMENT_FEE           = 'payment/buckaroo_magento2_blik/payment_fee';
-    const XPATH_BLIK_ACTIVE                = 'payment/buckaroo_magento2_blik/active';
-    const XPATH_BLIK_SUBTEXT               = 'payment/buckaroo_magento2_blik/subtext';
-    const XPATH_BLIK_SUBTEXT_STYLE         = 'payment/buckaroo_magento2_blik/subtext_style';
-    const XPATH_BLIK_SUBTEXT_COLOR         = 'payment/buckaroo_magento2_blik/subtext_color';
-    const XPATH_BLIK_ACTIVE_STATUS         = 'payment/buckaroo_magento2_blik/active_status';
-    const XPATH_BLIK_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_blik/order_status_success';
-    const XPATH_BLIK_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_blik/order_status_failed';
-    const XPATH_BLIK_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_blik/available_in_backend';
-
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_blik/allowed_currencies';
-
-    const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_blik/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_blik/specificcountry';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_blik/specificcustomergroup';
+    public const CODE = 'buckaroo_magento2_blik';
+    public const XPATH_BLIK_PAYMENT_FEE           = 'payment/buckaroo_magento2_blik/payment_fee';
 
     /**
      * @var array
@@ -44,27 +32,6 @@ class Blik extends AbstractConfigProvider
     protected $allowedCurrencies = [
         'PLN'
     ];
-    /**
-     * @return array|void
-     */
-    public function getConfig()
-    {
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
-
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'blik' => [
-                        'paymentFeeLabel' => $paymentFeeLabel,
-                        'subtext'   => $this->getSubtext(),
-                        'subtext_style'   => $this->getSubtextStyle(),
-                        'subtext_color'   => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                    ],
-                ],
-            ],
-        ];
-    }
 
     /**
      * @param null|int $storeId
@@ -79,6 +46,6 @@ class Blik extends AbstractConfigProvider
             $storeId
         );
 
-        return $paymentFee ? $paymentFee : false;
+        return $paymentFee ?: 0;
     }
 }

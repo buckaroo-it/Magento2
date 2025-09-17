@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Test\Unit\Service\Software;
 
 use Magento\Framework\App\ProductMetadataInterface;
@@ -31,7 +33,7 @@ class DataTest extends BaseTest
     /**
      * @return array
      */
-    public function getProvider()
+    public static function getProvider()
     {
         return [
             [
@@ -75,12 +77,12 @@ class DataTest extends BaseTest
     public function testGet($name, $edition, $version, $module, $expected)
     {
         $productMetadataMock = $this->getFakeMock(ProductMetadataInterface::class)->getMock();
-        $productMetadataMock->expects($this->once())->method('getName')->willReturn($name);
-        $productMetadataMock->expects($this->once())->method('getEdition')->willReturn($edition);
-        $productMetadataMock->expects($this->once())->method('getVersion')->willReturn($version);
+        $productMetadataMock->method('getName')->willReturn($name);
+        $productMetadataMock->method('getEdition')->willReturn($edition);
+        $productMetadataMock->method('getVersion')->willReturn($version);
 
         $moduleListMock = $this->getFakeMock(ModuleListInterface::class)->getMock();
-        $moduleListMock->expects($this->once())->method('getOne')->with(Data::MODULE_CODE)->willReturn($module);
+        $moduleListMock->method('getOne')->with(Data::MODULE_CODE)->willReturn($module);
 
         $instance = $this->getInstance(['productMetadata' => $productMetadataMock, 'moduleList' => $moduleListMock]);
         $result = $instance->get();

@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -20,100 +20,98 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use Magento\Framework\View\Asset\Repository;
+use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\PaymentFee;
-use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
-use Buckaroo\Magento2\Model\Method\Billink as BillinkMethod;
-use Magento\Framework\App\Config\ScopeConfigInterface;
+use Buckaroo\Magento2\Service\LogoService;
+use Magento\Framework\View\Asset\Repository;
 use Buckaroo\Magento2\Helper\Data as BuckarooHelper;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
+use Buckaroo\Magento2\Model\Config\Source\BillinkCustomerType;
 
-/**
- * @method getDueDate()
- * @method getSendEmail()
- */
 class Billink extends AbstractConfigProvider
 {
-    const XPATH_ALLOWED_CURRENCIES = 'buckaroo/buckaroo_magento2_billink/allowed_currencies';
+    public const CODE = 'buckaroo_magento2_billink';
 
-    const XPATH_ALLOW_SPECIFIC   = 'payment/buckaroo_magento2_billink/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY = 'payment/buckaroo_magento2_billink/specificcountry';
+    public const XPATH_BILLINK_BUSINESS  = 'business';
+    public const XPATH_BILLINK_CUSTOMER_TYPE  = 'customer_type';
+    public const XPATH_BILLINK_MIN_AMOUNT_B2B = 'min_amount_b2b';
+    public const XPATH_BILLINK_MAX_AMOUNT_B2B = 'max_amount_b2b';
+    public const XPATH_BILLINK_PAYMENT_FEE          = 'payment/buckaroo_magento2_billink/payment_fee';
 
-    const XPATH_BILLINK_ACTIVE               = 'payment/buckaroo_magento2_billink/active';
-    const XPATH_BILLINK_SUBTEXT              = 'payment/buckaroo_magento2_billink/subtext';
-    const XPATH_BILLINK_SUBTEXT_STYLE        = 'payment/buckaroo_magento2_billink/subtext_style';
-    const XPATH_BILLINK_SUBTEXT_COLOR        = 'payment/buckaroo_magento2_billink/subtext_color';
-    const XPATH_BILLINK_PAYMENT_FEE          = 'payment/buckaroo_magento2_billink/payment_fee';
-    const XPATH_BILLINK_SEND_EMAIL           = 'payment/buckaroo_magento2_billink/send_email';
-    const XPATH_BILLINK_ACTIVE_STATUS        = 'payment/buckaroo_magento2_billink/active_status';
-    const XPATH_BILLINK_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_billink/order_status_success';
-    const XPATH_BILLINK_ORDER_STATUS_FAILED  = 'payment/buckaroo_magento2_billink/order_status_failed';
-    const XPATH_BILLINK_AVAILABLE_IN_BACKEND = 'payment/buckaroo_magento2_billink/available_in_backend';
-    const XPATH_BILLINK_DUE_DATE             = 'payment/buckaroo_magento2_billink/due_date';
-    const XPATH_BILLINK_ALLOWED_CURRENCIES   = 'payment/buckaroo_magento2_billink/allowed_currencies';
-
-    const XPATH_SPECIFIC_CUSTOMER_GROUP      = 'payment/buckaroo_magento2_billink/specificcustomergroup';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP_B2B  = 'payment/buckaroo_magento2_billink/specificcustomergroupb2b';
-    const XPATH_FINANCIAL_WARNING            = 'payment/buckaroo_magento2_billink/financial_warning';
-
-
-    private $helper;
 
     /**
-     * @param Repository           $assetRepo
+     * @var BuckarooHelper
+     */
+    private BuckarooHelper $helper;
+
+    /**
+     * @param Repository $assetRepo
      * @param ScopeConfigInterface $scopeConfig
-     * @param AllowedCurrencies    $allowedCurrencies
-     * @param PaymentFee           $paymentFeeHelper
-     * @param FormKey              $formKey
+     * @param AllowedCurrencies $allowedCurrencies
+     * @param PaymentFee $paymentFeeHelper
+     * @param LogoService $logoService
+     * @param BuckarooHelper $helper
      */
     public function __construct(
         Repository $assetRepo,
         ScopeConfigInterface $scopeConfig,
         AllowedCurrencies $allowedCurrencies,
         PaymentFee $paymentFeeHelper,
+        LogoService $logoService,
         BuckarooHelper $helper
     ) {
-        parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper);
+        parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper, $logoService);
 
         $this->helper = $helper;
     }
 
     /**
-     * @return array
+     * @inheritdoc
      */
-    public function getConfig()
+    public function getConfig(): array
     {
-        if (!$this->scopeConfig->getValue(
-            static::XPATH_BILLINK_ACTIVE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        )) {
+        if (!$this->getActive()) {
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
-
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'billink'  => [
-                        'sendEmail'         => (bool) $this->getSendEmail(),
-                        'paymentFeeLabel'   => $paymentFeeLabel,
-                        'subtext'   => $this->getSubtext(),
-                        'subtext_style'   => $this->getSubtextStyle(),
-                        'subtext_color'   => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'b2b' => $this->helper->checkCustomerGroup('buckaroo_magento2_billink'),
-                        'genderList' => [
-                            ['genderType' => 'male', 'genderTitle' => __('He/him')],
-                            ['genderType' => 'female', 'genderTitle' => __('She/her')],
-                            ['genderType' => 'unknown', 'genderTitle' => __('They/them')],
-                            ['genderType' => 'unknown', 'genderTitle' => __('I prefer not to say')]
-                        ],
-                        'showFinancialWarning' => $this->canShowFinancialWarning(self::XPATH_FINANCIAL_WARNING)
-                    ],
-                    'response' => [],
-                ],
+        return $this->fullConfig([
+            'sendEmail'         => $this->hasOrderEmail(),
+            'is_b2b'               => $this->getCustomerType() !== BillinkCustomerType::CUSTOMER_TYPE_B2C,
+            'genderList'        => [
+                ['genderType' => 'male', 'genderTitle' => __('He/him')],
+                ['genderType' => 'female', 'genderTitle' => __('She/her')],
+                ['genderType' => 'unknown', 'genderTitle' => __('They/them')],
+                ['genderType' => 'unknown', 'genderTitle' => __('I prefer not to say')]
             ],
-        ];
+            'businessMethod'    => $this->getBusiness(),
+            'showFinancialWarning' => $this->canShowFinancialWarning(),
+        ]);
+    }
+
+    /**
+     * Get Customer Type
+     * businessMethod 1 = B2C
+     * businessMethod 2 = B2B
+     *
+     * @return bool|int
+     */
+    public function getBusiness()
+    {
+        $business = (int)$this->getMethodConfigValue(self::XPATH_BILLINK_BUSINESS);
+
+        return $business ?: false;
+    }
+
+    /**
+     * Get customer type
+     *
+     * @param null|int $storeId
+     * @return string
+     */
+    public function getCustomerType($storeId = null)
+    {
+        return $this->getMethodConfigValue(self::XPATH_BILLINK_CUSTOMER_TYPE, $storeId);
     }
 
     /**
@@ -129,6 +127,6 @@ class Billink extends AbstractConfigProvider
             $storeId
         );
 
-        return $paymentFee ? $paymentFee : false;
+        return $paymentFee ?: 0;
     }
 }

@@ -23,14 +23,28 @@ use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Buckaroo\Magento2\Api\Data\BuckarooRestOrderDataInterfaceFactory;
 
-
 class RestOrderGroupTransactions
 {
+    /**
+     * @var BuckarooRestOrderDataInterfaceFactory
+     */
     private $dataFactory;
 
-    public function __construct(BuckarooRestOrderDataInterfaceFactory $dataFactory) {
+    /**
+     * @param BuckarooRestOrderDataInterfaceFactory $dataFactory
+     */
+    public function __construct(BuckarooRestOrderDataInterfaceFactory $dataFactory)
+    {
         $this->dataFactory = $dataFactory;
     }
+
+    /**
+     * @param OrderRepositoryInterface $subject
+     * @param OrderInterface $entity
+     * @return OrderInterface
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function afterGet(
         OrderRepositoryInterface $subject,
         OrderInterface $entity
@@ -38,16 +52,17 @@ class RestOrderGroupTransactions
 
         if ($this->isBuckaroo($entity)) {
             $ourCustomData = $this->dataFactory->create(["orderIncrementId" => $entity->getIncrementId()]);
-    
+
             $extensionAttributes = $entity->getExtensionAttributes(); /** get current extension attributes from entity **/
-    
+
             $extensionAttributes->setBuckaroo($ourCustomData);
             $entity->setExtensionAttributes($extensionAttributes);
         }
 
         return $entity;
     }
-    private function isBuckaroo(OrderInterface $entity) {
+    private function isBuckaroo(OrderInterface $entity)
+    {
         return strpos($entity->getPayment()->getMethod(), "buckaroo_magento2_") !== false;
     }
 }

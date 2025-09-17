@@ -19,7 +19,7 @@
  */
 namespace Buckaroo\Magento2\Controller\Applepay;
 
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\Json;
@@ -41,14 +41,14 @@ class UpdateShippingMethods extends AbstractApplepay
     /**
      * @param JsonFactory      $resultJsonFactory
      * @param RequestInterface $request
-     * @param Log              $logger
+     * @param BuckarooLoggerInterface              $logger
      * @param QuoteRepository  $quoteRepository
      * @param CheckoutSession  $checkoutSession
      */
     public function __construct(
         JsonFactory $resultJsonFactory,
         RequestInterface $request,
-        Log $logger,
+        BuckarooLoggerInterface $logger,
         QuoteRepository $quoteRepository,
         CheckoutSession $checkoutSession
     ) {

@@ -57,6 +57,7 @@
             <resource ref="anonymous" />
         </resources>
     </route>
+
     <route url="/V1/buckaroo/paypal-express/quote/create" method="POST">
         <service class="Buckaroo\Magento2\Api\PaypalExpressQuoteCreateInterface" method="execute"/>
         <resources>

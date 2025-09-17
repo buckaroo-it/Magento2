@@ -22,7 +22,14 @@
 ?>
 <div id="buckaroo-fee-cart" data-bind="scope:'buckarooFeeCart'">
     <!-- ko template: getTemplate() --><!-- /ko -->
-    <script>
-        window.buckarooConfig = <?= /* @noEscape */ $block->getBuckarooConfigJson(); ?>;
-    </script>
 </div>
+
+<script type="text/x-magento-init">
+{
+    "*": {
+        "Buckaroo_Magento2/js/view/cart/buckaroo-config": {
+            "config": <?= /* @noEscape */ $block->getBuckarooConfigJson(); ?>
+        }
+    }
+}
+</script>

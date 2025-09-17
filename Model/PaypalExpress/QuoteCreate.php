@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,20 +20,24 @@
 
 namespace Buckaroo\Magento2\Model\PaypalExpress;
 
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Paypal;
+use Buckaroo\Magento2\Service\ExpressPayment\ProductValidationService;
 use Magento\Quote\Model\Quote;
 use Buckaroo\Magento2\Logging\Log;
 use Magento\Quote\Model\Quote\Address;
 use Magento\Quote\Model\QuoteRepository;
-use Buckaroo\Magento2\Model\Method\Paypal;
 use Magento\Quote\Api\ShipmentEstimationInterface;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Session as CustomerSession;
 use Buckaroo\Magento2\Api\PaypalExpressQuoteCreateInterface;
 use Buckaroo\Magento2\Model\PaypalExpress\QuoteBuilderInterfaceFactory;
-use Buckaroo\Magento2\Api\Data\PaypalExpress\ShippingAddressRequestInterface;
-use Buckaroo\Magento2\Api\Data\QuoteCreateResponseInterfaceFactory;
+use Buckaroo\Magento2\Api\Data\ExpressMethods\ShippingAddressRequestInterface;
+use Buckaroo\Magento2\Api\Data\PaypalExpress\QuoteCreateResponseInterfaceFactory;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class QuoteCreate implements PaypalExpressQuoteCreateInterface
 {
 
@@ -83,6 +86,11 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
      */
     protected $quote;
 
+    /**
+     * @var ProductValidationService
+     */
+    protected $productValidationService;
+
     public function __construct(
         QuoteCreateResponseInterfaceFactory $responseFactory,
         QuoteBuilderInterfaceFactory $quoteBuilderInterfaceFactory,
@@ -91,7 +99,8 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
         CheckoutSession $checkoutSession,
         QuoteRepository $quoteRepository,
         ShipmentEstimationInterface $shipmentEstimation,
-        Log $logger
+        Log $logger,
+        ProductValidationService $productValidationService
     ) {
         $this->responseFactory = $responseFactory;
         $this->quoteBuilderInterfaceFactory = $quoteBuilderInterfaceFactory;
@@ -101,12 +110,13 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
         $this->quoteRepository = $quoteRepository;
         $this->shipmentEstimation = $shipmentEstimation;
         $this->logger = $logger;
+        $this->productValidationService = $productValidationService;
     }
     /** @inheritDoc */
     public function execute(
         ShippingAddressRequestInterface $shipping_address,
         string $page,
-        string $form_data = null
+        ?string $form_data = null
     ) {
         if ($page === 'product' && is_string($form_data)) {
             $this->quote = $this->createQuote($form_data);
@@ -134,8 +144,8 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
      */
     protected function calculateQuoteTotals()
     {
-        $this->quote->setStoreId($this->quote->getStore()->getId());   
-        
+        $this->quote->setStoreId($this->quote->getStore()->getId());
+
         if ($this->quote->getCustomerEmail() === null) {
             $this->quote->setCustomerEmail('no-reply@example.com');
         }
@@ -169,7 +179,7 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
         $this->quoteRepository->save($this->quote);
         $this->addFirstShippingMethod($address);
     }
-    
+
     /**
      * Add first found shipping method to the shipping address &
      * recalculate shipping totals
@@ -185,7 +195,7 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
                 $this->quote->getId(),
                 $this->quote->getShippingAddress()
             );
-    
+
             if (count($shippingMethods)) {
                 $shippingMethod = array_shift($shippingMethods);
                 $address->setShippingMethod($shippingMethod->getCarrierCode(). '_' .$shippingMethod->getMethodCode());
@@ -209,7 +219,7 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
     }
 
     /**
-     * If we didn't find any default shipping address we fill the empty fields 
+     * If we didn't find any default shipping address we fill the empty fields
      * required for quote validation
      *
      * @return void
@@ -218,15 +228,16 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
     {
         $address = $this->quote->getShippingAddress();
         if ($address->getId() === null) {
-            $address->setFirstname('unknown');
-            $address->setLastname('unknown');
-            $address->setEmail('no-reply@example.com');
-            $address->setStreet('unknown');
+            $address->setFirstname($this->quote->getCustomerFirstname() ?: 'Guest');
+            $address->setLastname($this->quote->getCustomerLastname() ?: 'Customer');
+            $address->setEmail($this->quote->getCustomerEmail() ?: 'no-reply@example.com');
+            $address->setStreet('Street');
+            $address->setTelephone('0000000');
         }
     }
 
     /**
-     * If we didn't find any default billing address we fill the empty fields 
+     * If we didn't find any default billing address we fill the empty fields
      * required for quote validation
      *
      * @param ShippingAddressRequestInterface $shipping_address
@@ -237,10 +248,11 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
     {
         $address = $this->quote->getBillingAddress();
         if ($address->getId() === null) {
-            $address->setFirstname('unknown');
-            $address->setLastname('unknown');
-            $address->setEmail('no-reply@example.com');
-            $address->setStreet('unknown');
+            $address->setFirstname($this->quote->getCustomerFirstname() ?: 'Guest');
+            $address->setLastname($this->quote->getCustomerLastname() ?: 'Customer');
+            $address->setEmail($this->quote->getCustomerEmail() ?: 'no-reply@example.com');
+            $address->setStreet('Street');
+            $address->setTelephone('0000000');
             $address->setCountryId($shipping_address->getCountryCode());
             $address->setPostcode($shipping_address->getPostalCode());
             $address->setCity($shipping_address->getCity());
@@ -251,12 +263,11 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
     /**
      * Set paypal payment method on quote
      *
-     * @return Quote
      */
     protected function setPaymentMethod()
     {
         $payment = $this->quote->getPayment();
-        $payment->setMethod(Paypal::PAYMENT_METHOD_CODE);
+        $payment->setMethod(Paypal::CODE);
         $this->quote->setPayment($payment);
     }
 
@@ -270,6 +281,25 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
     protected function createQuote(string $form_data)
     {
         try {
+            // Parse form data to get product ID and options
+            $data = [];
+            parse_str($form_data, $data);
+
+            $productId = $data['product'] ?? null;
+            $qty = $data['qty'] ?? 1;
+
+            if (!$productId) {
+                throw new PaypalExpressException(__("Product ID is required"), 1);
+            }
+
+            // Validate product before creating quote
+            $validationResult = $this->productValidationService->validateProduct($productId, $data, $qty);
+
+            if (!$validationResult['is_valid']) {
+                $errors = $validationResult['errors'];
+                throw new PaypalExpressException(__(implode(', ', $errors)), 1);
+            }
+
             $quoteBuilder = $this->quoteBuilderInterfaceFactory->create();
             $quoteBuilder->setFormData($form_data);
             return $quoteBuilder->build();

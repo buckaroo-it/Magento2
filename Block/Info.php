@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -20,58 +20,84 @@
 
 namespace Buckaroo\Magento2\Block;
 
-use Magento\Framework\UrlInterface;
-use Magento\Framework\View\Asset\Repository;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
+use Buckaroo\Magento2\Service\LogoService;
+use Magento\Framework\DataObject;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Phrase;
+use Magento\Framework\UrlInterface;
+use Magento\Framework\View\Element\Template\Context;
 
 class Info extends \Magento\Payment\Block\Info
 {
     /**
-     * @var string
+     * @var PaymentGroupTransaction
      */
-    protected $_template = 'Buckaroo_Magento2::info/payment_method.phtml';
-    protected $groupTransaction;
-    protected $giftcardCollection;
+    protected PaymentGroupTransaction $groupTransaction;
 
-    protected  Repository $assetRepo;
+    /**
+     * @var GiftcardCollection
+     */
+    protected GiftcardCollection $giftcardCollection;
 
     protected UrlInterface $baseUrl;
 
     /**
-     * @param \Magento\Framework\View\Element\Template\Context     $context
-     * @param array                                                $data
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard $configProvider
+     * @var LogoService
+     */
+    protected LogoService $logoService;
+
+    /**
+     * @param Context $context
+     * @param PaymentGroupTransaction $groupTransaction
+     * @param GiftcardCollection $giftcardCollection
+     * @param LogoService $logoService
+     * @param UrlInterface $baseUrl
+     * @param array $data
      */
     public function __construct(
-        \Magento\Framework\View\Element\Template\Context $context,
+        Context $context,
         PaymentGroupTransaction $groupTransaction,
         GiftcardCollection $giftcardCollection,
-        Repository $assetRepo,
+        LogoService $logoService,
         UrlInterface $baseUrl,
         array $data = []
     ) {
         parent::__construct($context, $data);
         $this->groupTransaction = $groupTransaction;
         $this->giftcardCollection = $giftcardCollection;
-        $this->assetRepo = $assetRepo;
+        $this->logoService = $logoService;
         $this->baseUrl = $baseUrl;
     }
 
+    /**
+     * Get giftcards
+     *
+     * @return array
+     * @throws LocalizedException
+     */
     public function getGiftCards()
     {
         $result = [];
 
         if ($this->getInfo()->getOrder() && $this->getInfo()->getOrder()->getIncrementId()) {
             $items = $this->groupTransaction->getGroupTransactionItems($this->getInfo()->getOrder()->getIncrementId());
-            foreach ($items as $key => $giftcard) {
+            foreach ($items as $giftcard) {
                 if ($foundGiftcard = $this->giftcardCollection
                     ->getItemByColumnValue('servicecode', $giftcard['servicecode'])
                 ) {
                     $result[] = [
-                        'code' => $giftcard['servicecode'],
+                        'code'  => $giftcard['servicecode'],
                         'label' => $foundGiftcard['label'],
-                        'logo' => $foundGiftcard['logo']
+                        'logo'  => $foundGiftcard['logo']
+                    ];
+                }
+
+                if ($giftcard['servicecode'] == 'buckaroovoucher') {
+                    $result[] = [
+                        'code'  => $giftcard['servicecode'],
+                        'label' => 'Buckaroo Voucher',
                     ];
                 }
             }
@@ -80,91 +106,144 @@ class Info extends \Magento\Payment\Block\Info
         return $result;
     }
 
+    /**
+     * Get PayPerEmail label payment method
+     *
+     * @return array|false
+     * @throws LocalizedException
+     */
     public function getPayPerEmailMethod()
     {
         $payment = $this->getInfo()->getOrder()->getPayment();
-        if ($servicecode = $payment->getAdditionalInformation('isPayPerEmail')) {
+        if ($payment->getAdditionalInformation('isPayPerEmail')) {
             return [
-                    'label' => __('Buckaroo PayPerEmail'),
-                ];
+                'label' => __('Buckaroo PayPerEmail'),
+            ];
         }
         return false;
     }
 
+    /**
+     * Get payment method logo
+     *
+     * @param string $method
+     * @return string
+     */
     public function getPaymentLogo(string $method): string
     {
-        $mappings = [
-            "afterpay2" => "svg/riverty.svg",
-            "afterpay20" => "svg/riverty.svg",
-            "capayablein3" => "svg/in3.svg",
-            "capayablepostpay" => "svg/in3.svg",
-            "creditcard" => "svg/creditcards.svg",
-            "creditcards" => "svg/creditcards.svg",
-            "giftcards" => "svg/giftcards.svg",
-            "idealprocessing" => "svg/ideal.svg",
-            "klarnain" => "svg/klarna.svg",
-            "klarnakp" => "svg/klarna.svg",
-            "mrcash" => "svg/bancontact.svg",
-            "p24" => "svg/przelewy24.svg",
-            "sepadirectdebit" => "svg/sepa-directdebit.svg",
-            "emandate" => "emandate.png",
-            "pospayment" => "pos.png",
-            "transfer" => "svg/sepa-credittransfer.svg",
-            "paybybank" => "paybybank.gif",
-            "knaken" => "svg/gosettle.svg"
-        ];
-
-        $name = "svg/{$method}.svg";
-
-        if(isset($mappings[$method])) {
-            $name = $mappings[$method];
-        }
-
-        return $this->assetRepo->getUrl("Buckaroo_Magento2::images/{$name}");
+        return $this->logoService->getPayment($method);
     }
-    public function getGiftcardLogo(array $giftcard): string
+
+    /**
+     * Get giftcard logo url by code
+     *
+     * @param array $code
+     * @return string
+     */
+    public function getGiftcardLogo(array $code): string
     {
-        if (
-            isset($giftcard['logo']) &&
-            is_string($giftcard['logo']) &&
-            strlen(trim($giftcard['logo']))
-        ) {
-            return $this->baseUrl->getDirectUrl(
-                $giftcard['logo'],
-                ['_type' => UrlInterface::URL_TYPE_MEDIA]
-            );
-        }
-
-        return $this->getGiftcardLogoDefaults($giftcard['code']);
+        return $this->logoService->getGiftcardLogo($code);
     }
-    private function getGiftcardLogoDefaults(string $code) {
-        $name = "svg/giftcards.svg";
 
-        $mappings = [
-            "ajaxgiftcard" => "ajaxgiftcard",
-            "boekenbon" => "boekenbon",
-            "cjpbetalen" => "cjp",
-            "digitalebioscoopbon" => "nationaletuinbon",
-            "fashioncheque" => "fashioncheque",
-            "fashionucadeaukaart" => "fashiongiftcard",
-            "nationaletuinbon" => "nationalebioscoopbon",
-            "nationaleentertainmentcard" => "nationaleentertainmentcard",
-            "podiumcadeaukaart" => "podiumcadeaukaart",
-            "sportfitcadeau" => "sport-fitcadeau",
-            "vvvgiftcard" => "vvvgiftcard"
-        ];
-
-        if(isset($mappings[$code])) {
-            $name = "giftcards/{$mappings[$code]}.svg";
-        }
-        return $this->assetRepo->getUrl("Buckaroo_Magento2::images/{$name}");
-    }
+    /**
+     * Get creditcard logo by code
+     *
+     * @param string $code
+     * @return string
+     */
     public function getCreditcardLogo(string $code): string
     {
-        if($code === 'cartebleuevisa') {
-            $code = 'cartebleue';
+        return $this->logoService->getCreditcard($code);
+    }
+
+    /**
+     * Get Specific Payment Details set on Success Push to display on Payment Order Information
+     *
+     * @return array
+     * @throws LocalizedException
+     */
+    public function getSpecificPaymentDetails(): array
+    {
+        $details = $this->getInfo()->getAdditionalInformation('specific_payment_details');
+
+        if (!$details || !is_array($details)) {
+            return [];
         }
 
-        return $this->assetRepo->getUrl("Buckaroo_Magento2::images/creditcards/{$code}.svg");
+        $transformedKeys = array_map([$this, 'getLabel'], array_keys($details));
+        $transformedValues = array_map(function ($value) {
+            return $this->getValueView((string)$value);
+        }, $details);
+
+        return array_combine($transformedKeys, $transformedValues);
+    }
+
+    /**
+     * Returns value view
+     *
+     * @param string $value
+     * @return string
+     */
+    protected function getValueView(string $value): string
+    {
+        return $value;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function _construct()
+    {
+        parent::_construct();
+        $this->setTemplate('Buckaroo_Magento2::info/payment_method.phtml');
+    }
+
+    /**
+     * Prepare information specific to current payment method
+     *
+     * @param null|DataObject|array $transport
+     * @return DataObject
+     * @throws LocalizedException
+     */
+    protected function _prepareSpecificInformation($transport = null): DataObject
+    {
+        $transport = parent::_prepareSpecificInformation($transport);
+        if ($transferDetails = $this->getInfo()->getAdditionalInformation('transfer_details')) {
+            foreach ($transferDetails as $key => $transferDetail) {
+                $transport->setData(
+                    (string)$this->getLabel($key),
+                    $this->getValueView($transferDetail)
+                );
+            }
+        }
+        return $transport;
+    }
+
+    /**
+     * Returns label
+     *
+     * @param string $field
+     * @return Phrase
+     */
+    protected function getLabel(string $field)
+    {
+        $words = explode('_', $field);
+        $transformedWords = array_map('ucfirst', $words);
+        return __(implode(' ', $transformedWords));
+    }
+
+    /**
+     * Returns additional information for giftcards
+     *
+     * @return array
+     * @throws LocalizedException
+     */
+    public function getGiftcardAdditionalData()
+    {
+        $orderId = $this->getInfo()->getOrder()->getEntityId();
+
+        $additionalInformation = $this->groupTransaction->getAdditionalData($orderId);
+
+        return $additionalInformation;
     }
 }

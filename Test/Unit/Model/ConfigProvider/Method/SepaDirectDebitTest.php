@@ -20,9 +20,11 @@
  */
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
+
+
+use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\PaymentFee;
-use Buckaroo\Magento2\Model\Method\SepaDirectDebit as SepaDirectDebitMethod;
 use Buckaroo\Magento2\Test\BaseTest;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\SepaDirectDebit;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
@@ -31,16 +33,22 @@ class SepaDirectDebitTest extends BaseTest
 {
     protected $instanceClass = SepaDirectDebit::class;
 
-    public function getConfigProvider()
+    public static function getConfigProvider()
     {
         return [
             'active' => [
                 [
                     'payment' => [
                         'buckaroo' => [
-                            'sepadirectdebit' => [
+                            'buckaroo_magento2_sepadirectdebit' => [
                                 'paymentFeeLabel' => 'Fee',
-                                'allowedCurrencies' => ['EUR']
+                                'allowedCurrencies' => ['EUR'],
+                                'title' => null,
+                                'subtext' => null,
+                                'subtext_style' => null,
+                                'subtext_color' => null,
+                                'isTestMode' => true,
+                                'logo' => ''
                             ]
                         ]
                     ]
@@ -57,17 +65,23 @@ class SepaDirectDebitTest extends BaseTest
     public function testGetConfig($expected)
     {
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->setMethods(['getValue'])
+            ->onlyMethods(['getValue'])
             ->getMockForAbstractClass();
-        $scopeConfigMock->expects($this->atLeastOnce())
-            ->method('getValue')
-            ->withConsecutive(
-                [SepaDirectDebit::XPATH_ALLOWED_CURRENCIES, ScopeInterface::SCOPE_STORE, null]
-            )
-            ->willReturnOnConsecutiveCalls('EUR');
+        $scopeConfigMock->method('getValue')
+            ->willReturnCallback(function($path, $scope = null, $scopeId = null) {
+                // Use parameters to avoid PHPMD warnings
+                unset($scope, $scopeId);
 
-        $paymentFeeMock = $this->getFakeMock(PaymentFee::class)->setMethods(['getBuckarooPaymentFeeLabel'])->getMock();
-        $paymentFeeMock->method('getBuckarooPaymentFeeLabel')->with(SepaDirectDebitMethod::PAYMENT_METHOD_CODE)->willReturn('Fee');
+                if (strpos($path, 'active') !== false) {
+                    return 1; // Make the payment method active
+                } elseif (strpos($path, 'allowed_currencies') !== false) {
+                    return 'EUR';
+                }
+                return null; // Default for other config paths
+            });
+
+        $paymentFeeMock = $this->getFakeMock(PaymentFee::class)->onlyMethods(['getBuckarooPaymentFeeLabel'])->getMock();
+        $paymentFeeMock->method('getBuckarooPaymentFeeLabel')->willReturn('Fee');
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock, 'paymentFeeHelper' => $paymentFeeMock]);
         $result = $instance->getConfig();
@@ -75,7 +89,7 @@ class SepaDirectDebitTest extends BaseTest
         $this->assertEquals($expected, $result);
     }
 
-    public function getPaymentFeeProvider()
+    public static function getPaymentFeeProvider()
     {
         return [
             'null value' => [
@@ -99,7 +113,7 @@ class SepaDirectDebitTest extends BaseTest
                 false
             ],
             'int value' => [
-                1,
+                '1',
                 1
             ],
             'float value' => [
@@ -122,11 +136,13 @@ class SepaDirectDebitTest extends BaseTest
     public function testGetPaymentFee($value, $expected)
     {
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->setMethods(['getValue'])
+            ->onlyMethods(['getValue'])
             ->getMockForAbstractClass();
-        $scopeConfigMock->expects($this->once())
-            ->method('getValue')
-            ->with(SepaDirectDebit::XPATH_SEPADIRECTDEBIT_PAYMENT_FEE, ScopeInterface::SCOPE_STORE)
+        $scopeConfigMock->method('getValue')
+            ->with(
+                $this->getPaymentMethodConfigPath(SepaDirectDebit::CODE, AbstractConfigProvider::PAYMENT_FEE),
+                ScopeInterface::SCOPE_STORE
+            )
             ->willReturn($value);
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);

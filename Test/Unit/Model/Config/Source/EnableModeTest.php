@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Test\Unit\Model\Config\Source;
 
 use Buckaroo\Magento2\Model\Config\Source\Enablemode;
@@ -43,7 +45,7 @@ class EnableModeTest extends BaseTest
         $this->assertCount(3, $result);
 
         foreach ($result as $option) {
-            $this->assertContains($option['label']->getText(), $this->expectedOptions);
+            $this->assertTrue(in_array($option['label']->getText(), $this->expectedOptions));
         }
     }
 
@@ -55,7 +57,7 @@ class EnableModeTest extends BaseTest
         $this->assertCount(3, $result);
 
         foreach ($result as $option) {
-            $this->assertContains($option->getText(), $this->expectedOptions);
+            $this->assertTrue(in_array($option->getText(), $this->expectedOptions));
         }
     }
 }

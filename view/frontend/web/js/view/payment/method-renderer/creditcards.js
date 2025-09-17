@@ -21,7 +21,7 @@
 define(
     [
         'jquery',
-        'Magento_Checkout/js/view/payment/default',
+        'buckaroo/checkout/payment/default',
         'Magento_Checkout/js/model/payment/additional-validators',
         'Buckaroo_Magento2/js/action/place-order',
         'ko',
@@ -30,6 +30,7 @@ define(
         'Magento_Checkout/js/action/select-payment-method',
         'buckaroo/checkout/common',
         'BuckarooHostedFieldsSdk'
+
     ],
     function (
         $,
@@ -51,13 +52,11 @@ define(
                 encryptedCardData: null,
                 service: null
             },
-            paymentFeeLabel: window.checkoutConfig.payment.buckaroo.creditcards.paymentFeeLabel,
-            subtext: window.checkoutConfig.payment.buckaroo.creditcards.subtext,
-            subTextStyle: checkoutCommon.getSubtextStyle('creditcards'),
 
             oauthTokenError: ko.observable(''),
             paymentError: ko.observable(''),
             isPayButtonDisabled: ko.observable(false),
+            isResetting: ko.observable(false),
             sdkClient: null,
             tokenExpiresAt: null,
 
@@ -131,11 +130,49 @@ define(
              * @param {String} [errorMsg] Optional error message to display.
              */
             async resetHostedFields(errorMsg = '') {
+                // Prevent multiple simultaneous reset operations
+                if (this.isResetting()) {
+                    return;
+                }
+
+                this.isResetting(true);
                 this.removeHostedFieldIframes();
-                this.paymentError(errorMsg);
-                await this.getOAuthToken();
-                this.isPayButtonDisabled(false);
+
+                // Clear all payment data and errors
+                this.encryptedCardData = null;
+                this.service = null;
+                this.oauthTokenError('');
+                this.paymentError('');
+
+                // Only display error message if it's actually a string
+                if (typeof errorMsg === 'string' && errorMsg.length > 0) {
+                    this.paymentError(errorMsg);
+                }
+
+                try {
+                    await this.getOAuthToken();
+                } catch (error) {
+                    console.error("Error during resetHostedFields:", error);
+                    this.paymentError($.mage.__("An error occurred while refreshing the payment form. Please try again."));
+                } finally {
+                    this.isPayButtonDisabled(false);
+                    this.isResetting(false);
+                }
             },
+
+            /**
+             * Click handler for the clear button.
+             */
+            clearFields: function() {
+                // Prevent multiple clicks while already resetting
+                if (this.isResetting()) {
+                    return false;
+                }
+                this.resetHostedFields($.mage.__("Payment form has been cleared."));
+                return false; // Prevent default action
+            },
+
+
 
             /**
              * Initialize hosted fields using the OAuth token and issuers.
@@ -162,6 +199,11 @@ define(
                         );
                         this.isPayButtonDisabled(!this.sdkClient.formIsValid());
                         this.service = this.sdkClient.getService();
+
+                        // Clear payment error when form becomes valid
+                        if (this.sdkClient.formIsValid()) {
+                            this.paymentError('');
+                        }
                     });
 
                     // Styling for hosted fields.
@@ -176,27 +218,44 @@ define(
                         backgroundColor: 'inherit'
                     };
 
+                    // Get configured styling or fallback to defaults
+                    const configuredStyling = this.buckaroo.styling || {};
+
+                    // Helper function to get non-empty value or default
+                    const getStyleValue = (value, defaultValue) => {
+                        return (value && value.trim() !== '') ? value : defaultValue;
+                    };
+
                     const styling = {
-                        fontSize: "14px",
+                        fontSize: getStyleValue(configuredStyling.fontSize, "14px"),
                         fontStyle: "normal",
                         fontWeight: 400,
-                        fontFamily: 'Open Sans, Helvetica Neue, Helvetica, Arial, sans-serif',
+                        fontFamily: getStyleValue(configuredStyling.fontFamily, 'Open Sans, Helvetica Neue, Helvetica, Arial, sans-serif'),
                         textAlign: 'left',
-                        background: '#fefefe',
-                        color: '#333333',
-                        placeholderColor: '#888888',
-                        borderRadius: '5px',
+                        background: getStyleValue(configuredStyling.backgroundColor, '#fefefe'),
+                        color: getStyleValue(configuredStyling.textColor, '#333333'),
+                        placeholderColor: getStyleValue(configuredStyling.placeholderColor, '#888888'),
+                        borderRadius: getStyleValue(configuredStyling.borderRadius, '5px'),
                         padding: '8px 10px',
                         boxShadow: 'none',
                         transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
-                        border: '1px solid #d6d6d6',
+                        border: '1px solid ' + getStyleValue(configuredStyling.borderColor, '#d6d6d6'),
                         cardLogoStyling: cardLogoStyling
                     };
+
+
+
+                    // Get configured placeholders or fallback to defaults
+                    const placeholders = this.buckaroo.placeholders || {};
+                    const cardholderNamePlaceholder = placeholders.cardholderName || "John Doe";
+                    const cardNumberPlaceholder = placeholders.cardNumber || "555x xxxx xxxx xxxx";
+                    const cvcPlaceholder = placeholders.cvc || "1234";
+                    const expiryDatePlaceholder = placeholders.expiryDate || "MM / YY";
 
                     // Mount hosted fields concurrently.
                     const mountCardHolderNamePromise = this.sdkClient.mountCardHolderName("#cc-name-wrapper", {
                         id: "ccname",
-                        placeHolder: "John Doe",
+                        placeHolder: cardholderNamePlaceholder,
                         labelSelector: "#cc-name-label",
                         baseStyling: styling
                     }).then(field => {
@@ -206,21 +265,21 @@ define(
 
                     const mountCardNumberPromise = this.sdkClient.mountCardNumber("#cc-number-wrapper", {
                         id: "cc",
-                        placeHolder: "555x xxxx xxxx xxxx",
+                        placeHolder: cardNumberPlaceholder,
                         labelSelector: "#cc-number-label",
                         baseStyling: styling
                     });
 
                     const mountCvcPromise = this.sdkClient.mountCvc("#cc-cvc-wrapper", {
                         id: "cvc",
-                        placeHolder: "1234",
+                        placeHolder: cvcPlaceholder,
                         labelSelector: "#cc-cvc-label",
                         baseStyling: styling
                     });
 
                     const mountExpiryPromise = this.sdkClient.mountExpiryDate("#cc-expiry-wrapper", {
                         id: "expiry",
-                        placeHolder: "MM / YY",
+                        placeHolder: expiryDatePlaceholder,
                         labelSelector: "#cc-expiry-label",
                         baseStyling: styling
                     });
@@ -231,8 +290,34 @@ define(
                         mountCvcPromise,
                         mountExpiryPromise
                     ]);
+
+                    this.initCvcTooltip();
                 } catch (error) {
                     console.error("Error initializing hosted fields:", error);
+                    this.paymentError($.mage.__("An error occurred while initializing the payment form. Please try again."));
+                }
+            },
+
+            /**
+             * Initialize CVC tooltip functionality
+             */
+            initCvcTooltip: function() {
+                const tooltipButton = $('.buckaroo-cvc-tooltip-button');
+                const tooltip = $('.buckaroo-cvc-tooltip');
+
+                if (tooltipButton.length && tooltip.length) {
+                    tooltipButton.on('mouseenter', function() {
+                        tooltip.stop(true, true).fadeIn(200);
+                    });
+
+                    tooltipButton.on('mouseleave', function() {
+                        tooltip.stop(true, true).fadeOut(150);
+                    });
+
+                    tooltipButton.on('click', function(e) {
+                        e.preventDefault();
+                        return false;
+                    });
                 }
             },
 
@@ -263,7 +348,8 @@ define(
                     this.service = this.sdkClient.getService();
                     this.finalizePlaceOrder(event);
                 } catch (error) {
-                    this.paymentError($.mage.__("Payment processing failed. Please try again."));
+                    // Reset hosted fields session when payment token generation fails
+                    await this.resetHostedFields($.mage.__("Payment processing failed. Please try again."));
                     this.isPayButtonDisabled(false);
                 }
             },
@@ -289,9 +375,9 @@ define(
                         this.messageContainer
                     );
                     $.when(placeOrder)
-                        .fail(() => {
+                        .fail(async (jqXHR) => {
                             this.isPlaceOrderActionAllowed(true);
-                            this.paymentError($.mage.__("Payment token is missing. Please try again."));
+                            await this.resetHostedFields($.mage.__("Payment failed. Please try again."));
                         })
                         .done(this.afterPlaceOrder.bind(this));
                     return true;
@@ -303,7 +389,12 @@ define(
              * After order placement, handle the redirect.
              */
             afterPlaceOrder: function () {
-                const response = window.checkoutConfig.payment.buckaroo.response;
+                var response = window.checkoutConfig.payment.buckaroo.response;
+
+                if (typeof response === 'string') {
+                    response = JSON.parse(response);
+                }
+
                 checkoutCommon.redirectHandle(response);
             },
 

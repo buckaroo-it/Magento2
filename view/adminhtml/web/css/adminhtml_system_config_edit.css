@@ -1,14 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 /* ==================== Buckaroo / Buckaroo -  Navigation Logo - Top Menu ==================== */
 .buckaroo-config-page .page-main-actions .page-actions .page-actions-inner:after {
-    background-image: url(../images/buckaroo_config_logo_black.png) !important;
+    background-image: url(../images/buckaroo_small.png) !important;
     background-repeat: no-repeat;
     content: ' ';
 
     width: 160px;
     float: right;
     height: 30px;
-    margin-top: 8px;
-    background-size: auto 29px;
+    margin-top: 12px;
+    background-size: auto 20px;
 
     /*
     * Remove _beta if extension isn't beta anymore.
@@ -19,34 +20,37 @@
 
 /* ==================== Buckaroo / Buckaroo -  Navigation Logo - Left Menu ==================== */
 
-.buckaroo-section .admin__page-nav-link:before {
-    float:left;
-    width: calc(100% - 50px) ;
-    height: 18px;
+.buckaroo-section .title {
+    position: relative;
+}
+.buckaroo-section .title strong {
+    color:transparent;
+    color:#fff;
+}
+.buckaroo-section .title:before {
+    position: absolute;
+    z-index: 2;
+    height: 100%;
+    width: 100%;
     content: ' ';
-
     background-image: url(../images/buckaroo_small.png) !important;
-    background-position :0 2px;
-    background-repeat:no-repeat;
-    background-size: auto 13px;
+    background-repeat: no-repeat;
+    background-size: auto 15px;
  }
 
-.buckaroo-section .admin__page-nav-link {
-    text-indent: -999px;
-    padding: 2rem 1rem 2rem 1rem;
-}
+
 
 /* ======================= Identity ======================= */
 
 .buckaroo-config-page #container:before  {
-    background-image: url(../images/buckaroo_config_logo_black.png) !important;
+    background-image: url(../images/buckaroo_small.png) !important;
     background-repeat: no-repeat;
     content: ' ';
 
     float:left;
-    height: 50px;
-    background-size: auto 50px;
-     width: 295px;
+    height: 35px;
+    background-size: auto 30px;
+     width: 300px;
 }
 
 /* ==================== Buckaroo Active/Inactive Payments Feedback ==================== */
@@ -70,187 +74,98 @@
 
 /* ==================================== SupportTab - Default styling ==================================== */
 
-#section { float: left; width: 100%; clear: both; }
-#supporttab { margin-left: 4rem;  }
-#supporttab #section { border-bottom: 1px solid #cccccc; }
-#supporttab #section:last-child { border-bottom: none; }
-
-/* Default styling collapsible tabs */
-.collapse-title[aria-expanded=true] h3:before {
-    font-family:'Admin Icons';
-    content: '\e615';
-
+h3.bk-h3 {
+    font-size: 1.5em;
+    margin: 28px 0 10px;
 }
-.collapse-title h3:before {
-    font-family:'Admin Icons';
-    font-weight: lighter;
-    content: '\e616';
-    padding-right: 10px;
-    -webkit-font-smoothing: antialiased;
+.bk-hr-line {
+    height: 1px;
+    color: #ccc;
+    background-color: #ccc;
+    border: none;
+    padding: 0;
+    margin: 28px 0 10px;
 }
-
-.collapse-content {
-    box-sizing: border-box;
-    padding:0 15px 15px 15px;
-    height:auto !important;
-    float:left; width: 100%;
+.bk-supported-versions {
+    max-width: 300px;
+}
+.bk-installed-version {
+    max-width: 450px;
+}
+.bk-flex-basis-33 {
+    flex-basis: 33.33%;
 }
 
-#supporttab h3 {
-    font-size: 1.7rem;
-    margin:0 !important;
-    padding:1.9rem 2.7rem 1.9rem 1rem;
-    color: black;
-    font-weight: 600;
-    cursor: pointer;
+.bk-flex-basis-66 {
+    flex-basis: 66.66%;
 }
 
-#supporttab h4 {
-    font-size: 1.1em;
-    margin:20px 0 5px 0;
-    padding:0;
-    color: rgba(0,136,204,1);
+.bk-flex-basis-50 {
+    flex-basis: 50%;
 }
 
-#supporttab p {
-    line-height: 2em;
+.bk-mb-5px {
+    margin: 0;
+    padding: 0;
+    margin-bottom: 5px;
+}
+.bk-mt-10px {
+    margin: 0;
+    padding: 0;
+    margin-top: 10px;
 }
 
-#supporttab ol, ul {
-    margin-left: 20px;
-    position :relative;
-}
-
-#supporttab ul li {
-    line-height: 2em;
-    list-style-type: none;
-    margin-bottom: 10px;
-}
-
-#buckaroo_magento2_buckaroo_magento2_account_section_buckaroo_magento2_advanced .comment {
-    color: red;
-}
-
-/* ==================================== SupportTab - 3rd Party | Version compatibility ==================================== */
-
-/* activate Beta */
-/*
-#buckaroo_magento2_buckaroo_magento2_support_section-head:after,
-#buckaroo_magento2_buckaroo_magento2_account_section-head:after,
-#buckaroo_magento2_buckaroo_magento2_payment_section-head:after,
-#buckaroo_magento2_buckaroo_magento2_refund_section-head:after {
-    color:#db1200;
-    content: 'Beta';
-    text-transform: uppercase;
-    font-size:10px;
-    margin-left:3px;
-    position :absolute;
-    font-weight:lighter;
-}
-*/
-
-.block-version h3 {
-    cursor: auto !important;
-}
-
-.block-version {
-    padding:10px;
-    background: #F8F8F8;
-    float:left;
-    width: 100%;
-}
-
-.php-check-icon {
-    height: 16px;
-    width: 16px;
-    position: absolute;
-    right: 15px;
-    margin-top: 5px;
-}
-
-@media screen and (min-width: 1200px){
-    .block-version {
-        float:left;
-        width: 50%;
-    }
-}
-#supporttab .version-compatibility {
-    float:left;
-    width: calc(100% - 30px);
-    clear:both;
-}
-#supporttab .version-compatibility li {
-    clear: both;
-    margin-bottom: 15px;
-    float:left;
-    width: 100%;
-}
-#supporttab .version-compatibility  span.text {
-     font-weight: 600;
-     float:left;
-     width: calc(50% - 20px);
- }
-#supporttab .version-compatibility  span.version {
-    float:left;
-    width: calc(50% - 30px);
-    text-align:right;
+.bk-ml-10px {
+    margin: 0;
+    padding: 0;
     margin-left: 10px;
 }
 
-/* ==================================== SupportTab - Quick guide ==================================== */
-
-#supporttab ol {
-    margin-left: 40px;
+.bk-installed-version  p {
+   margin: 0;
+   padding: 0;
+}
+a.bk-btn {
+    font-weight: 600;
+    padding: 15px 15px;
+    display: inline-flex;
+    justify-content: center;
+    background: #CDF564;
+    border-radius: 30px;
+    color: #000;
+    white-space: nowrap;
+    font-family: 'Poppins', sans-serif;
+}
+a.bk-btn:hover {
+    background: #163255;
+    color: #CDF564;
+    text-decoration: none;
+}
+.bk-flex {
+    display: flex;
 }
 
-#supporttab ol li {
-    list-style-type: upper-roman;
-    line-height: 2em;
+.bk-flex-wrap {
+    flex-wrap: wrap;
 }
-
-#supporttab ol li ol {
-    margin-bottom: 10px;
+.bk-flex-between {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
-
-#supporttab ol li ol li {
-    list-style-type: lower-alpha;
+.bk-plugin-zone {
+    text-decoration: none;
 }
-
-/* ==================================== SupportTab - Support ==================================== */
-
-.buckaroo_logo, .buckaroo_logo {
-    padding:10px 10px 10px 0;
+.bk-plugin-zone-wrap {
+    flex: 0 0 50%;
 }
-.buckaroo_logo img { width: 180px; }
-.buckaroo_logo img { width: 50px; }
-
-.support-buck-magento2 ul {
-    float:left;
-    width:100%;
-    clear:both;
-}
-
-.support-buck-magento2 li.first {
-    font-weight :600;
-    width: 300px;
-}
-.support-buck-magento2 li.last {
-    width: 200px;
-}
-
-.support-buck-magento2 li.first,
-.support-buck-magento2 li.last {
-    line-height: normal;
-    float:left;
-}
-
-/* ==================================== SupportTab - Documentation ==================================== */
-
-.external_link {
+.bk-php-compatibility {
+    max-height: 17px;
     margin-left: 5px;
-    vertical-align: middle;
 }
-
+a.bk-plugin-zone {
+    max-width: 120px;
+}
 /* ==================================== SupportTab - Error message ==================================== */
 
 .buckaroo-magento2-supporttab .message-system-inner {
@@ -264,13 +179,6 @@
 }
 
 /* ==================================== Payment Methods - Legend ==================================== */
-
-/*#block {*/
-    /*margin-bottom: 30px;*/
-    /*float: left;*/
-    /*width: 100%;*/
-    /*clear: both;*/
-/*}*/
 
 .section-config.with-button.buckaroo_magento2-section .config-heading strong { font-weight: normal; }
 .buckaroo_magento2-section .button-container { float:right; }
@@ -403,4 +311,67 @@
     color: #303030;
     opacity: .5;
     cursor: not-allowed;
+}
+
+.buckaroo_magento2-section .bk-payment-method {
+    margin-left: 0;
+}
+
+.bk-payment-method .entry-edit-head {
+    display: flex;
+    align-items: center;
+}
+
+.bk-payment-method > .entry-edit-head > a:before
+{
+    top: 25px;
+}
+
+.bk-ad-payment-logo {
+    width: 50px;
+    padding-right: 10px;
+}
+.bk-tab-title {
+    display: flex;
+    align-items: center;
+}
+
+.bk-ad-payment-wrap a{
+    color: #303030;
+    cursor: pointer;
+    display: block;
+    font-size: 1.7rem;
+    font-weight: 600;
+    letter-spacing: .025em;
+    text-decoration: none;
+}
+
+.bk-in3-logo {
+    max-height: 30px;
+    width: auto;
+    margin-left:5px;
+}
+
+.bk-in3-main-wrap {
+    border: 1px solid #adadad;
+}
+
+/* Apple Pay button wrapper for admin */
+#applepay-button-wrapper > apple-pay-button {
+    display: inline;
+}
+
+/* Admin payment method styling */
+.buckaroo_magento2_payment_ {
+    margin-bottom: 10px;
+}
+
+/* Credit memo refund checkbox */
+#isRefund {
+    display: none;
+}
+
+/* Pay per email fieldset */
+.admin__fieldset.payment-method {
+    display: block;
 }

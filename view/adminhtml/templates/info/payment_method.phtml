@@ -23,7 +23,7 @@
  * @var $block \Buckaroo\Magento2\Block\Info
  */
 ?>
-<?php /** @var \Buckaroo\Magento2\Model\Method\AbstractMethod $method */ ?>
+<?php /** @var \Buckaroo\Magento2\Model\Method\BuckarooAdapter $method */ ?>
 <?php
 if ($giftCards = $block->getGiftCards()) {
     foreach ($giftCards as $giftCard) { ?>
@@ -32,29 +32,52 @@ if ($giftCards = $block->getGiftCards()) {
                 <img src=" <?php echo $block->escapeHtml($block->getGiftcardLogo($giftCard)) ?>" alt=""/>
             </div>
             <div class="bk-label-wrap">
-            <?php echo $block->escapeHtml($giftCard['label']) ?>
+                <?php echo $block->escapeHtml($giftCard['label']) ?>
             </div>
         </div>
-    <?php
+        <?php
     }
+    $additionalInfo = $block->getGiftcardAdditionalData();
+    $methodTitle = $block->getPaymentLogo(strtolower(str_replace('Buckaroo ', '', $additionalInfo['method_title'])));
+    ?>
+    <div class="bk-payment-wrap">
+        <div class="bk-img-wrap">
+            <img src=" <?php echo $block->escapeHtml($methodTitle) ?>" alt=""/>
+        </div>
+        <div class="bk-label-wrap">
+            <?php echo $block->escapeHtml($additionalInfo['method_title']) ?>
+        </div>
+    </div>
+    <?php
 }
 ?>
 
 <?php
-if ($method = $block->getPayPerEmailMethod()) {?>
-        <div class="buckaroo_magento2_payment_" style="margin-bottom:10px">
-            <?php echo $block->escapeHtml($method['label']) ?>
-        </div>
+if ($method = $block->getPayPerEmailMethod()) { ?>
+    <div class="buckaroo_magento2_payment_">
+        <?php echo $block->escapeHtml($method['label']) ?>
+    </div>
 <?php } ?>
 
 <?php $method = $block->getMethod(); ?>
 <div class="bk-payment-wrap">
-    <?php if($method->buckarooPaymentMethodCode !== 'voucher') { ?>
+    <?php if ($method->buckarooPaymentMethodCode !== 'voucher' && $method->buckarooPaymentMethodCode !== 'giftcards') { ?>
         <div class="bk-img-wrap">
-                <img src=" <?php echo $block->escapeHtml($block->getPaymentLogo($method->buckarooPaymentMethodCode)) ?>" alt=""/>
+            <img src=" <?php echo $block->escapeHtml($block->getPaymentLogo($method->buckarooPaymentMethodCode)) ?>"
+                 alt=""/>
+        </div>
+        <div class="bk-label-wrap">
+            <?php echo $block->escapeHtml($block->getMethod()->getTitle()) ?>
         </div>
     <?php } ?>
-    <div class="bk-label-wrap">
-        <?php echo $block->escapeHtml($block->getMethod()->getTitle()) ?>
-    </div>
 </div>
+
+<?php if ($specificPaymentDetails = $block->getSpecificPaymentDetails()) : ?>
+    <div class="bk-payment-wrap">
+        <?php foreach ($specificPaymentDetails as $label => $value) : ?>
+            <?= $block->escapeHtml($label) ?>:
+            <?= $block->escapeHtml(implode(' ', $block->getValueAsArray($value))) ?>
+            <br>
+        <?php endforeach; ?>
+    </div>
+<?php endif; ?>

@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,12 +18,12 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-
 namespace Buckaroo\Magento2\Block\Widget\Button;
 
+use Magento\Backend\Block\Widget\Button\ButtonList;
 use Magento\Backend\Block\Widget\Button\Toolbar as ToolbarContext;
 use Magento\Framework\View\Element\AbstractBlock;
-use Magento\Backend\Block\Widget\Button\ButtonList;
+use Magento\Sales\Block\Adminhtml\Order\Invoice\View;
 
 class Toolbar
 {
@@ -40,7 +40,6 @@ class Toolbar
         'buckaroo_magento2_creditcard',
         'buckaroo_magento2_creditcards',
         'buckaroo_magento2_ideal',
-        'buckaroo_magento2_idealprocessing',
         'buckaroo_magento2_mrcash',
         'buckaroo_magento2_paypal',
         'buckaroo_magento2_payconiq',
@@ -52,7 +51,6 @@ class Toolbar
         'buckaroo_magento2_klarna',
         'buckaroo_magento2_klarnakp',
         'buckaroo_magento2_klarnain',
-        'buckaroo_magento2_emandate',
         'buckaroo_magento2_applepay',
         'buckaroo_magento2_capayablein3',
         'buckaroo_magento2_capayablepostpay',
@@ -61,55 +59,53 @@ class Toolbar
         'buckaroo_magento2_p24',
         'buckaroo_magento2_trustly',
         'buckaroo_magento2_pospayment',
-        'buckaroo_magento2_blik',
+        'buckaroo_magento2_blik'
     ];
 
     /**
+     * Display cannot refund message for refunds that works only via the Buckaroo Plaza
+     *
      * @param ToolbarContext $toolbar
-     * @param AbstractBlock  $context
-     * @param ButtonList     $buttonList
+     * @param AbstractBlock $context
+     * @param ButtonList $buttonList
      * @return array
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function beforePushButtons(
         ToolbarContext $toolbar,
-        \Magento\Framework\View\Element\AbstractBlock $context,
-        \Magento\Backend\Block\Widget\Button\ButtonList $buttonList
+        AbstractBlock $context,
+        ButtonList $buttonList
     ) {
-        if ($this->_isOrderInvoiceView($context)) {
-            return $this->_creditMemoNotAllowed($context, $buttonList);
+        if ($this->isOrderInvoiceView($context)) {
+            return $this->creditMemoNotAllowed($context, $buttonList);
         }
 
         return [$context, $buttonList];
     }
 
     /**
-     * @param $context
+     * Check if is invoice view
+     *
+     * @param AbstractBlock $context
      * @return bool
      */
-    private function _isOrderView($context)
+    private function isOrderInvoiceView($context)
     {
-        if ($context instanceof \Magento\Sales\Block\Adminhtml\Order\View) {
+        if ($context instanceof View) {
             return true;
         }
+        return false;
     }
 
     /**
-     * @param $context
-     * @return bool
-     */
-    private function _isOrderInvoiceView($context)
-    {
-        if ($context instanceof \Magento\Sales\Block\Adminhtml\Order\Invoice\View) {
-            return true;
-        }
-    }
-
-    /**
-     * @param $context
-     * @param $buttonList
+     * Display credit memo not allowed messages
+     *
+     * @param AbstractBlock $context
+     * @param ButtonList $buttonList
      * @return array
      */
-    private function _creditMemoNotAllowed($context, $buttonList)
+    private function creditMemoNotAllowed($context, $buttonList)
     {
         $orderPayment = $context->getInvoice()->getOrder();
         $paymentMethod = $orderPayment->getPayment()->getMethod();
@@ -117,11 +113,11 @@ class Toolbar
         if ($orderPayment->getBaseBuckarooFee() > 0 && !in_array($paymentMethod, $this->allowedMethods)) {
             $message = __(
                 'Cannot Refund via Magento Backend. ' .
-                'Partial refunds combined with a payment fee can only be refunded via the Buckaroo Payment Plaza, ' .
+                'Partial refunds combined with a payment fee can only be refunded via the Buckaroo Plaza, ' .
                 'see also the ' .
                 '<a href="https://support.buckaroo.nl" target="_blank">KB article</a>.<br>' .
                 '<a href="https://plaza.buckaroo.nl" target="_blank">' .
-                'Open a new window to the Buckaroo Payment Plaza</a>.'
+                'Open a new window to the Buckaroo Plaza</a>.'
             );
             $onClick = "confirmSetLocation('{$message}', '#')";
 
@@ -133,10 +129,10 @@ class Toolbar
         if (isset($orderKeyCM3) && strlen((string)$orderKeyCM3) > 0) {
             $message = __(
                 'Cannot refund this order via Magento Backend for now, we are working on a solution! ' .
-                'Credit Management orders can only be refunded via the Buckaroo Payment Plaza.' .
+                'Credit Management orders can only be refunded via the Buckaroo Plaza.' .
                 '<br>' .
                 '<a href="https://plaza.buckaroo.nl" target="_blank">' .
-                'Open a new window to the Buckaroo Payment Plaza</a>.'
+                'Open a new window to the Buckaroo Plaza</a>.'
             );
             $onClick = "confirmSetLocation('{$message}', '#')";
 

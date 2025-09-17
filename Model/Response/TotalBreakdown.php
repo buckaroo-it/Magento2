@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,43 +17,55 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Response;
 
+use Buckaroo\Magento2\Api\Data\BreakdownItemInterface;
 use Buckaroo\Magento2\Api\Data\BreakdownItemInterfaceFactory;
 use Buckaroo\Magento2\Api\Data\TotalBreakdownInterface;
-use Magento\Quote\Model\Cart\CartTotalRepository;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Quote\Api\CartTotalRepositoryInterface;
 use Magento\Quote\Model\Quote;
 
 class TotalBreakdown implements TotalBreakdownInterface
 {
+    /**
+     * @var BreakdownItemInterfaceFactory
+     */
+    protected BreakdownItemInterfaceFactory $breakdownItemFactory;
 
     /**
-     *  @var \Buckaroo\Magento2\Api\Data\BreakdownItemInterfaceFactory
+     * @var Quote
      */
-    protected $breakdownItemFactory;
+    protected Quote $quote;
 
     /**
-     *  @var \Magento\Quote\Model\Quote
+     * @var CartTotalRepositoryInterface
      */
-    protected $quote;
+    protected CartTotalRepositoryInterface $cartTotalRepository;
 
-    protected $cartTotalRepository;
-
+    /**
+     * @param Quote $quote
+     * @param BreakdownItemInterfaceFactory $breakdownItemFactory
+     * @param CartTotalRepositoryInterface $cartTotalRepository
+     */
     public function __construct(
         Quote $quote,
         BreakdownItemInterfaceFactory $breakdownItemFactory,
-        CartTotalRepository $cartTotalRepository
-    )
-    {
+        CartTotalRepositoryInterface $cartTotalRepository
+    ) {
         $this->breakdownItemFactory = $breakdownItemFactory;
         $this->quote = $quote;
         $this->cartTotalRepository = $cartTotalRepository;
     }
+
     /**
-     * @return \Buckaroo\Magento2\Api\Data\BreakdownItemInterface
+     * Get subtotal
+     *
+     * @return BreakdownItemInterface
      */
-    public function getItemTotal()
+    public function getItemTotal(): BreakdownItemInterface
     {
         return $this->breakdownItemFactory->create(
             [
@@ -63,10 +74,13 @@ class TotalBreakdown implements TotalBreakdownInterface
             ]
         );
     }
+
     /**
-     * @return \Buckaroo\Magento2\Api\Data\BreakdownItemInterface
+     * Get shipping price
+     *
+     * @return BreakdownItemInterface
      */
-    public function getShipping()
+    public function getShipping(): BreakdownItemInterface
     {
         return $this->breakdownItemFactory->create(
             [
@@ -75,10 +89,13 @@ class TotalBreakdown implements TotalBreakdownInterface
             ]
         );
     }
+
     /**
-     * @return \Buckaroo\Magento2\Api\Data\BreakdownItemInterface
+     * Get taxes
+     *
+     * @return BreakdownItemInterface
      */
-    public function getTaxTotal()
+    public function getTaxTotal(): BreakdownItemInterface
     {
         return $this->breakdownItemFactory->create(
             [
@@ -87,12 +104,14 @@ class TotalBreakdown implements TotalBreakdownInterface
             ]
         );
     }
+
     /**
      * Get total from quote of type
      *
      * @param string $type
      *
      * @return float
+     * @throws NoSuchEntityException
      */
     protected function getTotalsOfType(string $type)
     {
@@ -102,7 +121,6 @@ class TotalBreakdown implements TotalBreakdownInterface
             return 0;
         }
 
-        return round($totals[$type]->getValue(), 2);
+        return round((float)$totals[$type]->getValue(), 2);
     }
-   
 }

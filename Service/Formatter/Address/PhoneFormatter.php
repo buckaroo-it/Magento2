@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,24 +17,41 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
+
+
 namespace Buckaroo\Magento2\Service\Formatter\Address;
 
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 
 class PhoneFormatter
 {
+    /**
+     * @var BuckarooLoggerInterface
+     */
+    private BuckarooLoggerInterface $logger;
+
+    /**
+     * @var array[]
+     */
     private const VALID_MOBILE = [
         'NL' => ['00316'],
         'BE' => ['003246', '003247', '003248', '003249'],
         'DE' => ['004915', '004916', '004917'],
-        'AT' => ['0049650', '0049660', '0049664','0049676', '0049680', '0049677','0049681', '0049688', '0049699'],
+        'AT' => ['0049650', '0049660', '0049664', '0049676', '0049680', '0049677', '0049681', '0049688', '0049699'],
     ];
 
+    /**
+     * @var array[]
+     */
     private const INVALID_NOTATION = [
         'NL' => ['00310', '0310', '310', '31'],
         'BE' => ['00320', '0320', '320', '32'],
     ];
 
+    /**
+     * @var array[]
+     */
     private const STARTING_NOTATION = [
         'NL' => '0031',
         'BE' => '0032',
@@ -42,21 +59,22 @@ class PhoneFormatter
         'AT' => '0043',
     ];
 
-    private Log $logger;
-
-    public function __construct(Log $logger)
+    /**
+     * @param BuckarooLoggerInterface $logger
+     */
+    public function __construct(BuckarooLoggerInterface $logger)
     {
         $this->logger = $logger;
     }
 
     /**
-     * Formats a phone number for a given country.
+     * Format phone number by country
      *
-     * @param string|null $phoneNumber
+     * @param string $phoneNumber
      * @param string $country
      * @return array
      */
-    public function format(?string $phoneNumber, string $country): array
+    public function format(string $phoneNumber, string $country): array
     {
         $this->logger->addDebug(__METHOD__ . ' - Starting format process', [
             'phoneNumber' => $phoneNumber,
@@ -90,7 +108,12 @@ class PhoneFormatter
         $return['mobile'] = $this->isMobileNumber($formattedNumber, $country);
         $return['valid'] = strlen($formattedNumber) === 13;
 
-        $this->logger->addDebug(__METHOD__ . ' - Format process complete', $return);
+        $this->logger->addDebug(sprintf(
+            '[PHONE_FORMATER] | [Service] | [%s:%s] - Format phone number by country | response: %s',
+            __METHOD__,
+            __LINE__,
+            var_export($return, true)
+        ));
 
         return $return;
     }
@@ -107,10 +130,12 @@ class PhoneFormatter
     }
 
     /**
-     * Formats the phone number based on the country rules.
+     * Format phone number by country
      *
      * @param string $phoneNumber
      * @param string $country
+     *
+     * @param string $phoneNumber
      * @return string
      */
     private function formatPhoneNumber(string $phoneNumber, string $country): string
@@ -132,24 +157,7 @@ class PhoneFormatter
     }
 
     /**
-     * Checks if the phone number is mobile based on country rules.
-     *
-     * @param string $phoneNumber
-     * @param string $country
-     * @return bool
-     */
-    private function isMobileNumber(string $phoneNumber, string $country): bool
-    {
-        foreach (self::VALID_MOBILE[$country] ?? [] as $prefix) {
-            if (strpos($phoneNumber, $prefix) === 0) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Corrects invalid notations in the phone number.
+     * Checks if the phone number has a valid notation for the given country.
      *
      * @param string $phoneNumber
      * @param string $country
@@ -177,5 +185,25 @@ class PhoneFormatter
     {
         $validPrefix = self::STARTING_NOTATION[$country];
         return preg_replace('/^' . preg_quote($invalidPrefix, '/') . '/', $validPrefix, $phoneNumber) ?? $phoneNumber;
+    }
+
+    /**
+     * Check if is mobile number
+     *
+     * @param string $phoneNumber
+     * @param string $country
+     *
+     * @param string $phoneNumber
+     * @param string $country
+     * @return bool
+     */
+    private function isMobileNumber(string $phoneNumber, string $country): bool
+    {
+        foreach (self::VALID_MOBILE[$country] ?? [] as $prefix) {
+            if (strpos($phoneNumber, $prefix) === 0) {
+                return true;
+            }
+        }
+        return false;
     }
 }

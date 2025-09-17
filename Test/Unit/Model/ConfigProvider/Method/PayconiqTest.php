@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,8 +18,12 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
+
+
+use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Data\Form\FormKey;
 use Magento\Store\Model\ScopeInterface;
@@ -32,36 +37,41 @@ class PayconiqTest extends BaseTest
     public function testGetConfig()
     {
         $scopeConfigMock = $this->getMockBuilder(ScopeConfigInterface::class)->getMock();
-        $scopeConfigMock->expects($this->atLeastOnce())
-            ->method('getValue')
-            ->withConsecutive($this->onConsecutiveCalls([[Payconiq::XPATH_PAYCONIQ_ACTIVE]]))
-            ->willReturn(1);
+        $scopeConfigMock->method('getValue')
+            ->willReturnCallback(function($path, $scope = null, $scopeId = null) {
+                // Use parameters to avoid PHPMD warnings
+                unset($scope, $scopeId);
 
-        $formKeyMock = $this->getFakeMock(FormKey::class)->setMethods(['getFormKey'])->getMock();
-        $formKeyMock->expects($this->once())->method('getFormKey')->willReturn('123abc');
+                if (strpos($path, AbstractConfigProvider::ACTIVE) !== false) {
+                    return 1;
+                }
+                return null;
+            });
+
+        $formKeyMock = $this->getFakeMock(FormKey::class)->onlyMethods(['getFormKey'])->getMock();
+        $formKeyMock->method('getFormKey')->willReturn('123abc');
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock, 'formKey' => $formKeyMock]);
         $result = $instance->getConfig();
 
-        $this->assertInternalType('array', $result);
+        $this->assertIsArray($result);
 
         $resultPaymentBuckaroo = $result['payment']['buckaroo'];
 
         $this->assertCount(1, $resultPaymentBuckaroo);
-        $this->assertArrayHasKey('payconiq', $resultPaymentBuckaroo);
-        $this->assertCount(3, $resultPaymentBuckaroo['payconiq']);
-        $this->assertArrayHasKey('paymentFeeLabel', $resultPaymentBuckaroo['payconiq']);
-        $this->assertArrayHasKey('allowedCurrencies', $resultPaymentBuckaroo['payconiq']);
+        $this->assertArrayHasKey('buckaroo_magento2_payconiq', $resultPaymentBuckaroo);
+        $this->assertArrayHasKey('paymentFeeLabel', $resultPaymentBuckaroo['buckaroo_magento2_payconiq']);
+        $this->assertArrayHasKey('allowedCurrencies', $resultPaymentBuckaroo['buckaroo_magento2_payconiq']);
         $this->assertEquals(
             Payconiq::PAYCONIC_REDIRECT_URL . '?form_key=123abc',
-            $resultPaymentBuckaroo['payconiq']['redirecturl']
+            $resultPaymentBuckaroo['buckaroo_magento2_payconiq']['redirecturl']
         );
     }
 
     /**
      * @return array
      */
-    public function getPaymentFeeProvider()
+    public static function getPaymentFeeProvider()
     {
         return [
             'null value' => [
@@ -92,9 +102,11 @@ class PayconiqTest extends BaseTest
     public function testGetPaymentFee($fee, $expected)
     {
         $scopeConfigMock = $this->getMockBuilder(ScopeConfigInterface::class)->getMock();
-        $scopeConfigMock->expects($this->once())
-            ->method('getValue')
-            ->with(Payconiq::XPATH_PAYCONIQ_PAYMENT_FEE, ScopeInterface::SCOPE_STORE)
+        $scopeConfigMock->method('getValue')
+            ->with(
+                $this->getPaymentMethodConfigPath(Payconiq::CODE, AbstractConfigProvider::PAYMENT_FEE),
+                ScopeInterface::SCOPE_STORE
+            )
             ->willReturn($fee);
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);

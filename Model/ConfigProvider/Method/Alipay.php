@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -22,64 +22,13 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 class Alipay extends AbstractConfigProvider
 {
-    const XPATH_ALIPAY_PAYMENT_FEE           = 'payment/buckaroo_magento2_alipay/payment_fee';
-    const XPATH_ALIPAY_ACTIVE                = 'payment/buckaroo_magento2_alipay/active';
-    const XPATH_ALIPAY_SUBTEXT               = 'payment/buckaroo_magento2_alipay/subtext';
-    const XPATH_ALIPAY_SUBTEXT_STYLE         = 'payment/buckaroo_magento2_alipay/subtext_style';
-    const XPATH_ALIPAY_SUBTEXT_COLOR         = 'payment/buckaroo_magento2_alipay/subtext_color';
-    const XPATH_ALIPAY_ACTIVE_STATUS         = 'payment/buckaroo_magento2_alipay/active_status';
-    const XPATH_ALIPAY_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_alipay/order_status_success';
-    const XPATH_ALIPAY_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_alipay/order_status_failed';
-    const XPATH_ALIPAY_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_alipay/available_in_backend';
+    public const CODE = 'buckaroo_magento2_alipay';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_alipay/allowed_currencies';
-
-    const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_alipay/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_alipay/specificcountry';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_alipay/specificcustomergroup';
-
-    /**
-     * @return array|void
-     */
-    public function getConfig()
-    {
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
-
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'alipay' => [
-                        'paymentFeeLabel' => $paymentFeeLabel,
-                        'subtext'   => $this->getSubtext(),
-                        'subtext_style'   => $this->getSubtextStyle(),
-                        'subtext_color'   => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                    ],
-                ],
-            ],
-        ];
-    }
-
-    /**
-     * @param null|int $storeId
-     *
-     * @return float
-     */
-    public function getPaymentFee($storeId = null)
-    {
-        $paymentFee = $this->scopeConfig->getValue(
-            self::XPATH_ALIPAY_PAYMENT_FEE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
-
-        return $paymentFee ? $paymentFee : false;
-    }
-
+    public const XPATH_ALIPAY_PAYMENT_FEE           = 'payment/buckaroo_magento2_alipay/payment_fee';
     /**
      * @return array
      */
-    public function getBaseAllowedCurrencies()
+    public function getBaseAllowedCurrencies(): array
     {
         return [
             'EUR',
@@ -97,5 +46,21 @@ class Alipay extends AbstractConfigProvider
             'THB',
             'HKD'
         ];
+    }
+
+    /**
+     * @param null|int $storeId
+     *
+     * @return float
+     */
+    public function getPaymentFee($storeId = null)
+    {
+        $paymentFee = $this->scopeConfig->getValue(
+            self::XPATH_ALIPAY_PAYMENT_FEE,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+
+        return $paymentFee ?: 0;
     }
 }

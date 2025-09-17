@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,7 +20,7 @@
 
 namespace Buckaroo\Magento2\Model\Response;
 
-use Buckaroo\Magento2\Api\Data\QuoteCreateResponseInterface;
+use Buckaroo\Magento2\Api\Data\PaypalExpress\QuoteCreateResponseInterface;
 use Buckaroo\Magento2\Api\Data\TotalBreakdownInterfaceFactory;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\QuoteIdMaskFactory;
@@ -30,25 +29,31 @@ use Magento\Quote\Model\ResourceModel\Quote\QuoteIdMask as QuoteIdMaskResource;
 class QuoteCreate implements QuoteCreateResponseInterface
 {
     /**
-     * @var \Buckaroo\Magento2\Api\Data\TotalBreakdownInterfaceFactory
+     * @var TotalBreakdownInterfaceFactory
      */
     protected $totalBreakdownFactory;
 
     /**
-     * @var \Magento\Quote\Model\Quote;
+     * @var Quote;
      */
     protected $quote;
 
     /**
-     * @var \Magento\Quote\Model\QuoteIdMaskFactory
+     * @var QuoteIdMaskFactory
      */
     protected $quoteIdMaskFactory;
 
     /**
-     * @var \Magento\Quote\Model\ResourceModel\Quote\QuoteIdMask
+     * @var QuoteIdMaskResource
      */
     protected $quoteIdMaskResource;
 
+    /**
+     * @param Quote $quote
+     * @param TotalBreakdownInterfaceFactory $totalBreakdownFactory
+     * @param QuoteIdMaskFactory $quoteIdMaskFactory
+     * @param QuoteIdMaskResource $quoteIdMaskResource
+     */
     public function __construct(
         Quote $quote,
         TotalBreakdownInterfaceFactory $totalBreakdownFactory,
@@ -61,26 +66,33 @@ class QuoteCreate implements QuoteCreateResponseInterface
         $this->quoteIdMaskResource = $quoteIdMaskResource;
     }
 
-    /** @inheritDoc */
+    /**
+     * @inheritdoc
+     */
     public function getBreakdown()
     {
-        $totalBreakdown = $this->totalBreakdownFactory->create(["quote" => $this->quote]);
-        return $totalBreakdown;
+        return $this->totalBreakdownFactory->create(["quote" => $this->quote]);
     }
 
-    /** @inheritDoc */
+    /**
+     * @inheritdoc
+     */
     public function getCurrencyCode()
     {
         return $this->quote->getQuoteCurrencyCode();
     }
 
-    /** @inheritDoc */
+    /**
+     * @inheritdoc
+     */
     public function getValue()
     {
         return number_format($this->quote->getGrandTotal(), 2);
     }
 
-    /** @inheritDoc */
+    /**
+     * @inheritdoc
+     */
     public function getCartId()
     {
         $quoteIdMask = $this->quoteIdMaskFactory->create();

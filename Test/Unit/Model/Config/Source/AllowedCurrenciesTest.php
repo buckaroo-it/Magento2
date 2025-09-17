@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Test\Unit\Model\Config\Source;
 
 use Magento\Framework\Locale\Bundle\CurrencyBundle;
@@ -33,9 +35,9 @@ class AllowedCurrenciesTest extends \Buckaroo\Magento2\Test\BaseTest
     public function testToOptionArray()
     {
         $currenciesConfigMock = $this->getFakeMock(AllowedCurrenciesConfig::class)
-            ->setMethods(['getAllowedCurrencies'])
+            ->onlyMethods(["getAllowedCurrencies"])
             ->getMock();
-        $currenciesConfigMock->expects($this->once())->method('getAllowedCurrencies')->willReturn(['USD', 'EUR']);
+        $currenciesConfigMock->method('getAllowedCurrencies')->willReturn(['USD', 'EUR']);
 
         $currenctBundleData = [
             'Currencies' => [
@@ -44,8 +46,8 @@ class AllowedCurrenciesTest extends \Buckaroo\Magento2\Test\BaseTest
             ]
         ];
 
-        $currencyBundleMock = $this->getFakeMock(CurrencyBundle::class)->setMethods(['get'])->getMock();
-        $currencyBundleMock->expects($this->once())->method('get')->willReturn($currenctBundleData);
+        $currencyBundleMock = $this->getFakeMock(CurrencyBundle::class)->onlyMethods(['get'])->getMock();
+        $currencyBundleMock->method('get')->willReturn($currenctBundleData);
 
         $instance = $this->getInstance([
             'allowedCurrenciesConfig' => $currenciesConfigMock,'currencyBundle' => $currencyBundleMock

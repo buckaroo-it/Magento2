@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,8 +18,12 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
+
+use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\CapayableIn3;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\CapayablePostpay;
@@ -31,9 +36,10 @@ class CapayablePostpayTest extends BaseTest
     public function testIsInactive()
     {
         $scopeConfigMock = $this->getMockBuilder(ScopeConfigInterface::class)->getMock();
-        $scopeConfigMock->expects($this->once())
-            ->method('getValue')
-            ->with(CapayablePostpay::XPATH_CAPAYABLEPOSTPAY_ACTIVE)
+        $scopeConfigMock->method('getValue')
+            ->with(
+                $this->getPaymentMethodConfigPath(CapayablePostpay::CODE, AbstractConfigProvider::ACTIVE)
+            )
             ->willReturn(0);
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
@@ -45,29 +51,40 @@ class CapayablePostpayTest extends BaseTest
     public function testGetConfig()
     {
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->setMethods(['getValue'])
+            ->onlyMethods(['getValue'])
             ->getMockForAbstractClass();
-        $scopeConfigMock->expects($this->exactly(2))
-            ->method('getValue')
-            ->withConsecutive(
-                [CapayablePostpay::XPATH_CAPAYABLEPOSTPAY_ACTIVE, ScopeInterface::SCOPE_STORE],
-                [CapayablePostpay::XPATH_ALLOWED_CURRENCIES, ScopeInterface::SCOPE_STORE, null]
-            )
-            ->willReturnOnConsecutiveCalls(true, 'EUR');
+        $scopeConfigMock->method('getValue')
+            ->willReturnCallback(function($path, $scope = null, $scopeId = null) {
+                // Use parameters to avoid PHPMD warnings
+                unset($scope, $scopeId);
+
+                // Check the actual path being requested and return appropriate values
+                if (strpos($path, 'active') !== false) {
+                    return true;
+                } elseif (strpos($path, 'allowed_currencies') !== false) {
+                    return 'EUR';
+                } elseif (strpos($path, 'payment_fee_label') !== false) {
+                    return 'Capayable Postpay Fee';
+                } elseif (strpos($path, 'order_email') !== false) {
+                    return '1';
+                } else {
+                    return null; // Default return for any other config paths
+                }
+            });
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
         $result = $instance->getConfig();
 
         $this->assertArrayHasKey('payment', $result);
         $this->assertArrayHasKey('buckaroo', $result['payment']);
-        $this->assertArrayHasKey('capayablepostpay', $result['payment']['buckaroo']);
-        $this->assertArrayHasKey('allowedCurrencies', $result['payment']['buckaroo']['capayablepostpay']);
+        $this->assertArrayHasKey('buckaroo_magento2_capayablepostpay', $result['payment']['buckaroo']);
+        $this->assertArrayHasKey('allowedCurrencies', $result['payment']['buckaroo']['buckaroo_magento2_capayablepostpay']);
     }
 
     /**
      * @return array
      */
-    public function getPaymentFeeProvider()
+    public static function getPaymentFeeProvider()
     {
         return [
             'null value' => [
@@ -98,9 +115,11 @@ class CapayablePostpayTest extends BaseTest
     public function testGetPaymentFee($fee, $expected)
     {
         $scopeConfigMock = $this->getMockBuilder(ScopeConfigInterface::class)->getMock();
-        $scopeConfigMock->expects($this->once())
-            ->method('getValue')
-            ->with(CapayablePostpay::XPATH_CAPAYABLEPOSTPAY_PAYMENT_FEE, ScopeInterface::SCOPE_STORE)
+        $scopeConfigMock->method('getValue')
+            ->with(
+                $this->getPaymentMethodConfigPath(CapayablePostpay::CODE, AbstractConfigProvider::PAYMENT_FEE),
+                ScopeInterface::SCOPE_STORE
+            )
             ->willReturn($fee);
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);

@@ -6,8 +6,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,18 +21,166 @@
  -->
 <schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
-        <table name="buckaroo_magento2_giftcard" resource="default" engine="innodb" comment="Buckaroo Giftcard">
+    <table name="buckaroo_magento2_giftcard" resource="default" engine="innodb" comment="Buckaroo Giftcard">
             <column name="entity_id" xsi:type="int" padding="10" unsigned="true" nullable="false" identity="true" comment="Entity ID"/>
             <column name="servicecode" xsi:type="varchar" nullable="true" comment="Servicecode"/>
             <column name="label" xsi:type="text" nullable="true" comment="Label"/>
             <column name="is_partial_refundable" xsi:type="tinyint" padding="5" nullable="true" comment="Customer id"/>
             <column name="logo" xsi:type="text" nullable="true" comment="Giftcard logo"/>
             <column name="acquirer" xsi:type="varchar" nullable="true" comment="Giftcard acquirer"/>
-            <index referenceId="BUCKAROO_MAGENTO2_GIFTCARD_ENTITY_ID" indexType="btree">
-                <column name="entity_id"/>
+        <index referenceId="BUCKAROO_MAGENTO2_GIFTCARD_ENTITY_ID" indexType="btree">
+            <column name="entity_id"/>
             </index>
             <index referenceId="BUCKAROO_MAGENTO2_GIFTCARD_SERVICE_CODE" indexType="btree">
                 <column name="servicecode"/>
-            </index>
-        </table>
+        </index>
+    </table>
+
+    <table name="buckaroo_magento2_log" resource="default" engine="innodb" comment="Buckaroo Log">
+        <column xsi:type="int" name="log_id" padding="10" unsigned="true" nullable="false" identity="true" comment="Log id"/>
+        <column xsi:type="varchar" name="channel" length="255" nullable="true" comment="Channel"/>
+        <column xsi:type="varchar" name="level" length="255" nullable="true" comment="Level"/>
+        <column xsi:type="text" name="message" nullable="true" comment="Message"/>
+        <column xsi:type="timestamp" name="time" on_update="false" nullable="false" default="CURRENT_TIMESTAMP" comment="Time"/>
+        <column xsi:type="varchar" name="session_id" length="40" nullable="true" comment="Session Id"/>
+        <column xsi:type="int" name="customer_id" padding="10" nullable="true" comment="Customer id"/>
+        <column xsi:type="int" name="quote_id" padding="10" nullable="true" comment="Quote id"/>
+        <column xsi:type="int" name="order_id" padding="10" nullable="true" comment="Order id"/>
+        <index referenceId="BUCKAROO_MAGENTO2_LOG_LOG_ID" indexType="btree">
+            <column name="log_id"/>
+        </index>
+        <index referenceId="BUCKAROO_MAGENTO2_LOG_ORDER_ID" indexType="btree">
+            <column name="order_id"/>
+        </index>
+    </table>
+
+    <table name="buckaroo_magento2_group_transaction" comment="Buckaroo Group Transaction">
+        <column xsi:type="int" name="entity_id" padding="10" identity="true" unsigned="true" nullable="false" comment="Entity ID"/>
+        <column xsi:type="text" name="order_id" nullable="false" comment="orderId"/>
+        <column xsi:type="text" name="transaction_id" nullable="false" comment="Transaction Id"/>
+        <column xsi:type="text" name="relatedtransaction" nullable="false" comment="Related Transaction"/>
+        <column xsi:type="text" name="servicecode" nullable="false" comment="ServiceCode"/>
+        <column xsi:type="text" name="currency" nullable="false" comment="Currency"/>
+        <column xsi:type="text" name="amount" nullable="false" comment="AmountDebit"/>
+        <column xsi:type="text" name="type" nullable="false" comment="RelationType"/>
+        <column xsi:type="text" name="status" nullable="false" comment="Status"/>
+        <column xsi:type="text" name="refunded_amount" nullable="true" comment="RefundedAmount"/>
+        <column xsi:type="timestamp" name="created_at" comment="Created At"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="entity_id"/>
+        </constraint>
+    </table>
+
+    <table name="sales_order">
+        <column xsi:type="text" name="buckaroo_reservation_number" nullable="true" comment="Buckaroo Reservation Number"/>
+        <column xsi:type="text" name="buckaroo_identification_number" nullable="true" comment="Buckaroo Identification Number"/>
+        <column xsi:type="text" name="buckaroo_push_data" nullable="true" comment="Buckaroo Push Data"/>
+        <column xsi:type="decimal" name="buckaroo_fee_base_tax_amount_invoiced" nullable="true" precision="12" scale="4" comment="Buckaroo Fee Base Tax Amount Invoiced"/>
+        <column xsi:type="decimal" name="buckaroo_fee_tax_amount_invoiced" nullable="true" precision="12" scale="4" comment="Buckaroo Fee Tax Amount Invoiced"/>
+        <column xsi:type="decimal" name="buckaroo_fee_base_tax_amount_refunded" nullable="true" precision="12" scale="4" comment="Buckaroo Fee Base Tax Amount Refunded"/>
+        <column xsi:type="decimal" name="buckaroo_fee_tax_amount_refunded" nullable="true" precision="12" scale="4" comment="Buckaroo Fee Tax Amount Refunded"/>
+        <column xsi:type="decimal" name="buckaroo_fee" nullable="true" precision="12" scale="4" comment="Buckaroo Fee"/>
+        <column xsi:type="decimal" name="base_buckaroo_fee" nullable="true" precision="12" scale="4" comment="Base Buckaroo Fee"/>
+        <column xsi:type="decimal" name="buckaroo_fee_invoiced" nullable="true" precision="12" scale="4" comment="Buckaroo Fee Invoiced"/>
+        <column xsi:type="decimal" name="base_buckaroo_fee_invoiced" nullable="true" precision="12" scale="4" comment="Base Buckaroo Fee Invoiced"/>
+        <column xsi:type="decimal" name="buckaroo_fee_refunded" nullable="true" precision="12" scale="4" comment="Buckaroo Fee Refunded"/>
+        <column xsi:type="decimal" name="base_buckaroo_fee_refunded" nullable="true" precision="12" scale="4" comment="Base Buckaroo Fee Refunded"/>
+        <column xsi:type="decimal" name="base_buckaroo_fee_incl_tax" scale="4" precision="12" nullable="true" comment="Base Buckaroo Fee Incl Tax"/>
+        <column xsi:type="decimal" name="buckaroo_fee_incl_tax" scale="4" precision="12" nullable="true" comment="Buckaroo Fee Incl Tax"/>
+        <column xsi:type="decimal" name="buckaroo_fee_base_tax_amount" scale="4" precision="12" nullable="true" comment="Buckaroo Fee Base Tax Amount"/>
+        <column xsi:type="decimal" name="buckaroo_fee_tax_amount" scale="4" precision="12" nullable="true" comment="Buckaroo Fee Tax Amount"/>
+        <column xsi:type="decimal" name="buckaroo_fee_incl_tax_invoiced" scale="4" precision="12" nullable="true" comment="Buckaroo Fee Incl Tax Invoiced"/>
+        <column xsi:type="decimal" name="base_buckaroo_fee_incl_tax_invoiced" scale="4" precision="12" nullable="true" comment="Base Buckaroo Fee Incl Tax Invoiced"/>
+        <column xsi:type="decimal" name="buckaroo_fee_incl_tax_refunded" scale="4" precision="12" nullable="true" comment="Buckaroo Fee Incl Tax Refunded"/>
+        <column xsi:type="decimal" name="base_buckaroo_fee_incl_tax_refunded" scale="4" precision="12" nullable="true" comment="Base Buckaroo Fee Incl Tax Refunded"/>
+        <column xsi:type="decimal" name="buckaroo_already_paid" scale="4" precision="19" comment="Buckaroo Already Paid"/>
+        <column xsi:type="decimal" name="base_buckaroo_already_paid" scale="4" precision="19" comment="Base Buckaroo Already Paid"/>
+    </table>
+    <table name="quote">
+        <column xsi:type="decimal" name="buckaroo_fee" nullable="true" precision="12" scale="4" comment="Buckaroo Fee"/>
+        <column xsi:type="decimal" name="base_buckaroo_fee" nullable="true" precision="12" scale="4" comment="Base Buckaroo Fee"/>
+        <column xsi:type="decimal" name="base_buckaroo_fee_incl_tax" scale="4" precision="12" nullable="true" comment="Base Buckaroo Fee Incl Tax"/>
+        <column xsi:type="decimal" name="buckaroo_fee_incl_tax" scale="4" precision="12" nullable="true" comment="Buckaroo Fee Incl Tax"/>
+        <column xsi:type="decimal" name="buckaroo_fee_base_tax_amount" scale="4" precision="12" nullable="true" comment="Buckaroo Fee Base Tax Amount"/>
+        <column xsi:type="decimal" name="buckaroo_fee_tax_amount" scale="4" precision="12" nullable="true" comment="Buckaroo Fee Tax Amount"/>
+        <column xsi:type="decimal" name="buckaroo_already_paid" scale="4" precision="19" comment="Buckaroo Already Paid"/>
+        <column xsi:type="decimal" name="base_buckaroo_already_paid" scale="4" precision="19" comment="Base Buckaroo Already Paid"/>
+    </table>
+    <table name="quote_address">
+        <column xsi:type="decimal" name="buckaroo_fee" nullable="true" precision="12" scale="4" comment="Buckaroo Fee"/>
+        <column xsi:type="decimal" name="base_buckaroo_fee" nullable="true" precision="12" scale="4" comment="Base Buckaroo Fee"/>
+        <column xsi:type="decimal" name="base_buckaroo_fee_incl_tax" scale="4" precision="12" nullable="true" comment="Base Buckaroo Fee Incl Tax"/>
+        <column xsi:type="decimal" name="buckaroo_fee_incl_tax" scale="4" precision="12" nullable="true" comment="Buckaroo Fee Incl Tax"/>
+        <column xsi:type="decimal" name="buckaroo_fee_base_tax_amount" scale="4" precision="12" nullable="true" comment="Buckaroo Fee Base Tax Amount"/>
+        <column xsi:type="decimal" name="buckaroo_fee_tax_amount" scale="4" precision="12" nullable="true" comment="Buckaroo Fee Tax Amount"/>
+        <column xsi:type="decimal" name="buckaroo_already_paid" scale="4" precision="19" comment="Buckaroo Already Paid"/>
+        <column xsi:type="decimal" name="base_buckaroo_already_paid" scale="4" precision="19" comment="Base Buckaroo Already Paid"/>
+    </table>
+    <table name="sales_invoice">
+        <column xsi:type="decimal" name="base_buckaroo_fee" nullable="true" precision="12" scale="4" comment="Base Buckaroo Fee"/>
+        <column xsi:type="decimal" name="buckaroo_fee" nullable="true" precision="12" scale="4" comment="Buckaroo Fee"/>
+        <column xsi:type="decimal" name="buckaroo_fee_base_tax_amount" scale="4" precision="12" nullable="true" comment="Buckaroo Fee Base Tax Amount"/>
+        <column xsi:type="decimal" name="buckaroo_fee_tax_amount" scale="4" precision="12" nullable="true" comment="Buckaroo Fee Tax Amount"/>
+        <column xsi:type="decimal" name="buckaroo_fee_incl_tax" scale="4" precision="12" nullable="true" comment="Buckaroo Fee Incl Tax"/>
+        <column xsi:type="decimal" name="base_buckaroo_fee_incl_tax" scale="4" precision="12" nullable="true" comment="Base Buckaroo Fee Incl Tax"/>
+        <column xsi:type="decimal" name="buckaroo_already_paid" scale="4" precision="19" comment="Buckaroo Already Paid"/>
+        <column xsi:type="decimal" name="base_buckaroo_already_paid" scale="4" precision="19" comment="Base Buckaroo Already Paid"/>
+    </table>
+    <table name="sales_creditmemo">
+        <column xsi:type="decimal" name="base_buckaroo_fee" nullable="true" precision="12" scale="4" comment="Base Buckaroo Fee"/>
+        <column xsi:type="decimal" name="buckaroo_fee" nullable="true" precision="12" scale="4" comment="Buckaroo Fee"/>
+        <column xsi:type="decimal" name="buckaroo_fee_base_tax_amount" scale="4" precision="12" nullable="true" comment="Buckaroo Fee Base Tax Amount"/>
+        <column xsi:type="decimal" name="buckaroo_fee_tax_amount" scale="4" precision="12" nullable="true" comment="Buckaroo Fee Tax Amount"/>
+        <column xsi:type="decimal" name="buckaroo_fee_incl_tax" scale="4" precision="12" nullable="true" comment="Buckaroo Fee Incl Tax"/>
+        <column xsi:type="decimal" name="base_buckaroo_fee_incl_tax" scale="4" precision="12" nullable="true" comment="Base Buckaroo Fee Incl Tax"/>
+        <column xsi:type="decimal" name="buckaroo_already_paid" scale="4" precision="19" comment="Buckaroo Already Paid"/>
+        <column xsi:type="decimal" name="base_buckaroo_already_paid" scale="4" precision="19" comment="Base Buckaroo Already Paid"/>
+    </table>
+
+    <table name="sales_payment_transaction" resource="default" engine="innodb" comment="Sales Payment Transaction">
+        <index referenceId="SALES_PAYMENT_TRANSACTION_TXN_ID" indexType="btree">
+            <column name="txn_id"/>
+        </index>
+    </table>
+
+    <table name="buckaroo_magento2_second_chance" resource="default" engine="innodb" comment="Buckaroo Second Chance">
+        <column name="entity_id" xsi:type="int" padding="11" unsigned="true" nullable="false" identity="true" comment="Entity ID"/>
+            <constraint xsi:type="primary" referenceId="PRIMARY">
+                <column name="entity_id"/>
+            </constraint>
+        <column name="order_id" xsi:type="text" nullable="true" comment="orderId"/>
+        <column name="store_id" xsi:type="smallint" padding="5" nullable="true" comment="storeId"/>
+        <column xsi:type="varchar" name="token" nullable="false" length="255" comment="Token"/>
+        <column name="status" xsi:type="text" nullable="false" comment="Status"/>
+        <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP" comment="Created At"/>
+        <column name="last_order_id" xsi:type="text" nullable="true" comment="Last orderId"/>
+        <index referenceId="BUCKAROO_MAGENTO2_SECOND_CHANCE_ENTITY_ID" indexType="btree">
+            <column name="entity_id"/>
+        </index>
+        <index referenceId="BUCKAROO_MAGENTO2_SECOND_CHANCE_TOKEN" indexType="btree">
+            <column name="token"/>
+        </index>
+        <index referenceId="BUCKAROO_MAGENTO2_SECOND_CREATED_AT" indexType="btree">
+            <column name="created_at"/>
+        </index>
+        <index referenceId="BUCKAROO_MAGENTO2_SECOND_STORE_ID" indexType="btree">
+            <column name="store_id"/>
+        </index>
+    </table>
+
+    <table name="buckaroo_magento2_analytics" resource="default" engine="innodb" comment="Buckaroo Analytics">
+        <column name="analytics_id" xsi:type="int" unsigned="true" nullable="false" identity="true" comment="Analytics ID"/>
+            <constraint xsi:type="primary" referenceId="PRIMARY">
+                <column name="analytics_id"/>
+            </constraint>
+        <column name="quote_id" xsi:type="int" unsigned="true" nullable="true" comment="Quote ID"/>
+        <column name="client_id" xsi:type="varchar" nullable="true" length="255" comment="Client ID"/>
+        <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP" comment="Created At"/>
+        <index referenceId="BUCKAROO_MAGENTO2_ANALYTICS_ANALYTICS_ID" indexType="btree">
+            <column name="analytics_id"/>
+        </index>
+        <index referenceId="BUCKAROO_MAGENTO2_ANALYTICS_QUOTE_ID" indexType="btree">
+            <column name="quote_id"/>
+        </index>
+    </table>
 </schema>

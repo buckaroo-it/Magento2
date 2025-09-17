@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,63 +18,377 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Test\Unit\Service\Sales\Quote;
 
-use Magento\Checkout\Model\Cart;
-use Magento\Quote\Model\Quote;
-use Magento\Quote\Model\QuoteFactory;
 use Buckaroo\Magento2\Service\Sales\Quote\Recreate;
-use Buckaroo\Magento2\Test\BaseTest;
-use Magento\Quote\Model\ResourceModel\Quote as QuoteResource;
-use Magento\Quote\Model\Quote\Address;
+use Buckaroo\Magento2\Logging\Log;
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Checkout\Model\Cart;
+use Magento\Checkout\Model\Session as CheckoutSession;
+use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Quote\Model\QuoteFactory;
+use Magento\Catalog\Model\ProductFactory;
+use Magento\Quote\Api\CartManagementInterface;
+use Magento\Framework\Message\ManagerInterface;
+use Magento\Store\Model\StoreManagerInterface;
+use Magento\Sales\Model\Order;
+use Magento\Quote\Model\Quote;
+use Magento\Catalog\Model\Product;
+use Magento\Sales\Model\Order\Item;
+use Magento\Store\Model\Store;
+use Magento\Sales\Model\Order\Address;
 
-class RecreateTest extends BaseTest
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
+class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
 {
     protected $instanceClass = Recreate::class;
 
-    public function testRecreate()
+    /** @var CartRepositoryInterface|\PHPUnit\Framework\MockObject\MockObject */
+    private $cartRepository;
+
+    /** @var Cart|\PHPUnit\Framework\MockObject\MockObject */
+    private $cart;
+
+    /** @var CheckoutSession|\PHPUnit\Framework\MockObject\MockObject */
+    private $checkoutSession;
+
+    /** @var QuoteFactory|\PHPUnit\Framework\MockObject\MockObject */
+    private $quoteFactory;
+
+    /** @var ProductFactory|\PHPUnit\Framework\MockObject\MockObject */
+    private $productFactory;
+
+    /** @var ManagerInterface|\PHPUnit\Framework\MockObject\MockObject */
+    private $messageManager;
+
+    /** @var StoreManagerInterface|\PHPUnit\Framework\MockObject\MockObject */
+    private $storeManager;
+
+    /** @var Log|\PHPUnit\Framework\MockObject\MockObject */
+    private $logger;
+
+    public function setUp(): void
     {
-        // Mock the Quote object directly without loading by ID
-        $quoteMock = $this->getFakeMock(Quote::class)
-            ->setMethods(['save', 'getBillingAddress', 'getShippingAddress', 'removeAddress'])
+        parent::setUp();
+
+        $this->cartRepository = $this->getFakeMock(CartRepositoryInterface::class)->getMock();
+        $this->cart = $this->getFakeMock(Cart::class)->getMock();
+        $this->checkoutSession = $this->getFakeMock(CheckoutSession::class, false)
+            ->addMethods(['unsLastRealOrderId', 'unsLastOrderId', 'unsLastSuccessQuoteId', 'unsRedirectUrl', 'unsLastQuoteId'])
+            ->onlyMethods(['replaceQuote', 'setQuoteId'])
             ->getMock();
-        $quoteMock->expects($this->any())->method('getBillingAddress')->willReturn($this->createMock(Address::class));
-        $quoteMock->expects($this->any())->method('getShippingAddress')->willReturn($this->createMock(Address::class));
-        $quoteMock->expects($this->any())->method('removeAddress')->willReturnSelf();
+        $this->quoteFactory = $this->getFakeMock(QuoteFactory::class)->getMock();
+        $this->productFactory = $this->getFakeMock(ProductFactory::class)->getMock();
+        $this->messageManager = $this->getFakeMock(ManagerInterface::class)->getMock();
+        $this->storeManager = $this->getFakeMock(StoreManagerInterface::class)->getMock();
+        $this->logger = $this->getFakeMock(Log::class)->getMock();
+    }
 
-        // Mock the Resource Model to avoid "The resource isn't set" error
-        $quoteResourceMock = $this->getFakeMock(QuoteResource::class)
-            ->setMethods(['save'])
+    public function testRecreateById()
+    {
+        $quoteId = 123;
+        $storeId = 1;
+
+        $oldQuote = $this->getFakeMock(Quote::class)->getMock();
+        $newQuote = $this->getFakeMock(Quote::class)->getMock();
+        $store = $this->getFakeMock(Store::class)->getMock();
+
+        $this->quoteFactory->method('create')
+            ->willReturnOnConsecutiveCalls($oldQuote, $newQuote);
+
+        $oldQuote->method('load')
+            ->with($quoteId)
+            ->willReturnSelf();
+
+        $oldQuote->expects($this->atLeastOnce())->method('getId')->willReturn($quoteId);
+        $oldQuote->method('getStoreId')->willReturn($storeId);
+
+        $this->storeManager->method('getStore')
+            ->with($storeId)
+            ->willReturn($store);
+
+        $newQuote->method('merge')->with($oldQuote);
+        $newQuote->method('setStore')->with($store);
+        $newQuote->method('setIsActive')->with(true);
+        $newQuote->method('collectTotals');
+        $newQuote->method('setReservedOrderId')->with(null);
+
+        $this->checkoutSession->method('replaceQuote')->with($newQuote);
+        $this->checkoutSession->method('unsLastRealOrderId');
+        $this->checkoutSession->method('unsLastOrderId');
+        $this->checkoutSession->method('unsLastSuccessQuoteId');
+        $this->checkoutSession->method('unsRedirectUrl');
+        $this->checkoutSession->method('unsLastQuoteId');
+
+        $this->cartRepository->method('save')->with($newQuote);
+
+        $instance = $this->getInstance([
+            'cartRepository' => $this->cartRepository,
+            'checkoutSession' => $this->checkoutSession,
+            'quoteFactory' => $this->quoteFactory,
+            'storeManager' => $this->storeManager,
+            'logger' => $this->logger,
+        ]);
+
+        $result = $this->invokeArgs('recreateById', [$quoteId], $instance);
+        $this->assertEquals($newQuote, $result);
+    }
+
+    public function testRecreateByIdWithNonExistentQuote()
+    {
+        $quoteId = 999;
+
+        $oldQuote = $this->getFakeMock(Quote::class)->getMock();
+
+        $this->quoteFactory->method('create')
+            ->willReturn($oldQuote);
+
+        $oldQuote->method('load')
+            ->with($quoteId)
+            ->willReturnSelf();
+
+        $oldQuote->method('getId')->willReturn(null);
+
+        $instance = $this->getInstance([
+            'quoteFactory' => $this->quoteFactory,
+            'logger' => $this->logger,
+        ]);
+
+        $result = $this->invokeArgs('recreateById', [$quoteId], $instance);
+        $this->assertNull($result);
+    }
+
+    /**
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     */
+    public function testDuplicate()
+    {
+        $order = $this->getFakeMock(Order::class)->getMock();
+        $oldQuote = $this->getFakeMock(Quote::class, false)
+            ->onlyMethods(['load', 'getId', 'getPayment'])
             ->getMock();
-        $quoteMock->setResource($quoteResourceMock);
-
-        // Mock the Cart object
-        $cartMock = $this->getFakeMock(Cart::class)
-            ->setMethods(['setQuote', 'save'])
+        $newQuote = $this->getFakeMock(Quote::class, false)
+            ->onlyMethods(['setStore', 'getBillingAddress', 'getShippingAddress', 'setIsActive', 'collectTotals', 'save', 'addProduct', 'setCustomerIsGuest', 'getPayment', 'getCustomerIsGuest'])
+            ->addMethods(['setCustomerId', 'setCustomerEmail', 'setCustomerFirstname', 'setCustomerLastname', 'getCustomerId', 'getCustomerEmail', 'getCustomerFirstname', 'getCustomerLastname'])
             ->getMock();
-        $cartMock->expects($this->once())->method('setQuote')->with($quoteMock)->willReturnSelf();
-        $cartMock->expects($this->once())->method('save');
+        $store = $this->getFakeMock(Store::class)->getMock();
+        $billingAddress = $this->getFakeMock(Address::class)->getMock();
+        $shippingAddress = $this->getFakeMock(Address::class)->getMock();
+        $quoteBillingAddress = $this->getFakeMock(\Magento\Quote\Model\Quote\Address::class)
+            ->addMethods(['importOrderAddress'])
+            ->getMock();
+        $quoteShippingAddress = $this->getFakeMock(\Magento\Quote\Model\Quote\Address::class)
+            ->addMethods(['importOrderAddress', 'setShippingMethod', 'setCollectShippingRates'])
+            ->getMock();
 
-        // Define a sample response array to pass as the second argument
-        $response = [
-            'add_service_action_from_magento' => 'payfastcheckout', // Example response value
-        ];
+        // Setup order data
+        $order->method('getIncrementId')->willReturn('000000001');
+        $order->method('getQuoteId')->willReturn(123);
+        $order->expects($this->atLeastOnce())->method('getStore')->willReturn($store);
+        $order->method('getCustomerId')->willReturn(1);
+        $order->method('getCustomerEmail')->willReturn('test@example.com');
+        $order->method('getCustomerFirstname')->willReturn('John');
+        $order->method('getCustomerLastname')->willReturn('Doe');
+        $order->method('getBillingAddress')->willReturn($billingAddress);
+        $order->method('getShippingAddress')->willReturn($shippingAddress);
+        $order->method('getShippingMethod')->willReturn('flatrate_flatrate');
 
-        // Instantiate the Recreate class with necessary mocks
-        $instance = $this->getInstance(['cart' => $cartMock]);
+        // Setup order items
+        $orderItem = $this->getFakeMock(Item::class)->getMock();
+        $orderItem->method('getProductId')->willReturn(1);
+        $orderItem->method('getQtyOrdered')->willReturn(2);
+        $orderItem->method('getProductOptionByCode')->with('info_buyRequest')->willReturn(['qty' => 2]);
 
-        // Call the recreate method with the quote and response
-        $instance->recreate($quoteMock, $response);
+        $order->method('getAllVisibleItems')->willReturn([$orderItem]);
 
-        // Assertions to verify the quote state
-        $this->assertTrue($quoteMock->getIsActive());
-        $this->assertEquals('1', $quoteMock->getTriggerRecollect());
-        $this->assertNull($quoteMock->getReservedOrderId());
-        $this->assertNull($quoteMock->getBuckarooFee());
-        $this->assertNull($quoteMock->getBaseBuckarooFee());
-        $this->assertNull($quoteMock->getBuckarooFeeTaxAmount());
-        $this->assertNull($quoteMock->getBuckarooFeeBaseTaxAmount());
-        $this->assertNull($quoteMock->getBuckarooFeeInclTax());
-        $this->assertNull($quoteMock->getBaseBuckarooFeeInclTax());
+        // Setup quotes
+        $this->quoteFactory->method('create')
+            ->willReturnOnConsecutiveCalls($oldQuote, $newQuote);
+
+        $oldQuotePayment = $this->getFakeMock(\Magento\Quote\Model\Quote\Payment::class, false)
+            ->onlyMethods(['getMethod'])
+            ->getMock();
+        $oldQuotePayment->method('getMethod')->willReturn('buckaroo_magento2_ideal');
+        
+        $oldQuote->method('load')->with(123)->willReturnSelf();
+        $oldQuote->method('getId')->willReturn(123);
+        $oldQuote->method('getPayment')->willReturn($oldQuotePayment);
+
+        // Setup new quote
+        $newQuote->method('setStore')->with($store);
+        $newQuote->method('setCustomerId')->with(1);
+        $newQuote->method('setCustomerEmail')->with('test@example.com');
+        $newQuote->method('setCustomerFirstname')->with('John');
+        $newQuote->method('setCustomerLastname')->with('Doe');
+        $newQuote->method('setCustomerIsGuest')->with(false);
+        $newQuote->method('getBillingAddress')->willReturn($quoteBillingAddress);
+        $newQuote->method('getShippingAddress')->willReturn($quoteShippingAddress);
+        
+        $newQuotePayment = $this->getFakeMock(\Magento\Quote\Model\Quote\Payment::class, false)
+            ->onlyMethods(['setMethod', 'setQuote'])
+            ->getMock();
+        $newQuote->method('getPayment')->willReturn($newQuotePayment);
+        $newQuote->method('setIsActive')->with(true);
+        $newQuote->method('collectTotals');
+        $newQuote->method('save');
+
+        // Setup product
+        $product = $this->getFakeMock(Product::class)->getMock();
+        $product->method('getId')->willReturn(1);
+
+        $this->productFactory->method('create')
+            ->willReturn($product);
+
+        $product->method('load')->with(1)->willReturnSelf();
+
+        $newQuote->method('addProduct')
+            ->with($product, $this->isInstanceOf(\Magento\Framework\DataObject::class));
+
+        // Setup addresses
+        $quoteBillingAddress->method('importOrderAddress')->with($billingAddress);
+        $quoteShippingAddress->method('importOrderAddress')->with($shippingAddress);
+        $quoteShippingAddress->method('setShippingMethod')->with('flatrate_flatrate');
+        $quoteShippingAddress->method('setCollectShippingRates')->with(true);
+
+        // Setup checkout session
+        $this->checkoutSession->method('replaceQuote')->with($newQuote);
+        $this->checkoutSession->method('setQuoteId');
+
+        // Configure getters to return expected values
+        $newQuote->method('getCustomerId')->willReturn(1);
+        $newQuote->method('getCustomerEmail')->willReturn('test@example.com');
+        $newQuote->method('getCustomerFirstname')->willReturn('John');
+        $newQuote->method('getCustomerLastname')->willReturn('Doe');
+        $newQuote->method('getCustomerIsGuest')->willReturn(false);
+
+        $instance = $this->getInstance([
+            'quoteFactory' => $this->quoteFactory,
+            'productFactory' => $this->productFactory,
+            'checkoutSession' => $this->checkoutSession,
+            'logger' => $this->logger,
+        ]);
+
+        $result = $this->invokeArgs('duplicate', [$order], $instance);
+        $this->assertEquals($newQuote, $result);
+        $this->assertEquals(1, $result->getCustomerId());
+        $this->assertEquals('test@example.com', $result->getCustomerEmail());
+        $this->assertEquals('John', $result->getCustomerFirstname());
+        $this->assertEquals('Doe', $result->getCustomerLastname());
+        $this->assertFalse($result->getCustomerIsGuest());
+    }
+
+    public function testDuplicateWithGuestCustomer()
+    {
+        $order = $this->getFakeMock(Order::class)->getMock();
+        $oldQuote = $this->getFakeMock(Quote::class)->getMock();
+        $newQuote = $this->getFakeMock(Quote::class, false)
+            ->onlyMethods(['setStore', 'getBillingAddress', 'getShippingAddress', 'setIsActive', 'collectTotals', 'save', 'setCustomerIsGuest', 'getCustomerIsGuest'])
+            ->addMethods(['setCustomerEmail', 'setCustomerFirstname', 'setCustomerLastname', 'getCustomerId', 'getCustomerEmail', 'getCustomerFirstname', 'getCustomerLastname'])
+            ->getMock();
+        $store = $this->getFakeMock(Store::class)->getMock();
+
+        // Setup guest order
+        $order->method('getIncrementId')->willReturn('000000001');
+        $order->method('getQuoteId')->willReturn(123);
+        $order->expects($this->atLeastOnce())->method('getStore')->willReturn($store);
+        $order->method('getCustomerId')->willReturn(null); // Guest customer
+        $order->method('getCustomerEmail')->willReturn('guest@example.com');
+        $order->method('getCustomerFirstname')->willReturn('Guest');
+        $order->method('getCustomerLastname')->willReturn('User');
+        $order->method('getAllVisibleItems')->willReturn([]);
+        $order->method('getBillingAddress')->willReturn(null);
+        $order->method('getShippingAddress')->willReturn(null);
+
+        $this->quoteFactory->method('create')
+            ->willReturnOnConsecutiveCalls($oldQuote, $newQuote);
+
+        $oldQuote->method('load')->with(123)->willReturnSelf();
+        $oldQuote->method('getId')->willReturn(123);
+
+        // Setup guest quote
+        $newQuote->method('setStore')->with($store);
+        $newQuote->method('setCustomerEmail')->with('guest@example.com');
+        $newQuote->method('setCustomerFirstname')->with('Guest');
+        $newQuote->method('setCustomerLastname')->with('User');
+        $newQuote->method('setCustomerIsGuest')->with(true);
+        $newQuote->method('setIsActive')->with(true);
+        $newQuote->method('collectTotals');
+        $newQuote->method('save');
+        
+        // Configure getters to return expected values
+        $newQuote->method('getCustomerId')->willReturn(null);
+        $newQuote->method('getCustomerEmail')->willReturn('guest@example.com');
+        $newQuote->method('getCustomerFirstname')->willReturn('Guest');
+        $newQuote->method('getCustomerLastname')->willReturn('User');
+        $newQuote->method('getCustomerIsGuest')->willReturn(true);
+
+        $instance = $this->getInstance([
+            'quoteFactory' => $this->quoteFactory,
+            'productFactory' => $this->productFactory,
+            'checkoutSession' => $this->checkoutSession,
+            'logger' => $this->logger,
+        ]);
+
+        $result = $this->invokeArgs('duplicate', [$order], $instance);
+        $this->assertEquals($newQuote, $result);
+        $this->assertNull($result->getCustomerId());
+        $this->assertEquals('guest@example.com', $result->getCustomerEmail());
+        $this->assertEquals('Guest', $result->getCustomerFirstname());
+        $this->assertEquals('User', $result->getCustomerLastname());
+        $this->assertTrue($result->getCustomerIsGuest());
+    }
+
+    public function testDuplicateWithMissingOriginalQuote()
+    {
+        $order = $this->getFakeMock(Order::class)->getMock();
+        $oldQuote = $this->getFakeMock(Quote::class)->getMock();
+
+        $order->method('getIncrementId')->willReturn('000000001');
+        $order->method('getQuoteId')->willReturn(999);
+
+        $this->quoteFactory->method('create')
+            ->willReturn($oldQuote);
+
+        $oldQuote->method('load')->with(999)->willReturnSelf();
+        $oldQuote->method('getId')->willReturn(null);
+
+        $this->logger->method('addError')
+            ->with($this->stringContains('Original quote not found'));
+
+        $instance = $this->getInstance([
+            'quoteFactory' => $this->quoteFactory,
+            'logger' => $this->logger,
+        ]);
+
+        $result = $this->invokeArgs('duplicate', [$order], $instance);
+        $this->assertNull($result);
+    }
+
+    public function testDuplicateWithException()
+    {
+        $order = $this->getFakeMock(Order::class)->getMock();
+
+        $order->method('getIncrementId')->willReturn('000000001');
+        $order->method('getQuoteId')->willReturn(123);
+
+        $this->quoteFactory->method('create')
+            ->willThrowException(new \Exception('Test exception'));
+
+        $this->logger->method('addError')
+            ->with($this->stringContains('Error duplicating order to quote'));
+
+        $this->messageManager->method('addErrorMessage');
+
+        $instance = $this->getInstance([
+            'quoteFactory' => $this->quoteFactory,
+            'messageManager' => $this->messageManager,
+            'logger' => $this->logger,
+        ]);
+
+        $result = $this->invokeArgs('duplicate', [$order], $instance);
+        $this->assertNull($result);
     }
 }

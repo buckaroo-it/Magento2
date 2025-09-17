@@ -2,9 +2,33 @@
     "name": "buckaroo/magento2",
     "description": "Buckaroo Magento 2 extension",
     "require": {
-        "php": "~7.4.0||~8.1.0||~8.2.0||~8.3.0",
+        "php": "^8.0 || ^8.1 || ^8.2 || ^8.3 || ^8.4",
         "magento/module-payment": ">=100.3.3",
-        "magento/framework": ">=103.0.0"
+        "magento/framework": ">=103.0.0",
+        "magento/module-backend": "^102.0",
+        "magento/module-catalog": "^104.0",
+        "magento/module-catalog-inventory": "^100.4",
+        "magento/module-checkout": "^100.4",
+        "magento/module-config": "^101.2",
+        "magento/module-configurable-product": "^100.4",
+        "magento/module-customer": "^103.0",
+        "magento/module-directory": "^100.4",
+        "magento/module-eav": "^102.1",
+        "magento/module-email": "^101.1",
+        "magento/module-media-storage": "^100.4",
+        "magento/module-quote": "^101.2",
+        "magento/module-sales": "^103.0",
+        "magento/module-sales-rule": "^101.2",
+        "magento/module-store": "^101.1",
+        "magento/module-tax": "^100.4",
+        "magento/module-ui": "^101.2",
+        "laminas/laminas-validator": "^2.64",
+        "buckaroo/sdk": "^1.19.0",
+        "monolog/monolog": "^2.9 || ^3.0",
+        "phpunit/phpunit": "^9.5 || ^10.5",
+        "psr/log": "^2.0 || ^3.0",
+        "ext-json": "*",
+        "ext-pcre": "*"
     },
     "type": "magento2-module",
     "license": "CC-BY-NC-ND-3.0",
@@ -22,7 +46,7 @@
         "docs": "https://docs.buckaroo.io/"
     },
     "homepage": "https://www.buckaroo.nl",
-    "version" : "v1.53.1",
+    "version" : "v2.0.0",
     "minimum-stability": "stable",
     "autoload": {
         "files": [
@@ -33,13 +57,28 @@
         }
     },
     "require-dev": {
-        "satooshi/php-coveralls": "^1.0",
-        "php-webdriver/webdriver": "^1.1"
+        "php-webdriver/webdriver": "^1.1",
+        "squizlabs/php_codesniffer": "^3.7",
+        "phpmd/phpmd": "^2.15",
+        "phpstan/phpstan": "^1.10",
+        "magento/magento-coding-standard": "^38"
     },
     "repositories": {
         "magento": {
             "type": "composer",
             "url": "https://repo.magento.com/"
         }
+    },
+    "config": {
+        "allow-plugins": {
+            "magento/composer-dependency-version-audit-plugin": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    },
+    "replace": {
+        "buckaroo/magento2secondchance": "*"
+    },
+    "suggest": {
+        "buckaroo/magento2secondchance": "No longer needed – remove it"
     }
 }

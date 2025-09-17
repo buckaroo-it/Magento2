@@ -146,7 +146,6 @@ define(
                                 window.scroll(0, y);
                             }
                         }, 2000);
-
                     }
                 }
             );

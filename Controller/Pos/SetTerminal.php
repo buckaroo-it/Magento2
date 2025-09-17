@@ -1,28 +1,38 @@
 <?php
- /**
-  * NOTICE OF LICENSE
-  *
-  * This source file is subject to the MIT License
-  * It is available through the world-wide-web at this URL:
-  * https://tldrlegal.com/license/mit-license
-  * If you are unable to obtain it through the world-wide-web, please send an email
-  * to support@buckaroo.nl so we can send you a copy immediately.
-  *
-  * DISCLAIMER
-  *
-  * Do not edit or add to this file if you wish to upgrade this module to newer
-  * versions in the future. If you wish to customize this module for your
-  * needs please contact support@buckaroo.nl for more information.
-  *
-  * @copyright Copyright (c) Buckaroo B.V.
-  * @license   https://tldrlegal.com/license/mit-license
-  */
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
 
 namespace Buckaroo\Magento2\Controller\Pos;
 
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Exception as BuckarooException;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory;
+use Magento\Checkout\Model\ConfigProviderInterface;
+use Magento\Framework\App\Action\Action;
+use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\Action\HttpGetActionInterface;
+use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\Stdlib\Cookie\CookieMetadataFactory;
+use Magento\Framework\Stdlib\CookieManagerInterface;
+use Magento\Store\Model\StoreManagerInterface;
 
-class SetTerminal extends \Magento\Framework\App\Action\Action
+class SetTerminal extends Action implements HttpGetActionInterface
 {
     /**
      * @var array
@@ -30,38 +40,49 @@ class SetTerminal extends \Magento\Framework\App\Action\Action
     protected $response;
 
     /**
-     * @var \Magento\Checkout\Model\ConfigProviderInterface
+     * @var ConfigProviderInterface
      */
     protected $accountConfig;
 
     /**
-     * @var Log
+     * @var BuckarooLoggerInterface
      */
-    protected $logger;
+    protected BuckarooLoggerInterface $logger;
 
+    /**
+     * @var StoreManagerInterface
+     */
     protected $storemanager;
 
+    /**
+     * @var CookieManagerInterface
+     */
     protected $cookieManager;
 
+    /**
+     * @var CookieMetadataFactory
+     */
     protected $cookieMetadataFactory;
 
     /**
-     * @param \Magento\Framework\App\Action\Context               $context
-     * @param Log                                                 $logger
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory          $configProviderFactory
-     *
-     * @throws \Buckaroo\Magento2\Exception
+     * @param Context $context
+     * @param BuckarooLoggerInterface $logger
+     * @param Factory $configProviderFactory
+     * @param StoreManagerInterface $storemanager
+     * @param CookieManagerInterface $cookieManager
+     * @param CookieMetadataFactory $cookieMetadataFactory
+     * @throws BuckarooException
      */
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        Log $logger,
-        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory,
-        \Magento\Store\Model\StoreManagerInterface $storemanager,
-        \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager,
-        \Magento\Framework\Stdlib\Cookie\CookieMetadataFactory $cookieMetadataFactory
+        Context $context,
+        BuckarooLoggerInterface $logger,
+        Factory $configProviderFactory,
+        StoreManagerInterface $storemanager,
+        CookieManagerInterface $cookieManager,
+        CookieMetadataFactory $cookieMetadataFactory
     ) {
         parent::__construct($context);
-        $this->logger             = $logger;
+        $this->logger = $logger;
         $this->accountConfig = $configProviderFactory->get('account');
         $this->storemanager = $storemanager;
         $this->cookieManager = $cookieManager;
@@ -71,14 +92,20 @@ class SetTerminal extends \Magento\Framework\App\Action\Action
     /**
      * Process action
      *
-     * @return \Magento\Framework\App\ResponseInterface
+     * @return ResponseInterface
      * @throws \Exception
      */
     public function execute()
     {
-        $this->logger->addDebug(__METHOD__.'|1|'.var_export($this->getRequest()->getParams(), true));
+        $params = $this->getRequest()->getParams();
+        $this->logger->addDebug(sprintf(
+            '[POS] | [Controller] | [%s:%s] - Set Terminal | request: %s',
+            __METHOD__,
+            __LINE__,
+            var_export($params, true)
+        ));
 
-        if (($params = $this->getRequest()->getParams()) && !empty($params['id'])) {
+        if (!empty($params['id'])) {
             $metadata = $this->cookieMetadataFactory
                 ->createPublicCookieMetadata()
                 ->setPath('/')
@@ -88,10 +115,9 @@ class SetTerminal extends \Magento\Framework\App\Action\Action
                 $params['id'],
                 $metadata
             );
-            $this->logger->addDebug(__METHOD__.'|2|');
         }
 
-        $redirectUrl= $this->storemanager->getStore()->getBaseUrl();
-        $this->_redirect($redirectUrl);
+        $redirectUrl = $this->storemanager->getStore()->getBaseUrl();
+        return $this->_redirect($redirectUrl);
     }
 }

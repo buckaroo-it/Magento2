@@ -24,6 +24,7 @@ namespace Buckaroo\Magento2\Observer;
 use Buckaroo\Magento2\Model\Config\Source\InvoiceHandlingOptions;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\Service\CreateInvoice;
+use Buckaroo\Magento2\Service\CheckPaymentType;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\LocalizedException;
@@ -35,6 +36,11 @@ use Magento\Sales\Model\Order\Payment\Transaction;
 
 class SetTransactionOnInvoiceObserver implements ObserverInterface
 {
+    /**
+     * @var CheckPaymentType
+     */
+    public CheckPaymentType $checkPaymentType;
+
     /**
      * @var CommandInterface
      */
@@ -53,10 +59,12 @@ class SetTransactionOnInvoiceObserver implements ObserverInterface
     public function __construct(
         CommandInterface $stateCommand,
         Account $configAccount,
+        CheckPaymentType $checkPaymentType,
         CreateInvoice $createInvoiceService
     ) {
         $this->stateCommand = $stateCommand;
         $this->configAccount = $configAccount;
+        $this->checkPaymentType = $checkPaymentType;
         $this->createInvoiceService = $createInvoiceService;
     }
 
@@ -78,8 +86,7 @@ class SetTransactionOnInvoiceObserver implements ObserverInterface
 
         $amount = $invoice->getGrandTotal();
         $paymentMethod = $payment->getMethod();
-
-        if (strpos($paymentMethod, 'buckaroo_magento2_') !== false &&
+        if ($this->checkPaymentType->isBuckarooMethod($paymentMethod) &&
             $this->isInvoiceCreatedAfterShipment($payment) &&
             empty($invoice->getTransactionId()) &&
             empty($payment->getTransactionId())
@@ -100,7 +107,6 @@ class SetTransactionOnInvoiceObserver implements ObserverInterface
         return $this;
     }
 
-
     /**
      * Is the invoice for the current order is created after shipment
      *
@@ -110,7 +116,7 @@ class SetTransactionOnInvoiceObserver implements ObserverInterface
     private function isInvoiceCreatedAfterShipment(OrderPaymentInterface $payment): bool
     {
         return $payment->getAdditionalInformation(
-                InvoiceHandlingOptions::INVOICE_HANDLING
-            ) == InvoiceHandlingOptions::SHIPMENT;
+            InvoiceHandlingOptions::INVOICE_HANDLING
+        ) == InvoiceHandlingOptions::SHIPMENT;
     }
 }

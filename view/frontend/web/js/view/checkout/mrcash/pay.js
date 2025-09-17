@@ -16,35 +16,63 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-define([
-    'uiComponent',
-    'jquery',
-    'mageUtils',
-    'mage/url',
-    'mage/translate',
-    'BuckarooSDK'
-], function (
-    Component,
-    $,
-    utils,
-    $url,
-    $t
-) {
-    'use strict';
+define(
+    [
+        'jquery',
+        'mageUtils',
+        'mage/url',
+        'mage/translate',
+        'BuckarooSdk'
+    ],
+    function (
+        $,
+        utils,
+        url
+    ) {
+        'use strict';
 
     return Component.extend({
         defaults: {
             transactionKey: null
         },
 
-        /**
-         * Initialize the component
-         */
-        initialize: function () {
-            this._super();
+            setTransactionKey: function (newKey) {
+                this.transactionKey = newKey;
+            },
 
-            if (this.transactionKey) {
-                this.setTransactionKey(this.transactionKey);
+            showQrCode: function () {
+                if (/iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                    $('#buckaroo_magento2_mrcash_url').show();
+                }
+                BuckarooSdk.BancontactMobile.initiateSeparate(
+                    "#buckaroo_magento2_mrcash_qr",
+                    "#buckaroo_magento2_mrcash_url",
+                    this.transactionKey,
+                    function (status, params) {
+                        if (status === 'SUCCESS') {
+                            $('#buckaroo_magento2_mrcash_cancel').hide();
+                        }
+
+                        return true;
+                    }
+                );
+            },
+
+            cancelPayment: function () {
+                var cancelText = $.mage.__('You have canceled the order. We kindly ask you to not complete the payment in the Bancontact app - Your order will not be processed. Place the order again if you still want to make the payment.');
+                $('#buckaroo_magento2_mrcash_title').hide();
+                $('#buckaroo_magento2_mrcash_cancel').hide();
+                $('#buckaroo_magento2_mrcash_qr').html(cancelText);
+
+                var data = {};
+                data['transaction_key'] = this.transactionKey;
+
+                var formKey = $.mage.cookies.get('form_key');
+
+                utils.submit({
+                    url: url.build('/buckaroo/mrcash/process/?cancel=1&form_key=' + formKey),
+                    data: data
+                });
             }
 
             this.showQrCode();

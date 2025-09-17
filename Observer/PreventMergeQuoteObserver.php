@@ -59,8 +59,7 @@ class PreventMergeQuoteObserver implements \Magento\Framework\Event\ObserverInte
     private function removeAllItems($quote): void
     {
         $items = $quote->getItemsCollection();
-        foreach ($items as $item)
-        {
+        foreach ($items as $item) {
             $quote->removeItem($item->getId());
         }
     }

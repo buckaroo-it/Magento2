@@ -50,6 +50,15 @@ class CouponManagement
         $this->quoteRepository = $quoteRepository;
     }
 
+    /**
+     * @param CouponManagementInterface $subject
+     * @param int $cartId
+     * @param string $couponCode
+     * @return array
+     * @throws CouldNotSaveException
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function beforeSet(CouponManagementInterface $subject, $cartId, $couponCode)
     {
         if ($this->isGroupTransaction($cartId)) {
@@ -60,6 +69,14 @@ class CouponManagement
         return [$cartId, $couponCode];
     }
 
+    /**
+     * @param CouponManagementInterface $subject
+     * @param int $cartId
+     * @return array
+     * @throws CouldNotDeleteException
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function beforeRemove(CouponManagementInterface $subject, $cartId)
     {
         if ($this->isGroupTransaction($cartId)) {
@@ -70,7 +87,8 @@ class CouponManagement
         return [$cartId];
     }
 
-    private function isGroupTransaction($cartId): bool {
+    private function isGroupTransaction($cartId): bool
+    {
          /** @var  \Magento\Quote\Model\Quote $quote */
          $quote = $this->quoteRepository->getActive($cartId);
         return $this->groupTransaction->getAlreadyPaid($quote->getReservedOrderId()) > 0;

@@ -1,0 +1,117 @@
+/* Express Payment Buttons - Consistent Width Styling */
+#fast-checkout-ideal-btn {
+    height: 45px;
+    padding: 0;
+    border: none;
+    background: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 10px 0;
+    width: 100%;
+    max-width: 350px;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+#fast-checkout-ideal-btn img {
+    max-height: 100%;
+    max-width: 100%;
+    display: block;
+    margin: auto;
+}
+
+/* PayPal Express Button Container */
+.buckaroo-paypal-express {
+    width: 100%;
+    max-width: 350px;
+    margin: 10px 0;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+/* Apple Pay Button Container */
+#apple-pay-wrapper {
+    width: 100%;
+    max-width: 350px;
+    margin: 10px 0;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+/* Hide Apple Pay wrapper in checkout payment method selection - use Place Order button instead */
+.buckaroo_magento2_applepay.payment-method #apple-pay-wrapper {
+    display: none !important;
+}
+
+/* Apple Pay Button Styling */
+#apple-pay-wrapper > apple-pay-button {
+    width: 100% !important;
+    height: 45px !important;
+    -apple-pay-button-style: black;
+    -apple-pay-button-type: buy;
+    cursor: pointer;
+}
+
+/* Express Payment Component Containers - Cursor Pointer */
+#apple-pay-catalog-product-view-component,
+#apple-pay-catalog-cart-view-component,
+#paypal-express-button-component,
+#fast-checkout-ideal-btn-component {
+    cursor: pointer;
+}
+
+/* PayPal Express Cart Container */
+.buckaroo-paypal-express .box-tocart {
+    cursor: pointer;
+}
+
+/* Ensure all payment button containers have consistent centering */
+.buckaroo-box-to-cart {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.buckaroo-box-to-cart .fieldset {
+    width: 100%;
+    max-width: 350px;
+}
+
+.buckaroo-box-to-cart .actions {
+    width: 100%;
+}
+
+/* PayPal Express button component container */
+#paypal-express-button-component {
+    width: 100%;
+    max-width: 350px;
+    margin: 10px 0;
+    box-sizing: border-box;
+}
+
+/* iDIN product page styles */
+#buckaroo_idin_product {
+    background: #d4eded;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 10px 0;
+    border-radius: 5px;
+    max-width: 500px;
+    height: 55px;
+    box-sizing: border-box;
+}
+
+#buckaroo_idin_product img {
+    height: 45px;
+    flex-shrink: 0;
+}
+
+#buckaroo_idin_product span {
+    flex: 1;
+    line-height: 1.2;
+    font-size: 13px;
+}

@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,19 +20,33 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider;
 
+use Magento\Catalog\Model\Product;
+use Magento\Catalog\Model\ProductFactory;
+use Magento\Checkout\Model\Session as CheckoutSession;
+use Magento\Customer\Api\Data\CustomerInterface;
+use Magento\Customer\Model\AddressFactory;
+use Magento\Customer\Model\ResourceModel\CustomerRepository;
+use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Model\Quote;
 use Magento\Store\Model\ScopeInterface;
-use Magento\Customer\Api\Data\CustomerInterface;
-use Magento\Customer\Model\ResourceModel\CustomerRepository;
+use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Idin config provider
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class Idin extends AbstractConfigProvider
 {
-    const XPATH_ACCOUNT_IDIN = 'buckaroo_magento2/account/idin';
+    public const XPATH_ACCOUNT_IDIN = 'buckaroo_magento2/account/idin';
 
-    protected $issuers = [
+    /**
+     * @var array|array[]
+     */
+    protected array $issuers = [
         [
             'name' => 'ABN AMRO',
             'code' => 'ABNANL2A',
@@ -68,41 +81,67 @@ class Idin extends AbstractConfigProvider
         ],
     ];
 
-    private $storeManager;
+    /**
+     * @var CheckoutSession
+     */
+    protected CheckoutSession $checkoutSession;
 
-    private $configProviderAccount;
-
-    private $customerSession;
-
-    private $productFactory;
-
-    protected $checkoutSession;
-
-    protected $scopeConfig;
-
-    protected $addressFactory;
+    /**
+     * @var AddressFactory
+     */
+    protected AddressFactory $addressFactory;
 
     /**
      * @var CustomerRepository
      */
-    protected $customerRepository;
+    protected CustomerRepository $customerRepository;
 
+    /**
+     * @var StoreManagerInterface
+     */
+    private StoreManagerInterface $storeManager;
+
+    /**
+     * @var Account
+     */
+    private Account $configProviderAccount;
+
+    /**
+     * @var CustomerSession
+     */
+    private CustomerSession $customerSession;
+
+    /**
+     * @var ProductFactory
+     */
+    private ProductFactory $productFactory;
+
+    /**
+     * @param Account $configProviderAccount
+     * @param StoreManagerInterface $storeManager
+     * @param CustomerSession $customerSession
+     * @param ProductFactory $productFactory
+     * @param CheckoutSession $checkoutSession
+     * @param ScopeConfigInterface $scopeConfig
+     * @param AddressFactory $addressFactory
+     * @param CustomerRepository $customerRepository
+     */
     public function __construct(
-        \Buckaroo\Magento2\Model\ConfigProvider\Account $configProviderAccount,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Customer\Model\Session $customerSession,
-        \Magento\Catalog\Model\ProductFactory $productFactory,
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Magento\Customer\Model\AddressFactory $addressFactory,
+        Account $configProviderAccount,
+        StoreManagerInterface $storeManager,
+        CustomerSession $customerSession,
+        ProductFactory $productFactory,
+        CheckoutSession $checkoutSession,
+        ScopeConfigInterface $scopeConfig,
+        AddressFactory $addressFactory,
         CustomerRepository $customerRepository
     ) {
+        parent::__construct($scopeConfig);
         $this->storeManager = $storeManager;
         $this->configProviderAccount = $configProviderAccount;
         $this->customerSession = $customerSession;
         $this->productFactory = $productFactory;
         $this->checkoutSession = $checkoutSession;
-        $this->scopeConfig = $scopeConfig;
         $this->addressFactory = $addressFactory;
         $this->customerRepository = $customerRepository;
     }
@@ -110,51 +149,56 @@ class Idin extends AbstractConfigProvider
     /**
      * Retrieve associated array of checkout configuration
      *
-     * @param null $store
-     *
+     * @param null|int|string $store
      * @return array
+     * @throws NoSuchEntityException
+     * @throws LocalizedException
      */
-    public function getConfig($store = null)
+    public function getConfig($store = null): array
     {
         $idin = $this->isIDINActive();
-        $osc = (int) $this->scopeConfig->getValue(
+        $osc = (int)$this->scopeConfig->getValue(
             'onestepcheckout_iosc/general/enable',
             ScopeInterface::SCOPE_STORE
         );
         return [
             'buckarooIdin' => [
-                'issuers' => $this->getIssuers(),
-                'active' => $idin['active'],
-                'verified' => $idin['verified'],
+                'issuers'      => $this->getIssuers(),
+                'active'       => $idin['active'],
+                'verified'     => $idin['verified'],
                 'isOscEnabled' => $osc
             ],
         ];
     }
+
     /**
-     * Get list of issuers
+     * Check if idin is active for this user and cart
      *
      * @return array
+     * @throws NoSuchEntityException|LocalizedException
      */
-    public function getIssuers()
+    protected function isIDINActive(): array
     {
-        $all = $this->issuers;
-        if ($this->configProviderAccount->getIdin($this->storeManager->getStore()) == 1) {
-            array_push($all, ['name' => 'TEST BANK', 'code' => 'BANKNL2Y']);
-        }
-        return $all;
+        return $this->getIdinStatus(
+            $this->checkoutSession->getQuote(),
+            $this->getCustomer(
+                $this->customerSession->getCustomerId()
+            )
+        );
     }
+
     /**
      * Get idin status for customer and Quote/Cart
      *
      * @param Quote $quote
-     * @param CustomerInterface $customer
+     * @param CustomerInterface|null $customer
      *
      * @return array
+     * @throws NoSuchEntityException
      */
-    public function getIdinStatus(Quote $quote, CustomerInterface $customer = null)
+    public function getIdinStatus(Quote $quote, ?CustomerInterface $customer = null): array
     {
-        if (
-            !$this->checkCountry($customer) ||
+        if (!$this->checkCountry($customer) ||
             !$this->isIdinEnabled()
         ) {
             return ['active' => false, 'verified' => false];
@@ -170,57 +214,63 @@ class Idin extends AbstractConfigProvider
     }
 
     /**
-     * Check if idin is active for this user and cart
+     * Enable idin only for netherland
      *
-     * @return array
+     * @param CustomerInterface|null $customer
+     * @return boolean
      */
-    protected function isIDINActive()
+    protected function checkCountry(?CustomerInterface $customer): bool
     {
-        return $this->getIdinStatus(
-            $this->checkoutSession->getQuote(),
-            $this->getCustomer(
-                $this->customerSession->getCustomerId()
-            )
-        );
-    }
-    /**
-     * Get customer by id
-     *
-     * @param mixed $customerId
-     *
-     * @return CustomerInterface|null
-     */
-    protected function getCustomer($customerId)
-    {
-        if (empty($customerId)) {
-            return;
+        if ($customer === null) {
+            return true;
         }
-        return $this->customerRepository->getById($customerId);
+
+        if ($customer->getDefaultBilling()
+            && ($billingAddress = $this->addressFactory->create()->load($customer->getDefaultBilling()))
+            && $billingAddress->getCountryId()) {
+            return strtolower($billingAddress->getCountryId()) == 'nl';
+        }
+
+        return true;
     }
+
+    /**
+     * Check if idin is enabled
+     *
+     * @param mixed $store
+     * @return boolean
+     * @throws NoSuchEntityException
+     */
+    protected function isIdinEnabled($store = null): bool
+    {
+        $storeToUse = $store ?: $this->storeManager->getStore();
+        return $this->configProviderAccount->getIdin($storeToUse) != 0;
+    }
+
     /**
      * Check if customer is verified
      *
      * @param CustomerInterface|null $customer
-     *
      * @return boolean
      */
-    protected function isCustomerVerified(CustomerInterface $customer = null)
+    protected function isCustomerVerified(?CustomerInterface $customer = null): bool
     {
         if ($customer === null) {
             return $this->checkoutSession->getCustomerIDINIsEighteenOrOlder() === true;
         }
-        return ($customer->getCustomAttribute('buckaroo_idin_iseighteenorolder') !== null &&
-            $customer->getCustomAttribute('buckaroo_idin_iseighteenorolder')->getValue() == 1
-        );
+        return $customer->getCustomAttribute('buckaroo_idin_iseighteenorolder') !== null &&
+            $customer->getCustomAttribute('buckaroo_idin_iseighteenorolder')->getValue() == 1;
     }
+
     /**
      * Check if idin verification is required in cart/quote
      *
      * @param Quote $quote
      *
      * @return boolean
+     * @throws NoSuchEntityException
      */
-    public function isIdinActiveForQuote(Quote $quote)
+    public function isIdinActiveForQuote(Quote $quote): bool
     {
         $active = false;
         foreach ($quote->getAllVisibleItems() as $item) {
@@ -243,23 +293,12 @@ class Idin extends AbstractConfigProvider
     }
 
     /**
-     * Check if idin is enabled
-     *
-     * @return boolean
-     */
-    protected function isIdinEnabled()
-    {
-        return $this->configProviderAccount->getIdin($this->storeManager->getStore()) != 0;
-    }
-
-    /**
      * Check if idin is required in product categories
      *
-     * @param \Magento\Catalog\Model\Product $product
-     *
+     * @param Product $product
      * @return boolean
      */
-    protected function checkCategories($product)
+    protected function checkCategories(Product $product): bool
     {
         foreach ($product->getCategoryIds() as $cat) {
             if (in_array($cat, explode(',', (string)$this->configProviderAccount->getIdinCategory()))) {
@@ -270,25 +309,50 @@ class Idin extends AbstractConfigProvider
     }
 
     /**
-     * Enable idin only for netherland
+     * Get customer by id
      *
-     * @param CustomerInterface|null $customer
-     *
-     * @return boolean
+     * @param mixed $customerId
+     * @return CustomerInterface|null
      */
-    protected function checkCountry($customer)
+    protected function getCustomer($customerId): ?CustomerInterface
     {
-        if ($customer === null) {
-            return true;
+        if (empty($customerId)) {
+            return null;
         }
 
-        if ($customer->getDefaultBilling()) {
-            if ($billingAddress = $this->addressFactory->create()->load($customer->getDefaultBilling())) {
-                if ($billingAddress->getCountryId()) {
-                    return strtolower($billingAddress->getCountryId()) == 'nl';
-                }
-            }
+        try {
+            return $this->customerRepository->getById($customerId);
+        } catch (NoSuchEntityException|LocalizedException $e) {
+            return null;
         }
-        return true;
+    }
+
+    /**
+     * Get list of issuers
+     *
+     * @return array
+     * @throws NoSuchEntityException
+     */
+    public function getIssuers(): array
+    {
+        $all = $this->issuers;
+        if ($this->configProviderAccount->getIdin($this->storeManager->getStore()) == 1) {
+            $all[] = ['name' => 'TEST BANK', 'code' => 'BANKNL2Y'];
+        }
+        return $all;
+    }
+
+    /**
+     * Get active status for idin method
+     *
+     * @param null $store
+     * @return int
+     * @throws NoSuchEntityException
+     * @SuppressWarnings(PHPMD.BooleanGetMethodName)
+     */
+    public function getActive($store = null): int
+    {
+        $storeToUse = $store ?: $this->storeManager->getStore();
+        return (int)$this->configProviderAccount->getIdin($storeToUse);
     }
 }

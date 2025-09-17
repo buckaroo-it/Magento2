@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Test\Unit\Model;
 
 use Buckaroo\Magento2\Model\Giftcard;
@@ -28,7 +30,7 @@ class GiftcardTest extends \Buckaroo\Magento2\Test\BaseTest
     /**
      * @return array
      */
-    public function servicecodeProvider()
+    public static function servicecodeProvider()
     {
         return [
             [
@@ -63,7 +65,7 @@ class GiftcardTest extends \Buckaroo\Magento2\Test\BaseTest
     /**
      * @return array
      */
-    public function labelProvider()
+    public static function labelProvider()
     {
         return [
             [

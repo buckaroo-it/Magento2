@@ -17,184 +17,50 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Controller\Applepay;
 
-use Buckaroo\Magento2\Exception;
-use Buckaroo\Magento2\Logging\Log;
-use Buckaroo\Magento2\Model\Config\Source\InvoiceHandlingOptions;
-use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderFactory;
-use Buckaroo\Magento2\Model\Method\Applepay;
-use Buckaroo\Magento2\Model\Service\QuoteAddressService;
-use Magento\Checkout\Model\ConfigProviderInterface;
-use Magento\Checkout\Model\Session as CheckoutSession;
-use Magento\Customer\Model\Group;
-use Magento\Customer\Model\Session as CustomerSession;
-use Magento\Framework\Api\SearchCriteriaBuilder;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
+use Buckaroo\Magento2\Model\Service\ExpressMethodsException;
+use Buckaroo\Magento2\Service\Applepay\SaveOrderProcessor;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
-use Magento\Framework\DataObjectFactory;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Registry;
-use Magento\Quote\Model\Quote;
-use Magento\Quote\Model\QuoteManagement;
-use Magento\Sales\Api\OrderRepositoryInterface;
-use Magento\Sales\Model\Order;
 
 class SaveOrder extends AbstractApplepay
 {
     /**
-     * @var Registry|null
+     * @var SaveOrderProcessor
      */
-    protected ?Registry $registry;
+    private SaveOrderProcessor $processor;
 
-    /**
-     * @var QuoteManagement
-     */
-    protected QuoteManagement $quoteManagement;
-
-    /**
-     * @var Order
-     */
-    protected Order $order;
-
-    /**
-     * @var CheckoutSession
-     */
-    protected CheckoutSession $checkoutSession;
-
-    /**
-     * @var ConfigProviderInterface
-     */
-    protected $accountConfig;
-
-    /**
-     * @var DataObjectFactory
-     */
-    private DataObjectFactory $objectFactory;
-
-    /**
-     * @var OrderRepositoryInterface
-     */
-    private OrderRepositoryInterface $orderRepository;
-
-    /**
-     * @var SearchCriteriaBuilder
-     */
-    private SearchCriteriaBuilder $searchCriteriaBuilder;
-
-    /**
-     * @var QuoteAddressService
-     */
-    private QuoteAddressService $quoteAddressService;
-
-    /**
-     * @var CustomerSession
-     */
-    private CustomerSession $customerSession;
-
-    /**
-     * @param JsonFactory            $resultJsonFactory
-     * @param RequestInterface       $request
-     * @param Log                    $logger
-     * @param QuoteManagement        $quoteManagement
-     * @param CustomerSession        $customerSession
-     * @param DataObjectFactory      $objectFactory
-     * @param OrderRepositoryInterface $orderRepository
-     * @param SearchCriteriaBuilder  $searchCriteriaBuilder
-     * @param CheckoutSession        $checkoutSession
-     * @param ConfigProviderFactory  $configProviderFactory
-     * @param QuoteAddressService    $quoteAddressService
-     * @param Registry               $registry
-     * @param Order                  $order
-     */
     public function __construct(
-        JsonFactory $resultJsonFactory,
-        RequestInterface $request,
-        Log $logger,
-        QuoteManagement $quoteManagement,
-        CustomerSession $customerSession,
-        DataObjectFactory $objectFactory,
-        OrderRepositoryInterface $orderRepository,
-        SearchCriteriaBuilder $searchCriteriaBuilder,
-        CheckoutSession $checkoutSession,
-        ConfigProviderFactory $configProviderFactory,
-        QuoteAddressService $quoteAddressService,
-        Registry $registry,
-        Order $order
+        JsonFactory            $resultJsonFactory,
+        RequestInterface       $request,
+        BuckarooLoggerInterface $logger,
+        SaveOrderProcessor $processor
     ) {
         parent::__construct($resultJsonFactory, $request, $logger);
-        $this->quoteManagement       = $quoteManagement;
-        $this->customerSession       = $customerSession;
-        $this->objectFactory         = $objectFactory;
-        $this->orderRepository       = $orderRepository;
-        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
-        $this->checkoutSession       = $checkoutSession;
-        $this->quoteAddressService   = $quoteAddressService;
-        $this->accountConfig         = $configProviderFactory->get('account');
-        $this->registry              = $registry;
-        $this->order                 = $order;
+        $this->processor = $processor;
     }
 
+
     /**
-     * Save Order
-     *
-     * @return Json
+     * @throws ExpressMethodsException
      * @throws LocalizedException
      */
     public function execute(): Json
     {
-        $isPost = $this->getParams();
-        $errorMessage = false;
-        $data = [];
+        $payload = $this->getParams();
 
-        if ($isPost && isset($isPost['payment'], $isPost['extra'])) {
-            // Log the full request for debugging.
-            $this->logger->addDebug(sprintf(
-                '[ApplePay] | [Controller] | [%s:%s] - Save Order | Request: %s',
-                __METHOD__,
-                __LINE__,
-                var_export($isPost, true)
-            ));
-
-            // Get the cart/quote.
-            $quote = $this->checkoutSession->getQuote();
-            $shippingAddress = $quote->getShippingAddress();
-
-            // Set shipping address if quote is not virtual.
-            if (!$quote->getIsVirtual() && !$this->quoteAddressService->setShippingAddress($quote, $isPost['payment']['shippingContact'])) {
-                return $this->commonResponse([], true);
-            }
-
-            // If the shipping method parameter is provided from the client, update the shipping address.
-            $shippingMethodParam = $isPost['extra']['shippingMethod'];
-            if ($shippingMethodParam && isset($shippingMethodParam['identifier'])) {
-                $this->logger->addDebug(sprintf(
-                    '[ApplePay] | [Controller] | [%s:%s] - Found Shipping Method in Request: %s',
-                    __METHOD__,
-                    __LINE__,
-                    var_export($shippingMethodParam, true)
-                ));
-                $shippingAddress->setShippingMethod($shippingMethodParam['identifier']);
-            }
-
-            // Set billing address.
-            if (!$this->quoteAddressService->setBillingAddress(
-                $quote,
-                $isPost['payment']['billingContact'],
-                $isPost['payment']['shippingContact']['phoneNumber'] ?? null
-            )) {
-                return $this->commonResponse([], true);
-            }
-
-            // Process quote submission.
-            $this->submitQuote($quote, $isPost['extra'], $isPost['payment']);
-
-            // Handle response.
-            $data = $this->handleResponse();
+        if (!$payload || empty($payload['payment']) || empty($payload['extra'])) {
+            return $this->commonResponse([], true);
         }
 
-        return $this->commonResponse($data, $errorMessage);
+        $data = $this->processor->place($payload);
+
+        return $this->commonResponse($data, false);
     }
 
     /**

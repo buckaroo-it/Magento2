@@ -30,7 +30,7 @@ class GiftcardsTest extends BaseTest
     /**
      * @return array
      */
-    public function toOptionArrayProvider()
+    public static function toOptionArrayProvider()
     {
         return [
             'no giftcards' => [
@@ -98,25 +98,25 @@ class GiftcardsTest extends BaseTest
     public function testToOptionArray($giftcardData, $expected)
     {
         $sortOrderBuilderMock = $this->getFakeMock(\Magento\Framework\Api\SortOrderBuilder::class)
-            ->setMethods(['setField', 'setAscendingDirection', 'create'])
+            ->onlyMethods(['setField', 'setAscendingDirection', 'create'])
             ->getMock();
-        $sortOrderBuilderMock->expects($this->once())->method('setField')->with('label')->willReturnSelf();
-        $sortOrderBuilderMock->expects($this->once())->method('setAscendingDirection')->willReturnSelf();
-        $sortOrderBuilderMock->expects($this->once())->method('create')->willReturnSelf();
+        $sortOrderBuilderMock->method('setField')->with('label')->willReturnSelf();
+        $sortOrderBuilderMock->method('setAscendingDirection')->willReturnSelf();
+        $sortOrderBuilderMock->method('create')->willReturnSelf();
 
         $searchCriteriaMock = $this->getFakeMock(\Magento\Framework\Api\SearchCriteria::class)->getMock();
 
         $searchCriteriaBuilderMock = $this->getFakeMock(\Magento\Framework\Api\SearchCriteriaBuilder::class)
-            ->setMethods(['create'])
+            ->onlyMethods(['create'])
             ->getMock();
-        $searchCriteriaBuilderMock->expects($this->once())->method('create')->willReturn($searchCriteriaMock);
+        $searchCriteriaBuilderMock->method('create')->willReturn($searchCriteriaMock);
 
         $modelsResult = [];
 
         foreach ($giftcardData as $giftcard) {
             $modelMock = $this->getFakeMock(\Buckaroo\Magento2\Api\Data\GiftcardInterface::class)->getMock();
-            $modelMock->expects($this->once())->method('getServicecode')->willReturn($giftcard['servicecode']);
-            $modelMock->expects($this->once())->method('getLabel')->willReturn($giftcard['label']);
+            $modelMock->method('getServicecode')->willReturn($giftcard['servicecode']);
+            $modelMock->method('getLabel')->willReturn($giftcard['label']);
             $modelsResult[] = $modelMock;
         }
 
@@ -125,8 +125,7 @@ class GiftcardsTest extends BaseTest
         $searchResult->setTotalCount(count($modelsResult));
 
         $giftcardRepositoryMock = $this->getFakeMock(\Buckaroo\Magento2\Api\GiftcardRepositoryInterface::class)->getMock();
-        $giftcardRepositoryMock->expects($this->once())
-            ->method('getList')
+        $giftcardRepositoryMock->method('getList')
             ->with($searchCriteriaMock)
             ->willReturn($searchResult);
 
@@ -137,7 +136,7 @@ class GiftcardsTest extends BaseTest
         ]);
         $result = $instance->toOptionArray();
 
-        $this->assertInternalType('array', $result);
+        $this->assertIsArray($result);
         $this->assertEquals($expected, $result);
     }
 }

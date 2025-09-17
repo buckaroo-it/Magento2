@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,111 +17,160 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
+
 namespace Buckaroo\Magento2\Controller\Payconiq;
 
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\LockManagerWrapper;
+use Buckaroo\Magento2\Model\BuckarooStatusCode;
+use Buckaroo\Magento2\Model\ConfigProvider\Account as AccountConfig;
+use Buckaroo\Magento2\Model\OrderStatusFactory;
+use Buckaroo\Magento2\Model\RequestPush\RequestPushFactory;
+use Buckaroo\Magento2\Model\Service\Order as OrderService;
+use Buckaroo\Magento2\Service\Push\OrderRequestService;
+use Buckaroo\Magento2\Service\Sales\Quote\Recreate;
+use Magento\Checkout\Model\Session as CheckoutSession;
+use Magento\Customer\Api\CustomerRepositoryInterface;
+use Magento\Customer\Model\ResourceModel\CustomerFactory;
+use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\Api\SearchCriteriaBuilder;
-use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\ResponseInterface;
-use Magento\Framework\Controller\ResultInterface;
-use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Event\ManagerInterface;
+use Magento\Quote\Model\Quote;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Api\Data\TransactionSearchResultInterface;
 use Magento\Sales\Api\TransactionRepositoryInterface;
 use Magento\Sales\Model\Order\Payment\Transaction;
-use Buckaroo\Magento2\Model\Service\Order as OrderService;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
 {
-    /** @var null|Transaction */
-    protected $transaction = null;
+    /**
+     * @var null|Transaction
+     */
+    protected ?Transaction $transaction = null;
 
-    /** @var SearchCriteriaBuilder */
-    protected $searchCriteriaBuilder;
+    /**
+     * @var SearchCriteriaBuilder
+     */
+    protected SearchCriteriaBuilder $searchCriteriaBuilder;
 
-    /** @var TransactionRepositoryInterface */
-    protected $transactionRepository;
+    /**
+     * @var TransactionRepositoryInterface
+     */
+    protected TransactionRepositoryInterface $transactionRepository;
 
     /**
      * @var LockManagerWrapper
      */
     protected LockManagerWrapper $lockManager;
 
+    /**
+     * @param Context $context
+     * @param BuckarooLoggerInterface $logger
+     * @param Quote $quote
+     * @param AccountConfig $accountConfig
+     * @param OrderRequestService $orderRequestService
+     * @param OrderStatusFactory $orderStatusFactory
+     * @param CheckoutSession $checkoutSession
+     * @param CustomerSession $customerSession
+     * @param CustomerRepositoryInterface $customerRepository
+     * @param OrderService $orderService
+     * @param ManagerInterface $eventManager
+     * @param Recreate $quoteRecreate
+     * @param RequestPushFactory $requestPushFactory
+     * @param SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param TransactionRepositoryInterface $transactionRepository
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
+     */
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        \Buckaroo\Magento2\Helper\Data $helper,
-        \Magento\Checkout\Model\Cart $cart,
-        \Magento\Sales\Model\Order $order,
-        \Magento\Quote\Model\Quote $quote,
-        TransactionInterface $transaction,
-        Log $logger,
-        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory,
-        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
-        \Buckaroo\Magento2\Model\OrderStatusFactory $orderStatusFactory,
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Customer\Model\Session $customerSession,
-        \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository,
-        \Magento\Customer\Model\SessionFactory $sessionFactory,
-        \Magento\Customer\Model\Customer $customerModel,
-        \Magento\Customer\Model\ResourceModel\CustomerFactory $customerFactory,
+        Context $context,
+        BuckarooLoggerInterface $logger,
+        Quote $quote,
+        AccountConfig $accountConfig,
+        OrderRequestService $orderRequestService,
+        OrderStatusFactory $orderStatusFactory,
+        CheckoutSession $checkoutSession,
+        CustomerSession $customerSession,
+        CustomerRepositoryInterface $customerRepository,
         OrderService $orderService,
+        ManagerInterface $eventManager,
+        Recreate $quoteRecreate,
+        RequestPushFactory $requestPushFactory,
         SearchCriteriaBuilder $searchCriteriaBuilder,
         TransactionRepositoryInterface $transactionRepository,
-        \Magento\Framework\Event\ManagerInterface $eventManager,
-        \Buckaroo\Magento2\Service\Sales\Quote\Recreate $quoteRecreate,
         LockManagerWrapper $lockManagerWrapper
     ) {
         parent::__construct(
             $context,
-            $helper,
-            $cart,
-            $order,
-            $quote,
-            $transaction,
             $logger,
-            $configProviderFactory,
-            $orderSender,
+            $quote,
+            $accountConfig,
+            $orderRequestService,
             $orderStatusFactory,
             $checkoutSession,
             $customerSession,
             $customerRepository,
-            $sessionFactory,
-            $customerModel,
-            $customerFactory,
             $orderService,
             $eventManager,
             $quoteRecreate,
+            $requestPushFactory,
             $lockManagerWrapper
         );
 
-        $this->searchCriteriaBuilder  = $searchCriteriaBuilder;
-        $this->transactionRepository  = $transactionRepository;
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->transactionRepository = $transactionRepository;
     }
 
     /**
-     * @return ResponseInterface|ResultInterface
-     * @throws LocalizedException
-     * @throws \Buckaroo\Magento2\Exception
+     * Redirect Process Payconiq
+     *
+     * @return ResponseInterface
+     * @throws Exception
      */
     public function execute()
     {
         if (!$this->getTransactionKey()) {
-            $this->_forward('defaultNoRoute');
-            return;
+            return $this->_redirect('defaultNoRoute');
         }
 
         $transaction = $this->getTransaction();
         $this->order = $transaction->getOrder();
+        $this->payment = $this->order->getPayment();
+
+        if ($this->customerSession->getCustomerId() != $this->order->getCustomerId()) {
+            $errorMessage = 'Customer is different then the customer that start Payconiq process request.';
+            $this->logger->addError(sprintf(
+                '[REDIRECT - Payconiq] | [Controller] | [%s:%s] - %s - customerSessionid: %s != customerOrderId: %s',
+                __METHOD__,
+                __LINE__,
+                $errorMessage,
+                var_export($this->customerSession->getCustomerId(), true),
+                var_export($this->order->getCustomerId(), true)
+            ));
+            $this->messageManager->addErrorMessage($errorMessage);
+            return $this->handleProcessedResponse(
+                'checkout',
+                [
+                    '_fragment' => 'payment',
+                    '_query'    => ['bk_e' => 1]
+                ]
+            );
+        }
         $this->quote->load($this->order->getQuoteId());
 
         // @codingStandardsIgnoreStart
         try {
-            $this->handleFailed(
-                $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER')
-            );
+            $this->handleFailed(BuckarooStatusCode::CANCELLED_BY_USER);
         } catch (\Exception $exception) {
+            // handle failed exception
         }
         // @codingStandardsIgnoreEnd
 
@@ -129,6 +178,8 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
     }
 
     /**
+     * Get transaction key
+     *
      * @return bool|mixed
      */
     protected function getTransactionKey()
@@ -149,8 +200,10 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
     }
 
     /**
-     * @return TransactionInterface|Transaction
-     * @throws \Buckaroo\Magento2\Exception
+     * Get transaction object
+     *
+     * @return TransactionInterface|Transaction|null
+     * @throws Exception
      */
     protected function getTransaction()
     {
@@ -161,7 +214,7 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
         $list = $this->getList();
 
         if ($list->getTotalCount() <= 0) {
-            throw new \Buckaroo\Magento2\Exception(__('There was no transaction found by transaction Id'));
+            throw new Exception(__('There was no transaction found by transaction Id'));
         }
 
         $items = $list->getItems();
@@ -171,21 +224,21 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
     }
 
     /**
+     * Get the transaction list
+     *
      * @return TransactionSearchResultInterface
-     * @throws \Buckaroo\Magento2\Exception
+     * @throws Exception
      */
-    protected function getList()
+    protected function getList(): TransactionSearchResultInterface
     {
         $transactionKey = $this->getTransactionKey();
 
         if (!$transactionKey) {
-            throw new \Buckaroo\Magento2\Exception(__('There was no transaction found by transaction Id'));
+            throw new Exception(__('There was no transaction found by transaction Id'));
         }
 
         $searchCriteria = $this->searchCriteriaBuilder->addFilter('txn_id', $transactionKey);
         $searchCriteria->setPageSize(1);
-        $list = $this->transactionRepository->getList($searchCriteria->create());
-
-        return $list;
+        return $this->transactionRepository->getList($searchCriteria->create());
     }
 }

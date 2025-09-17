@@ -1,14 +1,12 @@
 <?php
-declare(strict_types=1);
-
 /**
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License.
+ * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
  * If you are unable to obtain it through the world-wide-web, please email
- * support@buckaroo.nl so we can send you a copy immediately.
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -16,12 +14,13 @@ declare(strict_types=1);
  * versions in the future. If you wish to customize this module for your
  * needs please contact support@buckaroo.nl for more information.
  *
- * @copyright  Copyright (c) Buckaroo B.V.
- * @license    https://tldrlegal.com/license/mit-license
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
+
 namespace Buckaroo\Magento2\Model\Service;
 
-use Buckaroo\Magento2\Logging\Log;
 use Magento\Framework\Exception\InputException;
 use Magento\Quote\Api\Data\AddressInterface;
 use Magento\Quote\Api\ShipmentEstimationInterface;
@@ -30,16 +29,18 @@ use Magento\Quote\Model\Quote\Address;
 
 class ShippingMethodsService
 {
-    private ShipmentEstimationInterface $shipmentEstimation;
+    /**
+     * @var ShipmentEstimationInterface
+     */
+    protected ShipmentEstimationInterface $shipmentEstimation;
 
-    public Log $logger;
-
+    /**
+     * @param ShipmentEstimationInterface $shipmentEstimation
+     */
     public function __construct(
-        ShipmentEstimationInterface $shipmentEstimation,
-        Log $logger
+        ShipmentEstimationInterface $shipmentEstimation
     ) {
         $this->shipmentEstimation = $shipmentEstimation;
-        $this->logger = $logger;
     }
 
     /**
@@ -62,7 +63,7 @@ class ShippingMethodsService
             foreach ($shippingMethods as $shippingMethod) {
                 $shippingMethodsResult[] = [
                     'carrier_title'  => (string)$shippingMethod->getCarrierTitle(),
-                    'price_incl_tax' => round((float)$shippingMethod->getAmount(), 2),
+                    'price_incl_tax' => round($shippingMethod->getAmount(), 2),
                     'method_code'    => $shippingMethod->getCarrierCode() . '_' . $shippingMethod->getMethodCode(),
                     'method_title'   => (string)$shippingMethod->getMethodTitle(),
                 ];

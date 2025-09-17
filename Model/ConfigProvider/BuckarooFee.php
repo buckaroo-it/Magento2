@@ -20,18 +20,13 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider;
 
-/**
- * @method int getPriceDisplayCart()
- * @method int getPriceDisplaySales()
- * @method int getPaymentFeeTax()
- * @method string getTaxClass()
- */
 class BuckarooFee extends AbstractConfigProvider
 {
     /**
      * Buckaroo fee tax class
      */
     const XPATH_ACCOUNT_BUCKAROO_FEE_TAX_CLASS           = 'buckaroo_magento2/account/buckaroo_fee_tax_class';
+
 
     /**
      * Retrieve the tax class for Buckaroo fee
@@ -43,6 +38,7 @@ class BuckarooFee extends AbstractConfigProvider
     {
         return $this->scopeConfig->getValue(self::XPATH_ACCOUNT_BUCKAROO_FEE_TAX_CLASS, \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $store);
     }
+
 
     /**
      * Retrieve associated array of checkout configuration

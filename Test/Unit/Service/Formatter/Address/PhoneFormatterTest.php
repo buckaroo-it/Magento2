@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Test\Unit\Service\Formatter\Address;
 
 use Buckaroo\Magento2\Service\Formatter\Address\PhoneFormatter;
@@ -28,15 +30,17 @@ class PhoneFormatterTest extends BaseTest
 
     /**
      * @return array
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
-    public function formatProvider()
+    public static function formatProvider()
     {
         return [
             'invalid number' => [
                 '020123456',
                 'NL',
                 [
-                    'orginal' => '020123456',
+                    'original' => '020123456',
                     'clean' => '020123456',
                     'mobile' => false,
                     'valid' => false
@@ -46,7 +50,7 @@ class PhoneFormatterTest extends BaseTest
                 '+31201234567',
                 'NL',
                 [
-                    'orginal' => '+31201234567',
+                    'original' => '+31201234567',
                     'clean' => '0031201234567',
                     'mobile' => false,
                     'valid' => true
@@ -56,7 +60,7 @@ class PhoneFormatterTest extends BaseTest
                 '32201234567',
                 'BE',
                 [
-                    'orginal' => '32201234567',
+                    'original' => '32201234567',
                     'clean' => '0032201234567',
                     'mobile' => false,
                     'valid' => true
@@ -66,7 +70,7 @@ class PhoneFormatterTest extends BaseTest
                 '0032201234567',
                 'BE',
                 [
-                    'orginal' => '0032201234567',
+                    'original' => '0032201234567',
                     'clean' => '0032201234567',
                     'mobile' => false,
                     'valid' => true
@@ -76,7 +80,7 @@ class PhoneFormatterTest extends BaseTest
                 '31612345678',
                 'NL',
                 [
-                    'orginal' => '31612345678',
+                    'original' => '31612345678',
                     'clean' => '0031612345678',
                     'mobile' => true,
                     'valid' => true
@@ -86,7 +90,7 @@ class PhoneFormatterTest extends BaseTest
                 '0031612345678',
                 'NL',
                 [
-                    'orginal' => '0031612345678',
+                    'original' => '0031612345678',
                     'clean' => '0031612345678',
                     'mobile' => true,
                     'valid' => true
@@ -96,7 +100,7 @@ class PhoneFormatterTest extends BaseTest
                 '+32451234567',
                 'BE',
                 [
-                    'orginal' => '+32451234567',
+                    'original' => '+32451234567',
                     'clean' => '0032451234567',
                     'mobile' => false,
                     'valid' => true
@@ -106,7 +110,7 @@ class PhoneFormatterTest extends BaseTest
                 '+32461234567',
                 'BE',
                 [
-                    'orginal' => '+32461234567',
+                    'original' => '+32461234567',
                     'clean' => '0032461234567',
                     'mobile' => true,
                     'valid' => true
@@ -116,7 +120,7 @@ class PhoneFormatterTest extends BaseTest
                 '32471234567',
                 'BE',
                 [
-                    'orginal' => '32471234567',
+                    'original' => '32471234567',
                     'clean' => '0032471234567',
                     'mobile' => true,
                     'valid' => true
@@ -126,7 +130,7 @@ class PhoneFormatterTest extends BaseTest
                 '0032481234567',
                 'BE',
                 [
-                    'orginal' => '0032481234567',
+                    'original' => '0032481234567',
                     'clean' => '0032481234567',
                     'mobile' => true,
                     'valid' => true

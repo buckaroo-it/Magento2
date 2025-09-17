@@ -21,48 +21,39 @@
 define(
     [
         'jquery',
-        'Magento_Checkout/js/view/payment/default',
-        'Magento_Checkout/js/model/payment/additional-validators',
-        'Buckaroo_Magento2/js/action/place-order',
+        'buckaroo/checkout/payment/default',
         'Magento_Checkout/js/model/quote',
         'ko',
-        'Magento_Checkout/js/checkout-data',
-        'Magento_Checkout/js/action/select-payment-method',
-        'buckaroo/checkout/common',
         'buckaroo/checkout/datepicker',
         'Magento_Ui/js/lib/knockout/bindings/datepicker'
     ],
     function (
         $,
         Component,
-        additionalValidators,
-        placeOrderAction,
         quote,
         ko,
-        checkoutData,
-        selectPaymentMethodAction,
-        checkoutCommon,
         datePicker
     ) {
         'use strict';
 
         $.validator.addMethod('validateAge', function (value) {
-                if (value && (value.length > 0)) {
-                    var dateReg = /^\d{2}[./-]\d{2}[./-]\d{4}$/;
-                    if (value.match(dateReg)) {
-                        var birthday = +new Date(
-                            value.substr(6, 4),
-                            value.substr(3, 2) - 1,
-                            value.substr(0, 2),
-                            0, 0, 0
-                        );
-                        return ~~((Date.now() - birthday) / (31557600000)) >= 18;
-                    }
+            if (value && (value.length > 0)) {
+                var dateReg = /^\d{2}[./-]\d{2}[./-]\d{4}$/;
+                if (value.match(dateReg)) {
+                    var birthday = +new Date(
+                        value.substr(6, 4),
+                        value.substr(3, 2) - 1,
+                        value.substr(0, 2),
+                        0,
+                        0,
+                        0
+                    );
+                    return ~~((Date.now() - birthday) / (31557600000)) >= 18;
                 }
-                return false;
-            },
-            $.mage.__('You should be at least 18 years old.')
-        );
+            }
+            return false;
+        },
+        $.mage.__('You should be at least 18 years old.'));
 
         const validPhone = function (value) {
             if (quote.billingAddress() === null) {
@@ -87,8 +78,8 @@ define(
                 return false;
             }
 
-            value = value.replace(/^\+|(00)/, '');
-            value = value.replace(/\(0\)|\s|-/g, '');
+            value = value.replace(/^(\+|00)/, '');
+            value = value.replace(/(\(0\)|\s|-)/g, '');
 
             if (value.match(/\+/)) {
                 return false;
@@ -109,7 +100,9 @@ define(
 
             return true;
         };
-        $.validator.addMethod('phoneValidation', validPhone,
+        $.validator.addMethod(
+            'phoneValidation',
+            validPhone ,
             $.mage.__('Phone number should be correct.')
         );
 
@@ -118,7 +111,6 @@ define(
                 defaults: {
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_billink',
                     selectedGender: null,
-                    billingName: '',
                     date: '',
                     phone: '',
                     cocNumber: '',
@@ -126,21 +118,22 @@ define(
                     dob: null,
                     tos: true,
                     showPhone: false,
+                    showB2B: false,
                     showFrenchTosValue: null,
-                    validationState: {
-                        'buckaroo_magento2_billink_TermsCondition': true
-                    },
                     value: ""
                 },
-                redirectAfterPlaceOrder: true,
-                paymentFeeLabel: window.checkoutConfig.payment.buckaroo.billink.paymentFeeLabel,
-                subtext: window.checkoutConfig.payment.buckaroo.billink.subtext,
-                subTextStyle: checkoutCommon.getSubtextStyle('billink'),
-                currencyCode: window.checkoutConfig.quoteData.quote_currency_code,
-                baseCurrencyCode: window.checkoutConfig.quoteData.base_currency_code,
-                currentCustomerAddressId: null,
-                genderList: window.checkoutConfig.payment.buckaroo.billink.genderList,
+                redirectAfterPlaceOrder : true,
                 dp: datePicker,
+
+                getMessageText: function () {
+                    return $.mage
+                        .__('Je moet minimaal 18+ zijn om deze dienst te gebruiken. Als je op tijd betaalt, voorkom je extra kosten en zorg je dat je in de toekomst nogmaals gebruik kunt maken van de diensten van Achteraf betalen via ' +
+                            window.checkoutConfig.payment.buckaroo.buckaroo_magento2_billink.title +
+                            '. Door verder te gaan, accepteer je de <a target="_blank" href="%s">Algemene&nbsp;Voorwaarden</a> en bevestig je dat je de <a target="_blank" href="%f">Privacyverklaring</a> en <a target="_blank" href="%c">Cookieverklaring</a> hebt gelezen.')
+                        .replace('%s', 'https://www.billink.nl/gebruikersvoorwaarden')
+                        .replace('%f', 'https://www.billink.nl/privacy-statement')
+                        .replace('%c', 'https://www.billink.nl/privacy-statement')
+                },
 
                 initObservable: function () {
                     this._super().observe(
@@ -152,7 +145,6 @@ define(
                             'tos',
                             'dob',
                             'showFrenchTosValue',
-                            'validationState',
                             'value'
                         ]
                     );
@@ -168,26 +160,20 @@ define(
                     this.showFinancialWarning = ko.computed(
                         function () {
                             return quote.billingAddress() !== null &&
-                                quote.billingAddress().countryId == 'NL' &&
-                                window.checkoutConfig.payment.buckaroo.billink.showFinancialWarning
+                            quote.billingAddress().countryId == 'NL' &&
+                            this.buckaroo.showFinancialWarning
                         },
                         this
                     );
                     this.billingName = ko.computed(
                         function () {
-                            if (this.isB2B() && quote.billingAddress() !== null) {
-                                return quote.billingAddress().company;
-                            }
                             if (quote.billingAddress() !== null) {
+                                if (quote.billingAddress().company && quote.billingAddress().company.trim().length > 0) {
+                                    return quote.billingAddress().company;
+                                }
                                 return quote.billingAddress().firstname + " " + quote.billingAddress().lastname;
                             }
-                        },
-                        this
-                    );
-
-                    this.showFrenchTos = ko.computed(
-                        function () {
-                            return quote.billingAddress() !== null && quote.billingAddress().countryId == 'BE'
+                            return '';
                         },
                         this
                     );
@@ -197,111 +183,26 @@ define(
                             return (
                                 quote.billingAddress() === null ||
                                 !validPhone(quote.billingAddress().telephone)
-                            ) && !this.isB2B();
+                            );
                         },
                         this
                     );
 
-                    this.dob.subscribe(function () {
-                        const dobId = 'buckaroo_magento2_billink_DoB';
-                        const isValid = $(`#${dobId}`).valid();
-                        let state = this.validationState();
-                        state[dobId] = isValid;
-                        this.validationState(state);
-                    }, this);
-
-                    this.buttoncheck = ko.computed(
+                    this.showB2B = ko.computed(
                         function () {
-                            const state = this.validationState();
-                            const valid = this.getActiveValidationFields().map((field) => {
-                                if (state[field] !== undefined) {
-                                    return state[field];
-                                }
-                                return false;
-                            }).reduce(
-                                function (prev, cur) {
-                                    return prev && cur
-                                },
-                                true
+
+                            let shipping = quote.shippingAddress();
+                            let billing = quote.billingAddress();
+
+                            return this.buckaroo.is_b2b && (
+                                (shipping && shipping.company && shipping.company.trim().length > 0) ||
+                                (billing && billing.company && billing.company.trim().length > 0)
                             )
-                            return valid;
                         },
                         this
                     );
 
                     return this;
-                },
-                validateField(data, event) {
-                    const isValid = $(event.target).valid();
-                    let state = this.validationState();
-                    state[event.target.id] = isValid;
-                    this.validationState(state);
-                },
-
-                getActiveValidationFields() {
-                    let fields = [
-                        'buckaroo_magento2_billink_TermsCondition',
-                    ];
-                    if (this.showPhone()) {
-                        fields.push('buckaroo_magento2_billink_Telephone')
-                    }
-
-                    if (this.isB2B()) {
-                        fields.push('buckaroo_magento2_billink_chamberOfCommerce')
-                    } else {
-                        fields = fields.concat([
-                            'buckaroo_magento2_billink_DoB',
-                            'buckaroo_magento2_bilink_genderSelect'
-                        ]);
-                    }
-
-                    return fields;
-                },
-                validate: function () {
-                    return $('.' + this.getCode() + ' .payment-method-second-col form').valid();
-                },
-
-                /**
-                 * Place order.
-                 *
-                 * @todo To override the script used for placeOrderAction, we need to override the placeOrder method
-                 *          on our parent class (Magento_Checkout/js/view/payment/default) so we can
-                 *
-                 *          placeOrderAction has been changed from Magento_Checkout/js/action/place-order to our own
-                 *          version (Buckaroo_Magento2/js/action/place-order) to prevent redirect and handle the response.
-                 */
-                placeOrder: function (data, event) {
-                    var self = this,
-                        placeOrder;
-
-                    if (event) {
-                        event.preventDefault();
-                    }
-
-                    if (this.validate() && additionalValidators.validate()) {
-                        this.isPlaceOrderActionAllowed(false);
-                        placeOrder = placeOrderAction(this.getData(), this.redirectAfterPlaceOrder, this.messageContainer);
-
-                        $.when(placeOrder).fail(
-                            function () {
-                                self.isPlaceOrderActionAllowed(true);
-                            }
-                        ).done(this.afterPlaceOrder.bind(this));
-                        return true;
-                    }
-                    return false;
-                },
-
-                afterPlaceOrder: function () {
-                    var response = window.checkoutConfig.payment.buckaroo.response;
-                    checkoutCommon.redirectHandle(response);
-                },
-
-                selectPaymentMethod: function () {
-                    selectPaymentMethodAction(this.getData());
-                    checkoutData.setSelectedPaymentMethod(this.item.method);
-
-                    return true;
                 },
 
                 getData: function () {
@@ -325,8 +226,33 @@ define(
                     return {
                         "method": this.item.method,
                         "po_number": null,
-                        "additional_data": additionalData
+                        "additional_data": {
+                            "customer_billingName" : this.billingName(),
+                            "customer_telephone" : phone,
+                            "customer_gender" : this.selectedGender(),
+                            "customer_chamberOfCommerce" : this.cocNumber(),
+                            "customer_VATNumber" : this.vatNumber(),
+                            "customer_DoB" : this.dob(),
+                            "termsCondition": this.tos(),
+                        }
                     };
+                },
+
+                /**
+                 * Validate gender selection for Billink
+                 */
+                validate: function () {
+                    var validationResult = this._super();
+                    
+                    // For B2C customers, gender selection is mandatory
+                    if (!this.showB2B() && (!this.selectedGender() || this.selectedGender() === '')) {
+                        this.messageContainer.addErrorMessage({
+                            message: $.mage.__('Please select your gender to proceed with Billink payment.')
+                        });
+                        return false;
+                    }
+                    
+                    return validationResult;
                 }
 
             }
