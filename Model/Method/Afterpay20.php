@@ -20,6 +20,7 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
+use Magento\Quote\Model\Quote;
 use Magento\Sales\Model\Order\Payment;
 use Magento\Framework\Phrase;
 use Magento\Catalog\Model\Product\Type;
@@ -331,9 +332,99 @@ class Afterpay20 extends AbstractMethod
 
         if (!empty($discountline)) {
             $articles = array_merge($articles, $discountline);
+            $count++;
+        }
+
+        $reward = $this->getRewardLine($quote, $count);
+
+        if (!empty($reward)) {
+            $articles = array_merge($articles, $reward);
+            $count++;
+        }
+
+        $giftCard = $this->getGiftCardLine($quote, $count);
+
+        if (!empty($giftCard)) {
+            $articles = array_merge($articles, $giftCard);
         }
 
         return $articles;
+    }
+
+    /**
+     * Get the reward cost lines
+     *
+     * @param Quote $quote
+     * @param $group
+     *
+     * @return array
+     */
+    public function getRewardLine($quote, $group)
+    {
+        try {
+            $discount = (float)$quote->getRewardCurrencyAmount();
+
+            if ($discount <= 0) {
+                return [];
+            }
+
+            $this->logger2->addDebug(__METHOD__ . '|Reward points discount found: ' . $discount);
+
+            $article = $this->getArticleArrayLine(
+                $group,
+                'Discount Reward Points',
+                'reward-points',
+                1,
+                -$discount,
+                0
+            );
+
+            return $article;
+        } catch (\Error $e) {
+            $this->logger2->addDebug(__METHOD__ . '|getRewardCurrencyAmount method not available - Adobe Commerce reward points may not be installed');
+            return [];
+        } catch (\Exception $e) {
+            $this->logger2->addError(__METHOD__ . '|Error getting reward points amount: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Get the gift card discount line
+     *
+     * @param Quote $quote
+     * @param $group
+     *
+     * @return array
+     */
+    public function getGiftCardLine($quote, $group)
+    {
+        try {
+            $discount = (float)$quote->getGiftCardsAmount();
+
+            if ($discount <= 0) {
+                return [];
+            }
+
+            $this->logger2->addDebug(__METHOD__ . '|Gift card discount found: ' . $discount);
+
+            $article = $this->getArticleArrayLine(
+                $group,
+                'Discount Gift Card',
+                'gift-card',
+                1,
+                -$discount,
+                0
+            );
+
+            return $article;
+        } catch (\Error $e) {
+            $this->logger2->addDebug(__METHOD__ . '|getGiftCardsAmount method not available - Adobe Commerce gift cards may not be installed');
+            return [];
+        } catch (\Exception $e) {
+            $this->logger2->addError(__METHOD__ . '|Error getting gift card amount: ' . $e->getMessage());
+            return [];
+        }
     }
 
     /**
@@ -854,7 +945,7 @@ class Afterpay20 extends AbstractMethod
             ]);
         }
 
-    
+
         return $shippingData;
     }
 
@@ -884,7 +975,7 @@ class Afterpay20 extends AbstractMethod
         $b2bMin = $this->getConfigData('min_amount_b2b', $storeId);
         $b2bMax = $this->getConfigData('max_amount_b2b', $storeId);
        /**
-         * @var \Magento\Quote\Model\Quote $quote
+         * @var Quote $quote
          */
         $total = $quote->getGrandTotal();
 
@@ -924,7 +1015,7 @@ class Afterpay20 extends AbstractMethod
     {
         $customerType = $this->getConfigData('customer_type', $storeId);
 
-        return $customerType ===  AfterpayCustomerType::CUSTOMER_TYPE_B2C || 
+        return $customerType ===  AfterpayCustomerType::CUSTOMER_TYPE_B2C ||
         (
             $customerType !== AfterpayCustomerType::CUSTOMER_TYPE_B2B &&
             $this->isCompanyEmpty($company)
@@ -957,7 +1048,7 @@ class Afterpay20 extends AbstractMethod
         }
 
         if (
-            $this->isOnlyCustomerB2B($storeId) && 
+            $this->isOnlyCustomerB2B($storeId) &&
             (
                 $this->isCompanyEmpty($billingCompany) &&
                 $this->isCompanyEmpty($shippingCompany)
@@ -982,7 +1073,7 @@ class Afterpay20 extends AbstractMethod
         if (null === $company) {
             return true;
         }
-        
+
         return strlen(trim($company)) === 0;
     }
 
@@ -1017,7 +1108,7 @@ class Afterpay20 extends AbstractMethod
         if ($country !== "DE") {
             return;
         }
-        
+
         if (!is_string($street) || empty(trim($street))) {
             throw new \Buckaroo\Magento2\Exception(
                 new \Magento\Framework\Phrase(

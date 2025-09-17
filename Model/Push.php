@@ -1475,15 +1475,47 @@ class Push implements PushInterface
         if (isset($this->postData['brq_service_klarna_reservationnumber'])
             && !empty($this->postData['brq_service_klarna_reservationnumber'])
         ) {
-            $this->order->setBuckarooReservationNumber($this->postData['brq_service_klarna_reservationnumber']);
-            $this->order->save();
+            $reservationNumber = $this->postData['brq_service_klarna_reservationnumber'];
+            $this->logging->addDebug(__METHOD__ . '|Saving Klarna reservation number: ' . $reservationNumber . ' for order: ' . $this->order->getIncrementId());
+            
+            $this->order->setBuckarooReservationNumber($reservationNumber);
+            
+            try {
+                $this->order->save();
+                
+                // Verify it was saved correctly
+                $this->order = $this->order->load($this->order->getId());
+                $savedReservationNumber = $this->order->getBuckarooReservationNumber();
+                
+                if ($savedReservationNumber !== $reservationNumber) {
+                    $this->logging->addError(__METHOD__ . '|Klarna reservation number save failed - Order: ' . $this->order->getIncrementId() . ', Expected: ' . $reservationNumber . ', Got: ' . ($savedReservationNumber ?: 'NULL'));
+                }
+            } catch (\Exception $e) {
+                $this->logging->addError(__METHOD__ . '|Failed to save Klarna reservation number: ' . $e->getMessage() . ' - Order: ' . $this->order->getIncrementId());
+            }
         }
 
         if (isset($this->postData['brq_service_klarnakp_reservationnumber'])
             && !empty($this->postData['brq_service_klarnakp_reservationnumber'])
         ) {
-            $this->order->setBuckarooReservationNumber($this->postData['brq_service_klarnakp_reservationnumber']);
-            $this->order->save();
+            $reservationNumber = $this->postData['brq_service_klarnakp_reservationnumber'];
+            $this->logging->addDebug(__METHOD__ . '|Saving KlarnaKP reservation number: ' . $reservationNumber . ' for order: ' . $this->order->getIncrementId());
+            
+            $this->order->setBuckarooReservationNumber($reservationNumber);
+            
+            try {
+                $this->order->save();
+                
+                // Verify it was saved correctly
+                $this->order = $this->order->load($this->order->getId());
+                $savedReservationNumber = $this->order->getBuckarooReservationNumber();
+                
+                if ($savedReservationNumber !== $reservationNumber) {
+                    $this->logging->addError(__METHOD__ . '|KlarnaKP reservation number save failed - Order: ' . $this->order->getIncrementId() . ', Expected: ' . $reservationNumber . ', Got: ' . ($savedReservationNumber ?: 'NULL'));
+                }
+            } catch (\Exception $e) {
+                $this->logging->addError(__METHOD__ . '|Failed to save KlarnaKP reservation number: ' . $e->getMessage() . ' - Order: ' . $this->order->getIncrementId());
+            }
         }
 
         if (isset($this->postData['brq_service_klarnakp_reservationnumber'])){
