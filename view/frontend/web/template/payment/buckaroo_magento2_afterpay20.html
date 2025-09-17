@@ -8,13 +8,21 @@
                        data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
                 <label class="label" data-bind="attr: {'for': getCode()}" >
                         <!-- ko text: getTitle() --><!-- /ko -->
-                        <!-- ko if: subtext !== null && subtext.length > 0 -->
-                       <p class="bk-description" data-bind="text: subtext, style: subTextStyle"></p>
+                        <!-- ko if: buckaroo.subtext !== null && buckaroo.subtext.length > 0 -->
+                       <p class="bk-description" data-bind="text:buckaroo.subtext, style: getSubtextStyle()"></p>
                         <!-- /ko -->
                 </label>
             </div>
-            <div class="bk-img-wrap">
-                <img data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/riverty.svg') }" />
+            <div class="bk-mode-and-img">
+                <!-- ko if: buckaroo.isTestMode -->
+                <div class="bk-test-mode"><div class="bk-test-text" data-bind="i18n: 'Test Mode'"></div></div>
+                <!-- /ko -->
+                <div class="bk-img-wrap">
+                    <img
+                        data-bind="attr: { src: buckaroo.logo }"
+                        alt="Riverty Logo"
+                    />
+                </div>
             </div>
         </div>
     </div>
@@ -41,10 +49,11 @@
                                    type="text"
                                    name="payment[buckaroo_magento2_afterpay20][buckaroo_identification_number]"
                                    data-bind="
-                                   attr: { 'data-validate': JSON.stringify({ 'required': true }) },
-                                   valueUpdate: 'blur',
-                                   value: identificationValidate
-                                   ">
+                                       valueUpdate: 'blur',
+                                       value: identificationValidate
+                                   "
+                                   data-validate="{required:true}"
+                            >
                         </div>
                     </div>
                     <!-- /ko -->
@@ -59,10 +68,10 @@
                                    name="payment[buckaroo_magento2_afterpay20][customer_coc]"
                                    maxlength="8"
                                    data-bind="
-                                   attr: { 'data-validate': JSON.stringify({ 'required': true, 'validateCOC': true }) },
-                                   valueUpdate: 'blur',
-                                   value: customerCoc
-                                   ">
+                                       valueUpdate: 'blur',
+                                       value: customerCoc
+                                   "
+                                   data-validate="{required:true, 'validateCOC': true}" >
                         </div>
                     </div>
                     <!-- /ko -->
@@ -74,9 +83,9 @@
                                    type="text"
                                    class="input-text field"
                                    data-bind="
-                                   attr: { 'data-validate': JSON.stringify({ 'phoneValidation': true, 'required': true }) },
                                    valueUpdate: 'blur',
                                    value: phone"
+                                   data-validate="{required:true, 'phoneValidation': true}"
                                    name="payment[buckaroo_magento2_afterpay20][customer_telephone]">
                         </div>
                     </div>
@@ -103,10 +112,8 @@
                                    },
                                    valueUpdate: 'change',
                                    value: dateValidate,
-                                   attr: {
-                                    'data-validate': JSON.stringify({ 'required': true, 'validate-date-au': true, 'validateAge': true }),
-                                    placeholder: $t('DD/MM/YYYY')
-                                   }"
+                                   attr: {placeholder: $t('DD/MM/YYYY')}"
+                                   data-validate="{'required': true, 'validate-date-au': true, 'validateAge': true}"
                                    name="payment[buckaroo_magento2_afterpay20][customer_DoB]">
 
                         </div>
@@ -120,9 +127,8 @@
                             <input id="buckaroo_magento2_afterpay20_TermsCondition"
                                    class="field"
                                    type="checkbox"
-                                   data-bind="
-                                   checked: termsValidate,
-                                   attr: { 'data-validate': JSON.stringify({ 'required': true})}"
+                                   data-bind="checked: termsSelected"
+                                   data-validate="{required:true}"
                                    name="payment[buckaroo_magento2_afterpay20][termsCondition]">
                             <span>
                                 <a target="_blank"
@@ -141,8 +147,9 @@
                     </div>
 
                     <!-- ko if: showFinancialWarning  -->
-                    <span data-bind="i18n: `Je moet minimaal 18+ zijn om deze dienst te gebruiken. Als je op tijd betaalt, voorkom je extra kosten en zorg je dat je in de toekomst nogmaals gebruik kunt maken van de diensten van ${getTitle()}. Door verder te gaan, accepteer je de Algemene Voorwaarden en bevestig je dat je de Privacyverklaring en Cookieverklaring hebt gelezen.`">  </span>
+                    <div class="field" data-bind="html: getMessageText()"></div>
                     <!-- /ko -->
+
                     <div class="field">
                         <span data-bind="i18n: 'Please make sure all fields are filled in correctly before proceeding.' ">  </span>
                     </div>
@@ -159,7 +166,7 @@
                         click: placeOrder,
                         attr: {title: $t('Place Order')},
                         enable: (getCode() == isChecked()),
-                        css: {disabled: !isPlaceOrderActionAllowed() || !buttoncheck() }
+                        css: {disabled: !isPlaceOrderActionAllowed() }
                         "
                         disabled>
                     <span data-bind="i18n: 'Place Order'"></span>

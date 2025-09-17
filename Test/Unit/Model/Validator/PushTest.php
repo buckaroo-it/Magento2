@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Test\Unit\Model\Validator;
 
 use Buckaroo\Magento2\Model\Validator\Push;
@@ -36,7 +38,7 @@ class PushTest extends BaseTest
     /**
      * @return array
      */
-    public function decodePushValueProvider()
+    public static function decodePushValueProvider()
     {
         return [
             'normal value' => [

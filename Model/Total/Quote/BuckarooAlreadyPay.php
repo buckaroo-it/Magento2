@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,16 +17,17 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Total\Quote;
 
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection;
+use Magento\Framework\Phrase;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\Quote\Address\Total;
 use Magento\Quote\Model\Quote\Address\Total\AbstractTotal;
-use Magento\Quote\Api\Data\ShippingAssignmentInterface;
 
 class BuckarooAlreadyPay extends AbstractTotal
 {
@@ -110,14 +111,14 @@ class BuckarooAlreadyPay extends AbstractTotal
         return [
             'code'  => $this->getCode(),
             'title' => $customTitle ? __(json_encode($customTitle)) : $this->getLabel(),
-            'value' => -$this->groupTransaction->getAlreadyPaid($orderId),
+            'value' => $this->groupTransaction->getAlreadyPaid($orderId),
         ];
     }
 
     /**
      * Get Buckaroo label
      *
-     * @return \Magento\Framework\Phrase
+     * @return Phrase
      */
     public function getLabel()
     {

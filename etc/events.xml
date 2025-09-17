@@ -26,6 +26,7 @@
     </event>
     <event name="sales_model_service_quote_submit_before">
         <observer name="buckaroo_magento2_fee_set" instance="Buckaroo\Magento2\Observer\SetBuckarooFee" />
+        <observer name="buckaroo_magento2_set_existing_order_items" instance="Buckaroo\Magento2\Observer\SetExistingOrderItems" />
     </event>
     <event name="sales_model_service_quote_submit_failure">
         <observer name="buckaroo_failed_quote_order" instance="Buckaroo\Magento2\Observer\HandleFailedQuoteOrder"/>
@@ -51,10 +52,6 @@
         <observer name="buckaroo_magento2_shipment_save_after" instance="Buckaroo\Magento2\Observer\SalesOrderShipmentAfter" />
     </event>
 
-    <event name="payment_method_is_active">
-        <observer name="buckaroo_magento2_payment_method_is_active" instance="Buckaroo\Magento2\Observer\PaymentMethodAvailable" />
-    </event>
-
     <event name="controller_action_predispatch_checkout_index_index">
         <observer name="initiate_checkout_onepage" instance="Buckaroo\Magento2\Observer\RestoreQuote" />
     </event>
@@ -67,7 +64,23 @@
         <observer name="paypal_transaction_html" instance="Buckaroo\Magento2\Observer\HtmlTransactionIdObserver"/>
     </event>
 
+    <event name="payment_method_assign_data">
+        <observer name="buckaroo_gateway_data_assign" instance="Buckaroo\Magento2\Observer\DataAssignObserver" />
+    </event>
+
     <event name="sales_quote_merge_before">
         <observer name="prevent_merge_quote" instance="Buckaroo\Magento2\Observer\PreventMergeQuoteObserver"/>
+    </event>
+
+    <event name="controller_action_predispatch_adminhtml_system_config_edit">
+        <observer name="check_second_chance_module_conflict" instance="Buckaroo\Magento2\Observer\CheckSecondChanceModuleConflict"/>
+    </event>
+
+    <event name="sales_order_save_after">
+        <observer name="create_second_chance_record" instance="Buckaroo\Magento2\Observer\CreateSecondChanceRecord"/>
+    </event>
+
+    <event name="sales_model_service_quote_submit_success">
+        <observer name="buckaroo_magento2_analytics" instance="Buckaroo\Magento2\Observer\Analytics" />
     </event>
 </config>

@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -22,43 +22,8 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 class Belfius extends AbstractConfigProvider
 {
-    const XPATH_BELFIUS_PAYMENT_FEE           = 'payment/buckaroo_magento2_belfius/payment_fee';
-    const XPATH_BELFIUS_ACTIVE                = 'payment/buckaroo_magento2_belfius/active';
-    const XPATH_BELFIUS_SUBTEXT               = 'payment/buckaroo_magento2_belfius/subtext';
-    const XPATH_BELFIUS_SUBTEXT_STYLE         = 'payment/buckaroo_magento2_belfius/subtext_style';
-    const XPATH_BELFIUS_SUBTEXT_COLOR         = 'payment/buckaroo_magento2_belfius/subtext_color';
-    const XPATH_BELFIUS_ACTIVE_STATUS         = 'payment/buckaroo_magento2_belfius/active_status';
-    const XPATH_BELFIUS_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_belfius/order_status_success';
-    const XPATH_BELFIUS_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_belfius/order_status_failed';
-    const XPATH_BELFIUS_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_belfius/available_in_backend';
-
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_belfius/allowed_currencies';
-
-    const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_belfius/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_belfius/specificcountry';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_belfius/specificcustomergroup';
-
-    /**
-     * @return array|void
-     */
-    public function getConfig()
-    {
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
-
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'belfius' => [
-                        'paymentFeeLabel' => $paymentFeeLabel,
-                        'subtext'   => $this->getSubtext(),
-                        'subtext_style'   => $this->getSubtextStyle(),
-                        'subtext_color'   => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                    ],
-                ],
-            ],
-        ];
-    }
+    public const CODE                                = 'buckaroo_magento2_belfius';
+    public const XPATH_BELFIUS_PAYMENT_FEE           = 'payment/buckaroo_magento2_belfius/payment_fee';
 
     /**
      * @param null|int $storeId
@@ -73,6 +38,6 @@ class Belfius extends AbstractConfigProvider
             $storeId
         );
 
-        return $paymentFee ? $paymentFee : false;
+        return $paymentFee ? : 0;
     }
 }

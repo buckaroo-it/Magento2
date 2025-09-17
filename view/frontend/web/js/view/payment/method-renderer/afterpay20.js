@@ -22,14 +22,11 @@ define(
     [
         'jquery',
         'mage/translate',
-        'Magento_Checkout/js/view/payment/default',
+        'buckaroo/checkout/payment/default',
         'Magento_Checkout/js/model/payment/additional-validators',
         'Buckaroo_Magento2/js/action/place-order',
         'Magento_Checkout/js/model/quote',
         'ko',
-        'Magento_Checkout/js/checkout-data',
-        'Magento_Checkout/js/action/select-payment-method',
-        'buckaroo/checkout/common',
         'buckaroo/checkout/datepicker',
         'Magento_Customer/js/model/customer',
         'Magento_Ui/js/lib/knockout/bindings/datepicker',
@@ -44,9 +41,6 @@ define(
         placeOrderAction,
         quote,
         ko,
-        checkoutData,
-        selectPaymentMethodAction,
-        checkoutCommon,
         datePicker,
         customer,
         selectBillingAddress,
@@ -54,18 +48,17 @@ define(
         'use strict';
 
         $.validator.addMethod('validateCOC', function (value) {
-                if (!value) {
-                    return false;
-                }
+            if (!value) {
+                return false;
+            }
 
-                if (value.match(/[^0-9]/)) {
-                    return false;
-                }
+            if (value.match(/[^0-9]/)) {
+                return false;
+            }
 
-                return value.length <= 8;
-            },
-            $.mage.__('Invalid COC number')
-        );
+            return value.length <= 8;
+        },
+            $.mage.__('Invalid COC number'));
 
         const bkIsPhoneValid = function (value) {
             if (quote.billingAddress() === null) {
@@ -90,8 +83,8 @@ define(
                 return false;
             }
 
-            value = value.replace(/^\+|(00)/, '');
-            value = value.replace(/\(0\)|\s|-/g, '');
+            value = value.replace(/^(\+|00)/, '');
+            value = value.replace(/(\(0\)|\s|-)/g, '');
 
             if (value.match(/\+/)) {
                 return false;
@@ -120,22 +113,23 @@ define(
         );
 
         $.validator.addMethod('validateAge', function (value) {
-                if (value && (value.length > 0)) {
-                    var dateReg = /^\d{2}[./-]\d{2}[./-]\d{4}$/;
-                    if (value.match(dateReg)) {
-                        var birthday = +new Date(
-                            value.substr(6, 4),
-                            value.substr(3, 2) - 1,
-                            value.substr(0, 2),
-                            0, 0, 0
-                        );
-                        return ~~((Date.now() - birthday) / (31557600000)) >= 18;
-                    }
+            if (value && (value.length > 0)) {
+                var dateReg = /^\d{2}[./-]\d{2}[./-]\d{4}$/;
+                if (value.match(dateReg)) {
+                    var birthday = +new Date(
+                        value.substr(6, 4),
+                        value.substr(3, 2) - 1,
+                        value.substr(0, 2),
+                        0,
+                        0,
+                        0
+                    );
+                    return ~~((Date.now() - birthday) / (31557600000)) >= 18;
                 }
-                return false;
-            },
-            $.mage.__('You should be at least 18 years old.')
-        );
+            }
+            return false;
+        },
+            $.mage.__('You should be at least 18 years old.'));
 
         return Component.extend(
             {
@@ -146,42 +140,44 @@ define(
                     country: '',
                     customerCoc: '',
                     dateValidate: null,
-                    termsValidate: true,
+                    termsSelected: true,
                     identificationValidate: null,
                     phone: null,
                     showIdentification: false,
                     showCOC: false,
                     value: "",
-                    buttoncheck: false,
-                    validationState: {'TermsCondition': true},
                 },
                 redirectAfterPlaceOrder: true,
-                paymentFeeLabel: window.checkoutConfig.payment.buckaroo.afterpay20.paymentFeeLabel,
-                subtext: window.checkoutConfig.payment.buckaroo.afterpay20.subtext,
-                subTextStyle: checkoutCommon.getSubtextStyle('afterpay20'),
-                currencyCode: window.checkoutConfig.quoteData.quote_currency_code,
-                baseCurrencyCode: window.checkoutConfig.quoteData.base_currency_code,
                 isCustomerLoggedIn: customer.isLoggedIn,
-                isB2B: window.checkoutConfig.payment.buckaroo.afterpay20.is_b2b,
                 dp: datePicker,
+
+                getMessageText: function () {
+                    return $.mage
+                        .__('Je moet minimaal 18+ zijn om deze dienst te gebruiken. Als je op tijd betaalt, voorkom je extra kosten en zorg je dat je in de toekomst nogmaals gebruik kunt maken van de diensten van Achteraf betalen via ' +
+                            window.checkoutConfig.payment.buckaroo.buckaroo_magento2_afterpay20.title +
+                            '. Door verder te gaan, accepteer je de <a target="_blank" href="%s">Algemene&nbsp;Voorwaarden</a> en bevestig je dat je de <a target="_blank" href="%f">Privacyverklaring</a> en <a target="_blank" href="%c">Cookieverklaring</a> hebt gelezen.')
+                        .replace('%s', 'https://documents.riverty.com/terms_conditions/payment_methods/invoice/nl_nl/default')
+                        .replace('%f', 'https://www.riverty.com/nl-nl/privacybeleid/')
+                        .replace('%c', 'https://www.riverty.com/nl-nl/cookies/');
+                },
 
                 initObservable: function () {
                     this._super().observe(
                         [
                             'dateValidate',
-                            'termsValidate',
+                            'termsSelected',
                             'identificationValidate',
                             'phone',
                             'customerCoc',
-                            'value',
-                            'validationState'
+                            'value'
                         ]
                     );
 
                     this.showFinancialWarning = ko.computed(
                         function () {
                             return quote.billingAddress() !== null &&
-                                quote.billingAddress().countryId == 'NL'
+                                quote.billingAddress().countryId == 'NL' &&
+                                this.buckaroo.showFinancialWarning
                         },
                         this
                     );
@@ -208,21 +204,21 @@ define(
                             let shipping = quote.shippingAddress();
                             let billing = quote.billingAddress();
 
-                            return this.isB2B && (
-                                (shipping && shipping.company && shipping.company.trim().length > 0) ||
-                                (billing && billing.company && billing.company.trim().length > 0)
+                            return this.buckaroo.is_b2b && (
+                                (shipping && shipping.countryId == 'NL' && shipping.company && shipping.company.trim().length > 0) ||
+                                (billing && billing.countryId == 'NL' && billing.company && billing.company.trim().length > 0)
                             )
                         },
                         this
                     );
 
+
                     this.showPhone = ko.computed(function () {
-                            return (!this.isCustomerLoggedIn() && this.isOsc()) ||
-                                quote.billingAddress() === null ||
-                                (['NL', 'BE'].indexOf(quote.billingAddress().countryId) !== -1 && !bkIsPhoneValid(quote.billingAddress().telephone))
-                        },
-                        this
-                    );
+                        return (!this.isCustomerLoggedIn() && this.isOsc()) ||
+                            quote.billingAddress() === null ||
+                            (['NL', 'BE'].indexOf(quote.billingAddress().countryId) !== -1 && !bkIsPhoneValid(quote.billingAddress().telephone))
+                    },
+                        this);
 
                     this.showNLBEFields = ko.computed(
                         function () {
@@ -244,7 +240,7 @@ define(
 
                     this.showFrenchTos = ko.computed(
                         function () {
-                            return this.country() === 'BE' && !this.showCOC()
+                            return this.country() === 'BE'
                         },
                         this
                     );
@@ -256,79 +252,15 @@ define(
                         this
                     );
 
-                    this.buttoncheck = ko.computed(
-                        function () {
-                            const state = this.validationState();
-                            const valid = this.getActiveValidationFields().map((field) => {
-                                if (state[field] !== undefined) {
-                                    return state[field];
-                                }
-                                return false;
-                            }).reduce(
-                                function (prev, cur) {
-                                    return prev && cur
-                                },
-                                true
-                            )
-                            return valid;
-                        },
-                        this
-                    )
-
-                    this.dateValidate.subscribe(function () {
-                        this.validateField('DoB');
-                    }, this);
-                    this.customerCoc.subscribe(function () {
-                        this.validateField('coc');
-                    }, this);
-                    this.termsValidate.subscribe(function () {
-                        this.validateField('TermsCondition');
-                    }, this);
-                    this.identificationValidate.subscribe(function () {
-                        this.validateField('Identificationnumber');
-                    }, this);
-                    this.phone.subscribe(function () {
-                        this.validateField('Telephone');
-                    }, this);
-
                     return this;
                 },
 
-                getActiveValidationFields() {
-                    let fields = ['TermsCondition'];
-                    if (this.showPhone()) {
-                        fields.push('Telephone')
-                    }
-
-                    if (this.showIdentification()) {
-                        fields.push('Identificationnumber')
-                    }
-
-                    if (this.showCOC()) {
-                        fields.push('coc')
-                    }
-
-                    if (this.showNLBEFields()) {
-                        fields.push('DoB')
-                    }
-                    return fields;
-                },
-
-
-                validateField: function (id) {
-                    this.messageContainer.clear();
-                    const isValid = $(`#buckaroo_magento2_afterpay20_${id}`).valid();
-                    let state = this.validationState();
-                    state[id] = isValid;
-                    this.validationState(state);
-                    return isValid;
-                },
 
                 /**
                  * Place order.
                  *
                  * @todo To override the script used for placeOrderAction, we need to override the placeOrder method
-                 *          on our parent class (Magento_Checkout/js/view/payment/default) so we can
+                 *          on our parent class (buckaroo/checkout/payment/default) so we can
                  *
                  *          placeOrderAction has been changed from Magento_Checkout/js/action/place-order to our own
                  *          version (Buckaroo_Magento2/js/action/place-order) to prevent redirect and handle the response.
@@ -359,7 +291,7 @@ define(
                             var value = $.mage.cookies.get(item);
                             if (value) {
                                 $.mage.cookies.clear(item);
-                                $.mage.cookies.set(item, value, {path: '/'});
+                                $.mage.cookies.set(item, value, { path: '/' });
                             }
                         });
 
@@ -381,25 +313,6 @@ define(
                     return false;
                 },
 
-                afterPlaceOrder: function () {
-                    var response = window.checkoutConfig.payment.buckaroo.response;
-                    checkoutCommon.redirectHandle(response);
-                },
-
-                selectPaymentMethod: function () {
-                    selectPaymentMethodAction(this.getData());
-                    checkoutData.setSelectedPaymentMethod(this.item.method);
-                    return true;
-                },
-
-                /**
-                 * Run validation function
-                 */
-
-                validate: function () {
-                    return $('.' + this.getCode() + ' .payment-method-second-col form').valid();
-                },
-
                 getData: function () {
                     return {
                         "method": this.item.method,
@@ -408,7 +321,7 @@ define(
                             "customer_telephone": this.phone(),
                             "customer_identificationNumber": this.identificationValidate(),
                             "customer_DoB": this.dateValidate(),
-                            "termsCondition": this.termsValidate(),
+                            "termsCondition": this.termsSelected(),
                             "customer_coc": this.customerCoc(),
                         }
                     };
@@ -419,16 +332,7 @@ define(
                     let url = 'https://documents.riverty.com/terms_conditions/payment_methods/invoice';
                     const cc = country.toLowerCase()
 
-                    if (b2b === true) {
-                        url = 'https://documents.riverty.com/terms_conditions/payment_methods/b2b_invoice';
-                        if (['NL', 'DE'].indexOf(country) !== -1) {
-                            lang = `${cc}_${cc}`;
-                        }
-
-                        if (['AT', 'CH'].indexOf(country) !== -1) {
-                            lang = `${cc}_de`;
-                        }
-                    } else {
+                    if (b2b === false) {
                         if (country === 'BE') {
                             lang = 'be_nl';
                         }
@@ -446,13 +350,23 @@ define(
                             const cc = country.toLowerCase()
                             lang = `${cc}_en`;
                         }
+                    } else {
+                        url = 'https://documents.riverty.com/terms_conditions/payment_methods/b2b_invoice';
+                        if (['NL', 'DE'].indexOf(country) !== -1) {
+                            lang = `${cc}_${cc}`;
+                        }
+
+                        if (['AT', 'CH'].indexOf(country) !== -1) {
+                            lang = `${cc}_de`;
+                        }
                     }
+
                     return `${url}/${lang}/`;
                 },
 
                 getFrenchTos: function () {
                     return $.mage
-                        .__('(Or click here for the French translation: <a target="_blank" href="%s">terms and conditions</a>. )')
+                        .__('(Or click here for the French translation: <a target="_blank" href="%s">terms and conditions</a>.)')
                         .replace('%s', 'https://documents.riverty.com/terms_conditions/payment_methods/invoice/be_fr/');
                 },
 

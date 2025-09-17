@@ -17,69 +17,109 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Config\Source\Email;
 
-class Template extends \Magento\Framework\DataObject implements \Magento\Framework\Option\ArrayInterface
+use Magento\Framework\Option\ArrayInterface;
+use Magento\Email\Model\ResourceModel\Template\CollectionFactory;
+use Magento\Email\Model\Template\Config;
+
+class Template implements ArrayInterface
 {
     /**
-     * @var \Magento\Framework\Registry
+     * @var CollectionFactory
      */
-    private $_coreRegistry;
+    protected $templatesFactory;
 
     /**
-     * @var \Magento\Email\Model\Template\Config
+     * @var Config
      */
-    private $_emailConfig;
+    protected $emailConfig;
 
     /**
-     * @var \Magento\Email\Model\ResourceModel\Template\CollectionFactory
-     */
-    protected $_templatesFactory;
-
-    /**
-     * @param \Magento\Framework\Registry $coreRegistry
-     * @param \Magento\Email\Model\ResourceModel\Template\CollectionFactory $templatesFactory
-     * @param \Magento\Email\Model\Template\Config $emailConfig
-     * @param array $data
+     * @param CollectionFactory $templatesFactory
+     * @param Config $emailConfig
      */
     public function __construct(
-        \Magento\Framework\Registry $coreRegistry,
-        \Magento\Email\Model\ResourceModel\Template\CollectionFactory $templatesFactory,
-        \Magento\Email\Model\Template\Config $emailConfig,
-        array $data = []
+        CollectionFactory $templatesFactory,
+        Config $emailConfig
     ) {
-        parent::__construct($data);
-        $this->_coreRegistry = $coreRegistry;
-        $this->_templatesFactory = $templatesFactory;
-        $this->_emailConfig = $emailConfig;
+        $this->templatesFactory = $templatesFactory;
+        $this->emailConfig = $emailConfig;
     }
 
     /**
-     * Generate list of email templates
+     * Return available email templates as option array
      *
      * @return array
      */
-    public function toOptionArray()
+    public function toOptionArray(): array
     {
-        /** @var $collection \Magento\Email\Model\ResourceModel\Template\Collection */
-        if (!($collection = $this->_coreRegistry->registry('config_system_email_template'))) {
-            $collection = $this->_templatesFactory->create();
-            $collection->load();
-            $this->_coreRegistry->register('config_system_email_template', $collection);
+        $options = [];
+
+        // Add default SecondChance templates
+        $options[] = [
+            'value' => 'buckaroo_second_chance_first',
+            'label' => __('SecondChance First Email (Default)')
+        ];
+
+        $options[] = [
+            'value' => 'buckaroo_second_chance_second',
+            'label' => __('SecondChance Second Email (Default)')
+        ];
+
+        // Get custom templates from the database
+        $templates = $this->templatesFactory->create()
+            ->addFieldToFilter('template_code', ['like' => '%second%chance%'])
+            ->load();
+
+        foreach ($templates as $template) {
+            $options[] = [
+                'value' => $template->getId(),
+                'label' => $template->getTemplateCode() . ' (Custom)'
+            ];
         }
-        $options = $collection->toOptionArray();
-        $templateId = explode('/', $this->getPath());
-        $templateId = end($templateId);
+
+        // Get all available email templates that could be used
+        $availableTemplates = $this->templatesFactory->create()->load();
         
-        $templateLabel = $this->_emailConfig->getTemplateLabel($templateId);
-        $templateLabel = __('%1 (Default)', $templateLabel);
-        array_unshift($options, ['value' => $templateId, 'label' => $templateLabel]);
-        array_walk(
-            $options,
-            function (&$item) {
-                $item['__disableTmpl'] = true;
+        if ($availableTemplates->getSize() > 0) {
+            $options[] = [
+                'value' => '',
+                'label' => __('-- Other Email Templates --'),
+                'disabled' => true
+            ];
+
+            foreach ($availableTemplates as $template) {
+                // Skip if already added above
+                $templateCode = strtolower($template->getTemplateCode());
+                if (strpos($templateCode, 'second') === false || strpos($templateCode, 'chance') === false) {
+                    $options[] = [
+                        'value' => $template->getId(),
+                        'label' => $template->getTemplateCode()
+                    ];
+                }
             }
-        );
+        }
+
+        return $options;
+    }
+
+    /**
+     * Get options in "key-value" format
+     *
+     * @return array
+     */
+    public function toArray(): array
+    {
+        $options = [];
+        
+        foreach ($this->toOptionArray() as $option) {
+            if (!isset($option['disabled'])) {
+                $options[$option['value']] = $option['label'];
+            }
+        }
+        
         return $options;
     }
 }

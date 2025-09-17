@@ -3,10 +3,10 @@
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
- * It is available through the world-wide-web at this URL:
+ * It is available through the world‑wide‑web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world‑wide‑web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,98 +17,74 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
+declare(strict_types=1);
+
 namespace Buckaroo\Magento2\Logging;
 
-use Monolog\Logger;
-use Monolog\Handler\HandlerInterface;
-use Buckaroo\Magento2\Logging\InternalLogger;
 use Buckaroo\Magento2\Model\ConfigProvider\DebugConfiguration;
+use Monolog\Handler\HandlerInterface;
+use Monolog\Logger;
+use Psr\Log\LoggerInterface;
 
-class Log 
+class Log implements BuckarooLoggerInterface
 {
-    /** @var DebugConfiguration */
-    private $debugConfiguration;
+    private DebugConfiguration $debugConfiguration;
+    private Logger $logger;
 
-    /** @var Mail */
-    private $mail;
-
-    /** @var array */
-    protected $message = [];
-
-    private static $processUid = 0;
-
-    /**
-     * @var \Buckaroo\Magento2\Logging\InternalLogger
-     */
-    private $logger;
-
-    /**
-     * Log constructor.
-     *
-     * @param string             $name
-     * @param DebugConfiguration $debugConfiguration
-     * @param Mail               $mail
-     * @param HandlerInterface[] $handlers
-     * @param callable[]         $processors
-     */
     public function __construct(
         DebugConfiguration $debugConfiguration,
-        Mail $mail,
-        InternalLogger $logger
+        array $handlers = [],
+        array $processors = [],
+        string $name = 'buckaroo'
     ) {
         $this->debugConfiguration = $debugConfiguration;
-        $this->mail = $mail;
-        $this->logger = $logger;
-
+        $this->logger             = new Logger($name, $handlers, $processors);
     }
 
-    /**
-     * Make sure the debug information is always send to the debug email
-     */
-    public function __destruct()
-    {
-        $this->mail->mailMessage();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function addRecord(int $level, string $message, array $context = []): bool
-    {
-        if (!$this->debugConfiguration->canLog($level)) {
+    /* ---------------------------------------------------------------------
+     * Portable addRecord()
+     * -------------------------------------------------------------------*/
+    public function addRecord(
+        mixed $level,
+        $message,
+        array $context = [],
+        ?\DateTimeInterface $datetime = null
+    ): bool {
+        if (! $this->debugConfiguration->canLog($level)) {
             return false;
         }
 
-        if (empty(self::$processUid)) {
-            self::$processUid = uniqid();
+        if (\class_exists(\Monolog\Level::class) && \is_int($level)) {
+            /** @var \Monolog\Level $level */
+            $level = \Monolog\Level::from($level);
         }
 
-        $message = self::$processUid . '|' . microtime(true). '|' . $message;
-
-        // Prepare the message to be send to the debug email
-        $this->mail->addToMessage($message);
-
-        return $this->logger->addRecord($level, $message, $context);
+        return $this->logger->addRecord($level, (string) $message, $context, $datetime);
     }
 
-    /**
-     * @param string $message
-     * @return bool
-     */
+    /* ----------------------------------------------------------------- */
     public function addDebug(string $message): bool
     {
         return $this->addRecord(Logger::DEBUG, $message);
     }
-
     public function addError(string $message): bool
     {
         return $this->addRecord(Logger::ERROR, $message);
     }
-    /**
-     * {@inheritdoc}
-     */
-    public function debug($message)
+    public function addWarning(string $message): bool
     {
-        return $this->addRecord(Logger::DEBUG, $message);
+        return $this->addRecord(Logger::WARNING, $message);
+    }
+
+    public function debug($message, array $context = []): void
+    {
+        $this->addRecord(Logger::DEBUG, (string) $message, $context);
+    }
+
+    public function setAction(string $action): BuckarooLoggerInterface
+    {
+        /* kept for interface compatibility, no-op in this implementation */
+        return $this;
     }
 }

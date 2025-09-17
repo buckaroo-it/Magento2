@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,87 +17,93 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\Data\Form\FormKey;
-use Magento\Framework\View\Asset\Repository;
+use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Helper\PaymentFee;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
+use Buckaroo\Magento2\Service\LogoService;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Data\Form\FormKey;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\View\Asset\Repository;
 
 class Mrcash extends AbstractConfigProvider
 {
-    const XPATH_MRCASH_PAYMENT_FEE              = 'payment/buckaroo_magento2_mrcash/payment_fee';
-    const XPATH_MRCASH_ACTIVE                   = 'payment/buckaroo_magento2_mrcash/active';
-    const XPATH_MRCASH_SUBTEXT                  = 'payment/buckaroo_magento2_mrcash/subtext';
-    const XPATH_MRCASH_SUBTEXT_STYLE            = 'payment/buckaroo_magento2_mrcash/subtext_style';
-    const XPATH_MRCASH_SUBTEXT_COLOR            = 'payment/buckaroo_magento2_mrcash/subtext_color';
-    const XPATH_MRCASH_ACTIVE_STATUS            = 'payment/buckaroo_magento2_mrcash/active_status';
-    const XPATH_MRCASH_ORDER_STATUS_SUCCESS     = 'payment/buckaroo_magento2_mrcash/order_status_success';
-    const XPATH_MRCASH_ORDER_STATUS_FAILED      = 'payment/buckaroo_magento2_mrcash/order_status_failed';
-    const XPATH_MRCASH_AVAILABLE_IN_BACKEND     = 'payment/buckaroo_magento2_mrcash/available_in_backend';
+    public const CODE = 'buckaroo_magento2_mrcash';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_mrcash/allowed_currencies';
+    public const XPATH_MRCASH_USE_CLIENT_SIDE = 'client_side';
 
-    const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_mrcash/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_mrcash/specificcountry';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_mrcash/specificcustomergroup';
+    public const MRCASH_REDIRECT_URL = '/buckaroo/mrcash/pay';
+    public const XPATH_MRCASH_PAYMENT_FEE              = 'payment/buckaroo_magento2_mrcash/payment_fee';
 
-    const XPATH_MRCASH_USE_CLIENT_SIDE          = 'payment/buckaroo_magento2_mrcash/client_side';
-
-    const MRCASH_REDIRECT_URL = '/buckaroo/mrcash/pay';
-
-    /** @var FormKey */
-    private $formKey;
 
     /**
-     * @param Repository           $assetRepo
+     * @var FormKey
+     */
+    private FormKey $formKey;
+
+    /**
+     * @param Repository $assetRepo
      * @param ScopeConfigInterface $scopeConfig
-     * @param AllowedCurrencies    $allowedCurrencies
-     * @param PaymentFee           $paymentFeeHelper
-     * @param FormKey              $formKey
+     * @param AllowedCurrencies $allowedCurrencies
+     * @param PaymentFee $paymentFeeHelper
+     * @param LogoService $logoService
+     * @param FormKey $formKey
      */
     public function __construct(
         Repository $assetRepo,
         ScopeConfigInterface $scopeConfig,
         AllowedCurrencies $allowedCurrencies,
         PaymentFee $paymentFeeHelper,
+        LogoService $logoService,
         FormKey $formKey
     ) {
-        parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper);
+        parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper, $logoService);
 
         $this->formKey = $formKey;
     }
 
-    private function getFormKey()
+    /**
+     * @inheritdoc
+     *
+     * @throws Exception
+     * @throws LocalizedException
+     */
+    public function getConfig(): array
     {
-        return $this->formKey->getFormKey();
+        if (!$this->getActive()) {
+            return [];
+        }
+
+        return $this->fullConfig([
+            'useClientSide' => (int)$this->useClientSide(),
+            'redirecturl'   => self::MRCASH_REDIRECT_URL . '?form_key=' . $this->getFormKey(),
+        ]);
     }
 
     /**
-     * @return array|void
+     * Get Use Client Side
+     *
+     * @param null|int|string $store
+     * @return mixed
      */
-    public function getConfig()
+    public function useClientSide($store = null)
     {
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
+        return $this->getMethodConfigValue(self::XPATH_MRCASH_USE_CLIENT_SIDE, $store);
+    }
 
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'mrcash' => [
-                        'paymentFeeLabel' => $paymentFeeLabel,
-                        'subtext'   => $this->getSubtext(),
-                        'subtext_style'   => $this->getSubtextStyle(),
-                        'subtext_color'   => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'useClientSide' => (int) $this->useClientSide(),
-                        'redirecturl' => self::MRCASH_REDIRECT_URL . '?form_key=' . $this->getFormKey(),
-                        'isTestMode' => $this->isTestMode()
-                    ],
-                ],
-            ],
-        ];
+    /**
+     * Get Magento Form Key
+     *
+     * @return string
+     * @throws LocalizedException
+     */
+    private function getFormKey(): string
+    {
+        return $this->formKey->getFormKey();
     }
 
     /**
@@ -113,17 +119,6 @@ class Mrcash extends AbstractConfigProvider
             $storeId
         );
 
-        return $paymentFee ? $paymentFee : false;
-    }
-
-    /**
-     * @return bool
-     */
-    private function useClientSide()
-    {
-        return $this->scopeConfig->getValue(
-            self::XPATH_MRCASH_USE_CLIENT_SIDE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
+        return $paymentFee ?: 0;
     }
 }

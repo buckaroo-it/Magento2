@@ -17,13 +17,12 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-/** @var string $block */
 ?>
 <?php if ($block->canShowProductIdin()): ?>
-    <div id="buckaroo_idin_product" style="background: #d4eded; padding: 10px; display: inline-block; width: 100%; ">
-        <img width="50px" data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/idin.svg') }"
-             style="float: left; width: 50px; "/>
-        <span data-bind="i18n: 'You must be 18 or older to pay for the products below'"
-              style="height: 50px; display: block; float: left; line-height: 50px; margin-left: 11px; "></span>
-    </div>
+<div id="buckaroo_idin_product">
+    <img src="<?= $block->escapeUrl($block->getViewFileUrl('Buckaroo_Magento2::images/idin.svg')); ?>"
+        alt="Idin Logo"/>
+    <span><?= /* @noEscape */ __('The identity check %1 allows you to securely identify yourself. For this, we use a one-time identification using your own bank.', '<br/>'); ?></span>
+</div>
 <?php endif; ?>
+

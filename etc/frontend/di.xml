@@ -26,7 +26,6 @@
             <argument name="configProviders" xsi:type="array">
                 <item name="buckaroo_config_provider_idin" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Idin</item>
                 <item name="buckaroo_config_provider_ideal" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Ideal</item>
-                <item name="buckaroo_config_provider_idealprocessing" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\IdealProcessing</item>
                 <item name="buckaroo_config_provider_transfer" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Transfer</item>
                 <item name="buckaroo_config_provider_creditcard" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard</item>
                 <item name="buckaroo_config_provider_creditcards" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcards</item>
@@ -46,7 +45,6 @@
                 <item name="buckaroo_config_provider_klarna" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Klarna</item>
                 <item name="buckaroo_config_provider_klarnakp" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp</item>
                 <item name="buckaroo_config_provider_klarnain" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnain</item>
-                <item name="buckaroo_config_provider_emandate" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Emandate</item>
                 <item name="buckaroo_config_provider_afterpay20" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20</item>
                 <item name="buckaroo_config_provider_billink" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Billink</item>
                 <item name="buckaroo_config_provider_applepay" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay</item>
@@ -85,7 +83,7 @@
     </type>
 
     <type name="Magento\Checkout\Model\Cart">
-        <plugin name="interceptUpdateProductToCart" type="Buckaroo\Magento2\Block\Cart\QuoteCheck"/>
+        <plugin name="interceptUpdateProductToCart" type="Buckaroo\Magento2\Plugin\QuoteCheck"/>
     </type>
 
     <type name="Magento\Framework\Stdlib\Cookie\PhpCookieManager">
@@ -95,4 +93,5 @@
     <type name="Magento\Quote\Model\ShippingMethodManagement">
         <plugin name="shippingMethodManagement" type="Buckaroo\Magento2\Plugin\ShippingMethodManagement"/>
     </type>
+
 </config>

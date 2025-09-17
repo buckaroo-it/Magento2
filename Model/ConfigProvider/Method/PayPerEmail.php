@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,176 +17,121 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use Buckaroo\Magento2\Model\Method\PayPerEmail as MethodPayPerEmail;
+use Buckaroo\Magento2\Exception;
 
-/**
- * @method getCm3DueDate()
- * @method getMaxStepIndex()
- * @method getPaymentMethodAfterExpiry()
- * @method getSchemeKey()
- * @method getActiveStatusCm3()
- */
 class PayPerEmail extends AbstractConfigProvider
 {
-    const XPATH_ALLOWED_CURRENCIES               = 'buckaroo/buckaroo_magento2_payperemail/allowed_currencies';
+    public const CODE = 'buckaroo_magento2_payperemail';
 
-    const XPATH_ALLOW_SPECIFIC                   = 'payment/buckaroo_magento2_payperemail/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                 = 'payment/buckaroo_magento2_payperemail/specificcountry';
+    public const XPATH_PAYPEREMAIL_SEND_MAIL = 'send_mail';
 
-    const XPATH_PAYPEREMAIL_ACTIVE               = 'payment/buckaroo_magento2_payperemail/active';
-    const XPATH_PAYPEREMAIL_SUBTEXT              = 'payment/buckaroo_magento2_payperemail/subtext';
-    const XPATH_PAYPEREMAIL_SUBTEXT_STYLE        = 'payment/buckaroo_magento2_payperemail/subtext_style';
-    const XPATH_PAYPEREMAIL_SUBTEXT_COLOR        = 'payment/buckaroo_magento2_payperemail/subtext_color';
-    const XPATH_PAYPEREMAIL_PAYMENT_FEE          = 'payment/buckaroo_magento2_payperemail/payment_fee';
-    const XPATH_PAYPEREMAIL_ACTIVE_STATUS        = 'payment/buckaroo_magento2_payperemail/active_status';
-    const XPATH_PAYPEREMAIL_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_payperemail/order_status_success';
-    const XPATH_PAYPEREMAIL_ORDER_STATUS_FAILED  = 'payment/buckaroo_magento2_payperemail/order_status_failed';
+    public const XPATH_PAYPEREMAIL_ACTIVE_STATUS_CM3           = 'active_status_cm3';
+    public const XPATH_PAYPEREMAIL_SCHEME_KEY                  = 'scheme_key';
+    public const XPATH_PAYPEREMAIL_MAX_STEP_INDEX              = 'max_step_index';
+    public const XPATH_PAYPEREMAIL_CM3_DUE_DATE                = 'cm3_due_date';
+    public const XPATH_PAYPEREMAIL_PAYMENT_METHOD              = 'payment_method';
+    public const XPATH_PAYPEREMAIL_PAYMENT_METHOD_AFTER_EXPIRY = 'payment_method_after_expiry';
+    public const XPATH_PAYPEREMAIL_VISIBLE_FRONT_BACK          = 'visible_front_back';
+    public const XPATH_PAYPEREMAIL_ENABLE_B2B                  = 'enable_b2b';
+    public const XPATH_PAYPEREMAIL_EXPIRE_DAYS                 = 'expire_days';
+    public const XPATH_PAYPEREMAIL_CANCEL_PPE                  = 'cancel_ppe';
+    public const XPATH_PAYPEREMAIL_CRON_CANCEL_PPE             = 'cron_cancel_ppe';
+    public const XPATH_PAYPEREMAIL_PAYMENT_FEE          = 'payment/buckaroo_magento2_payperemail/payment_fee';
 
-    const XPATH_PAYPEREMAIL_ACTIVE_STATUS_CM3           = 'payment/buckaroo_magento2_payperemail/active_status_cm3';
-    const XPATH_PAYPEREMAIL_SEND_MAIL                   = 'payment/buckaroo_magento2_payperemail/send_mail';
-    const XPATH_PAYPEREMAIL_SCHEME_KEY                  = 'payment/buckaroo_magento2_payperemail/scheme_key';
-    const XPATH_PAYPEREMAIL_MAX_STEP_INDEX              = 'payment/buckaroo_magento2_payperemail/max_step_index';
-    const XPATH_PAYPEREMAIL_CM3_DUE_DATE                = 'payment/buckaroo_magento2_payperemail/cm3_due_date';
-    const XPATH_PAYPEREMAIL_PAYMENT_METHOD              = 'payment/buckaroo_magento2_payperemail/payment_method';
-    const XPATH_PAYPEREMAIL_PAYMENT_METHOD_AFTER_EXPIRY = 'payment/'.
-        'buckaroo_magento2_payperemail/payment_method_after_expiry';
-    const XPATH_PAYPEREMAIL_VISIBLE_FRONT_BACK          = 'payment/buckaroo_magento2_payperemail/visible_front_back';
-    const XPATH_PAYPEREMAIL_IS_VISIBLE_FOR_AREA_CODE = 'payment/buckaroo_magento2_payperemail/is_visible_for_area_code';
-    const XPATH_PAYPEREMAIL_ENABLE_B2B                  = 'payment/buckaroo_magento2_payperemail/enable_b2b';
-    const XPATH_PAYPEREMAIL_EXPIRE_DAYS                 = 'payment/buckaroo_magento2_payperemail/expire_days';
-    const XPATH_PAYPEREMAIL_CANCEL_PPE                  = 'payment/buckaroo_magento2_payperemail/cancel_ppe';
-    const XPATH_PAYPEREMAIL_CRON_CANCEL_PPE             = 'payment/buckaroo_magento2_payperemail/cron_cancel_ppe';
-
-    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_payperemail/specificcustomergroup';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP_B2B     = 'payment/buckaroo_magento2_payperemail/specificcustomergroupb2b';
 
     /**
+     * Retrieve PayPerEmail assoc array of checkout configuration
+     *
      * @return array
+     * @throws Exception
      */
-    public function getConfig()
+    public function getConfig(): array
     {
-        if (!$this->scopeConfig->getValue(
-            static::XPATH_PAYPEREMAIL_ACTIVE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        )) {
+        if (!$this->getActive()) {
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
-
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'payperemail' => [
-                        'paymentFeeLabel'   => $paymentFeeLabel,
-                        'subtext'   => $this->getSubtext(),
-                        'subtext_style'   => $this->getSubtextStyle(),
-                        'subtext_color'   => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'genderList' => [
-                            ['genderType' => 1, 'genderTitle' => __('He/him')],
-                            ['genderType' => 2, 'genderTitle' => __('She/her')],
-                            ['genderType' => 0, 'genderTitle' => __('They/them')],
-                            ['genderType' => 9, 'genderTitle' => __('I prefer not to say')]
-                        ]
-                    ],
-                    'response' => [],
-                ],
+        return $this->fullConfig([
+            'genderList' => [
+                ['genderType' => 1, 'genderTitle' => __('He/him')],
+                ['genderType' => 2, 'genderTitle' => __('She/her')],
+                ['genderType' => 0, 'genderTitle' => __('They/them')],
+                ['genderType' => 9, 'genderTitle' => __('I prefer not to say')]
             ],
-        ];
+        ]);
     }
 
     /**
-     * @param null|int $storeId
+     * Sends an email to the customer with the payment procedures.
      *
-     * @return float
+     * @return bool
      */
-    public function getPaymentFee($storeId = null)
+    public function hasSendMail(): bool
     {
-        $paymentFee = $this->scopeConfig->getValue(
-            self::XPATH_PAYPEREMAIL_PAYMENT_FEE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
-
-        return $paymentFee ? $paymentFee : false;
+        return (bool)$this->getMethodConfigValue(self::XPATH_PAYPEREMAIL_SEND_MAIL);
     }
 
     /**
-     * @return bool
+     * Get payment methods available for pay per email
+     *
+     * @param int|null $storeId
+     * @return false|mixed
      */
-    public function getSendMail()
+    public function getPaymentMethod(?int $storeId = null)
     {
-        $sendMail = $this->scopeConfig->getValue(
-            self::XPATH_PAYPEREMAIL_SEND_MAIL,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
+        $paymentMethod = $this->getMethodConfigValue(self::XPATH_PAYPEREMAIL_PAYMENT_METHOD, $storeId);
 
-        return $sendMail ? true : false;
-    }
-
-    public function getPaymentMethod($storeId = null)
-    {
-        $paymentMethod = $this->scopeConfig->getValue(
-            self::XPATH_PAYPEREMAIL_PAYMENT_METHOD,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
-
-        return $paymentMethod ? $paymentMethod : false;
+        return $paymentMethod ?: false;
     }
 
     /**
+     * B2B mode enabled
+     *
      * @return bool
      */
-    public function getEnabledB2B()
+    public function isEnabledB2B()
     {
-        return $this->scopeConfig->getValue(
-            self::XPATH_PAYPEREMAIL_ENABLE_B2B,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
+        return $this->getMethodConfigValue(static::XPATH_PAYPEREMAIL_ENABLE_B2B);
     }
 
+    /**
+     * Is enable or disable auto cancelling by cron
+     *
+     * @return mixed
+     */
     public function getEnabledCronCancelPPE()
     {
-        return $this->scopeConfig->getValue(
-            self::XPATH_PAYPEREMAIL_CRON_CANCEL_PPE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
+        return $this->getMethodConfigValue(self::XPATH_PAYPEREMAIL_CRON_CANCEL_PPE);
     }
 
     /**
+     * Get the expiration date for the paylink
+     *
      * @return integer
      */
     public function getExpireDays()
     {
-        return $this->scopeConfig->getValue(
-            self::XPATH_PAYPEREMAIL_EXPIRE_DAYS,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
-    }
-
-    public function getCancelPpe()
-    {
-        return $this->scopeConfig->getValue(
-            self::XPATH_PAYPEREMAIL_CANCEL_PPE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
-    }
-
-    public function getActive()
-    {
-        return $this->scopeConfig->getValue(
-            self::XPATH_PAYPEREMAIL_ACTIVE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
+        return $this->getMethodConfigValue(self::XPATH_PAYPEREMAIL_EXPIRE_DAYS);
     }
 
     /**
-     * @param $areaCode
+     * Cancel PPE link after order is cancel in Magento
+     *
+     * @return mixed
+     */
+    public function getCancelPpe()
+    {
+        return $this->getMethodConfigValue(self::XPATH_PAYPEREMAIL_CANCEL_PPE);
+    }
+
+    /**
+     * Check if PayPerEmail is visible for specific area code
+     *
+     * @param string $areaCode
      * @return bool
      */
     public function isVisibleForAreaCode($areaCode)
@@ -203,5 +148,98 @@ class PayPerEmail extends AbstractConfigProvider
         }
 
         return true;
+    }
+
+    /**
+     * Get where the Pay Per Email method will be visible Frontend or Backend or Both
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getVisibleFrontBack($store = null)
+    {
+        return $this->getMethodConfigValue(self::XPATH_PAYPEREMAIL_VISIBLE_FRONT_BACK, $store);
+    }
+
+    /**
+     * Check if Credit Management is enabled
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getActiveStatusCm3($store = null)
+    {
+        return $this->getMethodConfigValue(self::XPATH_PAYPEREMAIL_ACTIVE_STATUS_CM3, $store);
+    }
+
+    /**
+     * Credit Management Scheme Key
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getSchemeKey($store = null)
+    {
+        return $this->getMethodConfigValue(self::XPATH_PAYPEREMAIL_SCHEME_KEY, $store);
+    }
+
+    /**
+     * Get Max level of the Credit Management steps
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getMaxStepIndex($store = null)
+    {
+        return $this->getMethodConfigValue(self::XPATH_PAYPEREMAIL_MAX_STEP_INDEX, $store);
+    }
+
+    /**
+     * Get credit managment due date, amount of days after the order date
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getCm3DueDate($store = null)
+    {
+        return $this->getMethodConfigValue(self::XPATH_PAYPEREMAIL_CM3_DUE_DATE, $store);
+    }
+
+    /**
+     * Get payment method which can be used after the payment due date.
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getPaymentMethodAfterExpiry($store = null)
+    {
+        return $this->getMethodConfigValue(self::XPATH_PAYPEREMAIL_PAYMENT_METHOD_AFTER_EXPIRY, $store);
+    }
+
+    /**
+     * Get status of B2B mode enabled
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getEnableB2b($store = null)
+    {
+        return $this->getMethodConfigValue(self::XPATH_PAYPEREMAIL_ENABLE_B2B, $store);
+    }
+
+    /**
+     * @param null|int $storeId
+     *
+     * @return float
+     */
+    public function getPaymentFee($storeId = null)
+    {
+        $paymentFee = $this->scopeConfig->getValue(
+            self::XPATH_PAYPEREMAIL_PAYMENT_FEE,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+
+        return $paymentFee ?: 0;
     }
 }

@@ -22,7 +22,6 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Model\Service;
 
 use Buckaroo\Magento2\Api\Data\ExpressMethods\ShippingAddressRequestInterface;
-use Buckaroo\Magento2\Exception;
 
 class ShippingAddressRequest implements ShippingAddressRequestInterface
 {
@@ -57,7 +56,7 @@ class ShippingAddressRequest implements ShippingAddressRequestInterface
     /**
      * @inheritdoc
      *
-     * @throws Exception
+     * @throws ExpressMethodsException
      */
     public function setCity(string $city)
     {
@@ -72,12 +71,12 @@ class ShippingAddressRequest implements ShippingAddressRequestInterface
      * @param string $name
      *
      * @return void
-     * @throws Exception
+     * @throws ExpressMethodsException
      */
     protected function validateRequired($value, string $name)
     {
         if (strlen(trim($value)) === 0) {
-            throw new Exception(__("Parameter `{$name}` is required"));
+            throw new ExpressMethodsException("Parameter `{$name}` is required");
         }
     }
 

@@ -15,17 +15,17 @@ define(
                     template: 'Buckaroo_Magento2/cart/totals/buckaroo_fee'
                 },
                 /**
-                 * @override
-                 *
-                 * @returns {boolean}
-                 */
+             * @override
+             *
+             * @returns {boolean}
+             */
                 isDisplayed: function () {
                     return true;
                 },
 
                 /**
-                 * @override
-                 */
+             * @override
+             */
                 isFullMode: function () {
                     return true;
                 }

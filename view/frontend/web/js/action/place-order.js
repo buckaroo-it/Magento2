@@ -106,7 +106,7 @@ define(
             ).done(
                 function (response) {
                     let jsonResponse = $.parseJSON(response);
-                    if (typeof jsonResponse === 'object' && jsonResponse.limitReachedMessage) {
+                    if (typeof jsonResponse === 'object' && typeof jsonResponse.limitReachedMessage === 'string') {
                         alert({
                             title: $t('Error'),
                             content: $t(jsonResponse.limitReachedMessage),
@@ -115,23 +115,14 @@ define(
                                 class: 'action primary accept',
                                 click: function () {
                                     this.closeModal(true);
-                                    window.location.reload();
                                 }
                             }]
                         });
                         $('.' + paymentData.method).remove();
-                    } else {
-                        if (jsonResponse.buckaroo_response) {
-                            window.checkoutConfig.payment.buckaroo.response = jsonResponse.buckaroo_response;
-                        } else {
-                            window.checkoutConfig.payment.buckaroo.response = jsonResponse;
-                        }
-
-                        if (redirectOnSuccess) {
-                            window.location.replace(url.build('checkout/onepage/success/'));
-                        }
+                    } else if (redirectOnSuccess) {
+                        window.location.replace(url.build('checkout/onepage/success/'));
                     }
-
+                    window.checkoutConfig.payment.buckaroo.response = response;
                     fullScreenLoader.stopLoader();
                 }
             ).fail(
@@ -146,7 +137,6 @@ define(
                                 window.scroll(0, y);
                             }
                         }, 2000);
-
                     }
                 }
             );

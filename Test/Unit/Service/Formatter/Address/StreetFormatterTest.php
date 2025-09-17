@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Test\Unit\Service\Formatter\Address;
 
 use Buckaroo\Magento2\Service\Formatter\Address\StreetFormatter;
@@ -29,7 +31,7 @@ class StreetFormatterTest extends BaseTest
     /**
      * @return array
      */
-    public function formatProvider()
+    public static function formatProvider()
     {
         return [
             'street only' => [

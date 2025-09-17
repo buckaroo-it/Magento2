@@ -22,9 +22,9 @@ namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
 use Magento\Framework\ObjectManagerInterface;
 use Buckaroo\Magento2\Exception;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface;
+use Magento\Checkout\Model\ConfigProviderInterface;
 use Buckaroo\Magento2\Test\BaseTest;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 
 class FactoryTest extends BaseTest
 {
@@ -40,8 +40,8 @@ class FactoryTest extends BaseTest
 
         $configProviderMock = $this->getFakeMock(ConfigProviderInterface::class)->getMockForAbstractClass();
 
-        $objectManagerMock = $this->getFakeMock(ObjectManagerInterface::class)->setMethods(['get'])->getMockForAbstractClass();
-        $objectManagerMock->expects($this->once())->method('get')->with($model)->willReturn($configProviderMock);
+        $objectManagerMock = $this->getFakeMock(ObjectManagerInterface::class)->onlyMethods(['get'])->getMockForAbstractClass();
+        $objectManagerMock->method('get')->with($model)->willReturn($configProviderMock);
 
         $instance = $this->getInstance(['configProviders' => $providers, 'objectManager' => $objectManagerMock]);
         $result = $instance->get($model);
@@ -69,18 +69,21 @@ class FactoryTest extends BaseTest
      */
     public function testLogicException()
     {
-        $model = 'model1';
-        $providers = [['type' => 'model1', 'model' => 'model1']];
+        $model = 'buckaroo_magento2_testmethod'; // This will trigger $isPaymentMethod = true
+        $providers = [['type' => 'testmethod', 'model' => 'InvalidTestClass']];
 
-        $instance = $this->getInstance(['configProviders' => $providers]);
+        // Mock an object that doesn't implement the expected BuckarooConfigProviderInterface
+        $invalidConfigProvider = new \stdClass(); // This won't implement BuckarooConfigProviderInterface
+        
+        $objectManagerMock = $this->getFakeMock(ObjectManagerInterface::class)->onlyMethods(['get'])->getMockForAbstractClass();
+        $objectManagerMock->method('get')->with('InvalidTestClass')->willReturn($invalidConfigProvider);
 
-        try {
-            $instance->get($model);
-        } catch (\LogicException $e) {
-            $exceptionMessage = 'The ConfigProvider must implement '
-                . '"Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface".';
-            $this->assertEquals($exceptionMessage, $e->getMessage());
-        }
+        $instance = $this->getInstance(['configProviders' => $providers, 'objectManager' => $objectManagerMock]);
+
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('The ConfigProvider must implement "Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface".');
+        
+        $instance->get($model);
     }
 
     /**

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Test\Unit\Model\Config\Source\Display;
 
 use Buckaroo\Magento2\Model\Config\Source\Display\Type;
@@ -29,7 +31,7 @@ class TypeTest extends BaseTest
     /**
      * @return array
      */
-    public function toOptionArrayProvider()
+    public static function toOptionArrayProvider()
     {
         return [
             [
@@ -54,6 +56,13 @@ class TypeTest extends BaseTest
         $instance = $this->getInstance();
         $result = $instance->toOptionArray();
 
-        $this->assertContains($paymentOption, $result);
+        $found = false;
+        foreach ($result as $option) {
+            if ($option['value'] === $paymentOption['value']) {
+                $found = true;
+                break;
+            }
+        }
+        $this->assertTrue($found);
     }
 }

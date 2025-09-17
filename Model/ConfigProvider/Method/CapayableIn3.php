@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,68 +20,71 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use Magento\Store\Model\ScopeInterface;
-use Buckaroo\Magento2\Model\Method\Capayable\Installments as CapayableIn3Method;
-
 class CapayableIn3 extends AbstractConfigProvider
 {
-    const XPATH_CAPAYABLEIN3_PAYMENT_FEE          = 'payment/buckaroo_magento2_capayablein3/payment_fee';
-    const XPATH_CAPAYABLEIN3_ACTIVE               = 'payment/buckaroo_magento2_capayablein3/active';
-    const XPATH_CAPAYABLEIN3_SUBTEXT              = 'payment/buckaroo_magento2_capayablein3/subtext';
-    const XPATH_CAPAYABLEIN3_SUBTEXT_STYLE        = 'payment/buckaroo_magento2_capayablein3/subtext_style';
-    const XPATH_CAPAYABLEIN3_SUBTEXT_COLOR        = 'payment/buckaroo_magento2_capayablein3/subtext_color';
-    const XPATH_CAPAYABLEIN3_ACTIVE_STATUS        = 'payment/buckaroo_magento2_capayablein3/active_status';
-    const XPATH_CAPAYABLEIN3_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_capayablein3/order_status_success';
-    const XPATH_CAPAYABLEIN3_ORDER_STATUS_FAILED  = 'payment/buckaroo_magento2_capayablein3/order_status_failed';
-    const XPATH_CAPAYABLEIN3_ORDER_EMAIL          = 'payment/buckaroo_magento2_capayablein3/order_email';
-    const XPATH_CAPAYABLEIN3_AVAILABLE_IN_BACKEND = 'payment/buckaroo_magento2_capayablein3/available_in_backend';
+    public const CODE = 'buckaroo_magento2_capayablein3';
+    public const XPATH_CAPAYABLEIN3_PAYMENT_FEE          = 'payment/buckaroo_magento2_capayablein3/payment_fee';
 
-    const XPATH_CAPAYABLEIN3_API_VERSION = 'payment/buckaroo_magento2_capayablein3/api_version';
+    public const DEFAULT_NAME = 'In3';
+    public const V2_NAME = 'In3';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_capayablein3/allowed_currencies';
-    const XPATH_ALLOW_SPECIFIC     = 'payment/buckaroo_magento2_capayablein3/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY   = 'payment/buckaroo_magento2_capayablein3/specificcountry';
+    const XPATH_CAPAYABLEIN3_API_VERSION  = 'api_version';
+    const XPATH_CAPAYABLEIN3_PAYMENT_LOGO = 'payment_logo';
 
-    const XPATH_SPECIFIC_CUSTOMER_GROUP = 'payment/buckaroo_magento2_capayablein3/specificcustomergroup';
-
-    const XPATH_FINANCIAL_WARNING = 'payment/buckaroo_magento2_capayablein3/financial_warning';
-
-
-    /** @var array */
+    /**
+     * @var array
+     */
     protected $allowedCurrencies = [
         'EUR'
     ];
 
+    /**
+     * @var array
+     */
     protected $allowedCountries = [
         'NL'
     ];
 
     /**
-     * @return array|void
+     * @inheritdoc
      */
-    public function getConfig()
+    public function getConfig(): array
     {
-        if (!$this->scopeConfig->getValue(self::XPATH_CAPAYABLEIN3_ACTIVE, ScopeInterface::SCOPE_STORE)) {
+        if (!$this->getActive()) {
             return [];
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
+        return $this->fullConfig([
+            'showFinancialWarning' => $this->canShowFinancialWarning(),
+        ]);
+    }
 
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'capayablein3' => [
-                        'paymentFeeLabel' => $paymentFeeLabel,
-                        'subtext'   => $this->getSubtext(),
-                        'subtext_style'   => $this->getSubtextStyle(),
-                        'subtext_color'   => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'logo' => $this->getLogo(),
-                        'showFinancialWarning' => $this->canShowFinancialWarning(self::XPATH_FINANCIAL_WARNING)
-                    ],
-                ],
-            ],
-        ];
+    /**
+     * Get Logo based on API version
+     *
+     * @param $storeId
+     * @return string
+     */
+    public function getLogo($storeId = null): string
+    {
+        $logo = 'in3.svg';
+
+        if ($this->isV2($storeId)) {
+            $logo = 'in3.svg';
+        }
+
+        return $this->logoService->getLogoUrl("images/svg/".$logo);
+    }
+
+    /**
+     * Check if API Version is V2
+     *
+     * @param $storeId
+     * @return bool
+     */
+    public function isV2($storeId = null): bool
+    {
+        return $this->getMethodConfigValue(self::XPATH_CAPAYABLEIN3_API_VERSION, $storeId) === 'V2';
     }
 
     /**
@@ -94,28 +96,10 @@ class CapayableIn3 extends AbstractConfigProvider
     {
         $paymentFee = $this->scopeConfig->getValue(
             self::XPATH_CAPAYABLEIN3_PAYMENT_FEE,
-            ScopeInterface::SCOPE_STORE,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $storeId
         );
 
-        return $paymentFee ? $paymentFee : false;
-    }
-
-    public function isV2($storeId = null): bool
-    {
-        return $this->scopeConfig->getValue(
-            self::XPATH_CAPAYABLEIN3_API_VERSION,
-            ScopeInterface::SCOPE_STORE,
-            $storeId
-        ) === 'V2';
-    }
-
-    public function getLogo($storeId = null): string
-    {
-        if ($this->isV2($storeId)) {
-            return 'in3.svg';
-        }
-        return 'ideal-in3.svg';
-
+        return $paymentFee ?: 0;
     }
 }

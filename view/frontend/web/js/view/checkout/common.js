@@ -29,31 +29,14 @@ define(
                 if (response.RequiredAction !== undefined && response.RequiredAction.RedirectURL !== undefined) {
                     if (window.location.hash && (window.location.hash == '#payment')) {
                         window.history.pushState(
-                            null, null, `${window.location.pathname}${window.location.hash}`
+                            null,
+                            null,
+                            `${window.location.pathname}${window.location.hash}`
                         );
                     }
                     window.location.replace(response.RequiredAction.RedirectURL);
                 }
-            },
-            getSubtextStyle: function(paymentCode) {
-                let config = window.checkoutConfig.payment.buckaroo[paymentCode];
-                if(config === undefined) {
-                    return;
-                }
-                let subtextColor = config.subtext_color || '#757575';
-                let subtextStyle = config.subtext_style || 'regular';
-
-                let style = { color: subtextColor }
-                if(subtextStyle == 'bold') {
-                 style.fontWeight = 'bold';
-                }
-
-                if(subtextStyle == 'italic') {
-                 style.fontStyle = 'italic';
-                }
-                return style;
-             }
-
+            }
         };
     }
 );

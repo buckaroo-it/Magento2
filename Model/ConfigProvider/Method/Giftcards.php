@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,35 +17,33 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
+
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
+use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Helper\PaymentFee;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
+use Buckaroo\Magento2\Model\Config\Source\Giftcards as GiftcardsSource;
+use Buckaroo\Magento2\Model\ResourceModel\Giftcard\CollectionFactory as GiftcardCollectionFactory;
+use Buckaroo\Magento2\Service\LogoService;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\UrlInterface;
 use Magento\Framework\View\Asset\Repository;
+use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 class Giftcards extends AbstractConfigProvider
 {
-    const XPATH_GIFTCARDS_PAYMENT_FEE          = 'payment/buckaroo_magento2_giftcards/payment_fee';
-    const XPATH_GIFTCARDS_ACTIVE               = 'payment/buckaroo_magento2_giftcards/active';
-    const XPATH_GIFTCARDS_SUBTEXT              = 'payment/buckaroo_magento2_giftcards/subtext';
-    const XPATH_GIFTCARDS_SUBTEXT_STYLE        = 'payment/buckaroo_magento2_giftcards/subtext_style';
-    const XPATH_GIFTCARDS_SUBTEXT_COLOR        = 'payment/buckaroo_magento2_giftcards/subtext_color';
-    const XPATH_GIFTCARDS_ACTIVE_STATUS        = 'payment/buckaroo_magento2_giftcards/active_status';
-    const XPATH_GIFTCARDS_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_giftcards/order_status_success';
-    const XPATH_GIFTCARDS_ORDER_STATUS_FAILED  = 'payment/buckaroo_magento2_giftcards/order_status_failed';
-    const XPATH_GIFTCARDS_ORDER_EMAIL          = 'payment/buckaroo_magento2_giftcards/order_email';
-    const XPATH_GIFTCARDS_AVAILABLE_IN_BACKEND = 'payment/buckaroo_magento2_giftcards/available_in_backend';
-    const XPATH_GIFTCARDS_ALLOWED_GIFTCARDS    = 'payment/buckaroo_magento2_giftcards/allowed_giftcards';
-    const XPATH_GIFTCARDS_GROUP_GIFTCARDS      = 'payment/buckaroo_magento2_giftcards/group_giftcards';
-    const XPATH_GIFTCARDS_SORT                 = 'payment/buckaroo_magento2_giftcards/sorted_giftcards';
+    public const CODE = 'buckaroo_magento2_giftcards';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_giftcards/allowed_currencies';
+    public const XPATH_GIFTCARDS_ALLOWED_GIFTCARDS       = 'allowed_giftcards';
+    public const XPATH_GIFTCARDS_GROUP_GIFTCARDS         = 'group_giftcards';
+    public const XPATH_GIFTCARDS_SORTED_GIFTCARDS        = 'sorted_giftcards';
+    public const XPATH_ACCOUNT_ADVANCED_EXPORT_GIFTCARDS = 'buckaroo_magento2/account/advanced_export_giftcards';
+    public const XPATH_GIFTCARDS_PAYMENT_FEE          = 'payment/buckaroo_magento2_giftcards/payment_fee';
 
-    const XPATH_ALLOW_SPECIFIC   = 'payment/buckaroo_magento2_giftcards/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY = 'payment/buckaroo_magento2_giftcards/specificcountry';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP = 'payment/buckaroo_magento2_giftcards/specificcustomergroup';
 
     /**
      * @var array
@@ -54,102 +52,292 @@ class Giftcards extends AbstractConfigProvider
         'EUR',
     ];
 
-    /** @var StoreManagerInterface */
-    private $storeManager;
+    /**
+     * @var StoreManagerInterface
+     */
+    private StoreManagerInterface $storeManager;
 
+    /**
+     * @var GiftcardCollectionFactory
+     */
+    private GiftcardCollectionFactory $giftcardCollectionFactory;
+
+    /**
+     * @var GiftcardsSource
+     */
+    private GiftcardsSource $giftcardsSource;
+
+    /**
+     * @param Repository $assetRepo
+     * @param ScopeConfigInterface $scopeConfig
+     * @param AllowedCurrencies $allowedCurrencies
+     * @param PaymentFee $paymentFeeHelper
+     * @param LogoService $logoService
+     * @param StoreManagerInterface $storeManager
+     * @param ResourceConnection $resourceConnection
+     * @param GiftcardsSource $giftcardsSource
+     */
     public function __construct(
         Repository $assetRepo,
         ScopeConfigInterface $scopeConfig,
         AllowedCurrencies $allowedCurrencies,
         PaymentFee $paymentFeeHelper,
-        StoreManagerInterface $storeManager
+        LogoService $logoService,
+        StoreManagerInterface $storeManager,
+        GiftcardCollectionFactory $giftcardCollectionFactory,
+        GiftcardsSource $giftcardsSource
     ) {
-        parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper);
+        parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper, $logoService);
         $this->storeManager = $storeManager;
+        $this->giftcardCollectionFactory = $giftcardCollectionFactory;
+        $this->giftcardsSource = $giftcardsSource;
     }
 
     /**
-     * @return array
+     * @inheritdoc
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @throws Exception|NoSuchEntityException
      */
-    public function getConfig()
+    public function getConfig(): array
     {
-        if (!$this->scopeConfig->getValue(
-            static::XPATH_GIFTCARDS_ACTIVE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        )) {
+        if (!$this->getActive()) {
             return [];
         }
 
-        $sorted = explode(',', (string)$this->scopeConfig->getValue(
-            self::XPATH_GIFTCARDS_SORT,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        ));
+        return $this->fullConfig([
+            'groupGiftcards'     => (int)$this->getGroupGiftcards() === 1,
+            'availableGiftcards' => $this->getAvailableGiftcards(),
+        ]);
+    }
 
-        if (!empty($sorted)) {
+    /**
+     * Type of the giftcard inline/redirect
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getGroupGiftcards($store = null)
+    {
+        return $this->getMethodConfigValue(self::XPATH_GIFTCARDS_GROUP_GIFTCARDS, $store);
+    }
+
+    public function getAvailableGiftcards()
+    {
+        $sort = (string)$this->getSortedGiftcards();
+        $sortedArray = [];
+
+        if (!empty($sort)) {
+            $sorted = explode(',', $sort);
             $sortedPosition = 1;
             foreach ($sorted as $cardName) {
-                $sorted_array[$cardName] = $sortedPosition++;
+                $sortedArray[$cardName] = $sortedPosition++;
             }
         }
 
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
-
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $resource      = $objectManager->get(\Magento\Framework\App\ResourceConnection::class);
-        $connection    = $resource->getConnection();
-        $tableName     = $resource->getTableName('buckaroo_magento2_giftcard');
-        $result        = $connection->fetchAll("SELECT * FROM " . $tableName);
-        foreach ($result as $item) {
-            $item['sort'] = isset($sorted_array[$item['label']]) ? $sorted_array[$item['label']] : '99';
-            $allGiftCards[$item['servicecode']] = $item;
-        }
-
-        $availableCards = $this->scopeConfig->getValue(
-            static::XPATH_GIFTCARDS_ALLOWED_GIFTCARDS,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
-
-        $url = $this->storeManager->getStore()->getBaseUrl(
-            \Magento\Framework\UrlInterface::URL_TYPE_MEDIA
-        );
-
-        foreach (explode(',', (string)$availableCards) as $key => $value) {
-            $logo = $this->getLogo($value);
-            if(isset($allGiftCards[$value]['logo'])) {
-                $logo = $url . $allGiftCards[$value]['logo'];
-            }
-
-            $cards[] = [
-                'code'  => $value,
-                'title' => isset($allGiftCards[$value]['label']) ? $allGiftCards[$value]['label'] : '',
-                'logo'  => $logo,
-                'sort'  => isset($allGiftCards[$value]['sort']) ? $allGiftCards[$value]['sort'] : '99',
+        // Use proper collection instead of raw SQL
+        $giftcardCollection = $this->giftcardCollectionFactory->create();
+        
+        $allGiftCards = [];
+        foreach ($giftcardCollection as $giftcard) {
+            $servicecode = $giftcard->getServicecode();
+            $allGiftCards[$servicecode] = [
+                'servicecode' => $servicecode,
+                'label' => $giftcard->getLabel(),
+                'logo' => $giftcard->getLogo(),
+                'sort' => $sortedArray[$servicecode] ?? '99'
             ];
         }
 
-        usort($cards, function ($cardA, $cardB) {
-            return $cardA['sort'] - $cardB['sort'];
+        $availableCards = $this->getAllowedGiftcards();
+
+        $cards = [];
+        if (!empty($availableCards)) {
+            $url = $this->storeManager->getStore()->getBaseUrl(
+                UrlInterface::URL_TYPE_MEDIA
+            );
+
+            foreach (explode(',', (string)$availableCards) as $value) {
+                $logo = $this->getGiftcardLogo($value);
+                if (isset($allGiftCards[$value]['logo'])) {
+                    $logo = $url . $allGiftCards[$value]['logo'];
+                }
+
+                $cards[] = [
+                    'code'  => $value,
+                    'title' => $allGiftCards[$value]['label'] ?? '',
+                    'logo'  => $logo,
+                    'sort'  => $allGiftCards[$value]['sort'] ?? '99',
+                ];
+            }
+
+            usort($cards, function ($cardA, $cardB) {
+                return $cardA['sort'] - $cardB['sort'];
+            });
+        }
+
+        return $cards;
+    }
+
+
+
+    /**
+     * Get Allowed Giftcards
+     *
+     * @param $store
+     * @return mixed|null
+     */
+    public function getAllowedGiftcards($store = null)
+    {
+        return $this->getMethodConfigValue(self::XPATH_GIFTCARDS_ALLOWED_GIFTCARDS, $store);
+    }
+
+    /**
+     * Get Sorted Giftcards
+     *
+     * @param $store
+     * @return mixed|null
+     */
+    public function getSortedGiftcards($store = null)
+    {
+        return $this->getMethodConfigValue(self::XPATH_GIFTCARDS_SORTED_GIFTCARDS, $store);
+    }
+
+    /**
+     * Get Sorted Issuers (alias for getSortedGiftcards for SortIssuers block compatibility)
+     *
+     * @param $store
+     * @return mixed|null
+     */
+    public function getSortedIssuers($store = null)
+    {
+        $sorted = $this->getSortedGiftcards($store);
+
+        // Handle empty placeholder - return empty string instead of __EMPTY__
+        if ($sorted === '__EMPTY__') {
+            return '';
+        }
+
+        return $sorted;
+    }
+
+    /**
+     * Get all available giftcard issuers for the SortIssuers block
+     * Uses the same source model as the admin multiselect to ensure consistency
+     *
+     * @return array
+     * @throws NoSuchEntityException
+     */
+    public function getAllIssuers(): array
+    {
+        // Get only allowed giftcards
+        $allowedCards = $this->getAllowedGiftcards();
+        if (empty($allowedCards)) {
+            return [];
+        }
+
+        $allowedCodesArray = explode(',', (string)$allowedCards);
+
+        // Remove any empty values from the array
+        $allowedCodesArray = array_filter($allowedCodesArray, function ($value) {
+            return !empty(trim($value));
         });
 
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'groupGiftcards'   => $this->scopeConfig->getValue(
-                        static::XPATH_GIFTCARDS_GROUP_GIFTCARDS,
-                        \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-                    ),
-                    'avaibleGiftcards' => $cards,
-                    'giftcards'        => [
-                        'paymentFeeLabel'   => $paymentFeeLabel,
-                        'subtext'   => $this->getSubtext(),
-                        'subtext_style'   => $this->getSubtextStyle(),
-                        'subtext_color'   => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'isTestMode' => $this->isTestMode()
-                    ],
-                ],
-            ],
+        if (empty($allowedCodesArray)) {
+            return [];
+        }
+
+        // Use the same source model as the admin multiselect
+        $allGiftcards = $this->giftcardsSource->toOptionArray();
+
+        $issuers = [];
+
+        foreach ($allGiftcards as $giftcard) {
+            $code = $giftcard['value'];
+            $name = $giftcard['label'];
+
+            // Skip empty values or "no giftcards" message
+            if (empty($code) || strpos($name, 'You have not yet added') !== false) {
+                continue;
+            }
+
+            // Only include if this giftcard is in the allowed list
+            if (!in_array($code, $allowedCodesArray)) {
+                continue;
+            }
+
+            $logo = $this->getGiftcardLogo($code);
+
+            // Try to get custom logo from collection
+            $giftcardCollection = $this->giftcardCollectionFactory->create();
+            $giftcardCollection->addFieldToFilter('servicecode', $code);
+            $giftcard = $giftcardCollection->getFirstItem();
+            
+            if ($giftcard->getId() && $giftcard->getLogo()) {
+                $logo = $this->storeManager->getStore()->getBaseUrl(
+                    UrlInterface::URL_TYPE_MEDIA
+                ) . $giftcard->getLogo();
+            }
+
+            $issuers[$code] = [
+                'code' => $code,
+                'name' => $name,
+                'img' => $logo
+            ];
+        }
+
+        return $issuers;
+    }
+
+    /**
+     * Format issuers for display
+     *
+     * @return array
+     * @throws NoSuchEntityException
+     */
+    public function formatIssuers(): array
+    {
+        return $this->getAllIssuers();
+    }
+
+    /**
+     * Get giftcard logo image
+     *
+     * @param string $code
+     * @return string
+     */
+    protected function getGiftcardLogo(string $code): string
+    {
+        $mappings = [
+            "ajaxgiftcard"               => "ajaxgiftcard",
+            "boekenbon"                  => "boekenbon",
+            "cjpbetalen"                 => "cjp",
+            "digitalebioscoopbon"        => "nationaletuinbon",
+            "fashioncheque"              => "fashioncheque",
+            "fashionucadeaukaart"        => "fashiongiftcard",
+            "nationaletuinbon"           => "nationalebioscoopbon",
+            "nationaleentertainmentcard" => "nationaleentertainmentcard",
+            "podiumcadeaukaart"          => "podiumcadeaukaart",
+            "sportfitcadeau"             => "sport-fitcadeau",
+            "vvvgiftcard"                => "vvvgiftcard"
         ];
+
+        if (isset($mappings[$code])) {
+            return $this->getImageUrl("giftcards/{$mappings[$code]}", "svg");
+        }
+
+        return $this->getImageUrl("svg/giftcards", "svg");
+    }
+
+    /**
+     * Get Advanced order export for giftcards
+     *
+     * @param null|int|string $store
+     * @return bool
+     */
+    public function hasAdvancedExportGiftcards($store = null): bool
+    {
+        return (bool)$this->getMethodConfigValue(self::XPATH_ACCOUNT_ADVANCED_EXPORT_GIFTCARDS, $store);
     }
 
     /**
@@ -161,42 +349,10 @@ class Giftcards extends AbstractConfigProvider
     {
         $paymentFee = $this->scopeConfig->getValue(
             self::XPATH_GIFTCARDS_PAYMENT_FEE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            ScopeInterface::SCOPE_STORE,
             $storeId
         );
 
-        return $paymentFee ? $paymentFee : false;
-    }
-
-    public function getAllowedCards($storeId = null)
-    {
-        return $this->scopeConfig->getValue(
-            self::XPATH_GIFTCARDS_ALLOWED_GIFTCARDS,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
-    }
-
-    protected function getLogo(string $code): string
-    {
-        $mappings = [
-            "ajaxgiftcard" => "ajaxgiftcard",
-            "boekenbon" => "boekenbon",
-            "cjpbetalen" => "cjp",
-            "digitalebioscoopbon" => "nationaletuinbon",
-            "fashioncheque" => "fashioncheque",
-            "fashionucadeaukaart" => "fashiongiftcard",
-            "nationaletuinbon" => "nationalebioscoopbon",
-            "nationaleentertainmentcard" => "nationaleentertainmentcard",
-            "podiumcadeaukaart" => "podiumcadeaukaart",
-            "sportfitcadeau" => "sport-fitcadeau",
-            "vvvgiftcard" => "vvvgiftcard"
-        ];
-
-        if(isset($mappings[$code])) {
-            return  $this->getImageUrl("giftcards/{$mappings[$code]}", "svg");
-        }
-
-        return $this->getImageUrl("svg/giftcards","svg");
+        return $paymentFee ?: 0;
     }
 }

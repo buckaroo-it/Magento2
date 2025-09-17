@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,12 +18,18 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Test;
 
 use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
+use PHPUnit\Framework\TestCase;
 
-abstract class BaseTest extends TestCaseFinder
+/**
+ * @SuppressWarnings(PHPMD.NumberOfChildren)
+ */
+abstract class BaseTest extends TestCase
 {
+    protected const DEFAULT_PATH_PATTERN = 'payment/%s/%s';
     /**
      * @var null|string
      */
@@ -47,7 +54,35 @@ abstract class BaseTest extends TestCaseFinder
 
     public function setUp(): void
     {
+        ini_set('error_reporting', E_ALL);
+        ini_set('display_errors', '1');
+        ini_set('display_startup_errors', '1');
+
+        // Initialize ObjectManager for unit tests if not already done
+        $this->initializeObjectManagerForTests();
+
         $this->objectManagerHelper = new ObjectManager($this);
+    }
+
+    /**
+     * Initialize ObjectManager for unit tests
+     */
+    private function initializeObjectManagerForTests(): void
+    {
+        if (!class_exists('\Magento\Framework\App\ObjectManager')) {
+            return;
+        }
+
+        try {
+            $currentInstance = \Magento\Framework\App\ObjectManager::getInstance();
+            if ($currentInstance === null) {
+                // Since we can't extend ObjectManager directly, we'll just skip setting it
+                // Unit tests should properly mock their dependencies instead
+            }
+        } catch (\Throwable $e) {
+            // If ObjectManager initialization fails, continue without it
+            // Unit tests should properly mock dependencies instead
+        }
     }
 
     /**
@@ -177,11 +212,11 @@ abstract class BaseTest extends TestCaseFinder
      *
      * @param                                          $function
      * @param                                          $response
-     * @param \PHPUnit_Framework_MockObject_MockObject $instance
+     * @param \PHPUnit\Framework\MockObject\MockObject $instance
      * @param                                          $with
      */
     protected function mockFunction(
-        \PHPUnit_Framework_MockObject_MockObject $instance,
+        \PHPUnit\Framework\MockObject\MockObject $instance,
         $function,
         $response,
         $with = []
@@ -204,10 +239,6 @@ abstract class BaseTest extends TestCaseFinder
      */
     public function assignDataTest($fixture)
     {
-        if (!array_key_exists('buckaroo_skip_validation', $fixture)) {
-            $fixture['buckaroo_skip_validation'] = false;
-        }
-
         $data = $this->getFakeMock(\Magento\Framework\DataObject::class)->getMock();
         $infoInterface = $this->getFakeMock(\Magento\Payment\Model\InfoInterface::class)->getMockForAbstractClass();
 
@@ -236,17 +267,15 @@ abstract class BaseTest extends TestCaseFinder
         return $this;
     }
 
-    public function getPartialObject($object, $arguments = [], $mockMethods = [])
+    /**
+     * Return Full Path of Payment Method Config
+     *
+     * @param string $code
+     * @param string $configPath
+     * @return string
+     */
+    public function getPaymentMethodConfigPath(string $code, string $configPath): string
     {
-        $constructorArgs = $this->objectManagerHelper->getConstructArguments($object, $arguments);
-
-        $mock = $this->getMock($object, $mockMethods, $constructorArgs);
-
-        return $mock;
-    }
-
-    protected function assertInternalType(string $type, $value)
-    {
-        $this->assertEquals($type, gettype($value));
+        return sprintf(self::DEFAULT_PATH_PATTERN, $code, $configPath);
     }
 }

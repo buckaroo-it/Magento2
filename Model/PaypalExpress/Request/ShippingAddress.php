@@ -21,7 +21,7 @@
 
 namespace Buckaroo\Magento2\Model\PaypalExpress\Request;
 
-use Buckaroo\Magento2\Api\Data\PaypalExpress\ShippingAddressRequestInterface;
+use Buckaroo\Magento2\Api\Data\ExpressMethods\ShippingAddressRequestInterface;
 use Buckaroo\Magento2\Model\PaypalExpress\PaypalExpressException;
 
 class ShippingAddress implements ShippingAddressRequestInterface

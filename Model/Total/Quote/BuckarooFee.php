@@ -52,7 +52,7 @@ class BuckarooFee extends AbstractTotal
     /**
      * @param PriceCurrencyInterface $priceCurrency
      * @param PaymentGroupTransaction $groupTransaction
-     * @param Calculate $calculate
+     * @param \Buckaroo\Magento2\Service\BuckarooFee\Calculate $calculate
      */
     public function __construct(
         PriceCurrencyInterface $priceCurrency,
@@ -74,7 +74,6 @@ class BuckarooFee extends AbstractTotal
      * @param Quote $quote
      * @param ShippingAssignmentInterface $shippingAssignment
      * @param Total $total
-     *
      * @return $this
      */
     public function collect(
@@ -106,7 +105,7 @@ class BuckarooFee extends AbstractTotal
 
         $result = $this->calculate->calculatePaymentFee($quote, $total);
 
-        if ($result === null || $result->getAmount() < 0.01){
+        if ($result === null || $result->getAmount() < 0.01) {
             return $this;
         }
         $amount = $this->priceCurrency->convert($result->getRoundedAmount());
@@ -147,6 +146,8 @@ class BuckarooFee extends AbstractTotal
      * @param  Quote $quote
      * @param  Total $total
      * @return array
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function fetch(Quote $quote, Total $total)
     {

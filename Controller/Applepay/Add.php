@@ -19,7 +19,7 @@
  */
 namespace Buckaroo\Magento2\Controller\Applepay;
 
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Service\Applepay\Add as AddService;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\Json;
@@ -35,13 +35,13 @@ class Add extends AbstractApplepay
     /**
      * @param JsonFactory    $resultJsonFactory
      * @param RequestInterface $request
-     * @param Log            $logger
+     * @param BuckarooLoggerInterface $logger
      * @param AddService     $addService
      */
     public function __construct(
         JsonFactory $resultJsonFactory,
         RequestInterface $request,
-        Log $logger,
+        BuckarooLoggerInterface $logger,
         AddService $addService
     ) {
         parent::__construct($resultJsonFactory, $request, $logger);

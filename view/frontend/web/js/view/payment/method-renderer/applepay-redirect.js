@@ -28,7 +28,9 @@ define(
         'mage/translate',
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/action/select-payment-method',
-        'buckaroo/checkout/common'
+        'buckaroo/checkout/common',
+        'buckaroo/applepay/pay',
+        'BuckarooSdk'
     ],
     function (
         $,
@@ -39,7 +41,8 @@ define(
         $t,
         checkoutData,
         selectPaymentMethodAction,
-        checkoutCommon
+        checkoutCommon,
+        applepayPay
     ) {
         'use strict';
 
@@ -49,9 +52,8 @@ define(
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_applepay_redirect'
                 },
                 redirectAfterPlaceOrder: false,
-                paymentFeeLabel: window.checkoutConfig.payment.buckaroo.applepay.paymentFeeLabel,
-                subtext: window.checkoutConfig.payment.buckaroo.applepay.subtext,
-                subTextStyle: checkoutCommon.getSubtextStyle('applepay'),
+                paymentFeeLabel: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.paymentFeeLabel,
+                subtext: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.subtext,
                 currencyCode: window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode: window.checkoutConfig.quoteData.base_currency_code,
 
@@ -60,17 +62,22 @@ define(
                  */
                 initObservable: function () {
                     this._super();
+                    
+                    // Initialize Apple Pay availability check for redirect mode
+                    applepayPay.canShowApplePay();
 
                     return this;
                 },
 
+                canShowPaymentMethod: ko.computed(function () {
+                    return applepayPay.canShowMethod();
+                }),
+
                 /**
-                 * Place order.
-                 * Action has not changed, but getData() which it uses has.
+                 * Handle redirect mode order placement
                  */
                 placeOrder: function (data, event) {
-                    var self = this,
-                        placeOrder;
+                    var self = this;
 
                     if (event) {
                         event.preventDefault();
@@ -78,15 +85,18 @@ define(
 
                     if (this.validate() && additionalValidators.validate()) {
                         this.isPlaceOrderActionAllowed(false);
-                        placeOrder = placeOrderAction(this.getData(), this.redirectAfterPlaceOrder, this.messageContainer);
+
+                        var placeOrder = placeOrderAction(this.getData(), false, this.messageContainer);
 
                         $.when(placeOrder).fail(
                             function () {
                                 self.isPlaceOrderActionAllowed(true);
                             }
                         ).done(this.afterPlaceOrder.bind(this));
+
                         return true;
                     }
+
                     return false;
                 },
 
@@ -95,7 +105,30 @@ define(
                  */
                 afterPlaceOrder: function () {
                     var response = window.checkoutConfig.payment.buckaroo.response;
-                    checkoutCommon.redirectHandle(response);
+
+                    if (typeof response === 'string') {
+                        try {
+                            response = JSON.parse(response);
+                        } catch (e) {
+                            console.error('Failed to parse Buckaroo response:', e);
+                            this.redirectToSuccess();
+                            return;
+                        }
+                    }
+
+                    // Handle redirect if RequiredAction is present
+                    if (response && response.RequiredAction !== undefined && response.RequiredAction.RedirectURL !== undefined) {
+                        window.location.replace(response.RequiredAction.RedirectURL);
+                    } else {
+                        this.redirectToSuccess();
+                    }
+                },
+
+                /**
+                 * Redirect to success page
+                 */
+                redirectToSuccess: function () {
+                    window.location.replace(url.build('checkout/onepage/success/'));
                 },
 
                 /**
@@ -124,7 +157,7 @@ define(
                  * @returns {boolean}
                  */
                 payWithBaseCurrency: function () {
-                    var allowedCurrencies = window.checkoutConfig.payment.buckaroo.applepay.allowedCurrencies;
+                    var allowedCurrencies = window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.allowedCurrencies;
                     return allowedCurrencies.indexOf(this.currencyCode) < 0;
                 },
 

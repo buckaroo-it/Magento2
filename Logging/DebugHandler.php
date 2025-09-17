@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,16 +17,47 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Logging;
 
-use Monolog\Logger;
+use Magento\Framework\Filesystem\DirectoryList;
+use Magento\Framework\Filesystem\DriverInterface;
 use Magento\Framework\Logger\Handler\Base;
+use Monolog\Logger;
 
 class DebugHandler extends Base
 {
-    // @codingStandardsIgnoreLine
+    /**
+     * @var int
+     */
     protected $loggerType = Logger::DEBUG;
 
-    // @codingStandardsIgnoreLine
-    protected $fileName = '/var/log/Buckaroo/debug.log';
+    /**
+     * @var string
+     */
+    protected $fileName = '';
+
+    /**
+     * @var DriverInterface
+     */
+    protected $filesystem;
+
+    /**
+     * @var DirectoryList
+     */
+    protected $dir;
+
+    /**
+     * @param DriverInterface $filesystem
+     * @param DirectoryList $dir
+     */
+    public function __construct(
+        DriverInterface $filesystem,
+        DirectoryList $dir
+    ) {
+        $this->dir = $dir;
+        $this->fileName = '/var/log/Buckaroo/' . date('Y-m-d') . '.log';
+
+        parent::__construct($filesystem);
+    }
 }

@@ -21,17 +21,18 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Service\Applepay;
 
-use Buckaroo\Magento2\Logging\Log;
-use Buckaroo\Magento2\Model\Method\Applepay;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay;
 use Buckaroo\Magento2\Model\Service\ApplePayFormatData;
 use Buckaroo\Magento2\Model\Service\QuoteService;
+use Buckaroo\Magento2\Service\ExpressPayment\ProductValidationService;
 
 class Add
 {
     /**
-     * @var Log
+     * @var BuckarooLoggerInterface
      */
-    private Log $logger;
+    private BuckarooLoggerInterface $logger;
 
     /**
      * @var QuoteService
@@ -44,18 +45,26 @@ class Add
     private ApplePayFormatData $applePayFormatData;
 
     /**
-     * @param Log $logger
+     * @var ProductValidationService
+     */
+    private ProductValidationService $productValidationService;
+
+    /**
+     * @param BuckarooLoggerInterface $logger
      * @param QuoteService $quoteService
      * @param ApplePayFormatData $applePayFormatData
+     * @param ProductValidationService $productValidationService
      */
     public function __construct(
-        Log $logger,
+        BuckarooLoggerInterface $logger,
         QuoteService $quoteService,
-        ApplePayFormatData $applePayFormatData
+        ApplePayFormatData $applePayFormatData,
+        ProductValidationService $productValidationService
     ) {
         $this->logger = $logger;
         $this->quoteService = $quoteService;
         $this->applePayFormatData = $applePayFormatData;
+        $this->productValidationService = $productValidationService;
     }
 
     /**
@@ -67,6 +76,21 @@ class Add
     public function process(array $request)
     {
         try {
+            // Validate product before proceeding
+            $productData = $request['product'] ?? [];
+            $productId = $productData['id'] ?? null;
+            $qty = $productData['qty'] ?? 1;
+            $selectedOptions = $productData['selected_options'] ?? [];
+
+            if (!$productId) {
+                throw new \Exception('Product ID is required.');
+            }
+
+            $validation = $this->productValidationService->validateProduct((int)$productId, $selectedOptions, (float)$qty);
+            if (!$validation['is_valid']) {
+                throw new \Exception('Product validation failed: ' . implode(', ', $validation['errors']));
+            }
+
             // Get Cart (empty it first)
             $cartHash = $request['id'] ?? null;
             $this->quoteService->getEmptyQuote($cartHash);
@@ -105,16 +129,14 @@ class Add
                         ];
                     }
                     // Set the first available shipping method if available
-                    if (!empty($shippingMethodsResult)) {
-                        $this->quoteService->setShippingMethod($shippingMethodsResult[0]['method_code']);
-                    }
+                    $this->quoteService->setShippingMethod($shippingMethodsResult[0]['method_code']);
                 }
             }
 
             $this->logger->addDebug('Add::process - shipping methods result', json_encode($shippingMethodsResult));
 
             // Set Payment Method to Applepay
-            $this->quoteService->setPaymentMethod(Applepay::PAYMENT_METHOD_CODE);
+            $this->quoteService->setPaymentMethod(Applepay::CODE);
 
             // Calculate Quote Totals and save quote
             $this->quoteService->calculateQuoteTotals();

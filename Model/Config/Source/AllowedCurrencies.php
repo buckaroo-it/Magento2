@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,48 +17,58 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
+
 namespace Buckaroo\Magento2\Model\Config\Source;
 
-class AllowedCurrencies implements \Magento\Framework\Option\ArrayInterface
+use Buckaroo\Magento2\Exception as BuckarooException;
+use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies as ConfigAllowedCurrencies;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory;
+use Magento\Framework\Locale\Bundle\CurrencyBundle;
+use Magento\Framework\Locale\ResolverInterface;
+use Magento\Framework\Locale\TranslatedLists;
+use Magento\Framework\Data\OptionSourceInterface;
+
+class AllowedCurrencies implements OptionSourceInterface
 {
     /**
-     * @var \Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies
+     * @var ConfigAllowedCurrencies
      */
-    protected $allowedCurrenciesConfig;
+    protected ConfigAllowedCurrencies $allowedCurrenciesConfig;
 
     /**
-     * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory
+     * @var Factory
      */
-    protected $configProviderMethodFactory;
+    protected Factory $configProviderMethodFactory;
 
     /**
-     * @var \Magento\Framework\Locale\TranslatedLists
+     * @var TranslatedLists
      */
-    protected $listModels;
+    protected TranslatedLists $listModels;
 
     /**
-     * @var \Magento\Framework\Locale\ResolverInterface
+     * @var ResolverInterface
      */
-    protected $localeResolver;
+    protected ResolverInterface $localeResolver;
 
     /**
-     * @var \Magento\Framework\Locale\Bundle\CurrencyBundle
+     * @var CurrencyBundle
      */
-    protected $currencyBundle;
+    protected CurrencyBundle $currencyBundle;
 
     /**
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies $allowedCurrenciesConfig
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory    $configProviderMethodFactory
-     * @param \Magento\Framework\Locale\Bundle\CurrencyBundle      $currencyBundle
-     * @param \Magento\Framework\Locale\ResolverInterface          $localeResolver
-     * @param \Magento\Framework\Locale\TranslatedLists            $listModels
+     * @param ConfigAllowedCurrencies $allowedCurrenciesConfig
+     * @param Factory $configProviderMethodFactory
+     * @param CurrencyBundle $currencyBundle
+     * @param ResolverInterface $localeResolver
+     * @param TranslatedLists $listModels
      */
     public function __construct(
-        \Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies $allowedCurrenciesConfig,
-        \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory,
-        \Magento\Framework\Locale\Bundle\CurrencyBundle $currencyBundle,
-        \Magento\Framework\Locale\ResolverInterface $localeResolver,
-        \Magento\Framework\Locale\TranslatedLists $listModels
+        ConfigAllowedCurrencies $allowedCurrenciesConfig,
+        Factory $configProviderMethodFactory,
+        CurrencyBundle $currencyBundle,
+        ResolverInterface $localeResolver,
+        TranslatedLists $listModels
     ) {
         $this->configProviderMethodFactory = $configProviderMethodFactory;
         $this->allowedCurrenciesConfig = $allowedCurrenciesConfig;
@@ -68,20 +78,30 @@ class AllowedCurrencies implements \Magento\Framework\Option\ArrayInterface
     }
 
     /**
+     * $method is what is defined in system.xml (i.e. ::ideal) and is directly passed to toOptionArray for method
+     * configuration exemptions.
+     *
+     * @param string $method
+     * @param array|null $params
+     * @return array
+     * @throws BuckarooException
+     */
+    public function __call(string $method, ?array $params = null)
+    {
+        return $this->toOptionArray($method);
+    }
+
+    /**
      * Return array of options as value-label pairs
      *
-     * @param null $method
-     *
+     * @param string|null $method
      * @return array Format: array(array('value' => '<value>', 'label' => '<label>'), ...)
-     * @throws \Buckaroo\Magento2\Exception
+     * @throws BuckarooException
      */
-    public function toOptionArray($method = null)
+    public function toOptionArray(?string $method = null): array
     {
         $currencies = $this->allowedCurrenciesConfig->getAllowedCurrencies();
         if ($method) {
-            /**
-             * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface $methodConfig
-             */
             $methodConfig = $this->configProviderMethodFactory->get($method);
             $currencies = $methodConfig->getBaseAllowedCurrencies();
         }
@@ -100,19 +120,5 @@ class AllowedCurrencies implements \Magento\Framework\Option\ArrayInterface
         asort($output);
 
         return $output;
-    }
-
-    /**
-     * $method is what is defined in system.xml (i.e. ::ideal) and is directly passed to toOptionArray for method
-     * configuration exemptions.
-     *
-     * @param $method
-     * @param null   $params
-     *
-     * @return array
-     */
-    public function __call($method, $params = null)
-    {
-        return $this->toOptionArray($method);
     }
 }

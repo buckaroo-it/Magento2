@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -24,34 +24,29 @@ use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Magento\Backend\Block\Template;
 use Magento\Backend\Block\Template\Context;
-use Magento\Framework\Serialize\Serializer\Json;
+use Magento\Framework\Json\Encoder as JsonEncoder;
 
 class BuckarooConfig extends Template
 {
     /**
-     * @var bool
-     */
-    protected $_isScopePrivate = false;
-
-    /**
      * @var Factory
      */
-    protected $configProviderFactory;
+    protected Factory $configProviderFactory;
 
     /**
-     * @var Json
+     * @var JsonEncoder
      */
-    protected $jsonEncoder;
+    protected JsonEncoder $jsonEncoder;
 
     /**
      * @param Context $context
-     * @param Json $jsonEncoder
+     * @param JsonEncoder $jsonEncoder
      * @param Factory $configProviderFactory
      * @param array $data
      */
     public function __construct(
         Context $context,
-        Json $jsonEncoder,
+        JsonEncoder $jsonEncoder,
         Factory $configProviderFactory,
         array $data = []
     ) {
@@ -69,6 +64,6 @@ class BuckarooConfig extends Template
     public function getBuckarooConfigJson()
     {
         $configProvider = $this->configProviderFactory->get('buckaroo_fee');
-        return $this->jsonEncoder->serialize($configProvider->getConfig());
+        return $this->jsonEncoder->encode($configProvider->getConfig());
     }
 }

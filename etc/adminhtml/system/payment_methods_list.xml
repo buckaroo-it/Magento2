@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+ -->
+<include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
+        <include path="Buckaroo_Magento2::system/payment_methods/ideal.xml"/>
+
+        <include path="Buckaroo_Magento2::system/payment_methods/creditcard.xml"/>
+
+        <include path="Buckaroo_Magento2::system/payment_methods/creditcards.xml"/>
+
+        <include path="Buckaroo_Magento2::system/payment_methods/paypal.xml"/>
+
+        <include path="Buckaroo_Magento2::system/payment_methods/transfer.xml"/>
+
+        <include path="Buckaroo_Magento2::system/payment_methods/sepa_direct_debit.xml"/>
+
+        <include path="Buckaroo_Magento2::system/payment_methods/mrcash.xml"/>
+
+        <include path="Buckaroo_Magento2::system/payment_methods/afterpay20.xml"/>
+
+        <include path="Buckaroo_Magento2::system/payment_methods/payperemail.xml"/>
+
+        <include path="Buckaroo_Magento2::system/payment_methods/paylink.xml"/>
+
+        <include path="Buckaroo_Magento2::system/payment_methods/eps.xml"/>
+
+        <include path="Buckaroo_Magento2::system/payment_methods/giftcards.xml"/>
+
+        <include path="Buckaroo_Magento2::system/payment_methods/payconiq.xml"/>
+
+        <include path="Buckaroo_Magento2::system/payment_methods/kbc.xml"/>
+
+        <include path="Buckaroo_Magento2::system/payment_methods/billink.xml"/>
+
+        <include path="Buckaroo_Magento2::system/payment_methods/applepay.xml"/>
+
+        <include path="Buckaroo_Magento2::system/payment_methods/capayable_in3.xml"/>
+
+        <include path="Buckaroo_Magento2::system/payment_methods/alipay.xml"/>
+
+        <include path="Buckaroo_Magento2::system/payment_methods/wechatpay.xml"/>
+
+        <include path="Buckaroo_Magento2::system/payment_methods/p24.xml"/>
+
+        <include path="Buckaroo_Magento2::system/payment_methods/trustly.xml"/>
+
+        <include path="Buckaroo_Magento2::system/payment_methods/pospayment.xml"/>
+
+        <include path="Buckaroo_Magento2::system/payment_methods/klarnas.xml"/>
+
+        <include path="Buckaroo_Magento2::system/payment_methods/belfius.xml"/>
+
+        <include path="Buckaroo_Magento2::system/payment_methods/voucher.xml"/>
+
+        <include path="Buckaroo_Magento2::system/payment_methods/paybybank.xml"/>
+
+        <include path="Buckaroo_Magento2::system/payment_methods/mbway.xml"/>
+
+        <include path="Buckaroo_Magento2::system/payment_methods/multibanco.xml"/>
+
+        <include path="Buckaroo_Magento2::system/payment_methods/knaken.xml"/>
+
+        <include path="Buckaroo_Magento2::system/payment_methods/blik.xml"/>
+</include>

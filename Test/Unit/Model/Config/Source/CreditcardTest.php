@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Test\Unit\Model\Config\Source;
 
 use Buckaroo\Magento2\Model\Config\Source\Creditcard;
@@ -43,8 +45,8 @@ class CreditcardTest extends \Buckaroo\Magento2\Test\BaseTest
             ],
         ];
 
-        $configProviderMock = $this->getFakeMock(CreditcardProvider::class)->setMethods(['getIssuers'])->getMock();
-        $configProviderMock->expects($this->once())->method('getIssuers')->willReturn($issuers);
+        $configProviderMock = $this->getFakeMock(CreditcardProvider::class)->onlyMethods(['getIssuers'])->getMock();
+        $configProviderMock->method('getIssuers')->willReturn($issuers);
 
         $instance = $this->getInstance(['configProvider' => $configProviderMock]);
         $result = $instance->toOptionArray();

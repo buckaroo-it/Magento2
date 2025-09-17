@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -20,54 +20,48 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
+use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Helper\PaymentFee;
+use Buckaroo\Magento2\Service\LogoService;
+use Magento\Framework\View\Asset\Repository;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 use Magento\Store\Model\ScopeInterface;
 
-/**
- * @method getPaymentFeeLabel()
- * @method getSellersProtection()
- * @method getSellersProtectionEligible()
- * @method getSellersProtectionIneligible()
- * @method getSellersProtectionItemnotreceivedEligible()
- * @method getSellersProtectionUnauthorizedpaymentEligible()
- */
 class Creditcards extends AbstractConfigProvider
 {
-    /**#@+
+    public const CODE = 'buckaroo_magento2_creditcards';
+    public const XPATH_CREDITCARDS_ALLOWED_ISSUERS = 'payment/buckaroo_magento2_creditcards/allowed_issuers';
+    public const XPATH_CREDITCARDS_SORTED_ISSUERS = 'payment/buckaroo_magento2_creditcards/sorted_issuers';
+    public const XPATH_USE_CARD_DESIGN             = 'card_design';
+    public const XPATH_CREDITCARDS_PAYMENT_FEE = 'payment/buckaroo_magento2_creditcards/payment_fee';
+
+    /**
      * Creditcard service codes.
      */
-    const CREDITCARD_SERVICE_CODE_MASTERCARD    = 'MasterCard';
-    const CREDITCARD_SERVICE_CODE_VISA          = 'Visa';
-    const CREDITCARD_SERVICE_CODE_AMEX          = 'Amex';
-    const CREDITCARD_SERVICE_CODE_MAESTRO       = 'Maestro';
+    public const CREDITCARD_SERVICE_CODE_MASTERCARD    = 'MasterCard';
+    public const CREDITCARD_SERVICE_CODE_VISA          = 'Visa';
+    public const CREDITCARD_SERVICE_CODE_AMEX          = 'Amex';
+    public const CREDITCARD_SERVICE_CODE_MAESTRO       = 'Maestro';
 
-    const XPATH_CREDITCARDS_PAYMENT_FEE = 'payment/buckaroo_magento2_creditcards/payment_fee';
-    const XPATH_CREDITCARDS_PAYMENT_FEE_LABEL = 'payment/buckaroo_magento2_creditcards/payment_fee_label';
-    const XPATH_CREDITCARDS_ACTIVE = 'payment/buckaroo_magento2_creditcards/active';
-    const XPATH_CREDITCARDS_SUBTEXT                = 'payment/buckaroo_magento2_creditcards/subtext';
-    const XPATH_CREDITCARDS_SUBTEXT_STYLE          = 'payment/buckaroo_magento2_creditcards/subtext_style';
-    const XPATH_CREDITCARDS_SUBTEXT_COLOR          = 'payment/buckaroo_magento2_creditcards/subtext_color';
-    const XPATH_CREDITCARDS_ACTIVE_STATUS = 'payment/buckaroo_magento2_creditcards/active_status';
-    const XPATH_CREDITCARDS_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_creditcards/order_status_success';
-    const XPATH_CREDITCARDS_ORDER_STATUS_FAILED = 'payment/buckaroo_magento2_creditcards/order_status_failed';
-    const XPATH_CREDITCARDS_AVAILABLE_IN_BACKEND = 'payment/buckaroo_magento2_creditcards/available_in_backend';
-    const XPATH_CREDITCARDS_SELLERS_PROTECTION = 'payment/buckaroo_magento2_creditcards/sellers_protection';
-    const XPATH_CREDITCARDS_SELLERS_PROTECTION_ELIGIBLE = 'payment/'.
-    'buckaroo_magento2_creditcards/sellers_protection_eligible';
-    const XPATH_CREDITCARDS_SELLERS_PROTECTION_INELIGIBLE = 'payment/'.
-    'buckaroo_magento2_creditcards/sellers_protection_ineligible';
-    const XPATH_CREDITCARDS_SELLERS_PROTECTION_ITEMNOTRECEIVED_ELIGIBLE = 'payment/'.
-    'buckaroo_magento2_creditcards/sellers_protection_itemnotreceived_eligible';
-    const XPATH_CREDITCARDS_SELLERS_PROTECTION_UNAUTHORIZEDPAYMENT_ELIGIBLE = 'payment/'.
-    'buckaroo_magento2_creditcards/sellers_protection_unauthorizedpayment_eligible';
-    const XPATH_CREDITCARDS_ALLOWED_ISSUERS = 'payment/buckaroo_magento2_creditcards/allowed_issuers';
-    const XPATH_CREDITCARDS_HOSTED_FIELDS_CLIENT_ID = 'payment/buckaroo_magento2_creditcards/hosted_fields_client_id';
-    const XPATH_CREDITCARDS_HOSTED_FIELDS_CLIENT_SECRET = 'payment/buckaroo_magento2_creditcards/hosted_fields_client_secret';
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_creditcards/allowed_currencies';
-    const XPATH_ALLOW_SPECIFIC = 'payment/buckaroo_magento2_creditcards/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY = 'payment/buckaroo_magento2_creditcards/specificcountry';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP = 'payment/buckaroo_magento2_creditcards/specificcustomergroup';
+    public const XPATH_CREDITCARDS_HOSTED_FIELDS_CLIENT_ID = 'payment/buckaroo_magento2_creditcards/hosted_fields_client_id';
+    public const XPATH_CREDITCARDS_HOSTED_FIELDS_CLIENT_SECRET = 'payment/buckaroo_magento2_creditcards/hosted_fields_client_secret';
 
-    protected $issuers = [
+    public const XPATH_CREDITCARDS_PLACEHOLDER_CARDHOLDER_NAME = 'payment/buckaroo_magento2_creditcards/placeholder_cardholder_name';
+    public const XPATH_CREDITCARDS_PLACEHOLDER_CARD_NUMBER = 'payment/buckaroo_magento2_creditcards/placeholder_card_number';
+    public const XPATH_CREDITCARDS_PLACEHOLDER_EXPIRY_DATE = 'payment/buckaroo_magento2_creditcards/placeholder_expiry_date';
+    public const XPATH_CREDITCARDS_PLACEHOLDER_CVC = 'payment/buckaroo_magento2_creditcards/placeholder_cvc';
+
+    public const XPATH_CREDITCARDS_FIELD_TEXT_COLOR = 'payment/buckaroo_magento2_creditcards/field_text_color';
+    public const XPATH_CREDITCARDS_FIELD_BACKGROUND_COLOR = 'payment/buckaroo_magento2_creditcards/field_background_color';
+    public const XPATH_CREDITCARDS_FIELD_BORDER_COLOR = 'payment/buckaroo_magento2_creditcards/field_border_color';
+    public const XPATH_CREDITCARDS_FIELD_PLACEHOLDER_COLOR = 'payment/buckaroo_magento2_creditcards/field_placeholder_color';
+    public const XPATH_CREDITCARDS_FIELD_FONT_SIZE = 'payment/buckaroo_magento2_creditcards/field_font_size';
+    public const XPATH_CREDITCARDS_FIELD_FONT_FAMILY = 'payment/buckaroo_magento2_creditcards/field_font_family';
+    public const XPATH_CREDITCARDS_FIELD_BORDER_RADIUS = 'payment/buckaroo_magento2_creditcards/field_border_radius';
+
+
+    protected array $issuers = [
         [
             'name' => 'American Express',
             'code' => self::CREDITCARD_SERVICE_CODE_AMEX,
@@ -91,30 +85,120 @@ class Creditcards extends AbstractConfigProvider
     ];
 
     /**
+     * Creditcards constructor.
+     *
+     * @param Repository $assetRepo
+     * @param ScopeConfigInterface $scopeConfig
+     * @param AllowedCurrencies $allowedCurrencies
+     * @param PaymentFee $paymentFeeHelper
+     * @param LogoService $logoService
+     */
+    public function __construct(
+        Repository $assetRepo,
+        ScopeConfigInterface $scopeConfig,
+        AllowedCurrencies $allowedCurrencies,
+        PaymentFee $paymentFeeHelper,
+        LogoService $logoService
+    ) {
+        parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper, $logoService);
+    }
+
+    /**
+     * @inheritdoc
+     *
+     * @throws Exception
+     */
+    public function getConfig(): array
+    {
+        if (!$this->getActive()) {
+            return [];
+        }
+
+        return $this->fullConfig([
+            'creditcards'       => $this->formatIssuers(),
+            'defaultCardImage'  => $this->getDefaultCardImage(),
+            'placeholders'      => [
+                'cardholderName' => $this->getPlaceholderCardholderName(),
+                'cardNumber'     => $this->getPlaceholderCardNumber(),
+                'expiryDate'     => $this->getPlaceholderExpiryDate(),
+                'cvc'            => $this->getPlaceholderCvc(),
+            ],
+            'styling'           => [
+                'textColor'         => $this->getFieldTextColor(),
+                'backgroundColor'   => $this->getFieldBackgroundColor(),
+                'borderColor'       => $this->getFieldBorderColor(),
+                'placeholderColor'  => $this->getFieldPlaceholderColor(),
+                'fontSize'          => $this->getFieldFontSize(),
+                'fontFamily'        => $this->getFieldFontFamily(),
+                'borderRadius'      => $this->getFieldBorderRadius(),
+            ],
+        ]);
+    }
+
+    public function getIssuers(): array
+    {
+        return $this->issuers;
+    }
+
+
+    /**
+     * Add the active flag to the creditcard list. This is used in the checkout process.
+     *
      * @return array
      */
-    public function getConfig()
+    public function formatIssuers(): array
     {
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
+        $allowed = explode(',', (string)$this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_ALLOWED_ISSUERS,
+            ScopeInterface::SCOPE_STORE
+        ));
 
-        $issuers = $this->formatIssuers();
+        $sort = (string)$this->getSortedIssuers();
+        $sortedArray = [];
 
-        return [
-            'payment' => [
-                'buckaroo' => [
-                    'creditcards' => [
-                        'paymentFeeLabel' => $paymentFeeLabel,
-                        'subtext'   => $this->getSubtext(),
-                        'subtext_style'   => $this->getSubtextStyle(),
-                        'subtext_color'   => $this->getSubtextColor(),
-                        'creditcards' => $issuers,
-                        'defaultCardImage' => $this->getImageUrl('svg/creditcards', 'svg'),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'isTestMode' => $this->isTestMode()
-                    ],
-                ],
-            ],
-        ];
+        if (!empty($sort)) {
+            $sorted = explode(',', $sort);
+            $sortedPosition = 1;
+            foreach ($sorted as $issuerCode) {
+                $sortedArray[$issuerCode] = $sortedPosition++;
+            }
+        }
+
+        $issuers = $this->issuers;
+        foreach ($issuers as $key => $issuer) {
+            $issuers[$key]['active'] = in_array($issuer['code'], $allowed);
+            $issuers[$key]['img'] = $this->getCreditcardLogo($issuer['code']);
+            $issuers[$key]['sort'] = $sortedArray[$issuer['code']] ?? '99';
+        }
+
+        // Sort by custom order if defined
+        if (!empty($sortedArray)) {
+            usort($issuers, function ($issuerA, $issuerB) {
+                return $issuerA['sort'] - $issuerB['sort'];
+            });
+        }
+
+        return $issuers;
+    }
+
+    /**
+     * Get Active Status Cm3
+     *
+     * @return null
+     */
+    public function getActiveStatusCm3()
+    {
+        return null;
+    }
+
+    /**
+     * Get Default Card Image
+     *
+     * @return string
+     */
+    public function getDefaultCardImage(): string
+    {
+        return $this->getImageUrl('svg/creditcards', 'svg');
     }
 
     /**
@@ -130,7 +214,7 @@ class Creditcards extends AbstractConfigProvider
             $storeId
         );
 
-        return $paymentFee ? $paymentFee : false;
+        return $paymentFee ?: 0;
     }
 
     public function getHostedFieldsClientId()
@@ -150,25 +234,168 @@ class Creditcards extends AbstractConfigProvider
     }
 
     /**
-     * Add the active flag to the creditcard list. This is used in the checkout process.
+     * Get placeholder text for cardholder name field
      *
-     * @return array
+     * @param null|int $storeId
+     * @return string
      */
-    public function formatIssuers()
+    public function getPlaceholderCardholderName($storeId = null): string
     {
-        $allowed = explode(',', (string)$this->scopeConfig->getValue(
-            self::XPATH_CREDITCARDS_ALLOWED_ISSUERS,
-            ScopeInterface::SCOPE_STORE
-        ));
+        return $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_PLACEHOLDER_CARDHOLDER_NAME,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        ) ?: 'John Doe';
+    }
 
-        $issuers = $this->issuers;
+    /**
+     * Get placeholder text for card number field
+     *
+     * @param null|int $storeId
+     * @return string
+     */
+    public function getPlaceholderCardNumber($storeId = null): string
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_PLACEHOLDER_CARD_NUMBER,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        ) ?: '555x xxxx xxxx xxxx';
+    }
 
-        foreach ($issuers as $key => $issuer) {
-            $issuers[$key]['active'] = in_array($issuer['code'], $allowed);
-            $issuers[$key]['img'] = $this->getCreditcardLogo($issuer['code']);
-        }
+    /**
+     * Get placeholder text for expiry date field
+     *
+     * @param null|int $storeId
+     * @return string
+     */
+    public function getPlaceholderExpiryDate($storeId = null): string
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_PLACEHOLDER_EXPIRY_DATE,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        ) ?: 'MM / YY';
+    }
 
-        return $issuers;
+    /**
+     * Get placeholder text for CVC field
+     *
+     * @param null|int $storeId
+     * @return string
+     */
+    public function getPlaceholderCvc($storeId = null): string
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_PLACEHOLDER_CVC,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        ) ?: '1234';
+    }
+
+    /**
+     * Get text color for hosted fields
+     *
+     * @param null|int $storeId
+     * @return string
+     */
+    public function getFieldTextColor($storeId = null): string
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_FIELD_TEXT_COLOR,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        ) ?: '#333333';
+    }
+
+    /**
+     * Get background color for hosted fields
+     *
+     * @param null|int $storeId
+     * @return string
+     */
+    public function getFieldBackgroundColor($storeId = null): string
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_FIELD_BACKGROUND_COLOR,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        ) ?: '#fefefe';
+    }
+
+    /**
+     * Get border color for hosted fields
+     *
+     * @param null|int $storeId
+     * @return string
+     */
+    public function getFieldBorderColor($storeId = null): string
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_FIELD_BORDER_COLOR,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        ) ?: '#d6d6d6';
+    }
+
+    /**
+     * Get placeholder color for hosted fields
+     *
+     * @param null|int $storeId
+     * @return string
+     */
+    public function getFieldPlaceholderColor($storeId = null): string
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_FIELD_PLACEHOLDER_COLOR,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        ) ?: '#888888';
+    }
+
+    /**
+     * Get font size for hosted fields
+     *
+     * @param null|int $storeId
+     * @return string
+     */
+    public function getFieldFontSize($storeId = null): string
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_FIELD_FONT_SIZE,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        ) ?: '14px';
+    }
+
+    /**
+     * Get font family for hosted fields
+     *
+     * @param null|int $storeId
+     * @return string
+     */
+    public function getFieldFontFamily($storeId = null): string
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_FIELD_FONT_FAMILY,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        ) ?: 'Open Sans, Helvetica Neue, Helvetica, Arial, sans-serif';
+    }
+
+    /**
+     * Get border radius for hosted fields
+     *
+     * @param null|int $storeId
+     * @return string
+     */
+    public function getFieldBorderRadius($storeId = null): string
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_FIELD_BORDER_RADIUS,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        ) ?: '5px';
     }
 
     public function getSupportedServices(): array
@@ -183,5 +410,63 @@ class Creditcards extends AbstractConfigProvider
         }
 
         return $supportedServices;
+    }
+
+    /**
+     * Get Sorted Issuers
+     *
+     * @param $store
+     * @return mixed|null
+     */
+    public function getSortedIssuers($store = null)
+    {
+        $sorted = $this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_SORTED_ISSUERS,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+
+        // Handle empty placeholder - return empty string instead of __EMPTY__
+        if ($sorted === '__EMPTY__') {
+            return '';
+        }
+
+        return $sorted;
+    }
+
+    /**
+     * Get all available credit card issuers for the SortIssuers block
+     * Only returns credit cards that are selected in "Allowed credit and debit cards"
+     *
+     * @return array
+     */
+    public function getAllIssuers(): array
+    {
+        // Get only allowed credit cards
+        $allowed = explode(',', (string)$this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_ALLOWED_ISSUERS,
+            ScopeInterface::SCOPE_STORE
+        ));
+
+        if (count($allowed) === 1 && empty($allowed[0])) {
+            return [];
+        }
+
+        // Convert allowed codes to lowercase for case-insensitive comparison
+        $allowedLowercase = array_map('strtolower', $allowed);
+
+        $issuers = [];
+        foreach ($this->issuers as $issuer) {
+            // Compare with case-insensitive logic
+            if (in_array(strtolower($issuer['code']), $allowedLowercase)) {
+                $issuers[$issuer['code']] = [
+                    'code' => $issuer['code'],
+                    'name' => $issuer['name'],
+                    'img' => $this->getCreditcardLogo($issuer['code'])
+                ];
+            }
+        }
+
+        return $issuers;
     }
 }

@@ -20,27 +20,15 @@
 /*global define*/
 define(
     [
-        'jquery',
-        'Magento_Checkout/js/view/payment/default',
-        'Magento_Checkout/js/model/payment/additional-validators',
-        'Buckaroo_Magento2/js/action/place-order',
+        'buckaroo/checkout/payment/default',
         'Magento_Checkout/js/model/quote',
         'ko',
-        'Magento_Checkout/js/checkout-data',
-        'Magento_Checkout/js/action/select-payment-method',
-        'buckaroo/checkout/common',
         'buckaroo/checkout/datepicker'
     ],
     function (
-        $,
         Component,
-        additionalValidators,
-        placeOrderAction,
         quote,
         ko,
-        checkoutData,
-        selectPaymentMethodAction,
-        checkoutCommon,
         datePicker
     ) {
         'use strict';
@@ -49,25 +37,21 @@ define(
             {
                 defaults: {
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_capayablepostpay',
-                    selectedGender: null,
-                    genderValidate: null,
-                    firstname: '',
-                    lastname: '',
-                    CustomerName: null,
-                    BillingName: null,
-                    dateValidate: null,
-                    selectedOrderAs: 1,
-                    CocNumber: null,
-                    CompanyName: null,
-                    value: ''
+                    selectedGender : null,
+                    genderValidate : null,
+                    firstname : '',
+                    lastname : '',
+                    CustomerName : null,
+                    BillingName : null,
+                    dateValidate : null,
+                    selectedOrderAs : 1,
+                    CocNumber : null,
+                    CompanyName : null,
+                    value:''
                 },
                 redirectAfterPlaceOrder: true,
-                paymentFeeLabel: window.checkoutConfig.payment.buckaroo.capayablepostpay.paymentFeeLabel,
-                subtext: window.checkoutConfig.payment.buckaroo.capayablepostpay.subtext,
-                subTextStyle: checkoutCommon.getSubtextStyle('capayablepostpay'),
-                currencyCode: window.checkoutConfig.quoteData.quote_currency_code,
-                baseCurrencyCode: window.checkoutConfig.quoteData.base_currency_code,
                 dp: datePicker,
+                
 
                 initObservable: function () {
                     this._super().observe([
@@ -87,8 +71,8 @@ define(
                     this.showFinancialWarning = ko.computed(
                         function () {
                             return quote.billingAddress() !== null &&
-                                quote.billingAddress().countryId == 'NL' &&
-                                window.checkoutConfig.payment.buckaroo.capayablepostpay.showFinancialWarning
+                            quote.billingAddress().countryId == 'NL' &&
+                            this.buckaroo.showFinancialWarning
                         },
                         this
                     );
@@ -134,104 +118,20 @@ define(
                         }.bind(this)
                     );
 
-                    /**
-                     * Validation on the input fields
-                     */
-                    var runValidation = function () {
-                        $('.' + this.getCode() + ' .payment [data-validate]').filter(':not([name*="agreement"])').valid();
-                    };
-
-                    this.genderValidate.subscribe(runValidation, this);
-                    this.dateValidate.subscribe(runValidation, this);
-                    this.CocNumber.subscribe(runValidation, this);
-                    this.CompanyName.subscribe(runValidation, this);
-
-                    this.buttoncheck = ko.computed(function () {
-                        var validation = this.selectedGender() !== null &&
-                            this.genderValidate() !== null &&
-                            this.BillingName() !== null &&
-                            this.dateValidate() !== null;
-
-                        if (this.selectedOrderAs() == 2 || this.selectedOrderAs() == 3) {
-                            validation = validation && this.CocNumber() !== null && this.CompanyName() !== null;
-                        }
-
-                        return (validation && this.validate());
-                    }, this);
 
                     return this;
                 },
 
-                /**
-                 * Place order.
-                 *
-                 * placeOrderAction has been changed from Magento_Checkout/js/action/place-order to our own version
-                 * (Buckaroo_Magento2/js/action/place-order) to prevent redirect and handle the response.
-                 */
-                placeOrder: function (data, event) {
-                    var self = this,
-                        placeOrder;
-
-                    if (event) {
-                        event.preventDefault();
-                    }
-
-                    if (this.validate() && additionalValidators.validate()) {
-                        this.isPlaceOrderActionAllowed(false);
-                        placeOrder = placeOrderAction(this.getData(), this.redirectAfterPlaceOrder, this.messageContainer);
-
-                        $.when(placeOrder).fail(
-                            function () {
-                                self.isPlaceOrderActionAllowed(true);
-                            }
-                        ).done(this.afterPlaceOrder.bind(this));
-                        return true;
-                    }
-                    return false;
-                },
-
-                afterPlaceOrder: function () {
-                    var response = window.checkoutConfig.payment.buckaroo.response;
-                    checkoutCommon.redirectHandle(response);
-                },
-
-                selectPaymentMethod: function () {
-                    selectPaymentMethodAction(this.getData());
-                    checkoutData.setSelectedPaymentMethod(this.item.method);
-
-                    if (quote.billingAddress()) {
-                        this.updateBillingName(quote.billingAddress().firstname, quote.billingAddress().lastname);
-                    }
-
-                    return true;
-                },
-
-                payWithBaseCurrency: function () {
-                    var allowedCurrencies = window.checkoutConfig.payment.buckaroo.capayablepostpay.allowedCurrencies;
-
-                    return allowedCurrencies.indexOf(this.currencyCode) < 0;
-                },
-
-                getPayWithBaseCurrencyText: function () {
-                    var text = $.mage.__('The transaction will be processed using %s.');
-
-                    return text.replace('%s', this.baseCurrencyCode);
-                },
-
-                validate: function () {
-                    return $('.' + this.getCode() + ' .payment [data-validate]:not([name*="agreement"])').valid();
-                },
-
-                getData: function () {
+                getData : function () {
                     return {
-                        "method": this.item.method,
+                        "method" : this.item.method,
                         "additional_data": {
-                            "customer_gender": this.genderValidate(),
-                            "customer_billingName": this.BillingName(),
-                            "customer_DoB": this.dateValidate(),
-                            "customer_orderAs": this.selectedOrderAs(),
-                            "customer_cocnumber": this.CocNumber(),
-                            "customer_companyName": this.CompanyName()
+                            "customer_gender" : this.genderValidate(),
+                            "customer_billingName" : this.BillingName(),
+                            "customer_DoB" : this.dateValidate(),
+                            "customer_orderAs" : this.selectedOrderAs(),
+                            "customer_cocnumber" : this.CocNumber(),
+                            "customer_companyName" : this.CompanyName()
                         }
                     };
                 }

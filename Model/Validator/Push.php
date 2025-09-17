@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -22,26 +21,38 @@
 namespace Buckaroo\Magento2\Model\Validator;
 
 use Buckaroo\Magento2\Helper\Data;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
-use \Buckaroo\Magento2\Model\ValidatorInterface;
-use \Magento\Framework\Encryption\Encryptor;
+use Buckaroo\Magento2\Model\ValidatorInterface;
+use Magento\Framework\Encryption\Encryptor;
+use Magento\Store\Api\Data\StoreInterface;
 
 class Push implements ValidatorInterface
 {
-    /** @var Account $configProviderAccount */
-    public $configProviderAccount;
+    /**
+     * @var Account
+     */
+    public Account $configProviderAccount;
 
-    /** @var Data $helper */
-    public $helper;
+    /**
+     * @var Data
+     */
+    public Data $helper;
 
-    /** @var Log $logging */
-    public $logging;
+    /**
+     * @var BuckarooLoggerInterface
+     */
+    public BuckarooLoggerInterface $logger;
 
-    /** @var Encryptor $encryptor */
-    private $encryptor;
+    /**
+     * @var Encryptor
+     */
+    private Encryptor $encryptor;
 
-    public $bpeResponseMessages = [
+    /**
+     * @var string[]
+     */
+    public array $bpeResponseMessages = [
         190 => 'Success',
         490 => 'Payment failure',
         491 => 'Validation error',
@@ -58,27 +69,30 @@ class Push implements ValidatorInterface
     /**
      * @param Data          $helper
      * @param Account       $configProviderAccount
-     * @param Log           $logging
+     * @param BuckarooLoggerInterface           $logger
      * @param Encryptor     $encryptor
      */
     public function __construct(
         Data $helper,
         Account $configProviderAccount,
-        Log $logging,
+        BuckarooLoggerInterface $logger,
         Encryptor $encryptor
     ) {
         $this->helper                   = $helper;
         $this->configProviderAccount    = $configProviderAccount;
-        $this->logging                  = $logging;
+        $this->logger                   = $logger;
         $this->encryptor                = $encryptor;
     }
 
     /**
-     * @param $data
+     * Validate push
      *
+     * @param array|object $data
      * @return bool
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function validate($data)
+    public function validate($data): bool
     {
         return true;
     }
@@ -86,11 +100,10 @@ class Push implements ValidatorInterface
     /**
      * Checks if the status code is returned by the bpe push and is valid.
      *
-     * @param $code
-     *
+     * @param int|string $code
      * @return array
      */
-    public function validateStatusCode($code)
+    public function validateStatusCode($code): array
     {
         if (null !== $this->helper->getStatusByValue($code)
             && isset($this->bpeResponseMessages[$code])
@@ -110,14 +123,15 @@ class Push implements ValidatorInterface
     }
 
     /**
-     * Generate/calculate the signature with the buckaroo config value and check if thats equal to the signature
-     * received from the push
+     * Generates and verifies the Buckaroo signature using configuration values and data from a push.
      *
-     * @param $postData
-     *
+     * @param array $originalPostData
+     * @param array $postData
+     * @param int|string|StoreInterface|null $store
      * @return bool
+     * @throws \Exception
      */
-    public function validateSignature($originalPostData, $postData, $store = null)
+    public function validateSignature(array $originalPostData, array $postData, $store = null): bool
     {
         if (!isset($postData['brq_signature'])) {
             return false;
@@ -135,32 +149,117 @@ class Push implements ValidatorInterface
     /**
      * Determines the signature using array sorting and the SHA1 hash algorithm
      *
-     * @param $postData
-     *
+     * @param array $postData
+     * @param int|string|StoreInterface|null $store
      * @return string
+     * @throws \Exception
      */
-    public function calculateSignature($postData, $store = null)
+    public function calculateSignature(array $postData, $store = null): string
     {
-        ksort($postData, SORT_FLAG_CASE | SORT_STRING);
+        $copyData = $postData;
+        unset($copyData['brq_signature']);
+        unset($copyData['BRQ_SIGNATURE']);
 
-        $data = array_filter($postData, function ($key) {
-            $acceptable_top_level = ['brq', 'add', 'cust', 'BRQ', 'ADD', 'CUST'];
+        $sortableArray = $this->buckarooArraySort($copyData);
 
-            return (
-                    $key != 'brq_signature' && $key != 'BRQ_SIGNATURE') &&
-                in_array(explode('_', $key)[0], $acceptable_top_level);
-        }, ARRAY_FILTER_USE_KEY);
+        $signatureString = '';
 
-        $data = array_map(function ($value, $key) {
-            return $key . '=' . html_entity_decode($value);
-        }, $data, array_keys($data));
+        foreach ($sortableArray as $brqKey => $value) {
+            $value = $this->decodePushValue($brqKey, $value);
 
+            $signatureString .= $brqKey . '=' . $value;
+        }
 
         $digitalSignature = $this->encryptor->decrypt($this->configProviderAccount->getSecretKey($store));
-        $signatureString = implode('', $data) . trim($digitalSignature);
-
+        $signatureString .= $digitalSignature;
         $signature = SHA1($signatureString);
 
+        $this->logger->addDebug(
+            '[PUSH] | [Webapi] | [' . __METHOD__ . ':' . __LINE__ . '] - Calculated signature: ' . $signature,
+        );
+
         return $signature;
+    }
+
+    /**
+     * Decode push value
+     *
+     * @param string $brqKey
+     * @param string $brqValue
+     *
+     * @return string
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     */
+    private function decodePushValue(string $brqKey, string $brqValue): string
+    {
+        switch (strtolower($brqKey)) {
+            case 'brq_customer_name':
+            case 'brq_service_ideal_consumername':
+            case 'brq_service_transfer_consumername':
+            case 'brq_service_payconiq_payconiqandroidurl':
+            case 'brq_service_paypal_payeremail':
+            case 'brq_service_paypal_payerfirstname':
+            case 'brq_service_paypal_payerlastname':
+            case 'brq_service_payconiq_payconiqiosurl':
+            case 'brq_service_payconiq_payconiqurl':
+            case 'brq_service_payconiq_qrurl':
+            case 'brq_service_masterpass_customerphonenumber':
+            case 'brq_service_masterpass_shippingrecipientphonenumber':
+            case 'brq_invoicedate':
+            case 'brq_duedate':
+            case 'brq_previousstepdatetime':
+            case 'brq_eventdatetime':
+            case 'brq_service_transfer_accountholdername':
+            case 'brq_service_transfer_customeraccountname':
+            case 'cust_customerbillingfirstname':
+            case 'cust_customerbillinglastname':
+            case 'cust_customerbillingemail':
+            case 'cust_customerbillingstreet':
+            case 'cust_customerbillingtelephone':
+            case 'cust_customerbillinghousenumber':
+            case 'cust_customerbillinghouseadditionalnumber':
+            case 'cust_customershippingfirstname':
+            case 'cust_customershippinglastname':
+            case 'cust_customershippingemail':
+            case 'cust_customershippingstreet':
+            case 'cust_customershippingtelephone':
+            case 'cust_customershippinghousenumber':
+            case 'cust_customershippinghouseadditionalnumber':
+                $decodedValue = $brqValue;
+                break;
+            default:
+                $decodedValue = urldecode($brqValue);
+        }
+
+        return $decodedValue;
+    }
+
+    /**
+     * Sort the array so that the signature can be calculated identical to the way buckaroo does.
+     *
+     * @param array $arrayToUse
+     * @return array $sortableArray
+     */
+    protected function buckarooArraySort(array $arrayToUse): array
+    {
+        $arrayToSort   = [];
+        $originalArray = [];
+
+        foreach ($arrayToUse as $key => $value) {
+            $arrayToSort[strtolower($key)]   = $value;
+            $originalArray[strtolower($key)] = $key;
+        }
+
+        ksort($arrayToSort);
+
+        $sortableArray = [];
+
+        foreach ($arrayToSort as $key => $value) {
+            $key = $originalArray[$key];
+            $sortableArray[$key] = $value;
+        }
+
+        return $sortableArray;
     }
 }

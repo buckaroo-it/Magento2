@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,46 +17,29 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 class P24 extends AbstractConfigProvider
 {
-    const XPATH_P24_PAYMENT_FEE           = 'payment/buckaroo_magento2_p24/payment_fee';
-    const XPATH_P24_ACTIVE                = 'payment/buckaroo_magento2_p24/active';
-    const XPATH_P24_SUBTEXT               = 'payment/buckaroo_magento2_p24/subtext';
-    const XPATH_P24_SUBTEXT_STYLE         = 'payment/buckaroo_magento2_p24/subtext_style';
-    const XPATH_P24_SUBTEXT_COLOR         = 'payment/buckaroo_magento2_p24/subtext_color';
-    const XPATH_P24_ACTIVE_STATUS         = 'payment/buckaroo_magento2_p24/active_status';
-    const XPATH_P24_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_p24/order_status_success';
-    const XPATH_P24_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_p24/order_status_failed';
-    const XPATH_P24_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_p24/available_in_backend';
+    public const CODE = 'buckaroo_magento2_p24';
+    public const XPATH_P24_PAYMENT_FEE           = 'payment/buckaroo_magento2_p24/payment_fee';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_p24/allowed_currencies';
-
-    const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_p24/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_p24/specificcountry';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_p24/specificcustomergroup';
 
     /**
-     * @return array|void
+     * @var string
      */
-    public function getConfig()
-    {
-        $paymentFeeLabel = $this->getBuckarooPaymentFeeLabel();
+    protected $methodCode = self::CODE;
 
+    /**
+     * @inheritdoc
+     */
+    public function getBaseAllowedCurrencies(): array
+    {
         return [
-            'payment' => [
-                'buckaroo' => [
-                    'p24' => [
-                        'paymentFeeLabel' => $paymentFeeLabel,
-                        'subtext'   => $this->getSubtext(),
-                        'subtext_style'   => $this->getSubtextStyle(),
-                        'subtext_color'   => $this->getSubtextColor(),
-                        'allowedCurrencies' => $this->getAllowedCurrencies(),
-                    ],
-                ],
-            ],
+            'PLN',
+            'EUR'
         ];
     }
 
@@ -73,17 +56,6 @@ class P24 extends AbstractConfigProvider
             $storeId
         );
 
-        return $paymentFee ? $paymentFee : false;
-    }
-
-    /**
-     * @return array
-     */
-    public function getBaseAllowedCurrencies()
-    {
-        return [
-            'PLN',
-            'EUR'
-        ];
+        return $paymentFee ?: 0;
     }
 }

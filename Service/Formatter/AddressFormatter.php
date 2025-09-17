@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -17,25 +17,31 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
+
 namespace Buckaroo\Magento2\Service\Formatter;
 
-use Magento\Sales\Api\Data\OrderAddressInterface;
 use Buckaroo\Magento2\Service\Formatter\Address\PhoneFormatter;
 use Buckaroo\Magento2\Service\Formatter\Address\StreetFormatter;
+use Magento\Sales\Api\Data\OrderAddressInterface;
 
 class AddressFormatter
 {
-    /** @var StreetFormatter */
-    private $streetFormatter;
+    /**
+     * @var StreetFormatter
+     */
+    private StreetFormatter $streetFormatter;
 
-    /** @var PhoneFormatter */
-    private $phoneFormatter;
+    /**
+     * @var PhoneFormatter
+     */
+    private PhoneFormatter $phoneFormatter;
 
     /**
      * AddressFormatter constructor.
      *
      * @param StreetFormatter $streetFormatter
-     * @param PhoneFormatter  $phoneFormatter
+     * @param PhoneFormatter $phoneFormatter
      */
     public function __construct(
         StreetFormatter $streetFormatter,

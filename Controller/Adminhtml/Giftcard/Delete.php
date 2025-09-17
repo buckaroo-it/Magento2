@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -20,8 +20,17 @@
 
 namespace Buckaroo\Magento2\Controller\Adminhtml\Giftcard;
 
-class Delete extends \Buckaroo\Magento2\Controller\Adminhtml\Giftcard\Index
+use Magento\Backend\Model\View\Result\Page;
+use Magento\Framework\App\Action\HttpPostActionInterface;
+use Magento\Framework\App\ResponseInterface;
+
+class Delete extends Index implements HttpPostActionInterface
 {
+    /**
+     * Delete Giftcard
+     *
+     * @return Page|ResponseInterface
+     */
     public function execute()
     {
         $giftcardId = $this->getRequest()->getParam('entity_id');
@@ -31,19 +40,21 @@ class Delete extends \Buckaroo\Magento2\Controller\Adminhtml\Giftcard\Index
             $giftcardModel->load($giftcardId);
 
             if (!$giftcardModel->getId()) {
-                $this->messageManager->addError(__('This giftcard no longer exists.'));
+                $this->messageManager->addErrorMessage(__('This giftcard no longer exists.'));
             } else {
                 try {
                     $giftcardModel->delete();
-                    $this->messageManager->addSuccess(__('The giftcard has been deleted.'));
+                    $this->messageManager->addSuccessMessage(__('The giftcard has been deleted.'));
 
-                    $this->_redirect('*/*/');
-                    return;
+                    return $this->_redirect('*/*/');
                 } catch (\Exception $e) {
-                    $this->messageManager->addError($e->getMessage());
-                    $this->_redirect('*/*/edit', ['id' => $giftcardModel->getId()]);
+                    $this->messageManager->addErrorMessage($e->getMessage());
+                    return $this->_redirect('*/*/edit', ['id' => $giftcardModel->getId()]);
                 }
             }
         }
+
+        $this->messageManager->addErrorMessage(__('We can\'t find a Giftcard to delete.'));
+        return $this->_redirect('*/*/');
     }
 }

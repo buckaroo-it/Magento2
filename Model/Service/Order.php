@@ -23,16 +23,18 @@ namespace Buckaroo\Magento2\Model\Service;
 use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as MethodFactory;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory as MethodFactory;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
-use Buckaroo\Magento2\Model\Method\Transfer;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Transfer;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Model\Order as MagentoOrder;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Api\StoreRepositoryInterface;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\Sales\Model\ResourceModel\Order\CollectionFactory;
 use Buckaroo\Magento2\Helper\Data;
 use Magento\Framework\App\ResourceConnection;
+use Magento\Framework\DB\Sql\Expression;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -70,9 +72,9 @@ class Order
     protected $helper;
 
     /**
-     * @var Log
+     * @var BuckarooLoggerInterface
      */
-    protected Log $logger;
+    protected BuckarooLoggerInterface $logger;
 
     /**
      * @var ResourceConnection
@@ -85,11 +87,6 @@ class Order
     private Factory $configProviderFactory;
 
     /**
-     * @var OrderCancellationService
-     */
-    private $orderCancellationService;
-
-    /**
      * @param Account $accountConfig
      * @param MethodFactory $configProviderMethodFactory
      * @param Factory $configProviderFactory
@@ -97,9 +94,8 @@ class Order
      * @param CollectionFactory $orderFactory
      * @param OrderStatusFactory $orderStatusFactory
      * @param Data $helper
-     * @param Log $logger
+     * @param BuckarooLoggerInterface $logger
      * @param ResourceConnection $resourceConnection
-     * @param OrderCancellationService $orderCancellationService
      */
     public function __construct(
         Account $accountConfig,
@@ -109,9 +105,8 @@ class Order
         CollectionFactory $orderFactory,
         OrderStatusFactory $orderStatusFactory,
         Data $helper,
-        Log $logger,
-        ResourceConnection $resourceConnection,
-        OrderCancellationService $orderCancellationService
+        BuckarooLoggerInterface $logger,
+        ResourceConnection $resourceConnection
     ) {
         $this->accountConfig = $accountConfig;
         $this->configProviderMethodFactory = $configProviderMethodFactory;
@@ -122,7 +117,6 @@ class Order
         $this->helper = $helper;
         $this->logger = $logger;
         $this->resourceConnection = $resourceConnection;
-        $this->orderCancellationService = $orderCancellationService;
     }
 
     /**
@@ -166,11 +160,11 @@ class Order
                     )
                     ->addFieldToFilter(
                         'created_at',
-                        ['lt' => new \Zend_Db_Expr('NOW() - INTERVAL ' . $dueDays . ' DAY')]
+                        ['lt' => new Expression('NOW() - INTERVAL ' . $dueDays . ' DAY')]
                     )
                     ->addFieldToFilter(
                         'created_at',
-                        ['gt' => new \Zend_Db_Expr('NOW() - INTERVAL ' . ($dueDays + 7) . ' DAY')]
+                        ['gt' => new Expression('NOW() - INTERVAL ' . ($dueDays + 7) . ' DAY')]
                     );
 
                 $orderCollection->getSelect()
@@ -179,7 +173,7 @@ class Order
                         'main_table.entity_id = p.parent_id',
                         ['method']
                     )
-                    ->where('p.method = ?', Transfer::PAYMENT_METHOD_CODE);
+                    ->where('p.method = ?', Transfer::CODE);
 
                 $this->logger->addDebug(sprintf(
                     '[CANCEL_ORDER - Transfer] | [Service] | [%s:%s] - Cancel Expired Transfer Orders Per Store |'
@@ -196,7 +190,8 @@ class Order
                     foreach ($orderCollection as $order) {
                         $this->cancel(
                             $order,
-                            $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_REJECTED')
+                            $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_REJECTED'),
+                            'Order automatically canceled due to expired transfer payment'
                         );
                     }
                 }
@@ -208,7 +203,7 @@ class Order
      * Cancel expired Pay Per Email orders for all stores.
      *
      * @return $this
-     * @throws BuckarooException|LocalizedException
+     * @throws BuckarooException
      */
     public function cancelExpiredPPEOrders(): Order
     {
@@ -225,7 +220,7 @@ class Order
      *
      * @param StoreInterface $store
      * @return void
-     * @throws BuckarooException|LocalizedException
+     * @throws BuckarooException
      */
     protected function cancelExpiredPPEOrdersPerStore(StoreInterface $store)
     {
@@ -246,11 +241,11 @@ class Order
                         )
                         ->addFieldToFilter(
                             'created_at',
-                            ['lt' => new \Zend_Db_Expr('NOW() - INTERVAL ' . $dueDays . ' DAY')]
+                            ['lt' => new Expression('NOW() - INTERVAL ' . $dueDays . ' DAY')]
                         )
                         ->addFieldToFilter(
                             'created_at',
-                            ['gt' => new \Zend_Db_Expr('NOW() - INTERVAL ' . ($dueDays + 7) . ' DAY')]
+                            ['gt' => new Expression('NOW() - INTERVAL ' . ($dueDays + 7) . ' DAY')]
                         );
 
                     $orderCollection->getSelect()
@@ -276,7 +271,8 @@ class Order
                         foreach ($orderCollection as $order) {
                             $this->cancel(
                                 $order,
-                                $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_REJECTED')
+                                $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_REJECTED'),
+                                'Order automatically canceled due to expired Pay Per Email payment'
                             );
                         }
                     }
@@ -288,14 +284,13 @@ class Order
     /**
      * Cancel the given order with the specified status code.
      *
-     * @param \Magento\Sales\Model\Order $order
+     * @param MagentoOrder $order
      * @param int|null $statusCode
-     * @param string $statusMessage
+     * @param string|null $statusMessage
      * @return bool
      * @throws LocalizedException
-     * @throws \Exception
      */
-    public function cancel(\Magento\Sales\Model\Order $order, ?int $statusCode, string $statusMessage = '')
+    public function cancel(MagentoOrder $order, ?int $statusCode, ?string $statusMessage = null): bool
     {
         $paymentMethodCode = $order->getPayment()->getMethod();
         $paymentMethodName = str_replace('buckaroo_magento2_', '', $paymentMethodCode);
@@ -308,15 +303,14 @@ class Order
             var_export($order->getIncrementId(), true)
         ));
 
-        if ($order->getState() == \Magento\Sales\Model\Order::STATE_CANCELED) {
+        if ($order->getState() == MagentoOrder::STATE_CANCELED) {
             $this->logger->addDebug(sprintf(
                 '[CANCEL_ORDER - %s] | [Service] | [%s:%s] - Cancel Order - already canceled',
                 $paymentMethodName,
                 __METHOD__,
                 __LINE__
             ));
-
-            $this->cancelAndCleanupOrder($order);
+            return true;
         }
 
         $store = $order->getStore();
@@ -331,7 +325,7 @@ class Order
                 $methodInstanceClass::$requestOnVoid = false;
             }
 
-            $this->orderCancellationService->cancelOrder($order, $statusMessage, true);
+            $order->cancel();
 
             $failedStatus = $this->orderStatusFactory->get($statusCode, $order);
 
@@ -344,9 +338,11 @@ class Order
             ));
 
             if ($failedStatus) {
-                $order->setState($failedStatus);
+                $order->setState(MagentoOrder::STATE_CANCELED);
                 $order->setStatus($failedStatus);
-                $order->addCommentToStatusHistory($statusMessage, $failedStatus);
+
+                $statusMessage = $statusMessage ?: 'Order canceled due to payment failure';
+                $order->addCommentToStatusHistory($statusMessage, $failedStatus, false);
             }
             $order->save();
             return true;
@@ -354,28 +350,4 @@ class Order
 
         return false;
     }
-
-    /**
-     * Cancel the order and clean up its status history if it is a Klarna order.
-     *
-     * @param \Magento\Sales\Model\Order $order
-     * @return void
-     * @throws \Exception
-     */
-    protected function cancelAndCleanupOrder(\Magento\Sales\Model\Order $order): void
-    {
-        // Check if the order's payment method is Klarna (adjust the check as needed)
-        $paymentMethod = $order->getPayment()->getMethod();
-        if (strpos($paymentMethod, 'klarnakp') === false) {
-            // If it is not a Klarna order, skip the cleanup process.
-            return;
-        }
-
-        // Cancel the order and set its state and status to "canceled"
-        $order->setState(\Magento\Sales\Model\Order::STATE_CANCELED);
-        $order->setStatus(\Magento\Sales\Model\Order::STATE_CANCELED);
-        $order->addCommentToStatusHistory('The request was canceled.', false, false);
-        $order->save();
-    }
-
 }

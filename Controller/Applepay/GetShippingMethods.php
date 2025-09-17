@@ -19,7 +19,7 @@
  */
 namespace Buckaroo\Magento2\Controller\Applepay;
 
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\Service\ApplePayFormatData;
 use Buckaroo\Magento2\Model\Service\QuoteService;
 use Magento\Framework\App\RequestInterface;
@@ -27,7 +27,7 @@ use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Buckaroo\Magento2\Model\Method\Applepay;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay;
 
 class GetShippingMethods extends AbstractApplepay
 {
@@ -44,14 +44,14 @@ class GetShippingMethods extends AbstractApplepay
     /**
      * @param JsonFactory      $resultJsonFactory
      * @param RequestInterface $request
-     * @param Log              $logger
+     * @param BuckarooLoggerInterface $logger
      * @param QuoteService     $quoteService
      * @param ApplePayFormatData $applePayFormatData
      */
     public function __construct(
         JsonFactory $resultJsonFactory,
         RequestInterface $request,
-        Log $logger,
+        BuckarooLoggerInterface $logger,
         QuoteService $quoteService,
         ApplePayFormatData $applePayFormatData
     ) {
@@ -88,7 +88,7 @@ class GetShippingMethods extends AbstractApplepay
                 $this->quoteService->addAddressToQuote($shippingAddressRequest);
                 $this->logger->addDebug(__METHOD__ . '|1.1.3|');
                 //Set Payment Method
-                $this->quoteService->setPaymentMethod(Applepay::PAYMENT_METHOD_CODE);
+                $this->quoteService->setPaymentMethod(Applepay::CODE);
 
                 // Retrieve shipping methods.
                 $shippingMethodsResult = [];
@@ -101,7 +101,7 @@ class GetShippingMethods extends AbstractApplepay
                             'Apple Pay payment failed, because no shipping methods were found for the selected address. ' .
                             'Please select a different shipping address within the pop-up or within your Apple Pay Wallet.'
                         );
-                    }else {
+                    } else {
                         // Set default shipping method using the first method.
                         $firstMethod = reset($shippingMethods);
                         $this->quoteService->setShippingMethod($firstMethod['method_code']);

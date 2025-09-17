@@ -21,26 +21,16 @@
 define(
     [
         'jquery',
-        'Magento_Checkout/js/view/payment/default',
-        'Magento_Checkout/js/model/payment/additional-validators',
-        'Buckaroo_Magento2/js/action/place-order',
+        'buckaroo/checkout/payment/default',
         'Magento_Checkout/js/model/quote',
         'ko',
-        'Magento_Checkout/js/checkout-data',
-        'Magento_Checkout/js/action/select-payment-method',
-        'buckaroo/checkout/common',
         'buckaroo/checkout/datepicker'
     ],
     function (
         $,
         Component,
-        additionalValidators,
-        placeOrderAction,
         quote,
         ko,
-        checkoutData,
-        selectPaymentMethodAction,
-        checkoutCommon,
         datePicker
     ) {
         'use strict';
@@ -68,8 +58,8 @@ define(
                 return false;
             }
 
-            value = value.replace(/^\+|(00)/, '');
-            value = value.replace(/\(0\)|\s|-/g, '');
+            value = value.replace(/^(\+|00)/, '');
+            value = value.replace(/(\(0\)|\s|-)/g, '');
 
             if (value.match(/\+/)) {
                 return false;
@@ -90,7 +80,9 @@ define(
 
             return true;
         };
-        $.validator.addMethod('in3phoneValidation', validPhone,
+        $.validator.addMethod(
+            'in3phoneValidation',
+            validPhone ,
             $.mage.__('Phone number should be correct.')
         );
 
@@ -98,35 +90,37 @@ define(
             {
                 defaults: {
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_capayablein3',
-                    billingName: null,
-                    dateValidate: '',
+                    billingName : null,
+                    dateValidate : '',
                     value: '',
                     phone: null,
-                    validationState: {},
                 },
                 redirectAfterPlaceOrder: false,
-                paymentFeeLabel: window.checkoutConfig.payment.buckaroo.capayablein3.paymentFeeLabel,
-                subtext: window.checkoutConfig.payment.buckaroo.capayablein3.subtext,
-                subTextStyle: checkoutCommon.getSubtextStyle('capayablein3'),
-                currencyCode: window.checkoutConfig.quoteData.quote_currency_code,
-                baseCurrencyCode: window.checkoutConfig.quoteData.base_currency_code,
-                logo: window.checkoutConfig.payment.buckaroo.capayablein3.logo,
                 dp: datePicker,
+
+                getMessageText: function () {
+                    return $.mage
+                        .__('Je moet minimaal 18+ zijn om deze dienst te gebruiken. Als je op tijd betaalt, voorkom je extra kosten en zorg je dat je in de toekomst nogmaals gebruik kunt maken van de diensten van Achteraf betalen via ' +
+                            window.checkoutConfig.payment.buckaroo.buckaroo_magento2_capayablein3.title +
+                            '. Door verder te gaan, accepteer je de <a target="_blank" href="%s">Algemene&nbsp;Voorwaarden</a> en bevestig je dat je de <a target="_blank" href="%f">Privacyverklaring</a> en <a target="_blank" href="%c">Cookieverklaring</a> hebt gelezen.')
+                        .replace('%s', 'https://payin3.eu/nl/legal/')
+                        .replace('%f', 'https://payin3.eu/nl/privacyverklaringen/')
+                        .replace('%c', 'https://payin3.eu/nl/cookiebeleid/');
+                },
 
                 initObservable: function () {
                     this._super().observe([
                         'billingName',
                         'dateValidate',
                         'value',
-                        'phone',
-                        'validationState'
+                        'phone'
                     ]);
 
                     this.showFinancialWarning = ko.computed(
                         function () {
                             return quote.billingAddress() !== null &&
-                                quote.billingAddress().countryId == 'NL' &&
-                                window.checkoutConfig.payment.buckaroo.capayablein3.showFinancialWarning
+                            quote.billingAddress().countryId == 'NL' &&
+                            this.buckaroo.showFinancialWarning
                         },
                         this
                     );
@@ -134,8 +128,8 @@ define(
                     this.showPhone = ko.computed(
                         function () {
                             return quote.billingAddress() === undefined ||
-                                quote.billingAddress() === null ||
-                                validPhone(quote.billingAddress().telephone) === false
+                            quote.billingAddress() === null ||
+                            validPhone(quote.billingAddress().telephone) === false
                         },
                         this
                     );
@@ -151,118 +145,20 @@ define(
                     );
 
 
-                    /** Check used to see form is valid **/
-                    this.buttoncheck = ko.computed(
-                        function () {
-                            const state = this.validationState();
-                            const valid = this.getActiveFields().map((field) => {
-                                if (state[field] !== undefined) {
-                                    return state[field];
-                                }
-                                return false;
-                            }).reduce(
-                                function (prev, cur) {
-                                    return prev && cur
-                                },
-                                true
-                            )
-                            return valid;
-                        },
-                        this
-                    );
-
-                    this.dateValidate.subscribe(function () {
-                        const id = 'buckaroo_magento2_capayablein3_DoB';
-                        const isValid = $(`#${id}`).valid();
-                        let state = this.validationState();
-                        state[id] = isValid;
-                        this.validationState(state);
-                    }, this);
-
                     return this;
                 },
-                getActiveFields() {
-                    let fields = [
-                        'buckaroo_magento2_capayablein3_DoB',
-                    ];
-                    if (this.showPhone()) {
-                        fields.push('buckaroo_magento2_capayablein3_Telephone');
-                    }
-                    return fields;
-                },
 
-                validateField(data, event) {
-                    const isValid = $(event.target).valid();
-                    let state = this.validationState();
-                    state[event.target.id] = isValid;
-                    this.validationState(state);
-                },
-
-                /**
-                 * Place order.
-                 *
-                 * placeOrderAction has been changed from Magento_Checkout/js/action/place-order to our own version
-                 * (Buckaroo_Magento2/js/action/place-order) to prevent redirect and handle the response.
-                 */
-                placeOrder: function (data, event) {
-                    var self = this,
-                        placeOrder;
-
-                    if (event) {
-                        event.preventDefault();
-                    }
-                    if (this.validate() && additionalValidators.validate()) {
-                        this.isPlaceOrderActionAllowed(false);
-                        placeOrder = placeOrderAction(this.getData(), this.redirectAfterPlaceOrder, this.messageContainer);
-
-                        $.when(placeOrder).fail(
-                            function () {
-                                self.isPlaceOrderActionAllowed(true);
-                            }
-                        ).done(this.afterPlaceOrder.bind(this));
-                        return true;
-                    }
-                    return false;
-                },
-
-                afterPlaceOrder: function () {
-                    var response = window.checkoutConfig.payment.buckaroo.response;
-                    checkoutCommon.redirectHandle(response);
-                },
-
-                selectPaymentMethod: function () {
-                    selectPaymentMethodAction(this.getData());
-                    checkoutData.setSelectedPaymentMethod(this.item.method);
-                    return true;
-                },
-
-                payWithBaseCurrency: function () {
-                    var allowedCurrencies = window.checkoutConfig.payment.buckaroo.capayablein3.allowedCurrencies;
-
-                    return allowedCurrencies.indexOf(this.currencyCode) < 0;
-                },
-
-                getPayWithBaseCurrencyText: function () {
-                    var text = $.mage.__('The transaction will be processed using %s.');
-
-                    return text.replace('%s', this.baseCurrencyCode);
-                },
-
-                validate: function () {
-                    return $('.' + this.getCode() + ' .payment-method-second-col form').valid();
-                },
-
-                getData: function () {
+                getData : function () {
                     let telephone = quote.billingAddress().telephone;
                     if (validPhone(this.phone())) {
                         telephone = this.phone();
                     }
                     return {
-                        "method": this.item.method,
+                        "method" : this.item.method,
                         "additional_data": {
-                            "customer_billingName": this.billingName(),
-                            "customer_DoB": this.dateValidate(),
-                            "customer_telephone": telephone
+                            "customer_billingName" : this.billingName(),
+                            "customer_DoB" : this.dateValidate(),
+                            "customer_telephone" : telephone
                         }
                     };
                 }

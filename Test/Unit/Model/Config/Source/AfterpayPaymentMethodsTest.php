@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Test\Unit\Model\Config\Source;
 
 use Buckaroo\Magento2\Model\Config\Source\AfterpayPaymentMethods;
@@ -29,7 +31,7 @@ class AfterpayPaymentMethodsTest extends BaseTest
     /**
      * @return array
      */
-    public function toOptionArrayProvider()
+    public static function toOptionArrayProvider()
     {
         return [
             [
@@ -51,6 +53,13 @@ class AfterpayPaymentMethodsTest extends BaseTest
         $instance = $this->getInstance();
         $result = $instance->toOptionArray();
 
-        $this->assertContains($paymentOption, $result);
+        $found = false;
+        foreach ($result as $opt) {
+            if ($opt['value'] == $paymentOption['value'] && $opt['label']->getText() == $paymentOption['label']) {
+                $found = true;
+                break;
+            }
+        }
+        $this->assertTrue($found);
     }
 }

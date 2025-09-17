@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,106 +20,127 @@
 
 namespace Buckaroo\Magento2\Model\Transaction\Status;
 
-use Buckaroo\Magento2\Model\Service\OrderCancellationService;
-use Magento\Sales\Model\Order;
-use Magento\Checkout\Model\Session;
+use Buckaroo\Magento2\Api\Data\TransactionStatusResponseInterface;
+use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigFactory;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
+use Magento\Checkout\Model\Session;
 use Magento\Framework\Exception\NotFoundException;
-use Buckaroo\Magento2\Api\TransactionResponseInterface;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as ConfigFactory;
+use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Model\Order;
 
 class ProcessResponse
 {
-
     /**
-     * @var \Magento\Sales\Model\Order
+     * @var Order
      */
     protected $order;
 
     /**
-     * @var \Buckaroo\Magento2\Api\TransactionResponseInterface
+     * @var TransactionStatusResponseInterface
      */
     protected $response;
 
     /**
-     * @var \Magento\Sales\Api\Data\OrderPaymentInterface|null
+     * @var OrderPaymentInterface|null
      */
     protected $payment;
 
     /**
-     * @var \Buckaroo\Magento2\Model\OrderStatusFactory
+     * @var OrderStatusFactory
      */
     protected $statusFactory;
 
-     /**
-     * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory
+    /**
+     * @var ConfigFactory
      */
     protected $configFactory;
 
-     /**
-     * @var \Magento\Checkout\Model\Session
+    /**
+     * @var Session
      */
     protected $checkoutSession;
 
+    /**
+     * @var ConfigProviderInterface
+     */
     protected $paymentConfig;
 
     /**
-     * @var OrderCancellationService
+     * @param OrderStatusFactory $statusFactory
+     * @param ConfigFactory $configFactory
+     * @param Session $checkoutSession
      */
-    private $orderCancellationService;
-
     public function __construct(
         OrderStatusFactory $statusFactory,
         ConfigFactory $configFactory,
-        Session $checkoutSession,
-        OrderCancellationService $orderCancellationService
+        Session $checkoutSession
     ) {
         $this->statusFactory = $statusFactory;
         $this->configFactory = $configFactory;
         $this->checkoutSession = $checkoutSession;
-        $this->orderCancellationService = $orderCancellationService;
     }
+
+    /**
+     * Process transaction response
+     *
+     * @param TransactionStatusResponseInterface $response
+     * @param Order $order
+     * @return array|void
+     * @throws NotFoundException|Exception
+     */
     public function process(
-        TransactionResponseInterface $response,
+        TransactionStatusResponseInterface $response,
         Order $order
-    )
-    {
+    ) {
         $this->init($response, $order);
-        if($this->isFailed()) {
+        if ($this->isFailed()) {
             $this->handleFailed();
             return [
                 "payment_status" => "failed",
-                "status_code" => $response->getStatusCode()
+                "status_code"    => $response->getStatusCode()
             ];
         }
-        if($this->isSuccessful()) {
+        if ($this->isSuccessful()) {
             $this->handleSuccessful();
             return [
                 "payment_status" => "success",
-                "status_code" => $response->getStatusCode()
+                "status_code"    => $response->getStatusCode()
             ];
         }
         if ($this->isProcessing()) {
             return [
                 "payment_status" => "processing",
-                "status_code" => $response->getStatusCode()
+                "status_code"    => $response->getStatusCode()
             ];
         }
     }
 
     /**
-     * Check if request is processing
+     * Set class properties
      *
-     * @return boolean
+     * @param TransactionStatusResponseInterface $response
+     * @param Order $order
+     * @return void
+     * @throws Exception
+     * @throws NotFoundException
      */
-    protected function isProcessing()
-    {
-        return $this->response->isStatusCode([
-            Response::STATUSCODE_WAITING_ON_USER_INPUT,
-            Response::STATUSCODE_PENDING_PROCESSING,
-            Response::STATUSCODE_WAITING_ON_CONSUMER,
-            Response::STATUSCODE_PAYMENT_ON_HOLD,
-        ]);
+    protected function init(
+        TransactionStatusResponseInterface $response,
+        Order $order
+    ) {
+        $this->response = $response;
+        $this->order = $order;
+        $this->payment = $this->order->getPayment();
+
+        if ($this->payment === null) {
+            throw new NotFoundException(__('Cannot process order, no payment found'));
+        }
+
+        $this->paymentConfig = $this->configFactory->get(
+            $this->payment->getMethod()
+        );
     }
 
     /**
@@ -128,7 +148,7 @@ class ProcessResponse
      *
      * @return boolean
      */
-    protected function isFailed()
+    protected function isFailed(): bool
     {
         return $this->response->isStatusCode([
             Response::STATUSCODE_REJECTED,
@@ -140,20 +160,6 @@ class ProcessResponse
         ]);
     }
 
-    protected function isSuccessful()
-    {
-        return $this->response->isStatusCode(Response::STATUSCODE_SUCCESS);
-    }
-
-    /**
-     * Handle state when successful
-     *
-     * @return void
-     */
-    protected function handleSuccessful()
-    {
-        $this->updateCheckoutSession();
-    }
     /**
      * Handle state when failed
      *
@@ -166,15 +172,47 @@ class ProcessResponse
     }
 
     /**
+     * Cancel order when failed
+     *
+     * @return void
+     */
+    protected function cancelOrder()
+    {
+        if (!$this->order->isCanceled()) {
+            $this->order->cancel();
+        }
+    }
+
+    /**
      * Restore quote on failed
      *
      * @return boolean
      */
-    protected function restoreQuote()
+    protected function restoreQuote(): bool
     {
         $this->checkoutSession
             ->setLastRealOrderId($this->order->getIncrementId());
         return $this->checkoutSession->restoreQuote();
+    }
+
+    /**
+     * Is successful transaction
+     *
+     * @return bool
+     */
+    protected function isSuccessful(): bool
+    {
+        return $this->response->isStatusCode(Response::STATUSCODE_SUCCESS);
+    }
+
+    /**
+     * Handle state when successful
+     *
+     * @return void
+     */
+    protected function handleSuccessful()
+    {
+        $this->updateCheckoutSession();
     }
 
     /**
@@ -191,37 +229,19 @@ class ProcessResponse
             ->setLastOrderStatus($this->order->getStatus())
             ->setLastSuccessQuoteId($this->order->getQuoteId());
     }
-    /**
-     * Cancel order when failed
-     *
-     * @return void
-     */
-    protected function cancelOrder()
-    {
-        if (!$this->order->isCanceled()) {
-            $this->orderCancellationService->cancelOrder($this->order, 'Transaction failed.', true);
-        }
-    }
-    /**
-     * Set class properties
-     *
-     * @return void
-     */
-    protected function init(
-        TransactionResponseInterface $response,
-        Order $order
-    )
-    {
-        $this->response = $response;
-        $this->order = $order;
-        $this->payment = $this->order->getPayment();
 
-        if ($this->payment === null) {
-            throw new NotFoundException(__('Cannot process order, no payment found'));
-        }
-
-        $this->paymentConfig = $this->configFactory->get(
-            $this->payment->getMethod()
-        );
+    /**
+     * Check if request is processing
+     *
+     * @return boolean
+     */
+    protected function isProcessing(): bool
+    {
+        return $this->response->isStatusCode([
+            Response::STATUSCODE_WAITING_ON_USER_INPUT,
+            Response::STATUSCODE_PENDING_PROCESSING,
+            Response::STATUSCODE_WAITING_ON_CONSUMER,
+            Response::STATUSCODE_PAYMENT_ON_HOLD,
+        ]);
     }
 }

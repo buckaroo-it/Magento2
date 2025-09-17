@@ -1,59 +1,28 @@
-<?php
-/**
- * NOTICE OF LICENSE
- *
- * This source file is subject to the MIT License
- * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
- *
- * DISCLAIMER
- *
- * Do not edit or add to this file if you wish to upgrade this module to newer
- * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
- *
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
- */
+<div id="buckaroo_magento2_mrcash_loader" class="loading-mask"></div>
 
-/** @var string $block */
-?>
-<div id="buckaroo_magento2_payconiq_loader" class="loading-mask"></div>
-
-<div id="buckaroo_magento2_payconiq_container" data-bind="scope:'buckarooMrCash'">
+<div id="buckaroo_magento2_mrcash_container">
     <div id="buckaroo_magento2_mrcash_items">
-        <p id="buckaroo_magento2_mrcash_title">
-            <?= /* @noEscape */ __('Scan onderstaande code binnen 15 minuten met de'); ?>&nbsp;
-            <a target="_blank" href="https://www.bancontact.com/nl"><?= /* @noEscape */ __('Bancontact app'); ?></a>
-        </p>
-        <button id="buckaroo_magento2_mrcash_url" class="action-primary" type="button" style="width:100%; display: none;">
-            <?= /* @noEscape */ __('Bancontact app'); ?>
-        </button>
-        <div id="buckaroo_magento2_mrcash_qr"></div>
+        <p id="buckaroo_magento2_mrcash_title"><?= /* @noEscape */ __('Scan onderstaande code binnen 15 minuten met de'); ?>&nbsp;
+            <a target="_blank" rel="noopener" href="https://www.bancontact.com/nl"><?= /* @noEscape */ __('Bancontact app'); ?></a></p>
+            <button id="buckaroo_magento2_mrcash_url" class="action-primary" type="button"><?= $block->escapeHtml(__('Bancontact app')); ?></button>
+            <div id="buckaroo_magento2_mrcash_qr"></div>
 
-        <button id="buckaroo_magento2_mrcash_cancel"
-                type="button"
-                title="Cancel"
-                data-bind="click: cancelPayment">
-            <span><?= /* @noEscape */ __('Cancel'); ?></span>
+        <button id="buckaroo_magento2_mrcash_cancel" type="button" title="Cancel" data-bind="click: cancelPayment">
+            <span><?= $block->escapeHtml(__('Cancel')); ?></span>
         </button>
     </div>
 </div>
 
-<!-- Use Magento's x-magento-init to create the UI component instance -->
-<script type="text/x-magento-init">
-    {
-      "#buckaroo_magento2_payconiq_container": {
-        "Magento_Ui/js/core/app": {
-          "components": {
-            "buckarooMrCash": {
-              "component": "buckaroo/mrcash/pay",
-              "transactionKey": "<?= /* @noEscape */ $block->getTransactionKey() ?>"
-        }
-      }
+<script>
+    require(['buckaroo/mrcash/pay'], function (mrcashPay) {
+        var transactionKey = "<?= $block->escapeJs($block->getTransactionKey()); ?>";
+
+        mrcashPay.setTransactionKey(transactionKey);
+        mrcashPay.showQrCode();
+    });
+    cancelPayment = function() {
+        require(['buckaroo/mrcash/pay'], function (mrcashPay) {
+            mrcashPay.cancelPayment();
+        });
     }
-  }
-}
 </script>

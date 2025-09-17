@@ -1,9 +1,8 @@
 on:
   push:
     branches:
-      - master
-      - develop
-      - 'releases/**'
+      - feature/payment_provider_gateway
+      - sonarqube-refactor-fixes
   pull_request:
     types: [opened, synchronize, reopened]
 

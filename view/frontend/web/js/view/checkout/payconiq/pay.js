@@ -16,87 +16,56 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-define([
-    'uiComponent',
-    'jquery',
-    'mageUtils',
-    'mage/url',
-    'mage/translate',
-    'BuckarooSDK'
-], function (
-    Component,
-    $,
-    utils,
-    url,
-    $t
-) {
-    'use strict';
+define(
+    [
+        'jquery',
+        'mageUtils',
+        'mage/url',
+        'mage/translate',
+        'BuckarooSdk'
+    ],
+    function (
+        $,
+        utils,
+        url
+    ) {
+        'use strict';
 
-    return Component.extend({
-        defaults: {
-            transactionKey: null
-        },
+        return {
+            transactionKey : null,
 
-        /**
-         * Component initialization
-         */
-        initialize: function () {
-            this._super();
-            // If we have a transaction key already passed in, set it
-            if (this.transactionKey) {
-                this.setTransactionKey(this.transactionKey);
-            }
-            // Optionally, show the QR code automatically right away
-            // or call this from a Knockout binding, your choice
-            this.showQrCode();
-            return this;
-        },
+            setTransactionKey: function (newKey) {
+                this.transactionKey = newKey;
+            },
 
-        /**
-         * Set the transaction key
-         */
-        setTransactionKey: function (newKey) {
-            this.transactionKey = newKey;
-        },
+            showQrCode: function () {
+                BuckarooSdk.Payconiq.initiate(
+                    "#buckaroo_magento2_payconiq_qr",
+                    this.transactionKey,
+                    function (status, params) {
+                        if (status === 'SUCCESS') {
+                            $('#buckaroo_magento2_payconiq_cancel').hide();
+                        }
 
-        /**
-         * Show the QR code in the #buckaroo_magento2_payconiq_qr element
-         */
-        showQrCode: function () {
-            // Safeguard if there's no transaction key yet
-            if (!this.transactionKey) {
-                return;
-            }
-
-            BuckarooSdk.Payconiq.initiate(
-                '#buckaroo_magento2_payconiq_qr',
-                this.transactionKey,
-                function (status, params) {
-                    if (status === 'SUCCESS') {
-                        $('#buckaroo_magento2_payconiq_cancel').hide();
+                        return true;
                     }
-                    return true;
-                }
-            );
-        },
+                );
+            },
 
-        /**
-         * Cancel the payment
-         */
-        cancelPayment: function () {
-            var cancelText = $t(
-                'You have canceled the order. We kindly ask you to not complete the payment in the Payconiq app - ' +
-                'Your order will not be processed. Place the order again if you still want to make the payment.'
-            );
-            $('#buckaroo_magento2_payconiq_qr').html(cancelText);
+            cancelPayment: function () {
+                var cancelText = $.mage.__('You have canceled the order. We kindly ask you to not complete the payment in the Payconiq app - Your order will not be processed. Place the order again if you still want to make the payment.');
+                $('#buckaroo_magento2_payconiq_qr').html(cancelText);
 
-            var data = { transaction_key: this.transactionKey };
-            var formKey = $.mage.cookies.get('form_key');
+                var data = {};
+                data['transaction_key'] = this.transactionKey;
 
-            utils.submit({
-                url: url.build('/buckaroo/payconiq/process/?cancel=1&form_key=' + formKey),
-                data: data
-            });
-        }
-    });
-});
+                var formKey = $.mage.cookies.get('form_key');
+
+                utils.submit({
+                    url: url.build('/buckaroo/payconiq/process/?cancel=1&form_key=' + formKey),
+                    data: data
+                });
+            }
+        };
+    }
+);

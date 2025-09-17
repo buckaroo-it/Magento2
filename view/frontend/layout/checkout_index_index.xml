@@ -21,7 +21,7 @@
  -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="checkout" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <head>
-        <css src="Buckaroo_Magento2::css/credit-cards.css"/>
+        <css src="Buckaroo_Magento2::css/credit-cards.css" />
         <css src="Buckaroo_Magento2::css/styles.css" />
     </head>
 
@@ -102,9 +102,6 @@
                                                                         <item name="buckaroo_magento2_ideal" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
-                                                                        <item name="buckaroo_magento2_idealprocessing" xsi:type="array">
-                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
-                                                                        </item>
                                                                         <item name="buckaroo_magento2_sepadirectdebit" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
@@ -132,6 +129,9 @@
                                                                         <item name="buckaroo_magento2_afterpay" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
+                                                                        <item name="buckaroo_magento2_blik" xsi:type="array">
+                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
+                                                                        </item>
                                                                         <item name="buckaroo_magento2_afterpay2" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
@@ -148,7 +148,7 @@
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                             <item name="children" xsi:type="array">
                                                                                 <item name="buckaroo_magento2_vvvgiftcard" xsi:type="array">
-                                                                                    <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
+                                                                                <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                                 </item>
                                                                             </item>
                                                                         </item>
@@ -165,9 +165,6 @@
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
                                                                         <item name="buckaroo_magento2_klarnain" xsi:type="array">
-                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
-                                                                        </item>
-                                                                        <item name="buckaroo_magento2_emandate" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
                                                                         <item name="buckaroo_magento2_applepay" xsi:type="array">

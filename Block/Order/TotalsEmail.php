@@ -5,8 +5,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -20,23 +20,25 @@
 
 namespace Buckaroo\Magento2\Block\Order;
 
+use Buckaroo\Magento2\Helper\PaymentFee;
 use Magento\Framework\DataObject;
 use Magento\Framework\View\Element\AbstractBlock;
 use Magento\Framework\View\Element\Context;
 use Magento\Sales\Model\Order;
-use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Creditmemo;
-use Buckaroo\Magento2\Helper\PaymentFee;
+use Magento\Sales\Model\Order\Invoice;
 
 class TotalsEmail extends AbstractBlock
 {
-    /** @var PaymentFee|null */
+    /**
+     * @var PaymentFee|null
+     */
     protected $helper = null;
 
     /**
      * @param PaymentFee $helper
-     * @param Context    $context
-     * @param array      $data
+     * @param Context $context
+     * @param array $data
      */
     public function __construct(
         PaymentFee $helper,
@@ -48,6 +50,11 @@ class TotalsEmail extends AbstractBlock
         parent::__construct($context, $data);
     }
 
+    /**
+     * Add Buckaroo fee totals
+     *
+     * @return void
+     */
     public function initTotals()
     {
         $order = $this->getParentBlock()->getOrder();
@@ -55,6 +62,8 @@ class TotalsEmail extends AbstractBlock
     }
 
     /**
+     * Add Buckaroo fee totals
+     *
      * @param Order|Invoice|Creditmemo $order
      */
     public function addBuckarooFeeTotals($order)

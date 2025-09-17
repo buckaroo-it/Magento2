@@ -22,8 +22,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Model\Service;
 
 use Buckaroo\Magento2\Api\Data\ExpressMethods\ShippingAddressRequestInterface;
-use Buckaroo\Magento2\Exception;
-use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\Exception\LocalizedException;
@@ -38,7 +37,7 @@ class QuoteAddressService
     private CustomerSession $customerSession;
     private QuoteRepository $quoteRepository;
     private CustomerRepositoryInterface $customerRepository;
-    private Log $logger;
+    private BuckarooLoggerInterface $logger;
     private ShippingAddressManagementInterface $shippingAddressManagement;
 
     /**
@@ -46,14 +45,14 @@ class QuoteAddressService
      * @param CustomerRepositoryInterface $customerRepository
      * @param QuoteRepository $quoteRepository
      * @param ShippingAddressManagementInterface $shippingAddressManagement
-     * @param Log $logger
+     * @param BuckarooLoggerInterface $logger
      */
     public function __construct(
         CustomerSession $customerSession,
         CustomerRepositoryInterface $customerRepository,
         QuoteRepository $quoteRepository,
         ShippingAddressManagementInterface $shippingAddressManagement,
-        Log $logger
+        BuckarooLoggerInterface $logger
     ) {
         $this->customerSession           = $customerSession;
         $this->customerRepository        = $customerRepository;
@@ -174,7 +173,7 @@ class QuoteAddressService
      * @param array|bool $errors
      * @param string $addressType
      * @return bool
-     * @throws Exception
+     * @throws ExpressMethodsException
      */
     protected function setCommonAddressProceed($errors, string $addressType): bool
     {
@@ -187,11 +186,12 @@ class QuoteAddressService
 
         if ($errors && is_array($errors)) {
             foreach ($errors as $error) {
-                $arguments = $error->getArguments();
-                if (!empty($arguments['fieldName']) && $arguments['fieldName'] === 'postcode') {
-                    throw new Exception(
-                        __('Error: %1 address: postcode is required.', $addressType)
-                    );
+                if (($arguments = $error->getArguments()) && !empty($arguments['fieldName'])) {
+                    if ($arguments['fieldName'] === 'postcode') {
+                        throw new ExpressMethodsException(
+                            'Error: ' . $addressType . ' address: postcode is required.'
+                        );
+                    }
                 }
             }
         }
@@ -231,7 +231,7 @@ class QuoteAddressService
      * @param array $data
      * @param string|null $phone
      * @return bool
-     * @throws Exception
+     * @throws ExpressMethodsException
      */
     public function setBillingAddress(Quote &$quote, array $data, ?string $phone = null): bool
     {
@@ -248,7 +248,7 @@ class QuoteAddressService
      * @param AddressInterface $shippingAddress
      * @param Quote $cart
      * @return Quote
-     * @throws Exception
+     * @throws ExpressMethodsException
      */
     public function assignAddressToQuote(AddressInterface $shippingAddress, Quote $cart): Quote
     {
@@ -261,7 +261,7 @@ class QuoteAddressService
                 __LINE__,
                 $e->getMessage()
             ));
-            throw new Exception(__('Assign Shipping Address to Quote failed.'));
+            throw new ExpressMethodsException('Assign Shipping Address to Quote failed.');
         }
         $this->quoteRepository->save($cart);
         return $cart;
@@ -273,7 +273,7 @@ class QuoteAddressService
      * @param Quote $quote
      * @param array $data
      * @return bool
-     * @throws Exception
+     * @throws ExpressMethodsException
      */
     public function setShippingAddress(Quote &$quote, array $data): bool
     {

@@ -34,8 +34,9 @@ define(
         return Component.extend({
             showPayButton: function () {
                 if (window.checkoutConfig.payment
-                    && window.checkoutConfig.payment.buckaroo.applepay.availableButtons
-                    && (window.checkoutConfig.payment.buckaroo.applepay.availableButtons.indexOf('Product') !== -1)
+                    && window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.availableButtons
+                    && (window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.availableButtons.indexOf('Product') !== -1)
+                    && window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.integrationMode === '0'
                 ) {
                     applepayPay.setQuote(quote);
                     applepayPay.showPayButton('product');

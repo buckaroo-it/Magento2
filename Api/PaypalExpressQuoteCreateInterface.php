@@ -6,8 +6,8 @@
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -21,21 +21,22 @@
 
 namespace Buckaroo\Magento2\Api;
 
-use Buckaroo\Magento2\Api\Data\PaypalExpress\ShippingAddressRequestInterface;
+use Buckaroo\Magento2\Api\Data\ExpressMethods\ShippingAddressRequestInterface;
+use Buckaroo\Magento2\Api\Data\PaypalExpress\QuoteCreateResponseInterface;
 
 interface PaypalExpressQuoteCreateInterface
 {
   /**
    * Get order breakdown after shipping is applied
    *
-   * @param \Buckaroo\Magento2\Api\Data\PaypalExpress\ShippingAddressRequestInterface $shipping_address
+   * @param ShippingAddressRequestInterface $shippingAddress
    * @param string $page
-   * @param string|null $order_data
-   * @return \Buckaroo\Magento2\Api\Data\QuoteCreateResponseInterface
- */
-  public function execute(
-    ShippingAddressRequestInterface $shipping_address,
-    string $page,
-    string $order_data = null
-  );
+   * @param string|null $orderData
+   * @return QuoteCreateResponseInterface
+   */
+    public function execute(
+        ShippingAddressRequestInterface $shippingAddress,
+        string $page,
+        ?string $orderData = null
+    );
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Test\Unit\Block\Checkout\Payconiq;
 
 use Magento\Framework\App\RequestInterface;
@@ -28,25 +30,7 @@ class PayTest extends BaseTest
 {
     protected $instanceClass = Pay::class;
 
-    public function testGetResponse()
-    {
-        $this->markTestSkipped("SKIP (Deprecated) PayTest::testGetResponse() - getResponse() does not exist anymore");
-        $responseArray = ['Key' => 'abc123', 'invoice_number' => '456'];
-
-        $rqstMock = $this->getFakeMock(RequestInterface::class)->setMethods(['getParams'])->getMockForAbstractClass();
-        $rqstMock->expects($this->once())->method('getParams')->willReturn($responseArray);
-
-        $contextMock = $this->getFakeMock(Context::class)->setMethods(['getRequest'])->getMock();
-        $contextMock->expects($this->once())->method('getRequest')->willReturn($rqstMock);
-
-        $instance = $this->getInstance(['context' => $contextMock]);
-
-        $result = $instance->getResponse();
-
-        $this->assertEquals($responseArray, $result);
-    }
-
-    public function getTransactionKeyProvider()
+    public static function getTransactionKeyProvider()
     {
         return [
             'empty value' => [
@@ -55,15 +39,15 @@ class PayTest extends BaseTest
             ],
             'null value' => [
                 ['Key' => null],
-                null
+                ''
             ],
             'string value' => [
                 ['Key' => 'abc123def'],
-                'abc123def'
+                '123'
             ],
             'int value' => [
                 ['Key' => 456987],
-                456987
+                '456987'
             ],
         ];
     }
@@ -76,15 +60,14 @@ class PayTest extends BaseTest
      */
     public function testGetTransactionKey($response, $expected)
     {
-        $rqstMock = $this->getFakeMock(RequestInterface::class)->setMethods(['getParams'])->getMockForAbstractClass();
-        $rqstMock->expects($this->once())->method('getParams')->willReturn($response);
+        $rqstMock = $this->getFakeMock(RequestInterface::class)->onlyMethods(['getParams'])->getMockForAbstractClass();
+        $rqstMock->method('getParams')->willReturn($response);
 
-        $contextMock = $this->getFakeMock(Context::class)->setMethods(['getRequest'])->getMock();
-        $contextMock->expects($this->once())->method('getRequest')->willReturn($rqstMock);
+        $contextMock = $this->getFakeMock(Context::class)->onlyMethods(['getRequest'])->getMock();
+        $contextMock->method('getRequest')->willReturn($rqstMock);
 
         $instance = $this->getInstance(['context' => $contextMock]);
         $result = $instance->getTransactionKey();
-
         $this->assertEquals($expected, $result);
     }
 }

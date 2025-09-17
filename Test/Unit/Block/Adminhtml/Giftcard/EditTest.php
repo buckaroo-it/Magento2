@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,10 +18,11 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Test\Unit\Block\Adminhtml\Giftcard;
 
 use Magento\Framework\Phrase;
-use Magento\Framework\Registry;
+use Buckaroo\Magento2\Model\Data\BuckarooGiftcardDataInterface;
 use Buckaroo\Magento2\Block\Adminhtml\Giftcard\Edit;
 use Buckaroo\Magento2\Model\Giftcard;
 
@@ -28,7 +30,7 @@ class EditTest extends \Buckaroo\Magento2\Test\BaseTest
 {
     protected $instanceClass = Edit::class;
 
-    public function headerTextProvider()
+    public static function headerTextProvider()
     {
         return [
             [
@@ -62,20 +64,20 @@ class EditTest extends \Buckaroo\Magento2\Test\BaseTest
      */
     public function testGetHeaderText($id, $label, $expectedArgument, $expectedText)
     {
-        $giftcardModel = $this->getFakeMock(Giftcard::class)->setMethods(['getId', 'getLabel'])->getMock();
+        $giftcardModel = $this->getFakeMock(Giftcard::class)->onlyMethods(['getLabel'])->getMock();
         $giftcardModel->method('getId')->willReturn($id);
         $giftcardModel->method('getLabel')->willReturn($label);
 
-        $registry = $this->getFakeMock(Registry::class)->setMethods(['registry'])->getMock();
-        $registry->method('registry')->with('buckaroo_giftcard')->willReturn($giftcardModel);
+        $buckarooGiftcardData = $this->getFakeMock(BuckarooGiftcardDataInterface::class)->getMock();
+        $buckarooGiftcardData->method('getGiftcardModel')->willReturn($giftcardModel);
 
-        $instance = $this->getInstance(['registry' => $registry]);
+        $instance = $this->getInstance(['buckarooGiftcardData' => $buckarooGiftcardData]);
         $result = $instance->getHeaderText();
         $resultArgs = $result->getArguments();
 
         $this->assertInstanceOf(Phrase::class, $result);
         $this->assertEquals($expectedText, $result->getText());
-        $this->assertInternalType('array', $resultArgs);
+        $this->assertIsArray($resultArgs);
 
         if (isset($resultArgs[0])) {
             $this->assertEquals($expectedArgument, $resultArgs[0]);

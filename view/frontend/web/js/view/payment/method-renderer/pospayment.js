@@ -21,13 +21,7 @@
 define(
     [
         'jquery',
-        'Magento_Checkout/js/view/payment/default',
-        'Magento_Checkout/js/model/payment/additional-validators',
-        'Buckaroo_Magento2/js/action/place-order',
-        'ko',
-        'Magento_Checkout/js/checkout-data',
-        'Magento_Checkout/js/action/select-payment-method',
-        'mage/storage',
+        'buckaroo/checkout/payment/default',
         'mage/url',
         'mage/translate',
         'Magento_Ui/js/modal/alert',
@@ -36,12 +30,6 @@ define(
     function (
         $,
         Component,
-        additionalValidators,
-        placeOrderAction,
-        ko,
-        checkoutData,
-        selectPaymentMethodAction,
-        storage,
         urlBuilder,
         $t,
         alert,
@@ -49,8 +37,8 @@ define(
     ) {
         'use strict';
 
-        function checkOrderState(orderId, interval) {
-            //console.log('==================31', orderId);
+        function checkOrderState(orderId, interval)
+        {
             $.ajax({
                 url: urlBuilder.build('buckaroo/pos/checkOrderStatus'),
                 type: 'POST',
@@ -70,84 +58,25 @@ define(
         return Component.extend(
             {
                 defaults: {
-                    template: 'Buckaroo_Magento2/payment/buckaroo_magento2_pospayment'
-                },
-                paymentFeeLabel: window.checkoutConfig.payment.buckaroo.pospayment.paymentFeeLabel,
-                subtext: window.checkoutConfig.payment.buckaroo.pospayment.subtext,
-                subTextStyle: checkoutCommon.getSubtextStyle('pospayment'),
-                currencyCode: window.checkoutConfig.quoteData.quote_currency_code,
-                baseCurrencyCode: window.checkoutConfig.quoteData.base_currency_code,
-
-                /**
-                 * Place order.
-                 *
-                 * placeOrderAction has been changed from Magento_Checkout/js/action/place-order to our own version
-                 * (Buckaroo_Magento2/js/action/place-order) to prevent redirect and handle the response.
-                 */
-                placeOrder: function (data, event) {
-                    var self = this,
-                        placeOrder;
-
-                    if (event) {
-                        event.preventDefault();
-                    }
-
-                    if (this.validate() && additionalValidators.validate()) {
-                        this.isPlaceOrderActionAllowed(false);
-                        placeOrder = placeOrderAction(this.getData(), false, this.messageContainer);
-
-                        $.when(placeOrder).fail(
-                            function () {
-                                self.isPlaceOrderActionAllowed(true);
-                            }
-                        ).done(this.afterPlaceOrder.bind(this));
-                        return true;
-                    }
-                    return false;
+                    template: 'Buckaroo_Magento2/payment/default'
                 },
 
                 afterPlaceOrder: function () {
                     var response = window.checkoutConfig.payment.buckaroo.response;
+                    response = $.parseJSON(response);
                     checkoutCommon.redirectHandle(response);
                     if (typeof response.Order !== "undefined") {
                         alert({
                             title: $t('Follow the instructions on the payment terminal'),
                             content: $t('Your order will be completed as soon as payment has been made'),
-                            actions: {
-                                always: function () {
-                                }
-                            }/*,
-                            buttons: [{
-                                text: $t(333),
-                                class: 'action primary accept',
-                                click: function () {
-                                    this.closeModal(true);
-                                }
-                            }]*/
+                            actions: {always: function (){} }
                         });
                         var interval = setInterval(function () {
                             checkOrderState(response.Order, interval);
-                        }, 3000);
+                        },3000);
                     }
                 },
 
-                selectPaymentMethod: function () {
-                    selectPaymentMethodAction(this.getData());
-                    checkoutData.setSelectedPaymentMethod(this.item.method);
-                    return true;
-                },
-
-                payWithBaseCurrency: function () {
-                    var allowedCurrencies = window.checkoutConfig.payment.buckaroo.pospayment.allowedCurrencies;
-
-                    return allowedCurrencies.indexOf(this.currencyCode) < 0;
-                },
-
-                getPayWithBaseCurrencyText: function () {
-                    var text = $.mage.__('The transaction will be processed using %s.');
-
-                    return text.replace('%s', this.baseCurrencyCode);
-                }
             }
         );
     }
