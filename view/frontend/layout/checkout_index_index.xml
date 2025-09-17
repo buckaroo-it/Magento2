@@ -148,7 +148,7 @@
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                             <item name="children" xsi:type="array">
                                                                                 <item name="buckaroo_magento2_vvvgiftcard" xsi:type="array">
-                                                                                <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
+                                                                                    <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                                 </item>
                                                                             </item>
                                                                         </item>

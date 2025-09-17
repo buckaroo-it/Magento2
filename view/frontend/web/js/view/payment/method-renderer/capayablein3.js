@@ -90,8 +90,8 @@ define(
             {
                 defaults: {
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_capayablein3',
-                    billingName : null,
-                    dateValidate : '',
+                    billingName: null,
+                    dateValidate: '',
                     value: '',
                     phone: null,
                 },
@@ -128,8 +128,8 @@ define(
                     this.showPhone = ko.computed(
                         function () {
                             return quote.billingAddress() === undefined ||
-                            quote.billingAddress() === null ||
-                            validPhone(quote.billingAddress().telephone) === false
+                                quote.billingAddress() === null ||
+                                validPhone(quote.billingAddress().telephone) === false
                         },
                         this
                     );
@@ -154,11 +154,11 @@ define(
                         telephone = this.phone();
                     }
                     return {
-                        "method" : this.item.method,
+                        "method": this.item.method,
                         "additional_data": {
-                            "customer_billingName" : this.billingName(),
-                            "customer_DoB" : this.dateValidate(),
-                            "customer_telephone" : telephone
+                            "customer_billingName": this.billingName(),
+                            "customer_DoB": this.dateValidate(),
+                            "customer_telephone": telephone
                         }
                     };
                 }

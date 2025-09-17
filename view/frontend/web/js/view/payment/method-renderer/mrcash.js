@@ -152,7 +152,7 @@ define(
 
                 placeOrder: function (data, event) {
                     var self = this,
-                    placeOrder;
+                        placeOrder;
 
                     if (event) {
                         event.preventDefault();
@@ -160,9 +160,9 @@ define(
 
                     if (this.validate() && additionalValidators.validate()) {
                         this.isPlaceOrderActionAllowed(false);
-                        this.encryptCardData().then(function() {
+                        this.encryptCardData().then(function () {
                             placeOrder = placeOrderAction(self.getData(), self.redirectAfterPlaceOrder, self.messageContainer);
-    
+
                             $.when(placeOrder).fail(
                                 function () {
                                     self.isPlaceOrderActionAllowed(true);
@@ -208,7 +208,6 @@ define(
 
                 afterPlaceOrder: function () {
                     var response = window.checkoutConfig.payment.buckaroo.response;
-                    response = $.parseJSON(response);
                     if (response.RequiredAction !== undefined && response.RequiredAction.RedirectURL !== undefined) {
                         if (this.isMobileMode()) {
                             utils.submit({
@@ -228,7 +227,7 @@ define(
                         this.expireDate('01/' + (new Date(new Date().setFullYear(new Date().getFullYear() + 1)).getFullYear().toString().substr(-2)))
                     }
                 }
-                
+
             }
         );
     }

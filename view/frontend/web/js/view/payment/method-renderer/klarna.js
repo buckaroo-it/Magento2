@@ -70,7 +70,7 @@ define(
                         "method": this.item.method,
                         "po_number": null,
                         "additional_data": {
-                            "customer_gender" : this.selectedGender()
+                            "customer_gender": this.selectedGender()
                         }
                     };
                 }

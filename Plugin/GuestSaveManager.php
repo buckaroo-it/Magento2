@@ -24,7 +24,11 @@ use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\Quote\Api\Data\AddressInterface;
 use Magento\Quote\Api\Data\PaymentInterface;
 
-// @codingStandardsIgnoreStart
+class GuestSaveManager
+{
+    protected $quoteIdMaskFactory;
+    protected $cartRepository;
+    protected Log $logger;
 
 if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
 
@@ -154,12 +158,33 @@ if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
         }
     }
 
-} else {
-    class GuestSaveManager
-    {
+    public function beforeSavePaymentInformationAndPlaceOrder(
+        \Onestepcheckout\Iosc\Plugin\GuestSaveManager $subject,
+                                                      $cartId,
+                                                      $email,
+        \Magento\Quote\Api\Data\PaymentInterface $paymentMethod,
+        \Magento\Quote\Api\Data\AddressInterface $billingAddress = null
+    ) {
+        if ($billingAddress == null) {
+            $quoteIdMask = $this->quoteIdMaskFactory->create()->load($cartId, 'masked_id');
+            $billingAddress = $this->cartRepository->getActive($quoteIdMask->getQuoteId())->getBillingAddress();
+        }
 
+        return [$cartId, $email, $paymentMethod, $billingAddress];
+    }
+
+    public function beforeSavePaymentInformation(
+        \Onestepcheckout\Iosc\Plugin\GuestSaveManager $subject,
+                                                      $cartId,
+                                                      $email,
+        \Magento\Quote\Api\Data\PaymentInterface $paymentMethod,
+        \Magento\Quote\Api\Data\AddressInterface $billingAddress = null
+    ) {
+        if ($billingAddress == null) {
+            $quoteIdMask = $this->quoteIdMaskFactory->create()->load($cartId, 'masked_id');
+            $billingAddress = $this->cartRepository->getActive($quoteIdMask->getQuoteId())->getBillingAddress();
+        }
+
+        return [$cartId, $email, $paymentMethod, $billingAddress];
     }
 }
-
-// @codingStandardsIgnoreEnd
-

@@ -1,8 +1,10 @@
 <?php
+declare(strict_types=1);
+
 /**
  * NOTICE OF LICENSE
  *
- * This source file is subject to the MIT License
+ * This source file is subject to the MIT License.
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
  * If you are unable to obtain it through the world-wide-web, please email
@@ -81,9 +83,8 @@ class ShippingMethodManagement
      */
     public function beforeGet($cartId): void
     {
-        if (($lastRealOrder = $this->checkoutSession->getLastRealOrder())
-            && ($payment = $lastRealOrder->getPayment())
-        ) {
+        $lastRealOrder = $this->checkoutSession->getLastRealOrder();
+        if ($lastRealOrder && ($payment = $lastRealOrder->getPayment())) {
             if (strpos($payment->getMethod(), 'buckaroo_magento2') === false) {
                 return;
             }
@@ -133,6 +134,7 @@ class ShippingMethodManagement
      */
     public function isNeedRecreate($store): bool
     {
+        // Currently always return false; adjust if your business logic requires recreation.
         return false;
     }
 }

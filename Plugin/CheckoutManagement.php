@@ -94,10 +94,58 @@ if (class_exists('\Mageplaza\Osc\Model\CheckoutManagement')) {
         }
     }
 
-} else {
-    class CheckoutManagement
+    /**
+     * Block updating the item qty when group transaction order already started
+     *
+     * @param \Mageplaza\Osc\Model\CheckoutManagement $subject
+     * @param int $cartId
+     * @param int $itemId
+     * @param int|float $itemQty
+     * @return array
+     * @throws CouldNotSaveException
+     */
+    public function beforeUpdateItemQty(
+        \Mageplaza\Osc\Model\CheckoutManagement $subject,
+        int $cartId,
+        int $itemId,
+                                                $itemQty
+    ) {
+        if ($this->getAlreadyPaid($this->checkoutSession->getQuote()) > 0) {
+            throw new CouldNotSaveException(__('Action is blocked, please finish current order'));
+        }
+
+        return [$cartId, $itemId, $itemQty];
+    }
+
+    /**
+     * Block remove the item qty when group transaction order already started
+     *
+     * @param \Mageplaza\Osc\Model\CheckoutManagement $subject
+     * @param int $cartId
+     * @param int $itemId
+     * @return array
+     * @throws CouldNotSaveException
+     */
+    public function beforeRemoveItemById(
+        \Mageplaza\Osc\Model\CheckoutManagement $subject,
+        int $cartId,
+        int $itemId
+    ) {
+        if ($this->getAlreadyPaid($this->checkoutSession->getQuote()) > 0) {
+            throw new CouldNotSaveException(__('Action is blocked, please finish current order'));
+        }
+
+        return [$cartId, $itemId];
+    }
+
+    /**
+     * Get quote already paid amount
+     *
+     * @param Quote $quote
+     * @return float
+     */
+    private function getAlreadyPaid(Quote $quote): float
     {
+        return $this->paymentGroupTransaction->getAlreadyPaid($quote->getReservedOrderId());
     }
 }
-
-// @codingStandardsIgnoreEnd

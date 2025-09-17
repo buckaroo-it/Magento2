@@ -87,7 +87,10 @@ define(
                                     alert({
                                         title: $t('Success'),
                                         content: $t(data.message),
-                                        actions: { always: function () { } },
+                                        actions: {
+                                            always: function () {
+                                            }
+                                        },
                                         buttons: [{
                                             text: $t(data.remaining_amount_message),
                                             class: 'action primary accept',
@@ -97,7 +100,7 @@ define(
                                         }]
                                     });
                                 }
-                                self.messageContainer.addSuccessMessage({ 'message': $t(data.message) });
+                                self.messageContainer.addSuccessMessage({'message': $t(data.message)});
                             }
                         }).fail((err) => {
                             this.isSubmitting(false);
@@ -112,7 +115,10 @@ define(
                     alert({
                         title: $t('Error'),
                         content: $t(message),
-                        actions: { always: function () { } }
+                        actions: {
+                            always: function () {
+                            }
+                        }
                     });
                     self.messageContainer.addErrorMessage({ 'message': $t(message) });
                 }
@@ -120,11 +126,3 @@ define(
         );
     }
 );
-
-
-
-
-
-
-
-

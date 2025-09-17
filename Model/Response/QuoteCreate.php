@@ -18,7 +18,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace Buckaroo\Magento2\Model\PaypalExpress\Response;
+namespace Buckaroo\Magento2\Model\Response;
 
 use Buckaroo\Magento2\Api\Data\PaypalExpress\QuoteCreateResponseInterface;
 use Buckaroo\Magento2\Api\Data\TotalBreakdownInterfaceFactory;

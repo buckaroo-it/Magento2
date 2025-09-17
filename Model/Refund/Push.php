@@ -272,6 +272,22 @@ class Push
         $totalAmountToRefund = $this->totalAmountToRefund();
         $this->creditAmount = $totalAmountToRefund + $this->order->getBaseTotalRefunded();
 
+        $pendingRefund = $this->order->getPayment()->getAdditionalInformation(Refund::ADDITIONAL_INFO_PENDING_REFUND);
+
+        if ($pendingRefund) {
+            $transactionKey = $this->postData['brq_transactions'];
+            $currentPendingRefund = $pendingRefund[$transactionKey] ?? null;
+            if(is_array($currentPendingRefund)) {
+                $data['shipping_amount']     = $currentPendingRefund['shipping_amount'];
+                $data['adjustment_negative'] = $currentPendingRefund['adjustment_negative'];
+                $data['adjustment_positive'] = $currentPendingRefund['adjustment_positive'];
+                $data['items']               = $currentPendingRefund['items'];
+                $data['qtys']                = $this->setCreditQtys($data['items']);
+
+                return $data;
+            }
+        }
+
         if (!$this->helper->areEqualAmounts($this->creditAmount, $this->order->getBaseGrandTotal())) {
             $adjustment = $this->getAdjustmentRefundData();
             $this->logger->addDebug(sprintf(

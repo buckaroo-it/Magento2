@@ -51,6 +51,7 @@ class HandleFailedQuoteOrder implements ObserverInterface
      * @var OrderManagementInterface
      */
     protected $orderManagement;
+    protected $orderRepository;
 
     /**
      * @param BuckarooSession $buckarooSession
@@ -62,12 +63,14 @@ class HandleFailedQuoteOrder implements ObserverInterface
         BuckarooSession $buckarooSession,
         BuckarooLoggerInterface $logger,
         Manager $moduleManager,
-        OrderManagementInterface $orderManagement
+        OrderManagementInterface $orderManagement,
+        OrderRepositoryInterface $orderRepository
     ) {
         $this->buckarooSession = $buckarooSession;
         $this->logger = $logger;
         $this->moduleManager = $moduleManager;
         $this->orderManagement = $orderManagement;
+        $this->orderRepository = $orderRepository;
     }
 
     /**
@@ -116,6 +119,10 @@ class HandleFailedQuoteOrder implements ObserverInterface
                 if ($this->moduleManager->isEnabled('Magento_Inventory')) {
                     $this->buckarooSession->setData('flagHandleFailedQuote', 1);
                 }
+
+                $order = $this->orderRepository->get($order->getId());
+
+                $this->orderManagement->setState($order, 'canceled');
                 $this->orderManagement->cancel($order->getId());
             } catch (\Exception $e) {
                 $this->logger->addError(sprintf(

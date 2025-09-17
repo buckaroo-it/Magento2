@@ -52,9 +52,8 @@ define(
          * Validate IBAN and BIC number
          * This function check if the checksum if correct
          */
-        function isValidIBAN($v)
-        {
-            $v = $v.replace(/^(.{4})(.*)$/,"$2$1"); //Move the first 4 chars from left to the right
+        function isValidIBAN($v) {
+            $v = $v.replace(/^(.{4})(.*)$/, "$2$1"); //Move the first 4 chars from left to the right
             //Convert A-Z to 10-25
             $v = $v.replace(
                 /[A-Z]/g,
@@ -65,7 +64,7 @@ define(
             var $sum = 0;
             var $ei = 1; //First exponent
             for (var $i = $v.length - 1; $i >= 0; $i--) {
-                $sum += $ei * parseInt($v.charAt($i),10); //multiply the digit by it's exponent
+                $sum += $ei * parseInt($v.charAt($i), 10); //multiply the digit by it's exponent
                 $ei = ($ei * 10) % 97; //compute next base 10 exponent  in modulus 97
             }
             return $sum % 97 == 1;
@@ -104,14 +103,14 @@ define(
 
         return Component.extend(
             {
-                defaults                : {
-                    template : 'Buckaroo_Magento2/payment/buckaroo_magento2_afterpay',
+                defaults: {
+                    template: 'Buckaroo_Magento2/payment/buckaroo_magento2_afterpay',
                     telephoneNumber: null,
                     selectedBusiness: 1,
                     country: '',
                     dateValidate: null,
                     cocNumber: null,
-                    companyName:null,
+                    companyName: null,
                     bankAccountNumber: '',
                     termsUrl: 'https://www.afterpay.nl/nl/klantenservice/betalingsvoorwaarden/',
                     termsSelected: true,
@@ -144,7 +143,7 @@ define(
                     );
 
 
-                    this.termsUrl =  ko.computed(
+                    this.termsUrl = ko.computed(
                         function () {
                             if (quote.billingAddress() !== null) {
                                 return this.getTos(quote.billingAddress().countryId);
@@ -164,7 +163,7 @@ define(
                     this.showFrenchTos = ko.computed(
                         function () {
                             return quote.billingAddress() !== null &&
-                            quote.billingAddress().countryId === 'BE'
+                                quote.billingAddress().countryId === 'BE'
                         },
                         this
                     );
@@ -172,7 +171,7 @@ define(
                     /**
                      * Repair IBAN value to uppercase
                      */
-                    this.bankAccountNumber.extend({ uppercase: true });
+                    this.bankAccountNumber.extend({uppercase: true});
 
                     return this;
                 },
@@ -190,8 +189,8 @@ define(
                         "method": this.item.method,
                         "po_number": null,
                         "additional_data": {
-                            "customer_telephone" : this.telephoneNumber(),
-                            "customer_DoB" : this.dateValidate(),
+                            "customer_telephone": this.telephoneNumber(),
+                            "customer_DoB": this.dateValidate(),
                             "customer_iban": this.bankAccountNumber(),
                             "termsCondition" : this.termsSelected(),
                             "companyName" : this.companyName(),
@@ -200,7 +199,7 @@ define(
                         }
                     };
                 },
-                getTos :function(country) {
+                getTos: function (country) {
                     const businessMethod = this.getBusinessMethod();
                     let lang = 'nl_nl';
                     let url = 'https://documents.riverty.com/terms_conditions/payment_methods/invoice';

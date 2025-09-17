@@ -111,7 +111,7 @@ class BuckarooAlreadyPay extends AbstractTotal
         return [
             'code'  => $this->getCode(),
             'title' => $customTitle ? __(json_encode($customTitle)) : $this->getLabel(),
-            'value' => $this->groupTransaction->getAlreadyPaid($orderId),
+            'value' => -$this->groupTransaction->getAlreadyPaid($orderId),
         ];
     }
 

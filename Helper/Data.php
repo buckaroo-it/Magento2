@@ -288,7 +288,7 @@ class Data extends AbstractHelper
         if ($amount2 == 0) {
             return $amount1 == $amount2;
         } else {
-            return abs((floatval($amount1) - floatval($amount2)) / floatval($amount2)) < 0.00001;
+            return abs((floatval($amount1) - floatval($amount2)) / floatval($amount2)) <= 0.01;
         }
     }
 

@@ -106,17 +106,16 @@ define(
             $.mage.__('Phone number should be correct.')
         );
 
-
         return Component.extend(
             {
-                defaults                : {
-                    template : 'Buckaroo_Magento2/payment/buckaroo_magento2_billink',
+                defaults: {
+                    template: 'Buckaroo_Magento2/payment/buckaroo_magento2_billink',
                     selectedGender: null,
                     date: '',
                     phone: '',
-                    cocNumber:'',
+                    cocNumber: '',
                     vatNumber: '',
-                    dob:null,
+                    dob: null,
                     tos: true,
                     showPhone: false,
                     showB2B: false,
@@ -148,6 +147,14 @@ define(
                             'showFrenchTosValue',
                             'value'
                         ]
+                    );
+
+                    this.isB2B = ko.computed(
+                        function () {
+                            const billingAddress = quote.billingAddress();
+                            return billingAddress && billingAddress.company;
+                        },
+                        this
                     );
 
                     this.showFinancialWarning = ko.computed(
@@ -204,6 +211,18 @@ define(
                         phone = quote.billingAddress().telephone;
                     }
 
+                    let additionalData = {
+                        "customer_telephone": phone,
+                        "customer_gender": this.selectedGender(),
+                        "customer_DoB": this.dob(),
+                        "termsCondition": this.tos(),
+                    };
+
+                    if (this.isB2B()) {
+                        additionalData["customer_chamberOfCommerce"] = this.cocNumber();
+                        additionalData["customer_VATNumber"] = this.vatNumber();
+                    }
+
                     return {
                         "method": this.item.method,
                         "po_number": null,
@@ -235,6 +254,7 @@ define(
                     
                     return validationResult;
                 }
+
             }
         );
     }

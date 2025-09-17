@@ -19,7 +19,7 @@
  */
 declare(strict_types=1);
 
-namespace Buckaroo\Magento2\Model\PaypalExpress\Response;
+namespace Buckaroo\Magento2\Model\Response;
 
 use Buckaroo\Magento2\Api\Data\BreakdownItemInterface;
 

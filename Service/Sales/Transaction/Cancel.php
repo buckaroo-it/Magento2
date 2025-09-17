@@ -38,6 +38,9 @@ class Cancel
      */
     private Account $account;
 
+    /** @var OrderCancellationService */
+    private $orderCancellationService;
+
     /**
      * @var OrderPaymentRepositoryInterface
      */
@@ -56,11 +59,13 @@ class Cancel
     public function __construct(
         OrderStatusFactory $orderStatusFactory,
         OrderPaymentRepositoryInterface $orderPaymentRepository,
-        Account $account
+        Account $account,
+        OrderCancellationService $orderCancellationService
     ) {
         $this->orderStatusFactory = $orderStatusFactory;
         $this->orderPaymentRepository = $orderPaymentRepository;
         $this->account = $account;
+        $this->orderCancellationService = $orderCancellationService;
     }
 
     /**
@@ -119,7 +124,7 @@ class Cancel
             $payment->save();
         }
 
-        $order->cancel()->save();
+        $this->orderCancellationService->cancelOrder($order, 'Cancelled by consumer.', true);
     }
 
     /**

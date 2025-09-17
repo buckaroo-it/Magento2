@@ -36,6 +36,7 @@
             <label>Frontend label</label>
             <comment><![CDATA[Determines the frontend label shown.]]></comment>
             <config_path>payment/buckaroo_magento2_paypal/title</config_path>
+            <backend_model>Buckaroo\Magento2\Model\Config\Backend\EmptyToDelete</backend_model>
         </field>
 
         <field id="subtext" translate="label comment" type="text" sortOrder="25" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -64,7 +65,7 @@
             <config_path>payment/buckaroo_magento2_paypal/sort_order</config_path>
         </field>
 
-         <group id="buckaroo_magento2_paypalexpress" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+        <group id="buckaroo_magento2_paypalexpress" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Paypal Express Configuration</label>
 
             <field id="express_merchant_id" translate="label comment" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -72,7 +73,7 @@
                 <config_path>payment/buckaroo_magento2_paypal/express_merchant_id</config_path>
                 <backend_model>Buckaroo\Magento2\Model\Config\Backend\PaypalExpressMerchantId</backend_model>
             </field>
-           <field id="available_buttons" translate="label comment" type="multiselect" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+            <field id="available_buttons" translate="label comment" type="multiselect" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Enable or disable Paypal express buttons</label>
                 <comment><![CDATA[Select which buttons you want to be active.]]></comment>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\AvailableButtons</source_model>

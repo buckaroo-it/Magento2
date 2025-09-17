@@ -207,10 +207,126 @@ class RestoreQuote implements ObserverInterface
     }
 
     /**
-     * Check if order has failed from max spam payment attempts
+     * Get the active quote from the checkout session.
      *
-     * @return boolean
+     * @return Quote|null
      */
+    private function getActiveQuote()
+    {
+        $quote = null;
+        if ($this->checkoutSession->getQuote() && $this->checkoutSession->getQuote()->getId()) {
+            try {
+                $quote = $this->quoteRepository->getActive($this->checkoutSession->getQuote()->getId());
+            } catch (\Exception $e) {
+                $this->helper->addError(__METHOD__ . '|Error fetching active quote: ' . $e->getMessage());
+            }
+        }
+        return $quote;
+    }
+
+    /**
+     * Process the shipping address of the quote.
+     *
+     * @param Quote $quote
+     */
+    private function processShippingAddress($quote)
+    {
+        $this->helper->addDebug(__METHOD__ . '|25|');
+        $shippingAddress = $quote->getShippingAddress();
+        if ($shippingAddress && !$shippingAddress->getShippingMethod()) {
+            $this->helper->addDebug(__METHOD__ . '|35|');
+            try {
+                $shippingAddress->load($shippingAddress->getAddressId());
+            } catch (\Exception $e) {
+                $this->helper->addError(__METHOD__ . '|Error loading shipping address: ' . $e->getMessage());
+            }
+        }
+    }
+
+    /**
+     * Check if the quote should be restored.
+     *
+     * @param $lastRealOrder
+     * @param $payment
+     * @return bool
+     */
+    private function shouldRestoreQuote($lastRealOrder, $payment)
+    {
+        return (
+            ($this->helper->getRestoreQuoteLastOrder() &&
+                ($lastRealOrder->getData('state') === 'new') &&
+                ($lastRealOrder->getData('status') === 'pending') &&
+                $payment->getMethodInstance()->usesRedirect) || $this->canRestoreFailedFromSpam()
+        );
+    }
+
+    /**
+     * Clear addresses after quote restoration to ensure they are not unintentionally restored.
+     *
+     * @param Quote $quote
+     */
+    private function clearRestoredQuoteAddresses($quote)
+    {
+        if ($quote && $quote->getId()) {
+            $quote->setCustomerEmail(null);
+
+            // Remove existing addresses if they exist
+            $this->clearAddress($quote, $quote->getBillingAddress());
+            $this->clearAddress($quote, $quote->getShippingAddress());
+
+            // Save the modified quote to ensure addresses are cleared
+            try {
+                $this->quoteRepository->save($quote);
+                $this->helper->addDebug(__METHOD__ . '|Addresses cleared after restoreQuote()');
+            } catch (\Exception $e) {
+                $this->helper->addDebug(__METHOD__ . '|Error clearing addresses: ' . $e->getMessage());
+            }
+        }
+    }
+
+
+    /**
+     * Clear address data and remove the address object from the quote.
+     *
+     * @param Quote $quote
+     * @param $address
+     */
+    private function clearAddress($quote, $address)
+    {
+        if ($address) {
+            // Remove the address from the quote
+            $quote->removeAddress($address->getId());
+
+            // Optionally clear address data if needed to reset but keep structure intact
+            $address->addData([]);
+        }
+    }
+
+    /**
+     * Check if the payment method is fastcheckout.
+     *
+     * @param $payment
+     * @return bool
+     */
+    private function isFastCheckout($payment)
+    {
+        return $payment->getMethod() === 'buckaroo_magento2_ideal' &&
+            isset($payment->getAdditionalInformation()['issuer']) &&
+            $payment->getAdditionalInformation()['issuer'] === 'fastcheckout';
+    }
+
+    /**
+     * Check if the payment method should be skipped.
+     *
+     * @param $payment
+     * @return bool
+     */
+    private function isPayconiqPaymentMethod($payment)
+    {
+        return strpos($payment->getMethod(), 'buckaroo_magento2') === false ||
+            in_array($payment->getMethod(), [Payconiq::PAYMENT_METHOD_CODE]);
+    }
+
     public function canRestoreFailedFromSpam()
     {
         return $this->checkoutSession->getRestoreQuoteLastOrder() &&

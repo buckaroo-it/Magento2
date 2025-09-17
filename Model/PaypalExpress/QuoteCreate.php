@@ -42,7 +42,7 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
 {
 
     /**
-     * @var \Buckaroo\Magento2\Api\Data\PaypalExpress\QuoteCreateResponseInterfaceFactory
+     * @var \Buckaroo\Magento2\Api\Data\QuoteCreateResponseInterfaceFactory
      */
     protected $responseFactory;
 

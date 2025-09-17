@@ -54,7 +54,7 @@
                                         <item name="buckaroo-fee-order-level" xsi:type="array">
                                             <item name="component"  xsi:type="string">Buckaroo_Magento2/js/view/checkout/cart/totals/buckaroo_fee</item>
                                             <item name="config" xsi:type="array">
-                                                <item name="title" xsi:type="string">Buckaroo Fee for Order</item>
+                                                <item name="title" xsi:type="string">Payment Fee</item>
                                                 <item name="level" xsi:type="string">order</item>
                                             </item>
                                         </item>

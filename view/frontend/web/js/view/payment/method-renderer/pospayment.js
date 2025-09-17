@@ -63,7 +63,6 @@ define(
 
                 afterPlaceOrder: function () {
                     var response = window.checkoutConfig.payment.buckaroo.response;
-                    response = $.parseJSON(response);
                     checkoutCommon.redirectHandle(response);
                     if (typeof response.Order !== "undefined") {
                         alert({
@@ -73,7 +72,7 @@ define(
                         });
                         var interval = setInterval(function () {
                             checkOrderState(response.Order, interval);
-                        },3000);
+                        }, 3000);
                     }
                 },
 

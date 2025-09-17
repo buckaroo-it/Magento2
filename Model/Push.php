@@ -62,6 +62,10 @@ class Push implements PushInterface
      */
     protected LockManagerWrapper $lockManager;
 
+    protected TransactionRepositoryInterface $transactionRepository;
+    protected SearchCriteriaBuilder $searchCriteriaBuilder;
+    protected FilterBuilder $filterBuilder;
+
     /**
      * @param BuckarooLoggerInterface $logger
      * @param RequestPushFactory $requestPushFactory
@@ -69,6 +73,7 @@ class Push implements PushInterface
      * @param OrderRequestService $orderRequestService
      * @param PushTransactionType $pushTransactionType
      * @param LockManagerWrapper $lockManager
+     * @param OrderCancellationService $orderCancellationService
      */
     public function __construct(
         BuckarooLoggerInterface $logger,
@@ -84,6 +89,7 @@ class Push implements PushInterface
         $this->orderRequestService = $orderRequestService;
         $this->pushTransactionType = $pushTransactionType;
         $this->lockManager = $lockManager;
+        $this->orderCancellationService = $orderCancellationService;
     }
 
     /**

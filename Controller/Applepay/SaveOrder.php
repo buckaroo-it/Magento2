@@ -62,4 +62,133 @@ class SaveOrder extends AbstractApplepay
 
         return $this->commonResponse($data, false);
     }
+
+    /**
+     * Submit the quote.
+     *
+     * @param Quote $quote
+     * @param array|string $extra
+     * @param array $payment
+     * @return void
+     * @throws LocalizedException
+     */
+    private function submitQuote($quote, $extra, $payment): void
+    {
+        try {
+            $emailAddress = $quote->getShippingAddress()->getEmail();
+            if ($quote->getIsVirtual()) {
+                $emailAddress = $payment['shippingContact']['emailAddress'] ?? null;
+            }
+
+            // If customer is not logged in, mark as guest.
+            if (!($this->customerSession->getCustomer() && $this->customerSession->getCustomer()->getId())) {
+                $quote->setCheckoutMethod('guest')
+                    ->setCustomerId(null)
+                    ->setCustomerEmail($emailAddress)
+                    ->setCustomerIsGuest(true)
+                    ->setCustomerGroupId(Group::NOT_LOGGED_IN_ID);
+            }
+
+            $paymentInstance = $quote->getPayment();
+            $paymentInstance->setMethod(Applepay::PAYMENT_METHOD_CODE);
+            $quote->setPayment($paymentInstance);
+
+            // Invoice handling.
+            $invoiceHandlingConfig = $this->accountConfig->getInvoiceHandling($this->order->getStore());
+            if ($invoiceHandlingConfig == InvoiceHandlingOptions::SHIPMENT) {
+                $paymentInstance->setAdditionalInformation(InvoiceHandlingOptions::INVOICE_HANDLING, $invoiceHandlingConfig);
+                $paymentInstance->save();
+                $quote->setPayment($paymentInstance);
+            }
+
+            // Force totals recalculation.
+            $quote->setTotalsCollectedFlag(false);
+            $quote->collectTotals()->save();
+
+            // Assign additional payment data.
+            $obj = $this->objectFactory->create();
+            $obj->setData($extra);
+            $quote->getPayment()->getMethodInstance()->assignData($obj);
+
+            // Submit the quote.
+            $this->quoteManagement->submit($quote);
+        } catch (\Throwable $th) {
+            $this->logger->addError(sprintf(
+                '[ApplePay] | [Controller] | [%s:%s] - Submit Quote | ERROR: %s',
+                __METHOD__,
+                __LINE__,
+                $th->getMessage()
+            ));
+        }
+    }
+
+    /**
+     * Handle the response after order submission.
+     *
+     * @return array
+     */
+    private function handleResponse(): array
+    {
+        $data = [];
+        if ($this->registry && $this->registry->registry('buckaroo_response')) {
+            $data = $this->registry->registry('buckaroo_response')[0];
+            $this->logger->addDebug(sprintf(
+                '[ApplePay] | [Controller] | [%s:%s] - Save Order Handle Response | Response Data: %s',
+                __METHOD__,
+                __LINE__,
+                var_export($data, true)
+            ));
+
+            if (!empty($data->RequiredAction->RedirectURL)) {
+                // Test mode response.
+                $data = [
+                    'RequiredAction' => $data->RequiredAction
+                ];
+            } else {
+                //live mode
+                if (!empty($data->Status->Code->Code) &&
+                    ($data->Status->Code->Code == '190') &&
+                    !empty($data->Order)
+                ) {
+                    $data = $this->processBuckarooResponse($data);
+                }
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * Process Buckaroo response and set order and quote data on session.
+     *
+     * @param mixed $data
+     * @return array
+     */
+    private function processBuckarooResponse($data): array
+    {
+        $this->order->loadByIncrementId($data->Order);
+        if ($this->order->getId()) {
+            $this->checkoutSession
+                ->setLastQuoteId($this->order->getQuoteId())
+                ->setLastSuccessQuoteId($this->order->getQuoteId())
+                ->setLastOrderId($this->order->getId())
+                ->setLastRealOrderId($this->order->getIncrementId())
+                ->setLastOrderStatus($this->order->getStatus());
+
+            $store = $this->order->getStore();
+            $url = $store->getBaseUrl() . '/' . $this->accountConfig->getSuccessRedirect($store);
+            $this->logger->addDebug(sprintf(
+                '[ApplePay] | [Controller] | [%s:%s] - Save Order - Redirect URL: %s',
+                __METHOD__,
+                __LINE__,
+                $url
+            ));
+            $data = [
+                'RequiredAction' => [
+                    'RedirectURL' => $url
+                ]
+            ];
+        }
+        return $data;
+    }
 }

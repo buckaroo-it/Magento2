@@ -93,4 +93,19 @@ class Refund extends AbstractConfigProvider
             $store
         );
     }
+
+    /**
+     * Get the setting for creating a refund on approval for pending approval refunds.
+     *
+     * @param int|string|null $store
+     * @return mixed
+     */
+    public function getPendingApprovalSetting($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            static::XPATH_REFUND_PENDING_APPROVAL,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
 }

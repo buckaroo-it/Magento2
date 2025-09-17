@@ -31,8 +31,10 @@ define(
     ) {
         'use strict';
 
-        return {
-            transactionKey : null,
+    return Component.extend({
+        defaults: {
+            transactionKey: null
+        },
 
             setTransactionKey: function (newKey) {
                 this.transactionKey = newKey;
@@ -66,6 +68,57 @@ define(
                     data: data
                 });
             }
-        };
-    }
-);
+            // Optionally, show the QR code automatically right away
+            // or call this from a Knockout binding, your choice
+            this.showQrCode();
+            return this;
+        },
+
+        /**
+         * Set the transaction key
+         */
+        setTransactionKey: function (newKey) {
+            this.transactionKey = newKey;
+        },
+
+        /**
+         * Show the QR code in the #buckaroo_magento2_payconiq_qr element
+         */
+        showQrCode: function () {
+            // Safeguard if there's no transaction key yet
+            if (!this.transactionKey) {
+                return;
+            }
+
+            BuckarooSdk.Payconiq.initiate(
+                '#buckaroo_magento2_payconiq_qr',
+                this.transactionKey,
+                function (status, params) {
+                    if (status === 'SUCCESS') {
+                        $('#buckaroo_magento2_payconiq_cancel').hide();
+                    }
+                    return true;
+                }
+            );
+        },
+
+        /**
+         * Cancel the payment
+         */
+        cancelPayment: function () {
+            var cancelText = $t(
+                'You have canceled the order. We kindly ask you to not complete the payment in the Payconiq app - ' +
+                'Your order will not be processed. Place the order again if you still want to make the payment.'
+            );
+            $('#buckaroo_magento2_payconiq_qr').html(cancelText);
+
+            var data = { transaction_key: this.transactionKey };
+            var formKey = $.mage.cookies.get('form_key');
+
+            utils.submit({
+                url: url.build('/buckaroo/payconiq/process/?cancel=1&form_key=' + formKey),
+                data: data
+            });
+        }
+    });
+});
