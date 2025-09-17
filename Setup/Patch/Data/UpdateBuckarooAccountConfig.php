@@ -50,7 +50,7 @@ class UpdateBuckarooAccountConfig implements DataPatchInterface
         $connection = $this->moduleDataSetup->getConnection();
 
         $path = 'buckaroo_magento2/account/active';
-        $valueToUpdate = '2';
+        $valueToUpdate = '1';
 
         $select = $connection->select()
             ->from($this->moduleDataSetup->getTable('core_config_data'))

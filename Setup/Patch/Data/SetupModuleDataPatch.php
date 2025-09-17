@@ -21,7 +21,6 @@
 namespace Buckaroo\Magento2\Setup\Patch\Data;
 
 use Buckaroo\Magento2\Gateway\Request\SaveIssuerDataBuilder;
-use Buckaroo\Magento2\Model\Method\PayByBank;
 use Magento\Catalog\Model\Product;
 use Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface;
 use Magento\Eav\Model\Entity\Attribute\Source\Boolean;
@@ -467,8 +466,8 @@ class SetupModuleDataPatch implements DataPatchInterface
         $this->installBaseGiftcards($this->moduleDataSetup, $this->giftcardArray); // 1.3.0
         $this->installBaseGiftcards($this->moduleDataSetup, $this->giftcardAdditionalArray); // 1.3.0
         $this->updateFailureRedirectConfiguration($this->moduleDataSetup); // 1.5.0
-        $this->updateSecretKeyConfiguration($this->moduleDataSetup); // 1.14.0
-        $this->updateMerchantKeyConfiguration($this->moduleDataSetup); // 1.14.0
+//        $this->updateSecretKeyConfiguration($this->moduleDataSetup); // 1.14.0
+//        $this->updateMerchantKeyConfiguration($this->moduleDataSetup); // 1.14.0
         $this->zeroizeGiftcardsPaymentFee($this->moduleDataSetup); // 1.25.1
         $this->giftcardPartialRefund($this->moduleDataSetup); // 1.25.2
         $this->setCustomerIDIN($this->moduleDataSetup);
