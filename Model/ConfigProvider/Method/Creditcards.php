@@ -27,6 +27,7 @@ use Magento\Framework\View\Asset\Repository;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 use Magento\Store\Model\ScopeInterface;
+use Magento\Store\Model\StoreManagerInterface;
 
 class Creditcards extends AbstractConfigProvider
 {
@@ -61,6 +62,11 @@ class Creditcards extends AbstractConfigProvider
     public const XPATH_CREDITCARDS_FIELD_BORDER_RADIUS = 'payment/buckaroo_magento2_creditcards/field_border_radius';
 
 
+    /**
+     * @var StoreManagerInterface
+     */
+    private StoreManagerInterface $storeManager;
+
     protected array $issuers = [
         [
             'name' => 'American Express',
@@ -92,15 +98,18 @@ class Creditcards extends AbstractConfigProvider
      * @param AllowedCurrencies $allowedCurrencies
      * @param PaymentFee $paymentFeeHelper
      * @param LogoService $logoService
+     * @param StoreManagerInterface $storeManager
      */
     public function __construct(
         Repository $assetRepo,
         ScopeConfigInterface $scopeConfig,
         AllowedCurrencies $allowedCurrencies,
         PaymentFee $paymentFeeHelper,
-        LogoService $logoService
+        LogoService $logoService,
+        StoreManagerInterface $storeManager
     ) {
         parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper, $logoService);
+        $this->storeManager = $storeManager;
     }
 
     /**
@@ -144,16 +153,26 @@ class Creditcards extends AbstractConfigProvider
     /**
      * Add the active flag to the creditcard list. This is used in the checkout process.
      *
+     * @param null|int|string $storeId
      * @return array
      */
-    public function formatIssuers(): array
+    public function formatIssuers($storeId = null): array
     {
-        $allowed = explode(',', (string)$this->scopeConfig->getValue(
-            self::XPATH_CREDITCARDS_ALLOWED_ISSUERS,
-            ScopeInterface::SCOPE_STORE
-        ));
+        // If no store ID provided, use the current store
+        if ($storeId === null) {
+            $storeId = $this->storeManager->getStore()->getId();
+        }
 
-        $sort = (string)$this->getSortedIssuers();
+        $allowedConfig = (string)$this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_ALLOWED_ISSUERS,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+
+        // Handle empty configuration by filtering out empty values
+        $allowed = array_filter(explode(',', $allowedConfig));
+
+        $sort = (string)$this->getSortedIssuers($storeId);
         $sortedArray = [];
 
         if (!empty($sort)) {
@@ -438,17 +457,27 @@ class Creditcards extends AbstractConfigProvider
      * Get all available credit card issuers for the SortIssuers block
      * Only returns credit cards that are selected in "Allowed credit and debit cards"
      *
+     * @param null|int|string $storeId
      * @return array
      */
-    public function getAllIssuers(): array
+    public function getAllIssuers($storeId = null): array
     {
-        // Get only allowed credit cards
-        $allowed = explode(',', (string)$this->scopeConfig->getValue(
-            self::XPATH_CREDITCARDS_ALLOWED_ISSUERS,
-            ScopeInterface::SCOPE_STORE
-        ));
+        // If no store ID provided, use the current store
+        if ($storeId === null) {
+            $storeId = $this->storeManager->getStore()->getId();
+        }
 
-        if (count($allowed) === 1 && empty($allowed[0])) {
+        $allowedConfig = (string)$this->scopeConfig->getValue(
+            self::XPATH_CREDITCARDS_ALLOWED_ISSUERS,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+
+        // Handle empty configuration by filtering out empty values
+        $allowed = array_filter(explode(',', $allowedConfig));
+
+        // If no cards are selected, return empty array - merchant must configure cards
+        if (empty($allowed)) {
             return [];
         }
 
