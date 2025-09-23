@@ -92,9 +92,11 @@
             <label>Method specific configuration</label>
             <field id="allowed_issuers" translate="label comment" type="multiselect" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Allowed credit and debit cards</label>
-                <comment><![CDATA[Select payment method specific Credit and debit card.]]></comment>
+                <comment><![CDATA[Select payment method specific Credit and debit card. At least one card must be selected.]]></comment>
                 <config_path>payment/buckaroo_magento2_creditcards/allowed_issuers</config_path>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\Creditcards</source_model>
+                <backend_model>Buckaroo\Magento2\Model\Config\Backend\AllowedIssuers</backend_model>
+                <can_be_empty>1</can_be_empty>
             </field>
         </group>
 
