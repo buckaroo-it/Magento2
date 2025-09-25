@@ -109,11 +109,6 @@
         <plugin name="buckaroo_magento2_plugin_commandInterface" type="Buckaroo\Magento2\Plugin\CommandInterface" />
     </type>
 
-    <!-- Quote -->
-    <type name="Magento\Quote\Api\CartManagementInterface">
-        <plugin name="buckaroo_magento2_plugin_cart_managment" type="Buckaroo\Magento2\Plugin\CartManagement" />
-    </type>
-
     <type name="Magento\Quote\Model\Quote">
         <plugin name="buckaroo_reserve_order_id" type="Buckaroo\Magento2\Plugin\QuotePlugin"/>
     </type>
@@ -795,7 +790,7 @@
             <argument name="commandPool" xsi:type="object">BuckarooGatewayCommandPool</argument>
         </arguments>
     </virtualType>
-    <virtualType name="BuckarooRemainderFacade" type="Buckaroo\Magento2\Model\Method\BuckarooAdapter">
+    <virtualType name="BuckarooRemainderFacade" type="Buckaroo\Magento2\Model\Method\BuckarooRemainderAdapter">
         <arguments>
             <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\Ideal::CODE</argument>
             <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
@@ -828,6 +823,10 @@
             <argument name="requestBuilder" xsi:type="object">BuckarooOrderRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
             <argument name="client" xsi:type="object">TransactionPay</argument>
+            <argument name="logger" xsi:type="object">Psr\Log\LoggerInterface</argument>
+            <argument name="spamLimitService" xsi:type="object">Buckaroo\Magento2\Service\SpamLimitService</argument>
+            <argument name="cancelOrder" xsi:type="object">Buckaroo\Magento2\Model\Service\CancelOrder</argument>
+            <argument name="lockManager" xsi:type="object">Buckaroo\Magento2\Model\LockManagerWrapper</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
             <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
@@ -838,6 +837,10 @@
             <argument name="requestBuilder" xsi:type="object">BuckarooRemainderRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
             <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRemainder</argument>
+            <argument name="logger" xsi:type="object">Psr\Log\LoggerInterface</argument>
+            <argument name="spamLimitService" xsi:type="object">Buckaroo\Magento2\Service\SpamLimitService</argument>
+            <argument name="cancelOrder" xsi:type="object">Buckaroo\Magento2\Model\Service\CancelOrder</argument>
+            <argument name="lockManager" xsi:type="object">Buckaroo\Magento2\Model\LockManagerWrapper</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
             <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
@@ -934,6 +937,10 @@
             <argument name="requestBuilder" xsi:type="object">BuckarooCaptureRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
             <argument name="client" xsi:type="object">TransactionCapture</argument>
+            <argument name="logger" xsi:type="object">Psr\Log\LoggerInterface</argument>
+            <argument name="spamLimitService" xsi:type="object">Buckaroo\Magento2\Service\SpamLimitService</argument>
+            <argument name="cancelOrder" xsi:type="object">Buckaroo\Magento2\Model\Service\CancelOrder</argument>
+            <argument name="lockManager" xsi:type="object">Buckaroo\Magento2\Model\LockManagerWrapper</argument>
             <argument name="handler" xsi:type="object">CaptureResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
             <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
@@ -981,6 +988,10 @@
             <argument name="requestBuilder" xsi:type="object">BuckarooRefundRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
             <argument name="client" xsi:type="object">TransactionRefund</argument>
+            <argument name="logger" xsi:type="object">Psr\Log\LoggerInterface</argument>
+            <argument name="spamLimitService" xsi:type="object">Buckaroo\Magento2\Service\SpamLimitService</argument>
+            <argument name="cancelOrder" xsi:type="object">Buckaroo\Magento2\Model\Service\CancelOrder</argument>
+            <argument name="lockManager" xsi:type="object">Buckaroo\Magento2\Model\LockManagerWrapper</argument>
             <argument name="handler" xsi:type="object">RefundResponseHandler</argument>
             <argument name="validator" xsi:type="object">RefundValidator</argument>
             <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
@@ -1078,6 +1089,10 @@
             <argument name="requestBuilder" xsi:type="object">BuckarooCancelRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
             <argument name="client" xsi:type="object">TransactionCancel</argument>
+            <argument name="logger" xsi:type="object">Psr\Log\LoggerInterface</argument>
+            <argument name="spamLimitService" xsi:type="object">Buckaroo\Magento2\Service\SpamLimitService</argument>
+            <argument name="cancelOrder" xsi:type="object">Buckaroo\Magento2\Model\Service\CancelOrder</argument>
+            <argument name="lockManager" xsi:type="object">Buckaroo\Magento2\Model\LockManagerWrapper</argument>
             <argument name="handler" xsi:type="object">CancelResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
             <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>

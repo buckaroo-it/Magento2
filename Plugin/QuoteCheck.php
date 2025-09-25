@@ -94,7 +94,13 @@ class QuoteCheck
      */
     public function allowedMethod(Cart $subject)
     {
-        if ($this->getAlreadyPaid($subject->getQuote()) > 0) {
+        // Only apply restrictions if using Buckaroo payment methods
+        $quote = $subject->getQuote();
+        if (!$this->isBuckarooPayment($quote)) {
+            return;
+        }
+        
+        if ($this->getAlreadyPaid($quote) > 0) {
             //phpcs:ignore:Magento2.Exceptions.DirectThrow
             throw new \Exception('Action is blocked, please finish current order');
         }
@@ -109,6 +115,22 @@ class QuoteCheck
     private function getAlreadyPaid(Quote $quote): float
     {
         return $this->groupTransaction->getAlreadyPaid($quote->getReservedOrderId());
+    }
+
+    /**
+     * Check if quote uses Buckaroo payment method
+     *
+     * @param Quote $quote
+     * @return bool
+     */
+    private function isBuckarooPayment(Quote $quote): bool
+    {
+        $payment = $quote->getPayment();
+        if (!$payment || !$payment->getMethod()) {
+            return false;
+        }
+        
+        return strpos($payment->getMethod(), "buckaroo_magento2_") !== false;
     }
 
     /**

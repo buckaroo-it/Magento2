@@ -232,6 +232,9 @@
                 <field_font_size>14px</field_font_size>
                 <field_font_family>Open Sans, Helvetica Neue, Helvetica, Arial, sans-serif</field_font_family>
                 <field_border_radius>5px</field_border_radius>
+                
+                <!-- Default allowed credit cards for hosted fields - all enabled by default -->
+                <allowed_issuers>Visa,MasterCard,Amex,Maestro</allowed_issuers>
             </buckaroo_magento2_creditcards>
 
             <buckaroo_magento2_transfer>

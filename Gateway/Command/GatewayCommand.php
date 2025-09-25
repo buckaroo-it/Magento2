@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Gateway\Command;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRemainder;
+use Buckaroo\Magento2\Model\LockManagerWrapper;
 use Buckaroo\Magento2\Model\Method\LimitReachException;
 use Buckaroo\Magento2\Model\Service\CancelOrder;
 use Buckaroo\Magento2\Service\SpamLimitService;
@@ -100,12 +101,18 @@ class GatewayCommand implements CommandInterface
     private CancelOrder $cancelOrder;
 
     /**
+     * @var LockManagerWrapper
+     */
+    private LockManagerWrapper $lockManager;
+
+    /**
      * @param BuilderInterface $requestBuilder
      * @param TransferFactoryInterface $transferFactory
      * @param ClientInterface $client
      * @param LoggerInterface $logger
      * @param SpamLimitService $spamLimitService
      * @param CancelOrder $cancelOrder
+     * @param LockManagerWrapper $lockManager
      * @param HandlerInterface|null $handler
      * @param ValidatorInterface|null $validator
      * @param ErrorMessageMapperInterface|null $errorMessageMapper
@@ -120,6 +127,7 @@ class GatewayCommand implements CommandInterface
         LoggerInterface             $logger,
         SpamLimitService            $spamLimitService,
         CancelOrder                 $cancelOrder,
+        LockManagerWrapper          $lockManager,
         ?HandlerInterface            $handler = null,
         ?ValidatorInterface          $validator = null,
         ?ErrorMessageMapperInterface $errorMessageMapper = null,
@@ -135,6 +143,7 @@ class GatewayCommand implements CommandInterface
         $this->skipCommand = $skipCommand;
         $this->spamLimitService = $spamLimitService;
         $this->cancelOrder = $cancelOrder;
+        $this->lockManager = $lockManager;
     }
 
     /**
@@ -149,42 +158,65 @@ class GatewayCommand implements CommandInterface
     public function execute(array $commandSubject): void
     {
         $paymentDO = SubjectReader::readPayment($commandSubject);
+        $order = $paymentDO->getOrder()->getOrder();
+        $orderIncrementId = $order->getIncrementId();
 
-        $this->cancelOrder->cancelPreviousPendingOrder($paymentDO);
-
-        if ($this->client instanceof TransactionPayRemainder) {
-            $orderIncrementId = $paymentDO->getOrder()->getOrder()->getIncrementId();
-            $commandSubject['action'] = $this->client->setServiceAction($orderIncrementId);
+        // Acquire lock for this order to prevent race conditions with push notifications and return URLs
+        $lockAcquired = $this->lockManager->lockOrder($orderIncrementId, 5);
+        if (!$lockAcquired) {
+            throw new CommandException(__('Could not acquire payment processing lock. Please try again.'));
         }
 
-        if ($this->skipCommand !== null && $this->skipCommand->isSkip($commandSubject)) {
-            return;
-        }
+        try {
+            $this->cancelOrder->cancelPreviousPendingOrder($paymentDO);
 
-        // @TODO implement exceptions catching
-        $transferO = $this->transferFactory->create(
-            $this->requestBuilder->build($commandSubject)
-        );
-
-        $response = $this->client->placeRequest($transferO);
-        if ($this->validator !== null) {
-            $result = $this->validator->validate(array_merge($commandSubject, ['response' => $response]));
-            if (!$result->isValid()) {
-                try {
-                    $this->spamLimitService->updateRateLimiterCount($paymentDO->getPayment()->getMethodInstance());
-                } catch (LimitReachException $th) {
-                    $this->spamLimitService->setMaxAttemptsFlags($paymentDO, $th->getMessage());
-                    return;
-                }
-                $this->processErrors($result);
+            if ($this->client instanceof TransactionPayRemainder) {
+                $commandSubject['action'] = $this->client->setServiceAction($orderIncrementId);
             }
-        }
 
-        if ($this->handler) {
-            $this->handler->handle(
-                $commandSubject,
-                $response
-            );
+            if ($this->skipCommand !== null && $this->skipCommand->isSkip($commandSubject)) {
+                return;
+            }
+
+            // Properly handle exceptions to ensure lock is always released
+            try {
+                $transferO = $this->transferFactory->create(
+                    $this->requestBuilder->build($commandSubject)
+                );
+
+                $response = $this->client->placeRequest($transferO);
+            } catch (ClientException $e) {
+                $this->logger->critical('Buckaroo Client Error: ' . $e->getMessage());
+                throw new CommandException(__('Payment processing failed: %1', $e->getMessage()));
+            } catch (ConverterException $e) {
+                $this->logger->critical('Buckaroo Converter Error: ' . $e->getMessage());
+                throw new CommandException(__('Payment data conversion failed: %1', $e->getMessage()));
+            } catch (\Exception $e) {
+                $this->logger->critical('Unexpected Buckaroo Error: ' . $e->getMessage());
+                throw new CommandException(__('Payment processing encountered an unexpected error.'));
+            }
+            if ($this->validator !== null) {
+                $result = $this->validator->validate(array_merge($commandSubject, ['response' => $response]));
+                if (!$result->isValid()) {
+                    try {
+                        $this->spamLimitService->updateRateLimiterCount($paymentDO->getPayment()->getMethodInstance());
+                    } catch (LimitReachException $th) {
+                        $this->spamLimitService->setMaxAttemptsFlags($paymentDO, $th->getMessage());
+                        return;
+                    }
+                    $this->processErrors($result);
+                }
+            }
+
+            if ($this->handler) {
+                $this->handler->handle(
+                    $commandSubject,
+                    $response
+                );
+            }
+        } finally {
+            // Always release the lock, even if an exception occurs
+            $this->lockManager->unlockOrder($orderIncrementId);
         }
     }
 
