@@ -790,7 +790,7 @@
             <argument name="commandPool" xsi:type="object">BuckarooGatewayCommandPool</argument>
         </arguments>
     </virtualType>
-    <virtualType name="BuckarooRemainderFacade" type="Buckaroo\Magento2\Model\Method\BuckarooAdapter">
+    <virtualType name="BuckarooRemainderFacade" type="Buckaroo\Magento2\Model\Method\BuckarooRemainderAdapter">
         <arguments>
             <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\Ideal::CODE</argument>
             <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
