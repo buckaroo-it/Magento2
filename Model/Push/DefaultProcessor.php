@@ -934,7 +934,8 @@ class DefaultProcessor implements PushProcessorInterface
     protected function canPushInvoice(): bool
     {
         if ($this->payment->getMethodInstance()->getConfigData('payment_action') == 'authorize') {
-            return false;
+            // For authorize payments with shipment-based invoicing, allow processing to set the flag
+            return ($this->configAccount->getInvoiceHandling() == InvoiceHandlingOptions::SHIPMENT);
         }
 
         return true;
