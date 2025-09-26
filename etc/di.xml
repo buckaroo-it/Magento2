@@ -260,6 +260,10 @@
                     <item name="type" xsi:type="string">belfius</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Belfius</item>
                 </item>
+                <item name="twint" xsi:type="array">
+                    <item name="type" xsi:type="string">twint</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Twint</item>
+                </item>
                 <item name="transfer" xsi:type="array">
                     <item name="type" xsi:type="string">transfer</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Transfer</item>
@@ -1834,6 +1838,31 @@
     <!-- END Belfius Value handlers infrastructure -->
     <!-- END Payment Method: Belfius -->
 
+
+    <!-- Payment Method: Twint -->
+    <!-- Twint Payment Method Facade configuration -->
+    <virtualType name="TwintFacade" type="BuckarooRemainderFacade">
+        <arguments>
+            <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\Twint::CODE</argument>
+            <argument name="valueHandlerPool" xsi:type="object">TwintValueHandlerPool</argument>
+        </arguments>
+    </virtualType>
+    <!-- Twint Value handlers infrastructure -->
+    <virtualType name="TwintValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">TwintConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Configuration reader -->
+    <virtualType name="TwintConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Twint</argument>
+        </arguments>
+    </virtualType>
+    <!-- END Twint Value handlers infrastructure -->
+    <!-- END Payment Method: Twint -->
 
     <!-- Payment Method: Blik -->
     <!-- Blik Payment Method Facade configuration -->
