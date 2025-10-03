@@ -154,7 +154,7 @@ jobs:
                 echo "Checking file: $file"
                 # Exclude XML parsing sniffs that fail on PHP files
                 ./m2-${{ matrix.magento }}/vendor/bin/phpcs --standard=Magento2 \
-                  --exclude=Magento2.Legacy.ObsoleteSystemConfiguration,Magento2.Legacy.WidgetXML \
+                  --exclude=Magento2.Legacy.ObsoleteSystemConfiguration,Magento2.Legacy.WidgetXML,Magento2.Legacy.Layout \
                   "$full_path" || true
               fi
             done < files_changed.txt
@@ -167,13 +167,6 @@ jobs:
           bin/magento module:enable --all
           bin/magento setup:di:compile
           
-          # Run PHPUnit tests - allow failures temporarily while fixing tests
+          # Run PHPUnit tests - must pass or workflow fails
           echo "Running PHPUnit tests..."
-          vendor/phpunit/phpunit/phpunit -c dev/tests/unit/phpunit.xml.dist app/code/Buckaroo/Magento2 || {
-            exit_code=$?
-            echo "⚠️ Tests completed with exit code: $exit_code"
-            echo "📊 See TEST_FAILURES_ANALYSIS.md for details on fixing these failures"
-            # Temporarily allow failures - remove this line once tests are fixed
-            echo "Allowing test failures for now..."
-            exit 0
-          }
+          vendor/phpunit/phpunit/phpunit -c dev/tests/unit/phpunit.xml.dist app/code/Buckaroo/Magento2
