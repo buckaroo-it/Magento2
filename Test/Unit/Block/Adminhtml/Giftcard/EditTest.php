@@ -73,7 +73,14 @@ class EditTest extends \Buckaroo\Magento2\Test\BaseTest
         $buckarooGiftcardData = $this->getFakeMock(BuckarooGiftcardDataInterface::class)->getMock();
         $buckarooGiftcardData->method('getGiftcardModel')->willReturn($giftcardModel);
 
-        $instance = $this->getInstance(['buckarooGiftcardData' => $buckarooGiftcardData]);
+        $contextMock = $this->getFakeMock(\Magento\Backend\Block\Widget\Context::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $instance = $this->getInstance([
+            'context' => $contextMock,
+            'buckarooGiftcardData' => $buckarooGiftcardData
+        ]);
         $result = $instance->getHeaderText();
         $resultArgs = $result->getArguments();
 

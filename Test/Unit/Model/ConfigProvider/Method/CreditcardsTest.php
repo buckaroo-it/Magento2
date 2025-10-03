@@ -87,7 +87,7 @@ class CreditcardsTest extends BaseTest
         $logoServiceMock = $this->getFakeMock(LogoService::class)->getMock();
 
         // Mock store and storeManager to prevent null reference errors
-                $storeMock = $this->getMockBuilder(Store::class)
+        $storeMock = $this->getMockBuilder(\Magento\Store\Model\Store::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['getId'])
             ->getMock();

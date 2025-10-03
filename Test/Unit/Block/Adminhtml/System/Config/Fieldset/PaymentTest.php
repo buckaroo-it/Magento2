@@ -31,7 +31,25 @@ class PaymentTest extends BaseTest
 
     public function testIsCollapseState()
     {
-        $instance = $this->getInstance();
+        $contextMock = $this->getFakeMock(\Magento\Backend\Block\Context::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $authSessionMock = $this->getFakeMock(\Magento\Backend\Model\Auth\Session::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $jsHelperMock = $this->getFakeMock(\Magento\Framework\View\Helper\Js::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $backendConfigMock = $this->getFakeMock(\Magento\Config\Model\Config::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $instance = $this->getInstance([
+            'context' => $contextMock,
+            'authSession' => $authSessionMock,
+            'jsHelper' => $jsHelperMock,
+            'backendConfig' => $backendConfigMock
+        ]);
 
         $elementMock = $this->getFakeMock(AbstractElement::class)->getMock();
 
@@ -41,7 +59,25 @@ class PaymentTest extends BaseTest
 
     public function testGetHeaderCommentHtml()
     {
-        $instance = $this->getInstance();
+        $contextMock = $this->getFakeMock(\Magento\Backend\Block\Context::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $authSessionMock = $this->getFakeMock(\Magento\Backend\Model\Auth\Session::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $jsHelperMock = $this->getFakeMock(\Magento\Framework\View\Helper\Js::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $backendConfigMock = $this->getFakeMock(\Magento\Config\Model\Config::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $instance = $this->getInstance([
+            'context' => $contextMock,
+            'authSession' => $authSessionMock,
+            'jsHelper' => $jsHelperMock,
+            'backendConfig' => $backendConfigMock
+        ]);
 
         $elementMock = $this->getFakeMock(AbstractElement::class)->getMock();
 
