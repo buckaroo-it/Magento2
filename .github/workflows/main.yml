@@ -152,7 +152,10 @@ jobs:
               full_path="m2-${{ matrix.magento }}/app/code/Buckaroo/Magento2/$file"
               if [ -f "$full_path" ]; then
                 echo "Checking file: $file"
-                ./m2-${{ matrix.magento }}/vendor/bin/phpcs --standard=Magento2 --exclude=Magento2.Legacy.ObsoleteSystemConfiguration "$full_path" || true
+                # Exclude XML parsing sniffs that fail on PHP files
+                ./m2-${{ matrix.magento }}/vendor/bin/phpcs --standard=Magento2 \
+                  --exclude=Magento2.Legacy.ObsoleteSystemConfiguration,Magento2.Legacy.WidgetXML \
+                  "$full_path" || true
               fi
             done < files_changed.txt
           else
