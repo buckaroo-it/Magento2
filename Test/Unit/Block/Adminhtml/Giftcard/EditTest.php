@@ -65,8 +65,7 @@ class EditTest extends \Buckaroo\Magento2\Test\BaseTest
     public function testGetHeaderText($id, $label, $expectedArgument, $expectedText)
     {
         $giftcardModel = $this->getFakeMock(Giftcard::class)
-            ->onlyMethods(['getLabel'])
-            ->addMethods(['getId'])  // Add getId as an additional method
+            ->onlyMethods(['getLabel', 'getId'])
             ->getMock();
         $giftcardModel->method('getId')->willReturn($id);
         $giftcardModel->method('getLabel')->willReturn($label);
