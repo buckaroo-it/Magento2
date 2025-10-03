@@ -54,7 +54,7 @@ class AfterpayDataBuilder extends AbstractRecipientDataBuilder
             'careOf'               => $this->getCareOf(),
             'firstName'            => $this->getFirstname(),
             'lastName'             => $this->getLastName(),
-            'conversationLanguage' => $this->getConversationLanguage(),
+            'conversationLanguage' => $this->getConversationLanguage()
         ];
 
         $category = $this->getCategory();
