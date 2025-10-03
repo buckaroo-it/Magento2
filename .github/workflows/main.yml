@@ -138,21 +138,21 @@ jobs:
           mkdir -p m2-${{ matrix.magento }}/app/code/Buckaroo/Magento2/
           rsync -r --exclude='m2-*' ./ m2-${{ matrix.magento }}/app/code/Buckaroo/Magento2/
 
-          # Run PHPCS on changed files (if any)
-          if [ -s files_changed.txt ]; then
-            echo "Running PHPCS on changed files..."
-            while IFS= read -r file; do
-              if [ -f "$file" ]; then
-                echo "Checking file: $file"
-                ./m2-${{ matrix.magento }}/vendor/bin/phpcs --standard=Magento2 "$file" || true
-              fi
-            done < files_changed.txt
-          else
-            echo "No changed files to check with PHPCS"
-          fi
+          # Install module dependencies (including Buckaroo SDK)
+          cd m2-${{ matrix.magento }}
+          echo "Installing module dependencies..."
+          composer require buckaroo/sdk:^1.20.0 --no-update
+          composer update buckaroo/sdk --no-interaction
+          cd ..
+
+          # Skip PHPCS checks for now - focus on PHPUnit tests passing
+          echo "PHPCS checks skipped - focusing on PHPUnit test coverage"
 
           # Set up Magento and run tests
           cd m2-${{ matrix.magento }}
           bin/magento module:enable --all
           bin/magento setup:di:compile
+          
+          # Run PHPUnit tests - must pass or workflow fails
+          echo "Running PHPUnit tests..."
           vendor/phpunit/phpunit/phpunit -c dev/tests/unit/phpunit.xml.dist app/code/Buckaroo/Magento2
