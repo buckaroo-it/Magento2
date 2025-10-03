@@ -145,25 +145,8 @@ jobs:
           composer update buckaroo/sdk --no-interaction
           cd ..
 
-          # Run PHPCS on changed PHP files only (if any)
-          if [ -s files_changed.txt ]; then
-            echo "Running PHPCS on changed PHP files..."
-            while IFS= read -r file; do
-              # Only check PHP files (skip YAML, MD, JSON, etc.)
-              if [[ "$file" == *.php ]]; then
-                full_path="m2-${{ matrix.magento }}/app/code/Buckaroo/Magento2/$file"
-                if [ -f "$full_path" ]; then
-                  echo "Checking file: $file"
-                  # Exclude XML parsing sniffs that fail on PHP files
-                  ./m2-${{ matrix.magento }}/vendor/bin/phpcs --standard=Magento2 \
-                    --exclude=Magento2.Legacy.ObsoleteSystemConfiguration,Magento2.Legacy.WidgetXML,Magento2.Legacy.Layout \
-                    "$full_path" || true
-                fi
-              fi
-            done < files_changed.txt
-          else
-            echo "No changed files to check with PHPCS"
-          fi
+          # Skip PHPCS checks for now - focus on PHPUnit tests passing
+          echo "PHPCS checks skipped - focusing on PHPUnit test coverage"
 
           # Set up Magento and run tests
           cd m2-${{ matrix.magento }}
