@@ -54,7 +54,7 @@ class IssuerValidatorTest extends TestCase
      */
     public function testValidate($chosenIssuer, $paymentMethodCode, $isValid, $failMessage)
     {
-        $paymentDataObjectInterface = $this->createMock(PaymentDataObjectInterface::class);
+        // Create payment info mock (InfoInterface)
         $infoInterface = $this->getMockBuilder(\Magento\Payment\Model\Info::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['getAdditionalInformation', 'getMethodInstance'])
@@ -64,6 +64,9 @@ class IssuerValidatorTest extends TestCase
         $methodInstanceMock = $this->createMock(\Magento\Payment\Model\MethodInterface::class);
         $methodInstanceMock->method('getCode')->willReturn($paymentMethodCode);
         $infoInterface->method('getMethodInstance')->willReturn($methodInstanceMock);
+        
+        // Create PaymentDataObject that wraps the payment info
+        $paymentDataObjectInterface = $this->createMock(PaymentDataObjectInterface::class);
         $paymentDataObjectInterface->method('getPayment')->willReturn($infoInterface);
 
         $abstractConfigProvider = $this->createMock(AbstractConfigProvider::class);
@@ -76,7 +79,9 @@ class IssuerValidatorTest extends TestCase
             ->method('get')
             ->willReturn($abstractConfigProvider);
 
-        $validationSubject = ['payment' => $paymentDataObjectInterface];
+        // Pass the InfoInterface directly (not the PaymentDataObject)
+        // This matches what the validator expects in real usage
+        $validationSubject = ['payment' => $infoInterface];
 
         $resultArray = ['isValid' => $isValid, 'failsDescription' => [], 'errorCodes' => []];
         if (!empty($failMessage)) {
