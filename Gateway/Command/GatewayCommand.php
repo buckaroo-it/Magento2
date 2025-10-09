@@ -161,62 +161,132 @@ class GatewayCommand implements CommandInterface
         $order = $paymentDO->getOrder()->getOrder();
         $orderIncrementId = $order->getIncrementId();
 
-        // Acquire lock for this order to prevent race conditions with push notifications and return URLs
+        $this->acquireOrderLock($orderIncrementId);
+
+        try {
+            $this->cancelOrder->cancelPreviousPendingOrder($paymentDO);
+            $this->prepareCommandSubject($commandSubject, $orderIncrementId);
+
+            if ($this->shouldSkipCommand($commandSubject)) {
+                return;
+            }
+
+            $response = $this->processPaymentRequest($commandSubject);
+            $this->validateResponse($commandSubject, $response, $paymentDO);
+            $this->handleResponse($commandSubject, $response);
+        } finally {
+            $this->lockManager->unlockOrder($orderIncrementId);
+        }
+    }
+
+    /**
+     * Acquire order lock to prevent race conditions
+     *
+     * @param string $orderIncrementId
+     * @return void
+     * @throws CommandException
+     */
+    private function acquireOrderLock(string $orderIncrementId): void
+    {
         $lockAcquired = $this->lockManager->lockOrder($orderIncrementId, 5);
         if (!$lockAcquired) {
             throw new CommandException(__('Could not acquire payment processing lock. Please try again.'));
         }
+    }
+
+    /**
+     * Prepare command subject with additional data
+     *
+     * @param array $commandSubject
+     * @param string $orderIncrementId
+     * @return void
+     */
+    private function prepareCommandSubject(array &$commandSubject, string $orderIncrementId): void
+    {
+        if ($this->client instanceof TransactionPayRemainder) {
+            $commandSubject['action'] = $this->client->setServiceAction($orderIncrementId);
+        }
+    }
+
+    /**
+     * Check if command should be skipped
+     *
+     * @param array $commandSubject
+     * @return bool
+     */
+    private function shouldSkipCommand(array $commandSubject): bool
+    {
+        return $this->skipCommand !== null && $this->skipCommand->isSkip($commandSubject);
+    }
+
+    /**
+     * Process payment request and handle exceptions
+     *
+     * @param array $commandSubject
+     * @return array
+     * @throws CommandException
+     */
+    private function processPaymentRequest(array $commandSubject): array
+    {
+        try {
+            $transferO = $this->transferFactory->create(
+                $this->requestBuilder->build($commandSubject)
+            );
+
+            return $this->client->placeRequest($transferO);
+        } catch (ClientException $e) {
+            $this->logger->critical('Buckaroo Client Error: ' . $e->getMessage());
+            throw new CommandException(__('Payment processing failed: %1', $e->getMessage()));
+        } catch (ConverterException $e) {
+            $this->logger->critical('Buckaroo Converter Error: ' . $e->getMessage());
+            throw new CommandException(__('Payment data conversion failed: %1', $e->getMessage()));
+        } catch (\Exception $e) {
+            $this->logger->critical('Unexpected Buckaroo Error: ' . $e->getMessage());
+            throw new CommandException(__('Payment processing encountered an unexpected error.'));
+        }
+    }
+
+    /**
+     * Validate payment response
+     *
+     * @param array $commandSubject
+     * @param array $response
+     * @param PaymentDataObjectInterface $paymentDO
+     * @return void
+     * @throws CommandException
+     */
+    private function validateResponse(array $commandSubject, array $response, PaymentDataObjectInterface $paymentDO): void
+    {
+        if ($this->validator === null) {
+            return;
+        }
+
+        $result = $this->validator->validate(array_merge($commandSubject, ['response' => $response]));
+        if ($result->isValid()) {
+            return;
+        }
 
         try {
-            $this->cancelOrder->cancelPreviousPendingOrder($paymentDO);
+            $this->spamLimitService->updateRateLimiterCount($paymentDO->getPayment()->getMethodInstance());
+        } catch (LimitReachException $th) {
+            $this->spamLimitService->setMaxAttemptsFlags($paymentDO, $th->getMessage());
+            return;
+        }
 
-            if ($this->client instanceof TransactionPayRemainder) {
-                $commandSubject['action'] = $this->client->setServiceAction($orderIncrementId);
-            }
+        $this->processErrors($result);
+    }
 
-            if ($this->skipCommand !== null && $this->skipCommand->isSkip($commandSubject)) {
-                return;
-            }
-
-            // Properly handle exceptions to ensure lock is always released
-            try {
-                $transferO = $this->transferFactory->create(
-                    $this->requestBuilder->build($commandSubject)
-                );
-
-                $response = $this->client->placeRequest($transferO);
-            } catch (ClientException $e) {
-                $this->logger->critical('Buckaroo Client Error: ' . $e->getMessage());
-                throw new CommandException(__('Payment processing failed: %1', $e->getMessage()));
-            } catch (ConverterException $e) {
-                $this->logger->critical('Buckaroo Converter Error: ' . $e->getMessage());
-                throw new CommandException(__('Payment data conversion failed: %1', $e->getMessage()));
-            } catch (\Exception $e) {
-                $this->logger->critical('Unexpected Buckaroo Error: ' . $e->getMessage());
-                throw new CommandException(__('Payment processing encountered an unexpected error.'));
-            }
-            if ($this->validator !== null) {
-                $result = $this->validator->validate(array_merge($commandSubject, ['response' => $response]));
-                if (!$result->isValid()) {
-                    try {
-                        $this->spamLimitService->updateRateLimiterCount($paymentDO->getPayment()->getMethodInstance());
-                    } catch (LimitReachException $th) {
-                        $this->spamLimitService->setMaxAttemptsFlags($paymentDO, $th->getMessage());
-                        return;
-                    }
-                    $this->processErrors($result);
-                }
-            }
-
-            if ($this->handler) {
-                $this->handler->handle(
-                    $commandSubject,
-                    $response
-                );
-            }
-        } finally {
-            // Always release the lock, even if an exception occurs
-            $this->lockManager->unlockOrder($orderIncrementId);
+    /**
+     * Handle payment response
+     *
+     * @param array $commandSubject
+     * @param array $response
+     * @return void
+     */
+    private function handleResponse(array $commandSubject, array $response): void
+    {
+        if ($this->handler) {
+            $this->handler->handle($commandSubject, $response);
         }
     }
 

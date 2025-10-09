@@ -64,14 +64,23 @@ class EditTest extends \Buckaroo\Magento2\Test\BaseTest
      */
     public function testGetHeaderText($id, $label, $expectedArgument, $expectedText)
     {
-        $giftcardModel = $this->getFakeMock(Giftcard::class)->onlyMethods(['getLabel'])->getMock();
+        $giftcardModel = $this->getFakeMock(Giftcard::class)
+            ->onlyMethods(['getLabel', 'getId'])
+            ->getMock();
         $giftcardModel->method('getId')->willReturn($id);
         $giftcardModel->method('getLabel')->willReturn($label);
 
         $buckarooGiftcardData = $this->getFakeMock(BuckarooGiftcardDataInterface::class)->getMock();
         $buckarooGiftcardData->method('getGiftcardModel')->willReturn($giftcardModel);
 
-        $instance = $this->getInstance(['buckarooGiftcardData' => $buckarooGiftcardData]);
+        $contextMock = $this->getFakeMock(\Magento\Backend\Block\Widget\Context::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $instance = $this->getInstance([
+            'context' => $contextMock,
+            'buckarooGiftcardData' => $buckarooGiftcardData
+        ]);
         $result = $instance->getHeaderText();
         $resultArgs = $result->getArguments();
 

@@ -1,12 +1,16 @@
-on:
-  push:
-    branches:
-      - feature/payment_provider_gateway
-      - sonarqube-refactor-fixes
-  pull_request:
-    types: [opened, synchronize, reopened]
+# DISABLED - To re-enable, remove the 'on: workflow_dispatch' line and uncomment the original 'on:' trigger below
+on: workflow_dispatch  # This disables automatic triggers; workflow can only be run manually
 
-name: SonarQube PR Analysis
+# Original triggers (commented out to disable):
+# on:
+#   push:
+#     branches:
+#       - feature/payment_provider_gateway
+#       - sonarqube-refactor-fixes
+#   pull_request:
+#     types: [opened, synchronize, reopened]
+
+name: SonarQube PR Analysis (DISABLED)
 jobs:
   sonarqube:
     runs-on: ubuntu-latest
