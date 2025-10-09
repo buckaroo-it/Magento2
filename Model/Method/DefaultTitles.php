@@ -39,6 +39,7 @@ class DefaultTitles
         'payconiq'         => 'Payconiq',
         'sepadirectdebit'  => 'SEPA Direct Debit',
         'belfius'          => 'Belfius',
+        'bizum'            => 'Bizum',
         'transfer'         => 'Bank Transfer',
         'eps'              => 'EPS',
         'kbc'              => 'KBC',
