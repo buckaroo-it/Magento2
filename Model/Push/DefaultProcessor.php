@@ -587,7 +587,9 @@ class DefaultProcessor implements PushProcessorInterface
                         $this->order->getState()
                     ));
                 }
-                $this->order->addCommentToStatusHistory($this->pushRequest->getStatusmessage());
+                if (!$this->pushRequest->hasPostData('statuscode', BuckarooStatusCode::PENDING_PROCESSING)) {
+                    $this->order->addCommentToStatusHistory($this->pushRequest->getStatusmessage());
+                }
             }
         }
     }
