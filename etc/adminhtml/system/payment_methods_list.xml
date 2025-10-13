@@ -70,6 +70,8 @@
 
         <include path="Buckaroo_Magento2::system/payment_methods/bizum.xml"/>
 
+        <include path="Buckaroo_Magento2::system/payment_methods/swish.xml"/>
+
         <include path="Buckaroo_Magento2::system/payment_methods/twint.xml"/>
 
         <include path="Buckaroo_Magento2::system/payment_methods/voucher.xml"/>
