@@ -264,6 +264,10 @@
                     <item name="type" xsi:type="string">bizum</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Bizum</item>
                 </item>
+                <item name="swish" xsi:type="array">
+                    <item name="type" xsi:type="string">swish</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Swish</item>
+                </item>
                 <item name="twint" xsi:type="array">
                     <item name="type" xsi:type="string">twint</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Twint</item>
@@ -1868,6 +1872,30 @@
     <!-- END Bizum Value handlers infrastructure -->
     <!-- END Payment Method: Bizum -->
 
+    <!-- Payment Method: Swish -->
+    <!-- Swish Payment Method Facade configuration -->
+    <virtualType name="SwishFacade" type="BuckarooRemainderFacade">
+        <arguments>
+            <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\Swish::CODE</argument>
+            <argument name="valueHandlerPool" xsi:type="object">SwishValueHandlerPool</argument>
+        </arguments>
+    </virtualType>
+    <!-- Swish Value handlers infrastructure -->
+    <virtualType name="SwishValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">SwishConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Configuration reader -->
+    <virtualType name="SwishConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Swish</argument>
+        </arguments>
+    </virtualType>
+    <!-- END Swish Value handlers infrastructure -->
+    <!-- END Payment Method: Swish -->
 
     <!-- Payment Method: Twint -->
     <!-- Twint Payment Method Facade configuration -->

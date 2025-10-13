@@ -40,6 +40,7 @@ class DefaultTitles
         'sepadirectdebit'  => 'SEPA Direct Debit',
         'belfius'          => 'Belfius',
         'bizum'            => 'Bizum',
+        'swish'            => 'Swish',
         'transfer'         => 'Bank Transfer',
         'eps'              => 'EPS',
         'kbc'              => 'KBC',
