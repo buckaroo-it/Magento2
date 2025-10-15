@@ -587,7 +587,14 @@ class DefaultProcessor implements PushProcessorInterface
                         $this->order->getState()
                     ));
                 }
-                if (!$this->pushRequest->hasPostData('statuscode', BuckarooStatusCode::PENDING_PROCESSING)) {
+                if (
+                    (
+                        $this->pushRequest->hasPostData('statuscode', BuckarooStatusCode::PENDING_PROCESSING)
+                        && in_array($this->order->getState(), [Order::STATE_PENDING_PAYMENT, Order::STATE_NEW], true)
+                    )
+                    ||
+                    !$this->pushRequest->hasPostData('statuscode', BuckarooStatusCode::PENDING_PROCESSING)
+                ) {
                     $this->order->addCommentToStatusHistory($this->pushRequest->getStatusmessage());
                 }
             }
