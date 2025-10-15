@@ -350,7 +350,12 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     {
         $collection = $this->secondChanceCollectionFactory->create();
         $collection->addFieldToFilter('store_id', $store->getId());
-        $collection->addFieldToFilter('status', 'pending');
+
+        if ($step == 1) {
+            $collection->addFieldToFilter('status', 'pending');
+        } else {
+            $collection->addFieldToFilter('status', 'step1_sent');
+        }
 
         // Calculate delay based on step
         $delay = $this->configProvider->getSecondChanceDelay($step, $store);
@@ -407,6 +412,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
                 if ($step == 1) {
                     $item->setFirstEmailSent($this->dateTime->gmtDate());
                     $item->setStep(1);
+                    $item->setStatus('step1_sent');
                 } elseif ($step == 2) {
                     $item->setSecondEmailSent($this->dateTime->gmtDate());
                     $item->setStep(2);
