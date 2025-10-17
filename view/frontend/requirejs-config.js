@@ -41,6 +41,7 @@ var config = {
             "BuckarooHostedFieldsSdk": "//hostedfields-externalapi.prod-pci.buckaroo.io/v1/sdk",
             "buckaroo/checkout/common": "Buckaroo_Magento2/js/view/checkout/common",
             "buckaroo/checkout/datepicker": "Buckaroo_Magento2/js/view/checkout/datepicker",
+            "buckaroo/checkout/datepicker-enhanced": "Buckaroo_Magento2/js/view/checkout/datepicker-enhanced",
             "buckaroo/paypal-express/pay": "Buckaroo_Magento2/js/view/checkout/paypal-express/pay",
             "buckaroo/paypal-express/button": "Buckaroo_Magento2/js/view/checkout/paypal-express/button",
             "buckaroo/ideal-fast-checkout/pay": "Buckaroo_Magento2/js/view/checkout/ideal-fast-checkout/pay",
