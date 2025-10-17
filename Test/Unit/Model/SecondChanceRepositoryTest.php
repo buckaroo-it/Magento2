@@ -407,8 +407,9 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
         $inlineTranslation->method('suspend');
         $inlineTranslation->method('resume');
 
+        // Allow any addDebug calls - we have multiple debug logs now
         $this->logging->method('addDebug')
-            ->with($this->stringContains('SecondChance email sent successfully'));
+            ->willReturn(true);
 
         $instance = $this->getInstance([
             'configProvider' => $this->configProvider,
@@ -454,8 +455,16 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
         $secondChance->method('setStatus')->with('clicked');
         $secondChance->method('getDataModel')->willReturn($secondChance);
 
+        // Create a mock for checking if suffixed order exists (it shouldn't)
+        $checkOrder = $this->getFakeMock(Order::class, true);
+        $checkOrder->method('loadByIncrementId')
+            ->with('000000001-1')
+            ->willReturnSelf();
+        $checkOrder->method('getId')->willReturn(null); // Doesn't exist, so we can use -1 suffix
+
+        // Mock orderFactory to return different orders for different calls
         $this->orderFactory->method('create')
-            ->willReturn($order);
+            ->willReturnOnConsecutiveCalls($order, $checkOrder);
 
         $order->method('loadByIncrementId')
             ->with($orderId)
