@@ -128,7 +128,7 @@ define(
 
                 getMessageText: function () {
                     return $.mage
-                        .__('Je moet minimaal 18+ zijn om deze dienst te gebruiken. Als je op tijd betaalt, voorkom je extra kosten en zorg je dat je in de toekomst nogmaals gebruik kunt maken van de diensten van Achteraf betalen via ' +
+                        .__('Je moet minimaal 18+ zijn om deze dienst te gebruiken. Als je op tijd betaalt, voorkom je extra kosten en zorg je dat je in de toekomst nogmaals gebruik kunt maken van de diensten van ' +
                             window.checkoutConfig.payment.buckaroo.buckaroo_magento2_billink.title +
                             '. Door verder te gaan, accepteer je de <a target="_blank" href="%s">Algemene&nbsp;Voorwaarden</a> en bevestig je dat je de <a target="_blank" href="%f">Privacyverklaring</a> en <a target="_blank" href="%c">Cookieverklaring</a> hebt gelezen.')
                         .replace('%s', 'https://www.billink.nl/gebruikersvoorwaarden')
@@ -224,7 +224,7 @@ define(
                  */
                 validate: function () {
                     var validationResult = this._super();
-                    
+
                     // For B2C customers, gender selection is mandatory
                     if (!this.showB2B() && (!this.selectedGender() || this.selectedGender() === '')) {
                         this.messageContainer.addErrorMessage({
@@ -232,7 +232,7 @@ define(
                         });
                         return false;
                     }
-                    
+
                     return validationResult;
                 }
             }
