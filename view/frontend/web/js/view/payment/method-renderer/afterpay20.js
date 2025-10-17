@@ -27,7 +27,7 @@ define(
         'Buckaroo_Magento2/js/action/place-order',
         'Magento_Checkout/js/model/quote',
         'ko',
-        'buckaroo/checkout/datepicker',
+        'buckaroo/checkout/datepicker-enhanced',
         'Magento_Customer/js/model/customer',
         'Magento_Ui/js/lib/knockout/bindings/datepicker',
         'Magento_Checkout/js/action/select-billing-address',
@@ -112,18 +112,53 @@ define(
             $.mage.__('Phone number should be correct.')
         );
 
+        // Custom date validation that accepts both dd/mm/yyyy and dd-mm-yyyy formats
+        $.validator.addMethod('validate-date-flexible', function (value) {
+            if (!value) return false;
+            
+            // Accept both dd/mm/yyyy and dd-mm-yyyy formats
+            var dateReg = /^\d{1,2}[\/-]\d{1,2}[\/-]\d{4}$/;
+            if (value.match(dateReg)) {
+                // Parse the date to ensure it's valid
+                var parts = value.split(/[\/-]/);
+                var day = parseInt(parts[0], 10);
+                var month = parseInt(parts[1], 10);
+                var year = parseInt(parts[2], 10);
+                
+                // Basic date validation
+                if (day < 1 || day > 31 || month < 1 || month > 12 || year < 1900 || year > new Date().getFullYear()) {
+                    return false;
+                }
+                
+                // Create date object to validate
+                var date = new Date(year, month - 1, day);
+                return date.getDate() === day && date.getMonth() === (month - 1) && date.getFullYear() === year;
+            }
+            return false;
+        }, $.mage.__('Please use this date format: dd/mm/yyyy or dd-mm-yyyy. For example 17/03/2006 or 17-03-2006 for the 17th of March, 2006.'));
+
         $.validator.addMethod('validateAge', function (value) {
             if (value && (value.length > 0)) {
-                var dateReg = /^\d{2}[./-]\d{2}[./-]\d{4}$/;
+                var dateReg = /^\d{1,2}[\/-]\d{1,2}[\/-]\d{4}$/;
                 if (value.match(dateReg)) {
-                    var birthday = +new Date(
-                        value.substr(6, 4),
-                        value.substr(3, 2) - 1,
-                        value.substr(0, 2),
-                        0,
-                        0,
-                        0
-                    );
+                    // Parse the date parts
+                    var parts = value.split(/[\/-]/);
+                    var day = parseInt(parts[0], 10);
+                    var month = parseInt(parts[1], 10);
+                    var year = parseInt(parts[2], 10);
+                    
+                    // Validate the date is actually valid
+                    if (day < 1 || day > 31 || month < 1 || month > 12 || year < 1900 || year > new Date().getFullYear()) {
+                        return false;
+                    }
+                    
+                    var birthday = new Date(year, month - 1, day, 0, 0, 0);
+                    
+                    // Check if the date is valid (handles invalid dates like Feb 30)
+                    if (birthday.getDate() !== day || birthday.getMonth() !== (month - 1) || birthday.getFullYear() !== year) {
+                        return false;
+                    }
+                    
                     return ~~((Date.now() - birthday) / (31557600000)) >= 18;
                 }
             }
