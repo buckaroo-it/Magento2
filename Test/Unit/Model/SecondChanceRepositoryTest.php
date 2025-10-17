@@ -31,6 +31,8 @@ use Buckaroo\Magento2\Service\Sales\Quote\Recreate as QuoteRecreateService;
 use Buckaroo\Magento2\Logging\Log;
 use Magento\Sales\Model\OrderFactory;
 use Magento\Quote\Model\QuoteFactory;
+use Magento\Checkout\Model\Session as CheckoutSession;
+use Magento\SalesSequence\Model\Manager as OrderIncrementIdChecker;
 use Magento\Framework\Math\Random;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\CatalogInventory\Api\StockRegistryInterface;
@@ -79,6 +81,12 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
     /** @var QuoteRecreateService|\PHPUnit\Framework\MockObject\MockObject */
     private $quoteRecreate;
 
+    /** @var CheckoutSession|\PHPUnit\Framework\MockObject\MockObject */
+    private $checkoutSession;
+
+    /** @var OrderIncrementIdChecker|\PHPUnit\Framework\MockObject\MockObject */
+    private $orderIncrementIdChecker;
+
     public function setUp(): void
     {
         parent::setUp();
@@ -92,6 +100,8 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->stockRegistry = $this->createMock(StockRegistryInterface::class);
         $this->transportBuilder = $this->getFakeMock(TransportBuilder::class, true);
         $this->quoteRecreate = $this->getFakeMock(QuoteRecreateService::class, true);
+        $this->checkoutSession = $this->getFakeMock(CheckoutSession::class, true);
+        $this->orderIncrementIdChecker = $this->getFakeMock(OrderIncrementIdChecker::class, true);
     }
 
     /**
@@ -343,9 +353,17 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
         $secondChance->method('getToken')->willReturn('test_token');
 
         $store->method('getUrl')
-            ->with('buckaroo/checkout/secondchance', ['token' => 'test_token'])
-            ->willReturn('http://example.com/buckaroo/checkout/secondchance?token=test_token');
+            ->with('buckaroo/checkout/secondchance', [
+                'token' => 'test_token',
+                '_scope' => 1,
+                '_scope_to_url' => true
+            ])
+            ->willReturn('http://example.com/nl/buckaroo/checkout/secondchance?token=test_token');
         $store->method('getId')->willReturn(1);
+        $store->method('getCode')->willReturn('nl');
+        $store->method('getConfig')
+            ->with('general/locale/code')
+            ->willReturn('nl_NL');
 
         // Mock the payment helper to return HTML for the payment info - need to match actual call parameters
         $paymentHelper->method('getInfoBlockHtml')
@@ -416,6 +434,8 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
         $collectionFactory = $this->getFakeMock(SecondChanceCollectionFactory::class, true);
         $secondChance = $this->getFakeMock(\Buckaroo\Magento2\Model\SecondChance::class, true);
         $order = $this->getFakeMock(Order::class, true);
+        $quote = $this->getFakeMock(\Magento\Quote\Model\Quote::class, true);
+        $checkoutQuote = $this->getFakeMock(\Magento\Quote\Model\Quote::class, true);
 
         $collectionFactory->method('create')
             ->willReturn($collection);
@@ -442,9 +462,43 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
             ->willReturnSelf();
 
         $order->method('getId')->willReturn(123);
+        $order->method('getQuoteId')->willReturn(456);
+
+        // Mock the quote factory to return a quote that can be loaded
+        $this->quoteFactory->method('create')
+            ->willReturn($quote);
+        
+        $quote->method('load')
+            ->with(456)
+            ->willReturnSelf();
+        
+        $quote->method('getId')->willReturn(456);
+        $quote->method('setReservedOrderId')
+            ->with('000000001-1')
+            ->willReturnSelf();
+        $quote->method('save')->willReturnSelf();
+
+        // Mock checkout session
+        $this->checkoutSession->method('getQuote')
+            ->willReturn($checkoutQuote);
+        
+        $checkoutQuote->method('getId')->willReturn(789);
+        $checkoutQuote->method('setReservedOrderId')
+            ->with('000000001-1')
+            ->willReturnSelf();
+        $checkoutQuote->method('save')->willReturnSelf();
+
+        // Mock the quoteRecreate to return a new quote with an ID
+        $newQuote = $this->getFakeMock(\Magento\Quote\Model\Quote::class, true);
+        $newQuote->method('getId')->willReturn(999);
+        $newQuote->method('setReservedOrderId')
+            ->with('000000001-1')
+            ->willReturnSelf();
+        $newQuote->method('save')->willReturnSelf();
 
         $this->quoteRecreate->method('duplicate')
-            ->with($order);
+            ->with($order)
+            ->willReturn($newQuote);
 
         $resource = $this->getFakeMock(ResourceSecondChance::class, true);
         $resource->method('save')->with($secondChance);
@@ -452,8 +506,11 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
         $instance = $this->getInstance([
             'secondChanceCollectionFactory' => $collectionFactory,
             'orderFactory' => $this->orderFactory,
+            'quoteFactory' => $this->quoteFactory,
             'quoteRecreate' => $this->quoteRecreate,
+            'checkoutSession' => $this->checkoutSession,
             'resource' => $resource,
+            'logging' => $this->logging,
         ]);
 
         $result = $this->invokeArgs('getSecondChanceByToken', [$token], $instance);
