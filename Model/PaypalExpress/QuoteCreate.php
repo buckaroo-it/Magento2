@@ -253,10 +253,6 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
             $address->setEmail($this->quote->getCustomerEmail() ?: 'no-reply@example.com');
             $address->setStreet('Street');
             $address->setTelephone('0000000');
-            $address->setCountryId($shipping_address->getCountryCode());
-            $address->setPostcode($shipping_address->getPostalCode());
-            $address->setCity($shipping_address->getCity());
-            $address->setRegion($shipping_address->getState());
         }
     }
 

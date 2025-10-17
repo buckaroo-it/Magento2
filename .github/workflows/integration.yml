@@ -42,10 +42,41 @@ jobs:
           'xpack.security.enabled': false
           ES_JAVA_OPTS: "-Xms64m -Xmx512m"
         options: --health-cmd="curl localhost:9200/_cluster/health?wait_for_status=yellow&timeout=60s" --health-interval=10s --health-timeout=5s --health-retries=3
+
     steps:
-      - uses: actions/checkout@v3
-      - name: M2 Integration Tests with Magento ${{ matrix.magento }} (PHP ${{ matrix.php }})
-        uses: extdn/github-actions-m2/magento-integration-tests/${{ matrix.php }}@master
+      - uses: actions/checkout@v4
+
+      # PHP 8.1
+      - name: M2 Integration Tests (PHP 8.1 / Magento ${{ matrix.magento }})
+        if: matrix.php == '8.1'
+        uses: extdn/github-actions-m2/magento-integration-tests/8.1@master
+        with:
+          module_name: Buckaroo_Magento2
+          composer_name: buckaroo/magento2
+          ce_version: ${{ matrix.magento }}
+
+      # PHP 8.2
+      - name: M2 Integration Tests (PHP 8.2 / Magento ${{ matrix.magento }})
+        if: matrix.php == '8.2'
+        uses: extdn/github-actions-m2/magento-integration-tests/8.2@master
+        with:
+          module_name: Buckaroo_Magento2
+          composer_name: buckaroo/magento2
+          ce_version: ${{ matrix.magento }}
+
+      # PHP 8.3
+      - name: M2 Integration Tests (PHP 8.3 / Magento ${{ matrix.magento }})
+        if: matrix.php == '8.3'
+        uses: extdn/github-actions-m2/magento-integration-tests/8.3@master
+        with:
+          module_name: Buckaroo_Magento2
+          composer_name: buckaroo/magento2
+          ce_version: ${{ matrix.magento }}
+
+      # PHP 8.4
+      - name: M2 Integration Tests (PHP 8.4 / Magento ${{ matrix.magento }})
+        if: matrix.php == '8.4'
+        uses: extdn/github-actions-m2/magento-integration-tests/8.4@master
         with:
           module_name: Buckaroo_Magento2
           composer_name: buckaroo/magento2
