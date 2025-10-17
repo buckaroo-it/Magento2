@@ -28,6 +28,7 @@ use Buckaroo\Magento2\Model\ResourceModel\SecondChance as ResourceSecondChance;
 use Buckaroo\Magento2\Model\ResourceModel\SecondChance\CollectionFactory as SecondChanceCollectionFactory;
 use Buckaroo\Magento2\Model\Method\PayPerEmail;
 use Buckaroo\Magento2\Model\Method\Transfer;
+use Exception;
 use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\Api\ExtensibleDataObjectConverter;
 use Magento\Framework\Api\ExtensionAttribute\JoinProcessorInterface;
@@ -37,6 +38,7 @@ use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Reflection\DataObjectProcessor;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Model\Order;
 use Magento\Store\Model\StoreManagerInterface;
 use Buckaroo\Magento2\Api\Data\SecondChanceInterface;
 use Magento\Catalog\Model\Product\Type;
@@ -73,6 +75,9 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     protected $paymentHelper;
     protected $identityContainer;
     protected $quoteRecreate;
+    protected $checkoutSession;
+    protected $quoteFactory;
+    protected $orderIncrementIdChecker;
 
     /**
      * @param ResourceSecondChance                      $resource
@@ -111,7 +116,10 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         \Magento\Sales\Model\Order\Address\Renderer $addressRenderer,
         \Magento\Payment\Helper\Data $paymentHelper,
         \Magento\Sales\Model\Order\Email\Container\ShipmentIdentity $identityContainer,
-        QuoteRecreateService $quoteRecreate
+        QuoteRecreateService $quoteRecreate,
+        \Magento\Checkout\Model\Session $checkoutSession,
+        \Magento\Quote\Model\QuoteFactory $quoteFactory,
+        \Magento\SalesSequence\Model\Manager $orderIncrementIdChecker
     ) {
         $this->resource                         = $resource;
         $this->secondChanceFactory              = $secondChanceFactory;
@@ -137,6 +145,9 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         $this->paymentHelper                    = $paymentHelper;
         $this->identityContainer                = $identityContainer;
         $this->quoteRecreate                    = $quoteRecreate;
+        $this->checkoutSession                  = $checkoutSession;
+        $this->quoteFactory                     = $quoteFactory;
+        $this->orderIncrementIdChecker          = $orderIncrementIdChecker;
     }
 
     /**
@@ -154,7 +165,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
 
         try {
             $this->resource->save($secondChanceModel);
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             throw new CouldNotSaveException(
                 __(
                     'Could not save the secondChance: %1',
@@ -223,7 +234,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
             $secondChanceModel = $this->secondChanceFactory->create();
             $this->resource->load($secondChanceModel, $secondChance->getEntityId());
             $this->resource->delete($secondChanceModel);
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             throw new CouldNotDeleteException(
                 __(
                     'Could not delete the SecondChance: %1',
@@ -272,7 +283,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         foreach ($collection as $item) {
             try {
                 $this->resource->delete($item);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->logging->addError('Error deleting SecondChance record: ' . $e->getMessage());
             }
         }
@@ -307,14 +318,57 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
             $this->logging->addDebug('SecondChance record created for order: ' . $order->getIncrementId());
 
             return $savedSecondChance;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logging->addError('Failed to create SecondChance record: ' . $e->getMessage());
             throw $e;
         }
     }
 
     /**
+     * Set available increment ID with suffix (matching original standalone plugin behavior)
+     *
+     * @param string $orderId
+     * @param Order $order
+     * @return string|null
+     * @throws Exception
+     */
+    private function setAvailableIncrementId($orderId, $order)
+    {
+        $this->logging->addDebug(__METHOD__ . '|setAvailableIncrementId|' . $orderId);
+
+        // Loop from 1-100 to find first available increment ID (matching original plugin)
+        for ($i = 1; $i < 100; $i++) {
+            $newOrderId = $orderId . '-' . $i;
+
+            // Check if this increment ID is already used
+            $existingOrder = $this->orderFactory->create()->loadByIncrementId($newOrderId);
+            if (!$existingOrder->getId()) {
+                $this->logging->addDebug(__METHOD__ . '|setReservedOrderId|' . $newOrderId);
+
+                // Set on checkout session quote if available
+                if ($this->checkoutSession->getQuote() && $this->checkoutSession->getQuote()->getId()) {
+                    $this->checkoutSession->getQuote()->setReservedOrderId($newOrderId);
+                    $this->checkoutSession->getQuote()->save();
+                }
+
+                // Set on original quote
+                $quote = $this->quoteFactory->create()->load($order->getQuoteId());
+                if ($quote->getId()) {
+                    $quote->setReservedOrderId($newOrderId)->save();
+                }
+
+                return $newOrderId;
+            }
+        }
+
+        // If all 100 attempts are used (unlikely), log warning
+        $this->logging->addError(__METHOD__ . '|Could not find available increment ID for order|' . $orderId);
+        return null;
+    }
+
+    /**
      * Get SecondChance by token and recreate quote
+     * @throws Exception
      */
     public function getSecondChanceByToken($token)
     {
@@ -332,10 +386,25 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
             $this->setFinalStatus($secondChance, 'clicked');
         }
 
-        // Recreate quote
+        // Recreate quote with Second Chance suffix
         $order = $this->orderFactory->create()->loadByIncrementId($secondChance->getOrderId());
         if ($order->getId()) {
-            $this->quoteRecreate->duplicate($order);
+            // Find available increment ID with suffix (e.g., orderId-1, orderId-2, etc.)
+            $newOrderId = $this->setAvailableIncrementId($secondChance->getOrderId(), $order);
+
+            // Recreate the quote
+            $quote = $this->quoteRecreate->duplicate($order);
+
+            // Apply the reserved order ID with suffix to the new quote
+            if ($newOrderId && $quote && $quote->getId()) {
+                $quote->setReservedOrderId($newOrderId);
+                $quote->save();
+                $this->logging->addDebug('Second Chance: Order ID suffix applied to new quote', [
+                    'quote_id' => $quote->getId(),
+                    'reserved_order_id' => $newOrderId,
+                    'original_order_id' => $secondChance->getOrderId()
+                ]);
+            }
         }
 
         return $secondChance->getDataModel();
@@ -369,6 +438,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
 
         foreach ($collection as $item) {
             try {
+
                 // Check if this step email is enabled
                 if ($step == 1 && !$this->configProvider->isFirstEmailEnabled($store)) {
                     continue;
@@ -405,6 +475,19 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
                     continue;
                 }
 
+                // Validate order email is not a placeholder before sending
+                $orderEmail = $order->getCustomerEmail();
+                if ($this->isPlaceholderEmail($orderEmail)) {
+                    $this->logging->addDebug('SecondChance email skipped - order still has placeholder email', [
+                        'order_id' => $order->getIncrementId(),
+                        'email' => $orderEmail,
+                        'step' => $step,
+                        'note' => 'OrderUpdate may not have run yet. Will retry next cron.'
+                    ]);
+                    // Don't mark as failed - retry on next cron run
+                    continue;
+                }
+
                 // Send email
                 $this->sendMail($order, $item, $step);
 
@@ -425,7 +508,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
                 // Log successful processing for key steps only
                 $this->logging->addDebug('SecondChance email sent successfully for step ' . $step . ', Order: ' . $order->getIncrementId());
 
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->logging->addError('SecondChance processing error for step ' . $step . ', Order: ' . $item->getOrderId() . ' - Error: ' . $e->getMessage());
                 $this->logging->addError('File: ' . $e->getFile() . ':' . $e->getLine());
                 $this->logging->addError('Stack trace: ' . $e->getTraceAsString());
@@ -441,20 +524,32 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     {
         $store = $order->getStore();
 
-        // Generate checkout URL with token
-        $checkoutUrl = $store->getUrl('buckaroo/checkout/secondchance', ['token' => $secondChance->getToken()]);
+        // Generate checkout URL with token (ensure correct store context for translations)
+        $checkoutUrl = $store->getUrl('buckaroo/checkout/secondchance', [
+            'token' => $secondChance->getToken(),
+            '_scope' => $store->getId(),
+            '_scope_to_url' => true
+        ]);
+
+        $this->logging->addDebug('Second Chance email URL generated', [
+            'order_id' => $order->getIncrementId(),
+            'store_id' => $store->getId(),
+            'store_code' => $store->getCode(),
+            'locale' => $store->getConfig('general/locale/code'),
+            'url' => $checkoutUrl
+        ]);
 
         // Get template ID
         $templateId = $this->configProvider->getSecondChanceEmailTemplate($step, $store);
         if (empty($templateId)) {
-            throw new \Exception('Email template ID is empty for step ' . $step);
+            throw new Exception('Email template ID is empty for step ' . $step);
         }
 
         // Get sender
         $senderName = $this->configProvider->getSecondChanceSenderName($store);
         $senderEmail = $this->configProvider->getSecondChanceSenderEmail($store);
         if (empty($senderEmail)) {
-            throw new \Exception('Sender email is empty');
+            throw new Exception('Sender email is empty');
         }
 
         $sender = [
@@ -478,7 +573,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
                 'billing_address' => $billingAddress,
                 'shipping_address' => $shippingAddress,
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logging->addError('Error preparing template variables: ' . $e->getMessage());
             throw $e;
         }
@@ -500,7 +595,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
             $transport->sendMessage();
             $this->inlineTranslation->resume();
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->inlineTranslation->resume();
             $this->logging->addError('Failed to send SecondChance email: ' . $e->getMessage());
             $this->logging->addError('Email error - File: ' . $e->getFile() . ':' . $e->getLine());
@@ -569,7 +664,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         $item->setStatus($status);
         try {
             $this->resource->save($item);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logging->addError('Error updating SecondChance status: ' . $e->getMessage());
         }
     }
@@ -590,5 +685,37 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         $collection->addFieldToFilter('status', ['in' => ['completed', 'clicked']]);
 
         return $collection->getSize() == 0;
+    }
+
+    /**
+     * Check if email is a placeholder/dummy email that should not receive Second Chance emails
+     *
+     * @param string|null $email
+     * @return bool
+     */
+    private function isPlaceholderEmail($email): bool
+    {
+        if (empty($email)) {
+            return true;
+        }
+
+        // List of known placeholder patterns used in express checkout methods
+        $placeholderPatterns = [
+            'no-reply@example.com',
+            'guest@example.com',
+        ];
+
+        $lowerEmail = strtolower(trim($email));
+
+        // Check exact matches
+        if (in_array($lowerEmail, $placeholderPatterns)) {
+            return true;
+        }
+
+        if (strpos($lowerEmail, '@example.com') !== false) {
+            return true;
+        }
+
+        return false;
     }
 }
