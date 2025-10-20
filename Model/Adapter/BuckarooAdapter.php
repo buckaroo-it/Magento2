@@ -125,13 +125,24 @@ class BuckarooAdapter
     public function execute(string $action, string $method, array $data): TransactionResponse
     {
         $orderStoreId = null;
-        if (isset($data['order']) && method_exists($data['order'], 'getStoreId')) {
-            $orderStoreId = $data['order']->getStoreId();
+
+        if (isset($data['orderStoreId'])) {
+            $orderStoreId = (int)$data['orderStoreId'];
+
             $this->logger->addDebug(sprintf(
-                '[SDK] | [Adapter] | [%s:%s] - Using order store ID: %s for payment method: %s',
+                '[SDK] | [Adapter] | [%s:%s] - Using orderStoreId from data: %s | method: %s | action: %s',
                 __METHOD__,
                 __LINE__,
                 $orderStoreId,
+                $method,
+                $action
+            ));
+        } else {
+            $this->logger->addWarning(sprintf(
+                '[SDK] | [Adapter] | [%s:%s] - orderStoreId NOT in data (action: %s, method: %s). Will use current store context.',
+                __METHOD__,
+                __LINE__,
+                $action,
                 $method
             ));
         }
