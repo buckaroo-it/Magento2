@@ -65,16 +65,23 @@ define(
              */
             initialize: function (options) {
                 this._super(options);
-                
-                // Set initial state - hosted fields are not valid until all fields are filled
-                this.isPlaceOrderActionAllowed(false);
-                
+
                 // Subscribe to isPayButtonDisabled to sync with isPlaceOrderActionAllowed
                 // This ensures the default payment button is also disabled when hosted fields are invalid
                 this.isPayButtonDisabled.subscribe(function(disabled) {
-                    this.isPlaceOrderActionAllowed(!disabled);
+                    if (this.isChecked() === this.getCode()) {
+                        this.isPlaceOrderActionAllowed(!disabled);
+                    }
                 }.bind(this));
-                
+
+                this.isChecked.subscribe(function(selectedMethod) {
+                    if (selectedMethod === this.getCode()) {
+                        this.isPlaceOrderActionAllowed(!this.isPayButtonDisabled());
+                    } else {
+                        this.isPlaceOrderActionAllowed(true);
+                    }
+                }.bind(this));
+
                 return this;
             },
 
