@@ -14,7 +14,8 @@ define(
         'Magento_CheckoutAgreements/js/model/agreements-assigner',
         'jquery',
         'Magento_Ui/js/modal/alert',
-        'mage/translate'
+        'mage/translate',
+        'Magento_Checkout/js/action/select-payment-method'
     ],
     function (
         quote,
@@ -27,7 +28,8 @@ define(
         agreementsAssigner,
         $,
         alert,
-        $t
+        $t,
+        selectPaymentMethodAction
     ) {
         'use strict';
 
@@ -118,7 +120,37 @@ define(
                                 }
                             }]
                         });
+
+                        // Deselect the payment method to ensure submit button gets disabled
+                        selectPaymentMethodAction(null);
+
+                        // Remove the payment method from DOM
                         $('.' + paymentData.method).remove();
+
+                        // Force checkout to re-evaluate payment method availability
+                        // This works across different themes by using Magento's core quote observable
+                        quote.paymentMethod(null);
+
+                        // Disable the place order button - works across multiple theme variations
+                        setTimeout(function() {
+                            // Standard Magento checkout button
+                            jQuery('.payment-method .actions-toolbar button.checkout').prop('disabled', true);
+                            jQuery('.payment-method .actions-toolbar button[type="submit"]').prop('disabled', true);
+
+                            // OneStepCheckout buttons
+                            jQuery('.action.primary.checkout').prop('disabled', true);
+                            jQuery('.iosc-place-order-button').prop('disabled', true);
+
+                            // Amasty OSC buttons
+                            jQuery('.amcheckout-button.-place-order').prop('disabled', true);
+
+                            // FireCheckout buttons
+                            jQuery('button.action-checkout').prop('disabled', true);
+
+                            // Generic fallback for any place order button
+                            jQuery('button[title*="Place Order"]').prop('disabled', true);
+                            jQuery('button.place-order').prop('disabled', true);
+                        }, 100);
                     } else if (redirectOnSuccess) {
                         window.location.replace(url.build('checkout/onepage/success/'));
                     }

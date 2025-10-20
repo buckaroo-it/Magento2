@@ -65,6 +65,16 @@ define(
              */
             initialize: function (options) {
                 this._super(options);
+                
+                // Set initial state - hosted fields are not valid until all fields are filled
+                this.isPlaceOrderActionAllowed(false);
+                
+                // Subscribe to isPayButtonDisabled to sync with isPlaceOrderActionAllowed
+                // This ensures the default payment button is also disabled when hosted fields are invalid
+                this.isPayButtonDisabled.subscribe(function(disabled) {
+                    this.isPlaceOrderActionAllowed(!disabled);
+                }.bind(this));
+                
                 return this;
             },
 
@@ -155,7 +165,8 @@ define(
                     console.error("Error during resetHostedFields:", error);
                     this.paymentError($.mage.__("An error occurred while refreshing the payment form. Please try again."));
                 } finally {
-                    this.isPayButtonDisabled(false);
+                    // Keep button disabled after reset - validation callback will enable it when form is valid
+                    this.isPayButtonDisabled(true);
                     this.isResetting(false);
                 }
             },
