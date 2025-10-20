@@ -24,7 +24,7 @@ define(
         'buckaroo/checkout/payment/default',
         'Magento_Checkout/js/model/quote',
         'ko',
-        'buckaroo/checkout/datepicker',
+        'buckaroo/checkout/datepicker-enhanced',
         'Magento_Ui/js/lib/knockout/bindings/datepicker'
     ],
     function (
@@ -83,18 +83,53 @@ define(
             $.mage.__('Enter Valid IBAN')
         );
 
+        // Custom date validation that accepts both dd/mm/yyyy and dd-mm-yyyy formats
+        $.validator.addMethod('validate-date-flexible', function (value) {
+            if (!value) return false;
+
+            // Accept both dd/mm/yyyy and dd-mm-yyyy formats
+            var dateReg = /^\d{1,2}[\/-]\d{1,2}[\/-]\d{4}$/;
+            if (value.match(dateReg)) {
+                // Parse the date to ensure it's valid
+                var parts = value.split(/[\/-]/);
+                var day = parseInt(parts[0], 10);
+                var month = parseInt(parts[1], 10);
+                var year = parseInt(parts[2], 10);
+
+                // Basic date validation
+                if (day < 1 || day > 31 || month < 1 || month > 12 || year < 1900 || year > new Date().getFullYear()) {
+                    return false;
+                }
+
+                // Create date object to validate
+                var date = new Date(year, month - 1, day);
+                return date.getDate() === day && date.getMonth() === (month - 1) && date.getFullYear() === year;
+            }
+            return false;
+        }, $.mage.__('Please use this date format: dd/mm/yyyy or dd-mm-yyyy. For example 17/03/2006 or 17-03-2006 for the 17th of March, 2006.'));
+
+
         $.validator.addMethod('validateAge', function (value) {
-            if (value && (value.length > 0)) {
-                var dateReg = /^\d{2}[./-]\d{2}[./-]\d{4}$/;
-                if (value.match(dateReg)) {
-                    var birthday = +new Date(
-                        value.substr(6, 4),
-                        value.substr(3, 2) - 1,
-                        value.substr(0, 2),
-                        0,
-                        0,
-                        0
-                    );
+                if (value && (value.length > 0)) {
+                    var dateReg = /^\d{1,2}[\/-]\d{1,2}[\/-]\d{4}$/;
+                    if (value.match(dateReg)) {
+                        // Parse the date parts
+                        var parts = value.split(/[\/-]/);
+                        var day = parseInt(parts[0], 10);
+                        var month = parseInt(parts[1], 10);
+                        var year = parseInt(parts[2], 10);
+
+                        // Validate the date is actually valid
+                        if (day < 1 || day > 31 || month < 1 || month > 12 || year < 1900 || year > new Date().getFullYear()) {
+                            return false;
+                        }
+
+                        var birthday = new Date(year, month - 1, day, 0, 0, 0);
+
+                        // Check if the date is valid (handles invalid dates like Feb 30)
+                        if (birthday.getDate() !== day || birthday.getMonth() !== (month - 1) || birthday.getFullYear() !== year) {
+                            return false;
+                        }
                     return ~~((Date.now() - birthday) / (31557600000)) >= 18;
                 }
             }
@@ -120,6 +155,15 @@ define(
                 redirectAfterPlaceOrder : true,
                 dp: datePicker,
 
+                getMessageText: function () {
+                    return $.mage
+                        .__('Je moet minimaal 18+ zijn om deze dienst te gebruiken. Als je op tijd betaalt, voorkom je extra kosten en zorg je dat je in de toekomst nogmaals gebruik kunt maken van de diensten van ' +
+                            window.checkoutConfig.payment.buckaroo.buckaroo_magento2_afterpay.title +
+                            '. Door verder te gaan, accepteer je de <a target="_blank" href="%s">Algemene&nbsp;Voorwaarden</a> en bevestig je dat je de <a target="_blank" href="%f">Privacyverklaring</a> en <a target="_blank" href="%c">Cookieverklaring</a> hebt gelezen.')
+                        .replace('%s', 'https://documents.riverty.com/terms_conditions/payment_methods/invoice/nl_nl/default')
+                        .replace('%f', 'https://www.riverty.com/nl-nl/privacybeleid/')
+                        .replace('%c', 'https://www.riverty.com/nl-nl/cookies/');
+                },
                 initObservable: function () {
                     this._super().observe(
                         [
