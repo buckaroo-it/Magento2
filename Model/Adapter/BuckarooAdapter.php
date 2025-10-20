@@ -124,7 +124,30 @@ class BuckarooAdapter
      */
     public function execute(string $action, string $method, array $data): TransactionResponse
     {
-        $this->setClientSdk($method);
+        $orderStoreId = null;
+
+        if (isset($data['orderStoreId'])) {
+            $orderStoreId = (int)$data['orderStoreId'];
+
+            $this->logger->addDebug(sprintf(
+                '[SDK] | [Adapter] | [%s:%s] - Using orderStoreId from data: %s | method: %s | action: %s',
+                __METHOD__,
+                __LINE__,
+                $orderStoreId,
+                $method,
+                $action
+            ));
+        } else {
+            $this->logger->addWarning(sprintf(
+                '[SDK] | [Adapter] | [%s:%s] - orderStoreId NOT in data (action: %s, method: %s). Will use current store context.',
+                __METHOD__,
+                __LINE__,
+                $action,
+                $method
+            ));
+        }
+
+        $this->setClientSdk($method, $orderStoreId);
         $payment = $this->buckaroo->method($this->getMethodName($method));
 
         try {
@@ -161,13 +184,27 @@ class BuckarooAdapter
     /**
      * Set Client SDK base on account configuration and payment method configuration
      *
+     * @param string $paymentMethod
+     * @param int|null $orderStoreId Store ID from the order (for refund/capture operations)
      * @throws \Exception
      */
-    private function setClientSdk($paymentMethod = ''): void
+    private function setClientSdk($paymentMethod = '', ?int $orderStoreId = null): void
     {
         /** @var Account $configProviderAccount */
         $configProviderAccount = $this->configProviderFactory->get('account');
-        $storeId = $this->storeManager->getStore()->getId();
+
+        $storeId = $orderStoreId ?? $this->storeManager->getStore()->getId();
+
+        if ($orderStoreId !== null) {
+            $this->logger->addDebug(sprintf(
+                '[SDK] | [Adapter] | [%s:%s] - Checking payment method active status in order store ID: %s (paymentMethod: %s)',
+                __METHOD__,
+                __LINE__,
+                $storeId,
+                $paymentMethod
+            ));
+        }
+
         $accountMode = $configProviderAccount->getActive($storeId);
         $clientMode = $this->getClientMode($accountMode, $storeId, $paymentMethod);
 
@@ -248,7 +285,19 @@ class BuckarooAdapter
                 $configProviderPaymentMethod = $this->configProviderFactory->get($paymentMethod);
                 $isActivePaymentMethod = $configProviderPaymentMethod->getActive($storeId);
                 if ($isActivePaymentMethod == Enablemode::ENABLE_OFF) {
-                    throw new Exception(__('Payment method: %s is not active', $paymentMethod));
+                    $this->logger->addError(sprintf(
+                        '[SDK] | [Adapter] | [%s:%s] - Payment method %s is not active in store ID: %s. ' .
+                        'Ensure payment method is enabled in the store where the order was placed.',
+                        __METHOD__,
+                        __LINE__,
+                        $paymentMethod,
+                        $storeId
+                    ));
+                    throw new Exception(__(
+                        'Payment method %1 is not active in store ID %2. Enable it in Stores > Configuration for this store view.',
+                        $paymentMethod,
+                        $storeId
+                    ));
                 }
 
                 if ($isActivePaymentMethod == Enablemode::ENABLE_TEST) {
