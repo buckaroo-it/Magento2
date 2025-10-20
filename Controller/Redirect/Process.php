@@ -397,8 +397,25 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
             && !empty($this->redirectRequest->getServiceKlarnakpReservationnumber()));
 
         if (empty($this->order->getBuckarooReservationNumber()) && $isKlarnaKpReserve) {
-            $this->order->setBuckarooReservationNumber($this->redirectRequest->getServiceKlarnakpReservationnumber());
+            $reservationNumber = $this->redirectRequest->getServiceKlarnakpReservationnumber();
+            $this->order->setBuckarooReservationNumber($reservationNumber);
             $this->order->save();
+            
+            $this->logger->addDebug(sprintf(
+                '[KLARNA_KP] | [REDIRECT] | [%s:%s] - Saved reservation number from redirect for order %s: %s',
+                __METHOD__,
+                __LINE__,
+                $this->order->getIncrementId(),
+                $reservationNumber
+            ));
+        } elseif ($isKlarnaKpReserve) {
+            $this->logger->addDebug(sprintf(
+                '[KLARNA_KP] | [REDIRECT] | [%s:%s] - Reservation number already exists for order %s: %s',
+                __METHOD__,
+                __LINE__,
+                $this->order->getIncrementId(),
+                $this->order->getBuckarooReservationNumber()
+            ));
         }
 
         if (!$this->order->getEmailSent()
