@@ -124,16 +124,51 @@ class BuckarooAdapter
      */
     public function execute(string $action, string $method, array $data): TransactionResponse
     {
+        $this->logger->addDebug(sprintf(
+            '[SDK] | [Adapter] | [%s:%s] - DEBUGGING: $data keys: %s | action: %s | method: %s',
+            __METHOD__,
+            __LINE__,
+            json_encode(array_keys($data)),
+            $action,
+            $method
+        ));
+
         $orderStoreId = null;
+
         if (isset($data['order']) && method_exists($data['order'], 'getStoreId')) {
-            $orderStoreId = $data['order']->getStoreId();
+            $order = $data['order'];
+            $orderStoreId = (int)$order->getStoreId();
+
             $this->logger->addDebug(sprintf(
-                '[SDK] | [Adapter] | [%s:%s] - Using order store ID: %s for payment method: %s',
+                '[SDK] | [Adapter] | [%s:%s] - Extracted from data[order]: storeId=%s | order=%s | method=%s',
                 __METHOD__,
                 __LINE__,
                 $orderStoreId,
+                method_exists($order, 'getIncrementId') ? $order->getIncrementId() : 'unknown',
                 $method
             ));
+        } else {
+            $this->logger->addDebug(sprintf(
+                '[SDK] | [Adapter] | [%s:%s] - data[order] NOT FOUND or no getStoreId method',
+                __METHOD__,
+                __LINE__
+            ));
+        }
+
+        if (isset($data['payment']) && method_exists($data['payment'], 'getOrder')) {
+            $order = $data['payment']->getOrder();
+            if ($order && method_exists($order, 'getStoreId')) {
+                $orderStoreId = (int)$order->getStoreId();
+
+                $this->logger->addDebug(sprintf(
+                    '[SDK] | [Adapter] | [%s:%s] - Extracted from data[payment]: storeId=%s | order=%s | method=%s',
+                    __METHOD__,
+                    __LINE__,
+                    $orderStoreId,
+                    method_exists($order, 'getIncrementId') ? $order->getIncrementId() : 'unknown',
+                    $method
+                ));
+            }
         }
 
         $this->setClientSdk($method, $orderStoreId);
