@@ -39,10 +39,9 @@ class StoreIdDataBuilder implements BuilderInterface
     {
         $paymentDO = SubjectReader::readPayment($buildSubject);
         $order = $paymentDO->getOrder()->getOrder();
-        
+
         return [
             'orderStoreId' => (int)$order->getStoreId()
         ];
     }
 }
-
