@@ -3989,6 +3989,18 @@
                     <item name="type" xsi:type="string">belfius</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Belfius</item>
                 </item>
+                <item name="bizum" xsi:type="array">
+                    <item name="type" xsi:type="string">bizum</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Bizum</item>
+                </item>
+                <item name="swish" xsi:type="array">
+                    <item name="type" xsi:type="string">swish</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Swish</item>
+                </item>
+                <item name="twint" xsi:type="array">
+                    <item name="type" xsi:type="string">twint</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Twint</item>
+                </item>
                 <item name="transfer" xsi:type="array">
                     <item name="type" xsi:type="string">transfer</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Transfer</item>
