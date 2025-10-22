@@ -209,8 +209,8 @@ class BuckarooAdapter
         $clientMode = $this->getClientMode($accountMode, $storeId, $paymentMethod);
 
         $this->buckaroo = new BuckarooClient(new DefaultConfig(
-            $this->encryptor->decrypt($configProviderAccount->getMerchantKey()),
-            $this->encryptor->decrypt($configProviderAccount->getSecretKey()),
+            $this->encryptor->decrypt($configProviderAccount->getMerchantKey($storeId)),
+            $this->encryptor->decrypt($configProviderAccount->getSecretKey($storeId)),
             $clientMode,
             null, // currency
             null, // returnURL

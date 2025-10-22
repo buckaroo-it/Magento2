@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Gateway\Validator;
 
 use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderFactory;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
@@ -49,12 +50,11 @@ class ActiveAccountValidator extends AbstractValidator
 
     /**
      * Validates if Buckaroo Module is enabled and has valid credentials
+     * Checks for the specific store context (multi-store support)
      *
      * @param array $validationSubject
      * @return ResultInterface
      * @throws Exception
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function validate(array $validationSubject): ResultInterface
     {
@@ -65,15 +65,19 @@ class ActiveAccountValidator extends AbstractValidator
          */
         $accountConfig = $this->configProviderFactory->get('account');
 
-        // Check if account is enabled
-        if ($accountConfig->getActive() == 0) {
+        // Get store ID from quote (availability check always has quote)
+        $quote = SubjectReader::readQuote($validationSubject);
+        $storeId = $quote->getStoreId();
+
+        // Check if account is enabled for this store
+        if ($accountConfig->getActive($storeId) == 0) {
             $isValid = false;
         }
 
-        // Check if credentials are configured
+        // Check if credentials are configured for this store
         if ($isValid) {
-            $merchantKey = $accountConfig->getMerchantKey();
-            $secretKey = $accountConfig->getSecretKey();
+            $merchantKey = $accountConfig->getMerchantKey($storeId);
+            $secretKey = $accountConfig->getSecretKey($storeId);
 
             if (empty($merchantKey) || empty($secretKey)) {
                 $isValid = false;
