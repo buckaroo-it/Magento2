@@ -79,11 +79,11 @@
             <config_path>buckaroo_magento2/account/buckaroo_fee_tax_class</config_path>
         </field>
 
-        <group id="buckaroo_magento2_refund_section" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="0" showInStore="0">
+        <group id="buckaroo_magento2_refund_section" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Refunding</label>
             <fieldset_css>buckaroo_magento2-section</fieldset_css>
 
-            <field id="active" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+            <field id="active" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Enabled</label>
                 <comment><![CDATA[Enable or disable refunding.]]></comment>
                 <tooltip>Set to 'No' refunds must be done manualy in Buckaroo Plaza.</tooltip>
