@@ -116,7 +116,7 @@ class OrderCancelAfter implements ObserverInterface
                     var_export([$originalKey], true),
                     $order->getId()
                 ));
-                $this->sendCancelResponse($originalKey);
+                $this->sendCancelResponse($originalKey, $order->getStoreId());
             } catch (Exception $e) {
                 $this->logger->addError(sprintf(
                     '[CANCEL_ORDER - PayPerEmail] | [Observer] | [%s:%s] - Send Cancel Request for PPE | [ERROR]: %s',
@@ -131,13 +131,13 @@ class OrderCancelAfter implements ObserverInterface
     /**
      * @throws Exception
      */
-    private function sendCancelResponse($key)
+    private function sendCancelResponse($key, $storeId = null)
     {
         $active = $this->configProviderPPE->getActive();
         $mode = ($active == Data::MODE_LIVE) ? Data::MODE_LIVE : Data::MODE_TEST;
 
-        $secretKey = $this->encryptor->decrypt($this->configProviderAccount->getSecretKey());
-        $websiteKey = $this->encryptor->decrypt($this->configProviderAccount->getMerchantKey());
+        $secretKey = $this->encryptor->decrypt($this->configProviderAccount->getSecretKey($storeId));
+        $websiteKey = $this->encryptor->decrypt($this->configProviderAccount->getMerchantKey($storeId));
 
         return $this->client->doCancelRequest($key, $mode, $secretKey, $websiteKey);
     }
