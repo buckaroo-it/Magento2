@@ -22,12 +22,27 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Gateway\Response;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Transaction\Response\TransactionResponse;
 use Magento\Payment\Gateway\Response\HandlerInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 
 class ReservationNumberHandler implements HandlerInterface
 {
+    /**
+     * @var BuckarooLoggerInterface
+     */
+    private BuckarooLoggerInterface $logger;
+
+    /**
+     * @param BuckarooLoggerInterface $logger
+     */
+    public function __construct(
+        BuckarooLoggerInterface $logger
+    ) {
+        $this->logger = $logger;
+    }
+
     /**
      * Handles response
      *
@@ -49,13 +64,47 @@ class ReservationNumberHandler implements HandlerInterface
             $order = $payment->getOrder();
 
             if ($order->getBuckarooReservationNumber()) {
+                $this->logger->addDebug(sprintf(
+                    '[KLARNA_KP] | [%s:%s] - Reservation number already set for order %s: %s',
+                    __METHOD__,
+                    __LINE__,
+                    $order->getIncrementId(),
+                    $order->getBuckarooReservationNumber()
+                ));
                 return;
             }
 
             $serviceParameters = $transactionResponse->getServiceParameters();
+            
+            $this->logger->addDebug(sprintf(
+                '[KLARNA_KP] | [%s:%s] - Processing authorization response for order %s | serviceParameters: %s',
+                __METHOD__,
+                __LINE__,
+                $order->getIncrementId(),
+                json_encode($serviceParameters)
+            ));
+            
             if (isset($serviceParameters['klarnakp_reservationnumber'])) {
-                $order->setBuckarooReservationNumber($serviceParameters['klarnakp_reservationnumber']);
+                $reservationNumber = $serviceParameters['klarnakp_reservationnumber'];
+                $order->setBuckarooReservationNumber($reservationNumber);
                 $order->save();
+                
+                $this->logger->addDebug(sprintf(
+                    '[KLARNA_KP] | [%s:%s] - Successfully saved reservation number for order %s: %s',
+                    __METHOD__,
+                    __LINE__,
+                    $order->getIncrementId(),
+                    $reservationNumber
+                ));
+            } else {
+                $this->logger->addError(sprintf(
+                    '[KLARNA_KP] | [%s:%s] - WARNING: No reservation number in response for order %s! ' .
+                    'Available service parameters: %s',
+                    __METHOD__,
+                    __LINE__,
+                    $order->getIncrementId(),
+                    json_encode(array_keys($serviceParameters))
+                ));
             }
         }
     }

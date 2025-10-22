@@ -193,6 +193,14 @@ class SalesOrderShipmentAfter implements ObserverInterface
             $invoice->getOrder()->setCustomerNoteNotify(false);
             $invoice->getOrder()->setIsInProcess(true);
             $this->order->addCommentToStatusHistory($message);
+
+            if ($this->order->getStatus() == 'complete') {
+                $description = 'Total amount of '
+                    . $this->order->getBaseCurrency()->formatTxt($this->order->getTotalInvoiced())
+                    . ' has been paid';
+                $this->order->addCommentToStatusHistory($description);
+            }
+
             $transactionSave = $this->transactionFactory->create()->addObject($invoice)->addObject(
                 $invoice->getOrder()
             );
@@ -204,14 +212,6 @@ class SalesOrderShipmentAfter implements ObserverInterface
                 __LINE__,
                 var_export($this->order->getStatus(), true)
             ));
-
-            if ($this->order->getStatus() == 'complete') {
-                $description = 'Total amount of '
-                    . $this->order->getBaseCurrency()->formatTxt($this->order->getTotalInvoiced())
-                    . ' has been paid';
-                $this->order->addCommentToStatusHistory($description);
-                $this->order->save();
-            }
         } catch (\Exception $e) {
             $this->logger->addDebug(sprintf(
                 '[CREATE_INVOICE] | [Observer] | [%s:%s] - Create invoice after shipment | [ERROR]: %s',
@@ -219,8 +219,6 @@ class SalesOrderShipmentAfter implements ObserverInterface
                 __LINE__,
                 $e->getMessage()
             ));
-            $this->order->addCommentToStatusHistory('Exception message: ' . $e->getMessage());
-            $this->order->save();
             return null;
         }
 
