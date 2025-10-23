@@ -37,6 +37,9 @@ use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 
+/**
+ * @SuppressWarnings(PHPMD.ObsoleteUpgradeDataScript)
+ */
 // phpcs:ignore Magento2.Legacy.InstallUpgrade.ObsoleteUpgradeDataScript
 class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
 {
