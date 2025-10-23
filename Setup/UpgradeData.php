@@ -1,5 +1,7 @@
 <?php
 
+// phpcs:ignore Magento2.Legacy.InstallUpgrade.ObsoleteUpgradeDataScript
+
 /**
  * NOTICE OF LICENSE
  *
