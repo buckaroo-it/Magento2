@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -52,13 +53,12 @@ use Magento\Tax\Model\Config;
 
 class PayByBank extends AbstractMethod
 {
-
     public const EAV_LAST_USED_ISSUER_ID = 'buckaroo_last_paybybank_issuer';
 
     /**
      * Payment Code
      */
-    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_paybybank';
+    public const PAYMENT_METHOD_CODE = 'buckaroo_magento2_paybybank';
 
     /**
      * @var string
@@ -102,17 +102,17 @@ class PayByBank extends AbstractMethod
         AddressFactory $addressFactory,
         EventManager $eventManager,
         PayByBankConfig $payByBankConfig,
-        AbstractResource $resource = null,
-        AbstractDb $resourceCollection = null,
-        GatewayInterface $gateway = null,
-        TransactionBuilderFactory $transactionBuilderFactory = null,
-        ValidatorFactory $validatorFactory = null,
-        HelperData $helper = null,
-        RequestInterface $request = null,
-        RefundFieldsFactory $refundFieldsFactory = null,
-        Factory $configProviderFactory = null,
-        MethodFactory $configProviderMethodFactory = null,
-        PriceHelper $priceHelper = null,
+        ?AbstractResource $resource = null,
+        ?AbstractDb $resourceCollection = null,
+        ?GatewayInterface $gateway = null,
+        ?TransactionBuilderFactory $transactionBuilderFactory = null,
+        ?ValidatorFactory $validatorFactory = null,
+        ?HelperData $helper = null,
+        ?RequestInterface $request = null,
+        ?RefundFieldsFactory $refundFieldsFactory = null,
+        ?Factory $configProviderFactory = null,
+        ?MethodFactory $configProviderMethodFactory = null,
+        ?PriceHelper $priceHelper = null,
         array $data = []
     ) {
         parent::__construct(
@@ -204,7 +204,6 @@ class PayByBank extends AbstractMethod
     /**
      * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
      *
-     * @return void
      * @throws LocalizedException
      */
     public function saveLastUsedIssuer($payment)
@@ -249,10 +248,11 @@ class PayByBank extends AbstractMethod
     /**
      * Validate that we received a valid issuer ID.
      *
-     * @return $this
      * @throws \Magento\Framework\Exception\LocalizedException
+     * @return $this
      */
-    public function validateAdditionalData() {
+    public function validateAdditionalData()
+    {
 
         $paymentInfo = $this->getInfoInstance();
         $chosenIssuer = $paymentInfo->getAdditionalInformation('issuer');

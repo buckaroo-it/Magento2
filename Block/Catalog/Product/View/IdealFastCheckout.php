@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Block\Catalog\Product\View;
 
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Ideal;
 use Magento\Framework\Encryption\Encryptor;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Asset\Repository;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
@@ -61,13 +62,14 @@ class IdealFastCheckout extends Template
         $this->encryptor = $encryptor;
         $this->idealConfig = $idealConfig;
         $this->assetRepo = $assetRepo;
-
     }
 
     /**
      * Determine if the product button can be shown
      *
+     * @param mixed $page
      * @return bool
+     * @throws NoSuchEntityException
      */
     public function canShowButton($page)
     {
@@ -92,15 +94,16 @@ class IdealFastCheckout extends Template
      * Get logo based on chosen color setting
      *
      * @return mixed
+     * @throws NoSuchEntityException
      */
-    public function getLogo() {
+    public function getLogo()
+    {
 
         $logoColor = $this->idealConfig->getLogoColor($this->_storeManager->getStore());
 
-        if ($logoColor == "Light"){
+        if ($logoColor == "Light") {
             $name = "ideal/ideal-fast-checkout-rgb-light.png";
-        }
-        else{
+        } else {
             $name = "ideal/ideal-fast-checkout-rgb-dark.png";
         }
         return $this->assetRepo->getUrl("Buckaroo_Magento2::images/{$name}");

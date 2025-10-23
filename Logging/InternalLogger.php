@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,13 +18,13 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Logging;
 
-use DateTimeZone;
 use Monolog\Logger;
 
-class InternalLogger extends Logger {
-
+class InternalLogger extends Logger
+{
     public function __construct(string $name, array $handlers = [], array $processors = [])
     {
         parent::__construct($name, $handlers, $processors);

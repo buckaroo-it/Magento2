@@ -21,6 +21,8 @@
 
 namespace Buckaroo\Magento2\Plugin;
 
+use Closure;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Api\Data\PaymentInterface;
 use Magento\Quote\Api\CartManagementInterface;
@@ -30,19 +32,18 @@ use Magento\Framework\Exception\CouldNotSaveException;
 
 class CartManagement
 {
-
     /**
      * @var CartRepositoryInterface
      */
     protected $quoteRepository;
 
-    
+
     /**
      * @var LockManagerWrapper
      */
     protected LockManagerWrapper $lockManager;
 
-    
+
     public function __construct(
         CartRepositoryInterface $quoteRepository,
         LockManagerWrapper $lockManager
@@ -53,25 +54,24 @@ class CartManagement
 
     /**
      * Places an order for a specified cart.
-     * 
-     * @param CartManagementInterface $cardManagement
-     * @param \Closure                $proceed
-     * @param int $cartId The cart ID.
-     * @param PaymentInterface|null $paymentMethod
-     * @throws \Magento\Framework\Exception\CouldNotSaveException
-     * @return int Order ID.
+     *
+     * @param  CartManagementInterface                            $cardManagement
+     * @param  Closure                                           $proceed
+     * @param  int                                                $cartId         The cart ID.
+     * @param  PaymentInterface|null                              $paymentMethod
+     * @return int                                                Order ID.
+     * @throws CouldNotSaveException|NoSuchEntityException
      */
     public function aroundPlaceOrder(
         CartManagementInterface $cardManagement,
-        \Closure $proceed,
+        Closure $proceed,
         $cartId,
-        PaymentInterface $paymentMethod = null
+        ?PaymentInterface $paymentMethod = null
     ) {
         /** @var Quote $quote */
         $quote = $this->quoteRepository->getActive($cartId);
 
-        if (
-            $quote instanceof Quote &&
+        if ($quote instanceof Quote &&
             $quote->getReservedOrderId() !== null &&
             $this->isBuckarooPayment($quote)
         ) {
@@ -80,7 +80,7 @@ class CartManagement
 
             if (!$lockAcquired) {
                 throw new CouldNotSaveException(__("Cannot lock payment process"));
-                
+
             }
             $response = $proceed($cartId, $paymentMethod);
 
@@ -92,7 +92,8 @@ class CartManagement
     }
 
 
-    private function isBuckarooPayment(Quote $quote) {
+    private function isBuckarooPayment(Quote $quote)
+    {
         return strpos($quote->getPayment()->getMethod(), "buckaroo_magento2_") !== false;
     }
 }

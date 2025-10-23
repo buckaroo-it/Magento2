@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -24,6 +25,7 @@ namespace Buckaroo\Magento2\Observer;
 use Buckaroo\Magento2\Model\Config\Source\InvoiceHandlingOptions;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\Service\CreateInvoice;
+use Exception;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\LocalizedException;
@@ -63,9 +65,9 @@ class SetTransactionOnInvoiceObserver implements ObserverInterface
     /**
      * Set transaction id on invoiced for invoice after shipment
      *
-     * @param Observer $observer
+     * @param  Observer           $observer
      * @return $this
-     * @throws LocalizedException
+     * @throws LocalizedException|Exception
      */
     public function execute(Observer $observer)
     {
@@ -104,13 +106,13 @@ class SetTransactionOnInvoiceObserver implements ObserverInterface
     /**
      * Is the invoice for the current order is created after shipment
      *
-     * @param OrderPaymentInterface $payment
+     * @param  OrderPaymentInterface $payment
      * @return bool
      */
     private function isInvoiceCreatedAfterShipment(OrderPaymentInterface $payment): bool
     {
         return $payment->getAdditionalInformation(
-                InvoiceHandlingOptions::INVOICE_HANDLING
-            ) == InvoiceHandlingOptions::SHIPMENT;
+            InvoiceHandlingOptions::INVOICE_HANDLING
+        ) == InvoiceHandlingOptions::SHIPMENT;
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -26,8 +27,6 @@ interface ShippingAddressRequestInterface
      * Set city
      *
      * @param string $city
-     *
-     * @return void
      */
     public function setCity(string $city);
 
@@ -35,8 +34,6 @@ interface ShippingAddressRequestInterface
      * Set country code
      *
      * @param string $countryCode
-     *
-     * @return void
      */
     public function setCountryCode(string $countryCode);
 
@@ -44,8 +41,6 @@ interface ShippingAddressRequestInterface
      * Set postal code
      *
      * @param string $postalCode
-     *
-     * @return void
      */
     public function setPostalCode(string $postalCode);
 
@@ -53,8 +48,6 @@ interface ShippingAddressRequestInterface
      * Set state
      *
      * @param string $state
-     *
-     * @return void
      */
     public function setState(string $state);
 

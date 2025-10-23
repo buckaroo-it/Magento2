@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -20,9 +21,12 @@
 
 namespace Buckaroo\Magento2\Block\Adminhtml\Sales\Order\Creditmemo\Create;
 
+use Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory;
+use Buckaroo\Magento2\Model\RefundFieldsFactory;
+use Magento\Backend\Block\Template\Context;
+
 class BankFields extends \Magento\Backend\Block\Template
 {
-
     protected $orderPaymentBlock    = 'order_payment';
 
     /**
@@ -36,14 +40,14 @@ class BankFields extends \Magento\Backend\Block\Template
     protected $transactionBuilder;
 
     /**
-     * @param \Magento\Backend\Block\Template\Context              $context
-     * @param \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory
-     * @param \Buckaroo\Magento2\Model\RefundFieldsFactory              $refundFieldsFactory
+     * @param Context $context
+     * @param TransactionBuilderFactory|null $transactionBuilderFactory
+     * @param RefundFieldsFactory|null $refundFieldsFactory
      */
     public function __construct(
         \Magento\Backend\Block\Template\Context $context,
-        \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory = null,
-        \Buckaroo\Magento2\Model\RefundFieldsFactory $refundFieldsFactory = null
+        ?\Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory = null,
+        ?\Buckaroo\Magento2\Model\RefundFieldsFactory $refundFieldsFactory = null
     ) {
         $this->refundFieldsFactory = $refundFieldsFactory;
         $this->transactionBuilder = $transactionBuilderFactory;
@@ -88,8 +92,8 @@ class BankFields extends \Magento\Backend\Block\Template
     /**
      * Returns the Payment Method name. If something goes wrong, this will return false.
      *
-     * @return string | false (when not found)
      * @throws \Magento\Framework\Exception\LocalizedException
+     * @return string | false                                  (when not found)
      */
     public function getPaymentMethod()
     {

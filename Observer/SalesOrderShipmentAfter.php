@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -36,12 +37,12 @@ use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
-use Magento\Sales\Model\ResourceModel\Order\Invoice\CollectionFactory;
+use Magento\Sales\Model\Order\Shipment;
 use Magento\Sales\Model\Service\InvoiceService;
 
 class SalesOrderShipmentAfter implements ObserverInterface
 {
-    const MODULE_ENABLED = 'sr_auto_invoice_shipment/settings/enabled';
+    public const MODULE_ENABLED = 'sr_auto_invoice_shipment/settings/enabled';
 
     /**
      * @var Data
@@ -99,15 +100,16 @@ class SalesOrderShipmentAfter implements ObserverInterface
     private RequestInterface $request;
 
     /**
-     * @param InvoiceService $invoiceService
+     * @param InvoiceService     $invoiceService
      * @param TransactionFactory $transactionFactory
-     * @param Klarnakp $klarnakpConfig
-     * @param Afterpay20 $afterpayConfig
-     * @param GatewayInterface $gateway
-     * @param Data $helper
-     * @param Account $configAccount
-     * @param CreateInvoice $createInvoiceService
-     * @param Log $logger
+     * @param Klarnakp           $klarnakpConfig
+     * @param Afterpay20         $afterpayConfig
+     * @param GatewayInterface   $gateway
+     * @param Data               $helper
+     * @param Account            $configAccount
+     * @param CreateInvoice      $createInvoiceService
+     * @param Log                $logger
+     * @param RequestInterface   $request
      */
     public function __construct(
         InvoiceService $invoiceService,
@@ -134,20 +136,20 @@ class SalesOrderShipmentAfter implements ObserverInterface
     }
 
     /**
+     * @param  Observer           $observer
      * @throws Exception
      * @throws LocalizedException
      * @throws \Exception
      */
     public function execute(Observer $observer)
     {
-        /** @var \Magento\Sales\Model\Order\Shipment $shipment */
+        /** @var Shipment $shipment */
         $shipment = $observer->getEvent()->getShipment();
 
-        /** @var \Magento\Sales\Model\Order $order */
         $order = $shipment->getOrder();
 
         $invoiceData = $this->request->getParam('shipment', []);
-        $invoiceItems = isset($invoiceData['items']) ? $invoiceData['items'] : [];
+        $invoiceItems = $invoiceData['items'] ?? [];
 
         $payment = $order->getPayment();
         $paymentMethod = $payment->getMethodInstance();
@@ -234,7 +236,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
     }
 
     /**
-     * @param \Magento\Sales\Model\Order\Shipment $shipment
+     * @param  Shipment $shipment
      * @return array
      */
     public function getQtys($shipment)
@@ -249,13 +251,13 @@ class SalesOrderShipmentAfter implements ObserverInterface
     /**
      * Is the invoice for the current order is created after shipment
      *
-     * @param OrderPaymentInterface $payment
+     * @param  OrderPaymentInterface $payment
      * @return bool
      */
     private function isInvoiceCreatedAfterShipment(OrderPaymentInterface $payment): bool
     {
         return $payment->getAdditionalInformation(
-                InvoiceHandlingOptions::INVOICE_HANDLING
-            ) == InvoiceHandlingOptions::SHIPMENT;
+            InvoiceHandlingOptions::INVOICE_HANDLING
+        ) == InvoiceHandlingOptions::SHIPMENT;
     }
 }

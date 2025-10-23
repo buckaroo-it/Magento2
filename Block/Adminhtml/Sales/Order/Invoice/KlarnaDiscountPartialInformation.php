@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,11 +18,11 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Block\Adminhtml\Sales\Order\Invoice;
 
 class KlarnaDiscountPartialInformation extends \Magento\Framework\View\Element\Template
 {
-
     protected $order;
 
     /**
@@ -32,10 +33,10 @@ class KlarnaDiscountPartialInformation extends \Magento\Framework\View\Element\T
     /**
      * RoundingWarning constructor.
      *
-     * @param \Magento\Sales\Api\Data\OrderInterface            $order
+     * @param \Magento\Sales\Api\Data\OrderInterface                 $order
      * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderFactory
-     * @param \Magento\Backend\Block\Template\Context           $context
-     * @param array                                             $data
+     * @param \Magento\Backend\Block\Template\Context                $context
+     * @param array                                                  $data
      */
     public function __construct(
         \Magento\Sales\Api\Data\OrderInterface $order,
@@ -51,8 +52,8 @@ class KlarnaDiscountPartialInformation extends \Magento\Framework\View\Element\T
 
     /**
      * @return bool
+     * @throws \Buckaroo\Magento2\Exception|\Magento\Framework\Exception\LocalizedException
      * @throws \LogicException
-     * @throws \Buckaroo\Magento2\Exception
      */
     protected function shouldShowWarning()
     {

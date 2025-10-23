@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -48,9 +49,9 @@ class ApplePayFormatData implements FormatFormDataInterface
     /**
      * Get a product object for adding to cart.
      *
-     * @param array $productData
-     * @return DataObject
+     * @param  array      $productData
      * @throws Exception
+     * @return DataObject
      */
     public function getProductObject(array $productData): DataObject
     {
@@ -66,14 +67,14 @@ class ApplePayFormatData implements FormatFormDataInterface
                 'item'                         => $productData['id'],
                 'super_attribute'              => $productData['selected_options'] ?? '',
                 'qty'                          => $productData['qty'],
-            ]
+            ],
         ]);
     }
 
     /**
      * Get a shipping address request object based on wallet data.
      *
-     * @param array $addressData
+     * @param  array                           $addressData
      * @return ShippingAddressRequestInterface
      */
     public function getShippingAddressObject(array $addressData): ShippingAddressRequestInterface
@@ -90,7 +91,8 @@ class ApplePayFormatData implements FormatFormDataInterface
 
         $shippingAddressRequest->setPostalCode($addressData['postalCode'] ?? '');
         $shippingAddressRequest->setCity($addressData['locality'] ?? '');
-        $shippingAddressRequest->setState(isset($addressData['administrativeArea']) && $addressData['administrativeArea']
+        $shippingAddressRequest->setState(
+            isset($addressData['administrativeArea']) && $addressData['administrativeArea']
             ? $addressData['administrativeArea']
             : 'unknown'
         );

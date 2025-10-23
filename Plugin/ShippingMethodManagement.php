@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -19,6 +20,7 @@ declare(strict_types=1);
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Plugin;
 
 use Buckaroo\Magento2\Helper\Data;
@@ -36,9 +38,9 @@ class ShippingMethodManagement
     private CartRepositoryInterface $quoteRepository;
 
     /**
-     * @param Session $checkoutSession
-     * @param Account $accountConfig
-     * @param Data $helper
+     * @param Session                 $checkoutSession
+     * @param Account                 $accountConfig
+     * @param Data                    $helper
      * @param CartRepositoryInterface $quoteRepository
      */
     public function __construct(
@@ -56,8 +58,7 @@ class ShippingMethodManagement
     /**
      * Before plugin for get() method.
      *
-     * @param mixed $cartId
-     * @return void
+     * @param  mixed                                    $cartId
      * @throws NoSuchEntityException|LocalizedException
      */
     public function beforeGet($cartId): void
@@ -95,7 +96,7 @@ class ShippingMethodManagement
     /**
      * Determine if the cart needs to be recreated.
      *
-     * @param mixed $store
+     * @param  mixed $store
      * @return bool
      */
     public function isNeedRecreate($store): bool

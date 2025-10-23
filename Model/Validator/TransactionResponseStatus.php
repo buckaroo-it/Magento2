@@ -21,10 +21,15 @@
 
 namespace Buckaroo\Magento2\Model\Validator;
 
+use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Helper\Data;
+use InvalidArgumentException;
+use Magento\Framework\App\Request\Http;
+
 class TransactionResponseStatus implements \Buckaroo\Magento2\Model\ValidatorInterface
 {
     /**
-     * @var \Buckaroo\Magento2\Helper\Data $helper
+     * @var Data $helper
      */
     protected $helper;
 
@@ -36,9 +41,10 @@ class TransactionResponseStatus implements \Buckaroo\Magento2\Model\ValidatorInt
     protected $request;
 
     /**
-     * @param \Buckaroo\Magento2\Helper\Data $helper
+     * @param Data      $helper
+     * @param Http $request
      */
-    public function __construct(\Buckaroo\Magento2\Helper\Data $helper, \Magento\Framework\App\Request\Http $request)
+    public function __construct(Data $helper, Http $request)
     {
         $this->helper = $helper;
         $this->request = $request;
@@ -48,12 +54,12 @@ class TransactionResponseStatus implements \Buckaroo\Magento2\Model\ValidatorInt
      * @param array|object $data
      *
      * @return bool
-     * @throws \Buckaroo\Magento2\Exception|\InvalidArgumentException
+     * @throws Exception|InvalidArgumentException
      */
     public function validate($data)
     {
         if (empty($data[0]) || !$data[0] instanceof \StdClass) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Data must be an instance of "\StdClass"'
             );
         }
@@ -79,7 +85,7 @@ class TransactionResponseStatus implements \Buckaroo\Magento2\Model\ValidatorInt
                 $success = false;
                 break;
             default:
-                throw new \Buckaroo\Magento2\Exception(
+                throw new Exception(
                     new \Magento\Framework\Phrase(
                         "Invalid Buckaroo status code received: %1.",
                         [$statusCode]

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Config\Source;
 
 class AllOrSpecificCountries implements \Magento\Framework\Option\ArrayInterface
@@ -30,7 +32,7 @@ class AllOrSpecificCountries implements \Magento\Framework\Option\ArrayInterface
     {
         return [
             ['value' => 0, 'label' => __('All Allowed Countries')],
-            ['value' => 1, 'label' => __('Specific Countries')]
+            ['value' => 1, 'label' => __('Specific Countries')],
         ];
     }
 
@@ -43,7 +45,7 @@ class AllOrSpecificCountries implements \Magento\Framework\Option\ArrayInterface
     {
         return [
             0 => __('All Allowed Countries'),
-            1 => __('Specific Countries')
+            1 => __('Specific Countries'),
         ];
     }
 }

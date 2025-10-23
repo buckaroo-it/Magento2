@@ -21,21 +21,22 @@
 
 namespace Buckaroo\Magento2\Model\Response;
 
+use Buckaroo\Magento2\Api\Data\BreakdownItemInterface;
 use Buckaroo\Magento2\Api\Data\BreakdownItemInterfaceFactory;
 use Buckaroo\Magento2\Api\Data\TotalBreakdownInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Model\Cart\CartTotalRepository;
 use Magento\Quote\Model\Quote;
 
 class TotalBreakdown implements TotalBreakdownInterface
 {
-
     /**
-     *  @var \Buckaroo\Magento2\Api\Data\BreakdownItemInterfaceFactory
+     * @var BreakdownItemInterfaceFactory
      */
     protected $breakdownItemFactory;
 
     /**
-     *  @var \Magento\Quote\Model\Quote
+     * @var Quote
      */
     protected $quote;
 
@@ -45,54 +46,57 @@ class TotalBreakdown implements TotalBreakdownInterface
         Quote $quote,
         BreakdownItemInterfaceFactory $breakdownItemFactory,
         CartTotalRepository $cartTotalRepository
-    )
-    {
+    ) {
         $this->breakdownItemFactory = $breakdownItemFactory;
         $this->quote = $quote;
         $this->cartTotalRepository = $cartTotalRepository;
     }
     /**
-     * @return \Buckaroo\Magento2\Api\Data\BreakdownItemInterface
+     * @return BreakdownItemInterface
      */
     public function getItemTotal()
     {
         return $this->breakdownItemFactory->create(
             [
                 "total" => number_format($this->quote->getGrandTotal(), 2) - $this->getTotalsOfType('shipping') - $this->getTotalsOfType('tax'),
-                "currencyCode" => $this->quote->getQuoteCurrencyCode()
+                "currencyCode" => $this->quote->getQuoteCurrencyCode(),
             ]
         );
     }
+
     /**
-     * @return \Buckaroo\Magento2\Api\Data\BreakdownItemInterface
+     * @return BreakdownItemInterface
      */
     public function getShipping()
     {
         return $this->breakdownItemFactory->create(
             [
                 "total" => $this->getTotalsOfType('shipping'),
-                "currencyCode" => $this->quote->getQuoteCurrencyCode()
+                "currencyCode" => $this->quote->getQuoteCurrencyCode(),
             ]
         );
     }
+
     /**
-     * @return \Buckaroo\Magento2\Api\Data\BreakdownItemInterface
+     * @return BreakdownItemInterface
      */
     public function getTaxTotal()
     {
         return $this->breakdownItemFactory->create(
             [
                 "total" =>  $this->getTotalsOfType('tax'),
-                "currencyCode" => $this->quote->getQuoteCurrencyCode()
+                "currencyCode" => $this->quote->getQuoteCurrencyCode(),
             ]
         );
     }
+
     /**
      * Get total from quote of type
      *
      * @param string $type
      *
      * @return float
+     * @throws NoSuchEntityException
      */
     protected function getTotalsOfType(string $type)
     {
@@ -104,5 +108,4 @@ class TotalBreakdown implements TotalBreakdownInterface
 
         return round($totals[$type]->getValue(), 2);
     }
-   
 }

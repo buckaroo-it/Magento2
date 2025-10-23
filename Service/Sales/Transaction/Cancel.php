@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Service\Sales\Transaction;
 
 use Buckaroo\Magento2\Model\Service\OrderCancellationService;
@@ -48,7 +50,7 @@ class Cancel
      * @param OrderStatusFactory              $orderStatusFactory
      * @param OrderPaymentRepositoryInterface $orderPaymentRepository
      * @param Account                         $account
-     * @param OrderCancellationService $orderCancellationService
+     * @param OrderCancellationService        $orderCancellationService
      */
     public function __construct(
         OrderStatusFactory $orderStatusFactory,

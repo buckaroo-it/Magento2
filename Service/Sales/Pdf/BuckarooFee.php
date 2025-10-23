@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,12 +18,12 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Service\Sales\Pdf;
 
 use Buckaroo\Magento2\Model\Config\Source\Display\Type as DisplayType;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Magento\Sales\Model\Order\Pdf\Total\DefaultTotal;
-use Magento\Store\Model\ScopeInterface;
 use Magento\Tax\Helper\Data;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\ResourceModel\Sales\Order\Tax\CollectionFactory;
@@ -45,13 +46,13 @@ class BuckarooFee extends DefaultTotal
     protected $configProviderBuckarooFee;
 
     /**
-     * @param Data $taxHelper
-     * @param Calculation $taxCalculation
-     * @param CollectionFactory $ordersFactory
-     * @param PaymentFee $paymentFee
-     * @param Account $configProviderAccount
+     * @param Data                      $taxHelper
+     * @param Calculation               $taxCalculation
+     * @param CollectionFactory         $ordersFactory
+     * @param PaymentFee                $paymentFee
+     * @param Account                   $configProviderAccount
      * @param ConfigProviderBuckarooFee $configProviderBuckarooFee
-     * @param array $data
+     * @param array                     $data
      */
     public function __construct(
         Data $taxHelper,

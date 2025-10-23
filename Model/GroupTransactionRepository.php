@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,8 +18,10 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model;
 
+use Magento\Framework\Api\Search\FilterGroup;
 use Magento\Framework\Api\SearchCriteria;
 use Magento\Framework\Api\SearchResultsInterface;
 use Magento\Framework\Api\SearchResultsInterfaceFactory;
@@ -113,8 +116,8 @@ class GroupTransactionRepository implements GroupTransactionRepositoryInterface
     }
 
     /**
-     * @param \Magento\Framework\Api\Search\FilterGroup $filterGroup
-     * @param GroupTransactionCollection                        $collection
+     * @param FilterGroup $filterGroup
+     * @param GroupTransactionCollection                $collection
      */
     private function handleFilterGroups($filterGroup, $collection)
     {
@@ -132,7 +135,7 @@ class GroupTransactionRepository implements GroupTransactionRepositoryInterface
     }
 
     /**
-     * @param SearchCriteria $searchCriteria
+     * @param SearchCriteria             $searchCriteria
      * @param GroupTransactionCollection $collection
      */
     private function handleSortOrders($searchCriteria, $collection)
@@ -153,7 +156,7 @@ class GroupTransactionRepository implements GroupTransactionRepositoryInterface
     }
 
     /**
-     * @param SearchCriteria $searchCriteria
+     * @param SearchCriteria             $searchCriteria
      * @param GroupTransactionCollection $collection
      *
      * @return array

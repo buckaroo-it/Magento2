@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -70,10 +71,10 @@ class CreateInvoice
     /**
      * Create invoice for the given order with invoice items.
      *
-     * @param Order $order
-     * @param array $invoiceItems
-     * @return bool
+     * @param  Order              $order
+     * @param  array              $invoiceItems
      * @throws LocalizedException
+     * @return bool
      */
     public function createInvoiceGeneralSetting(Order $order, array $invoiceItems): bool
     {
@@ -143,7 +144,7 @@ class CreateInvoice
     /**
      * Get invoice items for the order.
      *
-     * @param Order $order
+     * @param  Order $order
      * @return array
      */
     public function getInvoiceItems(Order $order): array
@@ -160,11 +161,11 @@ class CreateInvoice
     /**
      * Add transaction data to the payment.
      *
-     * @param mixed $payment
-     * @param string|false $transactionKey
-     * @param mixed $datas
-     * @return mixed
+     * @param  mixed        $payment
+     * @param  string|false $transactionKey
+     * @param  mixed        $datas
      * @throws \Exception
+     * @return mixed
      */
     public function addTransactionData($payment, $transactionKey = false, $datas = false)
     {

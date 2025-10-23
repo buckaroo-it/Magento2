@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,11 +18,11 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Service;
 
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Logging\Log;
-use Buckaroo\Magento2\Model\Service\QuoteBuilderInterfaceFactory;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\DataObject;
 use Magento\Framework\Exception\InputException;
@@ -53,14 +54,14 @@ class QuoteService
     private ?Quote $quote = null;
 
     /**
-     * @param Log $logger
-     * @param CartRepositoryInterface $cartRepository
+     * @param Log                             $logger
+     * @param CartRepositoryInterface         $cartRepository
      * @param MaskedQuoteIdToQuoteIdInterface $maskedQuoteIdToQuoteId
-     * @param AddProductToCartService $addProductToCartService
-     * @param QuoteAddressService $quoteAddressService
-     * @param ShippingMethodsService $shippingMethodsService
-     * @param CheckoutSession $checkoutSession
-     * @param QuoteBuilderInterfaceFactory $quoteBuilderInterfaceFactory
+     * @param AddProductToCartService         $addProductToCartService
+     * @param QuoteAddressService             $quoteAddressService
+     * @param ShippingMethodsService          $shippingMethodsService
+     * @param CheckoutSession                 $checkoutSession
+     * @param QuoteBuilderInterfaceFactory    $quoteBuilderInterfaceFactory
      */
     public function __construct(
         Log $logger,
@@ -85,9 +86,9 @@ class QuoteService
     /**
      * Retrieve the checkout quote instance.
      *
-     * @param int|string|null $cartHash
-     * @return Quote
+     * @param  int|string|null       $cartHash
      * @throws NoSuchEntityException
+     * @return Quote
      */
     public function getQuote($cartHash = null): Quote
     {
@@ -118,9 +119,9 @@ class QuoteService
     /**
      * Retrieve an empty quote by removing all items.
      *
-     * @param int|string|null $cartHash
-     * @return Quote
+     * @param  int|string|null       $cartHash
      * @throws NoSuchEntityException
+     * @return Quote
      */
     public function getEmptyQuote($cartHash): Quote
     {
@@ -132,9 +133,9 @@ class QuoteService
     /**
      * Create a new quote using form data.
      *
-     * @param string $formData
-     * @return Quote
+     * @param  string    $formData
      * @throws Exception
+     * @return Quote
      */
     public function createQuote(string $formData): Quote
     {
@@ -157,7 +158,7 @@ class QuoteService
     /**
      * Set the payment method on the quote.
      *
-     * @param string $paymentMethod
+     * @param  string $paymentMethod
      * @return Quote
      */
     public function setPaymentMethod(string $paymentMethod): Quote
@@ -220,8 +221,7 @@ class QuoteService
     /**
      * Set the shipping method on the quote's shipping address.
      *
-     * @param string $methodCode
-     * @return void
+     * @param  string                $methodCode
      * @throws NoSuchEntityException
      */
     public function setShippingMethod(string $methodCode): void
@@ -232,8 +232,7 @@ class QuoteService
     /**
      * Add a product to the cart.
      *
-     * @param DataObject $product
-     * @return void
+     * @param  DataObject            $product
      * @throws NoSuchEntityException
      * @throws LocalizedException
      */
@@ -245,8 +244,7 @@ class QuoteService
     /**
      * Add a shipping address to the quote.
      *
-     * @param mixed $shippingAddressRequest
-     * @return void
+     * @param  mixed                                    $shippingAddressRequest
      * @throws NoSuchEntityException|LocalizedException
      */
     public function addAddressToQuote($shippingAddressRequest): void
@@ -257,8 +255,8 @@ class QuoteService
     /**
      * Retrieve available shipping methods for the quote.
      *
-     * @return array
      * @throws InputException
+     * @return array
      */
     public function getAvailableShippingMethods(): array
     {

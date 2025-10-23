@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -25,7 +26,7 @@ class Afterpay2 extends Afterpay
     /**
      * Payment Code
      */
-    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_afterpay2';
+    public const PAYMENT_METHOD_CODE = 'buckaroo_magento2_afterpay2';
 
     /**
      * @var string

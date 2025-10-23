@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -29,33 +30,33 @@ use Buckaroo\Magento2\Model\Config\Source\Business;
  */
 class Afterpay2 extends AbstractConfigProvider
 {
-    const XPATH_ALLOWED_CURRENCIES               = 'buckaroo/buckaroo_magento2_afterpay2/allowed_currencies';
+    public const XPATH_ALLOWED_CURRENCIES               = 'buckaroo/buckaroo_magento2_afterpay2/allowed_currencies';
 
-    const XPATH_ALLOW_SPECIFIC                   = 'payment/buckaroo_magento2_afterpay2/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                 = 'payment/buckaroo_magento2_afterpay2/specificcountry';
+    public const XPATH_ALLOW_SPECIFIC                   = 'payment/buckaroo_magento2_afterpay2/allowspecific';
+    public const XPATH_SPECIFIC_COUNTRY                 = 'payment/buckaroo_magento2_afterpay2/specificcountry';
 
-    const XPATH_AFTERPAY2_ACTIVE                 = 'payment/buckaroo_magento2_afterpay2/active';
-    const XPATH_AFTERPAY2_SUBTEXT                = 'payment/buckaroo_magento2_afterpay2/subtext';
-    const XPATH_AFTERPAY2_SUBTEXT_STYLE          = 'payment/buckaroo_magento2_afterpay2/subtext_style';
-    const XPATH_AFTERPAY2_SUBTEXT_COLOR          = 'payment/buckaroo_magento2_afterpay2/subtext_color';
-    const XPATH_AFTERPAY2_PAYMENT_FEE            = 'payment/buckaroo_magento2_afterpay2/payment_fee';
-    const XPATH_AFTERPAY2_SEND_EMAIL             = 'payment/buckaroo_magento2_afterpay2/send_email';
-    const XPATH_AFTERPAY2_ACTIVE_STATUS          = 'payment/buckaroo_magento2_afterpay2/active_status';
-    const XPATH_AFTERPAY2_ORDER_STATUS_SUCCESS   = 'payment/buckaroo_magento2_afterpay2/order_status_success';
-    const XPATH_AFTERPAY2_ORDER_STATUS_FAILED    = 'payment/buckaroo_magento2_afterpay2/order_status_failed';
-    const XPATH_AFTERPAY2_AVAILABLE_IN_BACKEND   = 'payment/buckaroo_magento2_afterpay2/available_in_backend';
-    const XPATH_AFTERPAY2_DUE_DATE               = 'payment/buckaroo_magento2_afterpay2/due_date';
-    const XPATH_AFTERPAY2_ALLOWED_CURRENCIES     = 'payment/buckaroo_magento2_afterpay2/allowed_currencies';
-    const XPATH_AFTERPAY2_BUSINESS               = 'payment/buckaroo_magento2_afterpay2/business';
-    const XPATH_AFTERPAY2_PAYMENT_METHODS        = 'payment/buckaroo_magento2_afterpay2/payment_method';
-    const XPATH_AFTERPAY2_HIGH_TAX               = 'payment/buckaroo_magento2_afterpay2/high_tax';
-    const XPATH_AFTERPAY2_MIDDLE_TAX             = 'payment/buckaroo_magento2_afterpay2/middle_tax';
-    const XPATH_AFTERPAY2_LOW_TAX                = 'payment/buckaroo_magento2_afterpay2/low_tax';
-    const XPATH_AFTERPAY2_ZERO_TAX               = 'payment/buckaroo_magento2_afterpay2/zero_tax';
-    const XPATH_AFTERPAY2_NO_TAX                 = 'payment/buckaroo_magento2_afterpay2/no_tax';
+    public const XPATH_AFTERPAY2_ACTIVE                 = 'payment/buckaroo_magento2_afterpay2/active';
+    public const XPATH_AFTERPAY2_SUBTEXT                = 'payment/buckaroo_magento2_afterpay2/subtext';
+    public const XPATH_AFTERPAY2_SUBTEXT_STYLE          = 'payment/buckaroo_magento2_afterpay2/subtext_style';
+    public const XPATH_AFTERPAY2_SUBTEXT_COLOR          = 'payment/buckaroo_magento2_afterpay2/subtext_color';
+    public const XPATH_AFTERPAY2_PAYMENT_FEE            = 'payment/buckaroo_magento2_afterpay2/payment_fee';
+    public const XPATH_AFTERPAY2_SEND_EMAIL             = 'payment/buckaroo_magento2_afterpay2/send_email';
+    public const XPATH_AFTERPAY2_ACTIVE_STATUS          = 'payment/buckaroo_magento2_afterpay2/active_status';
+    public const XPATH_AFTERPAY2_ORDER_STATUS_SUCCESS   = 'payment/buckaroo_magento2_afterpay2/order_status_success';
+    public const XPATH_AFTERPAY2_ORDER_STATUS_FAILED    = 'payment/buckaroo_magento2_afterpay2/order_status_failed';
+    public const XPATH_AFTERPAY2_AVAILABLE_IN_BACKEND   = 'payment/buckaroo_magento2_afterpay2/available_in_backend';
+    public const XPATH_AFTERPAY2_DUE_DATE               = 'payment/buckaroo_magento2_afterpay2/due_date';
+    public const XPATH_AFTERPAY2_ALLOWED_CURRENCIES     = 'payment/buckaroo_magento2_afterpay2/allowed_currencies';
+    public const XPATH_AFTERPAY2_BUSINESS               = 'payment/buckaroo_magento2_afterpay2/business';
+    public const XPATH_AFTERPAY2_PAYMENT_METHODS        = 'payment/buckaroo_magento2_afterpay2/payment_method';
+    public const XPATH_AFTERPAY2_HIGH_TAX               = 'payment/buckaroo_magento2_afterpay2/high_tax';
+    public const XPATH_AFTERPAY2_MIDDLE_TAX             = 'payment/buckaroo_magento2_afterpay2/middle_tax';
+    public const XPATH_AFTERPAY2_LOW_TAX                = 'payment/buckaroo_magento2_afterpay2/low_tax';
+    public const XPATH_AFTERPAY2_ZERO_TAX               = 'payment/buckaroo_magento2_afterpay2/zero_tax';
+    public const XPATH_AFTERPAY2_NO_TAX                 = 'payment/buckaroo_magento2_afterpay2/no_tax';
 
-    const XPATH_SPECIFIC_CUSTOMER_GROUP          = 'payment/buckaroo_magento2_afterpay2/specificcustomergroup';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP_B2B      = 'payment/buckaroo_magento2_afterpay2/specificcustomergroupb2b';
+    public const XPATH_SPECIFIC_CUSTOMER_GROUP          = 'payment/buckaroo_magento2_afterpay2/specificcustomergroup';
+    public const XPATH_SPECIFIC_CUSTOMER_GROUP_B2B      = 'payment/buckaroo_magento2_afterpay2/specificcustomergroupb2b';
 
     /**
      * @return array
@@ -82,7 +83,7 @@ class Afterpay2 extends AbstractConfigProvider
                         'subtext_color'   => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'businessMethod'    => $this->getBusiness(),
-                        'paymentMethod'     => $this->getPaymentMethod()
+                        'paymentMethod'     => $this->getPaymentMethod(),
                     ],
                     'response' => [],
                 ],

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -20,11 +21,10 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
-use Magento\Catalog\Model\Product\Type;
+use Buckaroo\Magento2\Exception;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Tax\Model\Calculation;
-use Magento\Tax\Model\Config;
 use Magento\Framework\Phrase;
-use Magento\Quote\Model\Quote\AddressFactory;
 use Magento\Store\Model\ScopeInterface;
 
 class Klarna extends AbstractMethod
@@ -32,28 +32,28 @@ class Klarna extends AbstractMethod
     /**
      * Payment Code
      */
-    const PAYMENT_METHOD_CODE = '';
+    public const PAYMENT_METHOD_CODE = '';
 
-    const KLARNA_ORDER_SERVICE_ACTION = '';
+    public const KLARNA_ORDER_SERVICE_ACTION = '';
 
     /**
      * Max articles that can be handled by klarna
      */
-    const KLARNA_MAX_ARTICLE_COUNT = 99;
+    public const KLARNA_MAX_ARTICLE_COUNT = 99;
 
     /**
      * Check if the tax calculation includes tax.
      */
-    const TAX_CALCULATION_INCLUDES_TAX = 'tax/calculation/price_includes_tax';
-    const TAX_CALCULATION_SHIPPING_INCLUDES_TAX = 'tax/calculation/shipping_includes_tax';
+    public const TAX_CALCULATION_INCLUDES_TAX = 'tax/calculation/price_includes_tax';
+    public const TAX_CALCULATION_SHIPPING_INCLUDES_TAX = 'tax/calculation/shipping_includes_tax';
 
     /**
      * Business methods that will be used in klarna.
      */
-    const BUSINESS_METHOD_B2C = 1;
-    const BUSINESS_METHOD_B2B = 2;
+    public const BUSINESS_METHOD_B2C = 1;
+    public const BUSINESS_METHOD_B2B = 2;
 
-    const KLARNA_PAYMENT_METHOD_NAME = 'klarna';
+    public const KLARNA_PAYMENT_METHOD_NAME = 'klarna';
 
     /**
      * @var string
@@ -162,7 +162,7 @@ class Klarna extends AbstractMethod
      * @param $payment
      *
      * @return array
-     * @throws \Buckaroo\Magento2\Exception
+     * @throws Exception|LocalizedException
      */
     public function getRequestArticlesData($payment)
     {
@@ -171,7 +171,7 @@ class Klarna extends AbstractMethod
         if ($this->payRemainder) {
             return $this->getRequestArticlesDataPayRemainder($payment);
         }
-        
+
         $includesTax = $this->_scopeConfig->getValue(
             static::TAX_CALCULATION_INCLUDES_TAX,
             ScopeInterface::SCOPE_STORE
@@ -244,7 +244,7 @@ class Klarna extends AbstractMethod
      *
      * @return Phrase
      */
-    public function getDiscount() : Phrase
+    public function getDiscount(): Phrase
     {
         return __('Discount');
     }
@@ -326,7 +326,7 @@ class Klarna extends AbstractMethod
                 'Name'    => 'VatPercentage',
                 'GroupID' => $latestKey,
                 'Group' => 'Article',
-            ]
+            ],
         ];
 
         return $article;

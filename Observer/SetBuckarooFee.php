@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -20,18 +21,21 @@
 
 namespace Buckaroo\Magento2\Observer;
 
-class SetBuckarooFee implements \Magento\Framework\Event\ObserverInterface
+use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
+use Magento\Sales\Model\Order;
+
+class SetBuckarooFee implements ObserverInterface
 {
     /**
-     * @param \Magento\Framework\Event\Observer $observer
-     * @return void
+     * @param Observer $observer
      */
-    public function execute(\Magento\Framework\Event\Observer $observer)
+    public function execute(Observer $observer)
     {
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
-        /* @var $order \Magento\Sales\Model\Order */
+        /* @var $order Order */
         $order = $observer->getEvent()->getOrder();
         /**
          * @noinspection PhpUndefinedMethodInspection

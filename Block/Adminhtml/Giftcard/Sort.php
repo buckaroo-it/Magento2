@@ -28,7 +28,6 @@ use Buckaroo\Magento2\Helper\Data as HelperData;
 
 class Sort extends Field
 {
-
     /**
      * Template path
      *
@@ -39,9 +38,9 @@ class Sort extends Field
     private $helperData;
 
     /**
-     * @param Context $context
+     * @param Context    $context
      * @param HelperData $helperData
-     * @param array $data
+     * @param array      $data
      */
     public function __construct(
         Context $context,

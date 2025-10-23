@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Plugin;
 
 use Buckaroo\Magento2\Logging\Log;
@@ -39,10 +41,10 @@ class GuestSaveManager
 
     public function beforeSavePaymentInformationAndPlaceOrder(
         \Onestepcheckout\Iosc\Plugin\GuestSaveManager $subject,
-                                                      $cartId,
-                                                      $email,
+        $cartId,
+        $email,
         \Magento\Quote\Api\Data\PaymentInterface $paymentMethod,
-        \Magento\Quote\Api\Data\AddressInterface $billingAddress = null
+        ?\Magento\Quote\Api\Data\AddressInterface $billingAddress = null
     ) {
         if ($billingAddress == null) {
             $quoteIdMask = $this->quoteIdMaskFactory->create()->load($cartId, 'masked_id');
@@ -54,10 +56,10 @@ class GuestSaveManager
 
     public function beforeSavePaymentInformation(
         \Onestepcheckout\Iosc\Plugin\GuestSaveManager $subject,
-                                                      $cartId,
-                                                      $email,
+        $cartId,
+        $email,
         \Magento\Quote\Api\Data\PaymentInterface $paymentMethod,
-        \Magento\Quote\Api\Data\AddressInterface $billingAddress = null
+        ?\Magento\Quote\Api\Data\AddressInterface $billingAddress = null
     ) {
         if ($billingAddress == null) {
             $quoteIdMask = $this->quoteIdMaskFactory->create()->load($cartId, 'masked_id');

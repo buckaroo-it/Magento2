@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -38,7 +39,7 @@ class Save extends \Buckaroo\Magento2\Controller\Adminhtml\Giftcard\Index
             }
 
             $formData = $this->getRequest()->getParam('giftcard');
-            
+
             $filesData = $this->getRequest()->getFiles('logo');
 
             if ((isset($filesData['name'])) && ($filesData['name'] != '') && (!isset($formData['logo']['delete']))) {

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -20,9 +21,20 @@
 
 namespace Buckaroo\Magento2\Controller\CredentialsChecker;
 
+use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Gateway\GatewayInterface;
+use Buckaroo\Magento2\Gateway\Http\Client\Json;
+use Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory;
+use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory;
+use Buckaroo\Magento2\Model\ValidatorFactory;
+use Magento\Framework\App\Action\Context;
+use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\Data\Form\FormKey;
 use Magento\Framework\Encryption\Encryptor;
+use Magento\Framework\UrlInterface;
 
 class Index extends \Magento\Framework\App\Action\Action
 {
@@ -37,7 +49,7 @@ class Index extends \Magento\Framework\App\Action\Action
     protected $logger;
 
     /**
-     * @var \Magento\Framework\Controller\Result\JsonFactory
+     * @var JsonFactory
      */
     protected $resultJsonFactory;
 
@@ -57,26 +69,36 @@ class Index extends \Magento\Framework\App\Action\Action
     private $client;
 
     /**
-     * @param \Magento\Framework\App\Action\Context               $context
-     * @param Log                                                 $logger
-     * @param \Magento\Sales\Model\Order                          $order
+     * @param Context $context
+     * @param Log $logger
+     * @param JsonFactory $resultJsonFactory
+     * @param Factory $configProviderFactory
+     * @param UrlInterface $urlBuilder
+     * @param FormKey $formKey
+     * @param Data $helper
+     * @param Encryptor $encryptor
+     * @param Account $configProviderAccount
+     * @param TransactionBuilderFactory $transactionBuilderFactory
+     * @param GatewayInterface $gateway
+     * @param ValidatorFactory $validatorFactory
+     * @param Json $client
      *
-     * @throws \Buckaroo\Magento2\Exception
+     * @throws Exception
      */
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        Log $logger,
-        \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory,
-        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory,
-        \Magento\Framework\UrlInterface $urlBuilder,
-        \Magento\Framework\Data\Form\FormKey $formKey,
-        \Buckaroo\Magento2\Helper\Data $helper,
-        Encryptor $encryptor,
-        Account $configProviderAccount,
-        \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory,
-        \Buckaroo\Magento2\Gateway\GatewayInterface $gateway,
-        \Buckaroo\Magento2\Model\ValidatorFactory $validatorFactory,
-        \Buckaroo\Magento2\Gateway\Http\Client\Json $client
+        Context                                     $context,
+        Log                                         $logger,
+        JsonFactory                                 $resultJsonFactory,
+        Factory                                     $configProviderFactory,
+        UrlInterface                                $urlBuilder,
+        FormKey                                     $formKey,
+        Data                                        $helper,
+        Encryptor                                   $encryptor,
+        Account                                     $configProviderAccount,
+        TransactionBuilderFactory                   $transactionBuilderFactory,
+        GatewayInterface                            $gateway,
+        ValidatorFactory                            $validatorFactory,
+        Json $client
     ) {
         parent::__construct($context);
         $this->logger             = $logger;
@@ -110,31 +132,31 @@ class Index extends \Magento\Framework\App\Action\Action
                     $merchantKey =  $this->encryptor->decrypt($this->configProviderAccount->getMerchantKey());
                 }
 
-                $mode = $params['mode'] ?? \Buckaroo\Magento2\Helper\Data::MODE_TEST;
+                $mode = $params['mode'] ?? Data::MODE_TEST;
 
                 if (!$this->testXml($mode, $merchantKey, $message)) {
                     return $this->doResponse([
                         'success' => false,
-                        'error_message' => $message
+                        'error_message' => $message,
                     ]);
                 }
 
                 if (!$this->testJson($mode, $merchantKey, $secretKey, $message)) {
                     return $this->doResponse([
                         'success' => false,
-                        'error_message' => $message
+                        'error_message' => $message,
                     ]);
                 }
 
                 return $this->doResponse([
-                    'success' => true
+                    'success' => true,
                 ]);
             }
         }
 
         return $this->doResponse([
             'success' => false,
-            'error_message' => __('Failed to start validation process due to lack of data')
+            'error_message' => __('Failed to start validation process due to lack of data'),
         ]);
     }
 
@@ -190,12 +212,12 @@ class Index extends \Magento\Framework\App\Action\Action
                         "Parameters" => [
                             [
                                 "Name" => 'issuer',
-                                "Value" => 'ABNANL2A'
-                            ]
-                        ]
-                    ]
-                ]
-            ]
+                                "Value" => 'ABNANL2A',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
         ];
 
         $this->client->doRequest($data, $mode);

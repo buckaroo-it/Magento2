@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Controller\Applepay;
 
 use Buckaroo\Magento2\Logging\Log;
@@ -33,10 +35,10 @@ class Add extends AbstractApplepay
     protected AddService $addService;
 
     /**
-     * @param JsonFactory    $resultJsonFactory
+     * @param JsonFactory      $resultJsonFactory
      * @param RequestInterface $request
-     * @param Log            $logger
-     * @param AddService     $addService
+     * @param Log              $logger
+     * @param AddService       $addService
      */
     public function __construct(
         JsonFactory $resultJsonFactory,

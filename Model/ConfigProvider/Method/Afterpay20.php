@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -21,7 +22,6 @@
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Buckaroo\Magento2\Model\Config\Source\AfterpayCustomerType;
-use Buckaroo\Magento2\Model\Method\Afterpay20 as Afterpay20Method;
 
 /**
  * @method getDueDate()
@@ -29,32 +29,32 @@ use Buckaroo\Magento2\Model\Method\Afterpay20 as Afterpay20Method;
  */
 class Afterpay20 extends AbstractConfigProvider
 {
-    const XPATH_ALLOWED_CURRENCIES               = 'buckaroo/buckaroo_magento2_afterpay20/allowed_currencies';
+    public const XPATH_ALLOWED_CURRENCIES               = 'buckaroo/buckaroo_magento2_afterpay20/allowed_currencies';
 
-    const XPATH_ALLOW_SPECIFIC                   = 'payment/buckaroo_magento2_afterpay20/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                 = 'payment/buckaroo_magento2_afterpay20/specificcountry';
+    public const XPATH_ALLOW_SPECIFIC                   = 'payment/buckaroo_magento2_afterpay20/allowspecific';
+    public const XPATH_SPECIFIC_COUNTRY                 = 'payment/buckaroo_magento2_afterpay20/specificcountry';
 
-    const XPATH_AFTERPAY20_ACTIVE                 = 'payment/buckaroo_magento2_afterpay20/active';
-    const XPATH_AFTERPAY20_SUBTEXT                = 'payment/buckaroo_magento2_afterpay20/subtext';
-    const XPATH_AFTERPAY20_SUBTEXT_STYLE          = 'payment/buckaroo_magento2_afterpay20/subtext_style';
-    const XPATH_AFTERPAY20_SUBTEXT_COLOR          = 'payment/buckaroo_magento2_afterpay20/subtext_color';
-    const XPATH_AFTERPAY20_PAYMENT_FEE            = 'payment/buckaroo_magento2_afterpay20/payment_fee';
-    const XPATH_AFTERPAY20_SEND_EMAIL             = 'payment/buckaroo_magento2_afterpay20/send_email';
-    const XPATH_AFTERPAY20_ACTIVE_STATUS          = 'payment/buckaroo_magento2_afterpay20/active_status';
-    const XPATH_AFTERPAY20_ORDER_STATUS_SUCCESS   = 'payment/buckaroo_magento2_afterpay20/order_status_success';
-    const XPATH_AFTERPAY20_ORDER_STATUS_FAILED    = 'payment/buckaroo_magento2_afterpay20/order_status_failed';
-    const XPATH_AFTERPAY20_AVAILABLE_IN_BACKEND   = 'payment/buckaroo_magento2_afterpay20/available_in_backend';
-    const XPATH_AFTERPAY20_DUE_DATE               = 'payment/buckaroo_magento2_afterpay20/due_date';
-    const XPATH_AFTERPAY20_ALLOWED_CURRENCIES     = 'payment/buckaroo_magento2_afterpay20/allowed_currencies';
-    const XPATH_AFTERPAY20_CREATE_INVOICE_BY_SHIP =
+    public const XPATH_AFTERPAY20_ACTIVE                 = 'payment/buckaroo_magento2_afterpay20/active';
+    public const XPATH_AFTERPAY20_SUBTEXT                = 'payment/buckaroo_magento2_afterpay20/subtext';
+    public const XPATH_AFTERPAY20_SUBTEXT_STYLE          = 'payment/buckaroo_magento2_afterpay20/subtext_style';
+    public const XPATH_AFTERPAY20_SUBTEXT_COLOR          = 'payment/buckaroo_magento2_afterpay20/subtext_color';
+    public const XPATH_AFTERPAY20_PAYMENT_FEE            = 'payment/buckaroo_magento2_afterpay20/payment_fee';
+    public const XPATH_AFTERPAY20_SEND_EMAIL             = 'payment/buckaroo_magento2_afterpay20/send_email';
+    public const XPATH_AFTERPAY20_ACTIVE_STATUS          = 'payment/buckaroo_magento2_afterpay20/active_status';
+    public const XPATH_AFTERPAY20_ORDER_STATUS_SUCCESS   = 'payment/buckaroo_magento2_afterpay20/order_status_success';
+    public const XPATH_AFTERPAY20_ORDER_STATUS_FAILED    = 'payment/buckaroo_magento2_afterpay20/order_status_failed';
+    public const XPATH_AFTERPAY20_AVAILABLE_IN_BACKEND   = 'payment/buckaroo_magento2_afterpay20/available_in_backend';
+    public const XPATH_AFTERPAY20_DUE_DATE               = 'payment/buckaroo_magento2_afterpay20/due_date';
+    public const XPATH_AFTERPAY20_ALLOWED_CURRENCIES     = 'payment/buckaroo_magento2_afterpay20/allowed_currencies';
+    public const XPATH_AFTERPAY20_CREATE_INVOICE_BY_SHIP =
         'payment/buckaroo_magento2_afterpay20/create_invoice_after_shipment';
 
-    const XPATH_AFTERPAY20_CUSTOMER_TYPE          = 'payment/buckaroo_magento2_afterpay20/customer_type';
-    const XPATH_AFTERPAY20_MIN_AMOUNT_B2B         = 'payment/buckaroo_magento2_afterpay20/min_amount_b2b';
-    const XPATH_AFTERPAY20_MAX_AMOUNT_B2B         = 'payment/buckaroo_magento2_afterpay20/max_amount_b2b';
+    public const XPATH_AFTERPAY20_CUSTOMER_TYPE          = 'payment/buckaroo_magento2_afterpay20/customer_type';
+    public const XPATH_AFTERPAY20_MIN_AMOUNT_B2B         = 'payment/buckaroo_magento2_afterpay20/min_amount_b2b';
+    public const XPATH_AFTERPAY20_MAX_AMOUNT_B2B         = 'payment/buckaroo_magento2_afterpay20/max_amount_b2b';
 
 
-    const XPATH_SPECIFIC_CUSTOMER_GROUP           = 'payment/buckaroo_magento2_afterpay20/specificcustomergroup';
+    public const XPATH_SPECIFIC_CUSTOMER_GROUP           = 'payment/buckaroo_magento2_afterpay20/specificcustomergroup';
 
     /**
      * @return array

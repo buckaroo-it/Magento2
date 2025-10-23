@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -25,7 +26,7 @@ class Trustly extends AbstractMethod
     /**
      * Payment Code
      */
-    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_trustly';
+    public const PAYMENT_METHOD_CODE = 'buckaroo_magento2_trustly';
 
     /**
      * @var string
@@ -68,7 +69,7 @@ class Trustly extends AbstractMethod
                 [
                     '_' => $billingAddress->getEmail(),
                     'Name' => 'ConsumerEmail',
-                ],            
+                ],
             ],
         ];
 

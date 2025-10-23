@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -23,7 +24,6 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 use Magento\Framework\View\Asset\Repository;
 use Buckaroo\Magento2\Helper\PaymentFee;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
-use Buckaroo\Magento2\Model\Method\Billink as BillinkMethod;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Buckaroo\Magento2\Helper\Data as BuckarooHelper;
 
@@ -33,37 +33,37 @@ use Buckaroo\Magento2\Helper\Data as BuckarooHelper;
  */
 class Billink extends AbstractConfigProvider
 {
-    const XPATH_ALLOWED_CURRENCIES = 'buckaroo/buckaroo_magento2_billink/allowed_currencies';
+    public const XPATH_ALLOWED_CURRENCIES = 'buckaroo/buckaroo_magento2_billink/allowed_currencies';
 
-    const XPATH_ALLOW_SPECIFIC   = 'payment/buckaroo_magento2_billink/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY = 'payment/buckaroo_magento2_billink/specificcountry';
+    public const XPATH_ALLOW_SPECIFIC   = 'payment/buckaroo_magento2_billink/allowspecific';
+    public const XPATH_SPECIFIC_COUNTRY = 'payment/buckaroo_magento2_billink/specificcountry';
 
-    const XPATH_BILLINK_ACTIVE               = 'payment/buckaroo_magento2_billink/active';
-    const XPATH_BILLINK_SUBTEXT              = 'payment/buckaroo_magento2_billink/subtext';
-    const XPATH_BILLINK_SUBTEXT_STYLE        = 'payment/buckaroo_magento2_billink/subtext_style';
-    const XPATH_BILLINK_SUBTEXT_COLOR        = 'payment/buckaroo_magento2_billink/subtext_color';
-    const XPATH_BILLINK_PAYMENT_FEE          = 'payment/buckaroo_magento2_billink/payment_fee';
-    const XPATH_BILLINK_SEND_EMAIL           = 'payment/buckaroo_magento2_billink/send_email';
-    const XPATH_BILLINK_ACTIVE_STATUS        = 'payment/buckaroo_magento2_billink/active_status';
-    const XPATH_BILLINK_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_billink/order_status_success';
-    const XPATH_BILLINK_ORDER_STATUS_FAILED  = 'payment/buckaroo_magento2_billink/order_status_failed';
-    const XPATH_BILLINK_AVAILABLE_IN_BACKEND = 'payment/buckaroo_magento2_billink/available_in_backend';
-    const XPATH_BILLINK_DUE_DATE             = 'payment/buckaroo_magento2_billink/due_date';
-    const XPATH_BILLINK_ALLOWED_CURRENCIES   = 'payment/buckaroo_magento2_billink/allowed_currencies';
+    public const XPATH_BILLINK_ACTIVE               = 'payment/buckaroo_magento2_billink/active';
+    public const XPATH_BILLINK_SUBTEXT              = 'payment/buckaroo_magento2_billink/subtext';
+    public const XPATH_BILLINK_SUBTEXT_STYLE        = 'payment/buckaroo_magento2_billink/subtext_style';
+    public const XPATH_BILLINK_SUBTEXT_COLOR        = 'payment/buckaroo_magento2_billink/subtext_color';
+    public const XPATH_BILLINK_PAYMENT_FEE          = 'payment/buckaroo_magento2_billink/payment_fee';
+    public const XPATH_BILLINK_SEND_EMAIL           = 'payment/buckaroo_magento2_billink/send_email';
+    public const XPATH_BILLINK_ACTIVE_STATUS        = 'payment/buckaroo_magento2_billink/active_status';
+    public const XPATH_BILLINK_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_billink/order_status_success';
+    public const XPATH_BILLINK_ORDER_STATUS_FAILED  = 'payment/buckaroo_magento2_billink/order_status_failed';
+    public const XPATH_BILLINK_AVAILABLE_IN_BACKEND = 'payment/buckaroo_magento2_billink/available_in_backend';
+    public const XPATH_BILLINK_DUE_DATE             = 'payment/buckaroo_magento2_billink/due_date';
+    public const XPATH_BILLINK_ALLOWED_CURRENCIES   = 'payment/buckaroo_magento2_billink/allowed_currencies';
 
-    const XPATH_SPECIFIC_CUSTOMER_GROUP      = 'payment/buckaroo_magento2_billink/specificcustomergroup';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP_B2B  = 'payment/buckaroo_magento2_billink/specificcustomergroupb2b';
-    const XPATH_FINANCIAL_WARNING            = 'payment/buckaroo_magento2_billink/financial_warning';
+    public const XPATH_SPECIFIC_CUSTOMER_GROUP      = 'payment/buckaroo_magento2_billink/specificcustomergroup';
+    public const XPATH_SPECIFIC_CUSTOMER_GROUP_B2B  = 'payment/buckaroo_magento2_billink/specificcustomergroupb2b';
+    public const XPATH_FINANCIAL_WARNING            = 'payment/buckaroo_magento2_billink/financial_warning';
 
 
     private $helper;
 
     /**
-     * @param Repository           $assetRepo
+     * @param Repository $assetRepo
      * @param ScopeConfigInterface $scopeConfig
-     * @param AllowedCurrencies    $allowedCurrencies
-     * @param PaymentFee           $paymentFeeHelper
-     * @param FormKey              $formKey
+     * @param AllowedCurrencies $allowedCurrencies
+     * @param PaymentFee $paymentFeeHelper
+     * @param BuckarooHelper $helper
      */
     public function __construct(
         Repository $assetRepo,
@@ -106,9 +106,9 @@ class Billink extends AbstractConfigProvider
                             ['genderType' => 'male', 'genderTitle' => __('He/him')],
                             ['genderType' => 'female', 'genderTitle' => __('She/her')],
                             ['genderType' => 'unknown', 'genderTitle' => __('They/them')],
-                            ['genderType' => 'unknown', 'genderTitle' => __('I prefer not to say')]
+                            ['genderType' => 'unknown', 'genderTitle' => __('I prefer not to say')],
                         ],
-                        'showFinancialWarning' => $this->canShowFinancialWarning(self::XPATH_FINANCIAL_WARNING)
+                        'showFinancialWarning' => $this->canShowFinancialWarning(self::XPATH_FINANCIAL_WARNING),
                     ],
                     'response' => [],
                 ],

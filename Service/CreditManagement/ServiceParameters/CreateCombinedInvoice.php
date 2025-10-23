@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Service\CreditManagement\ServiceParameters;
 
 use Magento\Payment\Model\InfoInterface;
@@ -57,7 +59,7 @@ class CreateCombinedInvoice
             'Name'             => 'CreditManagement3',
             'Action'           => 'CreateCombinedInvoice',
             'Version'          => 1,
-            'RequestParameter' => $this->getCmRequestParameters($payment)
+            'RequestParameter' => $this->getCmRequestParameters($payment),
         ];
 
         return $services;
@@ -144,7 +146,7 @@ class CreateCombinedInvoice
             [
                 '_'    => $this->getAllowedServices($order->getPayment()),
                 'Name' => 'AllowedServices',
-            ]
+            ],
         ];
 
         if ($this->configProvider->getPaymentMethodAfterExpiry()) {
@@ -158,7 +160,7 @@ class CreateCombinedInvoice
     }
 
     /**
-     * @param OrderPaymentInterface|InfoInterface $payment
+     * @param  OrderPaymentInterface|InfoInterface $payment
      * @return string
      */
     private function getAllowedServices($payment): string
@@ -209,7 +211,7 @@ class CreateCombinedInvoice
             return $allowedServices;
         }
 
-        if(strlen($allowedServices) > 0) {
+        if (strlen($allowedServices) > 0) {
             return $allowedServices . "," . $activeGiftcardIssuers;
         }
         return $activeGiftcardIssuers;
@@ -295,7 +297,7 @@ class CreateCombinedInvoice
             $addressParameters[] = [
                 '_'    => $address['number_addition'],
                 'Name' => 'HouseNumberSuffix',
-                'Group' => 'Address'
+                'Group' => 'Address',
             ];
         }
 
@@ -320,13 +322,13 @@ class CreateCombinedInvoice
             [
                 '_' => strtolower($billingAddress->getCountryId()),
                 'Name' => 'Culture',
-                'Group' => 'Company'
+                'Group' => 'Company',
             ],
             [
                 '_' => $company,
                 'Name' => 'Name',
-                'Group' => 'Company'
-            ]
+                'Group' => 'Company',
+            ],
         ];
 
         return $requestParameters;

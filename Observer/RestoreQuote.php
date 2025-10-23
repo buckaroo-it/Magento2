@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -64,7 +65,6 @@ class RestoreQuote implements ObserverInterface
      * Restore Quote and Cancel LastRealOrder
      *
      * @param Observer $observer
-     * @return void
      */
     public function execute(Observer $observer)
     {
@@ -148,8 +148,8 @@ class RestoreQuote implements ObserverInterface
     /**
      * Check if the quote should be restored.
      *
-     * @param $lastRealOrder
-     * @param $payment
+     * @param       $lastRealOrder
+     * @param       $payment
      * @return bool
      */
     private function shouldRestoreQuote($lastRealOrder, $payment)
@@ -191,7 +191,7 @@ class RestoreQuote implements ObserverInterface
      * Clear address data and remove the address object from the quote.
      *
      * @param Quote $quote
-     * @param $address
+     * @param       $address
      */
     private function clearAddress($quote, $address)
     {
@@ -207,7 +207,7 @@ class RestoreQuote implements ObserverInterface
     /**
      * Check if the payment method is fastcheckout.
      *
-     * @param $payment
+     * @param       $payment
      * @return bool
      */
     private function isFastCheckout($payment)
@@ -220,7 +220,7 @@ class RestoreQuote implements ObserverInterface
     /**
      * Check if the payment method should be skipped.
      *
-     * @param $payment
+     * @param       $payment
      * @return bool
      */
     private function isPayconiqPaymentMethod($payment)

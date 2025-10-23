@@ -1,7 +1,9 @@
 <?php
+
 namespace Buckaroo\Magento2\Ui\Component\Listing\Column\Method;
 
 use Magento\Framework\App\ResourceConnection;
+use Magento\Payment\Helper\Data;
 
 class Filter extends \Magento\Payment\Ui\Component\Listing\Column\Method\Options
 {
@@ -10,11 +12,12 @@ class Filter extends \Magento\Payment\Ui\Component\Listing\Column\Method\Options
     /**
      * Constructor
      *
-     * @param \Magento\Payment\Helper\Data $paymentHelper
+     * @param Data              $paymentHelper
+     * @param ResourceConnection $resourceConnection
      */
     public function __construct(
-        \Magento\Payment\Helper\Data $paymentHelper,
-        \Magento\Framework\App\ResourceConnection $resourceConnection
+        Data $paymentHelper,
+        ResourceConnection $resourceConnection
     ) {
         parent::__construct($paymentHelper);
         $this->resourceConnection = $resourceConnection;
@@ -96,7 +99,7 @@ class Filter extends \Magento\Payment\Ui\Component\Listing\Column\Method\Options
                 $this->options[] = [
                     "value" => $key,
                     "label" => $value,
-                    "__disableTmpl" => true
+                    "__disableTmpl" => true,
                 ];
             }
 
@@ -105,13 +108,13 @@ class Filter extends \Magento\Payment\Ui\Component\Listing\Column\Method\Options
         $options = new \Buckaroo\Magento2\Model\Config\Source\PaymentMethods\PayPerEmail();
         $option = $options->toOptionArray();
         $option = array_merge($option, [
-            ['value' => 'creditcards', 'label' => __('Creditcards')]
+            ['value' => 'creditcards', 'label' => __('Creditcards')],
         ]);
         foreach ($option as $item) {
             $this->options[] = [
                 "value" => 'buckaroo_magento2_payperemail-'.$item['value'],
                 "label" => __('Buckaroo PayPerEmail') . ' + ' . $item['label'],
-                "__disableTmpl" => true
+                "__disableTmpl" => true,
             ];
         }
         return $this->options;

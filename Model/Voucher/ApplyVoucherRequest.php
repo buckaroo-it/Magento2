@@ -21,6 +21,8 @@
 
 namespace Buckaroo\Magento2\Model\Voucher;
 
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Model\Quote;
 use Magento\Framework\UrlInterface;
 use Magento\Framework\Data\Form\FormKey;
@@ -35,18 +37,16 @@ use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
 use Buckaroo\Magento2\Model\Giftcard\Request\GiftcardException;
-use Buckaroo\Magento2\Model\Voucher\ApplyVoucherRequestInterface;
 
 class ApplyVoucherRequest implements ApplyVoucherRequestInterface
 {
-
     protected $action = 'Pay';
     /**
      * @var \Magento\Store\Api\Data\StoreInterface
      */
     protected $store;
 
-    /** 
+    /**
      * @var Encryptor $encryptor
      */
     private $encryptor;
@@ -98,7 +98,6 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
 
 
     /**
-     *
      * @param ScopeConfigInterface $scopeConfig
      * @param Account $configProviderAccount
      * @param UrlInterface $urlBuilder
@@ -107,6 +106,8 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
      * @param StoreManagerInterface $storeManager
      * @param Json $client
      * @param RequestInterface $httpRequest
+     * @param PaymentGroupTransaction $groupTransaction
+     * @throws NoSuchEntityException
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
@@ -139,7 +140,7 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
         if ($this->voucherCode === null) {
             throw new GiftcardException("Field `voucherCode` is required");
         }
-      
+
 
         $this->client->setSecretKey($this->getSecretKey());
         $this->client->setWebsiteKey($this->getMerchantKey());
@@ -156,7 +157,7 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
         if ($originalTransactionKey !== null) {
             $this->action = 'PayRemainder';
         }
-        
+
         $ip = $this->getIp($this->store);
         $body = [
             "Currency" => $this->getCurrency(),
@@ -179,12 +180,12 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
                         "Parameters" => [
                             [
                                 "Name" => 'vouchercode',
-                                "Value" => $this->voucherCode
-                            ]
-                        ]
-                    ]
-                ]
-            ]
+                                "Value" => $this->voucherCode,
+                            ],
+                        ],
+                    ],
+                ],
+            ],
         ];
         if ($originalTransactionKey !== null) {
             $body['OriginalTransactionKey'] = $originalTransactionKey;
@@ -246,12 +247,16 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
     protected function getCurrency()
     {
         $currency = $this->quote->getCurrency();
-        if ($currency !== null)  return $currency->getBaseCurrencyCode();
+        if ($currency !== null) {
+            return $currency->getBaseCurrencyCode();
+        }
     }
+
     /**
      * Get merchant key for store
      *
      * @return mixed
+     * @throws \Exception
      */
     protected function getMerchantKey()
     {
@@ -259,10 +264,12 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
             $this->configProviderAccount->getMerchantKey($this->store)
         );
     }
+
     /**
      * Get merchant secret for store
      *
      * @return mixed
+     * @throws \Exception
      */
     protected function getSecretKey()
     {
@@ -270,8 +277,9 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
             $this->configProviderAccount->getSecretKey($this->store)
         );
     }
+
     /**
-     * Get request mode 
+     * Get request mode
      *
      * @return int
      */
@@ -283,9 +291,11 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
         );
         return ($active == HelperData::MODE_LIVE) ? HelperData::MODE_LIVE : HelperData::MODE_TEST;
     }
+
     /**
      * Get return url
      * @return string
+     * @throws LocalizedException
      */
     protected function getReturnUrl()
     {

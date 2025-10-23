@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -27,7 +28,7 @@ class IdealProcessing extends AbstractMethod
     /**
      * Payment Code
      */
-    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_idealprocessing';
+    public const PAYMENT_METHOD_CODE = 'buckaroo_magento2_idealprocessing';
 
     /**
      * @var string
@@ -67,7 +68,7 @@ class IdealProcessing extends AbstractMethod
             'Name'             => 'idealprocessing',
             'Action'           => $this->getPayRemainder($payment, $transactionBuilder),
             'Version'          => 2,
-            'RequestParameter' => []
+            'RequestParameter' => [],
         ];
 
         $transactionBuilder->setOrder($payment->getOrder())
@@ -80,7 +81,6 @@ class IdealProcessing extends AbstractMethod
     }
 
     /**
-     * @return null
      */
     protected function getRefundTransactionBuilderVersion()
     {
@@ -117,7 +117,8 @@ class IdealProcessing extends AbstractMethod
      *
      * {@inheritdoc}
      */
-    public function validateAdditionalData() {
+    public function validateAdditionalData()
+    {
         return $this;
     }
 
@@ -131,7 +132,7 @@ class IdealProcessing extends AbstractMethod
         return $this->buckarooPaymentMethodCode;
     }
 
-    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
+    public function isAvailable(?\Magento\Quote\Api\Data\CartInterface $quote = null)
     {
         $orderId = $quote ? $quote->getReservedOrderId() : null;
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -20,7 +21,6 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
-use Magento\Sales\Model\Order;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
@@ -32,7 +32,7 @@ class Transfer extends AbstractMethod
     /**
      * Payment Code
      */
-    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_transfer';
+    public const PAYMENT_METHOD_CODE = 'buckaroo_magento2_transfer';
 
     /**
      * @var string
@@ -73,17 +73,17 @@ class Transfer extends AbstractMethod
         SoftwareData $softwareData,
         AddressFactory $addressFactory,
         \Magento\Framework\Event\ManagerInterface $eventManager,
-        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
-        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
-        \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
-        \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory = null,
-        \Buckaroo\Magento2\Model\ValidatorFactory $validatorFactory = null,
-        \Buckaroo\Magento2\Helper\Data $helper = null,
-        \Magento\Framework\App\RequestInterface $request = null,
-        \Buckaroo\Magento2\Model\RefundFieldsFactory $refundFieldsFactory = null,
-        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory = null,
-        \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
-        \Magento\Framework\Pricing\Helper\Data $priceHelper = null,
+        ?\Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
+        ?\Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
+        ?\Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
+        ?\Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory = null,
+        ?\Buckaroo\Magento2\Model\ValidatorFactory $validatorFactory = null,
+        ?\Buckaroo\Magento2\Helper\Data $helper = null,
+        ?\Magento\Framework\App\RequestInterface $request = null,
+        ?\Buckaroo\Magento2\Model\RefundFieldsFactory $refundFieldsFactory = null,
+        ?\Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory = null,
+        ?\Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
+        ?\Magento\Framework\Pricing\Helper\Data $priceHelper = null,
         array $data = []
     ) {
         parent::__construct(
@@ -132,7 +132,7 @@ class Transfer extends AbstractMethod
         $services[] = $this->getTransferService($payment);
 
         $filterParameter = [
-            ['Name' => 'AllowedServices']
+            ['Name' => 'AllowedServices'],
         ];
 
         $cmService = $this->serviceParameters->getCreateCombinedInvoice($payment, 'transfer', $filterParameter);
@@ -191,12 +191,12 @@ class Transfer extends AbstractMethod
                 ],
                 [
                     '_'    => $now->format('Y-m-d'),
-                    'Name' => 'DateDue'
+                    'Name' => 'DateDue',
                 ],
                 [
                     '_'    => $transferConfig->getSendEmail(),
-                    'Name' => 'SendMail'
-                ]
+                    'Name' => 'SendMail',
+                ],
             ],
         ];
 
@@ -315,7 +315,7 @@ class Transfer extends AbstractMethod
         return 'transfer';
     }
 
-    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
+    public function isAvailable(?\Magento\Quote\Api\Data\CartInterface $quote = null)
     {
         $orderId = $quote ? $quote->getReservedOrderId() : null;
 

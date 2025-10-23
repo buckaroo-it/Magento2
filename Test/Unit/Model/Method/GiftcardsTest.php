@@ -93,7 +93,7 @@ class GiftcardsTest extends BaseTest
 
         $fixture = [
             'allowed_giftcards' => 'bookgiftcard,webshopgiftcard',
-            'order' => $orderMock
+            'order' => $orderMock,
         ];
 
         $paymentMock = $this->getFakeMock(Payment::class)->setMethods(['getOrder'])->getMock();
@@ -129,7 +129,7 @@ class GiftcardsTest extends BaseTest
 
         $instance = $this->getInstance([
             'scopeConfig' => $scopeConfigMock,
-            'transactionBuilderFactory' => $trxFactoryMock
+            'transactionBuilderFactory' => $trxFactoryMock,
         ]);
 
         $instance->setData('info_instance', $infoInterface);
@@ -141,7 +141,7 @@ class GiftcardsTest extends BaseTest
         $fixture = [
             'name' => 'giftcards',
             'action' => 'Authorize',
-            'order' => 'order'
+            'order' => 'order',
         ];
 
         $paymentMock = $this->getFakeMock(Payment::class)->setMethods(['getOrder'])->getMock();
@@ -175,7 +175,7 @@ class GiftcardsTest extends BaseTest
         $fixture = [
             'name' => 'giftcards',
             'action' => 'Capture',
-            'transaction_key' => 'key!'
+            'transaction_key' => 'key!',
         ];
 
         $invoiceMock = $this->getFakeMock(Invoice::class)->setMethods(['getBaseGrandTotal'])->getMock();

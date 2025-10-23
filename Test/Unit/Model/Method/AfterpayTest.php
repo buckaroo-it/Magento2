@@ -68,32 +68,32 @@ class AfterpayTest extends BaseTest
         return [
             'incorrect transaction type' => [
                 (Object)[
-                    'TransactionType' => 'C013'
+                    'TransactionType' => 'C013',
                 ],
-                ''
+                '',
             ],
             'correct transaction type with colon' => [
                 (Object)[
                     'TransactionType' => 'C011',
                     'Status' => (Object)[
                         'SubCode' => (Object)[
-                            '_' => 'An error occured: Het telefoonnummer is onjuist'
-                        ]
-                    ]
+                            '_' => 'An error occured: Het telefoonnummer is onjuist',
+                        ],
+                    ],
                 ],
-                'Het telefoonnummer is onjuist'
+                'Het telefoonnummer is onjuist',
             ],
             'correct transaction type without colon' => [
                 (Object)[
                     'TransactionType' => 'C016',
                     'Status' => (Object)[
                         'SubCode' => (Object)[
-                            '_' => 'De geboortedatum is onjuist'
-                        ]
-                    ]
+                            '_' => 'De geboortedatum is onjuist',
+                        ],
+                    ],
                 ],
-                'De geboortedatum is onjuist'
-            ]
+                'De geboortedatum is onjuist',
+            ],
         ];
     }
 
@@ -120,23 +120,23 @@ class AfterpayTest extends BaseTest
             'different data' => [
                 ['abc'],
                 ['def'],
-                true
+                true,
             ],
             'equal data' => [
                 ['ghi'],
                 ['ghi'],
-                false
+                false,
             ],
             'billing is null' => [
                 null,
                 ['jkl'],
-                false
+                false,
             ],
             'shipping is null' => [
                 ['mno'],
                 null,
-                false
-            ]
+                false,
+            ],
         ];
     }
 
@@ -188,35 +188,35 @@ class AfterpayTest extends BaseTest
                 2,
                 1,
                 1,
-                null
+                null,
             ],
             'no tax by amount' => [
                 0,
                 0,
                 0,
                 0,
-                null
+                null,
             ],
             'only catalog tax' => [
                 6,
                 4,
                 0,
                 1,
-                2
+                2,
             ],
             'only shipping tax' => [
                 8,
                 5,
                 1,
                 0,
-                5
+                5,
             ],
             'both catalog and shipping tax' => [
                 15,
                 10,
                 0,
                 0,
-                15
+                15,
             ],
         ];
     }
@@ -274,7 +274,7 @@ class AfterpayTest extends BaseTest
                 0,
                 1,
                 1,
-                []
+                [],
             ],
             'shipping costs without tax' => [
                 2,
@@ -284,8 +284,8 @@ class AfterpayTest extends BaseTest
                     [
                         '_' => 2,
                         'Name' => 'ShippingCosts',
-                    ]
-                ]
+                    ],
+                ],
             ],
             'shipping costs with tax' => [
                 4,
@@ -295,8 +295,8 @@ class AfterpayTest extends BaseTest
                     [
                         '_' => 9,
                         'Name' => 'ShippingCosts',
-                    ]
-                ]
+                    ],
+                ],
             ],
         ];
     }
@@ -340,22 +340,22 @@ class AfterpayTest extends BaseTest
             'No discount' => [
                 0,
                 0,
-                0
+                0,
             ],
             'Normal Discount' => [
                 -5,
                 0,
-                -5
+                -5,
             ],
             'Store Credit discount' => [
                 3,
                 10,
-                -10
+                -10,
             ],
             'Both Normal and Store Credit Discounts' => [
                 -15,
                 20,
-                -35
+                -35,
             ],
         ];
     }

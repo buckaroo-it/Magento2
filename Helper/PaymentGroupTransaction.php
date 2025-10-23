@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -60,6 +61,14 @@ class PaymentGroupTransaction extends AbstractHelper
     private Log $logging;
 
     /**
+     * @param Context                           $context
+     * @param GroupTransactionFactory           $groupTransactionFactory
+     * @param DateTime                          $dateTime
+     * @param Order                             $order
+     * @param TransactionInterface              $transaction
+     * @param Log                               $logging
+     * @param GroupTransactionCollectionFactory $grTrCollectionFactory
+     * @param GroupTransaction                  $resourceModel
      */
     public function __construct(
         Context                           $context,
@@ -70,8 +79,7 @@ class PaymentGroupTransaction extends AbstractHelper
         Log                               $logging,
         GroupTransactionCollectionFactory $grTrCollectionFactory,
         GroupTransaction                  $resourceModel
-    )
-    {
+    ) {
         parent::__construct($context);
 
         $this->groupTransactionFactory = $groupTransactionFactory;
@@ -249,8 +257,6 @@ class PaymentGroupTransaction extends AbstractHelper
      *
      * @param string $groupTransactionId
      * @param string $status
-     *
-     * @return void
      */
     public function setGroupTransactionsStatus(string $groupTransactionId, string $status)
     {

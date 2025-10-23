@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Block\Adminhtml\Sales;
 
 class Totals extends \Magento\Framework\View\Element\Template
@@ -31,10 +33,10 @@ class Totals extends \Magento\Framework\View\Element\Template
      */
     protected $_currency;
     /**
-     * @param \Magento\Framework\View\Element\Template\Context $context
-     * @param \Buckaroo\Magento2\Helper\PaymentFee                  $helper
+     * @param \Magento\Framework\View\Element\Template\Context  $context
+     * @param \Buckaroo\Magento2\Helper\PaymentFee              $helper
      * @param \Magento\Framework\Pricing\PriceCurrencyInterface $currency
-     * @param array                                            $data
+     * @param array                                             $data
      */
     public function __construct(
         \Magento\Framework\View\Element\Template\Context $context,
@@ -96,11 +98,11 @@ class Totals extends \Magento\Framework\View\Element\Template
             $creditTotals = $this->helper->getTotals($source);
             $order = $source->getOrder();
             $invoice = $source->getInvoice();
-            $salesModel = ($invoice != null? $invoice : $order);
+            $salesModel = ($invoice != null ? $invoice : $order);
             $saleTotals = $this->helper->getTotals($salesModel);
 
-            $saleTotals = array_map(function($saleTotal) use($creditTotals) {
-                if (in_array($saleTotal['code'],['buckaroo_fee', 'buckaroo_fee_excl'] )) {
+            $saleTotals = array_map(function ($saleTotal) use ($creditTotals) {
+                if (in_array($saleTotal['code'], ['buckaroo_fee', 'buckaroo_fee_excl'])) {
                     $saleTotal['block_name'] = "buckaroo_fee";
                     $saleTotal['is_selected'] = $this->isCreditmemoTotalSelected($creditTotals, $saleTotal);
                 }
@@ -137,15 +139,14 @@ class Totals extends \Magento\Framework\View\Element\Template
      * @param array $creditTotals
      * @param array $saleTotal
      *
-     * @return boolean
+     * @return bool
      */
     private function isCreditmemoTotalSelected($creditTotals, $saleTotal)
     {
         foreach ($creditTotals as $creditTotal) {
-            if (
-                isset($creditTotal['code']) && $creditTotal['code'] === $saleTotal['code']
+            if (isset($creditTotal['code']) && $creditTotal['code'] === $saleTotal['code']
             ) {
-               return true;
+                return true;
             }
         }
         return false;

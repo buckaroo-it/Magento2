@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -21,6 +22,8 @@
 namespace Buckaroo\Magento2\Soap;
 
 use Buckaroo\Magento2\Model\ConfigProvider\PrivateKey;
+use LogicException;
+use SoapFault;
 
 class ClientFactory extends \Magento\Framework\Webapi\Soap\ClientFactory
 {
@@ -47,7 +50,7 @@ class ClientFactory extends \Magento\Framework\Webapi\Soap\ClientFactory
      * @param array  $options
      *
      * @return Client\SoapClientWSSEC
-     * @throws \Buckaroo\Magento2\Exception|\LogicException
+     * @throws LogicException|SoapFault
      */
     public function create($wsdl, array $options = [])
     {

@@ -34,7 +34,7 @@ class OrderUpdate
 
 
     /**
-     * @var \Magento\Sales\Api\Data\OrderAddressInterface
+     * @var OrderAddressInterface
      */
     protected $address;
 
@@ -46,8 +46,8 @@ class OrderUpdate
     /**
      * Update order address with pay response data
      *
-     * @param \Magento\Sales\Api\Data\OrderAddressInterface
-     * @return \Magento\Sales\Api\Data\OrderAddressInterface
+     * @param $address
+     * @return OrderAddressInterface
      */
     public function updateAddress($address)
     {
@@ -73,12 +73,10 @@ class OrderUpdate
     }
 
     /**
-     *
      * @param OrderInterface $order
-     *
-     * @return void
      */
-    public function updateEmail(OrderInterface $order) {
+    public function updateEmail(OrderInterface $order)
+    {
         if ($this->valueExists('payerEmail')) {
             $order->setCustomerEmail($this->responseAddressInfo['payerEmail']);
         };
@@ -86,12 +84,12 @@ class OrderUpdate
     /**
      * Get payment response
      *
+     * @param  mixed         $registry
      * @return stdClass|null
      */
     private function getAddressInfoFromPayRequest($registry)
     {
-        if (
-            $registry &&
+        if ($registry &&
             $registry->registry("buckaroo_response") &&
             isset($registry->registry("buckaroo_response")[0]) &&
             isset($registry->registry("buckaroo_response")[0]->Services->Service->ResponseParameter)

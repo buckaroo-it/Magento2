@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -25,7 +26,7 @@ class Creditcard extends AbstractMethod
     /**
      * Payment Code
      */
-    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_creditcard';
+    public const PAYMENT_METHOD_CODE = 'buckaroo_magento2_creditcard';
 
     /**
      * @var string
@@ -94,7 +95,7 @@ class Creditcard extends AbstractMethod
     /**
      * {@inheritdoc}
      */
-    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
+    public function isAvailable(?\Magento\Quote\Api\Data\CartInterface $quote = null)
     {
         /**
          * If there are no credit cards chosen, we can't be available
@@ -217,6 +218,4 @@ class Creditcard extends AbstractMethod
     {
         return $payment->getAdditionalInformation('card_type');
     }
-
-
 }

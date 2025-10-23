@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -20,6 +21,7 @@
 
 namespace Buckaroo\Magento2\Model;
 
+use Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterface;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Api\Data\BuckarooRestOrderDataInterface;
 use Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterfaceFactory;
@@ -39,15 +41,16 @@ class BuckarooRestOrderData implements BuckarooRestOrderDataInterface
         string $orderIncrementId,
         PaymentGroupTransaction $groupTransaction,
         TransactionResponseInterfaceFactory $trResponseFactory
-        ) {
+    ) {
         $this->orderIncrementId = $orderIncrementId;
         $this->groupTransaction = $groupTransaction;
         $this->trResponseFactory = $trResponseFactory;
     }
     /**
-     * @return \Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterface[]
+     * @return TransactionResponseInterface[]
      */
-    public function getGroupTransactions() {
+    public function getGroupTransactions()
+    {
         return $this->formatFound(
             $this->groupTransaction->getActiveItemsWithName(
                 $this->orderIncrementId
@@ -60,7 +63,7 @@ class BuckarooRestOrderData implements BuckarooRestOrderDataInterface
      *
      * @param array $collection
      *
-     * @return \Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterface[]
+     * @return TransactionResponseInterface[]
      */
     protected function formatFound(array $collection)
     {

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,12 +18,13 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Method;
 
 class Kbc extends AbstractMethod
 {
     /** Payment Code*/
-    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_kbc';
+    public const PAYMENT_METHOD_CODE = 'buckaroo_magento2_kbc';
 
     /** @var string */
     public $buckarooPaymentMethodCode = 'kbc';
@@ -40,7 +42,7 @@ class Kbc extends AbstractMethod
         $services = [
             'Name'             => 'KBCPaymentButton',
             'Action'           => $this->getPayRemainder($payment, $transactionBuilder),
-            'Version'          => 1
+            'Version'          => 1,
         ];
 
         $transactionBuilder->setOrder($payment->getOrder())

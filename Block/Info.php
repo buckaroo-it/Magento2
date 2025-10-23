@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -24,6 +25,7 @@ use Magento\Framework\UrlInterface;
 use Magento\Framework\View\Asset\Repository;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
+use Magento\Framework\View\Element\Template\Context;
 
 class Info extends \Magento\Payment\Block\Info
 {
@@ -34,14 +36,17 @@ class Info extends \Magento\Payment\Block\Info
     protected $groupTransaction;
     protected $giftcardCollection;
 
-    protected  Repository $assetRepo;
+    protected Repository $assetRepo;
 
     protected UrlInterface $baseUrl;
 
     /**
-     * @param \Magento\Framework\View\Element\Template\Context     $context
-     * @param array                                                $data
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard $configProvider
+     * @param Context $context
+     * @param PaymentGroupTransaction $groupTransaction
+     * @param GiftcardCollection $giftcardCollection
+     * @param Repository $assetRepo
+     * @param UrlInterface $baseUrl
+     * @param array $data
      */
     public function __construct(
         \Magento\Framework\View\Element\Template\Context $context,
@@ -71,7 +76,7 @@ class Info extends \Magento\Payment\Block\Info
                     $result[] = [
                         'code' => $giftcard['servicecode'],
                         'label' => $foundGiftcard['label'],
-                        'logo' => $foundGiftcard['logo']
+                        'logo' => $foundGiftcard['logo'],
                     ];
                 }
             }
@@ -111,12 +116,12 @@ class Info extends \Magento\Payment\Block\Info
             "pospayment" => "pos.png",
             "transfer" => "svg/sepa-credittransfer.svg",
             "paybybank" => "paybybank.gif",
-            "knaken" => "svg/gosettle.svg"
+            "knaken" => "svg/gosettle.svg",
         ];
 
         $name = "svg/{$method}.svg";
 
-        if(isset($mappings[$method])) {
+        if (isset($mappings[$method])) {
             $name = $mappings[$method];
         }
 
@@ -124,8 +129,7 @@ class Info extends \Magento\Payment\Block\Info
     }
     public function getGiftcardLogo(array $giftcard): string
     {
-        if (
-            isset($giftcard['logo']) &&
+        if (isset($giftcard['logo']) &&
             is_string($giftcard['logo']) &&
             strlen(trim($giftcard['logo']))
         ) {
@@ -137,7 +141,8 @@ class Info extends \Magento\Payment\Block\Info
 
         return $this->getGiftcardLogoDefaults($giftcard['code']);
     }
-    private function getGiftcardLogoDefaults(string $code) {
+    private function getGiftcardLogoDefaults(string $code)
+    {
         $name = "svg/giftcards.svg";
 
         $mappings = [
@@ -151,17 +156,17 @@ class Info extends \Magento\Payment\Block\Info
             "nationaleentertainmentcard" => "nationaleentertainmentcard",
             "podiumcadeaukaart" => "podiumcadeaukaart",
             "sportfitcadeau" => "sport-fitcadeau",
-            "vvvgiftcard" => "vvvgiftcard"
+            "vvvgiftcard" => "vvvgiftcard",
         ];
 
-        if(isset($mappings[$code])) {
+        if (isset($mappings[$code])) {
             $name = "giftcards/{$mappings[$code]}.svg";
         }
         return $this->assetRepo->getUrl("Buckaroo_Magento2::images/{$name}");
     }
     public function getCreditcardLogo(string $code): string
     {
-        if($code === 'cartebleuevisa') {
+        if ($code === 'cartebleuevisa') {
             $code = 'cartebleue';
         }
 

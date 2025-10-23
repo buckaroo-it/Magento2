@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,12 +18,13 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Api\Data;
 
 interface InvoiceInterface
 {
     /**
-     * @param $value
+     * @param        $value
      * @return $this
      */
     public function setInvoiceTransactionId($value);
@@ -33,7 +35,7 @@ interface InvoiceInterface
     public function getInvoiceTransactionId();
 
     /**
-     * @param $value
+     * @param        $value
      * @return $this
      */
     public function setInvoiceNumber($value);

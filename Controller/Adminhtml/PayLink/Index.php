@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,13 +18,13 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Controller\Adminhtml\PayLink;
 
-use Buckaroo\Magento2\Gateway\Http\TransactionBuilder\Order;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\View\Result\PageFactory;
-use \Magento\Framework\Controller\ResultFactory;
+use Magento\Framework\Controller\ResultFactory;
 
 class Index extends \Magento\Backend\App\Action
 {
@@ -109,7 +110,7 @@ class Index extends \Magento\Backend\App\Action
                     '_'    => $config->getPaymentMethod($store),
                     'Name' => 'PaymentMethodsAllowed',
                 ],
-            ]
+            ],
         ];
 
         $currentPayment = $payment->getMethod();

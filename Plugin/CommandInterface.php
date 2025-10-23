@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Plugin;
 
 use Buckaroo\Magento2\Exception;
@@ -54,13 +56,13 @@ class CommandInterface
     /**
      * Around plugin for execute().
      *
-     * @param MagentoCommandInterface $commandInterface
-     * @param \Closure $proceed
-     * @param OrderPaymentInterface $payment
-     * @param mixed $amount
-     * @param OrderInterface $order
-     * @return mixed
+     * @param  MagentoCommandInterface $commandInterface
+     * @param  \Closure                $proceed
+     * @param  OrderPaymentInterface   $payment
+     * @param  mixed                   $amount
+     * @param  OrderInterface          $order
      * @throws \Exception
+     * @return mixed
      */
     public function aroundExecute(
         MagentoCommandInterface $commandInterface,
@@ -103,7 +105,7 @@ class CommandInterface
     /**
      * Update order state and status if necessary.
      *
-     * @param OrderInterface|Order $order
+     * @param OrderInterface $order
      * @param MethodInterface $methodInstance
      * @return bool|void
      * @throws Exception
@@ -153,10 +155,10 @@ class CommandInterface
     /**
      * Helper to check if the payment method is afterpay or eps in conditions that should skip updates.
      *
-     * @param MethodInterface $methodInstance
-     * @param OrderInterface $order
-     * @return bool
+     * @param  MethodInterface $methodInstance
+     * @param  OrderInterface  $order
      * @throws Exception
+     * @return bool
      */
     private function isAfterpayOrEps(MethodInterface $methodInstance, OrderInterface $order): bool
     {

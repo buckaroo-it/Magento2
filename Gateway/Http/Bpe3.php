@@ -18,8 +18,10 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Gateway\Http;
 
+use Exception;
 use Magento\Payment\Gateway\Http\TransferBuilder;
 use Buckaroo\Magento2\Gateway\Http\Client\Soap;
 use Buckaroo\Magento2\Logging\Log;
@@ -82,10 +84,10 @@ class Bpe3 implements \Buckaroo\Magento2\Gateway\GatewayInterface
     }
 
     /**
-     * @param \Buckaroo\Magento2\Gateway\Http\Transaction $transaction
+     * @param Transaction $transaction
      *
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     public function order(Transaction $transaction)
     {
@@ -93,10 +95,10 @@ class Bpe3 implements \Buckaroo\Magento2\Gateway\GatewayInterface
     }
 
     /**
-     * @param \Buckaroo\Magento2\Gateway\Http\Transaction $transaction
+     * @param Transaction $transaction
      *
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     public function capture(Transaction $transaction)
     {
@@ -104,10 +106,10 @@ class Bpe3 implements \Buckaroo\Magento2\Gateway\GatewayInterface
     }
 
     /**
-     * @param \Buckaroo\Magento2\Gateway\Http\Transaction $transaction
+     * @param Transaction $transaction
      *
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     public function authorize(Transaction $transaction)
     {
@@ -115,10 +117,10 @@ class Bpe3 implements \Buckaroo\Magento2\Gateway\GatewayInterface
     }
 
     /**
-     * @param \Buckaroo\Magento2\Gateway\Http\Transaction $transaction
+     * @param Transaction $transaction
      *
      * @return array
-     * @throws \Exception|\Buckaroo\Magento2\Exception
+     * @throws Exception|\Buckaroo\Magento2\Exception
      */
     public function refund(Transaction $transaction)
     {
@@ -133,10 +135,10 @@ class Bpe3 implements \Buckaroo\Magento2\Gateway\GatewayInterface
     }
 
     /**
-     * @param \Buckaroo\Magento2\Gateway\Http\Transaction $transaction
+     * @param Transaction $transaction
      *
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     public function cancel(Transaction $transaction)
     {
@@ -144,10 +146,10 @@ class Bpe3 implements \Buckaroo\Magento2\Gateway\GatewayInterface
     }
 
     /**
-     * @param \Buckaroo\Magento2\Gateway\Http\Transaction $transaction
+     * @param Transaction $transaction
      *
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     public function void(Transaction $transaction)
     {
@@ -155,9 +157,8 @@ class Bpe3 implements \Buckaroo\Magento2\Gateway\GatewayInterface
     }
 
     /**
-     * @return string
-     *
      * @throws \Buckaroo\Magento2\Exception|\LogicException
+     * @return string
      */
     protected function getWsdl()
     {
@@ -177,7 +178,7 @@ class Bpe3 implements \Buckaroo\Magento2\Gateway\GatewayInterface
                     __(
                         "Invalid mode set: %1",
                         [
-                            $this->mode
+                            $this->mode,
                         ]
                     )
                 );
@@ -189,8 +190,8 @@ class Bpe3 implements \Buckaroo\Magento2\Gateway\GatewayInterface
     /**
      * @param Transaction $transaction
      *
+     * @throws Exception
      * @return array
-     * @throws \Exception
      */
     public function doRequest(Transaction $transaction)
     {
@@ -198,7 +199,7 @@ class Bpe3 implements \Buckaroo\Magento2\Gateway\GatewayInterface
         $this->logger->addDebug(var_export($transaction->getBody(), true));
 
         $clientConfig = [
-            'wsdl' => $this->getWsdl()
+            'wsdl' => $this->getWsdl(),
         ];
 
         $transfer = $this->transferBuilder->setClientConfig($clientConfig);

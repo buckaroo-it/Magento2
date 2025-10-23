@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Controller\Applepay;
 
 use Buckaroo\Magento2\Exception;
@@ -94,19 +96,20 @@ class SaveOrder extends AbstractApplepay
     private CustomerSession $customerSession;
 
     /**
-     * @param JsonFactory            $resultJsonFactory
-     * @param RequestInterface       $request
-     * @param Log                    $logger
-     * @param QuoteManagement        $quoteManagement
-     * @param CustomerSession        $customerSession
-     * @param DataObjectFactory      $objectFactory
+     * @param JsonFactory $resultJsonFactory
+     * @param RequestInterface $request
+     * @param Log $logger
+     * @param QuoteManagement $quoteManagement
+     * @param CustomerSession $customerSession
+     * @param DataObjectFactory $objectFactory
      * @param OrderRepositoryInterface $orderRepository
-     * @param SearchCriteriaBuilder  $searchCriteriaBuilder
-     * @param CheckoutSession        $checkoutSession
-     * @param ConfigProviderFactory  $configProviderFactory
-     * @param QuoteAddressService    $quoteAddressService
-     * @param Registry               $registry
-     * @param Order                  $order
+     * @param SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param CheckoutSession $checkoutSession
+     * @param ConfigProviderFactory $configProviderFactory
+     * @param QuoteAddressService $quoteAddressService
+     * @param Registry $registry
+     * @param Order $order
+     * @throws Exception
      */
     public function __construct(
         JsonFactory $resultJsonFactory,
@@ -139,8 +142,8 @@ class SaveOrder extends AbstractApplepay
     /**
      * Save Order
      *
-     * @return Json
      * @throws LocalizedException
+     * @return Json
      */
     public function execute(): Json
     {
@@ -200,10 +203,9 @@ class SaveOrder extends AbstractApplepay
     /**
      * Submit the quote.
      *
-     * @param Quote $quote
-     * @param array|string $extra
-     * @param array $payment
-     * @return void
+     * @param  Quote              $quote
+     * @param  array|string       $extra
+     * @param  array              $payment
      * @throws LocalizedException
      */
     private function submitQuote($quote, $extra, $payment): void
@@ -276,7 +278,7 @@ class SaveOrder extends AbstractApplepay
             if (!empty($data->RequiredAction->RedirectURL)) {
                 // Test mode response.
                 $data = [
-                    'RequiredAction' => $data->RequiredAction
+                    'RequiredAction' => $data->RequiredAction,
                 ];
             } else {
                 //live mode
@@ -295,7 +297,7 @@ class SaveOrder extends AbstractApplepay
     /**
      * Process Buckaroo response and set order and quote data on session.
      *
-     * @param mixed $data
+     * @param  mixed $data
      * @return array
      */
     private function processBuckarooResponse($data): array
@@ -319,8 +321,8 @@ class SaveOrder extends AbstractApplepay
             ));
             $data = [
                 'RequiredAction' => [
-                    'RedirectURL' => $url
-                ]
+                    'RedirectURL' => $url,
+                ],
             ];
         }
         return $data;

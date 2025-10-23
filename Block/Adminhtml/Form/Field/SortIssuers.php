@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -57,9 +58,9 @@ class SortIssuers extends Field
     protected ?ConfigProviderInterface $configProvider = null;
 
     /**
-     * @param Context $context
+     * @param Context               $context
      * @param ConfigProviderFactory $configProviderFactory
-     * @param array $data
+     * @param array                 $data
      */
     public function __construct(
         Context $context,
@@ -73,9 +74,9 @@ class SortIssuers extends Field
     /**
      * Return element html
      *
-     * @param AbstractElement $element
-     * @return string
+     * @param  AbstractElement $element
      * @throws Exception
+     * @return string
      */
     protected function _getElementHtml(AbstractElement $element)
     {

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -33,7 +34,9 @@ class BuckarooFee extends \Magento\Sales\Model\Order\Creditmemo\Total\AbstractTo
      */
     protected $request;
     /**
-     * @param RequestInterface $request
+     * @param RequestInterface   $request
+     * @param ResourceConnection $resourceConnection
+     * @param Log                $logger
      */
     public function __construct(RequestInterface $request, ResourceConnection $resourceConnection, Log $logger)
     {

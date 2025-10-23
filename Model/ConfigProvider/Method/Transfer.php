@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -30,29 +31,29 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
  */
 class Transfer extends AbstractConfigProvider
 {
-    const XPATH_TRANSFER_ACTIVE                 = 'payment/buckaroo_magento2_transfer/active';
-    const XPATH_TRANSFER_SUBTEXT                = 'payment/buckaroo_magento2_transfer/subtext';
-    const XPATH_TRANSFER_SUBTEXT_STYLE          = 'payment/buckaroo_magento2_transfer/subtext_style';
-    const XPATH_TRANSFER_SUBTEXT_COLOR          = 'payment/buckaroo_magento2_transfer/subtext_color';
-    const XPATH_TRANSFER_PAYMENT_FEE            = 'payment/buckaroo_magento2_transfer/payment_fee';
-    const XPATH_TRANSFER_SEND_EMAIL             = 'payment/buckaroo_magento2_transfer/send_email';
-    const XPATH_TRANSFER_ACTIVE_STATUS          = 'payment/buckaroo_magento2_transfer/active_status';
-    const XPATH_TRANSFER_ORDER_STATUS_SUCCESS   = 'payment/buckaroo_magento2_transfer/order_status_success';
-    const XPATH_TRANSFER_ORDER_STATUS_FAILED    = 'payment/buckaroo_magento2_transfer/order_status_failed';
-    const XPATH_TRANSFER_AVAILABLE_IN_BACKEND   = 'payment/buckaroo_magento2_transfer/available_in_backend';
-    const XPATH_TRANSFER_DUE_DATE               = 'payment/buckaroo_magento2_transfer/due_date';
+    public const XPATH_TRANSFER_ACTIVE                 = 'payment/buckaroo_magento2_transfer/active';
+    public const XPATH_TRANSFER_SUBTEXT                = 'payment/buckaroo_magento2_transfer/subtext';
+    public const XPATH_TRANSFER_SUBTEXT_STYLE          = 'payment/buckaroo_magento2_transfer/subtext_style';
+    public const XPATH_TRANSFER_SUBTEXT_COLOR          = 'payment/buckaroo_magento2_transfer/subtext_color';
+    public const XPATH_TRANSFER_PAYMENT_FEE            = 'payment/buckaroo_magento2_transfer/payment_fee';
+    public const XPATH_TRANSFER_SEND_EMAIL             = 'payment/buckaroo_magento2_transfer/send_email';
+    public const XPATH_TRANSFER_ACTIVE_STATUS          = 'payment/buckaroo_magento2_transfer/active_status';
+    public const XPATH_TRANSFER_ORDER_STATUS_SUCCESS   = 'payment/buckaroo_magento2_transfer/order_status_success';
+    public const XPATH_TRANSFER_ORDER_STATUS_FAILED    = 'payment/buckaroo_magento2_transfer/order_status_failed';
+    public const XPATH_TRANSFER_AVAILABLE_IN_BACKEND   = 'payment/buckaroo_magento2_transfer/available_in_backend';
+    public const XPATH_TRANSFER_DUE_DATE               = 'payment/buckaroo_magento2_transfer/due_date';
 
-    const XPATH_TRANSFER_ACTIVE_STATUS_CM3           = 'payment/buckaroo_magento2_transfer/active_status_cm3';
-    const XPATH_TRANSFER_SCHEME_KEY                  = 'payment/buckaroo_magento2_transfer/scheme_key';
-    const XPATH_TRANSFER_MAX_STEP_INDEX              = 'payment/buckaroo_magento2_transfer/max_step_index';
-    const XPATH_TRANSFER_CM3_DUE_DATE                = 'payment/buckaroo_magento2_transfer/cm3_due_date';
-    const XPATH_TRANSFER_PAYMENT_METHOD_AFTER_EXPIRY = 'payment/buckaroo_magento2_transfer/payment_method_after_expiry';
+    public const XPATH_TRANSFER_ACTIVE_STATUS_CM3           = 'payment/buckaroo_magento2_transfer/active_status_cm3';
+    public const XPATH_TRANSFER_SCHEME_KEY                  = 'payment/buckaroo_magento2_transfer/scheme_key';
+    public const XPATH_TRANSFER_MAX_STEP_INDEX              = 'payment/buckaroo_magento2_transfer/max_step_index';
+    public const XPATH_TRANSFER_CM3_DUE_DATE                = 'payment/buckaroo_magento2_transfer/cm3_due_date';
+    public const XPATH_TRANSFER_PAYMENT_METHOD_AFTER_EXPIRY = 'payment/buckaroo_magento2_transfer/payment_method_after_expiry';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_transfer/allowed_currencies';
+    public const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_transfer/allowed_currencies';
 
-    const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_transfer/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_transfer/specificcountry';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_transfer/specificcustomergroup';
+    public const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_transfer/allowspecific';
+    public const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_transfer/specificcountry';
+    public const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_transfer/specificcustomergroup';
 
     /**
      * @return array
@@ -78,9 +79,9 @@ class Transfer extends AbstractConfigProvider
                         'subtext_style'   => $this->getSubtextStyle(),
                         'subtext_color'   => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
-                    ]
-                ]
-            ]
+                    ],
+                ],
+            ],
         ];
     }
 

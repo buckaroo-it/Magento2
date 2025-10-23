@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Api;
 
 use Magento\Framework\Api\SearchCriteria;
@@ -29,37 +31,37 @@ use Buckaroo\Magento2\Api\Data\CertificateInterface;
 interface CertificateRepositoryInterface
 {
     /**
-     * @param CertificateInterface $certificate
-     * @return CertificateInterface
+     * @param  CertificateInterface  $certificate
      * @throws CouldNotSaveException
+     * @return CertificateInterface
      */
     public function save(CertificateInterface $certificate);
 
     /**
-     * @param int|string $certificateId
-     * @return CertificateInterface
+     * @param  int|string            $certificateId
      * @throws NoSuchEntityException
+     * @return CertificateInterface
      */
     public function getById($certificateId);
 
     /**
-     * @param SearchCriteria $searchCriteria
+     * @param  SearchCriteria         $searchCriteria
      * @return SearchResultsInterface
      */
     public function getList(SearchCriteria $searchCriteria);
 
     /**
-     * @param CertificateInterface $certificate
-     * @return bool
+     * @param  CertificateInterface    $certificate
      * @throws CouldNotDeleteException
+     * @return bool
      */
     public function delete(CertificateInterface $certificate);
 
     /**
-     * @param $certificateId
-     * @return bool
+     * @param                          $certificateId
      * @throws CouldNotDeleteException
      * @throws NoSuchEntityException
+     * @return bool
      */
     public function deleteById($certificateId);
 }

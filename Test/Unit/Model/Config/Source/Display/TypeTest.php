@@ -33,14 +33,14 @@ class TypeTest extends BaseTest
     {
         return [
             [
-                ['value' => 1, 'label' => 'Excluding Tax']
+                ['value' => 1, 'label' => 'Excluding Tax'],
             ],
             [
-                ['value' => 2, 'label' => 'Including Tax']
+                ['value' => 2, 'label' => 'Including Tax'],
             ],
             [
-                ['value' => 3, 'label' => 'Including and Excluding Tax']
-            ]
+                ['value' => 3, 'label' => 'Including and Excluding Tax'],
+            ],
         ];
     }
 

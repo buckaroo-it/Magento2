@@ -73,24 +73,24 @@ class CapayableTest extends BaseTest
                 ['someValue', 'someName'],
                 [
                     '_' => 'someValue',
-                    'Name' => 'someName'
-                ]
+                    'Name' => 'someName',
+                ],
             ],
             'value, name and grouptype' => [
                 ['someValue', 'someName', 'someGroup'],
                 [
                     '_' => 'someValue',
                     'Name' => 'someName',
-                    'Group' => 'someGroup'
-                ]
+                    'Group' => 'someGroup',
+                ],
             ],
             'value, name and groupid' => [
                 ['someValue', 'someName', null, 1],
                 [
                     '_' => 'someValue',
                     'Name' => 'someName',
-                    'GroupID' => 1
-                ]
+                    'GroupID' => 1,
+                ],
             ],
             'value, name, grouptype and groupid' => [
                 ['someValue', 'someName', 'someGroup', 2],
@@ -98,8 +98,8 @@ class CapayableTest extends BaseTest
                     '_' => 'someValue',
                     'Name' => 'someName',
                     'Group' => 'someGroup',
-                    'GroupID' => 2
-                ]
+                    'GroupID' => 2,
+                ],
             ],
         ];
     }
@@ -147,7 +147,7 @@ class CapayableTest extends BaseTest
 
         $instance = $this->getInstance([
             'softwareData' => $softwareDataMock,
-            'transactionBuilderFactory' => $factoryMock
+            'transactionBuilderFactory' => $factoryMock,
         ]);
 
         $result = $instance->getOrderTransactionBuilder($paymentMock);
@@ -213,7 +213,7 @@ class CapayableTest extends BaseTest
 
         $expectedDataNames = [
             'CustomerType', 'InvoiceDate', 'Phone', 'Email', 'Initials', 'LastName', 'Culture', 'Gender', 'BirthDate',
-            'Street', 'HouseNumber', 'HouseNumberSuffix', 'ZipCode', 'City', 'Country', 'Name', 'ChamberOfCommerce'
+            'Street', 'HouseNumber', 'HouseNumberSuffix', 'ZipCode', 'City', 'Country', 'Name', 'ChamberOfCommerce',
         ];
 
         $this->assertInternalType('array', $result);

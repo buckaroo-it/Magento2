@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -20,6 +21,7 @@
 
 namespace Buckaroo\Magento2\Controller\Adminhtml\Notification;
 
+use Magento\Backend\App\Action\Context;
 use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\FlagManager;
@@ -34,12 +36,12 @@ class MarkUserNotified extends \Magento\Backend\App\Action
     private $logger;
 
     /**
-     * @param \Magento\Backend\App\Action\Context $context
-     * @param FlagManager $flagManager
-     * @param LoggerInterface $logger
+     * @param Context $context
+     * @param FlagManager                         $flagManager
+     * @param LoggerInterface                     $logger
      */
     public function __construct(
-        \Magento\Backend\App\Action\Context $context,
+        Context $context,
         FlagManager $flagManager,
         LoggerInterface $logger
     ) {
@@ -57,13 +59,13 @@ class MarkUserNotified extends \Magento\Backend\App\Action
         try {
             $responseContent = [
                 'success' => $this->flagManager->saveFlag('buckaroo_magento2_view_install_screen', true),
-                'error_message' => ''
+                'error_message' => '',
             ];
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
             $responseContent = [
                 'success' => false,
-                'error_message' => __('Failed to set flag that user has seen screen')
+                'error_message' => __('Failed to set flag that user has seen screen'),
             ];
         }
 

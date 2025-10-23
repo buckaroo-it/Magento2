@@ -28,12 +28,9 @@ use Magento\Checkout\Model\Type\Onepage;
 use Magento\Framework\DataObjectFactory;
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Customer\Model\Session as CustomerSession;
-use Buckaroo\Magento2\Model\PaypalExpress\QuoteBuilderInterface;
-use Buckaroo\Magento2\Model\PaypalExpress\PaypalExpressException;
 
 class QuoteBuilder implements QuoteBuilderInterface
 {
-
     /**
      * @var \Magento\Quote\Model\QuoteFactory
      */
@@ -97,8 +94,6 @@ class QuoteBuilder implements QuoteBuilderInterface
 
     /**
      * Add user to quote
-     *
-     * @return void
      */
     protected function setUser()
     {
@@ -116,7 +111,6 @@ class QuoteBuilder implements QuoteBuilderInterface
     /**
      * Add product to quote
      *
-     * @return void
      * @throws \Buckaroo\Magento2\Model\PaypalExpress\PaypalExpressException
      */
     protected function addProduct()
@@ -136,7 +130,8 @@ class QuoteBuilder implements QuoteBuilderInterface
             throw new PaypalExpressException($exceptionMessage, 1);
         }
     }
-/**
+
+    /**
      * Format form data
      *
      * @param string $form_data

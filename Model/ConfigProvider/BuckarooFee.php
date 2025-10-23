@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -21,9 +22,9 @@
 namespace Buckaroo\Magento2\Model\ConfigProvider;
 
 /**
- * @method int getPriceDisplayCart()
- * @method int getPriceDisplaySales()
- * @method int getPaymentFeeTax()
+ * @method int    getPriceDisplayCart()
+ * @method int    getPriceDisplaySales()
+ * @method int    getPaymentFeeTax()
  * @method string getTaxClass()
  */
 class BuckarooFee extends AbstractConfigProvider
@@ -31,12 +32,12 @@ class BuckarooFee extends AbstractConfigProvider
     /**
      * Buckaroo fee tax class
      */
-    const XPATH_ACCOUNT_BUCKAROO_FEE_TAX_CLASS           = 'buckaroo_magento2/account/buckaroo_fee_tax_class';
+    public const XPATH_ACCOUNT_BUCKAROO_FEE_TAX_CLASS           = 'buckaroo_magento2/account/buckaroo_fee_tax_class';
 
     /**
      * Retrieve the tax class for Buckaroo fee
      *
-     * @param null $store
+     * @param  null       $store
      * @return int|string
      */
     public function getBuckarooFeeTaxClass($store = null)

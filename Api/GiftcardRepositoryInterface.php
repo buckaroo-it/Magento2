@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Api;
 
 use Magento\Framework\Api\SearchCriteria;
@@ -29,42 +31,42 @@ use Buckaroo\Magento2\Api\Data\GiftcardInterface;
 interface GiftcardRepositoryInterface
 {
     /**
-     * @param GiftcardInterface $giftcard
-     * @return GiftcardInterface
+     * @param  GiftcardInterface     $giftcard
      * @throws CouldNotSaveException
+     * @return GiftcardInterface
      */
     public function save(GiftcardInterface $giftcard);
 
     /**
-     * @param int|string $giftcardId
-     * @return GiftcardInterface
+     * @param  int|string            $giftcardId
      * @throws NoSuchEntityException
+     * @return GiftcardInterface
      */
     public function getById($giftcardId);
 
     /**
-     * @param SearchCriteria $searchCriteria
+     * @param  SearchCriteria         $searchCriteria
      * @return SearchResultsInterface
      */
     public function getList(SearchCriteria $searchCriteria);
 
     /**
-     * @param GiftcardInterface $giftcard
-     * @return bool
+     * @param  GiftcardInterface       $giftcard
      * @throws CouldNotDeleteException
+     * @return bool
      */
     public function delete(GiftcardInterface $giftcard);
 
     /**
-     * @param $giftcardId
-     * @return bool
+     * @param                          $giftcardId
      * @throws CouldNotDeleteException
      * @throws NoSuchEntityException
+     * @return bool
      */
     public function deleteById($giftcardId);
 
     /**
-     * @param string $serviceCode
+     * @param  string            $serviceCode
      * @return GiftcardInterface
      */
     public function getByServiceCode(string $serviceCode);

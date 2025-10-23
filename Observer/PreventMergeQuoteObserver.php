@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -41,6 +42,7 @@ class PreventMergeQuoteObserver implements \Magento\Framework\Event\ObserverInte
     }
 
     /**
+     * @param  Observer  $observer
      * @throws Exception
      */
     public function execute(Observer $observer): void
@@ -59,8 +61,7 @@ class PreventMergeQuoteObserver implements \Magento\Framework\Event\ObserverInte
     private function removeAllItems($quote): void
     {
         $items = $quote->getItemsCollection();
-        foreach ($items as $item)
-        {
+        foreach ($items as $item) {
             $quote->removeItem($item->getId());
         }
     }

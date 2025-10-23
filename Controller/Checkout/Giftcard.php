@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -29,7 +30,6 @@ use Buckaroo\Magento2\Model\Giftcard\Response\Giftcard as GiftcardResponse;
 
 class Giftcard extends \Magento\Framework\App\Action\Action
 {
-
     /**
      * @var Log
      */
@@ -40,7 +40,7 @@ class Giftcard extends \Magento\Framework\App\Action\Action
      */
     protected $jsonResultFactory;
 
-     /**
+    /**
      * @var \Buckaroo\Magento2\Model\Giftcard\Request\GiftcardInterface
      */
     protected $giftcardRequest;
@@ -56,8 +56,12 @@ class Giftcard extends \Magento\Framework\App\Action\Action
     protected $checkoutSession;
 
     /**
-     *
-     * @throws \Buckaroo\Magento2\Exception
+     * @param  \Magento\Framework\App\Action\Context            $context
+     * @param  \Magento\Framework\Controller\Result\JsonFactory $jsonResultFactory
+     * @param  \Magento\Checkout\Model\Session                  $checkoutSession
+     * @param  GiftcardInterface                                $giftcardRequest
+     * @param  GiftcardResponse                                 $giftcardResponse
+     * @param  Log                                              $logger
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
@@ -73,14 +77,13 @@ class Giftcard extends \Magento\Framework\App\Action\Action
         $this->giftcardRequest = $giftcardRequest;
         $this->giftcardResponse = $giftcardResponse;
         $this->logger = $logger;
-
     }
 
     /**
      * Process action
      *
-     * @return \Magento\Framework\App\ResponseInterface
      * @throws \Exception
+     * @return \Magento\Framework\App\ResponseInterface
      */
     public function execute()
     {
@@ -116,7 +119,7 @@ class Giftcard extends \Magento\Framework\App\Action\Action
     protected function displayError($message)
     {
         return $this->resultFactory->create(ResultFactory::TYPE_JSON)->setData([
-            "error" => $message
+            "error" => $message,
         ]);
     }
     protected function getGiftcardResponse(Quote $quote, $response)
@@ -144,7 +147,9 @@ class Giftcard extends \Magento\Framework\App\Action\Action
             );
 
             $buttonMessage = __(
-                'Pay remaining amount: %1 %2',$remainingAmount, $this->giftcardResponse->getCurrency()
+                'Pay remaining amount: %1 %2',
+                $remainingAmount,
+                $this->giftcardResponse->getCurrency()
             );
         }
 
@@ -152,15 +157,16 @@ class Giftcard extends \Magento\Framework\App\Action\Action
             'RemainderAmount' => $remainingAmount,
             'alreadyPaid' => $this->giftcardResponse->getAlreadyPaid(),
             'PayRemainingAmountButton' => $buttonMessage,
-            'message' => $textMessage
+            'message' => $textMessage,
         ]);
     }
+
     /**
      * Build giftcard request
      *
      * @param Quote $quote
      *
-     * @return GiftcardRequest
+     * @return GiftcardInterface
      */
     protected function build(Quote $quote)
     {
@@ -171,5 +177,4 @@ class Giftcard extends \Magento\Framework\App\Action\Action
             ->setPin($this->getRequest()->getParam('pin'))
             ->setQuote($quote);
     }
-
 }

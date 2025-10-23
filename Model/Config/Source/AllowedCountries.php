@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Config\Source;
 
 use Magento\Framework\Data\OptionSourceInterface;
@@ -62,8 +64,8 @@ class AllowedCountries implements OptionSourceInterface
      *
      * @param null $method
      *
-     * @return array Format: array(array('value' => '<value>', 'label' => '<label>'), ...)
      * @throws \Buckaroo\Magento2\Exception
+     * @return array                        Format: array(array('value' => '<value>', 'label' => '<label>'), ...)
      */
     public function toOptionArray($method = null)
     {
@@ -97,8 +99,8 @@ class AllowedCountries implements OptionSourceInterface
      * @param      $method
      * @param null $params
      *
-     * @return array
      * @throws \Buckaroo\Magento2\Exception
+     * @return array
      */
     public function __call($method, $params = null)
     {

@@ -21,14 +21,14 @@
 
 namespace Buckaroo\Magento2\Model\Giftcard\Api;
 
+use Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterface;
+use Magento\Quote\Model\Quote;
 use Magento\Framework\DataObject;
 use Magento\Quote\Model\QuoteIdMaskFactory;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
-use Buckaroo\Magento2\Model\Giftcard\Api\NoQuoteException;
 use Buckaroo\Magento2\Api\Data\Giftcard\GetTransactionsResponseInterface;
 use Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterfaceFactory;
-
 
 class GetTransactionsResponse extends DataObject implements GetTransactionsResponseInterface
 {
@@ -48,7 +48,7 @@ class GetTransactionsResponse extends DataObject implements GetTransactionsRespo
     protected $groupTransaction;
 
     /**
-     * @var  \Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterfaceFactory
+     * @var \Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterfaceFactory
      */
     protected $trResponseFactory;
 
@@ -60,7 +60,7 @@ class GetTransactionsResponse extends DataObject implements GetTransactionsRespo
         CartRepositoryInterface $cartRepository,
         PaymentGroupTransaction $groupTransaction,
         TransactionResponseInterfaceFactory $trResponseFactory,
-        string $cartId = null
+        ?string $cartId = null
     ) {
         $this->quoteIdMaskFactory = $quoteIdMaskFactory;
         $this->cartRepository = $cartRepository;
@@ -104,11 +104,11 @@ class GetTransactionsResponse extends DataObject implements GetTransactionsRespo
             return $this->trResponseFactory->create()->addData($item->getData());
         }, $collection);
     }
+
     /**
      * Get the list of transactions for this cart
      *
-     * @param string $cartId
-     * @return \Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterface[]
+     * @return TransactionResponseInterface[]
      */
     public function getTransactions()
     {
@@ -118,12 +118,14 @@ class GetTransactionsResponse extends DataObject implements GetTransactionsRespo
             )
         );
     }
+
     /**
      * Get quote from masked cart id
      *
      * @param string|null $cartId
      *
      * @return Quote
+     * @throws NoQuoteException
      */
     protected function getQuote($cartId)
     {

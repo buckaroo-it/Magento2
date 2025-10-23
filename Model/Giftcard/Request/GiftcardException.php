@@ -21,7 +21,6 @@
 
 namespace Buckaroo\Magento2\Model\Giftcard\Request;
 
-
 class GiftcardException extends \Exception
 {
 }

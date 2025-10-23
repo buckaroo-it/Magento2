@@ -28,9 +28,9 @@ interface PayWithGiftcardInterface
     /**
      * Rest method for paying with giftcards
      *
-     * @param string $cartId
-     * @param string $giftcardId
-     * @param \Buckaroo\Magento2\Api\Data\Giftcard\PayRequestInterface $payment
+     * @param  string                                                    $cartId
+     * @param  string                                                    $giftcardId
+     * @param  \Buckaroo\Magento2\Api\Data\Giftcard\PayRequestInterface  $payment
      * @return \Buckaroo\Magento2\Api\Data\Giftcard\PayResponseInterface
      */
     public function pay(string $cartId, string $giftcardId, PayRequestInterface $payment);

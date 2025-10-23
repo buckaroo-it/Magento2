@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -46,8 +47,8 @@ class BuckarooRemainingAmount extends AbstractTotal
     /**
      * Fetch remaining amount for display in the frontend.
      *
-     * @param Quote $quote
-     * @param Total $total
+     * @param  Quote $quote
+     * @param  Total $total
      * @return array
      */
     public function fetch(Quote $quote, Total $total)
@@ -61,7 +62,7 @@ class BuckarooRemainingAmount extends AbstractTotal
             return [
                 'code'  => $this->getCode(),
                 'title' => $this->getLabel(),
-                'value' => 0
+                'value' => 0,
             ];
         }
 
@@ -72,7 +73,7 @@ class BuckarooRemainingAmount extends AbstractTotal
         return [
             'code'  => $this->getCode(),
             'title' => $this->getLabel(),
-            'value' => $remainingAmount
+            'value' => $remainingAmount,
         ];
     }
 

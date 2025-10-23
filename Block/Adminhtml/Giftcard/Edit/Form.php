@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -25,13 +26,13 @@ use Buckaroo\Magento2\Model\Giftcard\Request\Giftcard;
 class Form extends \Magento\Backend\Block\Widget\Form\Generic
 {
     /**
-     * @return $this
      * @throws \Magento\Framework\Exception\LocalizedException
+     * @return $this
      */
     protected function _prepareForm()
     {
         /**
-        * @var \Buckaroo\Magento2\Model\Giftcard $model
+         * @var \Buckaroo\Magento2\Model\Giftcard $model
         */
         $model = $this->_coreRegistry->registry('buckaroo_giftcard');
 
@@ -44,8 +45,8 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
                     'id'    => 'edit_form',
                     'enctype' => 'multipart/form-data',
                     'action' => $this->getData('action'),
-                    'method' => 'post'
-                ]
+                    'method' => 'post',
+                ],
             ]
         );
 
@@ -72,7 +73,7 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
                 'name'     => 'servicecode',
                 'label'    => __('Service Code'),
                 'required' => true,
-                'value'    => $model->getServicecode()
+                'value'    => $model->getServicecode(),
             ]
         );
 
@@ -83,7 +84,7 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
                 'name'     => 'label',
                 'label'    => __('Label'),
                 'required' => true,
-                'value'    => $model->getLabel()
+                'value'    => $model->getLabel(),
             ]
         );
 
@@ -99,7 +100,7 @@ class Form extends \Magento\Backend\Block\Widget\Form\Generic
                     '' => __('Intersolve'),
                     Giftcard::FASHIONCHEQUE_ACQUIRER => __('FashionCheque'),
                     Giftcard::TCS_ACQUIRER => __('TCS'),
-                ]
+                ],
             ]
         );
 

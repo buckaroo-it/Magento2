@@ -66,19 +66,19 @@ class PayconiqTest extends BaseTest
         return [
             'null value' => [
                 null,
-                0
+                0,
             ],
             'empty value' => [
                 '',
-                0
+                0,
             ],
             'no fee' => [
                 0.00,
-                0
+                0,
             ],
             'with fee' => [
                 1.23,
-                1.23
+                1.23,
             ],
         ];
     }

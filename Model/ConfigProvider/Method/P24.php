@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -22,21 +23,21 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 class P24 extends AbstractConfigProvider
 {
-    const XPATH_P24_PAYMENT_FEE           = 'payment/buckaroo_magento2_p24/payment_fee';
-    const XPATH_P24_ACTIVE                = 'payment/buckaroo_magento2_p24/active';
-    const XPATH_P24_SUBTEXT               = 'payment/buckaroo_magento2_p24/subtext';
-    const XPATH_P24_SUBTEXT_STYLE         = 'payment/buckaroo_magento2_p24/subtext_style';
-    const XPATH_P24_SUBTEXT_COLOR         = 'payment/buckaroo_magento2_p24/subtext_color';
-    const XPATH_P24_ACTIVE_STATUS         = 'payment/buckaroo_magento2_p24/active_status';
-    const XPATH_P24_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_p24/order_status_success';
-    const XPATH_P24_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_p24/order_status_failed';
-    const XPATH_P24_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_p24/available_in_backend';
+    public const XPATH_P24_PAYMENT_FEE           = 'payment/buckaroo_magento2_p24/payment_fee';
+    public const XPATH_P24_ACTIVE                = 'payment/buckaroo_magento2_p24/active';
+    public const XPATH_P24_SUBTEXT               = 'payment/buckaroo_magento2_p24/subtext';
+    public const XPATH_P24_SUBTEXT_STYLE         = 'payment/buckaroo_magento2_p24/subtext_style';
+    public const XPATH_P24_SUBTEXT_COLOR         = 'payment/buckaroo_magento2_p24/subtext_color';
+    public const XPATH_P24_ACTIVE_STATUS         = 'payment/buckaroo_magento2_p24/active_status';
+    public const XPATH_P24_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_p24/order_status_success';
+    public const XPATH_P24_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_p24/order_status_failed';
+    public const XPATH_P24_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_p24/available_in_backend';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_p24/allowed_currencies';
+    public const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_p24/allowed_currencies';
 
-    const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_p24/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_p24/specificcountry';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_p24/specificcustomergroup';
+    public const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_p24/allowspecific';
+    public const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_p24/specificcountry';
+    public const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_p24/specificcustomergroup';
 
     /**
      * @return array|void
@@ -83,7 +84,7 @@ class P24 extends AbstractConfigProvider
     {
         return [
             'PLN',
-            'EUR'
+            'EUR',
         ];
     }
 }

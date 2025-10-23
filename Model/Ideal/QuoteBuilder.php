@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -27,12 +28,9 @@ use Magento\Checkout\Model\Type\Onepage;
 use Magento\Framework\DataObjectFactory;
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Customer\Model\Session as CustomerSession;
-use Buckaroo\Magento2\Model\Ideal\QuoteBuilderInterface;
-use Buckaroo\Magento2\Model\Ideal\IdealException;
 
 class QuoteBuilder implements QuoteBuilderInterface
 {
-
     /**
      * @var \Magento\Quote\Model\QuoteFactory
      */
@@ -69,8 +67,7 @@ class QuoteBuilder implements QuoteBuilderInterface
         ProductRepositoryInterface $productRepository,
         DataObjectFactory          $dataObjectFactory,
         CustomerSession            $customer
-    )
-    {
+    ) {
         $this->quoteFactory = $quoteFactory;
         $this->productRepository = $productRepository;
         $this->dataObjectFactory = $dataObjectFactory;
@@ -87,6 +84,7 @@ class QuoteBuilder implements QuoteBuilderInterface
      * Build quote from form data and session without persisting it
      *
      * @return \Magento\Quote\Model\Quote
+     * @throws IdealException
      */
     public function build()
     {
@@ -99,8 +97,6 @@ class QuoteBuilder implements QuoteBuilderInterface
 
     /**
      * Add user to quote
-     *
-     * @return void
      */
     protected function setUser()
     {
@@ -119,7 +115,6 @@ class QuoteBuilder implements QuoteBuilderInterface
     /**
      * Add product to quote
      *
-     * @return void
      * @throws IdealException
      */
     protected function addProduct()

@@ -45,12 +45,12 @@ class KlarnakpTest extends BaseTest
         return [
             'can capture' => [
                 'authorize',
-                true
+                true,
             ],
             'can not capture' => [
                 'order',
-                false
-            ]
+                false,
+            ],
         ];
     }
 
@@ -118,7 +118,7 @@ class KlarnakpTest extends BaseTest
         $instance = $this->getInstance([
             'cart' => $cartMock,
             'softwareData' => $softwareData,
-            'transactionBuilderFactory' => $transactionFactoryMock
+            'transactionBuilderFactory' => $transactionFactoryMock,
         ]);
         $result = $instance->getAuthorizeTransactionBuilder($paymentMock);
 
@@ -156,12 +156,12 @@ class KlarnakpTest extends BaseTest
         return [
             'no existing reservation number' => [
                 null,
-                'Buckaroo1234'
+                'Buckaroo1234',
             ],
             'existing reservation number' => [
                 '6543Buckaroo',
-                '6543Buckaroo'
-            ]
+                '6543Buckaroo',
+            ],
         ];
     }
 
@@ -180,10 +180,10 @@ class KlarnakpTest extends BaseTest
             'Services' => (Object)[
                 'Service' => (Object)[
                     'ResponseParameter' => (Object)[
-                        '_' => 'Buckaroo1234'
-                    ]
-                ]
-            ]
+                        '_' => 'Buckaroo1234',
+                    ],
+                ],
+            ],
         ];
 
         $saveCalled = 'once';
@@ -214,17 +214,17 @@ class KlarnakpTest extends BaseTest
                 [],
                 [
                     'buckaroo_skip_validation' => null,
-                ]
+                ],
             ],
             'with skip validation data' => [
                 [
                     'additional_data' => [
                         'buckaroo_skip_validation' => '1',
-                    ]
+                    ],
                 ],
                 [
-                    'buckaroo_skip_validation' => '1'
-                ]
+                    'buckaroo_skip_validation' => '1',
+                ],
             ],
             'with form data' => [
                 [
@@ -238,7 +238,7 @@ class KlarnakpTest extends BaseTest
                         'COCNumber'            => '123456',
                         'CompanyName'          => 'Buckaroo',
                         'customer_telephone'   => '0201122233',
-                    ]
+                    ],
                 ],
                 [
                     'buckaroo_skip_validation' => null,
@@ -251,14 +251,14 @@ class KlarnakpTest extends BaseTest
                     'COCNumber'            => '123456',
                     'CompanyName'          => 'Buckaroo',
                     'customer_telephone'   => '0201122233',
-                ]
+                ],
             ],
         ];
     }
 
     /**
-     * @param $data
-     * @param $expected
+     * @param             $data
+     * @param             $expected
      * @throws \Exception
      *
      * @dataProvider assignDataProvider
@@ -290,14 +290,14 @@ class KlarnakpTest extends BaseTest
                 1.23,
                 2.34,
                 true,
-                1.23
+                1.23,
             ],
             'excluding tax' => [
                 3.45,
                 4.56,
                 false,
-                4.56
-            ]
+                4.56,
+            ],
         ];
     }
 
@@ -332,25 +332,25 @@ class KlarnakpTest extends BaseTest
             'no tax' => [
                 0,
                 0,
-                0
+                0,
             ],
             'tax from data' => [
                 5.67,
                 6.78,
-                5.67
+                5.67,
             ],
             'tax from order item' => [
                 0,
                 7.89,
-                7.89
-            ]
+                7.89,
+            ],
         ];
     }
 
     /**
-     * @param $dataTax
-     * @param $itemTax
-     * @param $expected
+     * @param             $dataTax
+     * @param             $itemTax
+     * @param             $expected
      * @throws \Exception
      *
      * @dataProvider getTaxPercentProvider

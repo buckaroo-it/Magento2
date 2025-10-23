@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -46,9 +47,9 @@ class AddProductToCartService
     private CartRepositoryInterface $cartRepository;
 
     /**
-     * @param CartRepositoryInterface $cartRepository
+     * @param CartRepositoryInterface    $cartRepository
      * @param ProductRepositoryInterface $productRepository
-     * @param DataObjectFactory $dataObjectFactory
+     * @param DataObjectFactory          $dataObjectFactory
      */
     public function __construct(
         CartRepositoryInterface $cartRepository,
@@ -63,11 +64,11 @@ class AddProductToCartService
     /**
      * Add Product Selected to cart.
      *
-     * @param DataObject $product
-     * @param Quote $cart
-     * @return Quote
+     * @param  DataObject            $product
+     * @param  Quote                 $cart
      * @throws NoSuchEntityException
      * @throws LocalizedException
+     * @return Quote
      */
     public function addProductToCart(DataObject $product, Quote $cart): Quote
     {

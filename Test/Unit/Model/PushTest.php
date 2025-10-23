@@ -50,28 +50,28 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
                 5,
                 2,
                 'abc',
-                true
+                true,
             ],
             'incorrect method code' => [
                 'fake_method_code',
                 4,
                 1,
                 'def',
-                false
+                false,
             ],
             'push amount equals order amount' => [
                 Giftcards::PAYMENT_METHOD_CODE,
                 3,
                 6,
                 'ghi',
-                false
+                false,
             ],
             'no related transaction key' => [
                 Giftcards::PAYMENT_METHOD_CODE,
                 8,
                 7,
                 null,
-                false
+                false,
             ],
         ];
     }
@@ -86,26 +86,26 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
                 [],
                 ['brq_INVOICENUMBER' => '0001', 'brq_STATUSCODE' => 190],
                 ['brq_INVOICENUMBER' => '0001', 'brq_STATUSCODE' => 190],
-                ['brq_invoicenumber' => '0001', 'brq_statuscode' => 190]
+                ['brq_invoicenumber' => '0001', 'brq_statuscode' => 190],
             ],
             'sid in post' => [
                 ['SID' => '123ABC'],
                 ['brq_INVOICENUMBER' => '0001', 'brq_STATUSCODE' => 190],
                 ['brq_INVOICENUMBER' => '0001', 'brq_STATUSCODE' => 190],
-                ['brq_invoicenumber' => '0001', 'brq_statuscode' => 190]
+                ['brq_invoicenumber' => '0001', 'brq_statuscode' => 190],
             ],
             'sid in get' => [
                 [],
                 ['brq_INVOICENUMBER' => '0001', 'SID' => '123ABC', 'brq_STATUSCODE' => 190],
                 ['brq_INVOICENUMBER' => '0001', 'brq_STATUSCODE' => 190],
-                ['brq_invoicenumber' => '0001', 'brq_statuscode' => 190]
+                ['brq_invoicenumber' => '0001', 'brq_statuscode' => 190],
             ],
             'mixed post and get data' => [
                 ['brq_CURRENCY' => 'EUR', 'getData' => 'DEF456'],
                 ['SID' => '789GHI', 'brq_INVOICENUMBER' => '0001', 'brq_STATUSCODE' => 190],
                 ['brq_INVOICENUMBER' => '0001', 'brq_STATUSCODE' => 190],
-                ['brq_invoicenumber' => '0001', 'brq_statuscode' => 190]
-            ]
+                ['brq_invoicenumber' => '0001', 'brq_statuscode' => 190],
+            ],
         ];
     }
 
@@ -137,11 +137,11 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
         return [
             'by invoicenumber' => [
                 ['brq_invoicenumber' => '#1234'],
-                321
+                321,
             ],
             'by ordernumber' => [
                 ['brq_ordernumber' => '#5678'],
-                765
+                765,
             ],
         ];
     }
@@ -181,7 +181,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
             ->getMockForAbstractClass();
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-            );
+        );
         $transactionMock->expects($this->once())->method('load')->with('', 'txn_id');
         $transactionMock->expects($this->once())->method('getOrder')->willReturn(null);
 
@@ -197,24 +197,24 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
             'no key' => [
                 [
                     'brq_some_key' => 'abc',
-                    'brq_amount' => '1.23'
+                    'brq_amount' => '1.23',
                 ],
-                ''
+                '',
             ],
             'transaction key' => [
                 [
                     'brq_transactions' => '456def',
-                    'brq_comment' => 'Transaction Comment'
+                    'brq_comment' => 'Transaction Comment',
                 ],
-                '456def'
+                '456def',
             ],
             'datarequest key' => [
                 [
                     'brq_status' => 'success',
-                    'brq_datarequest' => 'ghi789'
+                    'brq_datarequest' => 'ghi789',
                 ],
-                'ghi789'
-            ]
+                'ghi789',
+            ],
         ];
     }
 
@@ -242,22 +242,22 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
             'invalid type' => [
                 ['brq_service_creditmanagement3_invoicekey' => 'key'],
                 null,
-                false
+                false,
             ],
             'invoice type' => [
                 ['brq_invoicekey' => 'send key', 'brq_schemekey' => 'scheme key'],
                 'saved key',
-                Push::BUCK_PUSH_TYPE_INVOICE
+                Push::BUCK_PUSH_TYPE_INVOICE,
             ],
             'datarequest type' => [
                 ['brq_datarequest' => 'request push'],
                 null,
-                Push::BUCK_PUSH_TYPE_DATAREQUEST
+                Push::BUCK_PUSH_TYPE_DATAREQUEST,
             ],
             'transaction type' => [
                 [],
                 null,
-                Push::BUCK_PUSH_TYPE_TRANSACTION
+                Push::BUCK_PUSH_TYPE_TRANSACTION,
             ],
         ];
     }
@@ -275,7 +275,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
     {
         $postData = [
             'brq_amount' => $pushAmount,
-            'brq_relatedtransaction_partialpayment' => $relatedTransaction
+            'brq_relatedtransaction_partialpayment' => $relatedTransaction,
         ];
 
         $paymentMock = $this->getFakeMock(Payment::class)
@@ -299,7 +299,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
         $instance->postData = $postData;
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $result = $this->invoke('giftcardPartialPayment', $instance);
 
         $this->assertEquals($expected, $result);
@@ -339,42 +339,42 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
                 true,
                 false,
                 ['brq_invoicestatuscode' => 10],
-                1
+                1,
             ],
             'mail send via method config' => [
                 true,
                 false,
                 false,
                 ['brq_invoicestatuscode' => 10],
-                1
+                1,
             ],
             'mail already sent' => [
                 false,
                 true,
                 true,
                 ['brq_invoicestatuscode' => 10],
-                0
+                0,
             ],
             'incorrect post status code' => [
                 false,
                 true,
                 false,
                 ['brq_invoicestatuscode' => 5],
-                0
+                0,
             ],
             'incorrect post parameter' => [
                 false,
                 true,
                 false,
                 ['brq_invoicekey' => 10],
-                0
+                0,
             ],
             'configuration disabled' => [
                 false,
                 false,
                 false,
                 ['brq_invoicestatuscode' => 10],
-                0
+                0,
             ],
         ];
     }
@@ -413,7 +413,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
         $instance = $this->getInstance([
             'order' => $orderMock,
             'orderSender' => $orderSenderMock,
-            'configAccount' => $configAccountMock
+            'configAccount' => $configAccountMock,
         ]);
         $instance->postData = $postData;
 
@@ -429,7 +429,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
     {
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $message = 'testMessage';
         $status = 'testStatus';
 
@@ -439,7 +439,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $orderMock = $this->getFakeMock(Order::class)
             ->setMethods([
-                'getState', 'getStore', 'getPayment', 'getMethodInstance', 'getEmailSent', 'addStatusHistoryComment'
+                'getState', 'getStore', 'getPayment', 'getMethodInstance', 'getEmailSent', 'addStatusHistoryComment',
             ])
             ->getMock();
         $orderMock->expects($this->once())->method('getState')->willReturn($state);
@@ -526,12 +526,12 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
         }
 
         $instance = $this->getInstance([
-            'configAccount' => $configAccountMock
+            'configAccount' => $configAccountMock,
         ]);
         $instance->order = $orderMock;
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $result = $instance->processFailedPush($status, $message);
         $this->assertTrue($result);
     }
@@ -583,16 +583,16 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
     }
 
     /**
-     * @param      $state
-     * @param      $orderEmailSent
-     * @param      $sendOrderConfirmationEmail
-     * @param      $paymentAction
-     * @param      $amount
-     * @param bool                       $textAmount
-     * @param bool                       $autoInvoice
-     * @param bool                       $orderCanInvoice
-     * @param bool                       $orderHasInvoices
-     * @param array                      $postData
+     * @param       $state
+     * @param       $orderEmailSent
+     * @param       $sendOrderConfirmationEmail
+     * @param       $paymentAction
+     * @param       $amount
+     * @param bool  $textAmount
+     * @param bool  $autoInvoice
+     * @param bool  $orderCanInvoice
+     * @param bool  $orderHasInvoices
+     * @param array $postData
      *
      * @dataProvider processSucceededPushDataProvider
      */
@@ -630,7 +630,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
         $orderMock = $this->getFakeMock(Order::class)
             ->setMethods([
                 'getEmailSent', 'getGrandTotal', 'getBaseGrandTotal', 'getTotalDue', 'getStore', 'getState',
-                'getPayment', 'getBaseCurrency', 'addStatusHistoryComment', 'canInvoice', 'hasInvoices', 'save', 'getInvoiceCollection'
+                'getPayment', 'getBaseCurrency', 'addStatusHistoryComment', 'canInvoice', 'hasInvoices', 'save', 'getInvoiceCollection',
             ])
             ->getMock();
         $orderMock->expects($this->once())->method('getEmailSent')->willReturn($orderEmailSent);
@@ -646,7 +646,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $instance = $this->getInstance([
             'configAccount' => $configAccountMock,
-            'orderSender' => $orderSenderMock
+            'orderSender' => $orderSenderMock,
         ]);
 
         if (!$orderEmailSent && $sendOrderConfirmationEmail) {
@@ -709,7 +709,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
         $instance->order = $orderMock;
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $result = $instance->processSucceededPush($status, $message);
         $this->assertTrue($result);
     }

@@ -25,16 +25,17 @@ use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Data\Form\FormKey;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\UrlInterface;
 use Magento\Framework\Encryption\Encryptor;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Gateway\Http\Transaction;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
+use SoapHeader;
 
 abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\Http\TransactionBuilderInterface
 {
-
     public const ADDITIONAL_RETURN_URL = 'buckaroo_return_url';
 
     /**
@@ -150,10 +151,10 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
      * @param UrlInterface $urlBuilder
      * @param FormKey $formKey
      * @param Encryptor $encryptor
-     * @param AbstractMethod $abstractMethod
      * @param Factory $configProviderMethodFactory
-     * @param null|int|float|double $amount
-     * @param null|string $currency
+     * @param Log $logging
+     * @param null $amount
+     * @param null $currency
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
@@ -225,7 +226,7 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
     }
 
     /**
-     * @param boolean $startRecurrent
+     * @param bool $startRecurrent
      *
      * @return $this
      */
@@ -238,6 +239,7 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
 
     /**
      * @return string
+     * @throws LocalizedException
      */
     public function getFormKey()
     {
@@ -283,6 +285,7 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
 
     /**
      * @param string $invoiceId
+     * @param mixed  $isCustomInvoiceId
      *
      * @return $this
      */
@@ -423,7 +426,7 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
     {
 
         $returnUrl = $this->getReturnUrlFromPayment();
-        if($returnUrl !== null) {
+        if ($returnUrl !== null) {
             $this->setReturnUrl($returnUrl);
             return $returnUrl;
         }
@@ -441,16 +444,14 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
 
     public function getReturnUrlFromPayment()
     {
-        if (
-            $this->getOrder() === null ||
+        if ($this->getOrder() === null ||
             $this->getOrder()->getPayment() === null ||
             $this->getOrder()->getPayment()->getAdditionalInformation(self::ADDITIONAL_RETURN_URL) === null
         ) {
             return;
         }
         $returnUrl = $this->getOrder()->getPayment()->getAdditionalInformation(self::ADDITIONAL_RETURN_URL);
-        if (
-            !filter_var($returnUrl, FILTER_VALIDATE_URL) === false &&
+        if (!filter_var($returnUrl, FILTER_VALIDATE_URL) === false &&
             in_array(parse_url($returnUrl, PHP_URL_SCHEME), ['http', 'https'])
         ) {
             return $returnUrl;
@@ -495,7 +496,7 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
             $payment = $this->getOrder()->getPayment();
         }
 
-        $headers[] = new \SoapHeader(
+        $headers[] = new SoapHeader(
             'https://checkout.buckaroo.nl/PaymentEngine/',
             'MessageControlBlock',
             [
@@ -504,12 +505,12 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
                 'Culture' => $localeCountry ?? 'en-US',
                 'TimeStamp' => time(),
                 'Channel' => $this->channel,
-                'Software' => $this->softwareData->get($payment ?? null)
+                'Software' => $this->softwareData->get($payment ?? null),
             ],
             false
         );
 
-        $headers[] = new \SoapHeader(
+        $headers[] = new SoapHeader(
             'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd',
             'Security',
             [
@@ -526,7 +527,7 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
                                 'Transforms' => [
                                     [
                                         'Algorithm' => 'http://www.w3.org/2001/10/xml-exc-c14n#',
-                                    ]
+                                    ],
                                 ],
                                 'DigestMethod' => [
                                     'Algorithm' => 'http://www.w3.org/2000/09/xmldsig#sha1',
@@ -539,7 +540,7 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
                                 'Transforms' => [
                                     [
                                         'Algorithm' => 'http://www.w3.org/2001/10/xml-exc-c14n#',
-                                    ]
+                                    ],
                                 ],
                                 'DigestMethod' => [
                                     'Algorithm' => 'http://www.w3.org/2000/09/xmldsig#sha1',
@@ -547,8 +548,8 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
                                 'DigestValue' => '',
                                 'URI' => '#_control',
                                 'Id' => null,
-                            ]
-                        ]
+                            ],
+                        ],
                     ],
                     'SignatureValue' => '',
                 ],
@@ -576,9 +577,10 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
         }
 
         //trustly anyway should be w/o private ip
-        if ((isset($order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode) &&
+        if ((
+            isset($order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode) &&
                 $order->getPayment()->getMethodInstance()->buckarooPaymentMethodCode == 'trustly'
-            )
+        )
             &&
             $this->isIpPrivate($ip)
             &&
@@ -605,14 +607,14 @@ abstract class AbstractTransactionBuilder implements \Buckaroo\Magento2\Gateway\
             '172.16.0.0|172.31.255.255', // 16 contiguous class B network
             '192.168.0.0|192.168.255.255', // 256 contiguous class C network
             '169.254.0.0|169.254.255.255', // Link-local address also referred to as Automatic Private IP Addressing
-            '127.0.0.0|127.255.255.255' // localhost
+            '127.0.0.0|127.255.255.255', // localhost
         ];
 
         $long_ip = ip2long($ip);
         if ($long_ip != -1) {
 
             foreach ($pri_addrs as $pri_addr) {
-                list ($start, $end) = explode('|', $pri_addr);
+                [$start, $end] = explode('|', $pri_addr);
 
                 if ($long_ip >= ip2long($start) && $long_ip <= ip2long($end)) {
                     return true;

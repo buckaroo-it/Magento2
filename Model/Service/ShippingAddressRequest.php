@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -68,10 +69,9 @@ class ShippingAddressRequest implements ShippingAddressRequestInterface
     /**
      * Validate required fields
      *
-     * @param mixed $value
+     * @param mixed  $value
      * @param string $name
      *
-     * @return void
      * @throws Exception
      */
     protected function validateRequired($value, string $name)

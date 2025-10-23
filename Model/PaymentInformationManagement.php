@@ -1,22 +1,23 @@
 <?php
- /**
-  * NOTICE OF LICENSE
-  *
-  * This source file is subject to the MIT License
-  * It is available through the world-wide-web at this URL:
-  * https://tldrlegal.com/license/mit-license
-  * If you are unable to obtain it through the world-wide-web, please send an email
-  * to support@buckaroo.nl so we can send you a copy immediately.
-  *
-  * DISCLAIMER
-  *
-  * Do not edit or add to this file if you wish to upgrade this module to newer
-  * versions in the future. If you wish to customize this module for your
-  * needs please contact support@buckaroo.nl for more information.
-  *
-  * @copyright Copyright (c) Buckaroo B.V.
-  * @license   https://tldrlegal.com/license/mit-license
-  */
+
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
 
 namespace Buckaroo\Magento2\Model;
 
@@ -32,8 +33,9 @@ use Magento\Quote\Api\Data\PaymentInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 
 // @codingStandardsIgnoreStart
-class PaymentInformationManagement implements PaymentInformationManagementInterface
-// @codingStandardsIgnoreEnd
+class PaymentInformationManagement implements
+    PaymentInformationManagementInterface
+    // @codingStandardsIgnoreEnd
 {
     /**
      * @var Registry
@@ -61,11 +63,11 @@ class PaymentInformationManagement implements PaymentInformationManagementInterf
     protected $paymentInformationManagement;
 
     /**
-     * @param Registry                              $registry
-     * @param Log                                   $logging
-     * @param Factory                               $configProviderMethodFactory
-     * @param OrderRepositoryInterface              $orderRepository
-     * @param MagentoPaymentInformationManagement   $paymentInformationManagement
+     * @param Registry                            $registry
+     * @param Log                                 $logging
+     * @param Factory                             $configProviderMethodFactory
+     * @param OrderRepositoryInterface            $orderRepository
+     * @param MagentoPaymentInformationManagement $paymentInformationManagement
      *
      * @codeCoverageIgnore
      */
@@ -86,16 +88,16 @@ class PaymentInformationManagement implements PaymentInformationManagementInterf
     /**
      * Set payment information and place order for a specified cart.
      *
-     * @param  int                                           $cartId
+     * @param  int                   $cartId
      * @param  PaymentInterface      $paymentMethod
      * @param  AddressInterface|null $billingAddress
-     * @return string
      * @throws LocalizedException
+     * @return string
      */
     public function buckarooSavePaymentInformationAndPlaceOrder(
         $cartId,
         PaymentInterface $paymentMethod,
-        AddressInterface $billingAddress = null
+        ?AddressInterface $billingAddress = null
     ) {
 
         $this->checkSpecificCountry($paymentMethod, $billingAddress);
@@ -110,12 +112,12 @@ class PaymentInformationManagement implements PaymentInformationManagementInterf
         if ($this->registry && $this->registry->registry('buckaroo_response')) {
             return json_encode([
                 "buckaroo_response" => $this->registry->registry('buckaroo_response')[0],
-                "order_id" => $orderId
+                "order_id" => $orderId,
             ]);
         }
         return json_encode([
             "limitReachedMessage" => $this->getLimitReachedMessage($orderId),
-            "order_number" => $this->getOrderIncrementId($orderId)
+            "order_number" => $this->getOrderIncrementId($orderId),
         ]);
     }
 
@@ -129,7 +131,7 @@ class PaymentInformationManagement implements PaymentInformationManagementInterf
     private function getLimitReachedMessage($orderId)
     {
         $order = $this->orderRepository->get($orderId);
-        if($order->getEntityId() !== null && $order->getPayment() !== null) {
+        if ($order->getEntityId() !== null && $order->getPayment() !== null) {
             return $order->getPayment()->getAdditionalInformation(AbstractMethod::PAYMENT_ATTEMPTS_REACHED_MESSAGE);
         }
         return null;
@@ -141,8 +143,8 @@ class PaymentInformationManagement implements PaymentInformationManagementInterf
     }
 
     /**
-     * @param $paymentMethod
-     * @param $billingAddress
+     * @param                     $paymentMethod
+     * @param                     $billingAddress
      * @throws LocalizedException
      */
     public function checkSpecificCountry($paymentMethod, $billingAddress)
@@ -164,7 +166,7 @@ class PaymentInformationManagement implements PaymentInformationManagementInterf
     }
 
     /**
-     * @param string $methodCode
+     * @param  string $methodCode
      * @return string
      */
     public function normalizePaymentMethodCode($methodCode = '')

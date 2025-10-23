@@ -29,7 +29,6 @@ use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
 
 class RefundPartial extends AbstractTransactionBuilder
 {
-
     /**
      * @var RequestInterface
      */
@@ -43,7 +42,6 @@ class RefundPartial extends AbstractTransactionBuilder
 
 
     /**
-     *
      * @var GroupTransaction
      */
     protected $groupTransaction;
@@ -88,8 +86,8 @@ class RefundPartial extends AbstractTransactionBuilder
     }
 
     /**
-     * @return array
      * @throws Exception
+     * @return array
      */
     public function getBody()
     {
@@ -125,10 +123,10 @@ class RefundPartial extends AbstractTransactionBuilder
                 'Service' => [
                     'Name'             =>  $this->groupTransaction->getServicecode(),
                     'Action'           => 'Refund',
-                ]
+                ],
             ],
             'AdditionalParameters' => (object)[
-                'AdditionalParameter' => $this->getAdditionalParameters()
+                'AdditionalParameter' => $this->getAdditionalParameters(),
             ],
         ];
 
@@ -144,8 +142,8 @@ class RefundPartial extends AbstractTransactionBuilder
     /**
      * Get merchant key for store
      *
-     * @return string
      * @throws Exception
+     * @return string
      */
     public function getMerchantKey()
     {
@@ -161,7 +159,7 @@ class RefundPartial extends AbstractTransactionBuilder
     {
         return [
             $this->getParameterLine('service_action_from_magento', 'refund'),
-            $this->getParameterLine('initiated_by_magento', 1)
+            $this->getParameterLine('initiated_by_magento', 1),
         ];
     }
 
@@ -199,8 +197,8 @@ class RefundPartial extends AbstractTransactionBuilder
      *
      * @param Store $store
      *
-     * @return string
      * @throws Exception
+     * @return string
      */
     protected function getUserIp($store)
     {

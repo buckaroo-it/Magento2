@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -20,16 +21,19 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
-use Magento\Tax\Model\Config;
+use Buckaroo\Magento2\Exception;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Payment\Model\InfoInterface;
+use Magento\Quote\Model\Quote;
+use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Creditmemo;
+use Magento\Sales\Model\Order\Invoice;
 use Magento\Tax\Model\Calculation;
 use Magento\Catalog\Model\Product\Type;
 use Magento\Store\Model\ScopeInterface;
-use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Phrase;
-use Magento\Sales\Api\Data\InvoiceInterface;
-use Magento\Quote\Model\Quote\AddressFactory;
-use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\OrderAddressInterface;
 use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
 
@@ -38,24 +42,24 @@ class Afterpay extends AbstractMethod
     /**
      * Payment Code
      */
-    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_afterpay';
+    public const PAYMENT_METHOD_CODE = 'buckaroo_magento2_afterpay';
 
     /**
      * Max articles that can be handled by afterpay
      */
-    const AFTERPAY_MAX_ARTICLE_COUNT = 99;
+    public const AFTERPAY_MAX_ARTICLE_COUNT = 99;
 
     /**
      * Business methods that will be used in afterpay.
      */
-    const BUSINESS_METHOD_B2C = 1;
-    const BUSINESS_METHOD_B2B = 2;
+    public const BUSINESS_METHOD_B2C = 1;
+    public const BUSINESS_METHOD_B2B = 2;
 
     /**
      * Check if the tax calculation includes tax.
      */
-    const TAX_CALCULATION_INCLUDES_TAX = 'tax/calculation/price_includes_tax';
-    const TAX_CALCULATION_SHIPPING_INCLUDES_TAX = 'tax/calculation/shipping_includes_tax';
+    public const TAX_CALCULATION_INCLUDES_TAX = 'tax/calculation/price_includes_tax';
+    public const TAX_CALCULATION_SHIPPING_INCLUDES_TAX = 'tax/calculation/shipping_includes_tax';
 
     /**
      * @var string
@@ -104,7 +108,7 @@ class Afterpay extends AbstractMethod
      *
      * @return Phrase
      */
-    public function getDiscountOn() :Phrase
+    public function getDiscountOn(): Phrase
     {
         return __('Discount on');
     }
@@ -114,7 +118,7 @@ class Afterpay extends AbstractMethod
      *
      * @return Phrase
      */
-    public function getDiscount() : Phrase
+    public function getDiscount(): Phrase
     {
         return __('Discount');
     }
@@ -138,7 +142,7 @@ class Afterpay extends AbstractMethod
 
             if (isset($additionalData['selectedBusiness'])) {
 
-                if( $additionalData['selectedBusiness'] == self::BUSINESS_METHOD_B2B) {
+                if ($additionalData['selectedBusiness'] == self::BUSINESS_METHOD_B2B) {
                     $this->getInfoInstance()->setAdditionalInformation('COCNumber', $additionalData['cOCNumber']);
                     $this->getInfoInstance()->setAdditionalInformation('CompanyName', $additionalData['companyName']);
                 }
@@ -175,7 +179,7 @@ class Afterpay extends AbstractMethod
     }
 
     /**
-     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     * @param OrderPaymentInterface|InfoInterface $payment
      *
      * @return bool|string
      */
@@ -280,10 +284,10 @@ class Afterpay extends AbstractMethod
     }
 
     /**
-     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     * @param OrderPaymentInterface|InfoInterface $payment
      *
      * @return array
-     * @throws \Buckaroo\Magento2\Exception
+     * @throws Exception|LocalizedException
      */
     public function getAfterPayRequestParameters($payment)
     {
@@ -303,8 +307,8 @@ class Afterpay extends AbstractMethod
                 // Data variable to let afterpay know if the addresses are the same.
                 [
                     '_'    => $isDifferent,
-                    'Name' => 'AddressesDiffer'
-                ]
+                    'Name' => 'AddressesDiffer',
+                ],
             ]
         );
 
@@ -358,10 +362,10 @@ class Afterpay extends AbstractMethod
     /**
      * Get request Business data
      *
-     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     * @param OrderPaymentInterface|InfoInterface $payment
      *
      * @return array
-     * @throws \Buckaroo\Magento2\Exception
+     * @throws Exception
      */
     public function getRequestBusinessData($payment)
     {
@@ -369,23 +373,23 @@ class Afterpay extends AbstractMethod
             $requestData = [
                 [
                     '_'    => 'true',
-                    'Name' => 'B2B'
+                    'Name' => 'B2B',
                 ],
                 [
                     '_'    => $payment->getAdditionalInformation('COCNumber'),
-                    'Name' => 'CompanyCOCRegistration'
+                    'Name' => 'CompanyCOCRegistration',
                 ],
                 [
                     '_'    => $payment->getAdditionalInformation('CompanyName'),
-                    'Name' => 'CompanyName'
+                    'Name' => 'CompanyName',
                 ],
             ];
         } else {
             $requestData = [
                 [
                     '_'    => 'false',
-                    'Name' => 'B2B'
-                ]
+                    'Name' => 'B2B',
+                ],
             ];
         }
 
@@ -397,6 +401,7 @@ class Afterpay extends AbstractMethod
      * @param $payment
      *
      * @return array
+     * @throws LocalizedException
      */
     public function getRequestArticlesData($requestData, $payment)
     {
@@ -485,7 +490,7 @@ class Afterpay extends AbstractMethod
     }
 
     /**
-     * @param \Magento\Sales\Model\Order\Invoice $invoice
+     * @param Invoice $invoice
      *
      * @return array
      */
@@ -526,7 +531,7 @@ class Afterpay extends AbstractMethod
                     $this->getDiscountOn() . ' ' . $item->getName(),
                     $item->getProductId(),
                     1,
-                    number_format(($item->getDiscountAmount()*-1), 2),
+                    number_format(($item->getDiscountAmount() * -1), 2),
                     $this->getTaxCategory($invoice->getOrder())
                 );
                 // @codingStandardsIgnoreStart
@@ -558,7 +563,7 @@ class Afterpay extends AbstractMethod
             return $this->getCreditmemoArticleDataPayRemainder($payment, false);
         }
 
-        /** @var \Magento\Sales\Model\Order\Creditmemo $creditmemo */
+        /** @var Creditmemo $creditmemo */
         $creditmemo = $payment->getCreditmemo();
         $includesTax = $this->_scopeConfig->getValue(
             static::TAX_CALCULATION_INCLUDES_TAX,
@@ -569,7 +574,6 @@ class Afterpay extends AbstractMethod
         $count = 1;
         $itemsTotalAmount = 0;
 
-        /** @var \Magento\Sales\Model\Order\Creditmemo\Item $item */
         foreach ($creditmemo->getAllItems() as $item) {
             if (empty($item) || $this->calculateProductPrice($item, $includesTax) == 0) {
                 continue;
@@ -623,7 +627,9 @@ class Afterpay extends AbstractMethod
     }
 
     /**
-     * @param \Magento\Sales\Model\Order|\Magento\Sales\Model\Order\Invoice|\Magento\Sales\Model\Order\Creditmemo $order
+     * @param Order|Invoice|Creditmemo $order
+     * @param mixed $count
+     * @param mixed $itemsTotalAmount
      *
      * @return array
      */
@@ -640,7 +646,7 @@ class Afterpay extends AbstractMethod
             [
                 '_'       => $shippingAmount,
                 'Name'    => 'ShippingCosts',
-            ]
+            ],
         ];
 
         $itemsTotalAmount += $shippingAmount;
@@ -652,7 +658,7 @@ class Afterpay extends AbstractMethod
      * Get the discount cost lines
      *
      * @param (int)                                                                              $latestKey
-     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     * @param OrderPaymentInterface|InfoInterface $payment
      *
      * @return array
      */
@@ -680,8 +686,8 @@ class Afterpay extends AbstractMethod
     /**
      * Get the third party gift card lines
      *
-     * @param (int)                        $latestKey
-     * @param  \Magento\Quote\Model\Quote $quote
+     * @param (int)                      $latestKey
+     * @param Quote $quote
      *
      * @return array
      */
@@ -741,28 +747,28 @@ class Afterpay extends AbstractMethod
             [
                 '_'       => $articleDescription,
                 'Name'    => 'ArticleDescription',
-                'GroupID' => $latestKey
+                'GroupID' => $latestKey,
             ],
             [
                 '_'       => $articleId,
                 'Name'    => 'ArticleId',
-                'GroupID' => $latestKey
+                'GroupID' => $latestKey,
             ],
             [
                 '_'       => $articleQuantity,
                 'Name'    => 'ArticleQuantity',
-                'GroupID' => $latestKey
+                'GroupID' => $latestKey,
             ],
             [
                 '_'       => $articleUnitPrice,
                 'Name'    => 'ArticleUnitPrice',
-                'GroupID' => $latestKey
+                'GroupID' => $latestKey,
             ],
             [
                 '_'       => $articleVatCategory,
                 'Name'    => 'ArticleVatCategory',
-                'GroupID' => $latestKey
-            ]
+                'GroupID' => $latestKey,
+            ],
         ];
 
         return $article;
@@ -802,7 +808,7 @@ class Afterpay extends AbstractMethod
     }
 
     /**
-     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     * @param OrderPaymentInterface|InfoInterface $payment
      *
      * @return array
      */
@@ -898,7 +904,7 @@ class Afterpay extends AbstractMethod
     }
 
     /**
-     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     * @param OrderPaymentInterface|InfoInterface $payment
      *
      * @return array
      */
@@ -997,9 +1003,10 @@ class Afterpay extends AbstractMethod
     }
 
     /**
-     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     * @param OrderPaymentInterface|InfoInterface $payment
      *
      * @return array
+     * @throws \Exception
      */
     public function getRequestCustomerData($payment)
     {
@@ -1016,7 +1023,7 @@ class Afterpay extends AbstractMethod
             [
                 '_'    => $accept,
                 'Name' => 'Accept',
-            ]
+            ],
         ];
 
         // Only required if afterpay paymentmethod is acceptgiro.
@@ -1025,7 +1032,7 @@ class Afterpay extends AbstractMethod
                 [
                     '_'    => $payment->getAdditionalInformation('customer_iban'),
                     'Name' => 'CustomerAccountNumber',
-                ]
+                ],
             ];
 
             $customerData = array_merge($customerData, $accountNumber);
@@ -1046,7 +1053,7 @@ class Afterpay extends AbstractMethod
         $format = [
             'house_number'    => '',
             'number_addition' => '',
-            'street'          => $street
+            'street'          => $street,
         ];
 
         if (preg_match('#^(.*?)([0-9]+)(.*)#s', $street, $matches)) {
@@ -1123,8 +1130,10 @@ class Afterpay extends AbstractMethod
      * @param $response
      *
      * @return string
+     * @throws LocalizedException
      */
-    protected function getFailureMessage($response) {
+    protected function getFailureMessage($response)
+    {
         if (empty($response[0])) {
             return parent::getFailureMessage($response);
         }
@@ -1136,11 +1145,10 @@ class Afterpay extends AbstractMethod
         }
 
         $message = $transactionResponse->Services->Service->ResponseParameter->_;
-        if (
-            $responseCode === 690 &&
+        if ($responseCode === 690 &&
             strpos($message, "deliveryCustomer.address.countryCode") !== false
         ) {
-             return "Pay rejected: It is not allowed to specify another country for the invoice and delivery address for Afterpay transactions.";
+            return "Pay rejected: It is not allowed to specify another country for the invoice and delivery address for Afterpay transactions.";
         }
         return parent::getFailureMessage($response);
     }

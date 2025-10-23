@@ -26,7 +26,6 @@ use Buckaroo\Magento2\Model\Ideal\IdealException;
 
 class ShippingAddress implements ShippingAddressRequestInterface
 {
-
     protected $city;
 
     protected $country_code;
@@ -146,13 +145,13 @@ class ShippingAddress implements ShippingAddressRequestInterface
     {
         return $this->street;
     }
+
     /**
      * Validate required fields
      *
-     * @param mixed $value
+     * @param mixed  $value
      * @param string $name
      *
-     * @return void
      * @throws \Buckaroo\Magento2\Model\Ideal\IdealException
      */
     protected function validateRequired($value, $name)

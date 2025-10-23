@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -41,7 +42,7 @@ class OrderCancellationService
 
     /**
      * @param ResourceConnection $resourceConnection
-     * @param Log $logger
+     * @param Log                $logger
      */
     public function __construct(
         ResourceConnection $resourceConnection,
@@ -54,9 +55,9 @@ class OrderCancellationService
     /**
      * Cancel an order with custom stock logic
      *
-     * @param Order $order
-     * @param string $reason
-     * @param bool $isAutomatic
+     * @param  Order  $order
+     * @param  string $reason
+     * @param  bool   $isAutomatic
      * @return bool
      */
     public function cancelOrder(Order $order, string $reason = '', bool $isAutomatic = false): bool
@@ -118,7 +119,7 @@ class OrderCancellationService
     /**
      * Check if this is a Buckaroo order in pending state
      *
-     * @param Order $order
+     * @param  Order $order
      * @return bool
      */
     private function isBuckarooPendingOrder(Order $order): bool
@@ -138,7 +139,7 @@ class OrderCancellationService
     /**
      * Check if stock was actually reserved for this order
      *
-     * @param Order $order
+     * @param  Order $order
      * @return bool
      */
     private function wasStockReservedForOrder(Order $order): bool
@@ -170,10 +171,9 @@ class OrderCancellationService
     /**
      * Cancel the order without releasing stock
      *
-     * @param Order $order
+     * @param Order  $order
      * @param string $reason
-     * @param bool $isAutomatic
-     * @return void
+     * @param bool   $isAutomatic
      */
     private function cancelOrderWithoutStockRelease(Order $order, string $reason = '', bool $isAutomatic = false): void
     {
@@ -198,4 +198,3 @@ class OrderCancellationService
         }
     }
 }
-

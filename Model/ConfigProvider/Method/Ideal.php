@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -22,33 +23,33 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 class Ideal extends AbstractConfigProvider
 {
-    const XPATH_IDEAL_PAYMENT_FEE           = 'payment/buckaroo_magento2_ideal/payment_fee';
-    const XPATH_IDEAL_ACTIVE                = 'payment/buckaroo_magento2_ideal/active';
-    const XPATH_IDEAL_SUBTEXT               = 'payment/buckaroo_magento2_ideal/subtext';
-    const XPATH_IDEAL_SUBTEXT_STYLE         = 'payment/buckaroo_magento2_ideal/subtext_style';
-    const XPATH_IDEAL_SUBTEXT_COLOR         = 'payment/buckaroo_magento2_ideal/subtext_color';
-    const XPATH_IDEAL_ACTIVE_STATUS         = 'payment/buckaroo_magento2_ideal/active_status';
-    const XPATH_IDEAL_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_ideal/order_status_success';
-    const XPATH_IDEAL_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_ideal/order_status_failed';
-    const XPATH_IDEAL_ORDER_EMAIL           = 'payment/buckaroo_magento2_ideal/order_email';
-    const XPATH_IDEAL_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_ideal/available_in_backend';
+    public const XPATH_IDEAL_PAYMENT_FEE           = 'payment/buckaroo_magento2_ideal/payment_fee';
+    public const XPATH_IDEAL_ACTIVE                = 'payment/buckaroo_magento2_ideal/active';
+    public const XPATH_IDEAL_SUBTEXT               = 'payment/buckaroo_magento2_ideal/subtext';
+    public const XPATH_IDEAL_SUBTEXT_STYLE         = 'payment/buckaroo_magento2_ideal/subtext_style';
+    public const XPATH_IDEAL_SUBTEXT_COLOR         = 'payment/buckaroo_magento2_ideal/subtext_color';
+    public const XPATH_IDEAL_ACTIVE_STATUS         = 'payment/buckaroo_magento2_ideal/active_status';
+    public const XPATH_IDEAL_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_ideal/order_status_success';
+    public const XPATH_IDEAL_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_ideal/order_status_failed';
+    public const XPATH_IDEAL_ORDER_EMAIL           = 'payment/buckaroo_magento2_ideal/order_email';
+    public const XPATH_IDEAL_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_ideal/available_in_backend';
 
-    const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_ideal/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_ideal/specificcountry';
-    const XPATH_IDEAL_SELECTION_TYPE            = 'buckaroo_magento2/account/selection_type';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_ideal/specificcustomergroup';
+    public const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_ideal/allowspecific';
+    public const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_ideal/specificcountry';
+    public const XPATH_IDEAL_SELECTION_TYPE            = 'buckaroo_magento2/account/selection_type';
+    public const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_ideal/specificcustomergroup';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_ideal/allowed_currencies';
+    public const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_ideal/allowed_currencies';
 
-    const XPATH_IDEAL_FAST_CHECKOUT_ENABLE = 'payment/buckaroo_magento2_ideal/ideal_fast_checkout';
-    const XPATH_IDEAL_FAST_CHECKOUT_BUTTONS = 'payment/buckaroo_magento2_ideal/available_buttons';
-    const XPATH_IDEAL_FAST_CHECKOUT_LOGO = 'payment/buckaroo_magento2_ideal/ideal_logo_colors';
+    public const XPATH_IDEAL_FAST_CHECKOUT_ENABLE = 'payment/buckaroo_magento2_ideal/ideal_fast_checkout';
+    public const XPATH_IDEAL_FAST_CHECKOUT_BUTTONS = 'payment/buckaroo_magento2_ideal/available_buttons';
+    public const XPATH_IDEAL_FAST_CHECKOUT_LOGO = 'payment/buckaroo_magento2_ideal/ideal_logo_colors';
 
     /**
      * @var array
      */
     protected $allowedCurrencies = [
-        'EUR'
+        'EUR',
     ];
 
     /**
@@ -114,8 +115,8 @@ class Ideal extends AbstractConfigProvider
     /**
      * Check if Fast Checkout button should be shown for a specific page context.
      *
-     * @param string $page
-     * @param null|int|string $store
+     * @param  string          $page
+     * @param  null|int|string $store
      * @return bool
      */
     public function canShowButtonForPage($page, $store = null)
@@ -132,7 +133,7 @@ class Ideal extends AbstractConfigProvider
     /**
      * Get configured visibility for Fast Checkout buttons.
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed
      */
     public function getExpressButtons($store = null)
@@ -143,7 +144,7 @@ class Ideal extends AbstractConfigProvider
     /**
      * Check if iDEAL Fast Checkout is enabled.
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed
      */
     public function isFastCheckoutEnabled($store = null)
@@ -154,7 +155,7 @@ class Ideal extends AbstractConfigProvider
     /**
      * Check if the main iDEAL method is enabled.
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed
      */
     public function isIDealEnabled($store = null)
@@ -165,7 +166,7 @@ class Ideal extends AbstractConfigProvider
     /**
      * Get the configured logo color scheme for Fast Checkout.
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed
      */
     public function getLogoColor($store = null)

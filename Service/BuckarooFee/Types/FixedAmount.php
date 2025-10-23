@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -39,7 +40,7 @@ class FixedAmount
 
     /**
      * @param ResultFactory $resultFactory
-     * @param TaxCalculate $taxCalculate
+     * @param TaxCalculate  $taxCalculate
      */
     public function __construct(ResultFactory $resultFactory, TaxCalculate $taxCalculate)
     {
@@ -47,7 +48,8 @@ class FixedAmount
         $this->taxCalculate = $taxCalculate;
     }
 
-    public function calculate(CartInterface $cart, Total $total, float $amount){
+    public function calculate(CartInterface $cart, Total $total, float $amount)
+    {
 
         $tax = $this->taxCalculate->getTaxFromAmountIncludingTax($cart, $amount);
         /** @var Result $result */

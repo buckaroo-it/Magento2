@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Config\Source;
 
 class VisibleFrontBack implements \Magento\Framework\Option\ArrayInterface
@@ -31,7 +33,7 @@ class VisibleFrontBack implements \Magento\Framework\Option\ArrayInterface
         return [
             ['value' => 'frontend', 'label' => __('Frontend')],
             ['value' => 'backend', 'label' => __('Backend')],
-            ['value' => 'both', 'label' => __('Frontend and Backend')]
+            ['value' => 'both', 'label' => __('Frontend and Backend')],
         ];
     }
 
@@ -45,7 +47,7 @@ class VisibleFrontBack implements \Magento\Framework\Option\ArrayInterface
         return [
             'frontend' => __('Frontend'),
             'backend' => __('Backend'),
-            'both' => __('Frontend and Backend')
+            'both' => __('Frontend and Backend'),
         ];
     }
 }

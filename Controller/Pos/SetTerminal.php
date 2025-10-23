@@ -1,22 +1,23 @@
 <?php
- /**
-  * NOTICE OF LICENSE
-  *
-  * This source file is subject to the MIT License
-  * It is available through the world-wide-web at this URL:
-  * https://tldrlegal.com/license/mit-license
-  * If you are unable to obtain it through the world-wide-web, please send an email
-  * to support@buckaroo.nl so we can send you a copy immediately.
-  *
-  * DISCLAIMER
-  *
-  * Do not edit or add to this file if you wish to upgrade this module to newer
-  * versions in the future. If you wish to customize this module for your
-  * needs please contact support@buckaroo.nl for more information.
-  *
-  * @copyright Copyright (c) Buckaroo B.V.
-  * @license   https://tldrlegal.com/license/mit-license
-  */
+
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
 
 namespace Buckaroo\Magento2\Controller\Pos;
 
@@ -46,9 +47,12 @@ class SetTerminal extends \Magento\Framework\App\Action\Action
     protected $cookieMetadataFactory;
 
     /**
-     * @param \Magento\Framework\App\Action\Context               $context
-     * @param Log                                                 $logger
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory          $configProviderFactory
+     * @param \Magento\Framework\App\Action\Context                  $context
+     * @param Log                                                    $logger
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory        $configProviderFactory
+     * @param \Magento\Store\Model\StoreManagerInterface             $storemanager
+     * @param \Magento\Framework\Stdlib\CookieManagerInterface       $cookieManager
+     * @param \Magento\Framework\Stdlib\Cookie\CookieMetadataFactory $cookieMetadataFactory
      *
      * @throws \Buckaroo\Magento2\Exception
      */
@@ -71,8 +75,8 @@ class SetTerminal extends \Magento\Framework\App\Action\Action
     /**
      * Process action
      *
-     * @return \Magento\Framework\App\ResponseInterface
      * @throws \Exception
+     * @return \Magento\Framework\App\ResponseInterface
      */
     public function execute()
     {
@@ -91,7 +95,7 @@ class SetTerminal extends \Magento\Framework\App\Action\Action
             $this->logger->addDebug(__METHOD__.'|2|');
         }
 
-        $redirectUrl= $this->storemanager->getStore()->getBaseUrl();
+        $redirectUrl = $this->storemanager->getStore()->getBaseUrl();
         $this->_redirect($redirectUrl);
     }
 }

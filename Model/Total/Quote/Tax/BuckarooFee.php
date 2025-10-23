@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -32,7 +33,6 @@ use Magento\Quote\Model\Quote\Address\Total;
 use Magento\Tax\Api\Data\QuoteDetailsInterfaceFactory;
 use Magento\Tax\Api\Data\QuoteDetailsItemExtensionInterfaceFactory;
 use Magento\Tax\Api\Data\QuoteDetailsItemInterfaceFactory;
-use Magento\Tax\Api\Data\TaxClassKeyInterface;
 use Magento\Tax\Api\Data\TaxClassKeyInterfaceFactory;
 use Magento\Tax\Api\TaxCalculationInterface;
 use Magento\Tax\Helper\Data as TaxHelper;
@@ -42,8 +42,8 @@ use Buckaroo\Magento2\Service\BuckarooFee\Result;
 
 class BuckarooFee extends CommonTaxCollector
 {
-    const QUOTE_TYPE = 'buckaroo_fee_tax';
-    const CODE_QUOTE_GW = 'buckaroo_fee_tax';
+    public const QUOTE_TYPE = 'buckaroo_fee_tax';
+    public const CODE_QUOTE_GW = 'buckaroo_fee_tax';
 
     /**
      * @var PriceCurrencyInterface
@@ -73,20 +73,20 @@ class BuckarooFee extends CommonTaxCollector
     /**
      * Constructor
      *
-     * @param TaxConfig $taxConfig
-     * @param TaxCalculationInterface $taxCalculationService
-     * @param QuoteDetailsInterfaceFactory $quoteDetailsDataObjectFactory
-     * @param QuoteDetailsItemInterfaceFactory $quoteDetailsItemDataObjectFactory
-     * @param TaxClassKeyInterfaceFactory $taxClassKeyDataObjectFactory
-     * @param CustomerAddressFactory $customerAddressFactory
-     * @param CustomerAddressRegionFactory $customerAddressRegionFactory
-     * @param PriceCurrencyInterface $priceCurrency
-     * @param PaymentGroupTransaction $groupTransaction
-     * @param Calculate $calculate
+     * @param TaxConfig                                           $taxConfig
+     * @param TaxCalculationInterface                             $taxCalculationService
+     * @param QuoteDetailsInterfaceFactory                        $quoteDetailsDataObjectFactory
+     * @param QuoteDetailsItemInterfaceFactory                    $quoteDetailsItemDataObjectFactory
+     * @param TaxClassKeyInterfaceFactory                         $taxClassKeyDataObjectFactory
+     * @param CustomerAddressFactory                              $customerAddressFactory
+     * @param CustomerAddressRegionFactory                        $customerAddressRegionFactory
+     * @param PriceCurrencyInterface                              $priceCurrency
+     * @param PaymentGroupTransaction                             $groupTransaction
+     * @param Calculate                                           $calculate
      * @param \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee
-     * @param TaxHelper|null $taxHelper
-     * @param QuoteDetailsItemExtensionInterfaceFactory|null $quoteDetailsItemExtensionInterfaceFactory
-     * @param CustomerAccountManagement|null $customerAccountManagement
+     * @param TaxHelper|null                                      $taxHelper
+     * @param QuoteDetailsItemExtensionInterfaceFactory|null      $quoteDetailsItemExtensionInterfaceFactory
+     * @param CustomerAccountManagement|null                      $customerAccountManagement
      */
     public function __construct(
         TaxConfig $taxConfig,
@@ -100,8 +100,8 @@ class BuckarooFee extends CommonTaxCollector
         PaymentGroupTransaction $groupTransaction,
         Calculate $calculate,
         \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
-        TaxHelper $taxHelper = null,
-        QuoteDetailsItemExtensionInterfaceFactory $quoteDetailsItemExtensionInterfaceFactory = null,
+        ?TaxHelper $taxHelper = null,
+        ?QuoteDetailsItemExtensionInterfaceFactory $quoteDetailsItemExtensionInterfaceFactory = null,
         ?CustomerAccountManagement $customerAccountManagement = null
     ) {
         $parent = new \ReflectionClass(parent::class);
@@ -148,9 +148,9 @@ class BuckarooFee extends CommonTaxCollector
     /**
      * Collect Buckaroo fee related items and add them to tax calculation
      *
-     * @param  Quote $quote
+     * @param  Quote                       $quote
      * @param  ShippingAssignmentInterface $shippingAssignment
-     * @param  Total $total
+     * @param  Total                       $total
      * @return $this
      */
     public function collect(
@@ -171,7 +171,7 @@ class BuckarooFee extends CommonTaxCollector
 
         $result = $this->calculate->calculatePaymentFee($quote, $total);
 
-        if ($result === null){
+        if ($result === null) {
             return $this;
         }
 
@@ -186,9 +186,8 @@ class BuckarooFee extends CommonTaxCollector
      * Add associated taxable for Buckaroo fee
      *
      * @param ShippingAssignmentInterface $shippingAssignment
-     * @param Result $result
-     * @param Quote $quote
-     * @return void
+     * @param Result                      $result
+     * @param Quote                       $quote
      */
     private function addAssociatedTaxable(ShippingAssignmentInterface $shippingAssignment, Result $result, Quote $quote)
     {

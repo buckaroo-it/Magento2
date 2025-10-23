@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -49,8 +50,8 @@ class Factory
      *
      * @param string $providerType
      *
-     * @return ConfigProviderInterface
      * @throws \LogicException|\Buckaroo\Magento2\Exception
+     * @return ConfigProviderInterface
      */
     public function get($providerType)
     {
@@ -90,9 +91,9 @@ class Factory
     /**
      * @param $providerType
      *
-     * @return bool
      *
      * @throws \LogicException
+     * @return bool
      */
     public function has($providerType)
     {

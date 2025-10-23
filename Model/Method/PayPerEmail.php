@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -31,7 +32,7 @@ class PayPerEmail extends AbstractMethod
     /**
      * Payment Code
      */
-    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_payperemail';
+    public const PAYMENT_METHOD_CODE = 'buckaroo_magento2_payperemail';
 
     /**
      * @var string
@@ -72,17 +73,17 @@ class PayPerEmail extends AbstractMethod
         SoftwareData $softwareData,
         AddressFactory $addressFactory,
         \Magento\Framework\Event\ManagerInterface $eventManager,
-        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
-        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
-        \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
-        \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory = null,
-        \Buckaroo\Magento2\Model\ValidatorFactory $validatorFactory = null,
-        \Buckaroo\Magento2\Helper\Data $helper = null,
-        \Magento\Framework\App\RequestInterface $request = null,
-        \Buckaroo\Magento2\Model\RefundFieldsFactory $refundFieldsFactory = null,
-        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory = null,
-        \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
-        \Magento\Framework\Pricing\Helper\Data $priceHelper = null,
+        ?\Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
+        ?\Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
+        ?\Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
+        ?\Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory = null,
+        ?\Buckaroo\Magento2\Model\ValidatorFactory $validatorFactory = null,
+        ?\Buckaroo\Magento2\Helper\Data $helper = null,
+        ?\Magento\Framework\App\RequestInterface $request = null,
+        ?\Buckaroo\Magento2\Model\RefundFieldsFactory $refundFieldsFactory = null,
+        ?\Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory = null,
+        ?\Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
+        ?\Magento\Framework\Pricing\Helper\Data $priceHelper = null,
         array $data = []
     ) {
         parent::__construct(
@@ -157,10 +158,10 @@ class PayPerEmail extends AbstractMethod
     }
 
     /**
-     * @param \Magento\Quote\Api\Data\CartInterface|null $quote
+     * @param  \Magento\Quote\Api\Data\CartInterface|null $quote
      * @return bool
      */
-    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
+    public function isAvailable(?\Magento\Quote\Api\Data\CartInterface $quote = null)
     {
         $areaCode = $this->_appState->getAreaCode();
 
@@ -178,7 +179,7 @@ class PayPerEmail extends AbstractMethod
         if ($orderId) {
             $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
             $paymentGroupTransaction = $objectManager->get(\Buckaroo\Magento2\Helper\PaymentGroupTransaction::class);
-            
+
             if ($paymentGroupTransaction->getAlreadyPaid($orderId) > 0) {
                 return false;
             }
@@ -257,7 +258,7 @@ class PayPerEmail extends AbstractMethod
             'Name'             => 'payperemail',
             'Action'           => 'PaymentInvitation',
             'Version'          => 1,
-            'RequestParameter' => $params
+            'RequestParameter' => $params,
         ];
 
         return $services;
@@ -375,6 +376,4 @@ class PayPerEmail extends AbstractMethod
         }
         return $methods;
     }
-
-
 }

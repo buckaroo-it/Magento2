@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -37,6 +38,7 @@ class HtmlTransactionIdObserver implements ObserverInterface
     /**
      * Example constructor injection if you want your own logger:
      * (If you already have a logger property, just reuse that.)
+     * @param TransactionRepositoryInterface $transactionRepository
      */
     public function __construct(
         TransactionRepositoryInterface $transactionRepository
@@ -47,7 +49,6 @@ class HtmlTransactionIdObserver implements ObserverInterface
      * Update txn_id to a link for the plaza transaction
      *
      * @param Observer $observer
-     * @return void
      */
     public function execute(Observer $observer)
     {
@@ -69,8 +70,9 @@ class HtmlTransactionIdObserver implements ObserverInterface
                 }
             }
 
-            if($txtType == 'authorization'){
-                $transaction->setData('html_txn_id',
+            if ($txtType == 'authorization') {
+                $transaction->setData(
+                    'html_txn_id',
                     sprintf(
                         '<a href="https://plaza.buckaroo.nl/Transaction/DataRequest/Details/%s" target="_blank">%s</a>',
                         $txnId,
@@ -79,7 +81,8 @@ class HtmlTransactionIdObserver implements ObserverInterface
                 );
                 return;
             }
-            $transaction->setData('html_txn_id',
+            $transaction->setData(
+                'html_txn_id',
                 sprintf(
                     '<a href="https://plaza.buckaroo.nl/Transaction/Transactions/Details?transactionKey=%s" target="_blank">%s</a>',
                     $txnId,
@@ -94,7 +97,7 @@ class HtmlTransactionIdObserver implements ObserverInterface
      *
      * @param OrderPaymentInterface|null $payment
      *
-     * @return boolean
+     * @return bool
      */
     public function isBuckarooPayment($payment)
     {

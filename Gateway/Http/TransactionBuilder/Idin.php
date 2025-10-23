@@ -22,6 +22,7 @@
 namespace Buckaroo\Magento2\Gateway\Http\TransactionBuilder;
 
 use Buckaroo\Magento2\Logging\Log;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\UrlInterface;
 use Magento\Framework\Data\Form\FormKey;
 use Magento\Framework\Encryption\Encryptor;
@@ -35,7 +36,6 @@ use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 
 class Idin extends AbstractTransactionBuilder implements IdinBuilderInterface
 {
-
     /**
      * @var \Magento\Store\Api\Data\StoreInterface
      */
@@ -47,7 +47,6 @@ class Idin extends AbstractTransactionBuilder implements IdinBuilderInterface
     protected $customerId;
 
     /**
-     *
      * @var string
      */
     protected $issuer;
@@ -70,6 +69,9 @@ class Idin extends AbstractTransactionBuilder implements IdinBuilderInterface
      * @param Encryptor $encryptor
      * @param Factory $configProviderMethodFactory
      * @param Log $logging
+     * @param StoreManagerInterface $storeManager
+     * @param CustomerSession $customerSession
+     * @throws NoSuchEntityException
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
@@ -103,7 +105,7 @@ class Idin extends AbstractTransactionBuilder implements IdinBuilderInterface
     }
 
     /**
-     * Set issuer 
+     * Set issuer
      *
      * @param string $issuer
      *
@@ -124,7 +126,7 @@ class Idin extends AbstractTransactionBuilder implements IdinBuilderInterface
                 [
                     '_'    =>  $this->customerId,
                     'Name' => 'idin_cid',
-                ]
+                ],
             ],
             $this->getAdditionalFormattedParameters()
         );
@@ -142,19 +144,21 @@ class Idin extends AbstractTransactionBuilder implements IdinBuilderInterface
                             'Name' => 'issuerId',
                         ],
                     ],
-                ]
+                ],
             ],
             'AdditionalParameters' => (object)[
-                'AdditionalParameter' => $additionalParameter
+                'AdditionalParameter' => $additionalParameter,
             ],
         ];
 
         return $body;
     }
+
     /**
      * Get merchant key for store
      *
      * @return mixed
+     * @throws \Exception
      */
     public function getMerchantKey()
     {
@@ -162,8 +166,9 @@ class Idin extends AbstractTransactionBuilder implements IdinBuilderInterface
             $this->configProviderAccount->getMerchantKey($this->store)
         );
     }
+
     /**
-     * Get idin mode 
+     * Get idin mode
      *
      * @return int
      */
@@ -171,6 +176,7 @@ class Idin extends AbstractTransactionBuilder implements IdinBuilderInterface
     {
         return $this->configProviderAccount->getIdin($this->store);
     }
+
     /**
      * {@inheritdoc}
      */
@@ -185,6 +191,7 @@ class Idin extends AbstractTransactionBuilder implements IdinBuilderInterface
 
         return $this->returnUrl;
     }
+
     /** @inheritDoc */
     public function build()
     {
@@ -195,10 +202,9 @@ class Idin extends AbstractTransactionBuilder implements IdinBuilderInterface
 
         return parent::build();
     }
+
     /**
      * Get any additional formatted parameters
-     *
-     * @return void
      */
     private function getAdditionalFormattedParameters()
     {
@@ -207,7 +213,7 @@ class Idin extends AbstractTransactionBuilder implements IdinBuilderInterface
         if (!is_array($this->getAllAdditionalParameters())) {
             return $parameters;
         }
-        
+
         foreach ($this->getAllAdditionalParameters() as $key => $value) {
             $parameters[] = [
                 '_'    =>  $value,

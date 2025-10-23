@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,13 +18,13 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Controller\Applepay;
 
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\Service\ApplePayFormatData;
 use Buckaroo\Magento2\Model\Service\QuoteService;
 use Magento\Framework\App\RequestInterface;
-use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
@@ -42,10 +43,10 @@ class GetShippingMethods extends AbstractApplepay
     private ApplePayFormatData $applePayFormatData;
 
     /**
-     * @param JsonFactory      $resultJsonFactory
-     * @param RequestInterface $request
-     * @param Log              $logger
-     * @param QuoteService     $quoteService
+     * @param JsonFactory        $resultJsonFactory
+     * @param RequestInterface   $request
+     * @param Log                $logger
+     * @param QuoteService       $quoteService
      * @param ApplePayFormatData $applePayFormatData
      */
     public function __construct(
@@ -101,7 +102,7 @@ class GetShippingMethods extends AbstractApplepay
                             'Apple Pay payment failed, because no shipping methods were found for the selected address. ' .
                             'Please select a different shipping address within the pop-up or within your Apple Pay Wallet.'
                         );
-                    }else {
+                    } else {
                         // Set default shipping method using the first method.
                         $firstMethod = reset($shippingMethods);
                         $this->quoteService->setShippingMethod($firstMethod['method_code']);
@@ -119,7 +120,7 @@ class GetShippingMethods extends AbstractApplepay
 
                 $data = [
                     'shipping_methods' => $shippingMethodsResult,
-                    'totals'           => $totals
+                    'totals'           => $totals,
                 ];
                 $this->logger->addDebug(__METHOD__ . '|1.3|'. print_r($data, true));
             } catch (NoSuchEntityException | LocalizedException $exception) {

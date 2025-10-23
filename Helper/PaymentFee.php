@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -21,7 +22,6 @@
 namespace Buckaroo\Magento2\Helper;
 
 use Buckaroo\Magento2\Model\Config\Source\Display\Type as DisplayType;
-use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Buckaroo\Magento2\Model\ConfigProvider\Account as AccountConfigProvider;
@@ -84,7 +84,7 @@ class PaymentFee extends AbstractHelper
     /**
      * Retrieve totals array based on the data object.
      *
-     * @param DataObject $dataObject
+     * @param  DataObject $dataObject
      * @return array
      */
     public function getTotals($dataObject)
@@ -131,7 +131,7 @@ class PaymentFee extends AbstractHelper
     /**
      * Extract the store from the data object.
      *
-     * @param DataObject $dataObject
+     * @param  DataObject          $dataObject
      * @return StoreInterface|null
      */
     protected function getStoreFromDataObject($dataObject)
@@ -148,7 +148,7 @@ class PaymentFee extends AbstractHelper
     /**
      * Determine if the fee display type is set to "Including Tax".
      *
-     * @param mixed $displayType
+     * @param  mixed $displayType
      * @return bool
      */
     protected function isFeeDisplayTypeIncludingTax($displayType)
@@ -160,8 +160,7 @@ class PaymentFee extends AbstractHelper
      * Add "already paid" totals for giftcards or vouchers if applicable.
      *
      * @param DataObject $dataObject
-     * @param array &$totals
-     * @return void
+     * @param array      &$totals
      */
     public function addAlreadyPayedTotals($dataObject, array &$totals)
     {
@@ -215,8 +214,7 @@ class PaymentFee extends AbstractHelper
                 if (!empty($foundGiftcard['is_partial_refundable'])) {
                     $residual = $amountValue - (float)$refundedAlreadyPaidSaved;
 
-                    if (
-                        array_key_exists($foundGiftcard['servicecode'], $giftcards) &&
+                    if (array_key_exists($foundGiftcard['servicecode'], $giftcards) &&
                         (float)$giftcards[$foundGiftcard['servicecode']] <= $residual
                     ) {
                         $amountValue = (float)$giftcards[$foundGiftcard['servicecode']];
@@ -230,8 +228,7 @@ class PaymentFee extends AbstractHelper
                     if ((float)$refundedAlreadyPaidSaved === $amountValue) {
                         $amountValue = 0;
                         $amountBaseValue = 0;
-                    } elseif (
-                        is_array($foundGiftcard) &&
+                    } elseif (is_array($foundGiftcard) &&
                         array_key_exists($foundGiftcard['servicecode'], $giftcards) &&
                         empty((float)$giftcards[$foundGiftcard['servicecode']])
                     ) {
@@ -256,7 +253,7 @@ class PaymentFee extends AbstractHelper
     /**
      * Get order increment ID from a data object (Order/Invoice/Creditmemo).
      *
-     * @param mixed $dataObject
+     * @param  mixed       $dataObject
      * @return string|null
      */
     public function getOrderIncrementId($dataObject)
@@ -303,7 +300,7 @@ class PaymentFee extends AbstractHelper
     /**
      * Extract the payment method code from order, invoice, creditmemo, or direct string.
      *
-     * @param mixed $dataObject
+     * @param  mixed        $dataObject
      * @return string|false
      */
     protected function extractPaymentMethodFromDataObject($dataObject)
@@ -330,16 +327,15 @@ class PaymentFee extends AbstractHelper
      * @param string $blockName
      * @param string $transactionId
      * @param array  $extraInfo
-     * @return void
      */
     protected function addTotalToTotals(
         array &$totals,
-              $code,
-              $value,
-              $baseValue,
-              $label,
-              $blockName = false,
-              $transactionId = false,
+        $code,
+        $value,
+        $baseValue,
+        $label,
+        $blockName = false,
+        $transactionId = false,
         array $extraInfo = []
     ) {
         // Only add totals if values are non-zero
@@ -352,7 +348,7 @@ class PaymentFee extends AbstractHelper
             'value'      => $value,
             'base_value' => $baseValue,
             'label'      => $label,
-            'extra_info' => $extraInfo
+            'extra_info' => $extraInfo,
         ];
 
         if ($blockName) {
