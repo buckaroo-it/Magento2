@@ -131,7 +131,6 @@ class Giftcard extends \Magento\Framework\App\Action\Action
             throw new ApiException($this->giftcardResponse->getErrorMessage());
         }
 
-
         $buttonMessage = '';
 
         $remainingAmount = $this->giftcardResponse->getRemainderAmount();

@@ -58,8 +58,12 @@ class PaymentGroupTransaction extends AbstractHelper
      * @var GroupTransaction
      */
     protected $resourceModel;
-    private Log $logging;
-
+    
+    /**
+     * @var Log
+     */
+    private $logging;
+    
     /**
      * @param Context                           $context
      * @param GroupTransactionFactory           $groupTransactionFactory
@@ -184,7 +188,6 @@ class PaymentGroupTransaction extends AbstractHelper
             ->addFieldToFilter('refunded_amount', ['null' => true]);
         return array_values($collection->getItems());
     }
-
 
     public function getGroupTransactionById($entityId)
     {
