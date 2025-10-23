@@ -1,7 +1,5 @@
 <?php
 
-// phpcs:ignore Magento2.Legacy.InstallUpgrade.ObsoleteUpgradeDataScript
-
 /**
  * NOTICE OF LICENSE
  *
@@ -36,6 +34,10 @@ use Buckaroo\Magento2\Model\Method\PayByBank;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+
+/**
+ * @codingStandardsIgnoreFile
+ */
 
 /**
  * @SuppressWarnings(PHPMD.ObsoleteUpgradeDataScript)
