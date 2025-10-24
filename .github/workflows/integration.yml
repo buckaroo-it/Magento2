@@ -27,12 +27,14 @@ jobs:
 
       opensearch:
         image: opensearchproject/opensearch:3.0.0
+        ports: [ "9200:9200" ]
         env:
           discovery.type: single-node
+          # 1) Don’t run the demo security setup that demands a password
+          DISABLE_INSTALL_DEMO_CONFIG: "true"
+          # 2) Disable the Security plugin entirely (plain HTTP, no auth)
           plugins.security.disabled: "true"
           OPENSEARCH_JAVA_OPTS: "-Xms512m -Xmx512m"
-        ports:
-          - 9200:9200
         options: >-
           --health-cmd="curl -sS http://localhost:9200 >/dev/null || exit 1"
           --health-interval=5s --health-timeout=5s --health-retries=20
