@@ -1,5 +1,4 @@
 name: M2 Integration Tests
-
 on:
   push:
     branches:
@@ -10,51 +9,33 @@ jobs:
   integration-tests:
     name: Magento 2 Integration Tests
     runs-on: ubuntu-latest
-
     services:
       mysql:
         image: mysql:8.0
         env:
           MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: magento_integration_tests
+          MYSQL_USER: magento
+          MYSQL_PASSWORD: magento
         ports:
           - 3306:3306
-        # Keep it lightweight & healthy for CI
-        options: >-
-          --tmpfs /tmp:rw
-          --tmpfs /var/lib/mysql:rw
-          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot || exit 1"
-          --health-interval=10s --health-timeout=5s --health-retries=10
-
+        options: --tmpfs /tmp:rw --tmpfs /var/lib/mysql:rw --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
       opensearch:
-        image: opensearchproject/opensearch:3.0.0
-        ports: [ "9200:9200" ]
+        image: opensearchproject/opensearch:2.12.0
+        ports:
+          - 9200:9200
+          - 9600:9600
         env:
           discovery.type: single-node
-          # 1) Don’t run the demo security setup that demands a password
-          DISABLE_INSTALL_DEMO_CONFIG: "true"
-          # 2) Disable the Security plugin entirely (plain HTTP, no auth)
-          plugins.security.disabled: "true"
+          plugins.security.disabled: true
           OPENSEARCH_JAVA_OPTS: "-Xms512m -Xmx512m"
-        options: >-
-          --health-cmd="curl -sS http://localhost:9200 >/dev/null || exit 1"
-          --health-interval=5s --health-timeout=5s --health-retries=20
-
+          DISABLE_INSTALL_DEMO_CONFIG: true
+        options: --health-cmd="curl -f http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=60s || exit 1" --health-interval=10s --health-timeout=5s --health-retries=5
     steps:
       - uses: actions/checkout@v4
-
-      # extdn has tags per PHP version; use the 8.4 tag
-      - name: M2 Integration Tests with Magento 2 (PHP 8.4)
+      - name: M2 Integration Tests with Magento 2.4.8-p3 (PHP 8.4)
         uses: extdn/github-actions-m2/magento-integration-tests/8.4@master
         with:
           module_name: Buckaroo_Magento2
           composer_name: buckaroo/magento2
-          # Use the latest patch
           ce_version: '2.4.8-p3'
-          # Pass OpenSearch and DB settings into setup:install
-          install_args: >
-            --search-engine=opensearch
-            --opensearch-hosts=http://opensearch:9200
-            --db-host=127.0.0.1
-            --db-name=magento_integration_tests
-            --db-user=root
-            --db-password=root
