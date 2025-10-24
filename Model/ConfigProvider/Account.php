@@ -22,6 +22,7 @@ namespace Buckaroo\Magento2\Model\ConfigProvider;
 
 use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory as MethodFactory;
+use Buckaroo\Magento2\Model\ConfigProvider\Method; // For backward compatibility reference
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Store\Model\ScopeInterface;
@@ -79,11 +80,17 @@ class Account extends AbstractConfigProvider
     protected $scopeConfig;
 
     /**
-     * @param MethodFactory $methodConfigProviderFactory
+     * Constructor with backward compatibility for v1.5x → v2.0.x upgrades
+     * 
+     * Accepts both Factory types to prevent errors during upgrade when old generated code exists:
+     * - v2.0.x expects: Buckaroo\Magento2\Model\ConfigProvider\Factory
+     * - v1.5x had: Buckaroo\Magento2\Model\ConfigProvider\Method\Factory
+     *
+     * @param MethodFactory|Method\Factory $methodConfigProviderFactory
      * @param ScopeConfigInterface $scopeConfig
      */
     public function __construct(
-        MethodFactory $methodConfigProviderFactory,
+        $methodConfigProviderFactory,
         ScopeConfigInterface $scopeConfig
     ) {
         parent::__construct($scopeConfig);
