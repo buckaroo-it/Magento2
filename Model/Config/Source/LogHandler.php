@@ -27,6 +27,7 @@ class LogHandler implements OptionSourceInterface
 {
     public const TYPE_FILES = 1;
     public const TYPE_DB = 2;
+    public const TYPE_BOTH = 3;
 
     /**
      * Options getter
@@ -38,6 +39,7 @@ class LogHandler implements OptionSourceInterface
         return [
             ['value' => 1, 'label' => __('File')],
             ['value' => 2, 'label' => __('Database')],
+            ['value' => 3, 'label' => __('Both (File + Database)')],
         ];
     }
 }

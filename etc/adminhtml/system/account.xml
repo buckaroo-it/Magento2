@@ -225,7 +225,7 @@
                 </field>
 
                 <field id="log_handler" translate="label" type="select" sortOrder="250" showInDefault="1" showInWebsite="0" showInStore="0">
-                    <label>Handler</label>
+                    <label>Log Handler</label>
                     <source_model>Buckaroo\Magento2\Model\Config\Source\LogHandler</source_model>
                     <comment><![CDATA[Decide what Logging Handler used]]></comment>
                     <config_path>buckaroo_magento2/account/log_handler</config_path>
