@@ -317,11 +317,11 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
          * @var Item $item
          */
         foreach ($cartData as $item) {
-            if ($this->skipItem($item)) {
+            if ($this->skipBundleProducts($item, $bundleProductQty)) {
                 continue;
             }
 
-            if ($this->skipBundleProducts($item, $bundleProductQty)) {
+            if ($this->skipItem($item, $bundleProductQty)) {
                 continue;
             }
 
@@ -349,13 +349,18 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      * Skip item if item has parent or total equal 0
      *
      * @param Item|Invoice\Item|Creditmemo\Item $item
+     * @param int $bundleProductQty If > 0, we're processing bundle children so don't skip items with parents
      * @return bool
      */
-    protected function skipItem($item): bool
+    protected function skipItem($item, int $bundleProductQty = 0): bool
     {
-        if ($item->getRowTotalInclTax() == 0
-            || $item->hasParentItemId()
-        ) {
+        if ($item->getRowTotalInclTax() == 0) {
+            return true;
+        }
+
+        // If we're processing bundle product children (bundleProductQty > 0), 
+        // don't skip items with parents - we want to send them individually
+        if ($item->hasParentItemId() && $bundleProductQty == 0) {
             return true;
         }
 
