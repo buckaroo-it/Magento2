@@ -2,19 +2,19 @@
     <div class="payment-method-title field choice bk-payment">
         <div class="bk-payment-wrap">
             <div class="bk-radio-wrap">
-                <input type="radio"
+                <input class="radio"
+                       data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"
                        name="payment[method]"
-                       class="radio"
-                       data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
-                <label class="label" data-bind="attr: {'for': getCode()}" >
-                        <!-- ko text: getTitle() --><!-- /ko -->
-                        <!-- ko if: subtext !== null && subtext.length > 0 -->
-                        <p class="bk-description" data-bind="text: subtext, style: subTextStyle"></p>
-                        <!-- /ko -->
+                       type="radio">
+                <label class="label" data-bind="attr: {'for': getCode()}">
+                    <!-- ko text: getTitle() --><!-- /ko -->
+                    <!-- ko if: subtext !== null && subtext.length > 0 -->
+                    <p class="bk-description" data-bind="text: subtext, style: subTextStyle"></p>
+                    <!-- /ko -->
                 </label>
             </div>
             <div class="bk-img-wrap">
-                <img data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/riverty.svg') }" />
+                <img data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/riverty.svg') }">
             </div>
         </div>
     </div>
@@ -34,29 +34,29 @@
                     <!-- Default | Hide this field if phone number is already filled in. Show this field if phone number is empty -->
 
                     <!-- ko ifnot: hasTelephoneNumber -->
-                    <div class="field required" >
-                        <label class="label" for="buckaroo_magento2_afterpay_Telephone"> <span data-bind="i18n: 'Telephone:'"> </span> </label>
+                    <div class="field required">
+                        <label class="label" for="buckaroo_magento2_afterpay_Telephone"> <span
+                            data-bind="i18n: 'Telephone:'"> </span> </label>
                         <div class="control">
-                            <input id="buckaroo_magento2_afterpay_Telephone"
-                                   type="text"
-                                   class="input-text field"
+                            <input class="input-text field"
                                    data-bind="
                                    valueUpdate: 'keyup',
                                    value: telephoneNumber,
                                    attr: { 'data-validate': JSON.stringify({ 'required': true })},
                                    event: { blur: validateField }"
-                                   name="payment[buckaroo_magento2_afterpay][customer_telephone]">
+                                   id="buckaroo_magento2_afterpay_Telephone"
+                                   name="payment[buckaroo_magento2_afterpay][customer_telephone]"
+                                   type="text">
                         </div>
                     </div>
                     <!-- /ko -->
 
                     <!-- ko if: ((businessMethod == '3') && (selectedBusiness() == 1)) || businessMethod == '1' -->
                     <div class="field required">
-                        <label class="label" for="buckaroo_magento2_afterpay_DoB"> <span data-bind="i18n: 'Date of Birth:'"> </span> </label>
+                        <label class="label" for="buckaroo_magento2_afterpay_DoB"> <span
+                            data-bind="i18n: 'Date of Birth:'"> </span> </label>
                         <div class="control addon">
-                            <input id="buckaroo_magento2_afterpay_DoB"
-                                   class="field"
-                                   type="text"
+                            <input class="field"
                                    data-bind="
                                    datepicker: {
                                         storage: dateValidate,
@@ -75,7 +75,9 @@
                                     'data-validate': JSON.stringify({ 'required': true, 'validate-date-au': true, 'validateAge': true }),
                                     placeholder: $t('DD/MM/YYYY')
                                    }"
-                                   name="payment[buckaroo_magento2_afterpay][customer_DoB]">
+                                   id="buckaroo_magento2_afterpay_DoB"
+                                   name="payment[buckaroo_magento2_afterpay][customer_DoB]"
+                                   type="text">
                         </div>
                     </div>
                     <!-- /ko -->
@@ -84,17 +86,18 @@
 
                     <!-- ko if: paymentMethod == '1' -->
                     <div class="field required">
-                        <label class="label" for="buckaroo_magento2_afterpay_IBAN"> <span data-bind="i18n: 'Bank Account Number:'"> </span> </label>
+                        <label class="label" for="buckaroo_magento2_afterpay_IBAN"> <span
+                            data-bind="i18n: 'Bank Account Number:'"> </span> </label>
                         <div class="control">
-                            <input id="buckaroo_magento2_afterpay_IBAN"
-                                   class="input-text field"
-                                   type="text"
+                            <input class="input-text field"
                                    data-bind="
                                    value: bankAccountNumber,
                                    valueUpdate: 'keyup',
                                    attr: {'data-validate': JSON.stringify({ 'required': true, 'IBAN':true })},
                                    event: { blur: validateField }"
-                                   name="payment[buckaroo_magento2_afterpay][customer_iban]">
+                                   id="buckaroo_magento2_afterpay_IBAN"
+                                   name="payment[buckaroo_magento2_afterpay][customer_iban]"
+                                   type="text">
                         </div>
                     </div>
                     <!-- /ko -->
@@ -105,10 +108,11 @@
 
                     <!-- ko if: paymentMethod == '2' && businessMethod == '3'  -->
                     <div class="field">
-                        <label class="label" for="buckaroo_magento2_afterpay_BusinessModel"> <span data-bind="i18n: 'Business Model:'"> </span> </label>
+                        <label class="label" for="buckaroo_magento2_afterpay_BusinessModel"> <span
+                            data-bind="i18n: 'Business Model:'"> </span> </label>
                         <div class="control">
-                            <select id="buckaroo_magento2_afterpay_BusinessModel"
-                                    data-bind="value: selectedBusiness"
+                            <select data-bind="value: selectedBusiness"
+                                    id="buckaroo_magento2_afterpay_BusinessModel"
                                     name="payment[buckaroo_magento2_afterpay][selectedBusiness]">
                                 <option data-bind="i18n: 'B2C - Business to Consumer'" value="1"></option>
                                 <option data-bind="i18n: 'B2B - Business to Business'" value="2"></option>
@@ -125,13 +129,11 @@
                     <!-- ko if: selectedBusiness() == 2 || businessMethod == '2' -->
                     <!-- ko if: paymentMethod != '1' && businessMethod != '1' -->
 
-                    <div class="field required b2b-fields" >
-                        <label class="label" for="buckaroo_magento2_afterpay_COCNumber"> <span data-bind="i18n: 'COC Number:'"> </span> </label>
+                    <div class="field required b2b-fields">
+                        <label class="label" for="buckaroo_magento2_afterpay_COCNumber"> <span
+                            data-bind="i18n: 'COC Number:'"> </span> </label>
                         <div class="control">
-                            <input id="buckaroo_magento2_afterpay_COCNumber"
-                                   name="payment[buckaroo_magento2_afterpay][COCNumber]"
-                                   class="input-text field"
-                                   type="text"
+                            <input class="input-text field"
                                    data-bind="
                                        valueUpdate: 'keyup',
                                        value: cocNumber,
@@ -141,23 +143,27 @@
                                                 'minlength': 8
                                             }),
                                         },
-                                        event: { blur: validateField }">
+                                        event: { blur: validateField }"
+                                   id="buckaroo_magento2_afterpay_COCNumber"
+                                   name="payment[buckaroo_magento2_afterpay][COCNumber]"
+                                   type="text">
                         </div>
                     </div>
 
-                    <div class="field required b2b-fields" >
-                        <label class="label" for="buckaroo_magento2_afterpay_CompanyName"> <span data-bind="i18n: 'Company Name:'"> </span> </label>
+                    <div class="field required b2b-fields">
+                        <label class="label" for="buckaroo_magento2_afterpay_CompanyName"> <span
+                            data-bind="i18n: 'Company Name:'"> </span> </label>
                         <div class="control">
-                            <input id="buckaroo_magento2_afterpay_CompanyName"
-                                   name="payment[buckaroo_magento2_afterpay][CompanyName]"
-                                   class="input-text field"
-                                   type="text"
+                            <input class="input-text field"
                                    data-bind="
                                        valueUpdate: 'keyup',
                                        value: companyName,
                                        attr: { 'data-validate': JSON.stringify({ 'required': true })
                                         },
-                                        event: { blur: validateField }">
+                                        event: { blur: validateField }"
+                                   id="buckaroo_magento2_afterpay_CompanyName"
+                                   name="payment[buckaroo_magento2_afterpay][CompanyName]"
+                                   type="text">
                         </div>
                     </div>
                     <!-- /ko -->
@@ -165,22 +171,23 @@
 
                     <!-- Default -->
                     <div class="field required">
-                        <label class="label" for="buckaroo_magento2_afterpay_TermsCondition"> <span data-bind="i18n: 'Terms and Conditions:'"> </span> </label>
+                        <label class="label" for="buckaroo_magento2_afterpay_TermsCondition"> <span
+                            data-bind="i18n: 'Terms and Conditions:'"> </span> </label>
                         <div class="control">
-                            <input id="buckaroo_magento2_afterpay_TermsCondition"
-                                   class="field"
-                                   type="checkbox"
+                            <input class="field"
                                    data-bind="
                                    checked: termsValidate,
                                    attr: { 'data-validate': JSON.stringify({ 'required': true})},
                                    event: { change: validateField }"
-                                   name="payment[buckaroo_magento2_afterpay][termsCondition]">
+                                   id="buckaroo_magento2_afterpay_TermsCondition"
+                                   name="payment[buckaroo_magento2_afterpay][termsCondition]"
+                                   type="checkbox">
                             <span>
-                                <a target="_blank"
-                                   data-bind="
+                                <a data-bind="
                                        i18n: 'The general Terms and Conditions for the Riverty payment method apply. The privacy policy of Riverty can be found here.',
                                        attr: { 'href': termsUrl }
-                                   ">
+                                   "
+                                   target="_blank">
                                 </a>
                                 <!-- ko if: showFrenchTos -->
                                 <span data-bind="html: getFrenchTos()"></span>
@@ -190,11 +197,13 @@
                     </div>
 
                     <!-- ko if: showFinancialWarning -->
-                    <span data-bind="i18n: `Je moet minimaal 18+ zijn om deze dienst te gebruiken. Als je op tijd betaalt, voorkom je extra kosten en zorg je dat je in de toekomst nogmaals gebruik kunt maken van de diensten van ${getTitle()}. Door verder te gaan, accepteer je de Algemene Voorwaarden en bevestig je dat je de Privacyverklaring en Cookieverklaring hebt gelezen.`">  </span>
+                    <span
+                        data-bind="i18n: `Je moet minimaal 18+ zijn om deze dienst te gebruiken. Als je op tijd betaalt, voorkom je extra kosten en zorg je dat je in de toekomst nogmaals gebruik kunt maken van de diensten van ${getTitle()}. Door verder te gaan, accepteer je de Algemene Voorwaarden en bevestig je dat je de Privacyverklaring en Cookieverklaring hebt gelezen.`">  </span>
                     <!-- /ko -->
 
                     <div class="field">
-                        <span data-bind="i18n: 'Please make sure all fields are filled in correctly before proceeding.' ">  </span>
+                        <span
+                            data-bind="i18n: 'Please make sure all fields are filled in correctly before proceeding.' ">  </span>
                     </div>
                 </fieldset>
             </form>
@@ -202,16 +211,16 @@
 
         <div class="actions-toolbar">
             <div class="primary">
-                <button id="button-action-checkout-afterpay"
-                        class="action primary checkout"
-                        type="submit"
+                <button class="action primary checkout"
                         data-bind="
                         click: placeOrder,
                         attr: {title: $t('Place Order')},
                         enable: (getCode() == isChecked()),
                         css: {disabled: !isPlaceOrderActionAllowed() || !buttoncheck() }
                         "
-                        disabled>
+                        disabled
+                        id="button-action-checkout-afterpay"
+                        type="submit">
                     <span data-bind="i18n: 'Place Order'"></span>
                 </button>
             </div>
