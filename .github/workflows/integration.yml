@@ -14,27 +14,24 @@ jobs:
         image: mysql:8.0
         env:
           MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: magento_integration_tests
-          MYSQL_USER: magento
-          MYSQL_PASSWORD: magento
         ports:
           - 3306:3306
         options: --tmpfs /tmp:rw --tmpfs /var/lib/mysql:rw --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
       es:
-        image: opensearchproject/opensearch:2.12.0
+        image: opensearchproject/opensearch:2.5.0
         ports:
           - 9200:9200
-          - 9600:9600
         env:
           discovery.type: single-node
           plugins.security.disabled: true
           OPENSEARCH_JAVA_OPTS: "-Xms512m -Xmx512m"
           DISABLE_INSTALL_DEMO_CONFIG: true
-        options: --health-cmd="curl -f http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=60s || exit 1" --health-interval=10s --health-timeout=5s --health-retries=5
+          compatibility.override_main_response_version: true
+        options: --health-cmd="curl -f localhost:9200/_cluster/health?wait_for_status=yellow&timeout=60s" --health-interval=10s --health-timeout=5s --health-retries=5
     steps:
       - uses: actions/checkout@v4
-      - name: M2 Integration Tests with Magento 2.4.8-p3 (PHP 8.4)
-        uses: extdn/github-actions-m2/magento-integration-tests/8.4@master
+      - name: M2 Integration Tests with Magento 2.4.8-p3 (PHP 8.3)
+        uses: extdn/github-actions-m2/magento-integration-tests/8.3@master
         with:
           module_name: Buckaroo_Magento2
           composer_name: buckaroo/magento2
