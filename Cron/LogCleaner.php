@@ -105,10 +105,12 @@ class LogCleaner
         $logHandlerType = (int) $this->accountConfig->getLogHandler();
 
         if ($retentionPeriod) {
-            if ($logHandlerType == LogHandler::TYPE_DB) {
+            // Clean database logs if DB or Both
+            if ($logHandlerType == LogHandler::TYPE_DB || $logHandlerType == LogHandler::TYPE_BOTH) {
                 $this->proceedDb($retentionPeriod);
             }
-            if ($logHandlerType == LogHandler::TYPE_FILES) {
+            // Clean file logs if Files or Both
+            if ($logHandlerType == LogHandler::TYPE_FILES || $logHandlerType == LogHandler::TYPE_BOTH) {
                 $this->proceedFiles($retentionPeriod);
             }
         }
