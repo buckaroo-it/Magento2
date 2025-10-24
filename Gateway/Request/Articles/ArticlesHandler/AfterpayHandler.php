@@ -125,11 +125,11 @@ class AfterpayHandler extends AbstractArticlesHandler
          * @var Item $item
          */
         foreach ($cartData as $item) {
-            if ($this->skipItem($item)) {
+            if ($this->skipBundleProducts($item, $bundleProductQty)) {
                 continue;
             }
 
-            if ($this->skipBundleProducts($item, $bundleProductQty)) {
+            if ($this->skipItem($item, $bundleProductQty)) {
                 continue;
             }
 
