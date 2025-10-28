@@ -3831,7 +3831,6 @@
             <argument name="validators" xsi:type="array">
                 <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
                 <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
-                <item name="global" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\IssuerValidator</item>
             </argument>
         </arguments>
     </virtualType>
@@ -3863,10 +3862,9 @@
     <virtualType name="PayByBankOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
-                <item name="saveIssuer" xsi:type="string">Buckaroo\Magento2\Gateway\Request\SaveIssuerDataBuilder</item>
                 <item name="order" xsi:type="string">BuckarooOrderRequest</item>
                 <item name="payRemainder" xsi:type="string">BuckarooPayRemainderRequest</item>
-                <item name="issuer" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\IssuerDataBuilder</item>
+                <item name="countryCode" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\CountryCodeDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>

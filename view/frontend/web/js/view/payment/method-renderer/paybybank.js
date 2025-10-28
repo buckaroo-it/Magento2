@@ -25,15 +25,13 @@ define([
 ], function (
     $,
     Component,
-    ko,
+    ko
 ) {
     "use strict";
 
     return Component.extend({
         defaults: {
             template: "Buckaroo_Magento2/payment/buckaroo_magento2_paybybank",
-            selectedBank: "",
-            showAll: false,
             isMobile: $(window).width() < 768
         },
         redirectAfterPlaceOrder: false,
@@ -45,8 +43,7 @@ define([
         },
 
         initObservable: function () {
-            this._super().observe(["selectedBank",  "showAll", "isMobile"]);
-            this.initialSelected();
+            this._super().observe(["isMobile"]);
             const self = this;
             $(window).resize(function () {
                 const width = $(window).width();
@@ -57,58 +54,10 @@ define([
                 }
             });
 
-            this.bankTypes = ko.computed(function () {
-                const issuers = this.buckaroo.banks;
-                if (this.showAll() === false && !this.isMobile()) {
-                    if (this.selectedBank() !== "") {
-                        return issuers.filter(function (bank) {
-                            return bank.code  === this.selectedBank();
-                        }, this);
-                    }
-                    return issuers.slice(0, 4);
-                }
-                return issuers;
-            }, this);
-
-
             this.logo = ko.computed(function () {
-                let found  = this.buckaroo.banks.find(function (bank) {
-                    return bank.code  === this.selectedBank();
-                }, this);
-       
-                if (found !== undefined) {
-                    return found.img;
-                }
-                return this.buckaroo.logo
+                return this.buckaroo.logo;
             }, this);
             return this;
-        },
-
-
-        initialSelected() {
-            let found = this.buckaroo.banks.find(function (bank) {
-                return bank.selected === true;
-            });
-
-            if (found !== undefined) {
-                this.selectedBank(found.code);
-            }
-        },
-
-        toggleShow: function () {
-            this.showAll(!this.showAll());
-        },
-
-        getData: function () {
-            return {
-                method: this.item.method,
-                po_number: null,
-                additional_data: {
-                    issuer: this.selectedBank(),
-                },
-            };
-        },
-
-     
+        }
     });
 });

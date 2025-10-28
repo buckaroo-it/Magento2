@@ -79,7 +79,7 @@ class LogoService
             "transfer"         => "svg/sepa-credittransfer.svg",
             "buckaroovoucher"  => "svg/vouchers.svg",
             "voucher"          => "svg/vouchers.svg",
-            "paybybank"        => "paybybank.gif",
+            "paybybank"        => "svg/paybybank.svg",
             "knaken"           => "svg/gosettle.svg"
         ];
 
