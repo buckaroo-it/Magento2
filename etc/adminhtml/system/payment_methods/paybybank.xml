@@ -65,22 +65,10 @@
             <config_path>payment/buckaroo_magento2_paybybank/sort_order</config_path>
         </field>
 
-        <field id="allowed_issuers" translate="label comment" type="multiselect" sortOrder="65" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Allowed PayByBank banks</label>
-            <comment><![CDATA[Select payment method specific PayByBank banks.]]></comment>
-            <config_path>payment/buckaroo_magento2_paybybank/allowed_issuers</config_path>
-            <source_model>Buckaroo\Magento2\Model\Config\Source\PayByBank</source_model>
-        </field>
 
         <group id="buckaroo_magento2_advanced" translate="label" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Advanced Configuration</label>
 
-            <field id="sorted_issuers" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Sort PayByBank Banks</label>
-                <frontend_model>Buckaroo\Magento2\Block\Adminhtml\Form\Field\SortIssuers</frontend_model>
-                <comment><![CDATA[Select sort order PayByBank Issuers.]]></comment>
-                <config_path>payment/buckaroo_magento2_paybybank/sorted_issuers</config_path>
-            </field>
 
             <field id="order_email" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Send order confirmation email</label>

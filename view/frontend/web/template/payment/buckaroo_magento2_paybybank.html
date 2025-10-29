@@ -35,69 +35,6 @@
             <!--/ko-->
         </div>
 
-        <div class="payment-method-second-col billing-address-form" >
-            <form data-bind="mageInit: { 'validation': [] },
-                  attr: {'data-hasrequired': $t('* Required Fields')}">
-                <fieldset class="fieldset payment">
-                    <div class="field required">
-                        <!-- ko if: buckaroo.selectionType == '1' && !isMobile() -->
-                        <legend class="label" data-bind="i18n: 'Select a bank:'"></legend>
-                        <div class="addon">
-                            <div class="bk-paybybank-selector">
-                                <!-- ko foreach: bankTypes -->
-                                <div class="custom-control custom-radio bank-control">
-                                    <label class="bank-method-label" data-bind="class: $parent.selectedBank() === code ? 'bk-bank-selected': ''">
-                                    <input class="bank-method-input"
-                                            type="radio"
-                                            name="buckaroo_magento2_paybybank_issuer"
-                                            data-bind="value: code, checked: $parent.selectedBank,
-                                            event: { change: $parent.validateField.bind($parent) }"
-                                            data-validate="{'validate-one-required-by-name':true}"
-                                        >
-                                        <!-- ko if: img !== null -->
-                                        <img data-bind="attr: {
-                                                'src': img,
-                                                'width': 40,
-                                                'height': 30,
-                                                'alt': name
-                                             }"
-                                        />
-                                        <!--/ko-->
-                                        <strong><!-- ko text: name --><!--/ko--></strong>
-                                    </label>
-                                </div>
-                                <!--/ko-->
-                            </div>
-                        </div>
-                            <div class="bk-paybybank-toggle-list" data-bind="click: toggleShow">
-                                <div class="bk-toggle-wrap">
-                                    <div class="bk-toggle-text" data-bind="i18n: showAll() ? 'Less banks' : 'More banks'">
-                                    </div>
-                                    <div class="bk-toggle" data-bind="class: showAll() ? 'bk-toggle-up' : 'bk-toggle-down'"></div>
-                                </div>
-                            </div>
-                        <!--/ko-->
-
-                        <!-- ko if: buckaroo.selectionType == '2' || isMobile() -->
-                        <label for="buckaroo_magento2_paybybank_issuer" data-bind="i18n: 'Select a bank:'"></label>
-                        <div class="control">
-                            <select id="buckaroo_magento2_paybybank_issuer" class="field"
-                                    data-bind="value: selectedBank,
-                                    event: { change: validateField }"
-                                    data-validate="{'required-entry':true}"
-                                    name="buckaroo_magento2_paybybank_issuer">
-                                <option data-bind="i18n: 'Select a bank', 'value': ''"></option>
-                                <!-- ko foreach: bankTypes -->
-                                    <option data-bind="i18n: name, 'value': code"></option>
-                                <!--/ko-->
-                            </select>
-                        </div>
-                        <!--/ko-->
-                    </div>
-                </fieldset>
-            </form>
-        </div>
-
         <div class="checkout-agreements-block">
             <!-- ko foreach: $parent.getRegion('before-place-order') -->
             <!-- ko template: getTemplate() --><!-- /ko -->
