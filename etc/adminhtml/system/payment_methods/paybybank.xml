@@ -76,14 +76,6 @@
                 <config_path>payment/buckaroo_magento2_paybybank/order_email</config_path>
             </field>
 
-            <field id="allowed_issuers" translate="label comment" type="multiselect" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Select PayByBank Banks</label>
-                <comment><![CDATA[Select which banks to show. If none selected, all will be shown.]]></comment>
-                <source_model>Buckaroo\Magento2\Model\Config\Source\PayByBankIssuers</source_model>
-                <config_path>payment/buckaroo_magento2_paybybank/allowed_issuers</config_path>
-                <can_be_empty>1</can_be_empty>
-            </field>
-
             <field id="sorted_issuers" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Sort PayByBank Banks</label>
                 <frontend_model>Buckaroo\Magento2\Block\Adminhtml\Form\Field\SortIssuers</frontend_model>
