@@ -48,6 +48,7 @@ class Account extends AbstractConfigProvider
     public const XPATH_ACCOUNT_FAILURE_REDIRECT_TO_CHECKOUT    =
         'buckaroo_magento2/account/failure_redirect_to_checkout';
     public const XPATH_ACCOUNT_CANCEL_ON_FAILED                = 'buckaroo_magento2/account/cancel_on_failed';
+    public const XPATH_ACCOUNT_CANCEL_ON_BROWSER_BACK          = 'buckaroo_magento2/account/cancel_on_browser_back';
     public const XPATH_ACCOUNT_LOG_LEVEL                       = 'buckaroo_magento2/account/debug_types';
     public const XPATH_ACCOUNT_LOG_HANDLER                     = 'buckaroo_magento2/account/log_handler';
     public const XPATH_ACCOUNT_LOG_DBTRACE_DEPTH               = 'buckaroo_magento2/account/log_handler_db_depth';
@@ -110,6 +111,7 @@ class Account extends AbstractConfigProvider
             'failure_redirect'                  => $this->getFailureRedirect($store),
             'failure_redirect_to_checkout'      => $this->getFailureRedirectToCheckout($store),
             'cancel_on_failed'                  => $this->getCancelOnFailed($store),
+            'cancel_on_browser_back'            => $this->getCancelOnBrowserBack($store),
             'debug_types'                       => $this->getLogLevel($store),
             'log_handler'                       => $this->getLogHandler($store),
             'log_retention'                     => $this->getLogRetention($store),
@@ -425,6 +427,21 @@ class Account extends AbstractConfigProvider
     {
         return $this->scopeConfig->getValue(
             self::XPATH_ACCOUNT_CANCEL_ON_FAILED,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Cancel order on browser back button.
+     *
+     * @param null|int|string $store
+     * @return mixed
+     */
+    public function getCancelOnBrowserBack($store = null)
+    {
+        return $this->scopeConfig->getValue(
+            self::XPATH_ACCOUNT_CANCEL_ON_BROWSER_BACK,
             ScopeInterface::SCOPE_STORE,
             $store
         );

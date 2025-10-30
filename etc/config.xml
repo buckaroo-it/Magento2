@@ -992,6 +992,7 @@
                 <order_status_pending>pending_payment</order_status_pending>
                 <order_status_success>processing</order_status_success>
                 <order_status_failed>canceled</order_status_failed>
+                <cancel_on_browser_back>0</cancel_on_browser_back>
                 <create_order_before_transaction>1</create_order_before_transaction>
                 <debug_types>300,400,500,550,600</debug_types>
                 <log_handler>3</log_handler>

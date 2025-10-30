@@ -41,6 +41,7 @@ use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
+use Exception;
 use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\LocalizedException;
@@ -176,7 +177,7 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * @throws BuckarooException
      * @throws FileSystemException
-     * @throws \Exception
+     * @throws Exception
      */
     public function processPush(PushRequestInterface $pushRequest): bool
     {
@@ -233,7 +234,7 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * @param \Buckaroo\Magento2\Api\Data\PushRequestInterface $pushRequest
      * @return void
-     * @throws \Exception
+     * @throws Exception
      */
     protected function initializeFields(PushRequestInterface $pushRequest): void
     {
@@ -246,7 +247,7 @@ class DefaultProcessor implements PushProcessorInterface
      * Skip the push if the conditions are met.
      *
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     protected function skipPush(): bool
     {
@@ -284,7 +285,7 @@ class DefaultProcessor implements PushProcessorInterface
      * Check if it is needed to handle the push message based on postdata
      *
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
@@ -328,7 +329,7 @@ class DefaultProcessor implements PushProcessorInterface
      * @param int|null $receivedStatusCode
      * @param string|null $trxId
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
@@ -499,10 +500,23 @@ class DefaultProcessor implements PushProcessorInterface
             && ($this->pushTransactionType->getStatusKey() === 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')
             && $this->pushRequest->getRelatedtransactionPartialpayment() == null
         ) {
+            // Check if order was already reactivated in this session to prevent duplicate reactivation
+            $alreadyReactivated = $this->payment->getAdditionalInformation('buckaroo_order_reactivated');
+            
+            if ($alreadyReactivated) {
+                $this->logger->addDebug(sprintf(
+                    '[%s:%s] - Order already reactivated in this session, skipping duplicate reactivation',
+                    __METHOD__,
+                    __LINE__
+                ));
+                return false;
+            }
+
             $this->logger->addDebug(sprintf(
-                '[%s:%s] - Resetting from CANCELED to STATE_NEW/PENDING',
+                '[%s:%s] - Resetting from CANCELED to STATE_NEW/PENDING | order: %s',
                 __METHOD__,
-                __LINE__
+                __LINE__,
+                $this->order->getIncrementId()
             ));
 
             $this->order->setState(Order::STATE_NEW);
@@ -511,6 +525,24 @@ class DefaultProcessor implements PushProcessorInterface
             foreach ($this->order->getAllItems() as $item) {
                 $item->setQtyCanceled(0);
             }
+
+            // Mark order as reactivated to prevent duplicate reactivation from subsequent pushes
+            $this->payment->setAdditionalInformation('buckaroo_order_reactivated', true);
+            $this->payment->save();
+            
+            // Add comment to order history
+            $this->order->addCommentToStatusHistory(
+                __(
+                    'Order reactivated: Payment completed after cancellation (Push notification received). ' .
+                    'Transaction ID: "%1"',
+                    $this->pushRequest->getTransactions()
+                ),
+                'pending',
+                false
+            );
+            
+            // Save the order immediately to persist the state change
+            $this->order->save();
 
             $this->forceInvoice = true;
             return true;
@@ -623,7 +655,7 @@ class DefaultProcessor implements PushProcessorInterface
      * Save the part group transaction.
      *
      * @return void
-     * @throws \Exception
+     * @throws Exception
      */
     protected function savePartGroupTransaction(): void
     {
@@ -854,7 +886,7 @@ class DefaultProcessor implements PushProcessorInterface
      * Process succeeded push authorization.
      *
      * @return void
-     * @throws \Exception
+     * @throws Exception
      */
     private function processSucceededPushAuthorization(): void
     {
@@ -957,7 +989,7 @@ class DefaultProcessor implements PushProcessorInterface
      * @return bool
      * @throws BuckarooException
      * @throws LocalizedException
-     * @throws \Exception
+     * @throws Exception
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
@@ -1032,7 +1064,7 @@ class DefaultProcessor implements PushProcessorInterface
      * @param bool $data
      * @return Payment
      * @throws LocalizedException
-     * @throws \Exception
+     * @throws Exception
      */
     public function addTransactionData(bool $transactionKey = false, bool $data = false): Payment
     {
@@ -1182,7 +1214,7 @@ class DefaultProcessor implements PushProcessorInterface
      * @return bool
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     * @throws \Exception
+     * @throws Exception
      */
     protected function processPendingPaymentPush($newStatus, string $statusMessage): bool
     {
