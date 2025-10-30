@@ -44,7 +44,7 @@ class PhoneFormatter
         'AT' => '0043',
     ];
 
-    private Log $logger;
+    private $logger;
 
     public function __construct(Log $logger)
     {

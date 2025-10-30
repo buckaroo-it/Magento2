@@ -39,14 +39,14 @@ use Magento\Sales\Model\Service\InvoiceService;
 
 class CreateInvoice
 {
-    protected Log $logger;
-    protected Registry $registry;
-    private Account $configAccount;
-    private PaymentGroupTransaction $groupTransaction;
-    private InvoiceSender $invoiceSender;
-    private Data $helper;
-    private InvoiceService $invoiceService;
-    private TransactionFactory $transactionFactory;
+    protected $logger;
+    protected $registry;
+    private $configAccount;
+    private $groupTransaction;
+    private $invoiceSender;
+    private $helper;
+    private $invoiceService;
+    private $transactionFactory;
 
     public function __construct(
         Account $configAccount,

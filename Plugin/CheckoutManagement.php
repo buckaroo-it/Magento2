@@ -30,7 +30,7 @@ class CheckoutManagement
     /**
      * @var PaymentGroupTransaction
      */
-    private PaymentGroupTransaction $paymentGroupTransaction;
+    private $paymentGroupTransaction;
 
     /**
      * @var \Magento\Checkout\Model\Session

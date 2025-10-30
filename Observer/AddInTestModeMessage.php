@@ -31,11 +31,11 @@ class AddInTestModeMessage implements ObserverInterface
 {
     public const PAYMENT_IN_TEST_MODE = 'buckaroo_payment_in_test_mode';
 
-    protected ManagerInterface $messageManager;
+    protected $messageManager;
 
-    protected RequestInterface $request;
+    protected $request;
 
-    protected OrderRepositoryInterface $orderRepository;
+    protected $orderRepository;
 
     public function __construct(
         ManagerInterface $messageManager,

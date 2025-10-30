@@ -30,7 +30,7 @@ class PreventMergeQuoteObserver implements \Magento\Framework\Event\ObserverInte
     /**
      * @var PaymentGroupTransaction
      */
-    private PaymentGroupTransaction $groupTransaction;
+    private $groupTransaction;
 
     /**
      * @param PaymentGroupTransaction $groupTransaction

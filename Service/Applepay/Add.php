@@ -32,17 +32,17 @@ class Add
     /**
      * @var Log
      */
-    private Log $logger;
+    private $logger;
 
     /**
      * @var QuoteService
      */
-    private QuoteService $quoteService;
+    private $quoteService;
 
     /**
      * @var ApplePayFormatData
      */
-    private ApplePayFormatData $applePayFormatData;
+    private $applePayFormatData;
 
     /**
      * @param Log                $logger

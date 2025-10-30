@@ -95,7 +95,7 @@ class PayByBank extends AbstractConfigProvider
     /**
      * @var CustomerSession
      */
-    protected CustomerSession $customerSession;
+    protected $customerSession;
 
     /**
      * @param Repository           $assetRepo

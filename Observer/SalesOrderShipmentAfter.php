@@ -47,57 +47,57 @@ class SalesOrderShipmentAfter implements ObserverInterface
     /**
      * @var Data
      */
-    public Data $helper;
+    public $helper;
 
     /**
      * @var ScopeConfigInterface
      */
-    protected ScopeConfigInterface $scopeConfig;
+    protected $scopeConfig;
 
     /**
      * @var InvoiceService
      */
-    protected InvoiceService $invoiceService;
+    protected $invoiceService;
 
     /**
      * @var TransactionFactory
      */
-    protected TransactionFactory $transactionFactory;
+    protected $transactionFactory;
 
     /**
      * @var GatewayInterface
      */
-    protected GatewayInterface $gateway;
+    protected $gateway;
 
     /**
      * @var Log
      */
-    protected Log $logger;
+    protected $logger;
 
     /**
      * @var Klarnakp
      */
-    private Klarnakp $klarnakpConfig;
+    private $klarnakpConfig;
 
     /**
      * @var Afterpay20
      */
-    private Afterpay20 $afterpayConfig;
+    private $afterpayConfig;
 
     /**
      * @var Account
      */
-    private Account $configAccount;
+    private $configAccount;
 
     /**
      * @var CreateInvoice
      */
-    private CreateInvoice $createInvoiceService;
+    private $createInvoiceService;
 
     /**
      * @var RequestInterface
      */
-    private RequestInterface $request;
+    private $request;
 
     /**
      * @param InvoiceService     $invoiceService

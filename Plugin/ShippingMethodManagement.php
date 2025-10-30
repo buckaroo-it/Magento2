@@ -32,10 +32,25 @@ use Magento\Quote\Api\CartRepositoryInterface;
 
 class ShippingMethodManagement
 {
-    private Session $checkoutSession;
-    private Account $accountConfig;
-    private Data $helper;
-    private CartRepositoryInterface $quoteRepository;
+    /**
+     * @var Session
+     */
+    private $checkoutSession;
+    
+    /**
+     * @var Account
+     */
+    private $accountConfig;
+    
+    /**
+     * @var Data
+     */
+    private $helper;
+    
+    /**
+     * @var CartRepositoryInterface
+     */
+    private $quoteRepository;
 
     /**
      * @param Session                 $checkoutSession

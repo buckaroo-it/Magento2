@@ -46,12 +46,12 @@ class ApplyVoucher implements ApplyVoucherInterface
     /**
      * @var GiftcardResponse
      */
-    private GiftcardResponse $giftcardResponse;
+    private $giftcardResponse;
 
     /**
      * @var Log
      */
-    private Log $logger;
+    private $logger;
 
     public function __construct(
         ApplyVoucherRequestInterface $voucherRequest,

@@ -46,7 +46,11 @@ class IdealFastCheckout extends Template
      */
     protected $idealConfig;
     protected $ideal;
-    protected Repository $assetRepo;
+
+    /**
+     * @var Repository
+     */
+    protected $assetRepo;
 
 
     public function __construct(

@@ -426,7 +426,7 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
 
     private $eavSetupFactory;
 
-    private Config $eavConfig;
+    private $eavConfig;
 
     /**
      * @param SalesSetupFactory                        $salesSetupFactory

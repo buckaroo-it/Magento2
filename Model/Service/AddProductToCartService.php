@@ -34,17 +34,17 @@ class AddProductToCartService
     /**
      * @var ProductRepositoryInterface
      */
-    private ProductRepositoryInterface $productRepository;
+    private $productRepository;
 
     /**
      * @var DataObjectFactory
      */
-    private DataObjectFactory $dataObjectFactory;
+    private $dataObjectFactory;
 
     /**
      * @var CartRepositoryInterface
      */
-    private CartRepositoryInterface $cartRepository;
+    private $cartRepository;
 
     /**
      * @param CartRepositoryInterface    $cartRepository

@@ -34,24 +34,24 @@ use Magento\Quote\Model\MaskedQuoteIdToQuoteIdInterface;
 
 class QuoteService
 {
-    private Log $logger;
+    private $logger;
 
-    private QuoteBuilderInterfaceFactory $quoteBuilderInterfaceFactory;
+    private $quoteBuilderInterfaceFactory;
 
-    private MaskedQuoteIdToQuoteIdInterface $maskedQuoteIdToQuoteId;
+    private $maskedQuoteIdToQuoteId;
 
-    private CartRepositoryInterface $cartRepository;
+    private $cartRepository;
 
-    private CheckoutSession $checkoutSession;
+    private $checkoutSession;
 
-    private ShippingMethodsService $shippingMethodsService;
+    private $shippingMethodsService;
 
-    private AddProductToCartService $addProductToCartService;
+    private $addProductToCartService;
 
-    private QuoteAddressService $quoteAddressService;
+    private $quoteAddressService;
 
     /** @var Quote|null */
-    private ?Quote $quote = null;
+    private $quote = null;
 
     /**
      * @param Log                             $logger

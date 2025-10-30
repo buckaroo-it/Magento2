@@ -73,7 +73,7 @@ class Order
     /**
      * @var Log
      */
-    protected Log $logger;
+    protected $logger;
 
     /**
      * @var ResourceConnection
@@ -83,7 +83,7 @@ class Order
     /**
      * @var Factory
      */
-    private Factory $configProviderFactory;
+    private $configProviderFactory;
 
     /**
      * @var OrderCancellationService

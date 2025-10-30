@@ -122,22 +122,22 @@ class Giftcard implements GiftcardInterface
     /**
      * @var ScopeConfigInterface
      */
-    private ScopeConfigInterface $scopeConfig;
+    private $scopeConfig;
 
     /**
      * @var UrlInterface
      */
-    private UrlInterface $urlBuilder;
+    private $urlBuilder;
 
     /**
      * @var FormKey
      */
-    private FormKey $formKey;
+    private $formKey;
 
     /**
      * @var GiftcardRepositoryInterface
      */
-    private GiftcardRepositoryInterface $giftcardRepository;
+    private $giftcardRepository;
 
     /**
      * @param  ScopeConfigInterface        $scopeConfig

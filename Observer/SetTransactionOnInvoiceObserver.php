@@ -40,17 +40,17 @@ class SetTransactionOnInvoiceObserver implements ObserverInterface
     /**
      * @var CommandInterface
      */
-    protected CommandInterface $stateCommand;
+    protected $stateCommand;
 
     /**
      * @var Account
      */
-    private Account $configAccount;
+    private $configAccount;
 
     /**
      * @var CreateInvoice
      */
-    private CreateInvoice $createInvoiceService;
+    private $createInvoiceService;
 
     public function __construct(
         CommandInterface $stateCommand,

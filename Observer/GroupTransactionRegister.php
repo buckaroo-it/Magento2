@@ -43,7 +43,7 @@ class GroupTransactionRegister implements ObserverInterface
     /**
      * @var PaymentGroupTransaction
      */
-    private PaymentGroupTransaction $groupTransaction;
+    private $groupTransaction;
 
     /**
      * @param Account                 $accountConfig

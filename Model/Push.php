@@ -173,11 +173,11 @@ class Push implements PushInterface
     /**
      * @var LockManagerWrapper
      */
-    protected LockManagerWrapper $lockManager;
+    protected $lockManager;
 
-    protected TransactionRepositoryInterface $transactionRepository;
-    protected SearchCriteriaBuilder $searchCriteriaBuilder;
-    protected FilterBuilder $filterBuilder;
+    protected $transactionRepository;
+    protected $searchCriteriaBuilder;
+    protected $filterBuilder;
 
     /**
      * @var OrderCancellationService

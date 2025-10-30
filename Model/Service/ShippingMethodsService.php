@@ -32,9 +32,9 @@ use Magento\Quote\Model\Quote\Address;
 
 class ShippingMethodsService
 {
-    private ShipmentEstimationInterface $shipmentEstimation;
+    private $shipmentEstimation;
 
-    public Log $logger;
+    public $logger;
 
     public function __construct(
         ShipmentEstimationInterface $shipmentEstimation,

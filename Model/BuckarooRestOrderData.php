@@ -30,7 +30,7 @@ class BuckarooRestOrderData implements BuckarooRestOrderDataInterface
 {
     private string $orderIncrementId;
 
-    private PaymentGroupTransaction $groupTransaction;
+    private $groupTransaction;
 
     /**
      * @var TransactionResponseInterfaceFactory

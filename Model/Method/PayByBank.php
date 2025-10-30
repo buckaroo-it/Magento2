@@ -75,12 +75,12 @@ class PayByBank extends AbstractMethod
     /**
      * @var CustomerAttributes
      */
-    protected CustomerAttributes $customerAttributes;
+    protected $customerAttributes;
 
     /**
      * @var PayByBankConfig
      */
-    private PayByBankConfig $payByBankConfig;
+    private $payByBankConfig;
 
     public function __construct(
         ObjectManagerInterface $objectManager,

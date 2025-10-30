@@ -30,7 +30,7 @@ class LockManagerWrapper
      *
      * @var LockManagerInterface
      */
-    private LockManagerInterface $lockManager;
+    private $lockManager;
 
     /**
      * Lock prefix for uniqueness.

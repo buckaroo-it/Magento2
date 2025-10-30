@@ -36,9 +36,15 @@ class Info extends \Magento\Payment\Block\Info
     protected $groupTransaction;
     protected $giftcardCollection;
 
-    protected Repository $assetRepo;
+    /**
+     * @var Repository
+     */
+    protected $assetRepo;
 
-    protected UrlInterface $baseUrl;
+    /**
+     * @var UrlInterface
+     */
+    protected $baseUrl;
 
     /**
      * @param Context $context

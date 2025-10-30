@@ -50,12 +50,12 @@ class SortIssuers extends Field
     /**
      * @var ConfigProviderFactory
      */
-    protected ConfigProviderFactory $configProviderFactory;
+    protected $configProviderFactory;
 
     /**
      * @var ?ConfigProviderInterface
      */
-    protected ?ConfigProviderInterface $configProvider = null;
+    protected $configProvider = null;
 
     /**
      * @param Context               $context

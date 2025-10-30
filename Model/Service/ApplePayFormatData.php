@@ -32,9 +32,9 @@ use Buckaroo\Magento2\Logging\Log;
 
 class ApplePayFormatData implements FormatFormDataInterface
 {
-    private DataObjectFactory $dataObjectFactory;
-    private ShippingAddressRequestInterfaceFactory $shippingAddrRequestFactory;
-    private Log $logger;
+    private $dataObjectFactory;
+    private $shippingAddrRequestFactory;
+    private $logger;
 
     public function __construct(
         DataObjectFactory $dataObjectFactory,

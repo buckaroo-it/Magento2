@@ -36,11 +36,11 @@ use Magento\Quote\Model\ShippingAddressManagementInterface;
 
 class QuoteAddressService
 {
-    private CustomerSession $customerSession;
-    private QuoteRepository $quoteRepository;
-    private CustomerRepositoryInterface $customerRepository;
-    private Log $logger;
-    private ShippingAddressManagementInterface $shippingAddressManagement;
+    private $customerSession;
+    private $quoteRepository;
+    private $customerRepository;
+    private $logger;
+    private $shippingAddressManagement;
 
     /**
      * @param CustomerSession                    $customerSession
