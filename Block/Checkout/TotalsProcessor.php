@@ -9,16 +9,17 @@ namespace Buckaroo\Magento2\Block\Checkout;
 
 use Magento\Checkout\Block\Checkout\LayoutProcessorInterface;
 use Magento\Checkout\Model\Layout\AbstractTotalsProcessor;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 
 class TotalsProcessor extends AbstractTotalsProcessor implements LayoutProcessorInterface
 {
     /**
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
+     * @param ScopeConfigInterface $scopeConfig
      *
      * @codeCoverageIgnore
      */
     public function __construct(
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
+        ScopeConfigInterface $scopeConfig
     ) {
         parent::__construct($scopeConfig);
     }

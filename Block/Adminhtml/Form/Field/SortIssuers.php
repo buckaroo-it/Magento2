@@ -40,12 +40,12 @@ class SortIssuers extends Field
     /**
      * @var array
      */
-    protected array $configuration = [];
+    protected $configuration = [];
 
     /**
      * @var array
      */
-    protected array $issuers = [];
+    protected $issuers = [];
 
     /**
      * @var ConfigProviderFactory
@@ -148,7 +148,7 @@ class SortIssuers extends Field
             // Filter out empty codes
             $codes = array_filter(
                 array_map('trim', explode(',', $sortedIssuerCodes)),
-                function($code) {
+                function ($code) {
                     return !empty($code) && $code !== '__EMPTY__';
                 }
             );
