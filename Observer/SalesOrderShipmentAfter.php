@@ -135,7 +135,9 @@ class SalesOrderShipmentAfter implements ObserverInterface
         if (($paymentMethodCode == 'buckaroo_magento2_klarnakp')
             && $klarnakpConfig->isInvoiceCreatedAfterShipment()
         ) {
-            $this->createInvoice();
+            if (!$this->order->hasInvoices()) {
+                $this->createInvoice();
+            }
             return;
         }
 
@@ -144,12 +146,18 @@ class SalesOrderShipmentAfter implements ObserverInterface
             && $afterpayConfig->isInvoiceCreatedAfterShipment()
             && ($paymentMethod->getConfigPaymentAction() == 'authorize')
         ) {
-            $this->createInvoice(true);
+            if (!$this->order->hasInvoices()) {
+                $this->createInvoice(true);
+            }
             return;
         }
 
         if (strpos($paymentMethodCode, 'buckaroo_magento2') !== false
             && $this->isInvoiceCreatedAfterShipment($payment)) {
+            if ($this->order->hasInvoices()) {
+                return;
+            }
+
             if ($paymentMethod->getConfigPaymentAction() == 'authorize') {
                 $this->createInvoice(true);
             } else {
@@ -175,6 +183,15 @@ class SalesOrderShipmentAfter implements ObserverInterface
         ));
 
         try {
+            if ($this->order->hasInvoices()) {
+                $this->logger->addDebug(sprintf(
+                    '[CREATE_INVOICE] | [Observer] | [%s:%s] - Skip invoice creation: Invoice already exists',
+                    __METHOD__,
+                    __LINE__
+                ));
+                return null;
+            }
+
             if (!$this->order->canInvoice()) {
                 return null;
             }
@@ -188,7 +205,22 @@ class SalesOrderShipmentAfter implements ObserverInterface
                 $message = 'Automatically invoiced shipped items.';
             }
 
-            $invoice->setRequestedCaptureCase(Invoice::CAPTURE_ONLINE);
+            // Check if payment was already captured (e.g., during order reactivation)
+            $payment = $this->order->getPayment();
+            $wasCaptured = $payment->getAdditionalInformation('buckaroo_already_captured');
+
+            if ($wasCaptured) {
+                // Payment already captured, use offline capture to avoid duplicate
+                $this->logger->addDebug(sprintf(
+                    '[CREATE_INVOICE] | [Observer] | [%s:%s] - Using OFFLINE capture: payment already captured during reactivation',
+                    __METHOD__,
+                    __LINE__
+                ));
+                $invoice->setRequestedCaptureCase(Invoice::CAPTURE_OFFLINE);
+            } else {
+                $invoice->setRequestedCaptureCase(Invoice::CAPTURE_ONLINE);
+            }
+
             $invoice->register();
             $invoice->getOrder()->setCustomerNoteNotify(false);
             $invoice->getOrder()->setIsInProcess(true);

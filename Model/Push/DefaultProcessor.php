@@ -502,7 +502,7 @@ class DefaultProcessor implements PushProcessorInterface
         ) {
             // Check if order was already reactivated in this session to prevent duplicate reactivation
             $alreadyReactivated = $this->payment->getAdditionalInformation('buckaroo_order_reactivated');
-            
+
             if ($alreadyReactivated) {
                 $this->logger->addDebug(sprintf(
                     '[%s:%s] - Order already reactivated in this session, skipping duplicate reactivation',
@@ -529,7 +529,7 @@ class DefaultProcessor implements PushProcessorInterface
             // Mark order as reactivated to prevent duplicate reactivation from subsequent pushes
             $this->payment->setAdditionalInformation('buckaroo_order_reactivated', true);
             $this->payment->save();
-            
+
             // Add comment to order history
             $this->order->addCommentToStatusHistory(
                 __(
@@ -540,7 +540,7 @@ class DefaultProcessor implements PushProcessorInterface
                 'pending',
                 false
             );
-            
+
             // Save the order immediately to persist the state change
             $this->order->save();
 
@@ -836,6 +836,31 @@ class DefaultProcessor implements PushProcessorInterface
             if (!empty($this->pushRequest->getAmount())) {
                 $amount = (float)$this->pushRequest->getAmount();
             }
+
+            // Check if invoice should be created on shipment instead
+            if ($this->configAccount->getInvoiceHandling() == InvoiceHandlingOptions::SHIPMENT) {
+                $this->logger->addDebug(sprintf(
+                    '[%s:%s] - CAPTURE_DETECTED but invoice handling is SHIPMENT mode - skipping invoice creation',
+                    __METHOD__,
+                    __LINE__
+                ));
+
+                // Mark payment as already captured so shipment observer can use OFFLINE capture
+                $this->order->getPayment()->setAdditionalInformation('buckaroo_already_captured', true);
+
+                $description = 'Capture status : <strong>' . $message . '</strong><br/>'
+                    . 'Total amount of ' . $this->order->getBaseCurrency()->formatTxt($amount) . ' has been captured. Invoice will be created on shipment.';
+
+                $this->orderRequestService->updateOrderStatus(
+                    Order::STATE_PROCESSING,
+                    $newStatus,
+                    $description,
+                    false,
+                    $this->dontSaveOrderUponSuccessPush
+                );
+                return true;
+            }
+
             $description = 'Capture status : <strong>' . $message . '</strong><br/>'
                 . 'Total amount of ' . $this->order->getBaseCurrency()->formatTxt($amount) . ' has been captured.';
 
