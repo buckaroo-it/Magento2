@@ -142,7 +142,7 @@ class SortIssuers extends Field
             $sortedIssuerCodes = $this->configProvider->getSortedIssuers();
         }
 
-        if ($sortedIssuerCodes === '') {
+        if (empty($sortedIssuerCodes)) {
             $sortedIssuerCodes = implode(',', array_column($this->getIssuers(), 'code'));
         } else {
             // Filter out empty codes
