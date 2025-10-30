@@ -28,7 +28,7 @@ use Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterfaceFactory;
 
 class BuckarooRestOrderData implements BuckarooRestOrderDataInterface
 {
-    private string $orderIncrementId;
+    private $orderIncrementId;
 
     private $groupTransaction;
 
