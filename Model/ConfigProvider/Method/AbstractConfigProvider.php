@@ -212,7 +212,9 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
             if (!empty($sortedCodes)) {
                 $sortedIssuers = [];
                 foreach ($sortedCodes as $code) {
-                    if (isset($codeToIssuerMap[$code])) {
+                    // Skip empty or invalid codes
+                    $code = trim($code);
+                    if (!empty($code) && $code !== '__EMPTY__' && isset($codeToIssuerMap[$code])) {
                         $sortedIssuers[] = $codeToIssuerMap[$code];
                     }
                 }

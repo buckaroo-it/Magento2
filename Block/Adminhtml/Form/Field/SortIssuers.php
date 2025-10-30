@@ -144,6 +144,15 @@ class SortIssuers extends Field
 
         if ($sortedIssuerCodes === '') {
             $sortedIssuerCodes = implode(',', array_column($this->getIssuers(), 'code'));
+        } else {
+            // Filter out empty codes
+            $codes = array_filter(
+                array_map('trim', explode(',', $sortedIssuerCodes)),
+                function($code) {
+                    return !empty($code) && $code !== '__EMPTY__';
+                }
+            );
+            $sortedIssuerCodes = implode(',', $codes);
         }
 
         return $sortedIssuerCodes;
