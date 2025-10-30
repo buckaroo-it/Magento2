@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Config\Source;
 
 class PaymentFlow implements \Magento\Framework\Option\ArrayInterface
@@ -31,7 +33,7 @@ class PaymentFlow implements \Magento\Framework\Option\ArrayInterface
         $options = [
             [
                 'value' => 'order',
-                'label' => __("Combined")
+                'label' => __("Combined"),
             ],
             [
                 'value' => 'authorize',

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -21,16 +22,20 @@
 namespace Buckaroo\Magento2\Observer;
 
 use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Magento\Framework\Event\Observer;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 
 class SendOrderConfirmation implements \Magento\Framework\Event\ObserverInterface
 {
     /**
-     * @var \Buckaroo\Magento2\Model\ConfigProvider\Account
+     * @var Account
      */
     protected $accountConfig;
 
     /**
-     * @var \Magento\Sales\Model\Order\Email\Sender\OrderSender
+     * @var OrderSender
      */
     protected $orderSender;
 
@@ -40,13 +45,13 @@ class SendOrderConfirmation implements \Magento\Framework\Event\ObserverInterfac
     public $logging;
 
     /**
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Account          $accountConfig
-     * @param \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender
-     * @param \Buckaroo\Magento2\Logging\Log $logging
+     * @param Account     $accountConfig
+     * @param OrderSender $orderSender
+     * @param Log $logging
      */
     public function __construct(
-        \Buckaroo\Magento2\Model\ConfigProvider\Account $accountConfig,
-        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
+        Account $accountConfig,
+        OrderSender $orderSender,
         Log $logging
     ) {
         $this->accountConfig    = $accountConfig;
@@ -55,11 +60,10 @@ class SendOrderConfirmation implements \Magento\Framework\Event\ObserverInterfac
     }
 
     /**
-     * @param \Magento\Framework\Event\Observer $observer
-     *
-     * @return void
+     * @param Observer $observer
+     * @throws LocalizedException
      */
-    public function execute(\Magento\Framework\Event\Observer $observer)
+    public function execute(Observer $observer)
     {
         /**
          * @noinspection PhpUndefinedMethodInspection

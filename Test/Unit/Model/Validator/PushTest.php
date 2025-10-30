@@ -42,63 +42,63 @@ class PushTest extends BaseTest
             'normal value' => [
                 'brq_key_data',
                 'some value',
-                'some value'
+                'some value',
             ],
             'enccoded value' => [
                 'brq_timestamp',
                 '14%3a19%3a53',
-                '14:19:53'
+                '14:19:53',
             ],
             'payconiq_PayconiqAndroidUrl' => [
                 'brq_SERVICE_payconiq_PayconiqAndroidUrl',
                 'https://support.buckaroo.nl',
-                'https://support.buckaroo.nl'
+                'https://support.buckaroo.nl',
             ],
             'payconiq_PayconiqIosUrl' => [
                 'brq_SERVICE_payconiq_PayconiqIosUrl',
                 'https://support.buckaroo.nl',
-                'https://support.buckaroo.nl'
+                'https://support.buckaroo.nl',
             ],
             'payconiq_PayconiqUrl' => [
                 'brq_SERVICE_payconiq_PayconiqUrl',
                 'https://support.buckaroo.nl',
-                'https://support.buckaroo.nl'
+                'https://support.buckaroo.nl',
             ],
             'payconiq_QrUrl' => [
                 'brq_SERVICE_payconiq_QrUrl',
                 'https://support.buckaroo.nl',
-                'https://support.buckaroo.nl'
+                'https://support.buckaroo.nl',
             ],
             'masterpass_CustomerPhoneNumber' => [
                 'brq_SERVICE_masterpass_CustomerPhoneNumber',
                 '+31201122233',
-                '+31201122233'
+                '+31201122233',
             ],
             'masterpass_ShippingRecipientPhoneNumber' => [
                 'brq_SERVICE_masterpass_ShippingRecipientPhoneNumber',
                 '+31644455566',
-                '+31644455566'
+                '+31644455566',
             ],
             'InvoiceDate' => [
                 'brq_InvoiceDate',
                 '2017-12-11T00:00:00.0000000+01:00',
-                '2017-12-11T00:00:00.0000000+01:00'
+                '2017-12-11T00:00:00.0000000+01:00',
 
             ],
             'DueDate' => [
                 'brq_DueDate',
                 '2017-12-12T00:00:00.0000000+01:00',
-                '2017-12-12T00:00:00.0000000+01:00'
+                '2017-12-12T00:00:00.0000000+01:00',
             ],
             'PreviousStepDateTime' => [
                 'brq_PreviousStepDateTime',
                 '0001-01-01T00:00:00.0000000+01:00',
-                '0001-01-01T00:00:00.0000000+01:00'
+                '0001-01-01T00:00:00.0000000+01:00',
             ],
             'EventDateTime' => [
                 'brq_EventDateTime',
                 '2017-12-11T14:19:53.4688849+01:00',
-                '2017-12-11T14:19:53.4688849+01:00'
+                '2017-12-11T14:19:53.4688849+01:00',
             ],
         ];
     }

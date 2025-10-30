@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -25,7 +26,7 @@ class P24 extends AbstractMethod
     /**
      * Payment Code
      */
-    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_p24';
+    public const PAYMENT_METHOD_CODE = 'buckaroo_magento2_p24';
 
     /**
      * @var string

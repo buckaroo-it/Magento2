@@ -296,11 +296,11 @@
                 <item name="afterpay" xsi:type="array">
                     <item name="type" xsi:type="string">afterpay</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay</item>
-				</item>
+                </item>
                 <item name="afterpay2" xsi:type="array">
                     <item name="type" xsi:type="string">afterpay2</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay2</item>
-				</item>
+                </item>
                 <item name="afterpay20" xsi:type="array">
                     <item name="type" xsi:type="string">afterpay20</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20</item>

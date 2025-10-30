@@ -38,54 +38,54 @@ class GiftcardsTest extends BaseTest
                 [
                     [
                         'value' => '',
-                        'label' => __('You have not yet added any giftcards')
-                    ]
-                ]
+                        'label' => __('You have not yet added any giftcards'),
+                    ],
+                ],
             ],
             'single giftcard' => [
                 [
                     [
                         'servicecode' => 'code1',
-                        'label' => 'giftcard 1'
-                    ]
+                        'label' => 'giftcard 1',
+                    ],
                 ],
                 [
                     [
                         'value' => 'code1',
-                        'label' => 'giftcard 1'
-                    ]
-                ]
+                        'label' => 'giftcard 1',
+                    ],
+                ],
             ],
             'multiple giftcard' => [
                 [
                     [
                         'servicecode' => 'code2',
-                        'label' => 'giftcard 2'
+                        'label' => 'giftcard 2',
                     ],
                     [
                         'servicecode' => 'code3',
-                        'label' => 'giftcard 3'
+                        'label' => 'giftcard 3',
                     ],
                     [
                         'servicecode' => 'code4',
-                        'label' => 'giftcard 4'
-                    ]
+                        'label' => 'giftcard 4',
+                    ],
                 ],
                 [
                     [
                         'value' => 'code2',
-                        'label' => 'giftcard 2'
+                        'label' => 'giftcard 2',
                     ],
                     [
                         'value' => 'code3',
-                        'label' => 'giftcard 3'
+                        'label' => 'giftcard 3',
                     ],
                     [
                         'value' => 'code4',
-                        'label' => 'giftcard 4'
-                    ]
-                ]
-            ]
+                        'label' => 'giftcard 4',
+                    ],
+                ],
+            ],
         ];
     }
 
@@ -133,7 +133,7 @@ class GiftcardsTest extends BaseTest
         $instance = $this->getInstance([
             'sortOrderBuilder' => $sortOrderBuilderMock,
             'searchCriteriaBuilder' => $searchCriteriaBuilderMock,
-            'giftcardRepository' => $giftcardRepositoryMock
+            'giftcardRepository' => $giftcardRepositoryMock,
         ]);
         $result = $instance->toOptionArray();
 

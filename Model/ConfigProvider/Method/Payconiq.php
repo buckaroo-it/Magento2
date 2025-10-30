@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -35,32 +36,32 @@ use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
  */
 class Payconiq extends AbstractConfigProvider
 {
-    const XPATH_PAYCONIQ_PAYMENT_FEE                      = 'payment/buckaroo_magento2_payconiq/payment_fee';
-    const XPATH_PAYCONIQ_ACTIVE                           = 'payment/buckaroo_magento2_payconiq/active';
-    const XPATH_PAYCONIQ_SUBTEXT                          = 'payment/buckaroo_magento2_payconiq/subtext';
-    const XPATH_PAYCONIQ_SUBTEXT_STYLE                    = 'payment/buckaroo_magento2_payconiq/subtext_style';
-    const XPATH_PAYCONIQ_SUBTEXT_COLOR                    = 'payment/buckaroo_magento2_payconiq/subtext_color';
-    const XPATH_PAYCONIQ_ACTIVE_STATUS                    = 'payment/buckaroo_magento2_payconiq/active_status';
-    const XPATH_PAYCONIQ_ORDER_STATUS_SUCCESS             = 'payment/buckaroo_magento2_payconiq/order_status_success';
-    const XPATH_PAYCONIQ_ORDER_STATUS_FAILED              = 'payment/buckaroo_magento2_payconiq/order_status_failed';
-    const XPATH_PAYCONIQ_AVAILABLE_IN_BACKEND             = 'payment/buckaroo_magento2_payconiq/available_in_backend';
-    const XPATH_PAYCONIQ_SELLERS_PROTECTION               = 'payment/buckaroo_magento2_payconiq/sellers_protection';
-    const XPATH_PAYCONIQ_SELLERS_PROTECTION_ELIGIBLE      = 'payment/'.
+    public const XPATH_PAYCONIQ_PAYMENT_FEE                      = 'payment/buckaroo_magento2_payconiq/payment_fee';
+    public const XPATH_PAYCONIQ_ACTIVE                           = 'payment/buckaroo_magento2_payconiq/active';
+    public const XPATH_PAYCONIQ_SUBTEXT                          = 'payment/buckaroo_magento2_payconiq/subtext';
+    public const XPATH_PAYCONIQ_SUBTEXT_STYLE                    = 'payment/buckaroo_magento2_payconiq/subtext_style';
+    public const XPATH_PAYCONIQ_SUBTEXT_COLOR                    = 'payment/buckaroo_magento2_payconiq/subtext_color';
+    public const XPATH_PAYCONIQ_ACTIVE_STATUS                    = 'payment/buckaroo_magento2_payconiq/active_status';
+    public const XPATH_PAYCONIQ_ORDER_STATUS_SUCCESS             = 'payment/buckaroo_magento2_payconiq/order_status_success';
+    public const XPATH_PAYCONIQ_ORDER_STATUS_FAILED              = 'payment/buckaroo_magento2_payconiq/order_status_failed';
+    public const XPATH_PAYCONIQ_AVAILABLE_IN_BACKEND             = 'payment/buckaroo_magento2_payconiq/available_in_backend';
+    public const XPATH_PAYCONIQ_SELLERS_PROTECTION               = 'payment/buckaroo_magento2_payconiq/sellers_protection';
+    public const XPATH_PAYCONIQ_SELLERS_PROTECTION_ELIGIBLE      = 'payment/'.
         'buckaroo_magento2_payconiq/sellers_protection_eligible';
-    const XPATH_PAYCONIQ_SELLERS_PROTECTION_INELIGIBLE    = 'payment/'.
+    public const XPATH_PAYCONIQ_SELLERS_PROTECTION_INELIGIBLE    = 'payment/'.
         'buckaroo_magento2_payconiq/sellers_protection_ineligible';
-    const XPATH_PAYCONIQ_SELLERS_PROTECTION_ITEMNOTRECEIVED_ELIGIBLE = 'payment/'.
+    public const XPATH_PAYCONIQ_SELLERS_PROTECTION_ITEMNOTRECEIVED_ELIGIBLE = 'payment/'.
         'buckaroo_magento2_payconiq/sellers_protection_itemnotreceived_eligible';
-    const XPATH_PAYCONIQ_SELLERS_PROTECTION_UNAUTHORIZEDPAYMENT_ELIGIBLE = 'payment/'.
+    public const XPATH_PAYCONIQ_SELLERS_PROTECTION_UNAUTHORIZEDPAYMENT_ELIGIBLE = 'payment/'.
         'buckaroo_magento2_payconiq/sellers_protection_unauthorizedpayment_eligible';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_payconiq/allowed_currencies';
+    public const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_payconiq/allowed_currencies';
 
-    const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_payconiq/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_payconiq/specificcountry';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_payconiq/specificcustomergroup';
+    public const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_payconiq/allowspecific';
+    public const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_payconiq/specificcountry';
+    public const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_payconiq/specificcustomergroup';
 
-    const PAYCONIC_REDIRECT_URL = '/buckaroo/payconiq/pay';
+    public const PAYCONIC_REDIRECT_URL = '/buckaroo/payconiq/pay';
 
     /** @var FormKey */
     private $formKey;
@@ -105,7 +106,7 @@ class Payconiq extends AbstractConfigProvider
                         'subtext_style'   => $this->getSubtextStyle(),
                         'subtext_color'   => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'redirecturl' => self::PAYCONIC_REDIRECT_URL . '?form_key=' . $this->getFormKey()
+                        'redirecturl' => self::PAYCONIC_REDIRECT_URL . '?form_key=' . $this->getFormKey(),
                     ],
                 ],
             ],
@@ -113,6 +114,7 @@ class Payconiq extends AbstractConfigProvider
     }
 
     /**
+     * @param  null|mixed $storeId
      * @return float
      */
     public function getPaymentFee($storeId = null)

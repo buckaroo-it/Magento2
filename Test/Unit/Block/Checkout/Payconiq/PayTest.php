@@ -51,19 +51,19 @@ class PayTest extends BaseTest
         return [
             'empty value' => [
                 ['Key' => ''],
-                ''
+                '',
             ],
             'null value' => [
                 ['Key' => null],
-                null
+                null,
             ],
             'string value' => [
                 ['Key' => 'abc123def'],
-                'abc123def'
+                'abc123def',
             ],
             'int value' => [
                 ['Key' => 456987],
-                456987
+                456987,
             ],
         ];
     }

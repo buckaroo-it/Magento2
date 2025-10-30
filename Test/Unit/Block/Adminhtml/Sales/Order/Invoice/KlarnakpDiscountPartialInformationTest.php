@@ -39,17 +39,17 @@ class KlarnakpDiscountPartialInformationTest extends BaseTest
             'return false by partial capture' => [
                 true,
                 'buckaroo_magento2_klarnakp',
-                false
+                false,
             ],
             'return false by incorrect method' => [
                 false,
                 'buckaroo_magento2_ideal',
-                false
+                false,
             ],
             'return true' => [
                 false,
                 'buckaroo_magento2_klarnakp',
-                true
+                true,
             ],
         ];
     }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -23,7 +24,7 @@ namespace Buckaroo\Magento2\Model\Method;
 class Knaken extends AbstractMethod
 {
     /** Payment Code*/
-    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_knaken';
+    public const PAYMENT_METHOD_CODE = 'buckaroo_magento2_knaken';
 
     /** @var string */
     public $buckarooPaymentMethodCode = 'knaken';
@@ -41,7 +42,7 @@ class Knaken extends AbstractMethod
         $services = [
             'Name'    => 'Knaken',
             'Action'  => $this->getPayRemainder($payment, $transactionBuilder),
-            'Version' => 0
+            'Version' => 0,
         ];
 
         $transactionBuilder->setOrder($payment->getOrder())

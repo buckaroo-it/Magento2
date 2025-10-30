@@ -33,11 +33,11 @@ class CalculationTest extends BaseTest
     {
         return [
             [
-                ['value' => 1, 'label' => 'Excluding Tax']
+                ['value' => 1, 'label' => 'Excluding Tax'],
             ],
             [
-                ['value' => 2, 'label' => 'Including Tax']
-            ]
+                ['value' => 2, 'label' => 'Including Tax'],
+            ],
         ];
     }
 

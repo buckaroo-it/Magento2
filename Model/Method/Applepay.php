@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Method;
 
 use Buckaroo\Magento2\Exception;
@@ -24,7 +26,7 @@ use Buckaroo\Magento2\Exception;
 class Applepay extends AbstractMethod
 {
     /** Payment Code */
-    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_applepay';
+    public const PAYMENT_METHOD_CODE = 'buckaroo_magento2_applepay';
 
     /** @var string */
     public $buckarooPaymentMethodCode = 'applepay';
@@ -87,7 +89,7 @@ class Applepay extends AbstractMethod
     /**
      * Validate Apple Pay transaction data before order creation
      *
-     * @param string $transactionData
+     * @param  string    $transactionData
      * @throws Exception
      */
     private function validateApplePayTransactionData($transactionData)
@@ -179,7 +181,7 @@ class Applepay extends AbstractMethod
                 [
                     '_'    => $applepayTransactionData,
                     'Name' => 'PaymentData',
-                ]
+                ],
             ];
 
             $billingContact = $payment->getAdditionalInformation('billingContact') ?

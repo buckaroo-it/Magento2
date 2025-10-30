@@ -42,22 +42,22 @@ class CancelTest extends BaseTest
             'neither allows cancel' => [
                 false,
                 false,
-                0
+                0,
             ],
             'account allows cancel' => [
                 true,
                 false,
-                0
+                0,
             ],
             'order allows cancel' => [
                 false,
                 true,
-                0
+                0,
             ],
             'both allows cancel' => [
                 true,
                 true,
-                1
+                1,
             ],
         ];
     }
@@ -107,12 +107,12 @@ class CancelTest extends BaseTest
         return [
             'method is afterpay' => [
                 'buckaroo_magento2_method',
-                0
+                0,
             ],
             'method is not afterpay' => [
                 'buckaroo_magento2_afterpay',
-                1
-            ]
+                1,
+            ],
         ];
     }
 
@@ -149,12 +149,12 @@ class CancelTest extends BaseTest
         return [
             'order has canceled state' => [
                 Order::STATE_CANCELED,
-                'cancel'
+                'cancel',
             ],
             'order has different state' => [
                 Order::STATE_PROCESSING,
-                false
-            ]
+                false,
+            ],
         ];
     }
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\ConfigProvider;
 
 class AllowedCurrencies extends AbstractConfigProvider
@@ -52,7 +54,7 @@ class AllowedCurrencies extends AbstractConfigProvider
         'JPY',
         'NZD',
         'RUB',
-        'ZAR'
+        'ZAR',
     ];
 
     /**

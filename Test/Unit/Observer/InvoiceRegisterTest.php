@@ -54,7 +54,7 @@ class InvoiceRegisterTest extends BaseTest
             'setBuckarooFeeInvoiced', 'setBaseBuckarooFeeInvoiced', 'setBuckarooFeeTaxAmountInvoiced',
             'setBuckarooFeeBaseTaxAmountInvoiced', 'setBuckarooFeeInclTaxInvoiced', 'setBaseBuckarooFeeInclTaxInvoiced',
             'getBuckarooFeeInvoiced', 'getBaseBuckarooFeeInvoiced', 'getBuckarooFeeTaxAmountInvoiced',
-            'getBuckarooFeeBaseTaxAmountInvoiced', 'getBuckarooFeeInclTaxInvoiced', 'getBaseBuckarooFeeInclTaxInvoiced'
+            'getBuckarooFeeBaseTaxAmountInvoiced', 'getBuckarooFeeInclTaxInvoiced', 'getBaseBuckarooFeeInclTaxInvoiced',
         ])->getMock();
         $orderMock->expects($this->once())->method('setBuckarooFeeInvoiced');
         $orderMock->expects($this->once())->method('setBaseBuckarooFeeInvoiced');
@@ -72,7 +72,7 @@ class InvoiceRegisterTest extends BaseTest
         $observerMock = $this->getFakeMock(Observer::class)
             ->setMethods([
                 'getEvent', 'getInvoice', 'getBaseBuckarooFee', 'getBuckarooFee', 'getBuckarooFeeTaxAmount',
-                'getBuckarooFeeBaseTaxAmount', 'getBuckarooFeeInclTax', 'getBaseBuckarooFeeInclTax', 'getOrder'
+                'getBuckarooFeeBaseTaxAmount', 'getBuckarooFeeInclTax', 'getBaseBuckarooFeeInclTax', 'getOrder',
             ])
             ->getMock();
         $observerMock->expects($this->once())->method('getEvent')->willReturnSelf();

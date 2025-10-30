@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -21,6 +22,7 @@
 namespace Buckaroo\Magento2\Observer;
 
 use Buckaroo\Magento2\Logging\Log;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Module\Manager;
 use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
@@ -52,7 +54,7 @@ class HandleFailedQuoteOrder implements ObserverInterface
 
     /**
      * @param Observer $observer
-     * @return void
+     * @throws LocalizedException
      */
     public function execute(Observer $observer)
     {

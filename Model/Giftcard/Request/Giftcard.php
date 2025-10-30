@@ -21,6 +21,7 @@
 
 namespace Buckaroo\Magento2\Model\Giftcard\Request;
 
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Model\Quote;
 use Magento\Framework\UrlInterface;
 use Magento\Framework\Data\Form\FormKey;
@@ -39,7 +40,6 @@ use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
 
 class Giftcard implements GiftcardInterface
 {
-
     public const TCS_ACQUIRER = 'tcs';
     public const FASHIONCHEQUE_ACQUIRER = 'fashioncheque';
     /**
@@ -116,38 +116,40 @@ class Giftcard implements GiftcardInterface
         self::TCS_ACQUIRER => [
             'number' => 'TCSCardnumber',
             'pin' => 'TCSValidationCode',
-        ]
+        ],
     ];
 
     /**
      * @var ScopeConfigInterface
      */
-    private ScopeConfigInterface $scopeConfig;
+    private $scopeConfig;
 
     /**
      * @var UrlInterface
      */
-    private UrlInterface $urlBuilder;
+    private $urlBuilder;
 
     /**
      * @var FormKey
      */
-    private FormKey $formKey;
+    private $formKey;
 
     /**
      * @var GiftcardRepositoryInterface
      */
-    private GiftcardRepositoryInterface $giftcardRepository;
+    private $giftcardRepository;
 
     /**
-     * @param ScopeConfigInterface $scopeConfig
-     * @param Account $configProviderAccount
-     * @param UrlInterface $urlBuilder
-     * @param FormKey $formKey
-     * @param Encryptor $encryptor
-     * @param StoreManagerInterface $storeManager
-     * @param Json $client
-     * @param RequestInterface $httpRequest
+     * @param  ScopeConfigInterface        $scopeConfig
+     * @param  Account                     $configProviderAccount
+     * @param  UrlInterface                $urlBuilder
+     * @param  FormKey                     $formKey
+     * @param  Encryptor                   $encryptor
+     * @param  StoreManagerInterface       $storeManager
+     * @param  Json                        $client
+     * @param  RequestInterface            $httpRequest
+     * @param  PaymentGroupTransaction     $groupTransaction
+     * @param  GiftcardRepositoryInterface $giftcardRepository
      * @throws NoSuchEntityException
      */
     public function __construct(
@@ -232,18 +234,18 @@ class Giftcard implements GiftcardInterface
                         "Parameters" => [
                             [
                                 "Name" => $this->getParameterNameCardNumber(),
-                                "Value" => $this->cardNumber
+                                "Value" => $this->cardNumber,
                             ], [
                                 "Name" => $this->getParameterNameCardPin(),
-                                "Value" => $this->pin
+                                "Value" => $this->pin,
                             ], [
                                 "Name" => "Email",
-                                "Value" => $this->getCustomerEmail()
-                            ]
-                        ]
-                    ]
-                ]
-            ]
+                                "Value" => $this->getCustomerEmail(),
+                            ],
+                        ],
+                    ],
+                ],
+            ],
         ];
         if ($originalTransactionKey !== null) {
             $body['OriginalTransactionKey'] = $originalTransactionKey;
@@ -327,12 +329,16 @@ class Giftcard implements GiftcardInterface
     protected function getCurrency()
     {
         $currency = $this->quote->getCurrency();
-        if ($currency !== null)  return $currency->getBaseCurrencyCode();
+        if ($currency !== null) {
+            return $currency->getBaseCurrencyCode();
+        }
     }
+
     /**
      * Get merchant key for store
      *
      * @return mixed
+     * @throws \Exception
      */
     protected function getMerchantKey()
     {
@@ -340,10 +346,12 @@ class Giftcard implements GiftcardInterface
             $this->configProviderAccount->getMerchantKey($this->store)
         );
     }
+
     /**
      * Get merchant secret for store
      *
      * @return mixed
+     * @throws \Exception
      */
     protected function getSecretKey()
     {
@@ -351,6 +359,7 @@ class Giftcard implements GiftcardInterface
             $this->configProviderAccount->getSecretKey($this->store)
         );
     }
+
     /**
      * Get request mode
      *
@@ -367,6 +376,7 @@ class Giftcard implements GiftcardInterface
     /**
      * Get return url
      * @return string
+     * @throws LocalizedException
      */
     protected function getReturnUrl()
     {
@@ -415,15 +425,17 @@ class Giftcard implements GiftcardInterface
 
         return 'Pin';
     }
+
     /**
      * Check if is custom giftcard
      *
-     * @return boolean
+     * @return bool
      */
     protected function isCustom()
     {
         return stristr($this->cardId, 'customgiftcard') === false;
     }
+
     protected function getIp($store)
     {
         if (!$this->httpRequest instanceof RequestInterface) {

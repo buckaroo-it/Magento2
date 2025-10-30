@@ -22,39 +22,38 @@
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Magento\Store\Model\ScopeInterface;
-use Buckaroo\Magento2\Model\Method\Capayable\Installments as CapayableIn3Method;
 
 class CapayableIn3 extends AbstractConfigProvider
 {
-    const XPATH_CAPAYABLEIN3_PAYMENT_FEE          = 'payment/buckaroo_magento2_capayablein3/payment_fee';
-    const XPATH_CAPAYABLEIN3_ACTIVE               = 'payment/buckaroo_magento2_capayablein3/active';
-    const XPATH_CAPAYABLEIN3_SUBTEXT              = 'payment/buckaroo_magento2_capayablein3/subtext';
-    const XPATH_CAPAYABLEIN3_SUBTEXT_STYLE        = 'payment/buckaroo_magento2_capayablein3/subtext_style';
-    const XPATH_CAPAYABLEIN3_SUBTEXT_COLOR        = 'payment/buckaroo_magento2_capayablein3/subtext_color';
-    const XPATH_CAPAYABLEIN3_ACTIVE_STATUS        = 'payment/buckaroo_magento2_capayablein3/active_status';
-    const XPATH_CAPAYABLEIN3_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_capayablein3/order_status_success';
-    const XPATH_CAPAYABLEIN3_ORDER_STATUS_FAILED  = 'payment/buckaroo_magento2_capayablein3/order_status_failed';
-    const XPATH_CAPAYABLEIN3_ORDER_EMAIL          = 'payment/buckaroo_magento2_capayablein3/order_email';
-    const XPATH_CAPAYABLEIN3_AVAILABLE_IN_BACKEND = 'payment/buckaroo_magento2_capayablein3/available_in_backend';
+    public const XPATH_CAPAYABLEIN3_PAYMENT_FEE          = 'payment/buckaroo_magento2_capayablein3/payment_fee';
+    public const XPATH_CAPAYABLEIN3_ACTIVE               = 'payment/buckaroo_magento2_capayablein3/active';
+    public const XPATH_CAPAYABLEIN3_SUBTEXT              = 'payment/buckaroo_magento2_capayablein3/subtext';
+    public const XPATH_CAPAYABLEIN3_SUBTEXT_STYLE        = 'payment/buckaroo_magento2_capayablein3/subtext_style';
+    public const XPATH_CAPAYABLEIN3_SUBTEXT_COLOR        = 'payment/buckaroo_magento2_capayablein3/subtext_color';
+    public const XPATH_CAPAYABLEIN3_ACTIVE_STATUS        = 'payment/buckaroo_magento2_capayablein3/active_status';
+    public const XPATH_CAPAYABLEIN3_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_capayablein3/order_status_success';
+    public const XPATH_CAPAYABLEIN3_ORDER_STATUS_FAILED  = 'payment/buckaroo_magento2_capayablein3/order_status_failed';
+    public const XPATH_CAPAYABLEIN3_ORDER_EMAIL          = 'payment/buckaroo_magento2_capayablein3/order_email';
+    public const XPATH_CAPAYABLEIN3_AVAILABLE_IN_BACKEND = 'payment/buckaroo_magento2_capayablein3/available_in_backend';
 
-    const XPATH_CAPAYABLEIN3_API_VERSION = 'payment/buckaroo_magento2_capayablein3/api_version';
+    public const XPATH_CAPAYABLEIN3_API_VERSION = 'payment/buckaroo_magento2_capayablein3/api_version';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_capayablein3/allowed_currencies';
-    const XPATH_ALLOW_SPECIFIC     = 'payment/buckaroo_magento2_capayablein3/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY   = 'payment/buckaroo_magento2_capayablein3/specificcountry';
+    public const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_capayablein3/allowed_currencies';
+    public const XPATH_ALLOW_SPECIFIC     = 'payment/buckaroo_magento2_capayablein3/allowspecific';
+    public const XPATH_SPECIFIC_COUNTRY   = 'payment/buckaroo_magento2_capayablein3/specificcountry';
 
-    const XPATH_SPECIFIC_CUSTOMER_GROUP = 'payment/buckaroo_magento2_capayablein3/specificcustomergroup';
+    public const XPATH_SPECIFIC_CUSTOMER_GROUP = 'payment/buckaroo_magento2_capayablein3/specificcustomergroup';
 
-    const XPATH_FINANCIAL_WARNING = 'payment/buckaroo_magento2_capayablein3/financial_warning';
+    public const XPATH_FINANCIAL_WARNING = 'payment/buckaroo_magento2_capayablein3/financial_warning';
 
 
     /** @var array */
     protected $allowedCurrencies = [
-        'EUR'
+        'EUR',
     ];
 
     protected $allowedCountries = [
-        'NL'
+        'NL',
     ];
 
     /**
@@ -78,7 +77,7 @@ class CapayableIn3 extends AbstractConfigProvider
                         'subtext_color'   => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
                         'logo' => $this->getLogo(),
-                        'showFinancialWarning' => $this->canShowFinancialWarning(self::XPATH_FINANCIAL_WARNING)
+                        'showFinancialWarning' => $this->canShowFinancialWarning(self::XPATH_FINANCIAL_WARNING),
                     ],
                 ],
             ],
@@ -116,6 +115,5 @@ class CapayableIn3 extends AbstractConfigProvider
             return 'in3.svg';
         }
         return 'ideal-in3.svg';
-
     }
 }

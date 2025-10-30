@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -45,9 +46,9 @@ class BuckarooConfig extends Template
 
     /**
      * @param Context $context
-     * @param Json $jsonEncoder
+     * @param Json    $jsonEncoder
      * @param Factory $configProviderFactory
-     * @param array $data
+     * @param array   $data
      */
     public function __construct(
         Context $context,
@@ -63,8 +64,8 @@ class BuckarooConfig extends Template
     /**
      * Retrieve buckaroo configuration
      *
-     * @return string
      * @throws Exception
+     * @return string
      */
     public function getBuckarooConfigJson()
     {

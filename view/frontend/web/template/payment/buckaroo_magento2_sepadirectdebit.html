@@ -2,19 +2,19 @@
     <div class="payment-method-title field choice bk-payment">
         <div class="bk-payment-wrap">
             <div class="bk-radio-wrap">
-                <input type="radio"
+                <input class="radio"
+                       data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"
                        name="payment[method]"
-                       class="radio"
-                       data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
-                <label class="label" data-bind="attr: {'for': getCode()}" >
-                        <!-- ko text: getTitle() --><!-- /ko -->
-                        <!-- ko if: subtext !== null && subtext.length > 0 -->
-                       <p class="bk-description" data-bind="text: subtext, style: subTextStyle"></p>
-                        <!-- /ko -->
+                       type="radio">
+                <label class="label" data-bind="attr: {'for': getCode()}">
+                    <!-- ko text: getTitle() --><!-- /ko -->
+                    <!-- ko if: subtext !== null && subtext.length > 0 -->
+                    <p class="bk-description" data-bind="text: subtext, style: subTextStyle"></p>
+                    <!-- /ko -->
                 </label>
             </div>
             <div class="bk-img-wrap">
-                <img data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/sepa-directdebit.svg') }" />
+                <img data-bind="attr: { src: require.toUrl('Buckaroo_Magento2/images/svg/sepa-directdebit.svg') }">
             </div>
         </div>
     </div>
@@ -30,66 +30,66 @@
             <!--/ko-->
         </div>
 
-        <div class="payment-method-second-col billing-address-form" >
+        <div class="payment-method-second-col billing-address-form">
             <form data-bind="mageInit: { 'validation': [] },
                   attr: {'data-hasrequired': $t('* Required Fields')}">
                 <fieldset class="fieldset payment">
 
                     <div class="field required">
-                        <label for="bankaccountholder" class="label">
+                        <label class="label" for="bankaccountholder">
                             <span data-bind="i18n: 'Bank account holder'"> </span>
                         </label>
                         <div class="control">
-                            <input id="bankaccountholder" class="input-text field" type="text"
-                                   placeholder="John Doe"
-                                   data-bind="
+                            <input class="input-text field" data-bind="
                                     value: bankaccountholder,
                                     valueUpdate: 'keyup',
                                     attr: {
                                         'data-validate': JSON.stringify({ 'required': true, 'min-words': 2 })
                                     },
                                     event: { blur: validateField }
-                                   "
-                                   name="payment[buckaroo_magento2_sepadirectdebit][customer_account_name]">
+                                   " id="bankaccountholder"
+                                   name="payment[buckaroo_magento2_sepadirectdebit][customer_account_name]"
+                                   placeholder="John Doe"
+                                   type="text">
                         </div>
                     </div>
 
                     <div class="field required">
-                        <label for="bankaccountnumber" class="label">
+                        <label class="label" for="bankaccountnumber">
                             <span data-bind="i18n: 'Bank account number'"> </span>
                         </label>
                         <div class="control">
-                            <input id="bankaccountnumber" class="input-text field" type="text"
-                                   placeholder="NL13TEST0123456789"
-                                   data-bind="
+                            <input class="input-text field" data-bind="
                                     value: bankaccountnumber,
                                     valueUpdate: 'keyup',
                                     attr: {
                                         'data-validate': JSON.stringify({ 'required': true, 'IBAN':true })
                                     },
                                     event: { blur: validateField }
-                                   "
-                                   name="payment[buckaroo_magento2_sepadirectdebit][customer_iban]">
+                                   " id="bankaccountnumber"
+                                   name="payment[buckaroo_magento2_sepadirectdebit][customer_iban]"
+                                   placeholder="NL13TEST0123456789"
+                                   type="text">
                         </div>
                     </div>
 
                     <!-- ko if: isnl() != true -->
                     <div class="field required">
-                        <label for="bicnumber" class="label">
+                        <label class="label" for="bicnumber">
                             <span data-bind="i18n: 'BIC Number'"> </span>
                         </label>
                         <div class="control">
-                            <input id="bicnumber" class="input-text field" type="text"
-                                   placeholder="AAAABBCCDDD"
-                                   data-bind="
+                            <input class="input-text field" data-bind="
                                     value: bicnumber,
                                     valueUpdate: 'keyup',
                                     attr: {
                                         'data-validate': JSON.stringify({ 'required': true, 'BIC':true })
                                     },
                                     event: { blur: validateField }
-                                   "
-                                   name="payment[buckaroo_magento2_sepadirectdebit][customer_bic]">
+                                   " id="bicnumber"
+                                   name="payment[buckaroo_magento2_sepadirectdebit][customer_bic]"
+                                   placeholder="AAAABBCCDDD"
+                                   type="text">
                         </div>
                     </div>
                     <!-- /ko -->
@@ -108,16 +108,16 @@
 
         <div class="actions-toolbar">
             <div class="primary">
-                <button id="button-action-checkout-sepadirectdebit"
-                        class="action primary checkout"
-                        type="submit"
+                <button class="action primary checkout"
                         data-bind="
                         click: placeOrder,
                         attr: {title: $t('Place Order')},
                         enable: (getCode() == isChecked()),
                         css: {disabled: !isPlaceOrderActionAllowed() || !buttoncheck()}
                         "
-                        disabled>
+                        disabled
+                        id="button-action-checkout-sepadirectdebit"
+                        type="submit">
                     <span data-bind="i18n: 'Place Order'"></span>
                 </button>
             </div>

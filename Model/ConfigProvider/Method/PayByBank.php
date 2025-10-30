@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -20,7 +21,6 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Magento\Framework\View\Asset\Repository;
 use Buckaroo\Magento2\Helper\PaymentFee;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
@@ -53,56 +53,56 @@ class PayByBank extends AbstractConfigProvider
         [
             'name' => 'ABN AMRO',
             'code' => 'ABNANL2A',
-            'imgName' => 'abnamro'
+            'imgName' => 'abnamro',
         ],
         [
             'name' => 'ASN Bank',
             'code' => 'ASNBNL21',
-            'imgName' => 'asnbank'
+            'imgName' => 'asnbank',
         ],
         [
             'name' => 'ING',
             'code' => 'INGBNL2A',
-            'imgName' => 'ing'
+            'imgName' => 'ing',
         ],
         [
             'name' => 'Knab Bank',
             'code' => 'KNABNL2H',
-            'imgName' => 'knab'
+            'imgName' => 'knab',
         ],
         [
             'name' => 'Rabobank',
             'code' => 'RABONL2U',
-            'imgName' => 'rabobank'
+            'imgName' => 'rabobank',
         ],
         [
             'name' => 'RegioBank',
             'code' => 'RBRBNL21',
-            'imgName' => 'regiobank'
+            'imgName' => 'regiobank',
         ],
         [
             'name' => 'SNS Bank',
             'code' => 'SNSBNL2A',
-            'imgName' => 'sns'
+            'imgName' => 'sns',
         ],
         [
             'name' => 'N26',
             'code' => 'NTSBDEB1',
-            'imgName' => 'n26'
-        ]
+            'imgName' => 'n26',
+        ],
     ];
 
     /**
      * @var CustomerSession
      */
-    protected CustomerSession $customerSession;
+    protected $customerSession;
 
     /**
-     * @param Repository $assetRepo
+     * @param Repository           $assetRepo
      * @param ScopeConfigInterface $scopeConfig
-     * @param AllowedCurrencies $allowedCurrencies
-     * @param PaymentFee $paymentFeeHelper
-     * @param CustomerSession $customerSession
+     * @param AllowedCurrencies    $allowedCurrencies
+     * @param PaymentFee           $paymentFeeHelper
+     * @param CustomerSession      $customerSession
      */
     public function __construct(
         Repository $assetRepo,
@@ -119,7 +119,7 @@ class PayByBank extends AbstractConfigProvider
      * @var array
      */
     protected $allowedCurrencies = [
-        'EUR'
+        'EUR',
     ];
 
     /**
@@ -199,16 +199,22 @@ class PayByBank extends AbstractConfigProvider
     }
 
     /**
-     * @param $storeId
+     * @param        $storeId
      * @return mixed
      */
     public function getSortedIssuers($storeId = null)
     {
-        return $this->scopeConfig->getValue(
+        $sorted = $this->scopeConfig->getValue(
             self::XPATH_SORTED_ISSUERS,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $storeId
-        ) ?? '';
+        );
+        if ($sorted && trim($sorted) !== '') {
+            return $sorted;
+        }
+        // Fallback: return all default issuer codes, comma-separated
+        $codes = array_column($this->issuers, 'code');
+        return implode(',', $codes);
     }
 
     /**

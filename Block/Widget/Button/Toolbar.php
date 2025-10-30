@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,7 +18,6 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-
 
 namespace Buckaroo\Magento2\Block\Widget\Button;
 
@@ -65,9 +65,9 @@ class Toolbar
     ];
 
     /**
-     * @param ToolbarContext $toolbar
-     * @param AbstractBlock  $context
-     * @param ButtonList     $buttonList
+     * @param  ToolbarContext $toolbar
+     * @param  AbstractBlock  $context
+     * @param  ButtonList     $buttonList
      * @return array
      */
     public function beforePushButtons(
@@ -83,7 +83,7 @@ class Toolbar
     }
 
     /**
-     * @param $context
+     * @param       $context
      * @return bool
      */
     private function _isOrderView($context)
@@ -94,7 +94,7 @@ class Toolbar
     }
 
     /**
-     * @param $context
+     * @param       $context
      * @return bool
      */
     private function _isOrderInvoiceView($context)
@@ -105,8 +105,8 @@ class Toolbar
     }
 
     /**
-     * @param $context
-     * @param $buttonList
+     * @param        $context
+     * @param        $buttonList
      * @return array
      */
     private function _creditMemoNotAllowed($context, $buttonList)

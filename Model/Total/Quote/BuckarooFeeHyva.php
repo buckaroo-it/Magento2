@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Total\Quote;
 
 use Buckaroo\Magento2\Exception;
@@ -53,10 +55,10 @@ class BuckarooFeeHyva extends AbstractTotal
     protected $configProvider;
 
     /**
-     * @param PriceCurrencyInterface $priceCurrency
+     * @param PriceCurrencyInterface  $priceCurrency
      * @param PaymentGroupTransaction $groupTransaction
-     * @param HyvaCheckoutConfig $configProvider
-     * @param Calculate $calculate
+     * @param HyvaCheckoutConfig      $configProvider
+     * @param Calculate               $calculate
      */
     public function __construct(
         PriceCurrencyInterface $priceCurrency,
@@ -75,12 +77,12 @@ class BuckarooFeeHyva extends AbstractTotal
     /**
      * Collect grand total address amount
      *
-     * @param Quote $quote
+     * @param Quote                       $quote
      * @param ShippingAssignmentInterface $shippingAssignment
-     * @param Total $total
-     * @return $this
+     * @param Total                       $total
      *
      * @throws Exception
+     * @return $this
      */
     public function collect(
         Quote                                               $quote,
@@ -116,7 +118,7 @@ class BuckarooFeeHyva extends AbstractTotal
 
         $result = $this->calculate->calculatePaymentFee($quote, $total);
 
-        if ($result === null || $result->getAmount() < 0.01){
+        if ($result === null || $result->getAmount() < 0.01) {
             return $this;
         }
 
@@ -141,8 +143,8 @@ class BuckarooFeeHyva extends AbstractTotal
     /**
      * Add buckaroo fee information to address
      *
-     * @param Quote $quote
-     * @param Total $total
+     * @param  Quote $quote
+     * @param  Total $total
      * @return array
      */
     public function fetch(Quote $quote, Total $total)
@@ -150,7 +152,7 @@ class BuckarooFeeHyva extends AbstractTotal
         return [
             'code'  => $this->getCode(),
             'title' => $this->getLabel(),
-            'value' => $total->getBuckarooFee()
+            'value' => $total->getBuckarooFee(),
         ];
     }
 

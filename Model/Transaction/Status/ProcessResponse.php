@@ -31,7 +31,6 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as ConfigFactory;
 
 class ProcessResponse
 {
-
     /**
      * @var \Magento\Sales\Model\Order
      */
@@ -52,12 +51,12 @@ class ProcessResponse
      */
     protected $statusFactory;
 
-     /**
+    /**
      * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory
      */
     protected $configFactory;
 
-     /**
+    /**
      * @var \Magento\Checkout\Model\Session
      */
     protected $checkoutSession;
@@ -83,27 +82,26 @@ class ProcessResponse
     public function process(
         TransactionResponseInterface $response,
         Order $order
-    )
-    {
+    ) {
         $this->init($response, $order);
-        if($this->isFailed()) {
+        if ($this->isFailed()) {
             $this->handleFailed();
             return [
                 "payment_status" => "failed",
-                "status_code" => $response->getStatusCode()
+                "status_code" => $response->getStatusCode(),
             ];
         }
-        if($this->isSuccessful()) {
+        if ($this->isSuccessful()) {
             $this->handleSuccessful();
             return [
                 "payment_status" => "success",
-                "status_code" => $response->getStatusCode()
+                "status_code" => $response->getStatusCode(),
             ];
         }
         if ($this->isProcessing()) {
             return [
                 "payment_status" => "processing",
-                "status_code" => $response->getStatusCode()
+                "status_code" => $response->getStatusCode(),
             ];
         }
     }
@@ -111,7 +109,7 @@ class ProcessResponse
     /**
      * Check if request is processing
      *
-     * @return boolean
+     * @return bool
      */
     protected function isProcessing()
     {
@@ -126,7 +124,7 @@ class ProcessResponse
     /**
      * Check if request has failed
      *
-     * @return boolean
+     * @return bool
      */
     protected function isFailed()
     {
@@ -136,7 +134,7 @@ class ProcessResponse
             Response::STATUSCODE_VALIDATION_FAILURE,
             Response::STATUSCODE_CANCELLED_BY_MERCHANT,
             Response::STATUSCODE_CANCELLED_BY_USER,
-            Response::STATUSCODE_FAILED
+            Response::STATUSCODE_FAILED,
         ]);
     }
 
@@ -147,8 +145,6 @@ class ProcessResponse
 
     /**
      * Handle state when successful
-     *
-     * @return void
      */
     protected function handleSuccessful()
     {
@@ -156,8 +152,6 @@ class ProcessResponse
     }
     /**
      * Handle state when failed
-     *
-     * @return void
      */
     protected function handleFailed()
     {
@@ -168,7 +162,7 @@ class ProcessResponse
     /**
      * Restore quote on failed
      *
-     * @return boolean
+     * @return bool
      */
     protected function restoreQuote()
     {
@@ -179,8 +173,6 @@ class ProcessResponse
 
     /**
      * Update checkout session with the last order data
-     *
-     * @return void
      */
     protected function updateCheckoutSession()
     {
@@ -193,8 +185,6 @@ class ProcessResponse
     }
     /**
      * Cancel order when failed
-     *
-     * @return void
      */
     protected function cancelOrder()
     {
@@ -202,16 +192,17 @@ class ProcessResponse
             $this->orderCancellationService->cancelOrder($this->order, 'Transaction failed.', true);
         }
     }
+
     /**
      * Set class properties
      *
-     * @return void
+     * @param TransactionResponseInterface $response
+     * @param Order                        $order
      */
     protected function init(
         TransactionResponseInterface $response,
         Order $order
-    )
-    {
+    ) {
         $this->response = $response;
         $this->order = $order;
         $this->payment = $this->order->getPayment();

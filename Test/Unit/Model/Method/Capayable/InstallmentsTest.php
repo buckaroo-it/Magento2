@@ -63,12 +63,12 @@ class InstallmentsTest extends BaseTest
         return [
             'in3 flexible' => [
                 '0',
-                ['_' => 'false', 'Name' => 'IsInThreeGuarantee']
+                ['_' => 'false', 'Name' => 'IsInThreeGuarantee'],
             ],
             'in3 garant' => [
                 '1',
-                ['_' => 'true', 'Name' => 'IsInThreeGuarantee']
-            ]
+                ['_' => 'true', 'Name' => 'IsInThreeGuarantee'],
+            ],
         ];
     }
 
@@ -103,7 +103,7 @@ class InstallmentsTest extends BaseTest
 
         $instance = $this->getInstance([
             'softwareData' => $softwareDataMock,
-            'configProviderMethodFactory' => $factoryMock
+            'configProviderMethodFactory' => $factoryMock,
         ]);
 
         $result = $instance->getCapayableService($paymentMock);

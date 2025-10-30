@@ -52,7 +52,7 @@ class OrderTest extends BaseTest
             'StartRecurrent' => 1,
             'Services' => [
                 'Service' => [
-                    'Action' => 'actionstring'
+                    'Action' => 'actionstring',
                 ],
             ],
             'AdditionalParameters' => [
@@ -64,7 +64,7 @@ class OrderTest extends BaseTest
                     [
                         '_'    => 1,
                         'Name' => 'initiated_by_magento',
-                    ]
+                    ],
                 ],
             ],
         ];
@@ -96,7 +96,7 @@ class OrderTest extends BaseTest
 
         $instance = $this->getInstance([
             'configProviderAccount' => $configProviderAccountMock,
-            'urlBuilder' => $urlBuilderMock
+            'urlBuilder' => $urlBuilderMock,
         ]);
         $instance->setAmount(50);
         $instance->setCurrency('EUR');
@@ -135,11 +135,11 @@ class OrderTest extends BaseTest
                     'Invoice' => '#1234',
                     'AmountCredit' => '5.00',
                     'OriginalTransactionKey' => 'abc1234',
-                ]
+                ],
             ],
             'no service name' => [
                 [
-                    'Action' => 'Order'
+                    'Action' => 'Order',
                 ],
                 [
                     'Invoice' => '#5678',
@@ -150,12 +150,12 @@ class OrderTest extends BaseTest
                     'Invoice' => '#5678',
                     'AmountCredit' => '10.00',
                     'OriginalTransactionKey' => 'def5678',
-                ]
+                ],
             ],
             'filtered creditmanagement3 createcreditnote' => [
                 [
                     'Name' => 'CreditManagement3',
-                    'Action' => 'CreateCreditNote'
+                    'Action' => 'CreateCreditNote',
                 ],
                 [
                     'Invoice' => '#3571',
@@ -164,12 +164,12 @@ class OrderTest extends BaseTest
                 ],
                 [
                     'Invoice' => '#3571',
-                ]
+                ],
             ],
             'filtered capayable payininstallments' => [
                 [
                     'Name' => 'capayable',
-                    'Action' => 'PayInInstallments'
+                    'Action' => 'PayInInstallments',
                 ],
                 [
                     'Invoice' => '#3571',
@@ -181,7 +181,7 @@ class OrderTest extends BaseTest
                     'Invoice' => '#3571',
                     'AmountCredit' => '42.00',
                     'OriginalTransactionKey' => 'reyk879',
-                ]
+                ],
             ],
             'cancel transaction method' => [
                 [],
@@ -191,7 +191,7 @@ class OrderTest extends BaseTest
                 [
                     'Transaction' => ['Key' => 'stu2345'],
                 ],
-                'CancelTransaction'
+                'CancelTransaction',
             ],
             'not cancel transaction method' => [
                 [],
@@ -201,7 +201,7 @@ class OrderTest extends BaseTest
                 [
                     'OriginalTransactionKey' => 'stu2345',
                 ],
-                'DataRequest'
+                'DataRequest',
             ],
         ];
     }
@@ -237,14 +237,14 @@ class OrderTest extends BaseTest
                 null,
                 'support.buckaroo.nl',
                 '123abc',
-                'support.buckaroo.nl?form_key=123abc'
+                'support.buckaroo.nl?form_key=123abc',
             ],
             'instance has return url' => [
                 'magento.com',
                 'google.com',
                 'def456',
-                'magento.com'
-            ]
+                'magento.com',
+            ],
         ];
     }
 
@@ -312,14 +312,14 @@ class OrderTest extends BaseTest
                 'EUR',
                 '10',
                 '15',
-                '10'
+                '10',
             ],
             'different currency' => [
                 'USD',
                 'EUR',
                 '25',
                 '30',
-                '30'
+                '30',
             ],
         ];
     }

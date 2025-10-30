@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -20,11 +21,12 @@
 
 namespace Buckaroo\Magento2\Plugin\Method;
 
-use \Magento\Sales\Model\Order;
+use Buckaroo\Magento2\Exception;
+use Magento\Sales\Model\Order;
 
 class Klarnakp
 {
-    const KLARNAKP_METHOD_NAME = 'buckaroo_magento2_klarnakp';
+    public const KLARNAKP_METHOD_NAME = 'buckaroo_magento2_klarnakp';
 
     /**
      * \Buckaroo\Magento2\Model\Method\Klarnakp
@@ -44,8 +46,8 @@ class Klarnakp
     /**
      * @param Order $subject
      *
+     * @throws Exception
      * @return Klarnakp|Order
-     * @throws \Buckaroo\Magento2\Exception
      */
     public function afterCancel(
         Order $subject

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -19,6 +20,7 @@ declare(strict_types=1);
  * @copyright  Copyright (c) Buckaroo B.V.
  * @license    https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Service;
 
 use Buckaroo\Magento2\Logging\Log;
@@ -30,9 +32,9 @@ use Magento\Quote\Model\Quote\Address;
 
 class ShippingMethodsService
 {
-    private ShipmentEstimationInterface $shipmentEstimation;
+    private $shipmentEstimation;
 
-    public Log $logger;
+    public $logger;
 
     public function __construct(
         ShipmentEstimationInterface $shipmentEstimation,
@@ -45,10 +47,10 @@ class ShippingMethodsService
     /**
      * Retrieve available shipping methods by the quote's address.
      *
-     * @param Quote $quote
-     * @param AddressInterface $address
-     * @return array
+     * @param  Quote            $quote
+     * @param  AddressInterface $address
      * @throws InputException
+     * @return array
      */
     public function getAvailableShippingMethods(Quote $quote, AddressInterface $address): array
     {
@@ -82,10 +84,10 @@ class ShippingMethodsService
     /**
      * Add the first available shipping method to the address and recalculate rates.
      *
-     * @param Address $address
-     * @param Quote $quote
-     * @return Quote
+     * @param  Address        $address
+     * @param  Quote          $quote
      * @throws InputException
+     * @return Quote
      */
     public function addFirstShippingMethod(Address $address, Quote $quote): Quote
     {

@@ -32,86 +32,86 @@ class TransactionResponseStatusTest extends BaseTest
         return [
             'no transaction data' => [
                 (Object)[],
-                null
+                null,
             ],
             'has status code' => [
                 (Object)[
                     'Status' => (Object)[
                         'Code' => (Object)[
-                            'Code' => 890
-                        ]
-                    ]
+                            'Code' => 890,
+                        ],
+                    ],
                 ],
-                890
+                890,
             ],
             'has status code, is canceled' => [
                 (Object)[
                     'Status' => (Object)[
                         'Code' => (Object)[
-                            'Code' => 791
-                        ]
+                            'Code' => 791,
+                        ],
                     ],
                     'Transaction' => (Object)[
-                        'IsCanceled' => true
-                    ]
+                        'IsCanceled' => true,
+                    ],
                 ],
-                791
+                791,
             ],
             'has status code, is not canceled' => [
                 (Object)[
                     'Status' => (Object)[
                         'Code' => (Object)[
-                            'Code' => 675
-                        ]
+                            'Code' => 675,
+                        ],
                     ],
                     'Transaction' => (Object)[
-                        'IsCanceled' => false
-                    ]
+                        'IsCanceled' => false,
+                    ],
                 ],
-                675
+                675,
             ],
             'null status code, is canceled' => [
                 (Object)[
                     'Status' => (Object)[
                         'Code' => (Object)[
-                            'Code' => null
-                        ]
+                            'Code' => null,
+                        ],
                     ],
                     'Transaction' => (Object)[
-                        'IsCanceled' => true
-                    ]
+                        'IsCanceled' => true,
+                    ],
                 ],
-                190
+                190,
             ],
             'null status code, is not canceled' => [
                 (Object)[
                     'Status' => (Object)[
                         'Code' => (Object)[
-                            'Code' => null
-                        ]
+                            'Code' => null,
+                        ],
                     ],
                     'Transaction' => (Object)[
-                        'IsCanceled' => false
-                    ]
+                        'IsCanceled' => false,
+                    ],
                 ],
-                null
+                null,
             ],
             'no status code, is canceled' => [
                 (Object)[
                     'Transaction' => (Object)[
-                        'IsCanceled' => true
-                    ]
+                        'IsCanceled' => true,
+                    ],
                 ],
-                190
+                190,
             ],
             'no status code, is not canceled' => [
                 (Object)[
                     'Transaction' => (Object)[
-                        'IsCanceled' => false
-                    ]
+                        'IsCanceled' => false,
+                    ],
                 ],
-                null
-            ]
+                null,
+            ],
         ];
     }
 

@@ -72,19 +72,19 @@ class PayTest extends \Buckaroo\Magento2\Test\BaseTest
         return [
             'empty value' => [
                 '',
-                false
+                false,
             ],
             'null value' => [
                 null,
-                false
+                false,
             ],
             'string value' => [
                 'abc123def',
-                true
+                true,
             ],
             'int value' => [
                 456987,
-                true
+                true,
             ],
         ];
     }

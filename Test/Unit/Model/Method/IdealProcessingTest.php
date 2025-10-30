@@ -39,21 +39,21 @@ class IdealProcessingTest extends BaseTest
     {
         return [
             'no data' => [
-                []
+                [],
             ],
             'with skip validation data' => [
                 [
                     'additional_data' => [
                         'buckaroo_skip_validation' => '1',
-                    ]
-                ]
+                    ],
+                ],
             ],
             'with form data' => [
                 [
                     'additional_data' => [
                         'issuer' => 'ING',
-                    ]
-                ]
+                    ],
+                ],
             ],
         ];
     }

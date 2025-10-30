@@ -102,13 +102,13 @@ class TransferTest extends \Buckaroo\Magento2\Test\BaseTest
         $instance = $this->getInstance([
             'configProviderMethodFactory' => $configFactoryMock,
             'transactionBuilderFactory' => $trxFactoryMock,
-            'serviceParameters' => $serviceParametersMock
+            'serviceParameters' => $serviceParametersMock,
         ]);
 
         $instance->setData('info_instance', $infoInterface);
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $this->assertEquals($orderMock, $instance->getOrderTransactionBuilder($paymentMock));
     }
 
@@ -152,7 +152,7 @@ class TransferTest extends \Buckaroo\Magento2\Test\BaseTest
         return [
             'no service' => [
                 [],
-                null
+                null,
             ],
             'no invoicekey' => [
                 [
@@ -160,11 +160,11 @@ class TransferTest extends \Buckaroo\Magento2\Test\BaseTest
                         'Name' => 'CreditManagement3',
                         'ResponseParameter' => (Object)[
                             'Name' => 'ResponseName',
-                            '_' => 'abc'
-                        ]
-                    ]
+                            '_' => 'abc',
+                        ],
+                    ],
                 ],
-                null
+                null,
             ],
             'incorrect service' => [
                 [
@@ -172,11 +172,11 @@ class TransferTest extends \Buckaroo\Magento2\Test\BaseTest
                         'Name' => 'PayPerEmail',
                         'ResponseParameter' => (Object)[
                             'Name' => 'InvoiceKey',
-                            '_' => 'def'
-                        ]
-                    ]
+                            '_' => 'def',
+                        ],
+                    ],
                 ],
-                null
+                null,
             ],
             'has invoicekey' => [
                 [
@@ -184,11 +184,11 @@ class TransferTest extends \Buckaroo\Magento2\Test\BaseTest
                         'Name' => 'CreditManagement3',
                         'ResponseParameter' => (Object)[
                             'Name' => 'InvoiceKey',
-                            '_' => 'ghi'
-                        ]
-                    ]
+                            '_' => 'ghi',
+                        ],
+                    ],
                 ],
-                'ghi'
+                'ghi',
             ],
         ];
     }
@@ -206,9 +206,9 @@ class TransferTest extends \Buckaroo\Magento2\Test\BaseTest
         $respone = [
             0 => (Object)[
                 'Services' => (Object)[
-                    'Service' => $service
-                ]
-            ]
+                    'Service' => $service,
+                ],
+            ],
         ];
 
         $instance = $this->getInstance();
@@ -224,64 +224,64 @@ class TransferTest extends \Buckaroo\Magento2\Test\BaseTest
             'object, has invoiceKey' => [
                 (Object)[
                     'Name' => 'InvoiceKey',
-                    '_' => 'key123'
+                    '_' => 'key123',
                 ],
-                'key123'
+                'key123',
             ],
             'object, no invoiceKey' => [
                 (Object)[
                     'Name' => 'Debtor',
-                    '_' => 'Buckaroo'
+                    '_' => 'Buckaroo',
                 ],
-                ''
+                '',
             ],
             'array with one item, has invoiceKey' => [
                 [
                     (Object)[
                         'Name' => 'InvoiceKey',
-                        '_' => 'invoice456'
-                    ]
+                        '_' => 'invoice456',
+                    ],
                 ],
-                'invoice456'
+                'invoice456',
             ],
             'array with one item, no invoiceKey' => [
                 [
                     (Object)[
                         'Name' => 'Debtor',
-                        '_' => 'Buckaroo'
-                    ]
+                        '_' => 'Buckaroo',
+                    ],
                 ],
-                ''
+                '',
             ],
             'array with multiple items, has invoiceKey' => [
                 [
                     (Object)[
                         'Name' => 'Status',
-                        '_' => 'Paid'
+                        '_' => 'Paid',
                     ],
                     (Object)[
                         'Name' => 'InvoiceKey',
-                        '_' => 'order789'
+                        '_' => 'order789',
                     ],
                     (Object)[
                         'Name' => 'Debtor',
-                        '_' => 'Buckaroo'
+                        '_' => 'Buckaroo',
                     ],
                 ],
-                'order789'
+                'order789',
             ],
             'array with multiple items, no invoiceKey' => [
                 [
                     (Object)[
                         'Name' => 'Status',
-                        '_' => 'Paid'
+                        '_' => 'Paid',
                     ],
                     (Object)[
                         'Name' => 'Debtor',
-                        '_' => 'Buckaroo'
+                        '_' => 'Buckaroo',
                     ],
                 ],
-                ''
+                '',
             ],
         ];
     }
@@ -394,7 +394,7 @@ class TransferTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $instance = $this->getInstance([
             'serviceParameters' => $serviceParametersMock,
-            'transactionBuilderFactory' => $transactionBuilderMock
+            'transactionBuilderFactory' => $transactionBuilderMock,
         ]);
 
         $result = $instance->getVoidTransactionBuilder($infoInstanceMock);

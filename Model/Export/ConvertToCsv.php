@@ -1,14 +1,21 @@
 <?php
+
 /**
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
+
 namespace Buckaroo\Magento2\Model\Export;
 
+use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Filesystem;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Store\Model\StoreManagerInterface;
 use Magento\Ui\Component\MassAction\Filter;
 use Magento\Ui\Model\Export\MetadataProvider;
 
@@ -41,21 +48,26 @@ class ConvertToCsv extends \Magento\Ui\Model\Export\ConvertToCsv
     protected $storeManager;
 
     /**
-     * @param Filesystem $filesystem
-     * @param Filter $filter
-     * @param MetadataProvider $metadataProvider
-     * @param int $pageSize
+     * @param  Filesystem                                                 $filesystem
+     * @param  Filter                                                     $filter
+     * @param  MetadataProvider                                           $metadataProvider
+     * @param  int                                                        $pageSize
+     * @param  OrderRepositoryInterface                                   $orderRepository
+     * @param  PaymentGroupTransaction                                    $groupTransaction
+     * @param  Collection                                                 $giftcardCollection
+     * @param  StoreManagerInterface                                      $storeManager
+     * @param  Account                                                    $configProviderAccount
      * @throws FileSystemException
      */
     public function __construct(
         Filesystem $filesystem,
         Filter $filter,
         MetadataProvider $metadataProvider,
-        \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
-        \Buckaroo\Magento2\Helper\PaymentGroupTransaction $groupTransaction,
-        \Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection $giftcardCollection,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Buckaroo\Magento2\Model\ConfigProvider\Account $configProviderAccount,
+        OrderRepositoryInterface $orderRepository,
+        PaymentGroupTransaction $groupTransaction,
+        Collection $giftcardCollection,
+        StoreManagerInterface $storeManager,
+        Account $configProviderAccount,
         $pageSize = 200
     ) {
         $this->filter                = $filter;
@@ -72,8 +84,8 @@ class ConvertToCsv extends \Magento\Ui\Model\Export\ConvertToCsv
     /**
      * Returns CSV file
      *
-     * @return array
      * @throws LocalizedException
+     * @return array
      */
     public function getCsvFile()
     {

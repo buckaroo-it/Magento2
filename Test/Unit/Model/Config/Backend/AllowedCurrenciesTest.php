@@ -94,8 +94,8 @@ class AllowedCurrenciesTest extends \Buckaroo\Magento2\Test\BaseTest
             'Currencies' => [
                 'GBP' => [
                     1 => 'British Pound',
-                ]
-            ]
+                ],
+            ],
         ];
 
         $currencyBundleMock = $this->getFakeMock(CurrencyBundle::class)->setMethods(['get'])->getMock();
@@ -108,7 +108,7 @@ class AllowedCurrenciesTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $instance = $this->getInstance([
             'currencyBundle' => $currencyBundleMock,
-            'configProvider' => $configProviderMock
+            'configProvider' => $configProviderMock,
         ]);
         $instance->setValue(['GBP']);
 

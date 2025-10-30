@@ -27,9 +27,7 @@ use Magento\Framework\Exception\LocalizedException;
 
 class Refund extends AbstractTransactionBuilder
 {
-
     /**
-     * @return void
      * @throws Exception
      * @throws LocalizedException
      */
@@ -62,9 +60,9 @@ class Refund extends AbstractTransactionBuilder
     }
 
     /**
-     * @return array
      * @throws Exception
      * @throws LocalizedException
+     * @return array
      */
     public function getBody()
     {
@@ -96,10 +94,10 @@ class Refund extends AbstractTransactionBuilder
             'StartRecurrent' => $this->startRecurrent,
             'PushURL' => $this->urlBuilder->getDirectUrl('rest/V1/buckaroo/push'),
             'Services' => (object)[
-                'Service' => $this->getServices()
+                'Service' => $this->getServices(),
             ],
             'AdditionalParameters' => (object)[
-                'AdditionalParameter' => $this->getAdditionalParameters()
+                'AdditionalParameter' => $this->getAdditionalParameters(),
             ],
         ];
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -22,27 +23,27 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 class Blik extends AbstractConfigProvider
 {
-    const XPATH_BLIK_PAYMENT_FEE           = 'payment/buckaroo_magento2_blik/payment_fee';
-    const XPATH_BLIK_ACTIVE                = 'payment/buckaroo_magento2_blik/active';
-    const XPATH_BLIK_SUBTEXT               = 'payment/buckaroo_magento2_blik/subtext';
-    const XPATH_BLIK_SUBTEXT_STYLE         = 'payment/buckaroo_magento2_blik/subtext_style';
-    const XPATH_BLIK_SUBTEXT_COLOR         = 'payment/buckaroo_magento2_blik/subtext_color';
-    const XPATH_BLIK_ACTIVE_STATUS         = 'payment/buckaroo_magento2_blik/active_status';
-    const XPATH_BLIK_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_blik/order_status_success';
-    const XPATH_BLIK_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_blik/order_status_failed';
-    const XPATH_BLIK_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_blik/available_in_backend';
+    public const XPATH_BLIK_PAYMENT_FEE           = 'payment/buckaroo_magento2_blik/payment_fee';
+    public const XPATH_BLIK_ACTIVE                = 'payment/buckaroo_magento2_blik/active';
+    public const XPATH_BLIK_SUBTEXT               = 'payment/buckaroo_magento2_blik/subtext';
+    public const XPATH_BLIK_SUBTEXT_STYLE         = 'payment/buckaroo_magento2_blik/subtext_style';
+    public const XPATH_BLIK_SUBTEXT_COLOR         = 'payment/buckaroo_magento2_blik/subtext_color';
+    public const XPATH_BLIK_ACTIVE_STATUS         = 'payment/buckaroo_magento2_blik/active_status';
+    public const XPATH_BLIK_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_blik/order_status_success';
+    public const XPATH_BLIK_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_blik/order_status_failed';
+    public const XPATH_BLIK_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_blik/available_in_backend';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_blik/allowed_currencies';
+    public const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_blik/allowed_currencies';
 
-    const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_blik/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_blik/specificcountry';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_blik/specificcustomergroup';
+    public const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_blik/allowspecific';
+    public const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_blik/specificcountry';
+    public const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_blik/specificcustomergroup';
 
     /**
      * @var array
      */
     protected $allowedCurrencies = [
-        'PLN'
+        'PLN',
     ];
     /**
      * @return array|void

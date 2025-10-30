@@ -1,22 +1,23 @@
 <?php
- /**
-  * NOTICE OF LICENSE
-  *
-  * This source file is subject to the MIT License
-  * It is available through the world-wide-web at this URL:
-  * https://tldrlegal.com/license/mit-license
-  * If you are unable to obtain it through the world-wide-web, please send an email
-  * to support@buckaroo.nl so we can send you a copy immediately.
-  *
-  * DISCLAIMER
-  *
-  * Do not edit or add to this file if you wish to upgrade this module to newer
-  * versions in the future. If you wish to customize this module for your
-  * needs please contact support@buckaroo.nl for more information.
-  *
-  * @copyright Copyright (c) Buckaroo B.V.
-  * @license   https://tldrlegal.com/license/mit-license
-  */
+
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
 
 namespace Buckaroo\Magento2\Model;
 
@@ -34,10 +35,10 @@ use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Checkout\Model\GuestPaymentInformationManagement as MagentoGuestPaymentInformationManagement;
 
 // @codingStandardsIgnoreStart
-class GuestPaymentInformationManagement implements GuestPaymentInformationManagementInterface
-// @codingStandardsIgnoreEnd
+class GuestPaymentInformationManagement implements
+    GuestPaymentInformationManagementInterface
+    // @codingStandardsIgnoreEnd
 {
-
     /**
      * @var Registry
      */
@@ -74,13 +75,13 @@ class GuestPaymentInformationManagement implements GuestPaymentInformationManage
     private $cartRepository;
 
     /**
-     * @param Registry                                                    $registry
-     * @param Log                                                         $logging
-     * @param Factory                                                     $configProviderMethodFactory
-     * @param OrderRepositoryInterface                                    $orderRepository
-     * @param MagentoGuestPaymentInformationManagement                    $guestPaymentInformationManagement
-     * @param QuoteIdMaskFactory                                          $quoteIdMaskFactory
-     * @param CartRepositoryInterface                                     $cartRepository
+     * @param Registry                                 $registry
+     * @param Log                                      $logging
+     * @param Factory                                  $configProviderMethodFactory
+     * @param OrderRepositoryInterface                 $orderRepository
+     * @param MagentoGuestPaymentInformationManagement $guestPaymentInformationManagement
+     * @param QuoteIdMaskFactory                       $quoteIdMaskFactory
+     * @param CartRepositoryInterface                  $cartRepository
      *
      * @codeCoverageIgnore
      */
@@ -105,18 +106,18 @@ class GuestPaymentInformationManagement implements GuestPaymentInformationManage
     /**
      * Set payment information and place order for a specified cart.
      *
-     * @param int $cartId
-     * @param string $email
-     * @param PaymentInterface $paymentMethod
-     * @param AddressInterface|null $billingAddress
-     * @return string
+     * @param  int                   $cartId
+     * @param  string                $email
+     * @param  PaymentInterface      $paymentMethod
+     * @param  AddressInterface|null $billingAddress
      * @throws LocalizedException
+     * @return string
      */
     public function buckarooSavePaymentInformationAndPlaceOrder(
         $cartId,
         $email,
         PaymentInterface $paymentMethod,
-        AddressInterface $billingAddress = null
+        ?AddressInterface $billingAddress = null
     ) {
 
         $this->checkSpecificCountry($paymentMethod, $billingAddress);
@@ -136,12 +137,12 @@ class GuestPaymentInformationManagement implements GuestPaymentInformationManage
         if ($this->registry && $this->registry->registry('buckaroo_response')) {
             return json_encode([
                 "buckaroo_response" => $this->registry->registry('buckaroo_response')[0],
-                "order_id" => $orderId
+                "order_id" => $orderId,
             ]);
         }
         return json_encode([
             "limitReachedMessage" => $this->getLimitReachedMessage($orderId),
-            "order_number" => $this->getOrderIncrementId($orderId)
+            "order_number" => $this->getOrderIncrementId($orderId),
         ]);
     }
     /**
@@ -154,7 +155,7 @@ class GuestPaymentInformationManagement implements GuestPaymentInformationManage
     private function getLimitReachedMessage($orderId)
     {
         $order = $this->orderRepository->get($orderId);
-        if($order->getEntityId() !== null && $order->getPayment() !== null) {
+        if ($order->getEntityId() !== null && $order->getPayment() !== null) {
             return $order->getPayment()->getAdditionalInformation(AbstractMethod::PAYMENT_ATTEMPTS_REACHED_MESSAGE);
         }
         return null;
@@ -167,8 +168,8 @@ class GuestPaymentInformationManagement implements GuestPaymentInformationManage
     }
 
     /**
-     * @param $paymentMethod
-     * @param $billingAddress
+     * @param                     $paymentMethod
+     * @param                     $billingAddress
      * @throws LocalizedException
      */
     public function checkSpecificCountry($paymentMethod, $billingAddress)
@@ -178,7 +179,7 @@ class GuestPaymentInformationManagement implements GuestPaymentInformationManage
         $configAllowSpecific = $this->configProviderMethodFactory->get($paymentMethodCode)->getAllowSpecific();
 
         if ($configAllowSpecific == 1) {
-            $countryId = ($billingAddress === null ) ? null : $billingAddress->getCountryId();
+            $countryId = ($billingAddress === null) ? null : $billingAddress->getCountryId();
             $configSpecificCountry = $this->configProviderMethodFactory->get($paymentMethodCode)->getSpecificCountry();
 
             if (!in_array($countryId, $configSpecificCountry)) {
@@ -190,7 +191,7 @@ class GuestPaymentInformationManagement implements GuestPaymentInformationManage
     }
 
     /**
-     * @param string $methodCode
+     * @param  string $methodCode
      * @return string
      */
     public function normalizePaymentMethodCode($methodCode = '')

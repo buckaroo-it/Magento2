@@ -30,7 +30,7 @@ class SequenceTypeTest extends BaseTest
     {
         $expectedResult = [
             ['value' => '1', 'label' => 'One-Off'],
-            ['value' => '0', 'label' => 'Recurring']
+            ['value' => '0', 'label' => 'Recurring'],
         ];
 
         $instance = $this->getInstance();

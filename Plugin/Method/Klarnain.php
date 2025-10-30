@@ -1,4 +1,5 @@
 <?php
+
 // @codingStandardsIgnoreFile
 /**
  * NOTICE OF LICENSE
@@ -21,16 +22,15 @@
 
 namespace Buckaroo\Magento2\Plugin\Method;
 
-use \Magento\Sales\Model\Order;
+use Buckaroo\Magento2\Exception;
+use Magento\Sales\Model\Order;
 
 /**
  * Class Klarnain
- *
- *
  */
 class Klarnain
 {
-    const KLARNAIN_METHOD_NAME = 'buckaroo_magento2_klarnain';
+    public const KLARNAIN_METHOD_NAME = 'buckaroo_magento2_klarnain';
 
     /**
      * \Buckaroo\Magento2\Model\Method\Klarnain
@@ -50,8 +50,8 @@ class Klarnain
     /**
      * @param Order $subject
      *
+     * @throws Exception
      * @return Klarnain|Order
-     * @throws \Buckaroo\Magento2\Exception
      */
     public function afterCancel(
         Order $subject

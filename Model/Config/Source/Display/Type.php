@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
@@ -10,6 +11,7 @@
  * @author             Magento Core Team <core@magentocommerce.com>
  * @codeCoverageIgnore
  */
+
 namespace Buckaroo\Magento2\Model\Config\Source\Display;
 
 class Type implements \Magento\Framework\Option\ArrayInterface
@@ -17,9 +19,9 @@ class Type implements \Magento\Framework\Option\ArrayInterface
     /**#@+
      * Constants for display type
      */
-    const DISPLAY_TYPE_EXCLUDING_TAX = 1;
-    const DISPLAY_TYPE_INCLUDING_TAX = 2;
-    const DISPLAY_TYPE_BOTH = 3;
+    public const DISPLAY_TYPE_EXCLUDING_TAX = 1;
+    public const DISPLAY_TYPE_INCLUDING_TAX = 2;
+    public const DISPLAY_TYPE_BOTH = 3;
     /**#@-*/
 
     /**

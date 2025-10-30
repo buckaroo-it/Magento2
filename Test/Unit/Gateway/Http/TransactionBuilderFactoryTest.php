@@ -45,7 +45,7 @@ class TransactionBuilderFactoryTest extends BaseTest
 
         $instance = $this->getInstance([
             'objectManager' => $objectManagerMock,
-            'transactionBuilders' => [['type' => 'model1', 'model' => 'model1']]
+            'transactionBuilders' => [['type' => 'model1', 'model' => 'model1']],
         ]);
 
         $result = $instance->get('model1');
@@ -80,7 +80,7 @@ class TransactionBuilderFactoryTest extends BaseTest
 
         $instance = $this->getInstance([
             'objectManager' => $objectManagerMock,
-            'transactionBuilders' => [['type' => 'model1', 'model' => 'model1']]
+            'transactionBuilders' => [['type' => 'model1', 'model' => 'model1']],
         ]);
 
         try {

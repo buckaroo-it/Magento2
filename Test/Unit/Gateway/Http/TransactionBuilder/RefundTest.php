@@ -49,7 +49,7 @@ class RefundTest extends BaseTest
             'StartRecurrent' => 1,
             'Services' => [
                 'Service' => [
-                    'Action' => 'actionstring'
+                    'Action' => 'actionstring',
                 ],
             ],
             'AdditionalParameters' => [
@@ -61,7 +61,7 @@ class RefundTest extends BaseTest
                     [
                         '_'    => 1,
                         'Name' => 'initiated_by_magento',
-                    ]
+                    ],
                 ],
             ],
         ];
@@ -90,7 +90,7 @@ class RefundTest extends BaseTest
 
         $instance = $this->getInstance([
             'configProviderAccount' => $configProviderAccountMock,
-            'urlBuilder' => $urlBuilderMock
+            'urlBuilder' => $urlBuilderMock,
         ]);
         $instance->setAmount(50);
         $instance->setCurrency('EUR');
@@ -124,14 +124,14 @@ class RefundTest extends BaseTest
                 null,
                 'support.buckaroo.nl',
                 '123abc',
-                'support.buckaroo.nl?form_key=123abc'
+                'support.buckaroo.nl?form_key=123abc',
             ],
             'instance has return url' => [
                 'magento.com',
                 'google.com',
                 'def456',
-                'magento.com'
-            ]
+                'magento.com',
+            ],
         ];
     }
 

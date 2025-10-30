@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Controller\Adminhtml\Giftcard;
 
 use Magento\Backend\App\Action\Context;
@@ -30,17 +32,17 @@ use Magento\Framework\Image\AdapterFactory;
 class Index extends \Magento\Backend\App\Action
 {
     /**
-     * @var  PageFactory
+     * @var PageFactory
      */
     protected $resultPageFactory;
 
     /**
-     * @var  Registry
+     * @var Registry
      */
     protected $_coreRegistry;
 
     /**
-     * @var  GiftcardFactory
+     * @var GiftcardFactory
      */
     protected $giftcardFactory;
 
@@ -53,6 +55,9 @@ class Index extends \Magento\Backend\App\Action
      * @param Registry        $coreRegistry
      * @param PageFactory     $resultPageFactory
      * @param GiftcardFactory $giftcardFactory
+     * @param Filesystem      $fileSystem
+     * @param UploaderFactory $uploaderFactory
+     * @param AdapterFactory  $adapterFactory
      */
     public function __construct(
         Context $context,

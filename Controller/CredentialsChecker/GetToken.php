@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -24,6 +25,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcards;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\Exception\LocalizedException;
 use Psr\Log\LoggerInterface;
 use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\Store\Model\StoreManagerInterface;
@@ -58,8 +60,14 @@ class GetToken extends Action
 
     /**
      * Send POST request using Magento's Curl client.
+     * @param mixed $url
+     * @param mixed $username
+     * @param mixed $password
+     * @param mixed $postData
+     * @throws \Exception
      */
-    private function sendPostRequest($url, $username, $password, $postData) {
+    private function sendPostRequest($url, $username, $password, $postData)
+    {
         try {
             // Set Basic Auth credentials without base64_encode()
             $this->curlClient->setCredentials($username, $password);
@@ -74,7 +82,7 @@ class GetToken extends Action
             return $this->curlClient->getBody();
         } catch (\Exception $e) {
             $this->logger->error('Curl request error: ' . $e->getMessage());
-            throw new \Exception('Error occurred during cURL request: ' . $e->getMessage());
+            throw new LocalizedException(__('Error occurred during cURL request: %1', $e->getMessage()));
         }
     }
 
@@ -121,7 +129,7 @@ class GetToken extends Action
         if ($requestOrigin !== 'MagentoFrontend') {
             return $result->setHttpResponseCode(403)->setData([
                 'error' => true,
-                'message' => 'Unauthorized request'
+                'message' => 'Unauthorized request',
             ]);
         }
 
@@ -133,13 +141,13 @@ class GetToken extends Action
         if (empty($hostedFieldsClientId) || empty($hostedFieldsClientSecret)) {
             return $result->setHttpResponseCode(400)->setData([
                 'error' => true,
-                'message' => 'Hosted Fields Username or Password is empty.'
+                'message' => 'Hosted Fields Username or Password is empty.',
             ]);
         }
         if (empty($issuers)) {
             return $result->setHttpResponseCode(400)->setData([
                 'error' => true,
-                'message' => 'There is no Allowed Issuers for Hosted Fields.'
+                'message' => 'There is no Allowed Issuers for Hosted Fields.',
             ]);
         }
 
@@ -148,7 +156,7 @@ class GetToken extends Action
             $url = "https://auth.buckaroo.io/oauth/token";
             $postData = [
                 'scope' => 'hostedfields:save',
-                'grant_type' => 'client_credentials'
+                'grant_type' => 'client_credentials',
             ];
 
             $response = $this->sendPostRequest($url, $hostedFieldsClientId, $hostedFieldsClientSecret, $postData);
@@ -161,22 +169,22 @@ class GetToken extends Action
                     'data' => [
                         'access_token' => $responseArray['access_token'],
                         'expires_in'   => $responseArray['expires_in'],
-                        'issuers'      => $issuers
-                    ]
+                        'issuers'      => $issuers,
+                    ],
                 ]);
             }
 
             // Handle error response
             return $result->setHttpResponseCode(400)->setData([
                 'error' => true,
-                'message' => 'Error fetching token.'
+                'message' => 'Error fetching token.',
             ]);
 
         } catch (\Exception $e) {
             $this->logger->error('Error occurred while fetching token.');
             return $result->setHttpResponseCode(500)->setData([
                 'error' => true,
-                'message' => 'An error occurred while fetching the token.'
+                'message' => 'An error occurred while fetching the token.',
             ]);
         }
     }

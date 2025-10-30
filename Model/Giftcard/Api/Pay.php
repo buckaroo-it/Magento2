@@ -26,7 +26,6 @@ use Buckaroo\Magento2\Logging\Log;
 use Magento\Quote\Model\QuoteIdMaskFactory;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Buckaroo\Magento2\Api\PayWithGiftcardInterface;
-use Buckaroo\Magento2\Model\Giftcard\Api\ApiException;
 use Buckaroo\Magento2\Api\Data\Giftcard\PayRequestInterface;
 use Buckaroo\Magento2\Api\Data\Giftcard\PayResponseSetInterfaceFactory;
 use Buckaroo\Magento2\Model\Giftcard\Response\Giftcard as GiftcardResponse;
@@ -62,7 +61,7 @@ class Pay implements PayWithGiftcardInterface
     /**
      * @var Log
      */
-    private Log $logger;
+    private $logger;
 
 
     public function __construct(
@@ -119,14 +118,15 @@ class Pay implements PayWithGiftcardInterface
         return $this->payResponseFactory->create()->setData([
             'remainderAmount' => $this->giftcardResponse->getRemainderAmount(),
             'alreadyPaid' => $this->giftcardResponse->getAlreadyPaid($quote),
-            'transaction' => $this->giftcardResponse->getCreatedTransaction()
+            'transaction' => $this->giftcardResponse->getCreatedTransaction(),
         ]);
     }
     /**
      * Build giftcard request
      *
-     * @param Quote $quote
-     * @param string $giftcardId
+     * @param Quote               $quote
+     * @param string              $giftcardId
+     * @param PayRequestInterface $payment
      *
      * @return GiftcardRequest
      */

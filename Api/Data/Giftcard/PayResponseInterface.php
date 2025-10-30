@@ -30,7 +30,7 @@ interface PayResponseInterface
 {
     /**
      * Get RemainderAmount
-     * 
+     *
      * @api
      * @return float
      */
@@ -60,7 +60,7 @@ interface PayResponseInterface
     public function getMessage();
 
 
-     /**
+    /**
      * Get user remaining amount message
      *
      * @api

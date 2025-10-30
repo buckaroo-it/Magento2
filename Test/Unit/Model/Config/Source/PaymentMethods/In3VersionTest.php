@@ -33,10 +33,10 @@ class In3VersionTest extends BaseTest
     {
         return [
             [
-                ['value' => '0', 'label' => 'In3 Flexible']
+                ['value' => '0', 'label' => 'In3 Flexible'],
             ],
             [
-                ['value' => '1',  'label' => 'In3 Garant']
+                ['value' => '1',  'label' => 'In3 Garant'],
             ],
         ];
     }

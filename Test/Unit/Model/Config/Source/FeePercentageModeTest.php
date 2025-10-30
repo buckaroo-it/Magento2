@@ -33,11 +33,11 @@ class FeePercentageModeTest extends BaseTest
     {
         return [
             [
-                ['value' => 'subtotal',          'label' => 'Subtotal']
+                ['value' => 'subtotal',          'label' => 'Subtotal'],
             ],
             [
-                ['value' => 'subtotal_incl_tax', 'label' => 'Subtotal incl. tax']
-            ]
+                ['value' => 'subtotal_incl_tax', 'label' => 'Subtotal incl. tax'],
+            ],
         ];
     }
 

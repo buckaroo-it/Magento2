@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -53,8 +54,8 @@ class OrderManagement
 
     /**
      * @param OrderCancellationService $orderCancellationService
-     * @param Log $logger
-     * @param ResourceConnection $resourceConnection
+     * @param Log                      $logger
+     * @param ResourceConnection       $resourceConnection
      * @param OrderRepositoryInterface $orderRepository
      */
     public function __construct(
@@ -70,9 +71,8 @@ class OrderManagement
     }
 
     /**
-     *
-     * @param OrderManagementInterface $subject
-     * @param int $orderId
+     * @param  OrderManagementInterface $subject
+     * @param  int                      $orderId
      * @return array
      */
     public function beforeCancel(OrderManagementInterface $subject, $orderId)
@@ -127,7 +127,7 @@ class OrderManagement
     /**
      * Check if this is a Buckaroo order in pending state
      *
-     * @param \Magento\Sales\Model\Order $order
+     * @param  \Magento\Sales\Model\Order $order
      * @return bool
      */
     private function isBuckarooPendingOrder($order): bool
@@ -147,7 +147,7 @@ class OrderManagement
     /**
      * Check if stock was actually reserved for this order
      *
-     * @param \Magento\Sales\Model\Order $order
+     * @param  \Magento\Sales\Model\Order $order
      * @return bool
      */
     private function wasStockReservedForOrder($order): bool

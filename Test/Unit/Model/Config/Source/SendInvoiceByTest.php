@@ -30,7 +30,7 @@ class SendInvoiceByTest extends BaseTest
     {
         $expectedResult = [
             ['value' => 'email', 'label' => 'By e-mail'],
-            ['value' => 'mail', 'label' => 'By mail (Includes fee from Klarna)']
+            ['value' => 'mail', 'label' => 'By mail (Includes fee from Klarna)'],
         ];
 
         $instance = $this->getInstance();

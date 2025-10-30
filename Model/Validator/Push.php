@@ -24,8 +24,9 @@ namespace Buckaroo\Magento2\Model\Validator;
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
-use \Buckaroo\Magento2\Model\ValidatorInterface;
-use \Magento\Framework\Encryption\Encryptor;
+use Buckaroo\Magento2\Model\ValidatorInterface;
+use Exception;
+use Magento\Framework\Encryption\Encryptor;
 
 class Push implements ValidatorInterface
 {
@@ -52,14 +53,14 @@ class Push implements ValidatorInterface
         792 => 'Waiting on consumer action',
         793 => 'Payment on hold',
         890 => 'Cancelled by consumer',
-        891 => 'Cancelled by merchant'
+        891 => 'Cancelled by merchant',
     ];
 
     /**
-     * @param Data          $helper
-     * @param Account       $configProviderAccount
-     * @param Log           $logging
-     * @param Encryptor     $encryptor
+     * @param Data      $helper
+     * @param Account   $configProviderAccount
+     * @param Log       $logging
+     * @param Encryptor $encryptor
      */
     public function __construct(
         Data $helper,
@@ -113,7 +114,9 @@ class Push implements ValidatorInterface
      * Generate/calculate the signature with the buckaroo config value and check if thats equal to the signature
      * received from the push
      *
-     * @param $postData
+     * @param            $postData
+     * @param mixed      $originalPostData
+     * @param null|mixed $store
      *
      * @return bool
      */
@@ -135,9 +138,11 @@ class Push implements ValidatorInterface
     /**
      * Determines the signature using array sorting and the SHA1 hash algorithm
      *
-     * @param $postData
+     * @param            $postData
+     * @param null|mixed $store
      *
      * @return string
+     * @throws Exception
      */
     public function calculateSignature($postData, $store = null)
     {
@@ -147,7 +152,7 @@ class Push implements ValidatorInterface
             $acceptable_top_level = ['brq', 'add', 'cust', 'BRQ', 'ADD', 'CUST'];
 
             return (
-                    $key != 'brq_signature' && $key != 'BRQ_SIGNATURE') &&
+                $key != 'brq_signature' && $key != 'BRQ_SIGNATURE') &&
                 in_array(explode('_', $key)[0], $acceptable_top_level);
         }, ARRAY_FILTER_USE_KEY);
 

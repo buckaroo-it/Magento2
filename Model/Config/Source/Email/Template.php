@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Config\Source\Email;
 
 class Template extends \Magento\Framework\DataObject implements \Magento\Framework\Option\ArrayInterface
@@ -37,10 +39,10 @@ class Template extends \Magento\Framework\DataObject implements \Magento\Framewo
     protected $_templatesFactory;
 
     /**
-     * @param \Magento\Framework\Registry $coreRegistry
+     * @param \Magento\Framework\Registry                                   $coreRegistry
      * @param \Magento\Email\Model\ResourceModel\Template\CollectionFactory $templatesFactory
-     * @param \Magento\Email\Model\Template\Config $emailConfig
-     * @param array $data
+     * @param \Magento\Email\Model\Template\Config                          $emailConfig
+     * @param array                                                         $data
      */
     public function __construct(
         \Magento\Framework\Registry $coreRegistry,
@@ -70,7 +72,7 @@ class Template extends \Magento\Framework\DataObject implements \Magento\Framewo
         $options = $collection->toOptionArray();
         $templateId = explode('/', $this->getPath());
         $templateId = end($templateId);
-        
+
         $templateLabel = $this->_emailConfig->getTemplateLabel($templateId);
         $templateLabel = __('%1 (Default)', $templateLabel);
         array_unshift($options, ['value' => $templateId, 'label' => $templateLabel]);

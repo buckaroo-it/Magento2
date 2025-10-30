@@ -8,7 +8,7 @@ use Magento\Store\Model\ScopeInterface;
 
 class HyvaCheckoutConfig
 {
-    const HYVA_CHECKOUT_TYPE_PATH = 'hyva_themes_checkout/general/checkout';
+    public const HYVA_CHECKOUT_TYPE_PATH = 'hyva_themes_checkout/general/checkout';
 
     /**
      * @var ScopeConfigInterface
@@ -24,7 +24,7 @@ class HyvaCheckoutConfig
      * HyvaCheckoutConfig constructor.
      *
      * @param ScopeConfigInterface $scopeConfig
-     * @param LayoutInterface $layout
+     * @param LayoutInterface      $layout
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,

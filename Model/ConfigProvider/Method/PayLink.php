@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -20,8 +21,6 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
-use Buckaroo\Magento2\Model\Method\PayLink as MethodPayLink;
-
 /**
  * @method getCm3DueDate()
  * @method getMaxStepIndex()
@@ -32,31 +31,31 @@ use Buckaroo\Magento2\Model\Method\PayLink as MethodPayLink;
  */
 class PayLink extends AbstractConfigProvider
 {
-    const XPATH_ALLOWED_CURRENCIES               = 'buckaroo/buckaroo_magento2_paylink/allowed_currencies';
+    public const XPATH_ALLOWED_CURRENCIES               = 'buckaroo/buckaroo_magento2_paylink/allowed_currencies';
 
-    const XPATH_ALLOW_SPECIFIC                   = 'payment/buckaroo_magento2_paylink/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                 = 'payment/buckaroo_magento2_paylink/specificcountry';
+    public const XPATH_ALLOW_SPECIFIC                   = 'payment/buckaroo_magento2_paylink/allowspecific';
+    public const XPATH_SPECIFIC_COUNTRY                 = 'payment/buckaroo_magento2_paylink/specificcountry';
 
-    const XPATH_PAYLINK_ACTIVE               = 'payment/buckaroo_magento2_paylink/active';
-    const XPATH_PAYLINK_SUBTEXT              = 'payment/buckaroo_magento2_paylink/subtext';
-    const XPATH_PAYLINK_SUBTEXT_STYLE        = 'payment/buckaroo_magento2_paylink/subtext_style';
-    const XPATH_PAYLINK_SUBTEXT_COLOR        = 'payment/buckaroo_magento2_paylink/subtext_color';
-    const XPATH_PAYLINK_PAYMENT_FEE          = 'payment/buckaroo_magento2_paylink/payment_fee';
-    const XPATH_PAYLINK_ACTIVE_STATUS        = 'payment/buckaroo_magento2_paylink/active_status';
-    const XPATH_PAYLINK_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_paylink/order_status_success';
-    const XPATH_PAYLINK_ORDER_STATUS_FAILED  = 'payment/buckaroo_magento2_paylink/order_status_failed';
+    public const XPATH_PAYLINK_ACTIVE               = 'payment/buckaroo_magento2_paylink/active';
+    public const XPATH_PAYLINK_SUBTEXT              = 'payment/buckaroo_magento2_paylink/subtext';
+    public const XPATH_PAYLINK_SUBTEXT_STYLE        = 'payment/buckaroo_magento2_paylink/subtext_style';
+    public const XPATH_PAYLINK_SUBTEXT_COLOR        = 'payment/buckaroo_magento2_paylink/subtext_color';
+    public const XPATH_PAYLINK_PAYMENT_FEE          = 'payment/buckaroo_magento2_paylink/payment_fee';
+    public const XPATH_PAYLINK_ACTIVE_STATUS        = 'payment/buckaroo_magento2_paylink/active_status';
+    public const XPATH_PAYLINK_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_paylink/order_status_success';
+    public const XPATH_PAYLINK_ORDER_STATUS_FAILED  = 'payment/buckaroo_magento2_paylink/order_status_failed';
 
-    const XPATH_PAYLINK_ACTIVE_STATUS_CM3           = 'payment/buckaroo_magento2_paylink/active_status_cm3';
-    const XPATH_PAYLINK_SEND_MAIL                   = 'payment/buckaroo_magento2_paylink/send_mail';
-    const XPATH_PAYLINK_SCHEME_KEY                  = 'payment/buckaroo_magento2_paylink/scheme_key';
-    const XPATH_PAYLINK_MAX_STEP_INDEX              = 'payment/buckaroo_magento2_paylink/max_step_index';
-    const XPATH_PAYLINK_CM3_DUE_DATE                = 'payment/buckaroo_magento2_paylink/cm3_due_date';
-    const XPATH_PAYLINK_PAYMENT_METHOD              = 'payment/buckaroo_magento2_paylink/payment_method';
-    const XPATH_PAYLINK_PAYMENT_METHOD_AFTER_EXPIRY = 'payment/buckaroo_magento2_paylink/payment_method_after_expiry';
-    const XPATH_PAYLINK_VISIBLE_FRONT_BACK          = 'payment/buckaroo_magento2_paylink/visible_front_back';
-    const XPATH_PAYLINK_IS_VISIBLE_FOR_AREA_CODE    = 'payment/buckaroo_magento2_paylink/is_visible_for_area_code';
+    public const XPATH_PAYLINK_ACTIVE_STATUS_CM3           = 'payment/buckaroo_magento2_paylink/active_status_cm3';
+    public const XPATH_PAYLINK_SEND_MAIL                   = 'payment/buckaroo_magento2_paylink/send_mail';
+    public const XPATH_PAYLINK_SCHEME_KEY                  = 'payment/buckaroo_magento2_paylink/scheme_key';
+    public const XPATH_PAYLINK_MAX_STEP_INDEX              = 'payment/buckaroo_magento2_paylink/max_step_index';
+    public const XPATH_PAYLINK_CM3_DUE_DATE                = 'payment/buckaroo_magento2_paylink/cm3_due_date';
+    public const XPATH_PAYLINK_PAYMENT_METHOD              = 'payment/buckaroo_magento2_paylink/payment_method';
+    public const XPATH_PAYLINK_PAYMENT_METHOD_AFTER_EXPIRY = 'payment/buckaroo_magento2_paylink/payment_method_after_expiry';
+    public const XPATH_PAYLINK_VISIBLE_FRONT_BACK          = 'payment/buckaroo_magento2_paylink/visible_front_back';
+    public const XPATH_PAYLINK_IS_VISIBLE_FOR_AREA_CODE    = 'payment/buckaroo_magento2_paylink/is_visible_for_area_code';
 
-    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_paylink/specificcustomergroup';
+    public const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_paylink/specificcustomergroup';
 
     /**
      * @return array
@@ -121,7 +120,7 @@ class PayLink extends AbstractConfigProvider
     }
 
     /**
-     * @param $areaCode
+     * @param       $areaCode
      * @return bool
      */
     public function isVisibleForAreaCode($areaCode)

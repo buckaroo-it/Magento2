@@ -33,13 +33,13 @@ class VisibleFrontBackTest extends BaseTest
     {
         return [
             [
-                ['value' => 'frontend', 'label' => 'Frontend']
+                ['value' => 'frontend', 'label' => 'Frontend'],
             ],
             [
-                ['value' => 'backend', 'label' => 'Backend']
+                ['value' => 'backend', 'label' => 'Backend'],
             ],
             [
-                ['value' => 'both', 'label' => 'Frontend and Backend']
+                ['value' => 'both', 'label' => 'Frontend and Backend'],
             ],
         ];
     }

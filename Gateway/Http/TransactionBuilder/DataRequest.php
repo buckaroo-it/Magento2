@@ -21,11 +21,6 @@
 
 namespace Buckaroo\Magento2\Gateway\Http\TransactionBuilder;
 
-use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\Data\Form\FormKey;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
-use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
-
 class DataRequest extends AbstractTransactionBuilder
 {
     /**
@@ -42,10 +37,10 @@ class DataRequest extends AbstractTransactionBuilder
             ],
             'ReturnURL' => $this->getReturnUrl(),
             'Services' => (object)[
-                'Service' => $this->getServices()
+                'Service' => $this->getServices(),
             ],
             'AdditionalParameters' => (object)[
-                'AdditionalParameter' => $this->getAdditionalParameters()
+                'AdditionalParameter' => $this->getAdditionalParameters(),
             ],
         ];
 

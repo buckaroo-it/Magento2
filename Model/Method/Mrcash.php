@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -25,9 +26,9 @@ class Mrcash extends AbstractMethod
     /**
      * Payment Code
      */
-    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_mrcash';
+    public const PAYMENT_METHOD_CODE = 'buckaroo_magento2_mrcash';
 
-    const REFUND_EXTRA_FIELDS_XPATH = 'payment/buckaroo_magento2_mrcash/refund_extra_fields';
+    public const REFUND_EXTRA_FIELDS_XPATH = 'payment/buckaroo_magento2_mrcash/refund_extra_fields';
 
     /**
      * @var string
@@ -55,7 +56,7 @@ class Mrcash extends AbstractMethod
         if ($useClientSide &&
             ($additionalInformation = $payment->getAdditionalInformation()) &&
             isset($additionalInformation['client_side_mode']) &&
-            ($additionalInformation['client_side_mode']=='cc')
+            ($additionalInformation['client_side_mode'] == 'cc')
         ) {
             $this->logger2->addDebug(__METHOD__ . '|5|');
 
@@ -144,8 +145,8 @@ class Mrcash extends AbstractMethod
     /**
      * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
      *
-     * @return array
      * @throws \Buckaroo\Magento2\Exception
+     * @return array
      */
     public function getEncyptedPaymentsService($payment)
     {
@@ -182,7 +183,7 @@ class Mrcash extends AbstractMethod
         return 'bancontactmrcash';
     }
 
-    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
+    public function isAvailable(?\Magento\Quote\Api\Data\CartInterface $quote = null)
     {
         $orderId = $quote ? $quote->getReservedOrderId() : null;
 

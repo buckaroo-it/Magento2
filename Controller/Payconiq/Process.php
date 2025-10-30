@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,13 +18,13 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Controller\Payconiq;
 
+use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\LockManagerWrapper;
 use Magento\Framework\Api\SearchCriteriaBuilder;
-use Magento\Framework\App\Action\Action;
-use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Exception\LocalizedException;
@@ -47,7 +48,7 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
     /**
      * @var LockManagerWrapper
      */
-    protected LockManagerWrapper $lockManager;
+    protected $lockManager;
 
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
@@ -101,9 +102,9 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
     }
 
     /**
-     * @return ResponseInterface|ResultInterface
      * @throws LocalizedException
-     * @throws \Buckaroo\Magento2\Exception
+     * @throws Exception
+     * @return ResponseInterface|ResultInterface
      */
     public function execute()
     {
@@ -149,8 +150,8 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
     }
 
     /**
+     * @throws Exception
      * @return TransactionInterface|Transaction
-     * @throws \Buckaroo\Magento2\Exception
      */
     protected function getTransaction()
     {
@@ -161,7 +162,7 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
         $list = $this->getList();
 
         if ($list->getTotalCount() <= 0) {
-            throw new \Buckaroo\Magento2\Exception(__('There was no transaction found by transaction Id'));
+            throw new Exception(__('There was no transaction found by transaction Id'));
         }
 
         $items = $list->getItems();
@@ -171,15 +172,15 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
     }
 
     /**
+     * @throws Exception
      * @return TransactionSearchResultInterface
-     * @throws \Buckaroo\Magento2\Exception
      */
     protected function getList()
     {
         $transactionKey = $this->getTransactionKey();
 
         if (!$transactionKey) {
-            throw new \Buckaroo\Magento2\Exception(__('There was no transaction found by transaction Id'));
+            throw new Exception(__('There was no transaction found by transaction Id'));
         }
 
         $searchCriteria = $this->searchCriteriaBuilder->addFilter('txn_id', $transactionKey);

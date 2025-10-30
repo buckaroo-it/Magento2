@@ -44,8 +44,8 @@ class DataTest extends BaseTest
                     'PlatformVersion' => '2.0',
                     'ModuleSupplier' => 'Buckaroo',
                     'ModuleName' => 'Buckaroo',
-                    'ModuleVersion' => Data::BUCKAROO_VERSION
-                ]
+                    'ModuleVersion' => Data::BUCKAROO_VERSION,
+                ],
             ],
             [
                 'Magento',
@@ -57,9 +57,9 @@ class DataTest extends BaseTest
                     'PlatformVersion' => '2.1',
                     'ModuleSupplier' => 'Buckaroo',
                     'ModuleName' => 'Buckaroo',
-                    'ModuleVersion' => Data::BUCKAROO_VERSION
-                ]
-            ]
+                    'ModuleVersion' => Data::BUCKAROO_VERSION,
+                ],
+            ],
         ];
     }
 

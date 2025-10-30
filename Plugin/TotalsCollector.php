@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Plugin;
 
 use Magento\Quote\Model\Quote;
@@ -26,14 +28,12 @@ class TotalsCollector
     /**
      * Reset quote reward point amount
      *
-     * @param \Magento\Quote\Model\Quote\TotalsCollector $subject
+     * @param Quote\TotalsCollector $subject
      * @param Quote                                      $quote
-     *
-     * @return void
      */
     public function beforeCollect(
-        \Magento\Quote\Model\Quote\TotalsCollector $subject,
-        Quote $quote
+        Quote\TotalsCollector $subject,
+        Quote                 $quote
     ) {
         /**
          * @noinspection PhpUndefinedMethodInspection

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -22,21 +23,21 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 class Knaken extends AbstractConfigProvider
 {
-    const XPATH_KNAKEN_PAYMENT_FEE          = 'payment/buckaroo_magento2_knaken/payment_fee';
-    const XPATH_KNAKEN_ACTIVE               = 'payment/buckaroo_magento2_knaken/active';
-    const XPATH_KNAKEN_SUBTEXT              = 'payment/buckaroo_magento2_knaken/subtext';
-    const XPATH_KNAKEN_SUBTEXT_STYLE        = 'payment/buckaroo_magento2_knaken/subtext_style';
-    const XPATH_KNAKEN_SUBTEXT_COLOR        = 'payment/buckaroo_magento2_knaken/subtext_color';
-    const XPATH_KNAKEN_ACTIVE_STATUS        = 'payment/buckaroo_magento2_knaken/active_status';
-    const XPATH_KNAKEN_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_knaken/order_status_success';
-    const XPATH_KNAKEN_ORDER_STATUS_FAILED  = 'payment/buckaroo_magento2_knaken/order_status_failed';
-    const XPATH_KNAKEN_AVAILABLE_IN_BACKEND = 'payment/buckaroo_magento2_knaken/available_in_backend';
+    public const XPATH_KNAKEN_PAYMENT_FEE          = 'payment/buckaroo_magento2_knaken/payment_fee';
+    public const XPATH_KNAKEN_ACTIVE               = 'payment/buckaroo_magento2_knaken/active';
+    public const XPATH_KNAKEN_SUBTEXT              = 'payment/buckaroo_magento2_knaken/subtext';
+    public const XPATH_KNAKEN_SUBTEXT_STYLE        = 'payment/buckaroo_magento2_knaken/subtext_style';
+    public const XPATH_KNAKEN_SUBTEXT_COLOR        = 'payment/buckaroo_magento2_knaken/subtext_color';
+    public const XPATH_KNAKEN_ACTIVE_STATUS        = 'payment/buckaroo_magento2_knaken/active_status';
+    public const XPATH_KNAKEN_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_knaken/order_status_success';
+    public const XPATH_KNAKEN_ORDER_STATUS_FAILED  = 'payment/buckaroo_magento2_knaken/order_status_failed';
+    public const XPATH_KNAKEN_AVAILABLE_IN_BACKEND = 'payment/buckaroo_magento2_knaken/available_in_backend';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_knaken/allowed_currencies';
+    public const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_knaken/allowed_currencies';
 
-    const XPATH_ALLOW_SPECIFIC          = 'payment/buckaroo_magento2_knaken/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY        = 'payment/buckaroo_magento2_knaken/specificcountry';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP = 'payment/buckaroo_magento2_knaken/specificcustomergroup';
+    public const XPATH_ALLOW_SPECIFIC          = 'payment/buckaroo_magento2_knaken/allowspecific';
+    public const XPATH_SPECIFIC_COUNTRY        = 'payment/buckaroo_magento2_knaken/specificcountry';
+    public const XPATH_SPECIFIC_CUSTOMER_GROUP = 'payment/buckaroo_magento2_knaken/specificcustomergroup';
 
     /**
      * @return array|void
@@ -54,7 +55,7 @@ class Knaken extends AbstractConfigProvider
                         'subtext_style'     => $this->getSubtextStyle(),
                         'subtext_color'     => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'isTestMode'        => $this->isTestMode()
+                        'isTestMode'        => $this->isTestMode(),
                     ],
                 ],
             ],

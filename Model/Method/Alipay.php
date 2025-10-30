@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -25,7 +26,7 @@ class Alipay extends AbstractMethod
     /**
      * Payment Code
      */
-    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_alipay';
+    public const PAYMENT_METHOD_CODE = 'buckaroo_magento2_alipay';
 
     /**
      * @var string

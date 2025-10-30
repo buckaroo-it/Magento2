@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Service\Software;
 
 use Magento\Framework\Module\ModuleListInterface;
@@ -28,15 +30,15 @@ class Data
     /**
      * Module supplier name
      */
-    const MODULE_SUPPLIER = 'Buckaroo';
+    public const MODULE_SUPPLIER = 'Buckaroo';
 
     /**
      * Module supplier code
      */
-    const MODULE_CODE = 'Buckaroo_Magento2';
+    public const MODULE_CODE = 'Buckaroo_Magento2';
 
     /** Version of Module */
-    const BUCKAROO_VERSION = '1.53.1';
+    public const BUCKAROO_VERSION = '1.54.0';
 
     /** @var ProductMetadataInterface */
     private $productMetadata;
@@ -53,9 +55,10 @@ class Data
     }
 
     /**
+     * @param  ?OrderPaymentInterface $payment
      * @return array
      */
-    public function get(OrderPaymentInterface $payment = null)
+    public function get(?OrderPaymentInterface $payment = null)
     {
         $platformData = $this->getPlatformData($payment);
         $moduleData = $this->getModuleData();
@@ -82,21 +85,21 @@ class Data
     }
 
     /**
+     * @param  ?OrderPaymentInterface $payment
      * @return array
      */
-    private function getPlatformData(OrderPaymentInterface $payment = null)
+    private function getPlatformData(?OrderPaymentInterface $payment = null)
     {
         $platformName = $this->getProductMetaData()->getName() . ' - ' . $this->getProductMetaData()->getEdition();
 
         $platformInfo = $payment !== null ? $payment->getAdditionalInformation('buckaroo_platform_info') : null;
-        if ($platformInfo !== null)
-        {
-            $platformName.= $platformInfo;
+        if ($platformInfo !== null) {
+            $platformName .= $platformInfo;
         }
 
         $platformData = [
             'PlatformName' => $platformName,
-            'PlatformVersion' => $this->productMetadata->getVersion()
+            'PlatformVersion' => $this->productMetadata->getVersion(),
         ];
 
         return $platformData;
@@ -112,7 +115,7 @@ class Data
         $moduleData = [
             'ModuleSupplier'    => self::MODULE_SUPPLIER,
             'ModuleName'        => $module['name'],
-            'ModuleVersion'     => $this->getModuleVersion()
+            'ModuleVersion'     => $this->getModuleVersion(),
         ];
 
         return $moduleData;

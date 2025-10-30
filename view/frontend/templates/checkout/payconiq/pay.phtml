@@ -29,7 +29,7 @@
                 type="button"
                 title="Cancel"
                 data-bind="click: cancelPayment">
-            <span><?= __('Cancel') ?></span>
+            <span><?= $escaper->escapeHtml(__('Cancel')) ?></span>
         </button>
     </div>
 </div>

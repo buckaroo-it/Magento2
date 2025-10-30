@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Controller\Applepay;
 
 use Buckaroo\Magento2\Logging\Log;
@@ -32,22 +34,22 @@ abstract class AbstractApplepay implements HttpPostActionInterface
     /**
      * @var Log
      */
-    public Log $logger;
+    public $logger;
 
     /**
      * @var JsonFactory
      */
-    protected JsonFactory $resultJsonFactory;
+    protected $resultJsonFactory;
 
     /**
      * @var RequestInterface
      */
-    protected RequestInterface $request;
+    protected $request;
 
     /**
-     * @param JsonFactory     $resultJsonFactory
+     * @param JsonFactory      $resultJsonFactory
      * @param RequestInterface $request
-     * @param Log             $logger
+     * @param Log              $logger
      */
     public function __construct(
         JsonFactory $resultJsonFactory,
@@ -72,8 +74,8 @@ abstract class AbstractApplepay implements HttpPostActionInterface
     /**
      * Gather totals from quote totals.
      *
-     * @param Address|null     $address
-     * @param AddressTotal[]   $quoteTotals
+     * @param  Address|null   $address
+     * @param  AddressTotal[] $quoteTotals
      * @return array
      */
     public function gatherTotals(?Address $address, array $quoteTotals): array
@@ -94,8 +96,8 @@ abstract class AbstractApplepay implements HttpPostActionInterface
     /**
      * Create a common JSON response.
      *
-     * @param array|string $data
-     * @param string|bool  $errorMessage
+     * @param  array|string $data
+     * @param  string|bool  $errorMessage
      * @return Json
      */
     protected function commonResponse($data, $errorMessage): Json
