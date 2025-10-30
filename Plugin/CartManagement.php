@@ -41,7 +41,7 @@ class CartManagement
     /**
      * @var LockManagerWrapper
      */
-    protected LockManagerWrapper $lockManager;
+    protected $lockManager;
 
 
     public function __construct(

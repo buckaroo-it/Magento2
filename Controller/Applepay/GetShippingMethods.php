@@ -35,12 +35,12 @@ class GetShippingMethods extends AbstractApplepay
     /**
      * @var QuoteService
      */
-    private QuoteService $quoteService;
+    private $quoteService;
 
     /**
      * @var ApplePayFormatData
      */
-    private ApplePayFormatData $applePayFormatData;
+    private $applePayFormatData;
 
     /**
      * @param JsonFactory        $resultJsonFactory

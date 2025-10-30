@@ -25,6 +25,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcards;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\Exception\LocalizedException;
 use Psr\Log\LoggerInterface;
 use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\Store\Model\StoreManagerInterface;
@@ -81,7 +82,7 @@ class GetToken extends Action
             return $this->curlClient->getBody();
         } catch (\Exception $e) {
             $this->logger->error('Curl request error: ' . $e->getMessage());
-            throw new \Exception('Error occurred during cURL request: ' . $e->getMessage());
+            throw new LocalizedException(__('Error occurred during cURL request: %1', $e->getMessage()));
         }
     }
 

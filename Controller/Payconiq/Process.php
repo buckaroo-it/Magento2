@@ -48,7 +48,7 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
     /**
      * @var LockManagerWrapper
      */
-    protected LockManagerWrapper $lockManager;
+    protected $lockManager;
 
     public function __construct(
         \Magento\Framework\App\Action\Context $context,

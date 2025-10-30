@@ -21,9 +21,14 @@
 
 namespace Buckaroo\Magento2\Plugin;
 
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 use Buckaroo\Magento2\Model\Method\PayLink;
+use Magento\Backend\Block\Widget\Button\ButtonList;
+use Magento\Backend\Block\Widget\Button\Toolbar;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\UrlInterface;
+use Magento\Framework\View\Element\AbstractBlock;
+use Magento\Sales\Api\OrderRepositoryInterface;
 
 class PluginBefore
 {
@@ -36,16 +41,16 @@ class PluginBefore
     /**
      * @var UrlInterface
      */
-    private UrlInterface $urlBuilder;
+    private $urlBuilder;
 
     /**
      * @var RequestInterface
      */
-    private RequestInterface $request;
+    private $request;
 
     public function __construct(
-        \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory,
-        \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
+        Factory $configProviderMethodFactory,
+        OrderRepositoryInterface $orderRepository,
         UrlInterface $urlBuilder
     ) {
         $this->configProviderMethodFactory = $configProviderMethodFactory;
@@ -54,9 +59,9 @@ class PluginBefore
     }
 
     public function beforePushButtons(
-        \Magento\Backend\Block\Widget\Button\Toolbar $subject,
-        \Magento\Framework\View\Element\AbstractBlock $context,
-        \Magento\Backend\Block\Widget\Button\ButtonList $buttonList
+        Toolbar $subject,
+        AbstractBlock $context,
+        ButtonList $buttonList
     ) {
         if ($orderId = $context->getRequest()->getParam('order_id')) {
             $viewUrl        = $this->urlBuilder->getUrl('buckaroo/paylink/index/order', ['order_id' => $orderId]);

@@ -48,22 +48,22 @@ class SaveOrder extends AbstractApplepay
     /**
      * @var Registry|null
      */
-    protected ?Registry $registry;
+    protected $registry;
 
     /**
      * @var QuoteManagement
      */
-    protected QuoteManagement $quoteManagement;
+    protected $quoteManagement;
 
     /**
      * @var Order
      */
-    protected Order $order;
+    protected $order;
 
     /**
      * @var CheckoutSession
      */
-    protected CheckoutSession $checkoutSession;
+    protected $checkoutSession;
 
     /**
      * @var ConfigProviderInterface
@@ -73,27 +73,27 @@ class SaveOrder extends AbstractApplepay
     /**
      * @var DataObjectFactory
      */
-    private DataObjectFactory $objectFactory;
+    private $objectFactory;
 
     /**
      * @var OrderRepositoryInterface
      */
-    private OrderRepositoryInterface $orderRepository;
+    private $orderRepository;
 
     /**
      * @var SearchCriteriaBuilder
      */
-    private SearchCriteriaBuilder $searchCriteriaBuilder;
+    private $searchCriteriaBuilder;
 
     /**
      * @var QuoteAddressService
      */
-    private QuoteAddressService $quoteAddressService;
+    private $quoteAddressService;
 
     /**
      * @var CustomerSession
      */
-    private CustomerSession $customerSession;
+    private $customerSession;
 
     /**
      * @param JsonFactory $resultJsonFactory

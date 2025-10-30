@@ -34,17 +34,17 @@ abstract class AbstractApplepay implements HttpPostActionInterface
     /**
      * @var Log
      */
-    public Log $logger;
+    public $logger;
 
     /**
      * @var JsonFactory
      */
-    protected JsonFactory $resultJsonFactory;
+    protected $resultJsonFactory;
 
     /**
      * @var RequestInterface
      */
-    protected RequestInterface $request;
+    protected $request;
 
     /**
      * @param JsonFactory      $resultJsonFactory

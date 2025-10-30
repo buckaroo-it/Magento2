@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignore Magento2.Functions.DiscouragedFunction.Discouraged
 $path = realpath('./');
 
 $di = new RecursiveIteratorIterator(
@@ -7,8 +8,10 @@ $di = new RecursiveIteratorIterator(
 );
 
 foreach ($di as $name => $fio) {
+    // phpcs:ignore Generic.Files.LineLength.TooLong
     $newname = $fio->getPath() . DIRECTORY_SEPARATOR . strtolower(str_replace(" ", "", str_replace("&", "-", $fio->getFilename())));
     // phpcs:ignore Magento2.Security.LanguageConstruct.DirectOutput
     echo $newname, "\r\n";
+    // phpcs:ignore Magento2.Functions.DiscouragedFunction.Discouraged
     rename($name, $newname);
 }

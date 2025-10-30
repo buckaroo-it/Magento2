@@ -132,7 +132,7 @@ class Process extends Action
     /**
      * @var LockManagerWrapper
      */
-    protected LockManagerWrapper $lockManager;
+    protected $lockManager;
 
     /**
      * @param  Context                     $context

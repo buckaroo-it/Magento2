@@ -33,12 +33,12 @@ class UpdateShippingMethods extends AbstractApplepay
     /**
      * @var CheckoutSession
      */
-    private CheckoutSession $checkoutSession;
+    private $checkoutSession;
 
     /**
      * @var QuoteRepository
      */
-    private QuoteRepository $quoteRepository;
+    private $quoteRepository;
 
     /**
      * @param JsonFactory      $resultJsonFactory

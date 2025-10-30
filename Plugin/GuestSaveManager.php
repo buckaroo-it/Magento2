@@ -22,16 +22,24 @@
 namespace Buckaroo\Magento2\Plugin;
 
 use Buckaroo\Magento2\Logging\Log;
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Quote\Api\Data\AddressInterface;
+use Magento\Quote\Api\Data\PaymentInterface;
+use Magento\Quote\Model\QuoteIdMaskFactory;
 
 class GuestSaveManager
 {
     protected $quoteIdMaskFactory;
     protected $cartRepository;
-    protected Log $logger;
+
+    /**
+     * @var Log
+     */
+    protected $logger;
 
     public function __construct(
-        \Magento\Quote\Model\QuoteIdMaskFactory $quoteIdMaskFactory,
-        \Magento\Quote\Api\CartRepositoryInterface $cartRepository,
+        QuoteIdMaskFactory $quoteIdMaskFactory,
+        CartRepositoryInterface $cartRepository,
         Log $logger
     ) {
         $this->quoteIdMaskFactory = $quoteIdMaskFactory;
@@ -43,8 +51,8 @@ class GuestSaveManager
         \Onestepcheckout\Iosc\Plugin\GuestSaveManager $subject,
         $cartId,
         $email,
-        \Magento\Quote\Api\Data\PaymentInterface $paymentMethod,
-        ?\Magento\Quote\Api\Data\AddressInterface $billingAddress = null
+        PaymentInterface $paymentMethod,
+        ?AddressInterface $billingAddress = null
     ) {
         if ($billingAddress == null) {
             $quoteIdMask = $this->quoteIdMaskFactory->create()->load($cartId, 'masked_id');
@@ -58,8 +66,8 @@ class GuestSaveManager
         \Onestepcheckout\Iosc\Plugin\GuestSaveManager $subject,
         $cartId,
         $email,
-        \Magento\Quote\Api\Data\PaymentInterface $paymentMethod,
-        ?\Magento\Quote\Api\Data\AddressInterface $billingAddress = null
+        PaymentInterface $paymentMethod,
+        ?AddressInterface $billingAddress = null
     ) {
         if ($billingAddress == null) {
             $quoteIdMask = $this->quoteIdMaskFactory->create()->load($cartId, 'masked_id');

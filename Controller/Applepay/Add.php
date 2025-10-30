@@ -32,7 +32,7 @@ class Add extends AbstractApplepay
     /**
      * @var AddService
      */
-    protected AddService $addService;
+    protected $addService;
 
     /**
      * @param JsonFactory      $resultJsonFactory
