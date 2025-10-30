@@ -204,11 +204,17 @@ class PayByBank extends AbstractConfigProvider
      */
     public function getSortedIssuers($storeId = null)
     {
-        return $this->scopeConfig->getValue(
+        $sorted = $this->scopeConfig->getValue(
             self::XPATH_SORTED_ISSUERS,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $storeId
-        ) ?? '';
+        );
+        if ($sorted && trim($sorted) !== '') {
+            return $sorted;
+        }
+        // Fallback: return all default issuer codes, comma-separated
+        $codes = array_column($this->issuers, 'code');
+        return implode(',', $codes);
     }
 
     /**
