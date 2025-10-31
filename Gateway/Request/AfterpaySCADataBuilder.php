@@ -32,7 +32,7 @@ class AfterpaySCADataBuilder implements BuilderInterface
     /**
      * @var Afterpay20
      */
-    private Afterpay20 $configAfterpay;
+    private $configAfterpay;
 
     /**
      * @param Afterpay20 $configAfterpay

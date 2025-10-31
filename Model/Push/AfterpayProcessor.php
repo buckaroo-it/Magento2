@@ -37,7 +37,7 @@ class AfterpayProcessor extends DefaultProcessor
     /**
      * @var Afterpay20
      */
-    private Afterpay20 $afterpayConfig;
+    private $afterpayConfig;
 
     /**
      * @param OrderRequestService     $orderRequestService

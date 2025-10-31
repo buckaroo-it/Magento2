@@ -55,7 +55,7 @@ class BuckarooAdapter extends Adapter
     /**
      * @var bool
      */
-    public static bool $requestOnVoid = true;
+    public static $requestOnVoid = true;
     /**
      * @var bool
      */

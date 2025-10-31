@@ -22,7 +22,6 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Gateway\Request\Capayable;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
-use Buckaroo\Magento2\Gateway\Http\Client\TransactionType;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\CapayableIn3;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 
@@ -31,7 +30,7 @@ class In3V3DataBuilder implements BuilderInterface
     /**
      * @var CapayableIn3
      */
-    private CapayableIn3 $capayableIn3Config;
+    private $capayableIn3Config;
 
     /**
      * @param CapayableIn3 $capayableIn3Config
