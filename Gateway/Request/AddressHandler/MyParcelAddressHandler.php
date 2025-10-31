@@ -90,7 +90,6 @@ class MyParcelAddressHandler extends AbstractAddressHandler
             $this->updateShippingAddressByMyParcel($myParcelNLData, $requestData);
         }
 
-
         return $order;
     }
 

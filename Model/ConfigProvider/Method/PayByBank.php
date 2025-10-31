@@ -37,7 +37,6 @@ class PayByBank extends AbstractConfigProvider
 
     public const XPATH_ACCOUNT_SELECTION_TYPE = 'buckaroo_magento2/account/selection_type';
 
-
     /**
      * @var CustomerSession
      */

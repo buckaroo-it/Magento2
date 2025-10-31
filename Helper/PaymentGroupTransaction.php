@@ -59,7 +59,6 @@ class PaymentGroupTransaction extends AbstractHelper
 
     protected $resourceConnection;
 
-
     /**
      * Constructor
      *

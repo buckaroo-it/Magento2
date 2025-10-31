@@ -103,7 +103,6 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
         return $birthDayStamp;
     }
 
-
     /**
      * Check if company is empty
      *

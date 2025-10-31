@@ -121,8 +121,6 @@ class SecondChance extends \Magento\Framework\Model\AbstractModel implements Sec
         return $this->setData(self::ORDER_ID, $orderId);
     }
 
-
-
     /**
      * Get store ID
      *

@@ -132,7 +132,6 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
             throw new PaypalExpressException(__("Failed to add address quote"), 1, $th);
         }
 
-
         $this->calculateQuoteTotals();
         return $this->responseFactory->create(["quote" => $this->quote]);
     }

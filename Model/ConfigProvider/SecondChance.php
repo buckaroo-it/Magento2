@@ -119,9 +119,7 @@ class SecondChance
         } else {
             $result = $template;
         }
-        
 
-        
         return $result;
     }
 

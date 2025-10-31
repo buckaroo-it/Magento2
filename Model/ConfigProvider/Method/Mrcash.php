@@ -39,7 +39,6 @@ class Mrcash extends AbstractConfigProvider
     public const MRCASH_REDIRECT_URL = '/buckaroo/mrcash/pay';
     public const XPATH_MRCASH_PAYMENT_FEE              = 'payment/buckaroo_magento2_mrcash/payment_fee';
 
-
     /**
      * @var FormKey
      */

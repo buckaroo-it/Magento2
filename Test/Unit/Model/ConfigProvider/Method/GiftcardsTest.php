@@ -21,8 +21,6 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
-
-
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Test\BaseTest;

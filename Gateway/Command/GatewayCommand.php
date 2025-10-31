@@ -251,7 +251,6 @@ class GatewayCommand implements CommandInterface
             $messages[] = (string)$result->getFailsDescription()[0] ?? '';
         }
 
-
         $errorMessage = '';
         if (!empty($messages)) {
             foreach ($messages as $message) {

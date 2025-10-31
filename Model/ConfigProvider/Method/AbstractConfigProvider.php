@@ -62,7 +62,6 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     public const TITLE         = 'title';
     public const FINANCIAL_WARNING = 'financial_warning';
 
-
     /**
      * The asset repository to generate the correct url to our assets.
      *
@@ -94,7 +93,6 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      * @var LogoService
      */
     protected $logoService;
-
 
     protected $issuers = [];
     /**

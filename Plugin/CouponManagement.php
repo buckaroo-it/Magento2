@@ -35,12 +35,10 @@ class CouponManagement
      */
     protected $quoteRepository;
 
-
     /**
      * @var \Buckaroo\Magento2\Helper\PaymentGroupTransaction
      */
     protected $groupTransaction;
-
 
     public function __construct(
         PaymentGroupTransaction $groupTransaction,

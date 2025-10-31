@@ -67,8 +67,6 @@ class VerificationMethod extends MagentoFieldset
         return parent::_getFrontendClass($element). ' bk-payment-method';
     }
 
-
-
     /**
      * Get the header title HTML including a logo.
      *

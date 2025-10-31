@@ -33,7 +33,6 @@ class SepaDirectDebit extends AbstractConfigProvider
     public const XPATH_SEPADIRECTDEBIT_PAYMENT_METHOD_AFTER_EXPIRY = 'payment_method_after_expiry';
     public const XPATH_SEPADIRECTDEBIT_PAYMENT_FEE = 'payment/buckaroo_magento2_sepadirectdebit/payment_fee';
 
-
     /**
      * Check if Credit Management is enabled
      *

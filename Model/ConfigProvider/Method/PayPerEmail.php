@@ -42,7 +42,6 @@ class PayPerEmail extends AbstractConfigProvider
     public const XPATH_PAYPEREMAIL_CRON_CANCEL_PPE             = 'cron_cancel_ppe';
     public const XPATH_PAYPEREMAIL_PAYMENT_FEE          = 'payment/buckaroo_magento2_payperemail/payment_fee';
 
-
     /**
      * Retrieve PayPerEmail assoc array of checkout configuration
      *

@@ -53,7 +53,6 @@ class Creditcard extends AbstractConfigProvider
     public const DEFAULT_SORT_VALUE                   = '99';
     const XPATH_CREDITCARD_PAYMENT_FEE          = 'payment/buckaroo_magento2_creditcard/payment_fee';
 
-
     /** @var array[] */
     protected $issuers = [
         [

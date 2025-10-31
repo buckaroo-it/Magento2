@@ -30,7 +30,6 @@ class PayLink extends AbstractConfigProvider
     public const XPATH_PAYLINK_PAYMENT_METHOD = 'payment_method';
     public const XPATH_PAYLINK_PAYMENT_FEE          = 'payment/buckaroo_magento2_paylink/payment_fee';
 
-
     /**
      * Payment method is visible for area code
      *

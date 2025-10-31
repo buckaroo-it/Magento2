@@ -157,7 +157,6 @@ class RefundProcessor extends DefaultProcessor
             }
         }
 
-
         return true;
     }
 }

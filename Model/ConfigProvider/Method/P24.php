@@ -26,7 +26,6 @@ class P24 extends AbstractConfigProvider
     public const CODE = 'buckaroo_magento2_p24';
     public const XPATH_P24_PAYMENT_FEE           = 'payment/buckaroo_magento2_p24/payment_fee';
 
-
     /**
      * @var string
      */

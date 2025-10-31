@@ -84,7 +84,6 @@ class CapayableIn3Test extends BaseTest
         );
     }
 
-
     /**
      * @return array
      */

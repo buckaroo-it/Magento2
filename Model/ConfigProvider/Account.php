@@ -339,7 +339,6 @@ class Account extends AbstractConfigProvider
         );
     }
 
-
     /**
      * Should send a mail after successful creating the order.
      *

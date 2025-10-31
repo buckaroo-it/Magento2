@@ -77,7 +77,6 @@ class IssuersService
         $this->buckarooAdapter = $buckarooAdapter;
     }
 
-
     /**
      * Get a list of issuers
      *
@@ -124,7 +123,6 @@ class IssuersService
             self::CACHE_LIFETIME_SECONDS
         );
     }
-
 
     /**
      * Get the list of issuers from cache

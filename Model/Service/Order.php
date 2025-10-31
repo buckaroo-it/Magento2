@@ -186,7 +186,6 @@ class Order
                     var_export($orderCollection->count(), true)
                 ));
 
-
                 if ($orderCollection->count()) {
                     foreach ($orderCollection as $order) {
                         $this->cancel(

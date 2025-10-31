@@ -35,7 +35,6 @@ class Transfer extends AbstractConfigProvider
     public const XPATH_TRANSFER_PAYMENT_METHOD_AFTER_EXPIRY = 'payment_method_after_expiry';
     public const XPATH_TRANSFER_PAYMENT_FEE            = 'payment/buckaroo_magento2_transfer/payment_fee';
 
-
     /**
      * @inheritdoc
      *

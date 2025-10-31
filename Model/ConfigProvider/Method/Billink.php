@@ -39,7 +39,6 @@ class Billink extends AbstractConfigProvider
     public const XPATH_BILLINK_MAX_AMOUNT_B2B = 'max_amount_b2b';
     public const XPATH_BILLINK_PAYMENT_FEE          = 'payment/buckaroo_magento2_billink/payment_fee';
 
-
     /**
      * @var BuckarooHelper
      */

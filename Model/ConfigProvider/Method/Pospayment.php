@@ -28,7 +28,6 @@ class Pospayment extends AbstractConfigProvider
     public const XPATH_POSPAYMENT_OTHER_PAYMENT_METHODS = 'other_payment_methods';
     public const XPATH_POSPAYMENT_PAYMENT_FEE           = 'payment/buckaroo_magento2_pospayment/payment_fee';
 
-
     /**
      * @var array
      */

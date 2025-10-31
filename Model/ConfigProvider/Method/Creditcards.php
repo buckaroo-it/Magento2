@@ -61,7 +61,6 @@ class Creditcards extends AbstractConfigProvider
     public const XPATH_CREDITCARDS_FIELD_FONT_FAMILY = 'payment/buckaroo_magento2_creditcards/field_font_family';
     public const XPATH_CREDITCARDS_FIELD_BORDER_RADIUS = 'payment/buckaroo_magento2_creditcards/field_border_radius';
 
-
     /**
      * @var StoreManagerInterface
      */
@@ -148,7 +147,6 @@ class Creditcards extends AbstractConfigProvider
     {
         return $this->issuers;
     }
-
 
     /**
      * Add the active flag to the creditcard list. This is used in the checkout process.

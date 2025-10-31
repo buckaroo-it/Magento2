@@ -58,7 +58,6 @@ class CommandInterface
      */
     public $helper;
 
-
     /**
      * @param Factory                 $configProviderMethodFactory
      * @param BuckarooLoggerInterface $logger

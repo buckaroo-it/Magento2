@@ -63,7 +63,6 @@ abstract class AbstractResponseHandlerTest extends TestCase
 
         $this->orderPaymentMock = $this->createMock(Payment::class);
 
-
         $this->transactionResponse = $this->createMock(TransactionResponse::class);
     }
 

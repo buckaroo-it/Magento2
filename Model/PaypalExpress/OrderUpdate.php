@@ -147,7 +147,6 @@ class OrderUpdate
         return $data ?: null;
     }
 
-
     /**
      * Format address data in key/value pairs
      *

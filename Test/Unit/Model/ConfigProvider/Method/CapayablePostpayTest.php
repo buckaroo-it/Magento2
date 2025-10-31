@@ -21,7 +21,6 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
-
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\CapayableIn3;
 use Magento\Framework\App\Config\ScopeConfigInterface;

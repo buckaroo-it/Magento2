@@ -47,7 +47,6 @@ class Percentage
         $this->taxCalculate = $taxCalculate;
     }
 
-
     public function calculate(CartInterface $cart, Total $total, $percentage)
     {
         $percentage = (float) rtrim($percentage, '%');

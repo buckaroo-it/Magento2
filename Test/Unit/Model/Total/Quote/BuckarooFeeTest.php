@@ -20,7 +20,6 @@
  */
 namespace Buckaroo\Magento2\Test\Unit\Model\Total\Quote;
 
-
 use Magento\Catalog\Helper\Data;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Quote\Api\Data\ShippingAssignmentInterface;
@@ -189,7 +188,6 @@ class BuckarooFeeTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $this->assertEquals($instance, $result);
     }
-
 
     /**
      * @dataProvider baseFeePercentageDataProvider

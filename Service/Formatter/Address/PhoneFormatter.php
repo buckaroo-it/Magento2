@@ -19,7 +19,6 @@
  */
 declare(strict_types=1);
 
-
 namespace Buckaroo\Magento2\Service\Formatter\Address;
 
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;

@@ -67,7 +67,6 @@ class CancelOrder
                     ->save();
             }
 
-
         } catch (\Throwable $th) {
             $this->logger->addError(__METHOD__." ".(string)$th);
         }

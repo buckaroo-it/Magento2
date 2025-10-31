@@ -134,7 +134,6 @@ class DefaultProcessor implements PushProcessorInterface
     protected $orderStatusFactory;
     private $giftCardRefundService;
 
-
     /**
      * @param OrderRequestService     $orderRequestService
      * @param PushTransactionType     $pushTransactionType
@@ -358,7 +357,6 @@ class DefaultProcessor implements PushProcessorInterface
             }
             $trxId = $this->pushRequest->getTransactions();
         }
-
 
         $isRefund = $this->pushRequest->hasAdditionalInformation('service_action_from_magento', 'refund');
 
@@ -804,7 +802,6 @@ class DefaultProcessor implements PushProcessorInterface
             var_export($newStatus, true)
         ));
 
-
         $this->setBuckarooReservationNumber();
 
         $this->sendOrderEmail();
@@ -899,7 +896,6 @@ class DefaultProcessor implements PushProcessorInterface
             }
         }
 
-
         if ($this->groupTransaction->isGroupTransaction($this->pushRequest->getInvoiceNumber())) {
             $paymentDetails['forceState'] = true;
         }
@@ -916,8 +912,6 @@ class DefaultProcessor implements PushProcessorInterface
 
         return true;
     }
-
-
 
     /**
      * Process succeeded push authorization.

@@ -18,7 +18,6 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-
 namespace Buckaroo\Magento2\Api;
 
 use Buckaroo\Magento2\Api\Data\GroupTransactionInterface;

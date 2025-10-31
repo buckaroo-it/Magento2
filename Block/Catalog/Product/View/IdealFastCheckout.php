@@ -192,7 +192,6 @@ class IdealFastCheckout extends Template
         return false;
     }
 
-
     /**
      * Check if current product page requires iDIN (Per Product mode)
      *

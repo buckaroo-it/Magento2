@@ -21,7 +21,6 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider;
 
-
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Refund;

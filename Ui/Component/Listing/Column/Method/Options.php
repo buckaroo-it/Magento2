@@ -37,7 +37,6 @@ class Options extends Column
 
     protected $orderCollectionFactory;
 
-
     /**
      * @param ContextInterface       $context
      * @param UiComponentFactory     $uiComponentFactory

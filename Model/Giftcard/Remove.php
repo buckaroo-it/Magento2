@@ -46,7 +46,6 @@ class Remove
      */
     private $removeCommand;
 
-
     public function __construct(
         GroupTransactionRepository $groupTransactionRepository,
         PaymentDataObjectFactory $paymentDataObjectFactory,

@@ -20,7 +20,6 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Cron;
 
-
 use Buckaroo\Magento2\Cron\SecondChance;
 use Buckaroo\Magento2\Model\ConfigProvider\SecondChance as ConfigProvider;
 use Buckaroo\Magento2\Model\SecondChanceRepository;

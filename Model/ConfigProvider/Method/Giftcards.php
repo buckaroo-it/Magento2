@@ -44,7 +44,6 @@ class Giftcards extends AbstractConfigProvider
     public const XPATH_ACCOUNT_ADVANCED_EXPORT_GIFTCARDS = 'buckaroo_magento2/account/advanced_export_giftcards';
     public const XPATH_GIFTCARDS_PAYMENT_FEE          = 'payment/buckaroo_magento2_giftcards/payment_fee';
 
-
     /**
      * @var array
      */
@@ -181,8 +180,6 @@ class Giftcards extends AbstractConfigProvider
 
         return $cards;
     }
-
-
 
     /**
      * Get Allowed Giftcards

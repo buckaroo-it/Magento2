@@ -204,7 +204,6 @@ class CreateInvoice
         return $invoiceItems;
     }
 
-
     /**
      * @param mixed $payment
      * @param mixed $transactionKey

@@ -21,7 +21,6 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Block\Config\Form\Field;
 
-
 use Magento\Backend\Block\Context;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\RequestInterface;

@@ -59,7 +59,6 @@ class QuoteBuilder implements QuoteBuilderInterface
      */
     protected $formData;
 
-
     /**
      * @var \Magento\Quote\Model\Quote
      */
