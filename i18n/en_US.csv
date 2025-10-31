@@ -38,3 +38,4 @@
 "Inline (Integrated in checkout)","Inline (Integrated in checkout)"
 "Redirect (Buckaroo Hosted Payment Page)","Redirect (Buckaroo Hosted Payment Page)"
 "Select Inline to embed Apple Pay directly within the Magento checkout. Select Redirect to send customers to Buckaroo's secure Hosted Payment Page. Note: When using the Redirect option, Apple Pay can only be offered in the checkout (not in other areas like the mini-cart or product page).","Select Inline to embed Apple Pay directly within the Magento checkout. Select Redirect to send customers to Buckaroo's secure Hosted Payment Page. Note: When using the Redirect option, Apple Pay can only be offered in the checkout (not in other areas like the mini-cart or product page)."
+"Order reactivated: Payment completed after cancellation (Push notification received). Transaction ID: ""%1""","Order reactivated: Payment completed after cancellation (Push notification received). Transaction ID: ""%1"""

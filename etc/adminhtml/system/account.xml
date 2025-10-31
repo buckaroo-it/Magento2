@@ -164,6 +164,14 @@
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <config_path>buckaroo_magento2/account/cancel_on_failed</config_path>
                 </field>
+                
+                <field id="cancel_on_browser_back" translate="label comment tooltip" type="select" sortOrder="115" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Cancel order on browser back button</label>
+                    <comment><![CDATA[If disabled, orders will stay in pending state when customer uses browser back button, allowing retry. Buckaroo push notification will handle final cancellation if needed.]]></comment>
+                    <tooltip><![CDATA[Recommended: No - This allows customers to retry payment and prevents orders from being prematurely canceled. The push notification will cancel orders that are truly abandoned.]]></tooltip>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>buckaroo_magento2/account/cancel_on_browser_back</config_path>
+                </field>
             </group>
 
             <group id="buckaroo_magento2_redirects" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">

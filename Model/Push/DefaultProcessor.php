@@ -41,6 +41,7 @@ use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
+use Exception;
 use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\LocalizedException;
@@ -176,7 +177,7 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * @throws BuckarooException
      * @throws FileSystemException
-     * @throws \Exception
+     * @throws Exception
      */
     public function processPush(PushRequestInterface $pushRequest): bool
     {
@@ -233,7 +234,7 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * @param \Buckaroo\Magento2\Api\Data\PushRequestInterface $pushRequest
      * @return void
-     * @throws \Exception
+     * @throws Exception
      */
     protected function initializeFields(PushRequestInterface $pushRequest): void
     {
@@ -246,7 +247,7 @@ class DefaultProcessor implements PushProcessorInterface
      * Skip the push if the conditions are met.
      *
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     protected function skipPush(): bool
     {
@@ -284,7 +285,7 @@ class DefaultProcessor implements PushProcessorInterface
      * Check if it is needed to handle the push message based on postdata
      *
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
@@ -328,7 +329,7 @@ class DefaultProcessor implements PushProcessorInterface
      * @param int|null $receivedStatusCode
      * @param string|null $trxId
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
@@ -499,10 +500,23 @@ class DefaultProcessor implements PushProcessorInterface
             && ($this->pushTransactionType->getStatusKey() === 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')
             && $this->pushRequest->getRelatedtransactionPartialpayment() == null
         ) {
+            // Check if order was already reactivated in this session to prevent duplicate reactivation
+            $alreadyReactivated = $this->payment->getAdditionalInformation('buckaroo_order_reactivated');
+
+            if ($alreadyReactivated) {
+                $this->logger->addDebug(sprintf(
+                    '[%s:%s] - Order already reactivated in this session, skipping duplicate reactivation',
+                    __METHOD__,
+                    __LINE__
+                ));
+                return false;
+            }
+
             $this->logger->addDebug(sprintf(
-                '[%s:%s] - Resetting from CANCELED to STATE_NEW/PENDING',
+                '[%s:%s] - Resetting from CANCELED to STATE_NEW/PENDING | order: %s',
                 __METHOD__,
-                __LINE__
+                __LINE__,
+                $this->order->getIncrementId()
             ));
 
             $this->order->setState(Order::STATE_NEW);
@@ -511,6 +525,24 @@ class DefaultProcessor implements PushProcessorInterface
             foreach ($this->order->getAllItems() as $item) {
                 $item->setQtyCanceled(0);
             }
+
+            // Mark order as reactivated to prevent duplicate reactivation from subsequent pushes
+            $this->payment->setAdditionalInformation('buckaroo_order_reactivated', true);
+            $this->payment->save();
+
+            // Add comment to order history
+            $this->order->addCommentToStatusHistory(
+                __(
+                    'Order reactivated: Payment completed after cancellation (Push notification received). ' .
+                    'Transaction ID: "%1"',
+                    $this->pushRequest->getTransactions()
+                ),
+                'pending',
+                false
+            );
+
+            // Save the order immediately to persist the state change
+            $this->order->save();
 
             $this->forceInvoice = true;
             return true;
@@ -623,7 +655,7 @@ class DefaultProcessor implements PushProcessorInterface
      * Save the part group transaction.
      *
      * @return void
-     * @throws \Exception
+     * @throws Exception
      */
     protected function savePartGroupTransaction(): void
     {
@@ -787,23 +819,53 @@ class DefaultProcessor implements PushProcessorInterface
         $isSuccessStatus = ((int)$this->pushRequest->getStatusCode() === $this->buckarooStatusCode::SUCCESS);
 
         if ($isCaptureTx || $isCaptureMutation || ($hasKlarnaCaptureId && $isSuccessStatus)) {
-            $this->logger->addDebug(sprintf(
-                '[%s:%s] - CAPTURE_DETECTED | data: %s',
-                __METHOD__,
-                __LINE__,
-                var_export([
-                    'transaction_type' => $this->pushRequest->getData()['brq_transaction_type'] ?? null,
-                    'mutationtype' => $this->pushRequest->getData()['brq_mutationtype'] ?? null,
-                    'transaction_method' => $this->pushRequest->getData()['brq_transaction_method'] ?? null,
-                    'klarnakp_capture_id' => $this->pushRequest->getServiceKlarnakpCaptureid() ?? null,
-                ], true)
-            ));
-
             // Build capture description using current amount context
             $amount = $this->order->getBaseTotalDue();
             if (!empty($this->pushRequest->getAmount())) {
                 $amount = (float)$this->pushRequest->getAmount();
             }
+
+            // Check if invoice should be created on shipment instead
+            // First, try to read from payment's additional_information (set during order placement)
+            $invoiceHandlingMode = $this->order->getPayment()->getAdditionalInformation(
+                InvoiceHandlingOptions::INVOICE_HANDLING
+            );
+            
+            // If not set (e.g., order was canceled before authorization completed),
+            // check method-specific config directly
+            if ($invoiceHandlingMode === null || $invoiceHandlingMode === '') {
+                $methodSpecificConfig = $this->payment->getMethodInstance()->getConfigData('create_invoice_after_shipment');
+                if ($methodSpecificConfig !== null && $methodSpecificConfig !== '') {
+                    $invoiceHandlingMode = ($methodSpecificConfig == 1) ? InvoiceHandlingOptions::SHIPMENT : null;
+                } else {
+                    // Fall back to general account config
+                    $invoiceHandlingMode = $this->configAccount->getInvoiceHandling();
+                }
+            }
+            
+            if ($invoiceHandlingMode == InvoiceHandlingOptions::SHIPMENT) {
+                $this->logger->addDebug(sprintf(
+                    '[%s:%s] - CAPTURE detected but invoice handling is SHIPMENT mode - skipping invoice creation',
+                    __METHOD__,
+                    __LINE__
+                ));
+
+                // Mark payment as already captured so shipment observer can use OFFLINE capture
+                $this->order->getPayment()->setAdditionalInformation('buckaroo_already_captured', true);
+
+                $description = 'Capture status : <strong>' . $message . '</strong><br/>'
+                    . 'Total amount of ' . $this->order->getBaseCurrency()->formatTxt($amount) . ' has been captured. Invoice will be created on shipment.';
+
+                $this->orderRequestService->updateOrderStatus(
+                    Order::STATE_PROCESSING,
+                    $newStatus,
+                    $description,
+                    false,
+                    $this->dontSaveOrderUponSuccessPush
+                );
+                return true;
+            }
+
             $description = 'Capture status : <strong>' . $message . '</strong><br/>'
                 . 'Total amount of ' . $this->order->getBaseCurrency()->formatTxt($amount) . ' has been captured.';
 
@@ -854,7 +916,7 @@ class DefaultProcessor implements PushProcessorInterface
      * Process succeeded push authorization.
      *
      * @return void
-     * @throws \Exception
+     * @throws Exception
      */
     private function processSucceededPushAuthorization(): void
     {
@@ -944,7 +1006,10 @@ class DefaultProcessor implements PushProcessorInterface
     {
         if ($this->payment->getMethodInstance()->getConfigData('payment_action') == 'authorize') {
             // For authorize payments with shipment-based invoicing, allow processing to set the flag
-            return ($this->configAccount->getInvoiceHandling() == InvoiceHandlingOptions::SHIPMENT);
+            $invoiceHandlingMode = $this->order->getPayment()->getAdditionalInformation(
+                InvoiceHandlingOptions::INVOICE_HANDLING
+            );
+            return ($invoiceHandlingMode == InvoiceHandlingOptions::SHIPMENT);
         }
 
         return true;
@@ -957,7 +1022,7 @@ class DefaultProcessor implements PushProcessorInterface
      * @return bool
      * @throws BuckarooException
      * @throws LocalizedException
-     * @throws \Exception
+     * @throws Exception
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
@@ -975,7 +1040,21 @@ class DefaultProcessor implements PushProcessorInterface
 
         $this->addTransactionData();
 
-        if ($this->configAccount->getInvoiceHandling() == InvoiceHandlingOptions::SHIPMENT) {
+        // Check method-specific config first, fall back to general config
+        // Method-specific config key: create_invoice_after_shipment (only exists for Klarna & Afterpay)
+        // If "Yes" (value=1), invoice should be created after shipment (SHIPMENT mode)
+        $methodSpecificConfig = $this->payment->getMethodInstance()->getConfigData('create_invoice_after_shipment');
+        $useShipmentMode = false;
+        
+        if ($methodSpecificConfig !== null && $methodSpecificConfig !== '') {
+            // Method has specific config value - use it (1 = Yes = SHIPMENT mode, 0 = No = immediate)
+            $useShipmentMode = ($methodSpecificConfig == 1);
+        } else {
+            // No method-specific config or not set - use general account config
+            $useShipmentMode = ($this->configAccount->getInvoiceHandling() == InvoiceHandlingOptions::SHIPMENT);
+        }
+
+        if ($useShipmentMode) {
             // In shipment mode, record the payment as authorized but don't capture yet
             // Store the invoice handling setting for later use
             $this->payment->setAdditionalInformation(
@@ -1032,7 +1111,7 @@ class DefaultProcessor implements PushProcessorInterface
      * @param bool $data
      * @return Payment
      * @throws LocalizedException
-     * @throws \Exception
+     * @throws Exception
      */
     public function addTransactionData(bool $transactionKey = false, bool $data = false): Payment
     {
@@ -1182,7 +1261,7 @@ class DefaultProcessor implements PushProcessorInterface
      * @return bool
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     * @throws \Exception
+     * @throws Exception
      */
     protected function processPendingPaymentPush($newStatus, string $statusMessage): bool
     {
@@ -1299,7 +1378,10 @@ class DefaultProcessor implements PushProcessorInterface
         $this->dontSaveOrderUponSuccessPush = false;
 
         // Check if this is shipment mode - payment authorized but not captured yet
-        $isShipmentMode = ($this->configAccount->getInvoiceHandling() == InvoiceHandlingOptions::SHIPMENT);
+        $invoiceHandlingMode = $this->order->getPayment()->getAdditionalInformation(
+            InvoiceHandlingOptions::INVOICE_HANDLING
+        );
+        $isShipmentMode = ($invoiceHandlingMode == InvoiceHandlingOptions::SHIPMENT);
 
         if ($this->canPushInvoice() && !$isShipmentMode) {
             $description = 'Payment status : <strong>' . $message . "</strong><br/>";

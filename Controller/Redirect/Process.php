@@ -244,12 +244,6 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
                 return $this->handleProcessedResponse('/');
             }
 
-            if (($this->payment->getMethodInstance()->getCode() == 'buckaroo_magento2_paypal')
-                && ($statusCode == BuckarooStatusCode::PENDING_PROCESSING)
-            ) {
-                $statusCode = BuckarooStatusCode::CANCELLED_BY_USER;
-            }
-
             $this->logger->addDebug(sprintf(
                 '[REDIRECT - %s] | [Controller] | [%s:%s] - Status Code | statusCode: %s',
                 $this->payment->getMethod(),
@@ -400,7 +394,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
             $reservationNumber = $this->redirectRequest->getServiceKlarnakpReservationnumber();
             $this->order->setBuckarooReservationNumber($reservationNumber);
             $this->order->save();
-            
+
             $this->logger->addDebug(sprintf(
                 '[KLARNA_KP] | [REDIRECT] | [%s:%s] - Saved reservation number from redirect for order %s: %s',
                 __METHOD__,
@@ -675,6 +669,23 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
 
         $this->removeAmastyGiftcardOnFailed();
 
+        // Check if this is a browser back button scenario (CANCELLED_BY_USER)
+        $isBrowserBack = ($statusCode === BuckarooStatusCode::CANCELLED_BY_USER);
+
+        // Check configuration for browser back behavior
+        $store = $this->order->getStore();
+        $shouldCancelOnBrowserBack = (bool) $this->accountConfig->getCancelOnBrowserBack($store);
+
+        $this->logger->addDebug(sprintf(
+            '[REDIRECT - %s] | [Controller] | [%s:%s] - Handle Failed Check | statusCode: %s | isBrowserBack: %s | shouldCancelOnBrowserBack: %s',
+            $this->payment->getMethod(),
+            __METHOD__,
+            __LINE__,
+            $statusCode,
+            var_export($isBrowserBack, true),
+            var_export($shouldCancelOnBrowserBack, true)
+        ));
+
         if (!$this->getSkipHandleFailedRecreate()
             && (!$this->quoteRecreate->recreate($this->quote))) {
             $this->logger->addError(sprintf(
@@ -686,10 +697,17 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
         }
 
         /*
-         * Something went wrong, so we're going to have to
-         * 1) recreate the quote for the user
-         * 2) cancel the order we had to create to even get here
-         * 3) redirect back to the checkout page to offer the user feedback & the option to try again
+         * For browser back button scenario:
+         * 1) Recreate the quote for the user to allow retry
+         * 2) Based on configuration, either:
+         *    a) Cancel the order immediately (old behavior if shouldCancelOnBrowserBack = true)
+         *    b) Leave it in pending state - Buckaroo push will cancel it later (new behavior, default)
+         * 3) Redirect back to checkout to allow retry
+         *
+         * For actual failures:
+         * 1) Recreate the quote for the user
+         * 2) Cancel the order
+         * 3) Redirect back to checkout with error message
          */
         $this->addErrorMessageByStatus($statusCode);
 
@@ -698,20 +716,56 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
             return $this->redirectFailure();
         }
 
-        if (!$this->cancelOrder($statusCode)) {
-            $this->logger->addError(sprintf(
-                '[REDIRECT - %s] | [Controller] | [%s:%s] - Could not Cancel the Order.',
+        // For browser back button, check configuration
+        if ($isBrowserBack && !$shouldCancelOnBrowserBack) {
+            $this->logger->addDebug(sprintf(
+                '[REDIRECT - %s] | [Controller] | [%s:%s] - Browser Back Button Detected - '
+                . 'Order left in pending state (config: cancel_on_browser_back = disabled). '
+                . 'Quote recreated for retry. Order: %s',
                 $this->payment->getMethod(),
                 __METHOD__,
-                __LINE__
+                __LINE__,
+                $this->order->getIncrementId()
             ));
+
+            // Add a status history comment to track this
+            $this->order->addCommentToStatusHistory(
+                __('Customer returned using browser back button. Order left pending for push notification.'),
+                false,
+                false
+            );
+            $this->order->save();
+
+        } else {
+            // For actual failures OR if config says to cancel on browser back, cancel the order as before
+            if ($isBrowserBack) {
+                $this->logger->addDebug(sprintf(
+                    '[REDIRECT - %s] | [Controller] | [%s:%s] - Browser Back Button Detected - '
+                    . 'Order will be canceled (config: cancel_on_browser_back = enabled). Order: %s',
+                    $this->payment->getMethod(),
+                    __METHOD__,
+                    __LINE__,
+                    $this->order->getIncrementId()
+                ));
+            }
+
+            if (!$this->cancelOrder($statusCode)) {
+                $this->logger->addError(sprintf(
+                    '[REDIRECT - %s] | [Controller] | [%s:%s] - Could not Cancel the Order.',
+                    $this->payment->getMethod(),
+                    __METHOD__,
+                    __LINE__
+                ));
+            }
         }
 
         $this->logger->addDebug(sprintf(
-            '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect Failure',
+            '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect Failure | isBrowserBack: %s | shouldCancelOnBrowserBack: %s',
             $this->payment->getMethod(),
             __METHOD__,
-            __LINE__
+            __LINE__,
+            var_export($isBrowserBack, true),
+            var_export($shouldCancelOnBrowserBack, true)
         ));
 
         return $this->redirectFailure();
@@ -740,7 +794,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
         $statusCodeAddErrorMessage[BuckarooStatusCode::FAILED] = __(self::GENERAL_ERROR_MESSAGE);
         $statusCodeAddErrorMessage[BuckarooStatusCode::REJECTED] = __(self::GENERAL_ERROR_MESSAGE);
         $statusCodeAddErrorMessage[BuckarooStatusCode::CANCELLED_BY_USER]
-            = __('According to our system, you have canceled the payment. If this is not the case, please contact us.');
+            = __('Payment cancelled. You can try again using the same or a different payment method.');
 
         $this->addErrorMessage(__($statusCodeAddErrorMessage[$statusCode]));
     }
