@@ -44,7 +44,7 @@ class GroupTransactionRegister implements ObserverInterface
     /**
      * @var BuckarooLoggerInterface
      */
-    private BuckarooLoggerInterface $logger;
+    private $logger;
 
     /**
      * @var Data
@@ -54,14 +54,14 @@ class GroupTransactionRegister implements ObserverInterface
     /**
      * @var PaymentGroupTransaction
      */
-    private PaymentGroupTransaction $groupTransaction;
+    private $groupTransaction;
 
     /**
-     * @param Account $accountConfig
-     * @param InvoiceSender $invoiceSender
+     * @param Account                 $accountConfig
+     * @param InvoiceSender           $invoiceSender
      * @param PaymentGroupTransaction $groupTransaction
      * @param BuckarooLoggerInterface $logger
-     * @param Data $helper
+     * @param Data                    $helper
      */
     public function __construct(
         Account $accountConfig,
@@ -81,7 +81,6 @@ class GroupTransactionRegister implements ObserverInterface
      * Set total paid by a group transaction for sales_order_invoice_pay event
      *
      * @param Observer $observer
-     * @return void
      */
     public function execute(Observer $observer)
     {

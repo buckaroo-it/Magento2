@@ -35,34 +35,34 @@ class GetTransactionsResponse extends DataObject implements GetTransactionsRespo
     /**
      * @var QuoteIdMaskFactory
      */
-    protected QuoteIdMaskFactory $quoteIdMaskFactory;
+    protected $quoteIdMaskFactory;
 
     /**
      * @var CartRepositoryInterface
      */
-    protected CartRepositoryInterface $cartRepository;
+    protected $cartRepository;
 
     /**
      * @var PaymentGroupTransaction
      */
-    protected PaymentGroupTransaction $groupTransaction;
+    protected $groupTransaction;
 
     /**
-     * @var  TransactionResponseInterfaceFactory
+     * @var TransactionResponseInterfaceFactory
      */
-    protected TransactionResponseInterfaceFactory $trResponseFactory;
+    protected $trResponseFactory;
 
     /**
      * @var Quote
      */
-    protected Quote $quote;
+    protected $quote;
 
     /**
-     * @param QuoteIdMaskFactory $quoteIdMaskFactory
-     * @param CartRepositoryInterface $cartRepository
-     * @param PaymentGroupTransaction $groupTransaction
-     * @param TransactionResponseInterfaceFactory $trResponseFactory
-     * @param string|null $cartId
+     * @param  QuoteIdMaskFactory                  $quoteIdMaskFactory
+     * @param  CartRepositoryInterface             $cartRepository
+     * @param  PaymentGroupTransaction             $groupTransaction
+     * @param  TransactionResponseInterfaceFactory $trResponseFactory
+     * @param  string|null                         $cartId
      * @throws NoQuoteException
      */
     public function __construct(
@@ -82,9 +82,9 @@ class GetTransactionsResponse extends DataObject implements GetTransactionsRespo
     /**
      * Get quote from masked cart id
      *
-     * @param string|null $cartId
-     * @return Quote
+     * @param  string|null      $cartId
      * @throws NoQuoteException
+     * @return Quote
      */
     protected function getQuote(?string $cartId): Quote
     {
@@ -138,7 +138,7 @@ class GetTransactionsResponse extends DataObject implements GetTransactionsRespo
     /**
      * Format data for json response
      *
-     * @param array $collection
+     * @param  array                          $collection
      * @return TransactionResponseInterface[]
      */
     protected function formatFound(array $collection): array

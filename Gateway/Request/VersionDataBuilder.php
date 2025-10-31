@@ -7,8 +7,8 @@ use Magento\Payment\Gateway\Request\BuilderInterface;
 
 class VersionDataBuilder implements BuilderInterface
 {
-    private BuilderInterface $v1;
-    private BuilderInterface $v2;
+    private $v1;
+    private $v2;
 
     public function __construct(
         BuilderInterface $v1,

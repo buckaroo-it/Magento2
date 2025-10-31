@@ -35,7 +35,6 @@ class TransactionIdHandler implements HandlerInterface
      *
      * @param array $handlingSubject
      * @param array $response
-     * @return void
      */
     public function handle(array $handlingSubject, array $response): void
     {

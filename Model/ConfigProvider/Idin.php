@@ -46,7 +46,7 @@ class Idin extends AbstractConfigProvider
     /**
      * @var array|array[]
      */
-    protected array $issuers = [
+    protected $issuers = [
         [
             'name' => 'ABN AMRO',
             'code' => 'ABNANL2A',
@@ -84,47 +84,47 @@ class Idin extends AbstractConfigProvider
     /**
      * @var CheckoutSession
      */
-    protected CheckoutSession $checkoutSession;
+    protected $checkoutSession;
 
     /**
      * @var AddressFactory
      */
-    protected AddressFactory $addressFactory;
+    protected $addressFactory;
 
     /**
      * @var CustomerRepository
      */
-    protected CustomerRepository $customerRepository;
+    protected $customerRepository;
 
     /**
      * @var StoreManagerInterface
      */
-    private StoreManagerInterface $storeManager;
+    private $storeManager;
 
     /**
      * @var Account
      */
-    private Account $configProviderAccount;
+    private $configProviderAccount;
 
     /**
      * @var CustomerSession
      */
-    private CustomerSession $customerSession;
+    private $customerSession;
 
     /**
      * @var ProductFactory
      */
-    private ProductFactory $productFactory;
+    private $productFactory;
 
     /**
-     * @param Account $configProviderAccount
+     * @param Account               $configProviderAccount
      * @param StoreManagerInterface $storeManager
-     * @param CustomerSession $customerSession
-     * @param ProductFactory $productFactory
-     * @param CheckoutSession $checkoutSession
-     * @param ScopeConfigInterface $scopeConfig
-     * @param AddressFactory $addressFactory
-     * @param CustomerRepository $customerRepository
+     * @param CustomerSession       $customerSession
+     * @param ProductFactory        $productFactory
+     * @param CheckoutSession       $checkoutSession
+     * @param ScopeConfigInterface  $scopeConfig
+     * @param AddressFactory        $addressFactory
+     * @param CustomerRepository    $customerRepository
      */
     public function __construct(
         Account $configProviderAccount,
@@ -149,10 +149,10 @@ class Idin extends AbstractConfigProvider
     /**
      * Retrieve associated array of checkout configuration
      *
-     * @param null|int|string $store
-     * @return array
+     * @param  null|int|string       $store
      * @throws NoSuchEntityException
      * @throws LocalizedException
+     * @return array
      */
     public function getConfig($store = null): array
     {
@@ -174,8 +174,8 @@ class Idin extends AbstractConfigProvider
     /**
      * Check if idin is active for this user and cart
      *
-     * @return array
      * @throws NoSuchEntityException|LocalizedException
+     * @return array
      */
     protected function isIDINActive(): array
     {
@@ -190,11 +190,11 @@ class Idin extends AbstractConfigProvider
     /**
      * Get idin status for customer and Quote/Cart
      *
-     * @param Quote $quote
+     * @param Quote                  $quote
      * @param CustomerInterface|null $customer
      *
-     * @return array
      * @throws NoSuchEntityException
+     * @return array
      */
     public function getIdinStatus(Quote $quote, ?CustomerInterface $customer = null): array
     {
@@ -216,8 +216,8 @@ class Idin extends AbstractConfigProvider
     /**
      * Enable idin only for netherland
      *
-     * @param CustomerInterface|null $customer
-     * @return boolean
+     * @param  CustomerInterface|null $customer
+     * @return bool
      */
     protected function checkCountry(?CustomerInterface $customer): bool
     {
@@ -237,9 +237,9 @@ class Idin extends AbstractConfigProvider
     /**
      * Check if idin is enabled
      *
-     * @param mixed $store
-     * @return boolean
+     * @param  mixed                 $store
      * @throws NoSuchEntityException
+     * @return bool
      */
     protected function isIdinEnabled($store = null): bool
     {
@@ -250,8 +250,8 @@ class Idin extends AbstractConfigProvider
     /**
      * Check if customer is verified
      *
-     * @param CustomerInterface|null $customer
-     * @return boolean
+     * @param  CustomerInterface|null $customer
+     * @return bool
      */
     protected function isCustomerVerified(?CustomerInterface $customer = null): bool
     {
@@ -267,8 +267,8 @@ class Idin extends AbstractConfigProvider
      *
      * @param Quote $quote
      *
-     * @return boolean
      * @throws NoSuchEntityException
+     * @return bool
      */
     public function isIdinActiveForQuote(Quote $quote): bool
     {
@@ -295,8 +295,8 @@ class Idin extends AbstractConfigProvider
     /**
      * Check if idin is required in product categories
      *
-     * @param Product $product
-     * @return boolean
+     * @param  Product $product
+     * @return bool
      */
     protected function checkCategories(Product $product): bool
     {
@@ -311,7 +311,7 @@ class Idin extends AbstractConfigProvider
     /**
      * Get customer by id
      *
-     * @param mixed $customerId
+     * @param  mixed                  $customerId
      * @return CustomerInterface|null
      */
     protected function getCustomer($customerId): ?CustomerInterface
@@ -330,8 +330,8 @@ class Idin extends AbstractConfigProvider
     /**
      * Get list of issuers
      *
-     * @return array
      * @throws NoSuchEntityException
+     * @return array
      */
     public function getIssuers(): array
     {
@@ -345,9 +345,9 @@ class Idin extends AbstractConfigProvider
     /**
      * Get active status for idin method
      *
-     * @param null $store
-     * @return int
+     * @param  null                  $store
      * @throws NoSuchEntityException
+     * @return int
      * @SuppressWarnings(PHPMD.BooleanGetMethodName)
      */
     public function getActive($store = null): int

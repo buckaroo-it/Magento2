@@ -47,7 +47,7 @@ class Response implements TransactionStatusResponseInterface
      *
      * @var array
      */
-    private array $data;
+    private $data;
 
     /**
      * Set transaction response
@@ -112,7 +112,7 @@ class Response implements TransactionStatusResponseInterface
      *
      * @param mixed $statusCode
      *
-     * @return boolean
+     * @return bool
      */
     public function isStatusCode($statusCode): bool
     {

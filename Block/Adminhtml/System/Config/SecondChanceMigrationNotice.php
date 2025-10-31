@@ -20,6 +20,7 @@
 
 namespace Buckaroo\Magento2\Block\Adminhtml\System\Config;
 
+use Magento\Backend\Block\Template\Context;
 use Magento\Config\Block\System\Config\Form\Field;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 use Buckaroo\Magento2\Model\SecondChance\ModuleConflictDetector;
@@ -32,12 +33,12 @@ class SecondChanceMigrationNotice extends Field
     private $conflictDetector;
 
     /**
-     * @param \Magento\Backend\Block\Template\Context $context
-     * @param ModuleConflictDetector $conflictDetector
-     * @param array $data
+     * @param Context $context
+     * @param ModuleConflictDetector                  $conflictDetector
+     * @param array                                   $data
      */
     public function __construct(
-        \Magento\Backend\Block\Template\Context $context,
+        Context $context,
         ModuleConflictDetector $conflictDetector,
         array $data = []
     ) {
@@ -48,7 +49,7 @@ class SecondChanceMigrationNotice extends Field
     /**
      * Render element html
      *
-     * @param AbstractElement $element
+     * @param  AbstractElement $element
      * @return string
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
@@ -61,7 +62,7 @@ class SecondChanceMigrationNotice extends Field
         }
 
         $instructions = $this->conflictDetector->getMigrationInstructions();
-        
+
         $html = '<div class="message message-warning">
             <div><strong>⚠️ Migration Required</strong></div>
             <div>The separate SecondChance module is still enabled. Please follow these steps to complete the migration:</div>
@@ -81,7 +82,7 @@ class SecondChanceMigrationNotice extends Field
     /**
      * Return element html in one line
      *
-     * @param AbstractElement $element
+     * @param  AbstractElement $element
      * @return string
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
@@ -93,7 +94,7 @@ class SecondChanceMigrationNotice extends Field
     /**
      * Return empty label
      *
-     * @param AbstractElement $element
+     * @param  AbstractElement $element
      * @return string
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */

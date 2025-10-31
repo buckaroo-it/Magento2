@@ -28,7 +28,7 @@ class OrderCreate implements OrderCreateResponseInterface
     /**
      * @var string
      */
-    protected string $orderId;
+    protected $orderId;
 
     /**
      * @param string $orderId

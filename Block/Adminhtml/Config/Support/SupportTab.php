@@ -38,27 +38,27 @@ class SupportTab extends Template implements RendererInterface
     /**
      * @var array
      */
-    private array $phpVersionSupport = [
+    private $phpVersionSupport = [
         '2.4' => ['8.1' => ['+'], '8.2' => ['+'], '8.3' => ['+'], '8.4' => ['+']],
     ];
 
     /**
      * @var SoftwareData
      */
-    private SoftwareData $softwareData;
+    private $softwareData;
 
     /**
      * @var Curl
      */
-    private Curl $curl;
+    private $curl;
 
     /**
      * Override the parent constructor to require our own dependencies.
      *
-     * @param Context $context
+     * @param Context      $context
      * @param SoftwareData $softwareData
-     * @param Curl $curl
-     * @param array $data
+     * @param Curl         $curl
+     * @param array        $data
      */
     public function __construct(
         Context $context,
@@ -75,7 +75,7 @@ class SupportTab extends Template implements RendererInterface
     /**
      * Render form element as HTML
      *
-     * @param AbstractElement $element
+     * @param  AbstractElement $element
      * @return string
      */
     public function render(AbstractElement $element): string
@@ -130,8 +130,8 @@ class SupportTab extends Template implements RendererInterface
     /**
      * Check PHP Compatibility
      *
-     * @param $currentVersion
-     * @param $phpPatch
+     * @param      $currentVersion
+     * @param      $phpPatch
      * @return int
      */
     private function checkPhpCompatibility($currentVersion, $phpPatch): int

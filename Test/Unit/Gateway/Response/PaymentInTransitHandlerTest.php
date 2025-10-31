@@ -28,7 +28,7 @@ class PaymentInTransitHandlerTest extends AbstractResponseHandlerTest
     /**
      * @var PaymentInTransitHandler
      */
-    private PaymentInTransitHandler $paymentInTransitHandler;
+    private $paymentInTransitHandler;
 
     protected function setUp(): void
     {
@@ -38,6 +38,8 @@ class PaymentInTransitHandlerTest extends AbstractResponseHandlerTest
 
     /**
      * @dataProvider handleDataProvider
+     * @param bool $hasRedirect
+     * @param bool $inTransit
      */
     public function testHandle(bool $hasRedirect, bool $inTransit)
     {

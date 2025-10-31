@@ -55,7 +55,7 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
 
     /**
      * @param mixed $configValue
-     * @param bool $expected
+     * @param bool  $expected
      * 
      * @dataProvider isSecondChanceEnabledProvider
      */
@@ -91,7 +91,7 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
 
     /**
      * @param mixed $configValue
-     * @param bool $expected
+     * @param bool  $expected
      * 
      * @dataProvider isFirstEmailEnabledProvider
      */
@@ -127,7 +127,7 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
 
     /**
      * @param mixed $configValue
-     * @param bool $expected
+     * @param bool  $expected
      * 
      * @dataProvider isSecondEmailEnabledProvider
      */
@@ -162,7 +162,7 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
     }
 
     /**
-     * @param mixed $configValue
+     * @param mixed  $configValue
      * @param string $expected
      * 
      * @dataProvider getFirstEmailTemplateProvider
@@ -200,7 +200,7 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
     }
 
     /**
-     * @param mixed $configValue
+     * @param mixed  $configValue
      * @param string $expected
      * 
      * @dataProvider getSecondEmailTemplateProvider
@@ -241,7 +241,7 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
 
     /**
      * @param mixed $configValue
-     * @param int $expected
+     * @param int   $expected
      * 
      * @dataProvider getFirstEmailTimingProvider
      */
@@ -279,7 +279,7 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
 
     /**
      * @param mixed $configValue
-     * @param int $expected
+     * @param int   $expected
      * 
      * @dataProvider getSecondEmailTimingProvider
      */
@@ -316,7 +316,7 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
 
     /**
      * @param mixed $configValue
-     * @param bool $expected
+     * @param bool  $expected
      * 
      * @dataProvider shouldSkipOutOfStockProvider
      */
@@ -354,7 +354,7 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
 
     /**
      * @param mixed $configValue
-     * @param int $expected
+     * @param int   $expected
      * 
      * @dataProvider getPruneDaysProvider
      */
@@ -391,7 +391,7 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
 
     /**
      * @param mixed $configValue
-     * @param bool $expected
+     * @param bool  $expected
      * 
      * @dataProvider canSendMultipleEmailsProvider
      */

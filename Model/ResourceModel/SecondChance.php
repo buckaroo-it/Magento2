@@ -26,8 +26,6 @@ class SecondChance extends AbstractDb
 {
     /**
      * Define resource model
-     *
-     * @return void
      */
     protected function _construct()
     {

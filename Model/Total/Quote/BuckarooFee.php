@@ -50,9 +50,10 @@ class BuckarooFee extends AbstractTotal
     protected $logger;
 
     /**
-     * @param PriceCurrencyInterface $priceCurrency
-     * @param PaymentGroupTransaction $groupTransaction
+     * @param PriceCurrencyInterface                           $priceCurrency
+     * @param PaymentGroupTransaction                          $groupTransaction
      * @param \Buckaroo\Magento2\Service\BuckarooFee\Calculate $calculate
+     * @param LoggerInterface                                  $logger
      */
     public function __construct(
         PriceCurrencyInterface $priceCurrency,
@@ -71,9 +72,9 @@ class BuckarooFee extends AbstractTotal
     /**
      * Collect grand total address amount
      *
-     * @param Quote $quote
-     * @param ShippingAssignmentInterface $shippingAssignment
-     * @param Total $total
+     * @param  Quote                       $quote
+     * @param  ShippingAssignmentInterface $shippingAssignment
+     * @param  Total                       $total
      * @return $this
      */
     public function collect(

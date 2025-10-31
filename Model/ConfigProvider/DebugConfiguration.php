@@ -28,11 +28,11 @@ class DebugConfiguration extends AbstractConfigProvider
     /**
      * @var Account
      */
-    private Account $accountConfig;
+    private $accountConfig;
 
     /**
      * @param ScopeConfigInterface $scopeConfig
-     * @param Account $account
+     * @param Account              $account
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
@@ -55,7 +55,7 @@ class DebugConfiguration extends AbstractConfigProvider
     /**
      * Is Logger active
      *
-     * @param int|string $level
+     * @param  int|string $level
      * @return bool
      */
     public function canLog($level)

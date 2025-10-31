@@ -140,7 +140,6 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
     /**
      * Calculate quote totals, set store id required for quote masking,
      * set customer email required for order validation
-     * @return void
      */
     protected function calculateQuoteTotals()
     {
@@ -185,8 +184,6 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
      * recalculate shipping totals
      *
      * @param Address $address
-     *
-     * @return void
      */
     protected function addFirstShippingMethod(Address $address)
     {
@@ -209,8 +206,6 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
      * Fill any fields missing from the addresses
      *
      * @param ShippingAddressRequestInterface $shipping_address
-     *
-     * @return void
      */
     protected function maybeFillAnyMissingAddressFields(ShippingAddressRequestInterface $shipping_address)
     {
@@ -221,8 +216,6 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
     /**
      * If we didn't find any default shipping address we fill the empty fields
      * required for quote validation
-     *
-     * @return void
      */
     protected function maybeFillShippingAddressFields()
     {
@@ -241,8 +234,6 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
      * required for quote validation
      *
      * @param ShippingAddressRequestInterface $shipping_address
-     *
-     * @return void
      */
     protected function maybeFillBillingAddressFields(ShippingAddressRequestInterface $shipping_address)
     {
@@ -258,7 +249,6 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
 
     /**
      * Set paypal payment method on quote
-     *
      */
     protected function setPaymentMethod()
     {

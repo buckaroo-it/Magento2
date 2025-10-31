@@ -55,7 +55,7 @@ class Creditcard extends AbstractConfigProvider
 
 
     /** @var array[] */
-    protected array $issuers = [
+    protected $issuers = [
         [
             'name' => 'American Express',
             'code' => self::CREDITCARD_SERVICE_CODE_AMEX,
@@ -228,9 +228,9 @@ class Creditcard extends AbstractConfigProvider
      * Get card name by card code
      *
      * @param string $cardType
-     * @return string
      *
      * @throws \InvalidArgumentException
+     * @return string
      */
     public function getCardName($cardType)
     {
@@ -247,9 +247,9 @@ class Creditcard extends AbstractConfigProvider
      * Get card code by card name
      *
      * @param string $cardName
-     * @return string
      *
      * @throws \InvalidArgumentException
+     * @return string
      */
     public function getCardCode($cardName)
     {
@@ -265,7 +265,7 @@ class Creditcard extends AbstractConfigProvider
     /**
      * Retrieve the sorted order of the credit card types to display on the checkout page
      *
-     * @param $storeId
+     * @param          $storeId
      * @return ?string
      */
     public function getSortedIssuers($storeId = null): ?string
@@ -283,7 +283,7 @@ class Creditcard extends AbstractConfigProvider
     /**
      * Get the list with allowed credit cards
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed
      */
     public function getAllowedCreditcards($store = null)
@@ -298,7 +298,7 @@ class Creditcard extends AbstractConfigProvider
     /**
      * Selection type radio checkbox or drop down
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed
      */
     public function getSelectionType($store = null)
@@ -309,7 +309,7 @@ class Creditcard extends AbstractConfigProvider
     /**
      * Get Payment Flow - Order vs Authorize/Capture
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed
      */
     public function getPaymentFlow($store = null)
@@ -320,7 +320,7 @@ class Creditcard extends AbstractConfigProvider
     /**
      * Credit cards are displayed separately in the checkout.
      *
-     * @param $storeId
+     * @param         $storeId
      * @return string
      */
     public function isGroupCreditcards($storeId = null): string
@@ -331,7 +331,7 @@ class Creditcard extends AbstractConfigProvider
     /**
      * Hold orders which have no MasterCard SecureCode.
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed
      */
     public function getMastercardUnsecureHold($store = null)
@@ -342,7 +342,7 @@ class Creditcard extends AbstractConfigProvider
     /**
      * Hold orders which have no Visa SecureCode.
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed
      */
     public function getVisaUnsecureHold($store = null)
@@ -353,7 +353,7 @@ class Creditcard extends AbstractConfigProvider
     /**
      * Hold orders which have no Maestro SecureCode.
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed
      */
     public function getMaestroUnsecureHold($store = null)

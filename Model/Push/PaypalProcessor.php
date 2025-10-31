@@ -39,20 +39,20 @@ use Magento\Sales\Api\Data\TransactionInterface;
  */
 class PaypalProcessor extends DefaultProcessor
 {
-    private PaypalConfig $paypalConfig;
+    private $paypalConfig;
 
     /**
-     * @param OrderRequestService $orderRequestService
-     * @param PushTransactionType $pushTransactionType
+     * @param OrderRequestService     $orderRequestService
+     * @param PushTransactionType     $pushTransactionType
      * @param BuckarooLoggerInterface $logger
-     * @param Data $helper
-     * @param TransactionInterface $transaction
+     * @param Data                    $helper
+     * @param TransactionInterface    $transaction
      * @param PaymentGroupTransaction $groupTransaction
-     * @param BuckarooStatusCode $buckarooStatusCode
-     * @param OrderStatusFactory $orderStatusFactory
-     * @param Account $configAccount
-     * @param GiftCardRefundService $giftCardRefundService
-     * @param PaypalConfig $paypalConfig
+     * @param BuckarooStatusCode      $buckarooStatusCode
+     * @param OrderStatusFactory      $orderStatusFactory
+     * @param Account                 $configAccount
+     * @param GiftCardRefundService   $giftCardRefundService
+     * @param PaypalConfig            $paypalConfig
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -85,9 +85,9 @@ class PaypalProcessor extends DefaultProcessor
     }
 
     /**
-     * @return false|string|null
      * @throws BuckarooException
      * @throws LocalizedException
+     * @return false|string|null
      */
     protected function getNewStatus()
     {

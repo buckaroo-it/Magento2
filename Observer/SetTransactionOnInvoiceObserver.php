@@ -39,22 +39,22 @@ class SetTransactionOnInvoiceObserver implements ObserverInterface
     /**
      * @var CheckPaymentType
      */
-    public CheckPaymentType $checkPaymentType;
+    public $checkPaymentType;
 
     /**
      * @var CommandInterface
      */
-    protected CommandInterface $stateCommand;
+    protected $stateCommand;
 
     /**
      * @var Account
      */
-    private Account $configAccount;
+    private $configAccount;
 
     /**
      * @var CreateInvoice
      */
-    private CreateInvoice $createInvoiceService;
+    private $createInvoiceService;
 
     public function __construct(
         CommandInterface $stateCommand,
@@ -71,9 +71,9 @@ class SetTransactionOnInvoiceObserver implements ObserverInterface
     /**
      * Set transaction id on invoiced for invoice after shippment
      *
-     * @param Observer $observer
-     * @return $this
+     * @param  Observer           $observer
      * @throws LocalizedException
+     * @return $this
      */
     public function execute(Observer $observer)
     {
@@ -110,7 +110,7 @@ class SetTransactionOnInvoiceObserver implements ObserverInterface
     /**
      * Is the invoice for the current order is created after shipment
      *
-     * @param OrderPaymentInterface $payment
+     * @param  OrderPaymentInterface $payment
      * @return bool
      */
     private function isInvoiceCreatedAfterShipment(OrderPaymentInterface $payment): bool

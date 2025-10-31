@@ -41,20 +41,20 @@ class KlarnaKpProcessor extends DefaultProcessor
     /**
      * @var Klarnakp
      */
-    private Klarnakp $klarnakpConfig;
+    private $klarnakpConfig;
 
     /**
-     * @param OrderRequestService $orderRequestService
-     * @param PushTransactionType $pushTransactionType
+     * @param OrderRequestService     $orderRequestService
+     * @param PushTransactionType     $pushTransactionType
      * @param BuckarooLoggerInterface $logger
-     * @param Data $helper
-     * @param TransactionInterface $transaction
+     * @param Data                    $helper
+     * @param TransactionInterface    $transaction
      * @param PaymentGroupTransaction $groupTransaction
-     * @param BuckarooStatusCode $buckarooStatusCode
-     * @param OrderStatusFactory $orderStatusFactory
-     * @param Account $configAccount
-     * @param GiftCardRefundService $giftCardRefundService
-     * @param Klarnakp $klarnakpConfig
+     * @param BuckarooStatusCode      $buckarooStatusCode
+     * @param OrderStatusFactory      $orderStatusFactory
+     * @param Account                 $configAccount
+     * @param GiftCardRefundService   $giftCardRefundService
+     * @param Klarnakp                $klarnakpConfig
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -89,8 +89,8 @@ class KlarnaKpProcessor extends DefaultProcessor
     /**
      * Skip the push if the conditions are met.
      *
-     * @return bool
      * @throws \Exception
+     * @return bool
      */
     protected function skipPush(): bool
     {
@@ -162,9 +162,9 @@ class KlarnaKpProcessor extends DefaultProcessor
     }
 
     /**
-     * @param array $paymentDetails
-     * @return bool
+     * @param  array      $paymentDetails
      * @throws \Exception
+     * @return bool
      */
     protected function invoiceShouldBeSaved(array &$paymentDetails): bool
     {
@@ -192,7 +192,6 @@ class KlarnaKpProcessor extends DefaultProcessor
      * Process succeeded push authorization for Klarna KP.
      * Handles the special case where a canceled order can become successful within 48 hours.
      *
-     * @return void
      * @throws \Exception
      */
     protected function processSucceededPushAuthorization(): void

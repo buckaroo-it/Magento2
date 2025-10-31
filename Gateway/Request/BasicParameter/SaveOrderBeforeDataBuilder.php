@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Gateway\Request\BasicParameter;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Exception;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Sales\Model\Order;
 
@@ -31,7 +32,7 @@ class SaveOrderBeforeDataBuilder implements BuilderInterface
     /**
      * @var Account
      */
-    protected Account $configProviderAccount;
+    protected $configProviderAccount;
 
     /**
      * @param Account $configProviderAccount
@@ -44,9 +45,9 @@ class SaveOrderBeforeDataBuilder implements BuilderInterface
     /**
      * Save Order Before Request
      *
-     * @param array $buildSubject
+     * @param  array      $buildSubject
+     * @throws Exception
      * @return array
-     * @throws \Exception
      */
     public function build(array $buildSubject): array
     {

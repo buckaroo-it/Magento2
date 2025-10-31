@@ -195,8 +195,8 @@ abstract class BaseTest extends TestCase
      * @param       $class
      * @param array $args
      *
-     * @return object
      * @throws \Exception
+     * @return object
      */
     protected function getObject($class, $args = [])
     {
@@ -270,8 +270,8 @@ abstract class BaseTest extends TestCase
     /**
      * Return Full Path of Payment Method Config
      *
-     * @param string $code
-     * @param string $configPath
+     * @param  string $code
+     * @param  string $configPath
      * @return string
      */
     public function getPaymentMethodConfigPath(string $code, string $configPath): string

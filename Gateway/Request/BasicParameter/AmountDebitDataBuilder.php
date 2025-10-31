@@ -19,12 +19,12 @@ class AmountDebitDataBuilder implements BuilderInterface
     /**
      * @var float|null
      */
-    private ?float $amount;
+    private $amount;
 
     /**
      * @var DataBuilderService
      */
-    private DataBuilderService $dataBuilderService;
+    private $dataBuilderService;
 
     /**
      * Constructor
@@ -57,7 +57,7 @@ class AmountDebitDataBuilder implements BuilderInterface
     /**
      * Get Amount
      *
-     * @param Order|null $order
+     * @param  Order|null $order
      * @return float|null
      */
     public function getAmount(?Order $order = null): ?float
@@ -72,7 +72,7 @@ class AmountDebitDataBuilder implements BuilderInterface
     /**
      * Set Amount
      *
-     * @param Order $order
+     * @param  Order $order
      * @return $this
      */
     public function setAmount(Order $order): AmountDebitDataBuilder

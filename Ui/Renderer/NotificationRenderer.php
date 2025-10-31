@@ -32,15 +32,15 @@ class NotificationRenderer
     /**
      * @var Escaper $escaper
      */
-    private Escaper $escaper;
+    private $escaper;
 
     /**
      * @var AssetRepository $assetRepository
      */
-    private AssetRepository $assetRepository;
+    private $assetRepository;
 
     /**
-     * @param Escaper $escaper
+     * @param Escaper         $escaper
      * @param AssetRepository $assetRepository
      */
     public function __construct(
@@ -54,7 +54,7 @@ class NotificationRenderer
     /**
      * Returns the HTML for notification's title to the ui component
      *
-     * @param array $page
+     * @param  array  $page
      * @return string
      */
     public function getNotificationTitle(array $page): string
@@ -76,7 +76,7 @@ class NotificationRenderer
     /**
      * Returns the HTML for the content in the notification ui component
      *
-     * @param array $page
+     * @param  array  $page
      * @return string
      */
     public function getNotificationContent(array $page): string
@@ -91,7 +91,7 @@ class NotificationRenderer
     /**
      * Builds the HTML for the main content in the notification ui component
      *
-     * @param array $mainContent
+     * @param  array  $mainContent
      * @return string
      */
     private function buildMainContent(array $mainContent): string
@@ -105,7 +105,7 @@ class NotificationRenderer
     /**
      * Builds the HTML for the main text areas in the notification ui component
      *
-     * @param array $contentAreas
+     * @param  array  $contentAreas
      * @return string
      */
     private function buildContentTextAreas(array $contentAreas): string
@@ -128,7 +128,7 @@ class NotificationRenderer
     /**
      * Builds the HTML for the bullet list content in the notification ui component
      *
-     * @param array $lists
+     * @param  array  $lists
      * @return string
      */
     private function buildLists(array $lists): string
@@ -150,7 +150,7 @@ class NotificationRenderer
      * Searches a given string for a URL, formats it to an HTML anchor tag, and returns the original string in the
      * correct HTML format.
      *
-     * @param string $content
+     * @param  string $content
      * @return string
      */
     private function formatContentWithLinks(string $content): string
@@ -186,7 +186,7 @@ class NotificationRenderer
     /**
      * Builds the HTML for the highlighted sub heads for the overview page in the notification ui component
      *
-     * @param array $subHeadings
+     * @param  array  $subHeadings
      * @return string
      */
     private function buildSubHeadings(array $subHeadings): string
@@ -217,7 +217,7 @@ class NotificationRenderer
     /**
      * Builds the HTML for the footer content in the notification ui component
      *
-     * @param array $footer
+     * @param  array  $footer
      * @return string
      */
     private function buildFooter(array $footer): string

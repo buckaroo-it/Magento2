@@ -53,18 +53,18 @@ class DebugHandler extends Base
     /**
      * @var Account
      */
-    private Account $accountConfig;
+    private $accountConfig;
 
     /**
      * @var DbHandler
      */
-    private DbHandler $dbHandler;
+    private $dbHandler;
 
     /**
      * @param DriverInterface $filesystem
-     * @param DirectoryList $dir
-     * @param Account $accountConfig
-     * @param DbHandler $dbHandler
+     * @param DirectoryList   $dir
+     * @param Account         $accountConfig
+     * @param DbHandler       $dbHandler
      */
     public function __construct(
         DriverInterface $filesystem,
@@ -84,7 +84,6 @@ class DebugHandler extends Base
      * Write log based on configuration (File, DB, or Both)
      *
      * @param mixed $record
-     * @return void
      */
     public function write(mixed $record): void
     {

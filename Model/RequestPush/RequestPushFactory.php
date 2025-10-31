@@ -31,21 +31,21 @@ class RequestPushFactory
     /**
      * @var ObjectManagerInterface
      */
-    protected ObjectManagerInterface $objectManager;
+    protected $objectManager;
 
     /**
      * @var Request $request
      */
-    private Request $request;
+    private $request;
 
     /**
      * @var BuckarooLoggerInterface
      */
-    private BuckarooLoggerInterface $logger;
+    private $logger;
 
     /**
-     * @param ObjectManagerInterface $objectManager
-     * @param Request $request
+     * @param ObjectManagerInterface  $objectManager
+     * @param Request                 $request
      * @param BuckarooLoggerInterface $logger
      */
     public function __construct(

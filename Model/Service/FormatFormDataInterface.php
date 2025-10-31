@@ -29,7 +29,7 @@ interface FormatFormDataInterface
     /**
      * Get Product Object By Request
      *
-     * @param array $productData
+     * @param  array      $productData
      * @return DataObject
      */
     public function getProductObject(array $productData): DataObject;
@@ -37,7 +37,7 @@ interface FormatFormDataInterface
     /**
      * Get Shipping Address Object By Request
      *
-     * @param array $addressData
+     * @param  array                           $addressData
      * @return ShippingAddressRequestInterface
      */
     public function getShippingAddressObject(array $addressData): ShippingAddressRequestInterface;

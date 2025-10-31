@@ -32,17 +32,17 @@ class State extends \Magento\Sales\Model\ResourceModel\Order\Handler\State
     /**
      * @var Factory
      */
-    public Factory $configProviderMethodFactory;
+    public $configProviderMethodFactory;
 
     /**
      * @var BuckarooLoggerInterface
      */
-    private BuckarooLoggerInterface $logger;
+    private $logger;
 
     /**
      * State constructor
      *
-     * @param Factory $configProviderMethodFactory
+     * @param Factory                 $configProviderMethodFactory
      * @param BuckarooLoggerInterface $logger
      */
     public function __construct(
@@ -57,9 +57,9 @@ class State extends \Magento\Sales\Model\ResourceModel\Order\Handler\State
      * Check order status and adjust the status before save
      *
      * @param Order $order
-     * @return $this
      *
      * @throws LocalizedException
+     * @return $this
      */
     public function beforeCheck(Order $order): State
     {

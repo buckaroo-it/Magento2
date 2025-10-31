@@ -28,8 +28,8 @@ interface IdealQuoteCreateInterface
     /**
      * Get order breakdown after shipping is applied
      *
-     * @param string $page
-     * @param string|null $orderData
+     * @param  string                       $page
+     * @param  string|null                  $orderData
      * @return QuoteCreateResponseInterface
      */
     public function execute(

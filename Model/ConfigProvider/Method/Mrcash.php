@@ -43,15 +43,15 @@ class Mrcash extends AbstractConfigProvider
     /**
      * @var FormKey
      */
-    private FormKey $formKey;
+    private $formKey;
 
     /**
-     * @param Repository $assetRepo
+     * @param Repository           $assetRepo
      * @param ScopeConfigInterface $scopeConfig
-     * @param AllowedCurrencies $allowedCurrencies
-     * @param PaymentFee $paymentFeeHelper
-     * @param LogoService $logoService
-     * @param FormKey $formKey
+     * @param AllowedCurrencies    $allowedCurrencies
+     * @param PaymentFee           $paymentFeeHelper
+     * @param LogoService          $logoService
+     * @param FormKey              $formKey
      */
     public function __construct(
         Repository $assetRepo,
@@ -87,7 +87,7 @@ class Mrcash extends AbstractConfigProvider
     /**
      * Get Use Client Side
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed
      */
     public function useClientSide($store = null)
@@ -98,8 +98,8 @@ class Mrcash extends AbstractConfigProvider
     /**
      * Get Magento Form Key
      *
-     * @return string
      * @throws LocalizedException
+     * @return string
      */
     private function getFormKey(): string
     {

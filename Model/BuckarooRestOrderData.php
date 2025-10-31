@@ -26,9 +26,9 @@ use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 
 class BuckarooRestOrderData implements BuckarooRestOrderDataInterface
 {
-    private string $orderIncrementId;
+    private $orderIncrementId;
 
-    private PaymentGroupTransaction $groupTransaction;
+    private $groupTransaction;
 
     /**
      * @var TransactionResponseInterfaceFactory

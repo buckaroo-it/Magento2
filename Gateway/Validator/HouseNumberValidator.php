@@ -36,11 +36,11 @@ class HouseNumberValidator extends AbstractValidator
     /**
      * @var StreetFormatter
      */
-    private StreetFormatter $streetFormatter;
+    private $streetFormatter;
 
     /**
      * @param ResultInterfaceFactory $resultFactory
-     * @param StreetFormatter $streetFormatter
+     * @param StreetFormatter        $streetFormatter
      */
     public function __construct(
         ResultInterfaceFactory $resultFactory,
@@ -53,7 +53,7 @@ class HouseNumberValidator extends AbstractValidator
     /**
      * Validate country
      *
-     * @param array $validationSubject
+     * @param  array           $validationSubject
      * @return ResultInterface
      */
     public function validate(array $validationSubject): ResultInterface
@@ -75,8 +75,7 @@ class HouseNumberValidator extends AbstractValidator
     }
 
     /**
-     * @param Address $address
-     * @return void
+     * @param  Address   $address
      * @throws Exception
      */
     private function validateHouseNumber(Address $address): void

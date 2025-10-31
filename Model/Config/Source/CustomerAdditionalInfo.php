@@ -28,7 +28,7 @@ class CustomerAdditionalInfo implements OptionSourceInterface
     /**
      * @var string[]
      */
-    private array $customFields = [
+    private $customFields = [
         'customer_billing_first_name'               => 'Customer Billing First Name',
         'customer_billing_last_name'                => 'Customer Billing Last Name',
         'customer_billing_company'                  => 'Customer Billing Company',

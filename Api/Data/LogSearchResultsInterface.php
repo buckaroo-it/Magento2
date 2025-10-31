@@ -35,7 +35,7 @@ interface LogSearchResultsInterface extends SearchResultsInterface
     /**
      * Set log_id list.
      *
-     * @param LogInterface[] $items
+     * @param  LogInterface[] $items
      * @return $this
      */
     public function setItems(array $items): LogSearchResultsInterface;

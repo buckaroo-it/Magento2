@@ -74,7 +74,7 @@ class Order
     /**
      * @var BuckarooLoggerInterface
      */
-    protected BuckarooLoggerInterface $logger;
+    protected $logger;
 
     /**
      * @var ResourceConnection
@@ -84,18 +84,18 @@ class Order
     /**
      * @var Factory
      */
-    private Factory $configProviderFactory;
+    private $configProviderFactory;
 
     /**
-     * @param Account $accountConfig
-     * @param MethodFactory $configProviderMethodFactory
-     * @param Factory $configProviderFactory
+     * @param Account                  $accountConfig
+     * @param MethodFactory            $configProviderMethodFactory
+     * @param Factory                  $configProviderFactory
      * @param StoreRepositoryInterface $storeRepository
-     * @param CollectionFactory $orderFactory
-     * @param OrderStatusFactory $orderStatusFactory
-     * @param Data $helper
-     * @param BuckarooLoggerInterface $logger
-     * @param ResourceConnection $resourceConnection
+     * @param CollectionFactory        $orderFactory
+     * @param OrderStatusFactory       $orderStatusFactory
+     * @param Data                     $helper
+     * @param BuckarooLoggerInterface  $logger
+     * @param ResourceConnection       $resourceConnection
      */
     public function __construct(
         Account $accountConfig,
@@ -122,8 +122,8 @@ class Order
     /**
      * Cancel expired transfer orders for all stores.
      *
-     * @return $this
      * @throws BuckarooException
+     * @return $this
      */
     public function cancelExpiredTransferOrders()
     {
@@ -138,8 +138,7 @@ class Order
     /**
      * Cancel expired transfer orders for the specified store.
      *
-     * @param StoreInterface $store
-     * @return void
+     * @param  StoreInterface    $store
      * @throws BuckarooException
      */
     protected function cancelExpiredTransferOrdersPerStore(StoreInterface $store)
@@ -202,8 +201,8 @@ class Order
     /**
      * Cancel expired Pay Per Email orders for all stores.
      *
-     * @return $this
      * @throws BuckarooException
+     * @return $this
      */
     public function cancelExpiredPPEOrders(): Order
     {
@@ -218,8 +217,7 @@ class Order
     /**
      * Cancel expired Pay Per Email orders for the specified store.
      *
-     * @param StoreInterface $store
-     * @return void
+     * @param  StoreInterface    $store
      * @throws BuckarooException
      */
     protected function cancelExpiredPPEOrdersPerStore(StoreInterface $store)
@@ -284,11 +282,11 @@ class Order
     /**
      * Cancel the given order with the specified status code.
      *
-     * @param MagentoOrder $order
-     * @param int|null $statusCode
-     * @param string|null $statusMessage
-     * @return bool
+     * @param  MagentoOrder       $order
+     * @param  int|null           $statusCode
+     * @param  string|null        $statusMessage
      * @throws LocalizedException
+     * @return bool
      */
     public function cancel(MagentoOrder $order, ?int $statusCode, ?string $statusMessage = null): bool
     {

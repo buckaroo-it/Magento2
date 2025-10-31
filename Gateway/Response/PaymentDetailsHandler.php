@@ -33,17 +33,17 @@ class PaymentDetailsHandler implements HandlerInterface
     /**
      * @var Data
      */
-    protected Data $helper;
+    protected $helper;
 
     /**
      * @var BuckarooResponseDataInterface
      */
-    protected BuckarooResponseDataInterface $buckarooResponseData;
+    protected $buckarooResponseData;
 
     /**
      * Constructor
      *
-     * @param Data $helper
+     * @param Data                          $helper
      * @param BuckarooResponseDataInterface $buckarooResponseData
      */
     public function __construct(

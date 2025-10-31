@@ -29,7 +29,7 @@ class InvoiceDataBuilderTest extends AbstractDataBuilderTest
     /**
      * @var InvoiceDataBuilder
      */
-    private InvoiceDataBuilder $invoiceDataBuilder;
+    private $invoiceDataBuilder;
 
     /**
      * @inheritdoc

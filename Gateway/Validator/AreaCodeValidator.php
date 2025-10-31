@@ -35,11 +35,11 @@ class AreaCodeValidator extends AbstractValidator
     /**
      * @var State
      */
-    private State $state;
+    private $state;
 
     /**
      * @param ResultInterfaceFactory $resultFactory
-     * @param State $state
+     * @param State                  $state
      */
     public function __construct(
         ResultInterfaceFactory $resultFactory,
@@ -52,10 +52,10 @@ class AreaCodeValidator extends AbstractValidator
     /**
      * Validate Area Code Value
      *
-     * @param array $validationSubject
-     * @return ResultInterface
+     * @param  array              $validationSubject
      * @throws Exception
      * @throws LocalizedException
+     * @return ResultInterface
      */
     public function validate(array $validationSubject): ResultInterface
     {

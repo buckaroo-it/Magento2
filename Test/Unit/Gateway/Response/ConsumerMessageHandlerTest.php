@@ -36,7 +36,7 @@ class ConsumerMessageHandlerTest extends AbstractResponseHandlerTest
     /**
      * @var ConsumerMessageHandler
      */
-    private ConsumerMessageHandler $consumerMessageHandler;
+    private $consumerMessageHandler;
 
     protected function setUp(): void
     {
@@ -51,8 +51,7 @@ class ConsumerMessageHandlerTest extends AbstractResponseHandlerTest
      * @dataProvider messageDataProvider
      *
      * @param array $consumerMessage
-     * @param int $expectedMessageCalls
-     * @return void
+     * @param int   $expectedMessageCalls
      */
     public function testHandle(array $consumerMessage, int $expectedMessageCalls): void
     {

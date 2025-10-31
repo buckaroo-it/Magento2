@@ -31,7 +31,7 @@ class BuckarooFee extends AbstractConfigProvider
     /**
      * Retrieve the tax class for Buckaroo fee
      *
-     * @param null $store
+     * @param  null       $store
      * @return int|string
      */
     public function getBuckarooFeeTaxClass($store = null)

@@ -30,16 +30,16 @@ class PayPerEmailDataBuilder extends AbstractDataBuilder
     /**
      * @var PayPerEmail
      */
-    private PayPerEmail $payPerEmailConfig;
+    private $payPerEmailConfig;
 
     /**
      * @var Giftcards
      */
-    private Giftcards $giftcardsConfig;
+    private $giftcardsConfig;
 
     /**
      * @param PayPerEmail $payPerEmailConfig
-     * @param Giftcards $giftcardsConfig
+     * @param Giftcards   $giftcardsConfig
      */
     public function __construct(
         PayPerEmail $payPerEmailConfig,
@@ -81,8 +81,8 @@ class PayPerEmailDataBuilder extends AbstractDataBuilder
     /**
      * Retrieves the allowed payment methods based on the PayPerEmail configuration and store ID.
      *
-     * @param PayPerEmail $config
-     * @param int|null $storeId
+     * @param  PayPerEmail $config
+     * @param  int|null    $storeId
      * @return string
      */
     private function getPaymentMethodsAllowed(PayPerEmail $config, ?int $storeId): string

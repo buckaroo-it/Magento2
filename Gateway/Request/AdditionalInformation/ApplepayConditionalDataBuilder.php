@@ -29,21 +29,21 @@ class ApplepayConditionalDataBuilder implements BuilderInterface
     /**
      * @var Applepay
      */
-    private Applepay $applepayConfig;
+    private $applepayConfig;
 
     /**
      * @var ApplepayDataBuilder
      */
-    private ApplepayDataBuilder $inlineDataBuilder;
+    private $inlineDataBuilder;
 
     /**
      * @var ApplepayRedirectDataBuilder
      */
-    private ApplepayRedirectDataBuilder $redirectDataBuilder;
+    private $redirectDataBuilder;
 
     /**
-     * @param Applepay $applepayConfig
-     * @param ApplepayDataBuilder $inlineDataBuilder
+     * @param Applepay                    $applepayConfig
+     * @param ApplepayDataBuilder         $inlineDataBuilder
      * @param ApplepayRedirectDataBuilder $redirectDataBuilder
      */
     public function __construct(

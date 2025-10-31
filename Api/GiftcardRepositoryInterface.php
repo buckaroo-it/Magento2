@@ -32,25 +32,25 @@ interface GiftcardRepositoryInterface
     /**
      * Save gift card
      *
-     * @param GiftcardInterface $giftcard
-     * @return GiftcardInterface
+     * @param  GiftcardInterface     $giftcard
      * @throws CouldNotSaveException
+     * @return GiftcardInterface
      */
     public function save(GiftcardInterface $giftcard): GiftcardInterface;
 
     /**
      * Get gift card by id
      *
-     * @param int|string $giftcardId
-     * @return GiftcardInterface
+     * @param  int|string            $giftcardId
      * @throws NoSuchEntityException
+     * @return GiftcardInterface
      */
     public function getById($giftcardId);
 
     /**
      * Get the list of gift cards
      *
-     * @param SearchCriteria $searchCriteria
+     * @param  SearchCriteria         $searchCriteria
      * @return SearchResultsInterface
      */
     public function getList(SearchCriteria $searchCriteria);
@@ -58,24 +58,24 @@ interface GiftcardRepositoryInterface
     /**
      * Delete gift card
      *
-     * @param GiftcardInterface $giftcard
-     * @return bool
+     * @param  GiftcardInterface       $giftcard
      * @throws CouldNotDeleteException
+     * @return bool
      */
     public function delete(GiftcardInterface $giftcard);
 
     /**
      * Delete gift card by certificate id
      *
-     * @param int|string $giftcardId
-     * @return bool
+     * @param  int|string              $giftcardId
      * @throws CouldNotDeleteException
      * @throws NoSuchEntityException
+     * @return bool
      */
     public function deleteById($giftcardId);
 
     /**
-     * @param string $serviceCode
+     * @param  string            $serviceCode
      * @return GiftcardInterface
      */
     public function getByServiceCode(string $serviceCode);

@@ -39,27 +39,27 @@ class SortIssuers extends Field
     /**
      * @var array
      */
-    protected array $configuration = [];
+    protected $configuration = [];
 
     /**
      * @var array
      */
-    protected array $issuers = [];
+    protected $issuers = [];
 
     /**
      * @var ConfigProviderFactory
      */
-    protected ConfigProviderFactory $configProviderFactory;
+    protected $configProviderFactory;
 
     /**
      * @var ?ConfigProviderInterface
      */
-    protected ?ConfigProviderInterface $configProvider = null;
+    protected $configProvider = null;
 
     /**
-     * @param Context $context
+     * @param Context               $context
      * @param ConfigProviderFactory $configProviderFactory
-     * @param array $data
+     * @param array                 $data
      */
     public function __construct(
         Context $context,
@@ -73,9 +73,9 @@ class SortIssuers extends Field
     /**
      * Return element html
      *
-     * @param AbstractElement $element
-     * @return string
+     * @param  AbstractElement $element
      * @throws Exception
+     * @return string
      */
     protected function _getElementHtml(AbstractElement $element)
     {

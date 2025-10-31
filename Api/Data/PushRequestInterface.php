@@ -26,8 +26,8 @@ interface PushRequestInterface
     /**
      * Validate Push Request
      *
-     * @param int|string|null $store
-     * @return boolean
+     * @param  int|string|null $store
+     * @return bool
      *
      * @api
      */
@@ -149,7 +149,6 @@ interface PushRequestInterface
      * Set transactions
      *
      * @param string|string[] $transactions
-     * @return void
      */
     public function setTransactions($transactions);
 
@@ -157,14 +156,13 @@ interface PushRequestInterface
      * Set Amount Debit
      *
      * @param float|string|null $amount
-     * @return void
      */
     public function setAmount($amount): void;
 
     /**
      * Get property from additional information
      *
-     * @param string $propertyName
+     * @param  string      $propertyName
      * @return string|null
      */
     public function getAdditionalInformation(string $propertyName): ?string;

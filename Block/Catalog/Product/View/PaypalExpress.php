@@ -59,12 +59,12 @@ class PaypalExpress extends Template
     private $product;
 
     /**
-     * @param Context $context
-     * @param Account $configProviderAccount
-     * @param Encryptor $encryptor
-     * @param Paypal $paypalConfig
+     * @param Context       $context
+     * @param Account       $configProviderAccount
+     * @param Encryptor     $encryptor
+     * @param Paypal        $paypalConfig
      * @param Registry|null $registry
-     * @param array $data
+     * @param array         $data
      */
     public function __construct(
         Context $context,
@@ -84,8 +84,8 @@ class PaypalExpress extends Template
     /**
      * Can show PayPal Express button on cart
      *
-     * @return bool
      * @throws NoSuchEntityException
+     * @return bool
      */
     public function canShowProductButton()
     {
@@ -98,8 +98,8 @@ class PaypalExpress extends Template
     /**
      * Can show PayPal Express button on cart
      *
-     * @return bool
      * @throws NoSuchEntityException
+     * @return bool
      */
     public function canShowCartButton()
     {
@@ -131,9 +131,9 @@ class PaypalExpress extends Template
     /**
      * Get shop currency
      *
-     * @return string
      * @throws NoSuchEntityException
      * @throws LocalizedException
+     * @return string
      */
     protected function getCurrency()
     {
@@ -146,9 +146,9 @@ class PaypalExpress extends Template
     /**
      * Get buckaroo store key
      *
-     * @return string
      * @throws NoSuchEntityException
      * @throws \Exception
+     * @return string
      */
     protected function getWebsiteKey()
     {
@@ -162,8 +162,8 @@ class PaypalExpress extends Template
     /**
      * Get merchant id
      *
-     * @return string|null
      * @throws NoSuchEntityException
+     * @return string|null
      */
     protected function getMerchantId()
     {
@@ -175,8 +175,8 @@ class PaypalExpress extends Template
     /**
      * Get paypal express button color
      *
-     * @return string|null
      * @throws NoSuchEntityException
+     * @return string|null
      */
     protected function getButtonColor()
     {
@@ -188,8 +188,8 @@ class PaypalExpress extends Template
     /**
      * Get paypal express button color
      *
-     * @return string|null
      * @throws NoSuchEntityException
+     * @return string|null
      */
     protected function getButtonShape()
     {
@@ -201,8 +201,8 @@ class PaypalExpress extends Template
     /**
      * Get paypal express button color
      *
-     * @return bool
      * @throws NoSuchEntityException
+     * @return bool
      */
     protected function isTestMode()
     {
@@ -214,8 +214,8 @@ class PaypalExpress extends Template
     /**
      * Check if iDIN verification is required for this context (product page or cart)
      *
-     * @return bool
      * @throws LocalizedException
+     * @return bool
      */
     public function isIdinVerificationRequired()
     {

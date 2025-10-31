@@ -32,7 +32,7 @@ class CreditManagementOrderHandler implements HandlerInterface
     /**
      * @var TransactionResponse
      */
-    protected TransactionResponse $response;
+    protected $response;
 
     /**
      * @inheritdoc
@@ -69,7 +69,7 @@ class CreditManagementOrderHandler implements HandlerInterface
     /**
      * Get service for credit management
      *
-     * @param array $services
+     * @param  array      $services
      * @return array|null
      */
     private function getCreditManagementService(array $services): ?array
@@ -85,7 +85,7 @@ class CreditManagementOrderHandler implements HandlerInterface
     /**
      * Get invoice key from service
      *
-     * @param array $service
+     * @param  array  $service
      * @return string
      */
     private function getInvoiceKey(array $service): string

@@ -69,21 +69,21 @@ class ApplyVoucher implements ApplyVoucherInterface
     /**
      * @var GiftcardResponse
      */
-    private GiftcardResponse $giftcardResponse;
+    private $giftcardResponse;
 
     /**
      * @var BuckarooLoggerInterface
      */
-    private BuckarooLoggerInterface $logger;
+    private $logger;
 
     /**
-     * @param ApplyVoucherRequestInterface $voucherRequest
-     * @param GiftcardResponse $giftcardResponse
-     * @param QuoteIdMaskFactory $quoteIdMaskFactory
-     * @param CartRepositoryInterface $cartRepository
+     * @param ApplyVoucherRequestInterface   $voucherRequest
+     * @param GiftcardResponse               $giftcardResponse
+     * @param QuoteIdMaskFactory             $quoteIdMaskFactory
+     * @param CartRepositoryInterface        $cartRepository
      * @param PayResponseSetInterfaceFactory $payResponseFactory
-     * @param Session $checkoutSession
-     * @param BuckarooLoggerInterface $logger
+     * @param Session                        $checkoutSession
+     * @param BuckarooLoggerInterface        $logger
      */
     public function __construct(
         ApplyVoucherRequestInterface $voucherRequest,
@@ -130,8 +130,8 @@ class ApplyVoucher implements ApplyVoucherInterface
     /**
      * Get quote from session
      *
-     * @return Quote
      * @throws NoQuoteException
+     * @return Quote
      */
     protected function getQuote()
     {
@@ -145,11 +145,11 @@ class ApplyVoucher implements ApplyVoucherInterface
     /**
      * Get response based on the quote and API response.
      *
-     * @param Quote $quote
-     * @param mixed $response
-     * @return mixed
+     * @param  Quote              $quote
+     * @param  mixed              $response
      * @throws ApiException
      * @throws LocalizedException
+     * @return mixed
      */
     protected function getResponse(Quote $quote, $response)
     {
@@ -214,7 +214,7 @@ class ApplyVoucher implements ApplyVoucherInterface
     /**
      * Build gift card request
      *
-     * @param Quote $quote
+     * @param Quote  $quote
      * @param string $voucherCode
      *
      * @return ApplyVoucherRequestInterface
@@ -229,8 +229,7 @@ class ApplyVoucher implements ApplyVoucherInterface
     /**
      * Render and throw an exception with the provided message.
      *
-     * @param string $message
-     * @return void
+     * @param  string    $message
      * @throws Exception
      */
     public function renderException(string $message)

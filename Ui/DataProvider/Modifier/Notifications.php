@@ -56,13 +56,13 @@ class Notifications implements ModifierInterface
     /**
      * @var NotificationRenderer
      */
-    private NotificationRenderer $renderer;
+    private $renderer;
 
     /**
-     * @param CacheInterface $cacheStorage
-     * @param ReadFactory $readFactory
-     * @param Reader $moduleReader
-     * @param SerializerInterface $serializer
+     * @param CacheInterface       $cacheStorage
+     * @param ReadFactory          $readFactory
+     * @param Reader               $moduleReader
+     * @param SerializerInterface  $serializer
      * @param NotificationRenderer $render
      */
     public function __construct(
@@ -124,7 +124,7 @@ class Notifications implements ModifierInterface
      *
      * @param array $meta
      * @param array $page
-     * @param bool $isLastPage
+     * @param bool  $isLastPage
      *
      * @return array
      */
@@ -173,7 +173,7 @@ class Notifications implements ModifierInterface
     /**
      * Sets the modal to not display if no content is available.
      *
-     * @param array $meta
+     * @param  array $meta
      * @return array
      */
     private function hideNotification(array $meta): array

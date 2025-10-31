@@ -54,6 +54,11 @@ class CurrencyDataBuilderTest extends BaseTest
 
     /**
      * @dataProvider currencyDataProvider
+     * @param mixed $orderCurrencyCode
+     * @param mixed $baseCurrencyCode
+     * @param mixed $paymentMethodCode
+     * @param mixed $allowedCurrencies
+     * @param mixed $expectedResult
      */
     public function testBuild(
         $orderCurrencyCode,

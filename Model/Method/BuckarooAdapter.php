@@ -59,7 +59,7 @@ class BuckarooAdapter extends Adapter
     /**
      * @var bool
      */
-    public bool $usesRedirect = true;
+    public $usesRedirect = true;
 
     /**
      * @var string
@@ -69,37 +69,37 @@ class BuckarooAdapter extends Adapter
     /**
      * @var Factory
      */
-    public Factory $configProviderMethodFactory;
+    public $configProviderMethodFactory;
 
     /**
      * @var Data
      */
-    public Data $priceHelper;
+    public $priceHelper;
 
     /**
      * @var RequestInterface|null
      */
-    protected ?RequestInterface $request;
+    protected $request;
     /**
      * @var int
      */
-    protected int $payRemainder = 0;
+    protected $payRemainder = 0;
 
     /**
-     * @param ManagerInterface $eventManager
-     * @param ValueHandlerPoolInterface $valueHandlerPool
-     * @param PaymentDataObjectFactory $paymentDataObjectFactory
-     * @param string $code
-     * @param string $formBlockType
-     * @param string $infoBlockType
-     * @param Factory $configProviderMethodFactory
-     * @param Data $priceHelper
-     * @param RequestInterface|null $request
-     * @param CommandPoolInterface|null $commandPool
-     * @param ValidatorPoolInterface|null $validatorPool
+     * @param ManagerInterface             $eventManager
+     * @param ValueHandlerPoolInterface    $valueHandlerPool
+     * @param PaymentDataObjectFactory     $paymentDataObjectFactory
+     * @param string                       $code
+     * @param string                       $formBlockType
+     * @param string                       $infoBlockType
+     * @param Factory                      $configProviderMethodFactory
+     * @param Data                         $priceHelper
+     * @param RequestInterface|null        $request
+     * @param CommandPoolInterface|null    $commandPool
+     * @param ValidatorPoolInterface|null  $validatorPool
      * @param CommandManagerInterface|null $commandExecutor
-     * @param LoggerInterface|null $logger
-     * @param bool $usesRedirect
+     * @param LoggerInterface|null         $logger
+     * @param bool                         $usesRedirect
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -225,7 +225,7 @@ class BuckarooAdapter extends Adapter
      * Can process post data received on push or on redirect
      *
      * @param OrderPaymentInterface|InfoInterface $payment
-     * @param PushRequestInterface $postData
+     * @param PushRequestInterface                $postData
      *
      * @return bool
      *
@@ -239,7 +239,7 @@ class BuckarooAdapter extends Adapter
     /**
      * Can create invoice on push
      *
-     * @param PushRequestInterface $responseData
+     * @param  PushRequestInterface $responseData
      * @return bool
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
@@ -256,8 +256,8 @@ class BuckarooAdapter extends Adapter
     /**
      * Get payment method title
      *
-     * @return string
      * @throws BuckarooException
+     * @return string
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
@@ -292,8 +292,8 @@ class BuckarooAdapter extends Adapter
     /**
      * Add payment fee to the given title
      *
-     * @param string $title
-     * @param string $paymentFee
+     * @param  string $title
+     * @param  string $paymentFee
      * @return string
      */
     protected function addPaymentFee(string $title, string $paymentFee): string

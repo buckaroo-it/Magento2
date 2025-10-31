@@ -49,9 +49,9 @@ class BuckarooAlreadyPay extends AbstractTotal
     /**
      * Constructor
      *
-     * @param PriceCurrencyInterface $priceCurrency
+     * @param PriceCurrencyInterface  $priceCurrency
      * @param PaymentGroupTransaction $groupTransaction
-     * @param Collection $giftcardCollection
+     * @param Collection              $giftcardCollection
      */
     public function __construct(
         PriceCurrencyInterface $priceCurrency,
@@ -67,8 +67,8 @@ class BuckarooAlreadyPay extends AbstractTotal
     /**
      * Add buckaroo fee information to address
      *
-     * @param Quote $quote
-     * @param Total $total
+     * @param  Quote $quote
+     * @param  Total $total
      * @return array
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)

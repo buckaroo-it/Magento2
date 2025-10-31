@@ -31,7 +31,7 @@ class OrderExtensionAttribute
     /**
      * @var array|string[]
      */
-    private array $buckarooFieldNames = [
+    private $buckarooFieldNames = [
         'buckaroo_fee',
         'base_buckaroo_fee',
         'buckaroo_fee_tax_amount',
@@ -45,7 +45,7 @@ class OrderExtensionAttribute
     /**
      * @var OrderExtensionFactory
      */
-    private OrderExtensionFactory $extensionFactory;
+    private $extensionFactory;
 
     /**
      * @param OrderExtensionFactory $extensionFactory
@@ -58,8 +58,8 @@ class OrderExtensionAttribute
     /**
      * Adds custom Buckaroo fields to each order's extension attributes.
      *
-     * @param OrderRepositoryInterface $subject
-     * @param OrderSearchResultInterface $searchResult
+     * @param  OrderRepositoryInterface   $subject
+     * @param  OrderSearchResultInterface $searchResult
      * @return OrderSearchResultInterface
      */
     public function afterGetList(
@@ -78,8 +78,8 @@ class OrderExtensionAttribute
     /**
      * Adds custom Buckaroo fields to the order's extension attributes.
      *
-     * @param OrderRepositoryInterface $subject
-     * @param OrderInterface $order
+     * @param  OrderRepositoryInterface $subject
+     * @param  OrderInterface           $order
      * @return OrderInterface
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)

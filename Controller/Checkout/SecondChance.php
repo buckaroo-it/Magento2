@@ -22,8 +22,12 @@ namespace Buckaroo\Magento2\Controller\Checkout;
 
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\SecondChanceRepository;
+use Exception;
+use Magento\Framework\App\Action\Action;
+use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\ResponseInterface;
 
-class SecondChance extends \Magento\Framework\App\Action\Action
+class SecondChance extends Action
 {
     /**
      * @var Log
@@ -36,14 +40,12 @@ class SecondChance extends \Magento\Framework\App\Action\Action
     protected $secondChanceRepository;
 
     /**
-     * @param \Magento\Framework\App\Action\Context $context
+     * @param Context $context
      * @param Log                                   $logger
      * @param SecondChanceRepository                $secondChanceRepository
-     *
-     * @throws \Buckaroo\Magento2\Exception
      */
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
+        Context $context,
         Log $logger,
         SecondChanceRepository $secondChanceRepository
     ) {
@@ -55,8 +57,8 @@ class SecondChance extends \Magento\Framework\App\Action\Action
     /**
      * Process action
      *
-     * @return \Magento\Framework\App\ResponseInterface
-     * @throws \Exception
+     * @throws Exception
+     * @return ResponseInterface
      */
     public function execute()
     {
@@ -64,14 +66,14 @@ class SecondChance extends \Magento\Framework\App\Action\Action
             try {
                 $this->secondChanceRepository->getSecondChanceByToken($token);
                 $this->messageManager->addSuccessMessage(__('Your cart has been restored. You can now complete your purchase.'));
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->logger->addError('SecondChance token error: ' . $e->getMessage());
                 $this->messageManager->addErrorMessage(__('Invalid or expired link. Please try again.'));
             }
         } else {
             $this->messageManager->addErrorMessage(__('Invalid link. Please try again.'));
         }
-        
+
         return $this->handleRedirect('checkout', ['_fragment' => 'payment']);
     }
 

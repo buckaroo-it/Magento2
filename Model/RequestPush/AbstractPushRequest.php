@@ -26,21 +26,20 @@ class AbstractPushRequest
     /**
      * @var array
      */
-    protected array $request = [];
+    protected $request = [];
 
     /**
      * @var array
      */
-    protected array $originalRequest;
+    protected $originalRequest;
 
     /**
      * Check if methods was called with specific numbers of arguments
      *
-     * @param array $args
-     * @param int $min
-     * @param int $max
-     * @param string $methodName
-     * @return void
+     * @param  array      $args
+     * @param  int        $min
+     * @param  int        $max
+     * @param  string     $methodName
      * @throws \Exception
      */
     protected function checkArguments(array $args, int $min, int $max, string $methodName)
@@ -60,9 +59,8 @@ class AbstractPushRequest
     /**
      * Generate functions for getters and setters
      *
-     * @param string $methodName
-     * @param array $args
-     * @return void
+     * @param  string     $methodName
+     * @param  array      $args
      * @throws \Exception
      */
     public function __call(string $methodName, array $args)
@@ -88,14 +86,13 @@ class AbstractPushRequest
     /**
      * Check if in additional information exist a field with name and has the specified value
      *
-     * @param string $name
-     * @param mixed $value
+     * @param  string $name
+     * @param  mixed  $value
      * @return bool
      */
     public function hasAdditionalInformation(string $name, $value): bool
     {
         $fieldValue = $this->getAdditionalInformation($name);
-        /** @phpstan-ignore-line */
         if (is_array($value)
             && isset($fieldValue)
             && in_array($fieldValue, $value)
@@ -113,8 +110,8 @@ class AbstractPushRequest
     /**
      * Check if parameter has the specified values
      *
-     * @param string $name
-     * @param string|float|int|array $value
+     * @param  string                 $name
+     * @param  string|float|int|array $value
      * @return bool
      */
     public function hasPostData(string $name, $value): bool
@@ -140,7 +137,7 @@ class AbstractPushRequest
     /**
      * Get property from additional information
      *
-     * @param string $propertyName
+     * @param  string      $propertyName
      * @return string|null
      */
     public function getAdditionalInformation(string $propertyName): ?string

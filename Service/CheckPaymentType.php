@@ -10,8 +10,8 @@ class CheckPaymentType
     /**
      * Is one of Buckaroo payment methods by string
      *
-     * @param string $paymentMethod
-     * @return boolean
+     * @param  string $paymentMethod
+     * @return bool
      */
     public function isBuckarooMethod(string $paymentMethod): bool
     {
@@ -21,8 +21,8 @@ class CheckPaymentType
     /**
      * Is one of Buckaroo payment methods by PaymentMethod
      *
-     * @param OrderPaymentInterface|null $payment
-     * @return boolean
+     * @param  OrderPaymentInterface|null $payment
+     * @return bool
      */
     public function isBuckarooPayment(?OrderPaymentInterface $payment): bool
     {
@@ -35,8 +35,8 @@ class CheckPaymentType
     /**
      * Check if user is on the payment provider page
      *
-     * @param OrderPaymentInterface|null $payment
-     * @return boolean
+     * @param  OrderPaymentInterface|null $payment
+     * @return bool
      */
     public function isPaymentInTransit(?OrderPaymentInterface $payment): bool
     {

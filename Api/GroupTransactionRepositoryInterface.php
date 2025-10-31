@@ -33,25 +33,25 @@ interface GroupTransactionRepositoryInterface
     /**
      * Save group transaction
      *
-     * @param GroupTransactionInterface $groupTransaction
-     * @return GroupTransactionInterface
+     * @param  GroupTransactionInterface $groupTransaction
      * @throws CouldNotSaveException
+     * @return GroupTransactionInterface
      */
     public function save(GroupTransactionInterface $groupTransaction);
 
     /**
      * Get group transaction by id
      *
-     * @param int|string $groupTransactionId
-     * @return GroupTransactionInterface
+     * @param  int|string                $groupTransactionId
      * @throws NoSuchEntityException
+     * @return GroupTransactionInterface
      */
     public function getById($groupTransactionId);
 
     /**
      * Get the list of group transactions
      *
-     * @param SearchCriteria $searchCriteria
+     * @param  SearchCriteria         $searchCriteria
      * @return SearchResultsInterface
      */
     public function getList(SearchCriteria $searchCriteria);
@@ -59,19 +59,19 @@ interface GroupTransactionRepositoryInterface
     /**
      * Delete group transaction
      *
-     * @param GroupTransactionInterface $groupTransaction
-     * @return bool
+     * @param  GroupTransactionInterface $groupTransaction
      * @throws CouldNotDeleteException
+     * @return bool
      */
     public function delete(GroupTransactionInterface $groupTransaction);
 
     /**
      * Delete group transaction by id
      *
-     * @param int|string $groupTransactionId
-     * @return bool
+     * @param  int|string              $groupTransactionId
      * @throws CouldNotDeleteException
      * @throws NoSuchEntityException
+     * @return bool
      */
     public function deleteById($groupTransactionId);
 }

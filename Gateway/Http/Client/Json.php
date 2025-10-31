@@ -34,7 +34,7 @@ class Json
     /**
      * @var BuckarooLoggerInterface
      */
-    private BuckarooLoggerInterface $logger;
+    private $logger;
 
     /**
      * @var string
@@ -47,7 +47,7 @@ class Json
     private $websiteKey;
 
     /**
-     * @param Curl $client
+     * @param Curl                    $client
      * @param BuckarooLoggerInterface $logger
      */
     public function __construct(
@@ -61,8 +61,8 @@ class Json
     /**
      * Create post request to payment engine
      *
-     * @param array $data
-     * @param string|int $mode
+     * @param  array       $data
+     * @param  string|int  $mode
      * @return false|mixed
      */
     public function doRequest(array $data, $mode)
@@ -85,10 +85,10 @@ class Json
     /**
      * Create cancel request to payment engine
      *
-     * @param string $key
-     * @param int $mode
-     * @param string $secretKey
-     * @param string $websiteKey
+     * @param  string      $key
+     * @param  int         $mode
+     * @param  string      $secretKey
+     * @param  string      $websiteKey
      * @return false|mixed
      */
     public function doCancelRequest($key, $mode, $secretKey, $websiteKey)
@@ -107,8 +107,7 @@ class Json
      * Create a status request on transaction by transaction_id
      *
      * @param string $transactionId
-     * @param int $mode
-     * @return void
+     * @param int    $mode
      */
     public function doStatusRequest($transactionId, $mode)
     {
@@ -130,10 +129,10 @@ class Json
     /**
      * Get CURL options
      *
-     * @param string $uri
-     * @param string $uri2
-     * @param array $data
-     * @param string $httpMethod
+     * @param  string $uri
+     * @param  string $uri2
+     * @param  array  $data
+     * @param  string $httpMethod
      * @return array
      */
     public function getOptions(string $uri, string $uri2, array $data, string $httpMethod): array
@@ -172,7 +171,7 @@ class Json
     /**
      * Get random string
      *
-     * @param int $length
+     * @param  int    $length
      * @return string
      */
     private function stringRandom($length = 16)
@@ -202,7 +201,6 @@ class Json
      * Set Buckaroo Secret Key
      *
      * @param string $secretKey
-     * @return void
      */
     public function setSecretKey($secretKey)
     {
@@ -213,7 +211,6 @@ class Json
      * Set Merchant Key
      *
      * @param string $websiteKey
-     * @return void
      */
     public function setWebsiteKey($websiteKey)
     {
@@ -223,8 +220,8 @@ class Json
     /**
      * Get Response after JSON request
      *
-     * @param string $uri
-     * @param array $data
+     * @param  string      $uri
+     * @param  array       $data
      * @return false|mixed
      */
     public function getResponse(string $uri, array $data = [])
@@ -260,9 +257,9 @@ class Json
     /**
      * Get URLs by mode and action
      *
-     * @param string|int $mode
-     * @param string $action
-     * @param string $transactionId
+     * @param  string|int $mode
+     * @param  string     $action
+     * @param  string     $transactionId
      * @return array
      */
     private function getUrls($mode, string $action = '', string $transactionId = ''): array

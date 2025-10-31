@@ -35,16 +35,16 @@ class OrderUpdate
     /**
      * @var BuckarooResponseDataInterface
      */
-    private BuckarooResponseDataInterface $buckarooResponseData;
+    private $buckarooResponseData;
 
     /**
      * @var BuckarooLoggerInterface
      */
-    private BuckarooLoggerInterface $logger;
+    private $logger;
 
     /**
      * @param BuckarooResponseDataInterface $buckarooResponseData
-     * @param BuckarooLoggerInterface $logger
+     * @param BuckarooLoggerInterface       $logger
      */
     public function __construct(
         BuckarooResponseDataInterface $buckarooResponseData,
@@ -111,6 +111,7 @@ class OrderUpdate
 
     /**
      * New API format – Services[n].Parameters
+     * @param ?array $services
      */
     private function extractFromServiceParameters(?array $services): ?array
     {
@@ -131,6 +132,7 @@ class OrderUpdate
 
     /**
      * Legacy API format – Services.Service.ResponseParameter
+     * @param array $response
      */
     private function extractFromLegacyApi(array $response): ?array
     {
@@ -147,7 +149,7 @@ class OrderUpdate
     /**
      * Format address data in key/value pairs
      *
-     * @param mixed $addressData
+     * @param  mixed $addressData
      * @return array
      */
     public function formatAddressData($addressData): array
@@ -173,7 +175,7 @@ class OrderUpdate
     /**
      * Update order address with pay response data
      *
-     * @param mixed $address
+     * @param  mixed $address
      * @return mixed
      */
     public function updateAddress($address)
@@ -204,7 +206,6 @@ class OrderUpdate
      * Update street address combining address_line_1 and address_line_2
      *
      * @param mixed $address
-     * @return void
      */
     private function updateStreetAddress($address)
     {
@@ -231,10 +232,9 @@ class OrderUpdate
     /**
      * Update item but don't use default values if the field doesn't exist
      *
-     * @param mixed $address
+     * @param mixed  $address
      * @param string $addressField
      * @param string $responseField
-     * @return void
      */
     private function updateItemOptional($address, $addressField, $responseField)
     {
@@ -278,8 +278,8 @@ class OrderUpdate
     /**
      * Sanitize address field data based on Magento validation requirements
      *
-     * @param string $fieldType
-     * @param string $value
+     * @param  string $fieldType
+     * @param  string $value
      * @return string
      */
     private function sanitizeAddressField(string $fieldType, string $value): string
@@ -308,7 +308,7 @@ class OrderUpdate
     /**
      * Sanitize person name (firstname/lastname)
      *
-     * @param string $name
+     * @param  string $name
      * @return string
      */
     private function sanitizePersonName(string $name): string
@@ -327,7 +327,7 @@ class OrderUpdate
     /**
      * Sanitize phone number
      *
-     * @param string $phone
+     * @param  string $phone
      * @return string
      */
     private function sanitizePhoneNumber(string $phone): string
@@ -342,7 +342,7 @@ class OrderUpdate
     /**
      * Sanitize postcode
      *
-     * @param string $postcode
+     * @param  string $postcode
      * @return string
      */
     private function sanitizePostcode(string $postcode): string
@@ -362,7 +362,7 @@ class OrderUpdate
      * Sanitize city name to meet Magento validation requirements
      * Only allows A-Z, a-z, 0-9, -, ', spaces
      *
-     * @param string $cityName
+     * @param  string $cityName
      * @return string
      */
     private function sanitizeCityName(string $cityName): string
@@ -396,10 +396,7 @@ class OrderUpdate
     }
 
     /**
-     *
      * @param OrderInterface $order
-     *
-     * @return void
      */
     public function updateEmail(OrderInterface $order)
     {

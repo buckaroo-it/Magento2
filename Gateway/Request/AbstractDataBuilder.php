@@ -34,17 +34,17 @@ abstract class AbstractDataBuilder implements BuilderInterface
     /**
      * @var Order
      */
-    protected Order $order;
+    protected $order;
 
     /**
      * @var InfoInterface
      */
-    protected InfoInterface $payment;
+    protected $payment;
 
     /**
      * Initializes the builder with the provided build subject data.
      *
-     * @param array $buildSubject
+     * @param  array $buildSubject
      * @return array
      */
     public function initialize(array $buildSubject): array
@@ -74,7 +74,7 @@ abstract class AbstractDataBuilder implements BuilderInterface
     /**
      * Sets the payment
      *
-     * @param InfoInterface $payment
+     * @param  InfoInterface $payment
      * @return $this
      */
     public function setPayment(InfoInterface $payment): AbstractDataBuilder
@@ -97,7 +97,7 @@ abstract class AbstractDataBuilder implements BuilderInterface
     /**
      * Sets the order associated with the payment.
      *
-     * @param Order $order
+     * @param  Order $order
      * @return $this
      */
     public function setOrder(Order $order): AbstractDataBuilder

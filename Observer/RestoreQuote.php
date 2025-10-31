@@ -67,15 +67,15 @@ class RestoreQuote implements ObserverInterface
     /**
      * @var BuckarooLoggerInterface
      */
-    private BuckarooLoggerInterface $logger;
+    private $logger;
 
     /**
-     * @param Session $checkoutSession
-     * @param Account $accountConfig
+     * @param Session                 $checkoutSession
+     * @param Account                 $accountConfig
      * @param BuckarooLoggerInterface $logger
      * @param CartRepositoryInterface $quoteRepository
-     * @param Order $orderService
-     * @param GiftcardRemove $giftcardRemoveService
+     * @param Order                   $orderService
+     * @param GiftcardRemove          $giftcardRemoveService
      * @param PaymentGroupTransaction $groupTransaction
      */
     public function __construct(
@@ -100,7 +100,6 @@ class RestoreQuote implements ObserverInterface
      * Restore Quote and Cancel LastRealOrder
      *
      * @param Observer $observer
-     * @return void
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
@@ -158,7 +157,7 @@ class RestoreQuote implements ObserverInterface
     /**
      * Validate payment method for restore quote logic
      *
-     * @param $payment
+     * @param       $payment
      * @return bool
      */
     private function isValidPayment($payment): bool
@@ -171,7 +170,7 @@ class RestoreQuote implements ObserverInterface
     /**
      * Check if cart keep alive is enabled for the order's store
      *
-     * @param $lastRealOrder
+     * @param       $lastRealOrder
      * @return bool
      */
     private function isCartKeepAlive($lastRealOrder): bool
@@ -209,7 +208,7 @@ class RestoreQuote implements ObserverInterface
     /**
      * Check if order has failed from max spam payment attempts
      *
-     * @return boolean
+     * @return bool
      */
     public function canRestoreFailedFromSpam()
     {
@@ -221,8 +220,7 @@ class RestoreQuote implements ObserverInterface
      * Rollback Partial Payment
      *
      * @param string $incrementId
-     * @param $payment
-     * @return void
+     * @param        $payment
      */
     public function rollbackPartialPayment(string $incrementId, $payment): void
     {
@@ -244,8 +242,7 @@ class RestoreQuote implements ObserverInterface
     /**
      * Set previous order id on the payment object for the next payment
      *
-     * @param int $previousOrderId
-     * @return void
+     * @param  int                $previousOrderId
      * @throws LocalizedException
      */
     private function setOrderToCancel(int $previousOrderId)
@@ -259,8 +256,8 @@ class RestoreQuote implements ObserverInterface
     /**
      * Check if the last real order is new, pending, and uses redirect
      *
-     * @param $lastRealOrder
-     * @param $payment
+     * @param       $lastRealOrder
+     * @param       $payment
      * @return bool
      */
     private function isNewPendingLastOrder($lastRealOrder, $payment): bool
@@ -274,8 +271,8 @@ class RestoreQuote implements ObserverInterface
     /**
      * Check if the last real order is canceled and uses redirect
      *
-     * @param $lastRealOrder
-     * @param $payment
+     * @param       $lastRealOrder
+     * @param       $payment
      * @return bool
      */
     private function isCanceledLastOrderWithRedirect($lastRealOrder, $payment): bool

@@ -31,12 +31,12 @@ class Filter extends \Magento\Payment\Ui\Component\Listing\Column\Method\Options
     /**
      * @var ResourceConnection
      */
-    protected ResourceConnection $resourceConnection;
+    protected $resourceConnection;
 
     /**
      * Constructor
      *
-     * @param Data $paymentHelper
+     * @param Data               $paymentHelper
      * @param ResourceConnection $resourceConnection
      */
     public function __construct(

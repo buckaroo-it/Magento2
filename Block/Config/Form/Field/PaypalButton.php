@@ -28,11 +28,11 @@ class PaypalButton extends Field
     /**
      * @var AbstractElement|null
      */
-    protected ?AbstractElement $colorElement;
+    protected $colorElement;
     /**
      * @var AbstractElement|null
      */
-    protected ?AbstractElement $shapeElement;
+    protected $shapeElement;
 
     protected function _construct()
     {
@@ -43,7 +43,7 @@ class PaypalButton extends Field
     /**
      * Return element html
      *
-     * @param AbstractElement $element
+     * @param  AbstractElement $element
      * @return string
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)

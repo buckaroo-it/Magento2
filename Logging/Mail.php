@@ -69,7 +69,7 @@ class Mail
     /**
      * Add $message to the message array, and cast to string if an array or object
      *
-     * @param mixed $message
+     * @param  mixed $message
      * @return $this
      */
     public function addToMessage($message)
@@ -121,7 +121,7 @@ class Mail
     /**
      * Set mail subject
      *
-     * @param string $mailSubject
+     * @param  string $mailSubject
      * @return $this
      */
     public function setMailSubject($mailSubject)
@@ -144,7 +144,7 @@ class Mail
     /**
      * Set mail from
      *
-     * @param string $mailFrom
+     * @param  string $mailFrom
      * @return $this
      */
     public function setMailFrom($mailFrom)

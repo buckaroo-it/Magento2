@@ -52,7 +52,7 @@ class Refund extends AbstractConfigProvider
     /**
      * Enable or disable refunding.
      *
-     * @param int|string|null $store
+     * @param  int|string|null $store
      * @return mixed
      */
     public function getEnabled($store = null)
@@ -67,7 +67,7 @@ class Refund extends AbstractConfigProvider
     /**
      * Allow 2-way refunding from Magento and Buckaroo Plaza.
      *
-     * @param int|string|null $store
+     * @param  int|string|null $store
      * @return mixed
      */
     public function getAllowPush($store = null)
@@ -82,7 +82,7 @@ class Refund extends AbstractConfigProvider
     /**
      * Get the setting for creating a refund on approval for pending approval refunds.
      *
-     * @param int|string|null $store
+     * @param  int|string|null $store
      * @return mixed
      */
     public function getPendingApprovalSetting($store = null)

@@ -12,11 +12,11 @@ use Magento\Framework\Stdlib\CookieManagerInterface;
 
 class Analytics implements ObserverInterface
 {
-    private CookieManagerInterface $cookieManager;
-    private AnalyticsInterface $analyticsModel;
-    private AnalyticsRepositoryInterface $analyticsRepository;
-    private AnalyticsConfigProvider $configProvider;
-    private BuckarooLog $log;
+    private $cookieManager;
+    private $analyticsModel;
+    private $analyticsRepository;
+    private $configProvider;
+    private $log;
 
     public function __construct(
         CookieManagerInterface $cookieManager,
@@ -36,7 +36,6 @@ class Analytics implements ObserverInterface
      * Execute observer
      *
      * @param \Magento\Framework\Event\Observer $observer
-     * @return void
      */
     public function execute(
         \Magento\Framework\Event\Observer $observer

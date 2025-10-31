@@ -48,9 +48,9 @@ class TransferProcessor extends DefaultProcessor
     /**
      * Create invoice only in case of full or last remained amount
      *
-     * @param array $paymentDetails
-     * @return bool
+     * @param  array              $paymentDetails
      * @throws LocalizedException
+     * @return bool
      */
     protected function invoiceShouldBeSaved(array &$paymentDetails): bool
     {
@@ -140,7 +140,6 @@ class TransferProcessor extends DefaultProcessor
     }
 
     /**
-     * @return void
      */
     protected function setOrderStatusMessage(): void
     {

@@ -32,7 +32,7 @@ class ShippingMethodsService
     /**
      * @var ShipmentEstimationInterface
      */
-    protected ShipmentEstimationInterface $shipmentEstimation;
+    protected $shipmentEstimation;
 
     /**
      * @param ShipmentEstimationInterface $shipmentEstimation
@@ -46,10 +46,10 @@ class ShippingMethodsService
     /**
      * Retrieve available shipping methods by the quote's address.
      *
-     * @param Quote $quote
-     * @param AddressInterface $address
-     * @return array
+     * @param  Quote            $quote
+     * @param  AddressInterface $address
      * @throws InputException
+     * @return array
      */
     public function getAvailableShippingMethods(Quote $quote, AddressInterface $address): array
     {
@@ -83,10 +83,10 @@ class ShippingMethodsService
     /**
      * Add the first available shipping method to the address and recalculate rates.
      *
-     * @param Address $address
-     * @param Quote $quote
-     * @return Quote
+     * @param  Address        $address
+     * @param  Quote          $quote
      * @throws InputException
+     * @return Quote
      */
     public function addFirstShippingMethod(Address $address, Quote $quote): Quote
     {

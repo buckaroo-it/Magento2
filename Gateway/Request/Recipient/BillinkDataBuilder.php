@@ -21,30 +21,28 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request\Recipient;
 
-use Buckaroo\Magento2\Exception;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Model\Config\Source\BillinkCustomerType;
-use Buckaroo\Resources\Constants\RecipientCategory;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Store\Model\Store;
 
 class BillinkDataBuilder extends AbstractRecipientDataBuilder
 {
     /**
      * @var ScopeConfigInterface
      */
-    private ScopeConfigInterface $scopeConfig;
+    private $scopeConfig;
 
     /**
      * @var Data
      */
-    public Data $helper;
+    public $helper;
 
     /**
-     * @param Data $helper
-     * @param string $addressType
+     * @param Data                 $helper
+     * @param string               $addressType
+     * @param ScopeConfigInterface $scopeConfig
      */
     public function __construct(Data $helper, ScopeConfigInterface $scopeConfig, string $addressType = 'billing')
     {
@@ -111,7 +109,7 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
      *
      * @param string|null $company
      *
-     * @return boolean
+     * @return bool
      */
     private function isCompanyEmpty(?string $company = null): bool
     {
@@ -151,10 +149,10 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
     /**
      * Retrieve information from payment configuration
      *
-     * @param string $field
-     * @param int|null $storeId
-     * @return mixed
+     * @param  string             $field
+     * @param  int|null           $storeId
      * @throws LocalizedException
+     * @return mixed
      */
     public function getConfigData(string $field, ?int $storeId = null)
     {

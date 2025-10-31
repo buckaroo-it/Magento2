@@ -65,9 +65,9 @@ class Creditcards extends AbstractConfigProvider
     /**
      * @var StoreManagerInterface
      */
-    private StoreManagerInterface $storeManager;
+    private $storeManager;
 
-    protected array $issuers = [
+    protected $issuers = [
         [
             'name' => 'American Express',
             'code' => self::CREDITCARD_SERVICE_CODE_AMEX,
@@ -93,11 +93,11 @@ class Creditcards extends AbstractConfigProvider
     /**
      * Creditcards constructor.
      *
-     * @param Repository $assetRepo
-     * @param ScopeConfigInterface $scopeConfig
-     * @param AllowedCurrencies $allowedCurrencies
-     * @param PaymentFee $paymentFeeHelper
-     * @param LogoService $logoService
+     * @param Repository            $assetRepo
+     * @param ScopeConfigInterface  $scopeConfig
+     * @param AllowedCurrencies     $allowedCurrencies
+     * @param PaymentFee            $paymentFeeHelper
+     * @param LogoService           $logoService
      * @param StoreManagerInterface $storeManager
      */
     public function __construct(
@@ -153,7 +153,7 @@ class Creditcards extends AbstractConfigProvider
     /**
      * Add the active flag to the creditcard list. This is used in the checkout process.
      *
-     * @param null|int|string $storeId
+     * @param  null|int|string $storeId
      * @return array
      */
     public function formatIssuers($storeId = null): array
@@ -202,8 +202,6 @@ class Creditcards extends AbstractConfigProvider
 
     /**
      * Get Active Status Cm3
-     *
-     * @return null
      */
     public function getActiveStatusCm3()
     {
@@ -255,7 +253,7 @@ class Creditcards extends AbstractConfigProvider
     /**
      * Get placeholder text for cardholder name field
      *
-     * @param null|int $storeId
+     * @param  null|int $storeId
      * @return string
      */
     public function getPlaceholderCardholderName($storeId = null): string
@@ -270,7 +268,7 @@ class Creditcards extends AbstractConfigProvider
     /**
      * Get placeholder text for card number field
      *
-     * @param null|int $storeId
+     * @param  null|int $storeId
      * @return string
      */
     public function getPlaceholderCardNumber($storeId = null): string
@@ -285,7 +283,7 @@ class Creditcards extends AbstractConfigProvider
     /**
      * Get placeholder text for expiry date field
      *
-     * @param null|int $storeId
+     * @param  null|int $storeId
      * @return string
      */
     public function getPlaceholderExpiryDate($storeId = null): string
@@ -300,7 +298,7 @@ class Creditcards extends AbstractConfigProvider
     /**
      * Get placeholder text for CVC field
      *
-     * @param null|int $storeId
+     * @param  null|int $storeId
      * @return string
      */
     public function getPlaceholderCvc($storeId = null): string
@@ -315,7 +313,7 @@ class Creditcards extends AbstractConfigProvider
     /**
      * Get text color for hosted fields
      *
-     * @param null|int $storeId
+     * @param  null|int $storeId
      * @return string
      */
     public function getFieldTextColor($storeId = null): string
@@ -330,7 +328,7 @@ class Creditcards extends AbstractConfigProvider
     /**
      * Get background color for hosted fields
      *
-     * @param null|int $storeId
+     * @param  null|int $storeId
      * @return string
      */
     public function getFieldBackgroundColor($storeId = null): string
@@ -345,7 +343,7 @@ class Creditcards extends AbstractConfigProvider
     /**
      * Get border color for hosted fields
      *
-     * @param null|int $storeId
+     * @param  null|int $storeId
      * @return string
      */
     public function getFieldBorderColor($storeId = null): string
@@ -360,7 +358,7 @@ class Creditcards extends AbstractConfigProvider
     /**
      * Get placeholder color for hosted fields
      *
-     * @param null|int $storeId
+     * @param  null|int $storeId
      * @return string
      */
     public function getFieldPlaceholderColor($storeId = null): string
@@ -375,7 +373,7 @@ class Creditcards extends AbstractConfigProvider
     /**
      * Get font size for hosted fields
      *
-     * @param null|int $storeId
+     * @param  null|int $storeId
      * @return string
      */
     public function getFieldFontSize($storeId = null): string
@@ -390,7 +388,7 @@ class Creditcards extends AbstractConfigProvider
     /**
      * Get font family for hosted fields
      *
-     * @param null|int $storeId
+     * @param  null|int $storeId
      * @return string
      */
     public function getFieldFontFamily($storeId = null): string
@@ -405,7 +403,7 @@ class Creditcards extends AbstractConfigProvider
     /**
      * Get border radius for hosted fields
      *
-     * @param null|int $storeId
+     * @param  null|int $storeId
      * @return string
      */
     public function getFieldBorderRadius($storeId = null): string
@@ -434,7 +432,7 @@ class Creditcards extends AbstractConfigProvider
     /**
      * Get Sorted Issuers
      *
-     * @param $store
+     * @param             $store
      * @return mixed|null
      */
     public function getSortedIssuers($store = null)
@@ -457,7 +455,7 @@ class Creditcards extends AbstractConfigProvider
      * Get all available credit card issuers for the SortIssuers block
      * Only returns credit cards that are selected in "Allowed credit and debit cards"
      *
-     * @param null|int|string $storeId
+     * @param  null|int|string $storeId
      * @return array
      */
     public function getAllIssuers($storeId = null): array

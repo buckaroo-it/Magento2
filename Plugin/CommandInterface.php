@@ -46,23 +46,23 @@ class CommandInterface
     /**
      * @var BuckarooLoggerInterface $logger
      */
-    public BuckarooLoggerInterface $logger;
+    public $logger;
 
     /**
      * @var Factory
      */
-    public Factory $configProviderMethodFactory;
+    public $configProviderMethodFactory;
 
     /**
      * @var Data
      */
-    public Data $helper;
+    public $helper;
 
 
     /**
-     * @param Factory $configProviderMethodFactory
+     * @param Factory                 $configProviderMethodFactory
      * @param BuckarooLoggerInterface $logger
-     * @param Data $helper
+     * @param Data                    $helper
      */
     public function __construct(
         Factory $configProviderMethodFactory,
@@ -78,15 +78,15 @@ class CommandInterface
      * Around plugin for executing authorize and order command. It will update status and state for the order.
      *
      * @param MagentoCommandInterface $commandInterface
-     * @param \Closure $proceed
-     * @param OrderPaymentInterface $payment
-     * @param string|float|int $amount
-     * @param OrderInterface $order
+     * @param \Closure                $proceed
+     * @param OrderPaymentInterface   $payment
+     * @param string|float|int        $amount
+     * @param OrderInterface          $order
      *
-     * @return mixed
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      * @throws Exception
+     * @return mixed
      */
     public function aroundExecute(
         MagentoCommandInterface $commandInterface,
@@ -127,7 +127,6 @@ class CommandInterface
      *
      * @param string $paymentCode
      * @param string $paymentAction
-     * @return void
      */
     private function logUpdateStatusStart(string $paymentCode, string $paymentAction): void
     {
@@ -144,8 +143,8 @@ class CommandInterface
     /**
      * Check if order status can be updated based on current state and invoice capability
      *
-     * @param OrderInterface $order
-     * @param string $paymentCode
+     * @param  OrderInterface $order
+     * @param  string         $paymentCode
      * @return bool
      */
     private function canUpdateOrderStatus(OrderInterface $order, string $paymentCode): bool
@@ -191,11 +190,10 @@ class CommandInterface
     /**
      * Update order state and status
      *
-     * @param OrderInterface $order
+     * @param OrderInterface  $order
      * @param MethodInterface $methodInstance
-     * @param string $paymentCode
-     * @param string $paymentAction
-     * @return void
+     * @param string          $paymentCode
+     * @param string          $paymentAction
      */
     private function updateOrderStateAndStatus(
         OrderInterface $order,
@@ -240,11 +238,11 @@ class CommandInterface
      *  - Skips for Afterpay, Afterpay20, Afterpay2, and EPS if status is pending, state is processing
      *  - Always skips for Apple Pay.
      *
-     * @param string $orderStatus
-     * @param OrderInterface $order
-     * @param MethodInterface $methodInstance
-     * @return bool
+     * @param  string          $orderStatus
+     * @param  OrderInterface  $order
+     * @param  MethodInterface $methodInstance
      * @throws Exception
+     * @return bool
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */

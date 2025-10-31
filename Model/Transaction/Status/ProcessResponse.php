@@ -69,8 +69,8 @@ class ProcessResponse
 
     /**
      * @param OrderStatusFactory $statusFactory
-     * @param ConfigFactory $configFactory
-     * @param Session $checkoutSession
+     * @param ConfigFactory      $configFactory
+     * @param Session            $checkoutSession
      */
     public function __construct(
         OrderStatusFactory $statusFactory,
@@ -85,10 +85,10 @@ class ProcessResponse
     /**
      * Process transaction response
      *
-     * @param TransactionStatusResponseInterface $response
-     * @param Order $order
-     * @return array|void
+     * @param  TransactionStatusResponseInterface $response
+     * @param  Order                              $order
      * @throws NotFoundException|Exception
+     * @return array|void
      */
     public function process(
         TransactionStatusResponseInterface $response,
@@ -120,9 +120,8 @@ class ProcessResponse
     /**
      * Set class properties
      *
-     * @param TransactionStatusResponseInterface $response
-     * @param Order $order
-     * @return void
+     * @param  TransactionStatusResponseInterface $response
+     * @param  Order                              $order
      * @throws Exception
      * @throws NotFoundException
      */
@@ -146,7 +145,7 @@ class ProcessResponse
     /**
      * Check if request has failed
      *
-     * @return boolean
+     * @return bool
      */
     protected function isFailed(): bool
     {
@@ -162,8 +161,6 @@ class ProcessResponse
 
     /**
      * Handle state when failed
-     *
-     * @return void
      */
     protected function handleFailed()
     {
@@ -173,8 +170,6 @@ class ProcessResponse
 
     /**
      * Cancel order when failed
-     *
-     * @return void
      */
     protected function cancelOrder()
     {
@@ -186,7 +181,7 @@ class ProcessResponse
     /**
      * Restore quote on failed
      *
-     * @return boolean
+     * @return bool
      */
     protected function restoreQuote(): bool
     {
@@ -207,8 +202,6 @@ class ProcessResponse
 
     /**
      * Handle state when successful
-     *
-     * @return void
      */
     protected function handleSuccessful()
     {
@@ -217,8 +210,6 @@ class ProcessResponse
 
     /**
      * Update checkout session with the last order data
-     *
-     * @return void
      */
     protected function updateCheckoutSession()
     {
@@ -233,7 +224,7 @@ class ProcessResponse
     /**
      * Check if request is processing
      *
-     * @return boolean
+     * @return bool
      */
     protected function isProcessing(): bool
     {

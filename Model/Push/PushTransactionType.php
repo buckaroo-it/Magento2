@@ -44,77 +44,77 @@ class PushTransactionType
     /**
      * @var string|null
      */
-    private ?string $paymentMethod;
+    private $paymentMethod;
 
     /**
      * @var string|null
      */
-    private ?string $magentoServiceAction;
+    private $magentoServiceAction;
 
     /**
      * @var string|null
      */
-    private ?string $serviceAction;
+    private $serviceAction;
 
     /**
      * @var int
      */
-    private int $statusCode;
+    private $statusCode;
 
     /**
      * @var string|null
      */
-    private string $statusKey;
+    private $statusKey;
 
     /**
      * @var string|null
      */
-    private string $statusMessage;
+    private $statusMessage;
 
     /**
      * @var bool
      */
-    private bool $groupTransaction;
+    private $groupTransaction;
 
     /**
      * @var bool
      */
-    private bool $creditManagement;
+    private $creditManagement;
 
     /**
      * @var string
      */
-    private string $pushType;
+    private $pushType;
 
     /**
      * @var string
      */
-    private ?string $transactionType;
+    private $transactionType;
 
     /**
      * @var array
      */
-    private bool $isSet = false;
+    private $isSet = false;
 
     /**
      * @var Order
      */
-    private Order $order;
+    private $order;
 
     /**
      * @var BuckarooStatusCode
      */
-    private BuckarooStatusCode $buckarooStatusCode;
+    private $buckarooStatusCode;
 
     /**
      * @var PushRequestInterface|null
      */
-    private ?PushRequestInterface $pushRequest;
+    private $pushRequest;
 
     /**
      * @var bool
      */
-    private bool $isFromPayPerEmail;
+    private $isFromPayPerEmail;
 
     /**
      * @param BuckarooStatusCode $buckarooStatusCode
@@ -125,8 +125,8 @@ class PushTransactionType
     }
 
     /**
-     * @param \Buckaroo\Magento2\Api\Data\PushRequestInterface|null $pushRequest
-     * @param Order|null $order
+     * @param  \Buckaroo\Magento2\Api\Data\PushRequestInterface|null $pushRequest
+     * @param  Order|null                                            $order
      * @return PushTransactionType
      */
     public function getPushTransactionType(?PushRequestInterface $pushRequest, ?Order $order): PushTransactionType
@@ -159,8 +159,8 @@ class PushTransactionType
     /**
      * Determine the transaction type based on push request data and the saved invoice key.
      *
-     * @param PushRequestInterface $pushRequest
-     * @param Order $order
+     * @param  PushRequestInterface $pushRequest
+     * @param  Order                $order
      * @return string
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
@@ -202,7 +202,7 @@ class PushTransactionType
     /**
      * Retrieve the status code from the push request based on the transaction type.
      *
-     * @param string $transactionType
+     * @param  string $transactionType
      * @return int
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
@@ -449,6 +449,7 @@ class PushTransactionType
 
     /**
      * @param Order $order
+     * @param bool  $isFromPayPerEmail
      */
     public function setIsFromPayPerEmail(bool $isFromPayPerEmail): void
     {

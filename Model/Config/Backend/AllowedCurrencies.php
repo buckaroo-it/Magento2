@@ -53,16 +53,16 @@ class AllowedCurrencies extends Value
     protected $currencyBundle;
 
     /**
-     * @param Context $context
-     * @param Registry $registry
-     * @param ScopeConfigInterface $config
-     * @param TypeListInterface $cacheTypeList
+     * @param Context                 $context
+     * @param Registry                $registry
+     * @param ScopeConfigInterface    $config
+     * @param TypeListInterface       $cacheTypeList
      * @param ConfigAllowedCurrencies $configProvider
-     * @param CurrencyBundle $currencyBundle
-     * @param ResolverInterface $localeResolver
-     * @param AbstractResource|null $resource
-     * @param AbstractDb|null $resourceCollection
-     * @param array $data
+     * @param CurrencyBundle          $currencyBundle
+     * @param ResolverInterface       $localeResolver
+     * @param AbstractResource|null   $resource
+     * @param AbstractDb|null         $resourceCollection
+     * @param array                   $data
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -88,8 +88,8 @@ class AllowedCurrencies extends Value
     /**
      * Check that the value contains valid currencies.
      *
-     * @return $this
      * @throws LocalizedException
+     * @return $this
      */
     public function save()
     {
@@ -110,7 +110,7 @@ class AllowedCurrencies extends Value
     /**
      * Checks if there is a translation for this currency. If not, returns the original value to show it to the user.
      *
-     * @param string $currency
+     * @param  string $currency
      * @return mixed
      */
     protected function getCurrencyTranslation($currency)

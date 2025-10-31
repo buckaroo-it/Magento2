@@ -27,7 +27,7 @@ interface GiftcardTransactionInterface
     /**
      * Get the list of transactions for this cart
      *
-     * @param string $cartId
+     * @param  string                           $cartId
      * @return GetTransactionsResponseInterface
      */
     public function get(string $cartId);

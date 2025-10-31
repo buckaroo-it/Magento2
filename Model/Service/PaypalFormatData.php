@@ -30,7 +30,7 @@ class PaypalFormatData implements FormatFormDataInterface
     /**
      * @var DataObjectFactory
      */
-    private DataObjectFactory $dataObjectFactory;
+    private $dataObjectFactory;
 
     /**
      * @var ShippingAddressRequestInterfaceFactory
@@ -38,7 +38,7 @@ class PaypalFormatData implements FormatFormDataInterface
     private $shippingAddrRequestFactory;
 
     /**
-     * @param DataObjectFactory $dataObjectFactory
+     * @param DataObjectFactory                      $dataObjectFactory
      * @param ShippingAddressRequestInterfaceFactory $shippingAddrRequestFactory
      */
     public function __construct(
@@ -52,9 +52,9 @@ class PaypalFormatData implements FormatFormDataInterface
     /**
      * Get product data object
      *
-     * @param array $productData
-     * @return DataObject
+     * @param  array               $productData
      * @throws AddProductException
+     * @return DataObject
      */
     public function getProductObject(array $productData): DataObject
     {
@@ -71,9 +71,9 @@ class PaypalFormatData implements FormatFormDataInterface
     /**
      * Get shipping address as a data object
      *
-     * @param array $addressData
-     * @return ShippingAddressRequestInterface
+     * @param  array                           $addressData
      * @throws ExpressMethodsException
+     * @return ShippingAddressRequestInterface
      */
     public function getShippingAddressObject(array $addressData): ShippingAddressRequestInterface
     {
@@ -99,7 +99,7 @@ class PaypalFormatData implements FormatFormDataInterface
      * Sanitize city name to meet Buckaroo validation requirements
      * Only allows A-Z, a-z, 0-9, -, ', spaces
      *
-     * @param string $cityName
+     * @param  string $cityName
      * @return string
      */
     private function sanitizeCityName(string $cityName): string

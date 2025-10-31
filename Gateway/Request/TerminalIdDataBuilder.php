@@ -29,7 +29,7 @@ class TerminalIdDataBuilder implements BuilderInterface
     /**
      * @var CookieManagerInterface
      */
-    private CookieManagerInterface $cookieManager;
+    private $cookieManager;
 
     /**
      * @param CookieManagerInterface $cookieManager

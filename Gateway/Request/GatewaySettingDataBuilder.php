@@ -32,7 +32,7 @@ class GatewaySettingDataBuilder implements BuilderInterface
     /**
      * @var ConfigProviderMethodFactory
      */
-    protected ConfigProviderMethodFactory $configProviderMethodFactory;
+    protected $configProviderMethodFactory;
 
     /**
      * Constructor

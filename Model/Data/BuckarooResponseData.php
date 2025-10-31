@@ -11,7 +11,7 @@ class BuckarooResponseData extends AbstractSimpleObject implements BuckarooRespo
     /**
      * @var TransactionResponse
      */
-    private ?TransactionResponse $transactionResponse;
+    private $transactionResponse;
 
     /**
      * Get Buckaroo Response
@@ -24,7 +24,7 @@ class BuckarooResponseData extends AbstractSimpleObject implements BuckarooRespo
     }
 
     /**
-     * @param TransactionResponse $transactionResponse
+     * @param  TransactionResponse $transactionResponse
      * @return $this
      */
     public function setResponse(TransactionResponse $transactionResponse): BuckarooResponseData

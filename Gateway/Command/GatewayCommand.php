@@ -27,6 +27,7 @@ use Buckaroo\Magento2\Model\LockManagerWrapper;
 use Buckaroo\Magento2\Model\Method\LimitReachException;
 use Buckaroo\Magento2\Model\Service\CancelOrder;
 use Buckaroo\Magento2\Service\SpamLimitService;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Command\CommandException;
 use Magento\Payment\Gateway\CommandInterface;
 use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
@@ -88,35 +89,35 @@ class GatewayCommand implements CommandInterface
     /**
      * @var SkipCommandInterface|null
      */
-    private ?SkipCommandInterface $skipCommand;
+    private $skipCommand;
 
     /**
      * @var SpamLimitService
      */
-    private SpamLimitService $spamLimitService;
+    private $spamLimitService;
 
     /**
      * @var CancelOrder
      */
-    private CancelOrder $cancelOrder;
+    private $cancelOrder;
 
     /**
      * @var LockManagerWrapper
      */
-    private LockManagerWrapper $lockManager;
+    private $lockManager;
 
     /**
-     * @param BuilderInterface $requestBuilder
-     * @param TransferFactoryInterface $transferFactory
-     * @param ClientInterface $client
-     * @param LoggerInterface $logger
-     * @param SpamLimitService $spamLimitService
-     * @param CancelOrder $cancelOrder
-     * @param LockManagerWrapper $lockManager
-     * @param HandlerInterface|null $handler
-     * @param ValidatorInterface|null $validator
+     * @param BuilderInterface                 $requestBuilder
+     * @param TransferFactoryInterface         $transferFactory
+     * @param ClientInterface                  $client
+     * @param LoggerInterface                  $logger
+     * @param SpamLimitService                 $spamLimitService
+     * @param CancelOrder                      $cancelOrder
+     * @param LockManagerWrapper               $lockManager
+     * @param HandlerInterface|null            $handler
+     * @param ValidatorInterface|null          $validator
      * @param ErrorMessageMapperInterface|null $errorMessageMapper
-     * @param SkipCommandInterface|null $skipCommand
+     * @param SkipCommandInterface|null        $skipCommand
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -149,11 +150,10 @@ class GatewayCommand implements CommandInterface
     /**
      * Executes command basing on business object
      *
-     * @param array $commandSubject
-     * @return void
+     * @param  array              $commandSubject
      * @throws CommandException
      * @throws ClientException
-     * @throws ConverterException
+     * @throws ConverterException|LocalizedException
      */
     public function execute(array $commandSubject): void
     {
@@ -224,7 +224,7 @@ class GatewayCommand implements CommandInterface
      * Tries to map error messages from validation result and logs processed message.
      * Throws an exception with mapped message or default error.
      *
-     * @param ResultInterface $result
+     * @param  ResultInterface  $result
      * @throws CommandException
      */
     private function processErrors(ResultInterface $result)

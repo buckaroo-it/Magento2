@@ -22,22 +22,22 @@ class IssuersService
     /**
      * @var CacheInterface
      */
-    protected CacheInterface $cache;
+    protected $cache;
 
     /**
      * @var Json
      */
-    protected Json $serializer;
+    protected $serializer;
 
     /**
      * @var Repository
      */
-    protected Repository $assetRepo;
+    protected $assetRepo;
 
     /**
      * @var BuckarooAdapter
      */
-    protected BuckarooAdapter $buckarooAdapter;
+    protected $buckarooAdapter;
 
     /**
      * @var array
@@ -60,11 +60,10 @@ class IssuersService
     ];
 
     /**
-     * @param CacheInterface $cache
-     * @param Json $serializer
-     * @param Repository $assetRepo
+     * @param CacheInterface  $cache
+     * @param Json            $serializer
+     * @param Repository      $assetRepo
      * @param BuckarooAdapter $buckarooAdapter
-     * @return void
      */
     public function __construct(
         CacheInterface $cache,
@@ -115,7 +114,6 @@ class IssuersService
      * Cache issuers in magento cache
      *
      * @param array $issuers
-     * @return void
      */
     private function cacheIssuers(array $issuers): void
     {
@@ -149,7 +147,7 @@ class IssuersService
     /**
      * Add logo url to the list of issuer
      *
-     * @param array $issuers
+     * @param  array $issuers
      * @return array
      */
     private function addLogos(array $issuers): array
@@ -180,7 +178,7 @@ class IssuersService
     /**
      * Generate the url to the desired asset.
      *
-     * @param string $imgName
+     * @param  string $imgName
      * @return string
      */
     public function getImageUrl(string $imgName): string

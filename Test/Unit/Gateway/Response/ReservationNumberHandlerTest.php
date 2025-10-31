@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Test\Unit\Gateway\Response;
 
 use Buckaroo\Magento2\Gateway\Response\ReservationNumberHandler;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Transaction\Response\TransactionResponse;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\Order;
@@ -31,21 +32,22 @@ class ReservationNumberHandlerTest extends AbstractResponseHandlerTest
     /**
      * @var ReservationNumberHandler
      */
-    protected ReservationNumberHandler $reservationNumberHandler;
+    protected $reservationNumberHandler;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->reservationNumberHandler = new ReservationNumberHandler();
+        $loggerMock = $this->createMock(BuckarooLoggerInterface::class);
+        $this->reservationNumberHandler = new ReservationNumberHandler($loggerMock);
     }
 
     /**
      * @dataProvider reservationNumberDataProvider
      *
-     * @param string $paymentMethod
-     * @param bool $hasReservationNumber
-     * @param array|null $serviceParameters
+     * @param  string     $paymentMethod
+     * @param  bool       $hasReservationNumber
+     * @param  array|null $serviceParameters
      * @throws \Exception
      */
     public function testHandle(

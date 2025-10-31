@@ -35,14 +35,14 @@ class Fieldset extends MagentoFieldset
     /**
      * @var LogoService
      */
-    protected LogoService $logoService;
+    protected $logoService;
 
     /**
-     * @param Context $context
-     * @param Session $authSession
-     * @param Js $jsHelper
-     * @param LogoService $logoService
-     * @param array $data
+     * @param Context                 $context
+     * @param Session                 $authSession
+     * @param Js                      $jsHelper
+     * @param LogoService             $logoService
+     * @param array                   $data
      * @param SecureHtmlRenderer|null $secureRenderer
      */
     public function __construct(
@@ -60,7 +60,7 @@ class Fieldset extends MagentoFieldset
     /**
      * Collapsed or expanded fieldset when page loaded?
      *
-     * @param AbstractElement $element
+     * @param  AbstractElement $element
      * @return bool
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
@@ -73,7 +73,7 @@ class Fieldset extends MagentoFieldset
     /**
      * Get frontend class
      *
-     * @param AbstractElement $element
+     * @param  AbstractElement $element
      * @return string
      */
     protected function _getFrontendClass($element): string
@@ -107,7 +107,7 @@ class Fieldset extends MagentoFieldset
     /**
      * Get element value
      *
-     * @param AbstractElement $element
+     * @param  AbstractElement $element
      * @return string
      */
     private function getElementValue(AbstractElement $element): string
@@ -125,7 +125,7 @@ class Fieldset extends MagentoFieldset
     /**
      * Get active status for a group
      *
-     * @param AbstractElement $element
+     * @param  AbstractElement $element
      * @return string
      */
     private function getActiveStatusByGroup(AbstractElement $element): string
@@ -151,7 +151,7 @@ class Fieldset extends MagentoFieldset
     /**
      * Get element value
      *
-     * @param string $configPath
+     * @param  string $configPath
      * @return string
      */
     private function getElementValueByConfigPath(string $configPath): string
@@ -199,7 +199,7 @@ class Fieldset extends MagentoFieldset
     /**
      * Get the header title HTML including a logo.
      *
-     * @param AbstractElement $element
+     * @param  AbstractElement $element
      * @return string
      */
     protected function _getHeaderTitleHtml($element): string
@@ -215,7 +215,7 @@ class Fieldset extends MagentoFieldset
     }
 
     /**
-     * @param AbstractElement $element
+     * @param  AbstractElement $element
      * @return string
      */
     private function getTabImgAndLink($element)
@@ -230,7 +230,7 @@ class Fieldset extends MagentoFieldset
     /**
      * Get payment method logo
      *
-     * @param string $method
+     * @param  string $method
      * @return string
      */
     private function getPaymentLogo(string $method): string

@@ -33,7 +33,7 @@ class ShippingAddressDataBuilder extends AbstractAddressDataBuilder
     /**
      * @var AddressHandlerPool
      */
-    private AddressHandlerPool $addressHandlerPool;
+    private $addressHandlerPool;
 
     /**
      * @param AddressHandlerPool $addressHandlerPool
@@ -47,8 +47,8 @@ class ShippingAddressDataBuilder extends AbstractAddressDataBuilder
     /**
      * Get Shipping Address
      *
-     * @return Address
      * @throws \Exception
+     * @return Address
      */
     protected function getAddress(): Address
     {
@@ -70,7 +70,7 @@ class ShippingAddressDataBuilder extends AbstractAddressDataBuilder
      *
      * @param OrderPaymentInterface|InfoInterface $payment
      *
-     * @return boolean
+     * @return bool
      */
     public function isAddressDataDifferent($payment): bool
     {

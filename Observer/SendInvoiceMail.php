@@ -35,7 +35,7 @@ class SendInvoiceMail implements ObserverInterface
     /**
      * @var BuckarooLoggerInterface $logger
      */
-    public BuckarooLoggerInterface $logger;
+    public $logger;
     /**
      * @var Data
      */
@@ -50,10 +50,10 @@ class SendInvoiceMail implements ObserverInterface
     private $invoiceSender;
 
     /**
-     * @param Account $accountConfig
-     * @param InvoiceSender $invoiceSender
+     * @param Account                 $accountConfig
+     * @param InvoiceSender           $invoiceSender
      * @param BuckarooLoggerInterface $logger
-     * @param Data $helper
+     * @param Data                    $helper
      */
     public function __construct(
         Account $accountConfig,
@@ -70,7 +70,7 @@ class SendInvoiceMail implements ObserverInterface
     /**
      * Send email on creating invoice on sales_order_invoice_pay event
      *
-     * @param Observer $observer
+     * @param  Observer           $observer
      * @throws LocalizedException
      * @throws \Exception
      *

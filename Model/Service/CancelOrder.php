@@ -13,22 +13,22 @@ class CancelOrder
     /**
      * @var OrderRepositoryInterface
      */
-    private OrderRepositoryInterface $orderRepositoryInterface;
+    private $orderRepositoryInterface;
 
     /**
      * @var OrderManagementInterface
      */
-    private OrderManagementInterface $orderManagementInterface;
+    private $orderManagementInterface;
 
     /**
      * @var BuckarooLoggerInterface
      */
-    private BuckarooLoggerInterface $logger;
+    private $logger;
 
     /**
      * @param OrderRepositoryInterface $orderRepositoryInterface
      * @param OrderManagementInterface $orderManagementInterface
-     * @param BuckarooLoggerInterface $logger
+     * @param BuckarooLoggerInterface  $logger
      */
     public function __construct(
         OrderRepositoryInterface $orderRepositoryInterface,
@@ -44,7 +44,6 @@ class CancelOrder
      * Cancel previous order that comes from a restored quote
      *
      * @param PaymentDataObjectInterface $paymentDO
-     * @return void
      */
     public function cancelPreviousPendingOrder(PaymentDataObjectInterface $paymentDO)
     {

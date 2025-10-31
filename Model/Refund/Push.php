@@ -79,7 +79,7 @@ class Push
     /**
      * @var BuckarooLoggerInterface $logger
      */
-    public BuckarooLoggerInterface $logger;
+    public $logger;
 
     /**
      * @var ScopeConfigInterface
@@ -92,13 +92,13 @@ class Push
     private $creditmemoManagement;
 
     /**
-     * @param CreditmemoFactory $creditmemoFactory
+     * @param CreditmemoFactory             $creditmemoFactory
      * @param CreditmemoManagementInterface $creditmemoManagement
-     * @param CreditmemoSender $creditEmailSender
-     * @param Refund $configRefund
-     * @param Data $helper
-     * @param BuckarooLoggerInterface $logger
-     * @param ScopeConfigInterface $scopeConfig
+     * @param CreditmemoSender              $creditEmailSender
+     * @param Refund                        $configRefund
+     * @param Data                          $helper
+     * @param BuckarooLoggerInterface       $logger
+     * @param ScopeConfigInterface          $scopeConfig
      */
     public function __construct(
         CreditmemoFactory $creditmemoFactory,
@@ -123,11 +123,11 @@ class Push
      * This Function will result in a creditmemo being created for the order in question.
      *
      * @param PushRequestInterface $postData
-     * @param bool $signatureValidation
-     * @param $order
+     * @param bool                 $signatureValidation
+     * @param                      $order
      *
-     * @return bool
      * @throws BuckarooException
+     * @return bool
      */
     public function receiveRefundPush(PushRequestInterface $postData, bool $signatureValidation, $order): bool
     {
@@ -194,8 +194,8 @@ class Push
     /**
      * Create the creditmemo
      *
-     * @return bool
      * @throws LocalizedException
+     * @return bool
      */
     public function createCreditmemo(): bool
     {
@@ -388,7 +388,7 @@ class Push
     /**
      * Set quantity items
      *
-     * @param array $items
+     * @param  array $items
      * @return array $qtys
      */
     public function setCreditQtys($items): array
@@ -487,9 +487,9 @@ class Push
     /**
      * Create credit memo by order and refund data
      *
-     * @param array $creditData
-     * @return Creditmemo|false
+     * @param  array              $creditData
      * @throws LocalizedException
+     * @return Creditmemo|false
      */
     public function initCreditmemo(array $creditData)
     {

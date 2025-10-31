@@ -60,12 +60,12 @@ class Idin extends Template
     /**
      * Idin constructor
      *
-     * @param Context $context
-     * @param Cart $cart
+     * @param Context                 $context
+     * @param Cart                    $cart
      * @param CompositeConfigProvider $compositeConfigProvider
-     * @param AccountConfig $idinConfigProvider
-     * @param Registry $registry
-     * @param array $data
+     * @param AccountConfig           $idinConfigProvider
+     * @param Registry                $registry
+     * @param array                   $data
      */
     public function __construct(
         Context $context,
@@ -86,8 +86,8 @@ class Idin extends Template
     /**
      * Get product name
      *
-     * @return string
      * @throws LocalizedException
+     * @return string
      */
     public function getProductName()
     {
@@ -97,8 +97,8 @@ class Idin extends Template
     /**
      * Retrieve current product model
      *
-     * @return Product
      * @throws LocalizedException
+     * @return Product
      */
     private function getProduct()
     {
@@ -116,8 +116,8 @@ class Idin extends Template
     /**
      * Show Idin Notification about the age
      *
-     * @return bool
      * @throws LocalizedException
+     * @return bool
      */
     public function canShowProductIdin()
     {
@@ -153,8 +153,8 @@ class Idin extends Template
     /**
      * Get idin account config
      *
-     * @return false|string
      * @throws Exception
+     * @return false|string
      */
     public function getAccountConfig()
     {

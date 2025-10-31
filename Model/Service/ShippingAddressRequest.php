@@ -28,22 +28,22 @@ class ShippingAddressRequest implements ShippingAddressRequestInterface
     /**
      * @var string
      */
-    protected string $city;
+    protected $city;
 
     /**
      * @var string
      */
-    protected string $countryCode;
+    protected $countryCode;
 
     /**
      * @var string
      */
-    protected string $postalCode;
+    protected $postalCode;
 
     /**
      * @var string
      */
-    protected string $state;
+    protected $state;
 
     /**
      * @inheritdoc
@@ -67,10 +67,9 @@ class ShippingAddressRequest implements ShippingAddressRequestInterface
     /**
      * Validate required fields
      *
-     * @param mixed $value
+     * @param mixed  $value
      * @param string $name
      *
-     * @return void
      * @throws ExpressMethodsException
      */
     protected function validateRequired($value, string $name)

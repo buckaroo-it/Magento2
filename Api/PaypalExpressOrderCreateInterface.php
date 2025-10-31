@@ -20,14 +20,16 @@
 
 namespace Buckaroo\Magento2\Api;
 
+use Buckaroo\Magento2\Api\Data\PaypalExpress\OrderCreateResponseInterface;
+
 interface PaypalExpressOrderCreateInterface
 {
     /**
      * Get order breakdown after shipping is applied
      *
-     * @param string $paypal_order_id
-     * @param string|null $cart_id
-     * @return \Buckaroo\Magento2\Api\Data\PaypalExpress\OrderCreateResponseInterface
+     * @param  string                                                                 $paypal_order_id
+     * @param  string|null                                                            $cart_id
+     * @return OrderCreateResponseInterface
      */
     public function execute(
         string $paypal_order_id,

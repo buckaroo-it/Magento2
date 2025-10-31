@@ -28,15 +28,15 @@ class BreakdownItem implements BreakdownItemInterface
     /**
      * @var float
      */
-    protected float $total;
+    protected $total;
 
     /**
      * @var string
      */
-    protected string $currencyCode;
+    protected $currencyCode;
 
     /**
-     * @param float $total
+     * @param float  $total
      * @param string $currencyCode
      */
     public function __construct(float $total, string $currencyCode)

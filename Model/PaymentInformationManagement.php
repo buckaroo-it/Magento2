@@ -47,33 +47,33 @@ class PaymentInformationManagement implements PaymentInformationManagementInterf
     /**
      * @var Factory
      */
-    public Factory $configProviderMethodFactory;
+    public $configProviderMethodFactory;
 
     /**
      * @var LoggerInterface|null
      */
-    protected ?LoggerInterface $logger = null;
+    protected $logger = null;
 
     /**
      * @var OrderRepositoryInterface
      */
-    protected OrderRepositoryInterface $orderRepository;
+    protected $orderRepository;
 
     /**
      * @var BuckarooResponseDataInterface
      */
-    private BuckarooResponseDataInterface $buckarooResponseData;
+    private $buckarooResponseData;
 
     /**
      * @var MagentoPaymentInformationManagement
      */
-    protected MagentoPaymentInformationManagement $paymentInformationManagement;
+    protected $paymentInformationManagement;
 
     /**
-     * @param BuckarooResponseDataInterface $buckarooResponseData
-     * @param LoggerInterface $logger
-     * @param Factory $configProviderMethodFactory
-     * @param OrderRepositoryInterface $orderRepository
+     * @param BuckarooResponseDataInterface       $buckarooResponseData
+     * @param LoggerInterface                     $logger
+     * @param Factory                             $configProviderMethodFactory
+     * @param OrderRepositoryInterface            $orderRepository
      * @param MagentoPaymentInformationManagement $paymentInformationManagement
      * @codeCoverageIgnore
      */
@@ -94,11 +94,11 @@ class PaymentInformationManagement implements PaymentInformationManagementInterf
     /**
      * Set payment information and place order for a specified cart.
      *
-     * @param int $cartId
-     * @param PaymentInterface $paymentMethod
-     * @param AddressInterface|null $billingAddress
-     * @return string
+     * @param  int                                      $cartId
+     * @param  PaymentInterface                         $paymentMethod
+     * @param  AddressInterface|null                    $billingAddress
      * @throws CouldNotSaveException|LocalizedException
+     * @return string
      */
     public function buckarooSavePaymentInformationAndPlaceOrder(
         $cartId,
@@ -143,8 +143,8 @@ class PaymentInformationManagement implements PaymentInformationManagementInterf
     /**
      * Check if the payment method is available for the given billing address country.
      *
-     * @param PaymentInterface $paymentMethod
-     * @param AddressInterface|null $billingAddress
+     * @param  PaymentInterface      $paymentMethod
+     * @param  AddressInterface|null $billingAddress
      * @throws LocalizedException
      */
     public function checkSpecificCountry(PaymentInterface $paymentMethod, ?AddressInterface $billingAddress)
@@ -168,7 +168,7 @@ class PaymentInformationManagement implements PaymentInformationManagementInterf
     /**
      * Normalize payment method code by removing the prefix.
      *
-     * @param string $methodCode
+     * @param  string $methodCode
      * @return string
      */
     public function normalizePaymentMethodCode(string $methodCode = ''): string
@@ -179,7 +179,7 @@ class PaymentInformationManagement implements PaymentInformationManagementInterf
     /**
      * Get order increment id by order id.
      *
-     * @param int|string $orderId
+     * @param  int|string  $orderId
      * @return string|null
      */
     protected function getOrderIncrementId($orderId): ?string

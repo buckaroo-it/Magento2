@@ -32,27 +32,27 @@ class Add
     /**
      * @var BuckarooLoggerInterface
      */
-    private BuckarooLoggerInterface $logger;
+    private $logger;
 
     /**
      * @var QuoteService
      */
-    private QuoteService $quoteService;
+    private $quoteService;
 
     /**
      * @var ApplePayFormatData
      */
-    private ApplePayFormatData $applePayFormatData;
+    private $applePayFormatData;
 
     /**
      * @var ProductValidationService
      */
-    private ProductValidationService $productValidationService;
+    private $productValidationService;
 
     /**
-     * @param BuckarooLoggerInterface $logger
-     * @param QuoteService $quoteService
-     * @param ApplePayFormatData $applePayFormatData
+     * @param BuckarooLoggerInterface  $logger
+     * @param QuoteService             $quoteService
+     * @param ApplePayFormatData       $applePayFormatData
      * @param ProductValidationService $productValidationService
      */
     public function __construct(
@@ -70,7 +70,7 @@ class Add
     /**
      * Add Product to Cart on Apple Pay
      *
-     * @param array $request
+     * @param  array       $request
      * @return array|false
      */
     public function process(array $request)

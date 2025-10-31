@@ -55,7 +55,7 @@ class OriginalTransactionKeyDataBuilderTest extends AbstractDataBuilderTest
      *
      * @param string $serviceAction
      * @param string $originalTransactionKey
-     * @param array $expectedResult
+     * @param array  $expectedResult
      */
     public function testBuild(string $serviceAction, string $originalTransactionKey, array $expectedResult): void
     {

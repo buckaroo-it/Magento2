@@ -29,7 +29,7 @@ class Creditcard implements OptionSourceInterface
     /**
      * @var ConfigCreditcard
      */
-    protected ConfigCreditcard $configProvider;
+    protected $configProvider;
 
     /**
      * Use the constructor to get the requested config provider.

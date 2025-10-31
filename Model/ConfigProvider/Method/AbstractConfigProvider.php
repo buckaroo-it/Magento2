@@ -96,12 +96,13 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     protected $logoService;
 
 
-    protected array $issuers = [];
+    protected $issuers = [];
     /**
-     * @param Repository $assetRepo
+     * @param Repository           $assetRepo
      * @param ScopeConfigInterface $scopeConfig
-     * @param AllowedCurrencies $allowedCurrencies
-     * @param PaymentFee $paymentFeeHelper
+     * @param AllowedCurrencies    $allowedCurrencies
+     * @param PaymentFee           $paymentFeeHelper
+     * @param LogoService          $logoService
      */
     public function __construct(
         Repository $assetRepo,
@@ -206,7 +207,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     /**
      * Retrieve information from payment configuration
      *
-     * @param string $field
+     * @param string          $field
      * @param null|int|string $storeId
      *
      * @return mixed
@@ -247,7 +248,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     /**
      * Returns an array of specific countries configured for the specified store.
      *
-     * @param null|int|Store $store
+     * @param  null|int|Store $store
      * @return array
      */
     public function getSpecificCountry($store = null)
@@ -271,7 +272,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     /**
      * Is payment methods used only from applicable countries
      *
-     * @param null|int|Store $store
+     * @param  null|int|Store $store
      * @return mixed
      */
     public function getAllowSpecific($store = null)
@@ -282,7 +283,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     /**
      * Allow customer groups
      *
-     * @param null|int|Store $store
+     * @param  null|int|Store $store
      * @return mixed
      */
     public function getSpecificCustomerGroup($store = null)
@@ -293,7 +294,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     /**
      * Allow customer groups for B2B clients
      *
-     * @param null|int|Store $store
+     * @param  null|int|Store $store
      * @return mixed
      */
     public function getSpecificCustomerGroupB2B($store = null)
@@ -314,6 +315,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     /**
      * Get buckaroo payment method title (excluding fee)
      *
+     * @param  null|mixed  $store
      * @return string|null
      */
     public function getTitle($store = null): ?string
@@ -323,7 +325,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     /**
      * Get Active Config Value
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed|null
      */
     public function getActive($store = null)
@@ -334,7 +336,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     /**
      * Get Available In Backend
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed|null
      */
     public function getAvailableInBackend($store = null)
@@ -345,7 +347,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     /**
      * Get Send order confirmation email
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return bool
      */
     public function hasOrderEmail($store = null): bool
@@ -368,7 +370,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     /**
      * Get Payment fee frontend label
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed|null
      */
     public function getPaymentFeeLabel($store = null)
@@ -379,7 +381,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     /**
      * Get Account Payment fee frontend label
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed|null
      */
     protected function getAccoutPaymentFeeLabel($store = null)
@@ -394,7 +396,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     /**
      * Get Method specific status enabled
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed|null
      */
     public function getActiveStatus($store = null)
@@ -405,7 +407,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     /**
      * Get Method specific success status
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed|null
      */
     public function getOrderStatusSuccess($store = null)
@@ -416,7 +418,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     /**
      * Get Method specific failed status
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed|null
      */
     public function getOrderStatusFailed($store = null)
@@ -427,7 +429,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     /**
      * Get subtext
      *
-     * @param null|int|Store $store
+     * @param  null|int|Store $store
      * @return mixed
      */
     public function getSubtext($store = null)
@@ -438,7 +440,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     /**
      * Get subtext style
      *
-     * @param null|int|Store $store
+     * @param  null|int|Store $store
      * @return mixed
      */
     public function getSubtextStyle($store = null)
@@ -449,7 +451,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     /**
      * Get subtext color
      *
-     * @param null|int|Store $store
+     * @param  null|int|Store $store
      * @return mixed
      */
     public function getSubtextColor($store = null)
@@ -460,7 +462,8 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     /**
      * Can Show Financial Warning
      *
-     * @return boolean
+     * @param  null|mixed $store
+     * @return bool
      */
     public function canShowFinancialWarning($store = null): bool
     {
@@ -470,7 +473,8 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     /**
      * Is test mode
      *
-     * @return boolean
+     * @param  null|mixed $store
+     * @return bool
      */
     protected function isTestMode($store = null): bool
     {

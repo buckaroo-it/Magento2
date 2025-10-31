@@ -32,8 +32,8 @@ interface ArticleHandlerInterface
     /**
      * Get Items Data from Order (authorize/order)
      *
-     * @param Order $order
-     * @param InfoInterface $payment
+     * @param  Order         $order
+     * @param  InfoInterface $payment
      * @return array
      */
     public function getOrderArticlesData(Order $order, InfoInterface $payment): array;
@@ -41,8 +41,8 @@ interface ArticleHandlerInterface
     /**
      * Get Items Data from Invoiced (capture)
      *
-     * @param Order $order
-     * @param InfoInterface $payment
+     * @param  Order         $order
+     * @param  InfoInterface $payment
      * @return array
      */
     public function getInvoiceArticlesData(Order $order, InfoInterface $payment): array;
@@ -50,8 +50,8 @@ interface ArticleHandlerInterface
     /**
      * Get Items Data from Creditmemo (refund)
      *
-     * @param Order $order
-     * @param InfoInterface $payment
+     * @param  Order         $order
+     * @param  InfoInterface $payment
      * @return array
      */
     public function getCreditMemoArticlesData(Order $order, InfoInterface $payment): array;

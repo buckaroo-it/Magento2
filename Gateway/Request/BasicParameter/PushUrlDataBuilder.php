@@ -29,7 +29,7 @@ class PushUrlDataBuilder implements BuilderInterface
     /**
      * @var UrlInterface
      */
-    protected UrlInterface $urlBuilder;
+    protected $urlBuilder;
 
     /**
      * TransactionBuilder constructor.

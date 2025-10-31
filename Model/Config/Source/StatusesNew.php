@@ -34,15 +34,15 @@ class StatusesNew implements OptionSourceInterface
      *
      * @var Config
      */
-    protected Config $orderConfig;
+    protected $orderConfig;
 
     /**
      * @var Factory
      */
-    protected Factory $configProviderFactory;
+    protected $configProviderFactory;
 
     /**
-     * @param Config $orderConfig
+     * @param Config  $orderConfig
      * @param Factory $configProviderFactory
      */
     public function __construct(
@@ -56,8 +56,8 @@ class StatusesNew implements OptionSourceInterface
     /**
      * Options getter
      *
-     * @return array
      * @throws Exception
+     * @return array
      */
     public function toOptionArray(): array
     {

@@ -65,14 +65,14 @@ class OrderCancelAfter implements ObserverInterface
     /**
      * @var BuckarooLoggerInterface
      */
-    protected BuckarooLoggerInterface $logger;
+    protected $logger;
 
     /**
-     * @param ScopeConfigInterface $scopeConfig
-     * @param Json $client
-     * @param Encryptor $encryptor
-     * @param Account $configProviderAccount
-     * @param PayPerEmail $configProviderPPE
+     * @param ScopeConfigInterface    $scopeConfig
+     * @param Json                    $client
+     * @param Encryptor               $encryptor
+     * @param Account                 $configProviderAccount
+     * @param PayPerEmail             $configProviderPPE
      * @param BuckarooLoggerInterface $logger
      */
     public function __construct(
@@ -94,8 +94,7 @@ class OrderCancelAfter implements ObserverInterface
     /**
      * Do cancel request to payment engine for Pay Per Email payment method after order cancel
      *
-     * @param Observer $observer
-     * @return void
+     * @param  Observer           $observer
      * @throws LocalizedException
      */
     public function execute(Observer $observer)
@@ -129,6 +128,8 @@ class OrderCancelAfter implements ObserverInterface
     }
 
     /**
+     * @param  mixed      $key
+     * @param  null|mixed $storeId
      * @throws Exception
      */
     private function sendCancelResponse($key, $storeId = null)

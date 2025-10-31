@@ -42,10 +42,10 @@ class HttppostPushRequest extends AbstractPushRequest implements PushRequestInte
     /**
      * @var ValidatorPush $validator
      */
-    private ValidatorPush $validator;
+    private $validator;
 
     /**
-     * @param array $requestData
+     * @param array         $requestData
      * @param ValidatorPush $validator
      */
     public function __construct(array $requestData, ValidatorPush $validator)
@@ -73,7 +73,7 @@ class HttppostPushRequest extends AbstractPushRequest implements PushRequestInte
     /**
      * Retrieves the value of the specified property or method result.
      *
-     * @param string $name
+     * @param  string     $name
      * @return mixed|null
      */
     public function get(string $name)

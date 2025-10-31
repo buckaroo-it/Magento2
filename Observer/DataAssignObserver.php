@@ -62,7 +62,7 @@ class DataAssignObserver extends AbstractDataAssignObserver
     /**
      * @var array
      */
-    private array $additionalInformationList = [
+    private $additionalInformationList = [
         self::PAYMENT_ISSUER,
         self::PAYMENT_FROM,
         self::TERMS_CONDITION,
@@ -98,7 +98,7 @@ class DataAssignObserver extends AbstractDataAssignObserver
     /**
      * @var array|string[] Some fields shouldn't be set if termsCondition is not true
      */
-    private array $termsConditionDepends = [
+    private $termsConditionDepends = [
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay::CODE,
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay2::CODE,
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20::CODE,
@@ -110,8 +110,7 @@ class DataAssignObserver extends AbstractDataAssignObserver
     /**
      * Set Additional Information for all payment methods
      *
-     * @param Observer $observer
-     * @return void
+     * @param  Observer           $observer
      * @throws LocalizedException
      */
     public function execute(Observer $observer)

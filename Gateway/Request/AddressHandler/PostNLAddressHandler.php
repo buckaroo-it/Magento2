@@ -37,7 +37,7 @@ class PostNLAddressHandler extends AbstractAddressHandler
 
     /**
      * @param BuckarooLoggerInterface $logger
-     * @param AddressFactory $addressFactory
+     * @param AddressFactory          $addressFactory
      */
     public function __construct(BuckarooLoggerInterface $logger, AddressFactory $addressFactory)
     {
@@ -48,8 +48,8 @@ class PostNLAddressHandler extends AbstractAddressHandler
     /**
      * Update shipping address by PostNL
      *
-     * @param Order $order
-     * @param OrderAddressInterface $shippingAddress
+     * @param  Order                 $order
+     * @param  OrderAddressInterface $shippingAddress
      * @return Order
      */
     public function handle(Order $order, OrderAddressInterface $shippingAddress): Order

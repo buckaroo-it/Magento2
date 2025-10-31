@@ -28,7 +28,7 @@ interface ApplyVoucherRequestInterface
     /**
      * Set voucherCode
      *
-     * @param string $voucherCode
+     * @param  string                       $voucherCode
      * @return ApplyVoucherRequestInterface
      */
     public function setVoucherCode(string $voucherCode): ApplyVoucherRequestInterface;
@@ -36,8 +36,8 @@ interface ApplyVoucherRequestInterface
      /**
       * Set quote
       *
-      * @param CartInterface $quote
-      * @return ApplyVoucherRequestInterface
+       * @param  CartInterface                $quote
+       * @return ApplyVoucherRequestInterface
       */
     public function setQuote(CartInterface $quote): ApplyVoucherRequestInterface;
 }

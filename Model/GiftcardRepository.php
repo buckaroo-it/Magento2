@@ -48,22 +48,22 @@ class GiftcardRepository implements GiftcardRepositoryInterface
     /**
      * @var GiftcardFactory
      */
-    protected GiftcardFactory $giftcardFactory;
+    protected $giftcardFactory;
 
     /**
      * @var GiftcardCollectionFactory
      */
-    protected GiftcardCollectionFactory $giftcardCollectionFactory;
+    protected $giftcardCollectionFactory;
 
     /**
      * @var SearchResultsInterfaceFactory
      */
-    protected SearchResultsInterfaceFactory $searchResultsFactory;
+    protected $searchResultsFactory;
 
     /**
-     * @param GiftcardResource $resource
-     * @param GiftcardFactory $giftcardFactory
-     * @param GiftcardCollectionFactory $giftcardCollectionFactory
+     * @param GiftcardResource              $resource
+     * @param GiftcardFactory               $giftcardFactory
+     * @param GiftcardCollectionFactory     $giftcardCollectionFactory
      * @param SearchResultsInterfaceFactory $searchResultsFactory
      */
     public function __construct(
@@ -120,7 +120,7 @@ class GiftcardRepository implements GiftcardRepositoryInterface
     /**
      * Handle filter groups for the given collection by applying filters from the filter group.
      *
-     * @param FilterGroup $filterGroup
+     * @param FilterGroup        $filterGroup
      * @param GiftcardCollection $collection
      */
     private function handleFilterGroups(FilterGroup $filterGroup, GiftcardCollection $collection)
@@ -141,7 +141,7 @@ class GiftcardRepository implements GiftcardRepositoryInterface
     /**
      * Handle sort orders for the given search criteria and collection.
      *
-     * @param SearchCriteria $searchCriteria
+     * @param SearchCriteria     $searchCriteria
      * @param GiftcardCollection $collection
      */
     private function handleSortOrders(SearchCriteria $searchCriteria, GiftcardCollection $collection)
@@ -164,7 +164,7 @@ class GiftcardRepository implements GiftcardRepositoryInterface
     /**
      * Get search result items based on search criteria and collection.
      *
-     * @param SearchCriteria $searchCriteria
+     * @param SearchCriteria     $searchCriteria
      * @param GiftcardCollection $collection
      *
      * @return array
@@ -222,7 +222,7 @@ class GiftcardRepository implements GiftcardRepositoryInterface
     }
 
     /**
-     * @param string $serviceCode
+     * @param  string            $serviceCode
      * @return GiftcardInterface
      */
     public function getByServiceCode(string $serviceCode)

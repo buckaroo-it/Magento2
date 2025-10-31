@@ -47,7 +47,7 @@ class ClientIPDataBuilderTest extends AbstractDataBuilderTest
     /**
      * @var ClientIPDataBuilder
      */
-    private ClientIPDataBuilder $clientIPDataBuilder;
+    private $clientIPDataBuilder;
 
     protected function setUp(): void
     {
@@ -65,6 +65,8 @@ class ClientIPDataBuilderTest extends AbstractDataBuilderTest
 
     /**
      * @dataProvider getBuildDataProvider
+     * @param string $expectedAddress
+     * @param int    $expectedType
      */
     public function testBuild(string $expectedAddress, int $expectedType): void
     {
@@ -130,6 +132,8 @@ class ClientIPDataBuilderTest extends AbstractDataBuilderTest
 
     /**
      * @dataProvider isIpPrivateDataProvider
+     * @param string $ip
+     * @param bool   $expectedResult
      */
     public function testIsIpPrivate(string $ip, bool $expectedResult): void
     {
@@ -157,10 +161,10 @@ class ClientIPDataBuilderTest extends AbstractDataBuilderTest
     /**
      * Invoke the private isIpPrivate method using reflection.
      *
-     * @param ClientIPDataBuilder $clientIPDataBuilder
-     * @param string $ip
-     * @return bool
+     * @param  ClientIPDataBuilder  $clientIPDataBuilder
+     * @param  string               $ip
      * @throws \ReflectionException
+     * @return bool
      */
     private function invokeIsIpPrivateMethod(ClientIPDataBuilder $clientIPDataBuilder, string $ip): bool
     {

@@ -80,7 +80,7 @@ class Account extends AbstractConfigProvider
     protected $scopeConfig;
 
     /**
-     * @param MethodFactory $methodConfigProviderFactory
+     * @param MethodFactory        $methodConfigProviderFactory
      * @param ScopeConfigInterface $scopeConfig
      */
     public function __construct(
@@ -134,9 +134,9 @@ class Account extends AbstractConfigProvider
     /**
      * Returns the method specific order status when available, or returns the global order status when not.
      *
-     * @param string|null $paymentMethod
-     * @return string
+     * @param  string|null       $paymentMethod
      * @throws BuckarooException
+     * @return string
      */
     public function getOrderStatusSuccess($paymentMethod = null)
     {
@@ -164,9 +164,9 @@ class Account extends AbstractConfigProvider
     /**
      * Returns the method specific order status when available, or returns the global order status when not.
      *
-     * @param string|null $paymentMethod
-     * @return string
+     * @param  string|null       $paymentMethod
      * @throws BuckarooException
+     * @return string
      */
     public function getOrderStatusFailed($paymentMethod = null)
     {
@@ -194,9 +194,9 @@ class Account extends AbstractConfigProvider
     /**
      * Gets the config provider for the given payment method.
      *
-     * @param string $paymentMethod
-     * @return Method\ConfigProviderInterface
+     * @param  string                         $paymentMethod
      * @throws BuckarooException
+     * @return Method\ConfigProviderInterface
      */
     protected function getMethodConfigProvider($paymentMethod)
     {
@@ -209,9 +209,9 @@ class Account extends AbstractConfigProvider
     /**
      * Get the parsed label, we replace the template variables with the values
      *
-     * @param Store $store
-     * @param OrderInterface $order
-     * @param string|null $label
+     * @param  Store          $store
+     * @param  OrderInterface $order
+     * @param  string|null    $label
      * @return string
      */
     public function getParsedLabel(Store $store, OrderInterface $order, ?string $label = null)
@@ -237,7 +237,7 @@ class Account extends AbstractConfigProvider
     /**
      * Get active. Enable or disable the Buckaroo module.
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed
      */
     public function getActive($store = null)
@@ -252,7 +252,7 @@ class Account extends AbstractConfigProvider
     /**
      * Get Secret Key from Buckaroo Payment Engine
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed
      */
     public function getSecretKey($store = null)
@@ -267,7 +267,7 @@ class Account extends AbstractConfigProvider
     /**
      * Get Merchant Store Key from Buckaroo Payment Engine
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed
      */
     public function getMerchantKey($store = null)
@@ -282,8 +282,8 @@ class Account extends AbstractConfigProvider
     /**
      * Get the parsed label, we replace the template variables with the values
      *
-     * @param Store $store
-     * @param OrderInterface $order
+     * @param  Store          $store
+     * @param  OrderInterface $order
      * @return mixed
      */
     public function getParsedRefundLabel(Store $store, OrderInterface $order)
@@ -299,7 +299,7 @@ class Account extends AbstractConfigProvider
     /**
      * Get transaction label
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed
      */
     public function getTransactionLabel($store = null)
@@ -314,7 +314,7 @@ class Account extends AbstractConfigProvider
     /**
      * Create Invoice on Payment or on Shipment
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed
      */
     public function getInvoiceHandling($store = null)
@@ -330,7 +330,7 @@ class Account extends AbstractConfigProvider
     /**
      * Should send a mail after successful creating the order.
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed
      */
     public function getOrderConfirmationEmail($store = null)
@@ -345,7 +345,7 @@ class Account extends AbstractConfigProvider
     /**
      * Send order confirmation email in sync mode
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed
      */
     public function getOrderConfirmationEmailSync($store = null)
@@ -360,7 +360,7 @@ class Account extends AbstractConfigProvider
     /**
      * Send a mail after successful payment.
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed
      */
     public function getInvoiceEmail($store = null)
@@ -375,7 +375,7 @@ class Account extends AbstractConfigProvider
     /**
      * Redirect after successful payments
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed
      */
     public function getSuccessRedirect($store = null)
@@ -390,7 +390,7 @@ class Account extends AbstractConfigProvider
     /**
      * Redirect after failed payments.
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed
      */
     public function getFailureRedirect($store = null)
@@ -405,7 +405,7 @@ class Account extends AbstractConfigProvider
     /**
      * Redirect after failed payments.
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed
      */
     public function getFailureRedirectToCheckout($store = null)
@@ -420,7 +420,7 @@ class Account extends AbstractConfigProvider
     /**
      * Orders will stay open after failed payments.
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed
      */
     public function getCancelOnFailed($store = null)
@@ -435,7 +435,7 @@ class Account extends AbstractConfigProvider
     /**
      * Cancel order on browser back button.
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed
      */
     public function getCancelOnBrowserBack($store = null)
@@ -450,7 +450,7 @@ class Account extends AbstractConfigProvider
     /**
      * Get Log level
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed
      */
     public function getLogLevel($store = null)
@@ -465,7 +465,7 @@ class Account extends AbstractConfigProvider
     /**
      * Get Log Handler (File/Database)
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed
      */
     public function getLogHandler($store = null)
@@ -480,7 +480,7 @@ class Account extends AbstractConfigProvider
     /**
      * Get Debug backtrace logging depth
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed
      */
     public function getLogDbtraceDepth($store = null)
@@ -495,7 +495,7 @@ class Account extends AbstractConfigProvider
     /**
      * Get Log retention period
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed
      */
     public function getLogRetention($store = null)
@@ -510,7 +510,7 @@ class Account extends AbstractConfigProvider
     /**
      * Payment fee frontend label
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed
      */
     public function getPaymentFeeLabel($store = null)
@@ -525,7 +525,7 @@ class Account extends AbstractConfigProvider
     /**
      * Get the status that will be given to new orders
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed
      */
     public function getOrderStatusNew($store = null)
@@ -540,7 +540,7 @@ class Account extends AbstractConfigProvider
     /**
      * Get the status that will be given to orders paid
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed
      */
     public function getAccountOrderStatusSuccess($store = null)
@@ -555,7 +555,7 @@ class Account extends AbstractConfigProvider
     /**
      * Get the status that will be given to unsuccessful orders
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed
      */
     public function getAccountOrderStatusFailed($store = null)
@@ -570,7 +570,7 @@ class Account extends AbstractConfigProvider
     /**
      * Get the status that will be given to orders pending payment
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed
      */
     public function getOrderStatusPending($store = null)
@@ -585,7 +585,7 @@ class Account extends AbstractConfigProvider
     /**
      * Create order before transaction
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed
      */
     public function getCreateOrderBeforeTransaction($store = null)
@@ -600,7 +600,7 @@ class Account extends AbstractConfigProvider
     /**
      * Client IP detection headers (X-Forwarded-For,CF-Connecting-IP)
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed
      */
     public function getIpHeader($store = null)
@@ -615,7 +615,7 @@ class Account extends AbstractConfigProvider
     /**
      * Check if the cart should be restored when consumer use back button
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed
      */
     public function getCartKeepAlive($store = null)
@@ -630,7 +630,7 @@ class Account extends AbstractConfigProvider
     /**
      * Add customer data to request
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed
      */
     public function getCustomerAdditionalInfo($store = null)
@@ -645,7 +645,7 @@ class Account extends AbstractConfigProvider
     /**
      * Enabled iDIN verification
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed
      */
     public function getIdin($store = null)
@@ -660,7 +660,7 @@ class Account extends AbstractConfigProvider
     /**
      * Get iDIN mode
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed
      */
     public function getIdinMode($store = null)
@@ -675,7 +675,7 @@ class Account extends AbstractConfigProvider
     /**
      * Get iDIN category
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed
      */
     public function getIdinCategory($store = null)
@@ -690,7 +690,7 @@ class Account extends AbstractConfigProvider
     /**
      * Get Buckaroo fee tax class
      *
-     * @param null|int|string $store
+     * @param  null|int|string $store
      * @return mixed
      */
     public function getBuckarooFeeTaxClass($store = null)

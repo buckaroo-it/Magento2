@@ -40,7 +40,7 @@ class QuoteService
     /**
      * @var BuckarooLoggerInterface
      */
-    protected BuckarooLoggerInterface $logger;
+    protected $logger;
     /**
      * @var \Buckaroo\Magento2\Model\Service\QuoteBuilderInterfaceFactory
      */
@@ -52,7 +52,7 @@ class QuoteService
     /**
      * @var CartRepositoryInterface
      */
-    private CartRepositoryInterface $cartRepository;
+    private $cartRepository;
     /**
      * @var CheckoutSession
      */
@@ -61,17 +61,17 @@ class QuoteService
     /**
      * @var ShippingMethodsService
      */
-    private ShippingMethodsService $shippingMethodsService;
+    private $shippingMethodsService;
 
     /**
      * @var AddProductToCartService
      */
-    private AddProductToCartService $addProductToCartService;
+    private $addProductToCartService;
 
     /**
      * @var QuoteAddressService
      */
-    private QuoteAddressService $quoteAddressService;
+    private $quoteAddressService;
 
     /**
      * @var Quote
@@ -79,14 +79,14 @@ class QuoteService
     protected $quote;
 
     /**
-     * @param BuckarooLoggerInterface $logger
-     * @param CartRepositoryInterface $cartRepository
+     * @param BuckarooLoggerInterface         $logger
+     * @param CartRepositoryInterface         $cartRepository
      * @param MaskedQuoteIdToQuoteIdInterface $maskedQuoteIdToQuoteId
-     * @param AddProductToCartService $addProductToCartService
-     * @param QuoteAddressService $quoteAddressService
-     * @param ShippingMethodsService $shippingMethodsService
-     * @param CheckoutSession $checkoutSession
-     * @param QuoteBuilderInterfaceFactory $quoteBuilderInterfaceFactory
+     * @param AddProductToCartService         $addProductToCartService
+     * @param QuoteAddressService             $quoteAddressService
+     * @param ShippingMethodsService          $shippingMethodsService
+     * @param CheckoutSession                 $checkoutSession
+     * @param QuoteBuilderInterfaceFactory    $quoteBuilderInterfaceFactory
      */
     public function __construct(
         BuckarooLoggerInterface         $logger,
@@ -111,9 +111,9 @@ class QuoteService
     /**
      * Get checkout quote instance by cart Hash
      *
-     * @param int|string|null $cartHash
-     * @return CartInterface
+     * @param  int|string|null       $cartHash
      * @throws NoSuchEntityException
+     * @return CartInterface
      */
     public function getQuote($cartHash = null)
     {
@@ -146,9 +146,9 @@ class QuoteService
     /**
      * Get empty checkout quote instance by cart Hash
      *
-     * @param int|string|null $cartHash
-     * @return CartInterface
+     * @param  int|string|null       $cartHash
      * @throws NoSuchEntityException
+     * @return CartInterface
      */
     public function getEmptyQuote($cartHash)
     {
@@ -162,8 +162,8 @@ class QuoteService
      *
      * @param string $formData
      *
-     * @return Quote
      * @throws QuoteException
+     * @return Quote
      */
     public function createQuote(string $formData): Quote
     {
@@ -253,8 +253,7 @@ class QuoteService
     /**
      * Set shipping method on shipping address
      *
-     * @param string $methodCode
-     * @return void
+     * @param  string                $methodCode
      * @throws NoSuchEntityException
      */
     public function setShippingMethod(string $methodCode): void
@@ -265,8 +264,7 @@ class QuoteService
     /**
      * Add Product To Cart
      *
-     * @param DataObject $product
-     * @return void
+     * @param  DataObject            $product
      * @throws NoSuchEntityException
      * @throws LocalizedException
      */
@@ -278,8 +276,7 @@ class QuoteService
     /**
      * Add Address To Cart
      *
-     * @param $shippingAddressRequest
-     * @return void
+     * @param                        $shippingAddressRequest
      * @throws NoSuchEntityException
      * @throws LocalizedException
      */

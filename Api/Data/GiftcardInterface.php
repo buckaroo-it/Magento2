@@ -25,7 +25,7 @@ interface GiftcardInterface
     /**
      * Set Service Code
      *
-     * @param string $servicecode
+     * @param  string $servicecode
      * @return $this
      */
     public function setServicecode($servicecode);
@@ -40,7 +40,7 @@ interface GiftcardInterface
     /**
      * Set Label
      *
-     * @param string $label
+     * @param  string $label
      * @return $this
      */
     public function setLabel($label);

@@ -39,7 +39,7 @@ class Percentage
 
     /**
      * @param ResultFactory $resultFactory
-     * @param TaxCalculate $taxCalculate
+     * @param TaxCalculate  $taxCalculate
      */
     public function __construct(ResultFactory $resultFactory, TaxCalculate $taxCalculate)
     {

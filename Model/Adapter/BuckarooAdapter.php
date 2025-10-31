@@ -49,51 +49,51 @@ class BuckarooAdapter
     /**
      * @var BuckarooClient
      */
-    protected BuckarooClient $buckaroo;
+    protected $buckaroo;
 
     /**
      * @var Encryptor
      */
-    protected Encryptor $encryptor;
+    protected $encryptor;
 
     /**
      * @var BuckarooLoggerInterface
      */
-    protected BuckarooLoggerInterface $logger;
+    protected $logger;
 
     /**
      * @var array|null
      */
-    private ?array $mapPaymentMethods;
+    private $mapPaymentMethods;
 
     /**
      * @var ConfigProviderFactory
      */
-    private ConfigProviderFactory $configProviderFactory;
+    private $configProviderFactory;
 
     /**
      * @var ProductMetadataInterface
      */
-    private ProductMetadataInterface $productMetadata;
+    private $productMetadata;
 
     /**
      * @var Resolver
      */
-    private Resolver $localeResolver;
+    private $localeResolver;
 
     /**
      * @var StoreManagerInterface
      */
-    private StoreManagerInterface $storeManager;
+    private $storeManager;
 
     /**
-     * @param ConfigProviderFactory $configProviderFactory
-     * @param Encryptor $encryptor
-     * @param BuckarooLoggerInterface $logger
+     * @param ConfigProviderFactory    $configProviderFactory
+     * @param Encryptor                $encryptor
+     * @param BuckarooLoggerInterface  $logger
      * @param ProductMetadataInterface $productMetadata
-     * @param Resolver $localeResolver
-     * @param StoreManagerInterface $storeManager
-     * @param array|null $mapPaymentMethods
+     * @param Resolver                 $localeResolver
+     * @param StoreManagerInterface    $storeManager
+     * @param array|null               $mapPaymentMethods
      */
     public function __construct(
         ConfigProviderFactory $configProviderFactory,
@@ -116,11 +116,11 @@ class BuckarooAdapter
     /**
      * Execute request using Buckaroo SDK
      *
-     * @param string $action
-     * @param string $method
-     * @param array $data
-     * @return TransactionResponse
+     * @param  string              $action
+     * @param  string              $method
+     * @param  array               $data
      * @throws \Throwable
+     * @return TransactionResponse
      */
     public function execute(string $action, string $method, array $data): TransactionResponse
     {
@@ -184,8 +184,8 @@ class BuckarooAdapter
     /**
      * Set Client SDK base on account configuration and payment method configuration
      *
-     * @param string $paymentMethod
-     * @param int|null $orderStoreId Store ID from the order (for refund/capture operations)
+     * @param  string     $paymentMethod
+     * @param  int|null   $orderStoreId  Store ID from the order (for refund/capture operations)
      * @throws \Exception
      */
     private function setClientSdk($paymentMethod = '', ?int $orderStoreId = null): void
@@ -231,10 +231,10 @@ class BuckarooAdapter
     /**
      * Confirms the validity of the provided merchant key and secret key using the Buckaroo SDK.
      *
-     * @param string $merchantKey The merchant key to validate.
-     * @param string $secretKey The secret key to validate.
-     * @return bool Returns true if the credentials are valid, false otherwise.
+     * @param  string     $merchantKey The merchant key to validate.
+     * @param  string     $secretKey   The secret key to validate.
      * @throws \Exception
+     * @return bool       Returns true if the credentials are valid, false otherwise.
      */
     public function confirmCredential(string $merchantKey, string $secretKey): bool
     {
@@ -263,11 +263,11 @@ class BuckarooAdapter
     /**
      * Get client mode base on account mode and payment method mode
      *
-     * @param int|string $accountMode
-     * @param int|string $storeId
-     * @param string $paymentMethod
-     * @return string
+     * @param  int|string $accountMode
+     * @param  int|string $storeId
+     * @param  string     $paymentMethod
      * @throws Exception
+     * @return string
      */
     private function getClientMode($accountMode, $storeId, string $paymentMethod = ''): string
     {
@@ -312,7 +312,7 @@ class BuckarooAdapter
     /**
      * Get the payment method name from SDK
      *
-     * @param string $method
+     * @param  string $method
      * @return string
      */
     protected function getMethodName(string $method): string
@@ -323,10 +323,10 @@ class BuckarooAdapter
     /**
      * Check if we have credit management information of type
      *
-     * @param array $data
+     * @param array  $data
      * @param string $type
      *
-     * @return boolean
+     * @return bool
      */
     protected function isCreditManagementOfType(array $data, string $type): bool
     {
@@ -338,7 +338,7 @@ class BuckarooAdapter
     /**
      * Get credit management body
      *
-     * @param array $data
+     * @param  array                                $data
      * @return TransactionResponse|CreditManagement
      */
     protected function getCreditManagementBody(array $data)
@@ -353,8 +353,8 @@ class BuckarooAdapter
     /**
      * Get credit note body
      *
-     * @param array $data
-     * @param string $type
+     * @param  array               $data
+     * @param  string              $type
      * @return TransactionResponse
      */
     protected function createCreditNote(array $data, string $type = BuilderComposite::TYPE_REFUND): TransactionResponse
@@ -368,8 +368,8 @@ class BuckarooAdapter
     /**
      * Get ideal issuers
      *
-     * @return array
      * @throws \Throwable
+     * @return array
      */
     public function getIdealIssuers(): array
     {
@@ -390,6 +390,9 @@ class BuckarooAdapter
     /**
      * Validate request
      *
+     * @param  mixed     $postData
+     * @param  mixed     $authHeader
+     * @param  mixed     $uri
      * @throws Exception
      */
     public function validate($postData, $authHeader, $uri): bool

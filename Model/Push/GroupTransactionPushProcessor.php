@@ -44,22 +44,22 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
     /**
      * @var \Buckaroo\Magento2\Api\Data\PushRequestInterface
      */
-    private PushRequestInterface $pushRequest;
+    private $pushRequest;
 
     /**
      * @var BuckarooLogger
      */
-    private BuckarooLogger $logger;
+    private $logger;
 
     /**
      * @var PaymentGroupTransaction
      */
-    private PaymentGroupTransaction $groupTransaction;
+    private $groupTransaction;
 
     /**
      * @var OrderRequestService
      */
-    private OrderRequestService $orderRequestService;
+    private $orderRequestService;
 
     /**
      * @var Order\Payment|Order
@@ -69,37 +69,37 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
     /**
      * @var OrderManagementInterface
      */
-    private OrderManagementInterface $orderManagement;
+    private $orderManagement;
 
     /**
      * @var QuoteManagement
      */
-    private QuoteManagement $quoteManagement;
+    private $quoteManagement;
 
     /**
      * @var QuoteFactory
      */
-    private QuoteFactory $quoteFactory;
+    private $quoteFactory;
 
     /**
      * @var ResourceQuote
      */
-    private ResourceQuote $quoteResource;
+    private $quoteResource;
 
     /**
      * @var DefaultProcessor
      */
-    private DefaultProcessor $defaultProcessor;
+    private $defaultProcessor;
 
     /**
-     * @param PaymentGroupTransaction $groupTransaction
-     * @param BuckarooLogger $logger
-     * @param OrderRequestService $orderRequestService
+     * @param PaymentGroupTransaction  $groupTransaction
+     * @param BuckarooLogger           $logger
+     * @param OrderRequestService      $orderRequestService
      * @param OrderManagementInterface $orderManagement
-     * @param QuoteManagement $quoteManagement
-     * @param QuoteFactory $quoteFactory
-     * @param ResourceQuote $quoteResource
-     * @param DefaultProcessor $defaultProcessor
+     * @param QuoteManagement          $quoteManagement
+     * @param QuoteFactory             $quoteFactory
+     * @param ResourceQuote            $quoteResource
+     * @param DefaultProcessor         $defaultProcessor
      */
     public function __construct(
         PaymentGroupTransaction $groupTransaction,
@@ -158,7 +158,7 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
     /**
      * Check if is a failed transaction
      *
-     * @return boolean
+     * @return bool
      */
     protected function isFailedGroupTransaction(): bool
     {
@@ -178,7 +178,7 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
     /**
      * Check if the request is a canceled group transaction
      *
-     * @return boolean
+     * @return bool
      */
     public function isCanceledGroupTransaction()
     {
@@ -187,8 +187,6 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
 
     /**
      * Handle push from main group transaction fail
-     *
-     * @return void
      */
     protected function handleGroupTransactionFailed()
     {
@@ -213,7 +211,6 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
     /**
      * Cancel order when group transaction is canceled
      *
-     * @return void
      * @throws LocalizedException
      */
     public function cancelGroupTransactionOrder(): void
@@ -242,9 +239,8 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
     /**
      * Cancel order for failed group transaction
      *
-     * @param string $reservedOrderId
-     * @param string $historyComment
-     * @return void
+     * @param  string             $reservedOrderId
+     * @param  string             $historyComment
      * @throws LocalizedException
      */
     protected function cancelOrder(string $reservedOrderId, string $historyComment = 'Giftcard has expired'): void
@@ -271,10 +267,10 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
     /**
      * Create order from quote
      *
-     * @param string $reservedOrderId
-     * @return AbstractExtensibleModel|OrderInterface|object|null
+     * @param  string                                             $reservedOrderId
      * @throws \Exception
      * @throws LocalizedException
+     * @return AbstractExtensibleModel|OrderInterface|object|null
      */
     protected function createOrderFromQuote(string $reservedOrderId)
     {
@@ -303,7 +299,7 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
     /**
      * Get quote by increment/reserved order id
      *
-     * @param string $reservedOrderId
+     * @param  string     $reservedOrderId
      * @return Quote|null
      */
     protected function getQuoteByReservedOrderId(string $reservedOrderId): ?Quote
@@ -321,7 +317,6 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
     /**
      * Save the part group transaction.
      *
-     * @return void
      * @throws \Exception
      */
     private function savePartGroupTransaction()

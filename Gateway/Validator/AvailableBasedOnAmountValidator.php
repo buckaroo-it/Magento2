@@ -32,7 +32,7 @@ class AvailableBasedOnAmountValidator extends AbstractValidator
     /**
      * Check if the grand total exceeds the maximum allowed total.
      *
-     * @param array $validationSubject
+     * @param  array           $validationSubject
      * @return ResultInterface
      */
     public function validate(array $validationSubject): ResultInterface

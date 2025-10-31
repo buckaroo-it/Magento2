@@ -34,34 +34,34 @@ class AllowedCurrencies implements OptionSourceInterface
     /**
      * @var ConfigAllowedCurrencies
      */
-    protected ConfigAllowedCurrencies $allowedCurrenciesConfig;
+    protected $allowedCurrenciesConfig;
 
     /**
      * @var Factory
      */
-    protected Factory $configProviderMethodFactory;
+    protected $configProviderMethodFactory;
 
     /**
      * @var TranslatedLists
      */
-    protected TranslatedLists $listModels;
+    protected $listModels;
 
     /**
      * @var ResolverInterface
      */
-    protected ResolverInterface $localeResolver;
+    protected $localeResolver;
 
     /**
      * @var CurrencyBundle
      */
-    protected CurrencyBundle $currencyBundle;
+    protected $currencyBundle;
 
     /**
      * @param ConfigAllowedCurrencies $allowedCurrenciesConfig
-     * @param Factory $configProviderMethodFactory
-     * @param CurrencyBundle $currencyBundle
-     * @param ResolverInterface $localeResolver
-     * @param TranslatedLists $listModels
+     * @param Factory                 $configProviderMethodFactory
+     * @param CurrencyBundle          $currencyBundle
+     * @param ResolverInterface       $localeResolver
+     * @param TranslatedLists         $listModels
      */
     public function __construct(
         ConfigAllowedCurrencies $allowedCurrenciesConfig,
@@ -81,10 +81,10 @@ class AllowedCurrencies implements OptionSourceInterface
      * $method is what is defined in system.xml (i.e. ::ideal) and is directly passed to toOptionArray for method
      * configuration exemptions.
      *
-     * @param string $method
-     * @param array|null $params
-     * @return array
+     * @param  string            $method
+     * @param  array|null        $params
      * @throws BuckarooException
+     * @return array
      */
     public function __call(string $method, ?array $params = null)
     {
@@ -94,9 +94,9 @@ class AllowedCurrencies implements OptionSourceInterface
     /**
      * Return array of options as value-label pairs
      *
-     * @param string|null $method
-     * @return array Format: array(array('value' => '<value>', 'label' => '<label>'), ...)
+     * @param  string|null       $method
      * @throws BuckarooException
+     * @return array             Format: array(array('value' => '<value>', 'label' => '<label>'), ...)
      */
     public function toOptionArray(?string $method = null): array
     {

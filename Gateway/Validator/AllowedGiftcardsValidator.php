@@ -31,11 +31,11 @@ class AllowedGiftcardsValidator extends AbstractValidator
     /**
      * @var GiftcardsConfig
      */
-    private GiftcardsConfig $giftcardsConfig;
+    private $giftcardsConfig;
 
     /**
      * @param ResultInterfaceFactory $resultFactory
-     * @param GiftcardsConfig $giftcardsConfig
+     * @param GiftcardsConfig        $giftcardsConfig
      */
     public function __construct(
         ResultInterfaceFactory $resultFactory,
@@ -48,7 +48,7 @@ class AllowedGiftcardsValidator extends AbstractValidator
     /**
      * Validates the payment information for Buckaroo gateway.
      *
-     * @param array $validationSubject
+     * @param  array           $validationSubject
      * @return ResultInterface
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */

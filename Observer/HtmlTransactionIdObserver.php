@@ -42,7 +42,7 @@ class HtmlTransactionIdObserver implements ObserverInterface
     private $transactionRepository;
 
     /**
-     * @param CheckPaymentType $checkPaymentType
+     * @param CheckPaymentType               $checkPaymentType
      * @param TransactionRepositoryInterface $transactionRepository
      */
     public function __construct(
@@ -57,7 +57,6 @@ class HtmlTransactionIdObserver implements ObserverInterface
      * Update txn_id to a link for the plaza transaction
      *
      * @param Observer $observer
-     * @return void
      */
     public function execute(Observer $observer)
     {

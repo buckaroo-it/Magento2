@@ -41,9 +41,9 @@ class CreateSecondChanceRecord implements ObserverInterface
     protected $logging;
 
     /**
-     * @param \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository
+     * @param \Buckaroo\Magento2\Model\SecondChanceRepository      $secondChanceRepository
      * @param \Buckaroo\Magento2\Model\ConfigProvider\SecondChance $configProvider
-     * @param \Buckaroo\Magento2\Logging\Log $logging
+     * @param \Buckaroo\Magento2\Logging\Log                       $logging
      */
     public function __construct(
         \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository,
@@ -59,7 +59,6 @@ class CreateSecondChanceRecord implements ObserverInterface
      * Create SecondChance record when order is saved with failed payment status
      *
      * @param Observer $observer
-     * @return void
      */
     public function execute(Observer $observer)
     {

@@ -45,9 +45,9 @@ class Calculate
     private $percentage;
 
     /**
-     * @param Factory $configProviderMethodFactory
+     * @param Factory                                                  $configProviderMethodFactory
      * @param \Buckaroo\Magento2\Service\BuckarooFee\Types\FixedAmount $fixedAmount
-     * @param Percentage $percentage
+     * @param Percentage                                               $percentage
      */
     public function __construct(Factory $configProviderMethodFactory, FixedAmount $fixedAmount, Percentage $percentage)
     {

@@ -44,16 +44,16 @@ class MigrateApplePayMerchantGuid implements DataPatchInterface
     /**
      * @var ModuleDataSetupInterface
      */
-    private ModuleDataSetupInterface $moduleDataSetup;
+    private $moduleDataSetup;
 
     /**
      * @var LoggerInterface
      */
-    private LoggerInterface $logger;
+    private $logger;
 
     /**
      * @param ModuleDataSetupInterface $moduleDataSetup
-     * @param LoggerInterface $logger
+     * @param LoggerInterface          $logger
      */
     public function __construct(
         ModuleDataSetupInterface $moduleDataSetup,

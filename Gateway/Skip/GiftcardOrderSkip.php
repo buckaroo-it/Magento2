@@ -30,7 +30,7 @@ class GiftcardOrderSkip implements SkipCommandInterface
     /**
      * @var PaymentGroupTransaction
      */
-    protected PaymentGroupTransaction $paymentGroupTransaction;
+    protected $paymentGroupTransaction;
 
     /**
      * @param PaymentGroupTransaction $paymentGroupTransaction

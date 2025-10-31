@@ -33,8 +33,8 @@ use Magento\Sales\Model\Order;
  */
 class GiftCardRefundService implements GiftCardRefundServiceInterface
 {
-    private BuckarooLoggerInterface $logger;
-    private ?bool $isAdobeCommerceAvailable = null;
+    private $logger;
+    private $isAdobeCommerceAvailable = null;
     
     // Optional dependencies that may not exist in Magento Open Source
     private $giftCardRepo = null;
@@ -118,6 +118,8 @@ class GiftCardRefundService implements GiftCardRefundServiceInterface
     /**
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     * @param Order $order
+     * @param array $card
      */
     private function refundCard(Order $order, array $card): void
     {

@@ -6,7 +6,7 @@ use Buckaroo\Magento2\Model\Giftcard;
 
 class BuckarooGiftcardData implements BuckarooGiftcardDataInterface
 {
-    private Giftcard $giftcard;
+    private $giftcard;
 
     /**
      * @return Giftcard
@@ -17,7 +17,7 @@ class BuckarooGiftcardData implements BuckarooGiftcardDataInterface
     }
 
     /**
-     * @param Giftcard $giftcard
+     * @param  Giftcard                      $giftcard
      * @return BuckarooGiftcardDataInterface
      */
     public function setGiftcardModel(Giftcard $giftcard): BuckarooGiftcardDataInterface

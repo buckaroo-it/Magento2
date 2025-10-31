@@ -149,10 +149,9 @@ class ShippingAddress implements ShippingAddressRequestInterface
     /**
      * Validate required fields
      *
-     * @param mixed $value
+     * @param mixed  $value
      * @param string $name
      *
-     * @return void
      * @throws \Buckaroo\Magento2\Model\Ideal\IdealException
      */
     protected function validateRequired($value, $name)

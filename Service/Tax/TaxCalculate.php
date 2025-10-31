@@ -39,7 +39,7 @@ class TaxCalculate
     /**
      * Constructor
      *
-     * @param Calculation $taxCalculation
+     * @param Calculation               $taxCalculation
      * @param BuckarooFeeConfigProvider $configProviderBuckarooFee
      */
     public function __construct(
@@ -53,9 +53,9 @@ class TaxCalculate
     /**
      * Calculate tax amount from an amount that includes tax.
      *
-     * @param CartInterface $cart
-     * @param float $amount Amount including tax
-     * @return float Tax amount
+     * @param  CartInterface $cart
+     * @param  float         $amount Amount including tax
+     * @return float         Tax amount
      */
     public function getTaxFromAmountIncludingTax(CartInterface $cart, float $amount): float
     {

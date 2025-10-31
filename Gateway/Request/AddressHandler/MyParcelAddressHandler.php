@@ -31,11 +31,11 @@ class MyParcelAddressHandler extends AbstractAddressHandler
     /**
      * @var BuckarooHelper
      */
-    public BuckarooHelper $helper;
+    public $helper;
 
     /**
      * @param BuckarooLoggerInterface $logger
-     * @param BuckarooHelper $helper
+     * @param BuckarooHelper          $helper
      */
     public function __construct(BuckarooLoggerInterface $logger, BuckarooHelper $helper)
     {
@@ -46,8 +46,8 @@ class MyParcelAddressHandler extends AbstractAddressHandler
     /**
      * Update Shipping Address By MyParcel
      *
-     * @param Order $order
-     * @param OrderAddressInterface $shippingAddress
+     * @param  Order                 $order
+     * @param  OrderAddressInterface $shippingAddress
      * @return Order
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
@@ -98,7 +98,6 @@ class MyParcelAddressHandler extends AbstractAddressHandler
      *
      * @param array $myParcelLocation
      * @param array $requestData
-     * @return void
      */
     protected function updateShippingAddressByMyParcel(array $myParcelLocation, array &$requestData)
     {
@@ -126,7 +125,6 @@ class MyParcelAddressHandler extends AbstractAddressHandler
      *
      * @param array $myParcelLocation
      * @param array $requestData
-     * @return void
      */
     protected function updateShippingAddressByMyParcelV2(array $myParcelLocation, array &$requestData)
     {

@@ -28,6 +28,7 @@ use Magento\Payment\Gateway\Http\ClientInterface;
 use Magento\Payment\Gateway\Http\TransferInterface;
 use Magento\Payment\Model\Method\Logger;
 use Psr\Log\LoggerInterface;
+use Throwable;
 
 /**
  * Default Gateway Client
@@ -37,30 +38,30 @@ class DefaultTransaction implements ClientInterface
     /**
      * @var LoggerInterface
      */
-    protected LoggerInterface $logger;
+    protected $logger;
 
     /**
      * Logs payment related information used for debug
      *
      * @var Logger
      */
-    protected Logger $paymentLogger;
+    protected $paymentLogger;
 
     /**
      * @var BuckarooAdapter
      */
-    protected BuckarooAdapter $adapter;
+    protected $adapter;
 
     /**
      * @var string
      */
-    protected string $action;
+    protected $action;
 
     /**
      * @param LoggerInterface $logger
-     * @param Logger $paymentLogger
+     * @param Logger          $paymentLogger
      * @param BuckarooAdapter $adapter
-     * @param string $action
+     * @param string          $action
      */
     public function __construct(
         LoggerInterface $logger,
@@ -105,10 +106,10 @@ class DefaultTransaction implements ClientInterface
     /**
      * Process http request
      *
-     * @param string $paymentMethod
-     * @param array $data
+     * @param  string              $paymentMethod
+     * @param  array               $data
+     * @throws Throwable
      * @return TransactionResponse
-     * @throws \Throwable
      */
     protected function process(string $paymentMethod, array $data): TransactionResponse
     {

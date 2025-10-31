@@ -30,16 +30,16 @@ class AfterpayOldDataBuilder extends AbstractDataBuilder
     /**
      * @var RecipientAfterpayOld
      */
-    private RecipientAfterpayOld $recipientAfterpay;
+    private $recipientAfterpay;
 
     /**
      * @var ClientIPDataBuilder
      */
-    private ClientIPDataBuilder $clientIPDataBuilder;
+    private $clientIPDataBuilder;
 
     /**
      * @param RecipientAfterpayOld $recipientAfterpay
-     * @param ClientIPDataBuilder $clientIPDataBuilder
+     * @param ClientIPDataBuilder  $clientIPDataBuilder
      */
     public function __construct(RecipientAfterpayOld $recipientAfterpay, ClientIPDataBuilder $clientIPDataBuilder)
     {
@@ -71,7 +71,7 @@ class AfterpayOldDataBuilder extends AbstractDataBuilder
     /**
      * Method to compare two addresses from the payment. Returns true if they are the same.
      *
-     * @return boolean
+     * @return bool
      */
     public function isAddressDataDifferent(): bool
     {

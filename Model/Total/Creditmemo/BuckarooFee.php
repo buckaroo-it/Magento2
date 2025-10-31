@@ -49,7 +49,6 @@ class BuckarooFee extends \Magento\Sales\Model\Order\Creditmemo\Total\AbstractTo
      * @return $this
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     *
      */
     public function collect(\Magento\Sales\Model\Order\Creditmemo $creditmemo)
     {

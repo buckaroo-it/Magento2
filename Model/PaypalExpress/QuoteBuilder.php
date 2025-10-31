@@ -97,8 +97,6 @@ class QuoteBuilder implements QuoteBuilderInterface
 
     /**
      * Add user to quote
-     *
-     * @return void
      */
     protected function setUser()
     {
@@ -116,7 +114,6 @@ class QuoteBuilder implements QuoteBuilderInterface
     /**
      * Add product to quote
      *
-     * @return void
      * @throws \Buckaroo\Magento2\Model\PaypalExpress\PaypalExpressException
      */
     protected function addProduct()

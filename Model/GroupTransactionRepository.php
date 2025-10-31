@@ -43,28 +43,28 @@ class GroupTransactionRepository implements GroupTransactionRepositoryInterface
     /**
      * @var GroupTransactionResource
      */
-    protected GroupTransactionResource $resource;
+    protected $resource;
 
     /**
      * @var GroupTransactionFactory
      */
-    protected GroupTransactionFactory $groupTransactionFactory;
+    protected $groupTransactionFactory;
 
     /**
      * @var GroupTransactionCollectionFactory
      */
-    protected GroupTransactionCollectionFactory $groupTransactionCollectionFactory;
+    protected $groupTransactionCollectionFactory;
 
     /**
      * @var SearchResultsInterfaceFactory
      */
-    protected SearchResultsInterfaceFactory $searchResultsFactory;
+    protected $searchResultsFactory;
 
     /**
-     * @param GroupTransactionResource $resource
-     * @param GroupTransactionFactory $groupTransactionFactory
+     * @param GroupTransactionResource          $resource
+     * @param GroupTransactionFactory           $groupTransactionFactory
      * @param GroupTransactionCollectionFactory $groupTransactionCollectionFactory
-     * @param SearchResultsInterfaceFactory $searchResultsFactory
+     * @param SearchResultsInterfaceFactory     $searchResultsFactory
      */
     public function __construct(
         GroupTransactionResource $resource,
@@ -120,7 +120,7 @@ class GroupTransactionRepository implements GroupTransactionRepositoryInterface
     /**
      * Handle filter groups for the given collection by applying filters from the filter group.
      *
-     * @param FilterGroup $filterGroup
+     * @param FilterGroup                $filterGroup
      * @param GroupTransactionCollection $collection
      */
     private function handleFilterGroups(FilterGroup $filterGroup, GroupTransactionCollection $collection)
@@ -141,7 +141,7 @@ class GroupTransactionRepository implements GroupTransactionRepositoryInterface
     /**
      * Handle sort orders for the given search criteria and collection.
      *
-     * @param SearchCriteria $searchCriteria
+     * @param SearchCriteria             $searchCriteria
      * @param GroupTransactionCollection $collection
      */
     private function handleSortOrders(SearchCriteria $searchCriteria, GroupTransactionCollection $collection)
@@ -164,7 +164,7 @@ class GroupTransactionRepository implements GroupTransactionRepositoryInterface
     /**
      * Get search result items based on search criteria and collection.
      *
-     * @param SearchCriteria $searchCriteria
+     * @param SearchCriteria             $searchCriteria
      * @param GroupTransactionCollection $collection
      *
      * @return array
@@ -224,8 +224,8 @@ class GroupTransactionRepository implements GroupTransactionRepositoryInterface
     /**
      * Get transaction by id and order
      *
-     * @param string $transactionId
-     * @param string $orderId
+     * @param  string                $transactionId
+     * @param  string                $orderId
      * @return GroupTransaction|null
      */
     public function getTransactionByIdAndOrderId(string $transactionId, string $orderId): ?GroupTransaction

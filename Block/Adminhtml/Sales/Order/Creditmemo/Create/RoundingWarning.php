@@ -22,6 +22,7 @@ namespace Buckaroo\Magento2\Block\Adminhtml\Sales\Order\Creditmemo\Create;
 
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderMethodFactory;
+use LogicException;
 use Magento\Backend\Block\Template;
 use Magento\Backend\Block\Template\Context;
 use Magento\Framework\Exception\LocalizedException;
@@ -43,10 +44,10 @@ class RoundingWarning extends Template
     /**
      * RoundingWarning constructor.
      *
-     * @param Registry $registry
+     * @param Registry                    $registry
      * @param ConfigProviderMethodFactory $configProviderFactory
-     * @param Context $context
-     * @param array $data
+     * @param Context                     $context
+     * @param array                       $data
      */
     public function __construct(
         Registry $registry,
@@ -73,8 +74,8 @@ class RoundingWarning extends Template
     }
 
     /**
+     * @throws LogicException|Exception|LocalizedException
      * @return bool
-     * @throws \LogicException|Exception|LocalizedException
      */
     protected function shouldShowWarning()
     {

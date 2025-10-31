@@ -23,7 +23,6 @@ class ActiveAccountValidatorTest extends TestCase
     private $configProviderFactory;
 
     /**
-     *
      * @var ActiveAccountValidator
      */
     private $validator;
@@ -41,6 +40,8 @@ class ActiveAccountValidatorTest extends TestCase
 
     /**
      * @dataProvider accountActiveProvider
+     * @param mixed $accountActive
+     * @param bool  $isValid
      */
     public function testValidate($accountActive, bool $isValid)
     {

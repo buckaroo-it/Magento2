@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Controller\Adminhtml\PayLink;
 
+use Exception;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Action\HttpGetActionInterface;
@@ -37,22 +38,22 @@ class Index extends Action implements HttpGetActionInterface
     /**
      * @var Http
      */
-    protected Http $request;
+    protected $request;
 
     /**
      * @var CommandManagerPoolInterface
      */
-    private CommandManagerPoolInterface $commandManagerPool;
+    private $commandManagerPool;
 
     /**
      * @var OrderRepositoryInterface
      */
-    private OrderRepositoryInterface $orderRepository;
+    private $orderRepository;
 
     /**
-     * @param Context $context
-     * @param Http $request
-     * @param OrderRepositoryInterface $orderRepository
+     * @param Context                     $context
+     * @param Http                        $request
+     * @param OrderRepositoryInterface    $orderRepository
      * @param CommandManagerPoolInterface $commandManagerPool
      */
     public function __construct(
@@ -70,8 +71,8 @@ class Index extends Action implements HttpGetActionInterface
     /**
      * Generate PayLink from Sales Order View Admin
      *
+     * @throws Exception
      * @return ResultInterface
-     * @throws \Exception
      */
     public function execute(): ResultInterface
     {
@@ -102,7 +103,7 @@ class Index extends Action implements HttpGetActionInterface
             );
         } catch (NotFoundException|CommandException $exception) {
                 $this->messageManager->addErrorMessage($exception->getMessage());
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->messageManager->addErrorMessage($e->getMessage());
         }
 

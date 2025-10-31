@@ -40,17 +40,17 @@ class AfterpayProcessor extends DefaultProcessor
     private Afterpay20 $afterpayConfig;
 
     /**
-     * @param OrderRequestService $orderRequestService
-     * @param PushTransactionType $pushTransactionType
+     * @param OrderRequestService     $orderRequestService
+     * @param PushTransactionType     $pushTransactionType
      * @param BuckarooLoggerInterface $logger
-     * @param Data $helper
-     * @param TransactionInterface $transaction
+     * @param Data                    $helper
+     * @param TransactionInterface    $transaction
      * @param PaymentGroupTransaction $groupTransaction
-     * @param BuckarooStatusCode $buckarooStatusCode
-     * @param OrderStatusFactory $orderStatusFactory
-     * @param Account $configAccount
-     * @param GiftCardRefundService $giftCardRefundService
-     * @param Afterpay20 $afterpayConfig
+     * @param BuckarooStatusCode      $buckarooStatusCode
+     * @param OrderStatusFactory      $orderStatusFactory
+     * @param Account                 $configAccount
+     * @param GiftCardRefundService   $giftCardRefundService
+     * @param Afterpay20              $afterpayConfig
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -83,9 +83,9 @@ class AfterpayProcessor extends DefaultProcessor
     }
 
     /**
-     * @param array $paymentDetails
-     * @return bool
+     * @param  array      $paymentDetails
      * @throws \Exception
+     * @return bool
      */
     protected function invoiceShouldBeSaved(array &$paymentDetails): bool
     {

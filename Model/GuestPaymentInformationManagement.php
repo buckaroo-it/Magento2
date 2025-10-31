@@ -49,46 +49,46 @@ class GuestPaymentInformationManagement implements GuestPaymentInformationManage
     /**
      * @var Factory
      */
-    public Factory $configProviderMethodFactory;
+    public $configProviderMethodFactory;
 
     /**
      * @var LoggerInterface|null
      */
-    protected ?LoggerInterface $logger = null;
+    protected $logger = null;
 
     /**
      * @var OrderRepositoryInterface
      */
-    protected OrderRepositoryInterface $orderRepository;
+    protected $orderRepository;
 
     /**
      * @var BuckarooResponseDataInterface
      */
-    private BuckarooResponseDataInterface $buckarooResponseData;
+    private $buckarooResponseData;
 
     /**
      * @var MagentoGuestPaymentInformationManagement
      */
-    protected MagentoGuestPaymentInformationManagement $guestPaymentInformationManagement;
+    protected $guestPaymentInformationManagement;
 
     /**
      * @var QuoteIdMaskFactory
      */
-    private QuoteIdMaskFactory $quoteIdMaskFactory;
+    private $quoteIdMaskFactory;
 
     /**
      * @var CartRepositoryInterface
      */
-    private CartRepositoryInterface $cartRepository;
+    private $cartRepository;
 
     /**
-     * @param BuckarooResponseDataInterface $buckarooResponseData
-     * @param LoggerInterface $logger
-     * @param Factory $configProviderMethodFactory
-     * @param OrderRepositoryInterface $orderRepository
+     * @param BuckarooResponseDataInterface            $buckarooResponseData
+     * @param LoggerInterface                          $logger
+     * @param Factory                                  $configProviderMethodFactory
+     * @param OrderRepositoryInterface                 $orderRepository
      * @param MagentoGuestPaymentInformationManagement $guestPaymentInformationManagement
-     * @param QuoteIdMaskFactory $quoteIdMaskFactory
-     * @param CartRepositoryInterface $cartRepository
+     * @param QuoteIdMaskFactory                       $quoteIdMaskFactory
+     * @param CartRepositoryInterface                  $cartRepository
      * @codeCoverageIgnore
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
@@ -114,12 +114,12 @@ class GuestPaymentInformationManagement implements GuestPaymentInformationManage
     /**
      * Set payment information and place order for a specified cart.
      *
-     * @param  int                                           $cartId
-     * @param  string                                        $email
-     * @param PaymentInterface $paymentMethod
-     * @param AddressInterface|null $billingAddress
-     * @return string
+     * @param  int                                      $cartId
+     * @param  string                                   $email
+     * @param  PaymentInterface                         $paymentMethod
+     * @param  AddressInterface|null                    $billingAddress
      * @throws CouldNotSaveException|LocalizedException
+     * @return string
      */
     public function buckarooSavePaymentInformationAndPlaceOrder(
                                                   $cartId,
@@ -160,8 +160,8 @@ class GuestPaymentInformationManagement implements GuestPaymentInformationManage
     /**
      * Check if the payment method is allowed for the given billing address country.
      *
-     * @param PaymentInterface $paymentMethod
-     * @param AddressInterface|null $billingAddress
+     * @param  PaymentInterface      $paymentMethod
+     * @param  AddressInterface|null $billingAddress
      * @throws LocalizedException
      */
     public function checkSpecificCountry(PaymentInterface $paymentMethod, ?AddressInterface $billingAddress)
@@ -185,7 +185,7 @@ class GuestPaymentInformationManagement implements GuestPaymentInformationManage
     /**
      * Normalize the payment method code.
      *
-     * @param string $methodCode
+     * @param  string $methodCode
      * @return string
      */
     public function normalizePaymentMethodCode(string $methodCode = ''): string
@@ -196,7 +196,7 @@ class GuestPaymentInformationManagement implements GuestPaymentInformationManage
     /**
      * Retrieve the order increment ID by order ID.
      *
-     * @param mixed $orderId
+     * @param  mixed  $orderId
      * @return string
      */
     protected function getOrderIncrementId(mixed $orderId): string
@@ -208,7 +208,7 @@ class GuestPaymentInformationManagement implements GuestPaymentInformationManage
     /**
      * Get limit reach message from payment object
      *
-     * @param int $orderId
+     * @param  int         $orderId
      * @return string|null
      *
      * @SuppressWarnings(PHPMD.UnusedPrivateMethod)

@@ -38,7 +38,7 @@ class Template implements ArrayInterface
 
     /**
      * @param CollectionFactory $templatesFactory
-     * @param Config $emailConfig
+     * @param Config            $emailConfig
      */
     public function __construct(
         CollectionFactory $templatesFactory,

@@ -30,15 +30,15 @@ class NotificationDataProvider extends AbstractDataProvider
     /**
      * @var Notifications $modifier
      */
-    private Notifications $modifier;
+    private $modifier;
 
     /**
-     * @param string $name
-     * @param string $primaryFieldName
-     * @param string $requestFieldName
+     * @param string        $name
+     * @param string        $primaryFieldName
+     * @param string        $requestFieldName
      * @param Notifications $modifier
-     * @param array $meta
-     * @param array $data
+     * @param array         $meta
+     * @param array         $data
      */
     public function __construct(
         string $name,
@@ -77,7 +77,6 @@ class NotificationDataProvider extends AbstractDataProvider
 
     /**
      * @param Filter $filter
-     * @return null
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */

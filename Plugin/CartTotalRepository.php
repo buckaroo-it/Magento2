@@ -24,7 +24,7 @@ class CartTotalRepository
 
     /**
      * @param \Magento\Quote\Api\CartRepositoryInterface     $quoteRepository
-     * @param  \Magento\Quote\Api\Data\TotalsExtensionFactory $totalsExtensionFactory
+     * @param \Magento\Quote\Api\Data\TotalsExtensionFactory $totalsExtensionFactory
      */
     public function __construct(
         \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
@@ -35,9 +35,9 @@ class CartTotalRepository
     }
 
     /**
-     * @param TotalRepository $subject
-     * @param \Closure        $proceed
-     * @param int             $cartId
+     * @param  TotalRepository $subject
+     * @param  \Closure        $proceed
+     * @param  int             $cartId
      * @return TotalsInterface
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
@@ -50,7 +50,7 @@ class CartTotalRepository
         $totals = $proceed($cartId);
 
         /**
-         * @var Quote  $quote
+         * @var Quote $quote
          */
         $quote = $this->quoteRepository->getActive($cartId);
 

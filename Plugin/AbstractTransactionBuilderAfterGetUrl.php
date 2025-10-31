@@ -7,7 +7,7 @@ use Buckaroo\Magento2\Service\CookieParamService;
 
 class AbstractTransactionBuilderAfterGetUrl
 {
-    private CookieParamService $cookieParamService;
+    private $cookieParamService;
 
     public function __construct(
         CookieParamService $cookieParamService
@@ -16,6 +16,8 @@ class AbstractTransactionBuilderAfterGetUrl
     }
     /**
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @param mixed $subject
+     * @param mixed $result
      */
     public function afterGetReturnUrl(
         $subject,

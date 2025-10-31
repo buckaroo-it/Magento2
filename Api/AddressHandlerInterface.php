@@ -32,8 +32,8 @@ interface AddressHandlerInterface
     /**
      * Handle shipping address by shipping methods
      *
-     * @param Order $order
-     * @param OrderAddressInterface $shippingAddress
+     * @param  Order                 $order
+     * @param  OrderAddressInterface $shippingAddress
      * @return Order
      */
     public function handle(Order $order, OrderAddressInterface $shippingAddress): Order;

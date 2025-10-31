@@ -30,7 +30,7 @@ class ApplePayFormatData implements FormatFormDataInterface
     /**
      * @var DataObjectFactory
      */
-    private DataObjectFactory $dataObjectFactory;
+    private $dataObjectFactory;
 
     /**
      * @var ShippingAddressRequestInterfaceFactory
@@ -38,7 +38,7 @@ class ApplePayFormatData implements FormatFormDataInterface
     private $shippingAddrRequestFactory;
 
     /**
-     * @param DataObjectFactory $dataObjectFactory
+     * @param DataObjectFactory                      $dataObjectFactory
      * @param ShippingAddressRequestInterfaceFactory $shippingAddrRequestFactory
      */
     public function __construct(
@@ -52,9 +52,9 @@ class ApplePayFormatData implements FormatFormDataInterface
     /**
      * Get Product Object By Request
      *
-     * @param array $productData
-     * @return DataObject
+     * @param  array               $productData
      * @throws AddProductException
+     * @return DataObject
      */
     public function getProductObject(array $productData): DataObject
     {
@@ -79,9 +79,9 @@ class ApplePayFormatData implements FormatFormDataInterface
     /**
      * Get Product Object By Request
      *
-     * @param array $addressData
-     * @return ShippingAddressRequestInterface
+     * @param  array                           $addressData
      * @throws ExpressMethodsException
+     * @return ShippingAddressRequestInterface
      */
     public function getShippingAddressObject(array $addressData): ShippingAddressRequestInterface
     {

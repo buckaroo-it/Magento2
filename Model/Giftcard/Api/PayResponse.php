@@ -33,11 +33,11 @@ class PayResponse extends DataObject implements PayResponseInterface, PayRespons
     /**
      * @var TransactionResponseInterfaceFactory
      */
-    protected TransactionResponseInterfaceFactory $trResponseFactory;
+    protected $trResponseFactory;
 
     /**
      * @param TransactionResponseInterfaceFactory $trResponseFactory
-     * @param array $data
+     * @param array                               $data
      */
     public function __construct(
         TransactionResponseInterfaceFactory $trResponseFactory,

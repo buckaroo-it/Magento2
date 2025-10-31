@@ -24,6 +24,7 @@ class PaymentFlowTest extends BaseTest
 
     /**
      * @dataProvider toOptionArrayProvider
+     * @param array $expected
      */
     public function testToOptionArray(array $expected)
     {

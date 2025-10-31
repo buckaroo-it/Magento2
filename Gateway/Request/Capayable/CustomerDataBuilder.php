@@ -51,7 +51,7 @@ class CustomerDataBuilder extends AbstractDataBuilder
     /**
      * Get initial from first name
      *
-     * @param string $name
+     * @param  string $name
      * @return string
      */
     protected function getInitials(string $name): string

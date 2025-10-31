@@ -155,7 +155,7 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
     /**
      * Make sure addresses will be saved without validation errors
      *
-     * @return void
+     * @param Quote $quote
      */
     private function ignoreAddressValidation(Quote $quote)
     {
@@ -176,7 +176,6 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
      *
      * @param CartInterface $quote
      *
-     * @return void
      * @throws \Buckaroo\Magento2\Model\PaypalExpress\PaypalExpressException
      */
     protected function checkQuoteBelongsToLoggedUser(CartInterface $quote)
@@ -189,9 +188,7 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
     /**
      * Update session with last order
      *
-     * @param  \Magento\Sales\Api\Data\OrderInterface $order
-     *
-     * @return void
+     * @param \Magento\Sales\Api\Data\OrderInterface $order
      */
     protected function setLastOrderToSession(OrderInterface $order)
     {

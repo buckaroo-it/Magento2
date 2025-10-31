@@ -32,46 +32,46 @@ interface LogRepositoryInterface
     /**
      * Save Log
      *
-     * @param LogInterface $log
-     * @return LogInterface
+     * @param  LogInterface       $log
      * @throws LocalizedException
+     * @return LogInterface
      */
     public function save(LogInterface $log);
 
     /**
      * Retrieve Log
      *
-     * @param string $logId
-     * @return LogInterface
+     * @param  string             $logId
      * @throws LocalizedException
+     * @return LogInterface
      */
     public function get($logId);
 
     /**
      * Retrieve Log matching the specified criteria.
      *
-     * @param SearchCriteriaInterface $searchCriteria
-     * @return LogSearchResultsInterface
+     * @param  SearchCriteriaInterface   $searchCriteria
      * @throws LocalizedException
+     * @return LogSearchResultsInterface
      */
     public function getList(SearchCriteriaInterface $searchCriteria);
 
     /**
      * Delete Log
      *
-     * @param LogInterface $log
-     * @return bool true on success
+     * @param  LogInterface       $log
      * @throws LocalizedException
+     * @return bool               true on success
      */
     public function delete(LogInterface $log);
 
     /**
      * Delete Log by ID
      *
-     * @param string $logId
-     * @return bool true on success
+     * @param  string                $logId
      * @throws NoSuchEntityException
      * @throws LocalizedException
+     * @return bool                  true on success
      */
     public function deleteById($logId);
 }

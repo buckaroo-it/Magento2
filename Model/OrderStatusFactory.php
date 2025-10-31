@@ -34,12 +34,12 @@ class OrderStatusFactory
     /**
      * @var Account
      */
-    protected Account $account;
+    protected $account;
 
     /**
      * @var Factory
      */
-    protected Factory $configProviderMethodFactory;
+    protected $configProviderMethodFactory;
 
     /**
      * @param Account $account
@@ -57,10 +57,10 @@ class OrderStatusFactory
      * Get status by order and status code
      *
      * @param int|string $statusCode
-     * @param Order $order
+     * @param Order      $order
      *
-     * @return string|false|null
      * @throws LocalizedException
+     * @return string|false|null
      */
     public function get($statusCode, Order $order)
     {
@@ -82,10 +82,10 @@ class OrderStatusFactory
     /**
      * Get status for failed or success transaction based on payment method
      *
-     * @param int|string $statusCode
-     * @param string $paymentMethod
-     * @return string|false|null
+     * @param  int|string        $statusCode
+     * @param  string            $paymentMethod
      * @throws Exception
+     * @return string|false|null
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
@@ -124,9 +124,9 @@ class OrderStatusFactory
     /**
      * Get status for failed or success transaction based on account config
      *
-     * @param int|string $statusCode
-     * @return string|false|null
+     * @param  int|string        $statusCode
      * @throws Exception
+     * @return string|false|null
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */

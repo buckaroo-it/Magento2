@@ -29,7 +29,7 @@ class Categorylist implements OptionSourceInterface
     /**
      * @var array
      */
-    protected static $categoriesCache = [];
+    protected $categoriesCache = [];
     /**
      * @var CategoryFactory
      */
@@ -40,7 +40,7 @@ class Categorylist implements OptionSourceInterface
     protected $categoryCollectionFactory;
 
     /**
-     * @param CategoryFactory $categoryFactory
+     * @param CategoryFactory   $categoryFactory
      * @param CollectionFactory $categoryCollectionFactory
      */
     public function __construct(
@@ -93,10 +93,10 @@ class Categorylist implements OptionSourceInterface
     /**
      * Get collection of product categories
      *
-     * @param bool $isActive
-     * @param bool $level
-     * @param bool $sortBy
-     * @param bool $pageSize
+     * @param  bool  $isActive
+     * @param  bool  $level
+     * @param  bool  $sortBy
+     * @param  bool  $pageSize
      * @return mixed
      */
     public function getCategoryCollection($isActive = true, $level = false, $sortBy = false, $pageSize = false)
@@ -130,7 +130,7 @@ class Categorylist implements OptionSourceInterface
     /**
      * Get parent category name
      *
-     * @param string $path
+     * @param  string $path
      * @return string
      */
     private function getParentName($path = '')
@@ -145,11 +145,11 @@ class Categorylist implements OptionSourceInterface
             $categoryObj = $this->categoryFactory->create();
             foreach ($catTree as $catId) {
                 if (!in_array($catId, $rootCats)) {
-                    if (!isset(self::$categoriesCache[$catId])) {
+                    if (!isset($this->categoriesCache[$catId])) {
                         $category = $categoryObj->load($catId);
-                        self::$categoriesCache[$catId] = $category->getName();
+                        $this->categoriesCache[$catId] = $category->getName();
                     }
-                    $parentName .= self::$categoriesCache[$catId] . ' -> ';
+                    $parentName .= $this->categoriesCache[$catId] . ' -> ';
                 }
             }
         }

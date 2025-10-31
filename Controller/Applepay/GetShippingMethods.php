@@ -34,19 +34,19 @@ class GetShippingMethods extends AbstractApplepay
     /**
      * @var QuoteService
      */
-    private QuoteService $quoteService;
+    private $quoteService;
 
     /**
      * @var ApplePayFormatData
      */
-    private ApplePayFormatData $applePayFormatData;
+    private $applePayFormatData;
 
     /**
-     * @param JsonFactory      $resultJsonFactory
-     * @param RequestInterface $request
+     * @param JsonFactory             $resultJsonFactory
+     * @param RequestInterface        $request
      * @param BuckarooLoggerInterface $logger
-     * @param QuoteService     $quoteService
-     * @param ApplePayFormatData $applePayFormatData
+     * @param QuoteService            $quoteService
+     * @param ApplePayFormatData      $applePayFormatData
      */
     public function __construct(
         JsonFactory $resultJsonFactory,

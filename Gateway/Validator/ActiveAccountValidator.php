@@ -34,11 +34,11 @@ class ActiveAccountValidator extends AbstractValidator
     /**
      * @var ConfigProviderFactory
      */
-    private ConfigProviderFactory $configProviderFactory;
+    private $configProviderFactory;
 
     /**
      * @param ResultInterfaceFactory $resultFactory
-     * @param ConfigProviderFactory $configProviderFactory
+     * @param ConfigProviderFactory  $configProviderFactory
      */
     public function __construct(
         ResultInterfaceFactory $resultFactory,
@@ -52,9 +52,9 @@ class ActiveAccountValidator extends AbstractValidator
      * Validates if Buckaroo Module is enabled and has valid credentials
      * Checks for the specific store context (multi-store support)
      *
-     * @param array $validationSubject
-     * @return ResultInterface
+     * @param  array           $validationSubject
      * @throws Exception
+     * @return ResultInterface
      */
     public function validate(array $validationSubject): ResultInterface
     {

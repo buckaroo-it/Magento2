@@ -29,7 +29,7 @@ class ColorPicker extends Field
     /**
      * Color picker in admin
      *
-     * @param AbstractElement $element
+     * @param  AbstractElement $element
      * @return string
      */
     protected function _getElementHtml(AbstractElement $element): string

@@ -31,21 +31,21 @@ class PaypalExtrainfoDataBuilder extends AbstractDataBuilder
     /**
      * @var Paypal
      */
-    protected Paypal $configProviderPaypal;
+    protected $configProviderPaypal;
 
     /**
      * @var PaypalStateCodes
      */
-    private PaypalStateCodes $paypalStateCodes;
+    private $paypalStateCodes;
 
     /**
      * @var PayReminderService
      */
-    private PayReminderService $payReminderService;
+    private $payReminderService;
 
     /**
-     * @param Paypal $configProviderPaypal
-     * @param PaypalStateCodes $paypalStateCodes
+     * @param Paypal             $configProviderPaypal
+     * @param PaypalStateCodes   $paypalStateCodes
      * @param PayReminderService $payReminderService
      */
     public function __construct(
@@ -115,7 +115,7 @@ class PaypalExtrainfoDataBuilder extends AbstractDataBuilder
     /**
      * Get state or province code of the shipping address
      *
-     * @param Address $shippingAddress
+     * @param  Address $shippingAddress
      * @return string
      */
     private function getStateOrProvince(Address $shippingAddress): string

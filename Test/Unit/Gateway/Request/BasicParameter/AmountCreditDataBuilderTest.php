@@ -45,7 +45,7 @@ class AmountCreditDataBuilderTest extends AbstractDataBuilderTest
     /**
      * @var AmountCreditDataBuilder
      */
-    private AmountCreditDataBuilder $amountCreditDataBuilder;
+    private $amountCreditDataBuilder;
 
     protected function setUp(): void
     {
@@ -63,9 +63,9 @@ class AmountCreditDataBuilderTest extends AbstractDataBuilderTest
 
     /**
      * @dataProvider buildDataProvider
-     * @param float $amount
-     * @param float $amountLeftToRefund
-     * @param float $expectedResult
+     * @param  float              $amount
+     * @param  float              $amountLeftToRefund
+     * @param  float              $expectedResult
      * @throws ClientException
      * @throws ConverterException
      */

@@ -32,16 +32,16 @@ class Factory
     /**
      * @var ObjectManagerInterface
      */
-    protected ObjectManagerInterface $objectManager;
+    protected $objectManager;
 
     /**
      * @var array
      */
-    protected array $configProviders;
+    protected $configProviders;
 
     /**
      * @param ObjectManagerInterface $objectManager
-     * @param array $configProviders
+     * @param array                  $configProviders
      */
     public function __construct(
         ObjectManagerInterface $objectManager,
@@ -56,8 +56,8 @@ class Factory
      *
      * @param string $providerType
      *
-     * @return ConfigProviderInterface
      * @throws \LogicException|BuckarooException
+     * @return ConfigProviderInterface
      */
     public function get(string $providerType): ConfigProviderInterface
     {
@@ -99,9 +99,9 @@ class Factory
     /**
      * Checks if a specific config provider is present in the config providers list
      *
-     * @param string $providerType
-     * @return bool
+     * @param  string          $providerType
      * @throws \LogicException
+     * @return bool
      */
     public function has(string $providerType): bool
     {

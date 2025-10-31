@@ -3,55 +3,59 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Api;
 
+use Buckaroo\Magento2\Api\Data\AnalyticsInterface;
+use Buckaroo\Magento2\Api\Data\AnalyticsSearchResultsInterface;
 use Magento\Framework\Api\SearchCriteriaInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 
 interface AnalyticsRepositoryInterface
 {
 
     /**
      * Save Analytics
-     * @param \Buckaroo\Magento2\Api\Data\AnalyticsInterface $analytics
-     * @return \Buckaroo\Magento2\Api\Data\AnalyticsInterface
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @param  AnalyticsInterface  $analytics
+     * @throws LocalizedException
+     * @return AnalyticsInterface
      */
     public function save(
-        \Buckaroo\Magento2\Api\Data\AnalyticsInterface $analytics
+        AnalyticsInterface $analytics
     );
 
     /**
      * Retrieve Analytics
-     * @param string $analyticsId
-     * @return \Buckaroo\Magento2\Api\Data\AnalyticsInterface
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @param  string                                          $analyticsId
+     * @throws LocalizedException
+     * @return AnalyticsInterface
      */
     public function get($analyticsId);
 
     /**
      * Retrieve Analytics matching the specified criteria.
-     * @param \Magento\Framework\Api\SearchCriteriaInterface $searchCriteria
-     * @return \Buckaroo\Magento2\Api\Data\AnalyticsSearchResultsInterface
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @param SearchCriteriaInterface $searchCriteria
+     * @return AnalyticsSearchResultsInterface
+     * @throws LocalizedException
      */
     public function getList(
-        \Magento\Framework\Api\SearchCriteriaInterface $searchCriteria
+        SearchCriteriaInterface $searchCriteria
     );
 
     /**
      * Delete Analytics
-     * @param \Buckaroo\Magento2\Api\Data\AnalyticsInterface $analytics
-     * @return bool true on success
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @param  AnalyticsInterface  $analytics
+     * @throws LocalizedException
+     * @return bool                                            true on success
      */
     public function delete(
-        \Buckaroo\Magento2\Api\Data\AnalyticsInterface $analytics
+        AnalyticsInterface $analytics
     );
 
     /**
      * Delete Analytics by ID
-     * @param string $analyticsId
-     * @return bool true on success
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @param  string                                             $analyticsId
+     * @throws NoSuchEntityException
+     * @throws LocalizedException
+     * @return bool                                               true on success
      */
     public function deleteById($analyticsId);
 }

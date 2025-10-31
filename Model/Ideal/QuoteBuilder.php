@@ -96,8 +96,6 @@ class QuoteBuilder implements QuoteBuilderInterface
 
     /**
      * Add user to quote
-     *
-     * @return void
      */
     protected function setUser()
     {
@@ -116,7 +114,6 @@ class QuoteBuilder implements QuoteBuilderInterface
     /**
      * Add product to quote
      *
-     * @return void
      * @throws IdealException
      */
     protected function addProduct()

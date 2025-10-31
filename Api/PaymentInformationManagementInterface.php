@@ -29,11 +29,11 @@ interface PaymentInformationManagementInterface
     /**
      * Set payment information and place order for a specified cart.
      *
-     * @param int $cartId
-     * @param PaymentInterface $paymentMethod
-     * @param AddressInterface|null $billingAddress
-     * @return string
+     * @param  int                   $cartId
+     * @param  PaymentInterface      $paymentMethod
+     * @param  AddressInterface|null $billingAddress
      * @throws CouldNotSaveException
+     * @return string
      */
     public function buckarooSavePaymentInformationAndPlaceOrder(
         $cartId,

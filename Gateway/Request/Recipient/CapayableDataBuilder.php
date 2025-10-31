@@ -29,10 +29,9 @@ class CapayableDataBuilder extends AbstractRecipientDataBuilder
     /**
      * @var AddressFormatter
      */
-    private AddressFormatter $addressFormatter;
+    private $addressFormatter;
 
     /**
-     * @param Data $helper
      * @param AddressFormatter $addressFormatter
      * @param string $addressType
      */

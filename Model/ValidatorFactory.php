@@ -29,16 +29,16 @@ class ValidatorFactory
     /**
      * @var ObjectManagerInterface
      */
-    protected ObjectManagerInterface $objectManager;
+    protected $objectManager;
 
     /**
      * @var array
      */
-    protected array $validators;
+    protected $validators;
 
     /**
      * @param ObjectManagerInterface $objectManager
-     * @param array                                     $validators
+     * @param array                  $validators
      */
     public function __construct(
         ObjectManagerInterface $objectManager,
@@ -53,8 +53,8 @@ class ValidatorFactory
      *
      * @param string $validatorType
      *
-     * @return ValidatorInterface
      * @throws \LogicException|Exception
+     * @return ValidatorInterface
      */
     public function get(string $validatorType)
     {

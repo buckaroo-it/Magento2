@@ -30,7 +30,7 @@ class DescriptionDataBuilder implements BuilderInterface
     /**
      * @var Account
      */
-    protected Account $configProviderAccount;
+    protected $configProviderAccount;
 
     /**
      * Constructor

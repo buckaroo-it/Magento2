@@ -20,6 +20,11 @@
 
 namespace Buckaroo\Magento2\Block\Checkout;
 
+use Buckaroo\Magento2\Helper\PaymentFee;
+use Magento\Customer\Model\Session;
+use Magento\Framework\View\Element\Template\Context;
+use Magento\Sales\Model\Config;
+
 class Totals extends \Magento\Checkout\Block\Total\DefaultTotal
 {
     /**
@@ -32,25 +37,25 @@ class Totals extends \Magento\Checkout\Block\Total\DefaultTotal
     /**
      * Buckaroo fee helper
      *
-     * @var \Buckaroo\Magento2\Helper\PaymentFee
+     * @var PaymentFee
      */
     protected $helper;
 
     /**
-     * @param \Magento\Framework\View\Element\Template\Context $context
-     * @param \Magento\Customer\Model\Session                  $customerSession
+     * @param Context $context
+     * @param Session                  $customerSession
      * @param \Magento\Checkout\Model\Session                  $checkoutSession
-     * @param \Magento\Sales\Model\Config                      $salesConfig
-     * @param \Buckaroo\Magento2\Helper\PaymentFee                  $helper
+     * @param Config                      $salesConfig
+     * @param PaymentFee             $helper
      * @param array                                            $layoutProcessors
      * @param array                                            $data
      */
     public function __construct(
-        \Magento\Framework\View\Element\Template\Context $context,
-        \Magento\Customer\Model\Session $customerSession,
+        Context $context,
+        Session $customerSession,
         \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Sales\Model\Config $salesConfig,
-        \Buckaroo\Magento2\Helper\PaymentFee $helper,
+        Config $salesConfig,
+        PaymentFee $helper,
         array $layoutProcessors = [],
         array $data = []
     ) {
@@ -68,7 +73,7 @@ class Totals extends \Magento\Checkout\Block\Total\DefaultTotal
     {
         $values = [];
         /**
-         * @noinspection PhpUndefinedMethodInspection
+         * @phpstan-ignore-next-line
          */
         $total = $this->getTotal();
         $totals = $this->helper->getTotals($total);

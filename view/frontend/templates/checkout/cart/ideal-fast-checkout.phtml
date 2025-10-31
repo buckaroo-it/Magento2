@@ -23,7 +23,7 @@ if ($block->canShowButton('Cart') && !$block->isIdinVerificationRequired()): ?>
 
     <div id="fast-checkout-ideal-btn-component" data-bind="scope: 'fastCheckoutIdeal'">
         <button id="fast-checkout-ideal-btn" type="button">
-            <img src="<?= $escaper->escapeHtml($block->getLogo()) ?>" alt="<?= __('Ideal Fast Checkout') ?>"/>
+            <img src="<?= $escaper->escapeUrl($block->getLogo()) ?>" alt="<?= $escaper->escapeHtmlAttr(__('Ideal Fast Checkout')) ?>"/>
         </button>
     </div>
 

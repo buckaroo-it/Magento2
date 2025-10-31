@@ -19,7 +19,7 @@ class Analytics extends \Magento\Framework\Api\AbstractExtensibleObject implemen
 
     /**
      * Set analytics_id
-     * @param string $analyticsId
+     * @param  string                                         $analyticsId
      * @return \Buckaroo\Magento2\Api\Data\AnalyticsInterface
      */
     public function setAnalyticsId($analyticsId)
@@ -38,7 +38,7 @@ class Analytics extends \Magento\Framework\Api\AbstractExtensibleObject implemen
 
     /**
      * Set quote_id
-     * @param string $quoteId
+     * @param  string                                         $quoteId
      * @return \Buckaroo\Magento2\Api\Data\AnalyticsInterface
      */
     public function setQuoteId($quoteId)
@@ -57,7 +57,7 @@ class Analytics extends \Magento\Framework\Api\AbstractExtensibleObject implemen
 
     /**
      * Set an extension attributes object.
-     * @param \Buckaroo\Magento2\Api\Data\AnalyticsExtensionInterface $extensionAttributes
+     * @param  \Buckaroo\Magento2\Api\Data\AnalyticsExtensionInterface $extensionAttributes
      * @return $this
      */
     public function setExtensionAttributes(
@@ -77,7 +77,7 @@ class Analytics extends \Magento\Framework\Api\AbstractExtensibleObject implemen
 
     /**
      * Set client_id
-     * @param string $clientId
+     * @param  string                                         $clientId
      * @return \Buckaroo\Magento2\Api\Data\AnalyticsInterface
      */
     public function setClientId($clientId)

@@ -57,10 +57,10 @@ class MigrateSecondChanceModule implements DataPatchInterface
 
     /**
      * @param ModuleDataSetupInterface $moduleDataSetup
-     * @param ModuleManager $moduleManager
-     * @param WriterInterface $configWriter
-     * @param TypeListInterface $cacheTypeList
-     * @param Pool $cacheFrontendPool
+     * @param ModuleManager            $moduleManager
+     * @param WriterInterface          $configWriter
+     * @param TypeListInterface        $cacheTypeList
+     * @param Pool                     $cacheFrontendPool
      */
     public function __construct(
         ModuleDataSetupInterface $moduleDataSetup,

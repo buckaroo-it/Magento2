@@ -34,18 +34,18 @@ use Magento\Quote\Model\ShippingAddressManagementInterface;
 
 class QuoteAddressService
 {
-    private CustomerSession $customerSession;
-    private QuoteRepository $quoteRepository;
-    private CustomerRepositoryInterface $customerRepository;
-    private BuckarooLoggerInterface $logger;
-    private ShippingAddressManagementInterface $shippingAddressManagement;
+    private $customerSession;
+    private $quoteRepository;
+    private $customerRepository;
+    private $logger;
+    private $shippingAddressManagement;
 
     /**
-     * @param CustomerSession $customerSession
-     * @param CustomerRepositoryInterface $customerRepository
-     * @param QuoteRepository $quoteRepository
+     * @param CustomerSession                    $customerSession
+     * @param CustomerRepositoryInterface        $customerRepository
+     * @param QuoteRepository                    $quoteRepository
      * @param ShippingAddressManagementInterface $shippingAddressManagement
-     * @param BuckarooLoggerInterface $logger
+     * @param BuckarooLoggerInterface            $logger
      */
     public function __construct(
         CustomerSession $customerSession,
@@ -64,11 +64,11 @@ class QuoteAddressService
     /**
      * Add address from express (wallet) to quote.
      *
-     * @param ShippingAddressRequestInterface $shippingAddress
-     * @param Quote $cart
-     * @return Quote
+     * @param  ShippingAddressRequestInterface $shippingAddress
+     * @param  Quote                           $cart
      * @throws LocalizedException
      * @throws NoSuchEntityException
+     * @return Quote
      */
     public function addAddressToQuote(ShippingAddressRequestInterface $shippingAddress, Quote $cart): Quote
     {
@@ -95,8 +95,7 @@ class QuoteAddressService
      * Fill any fields missing from the addresses.
      *
      * @param ShippingAddressRequestInterface $shippingAddress
-     * @param Quote $quote
-     * @return void
+     * @param Quote                           $quote
      */
     protected function maybeFillAnyMissingAddressFields(
         ShippingAddressRequestInterface $shippingAddress,
@@ -110,7 +109,6 @@ class QuoteAddressService
      * If no default shipping address is found, fill in empty fields required for quote validation.
      *
      * @param Quote $quote
-     * @return void
      */
     protected function maybeFillShippingAddressFields(Quote $quote): void
     {
@@ -127,9 +125,9 @@ class QuoteAddressService
     /**
      * Process address data from the wallet.
      *
-     * @param array $wallet
-     * @param string $type
-     * @param string|null $phone
+     * @param  array       $wallet
+     * @param  string      $type
+     * @param  string|null $phone
      * @return array
      */
     public function processAddressFromWallet(array $wallet, string $type = 'shipping', ?string $phone = null): array
@@ -170,10 +168,10 @@ class QuoteAddressService
     /**
      * Validate address data; throw an error if required fields are missing.
      *
-     * @param array|bool $errors
-     * @param string $addressType
-     * @return bool
+     * @param  array|bool              $errors
+     * @param  string                  $addressType
      * @throws ExpressMethodsException
+     * @return bool
      */
     protected function setCommonAddressProceed($errors, string $addressType): bool
     {
@@ -203,8 +201,7 @@ class QuoteAddressService
      * If no default billing address exists, fill in empty fields required for quote validation.
      *
      * @param ShippingAddressRequestInterface $shippingAddress
-     * @param Quote $quote
-     * @return void
+     * @param Quote                           $quote
      */
     protected function maybeFillBillingAddressFields(
         ShippingAddressRequestInterface $shippingAddress,
@@ -227,11 +224,11 @@ class QuoteAddressService
     /**
      * Set Billing Address on SaveOrder.
      *
-     * @param Quote $quote
-     * @param array $data
-     * @param string|null $phone
-     * @return bool
+     * @param  Quote                   $quote
+     * @param  array                   $data
+     * @param  string|null             $phone
      * @throws ExpressMethodsException
+     * @return bool
      */
     public function setBillingAddress(Quote &$quote, array $data, ?string $phone = null): bool
     {
@@ -245,10 +242,10 @@ class QuoteAddressService
     /**
      * Assign the given address to the quote.
      *
-     * @param AddressInterface $shippingAddress
-     * @param Quote $cart
-     * @return Quote
+     * @param  AddressInterface        $shippingAddress
+     * @param  Quote                   $cart
      * @throws ExpressMethodsException
+     * @return Quote
      */
     public function assignAddressToQuote(AddressInterface $shippingAddress, Quote $cart): Quote
     {
@@ -270,10 +267,10 @@ class QuoteAddressService
     /**
      * Set Shipping Address on SaveOrder.
      *
-     * @param Quote $quote
-     * @param array $data
-     * @return bool
+     * @param  Quote                   $quote
+     * @param  array                   $data
      * @throws ExpressMethodsException
+     * @return bool
      */
     public function setShippingAddress(Quote &$quote, array $data): bool
     {

@@ -34,7 +34,7 @@ class CanViewNotification implements VisibilityConditionInterface
     /**
      * @var FlagManager
      */
-    private FlagManager $flagManager;
+    private $flagManager;
 
     /**
      * @param FlagManager $flagManager

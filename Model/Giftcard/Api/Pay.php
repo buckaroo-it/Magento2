@@ -57,10 +57,10 @@ class Pay implements PayWithGiftcardInterface
     protected $payResponseFactory;
 
     /**
-     * @param GiftcardRequest $giftcardRequest
-     * @param GiftcardResponse $giftcardResponse
-     * @param QuoteIdMaskFactory $quoteIdMaskFactory
-     * @param CartRepositoryInterface $cartRepository
+     * @param GiftcardRequest                $giftcardRequest
+     * @param GiftcardResponse               $giftcardResponse
+     * @param QuoteIdMaskFactory             $quoteIdMaskFactory
+     * @param CartRepositoryInterface        $cartRepository
      * @param PayResponseSetInterfaceFactory $payResponseFactory
      */
     public function __construct(
@@ -109,9 +109,9 @@ class Pay implements PayWithGiftcardInterface
     /**
      * Get quote from masked cart id
      *
-     * @param string $cartId
-     * @return Quote
+     * @param  string           $cartId
      * @throws NoQuoteException
+     * @return Quote
      */
     protected function getQuote(string $cartId): Quote
     {
@@ -127,10 +127,10 @@ class Pay implements PayWithGiftcardInterface
     /**
      * Get Giftcard Response
      *
-     * @param Quote $quote
-     * @param mixed $response
-     * @return mixed
+     * @param  Quote        $quote
+     * @param  mixed        $response
      * @throws ApiException
+     * @return mixed
      */
     protected function getResponse(Quote $quote, $response)
     {
@@ -149,9 +149,9 @@ class Pay implements PayWithGiftcardInterface
     /**
      * Build giftcard request
      *
-     * @param Quote $quote
-     * @param string $giftcardId
-     * @param PayRequestInterface $payment
+     * @param  Quote               $quote
+     * @param  string              $giftcardId
+     * @param  PayRequestInterface $payment
      * @return GiftcardRequest
      */
     protected function build(Quote $quote, string $giftcardId, PayRequestInterface $payment)

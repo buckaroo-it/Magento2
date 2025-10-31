@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request\Address;
 
+use Exception;
 use Magento\Sales\Model\Order\Address;
 
 class BillingAddressDataBuilder extends AbstractAddressDataBuilder
@@ -28,8 +29,8 @@ class BillingAddressDataBuilder extends AbstractAddressDataBuilder
     /**
      * Get Billing Address
      *
+     * @throws Exception
      * @return Address
-     * @throws \Exception
      */
     protected function getAddress(): Address
     {

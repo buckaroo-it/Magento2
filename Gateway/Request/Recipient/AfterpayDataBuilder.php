@@ -32,11 +32,11 @@ class AfterpayDataBuilder extends AbstractRecipientDataBuilder
     /**
      * @var ScopeConfigInterface
      */
-    protected ScopeConfigInterface $scopeConfig;
+    protected $scopeConfig;
 
     /**
      * @param ScopeConfigInterface $scopeConfig
-     * @param string $addressType
+     * @param string               $addressType
      */
     public function __construct(ScopeConfigInterface $scopeConfig, string $addressType = 'billing')
     {
@@ -96,9 +96,9 @@ class AfterpayDataBuilder extends AbstractRecipientDataBuilder
     /**
      * Determines whether the customer is a B2B customer based on the store configuration.
      *
-     * @param int|null $storeId
-     * @return bool
+     * @param  int|null           $storeId
      * @throws LocalizedException
+     * @return bool
      */
     private function isCustomerB2B(?int $storeId = null): bool
     {
@@ -108,10 +108,10 @@ class AfterpayDataBuilder extends AbstractRecipientDataBuilder
     /**
      * Retrieve information from payment configuration
      *
-     * @param string $field
-     * @param int|string|null|Store $storeId
-     * @return mixed
+     * @param  string                $field
+     * @param  int|string|null|Store $storeId
      * @throws LocalizedException
+     * @return mixed
      */
     public function getConfigData(string $field, $storeId = null)
     {
@@ -127,7 +127,7 @@ class AfterpayDataBuilder extends AbstractRecipientDataBuilder
      *
      * @param string|null $company
      *
-     * @return boolean
+     * @return bool
      */
     private function isCompanyEmpty(?string $company = null): bool
     {

@@ -128,12 +128,11 @@ class BuckarooFeeAfterTax extends \Magento\Quote\Model\Quote\Address\Total\Abstr
     /**
      * Assign buckaroo fee tax totals and labels to address object
      *
-     * @param \Magento\Quote\Model\Quote               $quote
-     * @param \Magento\Quote\Model\Quote\Address\Total $total
+     * @param  \Magento\Quote\Model\Quote               $quote
+     * @param  \Magento\Quote\Model\Quote\Address\Total $total
      * @return array
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     *
      */
     public function fetch(\Magento\Quote\Model\Quote $quote, \Magento\Quote\Model\Quote\Address\Total $total)
     {

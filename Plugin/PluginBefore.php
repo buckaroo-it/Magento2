@@ -36,17 +36,17 @@ class PluginBefore
     /**
      * @var OrderRepositoryInterface
      */
-    protected OrderRepositoryInterface $orderRepository;
+    protected $orderRepository;
 
     /**
      * @var Factory
      */
-    protected Factory $configProviderMethodFactory;
+    protected $configProviderMethodFactory;
 
     /**
      * @var UrlInterface
      */
-    private UrlInterface $urlBuilder;
+    private $urlBuilder;
 
     /**
      * @var RequestInterface
@@ -54,9 +54,9 @@ class PluginBefore
     private $request;
 
     /**
-     * @param Factory $configProviderMethodFactory
+     * @param Factory                  $configProviderMethodFactory
      * @param OrderRepositoryInterface $orderRepository
-     * @param UrlInterface $urlBuilder
+     * @param UrlInterface             $urlBuilder
      */
     public function __construct(
         Factory $configProviderMethodFactory,
@@ -71,10 +71,9 @@ class PluginBefore
     /**
      * Add Paylink button
      *
-     * @param Toolbar $subject
-     * @param AbstractBlock $context
-     * @param ButtonList $buttonList
-     * @return void
+     * @param  Toolbar           $subject
+     * @param  AbstractBlock     $context
+     * @param  ButtonList        $buttonList
      * @throws BuckarooException
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)

@@ -32,6 +32,7 @@ use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\ResultFactory;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
 use Magento\Quote\Model\Quote;
 
@@ -40,28 +41,28 @@ class Giftcard extends Action implements HttpPostActionInterface, HttpGetActionI
     /**
      * @var BuckarooLoggerInterface
      */
-    protected BuckarooLoggerInterface $logger;
+    protected $logger;
 
     /**
      * @var GiftcardInterface
      */
-    protected GiftcardInterface $giftcardRequest;
+    protected $giftcardRequest;
 
     /**
      * @var GiftcardResponse
      */
-    protected GiftcardResponse $giftcardResponse;
+    protected $giftcardResponse;
 
     /**
      * @var Session
      */
-    protected Session $checkoutSession;
+    protected $checkoutSession;
 
     /**
-     * @param Context $context
-     * @param Session $checkoutSession
-     * @param GiftcardInterface $giftcardRequest
-     * @param GiftcardResponse $giftcardResponse
+     * @param Context                 $context
+     * @param Session                 $checkoutSession
+     * @param GiftcardInterface       $giftcardRequest
+     * @param GiftcardResponse        $giftcardResponse
      * @param BuckarooLoggerInterface $logger
      */
     public function __construct(
@@ -81,8 +82,8 @@ class Giftcard extends Action implements HttpPostActionInterface, HttpGetActionI
     /**
      * Process action
      *
-     * @return ResponseInterface
      * @throws \Exception
+     * @return ResponseInterface
      */
     public function execute()
     {
@@ -127,7 +128,7 @@ class Giftcard extends Action implements HttpPostActionInterface, HttpGetActionI
     /**
      * Return response with error message
      *
-     * @param Phrase|string $message
+     * @param  Phrase|string $message
      * @return mixed
      */
     protected function displayError($message)
@@ -140,10 +141,10 @@ class Giftcard extends Action implements HttpPostActionInterface, HttpGetActionI
     /**
      * Get inline giftcard response
      *
-     * @param Quote $quote
-     * @param TransactionResponse $response
+     * @param  Quote               $quote
+     * @param  TransactionResponse $response
      * @return mixed
-     * @throws ApiException
+     * @throws ApiException|LocalizedException
      */
     protected function getGiftcardResponse(Quote $quote, TransactionResponse $response)
     {

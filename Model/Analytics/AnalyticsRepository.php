@@ -45,20 +45,19 @@ class AnalyticsRepository implements AnalyticsRepositoryInterface
     private $collectionProcessor;
 
     /**
-     * @param ResourceAnalytics $resource
-     * @param AnalyticsFactory $analyticsFactory
-     * @param AnalyticsInterfaceFactory $dataAnalyticsFactory
-     * @param AnalyticsCollectionFactory $analyticsCollectionFactory
+     * @param ResourceAnalytics                      $resource
+     * @param AnalyticsFactory                       $analyticsFactory
+     * @param AnalyticsInterfaceFactory              $dataAnalyticsFactory
+     * @param AnalyticsCollectionFactory             $analyticsCollectionFactory
      * @param AnalyticsSearchResultsInterfaceFactory $searchResultsFactory
-     * @param DataObjectHelper $dataObjectHelper
-     * @param DataObjectProcessor $dataObjectProcessor
-     * @param StoreManagerInterface $storeManager
-     * @param CollectionProcessorInterface $collectionProcessor
-     * @param JoinProcessorInterface $extensionAttributesJoinProcessor
-     * @param ExtensibleDataObjectConverter $extensibleDataObjectConverter
+     * @param DataObjectHelper                       $dataObjectHelper
+     * @param DataObjectProcessor                    $dataObjectProcessor
+     * @param StoreManagerInterface                  $storeManager
+     * @param CollectionProcessorInterface           $collectionProcessor
+     * @param JoinProcessorInterface                 $extensionAttributesJoinProcessor
+     * @param ExtensibleDataObjectConverter          $extensibleDataObjectConverter
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
-     *
      */
     public function __construct(
         ResourceAnalytics $resource,

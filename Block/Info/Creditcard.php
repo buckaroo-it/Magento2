@@ -35,25 +35,25 @@ class Creditcard extends Info
     /**
      * @var string|null
      */
-    protected ?string $cardType = null;
+    protected $cardType = null;
 
     /**
      * @var array|null
      */
-    protected ?array $mpiStatus = null;
+    protected $mpiStatus = null;
 
     /**
      * @var ConfigProviderCreditcard
      */
-    protected ConfigProviderCreditcard $configProvider;
+    protected $configProvider;
 
     /**
-     * @param Context $context
-     * @param PaymentGroupTransaction $groupTransaction
-     * @param GiftcardCollection $giftcardCollection
-     * @param LogoService $logoService
-     * @param UrlInterface $baseUrl
-     * @param array $data
+     * @param Context                       $context
+     * @param PaymentGroupTransaction       $groupTransaction
+     * @param GiftcardCollection            $giftcardCollection
+     * @param LogoService                   $logoService
+     * @param UrlInterface                  $baseUrl
+     * @param array                         $data
      * @param ConfigProviderCreditcard|null $configProvider
      */
     public function __construct(
@@ -81,8 +81,8 @@ class Creditcard extends Info
     /**
      * Get the order's MPI status.
      *
-     * @return array
      * @throws LocalizedException
+     * @return array
      */
     public function getMpiStatus()
     {
@@ -95,8 +95,8 @@ class Creditcard extends Info
     /**
      * Get card code
      *
-     * @return string
      * @throws LocalizedException
+     * @return string
      */
     public function getCardCode()
     {
@@ -108,8 +108,8 @@ class Creditcard extends Info
     /**
      * Get the selected creditcard for this order.
      *
-     * @return string
      * @throws LocalizedException
+     * @return string
      */
     public function getCardType()
     {

@@ -33,7 +33,7 @@ class AddressHandlerPool
     /**
      * @var array|AddressHandlerInterface[]
      */
-    protected array $addressHandlers;
+    protected $addressHandlers;
 
     /**
      * @param array $addressHandlers
@@ -51,9 +51,9 @@ class AddressHandlerPool
     /**
      * Change shipping address based on Shipping method
      *
-     * @param Order $order
-     * @return OrderAddressInterface|Address|null
+     * @param  Order                              $order
      * @throws Exception
+     * @return OrderAddressInterface|Address|null
      */
     public function getShippingAddress(Order $order)
     {

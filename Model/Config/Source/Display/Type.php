@@ -32,7 +32,7 @@ class Type implements OptionSourceInterface
     /**
      * @var array|null
      */
-    protected ?array $options = null;
+    protected $options = null;
 
     /**
      * @inheritdoc

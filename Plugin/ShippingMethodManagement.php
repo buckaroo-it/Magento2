@@ -34,26 +34,26 @@ class ShippingMethodManagement
     /**
      * @var Session
      */
-    private Session $checkoutSession;
+    private $checkoutSession;
 
     /**
      * @var Account
      */
-    private Account $accountConfig;
+    private $accountConfig;
 
     /**
      * @var BuckarooLoggerInterface
      */
-    private BuckarooLoggerInterface $logger;
+    private $logger;
 
     /**
      * @var CartRepositoryInterface
      */
-    private CartRepositoryInterface $quoteRepository;
+    private $quoteRepository;
 
     /**
-     * @param Session $checkoutSession
-     * @param Account $accountConfig
+     * @param Session                 $checkoutSession
+     * @param Account                 $accountConfig
      * @param BuckarooLoggerInterface $logger
      * @param CartRepositoryInterface $quoteRepository
      */
@@ -72,8 +72,7 @@ class ShippingMethodManagement
     /**
      * Ensures that the shipping address is loaded and shipping rates are collected.
      *
-     * @param int $cartId
-     * @return void
+     * @param  int                   $cartId
      * @throws LocalizedException
      * @throws NoSuchEntityException
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
@@ -126,7 +125,7 @@ class ShippingMethodManagement
     /**
      * Function that is used by external plugins
      *
-     * @param Store $store
+     * @param  Store $store
      * @return false
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)

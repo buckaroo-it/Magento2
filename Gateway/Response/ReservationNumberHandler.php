@@ -32,7 +32,7 @@ class ReservationNumberHandler implements HandlerInterface
     /**
      * @var BuckarooLoggerInterface
      */
-    private BuckarooLoggerInterface $logger;
+    private $logger;
 
     /**
      * @param BuckarooLoggerInterface $logger
@@ -46,9 +46,8 @@ class ReservationNumberHandler implements HandlerInterface
     /**
      * Handles response
      *
-     * @param array $handlingSubject
-     * @param array $response
-     * @return void
+     * @param  array      $handlingSubject
+     * @param  array      $response
      * @throws \Exception
      */
     public function handle(array $handlingSubject, array $response)

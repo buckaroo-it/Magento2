@@ -43,11 +43,11 @@ class JsonPushRequest extends AbstractPushRequest implements PushRequestInterfac
     /**
      * @var Validator $validator
      */
-    private Validator $validator;
+    private $validator;
 
     /**
-     * @param array $requestData
-     * @param Validator $validator
+     * @param  array     $requestData
+     * @param  Validator $validator
      * @throws Exception
      */
     public function __construct(array $requestData, Validator $validator)
@@ -84,7 +84,7 @@ class JsonPushRequest extends AbstractPushRequest implements PushRequestInterfac
     /**
      * Retrieves the value of the specified property or method result.
      *
-     * @param string $name
+     * @param  string     $name
      * @return mixed|null
      */
     public function get(string $name)

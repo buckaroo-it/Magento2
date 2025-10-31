@@ -130,9 +130,9 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
     }
 
     /**
-     * @param bool $secondChanceEnabled
+     * @param bool   $secondChanceEnabled
      * @param string $paymentMethod
-     * @param int $expectedCalls
+     * @param int    $expectedCalls
      *
      * @dataProvider createSecondChanceProvider
      */
@@ -276,7 +276,7 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
     /**
      * @param array $orderItems
      * @param array $stockData
-     * @param bool $expectedResult
+     * @param bool  $expectedResult
      *
      * @dataProvider checkOrderProductsIsInStockProvider
      */
@@ -328,7 +328,7 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
     }
 
     /**
-     * @param int $step
+     * @param int    $step
      * @param string $expectedTemplate
      *
      * @dataProvider sendMailProvider

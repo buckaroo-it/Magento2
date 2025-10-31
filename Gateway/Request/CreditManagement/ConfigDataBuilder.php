@@ -30,12 +30,12 @@ class ConfigDataBuilder extends AbstractDataBuilder
     /**
      * @var Factory
      */
-    private Factory $configProvider;
+    private $configProvider;
 
     /**
      * @var ConfigProviderInterface
      */
-    private ConfigProviderInterface $config;
+    private $config;
 
     /**
      * @param Factory $configProvider

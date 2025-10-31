@@ -46,52 +46,52 @@ class LogRepository implements LogRepositoryInterface
     /**
      * @var LogFactory
      */
-    protected LogFactory $logFactory;
+    protected $logFactory;
 
     /**
      * @var DataObjectHelper
      */
-    protected DataObjectHelper $dataObjectHelper;
+    protected $dataObjectHelper;
 
     /**
      * @var ExtensibleDataObjectConverter
      */
-    protected ExtensibleDataObjectConverter $extensibleDataObjectConverter;
+    protected $extensibleDataObjectConverter;
 
     /**
      * @var DataObjectProcessor
      */
-    protected DataObjectProcessor $dataObjectProcessor;
+    protected $dataObjectProcessor;
 
     /**
      * @var LogSearchResultsInterfaceFactory
      */
-    protected LogSearchResultsInterfaceFactory $searchResultsFactory;
+    protected $searchResultsFactory;
 
     /**
      * @var LogInterfaceFactory
      */
-    protected LogInterfaceFactory $dataLogFactory;
+    protected $dataLogFactory;
 
     /**
      * @var LogCollectionFactory
      */
-    protected LogCollectionFactory $logCollectionFactory;
+    protected $logCollectionFactory;
 
     /**
      * @var ResourceLog
      */
-    protected ResourceLog $resource;
+    protected $resource;
 
     /**
      * @var JoinProcessorInterface
      */
-    protected JoinProcessorInterface $extensionAttributesJoinProcessor;
+    protected $extensionAttributesJoinProcessor;
 
     /**
      * @var CollectionProcessorInterface
      */
-    private CollectionProcessorInterface $collectionProcessor;
+    private $collectionProcessor;
 
     /**
      * @var StoreManagerInterface
@@ -99,17 +99,17 @@ class LogRepository implements LogRepositoryInterface
     private $storeManager;
 
     /**
-     * @param ResourceLog $resource
-     * @param LogFactory $logFactory
-     * @param LogInterfaceFactory $dataLogFactory
-     * @param LogCollectionFactory $logCollectionFactory
+     * @param ResourceLog                      $resource
+     * @param LogFactory                       $logFactory
+     * @param LogInterfaceFactory              $dataLogFactory
+     * @param LogCollectionFactory             $logCollectionFactory
      * @param LogSearchResultsInterfaceFactory $searchResultsFactory
-     * @param DataObjectHelper $dataObjectHelper
-     * @param DataObjectProcessor $dataObjectProcessor
-     * @param StoreManagerInterface $storeManager
-     * @param CollectionProcessorInterface $collectionProcessor
-     * @param JoinProcessorInterface $extensionAttributesJoinProcessor
-     * @param ExtensibleDataObjectConverter $extensibleDataObjectConverter
+     * @param DataObjectHelper                 $dataObjectHelper
+     * @param DataObjectProcessor              $dataObjectProcessor
+     * @param StoreManagerInterface            $storeManager
+     * @param CollectionProcessorInterface     $collectionProcessor
+     * @param JoinProcessorInterface           $extensionAttributesJoinProcessor
+     * @param ExtensibleDataObjectConverter    $extensibleDataObjectConverter
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
