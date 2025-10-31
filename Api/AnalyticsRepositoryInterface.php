@@ -14,8 +14,11 @@ interface AnalyticsRepositoryInterface
 
     /**
      * Save Analytics
-     * @param  AnalyticsInterface  $analytics
+     *
+     * @param AnalyticsInterface $analytics
+     *
      * @throws LocalizedException
+     *
      * @return AnalyticsInterface
      */
     public function save(
@@ -24,17 +27,23 @@ interface AnalyticsRepositoryInterface
 
     /**
      * Retrieve Analytics
-     * @param  string                                          $analyticsId
+     *
+     * @param string $analyticsId
+     *
      * @throws LocalizedException
+     *
      * @return AnalyticsInterface
      */
     public function get($analyticsId);
 
     /**
      * Retrieve Analytics matching the specified criteria.
+     *
      * @param SearchCriteriaInterface $searchCriteria
-     * @return AnalyticsSearchResultsInterface
+     *
      * @throws LocalizedException
+     *
+     * @return AnalyticsSearchResultsInterface
      */
     public function getList(
         SearchCriteriaInterface $searchCriteria
@@ -42,9 +51,12 @@ interface AnalyticsRepositoryInterface
 
     /**
      * Delete Analytics
-     * @param  AnalyticsInterface  $analytics
+     *
+     * @param AnalyticsInterface $analytics
+     *
      * @throws LocalizedException
-     * @return bool                                            true on success
+     *
+     * @return bool true on success
      */
     public function delete(
         AnalyticsInterface $analytics
@@ -52,10 +64,13 @@ interface AnalyticsRepositoryInterface
 
     /**
      * Delete Analytics by ID
-     * @param  string                                             $analyticsId
+     *
+     * @param string $analyticsId
+     *
      * @throws NoSuchEntityException
      * @throws LocalizedException
-     * @return bool                                               true on success
+     *
+     * @return bool true on success
      */
     public function deleteById($analyticsId);
 }

@@ -239,7 +239,8 @@ class BuckarooAdapter extends Adapter
     /**
      * Can create invoice on push
      *
-     * @param  PushRequestInterface $responseData
+     * @param PushRequestInterface $responseData
+     *
      * @return bool
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
@@ -257,6 +258,7 @@ class BuckarooAdapter extends Adapter
      * Get payment method title
      *
      * @throws BuckarooException
+     *
      * @return string
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
@@ -292,8 +294,9 @@ class BuckarooAdapter extends Adapter
     /**
      * Add payment fee to the given title
      *
-     * @param  string $title
-     * @param  string $paymentFee
+     * @param string $title
+     * @param string $paymentFee
+     *
      * @return string
      */
     protected function addPaymentFee(string $title, string $paymentFee): string

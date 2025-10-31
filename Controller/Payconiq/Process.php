@@ -88,6 +88,7 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
      * @param SearchCriteriaBuilder          $searchCriteriaBuilder
      * @param TransactionRepositoryInterface $transactionRepository
      * @param LockManagerWrapper             $lockManagerWrapper
+     *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -133,6 +134,7 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
      * Redirect Process Payconiq
      *
      * @throws Exception
+     *
      * @return ResponseInterface
      */
     public function execute()
@@ -198,6 +200,7 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
      * Get transaction object
      *
      * @throws Exception
+     *
      * @return TransactionInterface|Transaction|null
      */
     protected function getTransaction()
@@ -222,6 +225,7 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
      * Get the transaction list
      *
      * @throws Exception
+     *
      * @return TransactionSearchResultInterface
      */
     protected function getList(): TransactionSearchResultInterface

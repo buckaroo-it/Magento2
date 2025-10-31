@@ -57,6 +57,7 @@ class StatusesNew implements OptionSourceInterface
      * Options getter
      *
      * @throws Exception
+     *
      * @return array
      */
     public function toOptionArray(): array

@@ -70,7 +70,8 @@ class Add
     /**
      * Add Product to Cart on Apple Pay
      *
-     * @param  array       $request
+     * @param array $request
+     *
      * @return array|false
      */
     public function process(array $request)

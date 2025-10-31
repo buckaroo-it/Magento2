@@ -41,6 +41,7 @@ class Analytics extends \Magento\Framework\Model\AbstractModel
 
     /**
      * Retrieve analytics model with analytics data
+     *
      * @return AnalyticsInterface
      */
     public function getDataModel()

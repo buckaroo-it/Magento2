@@ -111,6 +111,7 @@ class TotalBreakdown implements TotalBreakdownInterface
      * @param string $type
      *
      * @throws NoSuchEntityException
+     *
      * @return float
      */
     protected function getTotalsOfType(string $type)

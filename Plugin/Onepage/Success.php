@@ -69,8 +69,9 @@ class Success
     /**
      * If the user visits the payment complete page when doing a payment or when the order is canceled redirect to cart
      *
-     * @param  ControllerOnePageSuccess $checkoutSuccess
-     * @param  callable                 $proceed
+     * @param ControllerOnePageSuccess $checkoutSuccess
+     * @param callable                 $proceed
+     *
      * @return Redirect|Page
      */
     public function aroundExecute(ControllerOnePageSuccess $checkoutSuccess, callable $proceed)

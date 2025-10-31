@@ -125,8 +125,9 @@ class PushTransactionType
     }
 
     /**
-     * @param  \Buckaroo\Magento2\Api\Data\PushRequestInterface|null $pushRequest
-     * @param  Order|null                                            $order
+     * @param \Buckaroo\Magento2\Api\Data\PushRequestInterface|null $pushRequest
+     * @param Order|null                                            $order
+     *
      * @return PushTransactionType
      */
     public function getPushTransactionType(?PushRequestInterface $pushRequest, ?Order $order): PushTransactionType
@@ -159,8 +160,9 @@ class PushTransactionType
     /**
      * Determine the transaction type based on push request data and the saved invoice key.
      *
-     * @param  PushRequestInterface $pushRequest
-     * @param  Order                $order
+     * @param PushRequestInterface $pushRequest
+     * @param Order                $order
+     *
      * @return string
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
@@ -202,7 +204,8 @@ class PushTransactionType
     /**
      * Retrieve the status code from the push request based on the transaction type.
      *
-     * @param  string $transactionType
+     * @param string $transactionType
+     *
      * @return int
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)

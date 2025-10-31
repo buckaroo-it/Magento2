@@ -55,6 +55,7 @@ class GiftCardRemoveHandler implements HandlerInterface
 
     /**
      * @inheritdoc
+     *
      * @throws RemoveException
      * @throws CouldNotSaveException
      */
@@ -81,8 +82,9 @@ class GiftCardRemoveHandler implements HandlerInterface
     /**
      * Update gift card transaction with the refunded amount
      *
-     * @param  GroupTransaction      $giftcardTransaction
-     * @param  float                 $amount
+     * @param GroupTransaction $giftcardTransaction
+     * @param float            $amount
+     *
      * @throws CouldNotSaveException
      */
     protected function updateGiftcardTransactionAmount(

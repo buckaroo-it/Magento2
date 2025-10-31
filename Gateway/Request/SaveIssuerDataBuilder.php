@@ -49,7 +49,8 @@ class SaveIssuerDataBuilder implements BuilderInterface
     /**
      * Save last used issuer, it will be used to select automatically the issuer in the checkout
      *
-     * @param  array $buildSubject
+     * @param array $buildSubject
+     *
      * @return array
      */
     public function build(array $buildSubject): array

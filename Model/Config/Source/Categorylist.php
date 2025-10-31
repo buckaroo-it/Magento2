@@ -93,10 +93,11 @@ class Categorylist implements OptionSourceInterface
     /**
      * Get collection of product categories
      *
-     * @param  bool  $isActive
-     * @param  bool  $level
-     * @param  bool  $sortBy
-     * @param  bool  $pageSize
+     * @param bool $isActive
+     * @param bool $level
+     * @param bool $sortBy
+     * @param bool $pageSize
+     *
      * @return mixed
      */
     public function getCategoryCollection($isActive = true, $level = false, $sortBy = false, $pageSize = false)
@@ -130,7 +131,8 @@ class Categorylist implements OptionSourceInterface
     /**
      * Get parent category name
      *
-     * @param  string $path
+     * @param string $path
+     *
      * @return string
      */
     private function getParentName($path = '')

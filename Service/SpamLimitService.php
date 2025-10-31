@@ -49,7 +49,8 @@ class SpamLimitService
     /**
      * Update session when a failed attempt is made for the quote & method
      *
-     * @param  MethodInterface     $paymentMethodInstance
+     * @param MethodInterface $paymentMethodInstance
+     *
      * @throws LimitReachException
      */
     public function updateRateLimiterCount(MethodInterface $paymentMethodInstance)
@@ -81,7 +82,8 @@ class SpamLimitService
     /**
      * Check if config spam limit is active
      *
-     * @param  MethodInterface $paymentMethodInstance
+     * @param MethodInterface $paymentMethodInstance
+     *
      * @return bool
      */
     public function isSpamLimitActive(MethodInterface $paymentMethodInstance): bool
@@ -135,8 +137,9 @@ class SpamLimitService
     /**
      * Check if the spam limit is reached
      *
-     * @param  array           $storage
-     * @param  MethodInterface $paymentMethodInstance
+     * @param array           $storage
+     * @param MethodInterface $paymentMethodInstance
+     *
      * @return bool
      */
     public function isSpamLimitReached(MethodInterface $paymentMethodInstance, array $storage): bool
@@ -168,6 +171,7 @@ class SpamLimitService
      *
      * @throws LocalizedException
      * @throws NoSuchEntityException
+     *
      * @return CartInterface|Quote
      */
     public function getQuote()

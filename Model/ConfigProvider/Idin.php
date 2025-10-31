@@ -149,9 +149,11 @@ class Idin extends AbstractConfigProvider
     /**
      * Retrieve associated array of checkout configuration
      *
-     * @param  null|int|string       $store
+     * @param null|int|string $store
+     *
      * @throws NoSuchEntityException
      * @throws LocalizedException
+     *
      * @return array
      */
     public function getConfig($store = null): array
@@ -175,6 +177,7 @@ class Idin extends AbstractConfigProvider
      * Check if idin is active for this user and cart
      *
      * @throws NoSuchEntityException|LocalizedException
+     *
      * @return array
      */
     protected function isIDINActive(): array
@@ -194,6 +197,7 @@ class Idin extends AbstractConfigProvider
      * @param CustomerInterface|null $customer
      *
      * @throws NoSuchEntityException
+     *
      * @return array
      */
     public function getIdinStatus(Quote $quote, ?CustomerInterface $customer = null): array
@@ -216,7 +220,8 @@ class Idin extends AbstractConfigProvider
     /**
      * Enable idin only for netherland
      *
-     * @param  CustomerInterface|null $customer
+     * @param CustomerInterface|null $customer
+     *
      * @return bool
      */
     protected function checkCountry(?CustomerInterface $customer): bool
@@ -237,8 +242,10 @@ class Idin extends AbstractConfigProvider
     /**
      * Check if idin is enabled
      *
-     * @param  mixed                 $store
+     * @param mixed $store
+     *
      * @throws NoSuchEntityException
+     *
      * @return bool
      */
     protected function isIdinEnabled($store = null): bool
@@ -250,7 +257,8 @@ class Idin extends AbstractConfigProvider
     /**
      * Check if customer is verified
      *
-     * @param  CustomerInterface|null $customer
+     * @param CustomerInterface|null $customer
+     *
      * @return bool
      */
     protected function isCustomerVerified(?CustomerInterface $customer = null): bool
@@ -268,6 +276,7 @@ class Idin extends AbstractConfigProvider
      * @param Quote $quote
      *
      * @throws NoSuchEntityException
+     *
      * @return bool
      */
     public function isIdinActiveForQuote(Quote $quote): bool
@@ -295,7 +304,8 @@ class Idin extends AbstractConfigProvider
     /**
      * Check if idin is required in product categories
      *
-     * @param  Product $product
+     * @param Product $product
+     *
      * @return bool
      */
     protected function checkCategories(Product $product): bool
@@ -311,7 +321,8 @@ class Idin extends AbstractConfigProvider
     /**
      * Get customer by id
      *
-     * @param  mixed                  $customerId
+     * @param mixed $customerId
+     *
      * @return CustomerInterface|null
      */
     protected function getCustomer($customerId): ?CustomerInterface
@@ -331,6 +342,7 @@ class Idin extends AbstractConfigProvider
      * Get list of issuers
      *
      * @throws NoSuchEntityException
+     *
      * @return array
      */
     public function getIssuers(): array
@@ -345,9 +357,12 @@ class Idin extends AbstractConfigProvider
     /**
      * Get active status for idin method
      *
-     * @param  null                  $store
+     * @param null $store
+     *
      * @throws NoSuchEntityException
+     *
      * @return int
+     *
      * @SuppressWarnings(PHPMD.BooleanGetMethodName)
      */
     public function getActive($store = null): int

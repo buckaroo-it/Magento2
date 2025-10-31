@@ -61,7 +61,8 @@ class SendOrderConfirmation implements ObserverInterface
     /**
      * Send order confirmation on email using sales_order_payment_place_end event
      *
-     * @param  Observer           $observer
+     * @param Observer $observer
+     *
      * @throws LocalizedException
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
@@ -93,7 +94,8 @@ class SendOrderConfirmation implements ObserverInterface
     /**
      * Check if the payment method is a Buckaroo payment
      *
-     * @param  Payment $payment
+     * @param Payment $payment
+     *
      * @return bool
      */
     private function isBuckarooPayment(Payment $payment): bool
@@ -104,9 +106,10 @@ class SendOrderConfirmation implements ObserverInterface
     /**
      * Check if should skip email sending for redirect payment method
      *
-     * @param  mixed   $methodInstance
-     * @param  mixed   $order
-     * @param  Payment $payment
+     * @param mixed   $methodInstance
+     * @param mixed   $order
+     * @param Payment $payment
+     *
      * @return bool
      */
     private function shouldSkipForRedirectMethod($methodInstance, $order, Payment $payment): bool
@@ -164,9 +167,10 @@ class SendOrderConfirmation implements ObserverInterface
     /**
      * Check if order email should be sent
      *
-     * @param  mixed $order
-     * @param  bool  $sendOrderConfirmationEmail
-     * @param  bool  $createOrderBeforeTransaction
+     * @param mixed $order
+     * @param bool  $sendOrderConfirmationEmail
+     * @param bool  $createOrderBeforeTransaction
+     *
      * @return bool
      */
     private function shouldSendOrderEmail($order, bool $sendOrderConfirmationEmail, bool $createOrderBeforeTransaction): bool

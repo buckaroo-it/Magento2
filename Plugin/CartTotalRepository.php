@@ -35,9 +35,10 @@ class CartTotalRepository
     }
 
     /**
-     * @param  TotalRepository $subject
-     * @param  \Closure        $proceed
-     * @param  int             $cartId
+     * @param TotalRepository $subject
+     * @param \Closure        $proceed
+     * @param int             $cartId
+     *
      * @return TotalsInterface
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)

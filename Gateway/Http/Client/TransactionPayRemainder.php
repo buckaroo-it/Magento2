@@ -79,7 +79,8 @@ class TransactionPayRemainder extends DefaultTransaction
     /**
      * Set service action before request builders
      *
-     * @param  string $orderIncrementId
+     * @param string $orderIncrementId
+     *
      * @return string
      */
     public function setServiceAction(string $orderIncrementId): string

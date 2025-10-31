@@ -131,6 +131,7 @@ class ApplyVoucher implements ApplyVoucherInterface
      * Get quote from session
      *
      * @throws NoQuoteException
+     *
      * @return Quote
      */
     protected function getQuote()
@@ -145,10 +146,12 @@ class ApplyVoucher implements ApplyVoucherInterface
     /**
      * Get response based on the quote and API response.
      *
-     * @param  Quote              $quote
-     * @param  mixed              $response
+     * @param Quote $quote
+     * @param mixed $response
+     *
      * @throws ApiException
      * @throws LocalizedException
+     *
      * @return mixed
      */
     protected function getResponse(Quote $quote, $response)
@@ -229,7 +232,8 @@ class ApplyVoucher implements ApplyVoucherInterface
     /**
      * Render and throw an exception with the provided message.
      *
-     * @param  string    $message
+     * @param string $message
+     *
      * @throws Exception
      */
     public function renderException(string $message)

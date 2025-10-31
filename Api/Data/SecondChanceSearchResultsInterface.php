@@ -35,6 +35,7 @@ interface SecondChanceSearchResultsInterface extends SearchResultsInterface
      * Set SecondChance list.
      *
      * @param SecondChanceInterface[] $items
+     *
      * @return $this
      */
     public function setItems(array $items);

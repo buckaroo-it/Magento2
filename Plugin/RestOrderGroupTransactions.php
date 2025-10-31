@@ -39,8 +39,9 @@ class RestOrderGroupTransactions
     }
 
     /**
-     * @param  OrderRepositoryInterface $subject
-     * @param  OrderInterface           $entity
+     * @param OrderRepositoryInterface $subject
+     * @param OrderInterface           $entity
+     *
      * @return OrderInterface
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)

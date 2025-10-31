@@ -62,7 +62,8 @@ class Options extends Column
     /**
      * Prepares the data source for the admin grid listing column adding group transaction
      *
-     * @param  array $dataSource
+     * @param array $dataSource
+     *
      * @return array
      */
     public function prepareDataSource(array $dataSource): array

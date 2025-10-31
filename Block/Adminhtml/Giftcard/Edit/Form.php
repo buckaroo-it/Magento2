@@ -57,6 +57,7 @@ class Form extends Generic
      * Edit Giftcards Form
      *
      * @throws LocalizedException
+     *
      * @return $this
      */
     protected function _prepareForm()

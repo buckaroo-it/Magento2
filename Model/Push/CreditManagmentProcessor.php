@@ -34,6 +34,7 @@ class CreditManagmentProcessor extends DefaultProcessor
      * Update the Credit Management invoice status based on push request data and save invoice if required.
      *
      * @throws LocalizedException
+     *
      * @return bool
      */
     private function updateCm3InvoiceStatus(): bool

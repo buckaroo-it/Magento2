@@ -37,6 +37,7 @@ class DbHandler extends Base
 
     /**
      * Accepts either the Monolog 2 array or the Monolog 3 LogRecord object.
+     *
      * @param mixed $record
      */
     public function write(mixed $record): void

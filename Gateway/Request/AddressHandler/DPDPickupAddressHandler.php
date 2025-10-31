@@ -49,9 +49,11 @@ class DPDPickupAddressHandler extends AbstractAddressHandler
     /**
      * Update shipping address by DPD Pickup point
      *
-     * @param  Order                 $order
-     * @param  OrderAddressInterface $shippingAddress
+     * @param Order                 $order
+     * @param OrderAddressInterface $shippingAddress
+     *
      * @throws NoSuchEntityException
+     *
      * @return Order
      *
      * @SuppressWarnings(PHPMD.UnusedLocalVariable)

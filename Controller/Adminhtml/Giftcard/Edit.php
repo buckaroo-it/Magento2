@@ -70,8 +70,9 @@ class Edit extends Action implements HttpGetActionInterface
     /**
      * Edit Giftcard
      *
-     * @return ResponseInterface|Page
      * @throws LocalizedException
+     *
+     * @return ResponseInterface|Page
      */
     public function execute()
     {

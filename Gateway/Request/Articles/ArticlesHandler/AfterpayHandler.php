@@ -52,6 +52,7 @@ class AfterpayHandler extends AbstractArticlesHandler
      * @param ConfigProviderMethodFactory $configProviderMethodFactory
      * @param PayReminderService          $payReminderService
      * @param Image                       $imageHelper
+     *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -84,11 +85,12 @@ class AfterpayHandler extends AbstractArticlesHandler
     /**
      * Get the structure of the array returned to request for refunded items
      *
-     * @param  string|null     $articleDescription
-     * @param  int|string|null $articleId
-     * @param  int|float       $articleQuantity
-     * @param  string|float    $articleUnitPrice
-     * @param  string|float    $articleVat
+     * @param string|null     $articleDescription
+     * @param int|string|null $articleId
+     * @param int|float       $articleQuantity
+     * @param string|float    $articleUnitPrice
+     * @param string|float    $articleVat
+     *
      * @return array
      */
     public function getArticleRefundArrayLine(
@@ -111,8 +113,9 @@ class AfterpayHandler extends AbstractArticlesHandler
     /**
      * Get items lines
      *
-     * @return array
      * @throws LocalizedException
+     *
+     * @return array
      */
     protected function getItemsLines(): array
     {
@@ -159,7 +162,8 @@ class AfterpayHandler extends AbstractArticlesHandler
     /**
      * Get product image URL
      *
-     * @param  Item   $item
+     * @param Item $item
+     *
      * @return string
      */
     protected function getProductImageUrl($item)

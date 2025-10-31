@@ -69,7 +69,9 @@ class ResponseCodeSDKValidator extends AbstractValidator
      * @param array $validationSubject
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     *
      * @throws LocalizedException
+     *
      * @return ResultInterface
      */
     public function validate(array $validationSubject): ResultInterface
@@ -139,8 +141,9 @@ class ResponseCodeSDKValidator extends AbstractValidator
     }
 
     /**
-     * @param  array              $validationSubject
-     * @param  ?int               $statusCode
+     * @param array $validationSubject
+     * @param ?int  $statusCode
+     *
      * @throws LocalizedException
      */
     private function handleFailureStatusCode(array $validationSubject, ?int $statusCode): ResultInterface

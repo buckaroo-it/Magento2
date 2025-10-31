@@ -33,8 +33,10 @@ interface SecondChanceRepositoryInterface
     /**
      * Save SecondChance
      *
-     * @param  SecondChanceInterface $secondChance
+     * @param SecondChanceInterface $secondChance
+     *
      * @throws LocalizedException
+     *
      * @return SecondChanceInterface
      */
     public function save(
@@ -44,8 +46,10 @@ interface SecondChanceRepositoryInterface
     /**
      * Retrieve SecondChance
      *
-     * @param  string                                            $secondChanceId
+     * @param string $secondChanceId
+     *
      * @throws LocalizedException
+     *
      * @return SecondChanceInterface
      */
     public function get($secondChanceId);
@@ -53,8 +57,10 @@ interface SecondChanceRepositoryInterface
     /**
      * Retrieve SecondChance by order ID
      *
-     * @param  string                                            $orderId
+     * @param string $orderId
+     *
      * @throws LocalizedException
+     *
      * @return SecondChanceInterface
      */
     public function getByOrderId(string $orderId);
@@ -63,8 +69,10 @@ interface SecondChanceRepositoryInterface
      * Retrieve SecondChance matching the specified criteria.
      *
      * @param SearchCriteriaInterface $searchCriteria
-     * @return SecondChanceSearchResultsInterface
+     *
      * @throws LocalizedException
+     *
+     * @return SecondChanceSearchResultsInterface
      */
     public function getList(
         SearchCriteriaInterface $searchCriteria
@@ -73,9 +81,11 @@ interface SecondChanceRepositoryInterface
     /**
      * Delete SecondChance
      *
-     * @param  SecondChanceInterface $secondChance
+     * @param SecondChanceInterface $secondChance
+     *
      * @throws LocalizedException
-     * @return bool                                              true on success
+     *
+     * @return bool true on success
      */
     public function delete(
         SecondChanceInterface $secondChance
@@ -84,27 +94,32 @@ interface SecondChanceRepositoryInterface
     /**
      * Delete SecondChance by ID
      *
-     * @param  string                                             $secondChanceId
+     * @param string $secondChanceId
+     *
      * @throws NoSuchEntityException
      * @throws LocalizedException
-     * @return bool                                               true on success
+     *
+     * @return bool true on success
      */
     public function deleteById($secondChanceId);
 
     /**
      * Delete SecondChance by order ID
      *
-     * @param  string                                             $orderId
+     * @param string $orderId
+     *
      * @throws NoSuchEntityException
      * @throws LocalizedException
-     * @return bool                                               true on success
+     *
+     * @return bool true on success
      */
     public function deleteByOrderId($orderId);
 
     /**
      * Create second chance entry for order
      *
-     * @param  OrderInterface            $order
+     * @param OrderInterface $order
+     *
      * @return SecondChanceInterface
      */
     public function createSecondChance($order);
@@ -112,7 +127,8 @@ interface SecondChanceRepositoryInterface
     /**
      * Get second chance by token
      *
-     * @param  string                                            $token
+     * @param string $token
+     *
      * @return SecondChanceInterface
      */
     public function getSecondChanceByToken($token);
@@ -127,7 +143,7 @@ interface SecondChanceRepositoryInterface
     /**
      * Get second chance collection for processing
      *
-     * @param int                                    $step
+     * @param int            $step
      * @param StoreInterface $store
      */
     public function getSecondChanceCollection($step, $store);
@@ -135,9 +151,9 @@ interface SecondChanceRepositoryInterface
     /**
      * Send second chance email
      *
-     * @param OrderInterface            $order
+     * @param OrderInterface        $order
      * @param SecondChanceInterface $secondChance
-     * @param int                                               $step
+     * @param int                   $step
      */
     public function sendMail($order, $secondChance, $step);
 }

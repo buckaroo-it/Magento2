@@ -52,8 +52,10 @@ class Image extends AbstractRenderer
     /**
      * Renders grid column
      *
-     * @param  DataObject            $row
+     * @param DataObject $row
+     *
      * @throws NoSuchEntityException
+     *
      * @return string
      */
     public function render(DataObject $row)

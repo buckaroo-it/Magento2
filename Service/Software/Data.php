@@ -65,7 +65,8 @@ class Data
     /**
      * Returns an array containing the software data for both the platform and the module.
      *
-     * @param  ?OrderPaymentInterface $payment
+     * @param ?OrderPaymentInterface $payment
+     *
      * @return array
      */
     public function get(?OrderPaymentInterface $payment = null)
@@ -79,7 +80,8 @@ class Data
     /**
      * Retrieves and returns an array containing the platform data.
      *
-     * @param  ?OrderPaymentInterface $payment
+     * @param ?OrderPaymentInterface $payment
+     *
      * @return array
      */
     private function getPlatformData(?OrderPaymentInterface $payment = null): array

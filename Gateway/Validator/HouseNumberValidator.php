@@ -53,7 +53,8 @@ class HouseNumberValidator extends AbstractValidator
     /**
      * Validate country
      *
-     * @param  array           $validationSubject
+     * @param array $validationSubject
+     *
      * @return ResultInterface
      */
     public function validate(array $validationSubject): ResultInterface
@@ -75,7 +76,8 @@ class HouseNumberValidator extends AbstractValidator
     }
 
     /**
-     * @param  Address   $address
+     * @param Address $address
+     *
      * @throws Exception
      */
     private function validateHouseNumber(Address $address): void

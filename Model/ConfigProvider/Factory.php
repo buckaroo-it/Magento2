@@ -57,6 +57,7 @@ class Factory
      * @param string $providerType
      *
      * @throws \LogicException|BuckarooException
+     *
      * @return ConfigProviderInterface
      */
     public function get(string $providerType): ConfigProviderInterface
@@ -99,8 +100,10 @@ class Factory
     /**
      * Checks if a specific config provider is present in the config providers list
      *
-     * @param  string          $providerType
+     * @param string $providerType
+     *
      * @throws \LogicException
+     *
      * @return bool
      */
     public function has(string $providerType): bool

@@ -78,8 +78,10 @@ class CurrencyDataBuilder implements BuilderInterface
     /**
      * Set Allowed Currencies
      *
-     * @param  MethodInterface $methodInstance
+     * @param MethodInterface $methodInstance
+     *
      * @throws Exception
+     *
      * @return $this
      */
     private function setAllowedCurrencies(MethodInterface $methodInstance): CurrencyDataBuilder
@@ -99,8 +101,10 @@ class CurrencyDataBuilder implements BuilderInterface
     /**
      * Get Allowed Currencies
      *
-     * @param  MethodInterface|null $methodInstance
+     * @param MethodInterface|null $methodInstance
+     *
      * @throws Exception
+     *
      * @return array
      */
     public function getAllowedCurrencies(?MethodInterface $methodInstance = null): array
@@ -115,8 +119,10 @@ class CurrencyDataBuilder implements BuilderInterface
     /**
      * Get Currency
      *
-     * @param  Order|null $order
+     * @param Order|null $order
+     *
      * @throws Exception
+     *
      * @return string
      */
     public function getCurrency(?Order $order = null): string
@@ -131,8 +137,10 @@ class CurrencyDataBuilder implements BuilderInterface
     /**
      * Set Currency
      *
-     * @param  Order     $order
+     * @param Order $order
+     *
      * @throws Exception
+     *
      * @return $this
      */
     public function setCurrency(Order $order): CurrencyDataBuilder

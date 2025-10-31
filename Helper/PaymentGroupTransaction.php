@@ -93,7 +93,8 @@ class PaymentGroupTransaction extends AbstractHelper
     /**
      * Get additional information when there's a partial payment.
      *
-     * @param  int   $incrementId
+     * @param int $incrementId
+     *
      * @return mixed
      */
     public function getAdditionalData($incrementId)
@@ -116,7 +117,8 @@ class PaymentGroupTransaction extends AbstractHelper
     /**
      * Saves a group transaction in the database.
      *
-     * @param  array $response
+     * @param array $response
+     *
      * @return mixed
      */
     public function saveGroupTransaction($response)
@@ -146,8 +148,10 @@ class PaymentGroupTransaction extends AbstractHelper
     /**
      * Updates a group transaction in the database.
      *
-     * @param  array      $item
+     * @param array $item
+     *
      * @throws \Exception
+     *
      * @return mixed
      */
     public function updateGroupTransaction($item)
@@ -161,7 +165,8 @@ class PaymentGroupTransaction extends AbstractHelper
     /**
      * Check if is group transaction the order
      *
-     * @param  string|int $orderId
+     * @param string|int $orderId
+     *
      * @return bool
      */
     public function isGroupTransaction($orderId)
@@ -173,7 +178,8 @@ class PaymentGroupTransaction extends AbstractHelper
     /**
      * Check if is group transaction the order
      *
-     * @param  string|int $orderId
+     * @param string|int $orderId
+     *
      * @return bool
      */
     public function isAnyGroupTransaction($orderId)
@@ -185,7 +191,8 @@ class PaymentGroupTransaction extends AbstractHelper
     /**
      * Retrieves the group transaction items for a given order ID.
      *
-     * @param  string|int $orderId
+     * @param string|int $orderId
+     *
      * @return array
      */
     public function getGroupTransactionItems($orderId)
@@ -210,7 +217,8 @@ class PaymentGroupTransaction extends AbstractHelper
     /**
      * Retrieves the group transaction items for a given order ID.
      *
-     * @param  string|int $orderId
+     * @param string|int $orderId
+     *
      * @return array
      */
     public function getAnyGroupTransactionItems($orderId)
@@ -231,7 +239,8 @@ class PaymentGroupTransaction extends AbstractHelper
     /**
      * Get already paid amount from db
      *
-     * @param  string|int|null $orderId
+     * @param string|int|null $orderId
+     *
      * @return float
      */
     public function getAlreadyPaid($orderId)
@@ -245,7 +254,8 @@ class PaymentGroupTransaction extends AbstractHelper
     /**
      * Calculates the total amount of group transactions for a given order ID.
      *
-     * @param  string|int $orderId
+     * @param string|int $orderId
+     *
      * @return float|int
      */
     public function getGroupTransactionAmount($orderId)
@@ -262,7 +272,8 @@ class PaymentGroupTransaction extends AbstractHelper
     /**
      * Get last transaction from group transaction filter by order
      *
-     * @param  string|int  $orderId
+     * @param string|int $orderId
+     *
      * @return string|null
      */
     public function getGroupTransactionOriginalTransactionKey($orderId): ?string
@@ -291,7 +302,8 @@ class PaymentGroupTransaction extends AbstractHelper
     /**
      * Retrieves the group transaction items that have not been refunded for a given order ID.
      *
-     * @param  string|int $orderId
+     * @param string|int $orderId
+     *
      * @return array
      */
     public function getGroupTransactionItemsNotRefunded($orderId)
@@ -307,7 +319,8 @@ class PaymentGroupTransaction extends AbstractHelper
     /**
      * Retrieves the group transaction item for a given entity ID.
      *
-     * @param  int|string $entityId
+     * @param int|string $entityId
+     *
      * @return mixed
      */
     public function getGroupTransactionById($entityId)
@@ -321,7 +334,8 @@ class PaymentGroupTransaction extends AbstractHelper
     /**
      * Retrieves the group transaction item for a given transaction ID.
      *
-     * @param  int|string       $trxId
+     * @param int|string $trxId
+     *
      * @return GroupTransaction
      */
     public function getGroupTransactionByTrxId($trxId)
@@ -336,7 +350,8 @@ class PaymentGroupTransaction extends AbstractHelper
     /**
      * Get successful group transactions for orderId with giftcard label
      *
-     * @param  string|null        $orderId
+     * @param string|null $orderId
+     *
      * @return GroupTransaction[]
      */
     public function getActiveItemsWithName($orderId)
@@ -367,7 +382,8 @@ class PaymentGroupTransaction extends AbstractHelper
     /**
      * Get successful group transaction dor transaction id with giftcard label
      *
-     * @param  string           $transactionId
+     * @param string $transactionId
+     *
      * @return GroupTransaction
      */
     public function getByTransactionIdWithName(string $transactionId)

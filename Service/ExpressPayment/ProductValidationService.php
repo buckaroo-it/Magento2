@@ -80,11 +80,13 @@ class ProductValidationService
     /**
      * Validate product for express checkout
      *
-     * @param  int                   $productId
-     * @param  array                 $options
-     * @param  float                 $qty
+     * @param int   $productId
+     * @param array $options
+     * @param float $qty
+     *
      * @throws NoSuchEntityException
      * @throws LocalizedException
+     *
      * @return array
      */
     public function validateProduct(int $productId, array $options = [], float $qty = 1): array
@@ -135,9 +137,10 @@ class ProductValidationService
     /**
      * Validate simple product
      *
-     * @param  ProductInterface $product
-     * @param  float            $qty
-     * @param  array            $result
+     * @param ProductInterface $product
+     * @param float            $qty
+     * @param array            $result
+     *
      * @return array
      */
     private function validateSimpleProduct(ProductInterface $product, float $qty, array $result): array
@@ -166,10 +169,11 @@ class ProductValidationService
     /**
      * Validate configurable product
      *
-     * @param  ProductInterface $product
-     * @param  array            $options
-     * @param  float            $qty
-     * @param  array            $result
+     * @param ProductInterface $product
+     * @param array            $options
+     * @param float            $qty
+     * @param array            $result
+     *
      * @return array
      */
     private function validateConfigurableProduct(ProductInterface $product, array $options, float $qty, array $result): array
@@ -197,8 +201,9 @@ class ProductValidationService
     /**
      * Validate configurable product attributes selection
      *
-     * @param  ProductInterface $product
-     * @param  array            $options
+     * @param ProductInterface $product
+     * @param array            $options
+     *
      * @return array
      */
     private function validateConfigurableAttributes(ProductInterface $product, array $options): array
@@ -224,8 +229,9 @@ class ProductValidationService
     /**
      * Find missing required attributes
      *
-     * @param  mixed $attributes
-     * @param  array $options
+     * @param mixed $attributes
+     * @param array $options
+     *
      * @return array
      */
     private function findMissingAttributes(mixed $attributes, array $options): array
@@ -247,8 +253,9 @@ class ProductValidationService
     /**
      * Get child product by selected options
      *
-     * @param  ProductInterface      $product
-     * @param  array                 $options
+     * @param ProductInterface $product
+     * @param array            $options
+     *
      * @return ProductInterface|null
      */
     private function getChildProductByOptions(ProductInterface $product, array $options): ?ProductInterface
@@ -264,9 +271,10 @@ class ProductValidationService
     /**
      * Validate child product stock and options
      *
-     * @param  ProductInterface $childProduct
-     * @param  float            $qty
-     * @param  array            $result
+     * @param ProductInterface $childProduct
+     * @param float            $qty
+     * @param array            $result
+     *
      * @return array
      */
     private function validateChildProduct(ProductInterface $childProduct, float $qty, array $result): array
@@ -295,8 +303,9 @@ class ProductValidationService
     /**
      * Check product stock availability
      *
-     * @param  ProductInterface $product
-     * @param  float            $qty
+     * @param ProductInterface $product
+     * @param float            $qty
+     *
      * @return array
      */
     private function checkProductStock(ProductInterface $product, float $qty): array
@@ -323,9 +332,10 @@ class ProductValidationService
     /**
      * Check stock using MSI (Multi Source Inventory)
      *
-     * @param  ProductInterface $product
-     * @param  float            $qty
-     * @param  array            $result
+     * @param ProductInterface $product
+     * @param float            $qty
+     * @param array            $result
+     *
      * @return array
      */
     private function checkMsiStock(ProductInterface $product, float $qty, array $result): array
@@ -354,9 +364,10 @@ class ProductValidationService
     /**
      * Check stock using legacy stock registry
      *
-     * @param  ProductInterface $product
-     * @param  float            $qty
-     * @param  array            $result
+     * @param ProductInterface $product
+     * @param float            $qty
+     * @param array            $result
+     *
      * @return array
      */
     private function checkLegacyStock(ProductInterface $product, float $qty, array $result): array
@@ -380,7 +391,8 @@ class ProductValidationService
     /**
      * Validate custom options
      *
-     * @param  ProductInterface $product
+     * @param ProductInterface $product
+     *
      * @return array
      */
     private function validateCustomOptions(ProductInterface $product): array
@@ -413,8 +425,10 @@ class ProductValidationService
     /**
      * Get configurable product attributes with options
      *
-     * @param  int                   $productId
+     * @param int $productId
+     *
      * @throws NoSuchEntityException
+     *
      * @return array
      */
     public function getConfigurableAttributes(int $productId): array
@@ -458,8 +472,10 @@ class ProductValidationService
     /**
      * Check if product has required options that need to be selected
      *
-     * @param  int                   $productId
+     * @param int $productId
+     *
      * @throws NoSuchEntityException
+     *
      * @return bool
      */
     public function hasRequiredOptions(int $productId): bool

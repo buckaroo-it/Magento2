@@ -33,6 +33,7 @@ use Magento\Sales\Model\Order\Payment;
  * Class IssuerValidator
  *
  * @api
+ *
  * @since 100.0.2
  */
 class BankAccountValidator extends AbstractValidator
@@ -60,6 +61,7 @@ class BankAccountValidator extends AbstractValidator
      * Validates the payment information for Buckaroo gateway.
      *
      * @param array $validationSubject
+     *
      * @return ResultInterface
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)

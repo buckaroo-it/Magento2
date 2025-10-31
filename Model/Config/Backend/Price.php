@@ -29,6 +29,7 @@ class Price extends Value
      * Validate that the number is a valid price.
      *
      * @throws LocalizedException
+     *
      * @return $this
      */
     public function save()

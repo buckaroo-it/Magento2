@@ -100,15 +100,16 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
     private $formKey;
 
     /**
-     * @param  ScopeConfigInterface    $scopeConfig
-     * @param  Account                 $configProviderAccount
-     * @param  UrlInterface            $urlBuilder
-     * @param  FormKey                 $formKey
-     * @param  StoreManagerInterface   $storeManager
-     * @param  SDKTransferFactory      $transferFactory
-     * @param  ClientInterface         $clientInterface
-     * @param  RequestInterface        $httpRequest
-     * @param  PaymentGroupTransaction $groupTransaction
+     * @param ScopeConfigInterface    $scopeConfig
+     * @param Account                 $configProviderAccount
+     * @param UrlInterface            $urlBuilder
+     * @param FormKey                 $formKey
+     * @param StoreManagerInterface   $storeManager
+     * @param SDKTransferFactory      $transferFactory
+     * @param ClientInterface         $clientInterface
+     * @param RequestInterface        $httpRequest
+     * @param PaymentGroupTransaction $groupTransaction
+     *
      * @throws NoSuchEntityException
      */
     public function __construct(
@@ -138,6 +139,7 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
      *
      * @throws GiftcardException
      * @throws \Exception
+     *
      * @return mixed
      */
     public function send()
@@ -162,6 +164,7 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
      * Get request body
      *
      * @throws \Exception
+     *
      * @return array
      */
     protected function getBody(): array
@@ -197,6 +200,7 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
      * Get order increment id
      *
      * @throws \Exception
+     *
      * @return string
      */
     public function getIncrementId(): string
@@ -213,8 +217,10 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
     /**
      * Get client IP
      *
-     * @param  null|int|string|StoreInterface $store
+     * @param null|int|string|StoreInterface $store
+     *
      * @throws \Exception
+     *
      * @return false|string
      */
     protected function getIp($store)
@@ -274,6 +280,7 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
      * Get return url
      *
      * @throws LocalizedException
+     *
      * @return string
      */
     protected function getReturnUrl(): string
@@ -286,7 +293,8 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
     /**
      * Set voucherCode
      *
-     * @param  string                       $voucherCode
+     * @param string $voucherCode
+     *
      * @return ApplyVoucherRequestInterface
      */
     public function setVoucherCode(string $voucherCode): ApplyVoucherRequestInterface
@@ -298,7 +306,8 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
     /**
      * Set quote
      *
-     * @param  CartInterface                $quote
+     * @param CartInterface $quote
+     *
      * @return ApplyVoucherRequestInterface
      */
     public function setQuote(CartInterface $quote): ApplyVoucherRequestInterface

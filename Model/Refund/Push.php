@@ -127,6 +127,7 @@ class Push
      * @param                      $order
      *
      * @throws BuckarooException
+     *
      * @return bool
      */
     public function receiveRefundPush(PushRequestInterface $postData, bool $signatureValidation, $order): bool
@@ -195,6 +196,7 @@ class Push
      * Create the creditmemo
      *
      * @throws LocalizedException
+     *
      * @return bool
      */
     public function createCreditmemo(): bool
@@ -388,7 +390,8 @@ class Push
     /**
      * Set quantity items
      *
-     * @param  array $items
+     * @param array $items
+     *
      * @return array $qtys
      */
     public function setCreditQtys($items): array
@@ -487,8 +490,10 @@ class Push
     /**
      * Create credit memo by order and refund data
      *
-     * @param  array              $creditData
+     * @param array $creditData
+     *
      * @throws LocalizedException
+     *
      * @return Creditmemo|false
      */
     public function initCreditmemo(array $creditData)

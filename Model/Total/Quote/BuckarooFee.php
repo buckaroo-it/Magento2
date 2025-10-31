@@ -72,9 +72,10 @@ class BuckarooFee extends AbstractTotal
     /**
      * Collect grand total address amount
      *
-     * @param  Quote                       $quote
-     * @param  ShippingAssignmentInterface $shippingAssignment
-     * @param  Total                       $total
+     * @param Quote                       $quote
+     * @param ShippingAssignmentInterface $shippingAssignment
+     * @param Total                       $total
+     *
      * @return $this
      */
     public function collect(
@@ -144,8 +145,9 @@ class BuckarooFee extends AbstractTotal
     /**
      * Add buckaroo fee information to address
      *
-     * @param  Quote $quote
-     * @param  Total $total
+     * @param Quote $quote
+     * @param Total $total
+     *
      * @return array
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)

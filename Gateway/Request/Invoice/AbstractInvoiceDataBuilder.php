@@ -57,7 +57,8 @@ abstract class AbstractInvoiceDataBuilder extends AbstractDataBuilder
     /**
      * Initializes the payment information for a Buckaroo payment.
      *
-     * @param  array $buildSubject
+     * @param array $buildSubject
+     *
      * @return array
      */
     public function initialize(array $buildSubject): array

@@ -30,7 +30,8 @@ class InvoiceRegister implements ObserverInterface
     /**
      * Set invoiced buckaroo fee to order after invoice register
      *
-     * @param  Observer $observer
+     * @param Observer $observer
+     *
      * @return $this
      */
     public function execute(Observer $observer)

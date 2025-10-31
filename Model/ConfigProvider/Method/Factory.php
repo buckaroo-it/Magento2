@@ -50,6 +50,7 @@ class Factory
      * @param string $providerType
      *
      * @throws \LogicException|\Buckaroo\Magento2\Exception
+     *
      * @return ConfigProviderInterface
      */
     public function get($providerType)
@@ -90,8 +91,8 @@ class Factory
     /**
      * @param $providerType
      *
-     *
      * @throws \LogicException
+     *
      * @return bool
      */
     public function has($providerType)

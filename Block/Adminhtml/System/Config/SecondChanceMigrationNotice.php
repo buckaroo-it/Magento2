@@ -33,9 +33,9 @@ class SecondChanceMigrationNotice extends Field
     private $conflictDetector;
 
     /**
-     * @param Context $context
-     * @param ModuleConflictDetector                  $conflictDetector
-     * @param array                                   $data
+     * @param Context                $context
+     * @param ModuleConflictDetector $conflictDetector
+     * @param array                  $data
      */
     public function __construct(
         Context $context,
@@ -49,8 +49,10 @@ class SecondChanceMigrationNotice extends Field
     /**
      * Render element html
      *
-     * @param  AbstractElement $element
+     * @param AbstractElement $element
+     *
      * @return string
+     *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     protected function _getElementHtml(AbstractElement $element)
@@ -82,8 +84,10 @@ class SecondChanceMigrationNotice extends Field
     /**
      * Return element html in one line
      *
-     * @param  AbstractElement $element
+     * @param AbstractElement $element
+     *
      * @return string
+     *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     protected function _renderScopeLabel(AbstractElement $element)
@@ -94,8 +98,10 @@ class SecondChanceMigrationNotice extends Field
     /**
      * Return empty label
      *
-     * @param  AbstractElement $element
+     * @param AbstractElement $element
+     *
      * @return string
+     *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     protected function _renderInheritCheckbox(AbstractElement $element)

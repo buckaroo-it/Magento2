@@ -60,6 +60,7 @@ class OrderStatusFactory
      * @param Order      $order
      *
      * @throws LocalizedException
+     *
      * @return string|false|null
      */
     public function get($statusCode, Order $order)
@@ -82,9 +83,11 @@ class OrderStatusFactory
     /**
      * Get status for failed or success transaction based on payment method
      *
-     * @param  int|string        $statusCode
-     * @param  string            $paymentMethod
+     * @param int|string $statusCode
+     * @param string     $paymentMethod
+     *
      * @throws Exception
+     *
      * @return string|false|null
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
@@ -124,8 +127,10 @@ class OrderStatusFactory
     /**
      * Get status for failed or success transaction based on account config
      *
-     * @param  int|string        $statusCode
+     * @param int|string $statusCode
+     *
      * @throws Exception
+     *
      * @return string|false|null
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)

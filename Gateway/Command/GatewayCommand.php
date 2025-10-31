@@ -150,7 +150,8 @@ class GatewayCommand implements CommandInterface
     /**
      * Executes command basing on business object
      *
-     * @param  array              $commandSubject
+     * @param array $commandSubject
+     *
      * @throws CommandException
      * @throws ClientException
      * @throws ConverterException|LocalizedException
@@ -224,7 +225,8 @@ class GatewayCommand implements CommandInterface
      * Tries to map error messages from validation result and logs processed message.
      * Throws an exception with mapped message or default error.
      *
-     * @param  ResultInterface  $result
+     * @param ResultInterface $result
+     *
      * @throws CommandException
      */
     private function processErrors(ResultInterface $result)

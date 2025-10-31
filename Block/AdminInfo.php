@@ -82,6 +82,7 @@ class AdminInfo extends ConfigurableInfo
      * Get giftcards
      *
      * @throws LocalizedException
+     *
      * @return array
      */
     public function getGiftCards()
@@ -116,6 +117,7 @@ class AdminInfo extends ConfigurableInfo
      * Get PayPerEmail label payment method
      *
      * @throws LocalizedException
+     *
      * @return array|false
      */
     public function getPayPerEmailMethod()
@@ -132,7 +134,8 @@ class AdminInfo extends ConfigurableInfo
     /**
      * Get payment method logo
      *
-     * @param  string $method
+     * @param string $method
+     *
      * @return string
      */
     public function getPaymentLogo(string $method): string
@@ -143,7 +146,8 @@ class AdminInfo extends ConfigurableInfo
     /**
      * Get giftcard logo url by code
      *
-     * @param  string $code
+     * @param string $code
+     *
      * @return string
      */
     public function getGiftcardLogo(string $code): string
@@ -154,7 +158,8 @@ class AdminInfo extends ConfigurableInfo
     /**
      * Get creditcard logo by code
      *
-     * @param  string $code
+     * @param string $code
+     *
      * @return string
      */
     public function getCreditcardLogo(string $code): string
@@ -166,6 +171,7 @@ class AdminInfo extends ConfigurableInfo
      * Get Specific Payment Details set on Success Push to display on Payment Order Information
      *
      * @throws LocalizedException
+     *
      * @return array
      */
     public function getSpecificPaymentDetails(): array
@@ -187,8 +193,10 @@ class AdminInfo extends ConfigurableInfo
     /**
      * Prepare information specific to current payment method
      *
-     * @param  null|DataObject|array $transport
+     * @param null|DataObject|array $transport
+     *
      * @throws LocalizedException
+     *
      * @return DataObject
      */
     protected function _prepareSpecificInformation($transport = null): DataObject
@@ -208,7 +216,8 @@ class AdminInfo extends ConfigurableInfo
     /**
      * Returns label
      *
-     * @param  string $field
+     * @param string $field
+     *
      * @return Phrase
      */
     protected function getLabel($field)
@@ -221,9 +230,9 @@ class AdminInfo extends ConfigurableInfo
     /**
      * Sets data to transport
      *
-     * @param DataObject $transport
-     * @param string                        $field
-     * @param string|array                  $value
+     * @param DataObject   $transport
+     * @param string       $field
+     * @param string|array $value
      */
     protected function setDataToTransfer(
         DataObject $transport,

@@ -95,7 +95,8 @@ class Ideal extends AbstractConfigProvider
      * Selection type radio checkbox or drop down
      * This method might be obsolete now for frontend config, keep if used elsewhere.
      *
-     * @param  null|int|string $store
+     * @param null|int|string $store
+     *
      * @return mixed
      */
     public function getSelectionType($store = null)
@@ -107,7 +108,8 @@ class Ideal extends AbstractConfigProvider
      * Get gateway setting ideal/idealprocessing
      * Remains unchanged.
      *
-     * @param  null|int|string $storeId
+     * @param null|int|string $storeId
+     *
      * @return string
      */
     public function getGatewaySettings($storeId = null): string

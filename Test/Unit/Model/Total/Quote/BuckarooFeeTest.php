@@ -193,6 +193,7 @@ class BuckarooFeeTest extends \Buckaroo\Magento2\Test\BaseTest
 
     /**
      * @dataProvider baseFeePercentageDataProvider
+     *
      * @param mixed $paymentCode
      * @param mixed $fee
      * @param mixed $feeMode
@@ -259,6 +260,7 @@ class BuckarooFeeTest extends \Buckaroo\Magento2\Test\BaseTest
 
     /**
      * @dataProvider baseFeePercentageDataProvider
+     *
      * @param mixed $paymentCode
      * @param mixed $fee
      * @param mixed $feeMode
@@ -471,6 +473,7 @@ class BuckarooFeeTest extends \Buckaroo\Magento2\Test\BaseTest
 
     /**
      * @dataProvider collectPaymentMethodDataProvider
+     *
      * @param mixed $method
      */
     public function testCollectShouldReturnSelfIfNoPaymentMethodOrNonBuckarooMethod($method)

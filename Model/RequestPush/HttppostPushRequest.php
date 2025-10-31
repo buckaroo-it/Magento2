@@ -73,7 +73,8 @@ class HttppostPushRequest extends AbstractPushRequest implements PushRequestInte
     /**
      * Retrieves the value of the specified property or method result.
      *
-     * @param  string     $name
+     * @param string $name
+     *
      * @return mixed|null
      */
     public function get(string $name)

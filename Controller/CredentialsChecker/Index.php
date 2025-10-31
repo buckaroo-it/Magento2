@@ -58,11 +58,12 @@ class Index extends Action implements HttpPostActionInterface
     /**
      * Check Credentials in Admin
      *
-     * @param  Context           $context
-     * @param  Factory           $configProviderFactory
-     * @param  Encryptor         $encryptor
-     * @param  Account           $configProviderAccount
-     * @param  BuckarooAdapter   $client
+     * @param Context         $context
+     * @param Factory         $configProviderFactory
+     * @param Encryptor       $encryptor
+     * @param Account         $configProviderAccount
+     * @param BuckarooAdapter $client
+     *
      * @throws BuckarooException
      */
     public function __construct(
@@ -83,6 +84,7 @@ class Index extends Action implements HttpPostActionInterface
      * Check Buckaroo Credentials Secret Key and Merchant Key
      *
      * @throws Exception
+     *
      * @return Json
      */
     public function execute(): Json
@@ -106,10 +108,12 @@ class Index extends Action implements HttpPostActionInterface
      * If it contains any real characters, the raw credential is returned.
      * Otherwise, the credential is decrypted from the stored configuration.
      *
-     * @param  string     $credential The raw credential input.
-     * @param  string     $type       The type of the credential ('secretKey' or 'merchantKey').
+     * @param string $credential The raw credential input.
+     * @param string $type       The type of the credential ('secretKey' or 'merchantKey').
+     *
      * @throws Exception
-     * @return string     The resolved credential, either as provided or decrypted.
+     *
+     * @return string The resolved credential, either as provided or decrypted.
      */
     private function resolveCredential(string $credential, string $type): string
     {
@@ -122,10 +126,12 @@ class Index extends Action implements HttpPostActionInterface
      * If the credentials are valid, a success response is generated.
      * Otherwise, an error message is returned stating the credentials are invalid.
      *
-     * @param  string     $merchantKey The merchant key to validate.
-     * @param  string     $secretKey   The secret key to validate.
+     * @param string $merchantKey The merchant key to validate.
+     * @param string $secretKey   The secret key to validate.
+     *
      * @throws Exception
-     * @return Json       The JSON response indicating whether the credentials are valid.
+     *
+     * @return Json The JSON response indicating whether the credentials are valid.
      */
     private function validateCredentials(string $merchantKey, string $secretKey): Json
     {
@@ -144,7 +150,8 @@ class Index extends Action implements HttpPostActionInterface
     /**
      * Set Response on resultJson
      *
-     * @param  array $response
+     * @param array $response
+     *
      * @return Json
      */
     private function doResponse(array $response): Json

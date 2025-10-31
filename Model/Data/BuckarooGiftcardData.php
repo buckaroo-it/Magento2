@@ -17,7 +17,8 @@ class BuckarooGiftcardData implements BuckarooGiftcardDataInterface
     }
 
     /**
-     * @param  Giftcard                      $giftcard
+     * @param Giftcard $giftcard
+     *
      * @return BuckarooGiftcardDataInterface
      */
     public function setGiftcardModel(Giftcard $giftcard): BuckarooGiftcardDataInterface

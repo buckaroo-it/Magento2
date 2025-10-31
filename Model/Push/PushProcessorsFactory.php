@@ -69,8 +69,10 @@ class PushProcessorsFactory
     /**
      * Retrieve the appropriate push processor for a given transaction type.
      *
-     * @param  PushTransactionType|null $pushTransactionType
+     * @param PushTransactionType|null $pushTransactionType
+     *
      * @throws BuckarooException
+     *
      * @return ?PushProcessorInterface
      */
     public function get(?PushTransactionType $pushTransactionType): ?PushProcessorInterface
@@ -93,8 +95,10 @@ class PushProcessorsFactory
     /**
      * Determine the class of the push processor based on the provided transaction type.
      *
-     * @param  PushTransactionType|null $pushTransactionType
+     * @param PushTransactionType|null $pushTransactionType
+     *
      * @throws BuckarooException
+     *
      * @return mixed
      */
     private function getPushProcessorClass(?PushTransactionType $pushTransactionType)

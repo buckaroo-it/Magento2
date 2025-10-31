@@ -82,8 +82,10 @@ class IdealFastCheckout extends Template
      * Determine if the product button can be shown
      *
      * @param mixed $page
-     * @return bool
+     *
      * @throws NoSuchEntityException
+     *
+     * @return bool
      */
     public function canShowButton($page)
     {
@@ -107,8 +109,9 @@ class IdealFastCheckout extends Template
     /**
      * Get logo based on chosen color setting
      *
-     * @return mixed
      * @throws NoSuchEntityException
+     *
+     * @return mixed
      */
     public function getLogo()
     {
@@ -139,8 +142,9 @@ class IdealFastCheckout extends Template
     /**
      * Get Buckaroo website key
      *
-     * @return string
      * @throws NoSuchEntityException
+     *
+     * @return string
      */
     protected function getWebsiteKey()
     {

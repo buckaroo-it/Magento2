@@ -42,13 +42,13 @@ class Totals extends \Magento\Checkout\Block\Total\DefaultTotal
     protected $helper;
 
     /**
-     * @param Context $context
-     * @param Session                  $customerSession
-     * @param \Magento\Checkout\Model\Session                  $checkoutSession
-     * @param Config                      $salesConfig
-     * @param PaymentFee             $helper
-     * @param array                                            $layoutProcessors
-     * @param array                                            $data
+     * @param Context                         $context
+     * @param Session                         $customerSession
+     * @param \Magento\Checkout\Model\Session $checkoutSession
+     * @param Config                          $salesConfig
+     * @param PaymentFee                      $helper
+     * @param array                           $layoutProcessors
+     * @param array                           $data
      */
     public function __construct(
         Context $context,

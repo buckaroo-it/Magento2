@@ -149,9 +149,11 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
     /**
      * Retrieve information from payment configuration
      *
-     * @param  string             $field
-     * @param  int|null           $storeId
+     * @param string   $field
+     * @param int|null $storeId
+     *
      * @throws LocalizedException
+     *
      * @return mixed
      */
     public function getConfigData(string $field, ?int $storeId = null)

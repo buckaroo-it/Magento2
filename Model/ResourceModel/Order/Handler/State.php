@@ -59,6 +59,7 @@ class State extends \Magento\Sales\Model\ResourceModel\Order\Handler\State
      * @param Order $order
      *
      * @throws LocalizedException
+     *
      * @return $this
      */
     public function beforeCheck(Order $order): State

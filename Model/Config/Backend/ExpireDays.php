@@ -32,6 +32,7 @@ class ExpireDays extends Value
      * Test that the value is a integer within 0 and 180 interval
      *
      * @throws LocalizedException
+     *
      * @return $this
      */
     public function save()

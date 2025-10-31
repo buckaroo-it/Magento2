@@ -42,8 +42,9 @@ class Configuration
     /**
      * Check if is possible subtract value from item qty based on buckaroo session flag
      *
-     * @param  \Magento\CatalogInventory\Model\Configuration $subject
-     * @param  mixed                                         $result
+     * @param \Magento\CatalogInventory\Model\Configuration $subject
+     * @param mixed                                         $result
+     *
      * @return false|mixed
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)

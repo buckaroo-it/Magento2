@@ -47,9 +47,9 @@ class SecondChance
 
     /**
      * @param \Buckaroo\Magento2\Model\ConfigProvider\SecondChance $configProvider
-     * @param StoreRepositoryInterface          $storeRepository
-     * @param Log                       $logging
-     * @param SecondChanceRepository      $secondChanceRepository
+     * @param StoreRepositoryInterface                             $storeRepository
+     * @param Log                                                  $logging
+     * @param SecondChanceRepository                               $secondChanceRepository
      */
     public function __construct(
         \Buckaroo\Magento2\Model\ConfigProvider\SecondChance $configProvider,

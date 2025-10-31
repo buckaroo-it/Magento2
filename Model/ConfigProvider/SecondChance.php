@@ -53,7 +53,8 @@ class SecondChance
     /**
      * Check if SecondChance is enabled
      *
-     * @param  \Magento\Store\Api\Data\StoreInterface|int|null $store
+     * @param \Magento\Store\Api\Data\StoreInterface|int|null $store
+     *
      * @return bool
      */
     public function isSecondChanceEnabled($store = null): bool
@@ -68,7 +69,8 @@ class SecondChance
     /**
      * Check if first email is enabled
      *
-     * @param  \Magento\Store\Api\Data\StoreInterface|int|null $store
+     * @param \Magento\Store\Api\Data\StoreInterface|int|null $store
+     *
      * @return bool
      */
     public function isFirstEmailEnabled($store = null): bool
@@ -83,7 +85,8 @@ class SecondChance
     /**
      * Check if second email is enabled
      *
-     * @param  \Magento\Store\Api\Data\StoreInterface|int|null $store
+     * @param \Magento\Store\Api\Data\StoreInterface|int|null $store
+     *
      * @return bool
      */
     public function isSecondEmailEnabled($store = null): bool
@@ -98,7 +101,8 @@ class SecondChance
     /**
      * Get first email template
      *
-     * @param  \Magento\Store\Api\Data\StoreInterface|int|null $store
+     * @param \Magento\Store\Api\Data\StoreInterface|int|null $store
+     *
      * @return string
      */
     public function getFirstEmailTemplate($store = null): string
@@ -124,7 +128,8 @@ class SecondChance
     /**
      * Get second email template
      *
-     * @param  \Magento\Store\Api\Data\StoreInterface|int|null $store
+     * @param \Magento\Store\Api\Data\StoreInterface|int|null $store
+     *
      * @return string
      */
     public function getSecondEmailTemplate($store = null): string
@@ -146,7 +151,8 @@ class SecondChance
     /**
      * Get first email timing in hours
      *
-     * @param  \Magento\Store\Api\Data\StoreInterface|int|null $store
+     * @param \Magento\Store\Api\Data\StoreInterface|int|null $store
+     *
      * @return int
      */
     public function getFirstEmailTiming($store = null): int
@@ -161,7 +167,8 @@ class SecondChance
     /**
      * Get second email timing in hours
      *
-     * @param  \Magento\Store\Api\Data\StoreInterface|int|null $store
+     * @param \Magento\Store\Api\Data\StoreInterface|int|null $store
+     *
      * @return int
      */
     public function getSecondEmailTiming($store = null): int
@@ -176,7 +183,8 @@ class SecondChance
     /**
      * Check if sending should be skipped for out of stock products
      *
-     * @param  \Magento\Store\Api\Data\StoreInterface|int|null $store
+     * @param \Magento\Store\Api\Data\StoreInterface|int|null $store
+     *
      * @return bool
      */
     public function shouldSkipOutOfStock($store = null): bool
@@ -191,7 +199,8 @@ class SecondChance
     /**
      * Get prune days setting
      *
-     * @param  \Magento\Store\Api\Data\StoreInterface|int|null $store
+     * @param \Magento\Store\Api\Data\StoreInterface|int|null $store
+     *
      * @return int
      */
     public function getPruneDays($store = null): int
@@ -206,7 +215,8 @@ class SecondChance
     /**
      * Check if multiple emails can be sent at once
      *
-     * @param  \Magento\Store\Api\Data\StoreInterface|int|null $store
+     * @param \Magento\Store\Api\Data\StoreInterface|int|null $store
+     *
      * @return bool
      */
     public function canSendMultipleEmails($store = null): bool
@@ -221,7 +231,8 @@ class SecondChance
     /**
      * Get SecondChance delete after days (alias for getPruneDays)
      *
-     * @param  \Magento\Store\Api\Data\StoreInterface|int|null $store
+     * @param \Magento\Store\Api\Data\StoreInterface|int|null $store
+     *
      * @return int
      */
     public function getSecondChanceDeleteAfterDays($store = null): int
@@ -232,8 +243,9 @@ class SecondChance
     /**
      * Get SecondChance delay based on step
      *
-     * @param  int                                             $step
-     * @param  \Magento\Store\Api\Data\StoreInterface|int|null $store
+     * @param int                                             $step
+     * @param \Magento\Store\Api\Data\StoreInterface|int|null $store
+     *
      * @return int
      */
     public function getSecondChanceDelay($step, $store = null): int
@@ -247,8 +259,10 @@ class SecondChance
     /**
      * Get SecondChance email limit
      *
-     * @param  \Magento\Store\Api\Data\StoreInterface|int|null $store
+     * @param \Magento\Store\Api\Data\StoreInterface|int|null $store
+     *
      * @return int
+     *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function getSecondChanceEmailLimit($store = null): int
@@ -260,7 +274,8 @@ class SecondChance
     /**
      * Check if SecondChance multiple is enabled (alias for canSendMultipleEmails)
      *
-     * @param  \Magento\Store\Api\Data\StoreInterface|int|null $store
+     * @param \Magento\Store\Api\Data\StoreInterface|int|null $store
+     *
      * @return bool
      */
     public function isSecondChanceMultipleEnabled($store = null): bool
@@ -271,8 +286,9 @@ class SecondChance
     /**
      * Get SecondChance email template based on step
      *
-     * @param  int                                             $step
-     * @param  \Magento\Store\Api\Data\StoreInterface|int|null $store
+     * @param int                                             $step
+     * @param \Magento\Store\Api\Data\StoreInterface|int|null $store
+     *
      * @return string
      */
     public function getSecondChanceEmailTemplate($step, $store = null): string
@@ -286,7 +302,8 @@ class SecondChance
     /**
      * Get SecondChance sender name
      *
-     * @param  \Magento\Store\Api\Data\StoreInterface|int|null $store
+     * @param \Magento\Store\Api\Data\StoreInterface|int|null $store
+     *
      * @return string
      */
     public function getSecondChanceSenderName($store = null): string
@@ -313,7 +330,8 @@ class SecondChance
     /**
      * Get SecondChance sender email
      *
-     * @param  \Magento\Store\Api\Data\StoreInterface|int|null $store
+     * @param \Magento\Store\Api\Data\StoreInterface|int|null $store
+     *
      * @return string
      */
     public function getSecondChanceSenderEmail($store = null): string

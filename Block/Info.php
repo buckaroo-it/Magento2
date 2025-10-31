@@ -75,6 +75,7 @@ class Info extends \Magento\Payment\Block\Info
      * Get giftcards
      *
      * @throws LocalizedException
+     *
      * @return array
      */
     public function getGiftCards()
@@ -110,6 +111,7 @@ class Info extends \Magento\Payment\Block\Info
      * Get PayPerEmail label payment method
      *
      * @throws LocalizedException
+     *
      * @return array|false
      */
     public function getPayPerEmailMethod()
@@ -126,7 +128,8 @@ class Info extends \Magento\Payment\Block\Info
     /**
      * Get payment method logo
      *
-     * @param  string $method
+     * @param string $method
+     *
      * @return string
      */
     public function getPaymentLogo(string $method): string
@@ -137,7 +140,8 @@ class Info extends \Magento\Payment\Block\Info
     /**
      * Get giftcard logo url by code
      *
-     * @param  array  $code
+     * @param array $code
+     *
      * @return string
      */
     public function getGiftcardLogo(array $code): string
@@ -148,7 +152,8 @@ class Info extends \Magento\Payment\Block\Info
     /**
      * Get creditcard logo by code
      *
-     * @param  string $code
+     * @param string $code
+     *
      * @return string
      */
     public function getCreditcardLogo(string $code): string
@@ -160,6 +165,7 @@ class Info extends \Magento\Payment\Block\Info
      * Get Specific Payment Details set on Success Push to display on Payment Order Information
      *
      * @throws LocalizedException
+     *
      * @return array
      */
     public function getSpecificPaymentDetails(): array
@@ -181,7 +187,8 @@ class Info extends \Magento\Payment\Block\Info
     /**
      * Returns value view
      *
-     * @param  string $value
+     * @param string $value
+     *
      * @return string
      */
     protected function getValueView(string $value): string
@@ -201,8 +208,10 @@ class Info extends \Magento\Payment\Block\Info
     /**
      * Prepare information specific to current payment method
      *
-     * @param  null|DataObject|array $transport
+     * @param null|DataObject|array $transport
+     *
      * @throws LocalizedException
+     *
      * @return DataObject
      */
     protected function _prepareSpecificInformation($transport = null): DataObject
@@ -222,7 +231,8 @@ class Info extends \Magento\Payment\Block\Info
     /**
      * Returns label
      *
-     * @param  string $field
+     * @param string $field
+     *
      * @return Phrase
      */
     protected function getLabel(string $field)
@@ -236,6 +246,7 @@ class Info extends \Magento\Payment\Block\Info
      * Returns additional information for giftcards
      *
      * @throws LocalizedException
+     *
      * @return array
      */
     public function getGiftcardAdditionalData()

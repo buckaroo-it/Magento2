@@ -85,9 +85,11 @@ class ProcessResponse
     /**
      * Process transaction response
      *
-     * @param  TransactionStatusResponseInterface $response
-     * @param  Order                              $order
+     * @param TransactionStatusResponseInterface $response
+     * @param Order                              $order
+     *
      * @throws NotFoundException|Exception
+     *
      * @return array|void
      */
     public function process(
@@ -120,8 +122,9 @@ class ProcessResponse
     /**
      * Set class properties
      *
-     * @param  TransactionStatusResponseInterface $response
-     * @param  Order                              $order
+     * @param TransactionStatusResponseInterface $response
+     * @param Order                              $order
+     *
      * @throws Exception
      * @throws NotFoundException
      */

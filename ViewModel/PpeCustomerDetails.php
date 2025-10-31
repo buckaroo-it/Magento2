@@ -50,6 +50,7 @@ class PpeCustomerDetails implements ArgumentInterface
      *
      * @throws LocalizedException
      * @throws NoSuchEntityException
+     *
      * @return array|null
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)

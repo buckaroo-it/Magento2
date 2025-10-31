@@ -25,7 +25,8 @@ class BuckarooFee extends \Magento\Sales\Model\Order\Invoice\Total\AbstractTotal
     /**
      * Collect Buckaroo fee total for invoice
      *
-     * @param  \Magento\Sales\Model\Order\Invoice $invoice
+     * @param \Magento\Sales\Model\Order\Invoice $invoice
+     *
      * @return $this
      */
     public function collect(\Magento\Sales\Model\Order\Invoice $invoice)

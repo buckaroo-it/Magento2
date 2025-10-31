@@ -88,7 +88,8 @@ class RefundProcessor extends DefaultProcessor
     }
 
     /**
-     * @param  PushRequestInterface $pushRequest
+     * @param PushRequestInterface $pushRequest
+     *
      * @throws BuckarooException
      * @throws \Exception
      */
@@ -125,8 +126,10 @@ class RefundProcessor extends DefaultProcessor
     /**
      * Skip Pending Refund Push
      *
-     * @param  \Buckaroo\Magento2\Api\Data\PushRequestInterface $pushRequest
+     * @param \Buckaroo\Magento2\Api\Data\PushRequestInterface $pushRequest
+     *
      * @throws \Exception
+     *
      * @return bool
      */
     private function skipPendingRefundPush(PushRequestInterface $pushRequest): bool

@@ -75,6 +75,7 @@ class RoundingWarning extends Template
 
     /**
      * @throws LogicException|Exception|LocalizedException
+     *
      * @return bool
      */
     protected function shouldShowWarning()

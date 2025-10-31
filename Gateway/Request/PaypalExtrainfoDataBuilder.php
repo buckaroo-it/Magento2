@@ -115,7 +115,8 @@ class PaypalExtrainfoDataBuilder extends AbstractDataBuilder
     /**
      * Get state or province code of the shipping address
      *
-     * @param  Address $shippingAddress
+     * @param Address $shippingAddress
+     *
      * @return string
      */
     private function getStateOrProvince(Address $shippingAddress): string

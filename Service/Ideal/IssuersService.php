@@ -147,7 +147,8 @@ class IssuersService
     /**
      * Add logo url to the list of issuer
      *
-     * @param  array $issuers
+     * @param array $issuers
+     *
      * @return array
      */
     private function addLogos(array $issuers): array
@@ -178,7 +179,8 @@ class IssuersService
     /**
      * Generate the url to the desired asset.
      *
-     * @param  string $imgName
+     * @param string $imgName
+     *
      * @return string
      */
     public function getImageUrl(string $imgName): string

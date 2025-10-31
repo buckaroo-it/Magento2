@@ -141,8 +141,9 @@ class Totals extends Template
     /**
      * Get specific totals by code
      *
-     * @param  array  $totals
-     * @param  string $code
+     * @param array  $totals
+     * @param string $code
+     *
      * @return array
      */
     private function getTotalsByCode($totals, $code)
@@ -155,8 +156,9 @@ class Totals extends Template
     /**
      * Get all totals excluding the total with the code
      *
-     * @param  array  $totals
-     * @param  string $code
+     * @param array  $totals
+     * @param string $code
+     *
      * @return array
      */
     private function getTotalsExceptCode($totals, $code)

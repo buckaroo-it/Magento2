@@ -118,6 +118,7 @@ class GiftCardRefundService implements GiftCardRefundServiceInterface
     /**
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     *
      * @param Order $order
      * @param array $card
      */

@@ -175,7 +175,8 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * @param  PushRequestInterface $pushRequest
+     * @param PushRequestInterface $pushRequest
+     *
      * @throws BuckarooException
      * @throws FileSystemException
      * @throws Exception
@@ -233,7 +234,8 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * @param  \Buckaroo\Magento2\Api\Data\PushRequestInterface $pushRequest
+     * @param \Buckaroo\Magento2\Api\Data\PushRequestInterface $pushRequest
+     *
      * @throws Exception
      */
     protected function initializeFields(PushRequestInterface $pushRequest): void
@@ -247,6 +249,7 @@ class DefaultProcessor implements PushProcessorInterface
      * Skip the push if the conditions are met.
      *
      * @throws Exception
+     *
      * @return bool
      */
     protected function skipPush(): bool
@@ -285,6 +288,7 @@ class DefaultProcessor implements PushProcessorInterface
      * Check if it is needed to handle the push message based on postdata
      *
      * @throws Exception
+     *
      * @return bool
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
@@ -307,6 +311,7 @@ class DefaultProcessor implements PushProcessorInterface
      * for some payment methods
      *
      * @throws LocalizedException
+     *
      * @return bool
      */
     protected function skipFirstPush(): bool
@@ -326,9 +331,11 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * Check for duplicate transaction pushes from Buckaroo and update the payment transaction statuses accordingly.
      *
-     * @param  int|null    $receivedStatusCode
-     * @param  string|null $trxId
+     * @param int|null    $receivedStatusCode
+     * @param string|null $trxId
+     *
      * @throws Exception
+     *
      * @return bool
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
@@ -386,8 +393,9 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * Check if transaction was already processed based on transaction statuses from payment additional information
      *
-     * @param  string $trxId
-     * @param  int    $receivedStatusCode
+     * @param string $trxId
+     * @param int    $receivedStatusCode
+     *
      * @return bool
      */
     private function isDuplicateTransaction($receivedStatusCode, string $trxId): bool
@@ -415,7 +423,8 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * If the order has status new/pending and received status success then we skip from duplication transaction check
      *
-     * @param  int  $receivedStatusCode
+     * @param int $receivedStatusCode
+     *
      * @return bool
      */
     private function isNewOrderAndReceivedSuccess($receivedStatusCode): bool
@@ -673,6 +682,7 @@ class DefaultProcessor implements PushProcessorInterface
      * Checks if the payment is a partial payment using a gift card.
      *
      * @throws LocalizedException
+     *
      * @return bool
      */
     protected function giftcardPartialPayment(): bool
@@ -734,7 +744,9 @@ class DefaultProcessor implements PushProcessorInterface
      * Process the push according the response status
      *
      * @throws LocalizedException
+     *
      * @return bool
+     *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     protected function processPushByStatus(): bool
@@ -761,6 +773,7 @@ class DefaultProcessor implements PushProcessorInterface
 
     /**
      * @throws LocalizedException
+     *
      * @return false|string|null
      */
     protected function getNewStatus()
@@ -771,9 +784,11 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * Process the successful push response from Buckaroo and update the order accordingly.
      *
-     * @param  string             $newStatus
-     * @param  string             $message
+     * @param string $newStatus
+     * @param string $message
+     *
      * @throws LocalizedException
+     *
      * @return bool
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
@@ -989,7 +1004,9 @@ class DefaultProcessor implements PushProcessorInterface
      *
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     *
      * @throws LocalizedException
+     *
      * @return bool
      */
     protected function canPushInvoice(): bool
@@ -1012,6 +1029,7 @@ class DefaultProcessor implements PushProcessorInterface
      * @throws BuckarooException
      * @throws LocalizedException
      * @throws Exception
+     *
      * @return bool
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
@@ -1097,10 +1115,12 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * Adds transaction data to the order payment with the given transaction key and data.
      *
-     * @param  bool               $transactionKey
-     * @param  bool               $data
+     * @param bool $transactionKey
+     * @param bool $data
+     *
      * @throws LocalizedException
      * @throws Exception
+     *
      * @return Payment
      */
     public function addTransactionData(bool $transactionKey = false, bool $data = false): Payment
@@ -1145,9 +1165,11 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * Process the failed push response from Buckaroo and update the order accordingly.
      *
-     * @param  string             $newStatus
-     * @param  string             $message
+     * @param string $newStatus
+     * @param string $message
+     *
      * @throws LocalizedException
+     *
      * @return bool
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
@@ -1250,7 +1272,9 @@ class DefaultProcessor implements PushProcessorInterface
      * @param string            $statusMessage
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     *
      * @throws Exception
+     *
      * @return bool
      */
     protected function processPendingPaymentPush($newStatus, string $statusMessage): bool
@@ -1294,9 +1318,10 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * Check if pending payment email should be sent
      *
-     * @param  bool  $isSuccessfulPayment
-     * @param  mixed $store
-     * @param  mixed $paymentMethod
+     * @param bool  $isSuccessfulPayment
+     * @param mixed $store
+     * @param mixed $paymentMethod
+     *
      * @return bool
      */
     private function shouldSendPendingPaymentEmail(bool $isSuccessfulPayment, $store, $paymentMethod): bool
@@ -1312,8 +1337,10 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * Build description for pending payment
      *
-     * @param  string             $statusMessage
+     * @param string $statusMessage
+     *
      * @throws LocalizedException
+     *
      * @return string
      */
     private function buildPendingPaymentDescription(string $statusMessage): string
@@ -1397,7 +1424,8 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * @param  array $paymentDetails
+     * @param array $paymentDetails
+     *
      * @return bool
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
@@ -1449,7 +1477,8 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * Returns label
      *
-     * @param  string $field
+     * @param string $field
+     *
      * @return Phrase
      */
     protected function getLabel(string $field)
@@ -1462,7 +1491,8 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * Checks if a given status code is a successful payment status.
      *
-     * @param  int  $statusCode
+     * @param int $statusCode
+     *
      * @return bool
      */
     private function isSuccessfulPaymentStatus(int $statusCode): bool

@@ -59,7 +59,8 @@ class PhoneDataBuilder extends AbstractDataBuilder
     /**
      * Format phone number
      *
-     * @param  OrderAddressInterface $billingAddress
+     * @param OrderAddressInterface $billingAddress
+     *
      * @return mixed
      */
     protected function getCleanPhone(OrderAddressInterface $billingAddress)

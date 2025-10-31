@@ -67,7 +67,8 @@ class PhoneDataBuilder implements BuilderInterface
     /**
      * Get Billing/Shipping Address
      *
-     * @param  Order                      $order
+     * @param Order $order
+     *
      * @return OrderAddressInterface|null
      */
     private function getAddress(Order $order): ?OrderAddressInterface
@@ -80,8 +81,9 @@ class PhoneDataBuilder implements BuilderInterface
     /**
      * Return Phone Details
      *
-     * @param  string  $telephone
-     * @param  string  $landline
+     * @param string $telephone
+     * @param string $landline
+     *
      * @return array[]
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)

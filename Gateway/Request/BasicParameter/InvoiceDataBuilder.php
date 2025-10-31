@@ -69,7 +69,8 @@ class InvoiceDataBuilder implements BuilderInterface
     /**
      * Set order
      *
-     * @param  Order $order
+     * @param Order $order
+     *
      * @return $this
      */
     public function setOrder(Order $order): InvoiceDataBuilder
@@ -100,8 +101,9 @@ class InvoiceDataBuilder implements BuilderInterface
     /**
      * Set invoice id
      *
-     * @param  string $invoiceId
-     * @param  bool   $isCustomInvoiceId
+     * @param string $invoiceId
+     * @param bool   $isCustomInvoiceId
+     *
      * @return $this
      */
     public function setInvoiceId(string $invoiceId, bool $isCustomInvoiceId = true): InvoiceDataBuilder

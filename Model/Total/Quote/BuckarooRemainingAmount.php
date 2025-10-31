@@ -47,9 +47,11 @@ class BuckarooRemainingAmount extends AbstractTotal
     /**
      * Fetch remaining amount for display in the frontend.
      *
-     * @param  Quote $quote
-     * @param  Total $total
+     * @param Quote $quote
+     * @param Total $total
+     *
      * @return array
+     *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function fetch(Quote $quote, Total $total)

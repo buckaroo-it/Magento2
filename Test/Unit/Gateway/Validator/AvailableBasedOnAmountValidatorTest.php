@@ -31,6 +31,7 @@ class AvailableBasedOnAmountValidatorTest extends TestCase
 
     /**
      * @dataProvider availableBasedOnAmountValidatorDataProvider
+     *
      * @param mixed $maximum
      * @param mixed $minimum
      * @param mixed $grandTotal

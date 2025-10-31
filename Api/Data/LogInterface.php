@@ -45,7 +45,8 @@ interface LogInterface extends ExtensibleDataInterface
     /**
      * Set log_id
      *
-     * @param  string       $logId
+     * @param string $logId
+     *
      * @return LogInterface
      */
     public function setLogId(string $logId): LogInterface;
@@ -61,6 +62,7 @@ interface LogInterface extends ExtensibleDataInterface
      * Set an extension attributes object.
      *
      * @param LogExtensionInterface $extensionAttributes
+     *
      * @return $this
      */
     public function setExtensionAttributes(
@@ -77,7 +79,8 @@ interface LogInterface extends ExtensibleDataInterface
     /**
      * Set channel
      *
-     * @param  string       $channel
+     * @param string $channel
+     *
      * @return LogInterface
      */
     public function setChannel(string $channel): LogInterface;
@@ -92,7 +95,8 @@ interface LogInterface extends ExtensibleDataInterface
     /**
      * Set level
      *
-     * @param  string       $level
+     * @param string $level
+     *
      * @return LogInterface
      */
     public function setLevel(string $level): LogInterface;
@@ -107,7 +111,8 @@ interface LogInterface extends ExtensibleDataInterface
     /**
      * Set message
      *
-     * @param  string       $message
+     * @param string $message
+     *
      * @return LogInterface
      */
     public function setMessage(string $message): LogInterface;
@@ -122,7 +127,8 @@ interface LogInterface extends ExtensibleDataInterface
     /**
      * Set time
      *
-     * @param  string       $time
+     * @param string $time
+     *
      * @return LogInterface
      */
     public function setTime(string $time): LogInterface;
@@ -137,7 +143,8 @@ interface LogInterface extends ExtensibleDataInterface
     /**
      * Set session_id
      *
-     * @param  string       $sessionId
+     * @param string $sessionId
+     *
      * @return LogInterface
      */
     public function setSessionId(string $sessionId): LogInterface;
@@ -152,7 +159,8 @@ interface LogInterface extends ExtensibleDataInterface
     /**
      * Set customer_id
      *
-     * @param  string       $customerId
+     * @param string $customerId
+     *
      * @return LogInterface
      */
     public function setCustomerId(string $customerId): LogInterface;
@@ -167,7 +175,8 @@ interface LogInterface extends ExtensibleDataInterface
     /**
      * Set quote_id
      *
-     * @param  string       $quoteId
+     * @param string $quoteId
+     *
      * @return LogInterface
      */
     public function setQuoteId(string $quoteId): LogInterface;
@@ -182,7 +191,8 @@ interface LogInterface extends ExtensibleDataInterface
     /**
      * Set order_id
      *
-     * @param  string       $orderId
+     * @param string $orderId
+     *
      * @return LogInterface
      */
     public function setOrderId(string $orderId): LogInterface;

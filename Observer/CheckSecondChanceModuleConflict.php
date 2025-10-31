@@ -44,6 +44,7 @@ class CheckSecondChanceModuleConflict implements ObserverInterface
      * Check for SecondChance module conflicts when admin loads
      *
      * @param Observer $observer
+     *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function execute(Observer $observer)

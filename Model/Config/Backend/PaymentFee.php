@@ -32,6 +32,7 @@ class PaymentFee extends Value
      * Test that the value is a number and is positive.
      *
      * @throws LocalizedException
+     *
      * @return $this
      */
     public function save()

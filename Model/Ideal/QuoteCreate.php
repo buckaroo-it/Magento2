@@ -61,6 +61,7 @@ class QuoteCreate implements IdealQuoteCreateInterface
 
     /**
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
+     *
      * @param QuoteCreateResponseInterfaceFactory $responseFactory
      * @param QuoteBuilderInterfaceFactory        $quoteBuilderInterfaceFactory
      * @param CustomerSession                     $customerSession
@@ -102,9 +103,11 @@ class QuoteCreate implements IdealQuoteCreateInterface
     /**
      * Execute quote creation and address handling
      *
-     * @param  string                       $page
-     * @param  string|null                  $orderData
+     * @param string      $page
+     * @param string|null $orderData
+     *
      * @throws IdealException
+     *
      * @return QuoteCreateResponseInterface
      */
     public function execute(string $page, ?string $orderData = null)
@@ -183,8 +186,10 @@ class QuoteCreate implements IdealQuoteCreateInterface
     /**
      * Get a customer's address by address ID
      *
-     * @param  int|null              $addressId
+     * @param int|null $addressId
+     *
      * @throws LocalizedException
+     *
      * @return AddressInterface|null
      */
     protected function getAddress($addressId)
@@ -204,9 +209,10 @@ class QuoteCreate implements IdealQuoteCreateInterface
     /**
      * Set the shipping and billing addresses for the quote
      *
-     * @param  AddressInterface|null $shippingAddressData
-     * @param  AddressInterface|null $billingAddressData
-     * @param  CustomerInterface     $customer
+     * @param AddressInterface|null $shippingAddressData
+     * @param AddressInterface|null $billingAddressData
+     * @param CustomerInterface     $customer
+     *
      * @throws InputException
      */
     protected function setAddresses($shippingAddressData, $billingAddressData, $customer)
@@ -323,7 +329,8 @@ class QuoteCreate implements IdealQuoteCreateInterface
     /**
      * Add the first found shipping method to the shipping address
      *
-     * @param  Address        $address
+     * @param Address $address
+     *
      * @throws InputException
      */
     protected function addFirstShippingMethod(Address $address)
@@ -365,8 +372,10 @@ class QuoteCreate implements IdealQuoteCreateInterface
     /**
      * Create a new quote if on the product page
      *
-     * @param  string         $form_data
+     * @param string $form_data
+     *
      * @throws IdealException
+     *
      * @return Quote
      */
     protected function createQuote(string $form_data)

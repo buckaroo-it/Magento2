@@ -87,6 +87,7 @@ class PaypalProcessor extends DefaultProcessor
     /**
      * @throws BuckarooException
      * @throws LocalizedException
+     *
      * @return false|string|null
      */
     protected function getNewStatus()

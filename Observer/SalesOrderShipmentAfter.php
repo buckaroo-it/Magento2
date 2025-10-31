@@ -112,7 +112,8 @@ class SalesOrderShipmentAfter implements ObserverInterface
     /**
      * Create invoice after shipment on sales_order_shipment_save_after event
      *
-     * @param  Observer           $observer
+     * @param Observer $observer
+     *
      * @throws LocalizedException
      * @throws \Exception
      *
@@ -168,8 +169,10 @@ class SalesOrderShipmentAfter implements ObserverInterface
     /**
      * Create invoice automatically after shipment
      *
-     * @param  bool                          $allowPartialsWithDiscount
+     * @param bool $allowPartialsWithDiscount
+     *
      * @throws \Exception
+     *
      * @return InvoiceInterface|Invoice|null
      */
     private function createInvoice(bool $allowPartialsWithDiscount = false)
@@ -284,7 +287,8 @@ class SalesOrderShipmentAfter implements ObserverInterface
     /**
      * Is the invoice for the current order is created after shipment
      *
-     * @param  OrderPaymentInterface $payment
+     * @param OrderPaymentInterface $payment
+     *
      * @return bool
      */
     private function isInvoiceCreatedAfterShipment(OrderPaymentInterface $payment): bool

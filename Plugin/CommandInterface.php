@@ -83,9 +83,10 @@ class CommandInterface
      * @param string|float|int        $amount
      * @param OrderInterface          $order
      *
-     *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     *
      * @throws Exception
+     *
      * @return mixed
      */
     public function aroundExecute(
@@ -143,8 +144,9 @@ class CommandInterface
     /**
      * Check if order status can be updated based on current state and invoice capability
      *
-     * @param  OrderInterface $order
-     * @param  string         $paymentCode
+     * @param OrderInterface $order
+     * @param string         $paymentCode
+     *
      * @return bool
      */
     private function canUpdateOrderStatus(OrderInterface $order, string $paymentCode): bool
@@ -238,10 +240,12 @@ class CommandInterface
      *  - Skips for Afterpay, Afterpay20, Afterpay2, and EPS if status is pending, state is processing
      *  - Always skips for Apple Pay.
      *
-     * @param  string          $orderStatus
-     * @param  OrderInterface  $order
-     * @param  MethodInterface $methodInstance
+     * @param string          $orderStatus
+     * @param OrderInterface  $order
+     * @param MethodInterface $methodInstance
+     *
      * @throws Exception
+     *
      * @return bool
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)

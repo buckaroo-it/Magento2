@@ -41,7 +41,8 @@ class PreventMergeQuoteObserver implements \Magento\Framework\Event\ObserverInte
     }
 
     /**
-     * @param  Observer  $observer
+     * @param Observer $observer
+     *
      * @throws Exception
      */
     public function execute(Observer $observer): void

@@ -80,15 +80,16 @@ class ConvertToCsv extends \Magento\Ui\Model\Export\ConvertToCsv
     protected $storeManager;
 
     /**
-     * @param  Filesystem               $filesystem
-     * @param  Filter                   $filter
-     * @param  MetadataProvider         $metadataProvider
-     * @param  OrderRepositoryInterface $orderRepository
-     * @param  PaymentGroupTransaction  $groupTransaction
-     * @param  Collection               $giftcardCollection
-     * @param  StoreManagerInterface    $storeManager
-     * @param  Giftcards                $giftcardConfig
-     * @param  int                      $pageSize
+     * @param Filesystem               $filesystem
+     * @param Filter                   $filter
+     * @param MetadataProvider         $metadataProvider
+     * @param OrderRepositoryInterface $orderRepository
+     * @param PaymentGroupTransaction  $groupTransaction
+     * @param Collection               $giftcardCollection
+     * @param StoreManagerInterface    $storeManager
+     * @param Giftcards                $giftcardConfig
+     * @param int                      $pageSize
+     *
      * @throws FileSystemException
      */
     public function __construct(
@@ -117,6 +118,7 @@ class ConvertToCsv extends \Magento\Ui\Model\Export\ConvertToCsv
      * Returns CSV file
      *
      * @throws LocalizedException
+     *
      * @return array
      */
     public function getCsvFile(): array

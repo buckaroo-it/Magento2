@@ -67,8 +67,9 @@ class BuckarooAlreadyPay extends AbstractTotal
     /**
      * Add buckaroo fee information to address
      *
-     * @param  Quote $quote
-     * @param  Total $total
+     * @param Quote $quote
+     * @param Total $total
+     *
      * @return array
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)

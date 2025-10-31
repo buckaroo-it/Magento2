@@ -50,6 +50,7 @@ class CreditmemoFactory extends MagentoCreditmemoFactory
 
     /**
      * @var Unserialize
+     *
      * @deprecated 101.0.0
      */
     protected $unserialize;
@@ -80,8 +81,9 @@ class CreditmemoFactory extends MagentoCreditmemoFactory
     /**
      * Prepare order creditmemo based on order items and requested params
      *
-     * @param  Order      $order
-     * @param  array      $data
+     * @param Order $order
+     * @param array $data
+     *
      * @return Creditmemo
      */
     public function createByOrder(Order $order, array $data = []): Creditmemo
@@ -110,8 +112,9 @@ class CreditmemoFactory extends MagentoCreditmemoFactory
     /**
      * Prepare order creditmemo based on invoice and requested params
      *
-     * @param  Invoice    $invoice
-     * @param  array      $data
+     * @param Invoice $invoice
+     * @param array   $data
+     *
      * @return Creditmemo
      */
     public function createByInvoice(Invoice $invoice, array $data = []): Creditmemo

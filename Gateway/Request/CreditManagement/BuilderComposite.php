@@ -75,8 +75,10 @@ class BuilderComposite implements BuilderInterface
     /**
      * Builds ENV request
      *
-     * @param  array     $buildSubject
+     * @param array $buildSubject
+     *
      * @throws Exception
+     *
      * @return array
      */
     public function build(array $buildSubject): array
@@ -96,8 +98,10 @@ class BuilderComposite implements BuilderInterface
     /**
      * Check if credit management is active
      *
-     * @param  array     $buildSubject
+     * @param array $buildSubject
+     *
      * @throws Exception
+     *
      * @return bool
      */
     protected function isCreditManagementActive(array $buildSubject): bool
@@ -110,7 +114,8 @@ class BuilderComposite implements BuilderInterface
     /**
      * Checks whether the payment has a credit management transaction associated with it.
      *
-     * @param  array $buildSubject
+     * @param array $buildSubject
+     *
      * @return bool
      */
     protected function hasCreditManagementTransaction(array $buildSubject): bool
@@ -123,8 +128,9 @@ class BuilderComposite implements BuilderInterface
     /**
      * Merge function for builders
      *
-     * @param  array $result
-     * @param  array $builder
+     * @param array $result
+     * @param array $builder
+     *
      * @return array
      */
     protected function merge(array $result, array $builder): array

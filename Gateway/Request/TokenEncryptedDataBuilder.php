@@ -71,9 +71,11 @@ class TokenEncryptedDataBuilder extends AbstractDataBuilder
     /**
      * Retrieve information from payment configuration
      *
-     * @param  string                $field
-     * @param  int|string|null|Store $storeId
+     * @param string                $field
+     * @param int|string|null|Store $storeId
+     *
      * @throws LocalizedException
+     *
      * @return mixed
      */
     public function getConfigData(string $field, $storeId = null)

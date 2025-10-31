@@ -71,9 +71,10 @@ class PluginBefore
     /**
      * Add Paylink button
      *
-     * @param  Toolbar           $subject
-     * @param  AbstractBlock     $context
-     * @param  ButtonList        $buttonList
+     * @param Toolbar       $subject
+     * @param AbstractBlock $context
+     * @param ButtonList    $buttonList
+     *
      * @throws BuckarooException
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)

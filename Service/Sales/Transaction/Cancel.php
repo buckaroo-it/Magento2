@@ -67,7 +67,8 @@ class Cancel
      * Cancels a transaction, updates the order status, and cancels the order
      * if the configuration is set to cancel on failed transactions.
      *
-     * @param  TransactionInterface|Transaction $transaction
+     * @param TransactionInterface|Transaction $transaction
+     *
      * @throws LocalizedException
      * @throws \Exception
      */
@@ -90,7 +91,8 @@ class Cancel
     /**
      * Cancels a payment associated with the given transaction.
      *
-     * @param  TransactionInterface|Transaction $transaction
+     * @param TransactionInterface|Transaction $transaction
+     *
      * @throws LocalizedException
      */
     private function cancelPayment($transaction)
@@ -103,7 +105,8 @@ class Cancel
     /**
      * Cancels an order and sets the appropriate additional information
      *
-     * @param  PaymentOrder|Order $order
+     * @param PaymentOrder|Order $order
+     *
      * @throws \Exception
      * @throws LocalizedException
      */
@@ -124,7 +127,8 @@ class Cancel
     /**
      * Updates the status of an order after cancelation, adding a history comment with the new status.
      *
-     * @param  PaymentOrder|Order $order
+     * @param PaymentOrder|Order $order
+     *
      * @throws \Exception
      */
     private function updateStatus($order)

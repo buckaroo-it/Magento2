@@ -48,8 +48,10 @@ class RefundOriginalTransactionKeyDataBuilder implements BuilderInterface
     /**
      * Get Refund Transaction Partial Support KEY
      *
-     * @param  InfoInterface      $payment
+     * @param InfoInterface $payment
+     *
      * @throws LocalizedException
+     *
      * @return mixed
      */
     protected function getRefundTransactionPartialSupport(InfoInterface $payment)

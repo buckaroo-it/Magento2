@@ -55,7 +55,8 @@ class DebugConfiguration extends AbstractConfigProvider
     /**
      * Is Logger active
      *
-     * @param  int|string $level
+     * @param int|string $level
+     *
      * @return bool
      */
     public function canLog($level)

@@ -133,8 +133,9 @@ class IdinProcess extends Process implements HttpPostActionInterface
     /**
      * Set consumer bin IDIN on customer
      *
-     * @return bool
      * @throws \Exception
+     *
+     * @return bool
      */
     private function setCustomerIDIN(): bool
     {

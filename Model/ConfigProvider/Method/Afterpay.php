@@ -93,7 +93,8 @@ class Afterpay extends AbstractConfigProvider
     /**
      * Get the config values for the high tax classes.
      *
-     * @param  null|int|string $store
+     * @param null|int|string $store
+     *
      * @return bool|mixed
      */
     public function getHighTaxClasses($store = null)
@@ -106,7 +107,8 @@ class Afterpay extends AbstractConfigProvider
     /**
      * Get the config values for the middle tax classes
      *
-     * @param  null|int|string $store
+     * @param null|int|string $store
+     *
      * @return bool|mixed
      */
     public function getMiddleTaxClasses($store = null)
@@ -119,7 +121,8 @@ class Afterpay extends AbstractConfigProvider
     /**
      * Get the config values for the low tax classes
      *
-     * @param  null|int|string $store
+     * @param null|int|string $store
+     *
      * @return bool|mixed
      */
     public function getLowTaxClasses($store = null)
@@ -132,7 +135,8 @@ class Afterpay extends AbstractConfigProvider
     /**
      * Get the config values for the zero tax classes
      *
-     * @param  null|int|string $store
+     * @param null|int|string $store
+     *
      * @return bool|mixed
      */
     public function getZeroTaxClasses($store = null)
@@ -145,7 +149,8 @@ class Afterpay extends AbstractConfigProvider
     /**
      * Get the config values for the no tax classes
      *
-     * @param  null|int|string $store
+     * @param null|int|string $store
+     *
      * @return bool|mixed
      */
     public function getNoTaxClasses($store = null)
@@ -158,7 +163,8 @@ class Afterpay extends AbstractConfigProvider
     /**
      * Get the methods name
      *
-     * @param  int|string  $method
+     * @param int|string $method
+     *
      * @return bool|string
      */
     public function getPaymentMethodName($method = null)

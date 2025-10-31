@@ -15,6 +15,7 @@ abstract class AbstractRequestBuilderTest extends TestCase
 {
     /**
      * Get a payment data object mock for tests
+     *
      * @return MockObject
      */
     protected function getPaymentDOMock()

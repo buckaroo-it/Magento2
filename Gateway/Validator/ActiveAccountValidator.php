@@ -52,8 +52,10 @@ class ActiveAccountValidator extends AbstractValidator
      * Validates if Buckaroo Module is enabled and has valid credentials
      * Checks for the specific store context (multi-store support)
      *
-     * @param  array           $validationSubject
+     * @param array $validationSubject
+     *
      * @throws Exception
+     *
      * @return ResultInterface
      */
     public function validate(array $validationSubject): ResultInterface

@@ -51,7 +51,8 @@ class Pospayment extends AbstractConfigProvider
     /**
      * Get Other payment methods for POS
      *
-     * @param             $store
+     * @param $store
+     *
      * @return mixed|null
      */
     public function getOtherPaymentMethods($store = null)

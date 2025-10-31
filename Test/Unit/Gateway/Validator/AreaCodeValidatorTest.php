@@ -45,6 +45,7 @@ class AreaCodeValidatorTest extends TestCase
 
     /**
      * @dataProvider validateDataProvider
+     *
      * @param mixed $areaCode
      * @param mixed $configData
      * @param mixed $expectedResult

@@ -271,6 +271,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
 
     /**
      * Delete SecondChance by order ID
+     *
      * @param mixed $orderId
      */
     public function deleteByOrderId($orderId)
@@ -285,6 +286,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
 
     /**
      * Delete older records based on configuration
+     *
      * @param mixed $store
      */
     public function deleteOlderRecords($store)
@@ -310,7 +312,8 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     /**
      * Create a SecondChance record for order
      *
-     * @param  OrderInterface             $order
+     * @param OrderInterface $order
+     *
      * @return SecondChanceInterface|null
      */
     public function createSecondChance($order)
@@ -345,9 +348,11 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     /**
      * Set available increment ID with suffix (matching original standalone plugin behavior)
      *
-     * @param  string      $orderId
-     * @param  Order       $order
+     * @param string $orderId
+     * @param Order  $order
+     *
      * @throws Exception
+     *
      * @return string|null
      */
     private function setAvailableIncrementId($orderId, $order)
@@ -386,7 +391,9 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
 
     /**
      * Get SecondChance by token and recreate quote
-     * @param  mixed     $token
+     *
+     * @param mixed $token
+     *
      * @throws Exception
      */
     public function getSecondChanceByToken($token)
@@ -431,8 +438,10 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
 
     /**
      * Get SecondChance collection for cron processing
+     *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
+     *
      * @param mixed $step
      * @param mixed $store
      */
@@ -540,6 +549,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
 
     /**
      * Send reminder email
+     *
      * @param mixed $order
      * @param mixed $secondChance
      * @param mixed $step
@@ -629,6 +639,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
 
     /**
      * Get formatted shipping address
+     *
      * @param mixed $order
      */
     protected function getFormattedShippingAddress($order)
@@ -642,6 +653,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
 
     /**
      * Get formatted billing address
+     *
      * @param mixed $order
      */
     protected function getFormattedBillingAddress($order)
@@ -655,6 +667,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
 
     /**
      * Get payment method HTML
+     *
      * @param OrderInterface $order
      */
     private function getPaymentHtml(OrderInterface $order)
@@ -665,6 +678,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
 
     /**
      * Check if order products are in stock
+     *
      * @param mixed $order
      */
     private function checkOrderProductsIsInStock($order)
@@ -686,6 +700,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
 
     /**
      * Set final status for SecondChance record
+     *
      * @param mixed $item
      * @param mixed $status
      */
@@ -701,6 +716,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
 
     /**
      * Check for multiple email sending
+     *
      * @param mixed $order
      * @param mixed $flag
      */
@@ -722,7 +738,8 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     /**
      * Check if email is a placeholder/dummy email that should not receive Second Chance emails
      *
-     * @param  string|null $email
+     * @param string|null $email
+     *
      * @return bool
      */
     private function isPlaceholderEmail($email): bool

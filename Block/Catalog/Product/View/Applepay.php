@@ -90,9 +90,11 @@ class Applepay extends Template
     }
 
     /**
-     * @param       $page
-     * @return bool
+     * @param $page
+     *
      * @throws NoSuchEntityException
+     *
+     * @return bool
      */
     public function canShowButton($page): bool
     {

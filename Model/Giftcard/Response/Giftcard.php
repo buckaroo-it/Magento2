@@ -114,8 +114,9 @@ class Giftcard
     /**
      * Set raw response data
      *
-     * @param  TransactionResponse $response
-     * @param  CartInterface       $quote
+     * @param TransactionResponse $response
+     * @param CartInterface       $quote
+     *
      * @throws LocalizedException
      */
     public function set(TransactionResponse $response, CartInterface $quote)
@@ -149,6 +150,7 @@ class Giftcard
      * Create order from quote
      *
      * @throws LocalizedException
+     *
      * @return AbstractExtensibleModel|OrderInterface|object|null
      */
     protected function createOrderFromQuote()
@@ -217,6 +219,7 @@ class Giftcard
      * Create order from quote
      *
      * @throws LocalizedException
+     *
      * @return AbstractExtensibleModel|OrderInterface|object|null
      */
     protected function createOrder()

@@ -58,8 +58,9 @@ class CreditmemoExtensionAttribute
     /**
      * Add Buckaroo specific extension attributes to a list of credit memos after get.
      *
-     * @param  CreditmemoRepositoryInterface   $subject
-     * @param  CreditmemoSearchResultInterface $searchResult
+     * @param CreditmemoRepositoryInterface   $subject
+     * @param CreditmemoSearchResultInterface $searchResult
+     *
      * @return CreditmemoSearchResultInterface
      */
     public function afterGetList(
@@ -78,8 +79,9 @@ class CreditmemoExtensionAttribute
     /**
      * Add Buckaroo specific extension attributes to a single credit memo after get.
      *
-     * @param  CreditmemoRepositoryInterface $subject
-     * @param  CreditmemoInterface           $creditmemo
+     * @param CreditmemoRepositoryInterface $subject
+     * @param CreditmemoInterface           $creditmemo
+     *
      * @return CreditmemoInterface
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)

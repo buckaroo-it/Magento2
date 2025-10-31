@@ -52,9 +52,11 @@ class AreaCodeValidator extends AbstractValidator
     /**
      * Validate Area Code Value
      *
-     * @param  array              $validationSubject
+     * @param array $validationSubject
+     *
      * @throws Exception
      * @throws LocalizedException
+     *
      * @return ResultInterface
      */
     public function validate(array $validationSubject): ResultInterface

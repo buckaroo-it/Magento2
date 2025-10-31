@@ -53,9 +53,10 @@ class TaxCalculate
     /**
      * Calculate tax amount from an amount that includes tax.
      *
-     * @param  CartInterface $cart
-     * @param  float         $amount Amount including tax
-     * @return float         Tax amount
+     * @param CartInterface $cart
+     * @param float         $amount Amount including tax
+     *
+     * @return float Tax amount
      */
     public function getTaxFromAmountIncludingTax(CartInterface $cart, float $amount): float
     {

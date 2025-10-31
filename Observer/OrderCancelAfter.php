@@ -94,7 +94,8 @@ class OrderCancelAfter implements ObserverInterface
     /**
      * Do cancel request to payment engine for Pay Per Email payment method after order cancel
      *
-     * @param  Observer           $observer
+     * @param Observer $observer
+     *
      * @throws LocalizedException
      */
     public function execute(Observer $observer)
@@ -128,8 +129,9 @@ class OrderCancelAfter implements ObserverInterface
     }
 
     /**
-     * @param  mixed      $key
-     * @param  null|mixed $storeId
+     * @param mixed      $key
+     * @param null|mixed $storeId
+     *
      * @throws Exception
      */
     private function sendCancelResponse($key, $storeId = null)

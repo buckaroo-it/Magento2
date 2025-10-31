@@ -114,10 +114,13 @@ class CreateInvoice
     /**
      * Create invoice after shipment for all buckaroo payment methods
      *
-     * @param  Order              $order
-     * @param  array              $invoiceItems
+     * @param Order $order
+     * @param array $invoiceItems
+     *
      * @throws LocalizedException
+     *
      * @return bool
+     *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function createInvoiceGeneralSetting(Order $order, array $invoiceItems): bool
@@ -184,7 +187,8 @@ class CreateInvoice
     /**
      * Get Order Items that are not invoiced
      *
-     * @param  Order $order
+     * @param Order $order
+     *
      * @return array
      */
     public function getInvoiceItems(Order $order): array
@@ -202,10 +206,12 @@ class CreateInvoice
 
 
     /**
-     * @param  mixed                                           $payment
-     * @param  mixed                                           $transactionKey
-     * @param  mixed                                           $datas
+     * @param mixed $payment
+     * @param mixed $transactionKey
+     * @param mixed $datas
+     *
      * @throws \Magento\Framework\Exception\LocalizedException
+     *
      * @return Order\Payment
      */
     public function addTransactionData($payment, $transactionKey = false, $datas = false)

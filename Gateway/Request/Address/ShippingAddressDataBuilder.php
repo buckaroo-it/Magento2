@@ -48,6 +48,7 @@ class ShippingAddressDataBuilder extends AbstractAddressDataBuilder
      * Get Shipping Address
      *
      * @throws \Exception
+     *
      * @return Address
      */
     protected function getAddress(): Address

@@ -51,6 +51,7 @@ class IssuerValidatorTest extends TestCase
 
     /**
      * @dataProvider issuerValidatorDataProvider
+     *
      * @param mixed $chosenIssuer
      * @param mixed $paymentMethodCode
      * @param mixed $isValid

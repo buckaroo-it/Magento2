@@ -70,8 +70,9 @@ class PhoneFormatter
     /**
      * Format phone number by country
      *
-     * @param  string $phoneNumber
-     * @param  string $country
+     * @param string $phoneNumber
+     * @param string $country
+     *
      * @return array
      */
     public function format(string $phoneNumber, string $country): array
@@ -121,7 +122,8 @@ class PhoneFormatter
     /**
      * Removes all non-numeric characters from the phone number.
      *
-     * @param  string $phoneNumber
+     * @param string $phoneNumber
+     *
      * @return string
      */
     private function cleanPhoneNumber(string $phoneNumber): string
@@ -158,8 +160,9 @@ class PhoneFormatter
     /**
      * Checks if the phone number has a valid notation for the given country.
      *
-     * @param  string $phoneNumber
-     * @param  string $country
+     * @param string $phoneNumber
+     * @param string $country
+     *
      * @return string
      */
     private function applyInvalidNotationCorrection(string $phoneNumber, string $country): string
@@ -175,9 +178,10 @@ class PhoneFormatter
     /**
      * Replaces invalid notation with a valid prefix.
      *
-     * @param  string $phoneNumber
-     * @param  string $invalidPrefix
-     * @param  string $country
+     * @param string $phoneNumber
+     * @param string $invalidPrefix
+     * @param string $country
+     *
      * @return string
      */
     private function replaceInvalidNotation(string $phoneNumber, string $invalidPrefix, string $country): string

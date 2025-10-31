@@ -65,11 +65,12 @@ class IdinDataBuilder implements BuilderInterface
     private $configProviderAccount;
 
     /**
-     * @param  CustomerSession       $customerSession
-     * @param  UrlInterface          $urlBuilder
-     * @param  FormKey               $formKey
-     * @param  StoreManagerInterface $storeManager
-     * @param  Account               $configProviderAccount
+     * @param CustomerSession       $customerSession
+     * @param UrlInterface          $urlBuilder
+     * @param FormKey               $formKey
+     * @param StoreManagerInterface $storeManager
+     * @param Account               $configProviderAccount
+     *
      * @throws NoSuchEntityException
      */
     public function __construct(
@@ -112,6 +113,7 @@ class IdinDataBuilder implements BuilderInterface
      * Retrieves the return URL.
      *
      * @throws LocalizedException
+     *
      * @return string
      */
     public function getReturnUrl(): string
@@ -129,7 +131,8 @@ class IdinDataBuilder implements BuilderInterface
     /**
      * Sets the return URL.
      *
-     * @param  string $url
+     * @param string $url
+     *
      * @return $this
      */
     public function setReturnUrl(string $url): IdinDataBuilder
@@ -144,6 +147,7 @@ class IdinDataBuilder implements BuilderInterface
      * Retrieves the form key.
      *
      * @throws LocalizedException
+     *
      * @return string
      */
     public function getFormKey(): string

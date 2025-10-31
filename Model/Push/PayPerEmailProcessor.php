@@ -101,7 +101,9 @@ class PayPerEmailProcessor extends DefaultProcessor
     /**
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
-     * @param  PushRequestInterface $pushRequest
+     *
+     * @param PushRequestInterface $pushRequest
+     *
      * @throws FileSystemException
      * @throws \Exception
      */
@@ -195,6 +197,7 @@ class PayPerEmailProcessor extends DefaultProcessor
      * Skip the push if the conditions are met.
      *
      * @throws \Exception
+     *
      * @return bool
      */
     protected function skipPush(): bool
@@ -238,6 +241,7 @@ class PayPerEmailProcessor extends DefaultProcessor
      * Set the payment method if the request is from Pay Per Email
      *
      * @throws \Exception
+     *
      * @return bool
      */
     private function setPaymentMethodIfDifferent(): bool
@@ -331,6 +335,7 @@ class PayPerEmailProcessor extends DefaultProcessor
     /**
      * @throws BuckarooException
      * @throws LocalizedException
+     *
      * @return false|string|null
      */
     protected function getNewStatus()
@@ -397,8 +402,10 @@ class PayPerEmailProcessor extends DefaultProcessor
     }
 
     /**
-     * @param  array      $paymentDetails
+     * @param array $paymentDetails
+     *
      * @throws \Exception
+     *
      * @return bool
      */
     protected function invoiceShouldBeSaved(array &$paymentDetails): bool

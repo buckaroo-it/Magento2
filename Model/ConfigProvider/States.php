@@ -51,7 +51,8 @@ class States extends AbstractConfigProvider
     /**
      * Get order state label for new order
      *
-     * @param  int|string|null $store
+     * @param int|string|null $store
+     *
      * @return mixed
      */
     public function getOrderStateNew($store = null)
@@ -66,7 +67,8 @@ class States extends AbstractConfigProvider
     /**
      * Get order state label for success order
      *
-     * @param  int|string|null $store
+     * @param int|string|null $store
+     *
      * @return mixed
      */
     public function getOrderStateSuccess($store = null)
@@ -81,7 +83,8 @@ class States extends AbstractConfigProvider
     /**
      * Get order state label for failed order
      *
-     * @param  int|string|null $store
+     * @param int|string|null $store
+     *
      * @return mixed
      */
     public function getOrderStateFailed($store = null)
@@ -96,7 +99,8 @@ class States extends AbstractConfigProvider
     /**
      * Get order state label for pending order
      *
-     * @param  int|string|null $store
+     * @param int|string|null $store
+     *
      * @return mixed
      */
     public function getOrderStatePending($store = null)
@@ -111,7 +115,8 @@ class States extends AbstractConfigProvider
     /**
      * Get order state label for incorrect order
      *
-     * @param  int|string|null $store
+     * @param int|string|null $store
+     *
      * @return mixed
      */
     public function getOrderStateIncorrect($store = null)

@@ -30,7 +30,8 @@ interface BuckarooGiftcardDataInterface
     public function getGiftcardModel(): Giftcard;
 
     /**
-     * @param  Giftcard                      $giftcard
+     * @param Giftcard $giftcard
+     *
      * @return BuckarooGiftcardDataInterface
      */
     public function setGiftcardModel(Giftcard $giftcard): BuckarooGiftcardDataInterface;

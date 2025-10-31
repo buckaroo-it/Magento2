@@ -40,8 +40,10 @@ class RefundFieldsFactory
     /**
      * Retrieve proper transaction builder for the specified transaction type.
      *
-     * @param  string          $paymentMethod
+     * @param string $paymentMethod
+     *
      * @throws \LogicException
+     *
      * @return array|false
      */
     public function get(string $paymentMethod)

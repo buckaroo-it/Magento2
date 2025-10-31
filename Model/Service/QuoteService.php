@@ -111,8 +111,10 @@ class QuoteService
     /**
      * Get checkout quote instance by cart Hash
      *
-     * @param  int|string|null       $cartHash
+     * @param int|string|null $cartHash
+     *
      * @throws NoSuchEntityException
+     *
      * @return CartInterface
      */
     public function getQuote($cartHash = null)
@@ -146,8 +148,10 @@ class QuoteService
     /**
      * Get empty checkout quote instance by cart Hash
      *
-     * @param  int|string|null       $cartHash
+     * @param int|string|null $cartHash
+     *
      * @throws NoSuchEntityException
+     *
      * @return CartInterface
      */
     public function getEmptyQuote($cartHash)
@@ -163,6 +167,7 @@ class QuoteService
      * @param string $formData
      *
      * @throws QuoteException
+     *
      * @return Quote
      */
     public function createQuote(string $formData): Quote
@@ -253,7 +258,8 @@ class QuoteService
     /**
      * Set shipping method on shipping address
      *
-     * @param  string                $methodCode
+     * @param string $methodCode
+     *
      * @throws NoSuchEntityException
      */
     public function setShippingMethod(string $methodCode): void
@@ -264,7 +270,8 @@ class QuoteService
     /**
      * Add Product To Cart
      *
-     * @param  DataObject            $product
+     * @param DataObject $product
+     *
      * @throws NoSuchEntityException
      * @throws LocalizedException
      */
@@ -276,7 +283,8 @@ class QuoteService
     /**
      * Add Address To Cart
      *
-     * @param                        $shippingAddressRequest
+     * @param $shippingAddressRequest
+     *
      * @throws NoSuchEntityException
      * @throws LocalizedException
      */

@@ -82,6 +82,7 @@ class Creditcard extends Info
      * Get the order's MPI status.
      *
      * @throws LocalizedException
+     *
      * @return array
      */
     public function getMpiStatus()
@@ -96,6 +97,7 @@ class Creditcard extends Info
      * Get card code
      *
      * @throws LocalizedException
+     *
      * @return string
      */
     public function getCardCode()
@@ -109,6 +111,7 @@ class Creditcard extends Info
      * Get the selected creditcard for this order.
      *
      * @throws LocalizedException
+     *
      * @return string
      */
     public function getCardType()

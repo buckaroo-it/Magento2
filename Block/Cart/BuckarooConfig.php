@@ -59,6 +59,7 @@ class BuckarooConfig extends Template
      * Retrieve buckaroo configuration
      *
      * @throws Exception
+     *
      * @return string
      */
     public function getBuckarooConfigJson()

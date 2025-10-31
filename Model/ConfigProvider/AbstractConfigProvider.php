@@ -78,7 +78,8 @@ abstract class AbstractConfigProvider implements ConfigProviderInterface, Config
     /**
      * Set the Xpath Prefix
      *
-     * @param  string $xpathPrefix
+     * @param string $xpathPrefix
+     *
      * @return $this
      */
     public function setXpathPrefix($xpathPrefix)

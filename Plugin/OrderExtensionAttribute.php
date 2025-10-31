@@ -58,8 +58,9 @@ class OrderExtensionAttribute
     /**
      * Adds custom Buckaroo fields to each order's extension attributes.
      *
-     * @param  OrderRepositoryInterface   $subject
-     * @param  OrderSearchResultInterface $searchResult
+     * @param OrderRepositoryInterface   $subject
+     * @param OrderSearchResultInterface $searchResult
+     *
      * @return OrderSearchResultInterface
      */
     public function afterGetList(
@@ -78,8 +79,9 @@ class OrderExtensionAttribute
     /**
      * Adds custom Buckaroo fields to the order's extension attributes.
      *
-     * @param  OrderRepositoryInterface $subject
-     * @param  OrderInterface           $order
+     * @param OrderRepositoryInterface $subject
+     * @param OrderInterface           $order
+     *
      * @return OrderInterface
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)

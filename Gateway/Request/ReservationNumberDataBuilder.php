@@ -42,6 +42,7 @@ class ReservationNumberDataBuilder extends AbstractDataBuilder
 
     /**
      * @inheritdoc
+     *
      * @throws LocalizedException
      */
     public function build(array $buildSubject): array

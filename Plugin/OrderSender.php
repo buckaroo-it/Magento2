@@ -45,10 +45,11 @@ class OrderSender
      * during order placement, since payment hasn't been completed yet.
      * Allow emails after successful payment completion.
      *
-     * @param  MagentoOrderSender $subject
-     * @param  \Closure           $proceed
-     * @param  Order              $order
-     * @param  bool               $forceSyncMode
+     * @param MagentoOrderSender $subject
+     * @param \Closure           $proceed
+     * @param Order              $order
+     * @param bool               $forceSyncMode
+     *
      * @return bool
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)

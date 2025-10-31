@@ -106,7 +106,8 @@ class Billink extends AbstractConfigProvider
     /**
      * Get customer type
      *
-     * @param  null|int $storeId
+     * @param null|int $storeId
+     *
      * @return string
      */
     public function getCustomerType($storeId = null)

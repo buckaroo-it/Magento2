@@ -83,8 +83,10 @@ class AfterpayProcessor extends DefaultProcessor
     }
 
     /**
-     * @param  array      $paymentDetails
+     * @param array $paymentDetails
+     *
      * @throws \Exception
+     *
      * @return bool
      */
     protected function invoiceShouldBeSaved(array &$paymentDetails): bool

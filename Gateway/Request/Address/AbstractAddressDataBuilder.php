@@ -29,7 +29,8 @@ abstract class AbstractAddressDataBuilder extends AbstractDataBuilder
     /**
      * Builds address request
      *
-     * @param  array   $buildSubject
+     * @param array $buildSubject
+     *
      * @return array[]
      */
     public function build(array $buildSubject): array
@@ -70,7 +71,8 @@ abstract class AbstractAddressDataBuilder extends AbstractDataBuilder
     /**
      * Format street address
      *
-     * @param  string[] $street
+     * @param string[] $street
+     *
      * @return array
      */
     public function formatStreet(?array $street = null): array

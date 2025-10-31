@@ -224,8 +224,9 @@ class GroupTransactionRepository implements GroupTransactionRepositoryInterface
     /**
      * Get transaction by id and order
      *
-     * @param  string                $transactionId
-     * @param  string                $orderId
+     * @param string $transactionId
+     * @param string $orderId
+     *
      * @return GroupTransaction|null
      */
     public function getTransactionByIdAndOrderId(string $transactionId, string $orderId): ?GroupTransaction

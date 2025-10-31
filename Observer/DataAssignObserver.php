@@ -110,7 +110,8 @@ class DataAssignObserver extends AbstractDataAssignObserver
     /**
      * Set Additional Information for all payment methods
      *
-     * @param  Observer           $observer
+     * @param Observer $observer
+     *
      * @throws LocalizedException
      */
     public function execute(Observer $observer)

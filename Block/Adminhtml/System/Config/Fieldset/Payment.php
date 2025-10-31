@@ -56,8 +56,10 @@ class Payment extends Fieldset
     }
 
     /**
-     * @param  AbstractElement $element
+     * @param AbstractElement $element
+     *
      * @return string
+     *
      * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     protected function _getHeaderTitleHtml($element)
@@ -110,7 +112,8 @@ class Payment extends Fieldset
     /**
      * Check whether current payment method is enabled
      *
-     * @param  AbstractElement $element
+     * @param AbstractElement $element
+     *
      * @return bool
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
@@ -121,8 +124,10 @@ class Payment extends Fieldset
     }
 
     /**
-     * @param  AbstractElement $element
+     * @param AbstractElement $element
+     *
      * @return string
+     *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     protected function _getHeaderCommentHtml($element)
@@ -131,8 +136,10 @@ class Payment extends Fieldset
     }
 
     /**
-     * @param  AbstractElement $element
+     * @param AbstractElement $element
+     *
      * @return false
+     *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     protected function _isCollapseState($element)
@@ -141,8 +148,10 @@ class Payment extends Fieldset
     }
 
     /**
-     * @param  AbstractElement $element
+     * @param AbstractElement $element
+     *
      * @return string
+     *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     protected function _getExtraJs($element)
@@ -170,7 +179,8 @@ class Payment extends Fieldset
     }
 
     /**
-     * @param  AbstractElement $element
+     * @param AbstractElement $element
+     *
      * @return string
      */
     protected function _getFrontendClass($element)

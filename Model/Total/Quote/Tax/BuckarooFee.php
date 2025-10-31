@@ -150,9 +150,10 @@ class BuckarooFee extends CommonTaxCollector
     /**
      * Collect Buckaroo fee related items and add them to tax calculation
      *
-     * @param  Quote                       $quote
-     * @param  ShippingAssignmentInterface $shippingAssignment
-     * @param  Total                       $total
+     * @param Quote                       $quote
+     * @param ShippingAssignmentInterface $shippingAssignment
+     * @param Total                       $total
+     *
      * @return $this
      */
     public function collect(

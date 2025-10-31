@@ -51,10 +51,12 @@ class CouponManagement
     }
 
     /**
-     * @param  CouponManagementInterface $subject
-     * @param  int                       $cartId
-     * @param  string                    $couponCode
+     * @param CouponManagementInterface $subject
+     * @param int                       $cartId
+     * @param string                    $couponCode
+     *
      * @throws CouldNotSaveException
+     *
      * @return array
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
@@ -70,9 +72,11 @@ class CouponManagement
     }
 
     /**
-     * @param  CouponManagementInterface $subject
-     * @param  int                       $cartId
+     * @param CouponManagementInterface $subject
+     * @param int                       $cartId
+     *
      * @throws CouldNotDeleteException
+     *
      * @return array
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)

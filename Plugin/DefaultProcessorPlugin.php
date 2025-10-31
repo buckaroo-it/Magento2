@@ -52,7 +52,9 @@ class DefaultProcessorPlugin
      *
      * @SuppressWarnings(PHPMD.NPathComplexity)
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     *
      * @throws LocalizedException
+     *
      * @return bool
      */
     public function afterProcessSucceededPush(
@@ -138,8 +140,9 @@ class DefaultProcessorPlugin
     }
 
     /**
-     * @param  object     $subject
-     * @param  string     $name
+     * @param object $subject
+     * @param string $name
+     *
      * @return mixed|null
      */
     private function getProtectedProperty(object $subject, string $name)

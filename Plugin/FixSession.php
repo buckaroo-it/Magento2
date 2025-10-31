@@ -62,10 +62,11 @@ class FixSession
     /**
      * Fix the issue when customers get logged out or lose cart content on Magento storefront
      *
-     * @param  PhpCookieManager          $subject
-     * @param  string                    $name
-     * @param  string                    $value
-     * @param  PublicCookieMetadata|null $metadata
+     * @param PhpCookieManager          $subject
+     * @param string                    $name
+     * @param string                    $value
+     * @param PublicCookieMetadata|null $metadata
+     *
      * @return array
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)

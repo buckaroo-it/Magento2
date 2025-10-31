@@ -106,9 +106,11 @@ class DefaultTransaction implements ClientInterface
     /**
      * Process http request
      *
-     * @param  string              $paymentMethod
-     * @param  array               $data
+     * @param string $paymentMethod
+     * @param array  $data
+     *
      * @throws Throwable
+     *
      * @return TransactionResponse
      */
     protected function process(string $paymentMethod, array $data): TransactionResponse

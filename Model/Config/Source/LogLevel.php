@@ -36,7 +36,8 @@ class LogLevel implements OptionSourceInterface
     /**
      * {@inheritDoc}
      *
-     * @param  bool                                                           $withEmpty Whether to prepend an empty option.
+     * @param bool $withEmpty Whether to prepend an empty option.
+     *
      * @return array<array{value:int|string,label:\Magento\Framework\Phrase}>
      */
     public function toOptionArray($withEmpty = true): array

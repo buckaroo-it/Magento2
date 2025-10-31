@@ -53,11 +53,12 @@ class AmountDebitDataBuilderTest extends AbstractDataBuilderTest
     /**
      * @dataProvider amountDataProvider
      *
-     * @param  float|null  $grandTotal
-     * @param  float|null  $baseGrandTotal
-     * @param  string      $orderCurrency
-     * @param  string|null $serviceCurrency
-     * @param  float       $expectedAmount
+     * @param float|null  $grandTotal
+     * @param float|null  $baseGrandTotal
+     * @param string      $orderCurrency
+     * @param string|null $serviceCurrency
+     * @param float       $expectedAmount
+     *
      * @throws \Exception
      */
     public function testBuild(

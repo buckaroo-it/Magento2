@@ -600,8 +600,9 @@ class PaypalStateCodes
     /**
      * Returns code string based on country code and value, or false if not found. Also returns an array if
      *
-     * @param  string|null  $countryCode
-     * @param  string|null  $value
+     * @param string|null $countryCode
+     * @param string|null $value
+     *
      * @return false|string
      */
     public function getCodeFromValue(?string $countryCode = null, ?string $value = null)
@@ -626,7 +627,8 @@ class PaypalStateCodes
     /**
      * Returns all codes or all codes by countryCode. False if countryCode given but non-existant
      *
-     * @param  string|int|null $countryCode
+     * @param string|int|null $countryCode
+     *
      * @return array|bool
      */
     public function getCodes($countryCode = null)

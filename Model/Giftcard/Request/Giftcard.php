@@ -134,18 +134,20 @@ class Giftcard implements GiftcardInterface
     private $giftcardRepository;
 
     /**
-     * @param  ScopeConfigInterface        $scopeConfig
-     * @param  Account                     $configProviderAccount
-     * @param  UrlInterface                $urlBuilder
-     * @param  FormKey                     $formKey
-     * @param  Encryptor                   $encryptor
-     * @param  StoreManagerInterface       $storeManager
-     * @param  SDKTransferFactory          $transferFactory
-     * @param  ClientInterface             $clientInterface
-     * @param  RequestInterface            $httpRequest
-     * @param  PaymentGroupTransaction     $groupTransaction
-     * @param  GiftcardRepositoryInterface $giftcardRepository
+     * @param ScopeConfigInterface        $scopeConfig
+     * @param Account                     $configProviderAccount
+     * @param UrlInterface                $urlBuilder
+     * @param FormKey                     $formKey
+     * @param Encryptor                   $encryptor
+     * @param StoreManagerInterface       $storeManager
+     * @param SDKTransferFactory          $transferFactory
+     * @param ClientInterface             $clientInterface
+     * @param RequestInterface            $httpRequest
+     * @param PaymentGroupTransaction     $groupTransaction
+     * @param GiftcardRepositoryInterface $giftcardRepository
+     *
      * @throws NoSuchEntityException
+     *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -178,6 +180,7 @@ class Giftcard implements GiftcardInterface
      * Send giftcard request
      *
      * @throws GiftcardException
+     *
      * @return mixed
      */
     public function send()
@@ -213,6 +216,7 @@ class Giftcard implements GiftcardInterface
      * Get Request Body
      *
      * @throws \Exception
+     *
      * @return array
      */
     protected function getBody()
@@ -255,6 +259,7 @@ class Giftcard implements GiftcardInterface
      * Get order increment id
      *
      * @throws \Exception
+     *
      * @return string
      */
     public function getIncrementId()
@@ -271,8 +276,10 @@ class Giftcard implements GiftcardInterface
     /**
      * Get client IP
      *
-     * @param  null|int|string $store
+     * @param null|int|string $store
+     *
      * @throws \Exception
+     *
      * @return false|string
      */
     protected function getIp($store)
@@ -332,6 +339,7 @@ class Giftcard implements GiftcardInterface
      * Get return url
      *
      * @throws LocalizedException
+     *
      * @return string
      */
     protected function getReturnUrl(): string
@@ -398,7 +406,8 @@ class Giftcard implements GiftcardInterface
     /**
      * Set card number
      *
-     * @param  string            $cardNumber
+     * @param string $cardNumber
+     *
      * @return GiftcardInterface
      */
     public function setCardNumber(string $cardNumber): GiftcardInterface
@@ -410,7 +419,8 @@ class Giftcard implements GiftcardInterface
     /**
      * Set card pin
      *
-     * @param  string            $pin
+     * @param string $pin
+     *
      * @return GiftcardInterface
      */
     public function setPin(string $pin): GiftcardInterface
@@ -422,7 +432,8 @@ class Giftcard implements GiftcardInterface
     /**
      * Set card type
      *
-     * @param  string            $cardId
+     * @param string $cardId
+     *
      * @return GiftcardInterface
      */
     public function setCardId(string $cardId): GiftcardInterface
@@ -434,7 +445,8 @@ class Giftcard implements GiftcardInterface
     /**
      * Set quote
      *
-     * @param  CartInterface     $quote
+     * @param CartInterface $quote
+     *
      * @return GiftcardInterface
      */
     public function setQuote(CartInterface $quote): GiftcardInterface
@@ -475,6 +487,7 @@ class Giftcard implements GiftcardInterface
      * Get merchant key for store
      *
      * @throws \Exception
+     *
      * @return string
      */
     protected function getMerchantKey(): string
@@ -488,6 +501,7 @@ class Giftcard implements GiftcardInterface
      * Get merchant secret for store
      *
      * @throws \Exception
+     *
      * @return string
      */
     protected function getSecretKey(): string

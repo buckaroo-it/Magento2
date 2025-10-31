@@ -74,7 +74,8 @@ class HandleFailedQuoteOrder implements ObserverInterface
      * Observes the event for a failed quote-to-order submission
      * Handle cancel order by sales_model_service_quote_submit_failure event
      *
-     * @param  Observer           $observer
+     * @param Observer $observer
+     *
      * @throws LocalizedException
      */
     public function execute(Observer $observer)

@@ -69,6 +69,7 @@ class AmountCreditDataBuilder implements BuilderInterface
 
     /**
      * @inheritdoc
+     *
      * @throws InvalidArgumentException
      * @throws ClientException
      * @throws ConverterException

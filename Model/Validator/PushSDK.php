@@ -55,8 +55,10 @@ class PushSDK implements ValidatorInterface
     /**
      * Validate Push SDK
      *
-     * @param  array      $data
+     * @param array $data
+     *
      * @throws \Exception
+     *
      * @return bool
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)

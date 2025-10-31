@@ -151,6 +151,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
      * @param Recreate                    $quoteRecreate
      * @param RequestPushFactory          $requestPushFactory
      * @param LockManagerWrapper          $lockManager
+     *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -199,6 +200,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
      * Process action
      *
      * @throws Exception
+     *
      * @return ResponseInterface|void
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
@@ -281,7 +283,8 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
     /**
      * Set flag if user is on the payment provider page
      *
-     * @param  OrderPaymentInterface $payment
+     * @param OrderPaymentInterface $payment
+     *
      * @throws Exception
      */
     protected function setPaymentOutOfTransit(OrderPaymentInterface $payment): void
@@ -323,9 +326,11 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
     /**
      * Processes a redirect based on the given status code.
      *
-     * @param  int                   $statusCode
+     * @param int $statusCode
+     *
      * @throws LocalizedException
      * @throws NoSuchEntityException
+     *
      * @return ResponseInterface
      */
     private function processRedirectByStatus(int $statusCode): ResponseInterface
@@ -355,8 +360,10 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
      *  - Sets the last quote and order.
      *  - Returns a successful redirect response.
      *
-     * @param                    $statusCode
+     * @param $statusCode
+     *
      * @throws Exception
+     *
      * @return ResponseInterface
      */
     private function processSucceededRedirect($statusCode): ResponseInterface
@@ -376,7 +383,8 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
      * - Validates if the redirect request contains specific post data and additional information related to Klarna KP
      * - If all conditions are met, and the status code is SUCCESS, sends the order confirmation email.
      *
-     * @param  int        $statusCode The status code representing the result of a payment or related process.
+     * @param int $statusCode The status code representing the result of a payment or related process.
+     *
      * @throws Exception If an exception occurs within the called methods.
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
@@ -540,9 +548,11 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
      *  - Sets the last quote and order.
      *  - Returns a successful redirect response.
      *
-     * @param                     $statusCode
+     * @param $statusCode
+     *
      * @throws LocalizedException
      * @throws Exception
+     *
      * @return ResponseInterface
      */
     private function processPendingRedirect($statusCode): ResponseInterface
@@ -647,9 +657,11 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
     /**
      * Handle failed transactions
      *
-     * @param  int|null                                                      $statusCode
-     * @return ResponseInterface
+     * @param int|null $statusCode
+     *
      * @throws NoSuchEntityException|Exception
+     *
+     * @return ResponseInterface
      */
     protected function handleFailed($statusCode): ResponseInterface
     {
@@ -790,6 +802,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
      * Redirect to Failure url, which means we've got a problem
      *
      * @throws Exception
+     *
      * @return ResponseInterface
      */
     protected function redirectFailure(): ResponseInterface
@@ -816,6 +829,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
      *   to the payment section, with a query parameter indicating an error.
      *
      * @throws Exception
+     *
      * @return ResponseInterface
      */
     private function redirectOnCheckoutForFailedTransaction(): ResponseInterface
@@ -902,8 +916,10 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
     /**
      * If possible, cancel the order
      *
-     * @param  int|null           $statusCode
+     * @param int|null $statusCode
+     *
      * @throws LocalizedException
+     *
      * @return bool
      */
     protected function cancelOrder(?int $statusCode): bool

@@ -71,8 +71,10 @@ class IssuerValidator extends AbstractValidator
     /**
      * Validate issuer
      *
-     * @param  array              $validationSubject
+     * @param array $validationSubject
+     *
      * @throws LocalizedException
+     *
      * @return ResultInterface
      */
     public function validate(array $validationSubject): ResultInterface
@@ -106,7 +108,8 @@ class IssuerValidator extends AbstractValidator
     /**
      * Get config provider for specific payment method
      *
-     * @param  InfoInterface                 $paymentInfo
+     * @param InfoInterface $paymentInfo
+     *
      * @return ConfigProviderInterface|false
      */
     protected function getConfig(InfoInterface $paymentInfo)

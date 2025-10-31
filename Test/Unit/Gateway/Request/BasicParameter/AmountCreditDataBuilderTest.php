@@ -63,9 +63,11 @@ class AmountCreditDataBuilderTest extends AbstractDataBuilderTest
 
     /**
      * @dataProvider buildDataProvider
-     * @param  float              $amount
-     * @param  float              $amountLeftToRefund
-     * @param  float              $expectedResult
+     *
+     * @param float $amount
+     * @param float $amountLeftToRefund
+     * @param float $expectedResult
+     *
      * @throws ClientException
      * @throws ConverterException
      */

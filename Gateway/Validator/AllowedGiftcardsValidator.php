@@ -48,8 +48,10 @@ class AllowedGiftcardsValidator extends AbstractValidator
     /**
      * Validates the payment information for Buckaroo gateway.
      *
-     * @param  array           $validationSubject
+     * @param array $validationSubject
+     *
      * @return ResultInterface
+     *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function validate(array $validationSubject): ResultInterface

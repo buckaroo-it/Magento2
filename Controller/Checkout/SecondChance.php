@@ -40,9 +40,9 @@ class SecondChance extends Action
     protected $secondChanceRepository;
 
     /**
-     * @param Context $context
-     * @param Log                                   $logger
-     * @param SecondChanceRepository                $secondChanceRepository
+     * @param Context                $context
+     * @param Log                    $logger
+     * @param SecondChanceRepository $secondChanceRepository
      */
     public function __construct(
         Context $context,
@@ -58,6 +58,7 @@ class SecondChance extends Action
      * Process action
      *
      * @throws Exception
+     *
      * @return ResponseInterface
      */
     public function execute()

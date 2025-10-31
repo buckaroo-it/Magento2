@@ -90,6 +90,7 @@ class Push implements PushInterface
      * @inheritdoc
      *
      * @throws BuckarooException|\Throwable
+     *
      * @return bool
      */
     public function receivePush(): bool

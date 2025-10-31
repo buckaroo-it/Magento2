@@ -110,9 +110,11 @@ class RefundGroupTransactionService
     /**
      * Refund Group Transaction and Return the amount left to refund
      *
-     * @param  array              $buildSubject
+     * @param array $buildSubject
+     *
      * @throws ClientException
      * @throws ConverterException
+     *
      * @return int|mixed|string
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
@@ -168,9 +170,10 @@ class RefundGroupTransactionService
     /**
      * Create Refund Request for each Giftcard/Voucher/Wallet Transaction
      *
-     * @param  array              $buildSubject
-     * @param  string             $transaction
-     * @param  string             $giftCardValue
+     * @param array  $buildSubject
+     * @param string $transaction
+     * @param string $giftCardValue
+     *
      * @throws ClientException
      * @throws ConverterException
      */

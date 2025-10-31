@@ -10,13 +10,16 @@ interface AnalyticsSearchResultsInterface extends SearchResultsInterface
 
     /**
      * Get Analytics list.
+     *
      * @return AnalyticsInterface[]
      */
     public function getItems();
 
     /**
      * Set quote_id list.
+     *
      * @param AnalyticsInterface[] $items
+     *
      * @return $this
      */
     public function setItems(array $items);

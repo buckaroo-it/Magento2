@@ -50,6 +50,7 @@ class SupportTabTest extends BaseTest
 
     /**
      * @dataProvider getVersionsDataProvider
+     *
      * @param string $version
      * @param string $phpVersions
      * @param int    $returnValue

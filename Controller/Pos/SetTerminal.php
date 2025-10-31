@@ -66,12 +66,13 @@ class SetTerminal extends Action implements HttpGetActionInterface
     protected $cookieMetadataFactory;
 
     /**
-     * @param  Context                 $context
-     * @param  BuckarooLoggerInterface $logger
-     * @param  Factory                 $configProviderFactory
-     * @param  StoreManagerInterface   $storemanager
-     * @param  CookieManagerInterface  $cookieManager
-     * @param  CookieMetadataFactory   $cookieMetadataFactory
+     * @param Context                 $context
+     * @param BuckarooLoggerInterface $logger
+     * @param Factory                 $configProviderFactory
+     * @param StoreManagerInterface   $storemanager
+     * @param CookieManagerInterface  $cookieManager
+     * @param CookieMetadataFactory   $cookieMetadataFactory
+     *
      * @throws BuckarooException
      */
     public function __construct(
@@ -94,6 +95,7 @@ class SetTerminal extends Action implements HttpGetActionInterface
      * Process action
      *
      * @throws Exception
+     *
      * @return ResponseInterface
      */
     public function execute()

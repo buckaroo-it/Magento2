@@ -34,6 +34,7 @@ class AfterExpiryTest extends BaseTest
 
     /**
      * @param array $paymentOption
+     *
      * @dataProvider toOptionArrayProvider
      */
     public function testToOptionArray($paymentOption)

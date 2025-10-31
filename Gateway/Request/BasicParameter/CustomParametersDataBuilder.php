@@ -87,9 +87,10 @@ class CustomParametersDataBuilder implements BuilderInterface
     /**
      * Get custom parameters from billing and shipping address
      *
-     * @param  string                     $customParametersKey
-     * @param  OrderAddressInterface|null $billingData
-     * @param  OrderAddressInterface|null $shippingData
+     * @param string                     $customParametersKey
+     * @param OrderAddressInterface|null $billingData
+     * @param OrderAddressInterface|null $shippingData
+     *
      * @return array
      */
     private function getCustomInfo(
@@ -114,9 +115,10 @@ class CustomParametersDataBuilder implements BuilderInterface
     }
 
     /**
-     * @param        $customerParameters
-     * @param        $addressData
-     * @param        $type
+     * @param $customerParameters
+     * @param $addressData
+     * @param $type
+     *
      * @return array
      */
     private function getCustomerDataFromAddress($customerParameters, $addressData, $type): array
@@ -142,7 +144,8 @@ class CustomParametersDataBuilder implements BuilderInterface
     /**
      * Get Custom Needed Fields
      *
-     * @param  string $customParameters
+     * @param string $customParameters
+     *
      * @return array
      */
     private function getCustomNeededFieldsList(string $customParameters): array
@@ -167,8 +170,9 @@ class CustomParametersDataBuilder implements BuilderInterface
     /**
      * Format custom parameters
      *
-     * @param        $customParameters
-     * @param        $address
+     * @param $customParameters
+     * @param $address
+     *
      * @return array
      */
     private function formatCustomData($customParameters, $address): array
@@ -188,7 +192,8 @@ class CustomParametersDataBuilder implements BuilderInterface
     /**
      * Format Parameter Label
      *
-     * @param                        $parameterKey
+     * @param $parameterKey
+     *
      * @return array|string|string[]
      */
     public function getCustomParameterLabel($parameterKey)
@@ -199,7 +204,8 @@ class CustomParametersDataBuilder implements BuilderInterface
     /**
      * Format Parameter Value
      *
-     * @param                             $parameterKey
+     * @param $parameterKey
+     *
      * @return array|string|string[]|null
      */
     public function getCustomParameterValue($parameterKey)
@@ -210,7 +216,8 @@ class CustomParametersDataBuilder implements BuilderInterface
     /**
      * Get country name from country id
      *
-     * @param         $data
+     * @param $data
+     *
      * @return string
      */
     private function getCountryName($data): string
@@ -226,8 +233,9 @@ class CustomParametersDataBuilder implements BuilderInterface
     /**
      * Set Street Data
      *
-     * @param  string $addressData
-     * @param  array  $customerData
+     * @param string $addressData
+     * @param array  $customerData
+     *
      * @return array
      */
     private function setStreetData(string $addressData, array $customerData)
@@ -256,7 +264,8 @@ class CustomParametersDataBuilder implements BuilderInterface
     /**
      * Format street address
      *
-     * @param        $street
+     * @param $street
+     *
      * @return array
      */
     private function formatStreet($street): array
@@ -287,7 +296,8 @@ class CustomParametersDataBuilder implements BuilderInterface
     /**
      * Remove empty customer data
      *
-     * @param  array $customData
+     * @param array $customData
+     *
      * @return array
      */
     private function getNotEmptyCustomData(array $customData): array

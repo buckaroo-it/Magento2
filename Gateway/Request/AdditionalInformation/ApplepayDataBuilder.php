@@ -46,7 +46,8 @@ class ApplepayDataBuilder implements BuilderInterface
     /**
      * Get the customer card name from Apple Pay transaction
      *
-     * @param  PaymentDataObjectInterface $paymentDO
+     * @param PaymentDataObjectInterface $paymentDO
+     *
      * @return string|null
      */
     protected function getCustomerCardName(PaymentDataObjectInterface $paymentDO): ?string

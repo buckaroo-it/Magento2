@@ -82,6 +82,7 @@ class Payconiq extends AbstractConfigProvider
      * Get Magento Form Key
      *
      * @throws LocalizedException
+     *
      * @return string
      */
     private function getFormKey(): string
@@ -90,7 +91,8 @@ class Payconiq extends AbstractConfigProvider
     }
 
     /**
-     * @param  null|mixed $storeId
+     * @param null|mixed $storeId
+     *
      * @return float
      */
     public function getPaymentFee($storeId = null)

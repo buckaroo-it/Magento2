@@ -67,7 +67,8 @@ class SaveOrderProcessor
     }
 
     /** Entry‑point called by the controller
-     * @param  array                   $payload
+     * @param array $payload
+     *
      * @throws ExpressMethodsException
      * @throws LocalizedException
      * @throws Exception
@@ -109,9 +110,10 @@ class SaveOrderProcessor
 
     /* --------------------------------------------------------------------------- */
     /**
-     * @param  Quote              $quote
-     * @param  array              $extra
-     * @param  array              $payment
+     * @param Quote $quote
+     * @param array $extra
+     * @param array $payment
+     *
      * @throws Exception
      * @throws LocalizedException
      */
@@ -179,7 +181,8 @@ class SaveOrderProcessor
     }
 
     /**
-     * @param  string    $incrementId
+     * @param string $incrementId
+     *
      * @throws Exception
      */
     private function prepareRedirect(string $incrementId): array

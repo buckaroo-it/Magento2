@@ -51,9 +51,11 @@ class AvailableBasedOnCustomerGroupValidator extends AbstractValidator
     /**
      * Available Based on Costumer Group
      *
-     * @param  array              $validationSubject
+     * @param array $validationSubject
+     *
      * @throws Exception
      * @throws LocalizedException
+     *
      * @return ResultInterface
      */
     public function validate(array $validationSubject): ResultInterface

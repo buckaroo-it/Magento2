@@ -71,8 +71,10 @@ class SetTransactionOnInvoiceObserver implements ObserverInterface
     /**
      * Set transaction id on invoiced for invoice after shippment
      *
-     * @param  Observer           $observer
+     * @param Observer $observer
+     *
      * @throws LocalizedException
+     *
      * @return $this
      */
     public function execute(Observer $observer)
@@ -110,7 +112,8 @@ class SetTransactionOnInvoiceObserver implements ObserverInterface
     /**
      * Is the invoice for the current order is created after shipment
      *
-     * @param  OrderPaymentInterface $payment
+     * @param OrderPaymentInterface $payment
+     *
      * @return bool
      */
     private function isInvoiceCreatedAfterShipment(OrderPaymentInterface $payment): bool

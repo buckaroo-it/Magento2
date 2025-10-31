@@ -79,7 +79,8 @@ class BuckarooStatusCode
     /**
      * Get Response Message by Response Code
      *
-     * @param  int    $responseCode
+     * @param int $responseCode
+     *
      * @return string
      */
     public function getResponseMessage(int $responseCode): string
@@ -90,7 +91,8 @@ class BuckarooStatusCode
     /**
      * Return the requested status key with the value, or null if not found
      *
-     * @param  int    $responseCode
+     * @param int $responseCode
+     *
      * @return string
      */
     public function getStatusKey(int $responseCode): string

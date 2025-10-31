@@ -45,10 +45,12 @@ if (class_exists('\Mageplaza\Osc\Model\CheckoutManagement')) {
         /**
          * Block updating the item qty when group transaction order already started
          *
-         * @param  int                   $cartId
-         * @param  int                   $itemId
-         * @param  int|float             $itemQty
+         * @param int       $cartId
+         * @param int       $itemId
+         * @param int|float $itemQty
+         *
          * @throws CouldNotSaveException
+         *
          * @return mixed
          */
         public function updateItemQty(int $cartId, int $itemId, $itemQty)
@@ -65,9 +67,11 @@ if (class_exists('\Mageplaza\Osc\Model\CheckoutManagement')) {
         /**
          * Block remove the item qty when group transaction order already started
          *
-         * @param  int                   $cartId
-         * @param  int                   $itemId
+         * @param int $cartId
+         * @param int $itemId
+         *
          * @throws CouldNotSaveException
+         *
          * @return mixed
          */
         public function removeItemById(int $cartId, int $itemId)
@@ -83,7 +87,8 @@ if (class_exists('\Mageplaza\Osc\Model\CheckoutManagement')) {
         /**
          * Get quote already payed amount
          *
-         * @param  Quote $quote
+         * @param Quote $quote
+         *
          * @return float
          */
         private function getAlreadyPaid(Quote $quote): float

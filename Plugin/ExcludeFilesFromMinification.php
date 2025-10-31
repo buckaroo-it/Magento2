@@ -28,9 +28,10 @@ class ExcludeFilesFromMinification
     /**
      * Excludes Buckaroo client side javascript file from minification
      *
-     * @param  Minification $subject
-     * @param  callable     $proceed
-     * @param  string       $contentType
+     * @param Minification $subject
+     * @param callable     $proceed
+     * @param string       $contentType
+     *
      * @return mixed
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)

@@ -74,8 +74,9 @@ class PayLinkDataBuilder extends AbstractDataBuilder
     /**
      * Get Payment Methods Allowed
      *
-     * @param  PayLink         $config
-     * @param  string|int|null $storeId
+     * @param PayLink         $config
+     * @param string|int|null $storeId
+     *
      * @return string
      */
     private function getPaymentMethodsAllowed(PayLink $config, $storeId): string

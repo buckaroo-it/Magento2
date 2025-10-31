@@ -38,6 +38,7 @@ class PaymentInTransitHandlerTest extends AbstractResponseHandlerTest
 
     /**
      * @dataProvider handleDataProvider
+     *
      * @param bool $hasRedirect
      * @param bool $inTransit
      */

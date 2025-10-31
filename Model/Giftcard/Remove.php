@@ -60,9 +60,10 @@ class Remove
     /**
      * Refund giftcard based on transaction id
      *
-     * @param  string           $transactionId
-     * @param  string           $orderId
-     * @param                   $payment
+     * @param string $transactionId
+     * @param string $orderId
+     * @param        $payment
+     *
      * @throws RemoveException
      * @throws CommandException
      */
@@ -87,8 +88,9 @@ class Remove
     /**
      * Get giftcard transaction from database
      *
-     * @param  string           $transactionId
-     * @param  string           $orderId
+     * @param string $transactionId
+     * @param string $orderId
+     *
      * @return GroupTransaction
      */
     protected function getGiftcardTransactionById(string $transactionId, string $orderId)

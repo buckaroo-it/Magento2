@@ -25,7 +25,8 @@ interface GroupTransactionInterface
     /**
      * Set Group Transaction Service Code
      *
-     * @param  string $servicecode
+     * @param string $servicecode
+     *
      * @return $this
      */
     public function setServicecode($servicecode);

@@ -49,7 +49,8 @@ class SpamLimitValidator extends AbstractValidator
     /**
      * Check if this payment method is limited by IP.
      *
-     * @param  array           $validationSubject
+     * @param array $validationSubject
+     *
      * @return ResultInterface
      */
     public function validate(array $validationSubject): ResultInterface

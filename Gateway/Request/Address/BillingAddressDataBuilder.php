@@ -30,6 +30,7 @@ class BillingAddressDataBuilder extends AbstractAddressDataBuilder
      * Get Billing Address
      *
      * @throws Exception
+     *
      * @return Address
      */
     protected function getAddress(): Address

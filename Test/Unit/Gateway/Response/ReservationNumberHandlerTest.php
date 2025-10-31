@@ -45,9 +45,10 @@ class ReservationNumberHandlerTest extends AbstractResponseHandlerTest
     /**
      * @dataProvider reservationNumberDataProvider
      *
-     * @param  string     $paymentMethod
-     * @param  bool       $hasReservationNumber
-     * @param  array|null $serviceParameters
+     * @param string     $paymentMethod
+     * @param bool       $hasReservationNumber
+     * @param array|null $serviceParameters
+     *
      * @throws \Exception
      */
     public function testHandle(

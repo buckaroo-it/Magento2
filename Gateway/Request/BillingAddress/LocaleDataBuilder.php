@@ -41,7 +41,8 @@ class LocaleDataBuilder implements BuilderInterface
     /**
      * Get Locale Code By Country ID from Billing Address
      *
-     * @param  Order  $order
+     * @param Order $order
+     *
      * @return string
      */
     private function getLocaleCode(Order $order): string

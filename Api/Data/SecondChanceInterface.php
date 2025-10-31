@@ -46,7 +46,8 @@ interface SecondChanceInterface extends ExtensibleDataInterface
     /**
      * Set second chance ID
      *
-     * @param  string                                            $secondChanceId
+     * @param string $secondChanceId
+     *
      * @return SecondChanceInterface
      */
     public function setSecondChanceId($secondChanceId);
@@ -61,7 +62,8 @@ interface SecondChanceInterface extends ExtensibleDataInterface
     /**
      * Set order ID
      *
-     * @param  string                                            $orderId
+     * @param string $orderId
+     *
      * @return SecondChanceInterface
      */
     public function setOrderId($orderId);
@@ -76,7 +78,8 @@ interface SecondChanceInterface extends ExtensibleDataInterface
     /**
      * Set store ID
      *
-     * @param  int                                               $storeId
+     * @param int $storeId
+     *
      * @return SecondChanceInterface
      */
     public function setStoreId($storeId);
@@ -91,7 +94,8 @@ interface SecondChanceInterface extends ExtensibleDataInterface
     /**
      * Set customer email
      *
-     * @param  string                                            $customerEmail
+     * @param string $customerEmail
+     *
      * @return SecondChanceInterface
      */
     public function setCustomerEmail($customerEmail);
@@ -106,7 +110,8 @@ interface SecondChanceInterface extends ExtensibleDataInterface
     /**
      * Set token
      *
-     * @param  string                                            $token
+     * @param string $token
+     *
      * @return SecondChanceInterface
      */
     public function setToken($token);
@@ -121,7 +126,8 @@ interface SecondChanceInterface extends ExtensibleDataInterface
     /**
      * Set status
      *
-     * @param  string                                            $status
+     * @param string $status
+     *
      * @return SecondChanceInterface
      */
     public function setStatus($status);
@@ -136,7 +142,8 @@ interface SecondChanceInterface extends ExtensibleDataInterface
     /**
      * Set step
      *
-     * @param  int                                               $step
+     * @param int $step
+     *
      * @return SecondChanceInterface
      */
     public function setStep($step);
@@ -151,7 +158,8 @@ interface SecondChanceInterface extends ExtensibleDataInterface
     /**
      * Set created at
      *
-     * @param  string                                            $createdAt
+     * @param string $createdAt
+     *
      * @return SecondChanceInterface
      */
     public function setCreatedAt($createdAt);
@@ -166,7 +174,8 @@ interface SecondChanceInterface extends ExtensibleDataInterface
     /**
      * Set first email sent
      *
-     * @param  string                                            $firstEmailSent
+     * @param string $firstEmailSent
+     *
      * @return SecondChanceInterface
      */
     public function setFirstEmailSent($firstEmailSent);
@@ -181,7 +190,8 @@ interface SecondChanceInterface extends ExtensibleDataInterface
     /**
      * Set second email sent
      *
-     * @param  string                                            $secondEmailSent
+     * @param string $secondEmailSent
+     *
      * @return SecondChanceInterface
      */
     public function setSecondEmailSent($secondEmailSent);
@@ -196,7 +206,8 @@ interface SecondChanceInterface extends ExtensibleDataInterface
     /**
      * Set last order ID
      *
-     * @param  string                                            $lastOrderId
+     * @param string $lastOrderId
+     *
      * @return SecondChanceInterface
      */
     public function setLastOrderId($lastOrderId);
@@ -212,6 +223,7 @@ interface SecondChanceInterface extends ExtensibleDataInterface
      * Set an extension attributes object.
      *
      * @param SecondChanceExtensionInterface $extensionAttributes
+     *
      * @return $this
      */
     public function setExtensionAttributes(

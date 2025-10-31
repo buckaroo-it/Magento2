@@ -239,8 +239,9 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
     /**
      * Cancel order for failed group transaction
      *
-     * @param  string             $reservedOrderId
-     * @param  string             $historyComment
+     * @param string $reservedOrderId
+     * @param string $historyComment
+     *
      * @throws LocalizedException
      */
     protected function cancelOrder(string $reservedOrderId, string $historyComment = 'Giftcard has expired'): void
@@ -267,9 +268,11 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
     /**
      * Create order from quote
      *
-     * @param  string                                             $reservedOrderId
+     * @param string $reservedOrderId
+     *
      * @throws \Exception
      * @throws LocalizedException
+     *
      * @return AbstractExtensibleModel|OrderInterface|object|null
      */
     protected function createOrderFromQuote(string $reservedOrderId)
@@ -299,7 +302,8 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
     /**
      * Get quote by increment/reserved order id
      *
-     * @param  string     $reservedOrderId
+     * @param string $reservedOrderId
+     *
      * @return Quote|null
      */
     protected function getQuoteByReservedOrderId(string $reservedOrderId): ?Quote

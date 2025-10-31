@@ -123,6 +123,7 @@ class Order
      * Cancel expired transfer orders for all stores.
      *
      * @throws BuckarooException
+     *
      * @return $this
      */
     public function cancelExpiredTransferOrders()
@@ -138,7 +139,8 @@ class Order
     /**
      * Cancel expired transfer orders for the specified store.
      *
-     * @param  StoreInterface    $store
+     * @param StoreInterface $store
+     *
      * @throws BuckarooException
      */
     protected function cancelExpiredTransferOrdersPerStore(StoreInterface $store)
@@ -202,6 +204,7 @@ class Order
      * Cancel expired Pay Per Email orders for all stores.
      *
      * @throws BuckarooException
+     *
      * @return $this
      */
     public function cancelExpiredPPEOrders(): Order
@@ -217,7 +220,8 @@ class Order
     /**
      * Cancel expired Pay Per Email orders for the specified store.
      *
-     * @param  StoreInterface    $store
+     * @param StoreInterface $store
+     *
      * @throws BuckarooException
      */
     protected function cancelExpiredPPEOrdersPerStore(StoreInterface $store)
@@ -282,10 +286,12 @@ class Order
     /**
      * Cancel the given order with the specified status code.
      *
-     * @param  MagentoOrder       $order
-     * @param  int|null           $statusCode
-     * @param  string|null        $statusMessage
+     * @param MagentoOrder $order
+     * @param int|null     $statusCode
+     * @param string|null  $statusMessage
+     *
      * @throws LocalizedException
+     *
      * @return bool
      */
     public function cancel(MagentoOrder $order, ?int $statusCode, ?string $statusMessage = null): bool

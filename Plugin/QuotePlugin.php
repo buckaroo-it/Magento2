@@ -39,8 +39,9 @@ class QuotePlugin
     /**
      * Around plugin for reserveOrderId method.
      *
-     * @param  Quote    $subject
-     * @param  \Closure $proceed
+     * @param Quote    $subject
+     * @param \Closure $proceed
+     *
      * @return Quote
      */
     public function aroundReserveOrderId(Quote $subject, \Closure $proceed)

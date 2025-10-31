@@ -17,7 +17,9 @@ class SecondChance extends Value
      * Validate the configuration value before saving
      *
      * @throws ValidatorException
+     *
      * @return $this
+     *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function beforeSave()

@@ -76,14 +76,15 @@ class CheckOrderStatus extends Action implements HttpPostActionInterface
     private $customerSession;
 
     /**
-     * @param  Context               $context
-     * @param  Order                 $order
-     * @param  JsonFactory           $resultJsonFactory
-     * @param  Factory               $configProviderFactory
-     * @param  StoreManagerInterface $storeManager
-     * @param  UrlInterface          $urlBuilder
-     * @param  FormKey               $formKey
-     * @param  Session               $customerSession
+     * @param Context               $context
+     * @param Order                 $order
+     * @param JsonFactory           $resultJsonFactory
+     * @param Factory               $configProviderFactory
+     * @param StoreManagerInterface $storeManager
+     * @param UrlInterface          $urlBuilder
+     * @param FormKey               $formKey
+     * @param Session               $customerSession
+     *
      * @throws Exception
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
@@ -112,6 +113,7 @@ class CheckOrderStatus extends Action implements HttpPostActionInterface
      * Process action
      *
      * @throws \Exception
+     *
      * @return Json
      */
     public function execute()

@@ -69,6 +69,7 @@ class CreateSecondChanceRecordTest extends \Buckaroo\Magento2\Test\BaseTest
 
     /**
      * @dataProvider executeDataProvider
+     *
      * @param int    $orderId
      * @param string $state
      * @param string $paymentMethod

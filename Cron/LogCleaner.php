@@ -142,7 +142,8 @@ class LogCleaner
     /**
      * Delete files that contains logs
      *
-     * @param  int                 $retentionPeriod
+     * @param int $retentionPeriod
+     *
      * @throws FileSystemException
      */
     private function proceedFiles(int $retentionPeriod)
@@ -163,7 +164,8 @@ class LogCleaner
     /**
      * Get all files from log directory
      *
-     * @param  string $path
+     * @param string $path
+     *
      * @return array
      */
     private function getAllFiles(string $path): array

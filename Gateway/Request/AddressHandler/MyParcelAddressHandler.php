@@ -46,8 +46,9 @@ class MyParcelAddressHandler extends AbstractAddressHandler
     /**
      * Update Shipping Address By MyParcel
      *
-     * @param  Order                 $order
-     * @param  OrderAddressInterface $shippingAddress
+     * @param Order                 $order
+     * @param OrderAddressInterface $shippingAddress
+     *
      * @return Order
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)

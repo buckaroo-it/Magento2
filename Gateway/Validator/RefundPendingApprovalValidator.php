@@ -83,7 +83,9 @@ class RefundPendingApprovalValidator extends AbstractValidator
      * @param array $validationSubject
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     *
      * @throws LocalizedException
+     *
      * @return ResultInterface
      */
     public function validate(array $validationSubject): ResultInterface

@@ -87,7 +87,8 @@ class Mrcash extends AbstractConfigProvider
     /**
      * Get Use Client Side
      *
-     * @param  null|int|string $store
+     * @param null|int|string $store
+     *
      * @return mixed
      */
     public function useClientSide($store = null)
@@ -99,6 +100,7 @@ class Mrcash extends AbstractConfigProvider
      * Get Magento Form Key
      *
      * @throws LocalizedException
+     *
      * @return string
      */
     private function getFormKey(): string

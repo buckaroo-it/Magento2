@@ -96,8 +96,10 @@ class AfterpayDataBuilder extends AbstractRecipientDataBuilder
     /**
      * Determines whether the customer is a B2B customer based on the store configuration.
      *
-     * @param  int|null           $storeId
+     * @param int|null $storeId
+     *
      * @throws LocalizedException
+     *
      * @return bool
      */
     private function isCustomerB2B(?int $storeId = null): bool
@@ -108,9 +110,11 @@ class AfterpayDataBuilder extends AbstractRecipientDataBuilder
     /**
      * Retrieve information from payment configuration
      *
-     * @param  string                $field
-     * @param  int|string|null|Store $storeId
+     * @param string                $field
+     * @param int|string|null|Store $storeId
+     *
      * @throws LocalizedException
+     *
      * @return mixed
      */
     public function getConfigData(string $field, $storeId = null)

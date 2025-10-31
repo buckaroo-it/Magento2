@@ -67,6 +67,7 @@ class AddInTestModeMessage implements ObserverInterface
      * @inheritdoc
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     *
      * @throws NotFoundException
      */
     public function execute(Observer $observer)
@@ -82,6 +83,7 @@ class AddInTestModeMessage implements ObserverInterface
      * Check to see if the payment for this order is in test mode
      *
      * @throws NotFoundException
+     *
      * @return bool
      */
     protected function isPaymentInTestMode(): bool

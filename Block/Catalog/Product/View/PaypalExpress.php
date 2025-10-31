@@ -85,6 +85,7 @@ class PaypalExpress extends Template
      * Can show PayPal Express button on cart
      *
      * @throws NoSuchEntityException
+     *
      * @return bool
      */
     public function canShowProductButton()
@@ -99,6 +100,7 @@ class PaypalExpress extends Template
      * Can show PayPal Express button on cart
      *
      * @throws NoSuchEntityException
+     *
      * @return bool
      */
     public function canShowCartButton()
@@ -133,6 +135,7 @@ class PaypalExpress extends Template
      *
      * @throws NoSuchEntityException
      * @throws LocalizedException
+     *
      * @return string
      */
     protected function getCurrency()
@@ -148,6 +151,7 @@ class PaypalExpress extends Template
      *
      * @throws NoSuchEntityException
      * @throws \Exception
+     *
      * @return string
      */
     protected function getWebsiteKey()
@@ -163,6 +167,7 @@ class PaypalExpress extends Template
      * Get merchant id
      *
      * @throws NoSuchEntityException
+     *
      * @return string|null
      */
     protected function getMerchantId()
@@ -176,6 +181,7 @@ class PaypalExpress extends Template
      * Get paypal express button color
      *
      * @throws NoSuchEntityException
+     *
      * @return string|null
      */
     protected function getButtonColor()
@@ -189,6 +195,7 @@ class PaypalExpress extends Template
      * Get paypal express button color
      *
      * @throws NoSuchEntityException
+     *
      * @return string|null
      */
     protected function getButtonShape()
@@ -202,6 +209,7 @@ class PaypalExpress extends Template
      * Get paypal express button color
      *
      * @throws NoSuchEntityException
+     *
      * @return bool
      */
     protected function isTestMode()
@@ -215,6 +223,7 @@ class PaypalExpress extends Template
      * Check if iDIN verification is required for this context (product page or cart)
      *
      * @throws LocalizedException
+     *
      * @return bool
      */
     public function isIdinVerificationRequired()

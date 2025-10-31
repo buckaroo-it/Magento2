@@ -47,6 +47,7 @@ class PayPerEmail extends AbstractConfigProvider
      * Retrieve PayPerEmail assoc array of checkout configuration
      *
      * @throws Exception
+     *
      * @return array
      */
     public function getConfig(): array
@@ -78,7 +79,8 @@ class PayPerEmail extends AbstractConfigProvider
     /**
      * Get payment methods available for pay per email
      *
-     * @param  int|null    $storeId
+     * @param int|null $storeId
+     *
      * @return false|mixed
      */
     public function getPaymentMethod(?int $storeId = null)
@@ -131,7 +133,8 @@ class PayPerEmail extends AbstractConfigProvider
     /**
      * Check if PayPerEmail is visible for specific area code
      *
-     * @param  string $areaCode
+     * @param string $areaCode
+     *
      * @return bool
      */
     public function isVisibleForAreaCode($areaCode)
@@ -153,7 +156,8 @@ class PayPerEmail extends AbstractConfigProvider
     /**
      * Get where the Pay Per Email method will be visible Frontend or Backend or Both
      *
-     * @param  null|int|string $store
+     * @param null|int|string $store
+     *
      * @return mixed
      */
     public function getVisibleFrontBack($store = null)
@@ -164,7 +168,8 @@ class PayPerEmail extends AbstractConfigProvider
     /**
      * Check if Credit Management is enabled
      *
-     * @param  null|int|string $store
+     * @param null|int|string $store
+     *
      * @return mixed
      */
     public function getActiveStatusCm3($store = null)
@@ -175,7 +180,8 @@ class PayPerEmail extends AbstractConfigProvider
     /**
      * Credit Management Scheme Key
      *
-     * @param  null|int|string $store
+     * @param null|int|string $store
+     *
      * @return mixed
      */
     public function getSchemeKey($store = null)
@@ -186,7 +192,8 @@ class PayPerEmail extends AbstractConfigProvider
     /**
      * Get Max level of the Credit Management steps
      *
-     * @param  null|int|string $store
+     * @param null|int|string $store
+     *
      * @return mixed
      */
     public function getMaxStepIndex($store = null)
@@ -197,7 +204,8 @@ class PayPerEmail extends AbstractConfigProvider
     /**
      * Get credit managment due date, amount of days after the order date
      *
-     * @param  null|int|string $store
+     * @param null|int|string $store
+     *
      * @return mixed
      */
     public function getCm3DueDate($store = null)
@@ -208,7 +216,8 @@ class PayPerEmail extends AbstractConfigProvider
     /**
      * Get payment method which can be used after the payment due date.
      *
-     * @param  null|int|string $store
+     * @param null|int|string $store
+     *
      * @return mixed
      */
     public function getPaymentMethodAfterExpiry($store = null)
@@ -219,7 +228,8 @@ class PayPerEmail extends AbstractConfigProvider
     /**
      * Get status of B2B mode enabled
      *
-     * @param  null|int|string $store
+     * @param null|int|string $store
+     *
      * @return mixed
      */
     public function getEnableB2b($store = null)

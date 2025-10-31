@@ -32,6 +32,7 @@ class AllowedIssuers extends Value
      * Validate that at least one issuer is selected
      *
      * @throws LocalizedException
+     *
      * @return $this
      */
     public function save()

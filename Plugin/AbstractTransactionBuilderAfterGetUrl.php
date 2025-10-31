@@ -16,6 +16,7 @@ class AbstractTransactionBuilderAfterGetUrl
     }
     /**
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     *
      * @param mixed $subject
      * @param mixed $result
      */

@@ -98,6 +98,7 @@ class Giftcards extends AbstractConfigProvider
      * @inheritdoc
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     *
      * @throws Exception|NoSuchEntityException
      */
     public function getConfig(): array
@@ -115,7 +116,8 @@ class Giftcards extends AbstractConfigProvider
     /**
      * Type of the giftcard inline/redirect
      *
-     * @param  null|int|string $store
+     * @param null|int|string $store
+     *
      * @return mixed
      */
     public function getGroupGiftcards($store = null)
@@ -185,7 +187,8 @@ class Giftcards extends AbstractConfigProvider
     /**
      * Get Allowed Giftcards
      *
-     * @param             $store
+     * @param $store
+     *
      * @return mixed|null
      */
     public function getAllowedGiftcards($store = null)
@@ -196,7 +199,8 @@ class Giftcards extends AbstractConfigProvider
     /**
      * Get Sorted Giftcards
      *
-     * @param             $store
+     * @param $store
+     *
      * @return mixed|null
      */
     public function getSortedGiftcards($store = null)
@@ -207,7 +211,8 @@ class Giftcards extends AbstractConfigProvider
     /**
      * Get Sorted Issuers (alias for getSortedGiftcards for SortIssuers block compatibility)
      *
-     * @param             $store
+     * @param $store
+     *
      * @return mixed|null
      */
     public function getSortedIssuers($store = null)
@@ -227,6 +232,7 @@ class Giftcards extends AbstractConfigProvider
      * Uses the same source model as the admin multiselect to ensure consistency
      *
      * @throws NoSuchEntityException
+     *
      * @return array
      */
     public function getAllIssuers(): array
@@ -294,6 +300,7 @@ class Giftcards extends AbstractConfigProvider
      * Format issuers for display
      *
      * @throws NoSuchEntityException
+     *
      * @return array
      */
     public function formatIssuers(): array
@@ -304,7 +311,8 @@ class Giftcards extends AbstractConfigProvider
     /**
      * Get giftcard logo image
      *
-     * @param  string $code
+     * @param string $code
+     *
      * @return string
      */
     protected function getGiftcardLogo(string $code): string
@@ -333,7 +341,8 @@ class Giftcards extends AbstractConfigProvider
     /**
      * Get Advanced order export for giftcards
      *
-     * @param  null|int|string $store
+     * @param null|int|string $store
+     *
      * @return bool
      */
     public function hasAdvancedExportGiftcards($store = null): bool

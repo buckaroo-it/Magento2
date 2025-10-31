@@ -222,7 +222,8 @@ class GiftcardRepository implements GiftcardRepositoryInterface
     }
 
     /**
-     * @param  string            $serviceCode
+     * @param string $serviceCode
+     *
      * @return GiftcardInterface
      */
     public function getByServiceCode(string $serviceCode)

@@ -29,6 +29,7 @@ class PayconiqProcessor extends DefaultProcessor
      * Skip the push if the conditions are met.
      *
      * @throws \Exception
+     *
      * @return bool
      */
     protected function skipPush(): bool

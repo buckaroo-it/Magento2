@@ -89,6 +89,7 @@ class AllowedCurrencies extends Value
      * Check that the value contains valid currencies.
      *
      * @throws LocalizedException
+     *
      * @return $this
      */
     public function save()
@@ -110,7 +111,8 @@ class AllowedCurrencies extends Value
     /**
      * Checks if there is a translation for this currency. If not, returns the original value to show it to the user.
      *
-     * @param  string $currency
+     * @param string $currency
+     *
      * @return mixed
      */
     protected function getCurrencyTranslation($currency)

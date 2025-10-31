@@ -44,7 +44,8 @@ class SDKTransferFactory implements TransferFactoryInterface
     /**
      * Builds gateway transfer object
      *
-     * @param  array             $request
+     * @param array $request
+     *
      * @return TransferInterface
      */
     public function create(array $request): TransferInterface

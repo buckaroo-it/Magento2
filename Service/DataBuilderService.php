@@ -41,7 +41,8 @@ class DataBuilderService
     /**
      * Get Element From Data Builders
      *
-     * @param  string|int $key
+     * @param string|int $key
+     *
      * @return mixed
      */
     public function getElement($key)
@@ -52,7 +53,8 @@ class DataBuilderService
     /**
      * Add new data in Data Builders
      *
-     * @param  array $data
+     * @param array $data
+     *
      * @return $this
      */
     public function addData(array $data): DataBuilderService
@@ -64,7 +66,8 @@ class DataBuilderService
     /**
      * Remove the elements from Data Builders
      *
-     * @param  array $data
+     * @param array $data
+     *
      * @return $this
      */
     public function removeData(array $data): DataBuilderService

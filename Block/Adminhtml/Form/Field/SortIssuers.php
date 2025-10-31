@@ -73,8 +73,10 @@ class SortIssuers extends Field
     /**
      * Return element html
      *
-     * @param  AbstractElement $element
+     * @param AbstractElement $element
+     *
      * @throws Exception
+     *
      * @return string
      */
     protected function _getElementHtml(AbstractElement $element)

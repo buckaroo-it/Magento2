@@ -29,8 +29,9 @@ class SendCloudAddressHandler extends AbstractAddressHandler
     /**
      * Update shipping address by SendCloud
      *
-     * @param  Order                 $order
-     * @param  OrderAddressInterface $shippingAddress
+     * @param Order                 $order
+     * @param OrderAddressInterface $shippingAddress
+     *
      * @return Order
      *
      * @SuppressWarnings(PHPMD.UnusedLocalVariable)

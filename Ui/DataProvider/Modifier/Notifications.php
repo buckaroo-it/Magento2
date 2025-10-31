@@ -173,7 +173,8 @@ class Notifications implements ModifierInterface
     /**
      * Sets the modal to not display if no content is available.
      *
-     * @param  array $meta
+     * @param array $meta
+     *
      * @return array
      */
     private function hideNotification(array $meta): array

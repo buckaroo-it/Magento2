@@ -143,6 +143,7 @@ class BelfiusTest extends BaseTest
      * @param $expected
      *
      * @covers ::getPaymentFee
+     *
      * @dataProvider getPaymentFeeProvider
      */
     public function testGetPaymentFee($value, $expected)

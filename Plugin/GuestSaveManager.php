@@ -96,11 +96,12 @@ if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
         /**
          * Set billing address if the billing address is null before save payment information and place order
          *
-         * @param                                                     $parent
-         * @param                                                     $cartId
-         * @param                                                     $email
-         * @param  PaymentInterface                                   $paymentMethod
-         * @param  AddressInterface|null                              $billingAddress
+         * @param                       $parent
+         * @param                       $cartId
+         * @param                       $email
+         * @param PaymentInterface      $paymentMethod
+         * @param AddressInterface|null $billingAddress
+         *
          * @throws \Magento\Framework\Exception\NoSuchEntityException
          */
         public function beforeSavePaymentInformationAndPlaceOrder(
@@ -128,11 +129,12 @@ if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
         /**
          * Set billing address if the billing address is null before save payment information
          *
-         * @param                                                     $parent
-         * @param                                                     $cartId
-         * @param                                                     $email
-         * @param  PaymentInterface                                   $paymentMethod
-         * @param  AddressInterface|null                              $billingAddress
+         * @param                       $parent
+         * @param                       $cartId
+         * @param                       $email
+         * @param PaymentInterface      $paymentMethod
+         * @param AddressInterface|null $billingAddress
+         *
          * @throws \Magento\Framework\Exception\NoSuchEntityException
          */
         public function beforeSavePaymentInformation(

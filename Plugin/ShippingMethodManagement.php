@@ -72,9 +72,11 @@ class ShippingMethodManagement
     /**
      * Ensures that the shipping address is loaded and shipping rates are collected.
      *
-     * @param  int                   $cartId
+     * @param int $cartId
+     *
      * @throws LocalizedException
      * @throws NoSuchEntityException
+     *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
@@ -125,7 +127,8 @@ class ShippingMethodManagement
     /**
      * Function that is used by external plugins
      *
-     * @param  Store $store
+     * @param Store $store
+     *
      * @return false
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)

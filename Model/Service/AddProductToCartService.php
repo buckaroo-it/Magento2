@@ -63,10 +63,12 @@ class AddProductToCartService
     /**
      * Add Product Selected to cart.
      *
-     * @param  DataObject            $product
-     * @param  Quote                 $cart
+     * @param DataObject $product
+     * @param Quote      $cart
+     *
      * @throws NoSuchEntityException
      * @throws LocalizedException
+     *
      * @return Quote
      */
     public function addProductToCart(DataObject $product, Quote $cart): Quote

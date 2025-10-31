@@ -72,8 +72,9 @@ abstract class AbstractApplepay implements HttpPostActionInterface
     /**
      * Gather totals from quote totals.
      *
-     * @param  Address|null   $address
-     * @param  AddressTotal[] $quoteTotals
+     * @param Address|null   $address
+     * @param AddressTotal[] $quoteTotals
+     *
      * @return array
      */
     public function gatherTotals(?Address $address, array $quoteTotals): array
@@ -94,8 +95,9 @@ abstract class AbstractApplepay implements HttpPostActionInterface
     /**
      * Create a common JSON response.
      *
-     * @param  array|string $data
-     * @param  string|bool  $errorMessage
+     * @param array|string $data
+     * @param string|bool  $errorMessage
+     *
      * @return Json
      */
     protected function commonResponse($data, $errorMessage): Json

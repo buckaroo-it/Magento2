@@ -74,8 +74,9 @@ class KlarnaDiscountPartialInformation extends Template
     /**
      * Should show the warning regarding partial discount
      *
-     * @return bool
      * @throws LogicException|LocalizedException
+     *
+     * @return bool
      */
     protected function shouldShowWarning()
     {

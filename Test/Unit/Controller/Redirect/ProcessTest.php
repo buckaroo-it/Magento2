@@ -92,6 +92,7 @@ class ProcessTest extends BaseTest
 
     /**
      * Test the path when we are unable to create a quote.
+     *
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function testExecuteUnableToCreateQuote()
@@ -241,6 +242,7 @@ class ProcessTest extends BaseTest
 
     /**
      * Test what happens when we are unable to cancel the order.
+     *
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function testExecuteUnableToCancelOrder()
@@ -376,6 +378,7 @@ class ProcessTest extends BaseTest
 
     /**
      * Test a success status update.
+     *
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function testExecuteSuccessStatus()

@@ -74,7 +74,8 @@ class AllowedCountries implements OptionSourceInterface
      * @param string|null $method
      *
      * @throws BuckarooException
-     * @return array             Format: array(array('value' => '<value>', 'label' => '<label>'), ...)
+     *
+     * @return array Format: array(array('value' => '<value>', 'label' => '<label>'), ...)
      */
     public function toOptionArray(?string $method = null): array
     {
@@ -107,9 +108,11 @@ class AllowedCountries implements OptionSourceInterface
      * $method is what is defined in system.xml (i.e. ::ideal) and is directly passed to toOptionArray for method
      * configuration exemptions.
      *
-     * @param  string            $method
-     * @param  array|null        $params
+     * @param string     $method
+     * @param array|null $params
+     *
      * @throws BuckarooException
+     *
      * @return array
      */
     public function __call(string $method, ?array $params = null)

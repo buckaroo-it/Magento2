@@ -104,6 +104,7 @@ class RestoreQuote implements ObserverInterface
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     *
      * @throws LocalizedException
      */
     public function execute(Observer $observer): void
@@ -157,7 +158,8 @@ class RestoreQuote implements ObserverInterface
     /**
      * Validate payment method for restore quote logic
      *
-     * @param       $payment
+     * @param $payment
+     *
      * @return bool
      */
     private function isValidPayment($payment): bool
@@ -170,7 +172,8 @@ class RestoreQuote implements ObserverInterface
     /**
      * Check if cart keep alive is enabled for the order's store
      *
-     * @param       $lastRealOrder
+     * @param $lastRealOrder
+     *
      * @return bool
      */
     private function isCartKeepAlive($lastRealOrder): bool
@@ -242,7 +245,8 @@ class RestoreQuote implements ObserverInterface
     /**
      * Set previous order id on the payment object for the next payment
      *
-     * @param  int                $previousOrderId
+     * @param int $previousOrderId
+     *
      * @throws LocalizedException
      */
     private function setOrderToCancel(int $previousOrderId)
@@ -256,8 +260,9 @@ class RestoreQuote implements ObserverInterface
     /**
      * Check if the last real order is new, pending, and uses redirect
      *
-     * @param       $lastRealOrder
-     * @param       $payment
+     * @param $lastRealOrder
+     * @param $payment
+     *
      * @return bool
      */
     private function isNewPendingLastOrder($lastRealOrder, $payment): bool
@@ -271,8 +276,9 @@ class RestoreQuote implements ObserverInterface
     /**
      * Check if the last real order is canceled and uses redirect
      *
-     * @param       $lastRealOrder
-     * @param       $payment
+     * @param $lastRealOrder
+     * @param $payment
+     *
      * @return bool
      */
     private function isCanceledLastOrderWithRedirect($lastRealOrder, $payment): bool

@@ -50,7 +50,8 @@ class ArticlesHandlerFactory
     }
 
     /**
-     * @param  mixed     $payment
+     * @param mixed $payment
+     *
      * @throws Exception
      */
     public function create($payment)

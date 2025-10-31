@@ -87,6 +87,7 @@ class Idin extends Template
      * Get product name
      *
      * @throws LocalizedException
+     *
      * @return string
      */
     public function getProductName()
@@ -98,6 +99,7 @@ class Idin extends Template
      * Retrieve current product model
      *
      * @throws LocalizedException
+     *
      * @return Product
      */
     private function getProduct()
@@ -117,6 +119,7 @@ class Idin extends Template
      * Show Idin Notification about the age
      *
      * @throws LocalizedException
+     *
      * @return bool
      */
     public function canShowProductIdin()
@@ -154,6 +157,7 @@ class Idin extends Template
      * Get idin account config
      *
      * @throws Exception
+     *
      * @return false|string
      */
     public function getAccountConfig()

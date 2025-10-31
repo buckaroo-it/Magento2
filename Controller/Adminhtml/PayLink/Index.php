@@ -72,6 +72,7 @@ class Index extends Action implements HttpGetActionInterface
      * Generate PayLink from Sales Order View Admin
      *
      * @throws Exception
+     *
      * @return ResultInterface
      */
     public function execute(): ResultInterface

@@ -54,6 +54,7 @@ class ValidatorFactory
      * @param string $validatorType
      *
      * @throws \LogicException|Exception
+     *
      * @return ValidatorInterface
      */
     public function get(string $validatorType)

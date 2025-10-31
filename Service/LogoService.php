@@ -52,8 +52,9 @@ class LogoService
     /**
      * Get payment method logo
      *
-     * @param  string $paymentCode
-     * @param  bool   $backend
+     * @param string $paymentCode
+     * @param bool   $backend
+     *
      * @return string
      */
     public function getPayment(string $paymentCode, bool $backend = false): string
@@ -121,7 +122,8 @@ class LogoService
     /**
      * Get gift card logo url by code
      *
-     * @param  string $code
+     * @param string $code
+     *
      * @return string
      */
     public function getGiftcardLogoDefaults(string $code): string
@@ -159,7 +161,8 @@ class LogoService
     /**
      * Get creditcard logo by code
      *
-     * @param  string $code
+     * @param string $code
+     *
      * @return string
      */
     public function getCreditcard(string $code): string

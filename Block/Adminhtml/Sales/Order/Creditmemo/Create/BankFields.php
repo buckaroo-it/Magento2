@@ -54,6 +54,7 @@ class BankFields extends Template
      * Get the payment method and dynamically find which extra fields (if any) need to be shown.
      *
      * @throws LocalizedException
+     *
      * @return array
      */
     public function getExtraFields()
@@ -90,7 +91,8 @@ class BankFields extends Template
      * Returns the Payment Method name. If something goes wrong, this will return false.
      *
      * @throws LocalizedException
-     * @return string|false       (when not found)
+     *
+     * @return string|false (when not found)
      */
     public function getPaymentMethod()
     {

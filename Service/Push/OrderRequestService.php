@@ -93,8 +93,10 @@ class OrderRequestService
     /**
      * Load the order from the Push Data based on the Order Increment ID or transaction key.
      *
-     * @param  PushRequestInterface|null $pushRequest
+     * @param PushRequestInterface|null $pushRequest
+     *
      * @throws \Exception
+     *
      * @return Order|OrderPayment
      */
     public function getOrderByRequest(?PushRequestInterface $pushRequest = null)
@@ -123,7 +125,8 @@ class OrderRequestService
     /**
      * Get the order increment ID based on the invoice number or order number.
      *
-     * @param              $pushRequest
+     * @param $pushRequest
+     *
      * @return string|null
      */
     protected function getOrderIncrementIdFromRequest($pushRequest): ?string
@@ -145,8 +148,10 @@ class OrderRequestService
      * Sometimes the push does not contain the order id, when that's the case try to get the order by his payment,
      * by using its own transaction key.
      *
-     * @param                     $pushRequest
+     * @param $pushRequest
+     *
      * @throws \Exception
+     *
      * @return OrderPayment|Order
      */
     protected function getOrderByTransactionKey($pushRequest)
@@ -166,7 +171,8 @@ class OrderRequestService
     /**
      * Retrieves the transaction key from the push request.
      *
-     * @param         $pushRequest
+     * @param $pushRequest
+     *
      * @return string
      */
     protected function getTransactionKey($pushRequest): string
@@ -276,8 +282,9 @@ class OrderRequestService
     /**
      * Sends order email to the customer.
      *
-     * @param  Order $order
-     * @param  bool  $forceSyncMode
+     * @param Order $order
+     * @param bool  $forceSyncMode
+     *
      * @return bool
      */
     public function sendOrderEmail(Order $order, bool $forceSyncMode = false): bool
@@ -292,6 +299,7 @@ class OrderRequestService
      * @param bool    $forceSyncMode
      *
      * @throws \Exception
+     *
      * @return bool
      */
     public function sendInvoiceEmail(Invoice $invoice, bool $forceSyncMode = false): bool

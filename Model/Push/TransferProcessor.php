@@ -48,8 +48,10 @@ class TransferProcessor extends DefaultProcessor
     /**
      * Create invoice only in case of full or last remained amount
      *
-     * @param  array              $paymentDetails
+     * @param array $paymentDetails
+     *
      * @throws LocalizedException
+     *
      * @return bool
      */
     protected function invoiceShouldBeSaved(array &$paymentDetails): bool

@@ -27,8 +27,9 @@ interface PaypalExpressOrderCreateInterface
     /**
      * Get order breakdown after shipping is applied
      *
-     * @param  string                                                                 $paypal_order_id
-     * @param  string|null                                                            $cart_id
+     * @param string      $paypal_order_id
+     * @param string|null $cart_id
+     *
      * @return OrderCreateResponseInterface
      */
     public function execute(

@@ -26,7 +26,8 @@ interface PushRequestInterface
     /**
      * Validate Push Request
      *
-     * @param  int|string|null $store
+     * @param int|string|null $store
+     *
      * @return bool
      *
      * @api
@@ -162,7 +163,8 @@ interface PushRequestInterface
     /**
      * Get property from additional information
      *
-     * @param  string      $propertyName
+     * @param string $propertyName
+     *
      * @return string|null
      */
     public function getAdditionalInformation(string $propertyName): ?string;

@@ -58,7 +58,8 @@ class VerificationMethod extends MagentoFieldset
     /**
      * Get frontend class
      *
-     * @param  AbstractElement $element
+     * @param AbstractElement $element
+     *
      * @return string
      */
     protected function _getFrontendClass($element): string
@@ -71,7 +72,8 @@ class VerificationMethod extends MagentoFieldset
     /**
      * Get the header title HTML including a logo.
      *
-     * @param  AbstractElement $element
+     * @param AbstractElement $element
+     *
      * @return string
      */
     protected function _getHeaderTitleHtml($element): string
@@ -87,7 +89,8 @@ class VerificationMethod extends MagentoFieldset
     }
 
     /**
-     * @param  AbstractElement $element
+     * @param AbstractElement $element
+     *
      * @return string
      */
     private function getTabImgAndLink($element)
@@ -102,7 +105,8 @@ class VerificationMethod extends MagentoFieldset
     /**
      * Get logo
      *
-     * @param  string $code
+     * @param string $code
+     *
      * @return string
      */
     private function getLogo(string $code): string

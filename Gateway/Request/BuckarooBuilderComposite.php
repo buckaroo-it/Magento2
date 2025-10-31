@@ -74,7 +74,8 @@ class BuckarooBuilderComposite implements BuilderInterface
     /**
      * Builds ENV request
      *
-     * @param  array $buildSubject
+     * @param array $buildSubject
+     *
      * @return array
      */
     public function build(array $buildSubject): array
@@ -98,8 +99,9 @@ class BuckarooBuilderComposite implements BuilderInterface
     /**
      * Merge function for builders
      *
-     * @param  array $result
-     * @param  array $builder
+     * @param array $result
+     * @param array $builder
+     *
      * @return array
      */
     protected function merge(array $result, array $builder): array
@@ -129,8 +131,9 @@ class BuckarooBuilderComposite implements BuilderInterface
     /**
      * Add Data to the Request
      *
-     * @param  array $result
-     * @param  array $data
+     * @param array $result
+     * @param array $data
+     *
      * @return array
      */
     public function addData(array $result, array $data): array

@@ -78,9 +78,11 @@ class AvailableBasedOnPOSValidator extends AbstractValidator
     /**
      * Available Based on Costumer Group
      *
-     * @param  array              $validationSubject
+     * @param array $validationSubject
+     *
      * @throws Exception
      * @throws LocalizedException
+     *
      * @return ResultInterface
      */
     public function validate(array $validationSubject): ResultInterface
@@ -115,7 +117,8 @@ class AvailableBasedOnPOSValidator extends AbstractValidator
     /**
      * Check if payment method should be display with POS
      *
-     * @param  string $paymentMethodCode
+     * @param string $paymentMethodCode
+     *
      * @return bool
      */
     private function checkPosOtherPaymentMethods(string $paymentMethodCode): bool

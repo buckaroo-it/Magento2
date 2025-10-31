@@ -34,6 +34,7 @@ interface PayResponseInterface
      * Get RemainderAmount
      *
      * @return float
+     *
      * @api
      */
     public function getRemainderAmount(): float;
@@ -42,6 +43,7 @@ interface PayResponseInterface
      * Get AlreadyPaid
      *
      * @return float
+     *
      * @api
      */
     public function getAlreadyPaid(): float;
@@ -57,6 +59,7 @@ interface PayResponseInterface
      * Get user message
      *
      * @return Phrase|string|null
+     *
      * @api
      */
     public function getMessage();
@@ -65,6 +68,7 @@ interface PayResponseInterface
      * Get user remaining amount message
      *
      * @return Phrase|string|null
+     *
      * @api
      */
     public function getRemainingAmountMessage();

@@ -110,7 +110,8 @@ class Applepay extends AbstractConfigProvider
     /**
      * Get Merchant Guid from Buckaroo Payment Engine
      *
-     * @param  null|int|string $store
+     * @param null|int|string $store
+     *
      * @return mixed
      */
     public function getMerchantGuid($store = null)
@@ -137,7 +138,8 @@ class Applepay extends AbstractConfigProvider
     /**
      * Returns the button style configuration setting for the specified store.
      *
-     * @param  int|string|Store $store
+     * @param int|string|Store $store
+     *
      * @return mixed
      */
     public function getButtonStyle($store = null)
@@ -148,7 +150,8 @@ class Applepay extends AbstractConfigProvider
     /**
      * Do not ask for billing info in checkout
      *
-     * @param  int|string|Store $store
+     * @param int|string|Store $store
+     *
      * @return mixed
      */
     public function getDontAskBillingInfoInCheckout($store = null)
@@ -183,6 +186,7 @@ class Applepay extends AbstractConfigProvider
      * Get Store Name
      *
      * @throws NoSuchEntityException
+     *
      * @return string
      */
     public function getStoreName(): string
@@ -195,6 +199,7 @@ class Applepay extends AbstractConfigProvider
      *
      * @throws LocalizedException
      * @throws NoSuchEntityException
+     *
      * @return string
      */
     public function getStoreCurrency(): string

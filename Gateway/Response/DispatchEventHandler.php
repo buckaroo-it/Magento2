@@ -52,8 +52,9 @@ class DispatchEventHandler implements HandlerInterface
     /**
      * Handles response
      *
-     * @param  array      $handlingSubject
-     * @param  array      $response
+     * @param array $handlingSubject
+     * @param array $response
+     *
      * @throws \Exception
      */
     public function handle(array $handlingSubject, array $response)

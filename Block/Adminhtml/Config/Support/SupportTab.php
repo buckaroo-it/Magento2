@@ -75,13 +75,15 @@ class SupportTab extends Template implements RendererInterface
     /**
      * Render form element as HTML
      *
-     * @param  AbstractElement $element
+     * @param AbstractElement $element
+     *
      * @return string
      */
     public function render(AbstractElement $element): string
     {
         /**
          * @noinspection PhpUndefinedMethodInspection
+         *
          * @phpstan-ignore-next-line
          */
         $this->setElement($element);
@@ -130,8 +132,9 @@ class SupportTab extends Template implements RendererInterface
     /**
      * Check PHP Compatibility
      *
-     * @param      $currentVersion
-     * @param      $phpPatch
+     * @param $currentVersion
+     * @param $phpPatch
+     *
      * @return int
      */
     private function checkPhpCompatibility($currentVersion, $phpPatch): int

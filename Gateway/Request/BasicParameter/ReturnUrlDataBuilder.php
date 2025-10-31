@@ -63,6 +63,7 @@ class ReturnUrlDataBuilder implements BuilderInterface
 
     /**
      * @inheritdoc
+     *
      * @throws LocalizedException
      */
     public function build(array $buildSubject): array
@@ -84,8 +85,10 @@ class ReturnUrlDataBuilder implements BuilderInterface
     /**
      * Get return url for payment engine
      *
-     * @param  Order              $order
+     * @param Order $order
+     *
      * @throws LocalizedException
+     *
      * @return string|null
      */
     public function getReturnUrl(Order $order): ?string
@@ -109,7 +112,8 @@ class ReturnUrlDataBuilder implements BuilderInterface
     /**
      * Set return url
      *
-     * @param  string $url
+     * @param string $url
+     *
      * @return $this
      */
     public function setReturnUrl(string $url): ReturnUrlDataBuilder
@@ -123,6 +127,7 @@ class ReturnUrlDataBuilder implements BuilderInterface
      * Get magento form key
      *
      * @throws LocalizedException
+     *
      * @return string
      */
     public function getFormKey(): string

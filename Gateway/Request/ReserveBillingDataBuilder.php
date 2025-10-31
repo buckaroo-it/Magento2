@@ -105,7 +105,8 @@ class ReserveBillingDataBuilder extends AbstractDataBuilder
     /**
      * Get street fragments
      *
-     * @param  string[] $street
+     * @param string[] $street
+     *
      * @return array
      */
     public function formatStreet(array $street): array

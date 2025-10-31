@@ -90,7 +90,8 @@ class SecondChance extends \Magento\Framework\Model\AbstractModel implements Sec
     /**
      * Set secondChance_id
      *
-     * @param  string                                            $secondChanceId
+     * @param string $secondChanceId
+     *
      * @return \Buckaroo\Magento2\Api\Data\SecondChanceInterface
      */
     public function setSecondChanceId($secondChanceId)
@@ -111,7 +112,8 @@ class SecondChance extends \Magento\Framework\Model\AbstractModel implements Sec
     /**
      * Set order ID
      *
-     * @param  string                                            $orderId
+     * @param string $orderId
+     *
      * @return \Buckaroo\Magento2\Api\Data\SecondChanceInterface
      */
     public function setOrderId($orderId)
@@ -134,7 +136,8 @@ class SecondChance extends \Magento\Framework\Model\AbstractModel implements Sec
     /**
      * Set store ID
      *
-     * @param  int                                               $storeId
+     * @param int $storeId
+     *
      * @return \Buckaroo\Magento2\Api\Data\SecondChanceInterface
      */
     public function setStoreId($storeId)
@@ -155,7 +158,8 @@ class SecondChance extends \Magento\Framework\Model\AbstractModel implements Sec
     /**
      * Set customer email
      *
-     * @param  string                                            $customerEmail
+     * @param string $customerEmail
+     *
      * @return \Buckaroo\Magento2\Api\Data\SecondChanceInterface
      */
     public function setCustomerEmail($customerEmail)
@@ -176,7 +180,8 @@ class SecondChance extends \Magento\Framework\Model\AbstractModel implements Sec
     /**
      * Set token
      *
-     * @param  string                                            $token
+     * @param string $token
+     *
      * @return \Buckaroo\Magento2\Api\Data\SecondChanceInterface
      */
     public function setToken($token)
@@ -197,7 +202,8 @@ class SecondChance extends \Magento\Framework\Model\AbstractModel implements Sec
     /**
      * Set status
      *
-     * @param  string                                            $status
+     * @param string $status
+     *
      * @return \Buckaroo\Magento2\Api\Data\SecondChanceInterface
      */
     public function setStatus($status)
@@ -218,7 +224,8 @@ class SecondChance extends \Magento\Framework\Model\AbstractModel implements Sec
     /**
      * Set step
      *
-     * @param  int                                               $step
+     * @param int $step
+     *
      * @return \Buckaroo\Magento2\Api\Data\SecondChanceInterface
      */
     public function setStep($step)
@@ -239,7 +246,8 @@ class SecondChance extends \Magento\Framework\Model\AbstractModel implements Sec
     /**
      * Set created at
      *
-     * @param  string                                            $createdAt
+     * @param string $createdAt
+     *
      * @return \Buckaroo\Magento2\Api\Data\SecondChanceInterface
      */
     public function setCreatedAt($createdAt)
@@ -260,7 +268,8 @@ class SecondChance extends \Magento\Framework\Model\AbstractModel implements Sec
     /**
      * Set first email sent
      *
-     * @param  string                                            $firstEmailSent
+     * @param string $firstEmailSent
+     *
      * @return \Buckaroo\Magento2\Api\Data\SecondChanceInterface
      */
     public function setFirstEmailSent($firstEmailSent)
@@ -281,7 +290,8 @@ class SecondChance extends \Magento\Framework\Model\AbstractModel implements Sec
     /**
      * Set second email sent
      *
-     * @param  string                                            $secondEmailSent
+     * @param string $secondEmailSent
+     *
      * @return \Buckaroo\Magento2\Api\Data\SecondChanceInterface
      */
     public function setSecondEmailSent($secondEmailSent)
@@ -302,7 +312,8 @@ class SecondChance extends \Magento\Framework\Model\AbstractModel implements Sec
     /**
      * Set last order ID
      *
-     * @param  string                                            $lastOrderId
+     * @param string $lastOrderId
+     *
      * @return \Buckaroo\Magento2\Api\Data\SecondChanceInterface
      */
     public function setLastOrderId($lastOrderId)
@@ -323,7 +334,8 @@ class SecondChance extends \Magento\Framework\Model\AbstractModel implements Sec
     /**
      * Set an extension attributes object.
      *
-     * @param  \Buckaroo\Magento2\Api\Data\SecondChanceExtensionInterface $extensionAttributes
+     * @param \Buckaroo\Magento2\Api\Data\SecondChanceExtensionInterface $extensionAttributes
+     *
      * @return $this
      */
     public function setExtensionAttributes(

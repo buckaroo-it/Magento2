@@ -34,7 +34,8 @@ class PayLink extends AbstractConfigProvider
     /**
      * Payment method is visible for area code
      *
-     * @param  string $areaCode
+     * @param string $areaCode
+     *
      * @return bool
      */
     public function isVisibleForAreaCode(string $areaCode): bool
@@ -49,7 +50,8 @@ class PayLink extends AbstractConfigProvider
     /**
      * Get payment method from paylink paymennt methods list
      *
-     * @param        $store
+     * @param $store
+     *
      * @return mixed
      */
     public function getPaymentMethod($store = null)
@@ -60,7 +62,8 @@ class PayLink extends AbstractConfigProvider
     /**
      * Can send mail by email
      *
-     * @param  null|int $storeId
+     * @param null|int $storeId
+     *
      * @return bool
      */
     public function hasSendMail($storeId = null): bool

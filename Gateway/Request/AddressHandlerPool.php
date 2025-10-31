@@ -51,8 +51,10 @@ class AddressHandlerPool
     /**
      * Change shipping address based on Shipping method
      *
-     * @param  Order                              $order
+     * @param Order $order
+     *
      * @throws Exception
+     *
      * @return OrderAddressInterface|Address|null
      */
     public function getShippingAddress(Order $order)

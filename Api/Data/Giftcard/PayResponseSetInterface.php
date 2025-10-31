@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Api\Data\Giftcard;
 
 /**
  * Interface PayResponseInterface
+ *
  * @api
  */
 interface PayResponseSetInterface

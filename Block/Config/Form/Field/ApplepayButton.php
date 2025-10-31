@@ -35,7 +35,8 @@ class ApplepayButton extends Field
     /**
      * Return element html
      *
-     * @param  AbstractElement $element
+     * @param AbstractElement $element
+     *
      * @return string
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)

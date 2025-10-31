@@ -26,8 +26,9 @@ use Magento\Sales\Model\Order\Pdf\Invoice;
 class InvoicePlugin
 {
     /**
-     * @param  Invoice $subject
-     * @param          $invoices
+     * @param Invoice $subject
+     * @param         $invoices
+     *
      * @return array
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)

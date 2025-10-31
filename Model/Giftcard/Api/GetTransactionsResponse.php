@@ -58,11 +58,12 @@ class GetTransactionsResponse extends DataObject implements GetTransactionsRespo
     protected $quote;
 
     /**
-     * @param  QuoteIdMaskFactory                  $quoteIdMaskFactory
-     * @param  CartRepositoryInterface             $cartRepository
-     * @param  PaymentGroupTransaction             $groupTransaction
-     * @param  TransactionResponseInterfaceFactory $trResponseFactory
-     * @param  string|null                         $cartId
+     * @param QuoteIdMaskFactory                  $quoteIdMaskFactory
+     * @param CartRepositoryInterface             $cartRepository
+     * @param PaymentGroupTransaction             $groupTransaction
+     * @param TransactionResponseInterfaceFactory $trResponseFactory
+     * @param string|null                         $cartId
+     *
      * @throws NoQuoteException
      */
     public function __construct(
@@ -82,8 +83,10 @@ class GetTransactionsResponse extends DataObject implements GetTransactionsRespo
     /**
      * Get quote from masked cart id
      *
-     * @param  string|null      $cartId
+     * @param string|null $cartId
+     *
      * @throws NoQuoteException
+     *
      * @return Quote
      */
     protected function getQuote(?string $cartId): Quote
@@ -101,6 +104,7 @@ class GetTransactionsResponse extends DataObject implements GetTransactionsRespo
      * Get RemainderAmount
      *
      * @return float
+     *
      * @api
      */
     public function getRemainderAmount(): float
@@ -112,6 +116,7 @@ class GetTransactionsResponse extends DataObject implements GetTransactionsRespo
      * Get AlreadyPaid
      *
      * @return float
+     *
      * @api
      */
     public function getAlreadyPaid(): float
@@ -138,7 +143,8 @@ class GetTransactionsResponse extends DataObject implements GetTransactionsRespo
     /**
      * Format data for json response
      *
-     * @param  array                          $collection
+     * @param array $collection
+     *
      * @return TransactionResponseInterface[]
      */
     protected function formatFound(array $collection): array

@@ -52,8 +52,10 @@ class ApplePayFormatData implements FormatFormDataInterface
     /**
      * Get Product Object By Request
      *
-     * @param  array               $productData
+     * @param array $productData
+     *
      * @throws AddProductException
+     *
      * @return DataObject
      */
     public function getProductObject(array $productData): DataObject
@@ -79,8 +81,10 @@ class ApplePayFormatData implements FormatFormDataInterface
     /**
      * Get Product Object By Request
      *
-     * @param  array                           $addressData
+     * @param array $addressData
+     *
      * @throws ExpressMethodsException
+     *
      * @return ShippingAddressRequestInterface
      */
     public function getShippingAddressObject(array $addressData): ShippingAddressRequestInterface

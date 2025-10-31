@@ -97,6 +97,7 @@ abstract class AbstractCommandBasedTest extends TestCase
 
     /**
      * Setup successful command execution
+     *
      * @param string $commandKey
      * @param float  $grandTotal
      */
