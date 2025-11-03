@@ -29,6 +29,7 @@ interface ApplyVoucherInterface
      * Rest method for applying vouchers
      *
      * @param string $voucherCode
+     *
      * @return PayResponseInterface
      */
     public function apply(string $voucherCode): PayResponseInterface;

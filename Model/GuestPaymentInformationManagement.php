@@ -49,46 +49,47 @@ class GuestPaymentInformationManagement implements GuestPaymentInformationManage
     /**
      * @var Factory
      */
-    public Factory $configProviderMethodFactory;
+    public $configProviderMethodFactory;
 
     /**
      * @var LoggerInterface|null
      */
-    protected ?LoggerInterface $logger = null;
+    protected $logger = null;
 
     /**
      * @var OrderRepositoryInterface
      */
-    protected OrderRepositoryInterface $orderRepository;
+    protected $orderRepository;
 
     /**
      * @var BuckarooResponseDataInterface
      */
-    private BuckarooResponseDataInterface $buckarooResponseData;
+    private $buckarooResponseData;
 
     /**
      * @var MagentoGuestPaymentInformationManagement
      */
-    protected MagentoGuestPaymentInformationManagement $guestPaymentInformationManagement;
+    protected $guestPaymentInformationManagement;
 
     /**
      * @var QuoteIdMaskFactory
      */
-    private QuoteIdMaskFactory $quoteIdMaskFactory;
+    private $quoteIdMaskFactory;
 
     /**
      * @var CartRepositoryInterface
      */
-    private CartRepositoryInterface $cartRepository;
+    private $cartRepository;
 
     /**
-     * @param BuckarooResponseDataInterface $buckarooResponseData
-     * @param LoggerInterface $logger
-     * @param Factory $configProviderMethodFactory
-     * @param OrderRepositoryInterface $orderRepository
+     * @param BuckarooResponseDataInterface            $buckarooResponseData
+     * @param LoggerInterface                          $logger
+     * @param Factory                                  $configProviderMethodFactory
+     * @param OrderRepositoryInterface                 $orderRepository
      * @param MagentoGuestPaymentInformationManagement $guestPaymentInformationManagement
-     * @param QuoteIdMaskFactory $quoteIdMaskFactory
-     * @param CartRepositoryInterface $cartRepository
+     * @param QuoteIdMaskFactory                       $quoteIdMaskFactory
+     * @param CartRepositoryInterface                  $cartRepository
+     *
      * @codeCoverageIgnore
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
@@ -114,16 +115,18 @@ class GuestPaymentInformationManagement implements GuestPaymentInformationManage
     /**
      * Set payment information and place order for a specified cart.
      *
-     * @param  int                                           $cartId
-     * @param  string                                        $email
-     * @param PaymentInterface $paymentMethod
+     * @param int                   $cartId
+     * @param string                $email
+     * @param PaymentInterface      $paymentMethod
      * @param AddressInterface|null $billingAddress
-     * @return string
+     *
      * @throws CouldNotSaveException|LocalizedException
+     *
+     * @return string
      */
     public function buckarooSavePaymentInformationAndPlaceOrder(
-                                                  $cartId,
-                                                  $email,
+        $cartId,
+        $email,
         PaymentInterface                          $paymentMethod,
         ?AddressInterface $billingAddress = null
     ) {
@@ -135,16 +138,15 @@ class GuestPaymentInformationManagement implements GuestPaymentInformationManage
         $quote = $this->cartRepository->getActive($quoteIdMask->getQuoteId());
         $quote->reserveOrderId();
 
-        $orderId = $this->guestPaymentInformationManagement->savePaymentInformationAndPlaceOrder($cartId, $email, $paymentMethod, $billingAddress);
+        $orderId = $this->guestPaymentInformationManagement->savePaymentInformationAndPlaceOrder(
+            $cartId,
+            $email,
+            $paymentMethod,
+            $billingAddress
+        );
 
         if ($buckarooResponse = $this->buckarooResponseData->getResponse()) {
             $buckarooResponse = $buckarooResponse->toArray();
-            $this->logger->debug(sprintf(
-                '[PLACE_ORDER] | [Webapi] | [%s:%s] - Guest Users | buckarooResponse: %s',
-                __METHOD__,
-                __LINE__,
-                print_r($buckarooResponse, true)
-            ));
 
             if ($buckarooResponse) {
                 return \json_encode($buckarooResponse);
@@ -160,8 +162,9 @@ class GuestPaymentInformationManagement implements GuestPaymentInformationManage
     /**
      * Check if the payment method is allowed for the given billing address country.
      *
-     * @param PaymentInterface $paymentMethod
+     * @param PaymentInterface      $paymentMethod
      * @param AddressInterface|null $billingAddress
+     *
      * @throws LocalizedException
      */
     public function checkSpecificCountry(PaymentInterface $paymentMethod, ?AddressInterface $billingAddress)
@@ -186,6 +189,7 @@ class GuestPaymentInformationManagement implements GuestPaymentInformationManage
      * Normalize the payment method code.
      *
      * @param string $methodCode
+     *
      * @return string
      */
     public function normalizePaymentMethodCode(string $methodCode = ''): string
@@ -197,6 +201,7 @@ class GuestPaymentInformationManagement implements GuestPaymentInformationManage
      * Retrieve the order increment ID by order ID.
      *
      * @param mixed $orderId
+     *
      * @return string
      */
     protected function getOrderIncrementId(mixed $orderId): string
@@ -209,6 +214,7 @@ class GuestPaymentInformationManagement implements GuestPaymentInformationManage
      * Get limit reach message from payment object
      *
      * @param int $orderId
+     *
      * @return string|null
      *
      * @SuppressWarnings(PHPMD.UnusedPrivateMethod)

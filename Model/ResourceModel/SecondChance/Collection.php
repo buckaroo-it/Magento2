@@ -31,8 +31,6 @@ class Collection extends AbstractCollection
 
     /**
      * Define resource model
-     *
-     * @return void
      */
     protected function _construct()
     {

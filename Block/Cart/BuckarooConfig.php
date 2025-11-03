@@ -31,18 +31,18 @@ class BuckarooConfig extends Template
     /**
      * @var Factory
      */
-    protected Factory $configProviderFactory;
+    protected $configProviderFactory;
 
     /**
      * @var JsonEncoder
      */
-    protected JsonEncoder $jsonEncoder;
+    protected $jsonEncoder;
 
     /**
-     * @param Context $context
+     * @param Context     $context
      * @param JsonEncoder $jsonEncoder
-     * @param Factory $configProviderFactory
-     * @param array $data
+     * @param Factory     $configProviderFactory
+     * @param array       $data
      */
     public function __construct(
         Context $context,
@@ -58,8 +58,9 @@ class BuckarooConfig extends Template
     /**
      * Retrieve buckaroo configuration
      *
-     * @return string
      * @throws Exception
+     *
+     * @return string
      */
     public function getBuckarooConfigJson()
     {

@@ -40,10 +40,10 @@ class Totals extends Template
     protected $currency;
 
     /**
-     * @param Context $context
-     * @param PaymentFee $helper
+     * @param Context                $context
+     * @param PaymentFee             $helper
      * @param PriceCurrencyInterface $currency
-     * @param array $data
+     * @param array                  $data
      */
     public function __construct(
         Context $context,
@@ -126,7 +126,7 @@ class Totals extends Template
      * @param array $creditTotals
      * @param array $saleTotal
      *
-     * @return boolean
+     * @return bool
      */
     private function isCreditmemoTotalSelected($creditTotals, $saleTotal)
     {
@@ -141,8 +141,9 @@ class Totals extends Template
     /**
      * Get specific totals by code
      *
-     * @param array $totals
+     * @param array  $totals
      * @param string $code
+     *
      * @return array
      */
     private function getTotalsByCode($totals, $code)
@@ -155,8 +156,9 @@ class Totals extends Template
     /**
      * Get all totals excluding the total with the code
      *
-     * @param array $totals
+     * @param array  $totals
      * @param string $code
+     *
      * @return array
      */
     private function getTotalsExceptCode($totals, $code)

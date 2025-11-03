@@ -50,6 +50,7 @@ class CreditmemoFactory extends MagentoCreditmemoFactory
 
     /**
      * @var Unserialize
+     *
      * @deprecated 101.0.0
      */
     protected $unserialize;
@@ -57,15 +58,15 @@ class CreditmemoFactory extends MagentoCreditmemoFactory
     /**
      * @var BuckarooLoggerInterface
      */
-    protected BuckarooLoggerInterface $logger;
+    protected $logger;
 
     /**
      * Factory constructor
      *
-     * @param OrderFactory $convertOrderFactory
-     * @param Config $taxConfig
+     * @param OrderFactory            $convertOrderFactory
+     * @param Config                  $taxConfig
      * @param BuckarooLoggerInterface $logger
-     * @param Json|null $serializer
+     * @param Json|null               $serializer
      */
     public function __construct(
         OrderFactory $convertOrderFactory,
@@ -82,6 +83,7 @@ class CreditmemoFactory extends MagentoCreditmemoFactory
      *
      * @param Order $order
      * @param array $data
+     *
      * @return Creditmemo
      */
     public function createByOrder(Order $order, array $data = []): Creditmemo
@@ -93,9 +95,8 @@ class CreditmemoFactory extends MagentoCreditmemoFactory
     /**
      * Initialize creditmemo state based on requested parameters
      *
-     * @param array $data
+     * @param array         $data
      * @param Order|Invoice $salesModel
-     * @return void
      */
     public function initBuckarooFeeData(array $data, $salesModel)
     {
@@ -112,7 +113,8 @@ class CreditmemoFactory extends MagentoCreditmemoFactory
      * Prepare order creditmemo based on invoice and requested params
      *
      * @param Invoice $invoice
-     * @param array $data
+     * @param array   $data
+     *
      * @return Creditmemo
      */
     public function createByInvoice(Invoice $invoice, array $data = []): Creditmemo

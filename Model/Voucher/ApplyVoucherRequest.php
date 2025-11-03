@@ -20,6 +20,7 @@
 
 namespace Buckaroo\Magento2\Model\Voucher;
 
+use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Gateway\Http\SDKTransferFactory;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
@@ -72,7 +73,7 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
     /**
      * @var ClientInterface
      */
-    protected ClientInterface $clientInterface;
+    protected $clientInterface;
 
     /**
      * @var PaymentGroupTransaction
@@ -87,28 +88,29 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
     /**
      * @var ScopeConfigInterface
      */
-    private ScopeConfigInterface $scopeConfig;
+    private $scopeConfig;
 
     /**
      * @var UrlInterface
      */
-    private UrlInterface $urlBuilder;
+    private $urlBuilder;
 
     /**
      * @var FormKey
      */
-    private FormKey $formKey;
+    private $formKey;
 
     /**
-     * @param ScopeConfigInterface $scopeConfig
-     * @param Account $configProviderAccount
-     * @param UrlInterface $urlBuilder
-     * @param FormKey $formKey
-     * @param StoreManagerInterface $storeManager
-     * @param SDKTransferFactory $transferFactory
-     * @param ClientInterface $clientInterface
-     * @param RequestInterface $httpRequest
+     * @param ScopeConfigInterface    $scopeConfig
+     * @param Account                 $configProviderAccount
+     * @param UrlInterface            $urlBuilder
+     * @param FormKey                 $formKey
+     * @param StoreManagerInterface   $storeManager
+     * @param SDKTransferFactory      $transferFactory
+     * @param ClientInterface         $clientInterface
+     * @param RequestInterface        $httpRequest
      * @param PaymentGroupTransaction $groupTransaction
+     *
      * @throws NoSuchEntityException
      */
     public function __construct(
@@ -136,9 +138,10 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
     /**
      * Send gift card request
      *
-     * @return mixed
      * @throws GiftcardException
      * @throws \Exception
+     *
+     * @return mixed
      */
     public function send()
     {
@@ -161,8 +164,9 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
     /**
      * Get request body
      *
-     * @return array
      * @throws \Exception
+     *
+     * @return array
      */
     protected function getBody(): array
     {
@@ -196,8 +200,9 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
     /**
      * Get order increment id
      *
-     * @return string
      * @throws \Exception
+     *
+     * @return string
      */
     public function getIncrementId(): string
     {
@@ -214,14 +219,16 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
      * Get client IP
      *
      * @param null|int|string|StoreInterface $store
+     *
+     * @throws Exception
+     *
      * @return false|string
-     * @throws \Exception
      */
     protected function getIp($store)
     {
         if (!$this->httpRequest instanceof RequestInterface) {
-            throw new \Exception(
-                "Required parameter `httpRequest` must be instance of Magento\Framework\App\RequestInterface"
+            throw new Exception(
+                __("Required parameter `httpRequest` must be instance of Magento\Framework\App\RequestInterface")
             );
         }
 
@@ -273,8 +280,9 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
     /**
      * Get return url
      *
-     * @return string
      * @throws LocalizedException
+     *
+     * @return string
      */
     protected function getReturnUrl(): string
     {
@@ -287,6 +295,7 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
      * Set voucherCode
      *
      * @param string $voucherCode
+     *
      * @return ApplyVoucherRequestInterface
      */
     public function setVoucherCode(string $voucherCode): ApplyVoucherRequestInterface
@@ -299,6 +308,7 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
      * Set quote
      *
      * @param CartInterface $quote
+     *
      * @return ApplyVoucherRequestInterface
      */
     public function setQuote(CartInterface $quote): ApplyVoucherRequestInterface

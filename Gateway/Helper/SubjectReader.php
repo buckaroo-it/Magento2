@@ -32,6 +32,7 @@ class SubjectReader
      * Reads payment method instance from subject
      *
      * @param array $subject
+     *
      * @return MethodInterface
      */
     public static function readPaymentMethodInstance(array $subject): MethodInterface
@@ -49,6 +50,7 @@ class SubjectReader
      * Reads quote from subject`
      *
      * @param array $subject
+     *
      * @return Quote
      */
     public static function readQuote(array $subject): Quote
@@ -66,6 +68,7 @@ class SubjectReader
      * Reads quote from subject
      *
      * @param array $response
+     *
      * @return TransactionResponse
      */
     public static function readTransactionResponse(array $response): TransactionResponse
@@ -83,6 +86,7 @@ class SubjectReader
      * Reads payment from subject
      *
      * @param array $subject
+     *
      * @return PaymentDataObjectInterface
      */
     public static function readPayment(array $subject): PaymentDataObjectInterface
@@ -94,6 +98,7 @@ class SubjectReader
      * Reads amount from subject
      *
      * @param array $subject
+     *
      * @return mixed
      */
     public static function readAmount(array $subject)

@@ -35,11 +35,11 @@ class Success extends \Magento\Checkout\Block\Onepage\Success
 
     /**
      * @param TemplateContext $context
-     * @param Session $checkoutSession
-     * @param Config $orderConfig
-     * @param HttpContext $httpContext
+     * @param Session         $checkoutSession
+     * @param Config          $orderConfig
+     * @param HttpContext     $httpContext
      * @param CurrentCustomer $currentCustomer
-     * @param array $data
+     * @param array           $data
      */
     public function __construct(
         TemplateContext $context,

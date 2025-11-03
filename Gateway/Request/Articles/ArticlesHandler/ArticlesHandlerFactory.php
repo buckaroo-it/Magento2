@@ -23,22 +23,23 @@ namespace Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler;
 
 use Buckaroo\Magento2\Exception;
 use Magento\Framework\ObjectManagerInterface;
+use Magento\Framework\Phrase;
 
 class ArticlesHandlerFactory
 {
     /**
      * @var ObjectManagerInterface
      */
-    protected ObjectManagerInterface $objectManager;
+    protected $objectManager;
 
     /**
      * @var array
      */
-    protected array $articlesHandlers;
+    protected $articlesHandlers;
 
     /**
      * @param ObjectManagerInterface $objectManager
-     * @param array $articlesHandlers
+     * @param array                  $articlesHandlers
      */
     public function __construct(
         ObjectManagerInterface $objectManager,
@@ -49,6 +50,8 @@ class ArticlesHandlerFactory
     }
 
     /**
+     * @param mixed $payment
+     *
      * @throws Exception
      */
     public function create($payment)
@@ -63,8 +66,8 @@ class ArticlesHandlerFactory
             $articleHandlerClass = $this->articlesHandlers[$paymentMethodName] ?? $this->articlesHandlers['default'];
 
             if (empty($articleHandlerClass)) {
-                throw new \Buckaroo\Magento2\Exception(
-                    new \Magento\Framework\Phrase(
+                throw new Exception(
+                    new Phrase(
                         'Unknown Articles Handler type requested: %1.',
                         [$paymentMethodName]
                     )
@@ -72,9 +75,9 @@ class ArticlesHandlerFactory
             }
 
             return $this->objectManager->get($articleHandlerClass);
-        } catch (\Exception $exception) {
-            throw new \Buckaroo\Magento2\Exception(
-                new \Magento\Framework\Phrase(
+        } catch (Exception $exception) {
+            throw new Exception(
+                new Phrase(
                     'Unknown Articles Handler type requested: %1.'
                 )
             );

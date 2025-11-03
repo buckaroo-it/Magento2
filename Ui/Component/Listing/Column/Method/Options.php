@@ -33,17 +33,17 @@ class Options extends Column
     /**
      * @var ResourceConnection
      */
-    protected ResourceConnection $resourceConnection;
+    protected $resourceConnection;
 
     protected $orderCollectionFactory;
 
-
     /**
-     * @param ContextInterface $context
-     * @param UiComponentFactory $uiComponentFactory
-     * @param ResourceConnection $resourceConnection
-     * @param array $components
-     * @param array $data
+     * @param ContextInterface       $context
+     * @param UiComponentFactory     $uiComponentFactory
+     * @param ResourceConnection     $resourceConnection
+     * @param array                  $components
+     * @param array                  $data
+     * @param OrderCollectionFactory $orderCollectionFactory
      */
     public function __construct(
         ContextInterface $context,
@@ -62,6 +62,7 @@ class Options extends Column
      * Prepares the data source for the admin grid listing column adding group transaction
      *
      * @param array $dataSource
+     *
      * @return array
      */
     public function prepareDataSource(array $dataSource): array

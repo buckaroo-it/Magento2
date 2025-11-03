@@ -20,7 +20,7 @@
 ?>
 <?php if ($block->canShowProductIdin()): ?>
 <div id="buckaroo_idin_product">
-    <img src="<?= $block->escapeUrl($block->getViewFileUrl('Buckaroo_Magento2::images/idin.svg')); ?>"
+    <img src="<?= $escaper->escapeUrl($block->getViewFileUrl('Buckaroo_Magento2::images/idin.svg')); ?>"
         alt="Idin Logo"/>
     <span><?= /* @noEscape */ __('The identity check %1 allows you to securely identify yourself. For this, we use a one-time identification using your own bank.', '<br/>'); ?></span>
 </div>

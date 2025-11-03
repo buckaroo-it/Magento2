@@ -37,7 +37,7 @@ class AvailableBasedOnCustomerGroupValidator extends AbstractValidator
     public $customerHelper;
 
     /**
-     * @param Customer $customerHelper
+     * @param Customer               $customerHelper
      * @param ResultInterfaceFactory $resultFactory
      */
     public function __construct(
@@ -52,9 +52,11 @@ class AvailableBasedOnCustomerGroupValidator extends AbstractValidator
      * Available Based on Costumer Group
      *
      * @param array $validationSubject
-     * @return ResultInterface
+     *
      * @throws Exception
      * @throws LocalizedException
+     *
+     * @return ResultInterface
      */
     public function validate(array $validationSubject): ResultInterface
     {

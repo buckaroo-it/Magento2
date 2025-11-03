@@ -35,7 +35,6 @@ class PaymentInTransitHandler implements HandlerInterface
      *
      * @param array $handlingSubject
      * @param array $response
-     * @return void
      */
     public function handle(array $handlingSubject, array $response)
     {
@@ -57,8 +56,7 @@ class PaymentInTransitHandler implements HandlerInterface
      * Set flag if user is on the payment provider page
      *
      * @param OrderPaymentInterface $payment
-     * @param bool $inTransit
-     * @return void
+     * @param bool                  $inTransit
      */
     public function setPaymentInTransit(OrderPaymentInterface $payment, bool $inTransit = true): void
     {

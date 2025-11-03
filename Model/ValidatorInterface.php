@@ -27,6 +27,7 @@ interface ValidatorInterface
      * Validates the specified data.
      *
      * @param array|object $data
+     *
      * @return bool
      */
     public function validate($data): bool;

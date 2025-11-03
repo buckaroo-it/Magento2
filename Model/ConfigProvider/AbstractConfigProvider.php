@@ -52,8 +52,8 @@ abstract class AbstractConfigProvider implements ConfigProviderInterface, Config
 
     /**
      * @param ScopeConfigInterface $scopeConfig
-     * @param string|null $methodCode
-     * @param string $pathPattern
+     * @param string|null          $methodCode
+     * @param string               $pathPattern
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
@@ -79,6 +79,7 @@ abstract class AbstractConfigProvider implements ConfigProviderInterface, Config
      * Set the Xpath Prefix
      *
      * @param string $xpathPrefix
+     *
      * @return $this
      */
     public function setXpathPrefix($xpathPrefix)
@@ -100,7 +101,7 @@ abstract class AbstractConfigProvider implements ConfigProviderInterface, Config
     /**
      * Return the config value for the given Xpath (optionally with $store)
      *
-     * @param string $xpath
+     * @param string         $xpath
      * @param null|int|Store $store
      *
      * @return mixed
@@ -118,7 +119,6 @@ abstract class AbstractConfigProvider implements ConfigProviderInterface, Config
      * Sets method code
      *
      * @param string $methodCode
-     * @return void
      */
     public function setMethodCode($methodCode)
     {
@@ -129,7 +129,6 @@ abstract class AbstractConfigProvider implements ConfigProviderInterface, Config
      * Sets path pattern
      *
      * @param string $pathPattern
-     * @return void
      */
     public function setPathPattern($pathPattern)
     {
@@ -139,7 +138,7 @@ abstract class AbstractConfigProvider implements ConfigProviderInterface, Config
     /**
      * Retrieve information from payment configuration
      *
-     * @param string $field
+     * @param string   $field
      * @param int|null $storeId
      *
      * @return mixed

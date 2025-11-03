@@ -33,7 +33,6 @@ interface GiftCardRefundServiceInterface
      * Refund gift cards for a cancelled order
      *
      * @param Order $order
-     * @return void
      */
     public function refund(Order $order): void;
 }

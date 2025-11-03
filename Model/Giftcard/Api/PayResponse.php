@@ -33,11 +33,11 @@ class PayResponse extends DataObject implements PayResponseInterface, PayRespons
     /**
      * @var TransactionResponseInterfaceFactory
      */
-    protected TransactionResponseInterfaceFactory $trResponseFactory;
+    protected $trResponseFactory;
 
     /**
      * @param TransactionResponseInterfaceFactory $trResponseFactory
-     * @param array $data
+     * @param array                               $data
      */
     public function __construct(
         TransactionResponseInterfaceFactory $trResponseFactory,
@@ -51,6 +51,7 @@ class PayResponse extends DataObject implements PayResponseInterface, PayRespons
      * Get RemainderAmount
      *
      * @return float
+     *
      * @api
      */
     public function getRemainderAmount(): float
@@ -62,6 +63,7 @@ class PayResponse extends DataObject implements PayResponseInterface, PayRespons
      * Get AlreadyPaid
      *
      * @return float
+     *
      * @api
      */
     public function getAlreadyPaid(): float
@@ -85,6 +87,7 @@ class PayResponse extends DataObject implements PayResponseInterface, PayRespons
      * Get user message
      *
      * @return Phrase|string|null
+     *
      * @api
      */
     public function getMessage()
@@ -96,6 +99,7 @@ class PayResponse extends DataObject implements PayResponseInterface, PayRespons
      * Get user remaining amount message
      *
      * @return Phrase|string|null
+     *
      * @api
      */
     public function getRemainingAmountMessage()

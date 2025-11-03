@@ -44,16 +44,16 @@ class MigrateApplePayMerchantGuid implements DataPatchInterface
     /**
      * @var ModuleDataSetupInterface
      */
-    private ModuleDataSetupInterface $moduleDataSetup;
+    private $moduleDataSetup;
 
     /**
      * @var LoggerInterface
      */
-    private LoggerInterface $logger;
+    private $logger;
 
     /**
      * @param ModuleDataSetupInterface $moduleDataSetup
-     * @param LoggerInterface $logger
+     * @param LoggerInterface          $logger
      */
     public function __construct(
         ModuleDataSetupInterface $moduleDataSetup,
@@ -65,6 +65,9 @@ class MigrateApplePayMerchantGuid implements DataPatchInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function apply(): void
     {
@@ -89,7 +92,7 @@ class MigrateApplePayMerchantGuid implements DataPatchInterface
         $websiteSelect = $connection->select()
             ->from($this->moduleDataSetup->getTable('store_website'), ['website_id']);
         $websites = $connection->fetchCol($websiteSelect);
-        
+
         foreach ($websites as $websiteId) {
             $scopesToCheck[] = ['scope' => 'websites', 'scope_id' => (int)$websiteId];
         }
@@ -98,7 +101,7 @@ class MigrateApplePayMerchantGuid implements DataPatchInterface
             ->from($this->moduleDataSetup->getTable('store'), ['store_id'])
             ->where('store_id != ?', 0); // Exclude admin store
         $stores = $connection->fetchCol($storeSelect);
-        
+
         foreach ($stores as $storeId) {
             $scopesToCheck[] = ['scope' => 'stores', 'scope_id' => (int)$storeId];
         }
@@ -111,8 +114,8 @@ class MigrateApplePayMerchantGuid implements DataPatchInterface
             // Check if the new path already has a value for this scope
             $hasNewValue = false;
             foreach ($existingNewConfigs as $config) {
-                if ($config['scope'] === $scope 
-                    && (int)$config['scope_id'] === $scopeId 
+                if ($config['scope'] === $scope
+                    && (int)$config['scope_id'] === $scopeId
                     && !empty($config['value'])
                 ) {
                     $hasNewValue = true;
@@ -154,7 +157,8 @@ class MigrateApplePayMerchantGuid implements DataPatchInterface
                             );
                             $this->logger->info(
                                 sprintf(
-                                    'Buckaroo: Updated Apple Pay Merchant GUID for scope "%s" (ID: %d) from old path "%s"',
+                                    'Buckaroo: Updated Apple Pay Merchant GUID for scope "%s" (ID: %d) ' .
+                                    'from old path "%s"',
                                     $scope,
                                     $scopeId,
                                     self::OLD_GUID_PATH
@@ -173,7 +177,8 @@ class MigrateApplePayMerchantGuid implements DataPatchInterface
                             );
                             $this->logger->info(
                                 sprintf(
-                                    'Buckaroo: Migrated Apple Pay Merchant GUID for scope "%s" (ID: %d) from old path "%s"',
+                                    'Buckaroo: Migrated Apple Pay Merchant GUID for scope "%s" (ID: %d) ' .
+                                    'from old path "%s"',
                                     $scope,
                                     $scopeId,
                                     self::OLD_GUID_PATH
@@ -215,4 +220,3 @@ class MigrateApplePayMerchantGuid implements DataPatchInterface
         return [];
     }
 }
-

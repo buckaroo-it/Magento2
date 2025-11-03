@@ -54,6 +54,7 @@ class Afterpay20 extends AbstractConfigProvider
      * Get customer type
      *
      * @param null|int $storeId
+     *
      * @return string
      */
     public function getCustomerType($storeId = null)
@@ -65,6 +66,7 @@ class Afterpay20 extends AbstractConfigProvider
      * Create invoice after shipment
      *
      * @param null|int|string $storeId
+     *
      * @return bool
      */
     public function isInvoiceCreatedAfterShipment($storeId = null): bool
@@ -78,6 +80,7 @@ class Afterpay20 extends AbstractConfigProvider
      * Get customer type
      *
      * @param null|int $storeId
+     *
      * @return bool
      */
     public function isEnabledSCA($storeId = null): bool

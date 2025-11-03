@@ -33,7 +33,7 @@ class SendOrderConfirmation implements ObserverInterface
     /**
      * @var BuckarooLoggerInterface
      */
-    public BuckarooLoggerInterface $logger;
+    public $logger;
     /**
      * @var Account
      */
@@ -44,8 +44,8 @@ class SendOrderConfirmation implements ObserverInterface
     protected $orderSender;
 
     /**
-     * @param Account $accountConfig
-     * @param OrderSender $orderSender
+     * @param Account                 $accountConfig
+     * @param OrderSender             $orderSender
      * @param BuckarooLoggerInterface $logger
      */
     public function __construct(
@@ -62,7 +62,7 @@ class SendOrderConfirmation implements ObserverInterface
      * Send order confirmation on email using sales_order_payment_place_end event
      *
      * @param Observer $observer
-     * @return void
+     *
      * @throws LocalizedException
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
@@ -95,6 +95,7 @@ class SendOrderConfirmation implements ObserverInterface
      * Check if the payment method is a Buckaroo payment
      *
      * @param Payment $payment
+     *
      * @return bool
      */
     private function isBuckarooPayment(Payment $payment): bool
@@ -105,9 +106,10 @@ class SendOrderConfirmation implements ObserverInterface
     /**
      * Check if should skip email sending for redirect payment method
      *
-     * @param mixed $methodInstance
-     * @param mixed $order
+     * @param mixed   $methodInstance
+     * @param mixed   $order
      * @param Payment $payment
+     *
      * @return bool
      */
     private function shouldSkipForRedirectMethod($methodInstance, $order, Payment $payment): bool
@@ -133,7 +135,6 @@ class SendOrderConfirmation implements ObserverInterface
      *
      * @param mixed $order
      * @param mixed $methodInstance
-     * @return void
      */
     private function processOrderEmailSending($order, $methodInstance): void
     {
@@ -167,8 +168,9 @@ class SendOrderConfirmation implements ObserverInterface
      * Check if order email should be sent
      *
      * @param mixed $order
-     * @param bool $sendOrderConfirmationEmail
-     * @param bool $createOrderBeforeTransaction
+     * @param bool  $sendOrderConfirmationEmail
+     * @param bool  $createOrderBeforeTransaction
+     *
      * @return bool
      */
     private function shouldSendOrderEmail($order, bool $sendOrderConfirmationEmail, bool $createOrderBeforeTransaction): bool

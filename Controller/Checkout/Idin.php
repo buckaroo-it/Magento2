@@ -37,30 +37,29 @@ class Idin extends Action implements HttpPostActionInterface
     /**
      * @var BuilderInterface
      */
-    protected BuilderInterface $requestDataBuilder;
+    protected $requestDataBuilder;
 
     /**
      * @var TransferFactoryInterface
      */
-    protected TransferFactoryInterface $transferFactory;
+    protected $transferFactory;
 
     /**
      * @var ClientInterface
      */
-    protected ClientInterface $clientInterface;
+    protected $clientInterface;
 
     /**
      * @var BuckarooLoggerInterface
      */
-    private BuckarooLoggerInterface $logger;
+    private $logger;
 
     /**
-     *
-     * @param Context $context
-     * @param BuilderInterface $requestDataBuilder
+     * @param Context                  $context
+     * @param BuilderInterface         $requestDataBuilder
      * @param TransferFactoryInterface $transferFactory
-     * @param ClientInterface $clientInterface
-     * @param BuckarooLoggerInterface $logger
+     * @param ClientInterface          $clientInterface
+     * @param BuckarooLoggerInterface  $logger
      */
     public function __construct(
         Context $context,

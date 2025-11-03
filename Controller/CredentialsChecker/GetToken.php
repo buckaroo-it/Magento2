@@ -58,6 +58,13 @@ class GetToken extends Action
 
     /**
      * Send POST request using Magento's Curl client.
+     *
+     * @param mixed $url
+     * @param mixed $username
+     * @param mixed $password
+     * @param mixed $postData
+     *
+     * @throws \Exception
      */
     private function sendPostRequest($url, $username, $password, $postData)
     {

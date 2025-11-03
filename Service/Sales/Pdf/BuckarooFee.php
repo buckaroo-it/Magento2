@@ -49,14 +49,14 @@ class BuckarooFee extends DefaultTotal
     protected $configProviderBuckarooFee;
 
     /**
-     * @param Data $taxHelper
-     * @param Calculation $taxCalculation
-     * @param CollectionFactory $ordersFactory
-     * @param PaymentFee $paymentFee
-     * @param Account $configProviderAccount
+     * @param Data                      $taxHelper
+     * @param Calculation               $taxCalculation
+     * @param CollectionFactory         $ordersFactory
+     * @param PaymentFee                $paymentFee
+     * @param Account                   $configProviderAccount
      * @param ConfigProviderBuckarooFee $configProviderBuckarooFee
-     * @param ScopeConfigInterface $scopeConfig
-     * @param array $data
+     * @param ScopeConfigInterface      $scopeConfig
+     * @param array                     $data
      */
 
     public function __construct(
@@ -81,14 +81,17 @@ class BuckarooFee extends DefaultTotal
         $order    = $this->getOrder();
         $store    = $order->getStore();
         $label    = rtrim($this->paymentFee->getBuckarooPaymentFeeLabel(), ':');
+        /** @phpstan-ignore-next-line */
         $fontSize = $this->getFontSize() ?: 7;
 
         // excl tax (first stubbed return in the test)
         $amountExcl = $order->formatPriceTxt($this->getAmount());
 
         // incl tax (compute then format; second stubbed return in the test)
+        /** @phpstan-ignore-next-line */
         $incl = $this->getSource()->getBuckarooFeeInclTax();
         if (!$incl) {
+            /** @phpstan-ignore-next-line */
             $incl = $this->getAmount() + (float)$this->getSource()->getBuckarooFeeTaxAmount();
         }
         $amountIncl = $order->formatPriceTxt($incl);

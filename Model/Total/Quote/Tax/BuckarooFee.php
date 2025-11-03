@@ -75,20 +75,20 @@ class BuckarooFee extends CommonTaxCollector
     /**
      * Constructor
      *
-     * @param TaxConfig $taxConfig
-     * @param TaxCalculationInterface $taxCalculationService
-     * @param QuoteDetailsInterfaceFactory $quoteDetailsDataObjectFactory
-     * @param QuoteDetailsItemInterfaceFactory $quoteDetailsItemDataObjectFactory
-     * @param TaxClassKeyInterfaceFactory $taxClassKeyDataObjectFactory
-     * @param CustomerAddressFactory $customerAddressFactory
-     * @param CustomerAddressRegionFactory $customerAddressRegionFactory
-     * @param PriceCurrencyInterface $priceCurrency
-     * @param PaymentGroupTransaction $groupTransaction
-     * @param Calculate $calculate
+     * @param TaxConfig                                           $taxConfig
+     * @param TaxCalculationInterface                             $taxCalculationService
+     * @param QuoteDetailsInterfaceFactory                        $quoteDetailsDataObjectFactory
+     * @param QuoteDetailsItemInterfaceFactory                    $quoteDetailsItemDataObjectFactory
+     * @param TaxClassKeyInterfaceFactory                         $taxClassKeyDataObjectFactory
+     * @param CustomerAddressFactory                              $customerAddressFactory
+     * @param CustomerAddressRegionFactory                        $customerAddressRegionFactory
+     * @param PriceCurrencyInterface                              $priceCurrency
+     * @param PaymentGroupTransaction                             $groupTransaction
+     * @param Calculate                                           $calculate
      * @param \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee
-     * @param TaxHelper|null $taxHelper
-     * @param QuoteDetailsItemExtensionInterfaceFactory|null $quoteDetailsItemExtensionInterfaceFactory
-     * @param CustomerAccountManagement|null $customerAccountManagement
+     * @param TaxHelper|null                                      $taxHelper
+     * @param QuoteDetailsItemExtensionInterfaceFactory|null      $quoteDetailsItemExtensionInterfaceFactory
+     * @param CustomerAccountManagement|null                      $customerAccountManagement
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -113,7 +113,6 @@ class BuckarooFee extends CommonTaxCollector
 
         // The parent call fails when running setup:di:compile in 2.4.3 and lower due to an extra parameter.
         if ($parentConstructor->getNumberOfParameters() == 9) {
-            // @phpstan-ignore-next-line
             parent::__construct(
                 $taxConfig,
                 $taxCalculationService,
@@ -126,7 +125,6 @@ class BuckarooFee extends CommonTaxCollector
                 $quoteDetailsItemExtensionInterfaceFactory
             );
         } else {
-            // @phpstan-ignore-next-line
             parent::__construct(
                 $taxConfig,
                 $taxCalculationService,
@@ -152,9 +150,10 @@ class BuckarooFee extends CommonTaxCollector
     /**
      * Collect Buckaroo fee related items and add them to tax calculation
      *
-     * @param  Quote $quote
-     * @param  ShippingAssignmentInterface $shippingAssignment
-     * @param  Total $total
+     * @param Quote                       $quote
+     * @param ShippingAssignmentInterface $shippingAssignment
+     * @param Total                       $total
+     *
      * @return $this
      */
     public function collect(
@@ -188,10 +187,9 @@ class BuckarooFee extends CommonTaxCollector
     /**
      * Add associated taxable for Buckaroo fee
      *
-     * @param ShippingAssignmentInterface $shippingAssignment
+     * @param ShippingAssignmentInterface                   $shippingAssignment
      * @param \Buckaroo\Magento2\Service\BuckarooFee\Result $result
-     * @param Quote $quote
-     * @return void
+     * @param Quote                                         $quote
      */
     private function addAssociatedTaxable(ShippingAssignmentInterface $shippingAssignment, Result $result, Quote $quote)
     {

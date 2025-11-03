@@ -21,38 +21,41 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\RequestPush;
 
+use Buckaroo\Magento2\Exception;
+
 class AbstractPushRequest
 {
     /**
      * @var array
      */
-    protected array $request = [];
+    protected $request = [];
 
     /**
      * @var array
      */
-    protected array $originalRequest;
+    protected $originalRequest;
 
     /**
      * Check if methods was called with specific numbers of arguments
      *
-     * @param array $args
-     * @param int $min
-     * @param int $max
+     * @param array  $args
+     * @param int    $min
+     * @param int    $max
      * @param string $methodName
-     * @return void
-     * @throws \Exception
+     *
+     * @throws Exception
      */
     protected function checkArguments(array $args, int $min, int $max, string $methodName)
     {
         $argc = count($args);
         if ($argc < $min || $argc > $max) {
-            throw new \Exception(
-                'Method ' . $methodName
-                . ' needs minimaly ' . $min
-                . ' and maximaly ' . $max
-                . ' arguments. ' . $argc
-                . ' arguments given.'
+            throw new Exception(
+                __('Method %1 needs minimaly %2 and maximaly %3 arguments. %4 arguments given.',
+                    $methodName,
+                    $min,
+                    $max,
+                    $argc
+                )
             );
         }
     }
@@ -61,8 +64,8 @@ class AbstractPushRequest
      * Generate functions for getters and setters
      *
      * @param string $methodName
-     * @param array $args
-     * @return void
+     * @param array  $args
+     *
      * @throws \Exception
      */
     public function __call(string $methodName, array $args)
@@ -80,7 +83,7 @@ class AbstractPushRequest
                     $this->checkArguments($args, 0, 0, $methodName);
                     return $this->get($property); /** @phpstan-ignore-line */
                 default:
-                    throw new \Exception('Method ' . $methodName . ' not exists');
+                    throw new Exception(__('Method %1 not exists', $methodName));
             }
         }
     }
@@ -89,13 +92,13 @@ class AbstractPushRequest
      * Check if in additional information exist a field with name and has the specified value
      *
      * @param string $name
-     * @param mixed $value
+     * @param mixed  $value
+     *
      * @return bool
      */
     public function hasAdditionalInformation(string $name, $value): bool
     {
         $fieldValue = $this->getAdditionalInformation($name);
-        /** @phpstan-ignore-line */
         if (is_array($value)
             && isset($fieldValue)
             && in_array($fieldValue, $value)
@@ -113,8 +116,9 @@ class AbstractPushRequest
     /**
      * Check if parameter has the specified values
      *
-     * @param string $name
+     * @param string                 $name
      * @param string|float|int|array $value
+     *
      * @return bool
      */
     public function hasPostData(string $name, $value): bool
@@ -141,6 +145,7 @@ class AbstractPushRequest
      * Get property from additional information
      *
      * @param string $propertyName
+     *
      * @return string|null
      */
     public function getAdditionalInformation(string $propertyName): ?string

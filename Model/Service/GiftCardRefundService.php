@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Model\Service;
 
 use Buckaroo\Magento2\Api\GiftCardRefundServiceInterface;
+use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\Sales\Model\Order;
 
@@ -33,9 +34,9 @@ use Magento\Sales\Model\Order;
  */
 class GiftCardRefundService implements GiftCardRefundServiceInterface
 {
-    private BuckarooLoggerInterface $logger;
-    private ?bool $isAdobeCommerceAvailable = null;
-    
+    private $logger;
+    private $isAdobeCommerceAvailable = null;
+
     // Optional dependencies that may not exist in Magento Open Source
     private $giftCardRepo = null;
     private $historyFactory = null;
@@ -91,10 +92,15 @@ class GiftCardRefundService implements GiftCardRefundServiceInterface
         if ($this->isAdobeCommerceAvailable()) {
             try {
                 $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-                $this->giftCardRepo = $objectManager->get('Magento\GiftCardAccount\Api\GiftCardAccountRepositoryInterface');
-                $this->historyFactory = $objectManager->get('Magento\GiftCardAccount\Model\HistoryFactory');
+                $this->giftCardRepo = $objectManager->get(
+                    \Magento\GiftCardAccount\Api\GiftCardAccountRepositoryInterface::class
+                );
+                $this->historyFactory = $objectManager->get(
+                    \Magento\GiftCardAccount\Model\HistoryFactory::class
+                );
             } catch (\Throwable $e) {
-                $this->logger->addDebug('[GiftCardRefundService] Failed to initialize Adobe Commerce dependencies: ' . $e->getMessage());
+                $message = '[GiftCardRefundService] Failed to initialize Adobe Commerce dependencies: ';
+                $this->logger->addDebug($message . $e->getMessage());
                 $this->isAdobeCommerceAvailable = false;
             }
         }
@@ -107,9 +113,9 @@ class GiftCardRefundService implements GiftCardRefundServiceInterface
     {
         if ($this->isAdobeCommerceAvailable === null) {
             $this->isAdobeCommerceAvailable =
-                interface_exists('Magento\GiftCardAccount\Api\GiftCardAccountRepositoryInterface') &&
-                class_exists('Magento\GiftCardAccount\Model\HistoryFactory') &&
-                class_exists('Magento\GiftCardAccount\Model\History');
+                interface_exists(\Magento\GiftCardAccount\Api\GiftCardAccountRepositoryInterface::class) &&
+                class_exists(\Magento\GiftCardAccount\Model\HistoryFactory::class) &&
+                class_exists(\Magento\GiftCardAccount\Model\History::class);
         }
 
         return $this->isAdobeCommerceAvailable;
@@ -118,6 +124,9 @@ class GiftCardRefundService implements GiftCardRefundServiceInterface
     /**
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     *
+     * @param Order $order
+     * @param array $card
      */
     private function refundCard(Order $order, array $card): void
     {
@@ -180,7 +189,7 @@ class GiftCardRefundService implements GiftCardRefundServiceInterface
                     ->setAdditionalInfo('Refunded from cancelled order #' . $order->getIncrementId());
 
                 if ($history->getGiftcardAccount() === null || $history->getGiftcardAccountId() !== $id) {
-                    throw new \Exception('Gift card account not properly assigned to history record');
+                    throw new Exception(__('Gift card account not properly assigned to history record'));
                 }
 
                 $history->save();

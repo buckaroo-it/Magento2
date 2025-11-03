@@ -32,21 +32,21 @@ abstract class AbstractApplepay implements HttpPostActionInterface
     /**
      * @var BuckarooLoggerInterface $logger
      */
-    public BuckarooLoggerInterface $logger;
+    public $logger;
 
     /**
      * @var JsonFactory
      */
-    protected JsonFactory $resultJsonFactory;
+    protected $resultJsonFactory;
 
     /**
      * @var RequestInterface
      */
-    protected RequestInterface $request;
+    protected $request;
 
     /**
-     * @param JsonFactory     $resultJsonFactory
-     * @param RequestInterface $request
+     * @param JsonFactory             $resultJsonFactory
+     * @param RequestInterface        $request
      * @param BuckarooLoggerInterface $logger
      */
     public function __construct(
@@ -72,8 +72,9 @@ abstract class AbstractApplepay implements HttpPostActionInterface
     /**
      * Gather totals from quote totals.
      *
-     * @param Address|null     $address
-     * @param AddressTotal[]   $quoteTotals
+     * @param Address|null   $address
+     * @param AddressTotal[] $quoteTotals
+     *
      * @return array
      */
     public function gatherTotals(?Address $address, array $quoteTotals): array
@@ -96,6 +97,7 @@ abstract class AbstractApplepay implements HttpPostActionInterface
      *
      * @param array|string $data
      * @param string|bool  $errorMessage
+     *
      * @return Json
      */
     protected function commonResponse($data, $errorMessage): Json

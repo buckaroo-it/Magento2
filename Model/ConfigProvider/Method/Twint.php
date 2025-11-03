@@ -47,5 +47,3 @@ class Twint extends AbstractConfigProvider
         return $paymentFee ? : 0;
     }
 }
-
-

@@ -23,6 +23,7 @@ interface OrderCreateResponseInterface
 {
     /**
      * Get increment cart id
+     *
      * @return string
      */
     public function getCartId();

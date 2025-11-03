@@ -77,12 +77,12 @@ class Recreate
      * Constructor
      *
      * @param CartRepositoryInterface $cartRepository
-     * @param CheckoutSession $checkoutSession
-     * @param QuoteFactory $quoteFactory
-     * @param ProductFactory $productFactory
-     * @param ManagerInterface $messageManager
-     * @param Log $logger
-     * @param StoreManagerInterface $storeManager
+     * @param CheckoutSession         $checkoutSession
+     * @param QuoteFactory            $quoteFactory
+     * @param ProductFactory          $productFactory
+     * @param ManagerInterface        $messageManager
+     * @param Log                     $logger
+     * @param StoreManagerInterface   $storeManager
      */
     public function __construct(
         CartRepositoryInterface $cartRepository,
@@ -106,6 +106,7 @@ class Recreate
      * Recreate the quote by resetting necessary fields
      *
      * @param Quote $quote
+     *
      * @return Quote|false
      */
     public function recreate($quote)
@@ -132,6 +133,7 @@ class Recreate
      * Recreate the quote by Quote ID
      *
      * @param int $quoteId
+     *
      * @return Quote|null
      */
     public function recreateById($quoteId)
@@ -193,7 +195,9 @@ class Recreate
      *
      * @param Order $order
      * @param array $response
+     *
      * @return Quote|null
+     *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
@@ -335,6 +339,7 @@ class Recreate
      * @param Quote $oldQuote
      * @param Quote $quote
      * @param array $response
+     *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     private function additionalMerge($oldQuote, $quote, $response = [])

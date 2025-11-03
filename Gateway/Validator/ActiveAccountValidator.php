@@ -34,11 +34,11 @@ class ActiveAccountValidator extends AbstractValidator
     /**
      * @var ConfigProviderFactory
      */
-    private ConfigProviderFactory $configProviderFactory;
+    private $configProviderFactory;
 
     /**
      * @param ResultInterfaceFactory $resultFactory
-     * @param ConfigProviderFactory $configProviderFactory
+     * @param ConfigProviderFactory  $configProviderFactory
      */
     public function __construct(
         ResultInterfaceFactory $resultFactory,
@@ -53,8 +53,10 @@ class ActiveAccountValidator extends AbstractValidator
      * Checks for the specific store context (multi-store support)
      *
      * @param array $validationSubject
-     * @return ResultInterface
+     *
      * @throws Exception
+     *
+     * @return ResultInterface
      */
     public function validate(array $validationSubject): ResultInterface
     {

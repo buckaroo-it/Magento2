@@ -32,7 +32,7 @@ class SkipPushHandler implements HandlerInterface
      *
      * @param array $handlingSubject
      * @param array $response
-     * @return void
+     *
      * @throws \Exception
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)

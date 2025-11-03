@@ -38,17 +38,17 @@ class RefundGroupTransactionService
     /**
      * @var float
      */
-    private float $amountLeftToRefund;
+    private $amountLeftToRefund;
 
     /**
      * @var float
      */
-    private float $totalOrder;
+    private $totalOrder;
 
     /**
      * @var BuckarooLog
      */
-    private BuckarooLog $buckarooLog;
+    private $buckarooLog;
 
     /**
      * @var Http
@@ -58,36 +58,36 @@ class RefundGroupTransactionService
     /**
      * @var PaymentGroupTransaction
      */
-    private PaymentGroupTransaction $paymentGroupTransaction;
+    private $paymentGroupTransaction;
 
     /**
      * @var BuilderInterface
      */
-    private BuilderInterface $requestDataBuilder;
+    private $requestDataBuilder;
 
     /**
      * @var TransferFactoryInterface
      */
-    private TransferFactoryInterface $transferFactory;
+    private $transferFactory;
 
     /**
      * @var ClientInterface
      */
-    private ClientInterface $clientInterface;
+    private $clientInterface;
 
     /**
      * @var HandlerInterface|null
      */
-    private ?HandlerInterface $handler;
+    private $handler;
 
     /**
-     * @param PaymentGroupTransaction $paymentGroupTransaction
-     * @param BuckarooLog $buckarooLog
-     * @param RequestInterface $request
-     * @param BuilderInterface $requestDataBuilder
+     * @param PaymentGroupTransaction  $paymentGroupTransaction
+     * @param BuckarooLog              $buckarooLog
+     * @param RequestInterface         $request
+     * @param BuilderInterface         $requestDataBuilder
      * @param TransferFactoryInterface $transferFactory
-     * @param ClientInterface $clientInterface
-     * @param HandlerInterface|null $handler
+     * @param ClientInterface          $clientInterface
+     * @param HandlerInterface|null    $handler
      */
     public function __construct(
         PaymentGroupTransaction $paymentGroupTransaction,
@@ -111,9 +111,11 @@ class RefundGroupTransactionService
      * Refund Group Transaction and Return the amount left to refund
      *
      * @param array $buildSubject
-     * @return int|mixed|string
+     *
      * @throws ClientException
      * @throws ConverterException
+     *
+     * @return int|mixed|string
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
@@ -168,10 +170,10 @@ class RefundGroupTransactionService
     /**
      * Create Refund Request for each Giftcard/Voucher/Wallet Transaction
      *
-     * @param array $buildSubject
+     * @param array  $buildSubject
      * @param string $transaction
      * @param string $giftCardValue
-     * @return void
+     *
      * @throws ClientException
      * @throws ConverterException
      */

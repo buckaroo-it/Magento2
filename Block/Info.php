@@ -34,27 +34,27 @@ class Info extends \Magento\Payment\Block\Info
     /**
      * @var PaymentGroupTransaction
      */
-    protected PaymentGroupTransaction $groupTransaction;
+    protected $groupTransaction;
 
     /**
      * @var GiftcardCollection
      */
-    protected GiftcardCollection $giftcardCollection;
+    protected $giftcardCollection;
 
-    protected UrlInterface $baseUrl;
+    protected $baseUrl;
 
     /**
      * @var LogoService
      */
-    protected LogoService $logoService;
+    protected $logoService;
 
     /**
-     * @param Context $context
+     * @param Context                 $context
      * @param PaymentGroupTransaction $groupTransaction
-     * @param GiftcardCollection $giftcardCollection
-     * @param LogoService $logoService
-     * @param UrlInterface $baseUrl
-     * @param array $data
+     * @param GiftcardCollection      $giftcardCollection
+     * @param LogoService             $logoService
+     * @param UrlInterface            $baseUrl
+     * @param array                   $data
      */
     public function __construct(
         Context $context,
@@ -74,8 +74,9 @@ class Info extends \Magento\Payment\Block\Info
     /**
      * Get giftcards
      *
-     * @return array
      * @throws LocalizedException
+     *
+     * @return array
      */
     public function getGiftCards()
     {
@@ -109,8 +110,9 @@ class Info extends \Magento\Payment\Block\Info
     /**
      * Get PayPerEmail label payment method
      *
-     * @return array|false
      * @throws LocalizedException
+     *
+     * @return array|false
      */
     public function getPayPerEmailMethod()
     {
@@ -127,6 +129,7 @@ class Info extends \Magento\Payment\Block\Info
      * Get payment method logo
      *
      * @param string $method
+     *
      * @return string
      */
     public function getPaymentLogo(string $method): string
@@ -138,6 +141,7 @@ class Info extends \Magento\Payment\Block\Info
      * Get giftcard logo url by code
      *
      * @param array $code
+     *
      * @return string
      */
     public function getGiftcardLogo(array $code): string
@@ -149,6 +153,7 @@ class Info extends \Magento\Payment\Block\Info
      * Get creditcard logo by code
      *
      * @param string $code
+     *
      * @return string
      */
     public function getCreditcardLogo(string $code): string
@@ -159,8 +164,9 @@ class Info extends \Magento\Payment\Block\Info
     /**
      * Get Specific Payment Details set on Success Push to display on Payment Order Information
      *
-     * @return array
      * @throws LocalizedException
+     *
+     * @return array
      */
     public function getSpecificPaymentDetails(): array
     {
@@ -182,6 +188,7 @@ class Info extends \Magento\Payment\Block\Info
      * Returns value view
      *
      * @param string $value
+     *
      * @return string
      */
     protected function getValueView(string $value): string
@@ -202,8 +209,10 @@ class Info extends \Magento\Payment\Block\Info
      * Prepare information specific to current payment method
      *
      * @param null|DataObject|array $transport
-     * @return DataObject
+     *
      * @throws LocalizedException
+     *
+     * @return DataObject
      */
     protected function _prepareSpecificInformation($transport = null): DataObject
     {
@@ -223,6 +232,7 @@ class Info extends \Magento\Payment\Block\Info
      * Returns label
      *
      * @param string $field
+     *
      * @return Phrase
      */
     protected function getLabel(string $field)
@@ -235,8 +245,9 @@ class Info extends \Magento\Payment\Block\Info
     /**
      * Returns additional information for giftcards
      *
-     * @return array
      * @throws LocalizedException
+     *
+     * @return array
      */
     public function getGiftcardAdditionalData()
     {

@@ -44,37 +44,37 @@ class CreateInvoice
     /**
      * @var Log
      */
-    protected Log $logger;
+    protected $logger;
 
     /**
      * @var Account
      */
-    private Account $configAccount;
+    private $configAccount;
 
     /**
      * @var PaymentGroupTransaction
      */
-    private PaymentGroupTransaction $groupTransaction;
+    private $groupTransaction;
 
     /**
      * @var InvoiceSender
      */
-    private InvoiceSender $invoiceSender;
+    private $invoiceSender;
 
     /**
      * @var Data
      */
-    private Data $helper;
+    private $helper;
 
     /**
      * @var InvoiceService
      */
-    private InvoiceService $invoiceService;
+    private $invoiceService;
 
     /**
      * @var TransactionFactory
      */
-    private TransactionFactory $transactionFactory;
+    private $transactionFactory;
 
     /**
      * @var Registry
@@ -82,14 +82,14 @@ class CreateInvoice
     protected $registry;
 
     /**
-     * @param Account $configAccount
-     * @param Log $logger
+     * @param Account                 $configAccount
+     * @param Log                     $logger
      * @param PaymentGroupTransaction $groupTransaction
-     * @param InvoiceSender $invoiceSender
-     * @param InvoiceService $invoiceService
-     * @param TransactionFactory $transactionFactory
-     * @param Registry $registry
-     * @param Data $helper
+     * @param InvoiceSender           $invoiceSender
+     * @param InvoiceService          $invoiceService
+     * @param TransactionFactory      $transactionFactory
+     * @param Registry                $registry
+     * @param Data                    $helper
      */
     public function __construct(
         Account $configAccount,
@@ -116,8 +116,11 @@ class CreateInvoice
      *
      * @param Order $order
      * @param array $invoiceItems
-     * @return bool
+     *
      * @throws LocalizedException
+     *
+     * @return bool
+     *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function createInvoiceGeneralSetting(Order $order, array $invoiceItems): bool
@@ -185,6 +188,7 @@ class CreateInvoice
      * Get Order Items that are not invoiced
      *
      * @param Order $order
+     *
      * @return array
      */
     public function getInvoiceItems(Order $order): array
@@ -200,10 +204,14 @@ class CreateInvoice
         return $invoiceItems;
     }
 
-
     /**
-     * @return Order\Payment
+     * @param mixed $payment
+     * @param mixed $transactionKey
+     * @param mixed $datas
+     *
      * @throws \Magento\Framework\Exception\LocalizedException
+     *
+     * @return Order\Payment
      */
     public function addTransactionData($payment, $transactionKey = false, $datas = false)
     {

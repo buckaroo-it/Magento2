@@ -66,8 +66,9 @@ class Toolbar
      * Display cannot refund message for refunds that works only via the Buckaroo Plaza
      *
      * @param ToolbarContext $toolbar
-     * @param AbstractBlock $context
-     * @param ButtonList $buttonList
+     * @param AbstractBlock  $context
+     * @param ButtonList     $buttonList
+     *
      * @return array
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
@@ -88,6 +89,7 @@ class Toolbar
      * Check if is invoice view
      *
      * @param AbstractBlock $context
+     *
      * @return bool
      */
     private function isOrderInvoiceView($context)
@@ -102,7 +104,8 @@ class Toolbar
      * Display credit memo not allowed messages
      *
      * @param AbstractBlock $context
-     * @param ButtonList $buttonList
+     * @param ButtonList    $buttonList
+     *
      * @return array
      */
     private function creditMemoNotAllowed($context, $buttonList)

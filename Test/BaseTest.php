@@ -30,6 +30,7 @@ use PHPUnit\Framework\TestCase;
 abstract class BaseTest extends TestCase
 {
     protected const DEFAULT_PATH_PATTERN = 'payment/%s/%s';
+
     /**
      * @var null|string
      */
@@ -195,8 +196,9 @@ abstract class BaseTest extends TestCase
      * @param       $class
      * @param array $args
      *
-     * @return object
      * @throws \Exception
+     *
+     * @return object
      */
     protected function getObject($class, $args = [])
     {
@@ -272,6 +274,7 @@ abstract class BaseTest extends TestCase
      *
      * @param string $code
      * @param string $configPath
+     *
      * @return string
      */
     public function getPaymentMethodConfigPath(string $code, string $configPath): string

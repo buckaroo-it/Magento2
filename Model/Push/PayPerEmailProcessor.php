@@ -48,25 +48,25 @@ class PayPerEmailProcessor extends DefaultProcessor
     /**
      * @var PayPerEmail
      */
-    private PayPerEmail $configPayPerEmail;
+    private $configPayPerEmail;
 
     /**
      * @var bool
      */
-    private bool $isPayPerEmailB2BModePushInitial = false;
+    private $isPayPerEmailB2BModePushInitial = false;
 
     /**
-     * @param OrderRequestService $orderRequestService
-     * @param PushTransactionType $pushTransactionType
+     * @param OrderRequestService     $orderRequestService
+     * @param PushTransactionType     $pushTransactionType
      * @param BuckarooLoggerInterface $logger
-     * @param Data $helper
-     * @param TransactionInterface $transaction
+     * @param Data                    $helper
+     * @param TransactionInterface    $transaction
      * @param PaymentGroupTransaction $groupTransaction
-     * @param BuckarooStatusCode $buckarooStatusCode
-     * @param OrderStatusFactory $orderStatusFactory
-     * @param Account $configAccount
-     * @param GiftCardRefundService $giftCardRefundService
-     * @param PayPerEmail $configPayPerEmail
+     * @param BuckarooStatusCode      $buckarooStatusCode
+     * @param OrderStatusFactory      $orderStatusFactory
+     * @param Account                 $configAccount
+     * @param GiftCardRefundService   $giftCardRefundService
+     * @param PayPerEmail             $configPayPerEmail
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -99,11 +99,13 @@ class PayPerEmailProcessor extends DefaultProcessor
     }
 
     /**
-     * @throws FileSystemException
-     * @throws \Exception
-     *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
+     *
+     * @param PushRequestInterface $pushRequest
+     *
+     * @throws FileSystemException
+     * @throws \Exception
      */
     public function processPush(PushRequestInterface $pushRequest): bool
     {
@@ -178,7 +180,6 @@ class PayPerEmailProcessor extends DefaultProcessor
     /**
      * Set Payment method as PayPerEmail if the push request is PayLink
      *
-     * @return void
      * @throws \Exception
      */
     private function receivePushCheckPayLink(): void
@@ -195,8 +196,9 @@ class PayPerEmailProcessor extends DefaultProcessor
     /**
      * Skip the push if the conditions are met.
      *
-     * @return bool
      * @throws \Exception
+     *
+     * @return bool
      */
     protected function skipPush(): bool
     {
@@ -238,8 +240,9 @@ class PayPerEmailProcessor extends DefaultProcessor
     /**
      * Set the payment method if the request is from Pay Per Email
      *
-     * @return bool
      * @throws \Exception
+     *
+     * @return bool
      */
     private function setPaymentMethodIfDifferent(): bool
     {
@@ -272,7 +275,6 @@ class PayPerEmailProcessor extends DefaultProcessor
     }
 
     /**
-     * @return void
      */
     protected function setOrderStatusMessage(): void
     {
@@ -331,9 +333,10 @@ class PayPerEmailProcessor extends DefaultProcessor
     }
 
     /**
-     * @return false|string|null
      * @throws BuckarooException
      * @throws LocalizedException
+     *
+     * @return false|string|null
      */
     protected function getNewStatus()
     {
@@ -400,8 +403,10 @@ class PayPerEmailProcessor extends DefaultProcessor
 
     /**
      * @param array $paymentDetails
-     * @return bool
+     *
      * @throws \Exception
+     *
+     * @return bool
      */
     protected function invoiceShouldBeSaved(array &$paymentDetails): bool
     {

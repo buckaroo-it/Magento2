@@ -33,7 +33,7 @@ class SkipPushDataBuilder implements BuilderInterface
     /**
      * @var PayReminderService
      */
-    private PayReminderService $payReminderService;
+    private $payReminderService;
 
     /**
      * @param PayReminderService $payReminderService

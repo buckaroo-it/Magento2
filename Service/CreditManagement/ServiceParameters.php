@@ -30,16 +30,16 @@ class ServiceParameters
     /**
      * @var ServiceParameters\CreateCombinedInvoice
      */
-    private ServiceParameters\CreateCombinedInvoice $createCombinedInvoice;
+    private $createCombinedInvoice;
 
     /**
      * @var ServiceParameters\CreateCreditNote
      */
-    private ServiceParameters\CreateCreditNote $createCreditNote;
+    private $createCreditNote;
 
     /**
      * @param ServiceParameters\CreateCombinedInvoice $createCombinedInvoice
-     * @param ServiceParameters\CreateCreditNote $createCreditNote
+     * @param ServiceParameters\CreateCreditNote      $createCreditNote
      */
     public function __construct(
         ServiceParameters\CreateCombinedInvoice $createCombinedInvoice,
@@ -53,10 +53,12 @@ class ServiceParameters
      * Generates parameters for creating a combined invoice
      *
      * @param OrderPaymentInterface|InfoInterface $payment
-     * @param string $configProviderType
-     * @param array $filterParameter
-     * @return array
+     * @param string                              $configProviderType
+     * @param array                               $filterParameter
+     *
      * @throws Exception
+     *
+     * @return array
      */
     public function getCreateCombinedInvoice($payment, string $configProviderType, array $filterParameter = []): array
     {
@@ -69,7 +71,8 @@ class ServiceParameters
      * Generates parameters for creating a credit note
      *
      * @param OrderPaymentInterface|InfoInterface $payment
-     * @param array $filterParameter
+     * @param array                               $filterParameter
+     *
      * @return array
      */
     public function getCreateCreditNote($payment, array $filterParameter = []): array
@@ -83,6 +86,7 @@ class ServiceParameters
      *
      * @param array $requestParameters
      * @param array $filterParameter
+     *
      * @return array
      */
     public function filterParameter(array $requestParameters, array $filterParameter): array

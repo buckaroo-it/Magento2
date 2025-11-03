@@ -29,8 +29,9 @@ class SendCloudAddressHandler extends AbstractAddressHandler
     /**
      * Update shipping address by SendCloud
      *
-     * @param Order $order
+     * @param Order                 $order
      * @param OrderAddressInterface $shippingAddress
+     *
      * @return Order
      *
      * @SuppressWarnings(PHPMD.UnusedLocalVariable)
@@ -52,7 +53,6 @@ class SendCloudAddressHandler extends AbstractAddressHandler
      *
      * @param Order $order
      * @param array $requestData
-     * @return void
      *
      * @SuppressWarnings(PHPMD.UnusedLocalVariable)
      */

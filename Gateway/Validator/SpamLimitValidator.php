@@ -32,11 +32,11 @@ class SpamLimitValidator extends AbstractValidator
     /**
      * @var SpamLimitService
      */
-    private SpamLimitService $spamLimitService;
+    private $spamLimitService;
 
     /**
      * @param ResultInterfaceFactory $resultFactory
-     * @param SpamLimitService $spamLimitService
+     * @param SpamLimitService       $spamLimitService
      */
     public function __construct(
         ResultInterfaceFactory $resultFactory,
@@ -50,6 +50,7 @@ class SpamLimitValidator extends AbstractValidator
      * Check if this payment method is limited by IP.
      *
      * @param array $validationSubject
+     *
      * @return ResultInterface
      */
     public function validate(array $validationSubject): ResultInterface

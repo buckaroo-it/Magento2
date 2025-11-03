@@ -66,22 +66,22 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * @var Account
      */
-    public Account $configAccount;
+    public $configAccount;
 
     /**
      * @var PushRequestInterface
      */
-    protected PushRequestInterface $pushRequest;
+    protected $pushRequest;
 
     /**
      * @var PushTransactionType
      */
-    protected PushTransactionType $pushTransactionType;
+    protected $pushTransactionType;
 
     /**
      * @var OrderRequestService
      */
-    protected OrderRequestService $orderRequestService;
+    protected $orderRequestService;
 
     /**
      * @var Order|OrderPayment $order
@@ -91,61 +91,60 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * @var OrderPayment|null
      */
-    protected ?OrderPayment $payment;
+    protected $payment;
 
     /**
      * @var BuckarooLoggerInterface $logger
      */
-    protected BuckarooLoggerInterface $logger;
+    protected $logger;
 
     /**
      * @var Data
      */
-    protected Data $helper;
+    protected $helper;
 
     /**
      * @var Transaction
      */
-    protected Transaction $transaction;
+    protected $transaction;
 
     /**
      * @var PaymentGroupTransaction
      */
-    protected PaymentGroupTransaction $groupTransaction;
+    protected $groupTransaction;
 
     /**
      * @var bool
      */
-    protected bool $forceInvoice = false;
+    protected $forceInvoice = false;
 
     /**
      * @var bool
      */
-    protected bool $dontSaveOrderUponSuccessPush = false;
+    protected $dontSaveOrderUponSuccessPush = false;
 
     /**
      * @var BuckarooStatusCode
      */
-    protected BuckarooStatusCode $buckarooStatusCode;
+    protected $buckarooStatusCode;
 
     /**
      * @var OrderStatusFactory
      */
-    protected OrderStatusFactory $orderStatusFactory;
-    private GiftCardRefundService $giftCardRefundService;
-
+    protected $orderStatusFactory;
+    private $giftCardRefundService;
 
     /**
-     * @param OrderRequestService $orderRequestService
-     * @param PushTransactionType $pushTransactionType
+     * @param OrderRequestService     $orderRequestService
+     * @param PushTransactionType     $pushTransactionType
      * @param BuckarooLoggerInterface $logger
-     * @param Data $helper
-     * @param TransactionInterface $transaction
+     * @param Data                    $helper
+     * @param TransactionInterface    $transaction
      * @param PaymentGroupTransaction $groupTransaction
-     * @param BuckarooStatusCode $buckarooStatusCode
-     * @param OrderStatusFactory $orderStatusFactory
-     * @param Account $configAccount
-     * @param GiftCardRefundService $giftCardRefundService
+     * @param BuckarooStatusCode      $buckarooStatusCode
+     * @param OrderStatusFactory      $orderStatusFactory
+     * @param Account                 $configAccount
+     * @param GiftCardRefundService   $giftCardRefundService
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -175,6 +174,8 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
+     * @param PushRequestInterface $pushRequest
+     *
      * @throws BuckarooException
      * @throws FileSystemException
      * @throws Exception
@@ -233,7 +234,7 @@ class DefaultProcessor implements PushProcessorInterface
 
     /**
      * @param \Buckaroo\Magento2\Api\Data\PushRequestInterface $pushRequest
-     * @return void
+     *
      * @throws Exception
      */
     protected function initializeFields(PushRequestInterface $pushRequest): void
@@ -246,8 +247,9 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * Skip the push if the conditions are met.
      *
-     * @return bool
      * @throws Exception
+     *
+     * @return bool
      */
     protected function skipPush(): bool
     {
@@ -284,8 +286,9 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * Check if it is needed to handle the push message based on postdata
      *
-     * @return bool
      * @throws Exception
+     *
+     * @return bool
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
@@ -306,8 +309,9 @@ class DefaultProcessor implements PushProcessorInterface
      * Buckaroo Push is send before Response, for correct flow we skip the first push
      * for some payment methods
      *
-     * @return bool
      * @throws LocalizedException
+     *
+     * @return bool
      */
     protected function skipFirstPush(): bool
     {
@@ -326,10 +330,12 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * Check for duplicate transaction pushes from Buckaroo and update the payment transaction statuses accordingly.
      *
-     * @param int|null $receivedStatusCode
+     * @param int|null    $receivedStatusCode
      * @param string|null $trxId
-     * @return bool
+     *
      * @throws Exception
+     *
+     * @return bool
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
@@ -351,7 +357,6 @@ class DefaultProcessor implements PushProcessorInterface
             }
             $trxId = $this->pushRequest->getTransactions();
         }
-
 
         $isRefund = $this->pushRequest->hasAdditionalInformation('service_action_from_magento', 'refund');
 
@@ -387,7 +392,8 @@ class DefaultProcessor implements PushProcessorInterface
      * Check if transaction was already processed based on transaction statuses from payment additional information
      *
      * @param string $trxId
-     * @param int $receivedStatusCode
+     * @param int    $receivedStatusCode
+     *
      * @return bool
      */
     private function isDuplicateTransaction($receivedStatusCode, string $trxId): bool
@@ -416,6 +422,7 @@ class DefaultProcessor implements PushProcessorInterface
      * If the order has status new/pending and received status success then we skip from duplication transaction check
      *
      * @param int $receivedStatusCode
+     *
      * @return bool
      */
     private function isNewOrderAndReceivedSuccess($receivedStatusCode): bool
@@ -437,7 +444,6 @@ class DefaultProcessor implements PushProcessorInterface
      * It updates the BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES payment additional information
      * with the current received tx status.
      *
-     * @return void
      * @throws LocalizedException
      */
     protected function setReceivedTransactionStatuses(): void
@@ -553,8 +559,6 @@ class DefaultProcessor implements PushProcessorInterface
 
     /**
      * Sets the transaction key in the payment's additional information if it's not already set.
-     *
-     * @return void
      */
     protected function setTransactionKey()
     {
@@ -592,7 +596,6 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * @return void
      */
     protected function setOrderStatusMessage(): void
     {
@@ -619,8 +622,7 @@ class DefaultProcessor implements PushProcessorInterface
                         $this->order->getState()
                     ));
                 }
-                if (
-                    (
+                if ((
                         $this->pushRequest->hasPostData('statuscode', BuckarooStatusCode::PENDING_PROCESSING)
                         && in_array($this->order->getState(), [Order::STATE_PENDING_PAYMENT, Order::STATE_NEW], true)
                     )
@@ -640,7 +642,7 @@ class DefaultProcessor implements PushProcessorInterface
      */
     protected function isGroupTransactionPart()
     {
-        if (!is_null($this->pushRequest->getTransactions())) {
+        if ($this->pushRequest->getTransactions() !== null) {
             $groupTransaction = $this->groupTransaction->getGroupTransactionByTrxId(
                 $this->pushRequest->getTransactions()
             );
@@ -654,7 +656,6 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * Save the part group transaction.
      *
-     * @return void
      * @throws Exception
      */
     protected function savePartGroupTransaction(): void
@@ -667,7 +668,6 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     *
      * @return true
      */
     protected function canProcessPostData()
@@ -678,8 +678,9 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * Checks if the payment is a partial payment using a gift card.
      *
-     * @return bool
      * @throws LocalizedException
+     *
+     * @return bool
      */
     protected function giftcardPartialPayment(): bool
     {
@@ -709,8 +710,6 @@ class DefaultProcessor implements PushProcessorInterface
 
     /**
      * Adds the gift card partial payment information to the payment's additional information.
-     *
-     * @return void
      */
     protected function addGiftcardPartialPaymentToPaymentInformation()
     {
@@ -741,8 +740,10 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * Process the push according the response status
      *
-     * @return bool
      * @throws LocalizedException
+     *
+     * @return bool
+     *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     protected function processPushByStatus(): bool
@@ -768,8 +769,9 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * @return false|string|null
      * @throws LocalizedException
+     *
+     * @return false|string|null
      */
     protected function getNewStatus()
     {
@@ -781,8 +783,10 @@ class DefaultProcessor implements PushProcessorInterface
      *
      * @param string $newStatus
      * @param string $message
-     * @return bool
+     *
      * @throws LocalizedException
+     *
+     * @return bool
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
@@ -796,7 +800,6 @@ class DefaultProcessor implements PushProcessorInterface
             __LINE__,
             var_export($newStatus, true)
         ));
-
 
         $this->setBuckarooReservationNumber();
 
@@ -830,7 +833,7 @@ class DefaultProcessor implements PushProcessorInterface
             $invoiceHandlingMode = $this->order->getPayment()->getAdditionalInformation(
                 InvoiceHandlingOptions::INVOICE_HANDLING
             );
-            
+
             // If not set (e.g., order was canceled before authorization completed),
             // check method-specific config directly
             if ($invoiceHandlingMode === null || $invoiceHandlingMode === '') {
@@ -842,7 +845,7 @@ class DefaultProcessor implements PushProcessorInterface
                     $invoiceHandlingMode = $this->configAccount->getInvoiceHandling();
                 }
             }
-            
+
             if ($invoiceHandlingMode == InvoiceHandlingOptions::SHIPMENT) {
                 $this->logger->addDebug(sprintf(
                     '[%s:%s] - CAPTURE detected but invoice handling is SHIPMENT mode - skipping invoice creation',
@@ -892,7 +895,6 @@ class DefaultProcessor implements PushProcessorInterface
             }
         }
 
-
         if ($this->groupTransaction->isGroupTransaction($this->pushRequest->getInvoiceNumber())) {
             $paymentDetails['forceState'] = true;
         }
@@ -910,12 +912,9 @@ class DefaultProcessor implements PushProcessorInterface
         return true;
     }
 
-
-
     /**
      * Process succeeded push authorization.
      *
-     * @return void
      * @throws Exception
      */
     private function processSucceededPushAuthorization(): void
@@ -973,7 +972,6 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * Send Order email if was not sent
      *
-     * @return void
      * @throws LocalizedException
      */
     protected function sendOrderEmail(): void
@@ -997,10 +995,12 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * Can create invoice on push
      *
-     * @return bool
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     *
      * @throws LocalizedException
+     *
+     * @return bool
      */
     protected function canPushInvoice(): bool
     {
@@ -1019,10 +1019,11 @@ class DefaultProcessor implements PushProcessorInterface
      * Creates and saves the invoice and adds for each invoice the buckaroo transaction keys
      * Only when the order can be invoiced and has not been invoiced before.
      *
-     * @return bool
      * @throws BuckarooException
      * @throws LocalizedException
      * @throws Exception
+     *
+     * @return bool
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
@@ -1045,7 +1046,7 @@ class DefaultProcessor implements PushProcessorInterface
         // If "Yes" (value=1), invoice should be created after shipment (SHIPMENT mode)
         $methodSpecificConfig = $this->payment->getMethodInstance()->getConfigData('create_invoice_after_shipment');
         $useShipmentMode = false;
-        
+
         if ($methodSpecificConfig !== null && $methodSpecificConfig !== '') {
             // Method has specific config value - use it (1 = Yes = SHIPMENT mode, 0 = No = immediate)
             $useShipmentMode = ($methodSpecificConfig == 1);
@@ -1109,9 +1110,11 @@ class DefaultProcessor implements PushProcessorInterface
      *
      * @param bool $transactionKey
      * @param bool $data
-     * @return Payment
+     *
      * @throws LocalizedException
      * @throws Exception
+     *
+     * @return Payment
      */
     public function addTransactionData(bool $transactionKey = false, bool $data = false): Payment
     {
@@ -1157,8 +1160,10 @@ class DefaultProcessor implements PushProcessorInterface
      *
      * @param string $newStatus
      * @param string $message
-     * @return bool
+     *
      * @throws LocalizedException
+     *
+     * @return bool
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
@@ -1257,11 +1262,13 @@ class DefaultProcessor implements PushProcessorInterface
      * Transfer payment methods receive status pending for success order
      *
      * @param string|false|null $newStatus
-     * @param string $statusMessage
-     * @return bool
+     * @param string            $statusMessage
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     *
      * @throws Exception
+     *
+     * @return bool
      */
     protected function processPendingPaymentPush($newStatus, string $statusMessage): bool
     {
@@ -1281,7 +1288,6 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * Process email sending for pending payment push
      *
-     * @return void
      * @throws LocalizedException
      */
     private function processPendingPaymentEmail(): void
@@ -1305,9 +1311,10 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * Check if pending payment email should be sent
      *
-     * @param bool $isSuccessfulPayment
+     * @param bool  $isSuccessfulPayment
      * @param mixed $store
      * @param mixed $paymentMethod
+     *
      * @return bool
      */
     private function shouldSendPendingPaymentEmail(bool $isSuccessfulPayment, $store, $paymentMethod): bool
@@ -1324,8 +1331,10 @@ class DefaultProcessor implements PushProcessorInterface
      * Build description for pending payment
      *
      * @param string $statusMessage
-     * @return string
+     *
      * @throws LocalizedException
+     *
+     * @return string
      */
     private function buildPendingPaymentDescription(string $statusMessage): string
     {
@@ -1409,6 +1418,7 @@ class DefaultProcessor implements PushProcessorInterface
 
     /**
      * @param array $paymentDetails
+     *
      * @return bool
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
@@ -1437,7 +1447,6 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * Set Specific Payment Details that will appear under the Payment Method Name on Order
      *
-     * @return void
      * @throws LocalizedException
      */
     protected function setSpecificPaymentDetails(): void
@@ -1462,6 +1471,7 @@ class DefaultProcessor implements PushProcessorInterface
      * Returns label
      *
      * @param string $field
+     *
      * @return Phrase
      */
     protected function getLabel(string $field)
@@ -1475,6 +1485,7 @@ class DefaultProcessor implements PushProcessorInterface
      * Checks if a given status code is a successful payment status.
      *
      * @param int $statusCode
+     *
      * @return bool
      */
     private function isSuccessfulPaymentStatus(int $statusCode): bool
@@ -1518,8 +1529,8 @@ class DefaultProcessor implements PushProcessorInterface
      */
     private function hasGiftCardAccountClasses(): bool
     {
-        return interface_exists('Magento\GiftCardAccount\Api\GiftCardAccountRepositoryInterface') &&
-               class_exists('Magento\GiftCardAccount\Observer\RevertGiftCardAccountBalance');
+        return interface_exists(\Magento\GiftCardAccount\Api\GiftCardAccountRepositoryInterface::class) &&
+               class_exists(\Magento\GiftCardAccount\Observer\RevertGiftCardAccountBalance::class);
     }
 
     /**
@@ -1532,5 +1543,4 @@ class DefaultProcessor implements PushProcessorInterface
 
         return (bool) $accountConfig->getFailureRedirectToCheckout($this->order->getStore());
     }
-
 }

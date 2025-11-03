@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Validator;
 
+use Exception;
 use Laminas\Validator\Iban;
 use Magento\Framework\Exception\NotFoundException;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
@@ -32,6 +33,7 @@ use Magento\Sales\Model\Order\Payment;
  * Class IssuerValidator
  *
  * @api
+ *
  * @since 100.0.2
  */
 class BankAccountValidator extends AbstractValidator
@@ -41,11 +43,11 @@ class BankAccountValidator extends AbstractValidator
     /**
      * @var Iban
      */
-    private Iban $ibanValidator;
+    private $ibanValidator;
 
     /**
      * @param ResultInterfaceFactory $resultFactory
-     * @param Iban $ibanValidator
+     * @param Iban                   $ibanValidator
      */
     public function __construct(
         ResultInterfaceFactory $resultFactory,
@@ -59,9 +61,8 @@ class BankAccountValidator extends AbstractValidator
      * Validates the payment information for Buckaroo gateway.
      *
      * @param array $validationSubject
-     * @return bool|ResultInterface
-     * @throws NotFoundException
-     * @throws \Exception
+     *
+     * @return ResultInterface
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)

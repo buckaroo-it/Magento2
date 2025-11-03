@@ -29,7 +29,7 @@ class PaypalStateCodes
      *
      * @var array
      */
-    private array $codes = [
+    private $codes = [
         'CA' => [
             'AB' => ['Alberta'],
             'BC' => ['British Columbia'],
@@ -602,6 +602,7 @@ class PaypalStateCodes
      *
      * @param string|null $countryCode
      * @param string|null $value
+     *
      * @return false|string
      */
     public function getCodeFromValue(?string $countryCode = null, ?string $value = null)
@@ -627,6 +628,7 @@ class PaypalStateCodes
      * Returns all codes or all codes by countryCode. False if countryCode given but non-existant
      *
      * @param string|int|null $countryCode
+     *
      * @return array|bool
      */
     public function getCodes($countryCode = null)

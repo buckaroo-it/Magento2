@@ -21,8 +21,6 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
-
-
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Data\Form\FormKey;
@@ -38,7 +36,7 @@ class PayconiqTest extends BaseTest
     {
         $scopeConfigMock = $this->getMockBuilder(ScopeConfigInterface::class)->getMock();
         $scopeConfigMock->method('getValue')
-            ->willReturnCallback(function($path, $scope = null, $scopeId = null) {
+            ->willReturnCallback(function ($path, $scope = null, $scopeId = null) {
                 // Use parameters to avoid PHPMD warnings
                 unset($scope, $scopeId);
 

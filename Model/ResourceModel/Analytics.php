@@ -8,8 +8,6 @@ class Analytics extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
 
     /**
      * Define resource model
-     *
-     * @return void
      */
     protected function _construct()
     {

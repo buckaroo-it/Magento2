@@ -31,7 +31,7 @@ class PhoneDataBuilder implements BuilderInterface
     /**
      * @var string
      */
-    private string $addressType;
+    private $addressType;
 
     /**
      * @param string $addressType
@@ -55,7 +55,7 @@ class PhoneDataBuilder implements BuilderInterface
 
         $telephone = $paymentDO->getPayment()->getAdditionalInformation('customer_telephone');
         $telephone = $telephone ?: ($address ? $address->getTelephone() : '');
-        
+
         // Only build phone data if telephone is not empty
         if (empty($telephone)) {
             return [];
@@ -68,6 +68,7 @@ class PhoneDataBuilder implements BuilderInterface
      * Get Billing/Shipping Address
      *
      * @param Order $order
+     *
      * @return OrderAddressInterface|null
      */
     private function getAddress(Order $order): ?OrderAddressInterface
@@ -82,6 +83,7 @@ class PhoneDataBuilder implements BuilderInterface
      *
      * @param string $telephone
      * @param string $landline
+     *
      * @return array[]
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)

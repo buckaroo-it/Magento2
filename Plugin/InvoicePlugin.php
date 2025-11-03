@@ -27,7 +27,8 @@ class InvoicePlugin
 {
     /**
      * @param Invoice $subject
-     * @param $invoices
+     * @param         $invoices
+     *
      * @return array
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)

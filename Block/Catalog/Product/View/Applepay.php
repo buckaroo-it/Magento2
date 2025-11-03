@@ -25,6 +25,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay as ApplepayConfig;
 use Magento\Catalog\Model\Product;
 use Magento\Checkout\Model\Cart;
 use Magento\Checkout\Model\CompositeConfigProvider;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Registry;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
@@ -62,13 +63,13 @@ class Applepay extends Template
     private $product;
 
     /**
-     * @param Context $context
-     * @param Cart $cart
+     * @param Context                 $context
+     * @param Cart                    $cart
      * @param CompositeConfigProvider $compositeConfigProvider
-     * @param ApplepayConfig $applepayConfigProvider
-     * @param AccountConfig $accountConfigProvider
-     * @param Registry|null $registry
-     * @param array $data
+     * @param ApplepayConfig          $applepayConfigProvider
+     * @param AccountConfig           $accountConfigProvider
+     * @param Registry|null           $registry
+     * @param array                   $data
      */
     public function __construct(
         Context $context,
@@ -90,6 +91,9 @@ class Applepay extends Template
 
     /**
      * @param $page
+     *
+     * @throws NoSuchEntityException
+     *
      * @return bool
      */
     public function canShowButton($page): bool

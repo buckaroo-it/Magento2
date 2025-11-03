@@ -130,9 +130,9 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
     }
 
     /**
-     * @param bool $secondChanceEnabled
+     * @param bool   $secondChanceEnabled
      * @param string $paymentMethod
-     * @param int $expectedCalls
+     * @param int    $expectedCalls
      *
      * @dataProvider createSecondChanceProvider
      */
@@ -276,7 +276,7 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
     /**
      * @param array $orderItems
      * @param array $stockData
-     * @param bool $expectedResult
+     * @param bool  $expectedResult
      *
      * @dataProvider checkOrderProductsIsInStockProvider
      */
@@ -328,7 +328,7 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
     }
 
     /**
-     * @param int $step
+     * @param int    $step
      * @param string $expectedTemplate
      *
      * @dataProvider sendMailProvider
@@ -426,6 +426,9 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->assertTrue(true, 'sendMail method completed successfully without exceptions');
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     */
     public function testGetSecondChanceByToken()
     {
         $token = 'test_token';
@@ -476,11 +479,11 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
         // Mock the quote factory to return a quote that can be loaded
         $this->quoteFactory->method('create')
             ->willReturn($quote);
-        
+
         $quote->method('load')
             ->with(456)
             ->willReturnSelf();
-        
+
         $quote->method('getId')->willReturn(456);
         $quote->method('setReservedOrderId')
             ->with('000000001-1')
@@ -490,7 +493,7 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
         // Mock checkout session
         $this->checkoutSession->method('getQuote')
             ->willReturn($checkoutQuote);
-        
+
         $checkoutQuote->method('getId')->willReturn(789);
         $checkoutQuote->method('setReservedOrderId')
             ->with('000000001-1')

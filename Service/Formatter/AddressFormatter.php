@@ -30,18 +30,18 @@ class AddressFormatter
     /**
      * @var StreetFormatter
      */
-    private StreetFormatter $streetFormatter;
+    private $streetFormatter;
 
     /**
      * @var PhoneFormatter
      */
-    private PhoneFormatter $phoneFormatter;
+    private $phoneFormatter;
 
     /**
      * AddressFormatter constructor.
      *
      * @param StreetFormatter $streetFormatter
-     * @param PhoneFormatter $phoneFormatter
+     * @param PhoneFormatter  $phoneFormatter
      */
     public function __construct(
         StreetFormatter $streetFormatter,
@@ -55,6 +55,7 @@ class AddressFormatter
      * Formats the address into a structured array.
      *
      * @param OrderAddressInterface $address
+     *
      * @return array
      */
     public function format(OrderAddressInterface $address): array
@@ -69,6 +70,7 @@ class AddressFormatter
      * Formats the street address.
      *
      * @param array|string|null $street
+     *
      * @return array
      */
     public function formatStreet($street): array
@@ -80,7 +82,8 @@ class AddressFormatter
      * Formats the phone number based on the country.
      *
      * @param string|null $phoneNumber
-     * @param string $country
+     * @param string      $country
+     *
      * @return array
      */
     public function formatTelephone(?string $phoneNumber, string $country): array

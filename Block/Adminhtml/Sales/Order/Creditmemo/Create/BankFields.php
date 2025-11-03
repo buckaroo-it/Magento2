@@ -39,7 +39,7 @@ class BankFields extends Template
     protected $refundFieldsFactory;
 
     /**
-     * @param Context $context
+     * @param Context                  $context
      * @param RefundFieldsFactory|null $refundFieldsFactory
      */
     public function __construct(
@@ -53,8 +53,9 @@ class BankFields extends Template
     /**
      * Get the payment method and dynamically find which extra fields (if any) need to be shown.
      *
-     * @return array
      * @throws LocalizedException
+     *
+     * @return array
      */
     public function getExtraFields()
     {
@@ -89,8 +90,9 @@ class BankFields extends Template
     /**
      * Returns the Payment Method name. If something goes wrong, this will return false.
      *
-     * @return string|false (when not found)
      * @throws LocalizedException
+     *
+     * @return string|false (when not found)
      */
     public function getPaymentMethod()
     {

@@ -34,17 +34,17 @@ class TransactionLabel extends Value
     /**
      * @var StoreManagerInterface
      */
-    private StoreManagerInterface $storeManagerInterface;
+    private $storeManagerInterface;
 
     /**
      * @param StoreManagerInterface $storeManagerInterface
-     * @param Context $context
-     * @param Registry $registry
-     * @param ScopeConfigInterface $config
-     * @param TypeListInterface $cacheTypeList
+     * @param Context               $context
+     * @param Registry              $registry
+     * @param ScopeConfigInterface  $config
+     * @param TypeListInterface     $cacheTypeList
      * @param AbstractResource|null $resource
-     * @param AbstractDb|null $resourceCollection
-     * @param array $data
+     * @param AbstractDb|null       $resourceCollection
+     * @param array                 $data
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */

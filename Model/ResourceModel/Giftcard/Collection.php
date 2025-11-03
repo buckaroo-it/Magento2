@@ -45,8 +45,6 @@ class Collection extends AbstractCollection
 
     /**
      * Model initialization
-     *
-     * @return void
      */
     protected function _construct()
     {

@@ -41,7 +41,7 @@ class PaymentDetailsHandlerTest extends AbstractResponseHandlerTest
     /**
      * @var PaymentDetailsHandler
      */
-    private PaymentDetailsHandler $paymentDetailsHandler;
+    private $paymentDetailsHandler;
 
     protected function setUp(): void
     {

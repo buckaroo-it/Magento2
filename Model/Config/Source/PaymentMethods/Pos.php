@@ -30,16 +30,16 @@ class Pos implements OptionSourceInterface
     /**
      * @var Config
      */
-    protected Config $config;
+    protected $config;
 
     /**
      * @var Data
      */
-    private Data $helper;
+    private $helper;
 
     /**
      * @param Config $config
-     * @param Data $helper
+     * @param Data   $helper
      */
     public function __construct(
         Config $config,

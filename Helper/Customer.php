@@ -67,10 +67,12 @@ class Customer extends AbstractHelper
      * Check if customer group is allowed for the payment method
      *
      * @param string $paymentMethod
-     * @param bool $forceB2C
-     * @return bool
+     * @param bool   $forceB2C
+     *
      * @throws BuckarooException
      * @throws LocalizedException
+     *
+     * @return bool
      */
     public function checkCustomerGroup(string $paymentMethod, bool $forceB2C = false): bool
     {
@@ -99,9 +101,10 @@ class Customer extends AbstractHelper
     /**
      * Determine the appropriate customer group configuration.
      *
-     * @param string $paymentMethodCode
+     * @param string                  $paymentMethodCode
      * @param ConfigProviderInterface $configProvider
-     * @param bool $forceB2C
+     * @param bool                    $forceB2C
+     *
      * @return string|null
      */
     private function determineCustomerGroup(
@@ -119,8 +122,9 @@ class Customer extends AbstractHelper
     /**
      * Check if the payment method is one of the special cases.
      *
-     * @param string $paymentMethodCode
+     * @param string                  $paymentMethodCode
      * @param ConfigProviderInterface $configProvider
+     *
      * @return bool
      */
     private function isSpecialPaymentMethod(string $paymentMethodCode, ConfigProviderInterface $configProvider): bool
@@ -135,8 +139,10 @@ class Customer extends AbstractHelper
      * Check if the customer group is allowed based on the area (admin or front).
      *
      * @param array $configCustomerGroupArr
-     * @return bool
+     *
      * @throws LocalizedException
+     *
+     * @return bool
      */
     private function checkCustomerGroupArea(array $configCustomerGroupArr): bool
     {
@@ -151,9 +157,11 @@ class Customer extends AbstractHelper
      * Checks if the customer group in the admin area is allowed to use the Buckaroo payment method.
      *
      * @param array $configCustomerGroupArr
-     * @return bool
+     *
      * @throws LocalizedException
      * @throws NoSuchEntityException
+     *
+     * @return bool
      */
     private function checkCustomerGroupAdminArea(array $configCustomerGroupArr): bool
     {
@@ -170,6 +178,7 @@ class Customer extends AbstractHelper
      * Check if the current logged in customer's group matches with the allowed customer groups
      *
      * @param array $configCustomerGroupArr
+     *
      * @return bool
      */
     private function checkCustomerGroupFrontArea(array $configCustomerGroupArr): bool
@@ -190,6 +199,7 @@ class Customer extends AbstractHelper
      * Extracts the Buckaroo payment method code from the full payment method code.
      *
      * @param string $paymentMethod
+     *
      * @return string
      */
     public function getBuckarooMethod(string $paymentMethod): string

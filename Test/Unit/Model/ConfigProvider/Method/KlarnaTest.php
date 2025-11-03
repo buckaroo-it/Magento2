@@ -20,8 +20,6 @@
  */
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
-
-
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\PaymentFee;
@@ -72,7 +70,7 @@ class KlarnaTest extends BaseTest
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
             ->onlyMethods(['getValue'])
             ->getMockForAbstractClass();
-        
+
         if ($active) {
             $scopeConfigMock->method('getValue')
                 ->willReturnOnConsecutiveCalls(true, 'Fee', 'EUR', null, null, 0, true, 1, 'Test message', 0);

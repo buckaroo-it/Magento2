@@ -38,7 +38,7 @@ class Template implements ArrayInterface
 
     /**
      * @param CollectionFactory $templatesFactory
-     * @param Config $emailConfig
+     * @param Config            $emailConfig
      */
     public function __construct(
         CollectionFactory $templatesFactory,
@@ -82,7 +82,7 @@ class Template implements ArrayInterface
 
         // Get all available email templates that could be used
         $availableTemplates = $this->templatesFactory->create()->load();
-        
+
         if ($availableTemplates->getSize() > 0) {
             $options[] = [
                 'value' => '',
@@ -113,13 +113,13 @@ class Template implements ArrayInterface
     public function toArray(): array
     {
         $options = [];
-        
+
         foreach ($this->toOptionArray() as $option) {
             if (!isset($option['disabled'])) {
                 $options[$option['value']] = $option['label'];
             }
         }
-        
+
         return $options;
     }
 }

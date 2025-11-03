@@ -37,6 +37,7 @@ class PaypalTest extends BaseTest
 
     /**
      * @param array $expected
+     *
      * @dataProvider getConfigProvider
      */
     public function testGetConfig($expected)
@@ -129,6 +130,7 @@ class PaypalTest extends BaseTest
     /**
      * @param mixed $value
      * @param mixed $expected
+     *
      * @dataProvider getPaymentFeeProvider
      */
     public function testGetPaymentFee($value, $expected)

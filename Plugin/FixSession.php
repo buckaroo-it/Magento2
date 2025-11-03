@@ -32,22 +32,22 @@ class FixSession
     /**
      * @var Header
      */
-    protected Header $header;
+    protected $header;
 
     /**
      * @var BuckarooLoggerInterface
      */
-    protected BuckarooLoggerInterface $logger;
+    protected $logger;
 
     /**
      * @var SessionManager
      */
-    protected SessionManager $sessionManager;
+    protected $sessionManager;
 
     /**
-     * @param Header $header
+     * @param Header                  $header
      * @param BuckarooLoggerInterface $logger
-     * @param SessionManager $sessionManager
+     * @param SessionManager          $sessionManager
      */
     public function __construct(
         Header $header,
@@ -62,10 +62,11 @@ class FixSession
     /**
      * Fix the issue when customers get logged out or lose cart content on Magento storefront
      *
-     * @param PhpCookieManager $subject
-     * @param string $name
-     * @param string $value
+     * @param PhpCookieManager          $subject
+     * @param string                    $name
+     * @param string                    $value
      * @param PublicCookieMetadata|null $metadata
+     *
      * @return array
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)

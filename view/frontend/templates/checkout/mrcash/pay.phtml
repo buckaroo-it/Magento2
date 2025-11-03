@@ -4,18 +4,18 @@
     <div id="buckaroo_magento2_mrcash_items">
         <p id="buckaroo_magento2_mrcash_title"><?= /* @noEscape */ __('Scan onderstaande code binnen 15 minuten met de'); ?>&nbsp;
             <a target="_blank" rel="noopener" href="https://www.bancontact.com/nl"><?= /* @noEscape */ __('Bancontact app'); ?></a></p>
-            <button id="buckaroo_magento2_mrcash_url" class="action-primary" type="button"><?= $block->escapeHtml(__('Bancontact app')); ?></button>
+            <button id="buckaroo_magento2_mrcash_url" class="action-primary" type="button"><?= $escaper->escapeHtml(__('Bancontact app')); ?></button>
             <div id="buckaroo_magento2_mrcash_qr"></div>
 
         <button id="buckaroo_magento2_mrcash_cancel" type="button" title="Cancel" data-bind="click: cancelPayment">
-            <span><?= $block->escapeHtml(__('Cancel')); ?></span>
+            <span><?= $escaper->escapeHtml(__('Cancel')); ?></span>
         </button>
     </div>
 </div>
 
 <script>
     require(['buckaroo/mrcash/pay'], function (mrcashPay) {
-        var transactionKey = "<?= $block->escapeJs($block->getTransactionKey()); ?>";
+        var transactionKey = "<?= $escaper->escapeJs($block->getTransactionKey()); ?>";
 
         mrcashPay.setTransactionKey(transactionKey);
         mrcashPay.showQrCode();

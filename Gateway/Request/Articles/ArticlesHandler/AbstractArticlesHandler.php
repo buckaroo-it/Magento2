@@ -28,6 +28,7 @@ use Buckaroo\Magento2\Service\PayReminderService;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 use Magento\Catalog\Model\Product\Type;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Quote\Model\Quote;
@@ -55,78 +56,78 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     /**
      * @var ScopeConfigInterface
      */
-    protected ScopeConfigInterface $scopeConfig;
+    protected $scopeConfig;
 
     /**
      * @var BuckarooLog
      */
-    protected BuckarooLog $buckarooLog;
+    protected $buckarooLog;
 
     /**
      * @var int
      */
-    protected int $payRemainder = 0;
+    protected $payRemainder = 0;
 
     /**
      * @var QuoteFactory
      */
-    protected QuoteFactory $quoteFactory;
+    protected $quoteFactory;
 
     /**
      * @var Calculation
      */
-    protected Calculation $taxCalculation;
+    protected $taxCalculation;
 
     /**
      * @var Config
      */
-    protected Config $taxConfig;
+    protected $taxConfig;
 
     /**
      * @var BuckarooFee
      */
-    protected BuckarooFee $configProviderBuckarooFee;
+    protected $configProviderBuckarooFee;
 
     /**
      * @var ConfigProviderMethodFactory
      */
-    protected ConfigProviderMethodFactory $configProviderMethodFactory;
+    protected $configProviderMethodFactory;
 
     /**
      * @var SoftwareData
      */
-    protected SoftwareData $softwareData;
+    protected $softwareData;
 
     /**
      * @var Order
      */
-    protected Order $order;
+    protected $order;
 
     /**
      * @var Quote|null
      */
-    protected ?Quote $quote = null;
+    protected $quote = null;
 
     /**
      * @var InfoInterface
      */
-    protected InfoInterface $payment;
+    protected $payment;
 
     /**
      * @var PayReminderService
      */
-    protected PayReminderService $payReminderService;
+    protected $payReminderService;
 
     /**
-     * @param ScopeConfigInterface $scopeConfig
-     * @param BuckarooLog $buckarooLog
-     * @param QuoteFactory $quoteFactory
-     * @param Calculation $taxCalculation
-     * @param Config $taxConfig
-     * @param BuckarooFee $configProviderBuckarooFee
-     * @param SoftwareData $softwareData
+     * @param ScopeConfigInterface        $scopeConfig
+     * @param BuckarooLog                 $buckarooLog
+     * @param QuoteFactory                $quoteFactory
+     * @param Calculation                 $taxCalculation
+     * @param Config                      $taxConfig
+     * @param BuckarooFee                 $configProviderBuckarooFee
+     * @param SoftwareData                $softwareData
      * @param ConfigProviderMethodFactory $configProviderMethodFactory
-     * @param PayReminderService $payReminderService
+     * @param PayReminderService          $payReminderService
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
@@ -209,11 +210,12 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     /**
      * Mapping item article
      *
-     * @param string|null $articleDescription
+     * @param string|null     $articleDescription
      * @param int|string|null $articleId
-     * @param int|float $articleQuantity
-     * @param string|float $articleUnitPrice
-     * @param string|float $articleVat
+     * @param int|float       $articleQuantity
+     * @param string|float    $articleUnitPrice
+     * @param string|float    $articleVat
+     *
      * @return array
      */
     public function getArticleArrayLine(
@@ -246,6 +248,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      * Set order
      *
      * @param Order $order
+     *
      * @return $this
      */
     public function setOrder(Order $order): AbstractArticlesHandler
@@ -257,6 +260,8 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
 
     /**
      * Get Quote
+     *
+     * @throws LocalizedException
      *
      * @return Quote
      */
@@ -273,6 +278,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      * Set Quote
      *
      * @param Quote $quote
+     *
      * @return $this
      */
     public function setQuote(Quote $quote): AbstractArticlesHandler
@@ -285,6 +291,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      * Get tax category
      *
      * @param Order|Invoice $order
+     *
      * @return float|int
      */
     protected function getTaxCategory($order)
@@ -301,6 +308,8 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
 
     /**
      * Get items lines
+     *
+     * @throws LocalizedException
      *
      * @return array
      */
@@ -349,7 +358,8 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      * Skip item if item has parent or total equal 0
      *
      * @param Item|Invoice\Item|Creditmemo\Item $item
-     * @param int $bundleProductQty If > 0, we're processing bundle children so don't skip items with parents
+     * @param int                               $bundleProductQty If > 0, we're processing bundle children so don't skip items with parents
+     *
      * @return bool
      */
     protected function skipItem($item, int $bundleProductQty = 0): bool
@@ -358,7 +368,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             return true;
         }
 
-        // If we're processing bundle product children (bundleProductQty > 0), 
+        // If we're processing bundle product children (bundleProductQty > 0),
         // don't skip items with parents - we want to send them individually
         if ($item->hasParentItemId() && $bundleProductQty == 0) {
             return true;
@@ -371,7 +381,8 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      * Skip bundles which have dynamic pricing on (0 = yes,1 = no) - the underlying simples are also in the quote
      *
      * @param Item $item
-     * @param int $bundleProductQty
+     * @param int  $bundleProductQty
+     *
      * @return bool
      */
     protected function skipBundleProducts(Item $item, int &$bundleProductQty): bool
@@ -395,6 +406,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      * Get identifier, can be sku or product id
      *
      * @param Item|Invoice\Item|Creditmemo\Item $item
+     *
      * @return mixed|string|null
      */
     protected function getIdentifier($item)
@@ -406,6 +418,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      * Calculate product price
      *
      * @param Item|Invoice\Item|Creditmemo\Item $productItem
+     *
      * @return float
      */
     public function calculateProductPrice($productItem): float
@@ -495,6 +508,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      * Get item tax category or percentage
      *
      * @param Item|Order\Item $item
+     *
      * @return float
      */
     protected function getItemTax($item): float
@@ -506,7 +520,9 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      * Get payment fee line
      *
      * @param Order|Invoice|Creditmemo $order
-     * @param float $itemsTotalAmount
+     * @param float                    $itemsTotalAmount
+     * @param bool                     $creditmemo
+     *
      * @return array|array[]
      */
     public function getServiceCostLine($order, &$itemsTotalAmount = 0, bool $creditmemo = false): array
@@ -541,8 +557,9 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      * Get shipping cost line
      *
      * @param Order|Invoice|Creditmemo $order
-     * @param int $itemsTotalAmount
-     * @param bool $creditmemo
+     * @param int                      $itemsTotalAmount
+     * @param bool                     $creditmemo
+     *
      * @return array
      */
     protected function getShippingCostsLine($order, &$itemsTotalAmount = 0, bool $creditmemo = false): array
@@ -579,6 +596,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      * Get shipping amount include taxes
      *
      * @param Order|Invoice|Creditmemo $order
+     *
      * @return float|null
      */
     protected function getShippingAmount($order): ?float
@@ -590,6 +608,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      * Format price
      *
      * @param float|null $price
+     *
      * @return float|null
      */
     protected function formatPrice(?float $price): ?float
@@ -601,6 +620,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      * Format shipping cost line
      *
      * @param float $percent
+     *
      * @return float
      */
     protected function formatShippingCostsLineVatPercentage(float $percent): float
@@ -670,6 +690,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      * Get items from invoice
      *
      * @param Invoice $invoice
+     *
      * @return array
      */
     protected function getInvoiceItemsLines(Invoice $invoice): array
@@ -719,6 +740,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      * Get invoice discount description
      *
      * @param Invoice\Item $item
+     *
      * @return string
      */
     protected function getDiscountDescription($item): string
@@ -729,8 +751,9 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     /**
      * Get Items Data from Creditmemo (refund)
      *
-     * @param Order $order
+     * @param Order         $order
      * @param InfoInterface $payment
+     *
      * @return array|array[]
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
@@ -822,11 +845,12 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     /**
      * Get the structure of the array returned to request for refunded items
      *
-     * @param string|null $articleDescription
+     * @param string|null     $articleDescription
      * @param int|string|null $articleId
-     * @param int|float $articleQuantity
-     * @param string|float $articleUnitPrice
-     * @param string|float $articleVat
+     * @param int|float       $articleQuantity
+     * @param string|float    $articleUnitPrice
+     * @param string|float    $articleVat
+     *
      * @return array
      */
     public function getArticleRefundArrayLine(
@@ -850,7 +874,8 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      * Get the difference between total and items total
      *
      * @param float $diff
-     * @param bool $creditmemo
+     * @param bool  $creditmemo
+     *
      * @return array[]
      */
     protected function getDiffLine(float $diff, bool $creditmemo = false): array
@@ -884,6 +909,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      * Set payment
      *
      * @param $payment
+     *
      * @return $this
      */
     public function setPayment($payment): AbstractArticlesHandler

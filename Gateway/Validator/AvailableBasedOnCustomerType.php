@@ -35,6 +35,7 @@ class AvailableBasedOnCustomerType extends AbstractValidator
      * Check if the payment method should be shown according to the configured customer type.
      *
      * @param array $validationSubject
+     *
      * @return ResultInterface
      */
     public function validate(array $validationSubject): ResultInterface

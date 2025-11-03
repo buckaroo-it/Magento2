@@ -36,24 +36,25 @@ class QuoteCheck
     /**
      * @var ManagerInterface
      */
-    protected ManagerInterface $messageManager;
+    protected $messageManager;
 
     /**
      * @var Quote
      */
-    protected Quote $quote;
+    protected $quote;
 
     /**
      * @var PaymentGroupTransaction
      */
-    protected PaymentGroupTransaction $groupTransaction;
+    protected $groupTransaction;
 
     /**
      * Plugin constructor.
      *
-     * @param Session $checkoutSession
+     * @param Session                 $checkoutSession
      * @param PaymentGroupTransaction $groupTransaction
-     * @param ManagerInterface $messageManager
+     * @param ManagerInterface        $messageManager
+     *
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
@@ -70,11 +71,13 @@ class QuoteCheck
     /**
      * Throw error if user already started a group transaction
      *
-     * @param Cart $subject
-     * @param int|Product $productInfo
+     * @param Cart                 $subject
+     * @param int|Product          $productInfo
      * @param DataObject|int|array $requestInfo
-     * @return array
+     *
      * @throws \Exception
+     *
+     * @return array
      */
     public function beforeAddProduct(
         Cart $subject,
@@ -90,6 +93,7 @@ class QuoteCheck
      * Blocks method if start group transaction
      *
      * @param Cart $subject
+     *
      * @throws \Exception
      */
     public function allowedMethod(Cart $subject)
@@ -99,7 +103,7 @@ class QuoteCheck
         if (!$this->isBuckarooPayment($quote)) {
             return;
         }
-        
+
         if ($this->getAlreadyPaid($quote) > 0) {
             //phpcs:ignore:Magento2.Exceptions.DirectThrow
             throw new \Exception('Action is blocked, please finish current order');
@@ -110,6 +114,7 @@ class QuoteCheck
      * Get quote already paid amount
      *
      * @param Quote $quote
+     *
      * @return float
      */
     private function getAlreadyPaid(Quote $quote): float
@@ -121,6 +126,7 @@ class QuoteCheck
      * Check if quote uses Buckaroo payment method
      *
      * @param Quote $quote
+     *
      * @return bool
      */
     private function isBuckarooPayment(Quote $quote): bool
@@ -129,17 +135,19 @@ class QuoteCheck
         if (!$payment || !$payment->getMethod()) {
             return false;
         }
-        
+
         return strpos($payment->getMethod(), "buckaroo_magento2_") !== false;
     }
 
     /**
      * Check if allowed function AddProductsByIds
      *
-     * @param Cart $subject
+     * @param Cart  $subject
      * @param array $productIds
-     * @return array
+     *
      * @throws \Exception
+     *
+     * @return array
      */
     public function beforeAddProductsByIds(Cart $subject, array $productIds): array
     {
@@ -151,10 +159,12 @@ class QuoteCheck
     /**
      * Check if allowed function UpdateItems
      *
-     * @param Cart $subject
+     * @param Cart  $subject
      * @param array $data
-     * @return array
+     *
      * @throws \Exception
+     *
+     * @return array
      */
     public function beforeUpdateItems(Cart $subject, array $data): array
     {
@@ -166,11 +176,13 @@ class QuoteCheck
     /**
      * Check if allowed function UpdateItem
      *
-     * @param Cart $subject
-     * @param int|array|DataObject $requestInfo
+     * @param Cart                  $subject
+     * @param int|array|DataObject  $requestInfo
      * @param null|array|DataObject $updatingParams
-     * @return array
+     *
      * @throws \Exception
+     *
+     * @return array
      */
     public function beforeUpdateItem(
         Cart $subject,
@@ -186,9 +198,11 @@ class QuoteCheck
      * Check if allowed function
      *
      * @param Cart $subject
-     * @param int $itemId
-     * @return int[]|array
+     * @param int  $itemId
+     *
      * @throws \Exception
+     *
+     * @return int[]|array
      */
     public function beforeRemoveItem(Cart $subject, int $itemId): array
     {

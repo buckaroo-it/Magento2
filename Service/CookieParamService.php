@@ -11,15 +11,15 @@ class CookieParamService
     /**
      * @var CookieManagerInterface
      */
-    private CookieManagerInterface $cookieManager;
+    private $cookieManager;
 
     /**
      * @var AnalyticsConfigProvider
      */
-    private AnalyticsConfigProvider $configProvider;
+    private $configProvider;
 
     /**
-     * @param CookieManagerInterface $cookieManager
+     * @param CookieManagerInterface  $cookieManager
      * @param AnalyticsConfigProvider $configProvider
      */
     public function __construct(
@@ -65,6 +65,7 @@ class CookieParamService
      * Return only params that are also in configuration
      *
      * @param array $queryParams
+     *
      * @return array
      */
     public function getQueryArgumentsByCookies(array $queryParams): array
@@ -96,6 +97,7 @@ class CookieParamService
      *
      * @param string $cookieValue
      * @param string $regex
+     *
      * @return string
      */
     public function getUrlParamValueByCookie(string $cookieValue, string $regex): string

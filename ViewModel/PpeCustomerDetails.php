@@ -14,27 +14,27 @@ class PpeCustomerDetails implements ArgumentInterface
     /**
      * @var CustomerRepositoryInterface
      */
-    protected CustomerRepositoryInterface $customerRepository;
+    protected $customerRepository;
 
     /**
      * @var BuckarooLoggerInterface
      */
-    protected BuckarooLoggerInterface $logger;
+    protected $logger;
 
     /**
      * @var Http
      */
-    protected Http $request;
+    protected $request;
 
     /**
      * @var array
      */
-    private array $staticCache = [];
+    private $staticCache = [];
 
     /**
      * @param CustomerRepositoryInterface $customerRepository
-     * @param BuckarooLoggerInterface $logger
-     * @param Http $request
+     * @param BuckarooLoggerInterface     $logger
+     * @param Http                        $request
      */
     public function __construct(
         CustomerRepositoryInterface $customerRepository,
@@ -48,9 +48,10 @@ class PpeCustomerDetails implements ArgumentInterface
     /**
      * Try to fetch customer details for PPE method in admin area
      *
-     * @return array|null
      * @throws LocalizedException
      * @throws NoSuchEntityException
+     *
+     * @return array|null
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)

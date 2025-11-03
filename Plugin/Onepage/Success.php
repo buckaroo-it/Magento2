@@ -39,22 +39,22 @@ class Success
     /**
      * @var RedirectFactory
      */
-    protected RedirectFactory $resultRedirectFactory;
+    protected $resultRedirectFactory;
 
     /**
      * @var BuckarooLoggerInterface
      */
-    protected BuckarooLoggerInterface $logger;
+    protected $logger;
 
     /**
      * @var CheckPaymentType
      */
-    protected CheckPaymentType $checkPaymentType;
+    protected $checkPaymentType;
 
     /**
-     * @param Context $context
+     * @param Context                 $context
      * @param BuckarooLoggerInterface $logger
-     * @param CheckPaymentType $checkPaymentType
+     * @param CheckPaymentType        $checkPaymentType
      */
     public function __construct(
         Context $context,
@@ -70,7 +70,8 @@ class Success
      * If the user visits the payment complete page when doing a payment or when the order is canceled redirect to cart
      *
      * @param ControllerOnePageSuccess $checkoutSuccess
-     * @param callable $proceed
+     * @param callable                 $proceed
+     *
      * @return Redirect|Page
      */
     public function aroundExecute(ControllerOnePageSuccess $checkoutSuccess, callable $proceed)

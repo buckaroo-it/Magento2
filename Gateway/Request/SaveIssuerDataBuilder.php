@@ -35,7 +35,7 @@ class SaveIssuerDataBuilder implements BuilderInterface
     /**
      * @var CustomerAttributes
      */
-    protected CustomerAttributes $customerAttributes;
+    protected $customerAttributes;
 
     /**
      * @param CustomerAttributes $customerAttributes
@@ -50,6 +50,7 @@ class SaveIssuerDataBuilder implements BuilderInterface
      * Save last used issuer, it will be used to select automatically the issuer in the checkout
      *
      * @param array $buildSubject
+     *
      * @return array
      */
     public function build(array $buildSubject): array
@@ -60,8 +61,6 @@ class SaveIssuerDataBuilder implements BuilderInterface
 
     /**
      * @param InfoInterface|OrderPaymentInterface $payment
-     *
-     * @return void
      */
     public function saveLastUsedIssuer($payment): void
     {

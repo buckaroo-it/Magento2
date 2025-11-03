@@ -23,18 +23,19 @@ namespace Buckaroo\Magento2\Block\Adminhtml\Giftcard;
 use Buckaroo\Magento2\Model\Data\BuckarooGiftcardDataInterface;
 use Magento\Backend\Block\Widget\Context;
 use Magento\Backend\Block\Widget\Form\Container;
+use Magento\Framework\Phrase;
 
 class Edit extends Container
 {
     /**
      * @var BuckarooGiftcardDataInterface
      */
-    protected BuckarooGiftcardDataInterface $buckarooGiftcardData;
+    protected $buckarooGiftcardData;
 
     /**
-     * @param Context $context
+     * @param Context                       $context
      * @param BuckarooGiftcardDataInterface $buckarooGiftcardData
-     * @param array $data
+     * @param array                         $data
      */
     public function __construct(
         Context $context,
@@ -48,7 +49,7 @@ class Edit extends Container
     /**
      * Get header text
      *
-     * @return \Magento\Framework\Phrase
+     * @return Phrase
      */
     public function getHeaderText()
     {
@@ -64,8 +65,6 @@ class Edit extends Container
 
     /**
      * Initialize form.
-     *
-     * @return void
      */
     protected function _construct()
     {

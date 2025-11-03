@@ -30,7 +30,7 @@ class GiftcardsDataBuilder implements BuilderInterface
     /**
      * @var GiftcardsConfig
      */
-    protected GiftcardsConfig $giftcardsConfig;
+    protected $giftcardsConfig;
 
     /**
      * @param GiftcardsConfig $giftcardsConfig

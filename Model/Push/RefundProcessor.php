@@ -42,20 +42,20 @@ class RefundProcessor extends DefaultProcessor
     /**
      * @var RefundPush
      */
-    private RefundPush $refundPush;
+    private $refundPush;
 
     /**
-     * @param OrderRequestService $orderRequestService
-     * @param PushTransactionType $pushTransactionType
+     * @param OrderRequestService     $orderRequestService
+     * @param PushTransactionType     $pushTransactionType
      * @param BuckarooLoggerInterface $logger
-     * @param Data $helper
-     * @param TransactionInterface $transaction
+     * @param Data                    $helper
+     * @param TransactionInterface    $transaction
      * @param PaymentGroupTransaction $groupTransaction
-     * @param BuckarooStatusCode $buckarooStatusCode
-     * @param OrderStatusFactory $orderStatusFactory
-     * @param Account $configAccount
-     * @param GiftCardRefundService $giftCardRefundService
-     * @param RefundPush $refundPush
+     * @param BuckarooStatusCode      $buckarooStatusCode
+     * @param OrderStatusFactory      $orderStatusFactory
+     * @param Account                 $configAccount
+     * @param GiftCardRefundService   $giftCardRefundService
+     * @param RefundPush              $refundPush
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -88,6 +88,8 @@ class RefundProcessor extends DefaultProcessor
     }
 
     /**
+     * @param PushRequestInterface $pushRequest
+     *
      * @throws BuckarooException
      * @throws \Exception
      */
@@ -125,8 +127,10 @@ class RefundProcessor extends DefaultProcessor
      * Skip Pending Refund Push
      *
      * @param \Buckaroo\Magento2\Api\Data\PushRequestInterface $pushRequest
-     * @return bool
+     *
      * @throws \Exception
+     *
+     * @return bool
      */
     private function skipPendingRefundPush(PushRequestInterface $pushRequest): bool
     {
@@ -152,7 +156,6 @@ class RefundProcessor extends DefaultProcessor
                 return false;
             }
         }
-
 
         return true;
     }

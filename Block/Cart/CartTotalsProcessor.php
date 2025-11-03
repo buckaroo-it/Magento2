@@ -22,7 +22,7 @@ class CartTotalsProcessor extends AbstractTotalsProcessor implements LayoutProce
 
     /**
      * @param ScopeConfigInterface $scopeConfig
-     * @param Factory $configProviderFactory
+     * @param Factory              $configProviderFactory
      *
      * @codeCoverageIgnore
      */

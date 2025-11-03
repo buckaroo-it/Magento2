@@ -28,7 +28,7 @@ class CancelHandlerTest extends AbstractResponseHandlerTest
     /**
      * @var CancelHandler
      */
-    private CancelHandler $cancelHandler;
+    private $cancelHandler;
 
     protected function setUp(): void
     {
@@ -37,7 +37,6 @@ class CancelHandlerTest extends AbstractResponseHandlerTest
     }
 
     /**
-     * @return void
      */
     public function testHandle(): void
     {

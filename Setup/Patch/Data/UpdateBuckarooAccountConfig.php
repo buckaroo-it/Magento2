@@ -29,7 +29,7 @@ class UpdateBuckarooAccountConfig implements DataPatchInterface
     /**
      * @var ModuleDataSetupInterface
      */
-    private ModuleDataSetupInterface $moduleDataSetup;
+    private $moduleDataSetup;
 
     /**
      * @param ModuleDataSetupInterface $moduleDataSetup

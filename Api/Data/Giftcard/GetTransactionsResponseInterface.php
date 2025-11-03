@@ -34,6 +34,7 @@ interface GetTransactionsResponseInterface
      * Get RemainderAmount
      *
      * @api
+     *
      * @return float
      */
     public function getRemainderAmount(): float;
@@ -42,6 +43,7 @@ interface GetTransactionsResponseInterface
      * Get AlreadyPaid
      *
      * @api
+     *
      * @return float
      */
     public function getAlreadyPaid(): float;

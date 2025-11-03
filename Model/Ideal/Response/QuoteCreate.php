@@ -43,8 +43,8 @@ class QuoteCreate implements QuoteCreateResponseInterface
     protected $quoteIdMaskResource;
 
     /**
-     * @param Quote $quote
-     * @param QuoteIdMaskFactory $quoteIdMaskFactory
+     * @param Quote               $quote
+     * @param QuoteIdMaskFactory  $quoteIdMaskFactory
      * @param QuoteIdMaskResource $quoteIdMaskResource
      */
     public function __construct(

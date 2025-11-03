@@ -28,9 +28,10 @@ interface PayWithGiftcardInterface
     /**
      * Rest method for paying with giftcards
      *
-     * @param string $cartId
-     * @param string $giftcardId
+     * @param string              $cartId
+     * @param string              $giftcardId
      * @param PayRequestInterface $payment
+     *
      * @return PayResponseInterface
      */
     public function pay(string $cartId, string $giftcardId, PayRequestInterface $payment);

@@ -26,6 +26,7 @@ interface InvoiceInterface
      * Set Invoice Transaction Id
      *
      * @param string $value
+     *
      * @return $this
      */
     public function setInvoiceTransactionId($value);
@@ -41,6 +42,7 @@ interface InvoiceInterface
      * Set Invoice Number
      *
      * @param string $value
+     *
      * @return $this
      */
     public function setInvoiceNumber($value);

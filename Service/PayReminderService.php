@@ -29,22 +29,22 @@ class PayReminderService
     /**
      * @var float
      */
-    private float $payRemainder;
+    private $payRemainder;
 
     /**
      * @var string
      */
-    private string $serviceAction;
+    private $serviceAction;
 
     /**
      * @var float
      */
-    private float $alreadyPaid;
+    private $alreadyPaid;
 
     /**
      * @var PaymentGroupTransaction
      */
-    private PaymentGroupTransaction $paymentGroupTransaction;
+    private $paymentGroupTransaction;
 
     /**
      * Constructor
@@ -61,6 +61,7 @@ class PayReminderService
      * Check if is a pay remainder order
      *
      * @param Order $order
+     *
      * @return bool
      */
     public function isPayRemainder(Order $order): bool
@@ -76,6 +77,7 @@ class PayReminderService
      * Get the amount already paid by partial payment method (giftcard, voucher)
      *
      * @param string|null $incrementId
+     *
      * @return float
      */
     public function getAlreadyPaid(?string $incrementId = null): float
@@ -91,6 +93,7 @@ class PayReminderService
      * Set the amount already paid
      *
      * @param float $alreadyPaid
+     *
      * @return $this
      */
     public function setAlreadyPaid(float $alreadyPaid): PayReminderService
@@ -103,6 +106,7 @@ class PayReminderService
      * If we have already paid some value we do a pay reminder request
      *
      * @param Order $order
+     *
      * @return float
      */
     public function getPayRemainder(Order $order): float
@@ -135,6 +139,7 @@ class PayReminderService
      *
      * @param float $total
      * @param float $alreadyPaid
+     *
      * @return float
      */
     private function getPayRemainderAmount(float $total, float $alreadyPaid): float
@@ -146,6 +151,7 @@ class PayReminderService
      * Get original transaction key by order
      *
      * @param Order $order
+     *
      * @return string|null
      */
     public function getOriginalTransactionKey(Order $order): ?string
@@ -165,6 +171,7 @@ class PayReminderService
      * @param string $incrementId
      * @param string $serviceAction
      * @param string $newServiceAction
+     *
      * @return string
      */
     public function getServiceAction(

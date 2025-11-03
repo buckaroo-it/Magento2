@@ -36,22 +36,22 @@ class Cancel
     /**
      * @var Account
      */
-    private Account $account;
+    private $account;
 
     /**
      * @var OrderPaymentRepositoryInterface
      */
-    private OrderPaymentRepositoryInterface $orderPaymentRepository;
+    private $orderPaymentRepository;
 
     /**
      * @var OrderStatusFactory
      */
-    private OrderStatusFactory $orderStatusFactory;
+    private $orderStatusFactory;
 
     /**
-     * @param OrderStatusFactory $orderStatusFactory
+     * @param OrderStatusFactory              $orderStatusFactory
      * @param OrderPaymentRepositoryInterface $orderPaymentRepository
-     * @param Account $account
+     * @param Account                         $account
      */
     public function __construct(
         OrderStatusFactory $orderStatusFactory,
@@ -68,7 +68,7 @@ class Cancel
      * if the configuration is set to cancel on failed transactions.
      *
      * @param TransactionInterface|Transaction $transaction
-     * @return void
+     *
      * @throws LocalizedException
      * @throws \Exception
      */
@@ -92,6 +92,7 @@ class Cancel
      * Cancels a payment associated with the given transaction.
      *
      * @param TransactionInterface|Transaction $transaction
+     *
      * @throws LocalizedException
      */
     private function cancelPayment($transaction)
@@ -105,6 +106,7 @@ class Cancel
      * Cancels an order and sets the appropriate additional information
      *
      * @param PaymentOrder|Order $order
+     *
      * @throws \Exception
      * @throws LocalizedException
      */
@@ -126,6 +128,7 @@ class Cancel
      * Updates the status of an order after cancelation, adding a history comment with the new status.
      *
      * @param PaymentOrder|Order $order
+     *
      * @throws \Exception
      */
     private function updateStatus($order)

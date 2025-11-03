@@ -141,7 +141,7 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
         $quote = $this->getQuote($cart_id);
         $quote->getPayment()->setAdditionalInformation('express_order_id', $paypal_order_id);
         $quote->reserveOrderId();
-        
+
         $this->ignoreAddressValidation($quote);
         $this->checkQuoteBelongsToLoggedUser($quote);
         $orderId = $this->quoteManagement->placeOrder($quote->getId());
@@ -155,7 +155,7 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
     /**
      * Make sure addresses will be saved without validation errors
      *
-     * @return void
+     * @param Quote $quote
      */
     private function ignoreAddressValidation(Quote $quote)
     {
@@ -176,7 +176,6 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
      *
      * @param CartInterface $quote
      *
-     * @return void
      * @throws \Buckaroo\Magento2\Model\PaypalExpress\PaypalExpressException
      */
     protected function checkQuoteBelongsToLoggedUser(CartInterface $quote)
@@ -189,9 +188,7 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
     /**
      * Update session with last order
      *
-     * @param  \Magento\Sales\Api\Data\OrderInterface $order
-     *
-     * @return void
+     * @param \Magento\Sales\Api\Data\OrderInterface $order
      */
     protected function setLastOrderToSession(OrderInterface $order)
     {

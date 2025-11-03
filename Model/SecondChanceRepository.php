@@ -80,17 +80,33 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     protected $orderIncrementIdChecker;
 
     /**
-     * @param ResourceSecondChance                      $resource
-     * @param SecondChanceFactory                       $secondChanceFactory
-     * @param SecondChanceInterfaceFactory              $dataSecondChanceFactory
-     * @param SecondChanceCollectionFactory             $secondChanceCollectionFactory
-     * @param SecondChanceSearchResultsInterfaceFactory $searchResultsFactory
-     * @param DataObjectHelper                          $dataObjectHelper
-     * @param DataObjectProcessor                       $dataObjectProcessor
-     * @param StoreManagerInterface                     $storeManager
-     * @param CollectionProcessorInterface              $collectionProcessor
-     * @param JoinProcessorInterface                    $extensionAttributesJoinProcessor
-     * @param ExtensibleDataObjectConverter             $extensibleDataObjectConverter
+     * @param ResourceSecondChance                                        $resource
+     * @param SecondChanceFactory                                         $secondChanceFactory
+     * @param SecondChanceInterfaceFactory                                $dataSecondChanceFactory
+     * @param SecondChanceCollectionFactory                               $secondChanceCollectionFactory
+     * @param SecondChanceSearchResultsInterfaceFactory                   $searchResultsFactory
+     * @param DataObjectHelper                                            $dataObjectHelper
+     * @param DataObjectProcessor                                         $dataObjectProcessor
+     * @param StoreManagerInterface                                       $storeManager
+     * @param CollectionProcessorInterface                                $collectionProcessor
+     * @param JoinProcessorInterface                                      $extensionAttributesJoinProcessor
+     * @param ExtensibleDataObjectConverter                               $extensibleDataObjectConverter
+     * @param \Buckaroo\Magento2\Logging\Log                              $logging
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\SecondChance        $configProvider
+     * @param \Magento\Framework\Math\Random                              $mathRandom
+     * @param \Magento\Framework\Stdlib\DateTime\DateTime                 $dateTime
+     * @param \Magento\Sales\Model\OrderFactory                           $orderFactory
+     * @param \Magento\Customer\Model\AddressFactory                      $addressFactory
+     * @param \Magento\CatalogInventory\Api\StockRegistryInterface        $stockRegistry
+     * @param \Magento\Framework\Translate\Inline\StateInterface          $inlineTranslation
+     * @param \Magento\Framework\Mail\Template\TransportBuilder           $transportBuilder
+     * @param \Magento\Sales\Model\Order\Address\Renderer                 $addressRenderer
+     * @param \Magento\Payment\Helper\Data                                $paymentHelper
+     * @param \Magento\Sales\Model\Order\Email\Container\ShipmentIdentity $identityContainer
+     * @param QuoteRecreateService                                        $quoteRecreate
+     * @param \Magento\Checkout\Model\Session                             $checkoutSession
+     * @param \Magento\Quote\Model\QuoteFactory                           $quoteFactory
+     * @param \Magento\SalesSequence\Model\Manager                        $orderIncrementIdChecker
      */
     public function __construct(
         ResourceSecondChance $resource,
@@ -255,6 +271,8 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
 
     /**
      * Delete SecondChance by order ID
+     *
+     * @param mixed $orderId
      */
     public function deleteByOrderId($orderId)
     {
@@ -268,6 +286,8 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
 
     /**
      * Delete older records based on configuration
+     *
+     * @param mixed $store
      */
     public function deleteOlderRecords($store)
     {
@@ -293,6 +313,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
      * Create a SecondChance record for order
      *
      * @param OrderInterface $order
+     *
      * @return SecondChanceInterface|null
      */
     public function createSecondChance($order)
@@ -328,9 +349,11 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
      * Set available increment ID with suffix (matching original standalone plugin behavior)
      *
      * @param string $orderId
-     * @param Order $order
-     * @return string|null
+     * @param Order  $order
+     *
      * @throws Exception
+     *
+     * @return string|null
      */
     private function setAvailableIncrementId($orderId, $order)
     {
@@ -368,6 +391,9 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
 
     /**
      * Get SecondChance by token and recreate quote
+     *
+     * @param mixed $token
+     *
      * @throws Exception
      */
     public function getSecondChanceByToken($token)
@@ -412,8 +438,13 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
 
     /**
      * Get SecondChance collection for cron processing
+     *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     *
+     * @param mixed $step
+     * @param mixed $store
      */
     public function getSecondChanceCollection($step, $store)
     {
@@ -519,6 +550,10 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
 
     /**
      * Send reminder email
+     *
+     * @param mixed $order
+     * @param mixed $secondChance
+     * @param mixed $step
      */
     public function sendMail($order, $secondChance, $step)
     {
@@ -605,6 +640,8 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
 
     /**
      * Get formatted shipping address
+     *
+     * @param mixed $order
      */
     protected function getFormattedShippingAddress($order)
     {
@@ -617,6 +654,8 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
 
     /**
      * Get formatted billing address
+     *
+     * @param mixed $order
      */
     protected function getFormattedBillingAddress($order)
     {
@@ -629,6 +668,8 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
 
     /**
      * Get payment method HTML
+     *
+     * @param OrderInterface $order
      */
     private function getPaymentHtml(OrderInterface $order)
     {
@@ -638,6 +679,8 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
 
     /**
      * Check if order products are in stock
+     *
+     * @param mixed $order
      */
     private function checkOrderProductsIsInStock($order)
     {
@@ -658,6 +701,9 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
 
     /**
      * Set final status for SecondChance record
+     *
+     * @param mixed $item
+     * @param mixed $status
      */
     private function setFinalStatus($item, $status)
     {
@@ -671,6 +717,9 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
 
     /**
      * Check for multiple email sending
+     *
+     * @param mixed $order
+     * @param mixed $flag
      */
     public function checkForMultipleEmail($order, $flag)
     {
@@ -691,6 +740,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
      * Check if email is a placeholder/dummy email that should not receive Second Chance emails
      *
      * @param string|null $email
+     *
      * @return bool
      */
     private function isPlaceholderEmail($email): bool

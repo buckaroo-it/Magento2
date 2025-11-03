@@ -17,13 +17,13 @@ class Analytics extends \Magento\Framework\Model\AbstractModel
     protected $analyticsDataFactory;
 
     /**
-     * @param \Magento\Framework\Model\Context $context
-     * @param \Magento\Framework\Registry $registry
-     * @param AnalyticsInterfaceFactory $analyticsDataFactory
-     * @param DataObjectHelper $dataObjectHelper
-     * @param \Buckaroo\Magento2\Model\ResourceModel\Analytics $resource
+     * @param \Magento\Framework\Model\Context                            $context
+     * @param \Magento\Framework\Registry                                 $registry
+     * @param AnalyticsInterfaceFactory                                   $analyticsDataFactory
+     * @param DataObjectHelper                                            $dataObjectHelper
+     * @param \Buckaroo\Magento2\Model\ResourceModel\Analytics            $resource
      * @param \Buckaroo\Magento2\Model\ResourceModel\Analytics\Collection $resourceCollection
-     * @param array $data
+     * @param array                                                       $data
      */
     public function __construct(
         \Magento\Framework\Model\Context $context,
@@ -41,6 +41,7 @@ class Analytics extends \Magento\Framework\Model\AbstractModel
 
     /**
      * Retrieve analytics model with analytics data
+     *
      * @return AnalyticsInterface
      */
     public function getDataModel()

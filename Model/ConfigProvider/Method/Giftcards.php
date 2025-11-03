@@ -44,7 +44,6 @@ class Giftcards extends AbstractConfigProvider
     public const XPATH_ACCOUNT_ADVANCED_EXPORT_GIFTCARDS = 'buckaroo_magento2/account/advanced_export_giftcards';
     public const XPATH_GIFTCARDS_PAYMENT_FEE          = 'payment/buckaroo_magento2_giftcards/payment_fee';
 
-
     /**
      * @var array
      */
@@ -55,27 +54,28 @@ class Giftcards extends AbstractConfigProvider
     /**
      * @var StoreManagerInterface
      */
-    private StoreManagerInterface $storeManager;
+    private $storeManager;
 
     /**
      * @var GiftcardCollectionFactory
      */
-    private GiftcardCollectionFactory $giftcardCollectionFactory;
+    private $giftcardCollectionFactory;
 
     /**
      * @var GiftcardsSource
      */
-    private GiftcardsSource $giftcardsSource;
+    private $giftcardsSource;
 
     /**
-     * @param Repository $assetRepo
-     * @param ScopeConfigInterface $scopeConfig
-     * @param AllowedCurrencies $allowedCurrencies
-     * @param PaymentFee $paymentFeeHelper
-     * @param LogoService $logoService
-     * @param StoreManagerInterface $storeManager
-     * @param ResourceConnection $resourceConnection
-     * @param GiftcardsSource $giftcardsSource
+     * @param Repository                $assetRepo
+     * @param ScopeConfigInterface      $scopeConfig
+     * @param AllowedCurrencies         $allowedCurrencies
+     * @param PaymentFee                $paymentFeeHelper
+     * @param LogoService               $logoService
+     * @param StoreManagerInterface     $storeManager
+     * @param ResourceConnection        $resourceConnection
+     * @param GiftcardsSource           $giftcardsSource
+     * @param GiftcardCollectionFactory $giftcardCollectionFactory
      */
     public function __construct(
         Repository $assetRepo,
@@ -97,6 +97,7 @@ class Giftcards extends AbstractConfigProvider
      * @inheritdoc
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     *
      * @throws Exception|NoSuchEntityException
      */
     public function getConfig(): array
@@ -115,6 +116,7 @@ class Giftcards extends AbstractConfigProvider
      * Type of the giftcard inline/redirect
      *
      * @param null|int|string $store
+     *
      * @return mixed
      */
     public function getGroupGiftcards($store = null)
@@ -137,7 +139,7 @@ class Giftcards extends AbstractConfigProvider
 
         // Use proper collection instead of raw SQL
         $giftcardCollection = $this->giftcardCollectionFactory->create();
-        
+
         $allGiftCards = [];
         foreach ($giftcardCollection as $giftcard) {
             $servicecode = $giftcard->getServicecode();
@@ -179,12 +181,11 @@ class Giftcards extends AbstractConfigProvider
         return $cards;
     }
 
-
-
     /**
      * Get Allowed Giftcards
      *
      * @param $store
+     *
      * @return mixed|null
      */
     public function getAllowedGiftcards($store = null)
@@ -196,6 +197,7 @@ class Giftcards extends AbstractConfigProvider
      * Get Sorted Giftcards
      *
      * @param $store
+     *
      * @return mixed|null
      */
     public function getSortedGiftcards($store = null)
@@ -207,6 +209,7 @@ class Giftcards extends AbstractConfigProvider
      * Get Sorted Issuers (alias for getSortedGiftcards for SortIssuers block compatibility)
      *
      * @param $store
+     *
      * @return mixed|null
      */
     public function getSortedIssuers($store = null)
@@ -225,8 +228,9 @@ class Giftcards extends AbstractConfigProvider
      * Get all available giftcard issuers for the SortIssuers block
      * Uses the same source model as the admin multiselect to ensure consistency
      *
-     * @return array
      * @throws NoSuchEntityException
+     *
+     * @return array
      */
     public function getAllIssuers(): array
     {
@@ -272,7 +276,7 @@ class Giftcards extends AbstractConfigProvider
             $giftcardCollection = $this->giftcardCollectionFactory->create();
             $giftcardCollection->addFieldToFilter('servicecode', $code);
             $giftcard = $giftcardCollection->getFirstItem();
-            
+
             if ($giftcard->getId() && $giftcard->getLogo()) {
                 $logo = $this->storeManager->getStore()->getBaseUrl(
                     UrlInterface::URL_TYPE_MEDIA
@@ -292,8 +296,9 @@ class Giftcards extends AbstractConfigProvider
     /**
      * Format issuers for display
      *
-     * @return array
      * @throws NoSuchEntityException
+     *
+     * @return array
      */
     public function formatIssuers(): array
     {
@@ -304,6 +309,7 @@ class Giftcards extends AbstractConfigProvider
      * Get giftcard logo image
      *
      * @param string $code
+     *
      * @return string
      */
     protected function getGiftcardLogo(string $code): string
@@ -333,6 +339,7 @@ class Giftcards extends AbstractConfigProvider
      * Get Advanced order export for giftcards
      *
      * @param null|int|string $store
+     *
      * @return bool
      */
     public function hasAdvancedExportGiftcards($store = null): bool

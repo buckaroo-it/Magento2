@@ -46,6 +46,7 @@ class TransferDetailsHandler implements HandlerInterface
 
     /**
      * @param $transactionResponse
+     *
      * @return array
      */
     protected function getTransferDetails($transactionResponse): array

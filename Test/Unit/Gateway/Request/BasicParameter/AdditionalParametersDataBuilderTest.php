@@ -26,7 +26,7 @@ use PHPUnit\Framework\TestCase;
 
 class AdditionalParametersDataBuilderTest extends TestCase
 {
-    private AdditionalParametersDataBuilder $dataBuilder;
+    private $dataBuilder;
 
     protected function setUp(): void
     {

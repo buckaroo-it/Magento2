@@ -32,7 +32,7 @@ class PayLinkHandler implements HandlerInterface
     /**
      * @var MessageManager
      */
-    protected MessageManager $messageManager;
+    protected $messageManager;
 
     /**
      * @param MessageManager $messageManager

@@ -29,7 +29,8 @@ class RedirectProcess implements ValidatorInterface
      * Validate redirect
      *
      * @param array|object $data
-     * @return boolean
+     *
+     * @return bool
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */

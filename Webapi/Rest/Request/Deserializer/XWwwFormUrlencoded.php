@@ -29,8 +29,10 @@ class XWwwFormUrlencoded implements DeserializerInterface
      * Parse Request body into array of params.
      *
      * @param string $encodedBody Posted content from request.
-     * @return string
+     *
      * @throws \InvalidArgumentException
+     *
+     * @return string
      */
     public function deserialize($encodedBody)
     {

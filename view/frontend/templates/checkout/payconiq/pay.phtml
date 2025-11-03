@@ -4,8 +4,8 @@
     <div id="buckaroo_magento2_payconiq_items">
         <div id="buckaroo_magento2_payconiq_qr"></div>
 
-        <button id="buckaroo_magento2_payconiq_cancel" type="button" title="<?= $block->escapeHtml(__('Cancel')) ?>" onclick="window.cancelPayment()">
-            <span><?= $block->escapeHtml(__('Cancel')) ?></span>
+        <button id="buckaroo_magento2_payconiq_cancel" type="button" title="<?= $escaper->escapeHtml(__('Cancel')) ?>" onclick="window.cancelPayment()">
+            <span><?= $escaper->escapeHtml(__('Cancel')) ?></span>
         </button>
     </div>
 </div>
@@ -14,7 +14,7 @@
 {
     "*": {
         "Buckaroo_Magento2/js/view/checkout/payconiq/pay-wrapper": {
-            "transactionKey": "<?= $block->escapeJs($block->getTransactionKey()); ?>"
+            "transactionKey": "<?= $escaper->escapeJs($block->getTransactionKey()); ?>"
         }
     }
 }

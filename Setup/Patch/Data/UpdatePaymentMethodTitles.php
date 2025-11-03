@@ -27,8 +27,8 @@ use Magento\Framework\Module\Dir\Reader as ModuleDirReader;
 
 class UpdatePaymentMethodTitles implements DataPatchInterface
 {
-    private ModuleDataSetupInterface $setup;
-    private ModuleDirReader $moduleDirReader;
+    private $setup;
+    private $moduleDirReader;
 
     public function __construct(
         ModuleDataSetupInterface $setup,

@@ -28,7 +28,7 @@ class TransactionIdHandlerTest extends AbstractResponseHandlerTest
     /**
      * @var TransactionIdHandler
      */
-    private TransactionIdHandler $transactionIdHandler;
+    private $transactionIdHandler;
 
     protected function setUp(): void
     {

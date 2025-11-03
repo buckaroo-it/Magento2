@@ -85,6 +85,7 @@ class PaymentFee extends AbstractHelper
      * Retrieve totals array based on the data object.
      *
      * @param DataObject $dataObject
+     *
      * @return array
      */
     public function getTotals($dataObject)
@@ -132,6 +133,7 @@ class PaymentFee extends AbstractHelper
      * Extract the store from the data object.
      *
      * @param DataObject $dataObject
+     *
      * @return StoreInterface|null
      */
     protected function getStoreFromDataObject($dataObject)
@@ -149,6 +151,7 @@ class PaymentFee extends AbstractHelper
      * Determine if the fee display type is set to "Including Tax".
      *
      * @param mixed $displayType
+     *
      * @return bool
      */
     protected function isFeeDisplayTypeIncludingTax($displayType)
@@ -160,8 +163,7 @@ class PaymentFee extends AbstractHelper
      * Add "already paid" totals for giftcards or vouchers if applicable.
      *
      * @param DataObject $dataObject
-     * @param array &$totals
-     * @return void
+     * @param array      &$totals
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
@@ -257,6 +259,7 @@ class PaymentFee extends AbstractHelper
      * Get order increment ID from a data object (Order/Invoice/Creditmemo).
      *
      * @param mixed $dataObject
+     *
      * @return string|null
      */
     public function getOrderIncrementId($dataObject)
@@ -304,6 +307,7 @@ class PaymentFee extends AbstractHelper
      * Extract the payment method code from order, invoice, creditmemo, or direct string.
      *
      * @param mixed $dataObject
+     *
      * @return string|false
      */
     protected function extractPaymentMethodFromDataObject($dataObject)
@@ -330,7 +334,6 @@ class PaymentFee extends AbstractHelper
      * @param string $blockName
      * @param string $transactionId
      * @param array  $extraInfo
-     * @return void
      */
     protected function addTotalToTotals(
         array &$totals,

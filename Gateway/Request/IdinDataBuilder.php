@@ -37,39 +37,40 @@ class IdinDataBuilder implements BuilderInterface
     /**
      * @var UrlInterface
      */
-    protected UrlInterface $urlBuilder;
+    protected $urlBuilder;
 
     /**
      * @var StoreInterface
      */
-    protected StoreInterface $store;
+    protected $store;
 
     /**
      * @var CustomerSession
      */
-    private CustomerSession $customerSession;
+    private $customerSession;
 
     /**
      * @var null|string
      */
-    private ?string $returnUrl = null;
+    private $returnUrl = null;
 
     /**
      * @var FormKey
      */
-    private FormKey $formKey;
+    private $formKey;
 
     /**
      * @var Account
      */
-    private Account $configProviderAccount;
+    private $configProviderAccount;
 
     /**
-     * @param CustomerSession $customerSession
-     * @param UrlInterface $urlBuilder
-     * @param FormKey $formKey
+     * @param CustomerSession       $customerSession
+     * @param UrlInterface          $urlBuilder
+     * @param FormKey               $formKey
      * @param StoreManagerInterface $storeManager
-     * @param Account $configProviderAccount
+     * @param Account               $configProviderAccount
+     *
      * @throws NoSuchEntityException
      */
     public function __construct(
@@ -111,8 +112,9 @@ class IdinDataBuilder implements BuilderInterface
     /**
      * Retrieves the return URL.
      *
-     * @return string
      * @throws LocalizedException
+     *
+     * @return string
      */
     public function getReturnUrl(): string
     {
@@ -130,6 +132,7 @@ class IdinDataBuilder implements BuilderInterface
      * Sets the return URL.
      *
      * @param string $url
+     *
      * @return $this
      */
     public function setReturnUrl(string $url): IdinDataBuilder
@@ -143,8 +146,9 @@ class IdinDataBuilder implements BuilderInterface
     /**
      * Retrieves the form key.
      *
-     * @return string
      * @throws LocalizedException
+     *
+     * @return string
      */
     public function getFormKey(): string
     {

@@ -33,8 +33,9 @@ class CreditManagmentProcessor extends DefaultProcessor
     /**
      * Update the Credit Management invoice status based on push request data and save invoice if required.
      *
-     * @return bool
      * @throws LocalizedException
+     *
+     * @return bool
      */
     private function updateCm3InvoiceStatus(): bool
     {
@@ -76,7 +77,6 @@ class CreditManagmentProcessor extends DefaultProcessor
     /**
      * Sends the CM3 confirmation email if the CM3 status code is 10 and the order email has not been sent.
      *
-     * @return void
      * @throws LocalizedException
      */
     private function sendCm3ConfirmationMail(): void

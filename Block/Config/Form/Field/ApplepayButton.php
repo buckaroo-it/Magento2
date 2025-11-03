@@ -20,8 +20,6 @@
 
 namespace Buckaroo\Magento2\Block\Config\Form\Field;
 
-use Buckaroo\Magento2\Model\Config\Source\PaypalButtonStyle;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Paypal;
 use Magento\Config\Block\System\Config\Form\Field;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 
@@ -32,12 +30,13 @@ class ApplepayButton extends Field
     /**
      * @var AbstractElement|null
      */
-    protected ?AbstractElement $styleElement = null;
+    protected $styleElement = null;
 
     /**
      * Return element html
      *
      * @param AbstractElement $element
+     *
      * @return string
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)

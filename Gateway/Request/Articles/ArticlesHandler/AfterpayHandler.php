@@ -28,29 +28,34 @@ use Buckaroo\Magento2\Service\PayReminderService;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 use Magento\Catalog\Helper\Image;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Model\Quote\Item;
 use Magento\Quote\Model\QuoteFactory;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class AfterpayHandler extends AbstractArticlesHandler
 {
     /**
-     * @param \Magento\Catalog\Helper\Image $imageHelper
+     * @param Image $imageHelper
      */
     protected $imageHelper;
 
     /**
-     * @param ScopeConfigInterface $scopeConfig
-     * @param BuckarooLog $buckarooLog
-     * @param QuoteFactory $quoteFactory
-     * @param Calculation $taxCalculation
-     * @param Config $taxConfig
-     * @param BuckarooFee $configProviderBuckarooFee
-     * @param SoftwareData $softwareData
+     * @param ScopeConfigInterface        $scopeConfig
+     * @param BuckarooLog                 $buckarooLog
+     * @param QuoteFactory                $quoteFactory
+     * @param Calculation                 $taxCalculation
+     * @param Config                      $taxConfig
+     * @param BuckarooFee                 $configProviderBuckarooFee
+     * @param SoftwareData                $softwareData
      * @param ConfigProviderMethodFactory $configProviderMethodFactory
-     * @param PayReminderService $payReminderService
-     * @param Image $imageHelper
+     * @param PayReminderService          $payReminderService
+     * @param Image                       $imageHelper
+     *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -63,7 +68,7 @@ class AfterpayHandler extends AbstractArticlesHandler
         SoftwareData $softwareData,
         ConfigProviderMethodFactory $configProviderMethodFactory,
         PayReminderService $payReminderService,
-        \Magento\Catalog\Helper\Image $imageHelper
+        Image $imageHelper
     ) {
         parent::__construct(
             $scopeConfig,
@@ -83,11 +88,12 @@ class AfterpayHandler extends AbstractArticlesHandler
     /**
      * Get the structure of the array returned to request for refunded items
      *
-     * @param string|null $articleDescription
+     * @param string|null     $articleDescription
      * @param int|string|null $articleId
-     * @param int|float $articleQuantity
-     * @param string|float $articleUnitPrice
-     * @param string|float $articleVat
+     * @param int|float       $articleQuantity
+     * @param string|float    $articleUnitPrice
+     * @param string|float    $articleVat
+     *
      * @return array
      */
     public function getArticleRefundArrayLine(
@@ -109,6 +115,8 @@ class AfterpayHandler extends AbstractArticlesHandler
 
     /**
      * Get items lines
+     *
+     * @throws LocalizedException
      *
      * @return array
      */
@@ -158,6 +166,7 @@ class AfterpayHandler extends AbstractArticlesHandler
      * Get product image URL
      *
      * @param Item $item
+     *
      * @return string
      */
     protected function getProductImageUrl($item)

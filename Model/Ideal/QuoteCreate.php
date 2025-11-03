@@ -61,6 +61,18 @@ class QuoteCreate implements IdealQuoteCreateInterface
 
     /**
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
+     *
+     * @param QuoteCreateResponseInterfaceFactory $responseFactory
+     * @param QuoteBuilderInterfaceFactory        $quoteBuilderInterfaceFactory
+     * @param CustomerSession                     $customerSession
+     * @param CustomerRepositoryInterface         $customerRepository
+     * @param AddressRepositoryInterface          $addressRepository
+     * @param CheckoutSession                     $checkoutSession
+     * @param QuoteRepository                     $quoteRepository
+     * @param ShipmentEstimationInterface         $shipmentEstimation
+     * @param Log                                 $logger
+     * @param StoreManagerInterface               $storeManager
+     * @param ProductValidationService            $productValidationService
      */
     public function __construct(
         QuoteCreateResponseInterfaceFactory $responseFactory,
@@ -91,10 +103,12 @@ class QuoteCreate implements IdealQuoteCreateInterface
     /**
      * Execute quote creation and address handling
      *
-     * @param string $page
+     * @param string      $page
      * @param string|null $orderData
-     * @return QuoteCreateResponseInterface
+     *
      * @throws IdealException
+     *
+     * @return QuoteCreateResponseInterface
      */
     public function execute(string $page, ?string $orderData = null)
     {
@@ -173,8 +187,10 @@ class QuoteCreate implements IdealQuoteCreateInterface
      * Get a customer's address by address ID
      *
      * @param int|null $addressId
-     * @return AddressInterface|null
+     *
      * @throws LocalizedException
+     *
+     * @return AddressInterface|null
      */
     protected function getAddress($addressId)
     {
@@ -195,8 +211,8 @@ class QuoteCreate implements IdealQuoteCreateInterface
      *
      * @param AddressInterface|null $shippingAddressData
      * @param AddressInterface|null $billingAddressData
-     * @param CustomerInterface $customer
-     * @return void
+     * @param CustomerInterface     $customer
+     *
      * @throws InputException
      */
     protected function setAddresses($shippingAddressData, $billingAddressData, $customer)
@@ -256,7 +272,6 @@ class QuoteCreate implements IdealQuoteCreateInterface
     /**
      * Set default shipping and billing addresses for a guest
      *
-     * @return void
      * @throws InputException
      */
     protected function setDefaultShippingAddress()
@@ -278,7 +293,6 @@ class QuoteCreate implements IdealQuoteCreateInterface
      * Set placeholder values for the address if no customer information is available
      *
      * @param Address $address
-     * @return void
      */
     protected function setPlaceholderAddress(Address $address)
     {
@@ -294,8 +308,6 @@ class QuoteCreate implements IdealQuoteCreateInterface
 
     /**
      * Calculate quote totals and set store id and email if needed
-     *
-     * @return void
      */
     protected function calculateQuoteTotals()
     {
@@ -318,7 +330,7 @@ class QuoteCreate implements IdealQuoteCreateInterface
      * Add the first found shipping method to the shipping address
      *
      * @param Address $address
-     * @return void
+     *
      * @throws InputException
      */
     protected function addFirstShippingMethod(Address $address)
@@ -349,7 +361,6 @@ class QuoteCreate implements IdealQuoteCreateInterface
 
     /**
      * Set the payment method on the quote
-     *
      */
     protected function setPaymentMethod()
     {
@@ -362,8 +373,10 @@ class QuoteCreate implements IdealQuoteCreateInterface
      * Create a new quote if on the product page
      *
      * @param string $form_data
-     * @return Quote
+     *
      * @throws IdealException
+     *
+     * @return Quote
      */
     protected function createQuote(string $form_data)
     {

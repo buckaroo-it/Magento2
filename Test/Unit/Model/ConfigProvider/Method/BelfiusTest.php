@@ -21,8 +21,6 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
-
-
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay;
 use Magento\Store\Model\ScopeInterface;
@@ -143,6 +141,7 @@ class BelfiusTest extends BaseTest
      * @param $expected
      *
      * @covers ::getPaymentFee
+     *
      * @dataProvider getPaymentFeeProvider
      */
     public function testGetPaymentFee($value, $expected)

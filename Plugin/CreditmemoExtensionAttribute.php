@@ -31,7 +31,7 @@ class CreditmemoExtensionAttribute
     /**
      * @var array|string[]
      */
-    private array $buckarooFieldNames = [
+    private $buckarooFieldNames = [
         'buckaroo_fee',
         'base_buckaroo_fee',
         'buckaroo_fee_tax_amount',
@@ -45,7 +45,7 @@ class CreditmemoExtensionAttribute
     /**
      * @var CreditmemoExtensionFactory
      */
-    private CreditmemoExtensionFactory $extensionFactory;
+    private $extensionFactory;
 
     /**
      * @param CreditmemoExtensionFactory $extensionFactory
@@ -58,8 +58,9 @@ class CreditmemoExtensionAttribute
     /**
      * Add Buckaroo specific extension attributes to a list of credit memos after get.
      *
-     * @param CreditmemoRepositoryInterface $subject
+     * @param CreditmemoRepositoryInterface   $subject
      * @param CreditmemoSearchResultInterface $searchResult
+     *
      * @return CreditmemoSearchResultInterface
      */
     public function afterGetList(
@@ -79,7 +80,8 @@ class CreditmemoExtensionAttribute
      * Add Buckaroo specific extension attributes to a single credit memo after get.
      *
      * @param CreditmemoRepositoryInterface $subject
-     * @param CreditmemoInterface $creditmemo
+     * @param CreditmemoInterface           $creditmemo
+     *
      * @return CreditmemoInterface
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)

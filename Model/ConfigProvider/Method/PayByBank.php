@@ -37,11 +37,10 @@ class PayByBank extends AbstractConfigProvider
 
     public const XPATH_ACCOUNT_SELECTION_TYPE = 'buckaroo_magento2/account/selection_type';
 
-
     /**
      * @var CustomerSession
      */
-    protected CustomerSession $customerSession;
+    protected $customerSession;
     /**
      * @var array
      */
@@ -50,12 +49,12 @@ class PayByBank extends AbstractConfigProvider
     ];
 
     /**
-     * @param Repository $assetRepo
+     * @param Repository           $assetRepo
      * @param ScopeConfigInterface $scopeConfig
-     * @param AllowedCurrencies $allowedCurrencies
-     * @param PaymentFee $paymentFeeHelper
-     * @param LogoService $logoService
-     * @param CustomerSession $customerSession
+     * @param AllowedCurrencies    $allowedCurrencies
+     * @param PaymentFee           $paymentFeeHelper
+     * @param LogoService          $logoService
+     * @param CustomerSession      $customerSession
      */
     public function __construct(
         Repository $assetRepo,

@@ -30,27 +30,27 @@ class MyParcelNLBuckarooPlugin
     /**
      * @var Session
      */
-    protected Session $checkoutSession;
+    protected $checkoutSession;
 
     /**
      * @var RequestInterface
      */
-    protected RequestInterface $request;
+    protected $request;
 
     /**
      * @var Json
      */
-    protected Json $json;
+    protected $json;
 
     /**
      * @var BuckarooLoggerInterface
      */
-    protected BuckarooLoggerInterface $logger;
+    protected $logger;
 
     /**
-     * @param Session $checkoutSession
-     * @param RequestInterface $request
-     * @param Json $json
+     * @param Session                 $checkoutSession
+     * @param RequestInterface        $request
+     * @param Json                    $json
      * @param BuckarooLoggerInterface $logger
      */
     public function __construct(
@@ -68,8 +68,6 @@ class MyParcelNLBuckarooPlugin
     /**
      * Saves the MyParcelNL delivery options data to the checkout session
      * before executing the getFromDeliveryOptions method.
-     *
-     * @return void
      */
     public function beforeGetFromDeliveryOptions()
     {

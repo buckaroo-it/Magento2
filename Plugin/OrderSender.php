@@ -30,7 +30,7 @@ class OrderSender
     /**
      * @var BuckarooLoggerInterface
      */
-    private BuckarooLoggerInterface $logger;
+    private $logger;
 
     /**
      * @param BuckarooLoggerInterface $logger
@@ -46,9 +46,10 @@ class OrderSender
      * Allow emails after successful payment completion.
      *
      * @param MagentoOrderSender $subject
-     * @param \Closure $proceed
-     * @param Order $order
-     * @param bool $forceSyncMode
+     * @param \Closure           $proceed
+     * @param Order              $order
+     * @param bool               $forceSyncMode
+     *
      * @return bool
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)

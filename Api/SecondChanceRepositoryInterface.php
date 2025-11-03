@@ -20,27 +20,37 @@
 
 namespace Buckaroo\Magento2\Api;
 
+use Buckaroo\Magento2\Api\Data\SecondChanceInterface;
+use Buckaroo\Magento2\Api\Data\SecondChanceSearchResultsInterface;
 use Magento\Framework\Api\SearchCriteriaInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Store\Api\Data\StoreInterface;
 
 interface SecondChanceRepositoryInterface
 {
     /**
      * Save SecondChance
      *
-     * @param \Buckaroo\Magento2\Api\Data\SecondChanceInterface $secondChance
-     * @return \Buckaroo\Magento2\Api\Data\SecondChanceInterface
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @param SecondChanceInterface $secondChance
+     *
+     * @throws LocalizedException
+     *
+     * @return SecondChanceInterface
      */
     public function save(
-        \Buckaroo\Magento2\Api\Data\SecondChanceInterface $secondChance
+        SecondChanceInterface $secondChance
     );
 
     /**
      * Retrieve SecondChance
      *
      * @param string $secondChanceId
-     * @return \Buckaroo\Magento2\Api\Data\SecondChanceInterface
-     * @throws \Magento\Framework\Exception\LocalizedException
+     *
+     * @throws LocalizedException
+     *
+     * @return SecondChanceInterface
      */
     public function get($secondChanceId);
 
@@ -48,40 +58,48 @@ interface SecondChanceRepositoryInterface
      * Retrieve SecondChance by order ID
      *
      * @param string $orderId
-     * @return \Buckaroo\Magento2\Api\Data\SecondChanceInterface
-     * @throws \Magento\Framework\Exception\LocalizedException
+     *
+     * @throws LocalizedException
+     *
+     * @return SecondChanceInterface
      */
     public function getByOrderId(string $orderId);
 
     /**
      * Retrieve SecondChance matching the specified criteria.
      *
-     * @param \Magento\Framework\Api\SearchCriteriaInterface $searchCriteria
-     * @return \Buckaroo\Magento2\Api\Data\SecondChanceSearchResultsInterface
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @param SearchCriteriaInterface $searchCriteria
+     *
+     * @throws LocalizedException
+     *
+     * @return SecondChanceSearchResultsInterface
      */
     public function getList(
-        \Magento\Framework\Api\SearchCriteriaInterface $searchCriteria
+        SearchCriteriaInterface $searchCriteria
     );
 
     /**
      * Delete SecondChance
      *
-     * @param \Buckaroo\Magento2\Api\Data\SecondChanceInterface $secondChance
+     * @param SecondChanceInterface $secondChance
+     *
+     * @throws LocalizedException
+     *
      * @return bool true on success
-     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function delete(
-        \Buckaroo\Magento2\Api\Data\SecondChanceInterface $secondChance
+        SecondChanceInterface $secondChance
     );
 
     /**
      * Delete SecondChance by ID
      *
      * @param string $secondChanceId
+     *
+     * @throws NoSuchEntityException
+     * @throws LocalizedException
+     *
      * @return bool true on success
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function deleteById($secondChanceId);
 
@@ -89,17 +107,20 @@ interface SecondChanceRepositoryInterface
      * Delete SecondChance by order ID
      *
      * @param string $orderId
+     *
+     * @throws NoSuchEntityException
+     * @throws LocalizedException
+     *
      * @return bool true on success
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function deleteByOrderId($orderId);
 
     /**
      * Create second chance entry for order
      *
-     * @param \Magento\Sales\Api\Data\OrderInterface $order
-     * @return \Buckaroo\Magento2\Api\Data\SecondChanceInterface
+     * @param OrderInterface $order
+     *
+     * @return SecondChanceInterface
      */
     public function createSecondChance($order);
 
@@ -107,34 +128,32 @@ interface SecondChanceRepositoryInterface
      * Get second chance by token
      *
      * @param string $token
-     * @return \Buckaroo\Magento2\Api\Data\SecondChanceInterface
+     *
+     * @return SecondChanceInterface
      */
     public function getSecondChanceByToken($token);
 
     /**
      * Delete older records based on configuration
      *
-     * @param \Magento\Store\Api\Data\StoreInterface $store
-     * @return void
+     * @param StoreInterface $store
      */
     public function deleteOlderRecords($store);
 
     /**
      * Get second chance collection for processing
      *
-     * @param int $step
-     * @param \Magento\Store\Api\Data\StoreInterface $store
-     * @return void
+     * @param int            $step
+     * @param StoreInterface $store
      */
     public function getSecondChanceCollection($step, $store);
 
     /**
      * Send second chance email
      *
-     * @param \Magento\Sales\Api\Data\OrderInterface $order
-     * @param \Buckaroo\Magento2\Api\Data\SecondChanceInterface $secondChance
-     * @param int $step
-     * @return void
+     * @param OrderInterface        $order
+     * @param SecondChanceInterface $secondChance
+     * @param int                   $step
      */
     public function sendMail($order, $secondChance, $step);
 }

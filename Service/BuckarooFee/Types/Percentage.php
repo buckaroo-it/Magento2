@@ -39,14 +39,13 @@ class Percentage
 
     /**
      * @param ResultFactory $resultFactory
-     * @param TaxCalculate $taxCalculate
+     * @param TaxCalculate  $taxCalculate
      */
     public function __construct(ResultFactory $resultFactory, TaxCalculate $taxCalculate)
     {
         $this->resultFactory = $resultFactory;
         $this->taxCalculate = $taxCalculate;
     }
-
 
     public function calculate(CartInterface $cart, Total $total, $percentage)
     {

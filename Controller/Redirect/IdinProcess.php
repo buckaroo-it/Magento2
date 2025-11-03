@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Controller\Redirect;
 
+use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Account as AccountConfig;
 use Buckaroo\Magento2\Model\LockManagerWrapper;
@@ -48,23 +49,24 @@ class IdinProcess extends Process implements HttpPostActionInterface
     /**
      * @var CustomerFactory
      */
-    private CustomerFactory $customerResourceFactory;
+    private $customerResourceFactory;
 
     /**
-     * @param Context $context
-     * @param BuckarooLoggerInterface $logger
-     * @param Quote $quote
-     * @param AccountConfig $accountConfig
-     * @param OrderRequestService $orderRequestService
-     * @param OrderStatusFactory $orderStatusFactory
-     * @param CheckoutSession $checkoutSession
-     * @param CustomerSession $customerSession
+     * @param Context                     $context
+     * @param BuckarooLoggerInterface     $logger
+     * @param Quote                       $quote
+     * @param AccountConfig               $accountConfig
+     * @param OrderRequestService         $orderRequestService
+     * @param OrderStatusFactory          $orderStatusFactory
+     * @param CheckoutSession             $checkoutSession
+     * @param CustomerSession             $customerSession
      * @param CustomerRepositoryInterface $customerRepository
-     * @param OrderService $orderService
-     * @param ManagerInterface $eventManager
-     * @param Recreate $quoteRecreate
-     * @param RequestPushFactory $requestPushFactory
-     * @param CustomerFactory $customerFactory
+     * @param OrderService                $orderService
+     * @param ManagerInterface            $eventManager
+     * @param Recreate                    $quoteRecreate
+     * @param RequestPushFactory          $requestPushFactory
+     * @param LockManagerWrapper          $lockManager
+     * @param CustomerFactory             $customerFactory
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -106,8 +108,7 @@ class IdinProcess extends Process implements HttpPostActionInterface
     }
 
     /**
-     * @return ResponseInterface|void
-     * @throws \Buckaroo\Magento2\Exception
+     * @return ResponseInterface
      */
     public function execute(): ResponseInterface
     {
@@ -131,6 +132,8 @@ class IdinProcess extends Process implements HttpPostActionInterface
 
     /**
      * Set consumer bin IDIN on customer
+     *
+     * @throws \Exception
      *
      * @return bool
      */

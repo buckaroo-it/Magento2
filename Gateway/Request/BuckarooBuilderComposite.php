@@ -36,28 +36,28 @@ class BuckarooBuilderComposite implements BuilderInterface
     /**
      * @var bool
      */
-    private bool $usingId;
+    private $usingId;
 
     /**
      * @var DataBuilderService
      */
-    private DataBuilderService $dataBuilderService;
+    private $dataBuilderService;
 
     /**
      * @var array
      */
-    private array $buildersArray;
+    private $buildersArray;
 
     /**
      * @var TMapFactory
      */
-    private TMapFactory $tmapFactory;
+    private $tmapFactory;
 
     /**
-     * @param TMapFactory $tmapFactory
+     * @param TMapFactory        $tmapFactory
      * @param DataBuilderService $dataBuilderService
-     * @param array $builders
-     * @param bool $usingId
+     * @param array              $builders
+     * @param bool               $usingId
      */
     public function __construct(
         TMapFactory $tmapFactory,
@@ -75,6 +75,7 @@ class BuckarooBuilderComposite implements BuilderInterface
      * Builds ENV request
      *
      * @param array $buildSubject
+     *
      * @return array
      */
     public function build(array $buildSubject): array
@@ -100,6 +101,7 @@ class BuckarooBuilderComposite implements BuilderInterface
      *
      * @param array $result
      * @param array $builder
+     *
      * @return array
      */
     protected function merge(array $result, array $builder): array
@@ -131,6 +133,7 @@ class BuckarooBuilderComposite implements BuilderInterface
      *
      * @param array $result
      * @param array $data
+     *
      * @return array
      */
     public function addData(array $result, array $data): array

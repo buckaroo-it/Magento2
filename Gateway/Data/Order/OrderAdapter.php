@@ -35,15 +35,15 @@ class OrderAdapter implements OrderAdapterInterface
     /**
      * @var Order
      */
-    private Order $order;
+    private $order;
 
     /**
      * @var AddressAdapterFactory
      */
-    private AddressAdapterFactory $addressAdapterFactory;
+    private $addressAdapterFactory;
 
     /**
-     * @param Order $order
+     * @param Order                 $order
      * @param AddressAdapterFactory $addressAdapterFactory
      */
     public function __construct(

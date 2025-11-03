@@ -28,7 +28,7 @@ class SkipPushHandlerTest extends AbstractResponseHandlerTest
     /**
      * @var SkipPushHandler
      */
-    private SkipPushHandler $skipPushHandler;
+    private $skipPushHandler;
 
     protected function setUp(): void
     {
@@ -40,7 +40,7 @@ class SkipPushHandlerTest extends AbstractResponseHandlerTest
      * @dataProvider skipPushDataProvider
      *
      * @param $skipPush
-     * @return void
+     *
      * @throws \Exception
      */
     public function testHandle($skipPush): void

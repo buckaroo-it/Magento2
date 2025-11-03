@@ -74,7 +74,7 @@ class FactoryTest extends BaseTest
 
         // Mock an object that doesn't implement the expected BuckarooConfigProviderInterface
         $invalidConfigProvider = new \stdClass(); // This won't implement BuckarooConfigProviderInterface
-        
+
         $objectManagerMock = $this->getFakeMock(ObjectManagerInterface::class)->onlyMethods(['get'])->getMockForAbstractClass();
         $objectManagerMock->method('get')->with('InvalidTestClass')->willReturn($invalidConfigProvider);
 
@@ -82,7 +82,7 @@ class FactoryTest extends BaseTest
 
         $this->expectException(\LogicException::class);
         $this->expectExceptionMessage('The ConfigProvider must implement "Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface".');
-        
+
         $instance->get($model);
     }
 

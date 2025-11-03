@@ -27,6 +27,7 @@ class StreetFormatter
      * Formats the given street address array and returns a formatted array
      *
      * @param array $street
+     *
      * @return array
      */
     public function format(array $street): array
@@ -53,6 +54,7 @@ class StreetFormatter
      * Nondeless it could be that only the first field is parsed to the array
      *
      * @param array $street
+     *
      * @return string
      */
     private function prepareStreetString(array $street): string
@@ -74,6 +76,7 @@ class StreetFormatter
      *  Formats the given street address by extracting the house number and number addition
      *
      * @param array $matches
+     *
      * @return array
      */
     private function formatStreet(array $matches): array

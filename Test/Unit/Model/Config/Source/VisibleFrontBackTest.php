@@ -94,7 +94,7 @@ class VisibleFrontBackTest extends BaseTest
             'Backend' => 'backend',
             'Frontend and Backend' => 'both'
         ];
-        
+
         $key = $keyMap[$visibleFrontBack];
         $this->assertEquals($visibleFrontBack, $result[$key]);
     }

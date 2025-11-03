@@ -32,7 +32,7 @@ class OrderNumberDataBuilderTest extends AbstractDataBuilderTest
     /**
      * @var OrderNumberDataBuilder
      */
-    private OrderNumberDataBuilder $orderNumberDataBuilder;
+    private $orderNumberDataBuilder;
 
     /**
      * @inheritdoc
@@ -44,7 +44,6 @@ class OrderNumberDataBuilderTest extends AbstractDataBuilderTest
     }
 
     /**
-     * @return void
      */
     public function testBuild(): void
     {
@@ -55,7 +54,7 @@ class OrderNumberDataBuilderTest extends AbstractDataBuilderTest
         $orderAdapter = $this->createMock(OrderAdapter::class);
 
         $orderAdapter->method('getOrder')->willReturn($order);
-        $paymentDO->method('getOrder')->willReturn($orderAdapter);
+                $paymentDO->method('getOrder')->willReturn($orderAdapter);
 
         $order->method('getIncrementId')->willReturn('100000001');
 

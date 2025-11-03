@@ -24,6 +24,7 @@ namespace Buckaroo\Magento2\Gateway\Request\BasicParameter;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Service\DataBuilderService;
 use Buckaroo\Magento2\Service\RefundGroupTransactionService;
+use InvalidArgumentException;
 use Magento\Payment\Gateway\Http\ClientException;
 use Magento\Payment\Gateway\Http\ConverterException;
 use Magento\Payment\Gateway\Request\BuilderInterface;
@@ -40,22 +41,22 @@ class AmountCreditDataBuilder implements BuilderInterface
     /**
      * @var float
      */
-    public float $refundAmount;
+    public $refundAmount;
 
     /**
      * @var DataBuilderService
      */
-    private DataBuilderService $dataBuilderService;
+    private $dataBuilderService;
 
     /**
      * @var RefundGroupTransactionService
      */
-    private RefundGroupTransactionService $refundGroupService;
+    private $refundGroupService;
 
     /**
      * Constructor
      *
-     * @param DataBuilderService $dataBuilderService
+     * @param DataBuilderService            $dataBuilderService
      * @param RefundGroupTransactionService $refundGroupService
      */
     public function __construct(
@@ -68,7 +69,8 @@ class AmountCreditDataBuilder implements BuilderInterface
 
     /**
      * @inheritdoc
-     * @throws \InvalidArgumentException
+     *
+     * @throws InvalidArgumentException
      * @throws ClientException
      * @throws ConverterException
      */
@@ -81,7 +83,7 @@ class AmountCreditDataBuilder implements BuilderInterface
         $this->refundAmount = (float)$baseAmountToRefund;
 
         if ($this->refundAmount <= 0) {
-            throw new \InvalidArgumentException('Credit Amount less than or equal to 0');
+            throw new InvalidArgumentException('Credit Amount less than or equal to 0');
         }
 
         $this->refundGroupService->refundGroupTransactions($buildSubject);

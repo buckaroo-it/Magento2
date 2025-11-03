@@ -27,8 +27,6 @@ class Log extends AbstractDb
 {
     /**
      * Define resource model
-     *
-     * @return void
      */
     protected function _construct()
     {

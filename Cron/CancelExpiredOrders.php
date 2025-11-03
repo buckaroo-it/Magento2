@@ -27,7 +27,7 @@ class CancelExpiredOrders
     /**
      * @var OrderService
      */
-    protected OrderService $orderService;
+    protected $orderService;
 
     /**
      * @param OrderService $orderService

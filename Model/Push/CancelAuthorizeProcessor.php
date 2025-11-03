@@ -10,6 +10,7 @@ class CancelAuthorizeProcessor extends DefaultProcessor
      * Handle cancelled order authorization and update payment transactions.
      *
      * @param PushRequestInterface $pushRequest
+     *
      * @return bool
      */
     public function processPush(PushRequestInterface $pushRequest): bool

@@ -41,7 +41,7 @@ class VoidCm3Payment implements ObserverInterface
 
     /**
      * @param PaymentDataObjectFactory $paymentDataObjectFactory
-     * @param CommandInterface $voidCommand
+     * @param CommandInterface         $voidCommand
      */
     public function __construct(
         PaymentDataObjectFactory $paymentDataObjectFactory,
@@ -56,6 +56,7 @@ class VoidCm3Payment implements ObserverInterface
      * Perform the payment void() call when in those cases so the necessary SOAP calls are been made.
      *
      * @param Observer $observer
+     *
      * @throws CommandException
      */
     public function execute(Observer $observer)

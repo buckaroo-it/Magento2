@@ -18,7 +18,6 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-
 namespace Buckaroo\Magento2\Api;
 
 use Buckaroo\Magento2\Api\Data\GroupTransactionInterface;
@@ -34,8 +33,10 @@ interface GroupTransactionRepositoryInterface
      * Save group transaction
      *
      * @param GroupTransactionInterface $groupTransaction
-     * @return GroupTransactionInterface
+     *
      * @throws CouldNotSaveException
+     *
+     * @return GroupTransactionInterface
      */
     public function save(GroupTransactionInterface $groupTransaction);
 
@@ -43,8 +44,10 @@ interface GroupTransactionRepositoryInterface
      * Get group transaction by id
      *
      * @param int|string $groupTransactionId
-     * @return GroupTransactionInterface
+     *
      * @throws NoSuchEntityException
+     *
+     * @return GroupTransactionInterface
      */
     public function getById($groupTransactionId);
 
@@ -52,6 +55,7 @@ interface GroupTransactionRepositoryInterface
      * Get the list of group transactions
      *
      * @param SearchCriteria $searchCriteria
+     *
      * @return SearchResultsInterface
      */
     public function getList(SearchCriteria $searchCriteria);
@@ -60,8 +64,10 @@ interface GroupTransactionRepositoryInterface
      * Delete group transaction
      *
      * @param GroupTransactionInterface $groupTransaction
-     * @return bool
+     *
      * @throws CouldNotDeleteException
+     *
+     * @return bool
      */
     public function delete(GroupTransactionInterface $groupTransaction);
 
@@ -69,9 +75,11 @@ interface GroupTransactionRepositoryInterface
      * Delete group transaction by id
      *
      * @param int|string $groupTransactionId
-     * @return bool
+     *
      * @throws CouldNotDeleteException
      * @throws NoSuchEntityException
+     *
+     * @return bool
      */
     public function deleteById($groupTransactionId);
 }

@@ -34,16 +34,16 @@ class ClientIPDataBuilder implements BuilderInterface
     /**
      * @var RequestInterface
      */
-    protected RequestInterface $httpRequest;
+    protected $httpRequest;
     /**
      * @var Account
      */
-    private Account $configProviderAccount;
+    private $configProviderAccount;
 
     /**
      * Constructor
      *
-     * @param Account $configProviderAccount
+     * @param Account          $configProviderAccount
      * @param RequestInterface $httpRequest
      */
     public function __construct(
@@ -76,6 +76,7 @@ class ClientIPDataBuilder implements BuilderInterface
      * Get client ip
      *
      * @param Order $order
+     *
      * @return string
      */
     public function getIp(Order $order): string
@@ -125,6 +126,7 @@ class ClientIPDataBuilder implements BuilderInterface
      * Check if it is private IP
      *
      * @param string $ip
+     *
      * @return bool
      */
     private function isIpPrivate(string $ip): bool

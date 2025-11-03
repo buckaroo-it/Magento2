@@ -35,12 +35,10 @@ class CouponManagement
      */
     protected $quoteRepository;
 
-
     /**
      * @var \Buckaroo\Magento2\Helper\PaymentGroupTransaction
      */
     protected $groupTransaction;
-
 
     public function __construct(
         PaymentGroupTransaction $groupTransaction,
@@ -52,10 +50,12 @@ class CouponManagement
 
     /**
      * @param CouponManagementInterface $subject
-     * @param int $cartId
-     * @param string $couponCode
-     * @return array
+     * @param int                       $cartId
+     * @param string                    $couponCode
+     *
      * @throws CouldNotSaveException
+     *
+     * @return array
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
@@ -71,9 +71,11 @@ class CouponManagement
 
     /**
      * @param CouponManagementInterface $subject
-     * @param int $cartId
-     * @return array
+     * @param int                       $cartId
+     *
      * @throws CouldNotDeleteException
+     *
+     * @return array
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */

@@ -30,7 +30,7 @@ class EmailAddressDataBuilder extends AbstractDataBuilder
     /**
      * @var string
      */
-    private string $addressType;
+    private $addressType;
 
     /**
      * @param string $addressType

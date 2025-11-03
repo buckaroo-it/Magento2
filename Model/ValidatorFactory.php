@@ -23,22 +23,23 @@ namespace Buckaroo\Magento2\Model;
 
 use Buckaroo\Magento2\Exception;
 use Magento\Framework\ObjectManagerInterface;
+use Magento\Framework\Phrase;
 
 class ValidatorFactory
 {
     /**
      * @var ObjectManagerInterface
      */
-    protected ObjectManagerInterface $objectManager;
+    protected $objectManager;
 
     /**
      * @var array
      */
-    protected array $validators;
+    protected $validators;
 
     /**
      * @param ObjectManagerInterface $objectManager
-     * @param array                                     $validators
+     * @param array                  $validators
      */
     public function __construct(
         ObjectManagerInterface $objectManager,
@@ -53,8 +54,9 @@ class ValidatorFactory
      *
      * @param string $validatorType
      *
-     * @return ValidatorInterface
      * @throws \LogicException|Exception
+     *
+     * @return ValidatorInterface
      */
     public function get(string $validatorType)
     {
@@ -70,8 +72,9 @@ class ValidatorFactory
         }
 
         if (empty($validatorClass)) {
+            // phpcs:ignore Magento2.Exceptions.DirectThrow
             throw new Exception(
-                new \Magento\Framework\Phrase(
+                new Phrase(
                     'Unknown validator type requested: %1.',
                     [$validatorType]
                 )

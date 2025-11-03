@@ -30,11 +30,13 @@ interface GuestPaymentInformationManagementInterface
     /**
      * Set payment information and place order for a specified cart.
      *
-     * @param  string                                        $cartId
-     * @param  string                                        $email
-     * @param  PaymentInterface      $paymentMethod
-     * @param  AddressInterface|null $billingAddress
+     * @param string                $cartId
+     * @param string                $email
+     * @param PaymentInterface      $paymentMethod
+     * @param AddressInterface|null $billingAddress
+     *
      * @throws CouldNotSaveException
+     *
      * @return string
      */
     public function buckarooSavePaymentInformationAndPlaceOrder(

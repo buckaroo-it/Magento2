@@ -32,6 +32,7 @@ class AvailableBasedOnCurrencyValidator extends AbstractValidator
      * Available Based on Currency
      *
      * @param array $validationSubject
+     *
      * @return ResultInterface
      */
     public function validate(array $validationSubject): ResultInterface

@@ -21,38 +21,40 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Service\Applepay;
 
+use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay;
 use Buckaroo\Magento2\Model\Service\ApplePayFormatData;
 use Buckaroo\Magento2\Model\Service\QuoteService;
 use Buckaroo\Magento2\Service\ExpressPayment\ProductValidationService;
+use Magento\Framework\Phrase;
 
 class Add
 {
     /**
      * @var BuckarooLoggerInterface
      */
-    private BuckarooLoggerInterface $logger;
+    private $logger;
 
     /**
      * @var QuoteService
      */
-    private QuoteService $quoteService;
+    private $quoteService;
 
     /**
      * @var ApplePayFormatData
      */
-    private ApplePayFormatData $applePayFormatData;
+    private $applePayFormatData;
 
     /**
      * @var ProductValidationService
      */
-    private ProductValidationService $productValidationService;
+    private $productValidationService;
 
     /**
-     * @param BuckarooLoggerInterface $logger
-     * @param QuoteService $quoteService
-     * @param ApplePayFormatData $applePayFormatData
+     * @param BuckarooLoggerInterface  $logger
+     * @param QuoteService             $quoteService
+     * @param ApplePayFormatData       $applePayFormatData
      * @param ProductValidationService $productValidationService
      */
     public function __construct(
@@ -71,6 +73,7 @@ class Add
      * Add Product to Cart on Apple Pay
      *
      * @param array $request
+     *
      * @return array|false
      */
     public function process(array $request)
@@ -83,12 +86,19 @@ class Add
             $selectedOptions = $productData['selected_options'] ?? [];
 
             if (!$productId) {
-                throw new \Exception('Product ID is required.');
+                // phpcs:ignore Magento2.Exceptions.DirectThrow
+                throw new Exception(__('Product ID is required.'));
             }
 
-            $validation = $this->productValidationService->validateProduct((int)$productId, $selectedOptions, (float)$qty);
+            $validation = $this->productValidationService->validateProduct(
+                (int)$productId,
+                $selectedOptions,
+                (float)$qty
+            );
             if (!$validation['is_valid']) {
-                throw new \Exception('Product validation failed: ' . implode(', ', $validation['errors']));
+                $errorMessage = 'Product validation failed: ' . implode(', ', $validation['errors']);
+                // phpcs:ignore Magento2.Exceptions.DirectThrow
+                throw new Exception(__($errorMessage));
             }
 
             // Get Cart (empty it first)
@@ -106,7 +116,8 @@ class Add
             if (!$this->quoteService->getQuote()->getIsVirtual()) {
                 // Validate wallet data exists
                 if (empty($request['wallet'])) {
-                    throw new \Exception('Wallet data is missing in the request.');
+                    // phpcs:ignore Magento2.Exceptions.DirectThrow
+                    throw new Exception(__('Wallet data is missing in the request.'));
                 }
 
                 // Get Shipping Address From Request using wallet data
@@ -148,7 +159,7 @@ class Add
                 'shipping_methods' => $shippingMethodsResult,
                 'totals'           => $totals
             ];
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             $this->logger->addError(sprintf(
                 '[ApplePay] | [Service\Applepay\Add::process] - [ERROR]: %s',
                 $exception->getMessage()

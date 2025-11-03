@@ -10,6 +10,7 @@ class Analytics extends \Magento\Framework\Api\AbstractExtensibleObject implemen
 
     /**
      * Get analytics_id
+     *
      * @return string|null
      */
     public function getAnalyticsId()
@@ -19,7 +20,9 @@ class Analytics extends \Magento\Framework\Api\AbstractExtensibleObject implemen
 
     /**
      * Set analytics_id
+     *
      * @param string $analyticsId
+     *
      * @return \Buckaroo\Magento2\Api\Data\AnalyticsInterface
      */
     public function setAnalyticsId($analyticsId)
@@ -29,6 +32,7 @@ class Analytics extends \Magento\Framework\Api\AbstractExtensibleObject implemen
 
     /**
      * Get quote_id
+     *
      * @return string|null
      */
     public function getQuoteId()
@@ -38,7 +42,9 @@ class Analytics extends \Magento\Framework\Api\AbstractExtensibleObject implemen
 
     /**
      * Set quote_id
+     *
      * @param string $quoteId
+     *
      * @return \Buckaroo\Magento2\Api\Data\AnalyticsInterface
      */
     public function setQuoteId($quoteId)
@@ -48,6 +54,7 @@ class Analytics extends \Magento\Framework\Api\AbstractExtensibleObject implemen
 
     /**
      * Retrieve existing extension attributes object or create a new one.
+     *
      * @return \Buckaroo\Magento2\Api\Data\AnalyticsExtensionInterface|null
      */
     public function getExtensionAttributes()
@@ -57,7 +64,9 @@ class Analytics extends \Magento\Framework\Api\AbstractExtensibleObject implemen
 
     /**
      * Set an extension attributes object.
+     *
      * @param \Buckaroo\Magento2\Api\Data\AnalyticsExtensionInterface $extensionAttributes
+     *
      * @return $this
      */
     public function setExtensionAttributes(
@@ -68,6 +77,7 @@ class Analytics extends \Magento\Framework\Api\AbstractExtensibleObject implemen
 
     /**
      * Get client_id
+     *
      * @return string|null
      */
     public function getClientId()
@@ -77,7 +87,9 @@ class Analytics extends \Magento\Framework\Api\AbstractExtensibleObject implemen
 
     /**
      * Set client_id
+     *
      * @param string $clientId
+     *
      * @return \Buckaroo\Magento2\Api\Data\AnalyticsInterface
      */
     public function setClientId($clientId)

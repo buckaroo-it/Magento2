@@ -8,6 +8,7 @@ interface PushProcessorInterface
 {
     /**
      * @param \Buckaroo\Magento2\Api\Data\PushRequestInterface $pushRequest
+     *
      * @return bool
      */
     public function processPush(PushRequestInterface $pushRequest): bool;

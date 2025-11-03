@@ -30,13 +30,13 @@ class Add extends AbstractApplepay
     /**
      * @var AddService
      */
-    protected AddService $addService;
+    protected $addService;
 
     /**
-     * @param JsonFactory    $resultJsonFactory
-     * @param RequestInterface $request
+     * @param JsonFactory             $resultJsonFactory
+     * @param RequestInterface        $request
      * @param BuckarooLoggerInterface $logger
-     * @param AddService     $addService
+     * @param AddService              $addService
      */
     public function __construct(
         JsonFactory $resultJsonFactory,

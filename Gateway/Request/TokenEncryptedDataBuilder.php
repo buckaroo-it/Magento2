@@ -34,7 +34,7 @@ class TokenEncryptedDataBuilder extends AbstractDataBuilder
      *
      * @var ScopeConfigInterface
      */
-    protected ScopeConfigInterface $scopeConfig;
+    protected $scopeConfig;
 
     /**
      * @param ScopeConfigInterface $scopeConfig
@@ -71,10 +71,12 @@ class TokenEncryptedDataBuilder extends AbstractDataBuilder
     /**
      * Retrieve information from payment configuration
      *
-     * @param string $field
+     * @param string                $field
      * @param int|string|null|Store $storeId
-     * @return mixed
+     *
      * @throws LocalizedException
+     *
+     * @return mixed
      */
     public function getConfigData(string $field, $storeId = null)
     {

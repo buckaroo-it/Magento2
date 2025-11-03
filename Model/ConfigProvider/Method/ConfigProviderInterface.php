@@ -26,6 +26,7 @@ interface ConfigProviderInterface
      * Get Active Config Valuue
      *
      * @param null|int|string $store
+     *
      * @return mixed|null
      */
     public function getActive($store = null);
@@ -34,6 +35,7 @@ interface ConfigProviderInterface
      * Get Available In Backend
      *
      * @param null|int|string $store
+     *
      * @return mixed|null
      */
     public function getAvailableInBackend($store = null);
@@ -42,6 +44,7 @@ interface ConfigProviderInterface
      * Get Send order confirmation email
      *
      * @param null|int|string $store
+     *
      * @return bool
      */
     public function hasOrderEmail($store = null): bool;
@@ -50,6 +53,7 @@ interface ConfigProviderInterface
      * Get Payment fee Float Value
      *
      * @param null|int|string $store
+     *
      * @return false|float
      */
     public function getPaymentFee($store = null);
@@ -58,6 +62,7 @@ interface ConfigProviderInterface
      * Get Payment fee frontend label
      *
      * @param null|int|string $store
+     *
      * @return mixed|null
      */
     public function getPaymentFeeLabel($store = null);
@@ -66,6 +71,7 @@ interface ConfigProviderInterface
      * Get Method specific status enabled
      *
      * @param null|int|string $store
+     *
      * @return mixed|null
      */
     public function getActiveStatus($store = null);
@@ -74,6 +80,7 @@ interface ConfigProviderInterface
      * Get Method specific success status
      *
      * @param null|int|string $store
+     *
      * @return mixed|null
      */
     public function getOrderStatusSuccess($store = null);
@@ -82,6 +89,7 @@ interface ConfigProviderInterface
      * Get Method specific failed status
      *
      * @param null|int|string $store
+     *
      * @return mixed|null
      */
     public function getOrderStatusFailed($store = null);
@@ -118,6 +126,7 @@ interface ConfigProviderInterface
      * Generate the url to the desired asset.
      *
      * @param string $imgName
+     *
      * @return string
      */
     public function getImageUrl($imgName);

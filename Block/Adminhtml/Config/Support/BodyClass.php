@@ -22,18 +22,19 @@ namespace Buckaroo\Magento2\Block\Adminhtml\Config\Support;
 
 use Magento\Backend\Block\Template;
 use Magento\Backend\Block\Template\Context;
+use Magento\Framework\App\RequestInterface;
 use Magento\Framework\View\Element\BlockInterface;
 
 class BodyClass extends Template implements BlockInterface
 {
     /**
-     * @var \Magento\Framework\App\RequestInterface
+     * @var RequestInterface
      */
     protected $request;
 
     /**
      * @param Context $context
-     * @param array $data
+     * @param array   $data
      */
     public function __construct(Context $context, array $data = [])
     {

@@ -36,21 +36,21 @@ class AddInTestModeMessage implements ObserverInterface
     /**
      * @var ManagerInterface
      */
-    protected ManagerInterface $messageManager;
+    protected $messageManager;
 
     /**
      * @var RequestInterface
      */
-    protected RequestInterface $request;
+    protected $request;
 
     /**
      * @var OrderRepositoryInterface
      */
-    protected OrderRepositoryInterface $orderRepository;
+    protected $orderRepository;
 
     /**
-     * @param ManagerInterface $messageManager
-     * @param RequestInterface $request
+     * @param ManagerInterface         $messageManager
+     * @param RequestInterface         $request
      * @param OrderRepositoryInterface $orderRepository
      */
     public function __construct(
@@ -67,6 +67,7 @@ class AddInTestModeMessage implements ObserverInterface
      * @inheritdoc
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     *
      * @throws NotFoundException
      */
     public function execute(Observer $observer)
@@ -81,8 +82,9 @@ class AddInTestModeMessage implements ObserverInterface
     /**
      * Check to see if the payment for this order is in test mode
      *
-     * @return bool
      * @throws NotFoundException
+     *
+     * @return bool
      */
     protected function isPaymentInTestMode(): bool
     {

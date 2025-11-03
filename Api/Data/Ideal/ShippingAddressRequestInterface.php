@@ -25,8 +25,6 @@ interface ShippingAddressRequestInterface
      * Set city
      *
      * @param string $city
-     *
-     * @return void
      */
     public function setCity(string $city);
 
@@ -34,8 +32,6 @@ interface ShippingAddressRequestInterface
      * Set country code
      *
      * @param string $country_code
-     *
-     * @return void
      */
     public function setCountryCode(string $country_code);
 
@@ -43,44 +39,34 @@ interface ShippingAddressRequestInterface
      * Set postal code
      *
      * @param string $postal_code
-     *
-     * @return void
      */
     public function setPostalCode(string $postal_code);
 
     /**
      * Set telephone
      *
-     * @param string|null $telephone
-     *
-     * @return void
+     * @param string $telephone
      */
     public function setTelephone(string $telephone);
 
     /**
      * Set telephone
      *
-     * @param string|null $firstname
-     *
-     * @return void
+     * @param string $firstname
      */
     public function setFirstname(string $firstname);
 
     /**
      * Set telephone
      *
-     * @param string|null $lastname
-     *
-     * @return void
+     * @param string $lastname
      */
     public function setLastname(string $lastname);
 
     /**
      * Set telephone
      *
-     * @param string|null $email
-     *
-     * @return void
+     * @param string $email
      */
     public function setEmail(string $email);
 
@@ -88,8 +74,6 @@ interface ShippingAddressRequestInterface
      * Set telephone
      *
      * @param string|null $street
-     *
-     * @return void
      */
     public function setStreet(string $street);
     /**
@@ -116,35 +100,35 @@ interface ShippingAddressRequestInterface
     /**
      * Get telephone
      *
-     * @return string|null
+     * @return string
      */
     public function getTelephone(): string;
 
     /**
      * Get telephone
      *
-     * @return string|null
+     * @return string
      */
     public function getFirstname(): string;
 
     /**
      * Get telephone
      *
-     * @return string|null
+     * @return string
      */
     public function getLastname(): string;
 
     /**
      * Get telephone
      *
-     * @return string|null
+     * @return string
      */
     public function getEmail(): string;
 
     /**
      * Get telephone
      *
-     * @return string|null
+     * @return string
      */
     public function getStreet(): string;
 }

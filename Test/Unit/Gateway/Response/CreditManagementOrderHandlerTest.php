@@ -28,7 +28,7 @@ class CreditManagementOrderHandlerTest extends AbstractResponseHandlerTest
     /**
      * @var CreditManagementOrderHandler
      */
-    private CreditManagementOrderHandler $creditManagementOrderHandler;
+    private $creditManagementOrderHandler;
 
     protected function setUp(): void
     {

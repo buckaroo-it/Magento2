@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Api\Data\Giftcard;
 
 /**
  * Interface PayResponseInterface
+ *
  * @api
  */
 interface PayResponseSetInterface
@@ -31,7 +32,6 @@ interface PayResponseSetInterface
      * Set any other data
      *
      * @param array $data
-     * @return void
      */
     public function setData(array $data);
 }

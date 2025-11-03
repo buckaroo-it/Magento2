@@ -43,7 +43,7 @@ if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
         /**
          * @var BuckarooLoggerInterface
          */
-        protected BuckarooLoggerInterface $logger;
+        protected $logger;
 
         /**
          * @var \Onestepcheckout\Iosc\Model\DataManager
@@ -58,7 +58,7 @@ if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
          */
         protected $mockManager;
         /**
-         * @var  \Onestepcheckout\Iosc\Helper\Data
+         * @var \Onestepcheckout\Iosc\Helper\Data
          */
         protected $helper;
         /**
@@ -67,14 +67,14 @@ if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
         protected $checkoutSession;
 
         /**
-         * @param \Onestepcheckout\Iosc\Model\DataManager $dataManager
-         * @param \Magento\Framework\App\Request\Http $request
-         * @param \Onestepcheckout\Iosc\Model\MockManager $mockManager
-         * @param \Onestepcheckout\Iosc\Helper\Data $helper
-         * @param \Magento\Checkout\Model\Session $checkoutSession
-         * @param \Magento\Quote\Model\QuoteIdMaskFactory $quoteIdMaskFactory
+         * @param \Onestepcheckout\Iosc\Model\DataManager    $dataManager
+         * @param \Magento\Framework\App\Request\Http        $request
+         * @param \Onestepcheckout\Iosc\Model\MockManager    $mockManager
+         * @param \Onestepcheckout\Iosc\Helper\Data          $helper
+         * @param \Magento\Checkout\Model\Session            $checkoutSession
+         * @param \Magento\Quote\Model\QuoteIdMaskFactory    $quoteIdMaskFactory
          * @param \Magento\Quote\Api\CartRepositoryInterface $cartRepository
-         * @param BuckarooLoggerInterface $logger
+         * @param BuckarooLoggerInterface                    $logger
          */
         public function __construct(
             \Onestepcheckout\Iosc\Model\DataManager $dataManager, /** @phpstan-ignore-line */
@@ -96,12 +96,12 @@ if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
         /**
          * Set billing address if the billing address is null before save payment information and place order
          *
-         * @param $parent
-         * @param $cartId
-         * @param $email
-         * @param PaymentInterface $paymentMethod
+         * @param                       $parent
+         * @param                       $cartId
+         * @param                       $email
+         * @param PaymentInterface      $paymentMethod
          * @param AddressInterface|null $billingAddress
-         * @return void
+         *
          * @throws \Magento\Framework\Exception\NoSuchEntityException
          */
         public function beforeSavePaymentInformationAndPlaceOrder(
@@ -129,12 +129,12 @@ if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
         /**
          * Set billing address if the billing address is null before save payment information
          *
-         * @param $parent
-         * @param $cartId
-         * @param $email
-         * @param PaymentInterface $paymentMethod
+         * @param                       $parent
+         * @param                       $cartId
+         * @param                       $email
+         * @param PaymentInterface      $paymentMethod
          * @param AddressInterface|null $billingAddress
-         * @return void
+         *
          * @throws \Magento\Framework\Exception\NoSuchEntityException
          */
         public function beforeSavePaymentInformation(

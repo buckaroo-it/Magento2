@@ -64,12 +64,12 @@ class SetupModuleDataPatch implements DataPatchInterface
     /**
      * @var Config
      */
-    private Config $eavConfig;
+    private $eavConfig;
 
     /**
      * @var array
      */
-    protected array $giftcardArray = [
+    protected $giftcardArray = [
         [
             'value' => 'boekenbon',
             'label' => 'Boekenbon'
@@ -123,7 +123,7 @@ class SetupModuleDataPatch implements DataPatchInterface
     /**
      * @var array
      */
-    protected array $giftcardAdditionalArray = [
+    protected $giftcardAdditionalArray = [
         [
             'label' => 'Ajax Giftcard',
             'value' => 'ajaxgiftcard',
@@ -420,10 +420,10 @@ class SetupModuleDataPatch implements DataPatchInterface
 
     /**
      * @param ModuleDataSetupInterface $moduleDataSetup
-     * @param GiftcardCollection $giftcardCollection
-     * @param Encryptor $encryptor
-     * @param EavSetupFactory $eavSetupFactory
-     * @param Config $eavConfig
+     * @param GiftcardCollection       $giftcardCollection
+     * @param Encryptor                $encryptor
+     * @param EavSetupFactory          $eavSetupFactory
+     * @param Config                   $eavConfig
      */
     public function __construct(
         ModuleDataSetupInterface $moduleDataSetup,
@@ -484,6 +484,7 @@ class SetupModuleDataPatch implements DataPatchInterface
      * Install Order Statuses
      *
      * @param ModuleDataSetupInterface $setup
+     *
      * @return $this
      */
     protected function installOrderStatusses(ModuleDataSetupInterface $setup): SetupModuleDataPatch
@@ -571,7 +572,8 @@ class SetupModuleDataPatch implements DataPatchInterface
      * Install giftcards which can be used with the Giftcards payment method
      *
      * @param ModuleDataSetupInterface $setup
-     * @param array $giftcardArray
+     * @param array                    $giftcardArray
+     *
      * @return $this
      */
     protected function installBaseGiftcards(
@@ -599,6 +601,7 @@ class SetupModuleDataPatch implements DataPatchInterface
      * Update failure_redirect to the correct value
      *
      * @param ModuleDataSetupInterface $setup
+     *
      * @return $this
      */
     protected function updateFailureRedirectConfiguration(ModuleDataSetupInterface $setup): SetupModuleDataPatch
@@ -624,6 +627,7 @@ class SetupModuleDataPatch implements DataPatchInterface
      * Empty secret key, so it will be set with correct value
      *
      * @param ModuleDataSetupInterface $setup
+     *
      * @return $this
      */
     protected function updateSecretKeyConfiguration(ModuleDataSetupInterface $setup): SetupModuleDataPatch
@@ -647,6 +651,7 @@ class SetupModuleDataPatch implements DataPatchInterface
      * Empty MerchantKey so it will be set with correct value
      *
      * @param ModuleDataSetupInterface $setup
+     *
      * @return $this
      */
     protected function updateMerchantKeyConfiguration(ModuleDataSetupInterface $setup): SetupModuleDataPatch
@@ -670,6 +675,7 @@ class SetupModuleDataPatch implements DataPatchInterface
      * Return zero for gift cards payment fee
      *
      * @param ModuleDataSetupInterface $setup
+     *
      * @return $this
      */
     protected function zeroizeGiftcardsPaymentFee(ModuleDataSetupInterface $setup): SetupModuleDataPatch
@@ -705,6 +711,7 @@ class SetupModuleDataPatch implements DataPatchInterface
      * Add data connected with gift card partial refund
      *
      * @param ModuleDataSetupInterface $setup
+     *
      * @return $this
      */
     protected function giftcardPartialRefund(ModuleDataSetupInterface $setup): SetupModuleDataPatch
@@ -728,7 +735,7 @@ class SetupModuleDataPatch implements DataPatchInterface
      * Set customer iDIN attribute
      *
      * @param ModuleDataSetupInterface $setup
-     * @return void
+     *
      * @throws LocalizedException
      */
     protected function setCustomerIDIN(ModuleDataSetupInterface $setup)
@@ -761,7 +768,7 @@ class SetupModuleDataPatch implements DataPatchInterface
      * Add attribute if customer is eighteen or older iDIN
      *
      * @param ModuleDataSetupInterface $setup
-     * @return void
+     *
      * @throws LocalizedException
      */
     protected function setCustomerIsEighteenOrOlder(ModuleDataSetupInterface $setup)
@@ -796,7 +803,6 @@ class SetupModuleDataPatch implements DataPatchInterface
      * Set product iDIN
      *
      * @param ModuleDataSetupInterface $setup
-     * @return void
      */
     protected function setProductIDIN(ModuleDataSetupInterface $setup)
     {
@@ -829,7 +835,7 @@ class SetupModuleDataPatch implements DataPatchInterface
      * Create attribute on customer to save last issuer for PayByBank
      *
      * @param ModuleDataSetupInterface $setup
-     * @return void
+     *
      * @throws LocalizedException
      */
     protected function addCustomerLastPayByBankIssuer(ModuleDataSetupInterface $setup): void

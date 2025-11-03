@@ -37,8 +37,6 @@ class GroupTransaction extends AbstractModel implements GroupTransactionInterfac
 
     /**
      * Initialize resource model
-     *
-     * @return void
      */
     protected function _construct()
     {
@@ -65,6 +63,7 @@ class GroupTransaction extends AbstractModel implements GroupTransactionInterfac
      * Set name
      *
      * @param string $name
+     *
      * @return GroupTransaction
      */
     public function setName(string $name): GroupTransaction
@@ -76,6 +75,7 @@ class GroupTransaction extends AbstractModel implements GroupTransactionInterfac
      * Set created at date
      *
      * @param mixed $createdAt
+     *
      * @return GroupTransaction
      */
     public function setCreatedAt($createdAt): GroupTransaction
@@ -87,6 +87,7 @@ class GroupTransaction extends AbstractModel implements GroupTransactionInterfac
      * Set refund amount
      *
      * @param mixed $refundedAmount
+     *
      * @return GroupTransaction
      */
     public function setRefundedAmount($refundedAmount): GroupTransaction
@@ -155,7 +156,7 @@ class GroupTransaction extends AbstractModel implements GroupTransactionInterfac
     /**
      * Transaction is fully refunded
      *
-     * @return boolean
+     * @return bool
      */
     public function isFullyRefunded()
     {

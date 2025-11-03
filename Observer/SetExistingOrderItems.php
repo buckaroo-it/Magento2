@@ -32,17 +32,17 @@ class SetExistingOrderItems implements ObserverInterface
     /**
      * @var OrderItemCollectionFactory
      */
-    protected OrderItemCollectionFactory $orderItemCollectionFactory;
+    protected $orderItemCollectionFactory;
 
     /**
      * @var BuckarooLoggerInterface
      */
-    protected BuckarooLoggerInterface $logger;
+    protected $logger;
 
     /**
      * @var PaymentGroupTransaction
      */
-    protected PaymentGroupTransaction $groupTransaction;
+    protected $groupTransaction;
 
     public function __construct(
         OrderItemCollectionFactory $orderItemCollectionFactory,
@@ -58,7 +58,6 @@ class SetExistingOrderItems implements ObserverInterface
      * Set Buckaroo fee on sales_model_service_quote_submit_before event
      *
      * @param Observer $observer
-     * @return void
      */
     public function execute(Observer $observer)
     {

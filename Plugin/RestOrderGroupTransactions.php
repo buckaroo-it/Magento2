@@ -40,7 +40,8 @@ class RestOrderGroupTransactions
 
     /**
      * @param OrderRepositoryInterface $subject
-     * @param OrderInterface $entity
+     * @param OrderInterface           $entity
+     *
      * @return OrderInterface
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)

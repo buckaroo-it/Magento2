@@ -34,8 +34,10 @@ class KlarnaProcessor extends DefaultProcessor
 
     /**
      * @param array $paymentDetails
-     * @return bool
+     *
      * @throws \Exception
+     *
+     * @return bool
      */
     protected function invoiceShouldBeSaved(array &$paymentDetails): bool
     {
