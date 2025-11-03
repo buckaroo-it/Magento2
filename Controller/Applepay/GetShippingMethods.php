@@ -95,7 +95,6 @@ class GetShippingMethods extends AbstractApplepay
                 if (!$this->quoteService->getQuote()->getIsVirtual()) {
                     $this->logger->addDebug(__METHOD__ . '|1.1.5|');
                     $shippingMethods = $this->quoteService->getAvailableShippingMethods();
-                    $this->logger->addDebug(__METHOD__ . '|1.1.6|' . print_r($shippingMethods, true));
                     if (empty($shippingMethods)) {
                         $errorMessage = __(
                             'Apple Pay payment failed, because no shipping methods were found for the selected address. ' .
@@ -121,7 +120,6 @@ class GetShippingMethods extends AbstractApplepay
                     'shipping_methods' => $shippingMethodsResult,
                     'totals'           => $totals
                 ];
-                $this->logger->addDebug(__METHOD__ . '|1.3|'. print_r($data, true));
             } catch (NoSuchEntityException | LocalizedException $exception) {
                 $this->logger->addDebug(sprintf(
                     '[ApplePay] | [Controller] | [%s:%s] - Get Shipping Methods | ERROR: %s',

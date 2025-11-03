@@ -59,6 +59,7 @@ class JsonPushRequest extends AbstractPushRequest implements PushRequestInterfac
         } elseif (isset($requestData['DataRequest'])) {
             $this->request = $requestData['DataRequest'];
         } else {
+            // phpcs:ignore Magento2.Exceptions.DirectThrow
             throw new Exception(__('Json request could not be processed, please use httppost'));
         }
         $this->validator = $validator;

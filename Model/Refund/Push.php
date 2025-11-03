@@ -235,14 +235,6 @@ class Push
                 $this->creditEmailSender->send($creditmemo);
                 return true;
             } else {
-                $this->logger->addError(sprintf(
-                    '[PUSH_REFUND] | [Webapi] | [%s:%s] - Failed to create the creditmemo' .
-                    'method saveCreditmemo return value: %s',
-                    __METHOD__,
-                    __LINE__,
-                    print_r($creditmemo, true)
-                ));
-
                 throw new BuckarooException(
                     __('Failed to create the creditmemo')
                 );
@@ -300,13 +292,6 @@ class Push
             $data['items'] = $this->getCreditmemoDataItems();
             $data['qtys'] = $this->setCreditQtys($data['items']);
         }
-
-        $this->logger->addDebug(sprintf(
-            '[PUSH_REFUND] | [Webapi] | [%s:%s] - The credit memo data | data: %s',
-            __METHOD__,
-            __LINE__,
-            print_r($data, true)
-        ));
 
         return $data;
     }
@@ -376,13 +361,6 @@ class Push
                 }
             }
         }
-
-        $this->logger->addDebug(sprintf(
-            '[PUSH_REFUND] | [Webapi] | [%s:%s] - Total items to be refunded: %s',
-            __METHOD__,
-            __LINE__,
-            print_r($items, true)
-        ));
 
         return $items;
     }

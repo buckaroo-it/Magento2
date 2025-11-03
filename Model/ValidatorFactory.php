@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Model;
 
 use Buckaroo\Magento2\Exception;
 use Magento\Framework\ObjectManagerInterface;
+use Magento\Framework\Phrase;
 
 class ValidatorFactory
 {
@@ -71,8 +72,9 @@ class ValidatorFactory
         }
 
         if (empty($validatorClass)) {
+            // phpcs:ignore Magento2.Exceptions.DirectThrow
             throw new Exception(
-                new \Magento\Framework\Phrase(
+                new Phrase(
                     'Unknown validator type requested: %1.',
                     [$validatorType]
                 )

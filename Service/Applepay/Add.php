@@ -86,6 +86,7 @@ class Add
             $selectedOptions = $productData['selected_options'] ?? [];
 
             if (!$productId) {
+                // phpcs:ignore Magento2.Exceptions.DirectThrow
                 throw new Exception(__('Product ID is required.'));
             }
 
@@ -96,6 +97,7 @@ class Add
             );
             if (!$validation['is_valid']) {
                 $errorMessage = 'Product validation failed: ' . implode(', ', $validation['errors']);
+                // phpcs:ignore Magento2.Exceptions.DirectThrow
                 throw new Exception(__($errorMessage));
             }
 
@@ -114,6 +116,7 @@ class Add
             if (!$this->quoteService->getQuote()->getIsVirtual()) {
                 // Validate wallet data exists
                 if (empty($request['wallet'])) {
+                    // phpcs:ignore Magento2.Exceptions.DirectThrow
                     throw new Exception(__('Wallet data is missing in the request.'));
                 }
 
@@ -156,7 +159,7 @@ class Add
                 'shipping_methods' => $shippingMethodsResult,
                 'totals'           => $totals
             ];
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             $this->logger->addError(sprintf(
                 '[ApplePay] | [Service\Applepay\Add::process] - [ERROR]: %s',
                 $exception->getMessage()

@@ -76,7 +76,7 @@ class Mail
     public function addToMessage($message)
     {
         if (is_array($message) || is_object($message)) {
-            //@codingStandardsIgnoreLine
+            // phpcs:ignore Magento2.Functions.DiscouragedFunction.Discouraged
             $message = print_r($message, true);
         }
 

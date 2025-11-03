@@ -25,7 +25,6 @@ class ApplepayTest extends BaseTest
         ];
     }
 
-    #[DataProvider('configProvider')]
     /**
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      *
