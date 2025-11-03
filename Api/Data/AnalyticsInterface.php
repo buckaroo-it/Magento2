@@ -36,6 +36,7 @@ interface AnalyticsInterface extends \Magento\Framework\Api\ExtensibleDataInterf
      * Set quote_id
      *
      * @param string $quoteId
+     *
      * @return \Buckaroo\Magento2\Api\Data\AnalyticsInterface
      */
     public function setQuoteId($quoteId);
