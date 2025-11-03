@@ -642,7 +642,7 @@ class DefaultProcessor implements PushProcessorInterface
      */
     protected function isGroupTransactionPart()
     {
-        if (!is_null($this->pushRequest->getTransactions())) {
+        if ($this->pushRequest->getTransactions() !== null) {
             $groupTransaction = $this->groupTransaction->getGroupTransactionByTrxId(
                 $this->pushRequest->getTransactions()
             );
@@ -1529,8 +1529,8 @@ class DefaultProcessor implements PushProcessorInterface
      */
     private function hasGiftCardAccountClasses(): bool
     {
-        return interface_exists('Magento\GiftCardAccount\Api\GiftCardAccountRepositoryInterface') &&
-               class_exists('Magento\GiftCardAccount\Observer\RevertGiftCardAccountBalance');
+        return interface_exists(\Magento\GiftCardAccount\Api\GiftCardAccountRepositoryInterface::class) &&
+               class_exists(\Magento\GiftCardAccount\Observer\RevertGiftCardAccountBalance::class);
     }
 
     /**

@@ -17,6 +17,7 @@ use Magento\Customer\Model\Group;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\DataObjectFactory;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\QuoteManagement;
 use Magento\Sales\Model\Order;
@@ -66,18 +67,21 @@ class SaveOrderProcessor
         $this->logger                = $logger;
     }
 
-    /** Entry‑point called by the controller
+    /**
+     * Entry‑point called by the controller
      * @param array $payload
      *
+     * @return array
+     * @throws Exception
      * @throws ExpressMethodsException
      * @throws LocalizedException
-     * @throws Exception
+     * @throws NoSuchEntityException
      */
     public function place(array $payload): array
     {
         $quote = $this->checkoutSession->getQuote();
 
-        /* 1.Addresses ................................................................... */
+        /* 1.Addresses */
         if (!$quote->getIsVirtual()) {
             if (! $this->quoteAddressService->setShippingAddress(
                 $quote,
@@ -95,20 +99,19 @@ class SaveOrderProcessor
             return [];
         }
 
-        /* 2.Shipping method (if any) .................................................... */
+        /* 2.Shipping method (if any)  */
         if (!empty($payload['extra']['shippingMethod']['identifier'])) {
             $quote->getShippingAddress()
                 ->setShippingMethod($payload['extra']['shippingMethod']['identifier']);
         }
 
-        /* 3.Submit the quote ............................................................ */
+        /* 3.Submit the quote */
         $this->submitQuote($quote, $payload['extra'], $payload['payment']);
 
-        /* 4.Convert the Buckaroo SDK response into JSON for the FE ...................... */
+        /* 4.Convert the Buckaroo SDK response into JSON for the FE  */
         return $this->handleResponse();
     }
 
-    /* --------------------------------------------------------------------------- */
     /**
      * @param Quote $quote
      * @param array $extra
@@ -158,7 +161,6 @@ class SaveOrderProcessor
         $this->quoteManagement->submit($quote);
     }
 
-    /* --------------------------------------------------------------------------- */
     /**
      * @throws Exception
      */
@@ -183,6 +185,7 @@ class SaveOrderProcessor
     /**
      * @param string $incrementId
      *
+     * @return array
      * @throws Exception
      */
     private function prepareRedirect(string $incrementId): array

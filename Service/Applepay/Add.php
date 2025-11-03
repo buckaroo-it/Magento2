@@ -87,9 +87,14 @@ class Add
                 throw new \Exception('Product ID is required.');
             }
 
-            $validation = $this->productValidationService->validateProduct((int)$productId, $selectedOptions, (float)$qty);
+            $validation = $this->productValidationService->validateProduct(
+                (int)$productId,
+                $selectedOptions,
+                (float)$qty
+            );
             if (!$validation['is_valid']) {
-                throw new \Exception('Product validation failed: ' . implode(', ', $validation['errors']));
+                $errorMessage = 'Product validation failed: ' . implode(', ', $validation['errors']);
+                throw new \Exception($errorMessage);
             }
 
             // Get Cart (empty it first)

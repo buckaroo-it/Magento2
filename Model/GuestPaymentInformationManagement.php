@@ -138,7 +138,12 @@ class GuestPaymentInformationManagement implements GuestPaymentInformationManage
         $quote = $this->cartRepository->getActive($quoteIdMask->getQuoteId());
         $quote->reserveOrderId();
 
-        $orderId = $this->guestPaymentInformationManagement->savePaymentInformationAndPlaceOrder($cartId, $email, $paymentMethod, $billingAddress);
+        $orderId = $this->guestPaymentInformationManagement->savePaymentInformationAndPlaceOrder(
+            $cartId,
+            $email,
+            $paymentMethod,
+            $billingAddress
+        );
 
         if ($buckarooResponse = $this->buckarooResponseData->getResponse()) {
             $buckarooResponse = $buckarooResponse->toArray();

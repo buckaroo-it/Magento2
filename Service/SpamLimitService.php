@@ -153,7 +153,7 @@ class SpamLimitService
         if (!is_scalar($limit)) {
             $limit = 10;
         }
-        $limit = intval($limit);
+        $limit = (int)$limit;
 
         $method = $paymentMethodInstance->getCode();
         $quoteId = $this->getQuote()->getId();

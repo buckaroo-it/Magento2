@@ -27,7 +27,7 @@
     <preference for="Buckaroo\Magento2\Api\LogRepositoryInterface" type="Buckaroo\Magento2\Model\LogRepository"/>
     <preference for="Buckaroo\Magento2\Api\Data\LogInterface" type="Buckaroo\Magento2\Model\Data\Log"/>
     <preference for="Buckaroo\Magento2\Api\Data\LogSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
-    <preference for="Buckaroo\Magento2\Api\Data\AnalyticsInterface" type="Buckaroo\Magento2\Model\Data\Analytics"/>
+    <preference for="Buckaroo\Magento2\Api\Data\AnalyticsInterface" type="Buckaroo\Magento2\Model\Analytics\Data\Analytics"/>
 
     <preference for="Buckaroo\Magento2\Api\PushInterface" type="Buckaroo\Magento2\Model\Push"/>
     <preference for="Buckaroo\Magento2\Api\Data\TransactionStatusResponseInterface" type="Buckaroo\Magento2\Model\Transaction\Status\Response" />
@@ -4141,7 +4141,6 @@
 
     <!-- Analytics API and Repository Configuration -->
     <preference for="Buckaroo\Magento2\Api\AnalyticsRepositoryInterface" type="Buckaroo\Magento2\Model\Analytics\AnalyticsRepository"/>
-    <preference for="Buckaroo\Magento2\Api\Data\AnalyticsInterface" type="Buckaroo\Magento2\Model\Analytics\Data\Analytics"/>
     <preference for="Buckaroo\Magento2\Api\Data\AnalyticsSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
     <preference for="Buckaroo\Magento2\Controller\Redirect\Process" type="Buckaroo\Magento2\Controller\Redirect\AnalyticsProcess" />
     <type name="Buckaroo\Magento2\Gateway\Http\TransactionBuilder\AbstractTransactionBuilder">

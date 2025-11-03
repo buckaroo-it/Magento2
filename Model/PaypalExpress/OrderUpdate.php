@@ -165,9 +165,8 @@ class OrderUpdate
             // Handle new structure: {"Name": "fieldName", "Value": "fieldValue"}
             if (isset($addressItem['Name']) && isset($addressItem['Value'])) {
                 $data[$addressItem['Name']] = $addressItem['Value'];
-            }
-            // Handle old structure: object with Name and _ properties
-            elseif (isset($addressItem->_) && isset($addressItem->Name)) {
+            } elseif (isset($addressItem->_) && isset($addressItem->Name)) {
+                // Handle old structure: object with Name and _ properties
                 $data[$addressItem->Name] = $addressItem->_;
             }
         }
