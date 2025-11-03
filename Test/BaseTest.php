@@ -30,6 +30,7 @@ use PHPUnit\Framework\TestCase;
 abstract class BaseTest extends TestCase
 {
     protected const DEFAULT_PATH_PATTERN = 'payment/%s/%s';
+
     /**
      * @var null|string
      */
