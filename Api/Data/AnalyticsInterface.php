@@ -42,12 +42,14 @@ interface AnalyticsInterface extends \Magento\Framework\Api\ExtensibleDataInterf
 
     /**
      * Retrieve existing extension attributes object or create a new one.
+     *
      * @return \Buckaroo\Magento2\Api\Data\AnalyticsExtensionInterface|null
      */
     public function getExtensionAttributes();
 
     /**
      * Set an extension attributes object.
+     *
      * @param \Buckaroo\Magento2\Api\Data\AnalyticsExtensionInterface $extensionAttributes
      * @return $this
      */
