@@ -21,8 +21,7 @@ interface AnalyticsInterface extends \Magento\Framework\Api\ExtensibleDataInterf
      * Set analytics_id
      *
      * @param string $analyticsId
-     *
-     * @return AnalyticsInterface
+     * @return \Buckaroo\Magento2\Api\Data\AnalyticsInterface
      */
     public function setAnalyticsId($analyticsId);
 
@@ -37,27 +36,23 @@ interface AnalyticsInterface extends \Magento\Framework\Api\ExtensibleDataInterf
      * Set quote_id
      *
      * @param string $quoteId
-     *
-     * @return AnalyticsInterface
+     * @return \Buckaroo\Magento2\Api\Data\AnalyticsInterface
      */
     public function setQuoteId($quoteId);
 
     /**
      * Retrieve existing extension attributes object or create a new one.
-     *
-     * @return AnalyticsExtensionInterface|null
+     * @return \Buckaroo\Magento2\Api\Data\AnalyticsExtensionInterface|null
      */
     public function getExtensionAttributes();
 
     /**
      * Set an extension attributes object.
-     *
-     * @param AnalyticsExtensionInterface $extensionAttributes
-     *
+     * @param \Buckaroo\Magento2\Api\Data\AnalyticsExtensionInterface $extensionAttributes
      * @return $this
      */
     public function setExtensionAttributes(
-        AnalyticsExtensionInterface $extensionAttributes
+        \Buckaroo\Magento2\Api\Data\AnalyticsExtensionInterface $extensionAttributes
     );
 
     /**
@@ -71,8 +66,7 @@ interface AnalyticsInterface extends \Magento\Framework\Api\ExtensibleDataInterf
      * Set client_id
      *
      * @param string $clientId
-     *
-     * @return AnalyticsInterface
+     * @return \Buckaroo\Magento2\Api\Data\AnalyticsInterface
      */
     public function setClientId($clientId);
 }

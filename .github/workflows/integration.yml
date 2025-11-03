@@ -30,8 +30,8 @@ jobs:
         options: --health-cmd="curl -f localhost:9200/_cluster/health?wait_for_status=yellow&timeout=60s" --health-interval=10s --health-timeout=5s --health-retries=5
     steps:
       - uses: actions/checkout@v4
-      - name: M2 Integration Tests with Magento 2.4.8-p3 (PHP 8.3)
-        uses: extdn/github-actions-m2/magento-integration-tests/8.3@master
+      - name: M2 Integration Tests with Magento 2.4.8-p3 (PHP 8.4)
+        uses: extdn/github-actions-m2/magento-integration-tests/8.4@master
         with:
           module_name: Buckaroo_Magento2
           composer_name: buckaroo/magento2

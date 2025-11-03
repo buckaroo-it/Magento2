@@ -54,19 +54,18 @@ interface LogInterface extends ExtensibleDataInterface
     /**
      * Retrieve existing extension attributes object or create a new one.
      *
-     * @return LogExtensionInterface|null
+     * @return \Buckaroo\Magento2\Api\Data\LogExtensionInterface|null
      */
     public function getExtensionAttributes();
 
     /**
      * Set an extension attributes object.
      *
-     * @param LogExtensionInterface $extensionAttributes
-     *
+     * @param \Buckaroo\Magento2\Api\Data\LogExtensionInterface $extensionAttributes
      * @return $this
      */
     public function setExtensionAttributes(
-        LogExtensionInterface $extensionAttributes
+        \Buckaroo\Magento2\Api\Data\LogExtensionInterface $extensionAttributes
     );
 
     /**
