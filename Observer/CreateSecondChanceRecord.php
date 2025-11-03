@@ -22,6 +22,8 @@ namespace Buckaroo\Magento2\Observer;
 
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Model\Order;
 
 class CreateSecondChanceRecord implements ObserverInterface
 {
@@ -64,38 +66,12 @@ class CreateSecondChanceRecord implements ObserverInterface
     {
         $order = $observer->getEvent()->getOrder();
 
-        if (!$order || !$order->getId()) {
-            return;
-        }
-
-        // Only create for orders with failed/pending payment states
-        if (!in_array($order->getState(), ['pending_payment', 'canceled'])) {
-            return;
-        }
-
-        // Check if SecondChance is enabled for this store
-        if (!$this->configProvider->isSecondChanceEnabled($order->getStore())) {
-            return;
-        }
-
-        // Check if this is a Buckaroo payment method
-        $payment = $order->getPayment();
-        if (!$payment || strpos($payment->getMethod(), 'buckaroo') === false) {
+        if (!$this->shouldCreateSecondChanceRecord($order)) {
             return;
         }
 
         try {
-            // Check if SecondChance record already exists for this order
-            $existingRecord = null;
-            try {
-                $existingRecord = $this->secondChanceRepository->getByOrderId($order->getIncrementId());
-            } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
-                // Record doesn't exist, which is expected for new orders
-                $existingRecord = null;
-            }
-
-            if ($existingRecord !== null) {
-                // Record already exists, don't create duplicate
+            if ($this->recordExists($order->getIncrementId())) {
                 return;
             }
 
@@ -107,6 +83,51 @@ class CreateSecondChanceRecord implements ObserverInterface
                 'Error creating SecondChance record for order ' .
                 $order->getIncrementId() . ': ' . $e->getMessage()
             );
+        }
+    }
+
+    /**
+     * Check if SecondChance record should be created for this order
+     *
+     * @param Order|null $order
+     * @return bool
+     */
+    private function shouldCreateSecondChanceRecord($order): bool
+    {
+        if (!$order || !$order->getId()) {
+            return false;
+        }
+
+        if (!in_array($order->getState(), ['pending_payment', 'canceled'])) {
+            return false;
+        }
+
+        if (!$this->configProvider->isSecondChanceEnabled($order->getStore())) {
+            return false;
+        }
+
+        $payment = $order->getPayment();
+        if (!$payment || strpos($payment->getMethod(), 'buckaroo') === false) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if SecondChance record already exists for this order
+     *
+     * @param string $orderId
+     * @return bool
+     * @throws LocalizedException
+     */
+    private function recordExists(string $orderId): bool
+    {
+        try {
+            $this->secondChanceRepository->getByOrderId($orderId);
+            return true;
+        } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
+            return false;
         }
     }
 }
