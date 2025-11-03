@@ -622,8 +622,7 @@ class DefaultProcessor implements PushProcessorInterface
                         $this->order->getState()
                     ));
                 }
-                if (
-                    (
+                if ((
                         $this->pushRequest->hasPostData('statuscode', BuckarooStatusCode::PENDING_PROCESSING)
                         && in_array($this->order->getState(), [Order::STATE_PENDING_PAYMENT, Order::STATE_NEW], true)
                     )
@@ -834,7 +833,7 @@ class DefaultProcessor implements PushProcessorInterface
             $invoiceHandlingMode = $this->order->getPayment()->getAdditionalInformation(
                 InvoiceHandlingOptions::INVOICE_HANDLING
             );
-            
+
             // If not set (e.g., order was canceled before authorization completed),
             // check method-specific config directly
             if ($invoiceHandlingMode === null || $invoiceHandlingMode === '') {
@@ -846,7 +845,7 @@ class DefaultProcessor implements PushProcessorInterface
                     $invoiceHandlingMode = $this->configAccount->getInvoiceHandling();
                 }
             }
-            
+
             if ($invoiceHandlingMode == InvoiceHandlingOptions::SHIPMENT) {
                 $this->logger->addDebug(sprintf(
                     '[%s:%s] - CAPTURE detected but invoice handling is SHIPMENT mode - skipping invoice creation',
@@ -1047,7 +1046,7 @@ class DefaultProcessor implements PushProcessorInterface
         // If "Yes" (value=1), invoice should be created after shipment (SHIPMENT mode)
         $methodSpecificConfig = $this->payment->getMethodInstance()->getConfigData('create_invoice_after_shipment');
         $useShipmentMode = false;
-        
+
         if ($methodSpecificConfig !== null && $methodSpecificConfig !== '') {
             // Method has specific config value - use it (1 = Yes = SHIPMENT mode, 0 = No = immediate)
             $useShipmentMode = ($methodSpecificConfig == 1);
@@ -1544,5 +1543,4 @@ class DefaultProcessor implements PushProcessorInterface
 
         return (bool) $accountConfig->getFailureRedirectToCheckout($this->order->getStore());
     }
-
 }

@@ -236,8 +236,8 @@ class AdminInfo extends ConfigurableInfo
      */
     protected function setDataToTransfer(
         DataObject $transport,
-                   $field,
-                   $value
+        $field,
+        $value
     ) {
         if (is_array($value)) {
             foreach ($value as $key => $val) {

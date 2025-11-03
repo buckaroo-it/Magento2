@@ -120,8 +120,7 @@ class RestoreQuote implements ObserverInterface
             if ($this->isCartKeepAlive($lastRealOrder)) {
                 $this->prepareQuoteShippingAddress();
 
-                if (
-                    $this->isNewPendingLastOrder($lastRealOrder, $payment)
+                if ($this->isNewPendingLastOrder($lastRealOrder, $payment)
                     || $this->canRestoreFailedFromSpam()
                     || $this->isCanceledLastOrderWithRedirect($lastRealOrder, $payment)
                 ) {

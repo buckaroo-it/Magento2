@@ -159,4 +159,3 @@ class DefaultProcessorPlugin
         return null;
     }
 }
-

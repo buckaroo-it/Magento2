@@ -103,7 +103,7 @@ class QuoteCheck
         if (!$this->isBuckarooPayment($quote)) {
             return;
         }
-        
+
         if ($this->getAlreadyPaid($quote) > 0) {
             //phpcs:ignore:Magento2.Exceptions.DirectThrow
             throw new \Exception('Action is blocked, please finish current order');
@@ -135,7 +135,7 @@ class QuoteCheck
         if (!$payment || !$payment->getMethod()) {
             return false;
         }
-        
+
         return strpos($payment->getMethod(), "buckaroo_magento2_") !== false;
     }
 

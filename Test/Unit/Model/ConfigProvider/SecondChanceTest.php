@@ -35,7 +35,7 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
     public function setUp(): void
     {
         parent::setUp();
-        
+
         $this->scopeConfig = $this->getFakeMock(ScopeConfigInterface::class)->getMock();
     }
 
@@ -56,13 +56,13 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
     /**
      * @param mixed $configValue
      * @param bool  $expected
-     * 
+     *
      * @dataProvider isSecondChanceEnabledProvider
      */
     public function testIsSecondChanceEnabled($configValue, $expected)
     {
         $store = $this->getFakeMock(Store::class)->getMock();
-        
+
         $this->scopeConfig->method('getValue')
             ->with(
                 SecondChance::XPATH_SECOND_CHANCE_ENABLED,
@@ -73,7 +73,7 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $instance = $this->getInstance(['scopeConfig' => $this->scopeConfig]);
         $result = $instance->isSecondChanceEnabled($store);
-        
+
         $this->assertEquals($expected, $result);
     }
 
@@ -92,13 +92,13 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
     /**
      * @param mixed $configValue
      * @param bool  $expected
-     * 
+     *
      * @dataProvider isFirstEmailEnabledProvider
      */
     public function testIsFirstEmailEnabled($configValue, $expected)
     {
         $store = $this->getFakeMock(Store::class)->getMock();
-        
+
         $this->scopeConfig->method('getValue')
             ->with(
                 SecondChance::XPATH_SECOND_CHANCE_EMAIL1_ENABLED,
@@ -109,7 +109,7 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $instance = $this->getInstance(['scopeConfig' => $this->scopeConfig]);
         $result = $instance->isFirstEmailEnabled($store);
-        
+
         $this->assertEquals($expected, $result);
     }
 
@@ -128,13 +128,13 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
     /**
      * @param mixed $configValue
      * @param bool  $expected
-     * 
+     *
      * @dataProvider isSecondEmailEnabledProvider
      */
     public function testIsSecondEmailEnabled($configValue, $expected)
     {
         $store = $this->getFakeMock(Store::class)->getMock();
-        
+
         $this->scopeConfig->method('getValue')
             ->with(
                 SecondChance::XPATH_SECOND_CHANCE_EMAIL2_ENABLED,
@@ -145,7 +145,7 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $instance = $this->getInstance(['scopeConfig' => $this->scopeConfig]);
         $result = $instance->isSecondEmailEnabled($store);
-        
+
         $this->assertEquals($expected, $result);
     }
 
@@ -164,7 +164,7 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
     /**
      * @param mixed  $configValue
      * @param string $expected
-     * 
+     *
      * @dataProvider getFirstEmailTemplateProvider
      */
     public function testGetFirstEmailTemplate($configValue, $expected)
@@ -172,7 +172,7 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
         // $expected parameter is from data provider but not used in this test implementation
         unset($expected);
         $store = $this->getFakeMock(Store::class)->getMock();
-        
+
         $this->scopeConfig->method('getValue')
             ->with(
                 SecondChance::XPATH_SECOND_CHANCE_TEMPLATE1,
@@ -183,7 +183,7 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $instance = $this->getInstance(['scopeConfig' => $this->scopeConfig]);
         $result = $instance->getFirstEmailTemplate($store);
-        
+
         $this->assertEquals($configValue ?: 'buckaroo_second_chance_first', $result);
     }
 
@@ -202,7 +202,7 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
     /**
      * @param mixed  $configValue
      * @param string $expected
-     * 
+     *
      * @dataProvider getSecondEmailTemplateProvider
      */
     public function testGetSecondEmailTemplate($configValue, $expected)
@@ -210,7 +210,7 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
         // $expected parameter is from data provider but not used in this test implementation
         unset($expected);
         $store = $this->getFakeMock(Store::class)->getMock();
-        
+
         $this->scopeConfig->method('getValue')
             ->with(
                 SecondChance::XPATH_SECOND_CHANCE_TEMPLATE2,
@@ -221,7 +221,7 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $instance = $this->getInstance(['scopeConfig' => $this->scopeConfig]);
         $result = $instance->getSecondEmailTemplate($store);
-        
+
         $this->assertEquals($configValue ?: 'buckaroo_second_chance_second', $result);
     }
 
@@ -242,13 +242,13 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
     /**
      * @param mixed $configValue
      * @param int   $expected
-     * 
+     *
      * @dataProvider getFirstEmailTimingProvider
      */
     public function testGetFirstEmailTiming($configValue, $expected)
     {
         $store = $this->getFakeMock(Store::class)->getMock();
-        
+
         $this->scopeConfig->method('getValue')
             ->with(
                 SecondChance::XPATH_SECOND_CHANCE_TIMING1,
@@ -259,7 +259,7 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $instance = $this->getInstance(['scopeConfig' => $this->scopeConfig]);
         $result = $instance->getFirstEmailTiming($store);
-        
+
         $this->assertEquals($expected, $result);
     }
 
@@ -280,13 +280,13 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
     /**
      * @param mixed $configValue
      * @param int   $expected
-     * 
+     *
      * @dataProvider getSecondEmailTimingProvider
      */
     public function testGetSecondEmailTiming($configValue, $expected)
     {
         $store = $this->getFakeMock(Store::class)->getMock();
-        
+
         $this->scopeConfig->method('getValue')
             ->with(
                 SecondChance::XPATH_SECOND_CHANCE_TIMING2,
@@ -297,7 +297,7 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $instance = $this->getInstance(['scopeConfig' => $this->scopeConfig]);
         $result = $instance->getSecondEmailTiming($store);
-        
+
         $this->assertEquals($expected, $result);
     }
 
@@ -317,13 +317,13 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
     /**
      * @param mixed $configValue
      * @param bool  $expected
-     * 
+     *
      * @dataProvider shouldSkipOutOfStockProvider
      */
     public function testShouldSkipOutOfStock($configValue, $expected)
     {
         $store = $this->getFakeMock(Store::class)->getMock();
-        
+
         $this->scopeConfig->method('getValue')
             ->with(
                 SecondChance::XPATH_NO_SEND_OUT_OF_STOCK,
@@ -334,7 +334,7 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $instance = $this->getInstance(['scopeConfig' => $this->scopeConfig]);
         $result = $instance->shouldSkipOutOfStock($store);
-        
+
         $this->assertEquals($expected, $result);
     }
 
@@ -355,13 +355,13 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
     /**
      * @param mixed $configValue
      * @param int   $expected
-     * 
+     *
      * @dataProvider getPruneDaysProvider
      */
     public function testGetPruneDays($configValue, $expected)
     {
         $store = $this->getFakeMock(Store::class)->getMock();
-        
+
         $this->scopeConfig->method('getValue')
             ->with(
                 SecondChance::XPATH_PRUNE_DAYS,
@@ -372,7 +372,7 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $instance = $this->getInstance(['scopeConfig' => $this->scopeConfig]);
         $result = $instance->getPruneDays($store);
-        
+
         $this->assertEquals($expected, $result);
     }
 
@@ -392,13 +392,13 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
     /**
      * @param mixed $configValue
      * @param bool  $expected
-     * 
+     *
      * @dataProvider canSendMultipleEmailsProvider
      */
     public function testCanSendMultipleEmails($configValue, $expected)
     {
         $store = $this->getFakeMock(Store::class)->getMock();
-        
+
         $this->scopeConfig->method('getValue')
             ->with(
                 SecondChance::XPATH_MULTIPLE_EMAILS_SEND,
@@ -409,7 +409,7 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $instance = $this->getInstance(['scopeConfig' => $this->scopeConfig]);
         $result = $instance->canSendMultipleEmails($store);
-        
+
         $this->assertEquals($expected, $result);
     }
-} 
+}

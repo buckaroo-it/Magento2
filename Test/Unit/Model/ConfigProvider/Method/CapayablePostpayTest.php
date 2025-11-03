@@ -53,7 +53,7 @@ class CapayablePostpayTest extends BaseTest
             ->onlyMethods(['getValue'])
             ->getMockForAbstractClass();
         $scopeConfigMock->method('getValue')
-            ->willReturnCallback(function($path, $scope = null, $scopeId = null) {
+            ->willReturnCallback(function ($path, $scope = null, $scopeId = null) {
                 // Use parameters to avoid PHPMD warnings
                 unset($scope, $scopeId);
 

@@ -105,7 +105,7 @@ class ProcessTest extends BaseTest
             'brq_transactions' => null,
             'brq_datarequest' => null
         ];
-        
+
         $response = $this->getFakeMock(ResponseInterface::class)->getMockForAbstractClass();
 
         $request = $this->getFakeMock(RequestInterface::class)->onlyMethods(['getParams'])->getMockForAbstractClass();
@@ -155,7 +155,7 @@ class ProcessTest extends BaseTest
             ->onlyMethods([
                 'loadByIncrementId', 'getState', 'canCancel',
                 'cancel', 'setStatus', 'getStore', 'getPayment', 'getId', 'save', 'getIncrementId'
-])
+        ])
             ->getMock();
         $orderMock->method('loadByIncrementId')->with(null)->willReturnSelf();
         $orderMock->method('getId')->willReturn(1);
@@ -254,7 +254,7 @@ class ProcessTest extends BaseTest
             'brq_transactions' => null,
             'brq_datarequest' => null
         ];
-        
+
         $response = $this->getFakeMock(ResponseInterface::class)->getMockForAbstractClass();
 
         $request = $this->getFakeMock(RequestInterface::class)->onlyMethods(['getParams'])->getMockForAbstractClass();
@@ -388,7 +388,7 @@ class ProcessTest extends BaseTest
             'brq_invoicenumber' => null,
             'brq_statuscode' => 190,
         ];
-        
+
         $response = $this->getFakeMock(ResponseInterface::class)->getMockForAbstractClass();
 
         $request = $this->getFakeMock(RequestInterface::class)->onlyMethods(['getParams'])->getMockForAbstractClass();
@@ -427,7 +427,7 @@ class ProcessTest extends BaseTest
             ->onlyMethods([
                 'loadByIncrementId', 'canInvoice', 'getQuoteId',
                 'setStatus', 'getEmailSent', 'getStore','getPayment', 'getId', 'save', 'getIncrementId'
-])
+        ])
             ->getMock();
         $orderMock->method('loadByIncrementId')->with(null)->willReturnSelf();
         $orderMock->method('getId')->willReturn(true);

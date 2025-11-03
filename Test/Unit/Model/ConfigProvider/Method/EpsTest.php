@@ -65,7 +65,7 @@ class EpsTest extends BaseTest
     {
         // $expected parameter is from data provider but not used in this test implementation
         unset($expected);
-        
+
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
             ->onlyMethods(['getValue'])
             ->getMockForAbstractClass();

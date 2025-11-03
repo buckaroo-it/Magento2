@@ -243,10 +243,10 @@ class OrderRequestService
                 'description' => $description
             ], true)
         ));
-        
+
         // Always set the order state - this is crucial for admin dropdown
         $this->order->setState($orderState);
-        
+
         if ($this->order->getState() == $orderState || $force) {
             if ($dontSaveOrderUponSuccessPush) {
                 $this->order->addCommentToStatusHistory($description)
@@ -269,7 +269,7 @@ class OrderRequestService
                 $this->order->save(); // Save the order to persist changes
             }
         }
-        
+
         $this->logger->addDebug(sprintf(
             '[ORDER] | [Service] | [%s:%s] - Order state and status updated successfully | finalState: %s | finalStatus: %s',
             __METHOD__,

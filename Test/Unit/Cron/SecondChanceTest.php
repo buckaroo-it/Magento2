@@ -70,28 +70,28 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
 
         // Store 1: SecondChance enabled
         $this->configProvider->method('isSecondChanceEnabled')
-            ->willReturnCallback(function($arg1, $arg2 = null) {
+            ->willReturnCallback(function ($arg1, $arg2 = null) {
                     static $callCount = 0;
                     $callCount++;
                     // TODO: Implement proper argument checking based on call count
                     // Original withConsecutive args: [$store1], [$store2], [$store3]
                     return null;
-                })
+            })
             ->willReturnOnConsecutiveCalls(true, false, true);
 
         // Should process steps 2 and 1 for enabled stores
         $this->secondChanceRepository->method('getSecondChanceCollection')
-            ->willReturnCallback(function($arg1, $arg2 = null) {
+            ->willReturnCallback(function ($arg1, $arg2 = null) {
                     unset($arg1, $arg2); // Suppress unused parameter warnings
                     static $callCount = 0;
                     $callCount++;
                     // TODO: Implement proper argument checking based on call count
                     // Original withConsecutive args: [2, $store1], [1, $store1], [2, $store3], [1, $store3]
                     return null;
-                });
+            });
 
         $this->logging->method('addDebug')
-            ->willReturnCallback(function($message, $context = null) {
+            ->willReturnCallback(function ($message, $context = null) {
                 // Use the parameters to avoid PHPMD warnings
                 if (strpos($message, 'Starting SecondChance') !== false) {
                     return true;
@@ -126,14 +126,14 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
 
         // Both stores have SecondChance disabled
         $this->configProvider->method('isSecondChanceEnabled')
-            ->willReturnCallback(function($arg1, $arg2 = null) {
+            ->willReturnCallback(function ($arg1, $arg2 = null) {
                     unset($arg1, $arg2); // Suppress unused parameter warnings
                     static $callCount = 0;
                     $callCount++;
                     // TODO: Implement proper argument checking based on call count
                     // Original withConsecutive args: [$store1], [$store2]
                     return null;
-                })
+            })
             ->willReturnOnConsecutiveCalls(false, false);
 
         // Should not process any collections
@@ -141,7 +141,7 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
             ->method('getSecondChanceCollection');
 
         $this->logging->method('addDebug')
-            ->willReturnCallback(function($message, $context = null) {
+            ->willReturnCallback(function ($message, $context = null) {
                 // Use the parameters to avoid PHPMD warnings
                 if (strpos($message, 'Starting SecondChance') !== false) {
                     return true;
@@ -176,7 +176,7 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
             ->method('getSecondChanceCollection');
 
         $this->logging->method('addDebug')
-            ->willReturnCallback(function($message, $context = null) {
+            ->willReturnCallback(function ($message, $context = null) {
                 // Use the parameters to avoid PHPMD warnings
                 if (strpos($message, 'Starting SecondChance') !== false) {
                     return true;

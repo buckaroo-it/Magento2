@@ -43,7 +43,7 @@ class CreateCombinedInvoiceTest extends BaseTest
 
         $factoryMock = $this->getFakeMock(Factory::class)->onlyMethods(['get'])->getMock();
         $factoryMock->method('get')->with('payperemail')->willReturn($payPerMailConfigMock);
-        
+
         // Add more required methods to the PayPerEmail mock
         $payPerMailConfigMock->method('getCm3DueDate')->willReturn(30);
         $payPerMailConfigMock->method('getMaxStepIndex')->willReturn(3);
@@ -76,10 +76,10 @@ class CreateCombinedInvoiceTest extends BaseTest
         $infoInstanceMock->method('getAdditionalInformation')->willReturn(null);
         $infoInstanceMock->method('getOrder')->willReturn($orderMock);
         $infoInstanceMock->method('getMethod')->willReturn('buckaroo_magento2_payperemail');
-        
+
         // Set up the circular reference for order payment
         $orderMock->method('getPayment')->willReturn($infoInstanceMock);
-        
+
         $instance = $this->getInstance(['configProviderMethodFactory' => $factoryMock]);
         $result = $instance->get($infoInstanceMock, 'payperemail');
 

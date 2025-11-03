@@ -57,7 +57,9 @@ if (!$bootstrapIncluded) {
 }
 
 // Initialize ObjectManager for tests that require it
-if (!class_exists('Magento\Framework\App\ObjectManager') || !method_exists('Magento\Framework\App\ObjectManager', 'getInstance')) {
+if (!class_exists('Magento\Framework\App\ObjectManager')
+    || !method_exists('Magento\Framework\App\ObjectManager', 'getInstance')
+) {
     // ObjectManager not available, tests should use mocks instead
 } else {
     try {
@@ -65,21 +67,25 @@ if (!class_exists('Magento\Framework\App\ObjectManager') || !method_exists('Mage
         if (!$om) {
             // Create a basic ObjectManager mock for unit tests
             // Don't extend ObjectManager directly to avoid constructor parameter issues
-            $objectManagerMock = new class {
+            $objectManagerMock = new class
+            {
                 private $instances = [];
 
-                public function get($type, array $arguments = []) {
+                public function get($type, array $arguments = [])
+                {
                     if (!isset($this->instances[$type])) {
                         $this->instances[$type] = new \stdClass();
                     }
                     return $this->instances[$type];
                 }
 
-                public function create($type, array $arguments = []) {
+                public function create($type, array $arguments = [])
+                {
                     return new \stdClass();
                 }
 
-                public function configure(array $configuration) {
+                public function configure(array $configuration)
+                {
                     // No-op for test implementation
                     return $this;
                 }

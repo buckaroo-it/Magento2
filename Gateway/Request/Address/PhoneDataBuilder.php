@@ -55,7 +55,7 @@ class PhoneDataBuilder implements BuilderInterface
 
         $telephone = $paymentDO->getPayment()->getAdditionalInformation('customer_telephone');
         $telephone = $telephone ?: ($address ? $address->getTelephone() : '');
-        
+
         // Only build phone data if telephone is not empty
         if (empty($telephone)) {
             return [];

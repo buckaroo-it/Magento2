@@ -102,7 +102,7 @@ class MigrateSecondChanceModule implements DataPatchInterface
 
         // Check if the table exists (old module was installed)
         $tableName = $this->moduleDataSetup->getTable('buckaroo_magento2_second_chance');
-        
+
         if ($connection->isTableExists($tableName)) {
             // Table already exists from old module - this is good, we'll reuse it
             // Set a flag to indicate migration was performed

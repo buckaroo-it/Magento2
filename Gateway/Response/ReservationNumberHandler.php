@@ -75,7 +75,7 @@ class ReservationNumberHandler implements HandlerInterface
             }
 
             $serviceParameters = $transactionResponse->getServiceParameters();
-            
+
             $this->logger->addDebug(sprintf(
                 '[KLARNA_KP] | [%s:%s] - Processing authorization response for order %s | serviceParameters: %s',
                 __METHOD__,
@@ -83,12 +83,12 @@ class ReservationNumberHandler implements HandlerInterface
                 $order->getIncrementId(),
                 json_encode($serviceParameters)
             ));
-            
+
             if (isset($serviceParameters['klarnakp_reservationnumber'])) {
                 $reservationNumber = $serviceParameters['klarnakp_reservationnumber'];
                 $order->setBuckarooReservationNumber($reservationNumber);
                 $order->save();
-                
+
                 $this->logger->addDebug(sprintf(
                     '[KLARNA_KP] | [%s:%s] - Successfully saved reservation number for order %s: %s',
                     __METHOD__,

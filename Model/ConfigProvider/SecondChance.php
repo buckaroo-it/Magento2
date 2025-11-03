@@ -112,7 +112,7 @@ class SecondChance
             ScopeInterface::SCOPE_STORE,
             $store
         );
-        
+
         // Force correct template ID if it's set to an incorrect value
         if ($template === 'buckaroo_second_chance' || empty($template)) {
             $result = 'buckaroo_second_chance_first';
@@ -137,7 +137,7 @@ class SecondChance
             ScopeInterface::SCOPE_STORE,
             $store
         );
-        
+
         // Force correct template ID if it's set to an incorrect value
         if ($template === 'buckaroo_second_chance' || empty($template)) {
             return 'buckaroo_second_chance_second';
@@ -312,7 +312,7 @@ class SecondChance
             ScopeInterface::SCOPE_STORE,
             $store
         );
-        
+
         if (empty($senderName)) {
             $senderName = (string) $this->scopeConfig->getValue(
                 'trans_email/ident_sales/name',
@@ -320,7 +320,7 @@ class SecondChance
                 $store
             );
         }
-        
+
         // Use default if still empty
         return $senderName ?: 'Buckaroo';
     }
@@ -340,7 +340,7 @@ class SecondChance
             ScopeInterface::SCOPE_STORE,
             $store
         );
-        
+
         if (empty($senderEmail)) {
             $senderEmail = (string) $this->scopeConfig->getValue(
                 'trans_email/ident_sales/email',
@@ -348,7 +348,7 @@ class SecondChance
                 $store
             );
         }
-        
+
         // Use default if still empty
         return $senderEmail ?: 'noreply@buckaroo.nl';
     }

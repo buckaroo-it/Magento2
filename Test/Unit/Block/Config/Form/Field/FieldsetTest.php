@@ -152,7 +152,7 @@ class FieldsetTest extends BaseTest
     {
         $requestMock = $this->getFakeMock(RequestInterface::class)->getMockForAbstractClass();
         $requestMock->method('getParam')
-            ->willReturnCallback(function($param, $default = null) use ($store, $website) {
+            ->willReturnCallback(function ($param, $default = null) use ($store, $website) {
                 // Use the parameters to avoid PHPMD warnings
                 if ($param === 'store') {
                     return $store;

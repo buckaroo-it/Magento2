@@ -22,14 +22,14 @@
 ?>
 <!-- Set up a container element for the button -->
 <div id="applepay-button-wrapper">
-    <apple-pay-button lang="en-US" buttonstyle="<?= $block->escapeHtmlAttr($block->getButtonStyle());?>" hidden="false"></apple-pay-button>
+    <apple-pay-button lang="en-US" buttonstyle="<?= $escaper->escapeHtmlAttr($block->getButtonStyle());?>" hidden="false"></apple-pay-button>
 </div>
 <script type="text/x-magento-init">
 {
     "#applepay-button-wrapper": {
         "Buckaroo_Magento2/js/view/adminhtml/applepay": {
-            "buttonStyle": "<?= $block->escapeJs($block->getButtonStyle()); ?>",
-            "buttonStyleElement": "<?= $block->escapeJs($block->getButtonStyleElement()); ?>"
+            "buttonStyle": "<?= $escaper->escapeJs($block->getButtonStyle()); ?>",
+            "buttonStyleElement": "<?= $escaper->escapeJs($block->getButtonStyleElement()); ?>"
         }
     }
 }

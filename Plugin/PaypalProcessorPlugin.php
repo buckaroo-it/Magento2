@@ -163,4 +163,3 @@ class PaypalProcessorPlugin
         return null;
     }
 }
-

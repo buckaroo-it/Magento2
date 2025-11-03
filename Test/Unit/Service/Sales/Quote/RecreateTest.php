@@ -213,7 +213,7 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
             ->onlyMethods(['getMethod'])
             ->getMock();
         $oldQuotePayment->method('getMethod')->willReturn('buckaroo_magento2_ideal');
-        
+
         $oldQuote->method('load')->with(123)->willReturnSelf();
         $oldQuote->method('getId')->willReturn(123);
         $oldQuote->method('getPayment')->willReturn($oldQuotePayment);
@@ -235,7 +235,7 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
         $newQuote->method('setCustomerIsGuest')->with(false);
         $newQuote->method('getBillingAddress')->willReturn($quoteBillingAddress);
         $newQuote->method('getShippingAddress')->willReturn($quoteShippingAddress);
-        
+
         $newQuotePayment = $this->getFakeMock(\Magento\Quote\Model\Quote\Payment::class, false)
             ->onlyMethods(['setMethod', 'setQuote'])
             ->getMock();
@@ -336,7 +336,7 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
         $newQuote->method('setIsActive')->with(true);
         $newQuote->method('collectTotals');
         $newQuote->method('save');
-        
+
         // Configure getters to return expected values
         $newQuote->method('getCustomerId')->willReturn(null);
         $newQuote->method('getCustomerEmail')->willReturn('guest@example.com');

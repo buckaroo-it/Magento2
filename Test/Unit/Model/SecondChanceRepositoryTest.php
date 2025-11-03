@@ -479,11 +479,11 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
         // Mock the quote factory to return a quote that can be loaded
         $this->quoteFactory->method('create')
             ->willReturn($quote);
-        
+
         $quote->method('load')
             ->with(456)
             ->willReturnSelf();
-        
+
         $quote->method('getId')->willReturn(456);
         $quote->method('setReservedOrderId')
             ->with('000000001-1')
@@ -493,7 +493,7 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
         // Mock checkout session
         $this->checkoutSession->method('getQuote')
             ->willReturn($checkoutQuote);
-        
+
         $checkoutQuote->method('getId')->willReturn(789);
         $checkoutQuote->method('setReservedOrderId')
             ->with('000000001-1')

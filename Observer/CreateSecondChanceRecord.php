@@ -63,7 +63,7 @@ class CreateSecondChanceRecord implements ObserverInterface
     public function execute(Observer $observer)
     {
         $order = $observer->getEvent()->getOrder();
-        
+
         if (!$order || !$order->getId()) {
             return;
         }

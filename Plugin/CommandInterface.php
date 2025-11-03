@@ -110,7 +110,7 @@ class CommandInterface
                 if (!$this->canUpdateOrderStatus($order, $paymentCode)) {
                     return $message;
                 }
-                
+
                 $this->updateOrderStateAndStatus($order, $methodInstance, $paymentCode, $paymentAction);
             }
 
@@ -152,7 +152,7 @@ class CommandInterface
     {
         $currentState = $order->getState();
         $currentStatus = $order->getStatus();
-        
+
         // Skip if order is already canceled, failed, or closed
         if (in_array($currentState, [
             Order::STATE_CANCELED,
@@ -170,7 +170,7 @@ class CommandInterface
             ));
             return false;
         }
-        
+
         // Only proceed if order can actually be invoiced
         if (!$order->canInvoice()) {
             $this->logger->addDebug(sprintf(
@@ -184,7 +184,7 @@ class CommandInterface
             ));
             return false;
         }
-        
+
         return true;
     }
 
@@ -220,7 +220,7 @@ class CommandInterface
 
         $order->setState($orderState);
         $order->setStatus($orderStatus);
-        
+
         $this->logger->addDebug(sprintf(
             '[UPDATE_STATUS] | [Plugin] | [%s:%s] - Updated order state and status |' .
             ' paymentMethod: %s | newState: %s | newStatus: %s',

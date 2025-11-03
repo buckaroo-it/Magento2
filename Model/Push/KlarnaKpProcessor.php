@@ -125,7 +125,7 @@ class KlarnaKpProcessor extends DefaultProcessor
     protected function setBuckarooReservationNumber(): bool
     {
         $reservationNumberFromPush = $this->pushRequest->getServiceKlarnakpReservationnumber();
-        
+
         $this->logger->addDebug(sprintf(
             '[KLARNA_KP] | [%s:%s] - setBuckarooReservationNumber called for order %s | ' .
             'currentReservationNumber: %s | pushReservationNumber: %s',
@@ -135,11 +135,11 @@ class KlarnaKpProcessor extends DefaultProcessor
             $this->order->getBuckarooReservationNumber() ?? 'NULL',
             $reservationNumberFromPush ?? 'NULL'
         ));
-        
+
         if (!empty($reservationNumberFromPush)) {
             $this->order->setBuckarooReservationNumber($reservationNumberFromPush);
             $this->order->save();
-            
+
             $this->logger->addDebug(sprintf(
                 '[KLARNA_KP] | [%s:%s] - Successfully saved reservation number from PUSH for order %s: %s',
                 __METHOD__,
@@ -147,7 +147,7 @@ class KlarnaKpProcessor extends DefaultProcessor
                 $this->order->getIncrementId(),
                 $reservationNumberFromPush
             ));
-            
+
             return true;
         }
 

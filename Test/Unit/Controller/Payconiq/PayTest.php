@@ -46,11 +46,11 @@ class PayTest extends \Buckaroo\Magento2\Test\BaseTest
             ->disableOriginalConstructor()
             ->getMock();
         $responseMock->method('setRedirect')->willReturnSelf();
-        
+
         // Add redirect mock for _redirect() method
         $redirectMock = $this->createMock(\Magento\Framework\App\Response\RedirectInterface::class);
         $redirectMock->method('redirect')->willReturn(null);
-        
+
         $contextMock = $this->getFakeMock(Context::class)->onlyMethods(['getRequest', 'getResponse', 'getRedirect'])->getMock();
         $contextMock->method('getRequest')->willReturn($requestMock);
         $contextMock->method('getResponse')->willReturn($responseMock);
@@ -60,7 +60,7 @@ class PayTest extends \Buckaroo\Magento2\Test\BaseTest
         $redirectMock = $this->createMock(\Magento\Framework\Controller\Result\Redirect::class);
         $redirectFactoryMock = $this->createMock(\Magento\Framework\Controller\Result\RedirectFactory::class);
         $redirectFactoryMock->method('create')->willReturn($redirectMock);
-        
+
         $instance = $this->getInstance([
             'redirectFactory' => $redirectFactoryMock,
             'context' => $contextMock
@@ -87,7 +87,7 @@ class PayTest extends \Buckaroo\Magento2\Test\BaseTest
         $redirectMock = $this->createMock(\Magento\Framework\Controller\Result\Redirect::class);
         $redirectFactoryMock = $this->createMock(\Magento\Framework\Controller\Result\RedirectFactory::class);
         $redirectFactoryMock->method('create')->willReturn($redirectMock);
-        
+
         $instance = $this->getInstance([
             'redirectFactory' => $redirectFactoryMock,'context' => $contextMock, 'resultPageFactory' => $pageFactoryMock]);
 
@@ -136,7 +136,7 @@ class PayTest extends \Buckaroo\Magento2\Test\BaseTest
         $redirectMock = $this->createMock(\Magento\Framework\Controller\Result\Redirect::class);
         $redirectFactoryMock = $this->createMock(\Magento\Framework\Controller\Result\RedirectFactory::class);
         $redirectFactoryMock->method('create')->willReturn($redirectMock);
-        
+
         $instance = $this->getInstance([
             'redirectFactory' => $redirectFactoryMock,
             'context' => $contextMock

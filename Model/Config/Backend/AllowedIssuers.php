@@ -38,10 +38,10 @@ class AllowedIssuers extends Value
     public function save()
     {
         $value = (array)$this->getValue();
-        
+
         // Filter out empty values
         $value = array_filter($value);
-        
+
         if (empty($value)) {
             throw new LocalizedException(
                 __('You must select at least one credit or debit card for the hosted fields to function properly.')

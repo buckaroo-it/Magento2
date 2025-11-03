@@ -37,9 +37,9 @@ interface ApplyVoucherRequestInterface
      /**
       * Set quote
       *
-       * @param CartInterface $quote
-       *
-       * @return ApplyVoucherRequestInterface
+      * @param CartInterface $quote
+      *
+      * @return ApplyVoucherRequestInterface
       */
     public function setQuote(CartInterface $quote): ApplyVoucherRequestInterface;
 }

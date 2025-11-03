@@ -35,7 +35,7 @@ class GiftCardRefundService implements GiftCardRefundServiceInterface
 {
     private $logger;
     private $isAdobeCommerceAvailable = null;
-    
+
     // Optional dependencies that may not exist in Magento Open Source
     private $giftCardRepo = null;
     private $historyFactory = null;

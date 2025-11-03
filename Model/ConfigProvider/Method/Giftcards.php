@@ -139,7 +139,7 @@ class Giftcards extends AbstractConfigProvider
 
         // Use proper collection instead of raw SQL
         $giftcardCollection = $this->giftcardCollectionFactory->create();
-        
+
         $allGiftCards = [];
         foreach ($giftcardCollection as $giftcard) {
             $servicecode = $giftcard->getServicecode();
@@ -276,7 +276,7 @@ class Giftcards extends AbstractConfigProvider
             $giftcardCollection = $this->giftcardCollectionFactory->create();
             $giftcardCollection->addFieldToFilter('servicecode', $code);
             $giftcard = $giftcardCollection->getFirstItem();
-            
+
             if ($giftcard->getId() && $giftcard->getLogo()) {
                 $logo = $this->storeManager->getStore()->getBaseUrl(
                     UrlInterface::URL_TYPE_MEDIA

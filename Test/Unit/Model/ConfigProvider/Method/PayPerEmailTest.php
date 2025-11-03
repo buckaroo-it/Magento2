@@ -50,7 +50,7 @@ class PayPerEmailTest extends BaseTest
     {
         $scopeConfigMock = $this->getMockBuilder(ScopeConfigInterface::class)->getMock();
         $scopeConfigMock->method('getValue')
-            ->willReturnCallback(function($path, $scope = null, $scopeId = null) {
+            ->willReturnCallback(function ($path, $scope = null, $scopeId = null) {
                 // Use parameters to avoid PHPMD warnings
                 unset($scope, $scopeId);
 

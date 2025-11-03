@@ -229,7 +229,7 @@ class PaypalExpress extends Template
     public function isIdinVerificationRequired()
     {
         $idinMode = (int)$this->configProviderAccount->getIdinMode();
-        
+
         // Check if iDIN is enabled
         if (!$this->configProviderAccount->getIdin() || $idinMode === null) {
             return false;
@@ -280,7 +280,7 @@ class PaypalExpress extends Template
             if (!$product) {
                 return false;
             }
-            
+
             $idinCategories = explode(',', (string)$this->configProviderAccount->getIdinCategory());
             foreach ($product->getCategoryIds() as $category) {
                 if (in_array($category, $idinCategories)) {

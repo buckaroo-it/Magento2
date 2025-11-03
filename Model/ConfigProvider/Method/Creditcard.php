@@ -142,18 +142,18 @@ class Creditcard extends AbstractConfigProvider
     public function getAllIssuers(): array
     {
         $allowedCodes = $this->getAllowedCreditcards();
-        
+
         if (empty($allowedCodes)) {
             return [];
         }
-        
+
         $allowedCodesArray = explode(',', $allowedCodes);
-        
+
         // Convert allowed codes to lowercase for case-insensitive comparison
         $allowedLowercase = array_map('strtolower', $allowedCodesArray);
-        
+
         $allIssuers = [];
-        
+
         foreach ($this->getIssuers() as $issuer) {
             // Compare with case-insensitive logic
             if (in_array(strtolower($issuer['code']), $allowedLowercase)) {
@@ -164,7 +164,7 @@ class Creditcard extends AbstractConfigProvider
                 ];
             }
         }
-        
+
         return $allIssuers;
     }
 
@@ -273,12 +273,12 @@ class Creditcard extends AbstractConfigProvider
     public function getSortedIssuers($storeId = null): ?string
     {
         $sortedIssuers = $this->getMethodConfigValue(self::XPATH_SORTED_ISSUERS, $storeId);
-        
+
         // Convert __EMPTY__ placeholder back to empty string
         if ($sortedIssuers === '__EMPTY__') {
             return '';
         }
-        
+
         return $sortedIssuers;
     }
 

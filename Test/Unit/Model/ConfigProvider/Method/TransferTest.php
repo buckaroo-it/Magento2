@@ -43,7 +43,7 @@ class TransferTest extends \Buckaroo\Magento2\Test\BaseTest
             ->onlyMethods(['getValue'])
             ->getMockForAbstractClass();
         $scopeConfigMock->method('getValue')
-            ->willReturnCallback(function($path, $scope = null, $scopeId = null) use ($value) {
+            ->willReturnCallback(function ($path, $scope = null, $scopeId = null) use ($value) {
                 // Use parameters to avoid PHPMD warnings
                 unset($scope, $scopeId);
 
@@ -87,7 +87,7 @@ class TransferTest extends \Buckaroo\Magento2\Test\BaseTest
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
             ->onlyMethods(['getValue'])
             ->getMockForAbstractClass();
-        $scopeConfigMock->method('getValue')->willReturnCallback(function($path = null) {
+        $scopeConfigMock->method('getValue')->willReturnCallback(function ($path = null) {
             // Return active = 1 for the payment method to ensure it's enabled
             if (strpos($path, '/active') !== false) {
                 return '1';

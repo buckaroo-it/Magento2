@@ -220,7 +220,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
                     __LINE__
                 ));
                 $invoice->setRequestedCaptureCase(Invoice::CAPTURE_OFFLINE);
-                
+
                 // Add capture transaction comment
                 $transactionId = $payment->getLastTransId();
                 if ($transactionId) {

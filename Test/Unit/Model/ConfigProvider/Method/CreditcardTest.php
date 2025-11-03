@@ -39,7 +39,7 @@ class CreditcardTest extends BaseTest
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
             ->onlyMethods(['getValue'])
             ->getMockForAbstractClass();
-        
+
         // Mock the getValue calls for different config paths
         $scopeConfigMock->method('getValue')->willReturnMap([
             // Make the creditcard method active

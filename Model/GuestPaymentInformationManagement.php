@@ -125,8 +125,8 @@ class GuestPaymentInformationManagement implements GuestPaymentInformationManage
      * @return string
      */
     public function buckarooSavePaymentInformationAndPlaceOrder(
-                                                  $cartId,
-                                                  $email,
+        $cartId,
+        $email,
         PaymentInterface                          $paymentMethod,
         ?AddressInterface $billingAddress = null
     ) {

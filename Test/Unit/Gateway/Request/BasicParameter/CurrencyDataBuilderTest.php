@@ -118,7 +118,7 @@ class CurrencyDataBuilderTest extends BaseTest
         $paymentDOMock = $this->createMock(\Magento\Payment\Gateway\Data\PaymentDataObjectInterface::class);
         $paymentDOMock->method('getOrder')->willReturn($orderAdapterMock);
         $paymentDOMock->method('getPayment')->willReturn($paymentMock);
-        
+
         return $paymentDOMock;
     }
 

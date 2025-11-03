@@ -60,7 +60,7 @@ class Analytics implements ObserverInterface
             );
             $this->analyticsModel->setQuoteId($quote_id);
             $this->analyticsModel->setClientId($ga_cookie);
-            
+
             try {
                 $this->analyticsRepository->save($this->analyticsModel);
             } catch (\Exception $e) {

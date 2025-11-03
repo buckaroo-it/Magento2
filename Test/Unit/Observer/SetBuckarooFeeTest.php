@@ -51,7 +51,7 @@ class SetBuckarooFeeTest extends BaseTest
 
         $instance = $this->getInstance();
         $result = $instance->execute($observerMock);
-        
+
         // Assert that the method executed without throwing exceptions
         $this->assertNull($result, 'execute method should return null when no fee is present');
     }
@@ -114,7 +114,7 @@ class SetBuckarooFeeTest extends BaseTest
 
         $instance = $this->getInstance();
         $result = $instance->execute($observerMock);
-        
+
         // Assert that the method executed without throwing exceptions
         // The expectations on the order mock methods will verify the behavior
         $this->assertNull($result, 'execute method should return null after setting fees');
