@@ -34,6 +34,7 @@ class SupportTabTest extends BaseTest
     public function testGetVersionNumber()
     {
         $softwareDataMock = $this->getFakeMock(Data::class)->getMock();
+        $softwareDataMock->method('getModuleVersion')->willReturn(Data::BUCKAROO_VERSION);
         $instance = $this->getInstance(['softwareData' => $softwareDataMock]);
         $result = $instance->getVersionNumber();
 

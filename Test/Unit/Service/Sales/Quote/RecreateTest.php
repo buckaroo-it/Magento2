@@ -171,7 +171,7 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
             ->onlyMethods(['load', 'getId', 'getPayment'])
             ->getMock();
         $newQuote = $this->getFakeMock(Quote::class, false)
-            ->onlyMethods(['setStore', 'getBillingAddress', 'getShippingAddress', 'setIsActive', 'collectTotals', 'save', 'addProduct', 'setCustomerIsGuest', 'getPayment', 'getCustomerIsGuest'])
+            ->onlyMethods(['setStore', 'setStoreId', 'getBillingAddress', 'getShippingAddress', 'setIsActive', 'collectTotals', 'save', 'addProduct', 'setCustomerIsGuest', 'getPayment', 'getCustomerIsGuest'])
             ->addMethods(['setCustomerId', 'setCustomerEmail', 'setCustomerFirstname', 'setCustomerLastname', 'getCustomerId', 'getCustomerEmail', 'getCustomerFirstname', 'getCustomerLastname'])
             ->getMock();
         $store = $this->getFakeMock(Store::class)->getMock();
@@ -295,7 +295,7 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
         $order = $this->getFakeMock(Order::class)->getMock();
         $oldQuote = $this->getFakeMock(Quote::class)->getMock();
         $newQuote = $this->getFakeMock(Quote::class, false)
-            ->onlyMethods(['setStore', 'getBillingAddress', 'getShippingAddress', 'setIsActive', 'collectTotals', 'save', 'setCustomerIsGuest', 'getCustomerIsGuest'])
+            ->onlyMethods(['setStore', 'setStoreId', 'getBillingAddress', 'getShippingAddress', 'setIsActive', 'collectTotals', 'save', 'setCustomerIsGuest', 'getCustomerIsGuest'])
             ->addMethods(['setCustomerEmail', 'setCustomerFirstname', 'setCustomerLastname', 'getCustomerId', 'getCustomerEmail', 'getCustomerFirstname', 'getCustomerLastname'])
             ->getMock();
         $store = $this->getFakeMock(Store::class)->getMock();

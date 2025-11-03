@@ -38,7 +38,7 @@ class AccountTest extends BaseTest
     {
         $expectedKeys = [
             'active', 'secret_key', 'merchant_key', 'transaction_label',
-            'order_confirmation_email', 'order_confirmation_email_sync', 'invoice_email', 'success_redirect', 'failure_redirect', 'failure_redirect_to_checkout', 'cancel_on_failed',
+            'order_confirmation_email', 'order_confirmation_email_sync', 'invoice_email', 'success_redirect', 'failure_redirect', 'failure_redirect_to_checkout', 'cancel_on_failed', 'cancel_on_browser_back',
             'debug_types', 'log_handler', 'log_retention', 'payment_fee_label', 'order_status_new',
             'order_status_pending', 'order_status_success', 'order_status_failed', 'create_order_before_transaction',
             'ip_header', 'cart_keep_alive', 'buckaroo_fee_tax_class', 'customer_additional_info',
