@@ -6,9 +6,9 @@ namespace Buckaroo\Magento2\Api\Data;
 interface AnalyticsInterface extends \Magento\Framework\Api\ExtensibleDataInterface
 {
 
-    const QUOTE_ID = 'quote_id';
-    const ANALYTICS_ID = 'analytics_id';
-    const CLIENT_ID = 'client_id';
+    public const QUOTE_ID = 'quote_id';
+    public const ANALYTICS_ID = 'analytics_id';
+    public const CLIENT_ID = 'client_id';
 
     /**
      * Get analytics_id

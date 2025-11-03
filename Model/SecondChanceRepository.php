@@ -441,6 +441,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      *
      * @param mixed $step
      * @param mixed $store

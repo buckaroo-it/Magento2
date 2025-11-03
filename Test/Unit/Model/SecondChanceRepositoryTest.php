@@ -426,6 +426,9 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->assertTrue(true, 'sendMail method completed successfully without exceptions');
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     */
     public function testGetSecondChanceByToken()
     {
         $token = 'test_token';

@@ -24,17 +24,17 @@ use Magento\Framework\Api\ExtensibleDataInterface;
 
 interface SecondChanceInterface extends ExtensibleDataInterface
 {
-    const ENTITY_ID = 'entity_id';
-    const ORDER_ID = 'order_id';
-    const STORE_ID = 'store_id';
-    const CUSTOMER_EMAIL = 'customer_email';
-    const TOKEN = 'token';
-    const STATUS = 'status';
-    const STEP = 'step';
-    const CREATED_AT = 'created_at';
-    const FIRST_EMAIL_SENT = 'first_email_sent';
-    const SECOND_EMAIL_SENT = 'second_email_sent';
-    const LAST_ORDER_ID = 'last_order_id';
+    public const ENTITY_ID = 'entity_id';
+    public const ORDER_ID = 'order_id';
+    public const STORE_ID = 'store_id';
+    public const CUSTOMER_EMAIL = 'customer_email';
+    public const TOKEN = 'token';
+    public const STATUS = 'status';
+    public const STEP = 'step';
+    public const CREATED_AT = 'created_at';
+    public const FIRST_EMAIL_SENT = 'first_email_sent';
+    public const SECOND_EMAIL_SENT = 'second_email_sent';
+    public const LAST_ORDER_ID = 'last_order_id';
 
     /**
      * Get second chance ID

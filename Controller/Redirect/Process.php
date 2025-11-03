@@ -655,13 +655,14 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
     }
 
     /**
-     * Handle failed transactions
+     * Handle failed transaction
      *
      * @param int|null $statusCode
      *
      * @throws NoSuchEntityException|Exception
      *
      * @return ResponseInterface
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     protected function handleFailed($statusCode): ResponseInterface
     {

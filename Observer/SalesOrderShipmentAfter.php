@@ -118,6 +118,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
      * @throws \Exception
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     public function execute(Observer $observer)
     {

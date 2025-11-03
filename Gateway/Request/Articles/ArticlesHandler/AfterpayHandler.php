@@ -34,6 +34,9 @@ use Magento\Quote\Model\QuoteFactory;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class AfterpayHandler extends AbstractArticlesHandler
 {
     /**

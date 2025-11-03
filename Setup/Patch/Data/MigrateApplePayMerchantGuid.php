@@ -65,6 +65,9 @@ class MigrateApplePayMerchantGuid implements DataPatchInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function apply(): void
     {

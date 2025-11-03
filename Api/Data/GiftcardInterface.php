@@ -55,11 +55,15 @@ interface GiftcardInterface
     public function getLabel();
 
     /**
+     * Get acquirer
+     *
      * @return string|null $acquirer
      */
     public function getAcquirer();
 
     /**
+     * Set acquirer
+     *
      * @param string|null $acquirer
      *
      * @return $this

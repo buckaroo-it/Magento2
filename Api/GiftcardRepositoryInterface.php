@@ -84,6 +84,8 @@ interface GiftcardRepositoryInterface
     public function deleteById($giftcardId);
 
     /**
+     * Get giftcard by service code
+     *
      * @param string $serviceCode
      *
      * @return GiftcardInterface
