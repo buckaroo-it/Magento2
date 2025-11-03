@@ -172,7 +172,7 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
         $address->setPostcode($shipping_address->getPostalCode());
         $address->setCity($shipping_address->getCity());
         $address->setRegion($shipping_address->getState());
-        $this->maybeFillAnyMissingAddressFields($shipping_address);
+        $this->maybeFillAnyMissingAddressFields();
 
         $this->quoteRepository->save($this->quote);
         $this->addFirstShippingMethod($address);
@@ -203,10 +203,8 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
 
     /**
      * Fill any fields missing from the addresses
-     *
-     * @param ShippingAddressRequestInterface $shipping_address
      */
-    protected function maybeFillAnyMissingAddressFields(ShippingAddressRequestInterface $shipping_address)
+    protected function maybeFillAnyMissingAddressFields()
     {
         $this->maybeFillShippingAddressFields();
         $this->maybeFillBillingAddressFields();
