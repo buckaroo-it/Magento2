@@ -21,6 +21,8 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\RequestPush;
 
+use Buckaroo\Magento2\Exception;
+
 class AbstractPushRequest
 {
     /**
@@ -41,18 +43,19 @@ class AbstractPushRequest
      * @param int    $max
      * @param string $methodName
      *
-     * @throws \Exception
+     * @throws Exception
      */
     protected function checkArguments(array $args, int $min, int $max, string $methodName)
     {
         $argc = count($args);
         if ($argc < $min || $argc > $max) {
-            throw new \Exception(
-                'Method ' . $methodName
-                . ' needs minimaly ' . $min
-                . ' and maximaly ' . $max
-                . ' arguments. ' . $argc
-                . ' arguments given.'
+            throw new Exception(
+                __('Method %1 needs minimaly %2 and maximaly %3 arguments. %4 arguments given.',
+                    $methodName,
+                    $min,
+                    $max,
+                    $argc
+                )
             );
         }
     }
@@ -80,7 +83,7 @@ class AbstractPushRequest
                     $this->checkArguments($args, 0, 0, $methodName);
                     return $this->get($property); /** @phpstan-ignore-line */
                 default:
-                    throw new \Exception('Method ' . $methodName . ' not exists');
+                    throw new Exception(__('Method %1 not exists', $methodName));
             }
         }
     }

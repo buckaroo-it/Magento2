@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Model\Service;
 
 use Buckaroo\Magento2\Api\GiftCardRefundServiceInterface;
+use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\Sales\Model\Order;
 
@@ -188,7 +189,7 @@ class GiftCardRefundService implements GiftCardRefundServiceInterface
                     ->setAdditionalInfo('Refunded from cancelled order #' . $order->getIncrementId());
 
                 if ($history->getGiftcardAccount() === null || $history->getGiftcardAccountId() !== $id) {
-                    throw new \Exception('Gift card account not properly assigned to history record');
+                    throw new Exception(__('Gift card account not properly assigned to history record'));
                 }
 
                 $history->save();

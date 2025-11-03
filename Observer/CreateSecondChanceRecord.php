@@ -86,19 +86,27 @@ class CreateSecondChanceRecord implements ObserverInterface
 
         try {
             // Check if SecondChance record already exists for this order
+            $existingRecord = null;
             try {
-                $this->secondChanceRepository->getByOrderId($order->getIncrementId());
+                $existingRecord = $this->secondChanceRepository->getByOrderId($order->getIncrementId());
+            } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
+                // Record doesn't exist, which is expected for new orders
+                $existingRecord = null;
+            }
+
+            if ($existingRecord !== null) {
                 // Record already exists, don't create duplicate
                 return;
-            } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
-                // Record doesn't exist, proceed with creation
             }
 
             $this->secondChanceRepository->createSecondChance($order);
             $this->logging->addDebug('SecondChance record created for order: ' . $order->getIncrementId());
 
         } catch (\Exception $e) {
-            $this->logging->addError('Error creating SecondChance record for order ' . $order->getIncrementId() . ': ' . $e->getMessage());
+            $this->logging->addError(
+                'Error creating SecondChance record for order ' .
+                $order->getIncrementId() . ': ' . $e->getMessage()
+            );
         }
     }
 }

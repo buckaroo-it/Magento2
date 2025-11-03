@@ -20,6 +20,7 @@
 
 namespace Buckaroo\Magento2\Model\Voucher;
 
+use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Gateway\Http\SDKTransferFactory;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
@@ -219,15 +220,15 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
      *
      * @param null|int|string|StoreInterface $store
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @return false|string
      */
     protected function getIp($store)
     {
         if (!$this->httpRequest instanceof RequestInterface) {
-            throw new \Exception(
-                "Required parameter `httpRequest` must be instance of Magento\Framework\App\RequestInterface"
+            throw new Exception(
+                __("Required parameter `httpRequest` must be instance of Magento\Framework\App\RequestInterface")
             );
         }
 

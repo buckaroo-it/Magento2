@@ -21,11 +21,13 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Service\Applepay;
 
+use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay;
 use Buckaroo\Magento2\Model\Service\ApplePayFormatData;
 use Buckaroo\Magento2\Model\Service\QuoteService;
 use Buckaroo\Magento2\Service\ExpressPayment\ProductValidationService;
+use Magento\Framework\Phrase;
 
 class Add
 {
@@ -84,7 +86,7 @@ class Add
             $selectedOptions = $productData['selected_options'] ?? [];
 
             if (!$productId) {
-                throw new \Exception('Product ID is required.');
+                throw new Exception(__('Product ID is required.'));
             }
 
             $validation = $this->productValidationService->validateProduct(
@@ -94,7 +96,7 @@ class Add
             );
             if (!$validation['is_valid']) {
                 $errorMessage = 'Product validation failed: ' . implode(', ', $validation['errors']);
-                throw new \Exception($errorMessage);
+                throw new Exception(__($errorMessage));
             }
 
             // Get Cart (empty it first)
@@ -112,7 +114,7 @@ class Add
             if (!$this->quoteService->getQuote()->getIsVirtual()) {
                 // Validate wallet data exists
                 if (empty($request['wallet'])) {
-                    throw new \Exception('Wallet data is missing in the request.');
+                    throw new Exception(__('Wallet data is missing in the request.'));
                 }
 
                 // Get Shipping Address From Request using wallet data
