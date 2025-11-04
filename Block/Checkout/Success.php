@@ -25,6 +25,8 @@ use Magento\Customer\Helper\Session\CurrentCustomer;
 use Magento\Framework\App\Http\Context as HttpContext;
 use Magento\Framework\View\Element\Template\Context as TemplateContext;
 use Magento\Sales\Model\Order\Config;
+use Magento\Framework\Pricing\Helper\Data as PriceHelper;
+use Magento\Sales\Api\Data\OrderInterface;
 
 class Success extends \Magento\Checkout\Block\Onepage\Success
 {
@@ -32,6 +34,16 @@ class Success extends \Magento\Checkout\Block\Onepage\Success
      * @var CurrentCustomer
      */
     protected $currentCustomer;
+
+    /**
+     * @var PriceHelper
+     */
+    protected $priceHelper;
+
+    /**
+     * @var Session
+     */
+    protected $checkoutSession;
 
     /**
      * @param TemplateContext $context
@@ -47,6 +59,7 @@ class Success extends \Magento\Checkout\Block\Onepage\Success
         Config $orderConfig,
         HttpContext $httpContext,
         CurrentCustomer $currentCustomer,
+        PriceHelper $priceHelper,
         array $data = []
     ) {
         parent::__construct(
@@ -56,6 +69,70 @@ class Success extends \Magento\Checkout\Block\Onepage\Success
             $httpContext,
             $data
         );
+        $this->checkoutSession = $checkoutSession;
         $this->currentCustomer = $currentCustomer;
+        $this->priceHelper = $priceHelper;
+    }
+
+    /**
+     * Check whether last order was placed with Buckaroo Transfer.
+     */
+    public function isTransferPayment(): bool
+    {
+        $order = $this->getOrder();
+        if (!$order) {
+            return false;
+        }
+        $payment = $order->getPayment();
+        if (!$payment) {
+            return false;
+        }
+
+        return $payment->getMethod() === 'buckaroo_magento2_transfer';
+    }
+
+    /**
+     * Return transfer details from payment additional information if available.
+     *
+     * @return array
+     */
+    public function getTransferDetails(): array
+    {
+        $order = $this->getOrder();
+        if (!$order) {
+            return [];
+        }
+
+        $payment = $order->getPayment();
+        if (!$payment) {
+            return [];
+        }
+
+        $details = $payment->getAdditionalInformation('transfer_details');
+        if (!is_array($details)) {
+            return [];
+        }
+
+        return $details;
+    }
+
+    /**
+     * Format price in order currency.
+     */
+    public function formatPrice(float $amount): string
+    {
+        return $this->priceHelper->currency($amount, true, false);
+    }
+
+    /**
+     * Get last real order from checkout session.
+     */
+    public function getOrder(): ?OrderInterface
+    {
+        $order = $this->checkoutSession->getLastRealOrder();
+        if ($order && $order->getId()) {
+            return $order;
+        }
+        return null;
     }
 }
