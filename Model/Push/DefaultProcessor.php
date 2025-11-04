@@ -853,8 +853,15 @@ class DefaultProcessor implements PushProcessorInterface
                     __LINE__
                 ));
 
-                // Mark payment as already captured so shipment observer can use OFFLINE capture
-                $this->order->getPayment()->setAdditionalInformation('buckaroo_already_captured', true);
+                $payment = $this->order->getPayment();
+                $payment->setAdditionalInformation('buckaroo_already_captured', true);
+
+                // Ensure the invoice handling mode is persisted so the shipment observer can detect it
+                $payment->setAdditionalInformation(
+                    InvoiceHandlingOptions::INVOICE_HANDLING,
+                    InvoiceHandlingOptions::SHIPMENT
+                );
+                $payment->save();
 
                 $description = 'Capture status : <strong>' . $message . '</strong><br/>'
                     . 'Total amount of ' . $this->order->getBaseCurrency()->formatTxt($amount) . ' has been captured. Invoice will be created on shipment.';
