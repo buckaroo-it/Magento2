@@ -1229,14 +1229,14 @@ class DefaultProcessor implements PushProcessorInterface
                 $payment->save();
             }
 
-            $this->orderRequestService->updateOrderStatus(Order::STATE_CANCELED, $newStatus, $description);
-
             try {
                 $this->order->cancel()->save();
 
                 if (!$this->isMagentoGiftCardRefundActive()) {
                     $this->giftCardRefundService->refund($this->order);
                 }
+
+                $this->orderRequestService->updateOrderStatus(Order::STATE_CANCELED, $newStatus, $description);
             } catch (\Throwable $th) {
                 $this->logger->addError(sprintf(
                     '[%s:%s] - Process failed push from Buckaroo. Cancel Order| [ERROR]: %s',
