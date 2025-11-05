@@ -23,6 +23,7 @@
 "var billing_address|raw":"Billing Address",
 "var shipping_address|raw":"Shipping Address",
 "var order.increment_id":"Order Id",
+"var expected_order_id":"Expected Order Id",
 "var payment_html|raw":"Payment Details",
 "var checkout_url":"Checkout URL",
 "var customer_name":"Customer Name",
@@ -48,7 +49,7 @@
     </tr>
     <tr class="email-summary">
         <td>
-            <h1 style="color: #d43f00;">{{trans 'Final Notice - Order <span class="no-link">#%increment_id</span>' increment_id=$order.increment_id |raw}}</h1>
+            <h1 style="color: #d43f00;">{{trans 'Final Notice - Order <span class="no-link">#%increment_id</span>' increment_id=$expected_order_id |raw}}</h1>
             <p style="font-size: 18px; color: #d43f00; font-weight: bold;">{{trans 'Order Total: %order_total' order_total=$order.formatPrice($order.getGrandTotal()) |raw}}</p>
         </td>
     </tr>
