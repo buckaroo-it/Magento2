@@ -415,8 +415,11 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         // Recreate quote with Second Chance suffix
         $order = $this->orderFactory->create()->loadByIncrementId($secondChance->getOrderId());
         if ($order->getId()) {
-            // Find available increment ID with suffix (e.g., orderId-1, orderId-2, etc.)
-            $newOrderId = $this->setAvailableIncrementId($secondChance->getOrderId(), $order);
+            $newOrderId = $secondChance->getLastOrderId();
+
+            if (!$newOrderId) {
+                $newOrderId = $this->setAvailableIncrementId($secondChance->getOrderId(), $order);
+            }
 
             // Recreate the quote
             $quote = $this->quoteRecreate->duplicate($order);
@@ -428,7 +431,8 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
                 $this->logging->addDebug('Second Chance: Order ID suffix applied to new quote', [
                     'quote_id' => $quote->getId(),
                     'reserved_order_id' => $newOrderId,
-                    'original_order_id' => $secondChance->getOrderId()
+                    'original_order_id' => $secondChance->getOrderId(),
+                    'was_pre_calculated' => !empty($secondChance->getLastOrderId())
                 ]);
             }
         }
@@ -519,6 +523,16 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
                     continue;
                 }
 
+                // Calculate and store the expected order ID before sending email
+                // For step 1: Always use -1 suffix (first reminder)
+                // For step 2: Always use -2 suffix (second reminder)
+                // This makes it easy for customer support to identify which email led to the order
+                $suffix = ($step == 1) ? '-1' : '-2';
+                $expectedOrderId = $item->getOrderId() . $suffix;
+                
+                // Store it so when customer clicks, we use the same ID
+                $item->setLastOrderId($expectedOrderId);
+
                 // Send email
                 $this->sendMail($order, $item, $step);
 
@@ -566,8 +580,16 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
             '_scope_to_url' => true
         ]);
 
+        // Get the expected order ID (should be pre-calculated and stored in last_order_id)
+        $expectedOrderId = $secondChance->getLastOrderId();
+        if (!$expectedOrderId) {
+            $expectedOrderId = $this->setAvailableIncrementId($secondChance->getOrderId(), $order);
+        }
+
         $this->logging->addDebug('Second Chance email URL generated', [
             'order_id' => $order->getIncrementId(),
+            'expected_order_id' => $expectedOrderId,
+            'step' => $step,
             'store_id' => $store->getId(),
             'store_code' => $store->getCode(),
             'locale' => $store->getConfig('general/locale/code'),
@@ -592,7 +614,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
             'email' => $senderEmail,
         ];
 
-        // Prepare template variables
+        // Prepare template variables (matching original SecondChance module)
         try {
             $paymentHtml = $this->getPaymentHtml($order);
             $billingAddress = $this->getFormattedBillingAddress($order);
@@ -600,13 +622,26 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
 
             $templateVars = [
                 'order' => $order,
+                'order_id' => $order->getId(),
+                'expected_order_id' => $expectedOrderId ?: $order->getIncrementId(),
+                'billing' => $order->getBillingAddress(),
+                'payment_html' => $paymentHtml,
+                'formattedBillingAddress' => $billingAddress,
+                'formattedShippingAddress' => $shippingAddress,
+                'billing_address' => $billingAddress, // Keep for backward compatibility
+                'shipping_address' => $shippingAddress, // Keep for backward compatibility
                 'checkout_url' => $checkoutUrl,
                 'store' => $store,
+                'created_at_formatted' => $order->getCreatedAtFormatted(2),
+                'secondChanceToken' => $secondChance->getToken(),
                 'customer_name' => $order->getCustomerName(),
                 'customer_email' => $order->getCustomerEmail(),
-                'payment_html' => $paymentHtml,
-                'billing_address' => $billingAddress,
-                'shipping_address' => $shippingAddress,
+                'order_data' => [
+                    'customer_name' => $order->getCustomerName(),
+                    'is_not_virtual' => $order->getIsNotVirtual(),
+                    'email_customer_note' => $order->getEmailCustomerNote(),
+                    'frontend_status_label' => $order->getFrontendStatusLabel()
+                ]
             ];
         } catch (Exception $e) {
             $this->logging->addError('Error preparing template variables: ' . $e->getMessage());
