@@ -20,14 +20,17 @@
 -->
 <!--@subject {{trans "Complete your order - %store_name" store_name=$store.getFrontendName()}} @-->
 <!--@vars {
-"var billing_address|raw":"Billing Address",
-"var shipping_address|raw":"Shipping Address",
+"var formattedBillingAddress|raw":"Billing Address",
+"var formattedShippingAddress|raw":"Shipping Address",
 "var order.increment_id":"Order Id",
 "var expected_order_id":"Expected Order Id",
+"var order_data.email_customer_note|escape|nl2br":"Email Order Note",
+"layout handle=\"sales_email_order_items\" order_id=$order_id area=\"frontend\"":"Order Items Grid",
 "var payment_html|raw":"Payment Details",
 "var checkout_url":"Checkout URL",
 "var customer_name":"Customer Name",
-"var customer_email":"Customer Email"
+"var customer_email":"Customer Email",
+"var order.getShippingDescription":"Shipping Description"
 } @-->
 
 {{template config_path="design/email/header_template"}}
@@ -59,12 +62,12 @@
                 <tr>
                     <td class="address-details">
                         <h3>{{trans "Billing Information"}}</h3>
-                        <p>{{var billing_address|raw}}</p>
+                        <p>{{var formattedBillingAddress|raw}}</p>
                     </td>
-                    {{depend shipping_address}}
+                    {{depend order_data.is_not_virtual}}
                     <td class="address-details">
                         <h3>{{trans "Shipping Information"}}</h3>
-                        <p>{{var shipping_address|raw}}</p>
+                        <p>{{var formattedShippingAddress|raw}}</p>
                     </td>
                     {{/depend}}
                 </tr>
@@ -88,19 +91,7 @@
                 </a>
             </div>
             
-            <table class="order-items">
-                <thead>
-                    <tr>
-                        <th>{{trans "Product"}}</th>
-                        <th>{{trans "SKU"}}</th>
-                        <th>{{trans "Qty"}}</th>
-                        <th>{{trans "Price"}}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {{layout handle="sales_email_order_items" order=$order area="frontend"}}
-                </tbody>
-            </table>
+            {{layout handle="sales_email_order_items" order_id=$order_id area="frontend"}}
         </td>
     </tr>
 </table>
