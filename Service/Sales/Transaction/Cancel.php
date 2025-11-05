@@ -89,7 +89,7 @@ class Cancel
         $payment = $order->getPayment();
         $paymentCode = $payment->getMethodInstance()->getCode();
 
-        if ($paymentCode == 'buckaroo_magento2_afterpay' || $paymentCode == 'buckaroo_magento2_afterpay2') {
+        if ($paymentCode == 'buckaroo_magento2_afterpay' || $paymentCode == 'buckaroo_magento2_afterpay2'|| $paymentCode == 'buckaroo_magento2_afterpay20') {
             $payment->setAdditionalInformation('buckaroo_failed_authorize', 1);
             $payment->save();
         }

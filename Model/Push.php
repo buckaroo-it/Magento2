@@ -897,7 +897,7 @@ class Push implements PushInterface
             $this->logging->addDebug(__METHOD__ . '|Payment object is null for order ' . $this->order->getIncrementId());
             return false;
         }
-        
+
         $savedInvoiceKey = (string)$payment->getAdditionalInformation('buckaroo_cm3_invoice_key');
 
         if (isset($this->postData['brq_invoicekey'])
@@ -1386,6 +1386,7 @@ class Push implements PushInterface
             $methods = [
                 'buckaroo_magento2_afterpay',
                 'buckaroo_magento2_afterpay2',
+                'buckaroo_magento2_afterpay20',
                 'buckaroo_magento2_klarna',
                 'buckaroo_magento2_klarnakp'
             ];

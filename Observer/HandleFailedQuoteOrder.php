@@ -78,7 +78,7 @@ class HandleFailedQuoteOrder implements ObserverInterface
             $payment = $order->getPayment();
             if (in_array(
                 $payment->getMethodInstance()->getCode(),
-                ['buckaroo_magento2_afterpay', 'buckaroo_magento2_afterpay2', 'buckaroo_magento2_klarnakp']
+                ['buckaroo_magento2_afterpay', 'buckaroo_magento2_afterpay2','buckaroo_magento2_afterpay20', 'buckaroo_magento2_klarnakp']
             )) {
                 try {
                     $order->addStatusHistoryComment('Buckaroo: failed to authorize an order', false);
