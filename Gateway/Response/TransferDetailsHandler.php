@@ -37,7 +37,7 @@ class TransferDetailsHandler implements HandlerInterface
         /** @var OrderPaymentInterface $payment */
         $payment = $paymentDO->getPayment();
 
-        /** @var SDKTransactionResponse $transaction */
+        /** @var SDKTransactionResponse $transactionResponse */
         $transactionResponse = SubjectReader::readTransactionResponse($response);
 
         $transferDetails = $this->getTransferDetails($transactionResponse);
@@ -51,14 +51,16 @@ class TransferDetailsHandler implements HandlerInterface
      */
     protected function getTransferDetails($transactionResponse): array
     {
-        $serviceParameters = $transactionResponse->getServiceParameters();
+        $serviceParameters = ($i = array_search('transfer', array_column($transactionResponse->data('Services') ?? [], 'Name'))) !== false
+            ? array_column($transactionResponse->data('Services')[$i]['Parameters'], 'Value', 'Name')
+            : [];
 
         return [
             'transfer_amount'            => $transactionResponse->getAmount(),
-            'transfer_paymentreference'  => $serviceParameters['paymentreference'] ?? '',
-            'transfer_accountholdername' => $serviceParameters['accountholdername'] ?? '',
-            'transfer_iban'              => $serviceParameters['iban'] ?? '',
-            'transfer_bic'               => $serviceParameters['bic'] ?? '',
+            'transfer_paymentreference'  => $serviceParameters['PaymentReference'] ?? '',
+            'transfer_accountholdername' => $serviceParameters['AccountHolderName'] ?? '',
+            'transfer_iban'              => $serviceParameters['IBAN'] ?? '',
+            'transfer_bic'               => $serviceParameters['BIC'] ?? '',
         ];
     }
 }
