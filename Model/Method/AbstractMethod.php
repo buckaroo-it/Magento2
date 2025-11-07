@@ -793,6 +793,29 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         $this->saveTransactionData($response[0], $payment, $this->closeOrderTransaction, true);
 
+        $order = $payment->getOrder();
+        if (!empty($order) && !empty($order->getId())) {
+            try {
+                $payment->save();
+
+                $this->logger2->addDebug(sprintf(
+                    '[%s] Payment transaction persisted successfully for order: %s, transaction ID: %s',
+                    __METHOD__,
+                    $order->getIncrementId(),
+                    $payment->getTransactionId()
+                ));
+            } catch (\Exception $e) {
+                $this->logger2->addError(sprintf(
+                    '[%s] Failed to persist payment transaction - Order: %s, Transaction ID: %s, Error: %s',
+                    __METHOD__,
+                    $order->getIncrementId(),
+                    $payment->getTransactionId(),
+                    $e->getMessage()
+                ));
+                throw $e;
+            }
+        }
+
         // SET REGISTRY BUCKAROO REDIRECT
         $this->_registry->unregister('buckaroo_response');
         $this->_registry->register('buckaroo_response', $response);
@@ -801,7 +824,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             $this->setPaymentInTransit($payment, false);
         }
 
-        $order = $payment->getOrder();
         $this->helper->setRestoreQuoteLastOrder($order->getId());
 
         $this->eventManager->dispatch('buckaroo_order_after', ['order' => $order]);
@@ -2811,16 +2833,36 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             $order = $orderRepository->get((int)$orderId);
 
             if($order->getState() === Order::STATE_NEW) {
-                $orderManagement = $this->objectManager->get(OrderManagementInterface::class);
-                $orderManagement->cancel($order->getEntityId());
-                $order->addCommentToStatusHistory(
-                    __('Canceled on browser back button')
-                )
-                ->setIsCustomerNotified(false)
-                ->setEntityName('invoice')
-                ->save();
-            }
+                $this->logger2->addDebug(sprintf(
+                    '[%s] Canceling previous pending order: %s (browser back scenario)',
+                    __METHOD__,
+                    $order->getIncrementId()
+                ));
 
+                try {
+                    $order->cancel()->save();
+
+                    $order->addCommentToStatusHistory(
+                        __('Canceled on browser back button - customer placed a new order.')
+                    )
+                        ->setIsCustomerNotified(false)
+                        ->save();
+
+                    $this->logger2->addDebug(sprintf(
+                        '[%s] Successfully canceled order: %s and restored stock',
+                        __METHOD__,
+                        $order->getIncrementId()
+                    ));
+                } catch (\Exception $e) {
+                    $this->logger2->addError(sprintf(
+                        '[%s] Failed to cancel order: %s - Error: %s',
+                        __METHOD__,
+                        $order->getIncrementId(),
+                        $e->getMessage()
+                    ));
+                    throw $e;
+                }
+            }
 
         } catch (\Throwable $th) {
             $this->logger2->addError(__METHOD__." ".(string)$th);

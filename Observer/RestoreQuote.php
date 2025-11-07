@@ -21,6 +21,7 @@
 namespace Buckaroo\Magento2\Observer;
 
 use Buckaroo\Magento2\Helper\Data;
+use Buckaroo\Magento2\Model\Method\AbstractMethod;
 use Magento\Checkout\Model\Session;
 use Buckaroo\Magento2\Model\Service\Order;
 use Buckaroo\Magento2\Model\Method\Payconiq;
@@ -96,7 +97,20 @@ class RestoreQuote implements ObserverInterface
                     }
 
                     $this->rollbackPartialPayment($lastRealOrder->getIncrementId());
-                    $this->setOrderToCancel($previousOrderId);
+
+                    $isPaymentInTransit = $payment->getAdditionalInformation(AbstractMethod::BUCKAROO_PAYMENT_IN_TRANSIT) === true;
+
+                    if ($isPaymentInTransit) {
+                        $this->helper->addDebug(__METHOD__ . '|45|Payment in transit - storing order ID for cancellation on next order placement');
+
+                        $restoredQuote = $this->checkoutSession->getQuote();
+                        if ($restoredQuote && $restoredQuote->getPayment()) {
+                            $restoredQuote->getPayment()->setAdditionalInformation('buckaroo_cancel_order_id', $previousOrderId);
+                            $restoredQuote->getPayment()->save();
+                        }
+                    } else {
+                        $this->setOrderToCancel($previousOrderId);
+                    }
                 }
             }
 

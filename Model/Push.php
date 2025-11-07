@@ -21,6 +21,7 @@
 namespace Buckaroo\Magento2\Model;
 
 use Buckaroo\Magento2\Api\PushInterface;
+use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Logging\Log;
@@ -260,12 +261,20 @@ class Push implements PushInterface
 
         $this->logging->addDebug(__METHOD__ . '|1_2|');
         $orderIncrementID = $this->getOrderIncrementId();
-        $this->logging->addDebug(__METHOD__ . '|Lock Name| - ' . var_export($orderIncrementID, true));
+        $transactionKey = $this->getTransactionKey();
+
+        $this->logging->addDebug(sprintf(
+            '%s|Processing push for Order: %s, Transaction: %s',
+            __METHOD__,
+            $orderIncrementID,
+            $transactionKey
+        ));
+
         $lockAcquired = $this->lockManager->lockOrder($orderIncrementID, 5);
 
         if (!$lockAcquired) {
             $this->logging->addDebug(__METHOD__ . '|lock not acquired|');
-            throw new \Buckaroo\Magento2\Exception(
+            throw new Exception(
                 __('Lock push not acquired for order %1', $orderIncrementID)
             );
         }
@@ -537,13 +546,13 @@ class Push implements PushInterface
         if ($skipFirstPush > 0) {
             $payment->setAdditionalInformation('skip_push', (int)$skipFirstPush - 1);
             $payment->save();
-            throw new \Buckaroo\Magento2\Exception(
+            throw new Exception(
                 __('Skipped handling this push, first handle response, action will be taken on the next push.')
             );
         }
 
         if ($this->receivePushCheckDuplicates()) {
-            throw new \Buckaroo\Magento2\Exception(__('Skipped handling this push, duplicate'));
+            throw new Exception(__('Skipped handling this push, duplicate'));
         }
 
         $this->logging->addDebug(__METHOD__ . '|2|' . var_export($response, true));
@@ -563,7 +572,7 @@ class Push implements PushInterface
             } elseif ($response['status'] !== 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'
                 && !$this->order->hasInvoices()
             ) {
-                throw new \Buckaroo\Magento2\Exception(
+                throw new Exception(
                     __('Refund failed ! Status : %1 and the order does not contain an invoice', $response['status'])
                 );
             } elseif ($response['status'] !== 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'
@@ -582,7 +591,7 @@ class Push implements PushInterface
         //Last validation before push can be completed
         if (!$validSignature) {
             $this->logging->addDebug('Invalid push signature');
-            throw new \Buckaroo\Magento2\Exception(__('Signature from push is incorrect'));
+            throw new Exception(__('Signature from push is incorrect'));
             // If the signature is valid but the order cant be updated,
             // try to add a notification to the order comments.
         } elseif ($validSignature && !$canUpdateOrder) {
@@ -601,7 +610,7 @@ class Push implements PushInterface
                 }
             }
             $this->setOrderNotificationNote(__('The order has already been processed.'));
-            throw new \Buckaroo\Magento2\Exception(
+            throw new Exception(
                 __('Signature from push is correct but the order can not receive updates')
             );
         }
@@ -644,7 +653,7 @@ class Push implements PushInterface
                 $this->processCm3Push();
                 break;
             case self::BUCK_PUSH_TYPE_INVOICE_INCOMPLETE:
-                throw new \Buckaroo\Magento2\Exception(
+                throw new Exception(
                     __('Skipped handling this invoice push because it is too soon.')
                 );
             case self::BUCK_PUSH_TYPE_TRANSACTION:
@@ -665,6 +674,9 @@ class Push implements PushInterface
         return true;
     }
 
+    /**
+     * @throws \Exception
+     */
     private function receivePushCheckDuplicates($receivedStatusCode = null, $trxId = null)
     {
         $this->logging->addDebug(__METHOD__ . '|1|' . var_export($this->order->getPayment()->getMethod(), true));
@@ -684,6 +696,17 @@ class Push implements PushInterface
             $trxId = $this->postData['brq_transactions'];
         }
         $payment = $this->order->getPayment();
+
+        // Check if order was canceled and payment succeeds - reactivate it
+        if (
+            $this->order->getState() === Order::STATE_CANCELED
+            && $receivedStatusCode === $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')
+            && (!isset($this->postData['brq_relatedtransaction_partialpayment'])
+                || $this->postData['brq_relatedtransaction_partialpayment'] == null)
+        ) {
+            $this->reactivateCanceledOrder();
+        }
+
         $ignoredPaymentMethods = [
             Giftcards::PAYMENT_METHOD_CODE,
             Transfer::PAYMENT_METHOD_CODE
@@ -731,6 +754,54 @@ class Push implements PushInterface
         }
         $this->logging->addDebug(__METHOD__ . '|20|');
         return false;
+    }
+
+    /**
+     * Reactivate canceled order when payment succeeds
+     * Handles scenario where customer clicked back button but payment was completed
+     *
+     * @return bool
+     * @throws \Exception
+     */
+    private function reactivateCanceledOrder(): bool
+    {
+        $payment = $this->order->getPayment();
+
+        // Check if order was already reactivated to prevent duplicate reactivation
+        $alreadyReactivated = $payment->getAdditionalInformation('buckaroo_order_reactivated');
+
+        if ($alreadyReactivated) {
+            $this->logging->addDebug(sprintf(
+                '%s - Order already reactivated in this session, skipping duplicate reactivation. Order: %s',
+                __METHOD__,
+                $this->order->getIncrementId()
+            ));
+            return false;
+        }
+
+        $this->logging->addDebug(sprintf(
+            '%s - Resetting from CANCELED to STATE_NEW/PENDING | Order: %s',
+            __METHOD__,
+            $this->order->getIncrementId()
+        ));
+
+        $this->order->setState(Order::STATE_NEW);
+        $this->order->setStatus('pending');
+
+        // Reset canceled quantities
+        foreach ($this->order->getAllItems() as $item) {
+            $item->setQtyCanceled(0);
+        }
+
+        // Mark order as reactivated to prevent duplicate reactivation
+        $payment->setAdditionalInformation('buckaroo_order_reactivated', true);
+        $payment->save();
+
+        // Save the order immediately to persist the state change
+        $this->order->save();
+
+        $this->forceInvoice = true;
+        return true;
     }
 
     /**
@@ -897,7 +968,7 @@ class Push implements PushInterface
             $this->logging->addDebug(__METHOD__ . '|Payment object is null for order ' . $this->order->getIncrementId());
             return false;
         }
-        
+
         $savedInvoiceKey = (string)$payment->getAdditionalInformation('buckaroo_cm3_invoice_key');
 
         if (isset($this->postData['brq_invoicekey'])
@@ -938,7 +1009,7 @@ class Push implements PushInterface
     {
         try {
             $this->setTransactionKey();
-        } catch (\Buckaroo\Magento2\Exception $e) {
+        } catch (Exception $e) {
             $this->logging->addDebug($e->getLogMessage());
         }
 
@@ -952,7 +1023,7 @@ class Push implements PushInterface
      *
      * @param $response
      *
-     * @throws \Buckaroo\Magento2\Exception
+     * @throws Exception
      */
     public function processPush($response)
     {
@@ -1251,20 +1322,53 @@ class Push implements PushInterface
      * by using its own transactionkey.
      *
      * @return Order
-     * @throws \Buckaroo\Magento2\Exception
+     * @throws Exception
      */
     protected function getOrderByTransactionKey()
     {
         $trxId = $this->getTransactionKey();
 
-        $this->transaction->load($trxId, 'txn_id');
-        $order = $this->transaction->getOrder();
+        $this->searchCriteriaBuilder->addFilter('txn_id', $trxId, 'eq');
+        $searchCriteria = $this->searchCriteriaBuilder->create();
 
-        if (!$order) {
-            throw new \Buckaroo\Magento2\Exception(__('There was no order found by transaction Id'));
+        try {
+            $transactionList = $this->transactionRepository->getList($searchCriteria);
+            $items = $transactionList->getItems();
+
+            if (empty($items)) {
+                $this->logging->addError(sprintf(
+                    '%s|No transaction found for txn_id: %s. This may indicate the transaction was not saved properly or a database transaction was rolled back.',
+                    __METHOD__,
+                    $trxId
+                ));
+                throw new Exception(__('There was no order found by transaction Id'));
+            }
+
+            // Get the first (and should be only) transaction
+            $transaction = reset($items);
+            $order = $transaction->getOrder();
+
+            if (!$order || !$order->getId()) {
+                $this->logging->addError(sprintf(
+                    '%s|Transaction found but order is missing for txn_id: %s. Transaction ID: %s',
+                    __METHOD__,
+                    $trxId,
+                    $transaction->getTransactionId()
+                ));
+                throw new Exception(__('There was no order found by transaction Id'));
+            }
+
+            return $order;
+
+        } catch (\Exception $e) {
+            $this->logging->addError(sprintf(
+                '%s|Error loading transaction by txn_id: %s. Error: %s',
+                __METHOD__,
+                $trxId,
+                $e->getMessage()
+            ));
+            throw new Exception(__('There was no order found by transaction Id'));
         }
-
-        return $order;
     }
 
     /**
@@ -1748,7 +1852,7 @@ class Push implements PushInterface
         try {
             $this->order->addStatusHistoryComment($note);
             $this->order->save();
-        } catch (\Buckaroo\Magento2\Exception $e) {
+        } catch (Exception $e) {
             $this->logging->addDebug($e->getLogMessage());
         }
     }
@@ -1801,7 +1905,7 @@ class Push implements PushInterface
      * Only when the order can be invoiced and has not been invoiced before.
      *
      * @return bool
-     * @throws \Buckaroo\Magento2\Exception
+     * @throws Exception
      */
     protected function saveInvoice()
     {
@@ -1931,7 +2035,7 @@ class Push implements PushInterface
         $transactionKey = $transactionKey ?: $this->getTransactionKey();
 
         if (strlen($transactionKey) <= 0) {
-            throw new \Buckaroo\Magento2\Exception(__('There was no transaction ID found'));
+            throw new Exception(__('There was no transaction ID found'));
         }
 
         /**

@@ -57,3 +57,7 @@
 "Enable Apple Pay","Activer Apple Pay"
 "Apple Pay checkout type","Type de passage en caisse Apple Pay"
 "Yes = Inline (Integrated in checkout), No = Redirect (Buckaroo Hosted Payment Page)", "Yes = Intégré (Intégré au passage en caisse), No = Redirection (Page de paiement hébergée par Buckaroo)"
+"Cancel Order on Browser Back Button","Cancel Order on Browser Back Button"
+"Payment cancelled. You can try again using the same or a different payment method.","Payment cancelled. You can try again using the same or a different payment method."
+"Customer returned using browser back button. Order left pending for push notification.","Customer returned using browser back button. Order left pending for push notification."
+"Order reactivated: Payment completed after cancellation (Push notification received). Transaction ID: ""%1""","Order reactivated: Payment completed after cancellation (Push notification received). Transaction ID: ""%1"""

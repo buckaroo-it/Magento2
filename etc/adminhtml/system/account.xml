@@ -209,6 +209,13 @@
                 <config_path>buckaroo_magento2/account/cancel_on_failed</config_path>
             </field>
 
+            <field id="cancel_on_browser_back" translate="label comment" type="select" sortOrder="115" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Cancel Order on Browser Back Button</label>
+                <comment><![CDATA[Determines behavior when customer clicks browser back button after reaching payment page:<br/><strong>No (Recommended)</strong>: Order remains pending. If payment completes, order is reactivated automatically.<br/><strong>Yes</strong>: Order is canceled immediately (old behavior). Customer must start over.]]></comment>
+                <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                <config_path>buckaroo_magento2/account/cancel_on_browser_back</config_path>
+            </field>
+
             <field id="debug_types" translate="label comment" type="multiselect" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
                 <label>Debugging</label>
                 <comment><![CDATA[Decide what to debug. Log files will be created within the var/log/Buckaroo/ directory.]]></comment>
