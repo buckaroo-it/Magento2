@@ -97,7 +97,20 @@ class RestoreQuote implements ObserverInterface
                     }
 
                     $this->rollbackPartialPayment($lastRealOrder->getIncrementId());
-                    $this->setOrderToCancel($previousOrderId);
+
+                    $isPaymentInTransit = $payment->getAdditionalInformation(AbstractMethod::BUCKAROO_PAYMENT_IN_TRANSIT) === true;
+
+                    if ($isPaymentInTransit) {
+                        $this->helper->addDebug(__METHOD__ . '|45|Payment in transit - storing order ID for cancellation on next order placement');
+
+                        $restoredQuote = $this->checkoutSession->getQuote();
+                        if ($restoredQuote && $restoredQuote->getPayment()) {
+                            $restoredQuote->getPayment()->setAdditionalInformation('buckaroo_cancel_order_id', $previousOrderId);
+                            $restoredQuote->getPayment()->save();
+                        }
+                    } else {
+                        $this->setOrderToCancel($previousOrderId);
+                    }
                 }
             }
 
@@ -155,11 +168,6 @@ class RestoreQuote implements ObserverInterface
      */
     private function shouldRestoreQuote($lastRealOrder, $payment)
     {
-        if ($payment->getAdditionalInformation(AbstractMethod::BUCKAROO_PAYMENT_IN_TRANSIT) === true) {
-            $this->helper->addDebug(__METHOD__ . '|Payment in transit, not restoring quote to prevent duplicate orders');
-            return false;
-        }
-
         return (
             ($this->helper->getRestoreQuoteLastOrder() &&
                 ($lastRealOrder->getData('state') === 'new') &&

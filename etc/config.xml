@@ -553,6 +553,7 @@
                 <failure_redirect>checkout/cart</failure_redirect>
                 <failure_redirect_to_checkout>0</failure_redirect_to_checkout>
                 <cancel_on_failed>1</cancel_on_failed>
+                <cancel_on_browser_back>0</cancel_on_browser_back>
                 <order_status_new>pending</order_status_new>
                 <order_status_pending>pending_payment</order_status_pending>
                 <order_status_success>processing</order_status_success>

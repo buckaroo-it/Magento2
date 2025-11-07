@@ -708,6 +708,17 @@ class Push implements PushInterface
             $trxId = $this->postData['brq_transactions'];
         }
         $payment = $this->order->getPayment();
+
+        // Check if order was canceled and payment succeeds - reactivate it
+        if (
+            $this->order->getState() === Order::STATE_CANCELED
+            && $receivedStatusCode === $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')
+            && (!isset($this->postData['brq_relatedtransaction_partialpayment'])
+                || $this->postData['brq_relatedtransaction_partialpayment'] == null)
+        ) {
+            $this->reactivateCanceledOrder();
+        }
+
         $ignoredPaymentMethods = [
             Giftcards::PAYMENT_METHOD_CODE,
             Transfer::PAYMENT_METHOD_CODE,
@@ -755,6 +766,54 @@ class Push implements PushInterface
         }
         $this->logging->addDebug(__METHOD__ . '|20|');
         return false;
+    }
+
+    /**
+     * Reactivate canceled order when payment succeeds
+     * Handles scenario where customer clicked back button but payment was completed
+     *
+     * @return bool
+     * @throws \Exception
+     */
+    private function reactivateCanceledOrder(): bool
+    {
+        $payment = $this->order->getPayment();
+
+        // Check if order was already reactivated to prevent duplicate reactivation
+        $alreadyReactivated = $payment->getAdditionalInformation('buckaroo_order_reactivated');
+
+        if ($alreadyReactivated) {
+            $this->logging->addDebug(sprintf(
+                '%s - Order already reactivated in this session, skipping duplicate reactivation. Order: %s',
+                __METHOD__,
+                $this->order->getIncrementId()
+            ));
+            return false;
+        }
+
+        $this->logging->addDebug(sprintf(
+            '%s - Resetting from CANCELED to STATE_NEW/PENDING | Order: %s',
+            __METHOD__,
+            $this->order->getIncrementId()
+        ));
+
+        $this->order->setState(Order::STATE_NEW);
+        $this->order->setStatus('pending');
+
+        // Reset canceled quantities
+        foreach ($this->order->getAllItems() as $item) {
+            $item->setQtyCanceled(0);
+        }
+
+        // Mark order as reactivated to prevent duplicate reactivation
+        $payment->setAdditionalInformation('buckaroo_order_reactivated', true);
+        $payment->save();
+
+        // Save the order immediately to persist the state change
+        $this->order->save();
+
+        $this->forceInvoice = true;
+        return true;
     }
 
     /**

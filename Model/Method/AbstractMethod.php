@@ -834,8 +834,9 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         if (!(isset($response[0]->RequiredAction->Type) && $response[0]->RequiredAction->Type === 'Redirect')) {
             $this->setPaymentInTransit($payment, false);
-            $this->helper->setRestoreQuoteLastOrder($order->getId());
         }
+
+        $this->helper->setRestoreQuoteLastOrder($order->getId());
 
         $this->eventManager->dispatch('buckaroo_order_after', ['order' => $order]);
 
@@ -2856,16 +2857,36 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             $order = $orderRepository->get((int)$orderId);
 
             if ($order->getState() === Order::STATE_NEW) {
-                $orderManagement = $this->objectManager->get(OrderManagementInterface::class);
-                $orderManagement->cancel($order->getEntityId());
-                $order->addCommentToStatusHistory(
-                    __('Canceled on browser back button')
-                )
-                ->setIsCustomerNotified(false)
-                ->setEntityName('invoice')
-                ->save();
-            }
+                $this->logger2->addDebug(sprintf(
+                    '[%s] Canceling previous pending order: %s (browser back scenario)',
+                    __METHOD__,
+                    $order->getIncrementId()
+                ));
 
+                try {
+                    $order->cancel()->save();
+
+                    $order->addCommentToStatusHistory(
+                        __('Canceled on browser back button - customer placed a new order.')
+                    )
+                    ->setIsCustomerNotified(false)
+                    ->save();
+
+                    $this->logger2->addDebug(sprintf(
+                        '[%s] Successfully canceled order: %s and restored stock',
+                        __METHOD__,
+                        $order->getIncrementId()
+                    ));
+                } catch (\Exception $e) {
+                    $this->logger2->addError(sprintf(
+                        '[%s] Failed to cancel order: %s - Error: %s',
+                        __METHOD__,
+                        $order->getIncrementId(),
+                        $e->getMessage()
+                    ));
+                    throw $e;
+                }
+            }
 
         } catch (\Throwable $th) {
             $this->logger2->addError(__METHOD__." ".(string)$th);
