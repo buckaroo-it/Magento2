@@ -805,6 +805,29 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         $this->saveTransactionData($response[0], $payment, $this->closeOrderTransaction, true);
 
+        $order = $payment->getOrder();
+        if (!empty($order) && !empty($order->getId())) {
+            try {
+                $payment->save();
+
+                $this->logger2->addDebug(sprintf(
+                    '[%s] Payment transaction persisted successfully for order: %s, transaction ID: %s',
+                    __METHOD__,
+                    $order->getIncrementId(),
+                    $payment->getTransactionId()
+                ));
+            } catch (\Exception $e) {
+                $this->logger2->addError(sprintf(
+                    '[%s] Failed to persist payment transaction - Order: %s, Transaction ID: %s, Error: %s',
+                    __METHOD__,
+                    $order->getIncrementId(),
+                    $payment->getTransactionId(),
+                    $e->getMessage()
+                ));
+                throw $e;
+            }
+        }
+
         // SET REGISTRY BUCKAROO REDIRECT
         $this->_registry->unregister('buckaroo_response');
         $this->_registry->register('buckaroo_response', $response);
@@ -812,8 +835,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         if (!(isset($response[0]->RequiredAction->Type) && $response[0]->RequiredAction->Type === 'Redirect')) {
             $this->setPaymentInTransit($payment, false);
         }
-
-        $order = $payment->getOrder();
         $this->helper->setRestoreQuoteLastOrder($order->getId());
 
         $this->eventManager->dispatch('buckaroo_order_after', ['order' => $order]);
