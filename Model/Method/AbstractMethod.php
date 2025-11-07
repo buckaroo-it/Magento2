@@ -834,8 +834,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         if (!(isset($response[0]->RequiredAction->Type) && $response[0]->RequiredAction->Type === 'Redirect')) {
             $this->setPaymentInTransit($payment, false);
+            $this->helper->setRestoreQuoteLastOrder($order->getId());
         }
-        $this->helper->setRestoreQuoteLastOrder($order->getId());
 
         $this->eventManager->dispatch('buckaroo_order_after', ['order' => $order]);
 

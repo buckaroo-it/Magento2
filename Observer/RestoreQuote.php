@@ -22,6 +22,7 @@
 namespace Buckaroo\Magento2\Observer;
 
 use Buckaroo\Magento2\Helper\Data;
+use Buckaroo\Magento2\Model\Method\AbstractMethod;
 use Magento\Checkout\Model\Session;
 use Buckaroo\Magento2\Model\Service\Order;
 use Buckaroo\Magento2\Model\Method\Payconiq;
@@ -154,6 +155,11 @@ class RestoreQuote implements ObserverInterface
      */
     private function shouldRestoreQuote($lastRealOrder, $payment)
     {
+        if ($payment->getAdditionalInformation(AbstractMethod::BUCKAROO_PAYMENT_IN_TRANSIT) === true) {
+            $this->helper->addDebug(__METHOD__ . '|Payment in transit, not restoring quote to prevent duplicate orders');
+            return false;
+        }
+
         return (
             ($this->helper->getRestoreQuoteLastOrder() &&
                 ($lastRealOrder->getData('state') === 'new') &&
