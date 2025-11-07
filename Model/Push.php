@@ -275,7 +275,15 @@ class Push implements PushInterface
 
         $this->logging->addDebug(__METHOD__ . '|1_2|');
         $orderIncrementID = $this->getOrderIncrementId();
-        $this->logging->addDebug(__METHOD__ . '|Lock Name| - ' . var_export($orderIncrementID, true));
+        $transactionKey = $this->getTransactionKey();
+
+        $this->logging->addDebug(sprintf(
+            '%s|Processing push for Order: %s, Transaction: %s',
+            __METHOD__,
+            $orderIncrementID,
+            $transactionKey
+        ));
+
         $lockAcquired = $this->lockManager->lockOrder($orderIncrementID, 5);
 
         if (!$lockAcquired) {
@@ -1294,14 +1302,47 @@ class Push implements PushInterface
     {
         $trxId = $this->getTransactionKey();
 
-        $this->transaction->load($trxId, 'txn_id');
-        $order = $this->transaction->getOrder();
+        $this->searchCriteriaBuilder->addFilter('txn_id', $trxId, 'eq');
+        $searchCriteria = $this->searchCriteriaBuilder->create();
 
-        if (!$order) {
+        try {
+            $transactionList = $this->transactionRepository->getList($searchCriteria);
+            $items = $transactionList->getItems();
+
+            if (empty($items)) {
+                $this->logging->addError(sprintf(
+                    '%s|No transaction found for txn_id: %s. This may indicate the transaction was not saved properly or a database transaction was rolled back.',
+                    __METHOD__,
+                    $trxId
+                ));
+                throw new Exception(__('There was no order found by transaction Id'));
+            }
+
+            // Get the first (and should be only) transaction
+            $transaction = reset($items);
+            $order = $transaction->getOrder();
+
+            if (!$order || !$order->getId()) {
+                $this->logging->addError(sprintf(
+                    '%s|Transaction found but order is missing for txn_id: %s. Transaction ID: %s',
+                    __METHOD__,
+                    $trxId,
+                    $transaction->getTransactionId()
+                ));
+                throw new Exception(__('There was no order found by transaction Id'));
+            }
+
+            return $order;
+
+        } catch (\Exception $e) {
+            $this->logging->addError(sprintf(
+                '%s|Error loading transaction by txn_id: %s. Error: %s',
+                __METHOD__,
+                $trxId,
+                $e->getMessage()
+            ));
             throw new Exception(__('There was no order found by transaction Id'));
         }
-
-        return $order;
     }
 
     /**
