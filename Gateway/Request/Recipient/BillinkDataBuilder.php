@@ -26,6 +26,7 @@ use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Model\Config\Source\BillinkCustomerType;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Quote\Model\Quote\AddressFactory;
 
 class BillinkDataBuilder extends AbstractRecipientDataBuilder
 {
@@ -40,15 +41,22 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
     public $helper;
 
     /**
+     * @var AddressFactory
+     */
+    private $addressFactory;
+
+    /**
      * @param Data                 $helper
      * @param string               $addressType
      * @param ScopeConfigInterface $scopeConfig
+     * @param AddressFactory      $addressFactory
      */
-    public function __construct(Data $helper, ScopeConfigInterface $scopeConfig, string $addressType = 'billing')
+    public function __construct(Data $helper, ScopeConfigInterface $scopeConfig, AddressFactory $addressFactory, string $addressType = 'billing')
     {
         parent::__construct($addressType);
         $this->scopeConfig = $scopeConfig;
         $this->helper = $helper;
+        $this->addressFactory = $addressFactory;
     }
 
     /**
@@ -128,11 +136,18 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
         $shippingAddress = $this->getOrder()->getShippingAddress();
         $storeId = $this->getOrder()->getStoreId();
         $customerTypeConfig = $this->getConfigData('customer_type', $storeId);
+        $isPostNLPickup = $this->isPostNLPickupOrder();
 
         // Check company in both billing and shipping addresses
         $billingCompany = $billingAddress ? $billingAddress->getCompany() : '';
         $shippingCompany = $shippingAddress ? $shippingAddress->getCompany() : '';
-        $hasCompany = !$this->isCompanyEmpty($billingCompany) || !$this->isCompanyEmpty($shippingCompany);
+
+        // For PostNL pickup orders ignore shipping company field as it contains the pickup location name
+        if ($isPostNLPickup) {
+            $hasCompany = !$this->isCompanyEmpty($billingCompany);
+        } else {
+            $hasCompany = !$this->isCompanyEmpty($billingCompany) || !$this->isCompanyEmpty($shippingCompany);
+        }
 
         if ($customerTypeConfig === BillinkCustomerType::CUSTOMER_TYPE_B2C) {
             return 'B2C';
@@ -143,6 +158,51 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
         }
 
         return 'B2C';
+    }
+
+    /**
+     * Check if the order uses PostNL pickup shipping method
+     *
+     * @return bool
+     */
+    private function isPostNLPickupOrder(): bool
+    {
+        $order = $this->getOrder();
+        $quoteId = $order->getQuoteId();
+
+        if (!empty($quoteId)) {
+            $quoteAddress = $this->addressFactory->create();
+            $collection = $quoteAddress->getCollection();
+            $collection->addFieldToFilter('quote_id', $quoteId);
+            $collection->addFieldToFilter('address_type', 'pakjegemak');
+            $pakjegemakAddress = $collection->setPageSize(1)->getFirstItem();
+
+            if ($pakjegemakAddress && $pakjegemakAddress->getId()) {
+                return true;
+            }
+        }
+
+        $billingAddress = $order->getBillingAddress();
+        $shippingAddress = $order->getShippingAddress();
+
+        if ($billingAddress && $shippingAddress) {
+            $billingCompany = $billingAddress->getCompany();
+            $shippingCompany = $shippingAddress->getCompany();
+
+            if ($this->isCompanyEmpty($billingCompany) && !$this->isCompanyEmpty($shippingCompany)) {
+                return true;
+            }
+        }
+
+        $shippingMethod = $order->getShippingMethod();
+        if (empty($shippingMethod)) {
+            return false;
+        }
+
+        $shippingMethodLower = strtolower((string)$shippingMethod);
+
+        return (strpos($shippingMethodLower, 'postnl') !== false || strpos($shippingMethodLower, 'post_nl') !== false)
+            && (strpos($shippingMethodLower, 'pickup') !== false || strpos($shippingMethodLower, 'pakjegemak') !== false);
     }
 
     /**

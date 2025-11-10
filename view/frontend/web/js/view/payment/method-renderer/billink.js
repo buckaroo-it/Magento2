@@ -181,11 +181,31 @@ define(
                         this
                     );
 
+                    this.isPostNLPickup = ko.computed(
+                        function () {
+                            let shippingMethod = quote.shippingMethod();
+                            if (!shippingMethod || !shippingMethod.method_code) {
+                                return false;
+                            }
+
+                            let methodCode = shippingMethod.method_code.toLowerCase();
+                            return (methodCode.indexOf('postnl') !== -1 || methodCode.indexOf('post_nl') !== -1) &&
+                                   (methodCode.indexOf('pickup') !== -1 || methodCode.indexOf('pakjegemak') !== -1);
+                        },
+                        this
+                    );
+
                     this.showB2B = ko.computed(
                         function () {
-
                             let shipping = quote.shippingAddress();
                             let billing = quote.billingAddress();
+                            let isPostNLPickup = this.isPostNLPickup();
+
+                            if (isPostNLPickup) {
+                                return this.buckaroo.is_b2b && (
+                                    billing && billing.company && billing.company.trim().length > 0
+                                );
+                            }
 
                             return this.buckaroo.is_b2b && (
                                 (shipping && shipping.company && shipping.company.trim().length > 0) ||
