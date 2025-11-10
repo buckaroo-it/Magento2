@@ -507,3 +507,7 @@
 "An error occurred, please try another payment method or try again later."."Ein Fehler ist aufgetreten. Bitte versuchen Sie eine andere Zahlungsmethode oder versuchen Sie es später erneut."
 "Payment processing failed. Please try again.","Zahlungsverarbeitung fehlgeschlagen. Bitte versuchen Sie es erneut."
 "Payment token is missing. Please try again.","Zahlungstoken fehlt. Bitte versuchen Sie es erneut."
+"Cancel Order on Browser Back Button","Cancel Order on Browser Back Button"
+"Payment cancelled. You can try again using the same or a different payment method.","Payment cancelled. You can try again using the same or a different payment method."
+"Customer returned using browser back button. Order left pending for push notification.","Customer returned using browser back button. Order left pending for push notification."
+"Order reactivated: Payment completed after cancellation (Push notification received). Transaction ID: ""%1""","Order reactivated: Payment completed after cancellation (Push notification received). Transaction ID: ""%1"""

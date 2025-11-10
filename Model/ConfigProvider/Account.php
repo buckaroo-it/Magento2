@@ -39,6 +39,7 @@ use Magento\Store\Model\Store;
  * @method mixed getSuccessRedirect()
  * @method mixed getFailureRedirect()
  * @method mixed getCancelOnFailed()
+ * @method mixed getCancelOnBrowserBack()
  * @method mixed getDigitalSignature()
  * @method mixed getDebugTypes()
  * @method mixed getDebugEmail()
@@ -68,6 +69,7 @@ class Account extends AbstractConfigProvider
     public const XPATH_ACCOUNT_FAILURE_REDIRECT                = 'buckaroo_magento2/account/failure_redirect';
     public const XPATH_ACCOUNT_FAILURE_REDIRECT_TO_CHECKOUT    = 'buckaroo_magento2/account/failure_redirect_to_checkout';
     public const XPATH_ACCOUNT_CANCEL_ON_FAILED                = 'buckaroo_magento2/account/cancel_on_failed';
+    public const XPATH_ACCOUNT_CANCEL_ON_BROWSER_BACK          = 'buckaroo_magento2/account/cancel_on_browser_back';
     public const XPATH_ACCOUNT_DIGITAL_SIGNATURE               = 'buckaroo_magento2/account/digital_signature';
     public const XPATH_ACCOUNT_DEBUG_TYPES                     = 'buckaroo_magento2/account/debug_types';
     public const XPATH_ACCOUNT_DEBUG_EMAIL                     = 'buckaroo_magento2/account/debug_email';
@@ -129,6 +131,7 @@ class Account extends AbstractConfigProvider
             'failure_redirect'                  => $this->getFailureRedirect($store),
             'failure_redirect_to_checkout'      => $this->getFailureRedirectToCheckout($store),
             'cancel_on_failed'                  => $this->getCancelOnFailed($store),
+            'cancel_on_browser_back'            => $this->getCancelOnBrowserBack($store),
             'digital_signature'                 => $this->getDigitalSignature($store),
             'debug_types'                       => $this->getDebugTypes($store),
             'debug_email'                       => $this->getDebugEmail($store),
