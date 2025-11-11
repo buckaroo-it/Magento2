@@ -496,6 +496,18 @@
                 <item name="creditcards" xsi:type="string">creditcard</item>
                 <item name="mrcash" xsi:type="string">bancontactmrcash</item>
                 <item name="paylink" xsi:type="string">payperemail</item>
+                <!-- Map all giftcard brands to generic giftcard for SDK ConfigProvider -->
+                <item name="vvvgiftcard" xsi:type="string">giftcard</item>
+                <item name="fashioncheque" xsi:type="string">giftcard</item>
+                <item name="webshopgiftcard" xsi:type="string">giftcard</item>
+                <item name="nationaletuinbon" xsi:type="string">giftcard</item>
+                <item name="podiumcadeaukaart" xsi:type="string">giftcard</item>
+                <item name="sportenfit" xsi:type="string">giftcard</item>
+                <item name="yourgift" xsi:type="string">giftcard</item>
+                <item name="fashiongiftcard" xsi:type="string">giftcard</item>
+                <item name="boekenbon" xsi:type="string">giftcard</item>
+                <item name="nationalebioscoopbon" xsi:type="string">giftcard</item>
+                <item name="good4fun" xsi:type="string">giftcard</item>
             </argument>
         </arguments>
     </type>
