@@ -65,7 +65,7 @@ class PaymentFlow extends Value
     }
 
     /**
-     * Disables "create invoice after shipment" if payment flow is not "authorize".
+     * Disables "create invoice after shipment" if payment flow is "combined".
      *
      * @return $this
      */
