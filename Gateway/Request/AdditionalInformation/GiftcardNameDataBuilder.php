@@ -34,7 +34,7 @@ class GiftcardNameDataBuilder implements BuilderInterface
         $paymentDO = SubjectReader::readPayment($buildSubject);
 
         return [
-            'name' => $paymentDO->getPayment()->getAdditionalInformation('giftcard_method')
+            'name' => 'giftcard'
         ];
     }
 }
