@@ -2109,6 +2109,32 @@
     <!-- END Eps Value handlers infrastructure -->
     <!-- END Payment Method: Eps -->
 
+    <!-- Payment Method: Giftcards -->
+    <!-- Giftcards Payment Method Facade configuration -->
+    <virtualType name="GiftcardsFacade" type="BuckarooRemainderFacade">
+        <arguments>
+            <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards::CODE</argument>
+            <argument name="valueHandlerPool" xsi:type="object">GiftcardsValueHandlerPool</argument>
+            <argument name="usesRedirect" xsi:type="boolean">false</argument>
+        </arguments>
+    </virtualType>
+    <!-- Giftcards Value handlers infrastructure -->
+    <virtualType name="GiftcardsValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">GiftcardsConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Configuration reader -->
+    <virtualType name="GiftcardsConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards</argument>
+        </arguments>
+    </virtualType>
+    <!-- END Giftcards Value handlers infrastructure -->
+    <!-- END Payment Method: Giftcards -->
+
     <!-- Payment Method: Kbc -->
     <!-- Kbc Payment Method Facade configuration -->
     <virtualType name="KbcFacade" type="BuckarooRemainderFacade">
