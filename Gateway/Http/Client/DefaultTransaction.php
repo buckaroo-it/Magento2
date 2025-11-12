@@ -89,6 +89,18 @@ class DefaultTransaction implements ClientInterface
         $paymentMethod = $data['payment_method'];
         unset($data['payment_method']);
 
+        if ($this->action === TransactionType::REFUND &&
+            isset($data['amountCredit']) &&
+            $data['amountCredit'] < 0.01) {
+
+            $this->logger->debug(
+                'Skipping refund API call - amount already fully refunded via group transactions (giftcards/vouchers)'
+            );
+
+            $response['group_transaction_refund_complete'] = true;
+            return $response;
+        }
+
         try {
             $response['object'] = $this->process($paymentMethod, $data);
         } catch (\Exception $e) {

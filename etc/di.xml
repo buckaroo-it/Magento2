@@ -496,18 +496,6 @@
                 <item name="creditcards" xsi:type="string">creditcard</item>
                 <item name="mrcash" xsi:type="string">bancontactmrcash</item>
                 <item name="paylink" xsi:type="string">payperemail</item>
-                <!-- Map all giftcard brands to generic giftcard for SDK ConfigProvider -->
-                <item name="vvvgiftcard" xsi:type="string">giftcard</item>
-                <item name="fashioncheque" xsi:type="string">giftcard</item>
-                <item name="webshopgiftcard" xsi:type="string">giftcard</item>
-                <item name="nationaletuinbon" xsi:type="string">giftcard</item>
-                <item name="podiumcadeaukaart" xsi:type="string">giftcard</item>
-                <item name="sportenfit" xsi:type="string">giftcard</item>
-                <item name="yourgift" xsi:type="string">giftcard</item>
-                <item name="fashiongiftcard" xsi:type="string">giftcard</item>
-                <item name="boekenbon" xsi:type="string">giftcard</item>
-                <item name="nationalebioscoopbon" xsi:type="string">giftcard</item>
-                <item name="good4fun" xsi:type="string">giftcard</item>
             </argument>
         </arguments>
     </type>
@@ -1063,10 +1051,12 @@
     <virtualType name="RefundValidator" type="Magento\Payment\Gateway\Validator\ValidatorComposite">
         <arguments>
             <argument name="validators" xsi:type="array">
+                <item name="group_transaction_refund_complete" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\RefundSkippedValidator</item>
                 <item name="pending_approval" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\RefundPendingApprovalValidator</item>
                 <item name="status" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</item>
             </argument>
             <argument name="chainBreakingValidators" xsi:type="array">
+                <item name="group_transaction_refund_complete" xsi:type="string">group_transaction_refund_complete</item>
                 <item name="pending_approval" xsi:type="string">pending_approval</item>
                 <item name="status" xsi:type="string">status</item>
             </argument>
