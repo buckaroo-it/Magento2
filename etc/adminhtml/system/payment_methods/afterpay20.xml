@@ -37,6 +37,7 @@
             <comment><![CDATA[Whether to use separate authorize and capture calls or to use a combined 'pay' call.]]></comment>
             <config_path>payment/buckaroo_magento2_afterpay20/payment_action</config_path>
             <source_model>Buckaroo\Magento2\Model\Config\Source\PaymentFlow</source_model>
+            <backend_model>Buckaroo\Magento2\Model\Config\Backend\PaymentFlow</backend_model>
         </field>
 
         <field id="create_invoice_after_shipment" translate="label comment" type="select" sortOrder="12" showInDefault="1" showInWebsite="1" showInStore="1">
