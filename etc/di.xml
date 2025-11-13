@@ -1051,10 +1051,12 @@
     <virtualType name="RefundValidator" type="Magento\Payment\Gateway\Validator\ValidatorComposite">
         <arguments>
             <argument name="validators" xsi:type="array">
+                <item name="group_transaction_refund_complete" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\RefundSkippedValidator</item>
                 <item name="pending_approval" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\RefundPendingApprovalValidator</item>
                 <item name="status" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</item>
             </argument>
             <argument name="chainBreakingValidators" xsi:type="array">
+                <item name="group_transaction_refund_complete" xsi:type="string">group_transaction_refund_complete</item>
                 <item name="pending_approval" xsi:type="string">pending_approval</item>
                 <item name="status" xsi:type="string">status</item>
             </argument>

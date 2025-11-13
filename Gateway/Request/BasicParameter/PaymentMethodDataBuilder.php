@@ -27,14 +27,16 @@ use Magento\Payment\Gateway\Request\BuilderInterface;
 
 class PaymentMethodDataBuilder implements BuilderInterface
 {
+
     /**
      * @inheritdoc
      */
     public function build(array $buildSubject): array
     {
         $paymentDO = SubjectReader::readPayment($buildSubject);
+        $payment = $paymentDO->getPayment();
 
-        $method = $paymentDO->getPayment()->getMethodInstance()->getCode() ?? 'buckaroo_magento2_ideal';
+        $method = $payment->getMethodInstance()->getCode() ?? 'buckaroo_magento2_ideal';
         $providerType = str_replace('buckaroo_magento2_', '', $method);
 
         return [

@@ -210,6 +210,7 @@ class DefaultProcessor implements PushProcessorInterface
 
         if ($this->isGroupTransactionPart() || $this->pushRequest->getRelatedtransactionPartialpayment()) {
             $this->savePartGroupTransaction();
+            $this->saveNewGroupTransactionIfNeeded();
             $this->addGiftcardPartialPaymentToPaymentInformation();
             $this->order->save();
             return true;
@@ -654,18 +655,99 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * Save the part group transaction.
+     * Update the status of an existing group transaction.
      *
      * @throws Exception
      */
     protected function savePartGroupTransaction(): void
     {
         $groupTransaction = $this->groupTransaction->getGroupTransactionByTrxId($this->pushRequest->getTransactions());
-        if ($groupTransaction instanceof GroupTransaction) {
+        
+        // Only update if transaction exists and has an entity_id (not empty)
+        if ($groupTransaction instanceof GroupTransaction && $groupTransaction->getEntityId()) {
             $groupTransaction->setData('status', $this->pushRequest->getStatusCode());
             $groupTransaction->save();
+            
+            $this->logger->addDebug(sprintf(
+                '[GROUP_TRANSACTION] | [Push] | [%s:%s] - Updated group transaction status | Key: %s | Status: %s',
+                __METHOD__,
+                __LINE__,
+                $this->pushRequest->getTransactions(),
+                $this->pushRequest->getStatusCode()
+            ));
         }
     }
+
+    /**
+     * Save new group transaction if needed
+     * 
+     * For mixed payments, this ensures all payment methods (not just giftcards) 
+     * are saved to the group_transaction table for proper refund handling.
+     *
+     * @return void
+     */
+    protected function saveNewGroupTransactionIfNeeded(): void
+    {
+        // Validate required data
+        if (!$this->hasRequiredGroupTransactionData()) {
+            return;
+        }
+
+        // Check if this transaction is already saved to prevent duplicates
+        if ($this->isGroupTransactionAlreadySaved()) {
+            return;
+        }
+
+        // Create and save the transaction using typed method (Magento best practice)
+        try {
+            $amount = $this->pushRequest->getAmount() ?? $this->pushRequest->getAmountDebit();
+            
+            $this->groupTransaction->createGroupTransaction(
+                $this->pushRequest->getInvoiceNumber(),
+                $this->pushRequest->getTransactions(),
+                $this->pushRequest->getTransactionMethod(),
+                $this->pushRequest->getCurrency(),
+                (float)$amount,
+                (int)$this->pushRequest->getStatusCode(),
+                $this->pushRequest->getRelatedtransactionPartialpayment(),
+                'partialpayment'
+            );
+        } catch (Exception $e) {
+            $this->logger->addError(sprintf(
+                '[GROUP_TRANSACTION] | [Push] | [%s:%s] - ERROR saving group transaction: %s',
+                __METHOD__,
+                __LINE__,
+                $e->getMessage()
+            ));
+        }
+    }
+
+    /**
+     * Check if required data is present for group transaction
+     *
+     * @return bool
+     */
+    private function hasRequiredGroupTransactionData(): bool
+    {
+        return $this->pushRequest->getTransactions()
+            && $this->pushRequest->getRelatedtransactionPartialpayment()
+            && $this->pushRequest->getInvoiceNumber();
+    }
+
+    /**
+     * Check if group transaction is already saved
+     *
+     * @return bool
+     */
+    private function isGroupTransactionAlreadySaved(): bool
+    {
+        $existingTransaction = $this->groupTransaction->getGroupTransactionByTrxId(
+            $this->pushRequest->getTransactions()
+        );
+        
+        return $existingTransaction && $existingTransaction->getEntityId();
+    }
+
 
     /**
      * @return true

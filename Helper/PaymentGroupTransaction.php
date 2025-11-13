@@ -110,15 +110,22 @@ class PaymentGroupTransaction extends AbstractHelper
 
         $result = $connection->fetchRow($select);
 
+        if (empty($result)) {
+            return [];
+        }
+
         return json_decode($result["additional_information"], true);
     }
 
     /**
      * Saves a group transaction in the database.
      *
+     * Checks for existing transaction to prevent duplicates from multiple push notifications.
+     *
      * @param array $response
      *
      * @return mixed
+     * @throws \Exception
      */
     public function saveGroupTransaction($response)
     {
@@ -129,6 +136,20 @@ class PaymentGroupTransaction extends AbstractHelper
             var_export($response, true)
         ));
 
+        // Check if this transaction already exists to prevent duplicates
+        if (isset($response['Key'])) {
+            $existingTransaction = $this->getGroupTransactionByTrxId($response['Key']);
+            if ($existingTransaction && $existingTransaction->getEntityId()) {
+                $this->logger->addDebug(sprintf(
+                    '[GROUP_TRANSACTION] | [Helper] | [%s:%s] - Transaction already exists, skipping save | Key: %s',
+                    __METHOD__,
+                    __LINE__,
+                    $response['Key']
+                ));
+                return $existingTransaction;
+            }
+        }
+
         $groupTransaction = $this->groupTransactionFactory->create();
         $data['order_id'] = $response['Invoice'];
         $data['transaction_id'] = $response['Key'];
@@ -136,11 +157,85 @@ class PaymentGroupTransaction extends AbstractHelper
             $response['RelatedTransactions'][0]['RelatedTransactionKey'] ?? null;
         $data['servicecode'] = $response['ServiceCode'];
         $data['currency'] = $response['Currency'];
-        $data['amount'] = $response['AmountDebit'];
+        $data['amount'] = number_format((float)$response['AmountDebit'], 2, '.', '');
         $data['type'] = $response['RelatedTransactions'][0]['RelationType'] ?? null;
         $data['status'] = $response['Status']['Code']['Code'];
         $data['created_at'] = $this->dateTime->gmtDate();
         $groupTransaction->setData($data);
+
+        $this->logger->addDebug(sprintf(
+            '[GROUP_TRANSACTION] | [Helper] | [%s:%s] - Saving NEW group transaction | Key: %s | Service: %s',
+            __METHOD__,
+            __LINE__,
+            $response['Key'],
+            $response['ServiceCode']
+        ));
+
+        return $groupTransaction->save();
+    }
+
+    /**
+     * Create and save a group transaction using typed parameters (preferred method)
+     *
+     * This is the Magento-way of creating models with proper type safety.
+     * Use this method instead of saveGroupTransaction() for new code.
+     *
+     * @param string $orderId Order increment ID
+     * @param string $transactionId Transaction key from Buckaroo
+     * @param string $servicecode Payment service code (e.g., 'ideal', 'vvvgiftcard')
+     * @param string $currency Currency code (e.g., 'EUR')
+     * @param float $amount Transaction amount
+     * @param int $statusCode Buckaroo status code
+     * @param string|null $relatedTransaction Related transaction key for group transactions
+     * @param string $relationType Relation type (e.g., 'partialpayment')
+     *
+     * @return GroupTransaction
+     * @throws \Exception
+     */
+    public function createGroupTransaction(
+        string $orderId,
+        string $transactionId,
+        string $servicecode,
+        string $currency,
+        float $amount,
+        int $statusCode,
+        ?string $relatedTransaction = null,
+        string $relationType = 'partialpayment'
+    ): GroupTransaction {
+        // Check for duplicates
+        $existingTransaction = $this->getGroupTransactionByTrxId($transactionId);
+        if ($existingTransaction && $existingTransaction->getEntityId()) {
+            $this->logger->addDebug(sprintf(
+                '[GROUP_TRANSACTION] | [Helper] | [%s:%s] - Transaction already exists | Key: %s',
+                __METHOD__,
+                __LINE__,
+                $transactionId
+            ));
+            return $existingTransaction;
+        }
+
+        /** @var GroupTransaction $groupTransaction */
+        $groupTransaction = $this->groupTransactionFactory->create();
+        $groupTransaction->setData([
+            'order_id' => $orderId,
+            'transaction_id' => $transactionId,
+            'relatedtransaction' => $relatedTransaction,
+            'servicecode' => $servicecode,
+            'currency' => $currency,
+            'amount' => number_format($amount, 2, '.', ''),
+            'type' => $relationType,
+            'status' => $statusCode,
+            'created_at' => $this->dateTime->gmtDate()
+        ]);
+
+        $this->logger->addDebug(sprintf(
+            '[GROUP_TRANSACTION] | [Helper] | [%s:%s] - Creating group transaction | Key: %s | Service: %s',
+            __METHOD__,
+            __LINE__,
+            $transactionId,
+            $servicecode
+        ));
+
         return $groupTransaction->save();
     }
 

@@ -90,6 +90,13 @@ class RefundPendingApprovalValidator extends AbstractValidator
      */
     public function validate(array $validationSubject): ResultInterface
     {
+        // Skip validation if refund was already completed via group transactions
+        if (isset($validationSubject['response']['group_transaction_refund_complete']) 
+            && $validationSubject['response']['group_transaction_refund_complete'] === true
+        ) {
+            return $this->createResult(true, [__('Refund completed via group transactions')]);
+        }
+
         $paymentDO = SubjectReader::readPayment($validationSubject);
         $payment = $paymentDO->getPayment();
         $order = $paymentDO->getOrder()->getOrder();

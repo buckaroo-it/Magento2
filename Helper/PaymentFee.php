@@ -206,10 +206,11 @@ class PaymentFee extends AbstractHelper
                     $giftcard['servicecode']
                 );
 
-                $label = __('Paid with Voucher');
-                if ($foundGiftcard) {
-                    $label = __('Paid with ' . $foundGiftcard['label']);
+                if (!$foundGiftcard) {
+                    continue;
                 }
+
+                $label = __('Paid with ' . $foundGiftcard['label']);
 
                 $refundedAlreadyPaidSaved = $giftcard->getRefundedAmount() ?? 0.0;
                 $amountValue = (float)$giftcard['amount'];

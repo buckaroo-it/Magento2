@@ -82,12 +82,20 @@ class AmountCreditDataBuilder implements BuilderInterface
         $baseAmountToRefund = $buildSubject['amount'] ?? $order->getBaseGrandTotal();
         $this->refundAmount = (float)$baseAmountToRefund;
 
-        if ($this->refundAmount <= 0) {
-            throw new InvalidArgumentException('Credit Amount less than or equal to 0');
+        if ($this->refundAmount < 0.01) {
+            throw new InvalidArgumentException('Credit Amount must be greater than 0');
         }
 
-        $this->refundGroupService->refundGroupTransactions($buildSubject);
-        $this->refundAmount = $this->refundGroupService->getAmountLeftToRefund();
+        if ($this->refundGroupService->hasGroupTransactions($order->getIncrementId())) {
+            $this->refundGroupService->refundGroupTransactions($buildSubject);
+            $this->refundAmount = $this->refundGroupService->getAmountLeftToRefund();
+
+            if ($this->refundAmount < 0.01) {
+                $payment = $paymentDO->getPayment();
+                $payment->setIsTransactionClosed(true);
+                $payment->setShouldCloseParentTransaction(true);
+            }
+        }
 
         $this->setRefundAmount($order);
 

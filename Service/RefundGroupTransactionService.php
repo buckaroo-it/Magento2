@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Service;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
+use Buckaroo\Magento2\Model\GroupTransaction;
 use Magento\Framework\App\Request\Http;
 use Magento\Framework\App\RequestInterface;
 use Magento\Payment\Gateway\Http\ClientException;
@@ -32,18 +33,20 @@ use Magento\Payment\Gateway\Http\TransferFactoryInterface;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Payment\Gateway\Response\HandlerInterface;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface as BuckarooLog;
+use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
+use Magento\Sales\Model\Order;
 
 class RefundGroupTransactionService
 {
     /**
      * @var float
      */
-    private $amountLeftToRefund;
+    private $amountLeftToRefund = 0.0;
 
     /**
      * @var float
      */
-    private $totalOrder;
+    private $totalOrder = 0.0;
 
     /**
      * @var BuckarooLog
@@ -81,12 +84,18 @@ class RefundGroupTransactionService
     private $handler;
 
     /**
+     * @var GiftcardCollection
+     */
+    private $giftcardCollection;
+
+    /**
      * @param PaymentGroupTransaction  $paymentGroupTransaction
      * @param BuckarooLog              $buckarooLog
      * @param RequestInterface         $request
      * @param BuilderInterface         $requestDataBuilder
      * @param TransferFactoryInterface $transferFactory
      * @param ClientInterface          $clientInterface
+     * @param GiftcardCollection       $giftcardCollection
      * @param HandlerInterface|null    $handler
      */
     public function __construct(
@@ -96,15 +105,29 @@ class RefundGroupTransactionService
         BuilderInterface $requestDataBuilder,
         TransferFactoryInterface $transferFactory,
         ClientInterface $clientInterface,
+        GiftcardCollection $giftcardCollection,
         ?HandlerInterface $handler = null
     ) {
         $this->requestDataBuilder = $requestDataBuilder;
         $this->transferFactory = $transferFactory;
         $this->clientInterface = $clientInterface;
         $this->paymentGroupTransaction = $paymentGroupTransaction;
+        $this->giftcardCollection = $giftcardCollection;
         $this->buckarooLog = $buckarooLog;
         $this->request = $request;
         $this->handler = $handler;
+    }
+
+    /**
+     * Check if an order has group transactions (giftcards/vouchers/mixed payments).
+     *
+     * @param string $orderIncrementId Order increment ID
+     * @return bool True if order has group transactions, false otherwise
+     */
+    public function hasGroupTransactions(string $orderIncrementId): bool
+    {
+        $groupTransactionAmount = $this->paymentGroupTransaction->getGroupTransactionAmount($orderIncrementId);
+        return $groupTransactionAmount > 0;
     }
 
     /**
@@ -119,12 +142,13 @@ class RefundGroupTransactionService
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
-    public function refundGroupTransactions(array $buildSubject)
+    public function refundGroupTransactions(array &$buildSubject)
     {
         $this->buckarooLog->addDebug(__METHOD__ . '|1|');
 
         $paymentDO = SubjectReader::readPayment($buildSubject);
         $this->amountLeftToRefund = (float)SubjectReader::readAmount($buildSubject);
+        $originalRefundAmount = $this->amountLeftToRefund;
 
         $order = $paymentDO->getOrder()->getOrder();
         $this->totalOrder = (float)$order->getBaseGrandTotal();
@@ -136,12 +160,21 @@ class RefundGroupTransactionService
             }
         }
 
-        $this->buckarooLog->addDebug(
-            __METHOD__ . '|20|' . var_export(
-                [$this->amountLeftToRefund, $this->totalOrder, $this->amountLeftToRefund >= 0.01],
-                true
-            )
-        );
+        if ($this->amountLeftToRefund >= 0.01 && $originalRefundAmount > $this->amountLeftToRefund) {
+            $nonGiftcardTransaction = $this->getNonGiftcardGroupTransaction($order);
+
+            if ($nonGiftcardTransaction) {
+                $transactionMethod = strtolower($nonGiftcardTransaction->getData('servicecode'));
+
+                $this->refundRemainingAmount(
+                    $buildSubject,
+                    $transactionMethod,
+                    $this->amountLeftToRefund,
+                    $nonGiftcardTransaction->getData('transaction_id')
+                );
+                $this->amountLeftToRefund = 0;
+            }
+        }
 
         if ($this->amountLeftToRefund >= 0.01) {
             $groupTransactionAmount = $this->paymentGroupTransaction->getGroupTransactionAmount(
@@ -151,11 +184,9 @@ class RefundGroupTransactionService
                 && empty($requestParams['creditmemo']['buckaroo_already_paid'])
                 && !empty($requestParams['creditmemo']['adjustment_negative'])
             ) {
-                $this->buckarooLog->addDebug(__METHOD__ . '|22|');
                 $order->setAdjustmentNegative(0);
             }
             if ($this->amountLeftToRefund == $order->getBaseGrandTotal() && $groupTransactionAmount > 0) {
-                $this->buckarooLog->addDebug(__METHOD__ . '|25|' . var_export($groupTransactionAmount, true));
                 return $this->amountLeftToRefund - $groupTransactionAmount;
             }
 
@@ -164,6 +195,10 @@ class RefundGroupTransactionService
             }
             return $this->amountLeftToRefund;
         }
+
+        // If all amount is refunded via group transactions, mark as complete
+        // This prevents validators from trying to read a transaction response that doesn't exist
+        $buildSubject['response']['group_transaction_refund_complete'] = true;
         return 0;
     }
 
@@ -246,5 +281,106 @@ class RefundGroupTransactionService
     public function setAmountLeftToRefund(float $amountLeftToRefund): void
     {
         $this->amountLeftToRefund = $amountLeftToRefund;
+    }
+
+    /**
+     * Get the non-giftcard payment transaction from group_transaction table
+     *
+     * For mixed payments (giftcard + another method), multiple group transactions exist.
+     * This method finds and returns the non-giftcard transaction (e.g., ideal).
+     *
+     * @param Order $order
+     * @return GroupTransaction|null Group transaction object or null if not found
+     */
+    private function getNonGiftcardGroupTransaction($order)
+    {
+        $groupTransactions = $this->paymentGroupTransaction->getAnyGroupTransactionItems($order->getIncrementId());
+
+        foreach ($groupTransactions as $transaction) {
+            $servicecode = $transaction->getData('servicecode');
+            // Check if servicecode is not a giftcard variant
+            if (!$this->isGiftcardService($servicecode)) {
+                return $transaction;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Check if a service code is a giftcard using the giftcard collection
+     *
+     * This dynamically checks against all configured giftcards instead of hardcoding a list.
+     * When new giftcards are added via admin, they will automatically be detected.
+     *
+     * @param string|null $servicecode
+     * @return bool
+     */
+    private function isGiftcardService(?string $servicecode): bool
+    {
+        if (!$servicecode) {
+            return false;
+        }
+
+        // Use the giftcard collection to check if this service code is a giftcard
+        // This is the same approach used in PaymentFee helper
+        $foundGiftcard = $this->giftcardCollection->getItemByColumnValue(
+            'servicecode',
+            $servicecode
+        );
+
+        return $foundGiftcard !== null;
+    }
+
+    /**
+     * Refund the remaining amount using the correct payment method
+     *
+     * For mixed payment scenarios, this method creates a refund request using the
+     * non-giftcard payment method (e.g., ideal) for the remaining order amount.
+     *
+     * @param array $buildSubject
+     * @param string $paymentMethod Payment method code (e.g., 'ideal')
+     * @param float $amount Amount to refund
+     * @param string $originalTransactionKey Transaction key from group_transaction table
+     *
+     * @throws ClientException
+     * @throws ConverterException
+     */
+    private function refundRemainingAmount(
+        array $buildSubject,
+        string $paymentMethod,
+        float $amount,
+        string $originalTransactionKey
+    ): void {
+        try {
+            if (!$originalTransactionKey) {
+                $this->buckarooLog->addDebug(
+                    __METHOD__ . ' | No transaction key provided for method: ' . $paymentMethod
+                );
+                return;
+            }
+
+            // Build refund request with the correct payment method and transaction key
+            $request = $this->requestDataBuilder->build($buildSubject);
+            $request['payment_method'] = $paymentMethod;
+            $request['name'] = $paymentMethod;
+            $request['amountCredit'] = $amount;
+            $request['originalTransactionKey'] = $originalTransactionKey;
+
+            $transferO = $this->transferFactory->create($request);
+            $response = $this->clientInterface->placeRequest($transferO);
+
+            if ($this->handler) {
+                $this->handler->handle($buildSubject, $response);
+            }
+
+            $this->buckarooLog->addDebug(
+                __METHOD__ . ' | Refunded ' . $amount . ' via ' . $paymentMethod . ' (Key: ' . $originalTransactionKey . ')'
+            );
+
+        } catch (\Exception $e) {
+            $this->buckarooLog->addDebug(__METHOD__ . ' | ERROR: ' . $e->getMessage());
+            throw $e;
+        }
     }
 }
