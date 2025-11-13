@@ -177,13 +177,42 @@ class PaymentFee extends AbstractHelper
             // Remove the fee line if previously added
             unset($totals['buckaroo_fee']);
 
-            $this->addTotalToTotals(
-                $totals,
-                'buckaroo_already_paid',
-                $alreadyPayed,
-                $alreadyPayed,
-                __('Paid with Giftcard / Voucher')
-            );
+            // Break down each payment method instead of showing one combined line
+            $items = $this->groupTransaction->getGroupTransactionItems($orderId);
+
+            if (!empty($items)) {
+                foreach ($items as $item) {
+                    $servicecode = $item['servicecode'];
+                    $amount = (float)$item['amount'];
+
+                    // Check if it's a giftcard
+                    $foundGiftcard = $this->giftcardCollection->getItemByColumnValue('servicecode', $servicecode);
+
+                    if ($foundGiftcard) {
+                        $label = __('Paid with %1', $foundGiftcard['label']);
+                    } else {
+                        // It's a regular payment method (ideal, alipay, etc)
+                        $label = __('Paid with %1', ucfirst($servicecode));
+                    }
+
+                    $this->addTotalToTotals(
+                        $totals,
+                        'buckaroo_already_paid_' . $item['transaction_id'],
+                        $amount,
+                        $amount,
+                        $label
+                    );
+                }
+            } else {
+                // Fallback to old behavior if no items found
+                $this->addTotalToTotals(
+                    $totals,
+                    'buckaroo_already_paid',
+                    $alreadyPayed,
+                    $alreadyPayed,
+                    __('Paid with Giftcard / Voucher')
+                );
+            }
             return;
         }
 

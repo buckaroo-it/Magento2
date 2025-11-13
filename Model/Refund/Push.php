@@ -33,6 +33,7 @@ use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Creditmemo;
 use Magento\Sales\Model\Order\CreditmemoFactory;
 use Magento\Sales\Model\Order\Email\Sender\CreditmemoSender;
+use Magento\Store\Model\ScopeInterface;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -394,7 +395,7 @@ class Push
     {
         $includesTax = $this->scopeConfig->getValue(
             static::TAX_CALCULATION_SHIPPING_INCLUDES_TAX,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            ScopeInterface::SCOPE_STORE
         );
 
         if ($includesTax) {
@@ -479,11 +480,18 @@ class Push
         try {
             $creditmemo = $this->creditmemoFactory->createByOrder($this->order, $creditData);
 
+            // Respect Magento's auto-return configuration instead of hardcoding to false
+            $autoReturn = $this->scopeConfig->isSetFlag(
+                'cataloginventory/item_options/auto_return',
+                ScopeInterface::SCOPE_STORE,
+                $this->order->getStoreId()
+            );
+
             foreach ($creditmemo->getAllItems() as $creditmemoItem) {
                 /**
                  * @noinspection PhpUndefinedMethodInspection
                  */
-                $creditmemoItem->setBackToStock(false);
+                $creditmemoItem->setBackToStock($autoReturn);
             }
 
             return $creditmemo;

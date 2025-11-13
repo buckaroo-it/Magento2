@@ -108,6 +108,99 @@ class Info extends \Magento\Payment\Block\Info
     }
 
     /**
+     * Get all payment methods from group transactions (for mixed payments)
+     * This includes both giftcards and other payment methods (ideal, alipay, etc)
+     *
+     * @throws LocalizedException
+     *
+     * @return array
+     */
+    public function getAllGroupTransactionPaymentMethods()
+    {
+        $result = [];
+
+        if (!$this->getInfo()->getOrder() || !$this->getInfo()->getOrder()->getIncrementId()) {
+            return $result;
+        }
+
+        $items = $this->groupTransaction->getGroupTransactionItems($this->getInfo()->getOrder()->getIncrementId());
+
+        foreach ($items as $item) {
+            $servicecode = $item['servicecode'];
+
+            // Check if it's a giftcard
+            $foundGiftcard = $this->giftcardCollection->getItemByColumnValue('servicecode', $servicecode);
+
+            if ($foundGiftcard) {
+                // It's a giftcard
+                $result[] = [
+                    'type' => 'giftcard',
+                    'code' => $servicecode,
+                    'label' => $foundGiftcard['label'],
+                    'logo' => $foundGiftcard['logo'],
+                    'amount' => $item['amount'] ?? null
+                ];
+            } elseif ($servicecode == 'buckaroovoucher') {
+                // Special case for buckaroo voucher
+                $result[] = [
+                    'type' => 'giftcard',
+                    'code' => $servicecode,
+                    'label' => 'Buckaroo Voucher',
+                    'logo' => null,
+                    'amount' => $item['amount'] ?? null
+                ];
+            } else {
+                // It's a regular payment method (ideal, alipay, paypal, etc)
+                $label = ucfirst($servicecode); // Capitalize first letter
+                $result[] = [
+                    'type' => 'payment_method',
+                    'code' => strtolower($servicecode),
+                    'label' => $label,
+                    'logo' => null,
+                    'amount' => $item['amount'] ?? null
+                ];
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get the actual payment method used from raw transaction details
+     * Useful when payment method is "giftcards" but no giftcards were actually used
+     *
+     * @return array|null ['code' => 'ideal', 'label' => 'Ideal']
+     * @throws LocalizedException
+     */
+    public function getActualPaymentMethodFromTransaction()
+    {
+        if (!$this->getInfo() || !$this->getInfo()->getOrder()) {
+            return null;
+        }
+
+        $payment = $this->getInfo()->getOrder()->getPayment();
+        $rawDetailsInfo = $payment->getAdditionalInformation('raw_details_info');
+
+        if (!is_array($rawDetailsInfo) || empty($rawDetailsInfo)) {
+            return null;
+        }
+
+        // Get the first transaction details
+        $firstTransaction = reset($rawDetailsInfo);
+
+        if (isset($firstTransaction['brq_transaction_method'])) {
+            $transactionMethod = $firstTransaction['brq_transaction_method'];
+
+            return [
+                'code' => strtolower($transactionMethod),
+                'label' => ucfirst($transactionMethod)
+            ];
+        }
+
+        return null;
+    }
+
+    /**
      * Get PayPerEmail label payment method
      *
      * @throws LocalizedException
