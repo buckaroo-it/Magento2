@@ -46,7 +46,7 @@
         "docs": "https://docs.buckaroo.io/"
     },
     "homepage": "https://www.buckaroo.nl",
-    "version" : "v2.0.3",
+    "version" : "v2.1.0",
     "minimum-stability": "stable",
     "autoload": {
         "files": [
