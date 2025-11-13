@@ -54,7 +54,7 @@ php bin/magento setup:static-content:deploy
 To do this, please run the following commands in your Magento 2 root folder:**
 
 ```
-composer update buckaroo/magento2:2.0.2
+composer update buckaroo/magento2:2.1.0
 php bin/magento setup:upgrade
 php bin/magento setup:di:compile
 php bin/magento setup:static-content:deploy
