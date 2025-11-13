@@ -129,9 +129,6 @@ class Giftcard
 
         if ($this->response->isSuccess()) {
             $this->saveGroupTransaction();
-            if ($this->quote->getGrandTotal() > $this->response->getAmount()) {
-                $this->createOrderFromQuote();
-            }
         } else {
             $this->saveGroupTransaction();
             $this->createOrderFromQuote();
@@ -167,7 +164,7 @@ class Giftcard
             $order = $order ?? $this->createOrder();
         }
 
-        if ($order) {
+        if ($order && $order->getEntityId()) {
             $this->quote->setOrigOrderId($order->getEntityId());
         }
 
@@ -180,8 +177,11 @@ class Giftcard
             $orderId
         ));
 
-        $this->quote->setIsActive(true);
-        $this->quote->save();
+        // Keep quote active only if order was created
+        if ($order && $order->getEntityId()) {
+            $this->quote->setIsActive(true);
+            $this->quote->save();
+        }
 
         return $order;
     }

@@ -146,11 +146,11 @@ class AdminInfo extends ConfigurableInfo
     /**
      * Get giftcard logo url by code
      *
-     * @param string $code
+     * @param array $code Giftcard array with 'code' and 'logo' keys
      *
      * @return string
      */
-    public function getGiftcardLogo(string $code): string
+    public function getGiftcardLogo(array $code): string
     {
         return $this->logoService->getGiftcardLogo($code);
     }
