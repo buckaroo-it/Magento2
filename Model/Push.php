@@ -639,7 +639,16 @@ class Push implements PushInterface
             $this->setTransactionKey();
         }
         if (isset($this->postData['brq_statusmessage'])) {
-            if ($this->order->getState() === Order::STATE_NEW &&
+
+            $currentStatusCode = (int)$this->postData['brq_statuscode'];
+            $pendingStatusCode = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING'); //791
+
+            if ($currentStatusCode === $pendingStatusCode && $this->hasSuccessfulStatusAlready()) {
+                $this->logging->addDebug(sprintf(
+                    '%s|Skipping pending status history comment (791) - successful push (190) already exists',
+                    __METHOD__
+                ));
+            } elseif ($this->order->getState() === Order::STATE_NEW &&
                 !isset($this->postData['add_frompayperemail']) &&
                 !$this->hasPostData('brq_transaction_method', 'transfer') &&
                 !isset($this->postData['brq_relatedtransaction_partialpayment']) &&
@@ -1294,6 +1303,30 @@ class Push implements PushInterface
     }
 
     /**
+     * Check if there's already a successful status (190) registered for any transaction
+     *
+     * @return bool
+     */
+    protected function hasSuccessfulStatusAlready(): bool
+    {
+        $payment = $this->order->getPayment();
+        if (!$payment) {
+            return false;
+        }
+
+        $receivedTxStatuses = $payment->getAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES) ?? [];
+        $successStatusCode = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'); // 190
+
+        foreach ($receivedTxStatuses as $existingStatusCode) {
+            if ((int)$existingStatusCode === $successStatusCode) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * It updates the BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES payment additional information
      * with the current received tx status.
      */
@@ -1309,6 +1342,18 @@ class Push implements PushInterface
         $payment = $this->order->getPayment();
 
         $receivedTxStatuses = $payment->getAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES) ?? [];
+
+        $pendingStatusCode = $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_PENDING_PROCESSING');;
+
+        if ((int)$statusCode === $pendingStatusCode && $this->hasSuccessfulStatusAlready()) {
+            $this->logging->addDebug(sprintf(
+                '%s|Skipping pending push (791) for transaction %s - successful push (190) already exists',
+                __METHOD__,
+                $txId
+            ));
+            return;
+        }
+
         $receivedTxStatuses[$txId] = $statusCode;
 
         $payment->setAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES, $receivedTxStatuses);
@@ -2408,12 +2453,12 @@ class Push implements PushInterface
 
         if (in_array($payment->getMethod(), $authPaymentMethods)) {
             if ((
-                ($payment->getMethod() == Klarnakp::PAYMENT_METHOD_CODE)
+                    ($payment->getMethod() == Klarnakp::PAYMENT_METHOD_CODE)
                     || (
                         !empty($this->postData['brq_transaction_type'])
                         && in_array($this->postData['brq_transaction_type'], ['I038', 'I880'])
                     )
-            ) && !empty($this->postData['brq_statuscode'])
+                ) && !empty($this->postData['brq_statuscode'])
                 && ($this->postData['brq_statuscode'] == 190)
             ) {
                 $this->logging->addDebug(__METHOD__ . '|88|' . var_export($payment->getMethod(), true));
@@ -2449,9 +2494,9 @@ class Push implements PushInterface
     protected function isFailedGroupTransaction()
     {
         return $this->hasPostData(
-            'brq_transaction_type',
-            self::BUCK_PUSH_GROUPTRANSACTION_TYPE
-        ) &&
+                'brq_transaction_type',
+                self::BUCK_PUSH_GROUPTRANSACTION_TYPE
+            ) &&
             $this->hasPostData(
                 'brq_statuscode',
                 $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED')
@@ -2612,9 +2657,9 @@ class Push implements PushInterface
     public function isCanceledGroupTransaction()
     {
         return $this->hasPostData(
-            'brq_transaction_type',
-            self::BUCK_PUSH_GROUPTRANSACTION_TYPE
-        ) &&
+                'brq_transaction_type',
+                self::BUCK_PUSH_GROUPTRANSACTION_TYPE
+            ) &&
             $this->hasPostData(
                 'brq_statuscode',
                 $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER')
