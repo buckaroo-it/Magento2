@@ -32,7 +32,9 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
+use Buckaroo\Magento2\Service\Order\Uncancel;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
+use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\TransactionInterface;
@@ -66,6 +68,8 @@ class PayPerEmailProcessor extends DefaultProcessor
      * @param OrderStatusFactory      $orderStatusFactory
      * @param Account                 $configAccount
      * @param GiftCardRefundService   $giftCardRefundService
+     * @param Uncancel                $uncancelService
+     * @param \Magento\Framework\App\ResourceConnection $resourceConnection
      * @param PayPerEmail             $configPayPerEmail
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
@@ -81,6 +85,8 @@ class PayPerEmailProcessor extends DefaultProcessor
         OrderStatusFactory      $orderStatusFactory,
         Account                 $configAccount,
         GiftCardRefundService   $giftCardRefundService,
+        Uncancel                $uncancelService,
+        ResourceConnection      $resourceConnection,
         PayPerEmail             $configPayPerEmail
     ) {
         parent::__construct(
@@ -93,7 +99,9 @@ class PayPerEmailProcessor extends DefaultProcessor
             $buckarooStatusCode,
             $orderStatusFactory,
             $configAccount,
-            $giftCardRefundService
+            $giftCardRefundService,
+            $uncancelService,
+            $resourceConnection
         );
         $this->configPayPerEmail = $configPayPerEmail;
     }
