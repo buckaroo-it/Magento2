@@ -40,9 +40,11 @@ use Buckaroo\Magento2\Model\GroupTransaction;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
+use Buckaroo\Magento2\Service\Order\Uncancel;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Exception;
 use Magento\Framework\App\ObjectManager;
+use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
@@ -132,7 +134,21 @@ class DefaultProcessor implements PushProcessorInterface
      * @var OrderStatusFactory
      */
     protected $orderStatusFactory;
+
+    /**
+     * @var GiftCardRefundService
+     */
     private $giftCardRefundService;
+
+    /**
+     * @var Uncancel
+     */
+    private $uncancelService;
+
+    /**
+     * @var ResourceConnection
+     */
+    private $resourceConnection;
 
     /**
      * @param OrderRequestService     $orderRequestService
@@ -145,6 +161,8 @@ class DefaultProcessor implements PushProcessorInterface
      * @param OrderStatusFactory      $orderStatusFactory
      * @param Account                 $configAccount
      * @param GiftCardRefundService   $giftCardRefundService
+     * @param Uncancel                $uncancelService
+     * @param ResourceConnection $resourceConnection
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -158,7 +176,9 @@ class DefaultProcessor implements PushProcessorInterface
         BuckarooStatusCode        $buckarooStatusCode,
         OrderStatusFactory        $orderStatusFactory,
         Account                   $configAccount,
-        GiftCardRefundService     $giftCardRefundService
+        GiftCardRefundService     $giftCardRefundService,
+        Uncancel                  $uncancelService,
+        ResourceConnection $resourceConnection
     ) {
         $this->pushTransactionType = $pushTransactionType;
         $this->orderRequestService = $orderRequestService;
@@ -171,14 +191,16 @@ class DefaultProcessor implements PushProcessorInterface
         $this->orderStatusFactory = $orderStatusFactory;
         $this->configAccount = $configAccount;
         $this->giftCardRefundService = $giftCardRefundService;
+        $this->uncancelService = $uncancelService;
+        $this->resourceConnection = $resourceConnection;
     }
 
     /**
      * @param PushRequestInterface $pushRequest
      *
+     * @return bool
      * @throws BuckarooException
-     * @throws FileSystemException
-     * @throws Exception
+     * @throws LocalizedException
      */
     public function processPush(PushRequestInterface $pushRequest): bool
     {
@@ -465,97 +487,293 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * Checks if the order can be updated by checking its state and status.
+     * Checks if the order can be updated by checking its state.
+     * If order is canceled and receives success push, reactivates it.
+     *
+     * Following Magento core's approach (Order::canInvoice, etc.) which checks state only.
      *
      * @return bool
-     *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @throws LocalizedException
      */
     protected function canUpdateOrderStatus(): bool
     {
-        /**
-         * Types of statusses
-         */
-        $completedStateAndStatus = [Order::STATE_COMPLETE, Order::STATE_COMPLETE];
-        $cancelledStateAndStatus = [Order::STATE_CANCELED, Order::STATE_CANCELED];
-        $holdedStateAndStatus = [Order::STATE_HOLDED, Order::STATE_HOLDED];
-        $closedStateAndStatus = [Order::STATE_CLOSED, Order::STATE_CLOSED];
-        /**
-         * Get current state and status of order
-         */
-        $currentStateAndStatus = [$this->order->getState(), $this->order->getStatus()];
+        $currentState = $this->order->getState();
+
         $this->logger->addDebug(sprintf(
-            '[%s:%s] - Checks if the order can be updated | currentStateAndStatus: %s',
+            '[%s:%s] - Checks if the order can be updated | State: %s | Status: %s',
             __METHOD__,
             __LINE__,
-            var_export($currentStateAndStatus, true)
+            $currentState,
+            $this->order->getStatus()
         ));
 
-        /**
-         * If the types are not the same and the order can receive an invoice the order can be udpated by BPE.
-         */
-        if ($completedStateAndStatus != $currentStateAndStatus
-            && $cancelledStateAndStatus != $currentStateAndStatus
-            && $holdedStateAndStatus != $currentStateAndStatus
-            && $closedStateAndStatus != $currentStateAndStatus
+        // Check if order is in a final state that cannot be updated
+        // Following Magento core pattern: check state only, not status
+        if ($currentState === Order::STATE_COMPLETE ||
+            $currentState === Order::STATE_CLOSED ||
+            $currentState === Order::STATE_HOLDED
         ) {
-            return true;
+            return false;
         }
 
-        if (($this->order->getState() === Order::STATE_CANCELED)
+        // Check if canceled order should be reactivated
+        if ($currentState === Order::STATE_CANCELED) {
+            if ($this->shouldReactivateCanceledOrder()) {
+                return $this->reactivateCanceledOrder();
+            }
+            return false;
+        }
+
+        // Order is in a normal updatable state (new, pending_payment, processing)
+        return true;
+    }
+
+    /**
+     * Check if a canceled order should be reactivated
+     *
+     * @return bool
+     */
+    private function shouldReactivateCanceledOrder(): bool
+    {
+        return ($this->order->getState() === Order::STATE_CANCELED)
             && ($this->order->getStatus() === Order::STATE_CANCELED)
             && ($this->pushTransactionType->getStatusKey() === 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')
             && $this->pushRequest->getRelatedtransactionPartialpayment() == null
-        ) {
-            // Check if order was already reactivated in this session to prevent duplicate reactivation
-            $alreadyReactivated = $this->payment->getAdditionalInformation('buckaroo_order_reactivated');
+            && !$this->payment->getAdditionalInformation('buckaroo_order_reactivated');
+    }
 
-            if ($alreadyReactivated) {
+    /**
+     * Reactivate a canceled order when receiving success push
+     * Handles uncanceling, invoice handling setup, and authorization transaction
+     *
+     * @return bool
+     * @throws LocalizedException
+     */
+    private function reactivateCanceledOrder(): bool
+    {
+        $orderNumber = $this->order->getIncrementId();
+
+        $this->logger->addDebug(sprintf(
+            '[%s:%s] - Reactivating canceled order: %s',
+            __METHOD__,
+            __LINE__,
+            $orderNumber
+        ));
+
+        // 1. Get the transaction key for authorization (used in comment)
+        $transactionKey = $this->pushRequest->getTransactions();
+        if (!$transactionKey || strlen($transactionKey) === 0) {
+            $transactionKey = $this->pushRequest->getDatarequest();
+        }
+
+        // 2. Uncancel the order (resets all amounts, inventory, etc)
+        $comment = __(
+            'Order reactivated: Payment completed after cancellation (Push notification received). ' .
+            'Transaction ID: "%1"',
+            $transactionKey
+        );
+        $this->uncancelService->execute($this->order, (string)$comment);
+
+        // 3. Mark as reactivated to prevent duplicates
+        $this->payment->setAdditionalInformation('buckaroo_order_reactivated', true);
+
+        // 4. Setup invoice handling flags (for Klarna/Afterpay with SHIPMENT mode)
+        $this->setupInvoiceHandlingForReactivation();
+
+        // 5. Preserve Klarna reservation number in payment additional information
+        $reservationNumber = $this->order->getBuckarooReservationNumber();
+        if ($reservationNumber) {
+            $this->payment->setAdditionalInformation('buckaroo_reservation_number', $reservationNumber);
+        }
+
+        // 6. Delete ALL existing transactions to start fresh
+        // This prevents circular references and stale transaction states
+        try {
+            $connection = $this->resourceConnection->getConnection();
+            $tableName = $this->resourceConnection->getTableName('sales_payment_transaction');
+
+            $deleted = $connection->delete(
+                $tableName,
+                ['order_id = ?' => $this->order->getId()]
+            );
+
+            if ($deleted > 0) {
                 $this->logger->addDebug(sprintf(
-                    '[%s:%s] - Order already reactivated in this session, skipping duplicate reactivation',
+                    '[%s:%s] - Order %s: Deleted %d transaction(s) to prevent circular references',
                     __METHOD__,
-                    __LINE__
+                    __LINE__,
+                    $orderNumber,
+                    $deleted
                 ));
-                return false;
             }
 
+            // Clear payment transaction references
+            $this->payment->setLastTransId(null);
+            $this->payment->setData('_transactionsLookup', null);
+            $this->payment->setData('transaction', null);
+
+        } catch (\Exception $e) {
+            $this->logger->addError(sprintf(
+                '[%s:%s] - Order %s: Failed to delete transactions - %s',
+                __METHOD__,
+                __LINE__,
+                $orderNumber,
+                $e->getMessage()
+            ));
+        }
+
+        // 7. Save payment and order changes
+        $this->payment->save();
+        $this->order->save();
+
+        $this->logger->addDebug(sprintf(
+            '[%s:%s] - Order %s: Successfully reactivated and set to %s state',
+            __METHOD__,
+            __LINE__,
+            $orderNumber,
+            $this->order->getState()
+        ));
+
+        // 8. Force invoice flag for immediate processing
+        $this->forceInvoice = true;
+
+        return true;
+    }
+
+    /**
+     * Setup invoice handling flags for reactivated orders
+     * Detects if order should use SHIPMENT mode and sets appropriate flags
+     *
+     * @return void
+     * @throws LocalizedException
+     */
+    private function setupInvoiceHandlingForReactivation(): void
+    {
+        $invoiceHandlingMode = $this->payment->getAdditionalInformation(
+            InvoiceHandlingOptions::INVOICE_HANDLING
+        );
+
+        // If flag not set (e.g., failed authorization), check configs directly
+        if ($invoiceHandlingMode === null || $invoiceHandlingMode === '') {
+            $invoiceHandlingMode = $this->detectInvoiceHandlingMode();
+
+            // Set the flag now for future use if it's SHIPMENT mode
+            if ($invoiceHandlingMode == InvoiceHandlingOptions::SHIPMENT) {
+                $this->payment->setAdditionalInformation(
+                    InvoiceHandlingOptions::INVOICE_HANDLING,
+                    InvoiceHandlingOptions::SHIPMENT
+                );
+            }
+        }
+
+        // For SHIPMENT mode, mark payment as already captured
+        // This ensures the shipment observer will use offline capture
+        if ($invoiceHandlingMode == InvoiceHandlingOptions::SHIPMENT) {
+            $this->payment->setAdditionalInformation('buckaroo_already_captured', true);
             $this->logger->addDebug(sprintf(
-                '[%s:%s] - Resetting from CANCELED to STATE_NEW/PENDING | order: %s',
+                '[%s:%s] - Order %s: Set SHIPMENT invoice handling mode',
                 __METHOD__,
                 __LINE__,
                 $this->order->getIncrementId()
             ));
+        }
+    }
 
-            $this->order->setState(Order::STATE_NEW);
-            $this->order->setStatus('pending');
+    /**
+     * Detect invoice handling mode from configuration
+     * Checks method-specific config first, then falls back to general config
+     *
+     * @return int|string|null
+     * @throws LocalizedException
+     */
+    private function detectInvoiceHandlingMode()
+    {
+        // Check method-specific config first (e.g., Klarna's "create_invoice_after_shipment")
+        $methodSpecificConfig = $this->payment->getMethodInstance()->getConfigData('create_invoice_after_shipment');
 
-            foreach ($this->order->getAllItems() as $item) {
-                $item->setQtyCanceled(0);
-            }
-
-            // Mark order as reactivated to prevent duplicate reactivation from subsequent pushes
-            $this->payment->setAdditionalInformation('buckaroo_order_reactivated', true);
-            $this->payment->save();
-
-            // Add comment to order history
-            $this->order->addCommentToStatusHistory(
-                __(
-                    'Order reactivated: Payment completed after cancellation (Push notification received). ' .
-                    'Transaction ID: "%1"',
-                    $this->pushRequest->getTransactions()
-                ),
-                'pending',
-                false
-            );
-
-            // Save the order immediately to persist the state change
-            $this->order->save();
-
-            $this->forceInvoice = true;
-            return true;
+        if ($methodSpecificConfig !== null && $methodSpecificConfig !== '') {
+            return ($methodSpecificConfig == 1) ? InvoiceHandlingOptions::SHIPMENT : null;
         }
 
-        return false;
+        // Fall back to general account config
+        return $this->configAccount->getInvoiceHandling();
+    }
+
+    /**
+     * Register authorization transaction for reactivated order
+     * Allows manual "Capture Online" option in admin
+     *
+     * @return void
+     */
+    private function registerAuthorizationForReactivation(): void
+    {
+        // Get transaction key from push data (already determined in reactivateCanceledOrder)
+        $transactionKey = $this->pushRequest->getTransactions();
+
+        // If no brq_transactions, try brq_datarequest (used for Klarna/Afterpay authorization)
+        if (!$transactionKey || strlen($transactionKey) === 0) {
+            $transactionKey = $this->pushRequest->getDatarequest();
+        }
+
+        $this->logger->addDebug(sprintf(
+            '[%s:%s] - Register authorization | Transaction key: %s | Source: %s',
+            __METHOD__,
+            __LINE__,
+            $transactionKey ?? 'NULL',
+            $this->pushRequest->getTransactions() ? 'brq_transactions' : 'brq_datarequest'
+        ));
+
+        if (!$transactionKey || strlen($transactionKey) === 0) {
+            $this->logger->addDebug(sprintf(
+                '[%s:%s] - No transaction key found in push data, skipping authorization registration',
+                __METHOD__,
+                __LINE__
+            ));
+            return;
+        }
+
+        $baseGrandTotal = $this->order->getBaseGrandTotal();
+
+        // MOLLIE'S APPROACH: Use Magento's core registerAuthorizationNotification()
+        // This is the standard Magento way to register authorization after order reactivation
+        // Inspired by Mollie's SuccessfulPayment processor (lines 173-188)
+
+        // CRITICAL: Add suffix to transaction ID to avoid conflict with old closed authorization
+        // registerAuthorizationNotification() checks if transaction exists and skips if it does
+        // The old authorization was closed during cancellation, so we need a new unique ID
+        $newTransactionId = $transactionKey . '-reauth';
+
+        $this->payment->setTransactionId($newTransactionId);
+        $this->payment->setCurrencyCode($this->order->getBaseCurrencyCode());
+        $this->payment->setIsTransactionClosed(false);
+        $this->payment->registerAuthorizationNotification($baseGrandTotal);
+
+        // CRITICAL: Ensure the transaction ID stays as the reauth one after registerAuthorizationNotification
+        // Magento might reset it, so we set it again along with LastTransId
+        $this->payment->setTransactionId($newTransactionId);
+        $this->payment->setLastTransId($newTransactionId);
+
+        // Store the reauth transaction ID so addTransactionData() uses it as parent for captures
+        $this->payment->setAdditionalInformation('buckaroo_reauth_transaction_id', $newTransactionId);
+
+        $this->logger->addDebug(sprintf(
+            '[%s:%s] - Registered authorization using Magento core method (Mollie approach): %s | Amount: %s | Currency: %s | LastTransId: %s',
+            __METHOD__,
+            __LINE__,
+            $newTransactionId,
+            $baseGrandTotal,
+            $this->order->getBaseCurrencyCode(),
+            $this->payment->getLastTransId()
+        ));
+
+        // Verify canCapture works
+        $canCapture = $this->payment->canCapture();
+        $this->logger->addDebug(sprintf(
+            '[%s:%s] - Authorization setup complete - CanCapture: %s',
+            __METHOD__,
+            __LINE__,
+            $canCapture ? 'YES' : 'NO'
+        ));
     }
 
     /**
@@ -662,12 +880,12 @@ class DefaultProcessor implements PushProcessorInterface
     protected function savePartGroupTransaction(): void
     {
         $groupTransaction = $this->groupTransaction->getGroupTransactionByTrxId($this->pushRequest->getTransactions());
-        
+
         // Only update if transaction exists and has an entity_id (not empty)
         if ($groupTransaction instanceof GroupTransaction && $groupTransaction->getEntityId()) {
             $groupTransaction->setData('status', $this->pushRequest->getStatusCode());
             $groupTransaction->save();
-            
+
             $this->logger->addDebug(sprintf(
                 '[GROUP_TRANSACTION] | [Push] | [%s:%s] - Updated group transaction status | Key: %s | Status: %s',
                 __METHOD__,
@@ -680,8 +898,8 @@ class DefaultProcessor implements PushProcessorInterface
 
     /**
      * Save new group transaction if needed
-     * 
-     * For mixed payments, this ensures all payment methods (not just giftcards) 
+     *
+     * For mixed payments, this ensures all payment methods (not just giftcards)
      * are saved to the group_transaction table for proper refund handling.
      *
      * @return void
@@ -701,7 +919,7 @@ class DefaultProcessor implements PushProcessorInterface
         // Create and save the transaction using typed method (Magento best practice)
         try {
             $amount = $this->pushRequest->getAmount() ?? $this->pushRequest->getAmountDebit();
-            
+
             $this->groupTransaction->createGroupTransaction(
                 $this->pushRequest->getInvoiceNumber(),
                 $this->pushRequest->getTransactions(),
@@ -744,7 +962,7 @@ class DefaultProcessor implements PushProcessorInterface
         $existingTransaction = $this->groupTransaction->getGroupTransactionByTrxId(
             $this->pushRequest->getTransactions()
         );
-        
+
         return $existingTransaction && $existingTransaction->getEntityId();
     }
 
@@ -1235,7 +1453,23 @@ class DefaultProcessor implements PushProcessorInterface
          */
         $this->payment->setTransactionId($transactionKey . '-capture');
 
-        $this->payment->setParentTransactionId($transactionKey);
+        // For reactivated orders, use the reauth transaction ID as parent to avoid circular references
+        // Otherwise, use the original transaction key
+        $reauthTransactionId = $this->payment->getAdditionalInformation('buckaroo_reauth_transaction_id');
+        $parentTransactionId = $reauthTransactionId ?: $transactionKey;
+
+        $this->payment->setParentTransactionId($parentTransactionId);
+
+        if ($reauthTransactionId) {
+            $this->logger->addDebug(sprintf(
+                '[%s:%s] - Using reauth transaction ID as parent for capture: %s (original: %s)',
+                __METHOD__,
+                __LINE__,
+                $reauthTransactionId,
+                $transactionKey
+            ));
+        }
+
         $this->payment->setAdditionalInformation(
             BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY,
             $transactionKey
