@@ -28,6 +28,7 @@ use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
+use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
 use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
 use Buckaroo\Magento2\Service\Order\Uncancel;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
@@ -53,25 +54,27 @@ class AfterpayProcessor extends DefaultProcessor
      * @param Account                 $configAccount
      * @param GiftCardRefundService   $giftCardRefundService
      * @param Uncancel                $uncancelService
-     * @param \Magento\Framework\App\ResourceConnection $resourceConnection
+     * @param ResourceConnection $resourceConnection
+     * @param GiftcardCollection $giftcardCollection
      * @param Afterpay20              $afterpayConfig
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         OrderRequestService $orderRequestService,
-        PushTransactionType $pushTransactionType,
+        PushTransactionType     $pushTransactionType,
         BuckarooLoggerInterface $logger,
-        Data $helper,
-        TransactionInterface $transaction,
+        Data                    $helper,
+        TransactionInterface    $transaction,
         PaymentGroupTransaction $groupTransaction,
-        BuckarooStatusCode $buckarooStatusCode,
-        OrderStatusFactory $orderStatusFactory,
-        Account $configAccount,
-        GiftCardRefundService $giftCardRefundService,
-        Uncancel $uncancelService,
-        \Magento\Framework\App\ResourceConnection $resourceConnection,
-        Afterpay20 $afterpayConfig
+        BuckarooStatusCode      $buckarooStatusCode,
+        OrderStatusFactory      $orderStatusFactory,
+        Account                 $configAccount,
+        GiftCardRefundService   $giftCardRefundService,
+        Uncancel                $uncancelService,
+        ResourceConnection      $resourceConnection,
+        GiftcardCollection      $giftcardCollection,
+        Afterpay20              $afterpayConfig
     ) {
         parent::__construct(
             $orderRequestService,
@@ -85,7 +88,8 @@ class AfterpayProcessor extends DefaultProcessor
             $configAccount,
             $giftCardRefundService,
             $uncancelService,
-            $resourceConnection
+            $resourceConnection,
+            $giftcardCollection
         );
         $this->afterpayConfig = $afterpayConfig;
     }

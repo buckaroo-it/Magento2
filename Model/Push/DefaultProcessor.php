@@ -34,6 +34,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay2;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards;
+use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Transfer;
 use Buckaroo\Magento2\Model\GroupTransaction;
@@ -151,6 +152,11 @@ class DefaultProcessor implements PushProcessorInterface
     private $resourceConnection;
 
     /**
+     * @var GiftcardCollection
+     */
+    private $giftcardCollection;
+
+    /**
      * @param OrderRequestService     $orderRequestService
      * @param PushTransactionType     $pushTransactionType
      * @param BuckarooLoggerInterface $logger
@@ -163,6 +169,7 @@ class DefaultProcessor implements PushProcessorInterface
      * @param GiftCardRefundService   $giftCardRefundService
      * @param Uncancel                $uncancelService
      * @param ResourceConnection $resourceConnection
+     * @param GiftcardCollection $giftcardCollection
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -178,7 +185,8 @@ class DefaultProcessor implements PushProcessorInterface
         Account                   $configAccount,
         GiftCardRefundService     $giftCardRefundService,
         Uncancel                  $uncancelService,
-        ResourceConnection $resourceConnection
+        ResourceConnection        $resourceConnection,
+        GiftcardCollection        $giftcardCollection
     ) {
         $this->pushTransactionType = $pushTransactionType;
         $this->orderRequestService = $orderRequestService;
@@ -193,6 +201,7 @@ class DefaultProcessor implements PushProcessorInterface
         $this->giftCardRefundService = $giftCardRefundService;
         $this->uncancelService = $uncancelService;
         $this->resourceConnection = $resourceConnection;
+        $this->giftcardCollection = $giftcardCollection;
     }
 
     /**
@@ -237,6 +246,9 @@ class DefaultProcessor implements PushProcessorInterface
             $this->order->save();
             return true;
         }
+
+        // Store single giftcard payment metadata for refund support
+        $this->storeSingleGiftcardPaymentInfo();
 
         if ($this->giftcardPartialPayment()) {
             return true;
@@ -734,13 +746,6 @@ class DefaultProcessor implements PushProcessorInterface
 
         $baseGrandTotal = $this->order->getBaseGrandTotal();
 
-        // MOLLIE'S APPROACH: Use Magento's core registerAuthorizationNotification()
-        // This is the standard Magento way to register authorization after order reactivation
-        // Inspired by Mollie's SuccessfulPayment processor (lines 173-188)
-
-        // CRITICAL: Add suffix to transaction ID to avoid conflict with old closed authorization
-        // registerAuthorizationNotification() checks if transaction exists and skips if it does
-        // The old authorization was closed during cancellation, so we need a new unique ID
         $newTransactionId = $transactionKey . '-reauth';
 
         $this->payment->setTransactionId($newTransactionId);
@@ -755,16 +760,6 @@ class DefaultProcessor implements PushProcessorInterface
 
         // Store the reauth transaction ID so addTransactionData() uses it as parent for captures
         $this->payment->setAdditionalInformation('buckaroo_reauth_transaction_id', $newTransactionId);
-
-        $this->logger->addDebug(sprintf(
-            '[%s:%s] - Registered authorization using Magento core method (Mollie approach): %s | Amount: %s | Currency: %s | LastTransId: %s',
-            __METHOD__,
-            __LINE__,
-            $newTransactionId,
-            $baseGrandTotal,
-            $this->order->getBaseCurrencyCode(),
-            $this->payment->getLastTransId()
-        ));
 
         // Verify canCapture works
         $canCapture = $this->payment->canCapture();
@@ -941,15 +936,82 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
+     * Store single giftcard payment information in payment additional_information
+     * This is for single full giftcard payments (not mixed/partial payments)
+     * Used by refund system to identify and refund giftcard correctly
+     *
+     * @return void
+     * @throws LocalizedException
+     */
+    private function storeSingleGiftcardPaymentInfo(): void
+    {
+        // Only for giftcard payment method
+        if (!$this->payment || $this->payment->getMethod() !== 'buckaroo_magento2_giftcards') {
+            return;
+        }
+
+        // Only for successful transactions
+        if ((int)$this->pushRequest->getStatusCode() !== $this->buckarooStatusCode::SUCCESS) {
+            return;
+        }
+
+        $transactionMethod = $this->pushRequest->getTransactionMethod();
+
+        // Only if it's an actual giftcard
+        if (!$this->isActualGiftcard($transactionMethod)) {
+            return;
+        }
+
+        // Store giftcard metadata for refund
+        $this->payment->setAdditionalInformation('single_giftcard_payment', true);
+        $this->payment->setAdditionalInformation('single_giftcard_servicecode', $transactionMethod);
+        $this->payment->setAdditionalInformation('single_giftcard_amount', $this->pushRequest->getAmount() ?? $this->pushRequest->getAmountDebit());
+        $this->payment->setAdditionalInformation('single_giftcard_transaction_id', $this->pushRequest->getTransactions());
+        $this->payment->setAdditionalInformation('single_giftcard_currency', $this->pushRequest->getCurrency());
+
+        $this->logger->addDebug(sprintf(
+            '[SINGLE_GIFTCARD] | [%s:%s] - Stored single giftcard payment info | Method: %s | Amount: %s',
+            __METHOD__,
+            __LINE__,
+            $transactionMethod,
+            $this->pushRequest->getAmount()
+        ));
+    }
+
+    /**
      * Check if required data is present for group transaction
+     * Only for MIXED/PARTIAL payments (not single giftcards)
      *
      * @return bool
      */
     private function hasRequiredGroupTransactionData(): bool
     {
-        return $this->pushRequest->getTransactions()
-            && $this->pushRequest->getRelatedtransactionPartialpayment()
-            && $this->pushRequest->getInvoiceNumber();
+        // Basic requirements
+        if (!$this->pushRequest->getTransactions() || !$this->pushRequest->getInvoiceNumber()) {
+            return false;
+        }
+
+        // Only for mixed/partial payments with relatedtransaction
+        return (bool)$this->pushRequest->getRelatedtransactionPartialpayment();
+    }
+
+    /**
+     * Check if transaction method is an actual giftcard
+     *
+     * @param string|null $transactionMethod
+     * @return bool
+     */
+    private function isActualGiftcard(?string $transactionMethod): bool
+    {
+        if (!$transactionMethod) {
+            return false;
+        }
+
+        // Check if it's in the giftcard collection
+        $foundGiftcard = $this->giftcardCollection->getItemByColumnValue('servicecode', $transactionMethod);
+
+        // Also check for buckaroovoucher
+        return $foundGiftcard !== null || $transactionMethod === 'buckaroovoucher';
     }
 
     /**

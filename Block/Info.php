@@ -102,9 +102,94 @@ class Info extends \Magento\Payment\Block\Info
                     ];
                 }
             }
+
+            // Fallback: If no group transactions exist but this is a giftcard payment,
+            // get the giftcard info from raw transaction details
+            if (empty($result) && $this->isSingleGiftcardPayment()) {
+                $giftcardInfo = $this->getSingleGiftcardInfo();
+                if ($giftcardInfo) {
+                    $result[] = $giftcardInfo;
+                }
+            }
         }
 
         return $result;
+    }
+
+    /**
+     * Check if this is a single giftcard payment (not a group transaction)
+     *
+     * @return bool
+     */
+    private function isSingleGiftcardPayment(): bool
+    {
+        if (!$this->getInfo() || !$this->getInfo()->getOrder()) {
+            return false;
+        }
+
+        $payment = $this->getInfo()->getOrder()->getPayment();
+        $method = $payment->getMethod();
+
+        // Check if payment method is giftcards
+        if ($method !== 'buckaroo_magento2_giftcards') {
+            return false;
+        }
+
+        // Check if transaction method in raw details is a giftcard
+        $rawDetailsInfo = $payment->getAdditionalInformation('raw_details_info');
+        if (!is_array($rawDetailsInfo) || empty($rawDetailsInfo)) {
+            return false;
+        }
+
+        $firstTransaction = reset($rawDetailsInfo);
+        $transactionMethod = $firstTransaction['brq_transaction_method'] ?? null;
+
+        return !empty($transactionMethod);
+    }
+
+    /**
+     * Get single giftcard information from raw transaction details
+     *
+     * @return array|null
+     */
+    private function getSingleGiftcardInfo(): ?array
+    {
+        $payment = $this->getInfo()->getOrder()->getPayment();
+        $rawDetailsInfo = $payment->getAdditionalInformation('raw_details_info');
+
+        if (!is_array($rawDetailsInfo) || empty($rawDetailsInfo)) {
+            return null;
+        }
+
+        $firstTransaction = reset($rawDetailsInfo);
+        $servicecode = $firstTransaction['brq_transaction_method'] ?? null;
+
+        if (!$servicecode) {
+            return null;
+        }
+
+        // Try to find the giftcard in the collection
+        $foundGiftcard = $this->giftcardCollection->getItemByColumnValue('servicecode', $servicecode);
+
+        if ($foundGiftcard) {
+            return [
+                'code'  => $servicecode,
+                'label' => $foundGiftcard['label'],
+                'logo'  => $foundGiftcard['logo']
+            ];
+        }
+
+        // Special case for buckaroo voucher
+        if ($servicecode == 'buckaroovoucher') {
+            return [
+                'code'  => $servicecode,
+                'label' => 'Buckaroo Voucher',
+                'logo'  => null
+            ];
+        }
+
+        // It's NOT a giftcard - don't display it
+        return null;
     }
 
     /**

@@ -30,6 +30,7 @@ use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Model\Refund\Push as RefundPush;
+use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
 use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
 use Buckaroo\Magento2\Service\Order\Uncancel;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
@@ -58,7 +59,8 @@ class RefundProcessor extends DefaultProcessor
      * @param Account                 $configAccount
      * @param GiftCardRefundService   $giftCardRefundService
      * @param Uncancel                $uncancelService
-     * @param ResourceConnection $resourceConnection
+     * @param ResourceConnection      $resourceConnection
+     * @param GiftcardCollection      $giftcardCollection
      * @param RefundPush              $refundPush
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
@@ -76,6 +78,7 @@ class RefundProcessor extends DefaultProcessor
         GiftCardRefundService $giftCardRefundService,
         Uncancel $uncancelService,
         ResourceConnection $resourceConnection,
+        GiftcardCollection $giftcardCollection,
         RefundPush $refundPush
     ) {
         parent::__construct(
@@ -90,7 +93,8 @@ class RefundProcessor extends DefaultProcessor
             $configAccount,
             $giftCardRefundService,
             $uncancelService,
-            $resourceConnection
+            $resourceConnection,
+            $giftcardCollection
         );
         $this->refundPush = $refundPush;
     }
@@ -98,8 +102,8 @@ class RefundProcessor extends DefaultProcessor
     /**
      * @param PushRequestInterface $pushRequest
      *
+     * @return bool
      * @throws BuckarooException
-     * @throws \Exception
      */
     public function processPush(PushRequestInterface $pushRequest): bool
     {

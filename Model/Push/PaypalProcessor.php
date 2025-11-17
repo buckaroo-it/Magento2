@@ -29,6 +29,7 @@ use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Paypal as PaypalConfig;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
+use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
 use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
 use Buckaroo\Magento2\Service\Order\Uncancel;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
@@ -55,7 +56,8 @@ class PaypalProcessor extends DefaultProcessor
      * @param Account                 $configAccount
      * @param GiftCardRefundService   $giftCardRefundService
      * @param Uncancel                $uncancelService
-     * @param ResourceConnection $resourceConnection
+     * @param ResourceConnection      $resourceConnection
+     * @param GiftcardCollection      $giftcardCollection
      * @param PaypalConfig            $paypalConfig
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
@@ -73,6 +75,7 @@ class PaypalProcessor extends DefaultProcessor
         GiftCardRefundService $giftCardRefundService,
         Uncancel $uncancelService,
         ResourceConnection $resourceConnection,
+        GiftcardCollection $giftcardCollection,
         PaypalConfig $paypalConfig
     ) {
         parent::__construct(
@@ -87,7 +90,8 @@ class PaypalProcessor extends DefaultProcessor
             $configAccount,
             $giftCardRefundService,
             $uncancelService,
-            $resourceConnection
+            $resourceConnection,
+            $giftcardCollection
         );
         $this->paypalConfig = $paypalConfig;
     }

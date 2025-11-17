@@ -26,6 +26,7 @@ use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Model\GroupTransaction;
 use Magento\Framework\App\Request\Http;
 use Magento\Framework\App\RequestInterface;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Http\ClientException;
 use Magento\Payment\Gateway\Http\ClientInterface;
 use Magento\Payment\Gateway\Http\ConverterException;
@@ -35,6 +36,7 @@ use Magento\Payment\Gateway\Response\HandlerInterface;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface as BuckarooLog;
 use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
 use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Payment;
 
 class RefundGroupTransactionService
 {
@@ -119,15 +121,96 @@ class RefundGroupTransactionService
     }
 
     /**
-     * Check if an order has group transactions (giftcards/vouchers/mixed payments).
+     * Check if an order has group transactions (giftcards/vouchers/mixed payments)
+     * OR is a single giftcard payment (stored in payment additional_information)
      *
      * @param string $orderIncrementId Order increment ID
-     * @return bool True if order has group transactions, false otherwise
+     * @return bool True if order has giftcard/group transactions, false otherwise
      */
     public function hasGroupTransactions(string $orderIncrementId): bool
     {
+        // Check for mixed/partial payments in group_transaction table
         $groupTransactionAmount = $this->paymentGroupTransaction->getGroupTransactionAmount($orderIncrementId);
-        return $groupTransactionAmount > 0;
+        if ($groupTransactionAmount > 0) {
+            return true;
+        }
+
+        // Check for single giftcard payment in payment info
+        // We need to check this differently - will handle in refundGroupTransactions
+        return false;
+    }
+
+    /**
+     * Check if payment is a single giftcard payment (not in group_transaction table)
+     *
+     * @param Payment $payment
+     * @return bool
+     */
+    private function isSingleGiftcardPayment($payment): bool
+    {
+        return (bool)$payment->getAdditionalInformation('single_giftcard_payment');
+    }
+
+    /**
+     * Refund a single giftcard payment (not in group_transaction table)
+     *
+     * @param array $buildSubject
+     * @param Payment $payment
+     * @return float Amount left to refund (should be 0 after refunding full giftcard amount)
+     * @throws ConverterException|LocalizedException|ClientException
+     */
+    private function refundSingleGiftcard(array $buildSubject, $payment): float
+    {
+        $servicecode = $payment->getAdditionalInformation('single_giftcard_servicecode');
+        $transactionId = $payment->getAdditionalInformation('single_giftcard_transaction_id');
+        $giftcardAmount = (float)$payment->getAdditionalInformation('single_giftcard_amount');
+
+        $this->buckarooLog->addDebug(sprintf(
+            '[SINGLE_GIFTCARD_REFUND] | Refunding single giftcard | Service: %s | Amount: %s | Transaction: %s',
+            $servicecode,
+            $giftcardAmount,
+            $transactionId
+        ));
+
+        // Determine refund amount (full or partial)
+        $refundAmount = min($this->amountLeftToRefund, $giftcardAmount);
+
+        if ($refundAmount > 0) {
+            // Build refund request
+            $request = $this->requestDataBuilder->build($buildSubject);
+            $request['payment_method'] = $servicecode;
+            $request['name'] = $servicecode;
+            $request['amountCredit'] = $refundAmount;
+            $request['originalTransactionKey'] = $transactionId;
+
+            $transferO = $this->transferFactory->create($request);
+            $response = $this->clientInterface->placeRequest($transferO);
+
+            if ($this->handler) {
+                $this->handler->handle($buildSubject, $response);
+            }
+
+            $this->buckarooLog->addDebug(sprintf(
+                '[SINGLE_GIFTCARD_REFUND] | Refund response | Amount: %s | Response: %s',
+                $refundAmount,
+                var_export($response, true)
+            ));
+
+            // Update amount left to refund
+            $this->amountLeftToRefund -= $refundAmount;
+
+            // Mark as refunded in payment info
+            $alreadyRefunded = (float)$payment->getAdditionalInformation('single_giftcard_refunded_amount');
+            $payment->setAdditionalInformation('single_giftcard_refunded_amount', $alreadyRefunded + $refundAmount);
+        }
+
+        // If fully refunded, mark as complete
+        if ($this->amountLeftToRefund < 0.01) {
+            $buildSubject['response']['group_transaction_refund_complete'] = true;
+            return 0;
+        }
+
+        return $this->amountLeftToRefund;
     }
 
     /**
@@ -151,7 +234,13 @@ class RefundGroupTransactionService
         $originalRefundAmount = $this->amountLeftToRefund;
 
         $order = $paymentDO->getOrder()->getOrder();
+        $payment = $paymentDO->getPayment();
         $this->totalOrder = (float)$order->getBaseGrandTotal();
+
+        // Handle single giftcard payment (not in group_transaction table)
+        if ($this->isSingleGiftcardPayment($payment)) {
+            return $this->refundSingleGiftcard($buildSubject, $payment);
+        }
 
         $requestParams = $this->request->getParams();
         if (!empty($requestParams['creditmemo']['buckaroo_already_paid'])) {
