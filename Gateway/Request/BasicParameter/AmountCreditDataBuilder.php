@@ -86,12 +86,17 @@ class AmountCreditDataBuilder implements BuilderInterface
             throw new InvalidArgumentException('Credit Amount must be greater than 0');
         }
 
-        if ($this->refundGroupService->hasGroupTransactions($order->getIncrementId())) {
+        $payment = $paymentDO->getPayment();
+
+        // Check for group transactions (mixed/partial payments) OR single giftcard payments
+        $hasGroupTransactions = $this->refundGroupService->hasGroupTransactions($order->getIncrementId());
+        $isSingleGiftcard = (bool)$payment->getAdditionalInformation('single_giftcard_payment');
+
+        if ($hasGroupTransactions || $isSingleGiftcard) {
             $this->refundGroupService->refundGroupTransactions($buildSubject);
             $this->refundAmount = $this->refundGroupService->getAmountLeftToRefund();
 
             if ($this->refundAmount < 0.01) {
-                $payment = $paymentDO->getPayment();
                 $payment->setIsTransactionClosed(true);
                 $payment->setShouldCloseParentTransaction(true);
             }
