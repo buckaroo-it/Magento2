@@ -32,7 +32,7 @@ interface PayWithGiftcardInterface
      * @param string              $giftcardId
      * @param PayRequestInterface $payment
      *
-     * @return PayResponseInterface
+     * @return \Buckaroo\Magento2\Api\Data\Giftcard\PayResponseInterface
      */
     public function pay(string $cartId, string $giftcardId, PayRequestInterface $payment);
 }

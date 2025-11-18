@@ -33,7 +33,7 @@ interface PaypalExpressQuoteCreateInterface
    * @param string                          $page
    * @param string|null                     $orderData
    *
-   * @return QuoteCreateResponseInterface
+   * @return \Buckaroo\Magento2\Api\Data\PaypalExpress\QuoteCreateResponseInterface
    */
     public function execute(
         ShippingAddressRequestInterface $shippingAddress,

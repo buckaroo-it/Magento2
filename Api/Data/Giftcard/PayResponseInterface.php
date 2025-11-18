@@ -58,7 +58,7 @@ interface PayResponseInterface
     /**
      * Get user message
      *
-     * @return Phrase|string|null
+     * @return string|null
      *
      * @api
      */
@@ -67,7 +67,7 @@ interface PayResponseInterface
     /**
      * Get user remaining amount message
      *
-     * @return Phrase|string|null
+     * @return string|null
      *
      * @api
      */

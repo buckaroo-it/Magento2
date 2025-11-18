@@ -30,7 +30,7 @@ interface PaypalExpressOrderCreateInterface
      * @param string      $paypal_order_id
      * @param string|null $cart_id
      *
-     * @return OrderCreateResponseInterface
+     * @return \Buckaroo\Magento2\Api\Data\PaypalExpress\OrderCreateResponseInterface
      */
     public function execute(
         string $paypal_order_id,

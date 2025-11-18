@@ -29,7 +29,7 @@ interface GiftcardTransactionInterface
      *
      * @param string $cartId
      *
-     * @return GetTransactionsResponseInterface
+     * @return \Buckaroo\Magento2\Api\Data\Giftcard\GetTransactionsResponseInterface
      */
     public function get(string $cartId);
 }
