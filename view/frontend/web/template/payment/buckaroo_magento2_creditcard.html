@@ -35,35 +35,43 @@
         <div class="payment-method-second-col billing-address-form">
             <div class="fieldset payment">
                 <div class="field required">
-                    <legend class="label" data-bind="i18n: 'Select a Credit Card or Debit Card:'"></legend>
+
+                    <label class="label" for="buckaroo_magento2_creditcard_issuer">
+                        <span data-bind="i18n: 'Select a Credit Card or Debit Card:'"></span>
+                    </label>
+
                     <div class="control">
 
                         <!-- ko if: selectionType == '1' -->
                         <!-- ko foreach: creditcards -->
                         <label class="card-types">
                             <img class="card-types-img" data-bind="attr: {
-                                             'src': img,
-                                             'width': 30,
-                                             'height': 20 }"
+                                 'src': img,
+                                 'width': 30,
+                                 'height': 20 }"
                             />
-                            <input class="card-types-input" data-bind="value: code, click: $parent.setSelectedCard"
-                                   data-validate="{'validate-one-required-by-name':true}"
-                                   name="card" type="radio">
+                            <input class="card-types-input"
+                                   type="radio"
+                                   name="card"
+                                   data-bind="value: code, click: $parent.setSelectedCard"
+                                   data-validate="{'validate-one-required-by-name':true}">
                             <!-- ko text: name --><!--/ko-->
                         </label>
                         <!--/ko-->
                         <!--/ko-->
 
                         <!-- ko if: selectionType == '2' -->
-                        <select class="field" data-bind="value: creditcardIssuer,
-                                    event: { change: setSelectedBankDropDown },
-                                    attr: { 'data-validate': JSON.stringify({ 'required-entry': true }) }"
-                                id="buckaroo_magento2_creditcard_issuer"
-                                name="card">
-                            <option data-bind="i18n: 'Select a Credit Card or Debit Card', 'value': ''"></option>
-                            <!-- ko foreach: creditcards -->
-                            <option data-bind="i18n: name, 'value': code"></option>
-                            <!--/ko-->
+                        <select id="buckaroo_magento2_creditcard_issuer"
+                                class="field"
+                                name="card"
+                                data-bind="
+                            options: creditcards,
+                            optionsText: 'name',
+                            optionsValue: 'code',
+                            value: creditcardIssuer,
+                            optionsCaption: $t('Select a Credit Card or Debit Card'),
+                            attr: { 'data-validate': JSON.stringify({ 'required-entry': true }) }
+                        ">
                         </select>
                         <!--/ko-->
 
