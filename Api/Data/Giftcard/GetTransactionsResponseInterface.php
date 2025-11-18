@@ -26,7 +26,7 @@ interface GetTransactionsResponseInterface
     /**
      * Get the list of transactions for this cart
      *
-     * @return TransactionResponseInterface[]
+     * @return \Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterface[]
      */
     public function getTransactions(): array;
 

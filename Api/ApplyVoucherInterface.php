@@ -30,7 +30,7 @@ interface ApplyVoucherInterface
      *
      * @param string $voucherCode
      *
-     * @return PayResponseInterface
+     * @return \Buckaroo\Magento2\Api\Data\Giftcard\PayResponseInterface
      */
     public function apply(string $voucherCode): PayResponseInterface;
 }
