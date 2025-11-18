@@ -50,7 +50,8 @@ class AbstractPushRequest
         $argc = count($args);
         if ($argc < $min || $argc > $max) {
             throw new Exception(
-                __('Method %1 needs minimaly %2 and maximaly %3 arguments. %4 arguments given.',
+                __(
+                    'Method %1 needs minimaly %2 and maximaly %3 arguments. %4 arguments given.',
                     $methodName,
                     $min,
                     $max,

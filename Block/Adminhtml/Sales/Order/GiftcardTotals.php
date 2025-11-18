@@ -179,4 +179,3 @@ class GiftcardTotals extends Template
         ];
     }
 }
-

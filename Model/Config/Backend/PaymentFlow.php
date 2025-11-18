@@ -29,7 +29,6 @@ use Magento\Framework\Model\Context;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
 use Magento\Framework\Registry;
 
-
 class PaymentFlow extends Value
 {
     private const CONFIG_PATH_CREATE_INVOICE_AFTER_SHIPMENT = 'payment/buckaroo_magento2_afterpay20/create_invoice_after_shipment';
