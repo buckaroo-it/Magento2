@@ -248,7 +248,10 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     {
         try {
             $secondChanceModel = $this->secondChanceFactory->create();
-            $this->resource->load($secondChanceModel, $secondChance->getEntityId());
+            $this->resource->load($secondChanceModel, $secondChance->getOrderId(), 'order_id');
+            if (!$secondChanceModel->getId()) {
+                throw new NoSuchEntityException(__('SecondChance record not found for order: %1', $secondChance->getOrderId()));
+            }
             $this->resource->delete($secondChanceModel);
         } catch (Exception $exception) {
             throw new CouldNotDeleteException(
@@ -310,6 +313,19 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     }
 
     /**
+     * Extract base order ID by removing all suffixes (e.g., "000000230-1-1" becomes "000000230")
+     *
+     * @param string $orderId
+     * @return string
+     */
+    private function getBaseOrderId($orderId)
+    {
+        // Remove all suffixes like -1, -2, -1-1, etc.
+        // Match the pattern: any number of "-digit" or "-digit-digit" suffixes at the end
+        return preg_replace('/(-\d+)+$/', '', $orderId);
+    }
+
+    /**
      * Create a SecondChance record for order
      *
      * @param OrderInterface $order
@@ -323,10 +339,47 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         }
 
         try {
+            // Always use base order ID (without any suffixes) for second chance tracking
+            $baseOrderId = $this->getBaseOrderId($order->getIncrementId());
+
+            // Check if a second chance record already exists for this base order
+            try {
+                $existingRecord = $this->getByOrderId($baseOrderId);
+
+                // If it exists and is in a final state (completed/clicked), reactivate it
+                if (in_array($existingRecord->getStatus(), ['completed', 'clicked', 'order_paid'])) {
+                    $this->logging->addDebug('Reactivating existing SecondChance record for base order: ' . $baseOrderId);
+
+                    // Create new token for security
+                    $token = $this->mathRandom->getRandomString(32);
+
+                    // Reset the record for a fresh second chance attempt
+                    // Load by order_id instead of entity_id (which data model doesn't expose)
+                    $secondChance = $this->secondChanceFactory->create();
+                    $this->resource->load($secondChance, $baseOrderId, 'order_id');
+                    $secondChance->setToken($token);
+                    $secondChance->setStatus('pending');
+                    $secondChance->setStep(0);
+                    $secondChance->setFirstEmailSent(null);
+                    $secondChance->setSecondEmailSent(null);
+                    $secondChance->setLastOrderId(null);
+                    $secondChance->setCreatedAt($this->dateTime->gmtDate());
+                    $this->resource->save($secondChance);
+
+                    return $secondChance->getDataModel();
+                } else {
+                    // Record exists and is still active, don't create duplicate
+                    $this->logging->addDebug('SecondChance record already exists for base order: ' . $baseOrderId);
+                    return $existingRecord;
+                }
+            } catch (NoSuchEntityException $e) {
+                // No existing record, create a new one
+            }
+
             $token = $this->mathRandom->getRandomString(32);
 
             $secondChance = $this->dataSecondChanceFactory->create();
-            $secondChance->setOrderId($order->getIncrementId());
+            $secondChance->setOrderId($baseOrderId);
             $secondChance->setStoreId($order->getStoreId());
             $secondChance->setCustomerEmail($order->getCustomerEmail());
             $secondChance->setToken($token);
@@ -336,7 +389,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
 
             $savedSecondChance = $this->save($secondChance);
 
-            $this->logging->addDebug('SecondChance record created for order: ' . $order->getIncrementId());
+            $this->logging->addDebug('SecondChance record created for base order: ' . $baseOrderId . ' (from order: ' . $order->getIncrementId() . ')');
 
             return $savedSecondChance;
         } catch (Exception $e) {
@@ -412,28 +465,34 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
             $this->setFinalStatus($secondChance, 'clicked');
         }
 
-        // Recreate quote with Second Chance suffix
-        $order = $this->orderFactory->create()->loadByIncrementId($secondChance->getOrderId());
+        // Always load the base order (without suffixes) for recreation
+        $baseOrderId = $this->getBaseOrderId($secondChance->getOrderId());
+        $order = $this->orderFactory->create()->loadByIncrementId($baseOrderId);
         if ($order->getId()) {
+            // Get or calculate the next available order ID with suffix
             $newOrderId = $secondChance->getLastOrderId();
 
             if (!$newOrderId) {
-                $newOrderId = $this->setAvailableIncrementId($secondChance->getOrderId(), $order);
+                // Calculate next available suffix based on base order
+                $newOrderId = $this->setAvailableIncrementId($baseOrderId, $order);
             }
 
-            // Recreate the quote
+            // Recreate the quote from the base order
             $quote = $this->quoteRecreate->duplicate($order);
 
             // Apply the reserved order ID with suffix to the new quote
             if ($newOrderId && $quote && $quote->getId()) {
                 $quote->setReservedOrderId($newOrderId);
                 $quote->save();
-                $this->logging->addDebug('Second Chance: Order ID suffix applied to new quote', [
-                    'quote_id' => $quote->getId(),
-                    'reserved_order_id' => $newOrderId,
-                    'original_order_id' => $secondChance->getOrderId(),
-                    'was_pre_calculated' => !empty($secondChance->getLastOrderId())
-                ]);
+
+                // CRITICAL: Force this quote to be THE quote for checkout
+                // Clear any old quote from session and explicitly set this one
+                $this->checkoutSession->clearQuote();
+                $this->checkoutSession->clearStorage();
+                $this->checkoutSession->replaceQuote($quote);
+                $this->checkoutSession->setQuoteId($quote->getId());
+
+                $this->logging->addDebug('Second Chance: Quote recreated with order ID: ' . $newOrderId);
             }
         }
 
@@ -457,14 +516,21 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
 
         if ($step == 1) {
             $collection->addFieldToFilter('status', 'pending');
+            // For step 1: Check delay from when the order was created
+            $delay = $this->configProvider->getSecondChanceDelay($step, $store);
+            $delayDate = date('Y-m-d H:i:s', strtotime('-' . $delay . ' hours'));
+            // Use <= for instant processing when delay is 0
+            $operator = ($delay == 0) ? 'lteq' : 'lt';
+            $collection->addFieldToFilter('created_at', [$operator => $delayDate]);
         } else {
             $collection->addFieldToFilter('status', 'step1_sent');
+            // For step 2: Check delay from when the FIRST email was sent
+            $delay = $this->configProvider->getSecondChanceDelay($step, $store);
+            $delayDate = date('Y-m-d H:i:s', strtotime('-' . $delay . ' hours'));
+            // Use <= for instant processing when delay is 0
+            $operator = ($delay == 0) ? 'lteq' : 'lt';
+            $collection->addFieldToFilter('first_email_sent', [$operator => $delayDate]);
         }
-
-        // Calculate delay based on step
-        $delay = $this->configProvider->getSecondChanceDelay($step, $store);
-        $delayDate = date('Y-m-d H:i:s', strtotime('-' . $delay . ' hours'));
-        $collection->addFieldToFilter('created_at', ['lt' => $delayDate]);
 
         $limit = $this->configProvider->getSecondChanceEmailLimit($store);
         if ($limit > 0) {
@@ -483,15 +549,17 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
                     continue;
                 }
 
-                $order = $this->orderFactory->create()->loadByIncrementId($item->getOrderId());
+                // Load the base order (without suffixes) for processing
+                $baseOrderId = $this->getBaseOrderId($item->getOrderId());
+                $order = $this->orderFactory->create()->loadByIncrementId($baseOrderId);
                 if (!$order->getId()) {
-                    $this->logging->addError('Order not found: ' . $item->getOrderId());
+                    $this->logging->addError('Base order not found: ' . $baseOrderId . ' (from: ' . $item->getOrderId() . ')');
                     $this->setFinalStatus($item, 'order_not_found');
                     continue;
                 }
 
-                // Check if order is still pending/cancelled
-                if (!in_array($order->getState(), ['pending_payment', 'canceled'])) {
+                // Check if order is still in an unpaid state (new, pending_payment, or canceled)
+                if (!in_array($order->getState(), ['new', 'pending_payment', 'canceled'])) {
                     $this->setFinalStatus($item, 'order_paid');
                     continue;
                 }
@@ -503,7 +571,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
                     continue;
                 }
 
-                // Check for multiple emails
+                // Check for multiple emails (check based on base order)
                 $multipleEnabled = $this->configProvider->isSecondChanceMultipleEnabled($store);
                 if (!$this->checkForMultipleEmail($order, $multipleEnabled)) {
                     $this->setFinalStatus($item, 'multiple_not_allowed');
@@ -524,12 +592,10 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
                 }
 
                 // Calculate and store the expected order ID before sending email
-                // For step 1: Always use -1 suffix (first reminder)
-                // For step 2: Always use -2 suffix (second reminder)
-                // This makes it easy for customer support to identify which email led to the order
+                $baseOrderId = $this->getBaseOrderId($item->getOrderId());
                 $suffix = ($step == 1) ? '-1' : '-2';
-                $expectedOrderId = $item->getOrderId() . $suffix;
-                
+                $expectedOrderId = $baseOrderId . $suffix;
+
                 // Store it so when customer clicks, we use the same ID
                 $item->setLastOrderId($expectedOrderId);
 
@@ -568,9 +634,17 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
      * @param mixed $order
      * @param mixed $secondChance
      * @param mixed $step
+     * @throws NoSuchEntityException
      */
     public function sendMail($order, $secondChance, $step)
     {
+        $baseOrderId = $this->getBaseOrderId($secondChance->getOrderId());
+        $baseOrder = $this->orderFactory->create()->loadByIncrementId($baseOrderId);
+
+        if ($baseOrder->getId()) {
+            $order = $baseOrder;
+        }
+
         $store = $order->getStore();
 
         // Generate checkout URL with token (ensure correct store context for translations)
@@ -623,6 +697,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
             $templateVars = [
                 'order' => $order,
                 'order_id' => $order->getId(),
+                'base_order_id' => $baseOrderId,  // Original order number (without suffixes)
                 'expected_order_id' => $expectedOrderId ?: $order->getIncrementId(),
                 'billing' => $order->getBillingAddress(),
                 'payment_html' => $paymentHtml,
@@ -641,7 +716,8 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
                     'is_not_virtual' => $order->getIsNotVirtual(),
                     'email_customer_note' => $order->getEmailCustomerNote(),
                     'frontend_status_label' => $order->getFrontendStatusLabel()
-                ]
+                ],
+                'step' => $step  // Which reminder email (1 or 2)
             ];
         } catch (Exception $e) {
             $this->logging->addError('Error preparing template variables: ' . $e->getMessage());
@@ -762,10 +838,11 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
             return true; // Multiple emails allowed
         }
 
-        // Simple check - since we have order_id, we can just check if there's already a record for this order
-        // that has been processed (status != pending)
+        // Check based on base order ID to prevent multiple second chances
+        // across all attempts (including retries from failed second chances)
+        $baseOrderId = $this->getBaseOrderId($order->getIncrementId());
         $collection = $this->secondChanceCollectionFactory->create();
-        $collection->addFieldToFilter('order_id', $order->getIncrementId());
+        $collection->addFieldToFilter('order_id', $baseOrderId);
         $collection->addFieldToFilter('status', ['in' => ['completed', 'clicked']]);
 
         return $collection->getSize() == 0;

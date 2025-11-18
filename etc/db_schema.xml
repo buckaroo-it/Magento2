@@ -150,9 +150,13 @@
             </constraint>
         <column name="order_id" xsi:type="text" nullable="true" comment="orderId"/>
         <column name="store_id" xsi:type="smallint" padding="5" nullable="true" comment="storeId"/>
+        <column xsi:type="varchar" name="customer_email" nullable="true" length="255" comment="Customer Email"/>
         <column xsi:type="varchar" name="token" nullable="false" length="255" comment="Token"/>
         <column name="status" xsi:type="text" nullable="false" comment="Status"/>
+        <column name="step" xsi:type="int" nullable="false" default="0" comment="Current Step (0, 1, or 2)"/>
         <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP" comment="Created At"/>
+        <column xsi:type="timestamp" name="first_email_sent" on_update="false" nullable="true" comment="When First Email Was Sent"/>
+        <column xsi:type="timestamp" name="second_email_sent" on_update="false" nullable="true" comment="When Second Email Was Sent"/>
         <column name="last_order_id" xsi:type="text" nullable="true" comment="Last orderId"/>
         <index referenceId="BUCKAROO_MAGENTO2_SECOND_CHANCE_ENTITY_ID" indexType="btree">
             <column name="entity_id"/>
