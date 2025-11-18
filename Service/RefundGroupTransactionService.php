@@ -152,6 +152,25 @@ class RefundGroupTransactionService
     }
 
     /**
+     * Check if transaction method is an actual giftcard
+     *
+     * @param string|null $transactionMethod
+     * @return bool
+     */
+    private function isActualGiftcard(?string $transactionMethod): bool
+    {
+        if (!$transactionMethod) {
+            return false;
+        }
+
+        // Check if it's in the giftcard collection
+        $foundGiftcard = $this->giftcardCollection->getItemByColumnValue('servicecode', $transactionMethod);
+
+        // Also check for buckaroovoucher
+        return $foundGiftcard !== null || $transactionMethod === 'buckaroovoucher';
+    }
+
+    /**
      * Refund a single giftcard payment (not in group_transaction table)
      *
      * @param array $buildSubject
@@ -164,6 +183,16 @@ class RefundGroupTransactionService
         $servicecode = $payment->getAdditionalInformation('single_giftcard_servicecode');
         $transactionId = $payment->getAdditionalInformation('single_giftcard_transaction_id');
         $giftcardAmount = (float)$payment->getAdditionalInformation('single_giftcard_amount');
+
+        // Validate that the servicecode is actually a giftcard
+        if (!$this->isActualGiftcard($servicecode)) {
+            $this->buckarooLog->addDebug(sprintf(
+                '[SINGLE_GIFTCARD_REFUND] | Invalid servicecode: "%s" is not a valid giftcard. Skipping single giftcard refund.',
+                $servicecode
+            ));
+            // Return the full amount to let regular refund flow handle it
+            return $this->amountLeftToRefund;
+        }
 
         $this->buckarooLog->addDebug(sprintf(
             '[SINGLE_GIFTCARD_REFUND] | Refunding single giftcard | Service: %s | Amount: %s | Transaction: %s',

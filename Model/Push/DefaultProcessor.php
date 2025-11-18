@@ -157,6 +157,12 @@ class DefaultProcessor implements PushProcessorInterface
     private $giftcardCollection;
 
     /**
+     * Temporary storage for single giftcard payment info to apply before final save
+     * @var array|null
+     */
+    private $pendingSingleGiftcardInfo = null;
+
+    /**
      * @param OrderRequestService     $orderRequestService
      * @param PushTransactionType     $pushTransactionType
      * @param BuckarooLoggerInterface $logger
@@ -247,9 +253,6 @@ class DefaultProcessor implements PushProcessorInterface
             return true;
         }
 
-        // Store single giftcard payment metadata for refund support
-        $this->storeSingleGiftcardPaymentInfo();
-
         if ($this->giftcardPartialPayment()) {
             return true;
         }
@@ -258,7 +261,13 @@ class DefaultProcessor implements PushProcessorInterface
             return true;
         }
 
+        // Store single giftcard payment metadata for refund support
+        $this->storeSingleGiftcardPaymentInfo();
+
         $this->processPushByStatus();
+
+        // Apply pending single giftcard info right before final save (inline payment path)
+        $this->applyAndSavePendingSingleGiftcardInfo('inline');
 
         if (!$this->dontSaveOrderUponSuccessPush) {
             $this->order->save();
@@ -268,7 +277,7 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * @param \Buckaroo\Magento2\Api\Data\PushRequestInterface $pushRequest
+     * @param PushRequestInterface $pushRequest
      *
      * @throws Exception
      */
@@ -936,49 +945,6 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * Store single giftcard payment information in payment additional_information
-     * This is for single full giftcard payments (not mixed/partial payments)
-     * Used by refund system to identify and refund giftcard correctly
-     *
-     * @return void
-     * @throws LocalizedException
-     */
-    private function storeSingleGiftcardPaymentInfo(): void
-    {
-        // Only for giftcard payment method
-        if (!$this->payment || $this->payment->getMethod() !== 'buckaroo_magento2_giftcards') {
-            return;
-        }
-
-        // Only for successful transactions
-        if ((int)$this->pushRequest->getStatusCode() !== $this->buckarooStatusCode::SUCCESS) {
-            return;
-        }
-
-        $transactionMethod = $this->pushRequest->getTransactionMethod();
-
-        // Only if it's an actual giftcard
-        if (!$this->isActualGiftcard($transactionMethod)) {
-            return;
-        }
-
-        // Store giftcard metadata for refund
-        $this->payment->setAdditionalInformation('single_giftcard_payment', true);
-        $this->payment->setAdditionalInformation('single_giftcard_servicecode', $transactionMethod);
-        $this->payment->setAdditionalInformation('single_giftcard_amount', $this->pushRequest->getAmount() ?? $this->pushRequest->getAmountDebit());
-        $this->payment->setAdditionalInformation('single_giftcard_transaction_id', $this->pushRequest->getTransactions());
-        $this->payment->setAdditionalInformation('single_giftcard_currency', $this->pushRequest->getCurrency());
-
-        $this->logger->addDebug(sprintf(
-            '[SINGLE_GIFTCARD] | [%s:%s] - Stored single giftcard payment info | Method: %s | Amount: %s',
-            __METHOD__,
-            __LINE__,
-            $transactionMethod,
-            $this->pushRequest->getAmount()
-        ));
-    }
-
-    /**
      * Check if required data is present for group transaction
      * Only for MIXED/PARTIAL payments (not single giftcards)
      *
@@ -993,25 +959,6 @@ class DefaultProcessor implements PushProcessorInterface
 
         // Only for mixed/partial payments with relatedtransaction
         return (bool)$this->pushRequest->getRelatedtransactionPartialpayment();
-    }
-
-    /**
-     * Check if transaction method is an actual giftcard
-     *
-     * @param string|null $transactionMethod
-     * @return bool
-     */
-    private function isActualGiftcard(?string $transactionMethod): bool
-    {
-        if (!$transactionMethod) {
-            return false;
-        }
-
-        // Check if it's in the giftcard collection
-        $foundGiftcard = $this->giftcardCollection->getItemByColumnValue('servicecode', $transactionMethod);
-
-        // Also check for buckaroovoucher
-        return $foundGiftcard !== null || $transactionMethod === 'buckaroovoucher';
     }
 
     /**
@@ -1269,6 +1216,9 @@ class DefaultProcessor implements PushProcessorInterface
         }
 
         $this->processSucceededPushAuthorization();
+
+        // Apply and save single giftcard metadata before order status update (redirect payment path)
+        $this->applyAndSavePendingSingleGiftcardInfo('redirect');
 
         $this->orderRequestService->updateOrderStatus(
             $paymentDetails['state'],
@@ -1927,5 +1877,113 @@ class DefaultProcessor implements PushProcessorInterface
             ->get('Buckaroo\Magento2\Model\ConfigProvider\Account');
 
         return (bool) $accountConfig->getFailureRedirectToCheckout($this->order->getStore());
+    }
+
+    /**
+     * Store single giftcard payment information in payment additional_information
+     * This is for single full giftcard payments (not mixed/partial payments)
+     * Used by refund system to identify and refund giftcard correctly
+     *
+     * @return void
+     */
+    private function storeSingleGiftcardPaymentInfo(): void
+    {
+        // Only for giftcard payment method
+        if (!$this->payment || $this->payment->getMethod() !== 'buckaroo_magento2_giftcards') {
+            return;
+        }
+
+        // Only for successful transactions
+        if ((int)$this->pushRequest->getStatusCode() !== $this->buckarooStatusCode::SUCCESS) {
+            return;
+        }
+
+        $transactionMethod = $this->pushRequest->getTransactionMethod();
+
+        // Only if it's an actual giftcard
+        if (!$this->isActualGiftcard($transactionMethod)) {
+            return;
+        }
+
+        // Store giftcard metadata temporarily - will be applied to payment right before final save
+        $this->pendingSingleGiftcardInfo = [
+            'servicecode' => $transactionMethod,
+            'amount' => $this->pushRequest->getAmount() ?? $this->pushRequest->getAmountDebit(),
+            'transaction_id' => $this->pushRequest->getTransactions(),
+            'currency' => $this->pushRequest->getCurrency()
+        ];
+
+        $this->logger->addDebug(sprintf(
+            '[SINGLE_GIFTCARD] | [%s:%s] - Stored single giftcard payment info temporarily | Method: %s | Amount: %s | Will be applied before final save',
+            __METHOD__,
+            __LINE__,
+            $transactionMethod,
+            $this->pushRequest->getAmount()
+        ));
+    }
+
+    /**
+     * Apply and save pending single giftcard payment information
+     * This method is called at multiple points in the push flow depending on payment type
+     *
+     * @param string $context Context description for logging (e.g., 'inline', 'redirect', 'capture')
+     * @return void
+     */
+    private function applyAndSavePendingSingleGiftcardInfo(string $context = 'default'): void
+    {
+        if ($this->pendingSingleGiftcardInfo === null) {
+            return;
+        }
+
+        try {
+            // Set all giftcard metadata on payment
+            $this->payment->setAdditionalInformation('single_giftcard_payment', true);
+            $this->payment->setAdditionalInformation('single_giftcard_servicecode', $this->pendingSingleGiftcardInfo['servicecode']);
+            $this->payment->setAdditionalInformation('single_giftcard_amount', $this->pendingSingleGiftcardInfo['amount']);
+            $this->payment->setAdditionalInformation('single_giftcard_transaction_id', $this->pendingSingleGiftcardInfo['transaction_id']);
+            $this->payment->setAdditionalInformation('single_giftcard_currency', $this->pendingSingleGiftcardInfo['currency']);
+
+            // Save payment directly to ensure additional_information is persisted to database
+            $this->payment->save();
+
+            $this->logger->addDebug(sprintf(
+                '[SINGLE_GIFTCARD] | [%s:%s] - Applied and saved single giftcard info [%s] | Service: %s | Amount: %s',
+                __METHOD__,
+                __LINE__,
+                $context,
+                $this->pendingSingleGiftcardInfo['servicecode'],
+                $this->pendingSingleGiftcardInfo['amount']
+            ));
+
+            // Clear pending info after successful save to prevent duplicate saves
+            $this->pendingSingleGiftcardInfo = null;
+        } catch (\Exception $e) {
+            $this->logger->addError(sprintf(
+                '[SINGLE_GIFTCARD] | [%s:%s] - Failed to save single giftcard info [%s] | Error: %s',
+                __METHOD__,
+                __LINE__,
+                $context,
+                $e->getMessage()
+            ));
+        }
+    }
+
+    /**
+     * Check if transaction method is an actual giftcard
+     *
+     * @param string|null $transactionMethod
+     * @return bool
+     */
+    private function isActualGiftcard(?string $transactionMethod): bool
+    {
+        if (!$transactionMethod) {
+            return false;
+        }
+
+        // Check if it's in the giftcard collection
+        $foundGiftcard = $this->giftcardCollection->getItemByColumnValue('servicecode', $transactionMethod);
+
+        // Also check for buckaroovoucher
+        return $foundGiftcard !== null || $transactionMethod === 'buckaroovoucher';
     }
 }
