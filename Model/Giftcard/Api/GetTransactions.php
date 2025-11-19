@@ -29,7 +29,7 @@ class GetTransactions implements GiftcardTransactionInterface
     /**
      * @var GetTransactionsResponseInterfaceFactory
      */
-    protected GetTransactionsResponseInterfaceFactory $responseFactory;
+    protected $responseFactory;
 
     /**
      * @param GetTransactionsResponseInterfaceFactory $responseFactory

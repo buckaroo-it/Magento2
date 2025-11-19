@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Model\ConfigProvider;
 
 use Buckaroo\Magento2\Exception as BuckarooException;
+use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface as BuckarooConfigProviderInterface;
 use Magento\Framework\ObjectManagerInterface;
@@ -32,23 +33,65 @@ class Factory
     /**
      * @var ObjectManagerInterface
      */
-    protected ObjectManagerInterface $objectManager;
+    protected $objectManager;
 
     /**
      * @var array
      */
-    protected array $configProviders;
+    protected $configProviders;
+
+    /**
+     * @var array
+     */
+    protected $mapPaymentMethods;
+
+    /**
+     * @var GiftcardCollection
+     */
+    private $giftcardCollection;
 
     /**
      * @param ObjectManagerInterface $objectManager
-     * @param array $configProviders
+     * @param GiftcardCollection     $giftcardCollection
+     * @param array                  $configProviders
+     * @param array                  $mapPaymentMethods
      */
     public function __construct(
         ObjectManagerInterface $objectManager,
-        array $configProviders = []
+        GiftcardCollection $giftcardCollection,
+        array $configProviders = [],
+        array $mapPaymentMethods = []
     ) {
         $this->objectManager = $objectManager;
+        $this->giftcardCollection = $giftcardCollection;
         $this->configProviders = $configProviders;
+        $this->mapPaymentMethods = $mapPaymentMethods;
+    }
+
+    /**
+     * Map payment method code to ConfigProvider type
+     * e.g., vvvgiftcard -> giftcard -> giftcards
+     *
+     * @param string $providerType
+     *
+     * @return string
+     */
+    protected function mapPaymentMethodType(string $providerType): string
+    {
+        $foundGiftcard = $this->giftcardCollection->getItemByColumnValue(
+            'servicecode',
+            $providerType
+        );
+
+        if ($foundGiftcard) {
+            return 'giftcards';
+        }
+
+        if (isset($this->mapPaymentMethods[$providerType])) {
+            return $this->mapPaymentMethods[$providerType];
+        }
+
+        return $providerType;
     }
 
     /**
@@ -56,8 +99,9 @@ class Factory
      *
      * @param string $providerType
      *
-     * @return ConfigProviderInterface
      * @throws \LogicException|BuckarooException
+     *
+     * @return ConfigProviderInterface
      */
     public function get(string $providerType): ConfigProviderInterface
     {
@@ -70,6 +114,8 @@ class Factory
             $providerType = str_replace('buckaroo_magento2_', '', $providerType);
             $isPaymentMethod = true;
         }
+
+        $providerType = $this->mapPaymentMethodType($providerType);
 
         foreach ($this->configProviders as $configProviderMetaData) {
             $configProviderType = $configProviderMetaData['type'];
@@ -100,8 +146,10 @@ class Factory
      * Checks if a specific config provider is present in the config providers list
      *
      * @param string $providerType
-     * @return bool
+     *
      * @throws \LogicException
+     *
+     * @return bool
      */
     public function has(string $providerType): bool
     {
@@ -110,6 +158,8 @@ class Factory
         }
 
         $providerType = str_replace('buckaroo_magento2_', '', $providerType);
+
+        $providerType = $this->mapPaymentMethodType($providerType);
 
         foreach ($this->configProviders as $configProviderMetaData) {
             $configProviderType = $configProviderMetaData['type'];

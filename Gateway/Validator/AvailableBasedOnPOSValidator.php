@@ -37,17 +37,17 @@ class AvailableBasedOnPOSValidator extends AbstractValidator
     /**
      * @var Pospayment
      */
-    public Pospayment $pospaymentConfiguration;
+    public $pospaymentConfiguration;
 
     /**
      * @var BuckarooHelper
      */
-    public BuckarooHelper $helper;
+    public $helper;
 
     /**
      * @var PaymentHelper
      */
-    private PaymentHelper $paymentHelper;
+    private $paymentHelper;
 
     /**
      * @var Customer
@@ -56,10 +56,10 @@ class AvailableBasedOnPOSValidator extends AbstractValidator
 
     /**
      * @param ResultInterfaceFactory $resultFactory
-     * @param Pospayment $pospaymentConfiguration
-     * @param BuckarooHelper $helper
-     * @param PaymentHelper $paymentHelper
-     * @param Customer $customerHelper
+     * @param Pospayment             $pospaymentConfiguration
+     * @param BuckarooHelper         $helper
+     * @param PaymentHelper          $paymentHelper
+     * @param Customer               $customerHelper
      */
     public function __construct(
         ResultInterfaceFactory $resultFactory,
@@ -79,9 +79,11 @@ class AvailableBasedOnPOSValidator extends AbstractValidator
      * Available Based on Costumer Group
      *
      * @param array $validationSubject
-     * @return ResultInterface
+     *
      * @throws Exception
      * @throws LocalizedException
+     *
+     * @return ResultInterface
      */
     public function validate(array $validationSubject): ResultInterface
     {
@@ -116,6 +118,7 @@ class AvailableBasedOnPOSValidator extends AbstractValidator
      * Check if payment method should be display with POS
      *
      * @param string $paymentMethodCode
+     *
      * @return bool
      */
     private function checkPosOtherPaymentMethods(string $paymentMethodCode): bool

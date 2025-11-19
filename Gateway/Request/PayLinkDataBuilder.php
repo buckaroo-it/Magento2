@@ -30,15 +30,15 @@ class PayLinkDataBuilder extends AbstractDataBuilder
     /**
      * @var PayLink
      */
-    private PayLink $payLinkConfig;
+    private $payLinkConfig;
 
     /**
      * @var Giftcards
      */
-    private Giftcards $giftcardsConfig;
+    private $giftcardsConfig;
 
     /**
-     * @param PayLink $payLinkConfig
+     * @param PayLink   $payLinkConfig
      * @param Giftcards $giftcardsConfig
      */
     public function __construct(
@@ -74,8 +74,9 @@ class PayLinkDataBuilder extends AbstractDataBuilder
     /**
      * Get Payment Methods Allowed
      *
-     * @param PayLink $config
+     * @param PayLink         $config
      * @param string|int|null $storeId
+     *
      * @return string
      */
     private function getPaymentMethodsAllowed(PayLink $config, $storeId): string

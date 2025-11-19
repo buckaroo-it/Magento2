@@ -132,7 +132,6 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
             throw new PaypalExpressException(__("Failed to add address quote"), 1, $th);
         }
 
-
         $this->calculateQuoteTotals();
         return $this->responseFactory->create(["quote" => $this->quote]);
     }
@@ -140,7 +139,6 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
     /**
      * Calculate quote totals, set store id required for quote masking,
      * set customer email required for order validation
-     * @return void
      */
     protected function calculateQuoteTotals()
     {
@@ -174,7 +172,7 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
         $address->setPostcode($shipping_address->getPostalCode());
         $address->setCity($shipping_address->getCity());
         $address->setRegion($shipping_address->getState());
-        $this->maybeFillAnyMissingAddressFields($shipping_address);
+        $this->maybeFillAnyMissingAddressFields();
 
         $this->quoteRepository->save($this->quote);
         $this->addFirstShippingMethod($address);
@@ -185,8 +183,6 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
      * recalculate shipping totals
      *
      * @param Address $address
-     *
-     * @return void
      */
     protected function addFirstShippingMethod(Address $address)
     {
@@ -207,22 +203,16 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
 
     /**
      * Fill any fields missing from the addresses
-     *
-     * @param ShippingAddressRequestInterface $shipping_address
-     *
-     * @return void
      */
-    protected function maybeFillAnyMissingAddressFields(ShippingAddressRequestInterface $shipping_address)
+    protected function maybeFillAnyMissingAddressFields()
     {
         $this->maybeFillShippingAddressFields();
-        $this->maybeFillBillingAddressFields($shipping_address);
+        $this->maybeFillBillingAddressFields();
     }
 
     /**
      * If we didn't find any default shipping address we fill the empty fields
      * required for quote validation
-     *
-     * @return void
      */
     protected function maybeFillShippingAddressFields()
     {
@@ -239,12 +229,8 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
     /**
      * If we didn't find any default billing address we fill the empty fields
      * required for quote validation
-     *
-     * @param ShippingAddressRequestInterface $shipping_address
-     *
-     * @return void
      */
-    protected function maybeFillBillingAddressFields(ShippingAddressRequestInterface $shipping_address)
+    protected function maybeFillBillingAddressFields()
     {
         $address = $this->quote->getBillingAddress();
         if ($address->getId() === null) {
@@ -253,16 +239,11 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
             $address->setEmail($this->quote->getCustomerEmail() ?: 'no-reply@example.com');
             $address->setStreet('Street');
             $address->setTelephone('0000000');
-            $address->setCountryId($shipping_address->getCountryCode());
-            $address->setPostcode($shipping_address->getPostalCode());
-            $address->setCity($shipping_address->getCity());
-            $address->setRegion($shipping_address->getState());
         }
     }
 
     /**
      * Set paypal payment method on quote
-     *
      */
     protected function setPaymentMethod()
     {

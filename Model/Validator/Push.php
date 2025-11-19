@@ -32,27 +32,27 @@ class Push implements ValidatorInterface
     /**
      * @var Account
      */
-    public Account $configProviderAccount;
+    public $configProviderAccount;
 
     /**
      * @var Data
      */
-    public Data $helper;
+    public $helper;
 
     /**
      * @var BuckarooLoggerInterface
      */
-    public BuckarooLoggerInterface $logger;
+    public $logger;
 
     /**
      * @var Encryptor
      */
-    private Encryptor $encryptor;
+    private $encryptor;
 
     /**
      * @var string[]
      */
-    public array $bpeResponseMessages = [
+    public $bpeResponseMessages = [
         190 => 'Success',
         490 => 'Payment failure',
         491 => 'Validation error',
@@ -67,10 +67,10 @@ class Push implements ValidatorInterface
     ];
 
     /**
-     * @param Data          $helper
-     * @param Account       $configProviderAccount
-     * @param BuckarooLoggerInterface           $logger
-     * @param Encryptor     $encryptor
+     * @param Data                    $helper
+     * @param Account                 $configProviderAccount
+     * @param BuckarooLoggerInterface $logger
+     * @param Encryptor               $encryptor
      */
     public function __construct(
         Data $helper,
@@ -88,6 +88,7 @@ class Push implements ValidatorInterface
      * Validate push
      *
      * @param array|object $data
+     *
      * @return bool
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
@@ -101,6 +102,7 @@ class Push implements ValidatorInterface
      * Checks if the status code is returned by the bpe push and is valid.
      *
      * @param int|string $code
+     *
      * @return array
      */
     public function validateStatusCode($code): array
@@ -125,11 +127,13 @@ class Push implements ValidatorInterface
     /**
      * Generates and verifies the Buckaroo signature using configuration values and data from a push.
      *
-     * @param array $originalPostData
-     * @param array $postData
+     * @param array                          $originalPostData
+     * @param array                          $postData
      * @param int|string|StoreInterface|null $store
-     * @return bool
+     *
      * @throws \Exception
+     *
+     * @return bool
      */
     public function validateSignature(array $originalPostData, array $postData, $store = null): bool
     {
@@ -149,16 +153,21 @@ class Push implements ValidatorInterface
     /**
      * Determines the signature using array sorting and the SHA1 hash algorithm
      *
-     * @param array $postData
+     * @param array                          $postData
      * @param int|string|StoreInterface|null $store
-     * @return string
+     *
      * @throws \Exception
+     *
+     * @return string
      */
     public function calculateSignature(array $postData, $store = null): string
     {
         $copyData = $postData;
         unset($copyData['brq_signature']);
         unset($copyData['BRQ_SIGNATURE']);
+
+        // Fix parameter names that PHP converted from spaces to underscores
+        $copyData = $this->fixParameterNamesWithSpaces($copyData);
 
         $sortableArray = $this->buckarooArraySort($copyData);
 
@@ -179,6 +188,46 @@ class Push implements ValidatorInterface
         );
 
         return $signature;
+    }
+
+    /**
+     * Fix parameter names where PHP converted spaces to underscores
+     *
+     * Buckaroo sends some parameters with spaces in the name (e.g., "Additional Info")
+     * but PHP's POST parsing automatically converts spaces to underscores, breaking signature validation.
+     *
+     * This method detects and fixes these known cases by converting specific underscores back to spaces.
+     *
+     * @param array $data POST data with PHP-mangled parameter names
+     * @return array Data with original parameter names restored
+     */
+    private function fixParameterNamesWithSpaces(array $data): array
+    {
+        $fixed = [];
+
+        foreach ($data as $key => $value) {
+            if (preg_match('/^brq_SERVICE_[^_]+_(.+)$/', $key, $matches)) {
+                $suffix = $matches[1];
+
+                $knownSpacedParams = [
+                    'Additional_Info' => 'Additional Info',
+                ];
+
+                if (isset($knownSpacedParams[$suffix])) {
+                    $newKey = str_replace('_' . $suffix, '_' . $knownSpacedParams[$suffix], $key);
+                    $this->logger->addDebug(sprintf(
+                        '[SIGNATURE] | Fixed parameter name: %s -> %s',
+                        $key,
+                        $newKey
+                    ));
+                    $key = $newKey;
+                }
+            }
+
+            $fixed[$key] = $value;
+        }
+
+        return $fixed;
     }
 
     /**
@@ -239,6 +288,7 @@ class Push implements ValidatorInterface
      * Sort the array so that the signature can be calculated identical to the way buckaroo does.
      *
      * @param array $arrayToUse
+     *
      * @return array $sortableArray
      */
     protected function buckarooArraySort(array $arrayToUse): array

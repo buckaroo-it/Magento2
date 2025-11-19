@@ -37,8 +37,8 @@ class TotalsEmail extends AbstractBlock
 
     /**
      * @param PaymentFee $helper
-     * @param Context $context
-     * @param array $data
+     * @param Context    $context
+     * @param array      $data
      */
     public function __construct(
         PaymentFee $helper,
@@ -52,8 +52,6 @@ class TotalsEmail extends AbstractBlock
 
     /**
      * Add Buckaroo fee totals
-     *
-     * @return void
      */
     public function initTotals()
     {

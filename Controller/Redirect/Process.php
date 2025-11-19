@@ -33,6 +33,7 @@ use Buckaroo\Magento2\Model\RequestPush\RequestPushFactory;
 use Buckaroo\Magento2\Model\Service\Order as OrderService;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Buckaroo\Magento2\Service\Sales\Quote\Recreate;
+use Exception;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Model\ResourceModel\CustomerFactory;
@@ -63,92 +64,94 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
     /**
      * @var Order $order
      */
-    protected Order $order;
+    protected $order;
 
     /**
      * @var Quote $quote
      */
-    protected Quote $quote;
+    protected $quote;
 
     /**
      * @var OrderPaymentInterface|null
      */
-    protected ?OrderPaymentInterface $payment;
+    protected $payment;
 
     /**
      * @var AccountConfig
      */
-    protected AccountConfig $accountConfig;
+    protected $accountConfig;
 
     /**
      * @var OrderRequestService
      */
-    protected OrderRequestService $orderRequestService;
+    protected $orderRequestService;
 
     /**
      * @var OrderStatusFactory
      */
-    protected OrderStatusFactory $orderStatusFactory;
+    protected $orderStatusFactory;
 
     /**
      * @var BuckarooLoggerInterface
      */
-    protected BuckarooLoggerInterface $logger;
+    protected $logger;
 
     /**
      * @var CheckoutSession
      */
-    protected CheckoutSession $checkoutSession;
+    protected $checkoutSession;
 
     /**
      * @var CustomerSession
      */
-    protected CustomerSession $customerSession;
+    protected $customerSession;
 
     /**
      * @var CustomerRepositoryInterface
      */
-    protected CustomerRepositoryInterface $customerRepository;
+    protected $customerRepository;
 
     /**
      * @var OrderService
      */
-    protected OrderService $orderService;
+    protected $orderService;
 
     /**
      * @var ManagerInterface
      */
-    protected ManagerInterface $eventManager;
+    protected $eventManager;
 
     /**
      * @var Recreate
      */
-    protected Recreate $quoteRecreate;
+    protected $quoteRecreate;
 
     /**
      * @var PushRequestInterface
      */
-    protected PushRequestInterface $redirectRequest;
+    protected $redirectRequest;
 
     /**
      * @var LockManagerWrapper
      */
-    protected LockManagerWrapper $lockManager;
+    protected $lockManager;
 
     /**
-     * @param Context $context
-     * @param BuckarooLoggerInterface $logger
-     * @param Quote $quote
-     * @param AccountConfig $accountConfig
-     * @param OrderRequestService $orderRequestService
-     * @param OrderStatusFactory $orderStatusFactory
-     * @param CheckoutSession $checkoutSession
-     * @param CustomerSession $customerSession
+     * @param Context                     $context
+     * @param BuckarooLoggerInterface     $logger
+     * @param Quote                       $quote
+     * @param AccountConfig               $accountConfig
+     * @param OrderRequestService         $orderRequestService
+     * @param OrderStatusFactory          $orderStatusFactory
+     * @param CheckoutSession             $checkoutSession
+     * @param CustomerSession             $customerSession
      * @param CustomerRepositoryInterface $customerRepository
-     * @param OrderService $orderService
-     * @param ManagerInterface $eventManager
-     * @param Recreate $quoteRecreate
-     * @param RequestPushFactory $requestPushFactory
+     * @param OrderService                $orderService
+     * @param ManagerInterface            $eventManager
+     * @param Recreate                    $quoteRecreate
+     * @param RequestPushFactory          $requestPushFactory
+     * @param LockManagerWrapper          $lockManager
+     *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -196,8 +199,9 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
     /**
      * Process action
      *
+     * @throws Exception
+     *
      * @return ResponseInterface|void
-     * @throws \Exception
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
@@ -244,12 +248,6 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
                 return $this->handleProcessedResponse('/');
             }
 
-            if (($this->payment->getMethodInstance()->getCode() == 'buckaroo_magento2_paypal')
-                && ($statusCode == BuckarooStatusCode::PENDING_PROCESSING)
-            ) {
-                $statusCode = BuckarooStatusCode::CANCELLED_BY_USER;
-            }
-
             $this->logger->addDebug(sprintf(
                 '[REDIRECT - %s] | [Controller] | [%s:%s] - Status Code | statusCode: %s',
                 $this->payment->getMethod(),
@@ -258,7 +256,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
                 $statusCode
             ));
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->addErrorMessage('Could not process the request.');
             $this->logger->addError(__METHOD__ . '|Exception|' . $e->getMessage());
         } finally {
@@ -273,7 +271,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
      * Handle final response
      *
      * @param string $path
-     * @param array $arguments
+     * @param array  $arguments
      *
      * @return ResponseInterface
      */
@@ -286,8 +284,8 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
      * Set flag if user is on the payment provider page
      *
      * @param OrderPaymentInterface $payment
-     * @return void
-     * @throws \Exception
+     *
+     * @throws Exception
      */
     protected function setPaymentOutOfTransit(OrderPaymentInterface $payment): void
     {
@@ -329,9 +327,11 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
      * Processes a redirect based on the given status code.
      *
      * @param int $statusCode
-     * @return ResponseInterface
+     *
      * @throws LocalizedException
      * @throws NoSuchEntityException
+     *
+     * @return ResponseInterface
      */
     private function processRedirectByStatus(int $statusCode): ResponseInterface
     {
@@ -361,8 +361,10 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
      *  - Returns a successful redirect response.
      *
      * @param $statusCode
+     *
+     * @throws Exception
+     *
      * @return ResponseInterface
-     * @throws \Exception
      */
     private function processSucceededRedirect($statusCode): ResponseInterface
     {
@@ -382,8 +384,8 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
      * - If all conditions are met, and the status code is SUCCESS, sends the order confirmation email.
      *
      * @param int $statusCode The status code representing the result of a payment or related process.
-     * @return void
-     * @throws \Exception If an exception occurs within the called methods.
+     *
+     * @throws Exception If an exception occurs within the called methods.
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
@@ -400,7 +402,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
             $reservationNumber = $this->redirectRequest->getServiceKlarnakpReservationnumber();
             $this->order->setBuckarooReservationNumber($reservationNumber);
             $this->order->save();
-            
+
             $this->logger->addDebug(sprintf(
                 '[KLARNA_KP] | [REDIRECT] | [%s:%s] - Saved reservation number from redirect for order %s: %s',
                 __METHOD__,
@@ -444,8 +446,6 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
      *  - Logs the current status of the last successful quote ID, last quote ID, last order ID
      *  - If the last successful quote ID, last quote ID, last order ID, or last real order ID is not set
      *    in the checkout session, it updates them with the corresponding information from the order object.
-     *
-     * @return void
      */
     private function setLastQuoteOrder(): void
     {
@@ -516,8 +516,6 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
      * Add success message to be displayed to the user
      *
      * @param string|Phrase $message
-     *
-     * @return void
      */
     public function addSuccessMessage($message): void
     {
@@ -526,8 +524,6 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
 
     /**
      * Redirect if the transaction is of the success Apple Pay type
-     *
-     * @return void
      */
     protected function redirectSuccessApplePay(): void
     {
@@ -553,9 +549,11 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
      *  - Returns a successful redirect response.
      *
      * @param $statusCode
-     * @return ResponseInterface
+     *
      * @throws LocalizedException
-     * @throws \Exception
+     * @throws Exception
+     *
+     * @return ResponseInterface
      */
     private function processPendingRedirect($statusCode): ResponseInterface
     {
@@ -588,8 +586,6 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
      * Add error message to be displayed to the user
      *
      * @param string|Phrase $message
-     *
-     * @return void
      */
     public function addErrorMessage($message): void
     {
@@ -598,8 +594,6 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
 
     /**
      * Remove coupon from failed order if magento enterprise
-     *
-     * @return void
      */
     protected function removeCoupon()
     {
@@ -624,8 +618,6 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
 
     /**
      * Remove amasty giftcard from failed order
-     *
-     * @return void
      */
     protected function removeAmastyGiftcardOnFailed(): void
     {
@@ -663,17 +655,37 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
     }
 
     /**
-     * Handle failed transactions
+     * Handle failed transaction
      *
      * @param int|null $statusCode
+     *
+     * @throws NoSuchEntityException|Exception
+     *
      * @return ResponseInterface
-     * @throws \Magento\Framework\Exception\NoSuchEntityException|\Exception
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     protected function handleFailed($statusCode): ResponseInterface
     {
         $this->eventManager->dispatch('buckaroo_process_handle_failed_before');
 
         $this->removeAmastyGiftcardOnFailed();
+
+        // Check if this is a browser back button scenario (CANCELLED_BY_USER)
+        $isBrowserBack = ($statusCode === BuckarooStatusCode::CANCELLED_BY_USER);
+
+        // Check configuration for browser back behavior
+        $store = $this->order->getStore();
+        $shouldCancelOnBrowserBack = (bool) $this->accountConfig->getCancelOnBrowserBack($store);
+
+        $this->logger->addDebug(sprintf(
+            '[REDIRECT - %s] | [Controller] | [%s:%s] - Handle Failed Check | statusCode: %s | isBrowserBack: %s | shouldCancelOnBrowserBack: %s',
+            $this->payment->getMethod(),
+            __METHOD__,
+            __LINE__,
+            $statusCode,
+            var_export($isBrowserBack, true),
+            var_export($shouldCancelOnBrowserBack, true)
+        ));
 
         if (!$this->getSkipHandleFailedRecreate()
             && (!$this->quoteRecreate->recreate($this->quote))) {
@@ -686,10 +698,17 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
         }
 
         /*
-         * Something went wrong, so we're going to have to
-         * 1) recreate the quote for the user
-         * 2) cancel the order we had to create to even get here
-         * 3) redirect back to the checkout page to offer the user feedback & the option to try again
+         * For browser back button scenario:
+         * 1) Recreate the quote for the user to allow retry
+         * 2) Based on configuration, either:
+         *    a) Cancel the order immediately (old behavior if shouldCancelOnBrowserBack = true)
+         *    b) Leave it in pending state - Buckaroo push will cancel it later (new behavior, default)
+         * 3) Redirect back to checkout to allow retry
+         *
+         * For actual failures:
+         * 1) Recreate the quote for the user
+         * 2) Cancel the order
+         * 3) Redirect back to checkout with error message
          */
         $this->addErrorMessageByStatus($statusCode);
 
@@ -698,20 +717,56 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
             return $this->redirectFailure();
         }
 
-        if (!$this->cancelOrder($statusCode)) {
-            $this->logger->addError(sprintf(
-                '[REDIRECT - %s] | [Controller] | [%s:%s] - Could not Cancel the Order.',
+        // For browser back button, check configuration
+        if ($isBrowserBack && !$shouldCancelOnBrowserBack) {
+            $this->logger->addDebug(sprintf(
+                '[REDIRECT - %s] | [Controller] | [%s:%s] - Browser Back Button Detected - '
+                . 'Order left in pending state (config: cancel_on_browser_back = disabled). '
+                . 'Quote recreated for retry. Order: %s',
                 $this->payment->getMethod(),
                 __METHOD__,
-                __LINE__
+                __LINE__,
+                $this->order->getIncrementId()
             ));
+
+            // Add a status history comment to track this
+            $this->order->addCommentToStatusHistory(
+                __('Customer returned using browser back button. Order left pending for push notification.'),
+                false,
+                false
+            );
+            $this->order->save();
+
+        } else {
+            // For actual failures OR if config says to cancel on browser back, cancel the order as before
+            if ($isBrowserBack) {
+                $this->logger->addDebug(sprintf(
+                    '[REDIRECT - %s] | [Controller] | [%s:%s] - Browser Back Button Detected - '
+                    . 'Order will be canceled (config: cancel_on_browser_back = enabled). Order: %s',
+                    $this->payment->getMethod(),
+                    __METHOD__,
+                    __LINE__,
+                    $this->order->getIncrementId()
+                ));
+            }
+
+            if (!$this->cancelOrder($statusCode)) {
+                $this->logger->addError(sprintf(
+                    '[REDIRECT - %s] | [Controller] | [%s:%s] - Could not Cancel the Order.',
+                    $this->payment->getMethod(),
+                    __METHOD__,
+                    __LINE__
+                ));
+            }
         }
 
         $this->logger->addDebug(sprintf(
-            '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect Failure',
+            '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect Failure | isBrowserBack: %s | shouldCancelOnBrowserBack: %s',
             $this->payment->getMethod(),
             __METHOD__,
-            __LINE__
+            __LINE__,
+            var_export($isBrowserBack, true),
+            var_export($shouldCancelOnBrowserBack, true)
         ));
 
         return $this->redirectFailure();
@@ -731,7 +786,6 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
      * Adds an error message to the session based on the given status code.
      *
      * @param int $statusCode
-     * @return void
      */
     public function addErrorMessageByStatus(int $statusCode): void
     {
@@ -740,7 +794,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
         $statusCodeAddErrorMessage[BuckarooStatusCode::FAILED] = __(self::GENERAL_ERROR_MESSAGE);
         $statusCodeAddErrorMessage[BuckarooStatusCode::REJECTED] = __(self::GENERAL_ERROR_MESSAGE);
         $statusCodeAddErrorMessage[BuckarooStatusCode::CANCELLED_BY_USER]
-            = __('According to our system, you have canceled the payment. If this is not the case, please contact us.');
+            = __('Payment cancelled. You can try again using the same or a different payment method.');
 
         $this->addErrorMessage(__($statusCodeAddErrorMessage[$statusCode]));
     }
@@ -748,8 +802,9 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
     /**
      * Redirect to Failure url, which means we've got a problem
      *
+     * @throws Exception
+     *
      * @return ResponseInterface
-     * @throws \Exception
      */
     protected function redirectFailure(): ResponseInterface
     {
@@ -774,8 +829,9 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
      * - Finally, it handles the processed response for a redirect to the checkout page, specifically
      *   to the payment section, with a query parameter indicating an error.
      *
+     * @throws Exception
+     *
      * @return ResponseInterface
-     * @throws \Exception
      */
     private function redirectOnCheckoutForFailedTransaction(): ResponseInterface
     {
@@ -798,7 +854,6 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
      * Set customer if it is set on order and not on session and restore quote
      *
      * @param string $status
-     * @return void
      */
     protected function setCustomerAndRestoreQuote(string $status): void
     {
@@ -814,7 +869,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
             try {
                 $customer = $this->customerRepository->getById($this->order->getCustomerId());
                 $this->customerSession->setCustomerDataAsLoggedIn($customer);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->logger->addError(sprintf(
                     '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect %s To Checkout ' .
                     '- Could not load customer | [ERROR]: %s',
@@ -863,8 +918,10 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
      * If possible, cancel the order
      *
      * @param int|null $statusCode
-     * @return bool
+     *
      * @throws LocalizedException
+     *
+     * @return bool
      */
     protected function cancelOrder(?int $statusCode): bool
     {

@@ -24,7 +24,7 @@ namespace Buckaroo\Magento2\Model\Method;
 
 class DefaultTitles
 {
-    protected static array $labels = [
+    protected static $labels = [
         'afterpay'         => 'Riverty',
         'afterpay2'        => 'Riverty',
         'afterpay20'       => 'Riverty',
@@ -39,6 +39,8 @@ class DefaultTitles
         'payconiq'         => 'Payconiq',
         'sepadirectdebit'  => 'SEPA Direct Debit',
         'belfius'          => 'Belfius',
+        'bizum'            => 'Bizum',
+        'swish'            => 'Swish',
         'transfer'         => 'Bank Transfer',
         'eps'              => 'EPS',
         'kbc'              => 'KBC',

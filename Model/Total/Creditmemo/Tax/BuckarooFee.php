@@ -24,7 +24,8 @@ class BuckarooFee extends \Magento\Sales\Model\Order\Creditmemo\Total\AbstractTo
     /**
      * Collect totals for credit memo
      *
-     * @param  \Magento\Sales\Model\Order\Creditmemo $creditmemo
+     * @param \Magento\Sales\Model\Order\Creditmemo $creditmemo
+     *
      * @return $this
      */
     public function collect(\Magento\Sales\Model\Order\Creditmemo $creditmemo)

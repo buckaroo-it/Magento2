@@ -48,50 +48,50 @@ class SalesOrderShipmentAfter implements ObserverInterface
     /**
      * @var Shipment
      */
-    private Shipment $shipment;
+    private $shipment;
 
     /**
      * @var Order
      */
-    private Order $order;
+    private $order;
 
     /**
      * @var InvoiceService
      */
-    protected InvoiceService $invoiceService;
+    protected $invoiceService;
 
     /**
      * @var TransactionFactory
      */
-    protected TransactionFactory $transactionFactory;
+    protected $transactionFactory;
 
     /**
      * @var ConfigProviderFactory
      */
-    private ConfigProviderFactory $configProviderFactory;
+    private $configProviderFactory;
 
     /**
      * @var BuckarooLoggerInterface
      */
-    protected BuckarooLoggerInterface $logger;
+    protected $logger;
 
     /**
      * @var CreateInvoice
      */
-    private CreateInvoice $createInvoiceService;
+    private $createInvoiceService;
 
     /**
      * @var RequestInterface
      */
-    private RequestInterface $request;
+    private $request;
 
     /**
-     * @param InvoiceService $invoiceService
-     * @param TransactionFactory $transactionFactory
-     * @param ConfigProviderFactory $configProviderFactory
+     * @param InvoiceService          $invoiceService
+     * @param TransactionFactory      $transactionFactory
+     * @param ConfigProviderFactory   $configProviderFactory
      * @param BuckarooLoggerInterface $logger
-     * @param CreateInvoice $createInvoiceService
-     * @param RequestInterface $request
+     * @param CreateInvoice           $createInvoiceService
+     * @param RequestInterface        $request
      */
     public function __construct(
         InvoiceService $invoiceService,
@@ -113,11 +113,12 @@ class SalesOrderShipmentAfter implements ObserverInterface
      * Create invoice after shipment on sales_order_shipment_save_after event
      *
      * @param Observer $observer
-     * @return void
+     *
      * @throws LocalizedException
      * @throws \Exception
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     public function execute(Observer $observer)
     {
@@ -135,7 +136,9 @@ class SalesOrderShipmentAfter implements ObserverInterface
         if (($paymentMethodCode == 'buckaroo_magento2_klarnakp')
             && $klarnakpConfig->isInvoiceCreatedAfterShipment()
         ) {
-            $this->createInvoice();
+            if (!$this->order->hasInvoices()) {
+                $this->createInvoice();
+            }
             return;
         }
 
@@ -144,12 +147,18 @@ class SalesOrderShipmentAfter implements ObserverInterface
             && $afterpayConfig->isInvoiceCreatedAfterShipment()
             && ($paymentMethod->getConfigPaymentAction() == 'authorize')
         ) {
-            $this->createInvoice(true);
+            if (!$this->order->hasInvoices()) {
+                $this->createInvoice(true);
+            }
             return;
         }
 
         if (strpos($paymentMethodCode, 'buckaroo_magento2') !== false
             && $this->isInvoiceCreatedAfterShipment($payment)) {
+            if ($this->order->hasInvoices()) {
+                return;
+            }
+
             if ($paymentMethod->getConfigPaymentAction() == 'authorize') {
                 $this->createInvoice(true);
             } else {
@@ -162,8 +171,10 @@ class SalesOrderShipmentAfter implements ObserverInterface
      * Create invoice automatically after shipment
      *
      * @param bool $allowPartialsWithDiscount
-     * @return InvoiceInterface|Invoice|null
+     *
      * @throws \Exception
+     *
+     * @return InvoiceInterface|Invoice|null
      */
     private function createInvoice(bool $allowPartialsWithDiscount = false)
     {
@@ -175,6 +186,15 @@ class SalesOrderShipmentAfter implements ObserverInterface
         ));
 
         try {
+            if ($this->order->hasInvoices()) {
+                $this->logger->addDebug(sprintf(
+                    '[CREATE_INVOICE] | [Observer] | [%s:%s] - Skip invoice creation: Invoice already exists',
+                    __METHOD__,
+                    __LINE__
+                ));
+                return null;
+            }
+
             if (!$this->order->canInvoice()) {
                 return null;
             }
@@ -188,7 +208,33 @@ class SalesOrderShipmentAfter implements ObserverInterface
                 $message = 'Automatically invoiced shipped items.';
             }
 
-            $invoice->setRequestedCaptureCase(Invoice::CAPTURE_ONLINE);
+            // Check if payment was already captured (e.g., during order reactivation)
+            $payment = $this->order->getPayment();
+            $wasCaptured = $payment->getAdditionalInformation('buckaroo_already_captured');
+
+            if ($wasCaptured) {
+                // Payment already captured, use offline capture to avoid duplicate
+                $this->logger->addDebug(sprintf(
+                    '[CREATE_INVOICE] | [Observer] | [%s:%s] - Using OFFLINE capture: payment already captured during reactivation',
+                    __METHOD__,
+                    __LINE__
+                ));
+                $invoice->setRequestedCaptureCase(Invoice::CAPTURE_OFFLINE);
+
+                // Add capture transaction comment
+                $transactionId = $payment->getLastTransId();
+                if ($transactionId) {
+                    $captureMessage = __(
+                        'Captured amount of %1 offline. Transaction ID: "%2"',
+                        $this->order->getBaseCurrency()->formatTxt($invoice->getBaseGrandTotal()),
+                        $transactionId
+                    );
+                    $payment->addTransactionCommentsToOrder($transactionId, $captureMessage);
+                }
+            } else {
+                $invoice->setRequestedCaptureCase(Invoice::CAPTURE_ONLINE);
+            }
+
             $invoice->register();
             $invoice->getOrder()->setCustomerNoteNotify(false);
             $invoice->getOrder()->setIsInProcess(true);
@@ -243,6 +289,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
      * Is the invoice for the current order is created after shipment
      *
      * @param OrderPaymentInterface $payment
+     *
      * @return bool
      */
     private function isInvoiceCreatedAfterShipment(OrderPaymentInterface $payment): bool

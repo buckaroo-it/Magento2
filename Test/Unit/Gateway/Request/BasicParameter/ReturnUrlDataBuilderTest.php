@@ -60,7 +60,6 @@ class ReturnUrlDataBuilderTest extends AbstractDataBuilderTest
     }
 
     /**
-     * @return void
      */
     public function testBuild(): void
     {

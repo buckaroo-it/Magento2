@@ -35,7 +35,7 @@ class SpamLimitService
     /**
      * @var Session
      */
-    private Session $checkoutSession;
+    private $checkoutSession;
 
     /**
      * @param Session $checkoutSession
@@ -49,7 +49,8 @@ class SpamLimitService
     /**
      * Update session when a failed attempt is made for the quote & method
      *
-     * @return void
+     * @param MethodInterface $paymentMethodInstance
+     *
      * @throws LimitReachException
      */
     public function updateRateLimiterCount(MethodInterface $paymentMethodInstance)
@@ -82,7 +83,8 @@ class SpamLimitService
      * Check if config spam limit is active
      *
      * @param MethodInterface $paymentMethodInstance
-     * @return boolean
+     *
+     * @return bool
      */
     public function isSpamLimitActive(MethodInterface $paymentMethodInstance): bool
     {
@@ -113,9 +115,8 @@ class SpamLimitService
      * Check if the spamming limit is reached
      *
      * @param MethodInterface $paymentMethodInstance
-     * @param array $storage
+     * @param array           $storage
      *
-     * @return void
      * @throws LimitReachException
      */
     private function checkForSpamLimitReach(MethodInterface $paymentMethodInstance, $storage): void
@@ -136,9 +137,10 @@ class SpamLimitService
     /**
      * Check if the spam limit is reached
      *
-     * @param array $storage
+     * @param array           $storage
      * @param MethodInterface $paymentMethodInstance
-     * @return boolean
+     *
+     * @return bool
      */
     public function isSpamLimitReached(MethodInterface $paymentMethodInstance, array $storage): bool
     {
@@ -151,7 +153,7 @@ class SpamLimitService
         if (!is_scalar($limit)) {
             $limit = 10;
         }
-        $limit = intval($limit);
+        $limit = (int)$limit;
 
         $method = $paymentMethodInstance->getCode();
         $quoteId = $this->getQuote()->getId();
@@ -167,9 +169,10 @@ class SpamLimitService
     /**
      * Get Quote from Checkout Session
      *
-     * @return CartInterface|Quote
      * @throws LocalizedException
      * @throws NoSuchEntityException
+     *
+     * @return CartInterface|Quote
      */
     public function getQuote()
     {
@@ -179,10 +182,8 @@ class SpamLimitService
     /**
      * Update payment with the user message, update session in order to restore the quote
      *
-     * @param mixed $payment
+     * @param mixed  $payment
      * @param string $message
-     *
-     * @return void
      */
     public function setMaxAttemptsFlags($payment, string $message)
     {

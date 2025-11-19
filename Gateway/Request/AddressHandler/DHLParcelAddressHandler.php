@@ -32,11 +32,11 @@ class DHLParcelAddressHandler extends AbstractAddressHandler
     /**
      * @var Curl
      */
-    private Curl $curl;
+    private $curl;
 
     /**
      * @param BuckarooLoggerInterface $logger
-     * @param Curl $curl
+     * @param Curl                    $curl
      */
     public function __construct(BuckarooLoggerInterface $logger, Curl $curl)
     {
@@ -47,8 +47,9 @@ class DHLParcelAddressHandler extends AbstractAddressHandler
     /**
      * Update shipping address by DHL parcel service point
      *
-     * @param Order $order
+     * @param Order                 $order
      * @param OrderAddressInterface $shippingAddress
+     *
      * @return Order
      */
     public function handle(Order $order, OrderAddressInterface $shippingAddress): Order
@@ -65,8 +66,9 @@ class DHLParcelAddressHandler extends AbstractAddressHandler
     /**
      * Set shipping address fields by DHL Parcel
      *
-     * @param string $servicePointId
+     * @param string                $servicePointId
      * @param OrderAddressInterface $shippingAddress
+     *
      * @return Address|null
      */
     public function updateShippingAddressByDhlParcel(string $servicePointId, OrderAddressInterface $shippingAddress)
@@ -104,6 +106,7 @@ class DHLParcelAddressHandler extends AbstractAddressHandler
      * Remove all non-word characters
      *
      * @param string $addition
+     *
      * @return array|string|string[]|null
      */
     private function cleanStreetNumberAddition($addition)

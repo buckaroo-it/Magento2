@@ -25,7 +25,7 @@ interface PushInterface
     /**
      * Receive and process push
      *
-     * @return boolean
+     * @return bool
      *
      * @api
      */

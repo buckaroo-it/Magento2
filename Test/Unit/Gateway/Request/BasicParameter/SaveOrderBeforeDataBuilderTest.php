@@ -30,7 +30,7 @@ class SaveOrderBeforeDataBuilderTest extends AbstractDataBuilderTest
     /**
      * @var SaveOrderBeforeDataBuilder
      */
-    private SaveOrderBeforeDataBuilder $dataBuilder;
+    private $dataBuilder;
 
     /**
      * @var Account|MockObject

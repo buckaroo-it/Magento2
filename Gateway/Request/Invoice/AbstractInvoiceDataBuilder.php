@@ -29,22 +29,22 @@ abstract class AbstractInvoiceDataBuilder extends AbstractDataBuilder
     /**
      * @var int
      */
-    protected int $numberOfInvoices;
+    protected $numberOfInvoices;
 
     /**
      * @var bool
      */
-    protected bool $capturePartial = true;
+    protected $capturePartial = true;
 
     /**
      * @var float
      */
-    protected float $currentInvoiceTotal;
+    protected $currentInvoiceTotal;
 
     /**
      * @var BuckarooHelper
      */
-    private BuckarooHelper $buckarooHelper;
+    private $buckarooHelper;
 
     /**
      * @param BuckarooHelper $buckarooHelper
@@ -58,6 +58,7 @@ abstract class AbstractInvoiceDataBuilder extends AbstractDataBuilder
      * Initializes the payment information for a Buckaroo payment.
      *
      * @param array $buildSubject
+     *
      * @return array
      */
     public function initialize(array $buildSubject): array

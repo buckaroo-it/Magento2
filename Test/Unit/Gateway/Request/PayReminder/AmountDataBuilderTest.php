@@ -54,8 +54,8 @@ class AmountDataBuilderTest extends AbstractDataBuilderTest
      * @dataProvider buildDataProvider
      *
      * @param string $serviceAction
-     * @param float $payRemainder
-     * @param array $expectedResult
+     * @param float  $payRemainder
+     * @param array  $expectedResult
      */
     public function testBuild(string $serviceAction, float $payRemainder, array $expectedResult): void
     {

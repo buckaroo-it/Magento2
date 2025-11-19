@@ -336,7 +336,6 @@ class ProcessTest extends BaseTest
             $this->setProperty('transaction', $transaction, $instance);
         }
 
-
         try {
             $result = $this->invoke('getTransaction', $instance);
             if ($transaction === null) {

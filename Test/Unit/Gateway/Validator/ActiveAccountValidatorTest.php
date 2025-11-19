@@ -23,7 +23,6 @@ class ActiveAccountValidatorTest extends TestCase
     private $configProviderFactory;
 
     /**
-     *
      * @var ActiveAccountValidator
      */
     private $validator;
@@ -41,9 +40,19 @@ class ActiveAccountValidatorTest extends TestCase
 
     /**
      * @dataProvider accountActiveProvider
+     *
+     * @param mixed $accountActive
+     * @param bool  $isValid
      */
     public function testValidate($accountActive, bool $isValid)
     {
+        // Create mock quote
+        $quote = $this->getMockBuilder(\Magento\Quote\Model\Quote::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getStoreId'])
+            ->getMock();
+        $quote->method('getStoreId')->willReturn(1);
+
         $accountConfig = $this->createMock(Account::class);
         $accountConfig->method('getActive')
             ->willReturn($accountActive ? 1 : 0);
@@ -59,7 +68,7 @@ class ActiveAccountValidatorTest extends TestCase
             ->with(['isValid' => $isValid, 'failsDescription' => [], 'errorCodes' => []])
             ->willReturn($expectedResult);
 
-        $result = $this->validator->validate([]);
+        $result = $this->validator->validate(['quote' => $quote]);
         $this->assertSame($expectedResult, $result);
     }
 

@@ -33,14 +33,14 @@ class Form extends Generic
     /**
      * @var BuckarooGiftcardDataInterface
      */
-    private BuckarooGiftcardDataInterface $buckarooGiftcardData;
+    private $buckarooGiftcardData;
 
     /**
-     * @param Context $context
-     * @param Registry $registry
-     * @param FormFactory $formFactory
-     * @param \Buckaroo\Magento2\Model\Data\BuckarooGiftcardDataInterface $buckarooGiftcardData
-     * @param array $data
+     * @param Context                       $context
+     * @param Registry                      $registry
+     * @param FormFactory                   $formFactory
+     * @param BuckarooGiftcardDataInterface $buckarooGiftcardData
+     * @param array                         $data
      */
     public function __construct(
         Context $context,
@@ -56,8 +56,9 @@ class Form extends Generic
     /**
      * Edit Giftcards Form
      *
-     * @return $this
      * @throws LocalizedException
+     *
+     * @return $this
      */
     protected function _prepareForm()
     {

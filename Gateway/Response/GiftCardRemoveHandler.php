@@ -34,15 +34,15 @@ class GiftCardRemoveHandler implements HandlerInterface
     /**
      * @var MessageManager
      */
-    protected MessageManager $messageManager;
+    protected $messageManager;
 
     /**
      * @var GroupTransactionRepository
      */
-    protected GroupTransactionRepository $groupTransactionRepository;
+    protected $groupTransactionRepository;
 
     /**
-     * @param MessageManager $messageManager
+     * @param MessageManager             $messageManager
      * @param GroupTransactionRepository $groupTransactionRepository
      */
     public function __construct(
@@ -55,6 +55,7 @@ class GiftCardRemoveHandler implements HandlerInterface
 
     /**
      * @inheritdoc
+     *
      * @throws RemoveException
      * @throws CouldNotSaveException
      */
@@ -82,8 +83,8 @@ class GiftCardRemoveHandler implements HandlerInterface
      * Update gift card transaction with the refunded amount
      *
      * @param GroupTransaction $giftcardTransaction
-     * @param float $amount
-     * @return void
+     * @param float            $amount
+     *
      * @throws CouldNotSaveException
      */
     protected function updateGiftcardTransactionAmount(

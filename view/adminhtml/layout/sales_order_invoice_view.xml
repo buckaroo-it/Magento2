@@ -27,6 +27,7 @@
     <body>
         <referenceBlock name="invoice_totals">
             <block class="Buckaroo\Magento2\Block\Adminhtml\Sales\Totals" name="buckaroo_fee_totals"/>
+            <block class="Buckaroo\Magento2\Block\Adminhtml\Sales\Order\GiftcardTotals" name="buckaroo_giftcard_totals"/>
         </referenceBlock>
     </body>
 </page>

@@ -21,8 +21,6 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
-
-
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
@@ -52,7 +50,7 @@ class PayPerEmailTest extends BaseTest
     {
         $scopeConfigMock = $this->getMockBuilder(ScopeConfigInterface::class)->getMock();
         $scopeConfigMock->method('getValue')
-            ->willReturnCallback(function($path, $scope = null, $scopeId = null) {
+            ->willReturnCallback(function ($path, $scope = null, $scopeId = null) {
                 // Use parameters to avoid PHPMD warnings
                 unset($scope, $scopeId);
 

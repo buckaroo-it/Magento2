@@ -35,10 +35,16 @@ class TransactionIdHandler implements HandlerInterface
      *
      * @param array $handlingSubject
      * @param array $response
-     * @return void
      */
     public function handle(array $handlingSubject, array $response): void
     {
+        // Skip if refund was already completed via group transactions
+        if (isset($response['group_transaction_refund_complete']) 
+            && $response['group_transaction_refund_complete'] === true
+        ) {
+            return;
+        }
+
         $paymentDO = SubjectReader::readPayment($handlingSubject);
         /** @var OrderPaymentInterface $payment */
         $payment = $paymentDO->getPayment();

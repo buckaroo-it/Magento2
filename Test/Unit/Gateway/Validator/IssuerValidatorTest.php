@@ -19,7 +19,7 @@ class IssuerValidatorTest extends TestCase
     /**
      * @var IssuerValidator
      */
-    private IssuerValidator $validator;
+    private $validator;
 
     /**
      * @var ResultInterfaceFactory|MockObject
@@ -51,6 +51,11 @@ class IssuerValidatorTest extends TestCase
 
     /**
      * @dataProvider issuerValidatorDataProvider
+     *
+     * @param mixed $chosenIssuer
+     * @param mixed $paymentMethodCode
+     * @param mixed $isValid
+     * @param mixed $failMessage
      */
     public function testValidate($chosenIssuer, $paymentMethodCode, $isValid, $failMessage)
     {

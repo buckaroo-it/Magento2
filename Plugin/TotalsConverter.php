@@ -31,6 +31,7 @@ class TotalsConverter
      * @param \Magento\Quote\Model\Cart\TotalsConverter  $subject
      * @param \Closure                                   $proceed
      * @param \Magento\Quote\Model\Quote\Address\Total[] $addressTotals
+     *
      * @return \Magento\Quote\Api\Data\TotalSegmentInterface[]
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)

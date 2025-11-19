@@ -85,6 +85,7 @@ class PaymentFee extends AbstractHelper
      * Retrieve totals array based on the data object.
      *
      * @param DataObject $dataObject
+     *
      * @return array
      */
     public function getTotals($dataObject)
@@ -132,6 +133,7 @@ class PaymentFee extends AbstractHelper
      * Extract the store from the data object.
      *
      * @param DataObject $dataObject
+     *
      * @return StoreInterface|null
      */
     protected function getStoreFromDataObject($dataObject)
@@ -149,6 +151,7 @@ class PaymentFee extends AbstractHelper
      * Determine if the fee display type is set to "Including Tax".
      *
      * @param mixed $displayType
+     *
      * @return bool
      */
     protected function isFeeDisplayTypeIncludingTax($displayType)
@@ -160,8 +163,7 @@ class PaymentFee extends AbstractHelper
      * Add "already paid" totals for giftcards or vouchers if applicable.
      *
      * @param DataObject $dataObject
-     * @param array &$totals
-     * @return void
+     * @param array      &$totals
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
@@ -175,13 +177,42 @@ class PaymentFee extends AbstractHelper
             // Remove the fee line if previously added
             unset($totals['buckaroo_fee']);
 
-            $this->addTotalToTotals(
-                $totals,
-                'buckaroo_already_paid',
-                $alreadyPayed,
-                $alreadyPayed,
-                __('Paid with Giftcard / Voucher')
-            );
+            // Break down each payment method instead of showing one combined line
+            $items = $this->groupTransaction->getGroupTransactionItems($orderId);
+
+            if (!empty($items)) {
+                foreach ($items as $item) {
+                    $servicecode = $item['servicecode'];
+                    $amount = (float)$item['amount'];
+
+                    // Check if it's a giftcard
+                    $foundGiftcard = $this->giftcardCollection->getItemByColumnValue('servicecode', $servicecode);
+
+                    if ($foundGiftcard) {
+                        $label = __('Paid with %1', $foundGiftcard['label']);
+                    } else {
+                        // It's a regular payment method (ideal, alipay, etc)
+                        $label = __('Paid with %1', ucfirst($servicecode));
+                    }
+
+                    $this->addTotalToTotals(
+                        $totals,
+                        'buckaroo_already_paid_' . $item['transaction_id'],
+                        $amount,
+                        $amount,
+                        $label
+                    );
+                }
+            } else {
+                // Fallback to old behavior if no items found
+                $this->addTotalToTotals(
+                    $totals,
+                    'buckaroo_already_paid',
+                    $alreadyPayed,
+                    $alreadyPayed,
+                    __('Paid with Giftcard / Voucher')
+                );
+            }
             return;
         }
 
@@ -204,10 +235,11 @@ class PaymentFee extends AbstractHelper
                     $giftcard['servicecode']
                 );
 
-                $label = __('Paid with Voucher');
-                if ($foundGiftcard) {
-                    $label = __('Paid with ' . $foundGiftcard['label']);
+                if (!$foundGiftcard) {
+                    continue;
                 }
+
+                $label = __('Paid with ' . $foundGiftcard['label']);
 
                 $refundedAlreadyPaidSaved = $giftcard->getRefundedAmount() ?? 0.0;
                 $amountValue = (float)$giftcard['amount'];
@@ -257,6 +289,7 @@ class PaymentFee extends AbstractHelper
      * Get order increment ID from a data object (Order/Invoice/Creditmemo).
      *
      * @param mixed $dataObject
+     *
      * @return string|null
      */
     public function getOrderIncrementId($dataObject)
@@ -304,6 +337,7 @@ class PaymentFee extends AbstractHelper
      * Extract the payment method code from order, invoice, creditmemo, or direct string.
      *
      * @param mixed $dataObject
+     *
      * @return string|false
      */
     protected function extractPaymentMethodFromDataObject($dataObject)
@@ -330,7 +364,6 @@ class PaymentFee extends AbstractHelper
      * @param string $blockName
      * @param string $transactionId
      * @param array  $extraInfo
-     * @return void
      */
     protected function addTotalToTotals(
         array &$totals,

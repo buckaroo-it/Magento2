@@ -120,13 +120,14 @@ class Data extends AbstractHelper
     protected $json;
 
     /**
-     * @param Context $context
-     * @param Account $configProviderAccount
-     * @param Factory $configProviderMethodFactory
-     * @param Header $httpHeader
-     * @param CheckoutSession $checkoutSession
+     * @param Context                 $context
+     * @param Account                 $configProviderAccount
+     * @param Factory                 $configProviderMethodFactory
+     * @param Header                  $httpHeader
+     * @param CheckoutSession         $checkoutSession
      * @param PaymentGroupTransaction $groupTransaction
-     * @param Json $json
+     * @param Json                    $json
+     *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -152,6 +153,7 @@ class Data extends AbstractHelper
      * Return the requested status $code, or null if not found
      *
      * @param string $code
+     *
      * @return int|null
      */
     public function getStatusCode(string $code): ?int
@@ -166,6 +168,7 @@ class Data extends AbstractHelper
      * Return the requested status key with the value, or null if not found
      *
      * @param int|string $value
+     *
      * @return false|int|string|null
      */
     public function getStatusByValue($value)
@@ -190,9 +193,10 @@ class Data extends AbstractHelper
     /**
      * Returns the additional transaction information
      *
-     * @param array $array
-     * @param array $rawInfo
+     * @param array  $array
+     * @param array  $rawInfo
      * @param string $keyPrefix
+     *
      * @return array
      */
     public function getTransactionAdditionalInfo(array $array, array $rawInfo = [], string $keyPrefix = ''): array
@@ -221,11 +225,12 @@ class Data extends AbstractHelper
     /**
      * Get the active mode for the given payment method and store.
      *
-     * @param string|null $paymentMethod
+     * @param string|null     $paymentMethod
      * @param string|int|null $store
-     * @return mixed
      *
      * @throws BuckarooException
+     *
+     * @return mixed
      */
     public function getMode(?string $paymentMethod = null, $store = null): int
     {
@@ -269,6 +274,7 @@ class Data extends AbstractHelper
      * Get original transaction key
      *
      * @param string|int $orderId
+     *
      * @return string|null
      */
     public function getOriginalTransactionKey($orderId): ?string
@@ -281,6 +287,7 @@ class Data extends AbstractHelper
      *
      * @param float $amount1
      * @param float $amount2
+     *
      * @return bool
      */
     public function areEqualAmounts($amount1, $amount2): bool
@@ -357,6 +364,7 @@ class Data extends AbstractHelper
      *
      * @param $order
      * @param $orderState
+     *
      * @return mixed
      */
     public function getOrderStatusByState($order, $orderState)

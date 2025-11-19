@@ -34,27 +34,27 @@ class PushProcessorsFactory
     /**
      * @var ObjectManagerInterface
      */
-    protected ObjectManagerInterface $objectManager;
+    protected $objectManager;
 
     /**
      * @var array
      */
-    protected array $pushProcessors;
+    protected $pushProcessors;
 
     /**
      * @var ?PushProcessorInterface
      */
-    protected ?PushProcessorInterface $pushProcessor = null;
+    protected $pushProcessor = null;
 
     /**
      * @var OrderRequestService
      */
-    private OrderRequestService $orderRequestService;
+    private $orderRequestService;
 
     /**
-     * @param OrderRequestService $orderRequestService
+     * @param OrderRequestService    $orderRequestService
      * @param ObjectManagerInterface $objectManager
-     * @param array $pushProcessors
+     * @param array                  $pushProcessors
      */
     public function __construct(
         OrderRequestService $orderRequestService,
@@ -70,8 +70,10 @@ class PushProcessorsFactory
      * Retrieve the appropriate push processor for a given transaction type.
      *
      * @param PushTransactionType|null $pushTransactionType
-     * @return ?PushProcessorInterface
+     *
      * @throws BuckarooException
+     *
+     * @return ?PushProcessorInterface
      */
     public function get(?PushTransactionType $pushTransactionType): ?PushProcessorInterface
     {
@@ -94,8 +96,10 @@ class PushProcessorsFactory
      * Determine the class of the push processor based on the provided transaction type.
      *
      * @param PushTransactionType|null $pushTransactionType
-     * @return mixed
+     *
      * @throws BuckarooException
+     *
+     * @return mixed
      */
     private function getPushProcessorClass(?PushTransactionType $pushTransactionType)
     {

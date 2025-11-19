@@ -52,9 +52,10 @@ class PaypalProcessorPlugin
      * Append Seller Protection info after success processing
      *
      * @param DefaultProcessor|PaypalProcessor $subject
-     * @param boolean $result
-     * @param string $newStatus
-     * @param string $message
+     * @param bool                             $result
+     * @param string                           $newStatus
+     * @param string                           $message
+     *
      * @return bool
      */
     public function afterProcessSucceededPush(
@@ -92,8 +93,7 @@ class PaypalProcessorPlugin
 
     /**
      * @param string|string[] $eligibilityTypes
-     * @param Order $order
-     * @return void
+     * @param Order           $order
      */
     protected function handleEligibilityTypes($eligibilityTypes, $order)
     {
@@ -108,8 +108,7 @@ class PaypalProcessorPlugin
 
     /**
      * @param string $eligibilityType
-     * @param Order $order
-     * @return void
+     * @param Order  $order
      */
     protected function handleEligibilityType($eligibilityType, $order)
     {
@@ -147,6 +146,7 @@ class PaypalProcessorPlugin
     /**
      * @param object $subject
      * @param string $name
+     *
      * @return mixed|null
      */
     private function getProtectedProperty(object $subject, string $name)
@@ -163,6 +163,3 @@ class PaypalProcessorPlugin
         return null;
     }
 }
-
-
-

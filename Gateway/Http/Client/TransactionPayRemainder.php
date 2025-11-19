@@ -32,19 +32,19 @@ class TransactionPayRemainder extends DefaultTransaction
     /**
      * @var PayReminderService
      */
-    private PayReminderService $payReminderService;
-    private string $serviceAction;
-    private string $newServiceAction;
+    private $payReminderService;
+    private $serviceAction;
+    private $newServiceAction;
 
     /**
      * Constructor
      *
-     * @param LoggerInterface $logger
-     * @param Logger $customLogger
-     * @param BuckarooAdapter $adapter
+     * @param LoggerInterface    $logger
+     * @param Logger             $customLogger
+     * @param BuckarooAdapter    $adapter
      * @param PayReminderService $payReminderService
-     * @param string $serviceAction
-     * @param string $newServiceAction
+     * @param string             $serviceAction
+     * @param string             $newServiceAction
      */
     public function __construct(
         LoggerInterface $logger,
@@ -80,6 +80,7 @@ class TransactionPayRemainder extends DefaultTransaction
      * Set service action before request builders
      *
      * @param string $orderIncrementId
+     *
      * @return string
      */
     public function setServiceAction(string $orderIncrementId): string

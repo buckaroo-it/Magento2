@@ -5,4 +5,12 @@
     <rule ref="PSR2"/>
     <rule ref="PEAR.Commenting.FunctionComment.Missing"/>
     <rule ref="Squiz.PHP.CommentedOutCode.Found"/>
+    
+    <!-- Override line length limit to 200 characters -->
+    <rule ref="Generic.Files.LineLength">
+        <properties>
+            <property name="lineLimit" value="200"/>
+            <property name="absoluteLineLimit" value="250"/>
+        </properties>
+    </rule>
 </ruleset>

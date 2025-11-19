@@ -53,9 +53,8 @@ class Creditcard extends AbstractConfigProvider
     public const DEFAULT_SORT_VALUE                   = '99';
     const XPATH_CREDITCARD_PAYMENT_FEE          = 'payment/buckaroo_magento2_creditcard/payment_fee';
 
-
     /** @var array[] */
-    protected array $issuers = [
+    protected $issuers = [
         [
             'name' => 'American Express',
             'code' => self::CREDITCARD_SERVICE_CODE_AMEX,
@@ -143,18 +142,18 @@ class Creditcard extends AbstractConfigProvider
     public function getAllIssuers(): array
     {
         $allowedCodes = $this->getAllowedCreditcards();
-        
+
         if (empty($allowedCodes)) {
             return [];
         }
-        
+
         $allowedCodesArray = explode(',', $allowedCodes);
-        
+
         // Convert allowed codes to lowercase for case-insensitive comparison
         $allowedLowercase = array_map('strtolower', $allowedCodesArray);
-        
+
         $allIssuers = [];
-        
+
         foreach ($this->getIssuers() as $issuer) {
             // Compare with case-insensitive logic
             if (in_array(strtolower($issuer['code']), $allowedLowercase)) {
@@ -165,7 +164,7 @@ class Creditcard extends AbstractConfigProvider
                 ];
             }
         }
-        
+
         return $allIssuers;
     }
 
@@ -228,9 +227,10 @@ class Creditcard extends AbstractConfigProvider
      * Get card name by card code
      *
      * @param string $cardType
-     * @return string
      *
      * @throws \InvalidArgumentException
+     *
+     * @return string
      */
     public function getCardName($cardType)
     {
@@ -247,9 +247,10 @@ class Creditcard extends AbstractConfigProvider
      * Get card code by card name
      *
      * @param string $cardName
-     * @return string
      *
      * @throws \InvalidArgumentException
+     *
+     * @return string
      */
     public function getCardCode($cardName)
     {
@@ -266,17 +267,18 @@ class Creditcard extends AbstractConfigProvider
      * Retrieve the sorted order of the credit card types to display on the checkout page
      *
      * @param $storeId
+     *
      * @return ?string
      */
     public function getSortedIssuers($storeId = null): ?string
     {
         $sortedIssuers = $this->getMethodConfigValue(self::XPATH_SORTED_ISSUERS, $storeId);
-        
+
         // Convert __EMPTY__ placeholder back to empty string
         if ($sortedIssuers === '__EMPTY__') {
             return '';
         }
-        
+
         return $sortedIssuers;
     }
 
@@ -284,6 +286,7 @@ class Creditcard extends AbstractConfigProvider
      * Get the list with allowed credit cards
      *
      * @param null|int|string $store
+     *
      * @return mixed
      */
     public function getAllowedCreditcards($store = null)
@@ -299,6 +302,7 @@ class Creditcard extends AbstractConfigProvider
      * Selection type radio checkbox or drop down
      *
      * @param null|int|string $store
+     *
      * @return mixed
      */
     public function getSelectionType($store = null)
@@ -310,6 +314,7 @@ class Creditcard extends AbstractConfigProvider
      * Get Payment Flow - Order vs Authorize/Capture
      *
      * @param null|int|string $store
+     *
      * @return mixed
      */
     public function getPaymentFlow($store = null)
@@ -321,6 +326,7 @@ class Creditcard extends AbstractConfigProvider
      * Credit cards are displayed separately in the checkout.
      *
      * @param $storeId
+     *
      * @return string
      */
     public function isGroupCreditcards($storeId = null): string
@@ -332,6 +338,7 @@ class Creditcard extends AbstractConfigProvider
      * Hold orders which have no MasterCard SecureCode.
      *
      * @param null|int|string $store
+     *
      * @return mixed
      */
     public function getMastercardUnsecureHold($store = null)
@@ -343,6 +350,7 @@ class Creditcard extends AbstractConfigProvider
      * Hold orders which have no Visa SecureCode.
      *
      * @param null|int|string $store
+     *
      * @return mixed
      */
     public function getVisaUnsecureHold($store = null)
@@ -354,6 +362,7 @@ class Creditcard extends AbstractConfigProvider
      * Hold orders which have no Maestro SecureCode.
      *
      * @param null|int|string $store
+     *
      * @return mixed
      */
     public function getMaestroUnsecureHold($store = null)

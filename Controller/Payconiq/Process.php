@@ -54,39 +54,40 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
     /**
      * @var null|Transaction
      */
-    protected ?Transaction $transaction = null;
+    protected $transaction = null;
 
     /**
      * @var SearchCriteriaBuilder
      */
-    protected SearchCriteriaBuilder $searchCriteriaBuilder;
+    protected $searchCriteriaBuilder;
 
     /**
      * @var TransactionRepositoryInterface
      */
-    protected TransactionRepositoryInterface $transactionRepository;
+    protected $transactionRepository;
 
     /**
      * @var LockManagerWrapper
      */
-    protected LockManagerWrapper $lockManager;
+    protected $lockManager;
 
     /**
-     * @param Context $context
-     * @param BuckarooLoggerInterface $logger
-     * @param Quote $quote
-     * @param AccountConfig $accountConfig
-     * @param OrderRequestService $orderRequestService
-     * @param OrderStatusFactory $orderStatusFactory
-     * @param CheckoutSession $checkoutSession
-     * @param CustomerSession $customerSession
-     * @param CustomerRepositoryInterface $customerRepository
-     * @param OrderService $orderService
-     * @param ManagerInterface $eventManager
-     * @param Recreate $quoteRecreate
-     * @param RequestPushFactory $requestPushFactory
-     * @param SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param Context                        $context
+     * @param BuckarooLoggerInterface        $logger
+     * @param Quote                          $quote
+     * @param AccountConfig                  $accountConfig
+     * @param OrderRequestService            $orderRequestService
+     * @param OrderStatusFactory             $orderStatusFactory
+     * @param CheckoutSession                $checkoutSession
+     * @param CustomerSession                $customerSession
+     * @param CustomerRepositoryInterface    $customerRepository
+     * @param OrderService                   $orderService
+     * @param ManagerInterface               $eventManager
+     * @param Recreate                       $quoteRecreate
+     * @param RequestPushFactory             $requestPushFactory
+     * @param SearchCriteriaBuilder          $searchCriteriaBuilder
      * @param TransactionRepositoryInterface $transactionRepository
+     * @param LockManagerWrapper             $lockManagerWrapper
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -132,8 +133,9 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
     /**
      * Redirect Process Payconiq
      *
-     * @return ResponseInterface
      * @throws Exception
+     *
+     * @return ResponseInterface
      */
     public function execute()
     {
@@ -197,8 +199,9 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
     /**
      * Get transaction object
      *
-     * @return TransactionInterface|Transaction|null
      * @throws Exception
+     *
+     * @return TransactionInterface|Transaction|null
      */
     protected function getTransaction()
     {
@@ -221,8 +224,9 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
     /**
      * Get the transaction list
      *
-     * @return TransactionSearchResultInterface
      * @throws Exception
+     *
+     * @return TransactionSearchResultInterface
      */
     protected function getList(): TransactionSearchResultInterface
     {

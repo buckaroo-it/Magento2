@@ -34,14 +34,18 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay2;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards;
+use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Transfer;
 use Buckaroo\Magento2\Model\GroupTransaction;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
+use Buckaroo\Magento2\Service\Order\Uncancel;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
+use Exception;
 use Magento\Framework\App\ObjectManager;
+use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
@@ -65,22 +69,22 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * @var Account
      */
-    public Account $configAccount;
+    public $configAccount;
 
     /**
      * @var PushRequestInterface
      */
-    protected PushRequestInterface $pushRequest;
+    protected $pushRequest;
 
     /**
      * @var PushTransactionType
      */
-    protected PushTransactionType $pushTransactionType;
+    protected $pushTransactionType;
 
     /**
      * @var OrderRequestService
      */
-    protected OrderRequestService $orderRequestService;
+    protected $orderRequestService;
 
     /**
      * @var Order|OrderPayment $order
@@ -90,61 +94,88 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * @var OrderPayment|null
      */
-    protected ?OrderPayment $payment;
+    protected $payment;
 
     /**
      * @var BuckarooLoggerInterface $logger
      */
-    protected BuckarooLoggerInterface $logger;
+    protected $logger;
 
     /**
      * @var Data
      */
-    protected Data $helper;
+    protected $helper;
 
     /**
      * @var Transaction
      */
-    protected Transaction $transaction;
+    protected $transaction;
 
     /**
      * @var PaymentGroupTransaction
      */
-    protected PaymentGroupTransaction $groupTransaction;
+    protected $groupTransaction;
 
     /**
      * @var bool
      */
-    protected bool $forceInvoice = false;
+    protected $forceInvoice = false;
 
     /**
      * @var bool
      */
-    protected bool $dontSaveOrderUponSuccessPush = false;
+    protected $dontSaveOrderUponSuccessPush = false;
 
     /**
      * @var BuckarooStatusCode
      */
-    protected BuckarooStatusCode $buckarooStatusCode;
+    protected $buckarooStatusCode;
 
     /**
      * @var OrderStatusFactory
      */
-    protected OrderStatusFactory $orderStatusFactory;
-    private GiftCardRefundService $giftCardRefundService;
-
+    protected $orderStatusFactory;
 
     /**
-     * @param OrderRequestService $orderRequestService
-     * @param PushTransactionType $pushTransactionType
+     * @var GiftCardRefundService
+     */
+    private $giftCardRefundService;
+
+    /**
+     * @var Uncancel
+     */
+    private $uncancelService;
+
+    /**
+     * @var ResourceConnection
+     */
+    private $resourceConnection;
+
+    /**
+     * @var GiftcardCollection
+     */
+    private $giftcardCollection;
+
+    /**
+     * Temporary storage for single giftcard payment info to apply before final save
+     * @var array|null
+     */
+    private $pendingSingleGiftcardInfo = null;
+
+    /**
+     * @param OrderRequestService     $orderRequestService
+     * @param PushTransactionType     $pushTransactionType
      * @param BuckarooLoggerInterface $logger
-     * @param Data $helper
-     * @param TransactionInterface $transaction
+     * @param Data                    $helper
+     * @param TransactionInterface    $transaction
      * @param PaymentGroupTransaction $groupTransaction
-     * @param BuckarooStatusCode $buckarooStatusCode
-     * @param OrderStatusFactory $orderStatusFactory
-     * @param Account $configAccount
-     * @param GiftCardRefundService $giftCardRefundService
+     * @param BuckarooStatusCode      $buckarooStatusCode
+     * @param OrderStatusFactory      $orderStatusFactory
+     * @param Account                 $configAccount
+     * @param GiftCardRefundService   $giftCardRefundService
+     * @param Uncancel                $uncancelService
+     * @param ResourceConnection $resourceConnection
+     * @param GiftcardCollection $giftcardCollection
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -158,7 +189,10 @@ class DefaultProcessor implements PushProcessorInterface
         BuckarooStatusCode        $buckarooStatusCode,
         OrderStatusFactory        $orderStatusFactory,
         Account                   $configAccount,
-        GiftCardRefundService     $giftCardRefundService
+        GiftCardRefundService     $giftCardRefundService,
+        Uncancel                  $uncancelService,
+        ResourceConnection        $resourceConnection,
+        GiftcardCollection        $giftcardCollection
     ) {
         $this->pushTransactionType = $pushTransactionType;
         $this->orderRequestService = $orderRequestService;
@@ -171,12 +205,17 @@ class DefaultProcessor implements PushProcessorInterface
         $this->orderStatusFactory = $orderStatusFactory;
         $this->configAccount = $configAccount;
         $this->giftCardRefundService = $giftCardRefundService;
+        $this->uncancelService = $uncancelService;
+        $this->resourceConnection = $resourceConnection;
+        $this->giftcardCollection = $giftcardCollection;
     }
 
     /**
+     * @param PushRequestInterface $pushRequest
+     *
+     * @return bool
      * @throws BuckarooException
-     * @throws FileSystemException
-     * @throws \Exception
+     * @throws LocalizedException
      */
     public function processPush(PushRequestInterface $pushRequest): bool
     {
@@ -208,6 +247,7 @@ class DefaultProcessor implements PushProcessorInterface
 
         if ($this->isGroupTransactionPart() || $this->pushRequest->getRelatedtransactionPartialpayment()) {
             $this->savePartGroupTransaction();
+            $this->saveNewGroupTransactionIfNeeded();
             $this->addGiftcardPartialPaymentToPaymentInformation();
             $this->order->save();
             return true;
@@ -221,7 +261,13 @@ class DefaultProcessor implements PushProcessorInterface
             return true;
         }
 
+        // Store single giftcard payment metadata for refund support
+        $this->storeSingleGiftcardPaymentInfo();
+
         $this->processPushByStatus();
+
+        // Apply pending single giftcard info right before final save (inline payment path)
+        $this->applyAndSavePendingSingleGiftcardInfo('inline');
 
         if (!$this->dontSaveOrderUponSuccessPush) {
             $this->order->save();
@@ -231,9 +277,9 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * @param \Buckaroo\Magento2\Api\Data\PushRequestInterface $pushRequest
-     * @return void
-     * @throws \Exception
+     * @param PushRequestInterface $pushRequest
+     *
+     * @throws Exception
      */
     protected function initializeFields(PushRequestInterface $pushRequest): void
     {
@@ -245,8 +291,9 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * Skip the push if the conditions are met.
      *
+     * @throws Exception
+     *
      * @return bool
-     * @throws \Exception
      */
     protected function skipPush(): bool
     {
@@ -283,8 +330,9 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * Check if it is needed to handle the push message based on postdata
      *
+     * @throws Exception
+     *
      * @return bool
-     * @throws \Exception
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
@@ -305,8 +353,9 @@ class DefaultProcessor implements PushProcessorInterface
      * Buckaroo Push is send before Response, for correct flow we skip the first push
      * for some payment methods
      *
-     * @return bool
      * @throws LocalizedException
+     *
+     * @return bool
      */
     protected function skipFirstPush(): bool
     {
@@ -325,10 +374,12 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * Check for duplicate transaction pushes from Buckaroo and update the payment transaction statuses accordingly.
      *
-     * @param int|null $receivedStatusCode
+     * @param int|null    $receivedStatusCode
      * @param string|null $trxId
+     *
+     * @throws Exception
+     *
      * @return bool
-     * @throws \Exception
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
@@ -350,7 +401,6 @@ class DefaultProcessor implements PushProcessorInterface
             }
             $trxId = $this->pushRequest->getTransactions();
         }
-
 
         $isRefund = $this->pushRequest->hasAdditionalInformation('service_action_from_magento', 'refund');
 
@@ -386,7 +436,8 @@ class DefaultProcessor implements PushProcessorInterface
      * Check if transaction was already processed based on transaction statuses from payment additional information
      *
      * @param string $trxId
-     * @param int $receivedStatusCode
+     * @param int    $receivedStatusCode
+     *
      * @return bool
      */
     private function isDuplicateTransaction($receivedStatusCode, string $trxId): bool
@@ -415,6 +466,7 @@ class DefaultProcessor implements PushProcessorInterface
      * If the order has status new/pending and received status success then we skip from duplication transaction check
      *
      * @param int $receivedStatusCode
+     *
      * @return bool
      */
     private function isNewOrderAndReceivedSuccess($receivedStatusCode): bool
@@ -436,7 +488,6 @@ class DefaultProcessor implements PushProcessorInterface
      * It updates the BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES payment additional information
      * with the current received tx status.
      *
-     * @return void
      * @throws LocalizedException
      */
     protected function setReceivedTransactionStatuses(): void
@@ -457,72 +508,280 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * Checks if the order can be updated by checking its state and status.
+     * Checks if the order can be updated by checking its state.
+     * If order is canceled and receives success push, reactivates it.
+     *
+     * Following Magento core's approach (Order::canInvoice, etc.) which checks state only.
      *
      * @return bool
-     *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @throws LocalizedException
      */
     protected function canUpdateOrderStatus(): bool
     {
-        /**
-         * Types of statusses
-         */
-        $completedStateAndStatus = [Order::STATE_COMPLETE, Order::STATE_COMPLETE];
-        $cancelledStateAndStatus = [Order::STATE_CANCELED, Order::STATE_CANCELED];
-        $holdedStateAndStatus = [Order::STATE_HOLDED, Order::STATE_HOLDED];
-        $closedStateAndStatus = [Order::STATE_CLOSED, Order::STATE_CLOSED];
-        /**
-         * Get current state and status of order
-         */
-        $currentStateAndStatus = [$this->order->getState(), $this->order->getStatus()];
+        $currentState = $this->order->getState();
+
         $this->logger->addDebug(sprintf(
-            '[%s:%s] - Checks if the order can be updated | currentStateAndStatus: %s',
+            '[%s:%s] - Checks if the order can be updated | State: %s | Status: %s',
             __METHOD__,
             __LINE__,
-            var_export($currentStateAndStatus, true)
+            $currentState,
+            $this->order->getStatus()
         ));
 
-        /**
-         * If the types are not the same and the order can receive an invoice the order can be udpated by BPE.
-         */
-        if ($completedStateAndStatus != $currentStateAndStatus
-            && $cancelledStateAndStatus != $currentStateAndStatus
-            && $holdedStateAndStatus != $currentStateAndStatus
-            && $closedStateAndStatus != $currentStateAndStatus
+        // Check if order is in a final state that cannot be updated
+        // Following Magento core pattern: check state only, not status
+        if ($currentState === Order::STATE_COMPLETE ||
+            $currentState === Order::STATE_CLOSED ||
+            $currentState === Order::STATE_HOLDED
         ) {
-            return true;
+            return false;
         }
 
-        if (($this->order->getState() === Order::STATE_CANCELED)
+        // Check if canceled order should be reactivated
+        if ($currentState === Order::STATE_CANCELED) {
+            if ($this->shouldReactivateCanceledOrder()) {
+                return $this->reactivateCanceledOrder();
+            }
+            return false;
+        }
+
+        // Order is in a normal updatable state (new, pending_payment, processing)
+        return true;
+    }
+
+    /**
+     * Check if a canceled order should be reactivated
+     *
+     * @return bool
+     */
+    private function shouldReactivateCanceledOrder(): bool
+    {
+        return ($this->order->getState() === Order::STATE_CANCELED)
             && ($this->order->getStatus() === Order::STATE_CANCELED)
             && ($this->pushTransactionType->getStatusKey() === 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')
             && $this->pushRequest->getRelatedtransactionPartialpayment() == null
-        ) {
+            && !$this->payment->getAdditionalInformation('buckaroo_order_reactivated');
+    }
+
+    /**
+     * Reactivate a canceled order when receiving success push
+     * Handles uncanceling, invoice handling setup, and authorization transaction
+     *
+     * @return bool
+     * @throws LocalizedException
+     */
+    private function reactivateCanceledOrder(): bool
+    {
+        $orderNumber = $this->order->getIncrementId();
+
+        $this->logger->addDebug(sprintf(
+            '[%s:%s] - Reactivating canceled order: %s',
+            __METHOD__,
+            __LINE__,
+            $orderNumber
+        ));
+
+        // 1. Get the transaction key for authorization (used in comment)
+        $transactionKey = $this->pushRequest->getTransactions();
+        if (!$transactionKey || strlen($transactionKey) === 0) {
+            $transactionKey = $this->pushRequest->getDatarequest();
+        }
+
+        // 2. Uncancel the order (resets all amounts, inventory, etc)
+        $comment = __(
+            'Order reactivated: Payment completed after cancellation (Push notification received). ' .
+            'Transaction ID: "%1"',
+            $transactionKey
+        );
+        $this->uncancelService->execute($this->order, (string)$comment);
+
+        // 3. Mark as reactivated to prevent duplicates
+        $this->payment->setAdditionalInformation('buckaroo_order_reactivated', true);
+
+        // 4. Setup invoice handling flags (for Klarna/Afterpay with SHIPMENT mode)
+        $this->setupInvoiceHandlingForReactivation();
+
+        // 5. Preserve Klarna reservation number in payment additional information
+        $reservationNumber = $this->order->getBuckarooReservationNumber();
+        if ($reservationNumber) {
+            $this->payment->setAdditionalInformation('buckaroo_reservation_number', $reservationNumber);
+        }
+
+        // 6. Delete ALL existing transactions to start fresh
+        // This prevents circular references and stale transaction states
+        try {
+            $connection = $this->resourceConnection->getConnection();
+            $tableName = $this->resourceConnection->getTableName('sales_payment_transaction');
+
+            $deleted = $connection->delete(
+                $tableName,
+                ['order_id = ?' => $this->order->getId()]
+            );
+
+            if ($deleted > 0) {
+                $this->logger->addDebug(sprintf(
+                    '[%s:%s] - Order %s: Deleted %d transaction(s) to prevent circular references',
+                    __METHOD__,
+                    __LINE__,
+                    $orderNumber,
+                    $deleted
+                ));
+            }
+
+            // Clear payment transaction references
+            $this->payment->setLastTransId(null);
+            $this->payment->setData('_transactionsLookup', null);
+            $this->payment->setData('transaction', null);
+
+        } catch (\Exception $e) {
+            $this->logger->addError(sprintf(
+                '[%s:%s] - Order %s: Failed to delete transactions - %s',
+                __METHOD__,
+                __LINE__,
+                $orderNumber,
+                $e->getMessage()
+            ));
+        }
+
+        // 7. Save payment and order changes
+        $this->payment->save();
+        $this->order->save();
+
+        $this->logger->addDebug(sprintf(
+            '[%s:%s] - Order %s: Successfully reactivated and set to %s state',
+            __METHOD__,
+            __LINE__,
+            $orderNumber,
+            $this->order->getState()
+        ));
+
+        // 8. Force invoice flag for immediate processing
+        $this->forceInvoice = true;
+
+        return true;
+    }
+
+    /**
+     * Setup invoice handling flags for reactivated orders
+     * Detects if order should use SHIPMENT mode and sets appropriate flags
+     *
+     * @return void
+     * @throws LocalizedException
+     */
+    private function setupInvoiceHandlingForReactivation(): void
+    {
+        $invoiceHandlingMode = $this->payment->getAdditionalInformation(
+            InvoiceHandlingOptions::INVOICE_HANDLING
+        );
+
+        // If flag not set (e.g., failed authorization), check configs directly
+        if ($invoiceHandlingMode === null || $invoiceHandlingMode === '') {
+            $invoiceHandlingMode = $this->detectInvoiceHandlingMode();
+
+            // Set the flag now for future use if it's SHIPMENT mode
+            if ($invoiceHandlingMode == InvoiceHandlingOptions::SHIPMENT) {
+                $this->payment->setAdditionalInformation(
+                    InvoiceHandlingOptions::INVOICE_HANDLING,
+                    InvoiceHandlingOptions::SHIPMENT
+                );
+            }
+        }
+
+        // For SHIPMENT mode, mark payment as already captured
+        // This ensures the shipment observer will use offline capture
+        if ($invoiceHandlingMode == InvoiceHandlingOptions::SHIPMENT) {
+            $this->payment->setAdditionalInformation('buckaroo_already_captured', true);
             $this->logger->addDebug(sprintf(
-                '[%s:%s] - Resetting from CANCELED to STATE_NEW/PENDING',
+                '[%s:%s] - Order %s: Set SHIPMENT invoice handling mode',
+                __METHOD__,
+                __LINE__,
+                $this->order->getIncrementId()
+            ));
+        }
+    }
+
+    /**
+     * Detect invoice handling mode from configuration
+     * Checks method-specific config first, then falls back to general config
+     *
+     * @return int|string|null
+     * @throws LocalizedException
+     */
+    private function detectInvoiceHandlingMode()
+    {
+        // Check method-specific config first (e.g., Klarna's "create_invoice_after_shipment")
+        $methodSpecificConfig = $this->payment->getMethodInstance()->getConfigData('create_invoice_after_shipment');
+
+        if ($methodSpecificConfig !== null && $methodSpecificConfig !== '') {
+            return ($methodSpecificConfig == 1) ? InvoiceHandlingOptions::SHIPMENT : null;
+        }
+
+        // Fall back to general account config
+        return $this->configAccount->getInvoiceHandling();
+    }
+
+    /**
+     * Register authorization transaction for reactivated order
+     * Allows manual "Capture Online" option in admin
+     *
+     * @return void
+     */
+    private function registerAuthorizationForReactivation(): void
+    {
+        // Get transaction key from push data (already determined in reactivateCanceledOrder)
+        $transactionKey = $this->pushRequest->getTransactions();
+
+        // If no brq_transactions, try brq_datarequest (used for Klarna/Afterpay authorization)
+        if (!$transactionKey || strlen($transactionKey) === 0) {
+            $transactionKey = $this->pushRequest->getDatarequest();
+        }
+
+        $this->logger->addDebug(sprintf(
+            '[%s:%s] - Register authorization | Transaction key: %s | Source: %s',
+            __METHOD__,
+            __LINE__,
+            $transactionKey ?? 'NULL',
+            $this->pushRequest->getTransactions() ? 'brq_transactions' : 'brq_datarequest'
+        ));
+
+        if (!$transactionKey || strlen($transactionKey) === 0) {
+            $this->logger->addDebug(sprintf(
+                '[%s:%s] - No transaction key found in push data, skipping authorization registration',
                 __METHOD__,
                 __LINE__
             ));
-
-            $this->order->setState(Order::STATE_NEW);
-            $this->order->setStatus('pending');
-
-            foreach ($this->order->getAllItems() as $item) {
-                $item->setQtyCanceled(0);
-            }
-
-            $this->forceInvoice = true;
-            return true;
+            return;
         }
 
-        return false;
+        $baseGrandTotal = $this->order->getBaseGrandTotal();
+
+        $newTransactionId = $transactionKey . '-reauth';
+
+        $this->payment->setTransactionId($newTransactionId);
+        $this->payment->setCurrencyCode($this->order->getBaseCurrencyCode());
+        $this->payment->setIsTransactionClosed(false);
+        $this->payment->registerAuthorizationNotification($baseGrandTotal);
+
+        // CRITICAL: Ensure the transaction ID stays as the reauth one after registerAuthorizationNotification
+        // Magento might reset it, so we set it again along with LastTransId
+        $this->payment->setTransactionId($newTransactionId);
+        $this->payment->setLastTransId($newTransactionId);
+
+        // Store the reauth transaction ID so addTransactionData() uses it as parent for captures
+        $this->payment->setAdditionalInformation('buckaroo_reauth_transaction_id', $newTransactionId);
+
+        // Verify canCapture works
+        $canCapture = $this->payment->canCapture();
+        $this->logger->addDebug(sprintf(
+            '[%s:%s] - Authorization setup complete - CanCapture: %s',
+            __METHOD__,
+            __LINE__,
+            $canCapture ? 'YES' : 'NO'
+        ));
     }
 
     /**
      * Sets the transaction key in the payment's additional information if it's not already set.
-     *
-     * @return void
      */
     protected function setTransactionKey()
     {
@@ -560,7 +819,6 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * @return void
      */
     protected function setOrderStatusMessage(): void
     {
@@ -587,7 +845,15 @@ class DefaultProcessor implements PushProcessorInterface
                         $this->order->getState()
                     ));
                 }
-                $this->order->addCommentToStatusHistory($this->pushRequest->getStatusmessage());
+                if ((
+                        $this->pushRequest->hasPostData('statuscode', BuckarooStatusCode::PENDING_PROCESSING)
+                        && in_array($this->order->getState(), [Order::STATE_PENDING_PAYMENT, Order::STATE_NEW], true)
+                    )
+                    ||
+                    !$this->pushRequest->hasPostData('statuscode', BuckarooStatusCode::PENDING_PROCESSING)
+                ) {
+                    $this->order->addCommentToStatusHistory($this->pushRequest->getStatusmessage());
+                }
             }
         }
     }
@@ -599,7 +865,7 @@ class DefaultProcessor implements PushProcessorInterface
      */
     protected function isGroupTransactionPart()
     {
-        if (!is_null($this->pushRequest->getTransactions())) {
+        if ($this->pushRequest->getTransactions() !== null) {
             $groupTransaction = $this->groupTransaction->getGroupTransactionByTrxId(
                 $this->pushRequest->getTransactions()
             );
@@ -611,22 +877,106 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * Save the part group transaction.
+     * Update the status of an existing group transaction.
      *
-     * @return void
-     * @throws \Exception
+     * @throws Exception
      */
     protected function savePartGroupTransaction(): void
     {
         $groupTransaction = $this->groupTransaction->getGroupTransactionByTrxId($this->pushRequest->getTransactions());
-        if ($groupTransaction instanceof GroupTransaction) {
+
+        // Only update if transaction exists and has an entity_id (not empty)
+        if ($groupTransaction instanceof GroupTransaction && $groupTransaction->getEntityId()) {
             $groupTransaction->setData('status', $this->pushRequest->getStatusCode());
             $groupTransaction->save();
+
+            $this->logger->addDebug(sprintf(
+                '[GROUP_TRANSACTION] | [Push] | [%s:%s] - Updated group transaction status | Key: %s | Status: %s',
+                __METHOD__,
+                __LINE__,
+                $this->pushRequest->getTransactions(),
+                $this->pushRequest->getStatusCode()
+            ));
         }
     }
 
     /**
+     * Save new group transaction if needed
      *
+     * For mixed payments, this ensures all payment methods (not just giftcards)
+     * are saved to the group_transaction table for proper refund handling.
+     *
+     * @return void
+     */
+    protected function saveNewGroupTransactionIfNeeded(): void
+    {
+        // Validate required data
+        if (!$this->hasRequiredGroupTransactionData()) {
+            return;
+        }
+
+        // Check if this transaction is already saved to prevent duplicates
+        if ($this->isGroupTransactionAlreadySaved()) {
+            return;
+        }
+
+        // Create and save the transaction using typed method (Magento best practice)
+        try {
+            $amount = $this->pushRequest->getAmount() ?? $this->pushRequest->getAmountDebit();
+
+            $this->groupTransaction->createGroupTransaction(
+                $this->pushRequest->getInvoiceNumber(),
+                $this->pushRequest->getTransactions(),
+                $this->pushRequest->getTransactionMethod(),
+                $this->pushRequest->getCurrency(),
+                (float)$amount,
+                (int)$this->pushRequest->getStatusCode(),
+                $this->pushRequest->getRelatedtransactionPartialpayment(),
+                'partialpayment'
+            );
+        } catch (Exception $e) {
+            $this->logger->addError(sprintf(
+                '[GROUP_TRANSACTION] | [Push] | [%s:%s] - ERROR saving group transaction: %s',
+                __METHOD__,
+                __LINE__,
+                $e->getMessage()
+            ));
+        }
+    }
+
+    /**
+     * Check if required data is present for group transaction
+     * Only for MIXED/PARTIAL payments (not single giftcards)
+     *
+     * @return bool
+     */
+    private function hasRequiredGroupTransactionData(): bool
+    {
+        // Basic requirements
+        if (!$this->pushRequest->getTransactions() || !$this->pushRequest->getInvoiceNumber()) {
+            return false;
+        }
+
+        // Only for mixed/partial payments with relatedtransaction
+        return (bool)$this->pushRequest->getRelatedtransactionPartialpayment();
+    }
+
+    /**
+     * Check if group transaction is already saved
+     *
+     * @return bool
+     */
+    private function isGroupTransactionAlreadySaved(): bool
+    {
+        $existingTransaction = $this->groupTransaction->getGroupTransactionByTrxId(
+            $this->pushRequest->getTransactions()
+        );
+
+        return $existingTransaction && $existingTransaction->getEntityId();
+    }
+
+
+    /**
      * @return true
      */
     protected function canProcessPostData()
@@ -637,8 +987,9 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * Checks if the payment is a partial payment using a gift card.
      *
-     * @return bool
      * @throws LocalizedException
+     *
+     * @return bool
      */
     protected function giftcardPartialPayment(): bool
     {
@@ -668,8 +1019,6 @@ class DefaultProcessor implements PushProcessorInterface
 
     /**
      * Adds the gift card partial payment information to the payment's additional information.
-     *
-     * @return void
      */
     protected function addGiftcardPartialPaymentToPaymentInformation()
     {
@@ -700,8 +1049,10 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * Process the push according the response status
      *
-     * @return bool
      * @throws LocalizedException
+     *
+     * @return bool
+     *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     protected function processPushByStatus(): bool
@@ -727,8 +1078,9 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * @return false|string|null
      * @throws LocalizedException
+     *
+     * @return false|string|null
      */
     protected function getNewStatus()
     {
@@ -740,8 +1092,10 @@ class DefaultProcessor implements PushProcessorInterface
      *
      * @param string $newStatus
      * @param string $message
-     * @return bool
+     *
      * @throws LocalizedException
+     *
+     * @return bool
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
@@ -755,7 +1109,6 @@ class DefaultProcessor implements PushProcessorInterface
             __LINE__,
             var_export($newStatus, true)
         ));
-
 
         $this->setBuckarooReservationNumber();
 
@@ -778,23 +1131,60 @@ class DefaultProcessor implements PushProcessorInterface
         $isSuccessStatus = ((int)$this->pushRequest->getStatusCode() === $this->buckarooStatusCode::SUCCESS);
 
         if ($isCaptureTx || $isCaptureMutation || ($hasKlarnaCaptureId && $isSuccessStatus)) {
-            $this->logger->addDebug(sprintf(
-                '[%s:%s] - CAPTURE_DETECTED | data: %s',
-                __METHOD__,
-                __LINE__,
-                var_export([
-                    'transaction_type' => $this->pushRequest->getData()['brq_transaction_type'] ?? null,
-                    'mutationtype' => $this->pushRequest->getData()['brq_mutationtype'] ?? null,
-                    'transaction_method' => $this->pushRequest->getData()['brq_transaction_method'] ?? null,
-                    'klarnakp_capture_id' => $this->pushRequest->getServiceKlarnakpCaptureid() ?? null,
-                ], true)
-            ));
-
             // Build capture description using current amount context
             $amount = $this->order->getBaseTotalDue();
             if (!empty($this->pushRequest->getAmount())) {
                 $amount = (float)$this->pushRequest->getAmount();
             }
+
+            // Check if invoice should be created on shipment instead
+            // First, try to read from payment's additional_information (set during order placement)
+            $invoiceHandlingMode = $this->order->getPayment()->getAdditionalInformation(
+                InvoiceHandlingOptions::INVOICE_HANDLING
+            );
+
+            // If not set (e.g., order was canceled before authorization completed),
+            // check method-specific config directly
+            if ($invoiceHandlingMode === null || $invoiceHandlingMode === '') {
+                $methodSpecificConfig = $this->payment->getMethodInstance()->getConfigData('create_invoice_after_shipment');
+                if ($methodSpecificConfig !== null && $methodSpecificConfig !== '') {
+                    $invoiceHandlingMode = ($methodSpecificConfig == 1) ? InvoiceHandlingOptions::SHIPMENT : null;
+                } else {
+                    // Fall back to general account config
+                    $invoiceHandlingMode = $this->configAccount->getInvoiceHandling();
+                }
+            }
+
+            if ($invoiceHandlingMode == InvoiceHandlingOptions::SHIPMENT) {
+                $this->logger->addDebug(sprintf(
+                    '[%s:%s] - CAPTURE detected but invoice handling is SHIPMENT mode - skipping invoice creation',
+                    __METHOD__,
+                    __LINE__
+                ));
+
+                $payment = $this->order->getPayment();
+                $payment->setAdditionalInformation('buckaroo_already_captured', true);
+
+                // Ensure the invoice handling mode is persisted so the shipment observer can detect it
+                $payment->setAdditionalInformation(
+                    InvoiceHandlingOptions::INVOICE_HANDLING,
+                    InvoiceHandlingOptions::SHIPMENT
+                );
+                $payment->save();
+
+                $description = 'Capture status : <strong>' . $message . '</strong><br/>'
+                    . 'Total amount of ' . $this->order->getBaseCurrency()->formatTxt($amount) . ' has been captured. Invoice will be created on shipment.';
+
+                $this->orderRequestService->updateOrderStatus(
+                    Order::STATE_PROCESSING,
+                    $newStatus,
+                    $description,
+                    false,
+                    $this->dontSaveOrderUponSuccessPush
+                );
+                return true;
+            }
+
             $description = 'Capture status : <strong>' . $message . '</strong><br/>'
                 . 'Total amount of ' . $this->order->getBaseCurrency()->formatTxt($amount) . ' has been captured.';
 
@@ -821,12 +1211,14 @@ class DefaultProcessor implements PushProcessorInterface
             }
         }
 
-
         if ($this->groupTransaction->isGroupTransaction($this->pushRequest->getInvoiceNumber())) {
             $paymentDetails['forceState'] = true;
         }
 
         $this->processSucceededPushAuthorization();
+
+        // Apply and save single giftcard metadata before order status update (redirect payment path)
+        $this->applyAndSavePendingSingleGiftcardInfo('redirect');
 
         $this->orderRequestService->updateOrderStatus(
             $paymentDetails['state'],
@@ -839,13 +1231,10 @@ class DefaultProcessor implements PushProcessorInterface
         return true;
     }
 
-
-
     /**
      * Process succeeded push authorization.
      *
-     * @return void
-     * @throws \Exception
+     * @throws Exception
      */
     private function processSucceededPushAuthorization(): void
     {
@@ -902,7 +1291,6 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * Send Order email if was not sent
      *
-     * @return void
      * @throws LocalizedException
      */
     protected function sendOrderEmail(): void
@@ -926,16 +1314,21 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * Can create invoice on push
      *
-     * @return bool
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     *
      * @throws LocalizedException
+     *
+     * @return bool
      */
     protected function canPushInvoice(): bool
     {
         if ($this->payment->getMethodInstance()->getConfigData('payment_action') == 'authorize') {
             // For authorize payments with shipment-based invoicing, allow processing to set the flag
-            return ($this->configAccount->getInvoiceHandling() == InvoiceHandlingOptions::SHIPMENT);
+            $invoiceHandlingMode = $this->order->getPayment()->getAdditionalInformation(
+                InvoiceHandlingOptions::INVOICE_HANDLING
+            );
+            return ($invoiceHandlingMode == InvoiceHandlingOptions::SHIPMENT);
         }
 
         return true;
@@ -945,10 +1338,11 @@ class DefaultProcessor implements PushProcessorInterface
      * Creates and saves the invoice and adds for each invoice the buckaroo transaction keys
      * Only when the order can be invoiced and has not been invoiced before.
      *
-     * @return bool
      * @throws BuckarooException
      * @throws LocalizedException
-     * @throws \Exception
+     * @throws Exception
+     *
+     * @return bool
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
@@ -966,7 +1360,21 @@ class DefaultProcessor implements PushProcessorInterface
 
         $this->addTransactionData();
 
-        if ($this->configAccount->getInvoiceHandling() == InvoiceHandlingOptions::SHIPMENT) {
+        // Check method-specific config first, fall back to general config
+        // Method-specific config key: create_invoice_after_shipment (only exists for Klarna & Afterpay)
+        // If "Yes" (value=1), invoice should be created after shipment (SHIPMENT mode)
+        $methodSpecificConfig = $this->payment->getMethodInstance()->getConfigData('create_invoice_after_shipment');
+        $useShipmentMode = false;
+
+        if ($methodSpecificConfig !== null && $methodSpecificConfig !== '') {
+            // Method has specific config value - use it (1 = Yes = SHIPMENT mode, 0 = No = immediate)
+            $useShipmentMode = ($methodSpecificConfig == 1);
+        } else {
+            // No method-specific config or not set - use general account config
+            $useShipmentMode = ($this->configAccount->getInvoiceHandling() == InvoiceHandlingOptions::SHIPMENT);
+        }
+
+        if ($useShipmentMode) {
             // In shipment mode, record the payment as authorized but don't capture yet
             // Store the invoice handling setting for later use
             $this->payment->setAdditionalInformation(
@@ -1021,9 +1429,11 @@ class DefaultProcessor implements PushProcessorInterface
      *
      * @param bool $transactionKey
      * @param bool $data
-     * @return Payment
+     *
      * @throws LocalizedException
-     * @throws \Exception
+     * @throws Exception
+     *
+     * @return Payment
      */
     public function addTransactionData(bool $transactionKey = false, bool $data = false): Payment
     {
@@ -1055,7 +1465,23 @@ class DefaultProcessor implements PushProcessorInterface
          */
         $this->payment->setTransactionId($transactionKey . '-capture');
 
-        $this->payment->setParentTransactionId($transactionKey);
+        // For reactivated orders, use the reauth transaction ID as parent to avoid circular references
+        // Otherwise, use the original transaction key
+        $reauthTransactionId = $this->payment->getAdditionalInformation('buckaroo_reauth_transaction_id');
+        $parentTransactionId = $reauthTransactionId ?: $transactionKey;
+
+        $this->payment->setParentTransactionId($parentTransactionId);
+
+        if ($reauthTransactionId) {
+            $this->logger->addDebug(sprintf(
+                '[%s:%s] - Using reauth transaction ID as parent for capture: %s (original: %s)',
+                __METHOD__,
+                __LINE__,
+                $reauthTransactionId,
+                $transactionKey
+            ));
+        }
+
         $this->payment->setAdditionalInformation(
             BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY,
             $transactionKey
@@ -1069,8 +1495,10 @@ class DefaultProcessor implements PushProcessorInterface
      *
      * @param string $newStatus
      * @param string $message
-     * @return bool
+     *
      * @throws LocalizedException
+     *
+     * @return bool
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
@@ -1129,14 +1557,14 @@ class DefaultProcessor implements PushProcessorInterface
                 $payment->save();
             }
 
-            $this->orderRequestService->updateOrderStatus(Order::STATE_CANCELED, $newStatus, $description);
-
             try {
                 $this->order->cancel()->save();
 
                 if (!$this->isMagentoGiftCardRefundActive()) {
                     $this->giftCardRefundService->refund($this->order);
                 }
+
+                $this->orderRequestService->updateOrderStatus(Order::STATE_CANCELED, $newStatus, $description);
             } catch (\Throwable $th) {
                 $this->logger->addError(sprintf(
                     '[%s:%s] - Process failed push from Buckaroo. Cancel Order| [ERROR]: %s',
@@ -1169,11 +1597,13 @@ class DefaultProcessor implements PushProcessorInterface
      * Transfer payment methods receive status pending for success order
      *
      * @param string|false|null $newStatus
-     * @param string $statusMessage
-     * @return bool
+     * @param string            $statusMessage
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     * @throws \Exception
+     *
+     * @throws Exception
+     *
+     * @return bool
      */
     protected function processPendingPaymentPush($newStatus, string $statusMessage): bool
     {
@@ -1193,7 +1623,6 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * Process email sending for pending payment push
      *
-     * @return void
      * @throws LocalizedException
      */
     private function processPendingPaymentEmail(): void
@@ -1217,9 +1646,10 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * Check if pending payment email should be sent
      *
-     * @param bool $isSuccessfulPayment
+     * @param bool  $isSuccessfulPayment
      * @param mixed $store
      * @param mixed $paymentMethod
+     *
      * @return bool
      */
     private function shouldSendPendingPaymentEmail(bool $isSuccessfulPayment, $store, $paymentMethod): bool
@@ -1236,8 +1666,10 @@ class DefaultProcessor implements PushProcessorInterface
      * Build description for pending payment
      *
      * @param string $statusMessage
-     * @return string
+     *
      * @throws LocalizedException
+     *
+     * @return string
      */
     private function buildPendingPaymentDescription(string $statusMessage): string
     {
@@ -1290,7 +1722,10 @@ class DefaultProcessor implements PushProcessorInterface
         $this->dontSaveOrderUponSuccessPush = false;
 
         // Check if this is shipment mode - payment authorized but not captured yet
-        $isShipmentMode = ($this->configAccount->getInvoiceHandling() == InvoiceHandlingOptions::SHIPMENT);
+        $invoiceHandlingMode = $this->order->getPayment()->getAdditionalInformation(
+            InvoiceHandlingOptions::INVOICE_HANDLING
+        );
+        $isShipmentMode = ($invoiceHandlingMode == InvoiceHandlingOptions::SHIPMENT);
 
         if ($this->canPushInvoice() && !$isShipmentMode) {
             $description = 'Payment status : <strong>' . $message . "</strong><br/>";
@@ -1318,6 +1753,7 @@ class DefaultProcessor implements PushProcessorInterface
 
     /**
      * @param array $paymentDetails
+     *
      * @return bool
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
@@ -1346,7 +1782,6 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * Set Specific Payment Details that will appear under the Payment Method Name on Order
      *
-     * @return void
      * @throws LocalizedException
      */
     protected function setSpecificPaymentDetails(): void
@@ -1371,6 +1806,7 @@ class DefaultProcessor implements PushProcessorInterface
      * Returns label
      *
      * @param string $field
+     *
      * @return Phrase
      */
     protected function getLabel(string $field)
@@ -1384,6 +1820,7 @@ class DefaultProcessor implements PushProcessorInterface
      * Checks if a given status code is a successful payment status.
      *
      * @param int $statusCode
+     *
      * @return bool
      */
     private function isSuccessfulPaymentStatus(int $statusCode): bool
@@ -1427,8 +1864,8 @@ class DefaultProcessor implements PushProcessorInterface
      */
     private function hasGiftCardAccountClasses(): bool
     {
-        return interface_exists('Magento\GiftCardAccount\Api\GiftCardAccountRepositoryInterface') &&
-               class_exists('Magento\GiftCardAccount\Observer\RevertGiftCardAccountBalance');
+        return interface_exists(\Magento\GiftCardAccount\Api\GiftCardAccountRepositoryInterface::class) &&
+               class_exists(\Magento\GiftCardAccount\Observer\RevertGiftCardAccountBalance::class);
     }
 
     /**
@@ -1442,4 +1879,111 @@ class DefaultProcessor implements PushProcessorInterface
         return (bool) $accountConfig->getFailureRedirectToCheckout($this->order->getStore());
     }
 
+    /**
+     * Store single giftcard payment information in payment additional_information
+     * This is for single full giftcard payments (not mixed/partial payments)
+     * Used by refund system to identify and refund giftcard correctly
+     *
+     * @return void
+     */
+    private function storeSingleGiftcardPaymentInfo(): void
+    {
+        // Only for giftcard payment method
+        if (!$this->payment || $this->payment->getMethod() !== 'buckaroo_magento2_giftcards') {
+            return;
+        }
+
+        // Only for successful transactions
+        if ((int)$this->pushRequest->getStatusCode() !== $this->buckarooStatusCode::SUCCESS) {
+            return;
+        }
+
+        $transactionMethod = $this->pushRequest->getTransactionMethod();
+
+        // Only if it's an actual giftcard
+        if (!$this->isActualGiftcard($transactionMethod)) {
+            return;
+        }
+
+        // Store giftcard metadata temporarily - will be applied to payment right before final save
+        $this->pendingSingleGiftcardInfo = [
+            'servicecode' => $transactionMethod,
+            'amount' => $this->pushRequest->getAmount() ?? $this->pushRequest->getAmountDebit(),
+            'transaction_id' => $this->pushRequest->getTransactions(),
+            'currency' => $this->pushRequest->getCurrency()
+        ];
+
+        $this->logger->addDebug(sprintf(
+            '[SINGLE_GIFTCARD] | [%s:%s] - Stored single giftcard payment info temporarily | Method: %s | Amount: %s | Will be applied before final save',
+            __METHOD__,
+            __LINE__,
+            $transactionMethod,
+            $this->pushRequest->getAmount()
+        ));
+    }
+
+    /**
+     * Apply and save pending single giftcard payment information
+     * This method is called at multiple points in the push flow depending on payment type
+     *
+     * @param string $context Context description for logging (e.g., 'inline', 'redirect', 'capture')
+     * @return void
+     */
+    private function applyAndSavePendingSingleGiftcardInfo(string $context = 'default'): void
+    {
+        if ($this->pendingSingleGiftcardInfo === null) {
+            return;
+        }
+
+        try {
+            // Set all giftcard metadata on payment
+            $this->payment->setAdditionalInformation('single_giftcard_payment', true);
+            $this->payment->setAdditionalInformation('single_giftcard_servicecode', $this->pendingSingleGiftcardInfo['servicecode']);
+            $this->payment->setAdditionalInformation('single_giftcard_amount', $this->pendingSingleGiftcardInfo['amount']);
+            $this->payment->setAdditionalInformation('single_giftcard_transaction_id', $this->pendingSingleGiftcardInfo['transaction_id']);
+            $this->payment->setAdditionalInformation('single_giftcard_currency', $this->pendingSingleGiftcardInfo['currency']);
+
+            // Save payment directly to ensure additional_information is persisted to database
+            $this->payment->save();
+
+            $this->logger->addDebug(sprintf(
+                '[SINGLE_GIFTCARD] | [%s:%s] - Applied and saved single giftcard info [%s] | Service: %s | Amount: %s',
+                __METHOD__,
+                __LINE__,
+                $context,
+                $this->pendingSingleGiftcardInfo['servicecode'],
+                $this->pendingSingleGiftcardInfo['amount']
+            ));
+
+            // Clear pending info after successful save to prevent duplicate saves
+            $this->pendingSingleGiftcardInfo = null;
+        } catch (\Exception $e) {
+            $this->logger->addError(sprintf(
+                '[SINGLE_GIFTCARD] | [%s:%s] - Failed to save single giftcard info [%s] | Error: %s',
+                __METHOD__,
+                __LINE__,
+                $context,
+                $e->getMessage()
+            ));
+        }
+    }
+
+    /**
+     * Check if transaction method is an actual giftcard
+     *
+     * @param string|null $transactionMethod
+     * @return bool
+     */
+    private function isActualGiftcard(?string $transactionMethod): bool
+    {
+        if (!$transactionMethod) {
+            return false;
+        }
+
+        // Check if it's in the giftcard collection
+        $foundGiftcard = $this->giftcardCollection->getItemByColumnValue('servicecode', $transactionMethod);
+
+        // Also check for buckaroovoucher
+        return $foundGiftcard !== null || $transactionMethod === 'buckaroovoucher';
+    }
 }

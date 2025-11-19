@@ -31,19 +31,19 @@ class UpdateShippingMethods extends AbstractApplepay
     /**
      * @var CheckoutSession
      */
-    private CheckoutSession $checkoutSession;
+    private $checkoutSession;
 
     /**
      * @var QuoteRepository
      */
-    private QuoteRepository $quoteRepository;
+    private $quoteRepository;
 
     /**
-     * @param JsonFactory      $resultJsonFactory
-     * @param RequestInterface $request
-     * @param BuckarooLoggerInterface              $logger
-     * @param QuoteRepository  $quoteRepository
-     * @param CheckoutSession  $checkoutSession
+     * @param JsonFactory             $resultJsonFactory
+     * @param RequestInterface        $request
+     * @param BuckarooLoggerInterface $logger
+     * @param QuoteRepository         $quoteRepository
+     * @param CheckoutSession         $checkoutSession
      */
     public function __construct(
         JsonFactory $resultJsonFactory,

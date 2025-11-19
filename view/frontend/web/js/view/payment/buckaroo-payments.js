@@ -112,6 +112,21 @@ define(
                 config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_belfius}
             },
             {
+                type: 'buckaroo_magento2_bizum',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/default',
+                config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_bizum}
+            },
+            {
+                type: 'buckaroo_magento2_swish',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/default',
+                config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_swish}
+            },
+            {
+                type: 'buckaroo_magento2_twint',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/default',
+                config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_twint}
+            },
+            {
                 type: 'buckaroo_magento2_blik',
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/default',
                 config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_blik}

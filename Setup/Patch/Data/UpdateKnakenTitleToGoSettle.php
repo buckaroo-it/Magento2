@@ -8,7 +8,7 @@ use Magento\Framework\Setup\Patch\DataPatchInterface;
 
 class UpdateKnakenTitleToGoSettle implements DataPatchInterface
 {
-    private ModuleDataSetupInterface $moduleDataSetup;
+    private $moduleDataSetup;
 
     public function __construct(
         ModuleDataSetupInterface $moduleDataSetup

@@ -26,7 +26,7 @@ interface GetTransactionsResponseInterface
     /**
      * Get the list of transactions for this cart
      *
-     * @return TransactionResponseInterface[]
+     * @return \Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterface[]
      */
     public function getTransactions(): array;
 
@@ -34,6 +34,7 @@ interface GetTransactionsResponseInterface
      * Get RemainderAmount
      *
      * @api
+     *
      * @return float
      */
     public function getRemainderAmount(): float;
@@ -42,6 +43,7 @@ interface GetTransactionsResponseInterface
      * Get AlreadyPaid
      *
      * @api
+     *
      * @return float
      */
     public function getAlreadyPaid(): float;

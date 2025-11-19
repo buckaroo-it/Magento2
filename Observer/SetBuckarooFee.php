@@ -31,7 +31,6 @@ class SetBuckarooFee implements ObserverInterface
      * Set Buckaroo fee on sales_model_service_quote_submit_before event
      *
      * @param Observer $observer
-     * @return void
      */
     public function execute(Observer $observer)
     {

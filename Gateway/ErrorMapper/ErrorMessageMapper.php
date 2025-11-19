@@ -30,7 +30,7 @@ class ErrorMessageMapper implements ErrorMessageMapperInterface
     /**
      * @var DataInterface
      */
-    private DataInterface $messageMapping;
+    private $messageMapping;
 
     /**
      * @param DataInterface $messageMapping

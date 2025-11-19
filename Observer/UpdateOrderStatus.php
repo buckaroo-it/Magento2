@@ -45,7 +45,6 @@ class UpdateOrderStatus implements ObserverInterface
      * Update order status by buckaroo account configuration on sales_order_payment_place_end event
      *
      * @param Observer $observer
-     * @return void
      */
     public function execute(Observer $observer)
     {

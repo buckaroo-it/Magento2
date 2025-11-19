@@ -32,7 +32,7 @@ abstract class AbstractAddressHandler implements AddressHandlerInterface
     /**
      * @var BuckarooLoggerInterface
      */
-    protected BuckarooLoggerInterface $logger;
+    protected $logger;
 
     /**
      * @param BuckarooLoggerInterface $logger
@@ -48,7 +48,6 @@ abstract class AbstractAddressHandler implements AddressHandlerInterface
      *
      * @param array $mapping
      * @param array $requestData
-     * @return void
      *
      * @SuppressWarnings(PHPMD.UnusedLocalVariable)
      */
@@ -78,7 +77,6 @@ abstract class AbstractAddressHandler implements AddressHandlerInterface
      *
      * @param array $mapping
      * @param array $requestData
-     * @return void
      *
      * @SuppressWarnings(PHPMD.UnusedLocalVariable)
      */

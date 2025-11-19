@@ -82,14 +82,14 @@ class PayPerEmailTest extends BaseTest
     {
         $instance = $this->getInstance();
         $result = $instance->toOptionArray();
-        
+
         $this->assertIsArray($result);
         $this->assertNotEmpty($result);
-        
+
         // Check if the specific payment option is in the results
         $found = false;
         foreach ($result as $option) {
-            if ($option['value'] === $paymentOption['value'] && 
+            if ($option['value'] === $paymentOption['value'] &&
                 $option['code'] === $paymentOption['code']) {
                 $found = true;
                 // Check that the label contains the expected text (accounting for translation)
@@ -97,7 +97,7 @@ class PayPerEmailTest extends BaseTest
                 break;
             }
         }
-        
+
         $this->assertTrue($found, "Payment option {$paymentOption['value']} not found in results");
     }
 }

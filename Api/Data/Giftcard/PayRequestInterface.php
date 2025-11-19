@@ -40,7 +40,6 @@ interface PayRequestInterface
      * Set giftcard number
      *
      * @param string $cardNumber
-     * @return void
      */
     public function setCardNumber(string $cardNumber);
 
@@ -48,7 +47,6 @@ interface PayRequestInterface
      * Set giftcard pin
      *
      * @param string $cardPin
-     * @return void
      */
     public function setCardPin(string $cardPin);
 }

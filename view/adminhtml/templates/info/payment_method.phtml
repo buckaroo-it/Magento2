@@ -25,7 +25,30 @@
 ?>
 <?php /** @var \Buckaroo\Magento2\Model\Method\BuckarooAdapter $method */ ?>
 <?php
-if ($giftCards = $block->getGiftCards()) {
+// Check if this is a mixed payment (group transaction with multiple payment methods)
+$allPaymentMethods = $block->getAllGroupTransactionPaymentMethods();
+if (!empty($allPaymentMethods)) {
+    // Display all payment methods for mixed payments
+    foreach ($allPaymentMethods as $paymentMethod) { ?>
+        <div class="bk-payment-wrap">
+            <div class="bk-img-wrap">
+                <?php if ($paymentMethod['type'] === 'giftcard'): ?>
+                    <img src="<?php echo $block->escapeHtml($block->getGiftcardLogo($paymentMethod)) ?>" alt=""/>
+                <?php else: ?>
+                    <img src="<?php echo $block->escapeHtml($block->getPaymentLogo($paymentMethod['code'])) ?>" alt=""/>
+                <?php endif; ?>
+            </div>
+            <div class="bk-label-wrap">
+                <?php echo $block->escapeHtml($paymentMethod['label']) ?>
+                <?php if (isset($paymentMethod['amount'])): ?>
+                    <span style="color: #666; font-size: 0.9em;"> (€<?php echo $block->escapeHtml(number_format((float)$paymentMethod['amount'], 2)) ?>)</span>
+                <?php endif; ?>
+            </div>
+        </div>
+        <?php
+    }
+} elseif ($giftCards = $block->getGiftCards()) {
+    // Fallback to old logic for giftcard-only payments (backward compatibility)
     foreach ($giftCards as $giftCard) { ?>
         <div class="bk-payment-wrap">
             <div class="bk-img-wrap">
@@ -38,17 +61,19 @@ if ($giftCards = $block->getGiftCards()) {
         <?php
     }
     $additionalInfo = $block->getGiftcardAdditionalData();
-    $methodTitle = $block->getPaymentLogo(strtolower(str_replace('Buckaroo ', '', $additionalInfo['method_title'])));
-    ?>
-    <div class="bk-payment-wrap">
-        <div class="bk-img-wrap">
-            <img src=" <?php echo $block->escapeHtml($methodTitle) ?>" alt=""/>
+    if ($additionalInfo && isset($additionalInfo['method_title'])) {
+        $methodTitle = $block->getPaymentLogo(strtolower(str_replace('Buckaroo ', '', $additionalInfo['method_title'])));
+        ?>
+        <div class="bk-payment-wrap">
+            <div class="bk-img-wrap">
+                <img src=" <?php echo $block->escapeHtml($methodTitle) ?>" alt=""/>
+            </div>
+            <div class="bk-label-wrap">
+                <?php echo $block->escapeHtml($additionalInfo['method_title']) ?>
+            </div>
         </div>
-        <div class="bk-label-wrap">
-            <?php echo $block->escapeHtml($additionalInfo['method_title']) ?>
-        </div>
-    </div>
-    <?php
+        <?php
+    }
 }
 ?>
 
@@ -60,17 +85,45 @@ if ($method = $block->getPayPerEmailMethod()) { ?>
 <?php } ?>
 
 <?php $method = $block->getMethod(); ?>
-<div class="bk-payment-wrap">
-    <?php if ($method->buckarooPaymentMethodCode !== 'voucher' && $method->buckarooPaymentMethodCode !== 'giftcards') { ?>
-        <div class="bk-img-wrap">
-            <img src=" <?php echo $block->escapeHtml($block->getPaymentLogo($method->buckarooPaymentMethodCode)) ?>"
-                 alt=""/>
-        </div>
-        <div class="bk-label-wrap">
-            <?php echo $block->escapeHtml($block->getMethod()->getTitle()) ?>
-        </div>
-    <?php } ?>
-</div>
+<?php // Only show this section if we haven't already displayed payment methods via group transactions ?>
+<?php if (empty($allPaymentMethods)): ?>
+    <?php 
+    // If payment method is giftcards/voucher but no group transactions exist,
+    // it means the user selected giftcard but paid with something else (e.g., full payment via iDEAL)
+    // In this case, we should show the ACTUAL payment method used
+    $hasGroupTransactions = !empty($block->getGiftCards());
+    $showPaymentMethod = $method->buckarooPaymentMethodCode !== 'voucher' 
+                         && $method->buckarooPaymentMethodCode !== 'giftcards';
+    
+    $displayCode = $method->buckarooPaymentMethodCode;
+    $displayTitle = $block->getMethod()->getTitle();
+    
+    // Edge case: giftcards method selected but no actual giftcards used
+    // Get the actual payment method from transaction details
+    if (!$showPaymentMethod && !$hasGroupTransactions) {
+        $actualMethod = $block->getActualPaymentMethodFromTransaction();
+        if ($actualMethod) {
+            $displayCode = $actualMethod['code'];
+            $displayTitle = $actualMethod['label'];
+            $showPaymentMethod = true;
+        } else {
+            // Fallback: still show the selected method
+            $showPaymentMethod = true;
+        }
+    }
+    ?>
+    <div class="bk-payment-wrap">
+        <?php if ($showPaymentMethod) { ?>
+            <div class="bk-img-wrap">
+                <img src=" <?php echo $block->escapeHtml($block->getPaymentLogo($displayCode)) ?>"
+                     alt=""/>
+            </div>
+            <div class="bk-label-wrap">
+                <?php echo $block->escapeHtml($displayTitle) ?>
+            </div>
+        <?php } ?>
+    </div>
+<?php endif; ?>
 
 <?php if ($specificPaymentDetails = $block->getSpecificPaymentDetails()) : ?>
     <div class="bk-payment-wrap">

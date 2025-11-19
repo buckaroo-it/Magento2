@@ -33,7 +33,7 @@ class SaveOrder extends AbstractApplepay
     /**
      * @var SaveOrderProcessor
      */
-    private SaveOrderProcessor $processor;
+    private $processor;
 
     public function __construct(
         JsonFactory            $resultJsonFactory,
@@ -44,7 +44,6 @@ class SaveOrder extends AbstractApplepay
         parent::__construct($resultJsonFactory, $request, $logger);
         $this->processor = $processor;
     }
-
 
     /**
      * @throws ExpressMethodsException

@@ -35,34 +35,35 @@ class GetTransactionsResponse extends DataObject implements GetTransactionsRespo
     /**
      * @var QuoteIdMaskFactory
      */
-    protected QuoteIdMaskFactory $quoteIdMaskFactory;
+    protected $quoteIdMaskFactory;
 
     /**
      * @var CartRepositoryInterface
      */
-    protected CartRepositoryInterface $cartRepository;
+    protected $cartRepository;
 
     /**
      * @var PaymentGroupTransaction
      */
-    protected PaymentGroupTransaction $groupTransaction;
+    protected $groupTransaction;
 
     /**
-     * @var  TransactionResponseInterfaceFactory
+     * @var TransactionResponseInterfaceFactory
      */
-    protected TransactionResponseInterfaceFactory $trResponseFactory;
+    protected $trResponseFactory;
 
     /**
      * @var Quote
      */
-    protected Quote $quote;
+    protected $quote;
 
     /**
-     * @param QuoteIdMaskFactory $quoteIdMaskFactory
-     * @param CartRepositoryInterface $cartRepository
-     * @param PaymentGroupTransaction $groupTransaction
+     * @param QuoteIdMaskFactory                  $quoteIdMaskFactory
+     * @param CartRepositoryInterface             $cartRepository
+     * @param PaymentGroupTransaction             $groupTransaction
      * @param TransactionResponseInterfaceFactory $trResponseFactory
-     * @param string|null $cartId
+     * @param string|null                         $cartId
+     *
      * @throws NoQuoteException
      */
     public function __construct(
@@ -83,8 +84,10 @@ class GetTransactionsResponse extends DataObject implements GetTransactionsRespo
      * Get quote from masked cart id
      *
      * @param string|null $cartId
-     * @return Quote
+     *
      * @throws NoQuoteException
+     *
+     * @return Quote
      */
     protected function getQuote(?string $cartId): Quote
     {
@@ -101,6 +104,7 @@ class GetTransactionsResponse extends DataObject implements GetTransactionsRespo
      * Get RemainderAmount
      *
      * @return float
+     *
      * @api
      */
     public function getRemainderAmount(): float
@@ -112,6 +116,7 @@ class GetTransactionsResponse extends DataObject implements GetTransactionsRespo
      * Get AlreadyPaid
      *
      * @return float
+     *
      * @api
      */
     public function getAlreadyPaid(): float
@@ -139,6 +144,7 @@ class GetTransactionsResponse extends DataObject implements GetTransactionsRespo
      * Format data for json response
      *
      * @param array $collection
+     *
      * @return TransactionResponseInterface[]
      */
     protected function formatFound(array $collection): array

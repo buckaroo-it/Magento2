@@ -41,7 +41,7 @@ interface TransactionStatusResponseInterface
      *
      * @param mixed $statusCode
      *
-     * @return boolean
+     * @return bool
      */
     public function isStatusCode($statusCode);
 }

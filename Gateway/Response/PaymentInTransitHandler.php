@@ -35,10 +35,16 @@ class PaymentInTransitHandler implements HandlerInterface
      *
      * @param array $handlingSubject
      * @param array $response
-     * @return void
      */
     public function handle(array $handlingSubject, array $response)
     {
+        // Skip if refund was already completed via group transactions
+        if (isset($response['group_transaction_refund_complete']) 
+            && $response['group_transaction_refund_complete'] === true
+        ) {
+            return;
+        }
+
         $paymentDO = SubjectReader::readPayment($handlingSubject);
         /** @var OrderPaymentInterface $payment */
         $payment = $paymentDO->getPayment();
@@ -57,8 +63,7 @@ class PaymentInTransitHandler implements HandlerInterface
      * Set flag if user is on the payment provider page
      *
      * @param OrderPaymentInterface $payment
-     * @param bool $inTransit
-     * @return void
+     * @param bool                  $inTransit
      */
     public function setPaymentInTransit(OrderPaymentInterface $payment, bool $inTransit = true): void
     {

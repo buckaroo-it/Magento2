@@ -28,9 +28,6 @@
         <testsuite name="unit">
             <directory suffix="Test.php">./Test/Unit</directory>
         </testsuite>
-        <testsuite name="functional">
-            <directory suffix="Test.php">./Test/Functional</directory>
-        </testsuite>
     </testsuites>
 
     <php>
@@ -38,17 +35,13 @@
         <ini name="xdebug.max_nesting_level" value="200"/>
     </php>
 
-    <filter>
-        <whitelist addUncoveredFilesFromWhiteList="true">
+    <source>
+        <include>
             <directory suffix=".php">.</directory>
-            <exclude>
-                <directory suffix=".php">Test</directory>
-                <file>registration.php</file>
-            </exclude>
-        </whitelist>
-    </filter>
-
-    <logging>
-        <log type="coverage-clover" target="build/logs/clover-unit.xml"/>
-    </logging>
+        </include>
+        <exclude>
+            <directory suffix=".php">Test</directory>
+            <file>registration.php</file>
+        </exclude>
+    </source>
 </phpunit>

@@ -171,7 +171,7 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
             ->onlyMethods(['load', 'getId', 'getPayment'])
             ->getMock();
         $newQuote = $this->getFakeMock(Quote::class, false)
-            ->onlyMethods(['setStore', 'getBillingAddress', 'getShippingAddress', 'setIsActive', 'collectTotals', 'save', 'addProduct', 'setCustomerIsGuest', 'getPayment', 'getCustomerIsGuest'])
+            ->onlyMethods(['setStore', 'setStoreId', 'getBillingAddress', 'getShippingAddress', 'setIsActive', 'collectTotals', 'save', 'addProduct', 'setCustomerIsGuest', 'getPayment', 'getCustomerIsGuest'])
             ->addMethods(['setCustomerId', 'setCustomerEmail', 'setCustomerFirstname', 'setCustomerLastname', 'getCustomerId', 'getCustomerEmail', 'getCustomerFirstname', 'getCustomerLastname'])
             ->getMock();
         $store = $this->getFakeMock(Store::class)->getMock();
@@ -188,6 +188,7 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
         $order->method('getIncrementId')->willReturn('000000001');
         $order->method('getQuoteId')->willReturn(123);
         $order->expects($this->atLeastOnce())->method('getStore')->willReturn($store);
+        $order->method('getStoreId')->willReturn(1);
         $order->method('getCustomerId')->willReturn(1);
         $order->method('getCustomerEmail')->willReturn('test@example.com');
         $order->method('getCustomerFirstname')->willReturn('John');
@@ -212,13 +213,21 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
             ->onlyMethods(['getMethod'])
             ->getMock();
         $oldQuotePayment->method('getMethod')->willReturn('buckaroo_magento2_ideal');
-        
+
         $oldQuote->method('load')->with(123)->willReturnSelf();
         $oldQuote->method('getId')->willReturn(123);
         $oldQuote->method('getPayment')->willReturn($oldQuotePayment);
 
+        // Setup store manager
+        $this->storeManager->method('getStore')->with(1)->willReturn($store);
+        $this->storeManager->method('setCurrentStore')->with($store);
+        $store->method('getId')->willReturn(1);
+        $store->method('getCode')->willReturn('default');
+        $store->method('getConfig')->with('general/locale/code')->willReturn('en_US');
+
         // Setup new quote
         $newQuote->method('setStore')->with($store);
+        $newQuote->method('setStoreId')->with(1);
         $newQuote->method('setCustomerId')->with(1);
         $newQuote->method('setCustomerEmail')->with('test@example.com');
         $newQuote->method('setCustomerFirstname')->with('John');
@@ -226,7 +235,7 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
         $newQuote->method('setCustomerIsGuest')->with(false);
         $newQuote->method('getBillingAddress')->willReturn($quoteBillingAddress);
         $newQuote->method('getShippingAddress')->willReturn($quoteShippingAddress);
-        
+
         $newQuotePayment = $this->getFakeMock(\Magento\Quote\Model\Quote\Payment::class, false)
             ->onlyMethods(['setMethod', 'setQuote'])
             ->getMock();
@@ -268,6 +277,7 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
             'quoteFactory' => $this->quoteFactory,
             'productFactory' => $this->productFactory,
             'checkoutSession' => $this->checkoutSession,
+            'storeManager' => $this->storeManager,
             'logger' => $this->logger,
         ]);
 
@@ -285,7 +295,7 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
         $order = $this->getFakeMock(Order::class)->getMock();
         $oldQuote = $this->getFakeMock(Quote::class)->getMock();
         $newQuote = $this->getFakeMock(Quote::class, false)
-            ->onlyMethods(['setStore', 'getBillingAddress', 'getShippingAddress', 'setIsActive', 'collectTotals', 'save', 'setCustomerIsGuest', 'getCustomerIsGuest'])
+            ->onlyMethods(['setStore', 'setStoreId', 'getBillingAddress', 'getShippingAddress', 'setIsActive', 'collectTotals', 'save', 'setCustomerIsGuest', 'getCustomerIsGuest'])
             ->addMethods(['setCustomerEmail', 'setCustomerFirstname', 'setCustomerLastname', 'getCustomerId', 'getCustomerEmail', 'getCustomerFirstname', 'getCustomerLastname'])
             ->getMock();
         $store = $this->getFakeMock(Store::class)->getMock();
@@ -294,6 +304,7 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
         $order->method('getIncrementId')->willReturn('000000001');
         $order->method('getQuoteId')->willReturn(123);
         $order->expects($this->atLeastOnce())->method('getStore')->willReturn($store);
+        $order->method('getStoreId')->willReturn(1);
         $order->method('getCustomerId')->willReturn(null); // Guest customer
         $order->method('getCustomerEmail')->willReturn('guest@example.com');
         $order->method('getCustomerFirstname')->willReturn('Guest');
@@ -308,8 +319,16 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
         $oldQuote->method('load')->with(123)->willReturnSelf();
         $oldQuote->method('getId')->willReturn(123);
 
+        // Setup store manager
+        $this->storeManager->method('getStore')->with(1)->willReturn($store);
+        $this->storeManager->method('setCurrentStore')->with($store);
+        $store->method('getId')->willReturn(1);
+        $store->method('getCode')->willReturn('default');
+        $store->method('getConfig')->with('general/locale/code')->willReturn('en_US');
+
         // Setup guest quote
         $newQuote->method('setStore')->with($store);
+        $newQuote->method('setStoreId')->with(1);
         $newQuote->method('setCustomerEmail')->with('guest@example.com');
         $newQuote->method('setCustomerFirstname')->with('Guest');
         $newQuote->method('setCustomerLastname')->with('User');
@@ -317,7 +336,7 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
         $newQuote->method('setIsActive')->with(true);
         $newQuote->method('collectTotals');
         $newQuote->method('save');
-        
+
         // Configure getters to return expected values
         $newQuote->method('getCustomerId')->willReturn(null);
         $newQuote->method('getCustomerEmail')->willReturn('guest@example.com');
@@ -329,6 +348,7 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
             'quoteFactory' => $this->quoteFactory,
             'productFactory' => $this->productFactory,
             'checkoutSession' => $this->checkoutSession,
+            'storeManager' => $this->storeManager,
             'logger' => $this->logger,
         ]);
 

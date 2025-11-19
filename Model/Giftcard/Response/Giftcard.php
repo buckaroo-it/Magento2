@@ -44,7 +44,7 @@ class Giftcard
     /**
      * @var TransactionResponse
      */
-    protected TransactionResponse $response;
+    protected $response;
 
     /**
      * @var PriceCurrencyInterface
@@ -74,22 +74,22 @@ class Giftcard
     /**
      * @var BuckarooLoggerInterface
      */
-    protected BuckarooLoggerInterface $logger;
+    protected $logger;
 
     /**
      * @var CartInterface
      */
-    private CartInterface $quote;
+    private $quote;
 
     /**
      * @var BuckarooResponseData
      */
-    private BuckarooResponseData $buckarooResponseData;
+    private $buckarooResponseData;
 
     /**
      * @var OrderRepositoryInterface
      */
-    private OrderRepositoryInterface $orderRepository;
+    private $orderRepository;
 
     public function __construct(
         PriceCurrencyInterface $priceCurrency,
@@ -115,8 +115,8 @@ class Giftcard
      * Set raw response data
      *
      * @param TransactionResponse $response
-     * @param CartInterface $quote
-     * @return void
+     * @param CartInterface       $quote
+     *
      * @throws LocalizedException
      */
     public function set(TransactionResponse $response, CartInterface $quote)
@@ -129,9 +129,6 @@ class Giftcard
 
         if ($this->response->isSuccess()) {
             $this->saveGroupTransaction();
-            if ($this->quote->getGrandTotal() > $this->response->getAmount()) {
-                $this->createOrderFromQuote();
-            }
         } else {
             $this->saveGroupTransaction();
             $this->createOrderFromQuote();
@@ -140,8 +137,6 @@ class Giftcard
 
     /**
      * Save group transaction data
-     *
-     * @return void
      */
     protected function saveGroupTransaction()
     {
@@ -151,8 +146,9 @@ class Giftcard
     /**
      * Create order from quote
      *
-     * @return AbstractExtensibleModel|OrderInterface|object|null
      * @throws LocalizedException
+     *
+     * @return AbstractExtensibleModel|OrderInterface|object|null
      */
     protected function createOrderFromQuote()
     {
@@ -168,7 +164,7 @@ class Giftcard
             $order = $order ?? $this->createOrder();
         }
 
-        if ($order) {
+        if ($order && $order->getEntityId()) {
             $this->quote->setOrigOrderId($order->getEntityId());
         }
 
@@ -181,8 +177,11 @@ class Giftcard
             $orderId
         ));
 
-        $this->quote->setIsActive(true);
-        $this->quote->save();
+        // Keep quote active only if order was created
+        if ($order && $order->getEntityId()) {
+            $this->quote->setIsActive(true);
+            $this->quote->save();
+        }
 
         return $order;
     }
@@ -219,8 +218,9 @@ class Giftcard
     /**
      * Create order from quote
      *
-     * @return AbstractExtensibleModel|OrderInterface|object|null
      * @throws LocalizedException
+     *
+     * @return AbstractExtensibleModel|OrderInterface|object|null
      */
     protected function createOrder()
     {
@@ -319,7 +319,6 @@ class Giftcard
     /**
      * Cancel order for failed group transaction
      *
-     * @return void
      * @throws LocalizedException
      */
     protected function cancelOrder()

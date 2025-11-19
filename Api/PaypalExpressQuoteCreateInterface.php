@@ -30,9 +30,10 @@ interface PaypalExpressQuoteCreateInterface
    * Get order breakdown after shipping is applied
    *
    * @param ShippingAddressRequestInterface $shippingAddress
-   * @param string $page
-   * @param string|null $orderData
-   * @return QuoteCreateResponseInterface
+   * @param string                          $page
+   * @param string|null                     $orderData
+   *
+   * @return \Buckaroo\Magento2\Api\Data\PaypalExpress\QuoteCreateResponseInterface
    */
     public function execute(
         ShippingAddressRequestInterface $shippingAddress,

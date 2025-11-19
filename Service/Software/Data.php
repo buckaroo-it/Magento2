@@ -38,21 +38,21 @@ class Data
     public const MODULE_CODE = 'Buckaroo_Magento2';
 
     /** Version of Module */
-    public const BUCKAROO_VERSION = '2.0.3';
+    public const BUCKAROO_VERSION = '2.1.0';
 
     /**
      * @var ProductMetadataInterface
      */
-    private ProductMetadataInterface $productMetadata;
+    private $productMetadata;
 
     /**
      * @var ModuleListInterface
      */
-    private ModuleListInterface $moduleList;
+    private $moduleList;
 
     /**
      * @param ProductMetadataInterface $productMetadata
-     * @param ModuleListInterface $moduleList
+     * @param ModuleListInterface      $moduleList
      */
     public function __construct(
         ProductMetadataInterface $productMetadata,
@@ -64,6 +64,8 @@ class Data
 
     /**
      * Returns an array containing the software data for both the platform and the module.
+     *
+     * @param ?OrderPaymentInterface $payment
      *
      * @return array
      */
@@ -77,6 +79,8 @@ class Data
 
     /**
      * Retrieves and returns an array containing the platform data.
+     *
+     * @param ?OrderPaymentInterface $payment
      *
      * @return array
      */

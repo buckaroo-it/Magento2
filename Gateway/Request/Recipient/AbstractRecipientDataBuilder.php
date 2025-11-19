@@ -29,7 +29,7 @@ class AbstractRecipientDataBuilder extends AbstractDataBuilder
     /**
      * @var string
      */
-    private string $addressType;
+    private $addressType;
 
     /**
      * @param string $addressType

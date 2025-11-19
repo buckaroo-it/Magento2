@@ -28,10 +28,11 @@ class CompositeConfigProvider implements ConfigProviderInterface
     /**
      * @var ConfigProviderInterface[]
      */
-    private array $configProviders;
+    private $configProviders;
 
     /**
      * @param ConfigProviderInterface[] $configProviders
+     *
      * @codeCoverageIgnore
      */
     public function __construct(

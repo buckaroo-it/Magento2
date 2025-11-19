@@ -33,16 +33,16 @@ class MarkUserNotified extends Action implements HttpPostActionInterface
     /**
      * @var FlagManager $flagManager
      */
-    private FlagManager $flagManager;
+    private $flagManager;
 
     /**
      * @var LoggerInterface $logger
      */
-    private LoggerInterface $logger;
+    private $logger;
 
     /**
-     * @param Context $context
-     * @param FlagManager $flagManager
+     * @param Context         $context
+     * @param FlagManager     $flagManager
      * @param LoggerInterface $logger
      */
     public function __construct(

@@ -34,23 +34,23 @@ class Log extends AbstractModel
     /**
      * @var LogInterfaceFactory
      */
-    protected LogInterfaceFactory $logDataFactory;
+    protected $logDataFactory;
 
     /** ay
      * @var DataObjectHelper
      */
-    protected DataObjectHelper $dataObjectHelper;
+    protected $dataObjectHelper;
 
     protected $_eventPrefix = 'buckaroo_magento2_log';
 
     /**
-     * @param Context $context
-     * @param Registry $registry
+     * @param Context             $context
+     * @param Registry            $registry
      * @param LogInterfaceFactory $logDataFactory
-     * @param DataObjectHelper $dataObjectHelper
-     * @param ResourceModel\Log $resource
-     * @param Collection $resourceCollection
-     * @param array $data
+     * @param DataObjectHelper    $dataObjectHelper
+     * @param ResourceModel\Log   $resource
+     * @param Collection          $resourceCollection
+     * @param array               $data
      */
     public function __construct(
         Context $context,

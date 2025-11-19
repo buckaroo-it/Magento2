@@ -44,35 +44,35 @@ class OrderRequestService
     /**
      * @var BuckarooLoggerInterface $logger
      */
-    public BuckarooLoggerInterface $logger;
+    public $logger;
 
     /**
      * @var Transaction
      */
-    private TransactionInterface $transaction;
+    private $transaction;
 
     /**
      * @var OrderSender
      */
-    private OrderSender $orderSender;
+    private $orderSender;
 
     /**
      * @var InvoiceSender
      */
-    private InvoiceSender $invoiceSender;
+    private $invoiceSender;
 
     /**
      * @var ResourceConnection
      */
-    protected ResourceConnection $resourceConnection;
+    protected $resourceConnection;
 
     /**
-     * @param Order $order
+     * @param Order                   $order
      * @param BuckarooLoggerInterface $logger
-     * @param TransactionInterface $transaction
-     * @param OrderSender $orderSender
-     * @param InvoiceSender $invoiceSender
-     * @param ResourceConnection $resourceConnection
+     * @param TransactionInterface    $transaction
+     * @param OrderSender             $orderSender
+     * @param InvoiceSender           $invoiceSender
+     * @param ResourceConnection      $resourceConnection
      */
     public function __construct(
         Order $order,
@@ -94,8 +94,10 @@ class OrderRequestService
      * Load the order from the Push Data based on the Order Increment ID or transaction key.
      *
      * @param PushRequestInterface|null $pushRequest
-     * @return Order|OrderPayment
+     *
      * @throws \Exception
+     *
+     * @return Order|OrderPayment
      */
     public function getOrderByRequest(?PushRequestInterface $pushRequest = null)
     {
@@ -124,6 +126,7 @@ class OrderRequestService
      * Get the order increment ID based on the invoice number or order number.
      *
      * @param $pushRequest
+     *
      * @return string|null
      */
     protected function getOrderIncrementIdFromRequest($pushRequest): ?string
@@ -146,8 +149,10 @@ class OrderRequestService
      * by using its own transaction key.
      *
      * @param $pushRequest
-     * @return OrderPayment|Order
+     *
      * @throws \Exception
+     *
+     * @return OrderPayment|Order
      */
     protected function getOrderByTransactionKey($pushRequest)
     {
@@ -167,6 +172,7 @@ class OrderRequestService
      * Retrieves the transaction key from the push request.
      *
      * @param $pushRequest
+     *
      * @return string
      */
     protected function getTransactionKey($pushRequest): string
@@ -215,8 +221,8 @@ class OrderRequestService
      * @param string $orderState
      * @param string $newStatus
      * @param string $description
-     * @param bool $force
-     * @param bool $dontSaveOrderUponSuccessPush
+     * @param bool   $force
+     * @param bool   $dontSaveOrderUponSuccessPush
      *
      * @throws \Exception
      */
@@ -237,10 +243,10 @@ class OrderRequestService
                 'description' => $description
             ], true)
         ));
-        
+
         // Always set the order state - this is crucial for admin dropdown
         $this->order->setState($orderState);
-        
+
         if ($this->order->getState() == $orderState || $force) {
             if ($dontSaveOrderUponSuccessPush) {
                 $this->order->addCommentToStatusHistory($description)
@@ -263,7 +269,7 @@ class OrderRequestService
                 $this->order->save(); // Save the order to persist changes
             }
         }
-        
+
         $this->logger->addDebug(sprintf(
             '[ORDER] | [Service] | [%s:%s] - Order state and status updated successfully | finalState: %s | finalStatus: %s',
             __METHOD__,
@@ -277,7 +283,8 @@ class OrderRequestService
      * Sends order email to the customer.
      *
      * @param Order $order
-     * @param bool $forceSyncMode
+     * @param bool  $forceSyncMode
+     *
      * @return bool
      */
     public function sendOrderEmail(Order $order, bool $forceSyncMode = false): bool
@@ -289,10 +296,11 @@ class OrderRequestService
      * Sends order invoice email to the customer.
      *
      * @param Invoice $invoice
-     * @param bool $forceSyncMode
-     * @return bool
+     * @param bool    $forceSyncMode
      *
      * @throws \Exception
+     *
+     * @return bool
      */
     public function sendInvoiceEmail(Invoice $invoice, bool $forceSyncMode = false): bool
     {
@@ -324,7 +332,6 @@ class OrderRequestService
     /**
      * Save the current order and reload it from the database.
      *
-     * @return void
      * @throws \Exception
      */
     public function saveAndReloadOrder()
@@ -336,7 +343,6 @@ class OrderRequestService
     /**
      * Load the order from the Push Data based on the Order Increment ID or transaction key.
      *
-     * @return void
      * @throws \Exception
      */
     public function loadOrder()

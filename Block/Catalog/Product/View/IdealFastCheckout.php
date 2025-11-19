@@ -25,6 +25,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Ideal;
 use Magento\Catalog\Model\Product;
 use Magento\Framework\Encryption\Encryptor;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Registry;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Asset\Repository;
@@ -48,7 +49,7 @@ class IdealFastCheckout extends Template
      */
     protected $idealConfig;
     protected $ideal;
-    protected Repository $assetRepo;
+    protected $assetRepo;
 
     /**
      * @var Registry
@@ -80,6 +81,10 @@ class IdealFastCheckout extends Template
     /**
      * Determine if the product button can be shown
      *
+     * @param mixed $page
+     *
+     * @throws NoSuchEntityException
+     *
      * @return bool
      */
     public function canShowButton($page)
@@ -103,6 +108,8 @@ class IdealFastCheckout extends Template
 
     /**
      * Get logo based on chosen color setting
+     *
+     * @throws NoSuchEntityException
      *
      * @return mixed
      */
@@ -135,6 +142,8 @@ class IdealFastCheckout extends Template
     /**
      * Get Buckaroo website key
      *
+     * @throws NoSuchEntityException
+     *
      * @return string
      */
     protected function getWebsiteKey()
@@ -163,7 +172,6 @@ class IdealFastCheckout extends Template
      * Check if iDIN verification is required for this product
      *
      * @return bool
-     * @throws LocalizedException
      */
     public function isIdinVerificationRequired()
     {
@@ -183,7 +191,6 @@ class IdealFastCheckout extends Template
 
         return false;
     }
-
 
     /**
      * Check if current product page requires iDIN (Per Product mode)

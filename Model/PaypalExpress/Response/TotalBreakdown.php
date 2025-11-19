@@ -33,22 +33,22 @@ class TotalBreakdown implements TotalBreakdownInterface
     /**
      * @var BreakdownItemInterfaceFactory
      */
-    protected BreakdownItemInterfaceFactory $breakdownItemFactory;
+    protected $breakdownItemFactory;
 
     /**
      * @var Quote
      */
-    protected Quote $quote;
+    protected $quote;
 
     /**
      * @var CartTotalRepositoryInterface
      */
-    protected CartTotalRepositoryInterface $cartTotalRepository;
+    protected $cartTotalRepository;
 
     /**
-     * @param Quote $quote
+     * @param Quote                         $quote
      * @param BreakdownItemInterfaceFactory $breakdownItemFactory
-     * @param CartTotalRepositoryInterface $cartTotalRepository
+     * @param CartTotalRepositoryInterface  $cartTotalRepository
      */
     public function __construct(
         Quote $quote,
@@ -110,8 +110,9 @@ class TotalBreakdown implements TotalBreakdownInterface
      *
      * @param string $type
      *
-     * @return float
      * @throws NoSuchEntityException
+     *
+     * @return float
      */
     protected function getTotalsOfType(string $type)
     {

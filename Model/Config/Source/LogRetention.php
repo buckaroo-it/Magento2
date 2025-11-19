@@ -19,7 +19,6 @@
  */
 declare(strict_types=1);
 
-
 namespace Buckaroo\Magento2\Model\Config\Source;
 
 use Magento\Framework\Data\OptionSourceInterface;

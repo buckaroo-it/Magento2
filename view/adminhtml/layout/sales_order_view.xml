@@ -30,6 +30,7 @@
             <block class="Buckaroo\Magento2\Block\Adminhtml\Sales\Totals" name="buckaroo_fee"
                    template="Buckaroo_Magento2::sales/order/creditmemo/buckaroo_fee.phtml"
             />
+            <block class="Buckaroo\Magento2\Block\Adminhtml\Sales\Order\GiftcardTotals" name="buckaroo_giftcard_totals"/>
         </referenceBlock>
 
     </body>

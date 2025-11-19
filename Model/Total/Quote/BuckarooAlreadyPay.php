@@ -49,9 +49,9 @@ class BuckarooAlreadyPay extends AbstractTotal
     /**
      * Constructor
      *
-     * @param PriceCurrencyInterface $priceCurrency
+     * @param PriceCurrencyInterface  $priceCurrency
      * @param PaymentGroupTransaction $groupTransaction
-     * @param Collection $giftcardCollection
+     * @param Collection              $giftcardCollection
      */
     public function __construct(
         PriceCurrencyInterface $priceCurrency,
@@ -69,6 +69,7 @@ class BuckarooAlreadyPay extends AbstractTotal
      *
      * @param Quote $quote
      * @param Total $total
+     *
      * @return array
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
@@ -78,6 +79,8 @@ class BuckarooAlreadyPay extends AbstractTotal
         $orderId = $quote->getReservedOrderId();
 
         $customTitle = [];
+        $alreadyPaid = 0;
+
         if ($orderId) {
             try {
                 $items = $this->groupTransaction->getGroupTransactionItemsNotRefunded($orderId);
@@ -104,6 +107,17 @@ class BuckarooAlreadyPay extends AbstractTotal
                         ];
                     }
                 }
+
+                $alreadyPaid = $this->groupTransaction->getAlreadyPaid($orderId);
+
+                // Fallback: If no group transactions exist, check if this is a single giftcard payment
+                if (empty($customTitle)) {
+                    $singleGiftcardInfo = $this->getSingleGiftcardPaymentInfo($quote);
+                    if ($singleGiftcardInfo) {
+                        $customTitle[] = $singleGiftcardInfo;
+                        $alreadyPaid = $singleGiftcardInfo['serviceamount'];
+                    }
+                }
             } catch (\Exception $e) {
             }
         }
@@ -111,7 +125,59 @@ class BuckarooAlreadyPay extends AbstractTotal
         return [
             'code'  => $this->getCode(),
             'title' => $customTitle ? __(json_encode($customTitle)) : $this->getLabel(),
-            'value' => $this->groupTransaction->getAlreadyPaid($orderId),
+            'value' => $alreadyPaid,
+        ];
+    }
+
+    /**
+     * Get single giftcard payment info for quotes that don't have group transactions yet
+     *
+     * @param Quote $quote
+     * @return array|null
+     */
+    private function getSingleGiftcardPaymentInfo(Quote $quote): ?array
+    {
+        $payment = $quote->getPayment();
+        if (!$payment) {
+            return null;
+        }
+
+        // Check if payment method is giftcards
+        if ($payment->getMethod() !== 'buckaroo_magento2_giftcards') {
+            return null;
+        }
+
+        // Try to get info from additional_information (set during checkout)
+        $rawDetailsInfo = $payment->getAdditionalInformation('raw_details_info');
+        if (!is_array($rawDetailsInfo) || empty($rawDetailsInfo)) {
+            return null;
+        }
+
+        $firstTransaction = reset($rawDetailsInfo);
+        $servicecode = $firstTransaction['brq_transaction_method'] ?? null;
+        $amount = $firstTransaction['brq_amount'] ?? null;
+
+        if (!$servicecode || !$amount) {
+            return null;
+        }
+
+        // Try to find the giftcard in the collection
+        $foundGiftcard = $this->giftcardCollection->getItemByColumnValue('servicecode', $servicecode);
+
+        if ($foundGiftcard !== null) {
+            $label = $foundGiftcard['label'];
+        } elseif ($servicecode === 'buckaroovoucher') {
+            $label = __('Voucher');
+        } else {
+            $label = ucfirst($servicecode) . ' Giftcard';
+        }
+
+        return [
+            'label'          => __('Paid with') . ' ' . $label,
+            'amount'         => -(float)$amount,
+            'servicecode'    => $servicecode,
+            'serviceamount'  => (float)$amount,
+            'transaction_id' => $firstTransaction['brq_transactions'] ?? null,
         ];
     }
 

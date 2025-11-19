@@ -52,7 +52,7 @@ var BuckarooSdk;
         Resources.finishAuth = "Rond de autorisatie af op uw mobiele apparaat";
         Resources.idealQrDescription = "Scan onderstaande code via uw bank app of de iDEAL QR app.";
         Resources.payconiqApp = "Payconiq app";
-        Resources.payconiqDescription = 'Scan onderstaande code met de <a href="{0}" target="_blank">{1}</a>. <br/>Deze QR-code is 20 minuten geldig.'; // using ' in stead of ", because this description contains a html tag
+        Resources.payconiqDescription = 'Scan onderstaande code met de <a href="{0}" target="_blank">{1}</a>. <br>Deze QR-code is 20 minuten geldig.'; // using ' in stead of ", because this description contains a html tag
         Resources.payconiqLink = "https://www.payconiq.nl/";
         Resources.redirect = "U wordt binnen 5 seconden doorgestuurd...";
         Resources.scanCodeText = "Scan de QR-code";

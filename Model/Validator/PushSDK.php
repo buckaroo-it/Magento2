@@ -30,20 +30,20 @@ use Magento\Framework\Webapi\Request;
 class PushSDK implements ValidatorInterface
 {
     /** @var UrlInterface */
-    protected UrlInterface $urlBuilder;
+    protected $urlBuilder;
     /**
      * @var BuckarooAdapter
      */
-    private BuckarooAdapter $sdkAdapter;
+    private $sdkAdapter;
     /**
      * @var Request $request
      */
-    private Request $request;
+    private $request;
 
     /**
      * @param BuckarooAdapter $sdkAdapter
-     * @param Request $request
-     * @param UrlInterface $urlBuilder
+     * @param Request         $request
+     * @param UrlInterface    $urlBuilder
      */
     public function __construct(BuckarooAdapter $sdkAdapter, Request $request, UrlInterface $urlBuilder)
     {
@@ -56,8 +56,10 @@ class PushSDK implements ValidatorInterface
      * Validate Push SDK
      *
      * @param array $data
-     * @return bool
+     *
      * @throws \Exception
+     *
+     * @return bool
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */

@@ -31,6 +31,7 @@ interface BuckarooGiftcardDataInterface
 
     /**
      * @param Giftcard $giftcard
+     *
      * @return BuckarooGiftcardDataInterface
      */
     public function setGiftcardModel(Giftcard $giftcard): BuckarooGiftcardDataInterface;

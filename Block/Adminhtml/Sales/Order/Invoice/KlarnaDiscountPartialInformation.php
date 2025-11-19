@@ -21,7 +21,9 @@
 namespace Buckaroo\Magento2\Block\Adminhtml\Sales\Order\Invoice;
 
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
+use LogicException;
 use Magento\Backend\Block\Template\Context;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\View\Element\Template;
 use Magento\Sales\Api\Data\OrderInterface;
 
@@ -41,9 +43,9 @@ class KlarnaDiscountPartialInformation extends Template
      * RoundingWarning constructor.
      *
      * @param OrderInterface $order
-     * @param Factory $configProviderFactory
-     * @param Context $context
-     * @param array $data
+     * @param Factory        $configProviderFactory
+     * @param Context        $context
+     * @param array          $data
      */
     public function __construct(
         OrderInterface $order,
@@ -72,8 +74,9 @@ class KlarnaDiscountPartialInformation extends Template
     /**
      * Should show the warning regarding partial discount
      *
+     * @throws LogicException|LocalizedException
+     *
      * @return bool
-     * @throws \LogicException
      */
     protected function shouldShowWarning()
     {

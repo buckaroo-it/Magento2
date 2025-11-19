@@ -31,6 +31,11 @@ class AvailableBasedOnAmountValidatorTest extends TestCase
 
     /**
      * @dataProvider availableBasedOnAmountValidatorDataProvider
+     *
+     * @param mixed $maximum
+     * @param mixed $minimum
+     * @param mixed $grandTotal
+     * @param mixed $isValid
      */
     public function testValidate($maximum, $minimum, $grandTotal, $isValid)
     {
@@ -75,8 +80,6 @@ class AvailableBasedOnAmountValidatorTest extends TestCase
 
         $this->assertSame($expectedResultObj, $result);
     }
-
-
 
     public static function availableBasedOnAmountValidatorDataProvider()
     {

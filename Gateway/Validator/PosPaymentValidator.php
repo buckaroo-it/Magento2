@@ -33,28 +33,28 @@ class PosPaymentValidator extends AbstractValidator
     /**
      * @var Header
      */
-    private Header $header;
+    private $header;
 
     /**
      * @var CookieManagerInterface
      */
-    private CookieManagerInterface $cookieManager;
+    private $cookieManager;
 
     /**
      * @var BuckarooLog
      */
-    private BuckarooLog $buckarooLog;
+    private $buckarooLog;
 
     /**
      * @var array
      */
-    private array $errorMessages = [];
+    private $errorMessages = [];
 
     /**
      * @param ResultInterfaceFactory $resultFactory
      * @param CookieManagerInterface $cookieManager
-     * @param BuckarooLog $buckarooLog
-     * @param Header $header
+     * @param BuckarooLog            $buckarooLog
+     * @param Header                 $header
      */
     public function __construct(
         ResultInterfaceFactory $resultFactory,
@@ -72,6 +72,7 @@ class PosPaymentValidator extends AbstractValidator
      * Validate POS payment method
      *
      * @param array $validationSubject
+     *
      * @return ResultInterface
      */
     public function validate(array $validationSubject): ResultInterface
@@ -94,7 +95,6 @@ class PosPaymentValidator extends AbstractValidator
      * Validate if payment instance exists
      *
      * @param array $validationSubject
-     * @return void
      */
     private function validatePayment(array $validationSubject)
     {
@@ -105,8 +105,6 @@ class PosPaymentValidator extends AbstractValidator
 
     /**
      * Validate if POS Terminal ID is set
-     *
-     * @return void
      */
     private function validateTerminalId()
     {
@@ -132,7 +130,6 @@ class PosPaymentValidator extends AbstractValidator
      * Validate if User Agent is set as expected
      *
      * @param array $validationSubject
-     * @return void
      */
     private function validateUserAgent(array $validationSubject)
     {

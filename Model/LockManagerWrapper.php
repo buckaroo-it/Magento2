@@ -28,7 +28,7 @@ class LockManagerWrapper
      *
      * @var LockManagerInterface
      */
-    private LockManagerInterface $lockManager;
+    private $lockManager;
 
     /**
      * Lock prefix for uniqueness.
@@ -49,7 +49,8 @@ class LockManagerWrapper
      * Acquire a lock for a given order increment ID.
      *
      * @param string $order
-     * @param int $timeout
+     * @param int    $timeout
+     *
      * @return bool
      */
     public function lockOrder(string $order, int $timeout = -1): bool
@@ -62,6 +63,7 @@ class LockManagerWrapper
      * Release the lock for a given order increment ID.
      *
      * @param string $order
+     *
      * @return bool
      */
     public function unlockOrder(string $order): bool
@@ -74,6 +76,7 @@ class LockManagerWrapper
      * Check if a lock is set for a given order.
      *
      * @param string $order
+     *
      * @return bool
      */
     public function isOrderLocked(string $order): bool
@@ -86,6 +89,7 @@ class LockManagerWrapper
      * Generate a unique lock name for the push request.
      *
      * @param string $order
+     *
      * @return string
      */
     protected function generateLockName(string $order): string

@@ -30,7 +30,7 @@ class PushUrlDataBuilderTest extends TestCase
     /**
      * @var PushUrlDataBuilder
      */
-    private PushUrlDataBuilder $pushUrlDataBuilder;
+    private $pushUrlDataBuilder;
 
     /**
      * @var UrlInterface|MockObject

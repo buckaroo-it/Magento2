@@ -25,10 +25,10 @@
 {
     "#paypal-button-container": {
         "Buckaroo_Magento2/js/view/adminhtml/paypal": {
-            "buttonColor": "<?= $block->escapeJs($block->getButtonColor()); ?>",
-            "buttonShape": "<?= $block->escapeJs($block->getButtonShape()); ?>",
-            "buttonColorElement": "<?= $block->escapeJs($block->getButtonColorElement()); ?>",
-            "buttonShapeElement": "<?= $block->escapeJs($block->getButtonShapeElement()); ?>"
+            "buttonColor": "<?= $escaper->escapeJs($block->getButtonColor()); ?>",
+            "buttonShape": "<?= $escaper->escapeJs($block->getButtonShape()); ?>",
+            "buttonColorElement": "<?= $escaper->escapeJs($block->getButtonColorElement()); ?>",
+            "buttonShapeElement": "<?= $escaper->escapeJs($block->getButtonShapeElement()); ?>"
         }
     }
 }

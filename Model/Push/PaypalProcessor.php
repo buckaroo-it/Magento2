@@ -29,8 +29,11 @@ use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Paypal as PaypalConfig;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
+use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
 use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
+use Buckaroo\Magento2\Service\Order\Uncancel;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
+use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\TransactionInterface;
 
@@ -39,20 +42,23 @@ use Magento\Sales\Api\Data\TransactionInterface;
  */
 class PaypalProcessor extends DefaultProcessor
 {
-    private PaypalConfig $paypalConfig;
+    private $paypalConfig;
 
     /**
-     * @param OrderRequestService $orderRequestService
-     * @param PushTransactionType $pushTransactionType
+     * @param OrderRequestService     $orderRequestService
+     * @param PushTransactionType     $pushTransactionType
      * @param BuckarooLoggerInterface $logger
-     * @param Data $helper
-     * @param TransactionInterface $transaction
+     * @param Data                    $helper
+     * @param TransactionInterface    $transaction
      * @param PaymentGroupTransaction $groupTransaction
-     * @param BuckarooStatusCode $buckarooStatusCode
-     * @param OrderStatusFactory $orderStatusFactory
-     * @param Account $configAccount
-     * @param GiftCardRefundService $giftCardRefundService
-     * @param PaypalConfig $paypalConfig
+     * @param BuckarooStatusCode      $buckarooStatusCode
+     * @param OrderStatusFactory      $orderStatusFactory
+     * @param Account                 $configAccount
+     * @param GiftCardRefundService   $giftCardRefundService
+     * @param Uncancel                $uncancelService
+     * @param ResourceConnection      $resourceConnection
+     * @param GiftcardCollection      $giftcardCollection
+     * @param PaypalConfig            $paypalConfig
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -67,6 +73,9 @@ class PaypalProcessor extends DefaultProcessor
         OrderStatusFactory $orderStatusFactory,
         Account $configAccount,
         GiftCardRefundService $giftCardRefundService,
+        Uncancel $uncancelService,
+        ResourceConnection $resourceConnection,
+        GiftcardCollection $giftcardCollection,
         PaypalConfig $paypalConfig
     ) {
         parent::__construct(
@@ -79,15 +88,19 @@ class PaypalProcessor extends DefaultProcessor
             $buckarooStatusCode,
             $orderStatusFactory,
             $configAccount,
-            $giftCardRefundService
+            $giftCardRefundService,
+            $uncancelService,
+            $resourceConnection,
+            $giftcardCollection
         );
         $this->paypalConfig = $paypalConfig;
     }
 
     /**
-     * @return false|string|null
      * @throws BuckarooException
      * @throws LocalizedException
+     *
+     * @return false|string|null
      */
     protected function getNewStatus()
     {

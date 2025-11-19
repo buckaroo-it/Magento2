@@ -26,7 +26,7 @@ class RefundFieldsFactory
     /**
      * @var array
      */
-    protected array $refundFields;
+    protected $refundFields;
 
     /**
      * @param array $refundFields
@@ -41,8 +41,10 @@ class RefundFieldsFactory
      * Retrieve proper transaction builder for the specified transaction type.
      *
      * @param string $paymentMethod
-     * @return array|false
+     *
      * @throws \LogicException
+     *
+     * @return array|false
      */
     public function get(string $paymentMethod)
     {

@@ -32,17 +32,17 @@ class Giftcards implements OptionSourceInterface
     /**
      * @var SortOrderBuilder
      */
-    private SortOrderBuilder $sortOrderBuilder;
+    private $sortOrderBuilder;
 
     /**
      * @var SearchCriteriaBuilder
      */
-    private SearchCriteriaBuilder $searchCriteriaBuilder;
+    private $searchCriteriaBuilder;
 
     /**
      * @var GiftcardRepositoryInterface
      */
-    private GiftcardRepositoryInterface $giftcardRepository;
+    private $giftcardRepository;
 
     public function __construct(
         SortOrderBuilder $sortOrderBuilder,

@@ -55,21 +55,20 @@ class PaymentGroupTransaction extends AbstractHelper
     /**
      * @var BuckarooLoggerInterface
      */
-    private BuckarooLoggerInterface $logger;
+    private $logger;
 
-    protected ResourceConnection $resourceConnection;
-
+    protected $resourceConnection;
 
     /**
      * Constructor
      *
-     * @param Context $context
-     * @param GroupTransactionFactory $groupTransactionFactory
-     * @param DateTime $dateTime
-     * @param BuckarooLoggerInterface $logger
+     * @param Context                           $context
+     * @param GroupTransactionFactory           $groupTransactionFactory
+     * @param DateTime                          $dateTime
+     * @param BuckarooLoggerInterface           $logger
      * @param GroupTransactionCollectionFactory $grTrCollectionFactory
-     * @param GroupTransactionResource $resourceModel
-     * @param ResourceConnection|null $resourceConnection
+     * @param GroupTransactionResource          $resourceModel
+     * @param ResourceConnection|null           $resourceConnection
      */
     public function __construct(
         Context $context,
@@ -93,7 +92,8 @@ class PaymentGroupTransaction extends AbstractHelper
     /**
      * Get additional information when there's a partial payment.
      *
-     * @param integer $incrementId
+     * @param int $incrementId
+     *
      * @return mixed
      */
     public function getAdditionalData($incrementId)
@@ -110,14 +110,22 @@ class PaymentGroupTransaction extends AbstractHelper
 
         $result = $connection->fetchRow($select);
 
+        if (empty($result)) {
+            return [];
+        }
+
         return json_decode($result["additional_information"], true);
     }
 
     /**
      * Saves a group transaction in the database.
      *
+     * Checks for existing transaction to prevent duplicates from multiple push notifications.
+     *
      * @param array $response
+     *
      * @return mixed
+     * @throws \Exception
      */
     public function saveGroupTransaction($response)
     {
@@ -128,6 +136,20 @@ class PaymentGroupTransaction extends AbstractHelper
             var_export($response, true)
         ));
 
+        // Check if this transaction already exists to prevent duplicates
+        if (isset($response['Key'])) {
+            $existingTransaction = $this->getGroupTransactionByTrxId($response['Key']);
+            if ($existingTransaction && $existingTransaction->getEntityId()) {
+                $this->logger->addDebug(sprintf(
+                    '[GROUP_TRANSACTION] | [Helper] | [%s:%s] - Transaction already exists, skipping save | Key: %s',
+                    __METHOD__,
+                    __LINE__,
+                    $response['Key']
+                ));
+                return $existingTransaction;
+            }
+        }
+
         $groupTransaction = $this->groupTransactionFactory->create();
         $data['order_id'] = $response['Invoice'];
         $data['transaction_id'] = $response['Key'];
@@ -135,11 +157,85 @@ class PaymentGroupTransaction extends AbstractHelper
             $response['RelatedTransactions'][0]['RelatedTransactionKey'] ?? null;
         $data['servicecode'] = $response['ServiceCode'];
         $data['currency'] = $response['Currency'];
-        $data['amount'] = $response['AmountDebit'];
+        $data['amount'] = number_format((float)$response['AmountDebit'], 2, '.', '');
         $data['type'] = $response['RelatedTransactions'][0]['RelationType'] ?? null;
         $data['status'] = $response['Status']['Code']['Code'];
         $data['created_at'] = $this->dateTime->gmtDate();
         $groupTransaction->setData($data);
+
+        $this->logger->addDebug(sprintf(
+            '[GROUP_TRANSACTION] | [Helper] | [%s:%s] - Saving NEW group transaction | Key: %s | Service: %s',
+            __METHOD__,
+            __LINE__,
+            $response['Key'],
+            $response['ServiceCode']
+        ));
+
+        return $groupTransaction->save();
+    }
+
+    /**
+     * Create and save a group transaction using typed parameters (preferred method)
+     *
+     * This is the Magento-way of creating models with proper type safety.
+     * Use this method instead of saveGroupTransaction() for new code.
+     *
+     * @param string $orderId Order increment ID
+     * @param string $transactionId Transaction key from Buckaroo
+     * @param string $servicecode Payment service code (e.g., 'ideal', 'vvvgiftcard')
+     * @param string $currency Currency code (e.g., 'EUR')
+     * @param float $amount Transaction amount
+     * @param int $statusCode Buckaroo status code
+     * @param string|null $relatedTransaction Related transaction key for group transactions
+     * @param string $relationType Relation type (e.g., 'partialpayment')
+     *
+     * @return GroupTransaction
+     * @throws \Exception
+     */
+    public function createGroupTransaction(
+        string $orderId,
+        string $transactionId,
+        string $servicecode,
+        string $currency,
+        float $amount,
+        int $statusCode,
+        ?string $relatedTransaction = null,
+        string $relationType = 'partialpayment'
+    ): GroupTransaction {
+        // Check for duplicates
+        $existingTransaction = $this->getGroupTransactionByTrxId($transactionId);
+        if ($existingTransaction && $existingTransaction->getEntityId()) {
+            $this->logger->addDebug(sprintf(
+                '[GROUP_TRANSACTION] | [Helper] | [%s:%s] - Transaction already exists | Key: %s',
+                __METHOD__,
+                __LINE__,
+                $transactionId
+            ));
+            return $existingTransaction;
+        }
+
+        /** @var GroupTransaction $groupTransaction */
+        $groupTransaction = $this->groupTransactionFactory->create();
+        $groupTransaction->setData([
+            'order_id' => $orderId,
+            'transaction_id' => $transactionId,
+            'relatedtransaction' => $relatedTransaction,
+            'servicecode' => $servicecode,
+            'currency' => $currency,
+            'amount' => number_format($amount, 2, '.', ''),
+            'type' => $relationType,
+            'status' => $statusCode,
+            'created_at' => $this->dateTime->gmtDate()
+        ]);
+
+        $this->logger->addDebug(sprintf(
+            '[GROUP_TRANSACTION] | [Helper] | [%s:%s] - Creating group transaction | Key: %s | Service: %s',
+            __METHOD__,
+            __LINE__,
+            $transactionId,
+            $servicecode
+        ));
+
         return $groupTransaction->save();
     }
 
@@ -147,8 +243,10 @@ class PaymentGroupTransaction extends AbstractHelper
      * Updates a group transaction in the database.
      *
      * @param array $item
-     * @return mixed
+     *
      * @throws \Exception
+     *
+     * @return mixed
      */
     public function updateGroupTransaction($item)
     {
@@ -162,6 +260,7 @@ class PaymentGroupTransaction extends AbstractHelper
      * Check if is group transaction the order
      *
      * @param string|int $orderId
+     *
      * @return bool
      */
     public function isGroupTransaction($orderId)
@@ -174,6 +273,7 @@ class PaymentGroupTransaction extends AbstractHelper
      * Check if is group transaction the order
      *
      * @param string|int $orderId
+     *
      * @return bool
      */
     public function isAnyGroupTransaction($orderId)
@@ -186,6 +286,7 @@ class PaymentGroupTransaction extends AbstractHelper
      * Retrieves the group transaction items for a given order ID.
      *
      * @param string|int $orderId
+     *
      * @return array
      */
     public function getGroupTransactionItems($orderId)
@@ -211,6 +312,7 @@ class PaymentGroupTransaction extends AbstractHelper
      * Retrieves the group transaction items for a given order ID.
      *
      * @param string|int $orderId
+     *
      * @return array
      */
     public function getAnyGroupTransactionItems($orderId)
@@ -232,6 +334,7 @@ class PaymentGroupTransaction extends AbstractHelper
      * Get already paid amount from db
      *
      * @param string|int|null $orderId
+     *
      * @return float
      */
     public function getAlreadyPaid($orderId)
@@ -246,6 +349,7 @@ class PaymentGroupTransaction extends AbstractHelper
      * Calculates the total amount of group transactions for a given order ID.
      *
      * @param string|int $orderId
+     *
      * @return float|int
      */
     public function getGroupTransactionAmount($orderId)
@@ -263,6 +367,7 @@ class PaymentGroupTransaction extends AbstractHelper
      * Get last transaction from group transaction filter by order
      *
      * @param string|int $orderId
+     *
      * @return string|null
      */
     public function getGroupTransactionOriginalTransactionKey($orderId): ?string
@@ -292,6 +397,7 @@ class PaymentGroupTransaction extends AbstractHelper
      * Retrieves the group transaction items that have not been refunded for a given order ID.
      *
      * @param string|int $orderId
+     *
      * @return array
      */
     public function getGroupTransactionItemsNotRefunded($orderId)
@@ -308,6 +414,7 @@ class PaymentGroupTransaction extends AbstractHelper
      * Retrieves the group transaction item for a given entity ID.
      *
      * @param int|string $entityId
+     *
      * @return mixed
      */
     public function getGroupTransactionById($entityId)
@@ -322,6 +429,7 @@ class PaymentGroupTransaction extends AbstractHelper
      * Retrieves the group transaction item for a given transaction ID.
      *
      * @param int|string $trxId
+     *
      * @return GroupTransaction
      */
     public function getGroupTransactionByTrxId($trxId)
@@ -337,6 +445,7 @@ class PaymentGroupTransaction extends AbstractHelper
      * Get successful group transactions for orderId with giftcard label
      *
      * @param string|null $orderId
+     *
      * @return GroupTransaction[]
      */
     public function getActiveItemsWithName($orderId)
@@ -368,6 +477,7 @@ class PaymentGroupTransaction extends AbstractHelper
      * Get successful group transaction dor transaction id with giftcard label
      *
      * @param string $transactionId
+     *
      * @return GroupTransaction
      */
     public function getByTransactionIdWithName(string $transactionId)
@@ -392,7 +502,6 @@ class PaymentGroupTransaction extends AbstractHelper
      *
      * @param string $groupTransactionId
      * @param string $status
-     * @return void
      */
     public function setGroupTransactionsStatus(string $groupTransactionId, string $status)
     {

@@ -39,19 +39,18 @@ class Billink extends AbstractConfigProvider
     public const XPATH_BILLINK_MAX_AMOUNT_B2B = 'max_amount_b2b';
     public const XPATH_BILLINK_PAYMENT_FEE          = 'payment/buckaroo_magento2_billink/payment_fee';
 
-
     /**
      * @var BuckarooHelper
      */
-    private BuckarooHelper $helper;
+    private $helper;
 
     /**
-     * @param Repository $assetRepo
+     * @param Repository           $assetRepo
      * @param ScopeConfigInterface $scopeConfig
-     * @param AllowedCurrencies $allowedCurrencies
-     * @param PaymentFee $paymentFeeHelper
-     * @param LogoService $logoService
-     * @param BuckarooHelper $helper
+     * @param AllowedCurrencies    $allowedCurrencies
+     * @param PaymentFee           $paymentFeeHelper
+     * @param LogoService          $logoService
+     * @param BuckarooHelper       $helper
      */
     public function __construct(
         Repository $assetRepo,
@@ -107,6 +106,7 @@ class Billink extends AbstractConfigProvider
      * Get customer type
      *
      * @param null|int $storeId
+     *
      * @return string
      */
     public function getCustomerType($storeId = null)

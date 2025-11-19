@@ -31,7 +31,7 @@ use Psr\Log\LogLevel;
  */
 class InternalLogger implements LoggerInterface
 {
-    private Logger $logger;
+    private $logger;
 
     public function __construct(
         string $name,

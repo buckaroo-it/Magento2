@@ -35,7 +35,6 @@ class Transfer extends AbstractConfigProvider
     public const XPATH_TRANSFER_PAYMENT_METHOD_AFTER_EXPIRY = 'payment_method_after_expiry';
     public const XPATH_TRANSFER_PAYMENT_FEE            = 'payment/buckaroo_magento2_transfer/payment_fee';
 
-
     /**
      * @inheritdoc
      *
@@ -56,6 +55,7 @@ class Transfer extends AbstractConfigProvider
      * Get Due Date Y-m-d
      *
      * @param $store
+     *
      * @return string
      */
     public function getDueDateFormated($store = null): string
@@ -71,6 +71,7 @@ class Transfer extends AbstractConfigProvider
      * Get due date until order will be cancelled, amount of days after the order date
      *
      * @param null|int|string $store
+     *
      * @return mixed
      */
     public function getDueDate($store = null)
@@ -82,6 +83,7 @@ class Transfer extends AbstractConfigProvider
      * Check if Credit Management is enabled
      *
      * @param null|int|string $store
+     *
      * @return mixed
      */
     public function getActiveStatusCm3($store = null)
@@ -93,6 +95,7 @@ class Transfer extends AbstractConfigProvider
      * Credit Management Scheme Key
      *
      * @param null|int|string $store
+     *
      * @return mixed
      */
     public function getSchemeKey($store = null)
@@ -104,6 +107,7 @@ class Transfer extends AbstractConfigProvider
      * Get Max level of the Credit Management steps
      *
      * @param null|int|string $store
+     *
      * @return mixed
      */
     public function getMaxStepIndex($store = null)
@@ -115,6 +119,7 @@ class Transfer extends AbstractConfigProvider
      * Get credit managment due date, amount of days after the order date
      *
      * @param null|int|string $store
+     *
      * @return mixed
      */
     public function getCm3DueDate($store = null)
@@ -126,6 +131,7 @@ class Transfer extends AbstractConfigProvider
      * Get payment method which can be used after the payment due date.
      *
      * @param null|int|string $store
+     *
      * @return mixed
      */
     public function getPaymentMethodAfterExpiry($store = null)

@@ -97,6 +97,9 @@ abstract class AbstractCommandBasedTest extends TestCase
 
     /**
      * Setup successful command execution
+     *
+     * @param string $commandKey
+     * @param float  $grandTotal
      */
     // AbstractCommandBasedTest.php
     protected function setupSuccessfulCommandExecution(string $commandKey, float $grandTotal = 100.0): void

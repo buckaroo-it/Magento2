@@ -43,11 +43,12 @@ class JsonPushRequest extends AbstractPushRequest implements PushRequestInterfac
     /**
      * @var Validator $validator
      */
-    private Validator $validator;
+    private $validator;
 
     /**
-     * @param array $requestData
+     * @param array     $requestData
      * @param Validator $validator
+     *
      * @throws Exception
      */
     public function __construct(array $requestData, Validator $validator)
@@ -58,6 +59,7 @@ class JsonPushRequest extends AbstractPushRequest implements PushRequestInterfac
         } elseif (isset($requestData['DataRequest'])) {
             $this->request = $requestData['DataRequest'];
         } else {
+            // phpcs:ignore Magento2.Exceptions.DirectThrow
             throw new Exception(__('Json request could not be processed, please use httppost'));
         }
         $this->validator = $validator;
@@ -85,6 +87,7 @@ class JsonPushRequest extends AbstractPushRequest implements PushRequestInterfac
      * Retrieves the value of the specified property or method result.
      *
      * @param string $name
+     *
      * @return mixed|null
      */
     public function get(string $name)

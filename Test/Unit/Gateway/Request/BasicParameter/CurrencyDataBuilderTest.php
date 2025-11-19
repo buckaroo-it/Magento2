@@ -54,6 +54,12 @@ class CurrencyDataBuilderTest extends BaseTest
 
     /**
      * @dataProvider currencyDataProvider
+     *
+     * @param mixed $orderCurrencyCode
+     * @param mixed $baseCurrencyCode
+     * @param mixed $paymentMethodCode
+     * @param mixed $allowedCurrencies
+     * @param mixed $expectedResult
      */
     public function testBuild(
         $orderCurrencyCode,
@@ -112,7 +118,7 @@ class CurrencyDataBuilderTest extends BaseTest
         $paymentDOMock = $this->createMock(\Magento\Payment\Gateway\Data\PaymentDataObjectInterface::class);
         $paymentDOMock->method('getOrder')->willReturn($orderAdapterMock);
         $paymentDOMock->method('getPayment')->willReturn($paymentMock);
-        
+
         return $paymentDOMock;
     }
 

@@ -72,6 +72,7 @@ class AfterpayOldHandler extends AbstractArticlesHandler
 
     /**
      * @inheritdoc
+     *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     protected function getItemTax($item): float

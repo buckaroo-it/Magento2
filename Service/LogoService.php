@@ -30,15 +30,15 @@ class LogoService
     /**
      * @var Repository
      */
-    protected Repository $assetRepo;
+    protected $assetRepo;
 
     /**
      * @var UrlInterface
      */
-    protected UrlInterface $baseUrl;
+    protected $baseUrl;
 
     /**
-     * @param Repository $assetRepo
+     * @param Repository   $assetRepo
      * @param UrlInterface $baseUrl
      */
     public function __construct(
@@ -53,7 +53,8 @@ class LogoService
      * Get payment method logo
      *
      * @param string $paymentCode
-     * @param bool $backend
+     * @param bool   $backend
+     *
      * @return string
      */
     public function getPayment(string $paymentCode, bool $backend = false): string
@@ -79,7 +80,7 @@ class LogoService
             "transfer"         => "svg/sepa-credittransfer.svg",
             "buckaroovoucher"  => "svg/vouchers.svg",
             "voucher"          => "svg/vouchers.svg",
-            "paybybank"        => "paybybank.gif",
+            "paybybank"        => "svg/paybybank.svg",
             "knaken"           => "svg/gosettle.svg"
         ];
 
@@ -122,6 +123,7 @@ class LogoService
      * Get gift card logo url by code
      *
      * @param string $code
+     *
      * @return string
      */
     public function getGiftcardLogoDefaults(string $code): string
@@ -160,6 +162,7 @@ class LogoService
      * Get creditcard logo by code
      *
      * @param string $code
+     *
      * @return string
      */
     public function getCreditcard(string $code): string

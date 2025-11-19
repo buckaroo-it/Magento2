@@ -33,11 +33,11 @@ class SepaDirectDebit extends AbstractConfigProvider
     public const XPATH_SEPADIRECTDEBIT_PAYMENT_METHOD_AFTER_EXPIRY = 'payment_method_after_expiry';
     public const XPATH_SEPADIRECTDEBIT_PAYMENT_FEE = 'payment/buckaroo_magento2_sepadirectdebit/payment_fee';
 
-
     /**
      * Check if Credit Management is enabled
      *
      * @param null|int|string $store
+     *
      * @return mixed
      */
     public function getActiveStatusCm3($store = null)
@@ -49,6 +49,7 @@ class SepaDirectDebit extends AbstractConfigProvider
      * Credit Management Scheme Key
      *
      * @param null|int|string $store
+     *
      * @return mixed
      */
     public function getSchemeKey($store = null)
@@ -60,6 +61,7 @@ class SepaDirectDebit extends AbstractConfigProvider
      * Get Max level of the Credit Management steps
      *
      * @param null|int|string $store
+     *
      * @return mixed
      */
     public function getMaxStepIndex($store = null)
@@ -71,6 +73,7 @@ class SepaDirectDebit extends AbstractConfigProvider
      * Get credit managment due date, amount of days after the order date
      *
      * @param null|int|string $store
+     *
      * @return mixed
      */
     public function getCm3DueDate($store = null)
@@ -82,6 +85,7 @@ class SepaDirectDebit extends AbstractConfigProvider
      * Get payment method which can be used after the payment due date.
      *
      * @param null|int|string $store
+     *
      * @return mixed
      */
     public function getPaymentMethodAfterExpiry($store = null)

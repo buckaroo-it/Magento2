@@ -51,10 +51,10 @@ class ModuleConflictDetector
     private $urlBuilder;
 
     /**
-     * @param ModuleManager $moduleManager
+     * @param ModuleManager        $moduleManager
      * @param ScopeConfigInterface $scopeConfig
-     * @param MessageManager $messageManager
-     * @param UrlInterface $urlBuilder
+     * @param MessageManager       $messageManager
+     * @param UrlInterface         $urlBuilder
      */
     public function __construct(
         ModuleManager $moduleManager,

@@ -38,14 +38,15 @@ class Payconiq extends AbstractConfigProvider
     public const XPATH_PAYCONIQ_PAYMENT_FEE                      = 'payment/buckaroo_magento2_payconiq/payment_fee';
 
     /** @var FormKey */
-    private FormKey $formKey;
+    private $formKey;
 
     /**
-     * @param Repository $assetRepo
+     * @param Repository           $assetRepo
      * @param ScopeConfigInterface $scopeConfig
-     * @param AllowedCurrencies $allowedCurrencies
-     * @param PaymentFee $paymentFeeHelper
-     * @param FormKey $formKey
+     * @param AllowedCurrencies    $allowedCurrencies
+     * @param PaymentFee           $paymentFeeHelper
+     * @param FormKey              $formKey
+     * @param LogoService          $logoService
      */
     public function __construct(
         Repository $assetRepo,
@@ -80,8 +81,9 @@ class Payconiq extends AbstractConfigProvider
     /**
      * Get Magento Form Key
      *
-     * @return string
      * @throws LocalizedException
+     *
+     * @return string
      */
     private function getFormKey(): string
     {
@@ -89,6 +91,8 @@ class Payconiq extends AbstractConfigProvider
     }
 
     /**
+     * @param null|mixed $storeId
+     *
      * @return float
      */
     public function getPaymentFee($storeId = null)

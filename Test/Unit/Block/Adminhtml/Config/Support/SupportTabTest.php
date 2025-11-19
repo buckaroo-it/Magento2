@@ -34,6 +34,7 @@ class SupportTabTest extends BaseTest
     public function testGetVersionNumber()
     {
         $softwareDataMock = $this->getFakeMock(Data::class)->getMock();
+        $softwareDataMock->method('getModuleVersion')->willReturn(Data::BUCKAROO_VERSION);
         $instance = $this->getInstance(['softwareData' => $softwareDataMock]);
         $result = $instance->getVersionNumber();
 
@@ -50,7 +51,10 @@ class SupportTabTest extends BaseTest
 
     /**
      * @dataProvider getVersionsDataProvider
-     * @return void
+     *
+     * @param string $version
+     * @param string $phpVersions
+     * @param int    $returnValue
      */
     public function testWithDifferentMagentoVersionsAndPhpVersions(string $version, string $phpVersions, int $returnValue)
     {

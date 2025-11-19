@@ -39,12 +39,12 @@ class RefundPendingApprovalValidator extends AbstractValidator
     /**
      * @var BuckarooLoggerInterface
      */
-    protected BuckarooLoggerInterface $logger;
+    protected $logger;
 
     /**
      * @var RefundConfigProvider
      */
-    protected RefundConfigProvider $refundConfigProvider;
+    protected $refundConfigProvider;
 
     /**
      * @var Registry
@@ -54,14 +54,14 @@ class RefundPendingApprovalValidator extends AbstractValidator
     /**
      * @var ResourceConnection
      */
-    private ResourceConnection $resourceConnection;
+    private $resourceConnection;
 
     /**
      * @param BuckarooLoggerInterface $logger
-     * @param ResultInterfaceFactory $resultFactory
-     * @param RefundConfigProvider $refundConfigProvider
-     * @param ResourceConnection $resourceConnection
-     * @param Registry $registry
+     * @param ResultInterfaceFactory  $resultFactory
+     * @param RefundConfigProvider    $refundConfigProvider
+     * @param ResourceConnection      $resourceConnection
+     * @param Registry                $registry
      */
     public function __construct(
         BuckarooLoggerInterface $logger,
@@ -81,13 +81,22 @@ class RefundPendingApprovalValidator extends AbstractValidator
      * Performs validation of result code
      *
      * @param array $validationSubject
-     * @return ResultInterface
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     *
      * @throws LocalizedException
+     *
+     * @return ResultInterface
      */
     public function validate(array $validationSubject): ResultInterface
     {
+        // Skip validation if refund was already completed via group transactions
+        if (isset($validationSubject['response']['group_transaction_refund_complete']) 
+            && $validationSubject['response']['group_transaction_refund_complete'] === true
+        ) {
+            return $this->createResult(true, [__('Refund completed via group transactions')]);
+        }
+
         $paymentDO = SubjectReader::readPayment($validationSubject);
         $payment = $paymentDO->getPayment();
         $order = $paymentDO->getOrder()->getOrder();

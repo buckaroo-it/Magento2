@@ -70,12 +70,13 @@ class Mail
      * Add $message to the message array, and cast to string if an array or object
      *
      * @param mixed $message
+     *
      * @return $this
      */
     public function addToMessage($message)
     {
         if (is_array($message) || is_object($message)) {
-            //@codingStandardsIgnoreLine
+            // phpcs:ignore Magento2.Functions.DiscouragedFunction.Discouraged
             $message = print_r($message, true);
         }
 
@@ -122,6 +123,7 @@ class Mail
      * Set mail subject
      *
      * @param string $mailSubject
+     *
      * @return $this
      */
     public function setMailSubject($mailSubject)
@@ -145,6 +147,7 @@ class Mail
      * Set mail from
      *
      * @param string $mailFrom
+     *
      * @return $this
      */
     public function setMailFrom($mailFrom)

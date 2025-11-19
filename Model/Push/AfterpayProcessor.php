@@ -28,8 +28,11 @@ use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
+use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
 use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
+use Buckaroo\Magento2\Service\Order\Uncancel;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
+use Magento\Framework\App\ResourceConnection;
 use Magento\Sales\Api\Data\TransactionInterface;
 
 class AfterpayProcessor extends DefaultProcessor
@@ -37,35 +40,41 @@ class AfterpayProcessor extends DefaultProcessor
     /**
      * @var Afterpay20
      */
-    private Afterpay20 $afterpayConfig;
+    private $afterpayConfig;
 
     /**
-     * @param OrderRequestService $orderRequestService
-     * @param PushTransactionType $pushTransactionType
+     * @param OrderRequestService     $orderRequestService
+     * @param PushTransactionType     $pushTransactionType
      * @param BuckarooLoggerInterface $logger
-     * @param Data $helper
-     * @param TransactionInterface $transaction
+     * @param Data                    $helper
+     * @param TransactionInterface    $transaction
      * @param PaymentGroupTransaction $groupTransaction
-     * @param BuckarooStatusCode $buckarooStatusCode
-     * @param OrderStatusFactory $orderStatusFactory
-     * @param Account $configAccount
-     * @param GiftCardRefundService $giftCardRefundService
-     * @param Afterpay20 $afterpayConfig
+     * @param BuckarooStatusCode      $buckarooStatusCode
+     * @param OrderStatusFactory      $orderStatusFactory
+     * @param Account                 $configAccount
+     * @param GiftCardRefundService   $giftCardRefundService
+     * @param Uncancel                $uncancelService
+     * @param ResourceConnection $resourceConnection
+     * @param GiftcardCollection $giftcardCollection
+     * @param Afterpay20              $afterpayConfig
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         OrderRequestService $orderRequestService,
-        PushTransactionType $pushTransactionType,
+        PushTransactionType     $pushTransactionType,
         BuckarooLoggerInterface $logger,
-        Data $helper,
-        TransactionInterface $transaction,
+        Data                    $helper,
+        TransactionInterface    $transaction,
         PaymentGroupTransaction $groupTransaction,
-        BuckarooStatusCode $buckarooStatusCode,
-        OrderStatusFactory $orderStatusFactory,
-        Account $configAccount,
-        GiftCardRefundService $giftCardRefundService,
-        Afterpay20 $afterpayConfig
+        BuckarooStatusCode      $buckarooStatusCode,
+        OrderStatusFactory      $orderStatusFactory,
+        Account                 $configAccount,
+        GiftCardRefundService   $giftCardRefundService,
+        Uncancel                $uncancelService,
+        ResourceConnection      $resourceConnection,
+        GiftcardCollection      $giftcardCollection,
+        Afterpay20              $afterpayConfig
     ) {
         parent::__construct(
             $orderRequestService,
@@ -77,15 +86,20 @@ class AfterpayProcessor extends DefaultProcessor
             $buckarooStatusCode,
             $orderStatusFactory,
             $configAccount,
-            $giftCardRefundService
+            $giftCardRefundService,
+            $uncancelService,
+            $resourceConnection,
+            $giftcardCollection
         );
         $this->afterpayConfig = $afterpayConfig;
     }
 
     /**
      * @param array $paymentDetails
-     * @return bool
+     *
      * @throws \Exception
+     *
+     * @return bool
      */
     protected function invoiceShouldBeSaved(array &$paymentDetails): bool
     {

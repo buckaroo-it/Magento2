@@ -32,16 +32,16 @@ class DispatchEventHandler implements HandlerInterface
     /**
      * @var ManagerInterface
      */
-    private ManagerInterface $eventManager;
+    private $eventManager;
 
     /**
      * @var string
      */
-    private string $command;
+    private $command;
 
     /**
      * @param ManagerInterface $eventManager
-     * @param string $command
+     * @param string           $command
      */
     public function __construct(ManagerInterface $eventManager, string $command)
     {
@@ -54,7 +54,7 @@ class DispatchEventHandler implements HandlerInterface
      *
      * @param array $handlingSubject
      * @param array $response
-     * @return void
+     *
      * @throws \Exception
      */
     public function handle(array $handlingSubject, array $response)
@@ -71,9 +71,9 @@ class DispatchEventHandler implements HandlerInterface
     /**
      * Dispatch After Event
      *
-     * @param string $name
+     * @param string        $name
      * @param InfoInterface $payment
-     * @param array $response
+     * @param array         $response
      *
      * @return $this
      */

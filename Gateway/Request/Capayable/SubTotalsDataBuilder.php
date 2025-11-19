@@ -63,7 +63,6 @@ class SubTotalsDataBuilder extends AbstractDataBuilder
         ];
     }
 
-
     /**
      * Get discount
      *
@@ -74,7 +73,6 @@ class SubTotalsDataBuilder extends AbstractDataBuilder
         $discount = abs((float)$this->getOrder()->getDiscountAmount());
         return -1 * round($discount, 2);
     }
-
 
     /**
      * Get buckaroo fee

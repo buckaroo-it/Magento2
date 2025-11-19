@@ -30,6 +30,10 @@ class AvailableBasedOnCurrencyValidatorTest extends TestCase
 
     /**
      * @dataProvider dataProviderTestValidate
+     *
+     * @param mixed $allowedCurrenciesRaw
+     * @param mixed $currentCurrency
+     * @param mixed $expectedResult
      */
     public function testValidate($allowedCurrenciesRaw, $currentCurrency, $expectedResult)
     {

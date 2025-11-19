@@ -35,40 +35,40 @@ class Push implements PushInterface
     /**
      * @var BuckarooLoggerInterface $logger
      */
-    public BuckarooLoggerInterface $logger;
+    public $logger;
 
     /**
      * @var \Buckaroo\Magento2\Api\Data\PushRequestInterface
      */
-    public PushRequestInterface $pushRequest;
+    public $pushRequest;
 
     /**
      * @var PushProcessorsFactory
      */
-    private PushProcessorsFactory $pushProcessorsFactory;
+    private $pushProcessorsFactory;
 
     /**
      * @var OrderRequestService
      */
-    private OrderRequestService $orderRequestService;
+    private $orderRequestService;
 
     /**
      * @var PushTransactionType
      */
-    private PushTransactionType $pushTransactionType;
+    private $pushTransactionType;
 
     /**
      * @var LockManagerWrapper
      */
-    protected LockManagerWrapper $lockManager;
+    protected $lockManager;
 
     /**
      * @param BuckarooLoggerInterface $logger
-     * @param RequestPushFactory $requestPushFactory
-     * @param PushProcessorsFactory $pushProcessorsFactory
-     * @param OrderRequestService $orderRequestService
-     * @param PushTransactionType $pushTransactionType
-     * @param LockManagerWrapper $lockManager
+     * @param RequestPushFactory      $requestPushFactory
+     * @param PushProcessorsFactory   $pushProcessorsFactory
+     * @param OrderRequestService     $orderRequestService
+     * @param PushTransactionType     $pushTransactionType
+     * @param LockManagerWrapper      $lockManager
      */
     public function __construct(
         BuckarooLoggerInterface $logger,
@@ -89,8 +89,9 @@ class Push implements PushInterface
     /**
      * @inheritdoc
      *
-     * @return bool
      * @throws BuckarooException|\Throwable
+     *
+     * @return bool
      */
     public function receivePush(): bool
     {

@@ -28,6 +28,7 @@ use Magento\Backend\App\Action\Context;
 use Magento\Backend\Model\View\Result\Page;
 use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\View\Result\PageFactory;
 
 class Edit extends Action implements HttpGetActionInterface
@@ -38,20 +39,20 @@ class Edit extends Action implements HttpGetActionInterface
     protected $resultPageFactory;
 
     /**
-     * @var  GiftcardFactory
+     * @var GiftcardFactory
      */
     protected $giftcardFactory;
 
     /**
-     * @var \Buckaroo\Magento2\Model\Data\BuckarooGiftcardDataInterface
+     * @var BuckarooGiftcardDataInterface
      */
-    private BuckarooGiftcardDataInterface $buckarooGiftcardData;
+    private $buckarooGiftcardData;
 
     /**
-     * @param Context $context
-     * @param PageFactory $resultPageFactory
-     * @param GiftcardFactory $giftcardFactory
-     * @param \Buckaroo\Magento2\Model\Data\BuckarooGiftcardDataInterface $buckarooGiftcardData
+     * @param Context                       $context
+     * @param PageFactory                   $resultPageFactory
+     * @param GiftcardFactory               $giftcardFactory
+     * @param BuckarooGiftcardDataInterface $buckarooGiftcardData
      */
     public function __construct(
         Context $context,
@@ -68,6 +69,8 @@ class Edit extends Action implements HttpGetActionInterface
 
     /**
      * Edit Giftcard
+     *
+     * @throws LocalizedException
      *
      * @return ResponseInterface|Page
      */

@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Controller\Pos;
 use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
+use Exception;
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
@@ -47,7 +48,7 @@ class SetTerminal extends Action implements HttpGetActionInterface
     /**
      * @var BuckarooLoggerInterface
      */
-    protected BuckarooLoggerInterface $logger;
+    protected $logger;
 
     /**
      * @var StoreManagerInterface
@@ -65,12 +66,13 @@ class SetTerminal extends Action implements HttpGetActionInterface
     protected $cookieMetadataFactory;
 
     /**
-     * @param Context $context
+     * @param Context                 $context
      * @param BuckarooLoggerInterface $logger
-     * @param Factory $configProviderFactory
-     * @param StoreManagerInterface $storemanager
-     * @param CookieManagerInterface $cookieManager
-     * @param CookieMetadataFactory $cookieMetadataFactory
+     * @param Factory                 $configProviderFactory
+     * @param StoreManagerInterface   $storemanager
+     * @param CookieManagerInterface  $cookieManager
+     * @param CookieMetadataFactory   $cookieMetadataFactory
+     *
      * @throws BuckarooException
      */
     public function __construct(
@@ -92,8 +94,9 @@ class SetTerminal extends Action implements HttpGetActionInterface
     /**
      * Process action
      *
+     * @throws Exception
+     *
      * @return ResponseInterface
-     * @throws \Exception
      */
     public function execute()
     {

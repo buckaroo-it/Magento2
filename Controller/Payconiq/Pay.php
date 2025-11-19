@@ -33,10 +33,10 @@ class Pay extends Action implements HttpGetActionInterface, HttpPostActionInterf
     /**
      * @var PageFactory
      */
-    protected PageFactory $resultPageFactory;
+    protected $resultPageFactory;
 
     /**
-     * @param Context $context
+     * @param Context     $context
      * @param PageFactory $resultPageFactory
      */
     public function __construct(

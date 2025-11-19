@@ -27,6 +27,7 @@
     <preference for="Buckaroo\Magento2\Api\LogRepositoryInterface" type="Buckaroo\Magento2\Model\LogRepository"/>
     <preference for="Buckaroo\Magento2\Api\Data\LogInterface" type="Buckaroo\Magento2\Model\Data\Log"/>
     <preference for="Buckaroo\Magento2\Api\Data\LogSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
+    <preference for="Buckaroo\Magento2\Api\Data\AnalyticsInterface" type="Buckaroo\Magento2\Model\Analytics\Data\Analytics"/>
 
     <preference for="Buckaroo\Magento2\Api\PushInterface" type="Buckaroo\Magento2\Model\Push"/>
     <preference for="Buckaroo\Magento2\Api\Data\TransactionStatusResponseInterface" type="Buckaroo\Magento2\Model\Transaction\Status\Response" />
@@ -259,6 +260,18 @@
                 <item name="belfius" xsi:type="array">
                     <item name="type" xsi:type="string">belfius</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Belfius</item>
+                </item>
+                <item name="bizum" xsi:type="array">
+                    <item name="type" xsi:type="string">bizum</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Bizum</item>
+                </item>
+                <item name="swish" xsi:type="array">
+                    <item name="type" xsi:type="string">swish</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Swish</item>
+                </item>
+                <item name="twint" xsi:type="array">
+                    <item name="type" xsi:type="string">twint</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Twint</item>
                 </item>
                 <item name="transfer" xsi:type="array">
                     <item name="type" xsi:type="string">transfer</item>
@@ -1038,10 +1051,12 @@
     <virtualType name="RefundValidator" type="Magento\Payment\Gateway\Validator\ValidatorComposite">
         <arguments>
             <argument name="validators" xsi:type="array">
+                <item name="group_transaction_refund_complete" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\RefundSkippedValidator</item>
                 <item name="pending_approval" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\RefundPendingApprovalValidator</item>
                 <item name="status" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</item>
             </argument>
             <argument name="chainBreakingValidators" xsi:type="array">
+                <item name="group_transaction_refund_complete" xsi:type="string">group_transaction_refund_complete</item>
                 <item name="pending_approval" xsi:type="string">pending_approval</item>
                 <item name="status" xsi:type="string">status</item>
             </argument>
@@ -1842,6 +1857,81 @@
     <!-- END Belfius Value handlers infrastructure -->
     <!-- END Payment Method: Belfius -->
 
+
+    <!-- Payment Method: Bizum -->
+    <!-- Bizum Payment Method Facade configuration -->
+    <virtualType name="BizumFacade" type="BuckarooRemainderFacade">
+        <arguments>
+            <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\Bizum::CODE</argument>
+            <argument name="valueHandlerPool" xsi:type="object">BizumValueHandlerPool</argument>
+        </arguments>
+    </virtualType>
+    <!-- Bizum Value handlers infrastructure -->
+    <virtualType name="BizumValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">BizumConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Configuration reader -->
+    <virtualType name="BizumConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Bizum</argument>
+        </arguments>
+    </virtualType>
+    <!-- END Bizum Value handlers infrastructure -->
+    <!-- END Payment Method: Bizum -->
+
+    <!-- Payment Method: Swish -->
+    <!-- Swish Payment Method Facade configuration -->
+    <virtualType name="SwishFacade" type="BuckarooRemainderFacade">
+        <arguments>
+            <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\Swish::CODE</argument>
+            <argument name="valueHandlerPool" xsi:type="object">SwishValueHandlerPool</argument>
+        </arguments>
+    </virtualType>
+    <!-- Swish Value handlers infrastructure -->
+    <virtualType name="SwishValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">SwishConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Configuration reader -->
+    <virtualType name="SwishConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Swish</argument>
+        </arguments>
+    </virtualType>
+    <!-- END Swish Value handlers infrastructure -->
+    <!-- END Payment Method: Swish -->
+
+    <!-- Payment Method: Twint -->
+    <!-- Twint Payment Method Facade configuration -->
+    <virtualType name="TwintFacade" type="BuckarooRemainderFacade">
+        <arguments>
+            <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\Twint::CODE</argument>
+            <argument name="valueHandlerPool" xsi:type="object">TwintValueHandlerPool</argument>
+        </arguments>
+    </virtualType>
+    <!-- Twint Value handlers infrastructure -->
+    <virtualType name="TwintValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">TwintConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Configuration reader -->
+    <virtualType name="TwintConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Twint</argument>
+        </arguments>
+    </virtualType>
+    <!-- END Twint Value handlers infrastructure -->
+    <!-- END Payment Method: Twint -->
 
     <!-- Payment Method: Blik -->
     <!-- Blik Payment Method Facade configuration -->
@@ -3744,7 +3834,6 @@
             <argument name="validators" xsi:type="array">
                 <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
                 <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
-                <item name="global" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\IssuerValidator</item>
             </argument>
         </arguments>
     </virtualType>
@@ -3776,10 +3865,9 @@
     <virtualType name="PayByBankOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
-                <item name="saveIssuer" xsi:type="string">Buckaroo\Magento2\Gateway\Request\SaveIssuerDataBuilder</item>
                 <item name="order" xsi:type="string">BuckarooOrderRequest</item>
                 <item name="payRemainder" xsi:type="string">BuckarooPayRemainderRequest</item>
-                <item name="issuer" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\IssuerDataBuilder</item>
+                <item name="countryCode" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\CountryCodeDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -3903,6 +3991,18 @@
                 <item name="belfius" xsi:type="array">
                     <item name="type" xsi:type="string">belfius</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Belfius</item>
+                </item>
+                <item name="bizum" xsi:type="array">
+                    <item name="type" xsi:type="string">bizum</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Bizum</item>
+                </item>
+                <item name="swish" xsi:type="array">
+                    <item name="type" xsi:type="string">swish</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Swish</item>
+                </item>
+                <item name="twint" xsi:type="array">
+                    <item name="type" xsi:type="string">twint</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Twint</item>
                 </item>
                 <item name="transfer" xsi:type="array">
                     <item name="type" xsi:type="string">transfer</item>
@@ -4043,7 +4143,6 @@
 
     <!-- Analytics API and Repository Configuration -->
     <preference for="Buckaroo\Magento2\Api\AnalyticsRepositoryInterface" type="Buckaroo\Magento2\Model\Analytics\AnalyticsRepository"/>
-    <preference for="Buckaroo\Magento2\Api\Data\AnalyticsInterface" type="Buckaroo\Magento2\Model\Analytics\Data\Analytics"/>
     <preference for="Buckaroo\Magento2\Api\Data\AnalyticsSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
     <preference for="Buckaroo\Magento2\Controller\Redirect\Process" type="Buckaroo\Magento2\Controller\Redirect\AnalyticsProcess" />
     <type name="Buckaroo\Magento2\Gateway\Http\TransactionBuilder\AbstractTransactionBuilder">

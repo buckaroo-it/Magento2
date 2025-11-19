@@ -33,8 +33,10 @@ interface LogRepositoryInterface
      * Save Log
      *
      * @param LogInterface $log
-     * @return LogInterface
+     *
      * @throws LocalizedException
+     *
+     * @return LogInterface
      */
     public function save(LogInterface $log);
 
@@ -42,8 +44,10 @@ interface LogRepositoryInterface
      * Retrieve Log
      *
      * @param string $logId
-     * @return LogInterface
+     *
      * @throws LocalizedException
+     *
+     * @return LogInterface
      */
     public function get($logId);
 
@@ -51,8 +55,10 @@ interface LogRepositoryInterface
      * Retrieve Log matching the specified criteria.
      *
      * @param SearchCriteriaInterface $searchCriteria
-     * @return LogSearchResultsInterface
+     *
      * @throws LocalizedException
+     *
+     * @return LogSearchResultsInterface
      */
     public function getList(SearchCriteriaInterface $searchCriteria);
 
@@ -60,8 +66,10 @@ interface LogRepositoryInterface
      * Delete Log
      *
      * @param LogInterface $log
-     * @return bool true on success
+     *
      * @throws LocalizedException
+     *
+     * @return bool true on success
      */
     public function delete(LogInterface $log);
 
@@ -69,9 +77,11 @@ interface LogRepositoryInterface
      * Delete Log by ID
      *
      * @param string $logId
-     * @return bool true on success
+     *
      * @throws NoSuchEntityException
      * @throws LocalizedException
+     *
+     * @return bool true on success
      */
     public function deleteById($logId);
 }

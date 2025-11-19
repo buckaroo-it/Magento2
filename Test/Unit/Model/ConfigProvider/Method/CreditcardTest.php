@@ -21,8 +21,6 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
-
-
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
@@ -41,7 +39,7 @@ class CreditcardTest extends BaseTest
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
             ->onlyMethods(['getValue'])
             ->getMockForAbstractClass();
-        
+
         // Mock the getValue calls for different config paths
         $scopeConfigMock->method('getValue')->willReturnMap([
             // Make the creditcard method active

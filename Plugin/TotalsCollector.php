@@ -29,8 +29,7 @@ class TotalsCollector
      * Reset quote reward point amount
      *
      * @param Quote\TotalsCollector $subject
-     * @param Quote $quote
-     * @return void
+     * @param Quote                 $quote
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */

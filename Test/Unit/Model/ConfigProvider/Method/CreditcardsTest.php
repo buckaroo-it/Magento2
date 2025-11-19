@@ -20,8 +20,6 @@
  */
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
-
-
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\PaymentFee;
@@ -100,7 +98,7 @@ class CreditcardsTest extends BaseTest
         $this->assertArrayHasKey('buckaroo', $result['payment']);
         $this->assertArrayHasKey('buckaroo_magento2_creditcards', $result['payment']['buckaroo']);
         $config = $result['payment']['buckaroo']['buckaroo_magento2_creditcards'];
-        
+
         $this->assertIsArray($config);
         $this->assertArrayHasKey('paymentFeeLabel', $config);
         $this->assertSame($expected['paymentFeeLabel'], $config['paymentFeeLabel']);

@@ -29,12 +29,12 @@ class CanViewNotification implements VisibilityConditionInterface
     /**
      * @var string
      */
-    private static string $conditionName = 'can_view_buckaroo_notification';
+    private static $conditionName = 'can_view_buckaroo_notification';
 
     /**
      * @var FlagManager
      */
-    private FlagManager $flagManager;
+    private $flagManager;
 
     /**
      * @param FlagManager $flagManager

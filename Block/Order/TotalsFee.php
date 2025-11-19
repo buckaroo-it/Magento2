@@ -34,10 +34,10 @@ class TotalsFee extends Totals
     protected $helper = null;
 
     /**
-     * @param Context $context
-     * @param Registry $registry
+     * @param Context    $context
+     * @param Registry   $registry
      * @param PaymentFee $helper
-     * @param array $data
+     * @param array      $data
      */
     public function __construct(
         Context $context,

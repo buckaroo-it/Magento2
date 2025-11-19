@@ -29,7 +29,7 @@ class ReservationNumberDataBuilder extends AbstractDataBuilder
     /**
      * @var BuckarooLoggerInterface
      */
-    private BuckarooLoggerInterface $logger;
+    private $logger;
 
     /**
      * @param BuckarooLoggerInterface $logger
@@ -42,6 +42,7 @@ class ReservationNumberDataBuilder extends AbstractDataBuilder
 
     /**
      * @inheritdoc
+     *
      * @throws LocalizedException
      */
     public function build(array $buildSubject): array

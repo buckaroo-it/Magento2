@@ -56,7 +56,7 @@ class BuckarooStatusCode
      *
      * @var array $statusCode
      */
-    private array $statusCodes = [
+    private $statusCodes = [
         'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'               => 190,
         'BUCKAROO_MAGENTO2_STATUSCODE_FAILED'                => 490,
         'BUCKAROO_MAGENTO2_STATUSCODE_VALIDATION_FAILURE'    => 491,
@@ -80,6 +80,7 @@ class BuckarooStatusCode
      * Get Response Message by Response Code
      *
      * @param int $responseCode
+     *
      * @return string
      */
     public function getResponseMessage(int $responseCode): string
@@ -91,6 +92,7 @@ class BuckarooStatusCode
      * Return the requested status key with the value, or null if not found
      *
      * @param int $responseCode
+     *
      * @return string
      */
     public function getStatusKey(int $responseCode): string

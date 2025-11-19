@@ -27,14 +27,15 @@ interface SecondChanceSearchResultsInterface extends SearchResultsInterface
     /**
      * Get SecondChance list.
      *
-     * @return \Buckaroo\Magento2\Api\Data\SecondChanceInterface[]
+     * @return SecondChanceInterface[]
      */
     public function getItems();
 
     /**
      * Set SecondChance list.
      *
-     * @param \Buckaroo\Magento2\Api\Data\SecondChanceInterface[] $items
+     * @param SecondChanceInterface[] $items
+     *
      * @return $this
      */
     public function setItems(array $items);

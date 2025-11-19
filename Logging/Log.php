@@ -29,8 +29,8 @@ use Psr\Log\LoggerInterface;
 
 class Log implements BuckarooLoggerInterface
 {
-    private DebugConfiguration $debugConfiguration;
-    private Logger $logger;
+    private $debugConfiguration;
+    private $logger;
 
     public function __construct(
         DebugConfiguration $debugConfiguration,

@@ -43,6 +43,9 @@ class PaymentMethodDataBuilderTest extends AbstractDataBuilderTest
 
     /**
      * @dataProvider buildDataProvider
+     *
+     * @param string $payment_method
+     * @param string $expectedResult
      */
     public function testBuild(string $payment_method, string $expectedResult): void
     {

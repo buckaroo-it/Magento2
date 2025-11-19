@@ -48,8 +48,9 @@ class CredentialsChecker extends Field
     /**
      * Get Test Credentials button html
      *
-     * @return string
      * @throws LocalizedException
+     *
+     * @return string
      */
     public function getHtml()
     {
@@ -63,6 +64,7 @@ class CredentialsChecker extends Field
      * Return element html
      *
      * @param AbstractElement $element
+     *
      * @return string
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)

@@ -33,14 +33,14 @@ class VerificationMethod extends MagentoFieldset
     /**
      * @var LogoService
      */
-    protected LogoService $logoService;
+    protected $logoService;
 
     /**
-     * @param Context $context
-     * @param Session $authSession
-     * @param Js $jsHelper
-     * @param LogoService $logoService
-     * @param array $data
+     * @param Context                 $context
+     * @param Session                 $authSession
+     * @param Js                      $jsHelper
+     * @param LogoService             $logoService
+     * @param array                   $data
      * @param SecureHtmlRenderer|null $secureRenderer
      */
     public function __construct(
@@ -59,6 +59,7 @@ class VerificationMethod extends MagentoFieldset
      * Get frontend class
      *
      * @param AbstractElement $element
+     *
      * @return string
      */
     protected function _getFrontendClass($element): string
@@ -66,12 +67,11 @@ class VerificationMethod extends MagentoFieldset
         return parent::_getFrontendClass($element). ' bk-payment-method';
     }
 
-
-
     /**
      * Get the header title HTML including a logo.
      *
      * @param AbstractElement $element
+     *
      * @return string
      */
     protected function _getHeaderTitleHtml($element): string
@@ -88,6 +88,7 @@ class VerificationMethod extends MagentoFieldset
 
     /**
      * @param AbstractElement $element
+     *
      * @return string
      */
     private function getTabImgAndLink($element)
@@ -103,6 +104,7 @@ class VerificationMethod extends MagentoFieldset
      * Get logo
      *
      * @param string $code
+     *
      * @return string
      */
     private function getLogo(string $code): string

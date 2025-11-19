@@ -33,17 +33,17 @@ class PaymentDetailsHandler implements HandlerInterface
     /**
      * @var Data
      */
-    protected Data $helper;
+    protected $helper;
 
     /**
      * @var BuckarooResponseDataInterface
      */
-    protected BuckarooResponseDataInterface $buckarooResponseData;
+    protected $buckarooResponseData;
 
     /**
      * Constructor
      *
-     * @param Data $helper
+     * @param Data                          $helper
      * @param BuckarooResponseDataInterface $buckarooResponseData
      */
     public function __construct(
@@ -59,6 +59,13 @@ class PaymentDetailsHandler implements HandlerInterface
      */
     public function handle(array $handlingSubject, array $response)
     {
+        // Skip if refund was already completed via group transactions
+        if (isset($response['group_transaction_refund_complete']) 
+            && $response['group_transaction_refund_complete'] === true
+        ) {
+            return;
+        }
+
         $paymentDO = SubjectReader::readPayment($handlingSubject);
         /** @var OrderPaymentInterface $payment */
         $payment = $paymentDO->getPayment();

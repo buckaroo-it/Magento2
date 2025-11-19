@@ -32,21 +32,21 @@ class ValidateProduct implements HttpPostActionInterface
     /**
      * @var JsonFactory
      */
-    private JsonFactory $resultJsonFactory;
+    private $resultJsonFactory;
 
     /**
      * @var RequestInterface
      */
-    private RequestInterface $request;
+    private $request;
 
     /**
      * @var ProductValidationService
      */
-    private ProductValidationService $productValidationService;
+    private $productValidationService;
 
     /**
-     * @param JsonFactory $resultJsonFactory
-     * @param RequestInterface $request
+     * @param JsonFactory              $resultJsonFactory
+     * @param RequestInterface         $request
      * @param ProductValidationService $productValidationService
      */
     public function __construct(

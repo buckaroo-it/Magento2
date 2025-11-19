@@ -31,6 +31,7 @@ class CreateCreditNote
      * Set services parameters for credit not credit management
      *
      * @param OrderPaymentInterface|InfoInterface $payment
+     *
      * @return array
      */
     public function get($payment): array

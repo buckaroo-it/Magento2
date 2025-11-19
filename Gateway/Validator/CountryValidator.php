@@ -32,6 +32,7 @@ class CountryValidator extends AbstractValidator
      * Validate country
      *
      * @param array $validationSubject
+     *
      * @return ResultInterface
      */
     public function validate(array $validationSubject): ResultInterface

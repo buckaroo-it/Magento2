@@ -24,6 +24,7 @@ use Buckaroo\Magento2\Api\Data\PushRequestInterface;
 use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
+use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\ConfigProvider\Refund;
 use Buckaroo\Magento2\Model\ConfigProvider\Refund as RefundConfigProvider;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -33,6 +34,7 @@ use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Creditmemo;
 use Magento\Sales\Model\Order\CreditmemoFactory;
 use Magento\Sales\Model\Order\Email\Sender\CreditmemoSender;
+use Magento\Store\Model\ScopeInterface;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -79,7 +81,7 @@ class Push
     /**
      * @var BuckarooLoggerInterface $logger
      */
-    public BuckarooLoggerInterface $logger;
+    public $logger;
 
     /**
      * @var ScopeConfigInterface
@@ -92,13 +94,13 @@ class Push
     private $creditmemoManagement;
 
     /**
-     * @param CreditmemoFactory $creditmemoFactory
+     * @param CreditmemoFactory             $creditmemoFactory
      * @param CreditmemoManagementInterface $creditmemoManagement
-     * @param CreditmemoSender $creditEmailSender
-     * @param Refund $configRefund
-     * @param Data $helper
-     * @param BuckarooLoggerInterface $logger
-     * @param ScopeConfigInterface $scopeConfig
+     * @param CreditmemoSender              $creditEmailSender
+     * @param Refund                        $configRefund
+     * @param Data                          $helper
+     * @param BuckarooLoggerInterface       $logger
+     * @param ScopeConfigInterface          $scopeConfig
      */
     public function __construct(
         CreditmemoFactory $creditmemoFactory,
@@ -123,11 +125,12 @@ class Push
      * This Function will result in a creditmemo being created for the order in question.
      *
      * @param PushRequestInterface $postData
-     * @param bool $signatureValidation
-     * @param $order
+     * @param bool                 $signatureValidation
+     * @param                      $order
+     *
+     * @throws BuckarooException
      *
      * @return bool
-     * @throws BuckarooException
      */
     public function receiveRefundPush(PushRequestInterface $postData, bool $signatureValidation, $order): bool
     {
@@ -179,6 +182,23 @@ class Push
             return false;
         }
 
+        $statusCode = (int)$this->postData->getStatusCode();
+        if ($statusCode !== BuckarooStatusCode::SUCCESS) {
+            $this->logger->addError(sprintf(
+                '[PUSH_REFUND] | [Webapi] | [%s:%s] - Refund FAILED at Buckaroo | Status: %s | Message: %s | Order: %s',
+                __METHOD__,
+                __LINE__,
+                $statusCode,
+                $this->postData->getStatusMessage(),
+                $this->order->getIncrementId()
+            ));
+            throw new BuckarooException(__(
+                'Buckaroo refund failed with status %1: %2',
+                $statusCode,
+                $this->postData->getStatusMessage()
+            ));
+        }
+
         $creditmemo = $this->createCreditmemo();
 
         $this->logger->addDebug(sprintf(
@@ -194,8 +214,9 @@ class Push
     /**
      * Create the creditmemo
      *
-     * @return bool
      * @throws LocalizedException
+     *
+     * @return bool
      */
     public function createCreditmemo(): bool
     {
@@ -233,14 +254,6 @@ class Push
                 $this->creditEmailSender->send($creditmemo);
                 return true;
             } else {
-                $this->logger->addError(sprintf(
-                    '[PUSH_REFUND] | [Webapi] | [%s:%s] - Failed to create the creditmemo' .
-                    'method saveCreditmemo return value: %s',
-                    __METHOD__,
-                    __LINE__,
-                    print_r($creditmemo, true)
-                ));
-
                 throw new BuckarooException(
                     __('Failed to create the creditmemo')
                 );
@@ -298,13 +311,6 @@ class Push
             $data['items'] = $this->getCreditmemoDataItems();
             $data['qtys'] = $this->setCreditQtys($data['items']);
         }
-
-        $this->logger->addDebug(sprintf(
-            '[PUSH_REFUND] | [Webapi] | [%s:%s] - The credit memo data | data: %s',
-            __METHOD__,
-            __LINE__,
-            print_r($data, true)
-        ));
 
         return $data;
     }
@@ -375,13 +381,6 @@ class Push
             }
         }
 
-        $this->logger->addDebug(sprintf(
-            '[PUSH_REFUND] | [Webapi] | [%s:%s] - Total items to be refunded: %s',
-            __METHOD__,
-            __LINE__,
-            print_r($items, true)
-        ));
-
         return $items;
     }
 
@@ -389,6 +388,7 @@ class Push
      * Set quantity items
      *
      * @param array $items
+     *
      * @return array $qtys
      */
     public function setCreditQtys($items): array
@@ -413,7 +413,7 @@ class Push
     {
         $includesTax = $this->scopeConfig->getValue(
             static::TAX_CALCULATION_SHIPPING_INCLUDES_TAX,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            ScopeInterface::SCOPE_STORE
         );
 
         if ($includesTax) {
@@ -488,19 +488,28 @@ class Push
      * Create credit memo by order and refund data
      *
      * @param array $creditData
-     * @return Creditmemo|false
+     *
      * @throws LocalizedException
+     *
+     * @return Creditmemo|false
      */
     public function initCreditmemo(array $creditData)
     {
         try {
             $creditmemo = $this->creditmemoFactory->createByOrder($this->order, $creditData);
 
+            // Respect Magento's auto-return configuration instead of hardcoding to false
+            $autoReturn = $this->scopeConfig->isSetFlag(
+                'cataloginventory/item_options/auto_return',
+                ScopeInterface::SCOPE_STORE,
+                $this->order->getStoreId()
+            );
+
             foreach ($creditmemo->getAllItems() as $creditmemoItem) {
                 /**
                  * @noinspection PhpUndefinedMethodInspection
                  */
-                $creditmemoItem->setBackToStock(false);
+                $creditmemoItem->setBackToStock($autoReturn);
             }
 
             return $creditmemo;

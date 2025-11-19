@@ -30,7 +30,7 @@ class AmountDataBuilder extends AbstractDataBuilder
     /**
      * @var PayReminderService
      */
-    private PayReminderService $payReminderService;
+    private $payReminderService;
 
     /**
      * @param PayReminderService $payReminderService

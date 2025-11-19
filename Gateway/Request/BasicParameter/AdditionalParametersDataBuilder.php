@@ -9,18 +9,18 @@ class AdditionalParametersDataBuilder implements BuilderInterface
     /**
      * @var string
      */
-    private string $action;
+    private $action;
 
     /**
      * @var array
      */
-    private array $additionalParameters;
+    private $additionalParameters;
 
     /**
      * Constructor
      *
      * @param string $action
-     * @param array $additionalParameters
+     * @param array  $additionalParameters
      */
     public function __construct(
         string $action,
@@ -34,6 +34,7 @@ class AdditionalParametersDataBuilder implements BuilderInterface
      * Set service action
      *
      * @param array $buildSubject
+     *
      * @return array[]
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
@@ -49,6 +50,7 @@ class AdditionalParametersDataBuilder implements BuilderInterface
      * Get additional parameters
      *
      * @param array $buildSubject
+     *
      * @return array
      */
     private function getAdditionalParameters(array $buildSubject): array
@@ -83,6 +85,7 @@ class AdditionalParametersDataBuilder implements BuilderInterface
      * Set service action
      *
      * @param string $action
+     *
      * @return $this
      */
     public function setAction(string $action): AdditionalParametersDataBuilder
@@ -107,6 +110,7 @@ class AdditionalParametersDataBuilder implements BuilderInterface
      *
      * @param string $key
      * @param string $value
+     *
      * @return $this
      */
     public function setAdditionalParameter(string $key, string $value): AdditionalParametersDataBuilder
@@ -120,6 +124,7 @@ class AdditionalParametersDataBuilder implements BuilderInterface
      * Get additional parameter by key
      *
      * @param string $key
+     *
      * @return string|null
      */
     public function getAdditionalParameter(string $key): ?string

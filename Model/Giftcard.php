@@ -38,8 +38,6 @@ class Giftcard extends AbstractModel implements GiftcardInterface
 
     /**
      * Initialize resource model
-     *
-     * @return void
      */
     protected function _construct()
     {
@@ -89,7 +87,6 @@ class Giftcard extends AbstractModel implements GiftcardInterface
     }
 
     /**
-     *
      * @return string|null
      */
     public function getAcquirer()

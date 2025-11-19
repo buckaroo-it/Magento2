@@ -30,7 +30,7 @@ class TransferOrderDataBuilder implements BuilderInterface
     /**
      * @var Transfer
      */
-    protected Transfer $transferConfig;
+    protected $transferConfig;
 
     /**
      * @param Transfer $transferConfig

@@ -34,17 +34,17 @@ class StatusesPending implements OptionSourceInterface
      *
      * @var Config
      */
-    protected Config $orderConfig;
+    protected $orderConfig;
 
     /**
      * @var Factory
      */
-    protected Factory $configProviderFactory;
+    protected $configProviderFactory;
 
     /**
      * Class constructor
      *
-     * @param Config $orderConfig
+     * @param Config  $orderConfig
      * @param Factory $configProviderFactory
      */
     public function __construct(
@@ -58,8 +58,9 @@ class StatusesPending implements OptionSourceInterface
     /**
      * Options getter
      *
-     * @return array
      * @throws Exception
+     *
+     * @return array
      */
     public function toOptionArray()
     {

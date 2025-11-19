@@ -21,7 +21,6 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Block\Config\Form\Field;
 
-
 use Magento\Backend\Block\Context;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\RequestInterface;
@@ -153,7 +152,7 @@ class FieldsetTest extends BaseTest
     {
         $requestMock = $this->getFakeMock(RequestInterface::class)->getMockForAbstractClass();
         $requestMock->method('getParam')
-            ->willReturnCallback(function($param, $default = null) use ($store, $website) {
+            ->willReturnCallback(function ($param, $default = null) use ($store, $website) {
                 // Use the parameters to avoid PHPMD warnings
                 if ($param === 'store') {
                     return $store;

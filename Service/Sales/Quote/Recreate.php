@@ -23,12 +23,14 @@ use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Checkout\Model\Cart;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\QuoteFactory;
 use Magento\Catalog\Model\ProductFactory;
 use Magento\Quote\Api\CartManagementInterface;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Quote\Model\ResourceModel\Quote\Address as QuoteAddressResource;
 use Buckaroo\Magento2\Logging\Log;
+use Magento\Sales\Model\Order;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -75,12 +77,12 @@ class Recreate
      * Constructor
      *
      * @param CartRepositoryInterface $cartRepository
-     * @param CheckoutSession $checkoutSession
-     * @param QuoteFactory $quoteFactory
-     * @param ProductFactory $productFactory
-     * @param ManagerInterface $messageManager
-     * @param Log $logger
-     * @param StoreManagerInterface $storeManager
+     * @param CheckoutSession         $checkoutSession
+     * @param QuoteFactory            $quoteFactory
+     * @param ProductFactory          $productFactory
+     * @param ManagerInterface        $messageManager
+     * @param Log                     $logger
+     * @param StoreManagerInterface   $storeManager
      */
     public function __construct(
         CartRepositoryInterface $cartRepository,
@@ -103,8 +105,9 @@ class Recreate
     /**
      * Recreate the quote by resetting necessary fields
      *
-     * @param \Magento\Quote\Model\Quote $quote
-     * @return \Magento\Quote\Model\Quote|false
+     * @param Quote $quote
+     *
+     * @return Quote|false
      */
     public function recreate($quote)
     {
@@ -130,7 +133,8 @@ class Recreate
      * Recreate the quote by Quote ID
      *
      * @param int $quoteId
-     * @return \Magento\Quote\Model\Quote|null
+     *
+     * @return Quote|null
      */
     public function recreateById($quoteId)
     {
@@ -189,9 +193,11 @@ class Recreate
     /**
      * Duplicate order to create new quote
      *
-     * @param \Magento\Sales\Model\Order $order
+     * @param Order $order
      * @param array $response
-     * @return \Magento\Quote\Model\Quote|null
+     *
+     * @return Quote|null
+     *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
@@ -209,7 +215,19 @@ class Recreate
 
             // Create new quote
             $quote = $this->quoteFactory->create();
-            $quote->setStore($order->getStore());
+
+            // Set store context to ensure correct locale/translations
+            $store = $this->storeManager->getStore($order->getStoreId());
+            $this->storeManager->setCurrentStore($store);
+            $quote->setStore($store);
+            $quote->setStoreId($order->getStoreId());
+
+            $this->logger->addDebug('Second Chance: Store context set', [
+                'order_id' => $order->getIncrementId(),
+                'store_id' => $order->getStoreId(),
+                'store_code' => $store->getCode(),
+                'locale' => $store->getConfig('general/locale/code')
+            ]);
 
             // Copy customer data
             if ($order->getCustomerId()) {
@@ -318,9 +336,10 @@ class Recreate
     /**
      * Additional merge for custom data
      *
-     * @param \Magento\Quote\Model\Quote $oldQuote
-     * @param \Magento\Quote\Model\Quote $quote
+     * @param Quote $oldQuote
+     * @param Quote $quote
      * @param array $response
+     *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     private function additionalMerge($oldQuote, $quote, $response = [])
@@ -351,8 +370,8 @@ class Recreate
     /**
      * Set payment from flag
      *
-     * @param \Magento\Quote\Model\Quote $quote
-     * @param \Magento\Quote\Model\Quote $oldQuote
+     * @param Quote $quote
+     * @param Quote $oldQuote
      */
     protected function setPaymentFromFlag($quote, $oldQuote)
     {

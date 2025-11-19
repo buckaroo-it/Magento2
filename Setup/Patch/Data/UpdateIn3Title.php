@@ -8,7 +8,7 @@ use Magento\Framework\Setup\Patch\DataPatchInterface;
 
 class UpdateIn3Title implements DataPatchInterface
 {
-    private ModuleDataSetupInterface $moduleDataSetup;
+    private $moduleDataSetup;
 
     public function __construct(
         ModuleDataSetupInterface $moduleDataSetup

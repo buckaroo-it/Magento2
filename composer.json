@@ -23,7 +23,7 @@
         "magento/module-tax": "^100.4",
         "magento/module-ui": "^101.2",
         "laminas/laminas-validator": "^2.64",
-        "buckaroo/sdk": "^1.19.0",
+        "buckaroo/sdk": "^1.20.0",
         "monolog/monolog": "^2.9 || ^3.0",
         "phpunit/phpunit": "^9.5 || ^10.5",
         "psr/log": "^2.0 || ^3.0",
@@ -46,7 +46,7 @@
         "docs": "https://docs.buckaroo.io/"
     },
     "homepage": "https://www.buckaroo.nl",
-    "version" : "v2.0.3",
+    "version" : "v2.1.0",
     "minimum-stability": "stable",
     "autoload": {
         "files": [

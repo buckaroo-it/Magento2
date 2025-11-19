@@ -45,6 +45,7 @@ class Paypal extends AbstractConfigProvider
      * Get Sellers Protection
      *
      * @param null|int|string $store
+     *
      * @return mixed
      */
     public function getSellersProtection($store = null)
@@ -56,6 +57,7 @@ class Paypal extends AbstractConfigProvider
      * Get Sellers Protection Eligible
      *
      * @param null|int|string $store
+     *
      * @return mixed
      */
     public function getSellersProtectionEligible($store = null)
@@ -67,6 +69,7 @@ class Paypal extends AbstractConfigProvider
      * Get Sellers Protection Ineligible
      *
      * @param null|int|string $store
+     *
      * @return mixed
      */
     public function getSellersProtectionIneligible($store = null)
@@ -78,6 +81,7 @@ class Paypal extends AbstractConfigProvider
      * Get Sellers Protection Unauthorizedpayment Eligible
      *
      * @param null|int|string $store
+     *
      * @return mixed
      */
     public function getSellersProtectionItemnotreceivedEligible($store = null)
@@ -89,6 +93,7 @@ class Paypal extends AbstractConfigProvider
      * Get Sellers Protection Unauthorizedpayment Eligible
      *
      * @param null|int|string $store
+     *
      * @return mixed
      */
     public function getSellersProtectionUnauthorizedpaymentEligible($store = null)
@@ -100,6 +105,7 @@ class Paypal extends AbstractConfigProvider
      * Get PayPal merchant ID
      *
      * @param null|int|string $store
+     *
      * @return mixed
      */
     public function getExpressMerchantId($store = null)
@@ -111,6 +117,7 @@ class Paypal extends AbstractConfigProvider
      * Get PayPal express button color
      *
      * @param null|int|string $store
+     *
      * @return string
      */
     public function getButtonColor($store = null): string
@@ -122,6 +129,7 @@ class Paypal extends AbstractConfigProvider
      * Get PayPal express button shape
      *
      * @param null|int|string $store
+     *
      * @return string
      */
     public function getButtonShape($store = null): string
@@ -134,8 +142,10 @@ class Paypal extends AbstractConfigProvider
     /**
      * Test if express button is enabled for the $page
      *
-     * @param string $page
-     * @return boolean
+     * @param string     $page
+     * @param null|mixed $store
+     *
+     * @return bool
      */
     public function canShowButtonForPage($page, $store = null)
     {
@@ -152,6 +162,7 @@ class Paypal extends AbstractConfigProvider
      * Enable or disable Paypal express buttons
      *
      * @param null|int|string $store
+     *
      * @return mixed
      */
     public function getExpressButtons($store = null)
@@ -161,6 +172,7 @@ class Paypal extends AbstractConfigProvider
 
     /**
      * @param null $store
+     *
      * @return string|int|float
      */
     public function getPaymentFee($store = null)

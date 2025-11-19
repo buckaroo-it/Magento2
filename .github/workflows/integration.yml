@@ -7,46 +7,32 @@ on:
 
 jobs:
   integration-tests:
-    name: Integration Tests - PHP ${{ matrix.php }} / Magento ${{ matrix.magento }}
+    name: Magento 2 Integration Tests
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - php: '8.1'
-            magento: '2.4.6'
-          - php: '8.2'
-            magento: '2.4.6'
-          - php: '8.2'
-            magento: '2.4.7'
-          - php: '8.3'
-            magento: '2.4.7'
-          - php: '8.3'
-            magento: '2.4.8'
-          - php: '8.4'
-            magento: '2.4.8'
     services:
       mysql:
-        image: mysql:5.7
+        image: mysql:8.0
         env:
           MYSQL_ROOT_PASSWORD: root
         ports:
           - 3306:3306
         options: --tmpfs /tmp:rw --tmpfs /var/lib/mysql:rw --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
       es:
-        image: docker.io/wardenenv/elasticsearch:7.8
+        image: opensearchproject/opensearch:2.5.0
         ports:
           - 9200:9200
         env:
-          'discovery.type': single-node
-          'xpack.security.enabled': false
-          ES_JAVA_OPTS: "-Xms64m -Xmx512m"
-        options: --health-cmd="curl localhost:9200/_cluster/health?wait_for_status=yellow&timeout=60s" --health-interval=10s --health-timeout=5s --health-retries=3
+          discovery.type: single-node
+          plugins.security.disabled: true
+          OPENSEARCH_JAVA_OPTS: "-Xms512m -Xmx512m"
+          DISABLE_INSTALL_DEMO_CONFIG: true
+          compatibility.override_main_response_version: true
+        options: --health-cmd="curl -f localhost:9200/_cluster/health?wait_for_status=yellow&timeout=60s" --health-interval=10s --health-timeout=5s --health-retries=5
     steps:
-      - uses: actions/checkout@v3
-      - name: M2 Integration Tests with Magento ${{ matrix.magento }} (PHP ${{ matrix.php }})
-        uses: extdn/github-actions-m2/magento-integration-tests/${{ matrix.php }}@master
+      - uses: actions/checkout@v4
+      - name: M2 Integration Tests with Magento 2.4.8-p3 (PHP 8.3)
+        uses: extdn/github-actions-m2/magento-integration-tests/8.3@master
         with:
           module_name: Buckaroo_Magento2
           composer_name: buckaroo/magento2
-          ce_version: ${{ matrix.magento }}
+          ce_version: '2.4.8-p3'

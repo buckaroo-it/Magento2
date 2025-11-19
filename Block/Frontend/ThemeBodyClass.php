@@ -32,7 +32,7 @@ class ThemeBodyClass extends Template
 
     /**
      * @param Context $context
-     * @param array $data
+     * @param array   $data
      */
     public function __construct(Context $context, array $data = [])
     {

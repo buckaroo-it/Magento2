@@ -21,7 +21,6 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
-
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\CapayableIn3;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -54,7 +53,7 @@ class CapayablePostpayTest extends BaseTest
             ->onlyMethods(['getValue'])
             ->getMockForAbstractClass();
         $scopeConfigMock->method('getValue')
-            ->willReturnCallback(function($path, $scope = null, $scopeId = null) {
+            ->willReturnCallback(function ($path, $scope = null, $scopeId = null) {
                 // Use parameters to avoid PHPMD warnings
                 unset($scope, $scopeId);
 

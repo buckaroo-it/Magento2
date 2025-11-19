@@ -34,16 +34,16 @@ class ClientIPDataBuilder implements BuilderInterface
     /**
      * @var RequestInterface
      */
-    protected RequestInterface $httpRequest;
+    protected $httpRequest;
     /**
      * @var Account
      */
-    private Account $configProviderAccount;
+    private $configProviderAccount;
 
     /**
      * Constructor
      *
-     * @param Account $configProviderAccount
+     * @param Account          $configProviderAccount
      * @param RequestInterface $httpRequest
      */
     public function __construct(
@@ -76,9 +76,10 @@ class ClientIPDataBuilder implements BuilderInterface
      * Get client ip
      *
      * @param Order $order
-     * @return false|float|string|null
+     *
+     * @return string
      */
-    public function getIp(Order $order)
+    public function getIp(Order $order): string
     {
         $ip = $order->getRemoteIp();
         $store = $order->getStore();
@@ -97,7 +98,8 @@ class ClientIPDataBuilder implements BuilderInterface
                 $headers
             );
 
-            return $remoteAddress->getRemoteAddress();
+            $remoteIp = $remoteAddress->getRemoteAddress();
+            return $remoteIp ?: '0.0.0.0';
         }
 
         // trustly anyway should be w/o private ip
@@ -117,13 +119,14 @@ class ClientIPDataBuilder implements BuilderInterface
             $ip = $remoteAddress->getRemoteAddress();
         }
 
-        return $ip;
+        return (string)$ip ?: '0.0.0.0';
     }
 
     /**
      * Check if it is private IP
      *
      * @param string $ip
+     *
      * @return bool
      */
     private function isIpPrivate(string $ip): bool

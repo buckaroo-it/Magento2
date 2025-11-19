@@ -38,7 +38,7 @@ class Index extends Action implements HttpGetActionInterface
     protected $resultPageFactory;
 
     /**
-     * @var  GiftcardFactory
+     * @var GiftcardFactory
      */
     protected $giftcardFactory;
 
@@ -58,12 +58,12 @@ class Index extends Action implements HttpGetActionInterface
     protected $adapterFactory;
 
     /**
-     * @param Context $context
-     * @param PageFactory $resultPageFactory
+     * @param Context         $context
+     * @param PageFactory     $resultPageFactory
      * @param GiftcardFactory $giftcardFactory
-     * @param Filesystem $fileSystem
+     * @param Filesystem      $fileSystem
      * @param UploaderFactory $uploaderFactory
-     * @param AdapterFactory $adapterFactory
+     * @param AdapterFactory  $adapterFactory
      */
     public function __construct(
         Context $context,

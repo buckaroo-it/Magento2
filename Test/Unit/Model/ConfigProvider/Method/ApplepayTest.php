@@ -25,9 +25,10 @@ class ApplepayTest extends BaseTest
         ];
     }
 
-    #[DataProvider('configProvider')]
     /**
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     *
+     * @param bool $active
      */
     public function testGetConfig(bool $active): void
     {

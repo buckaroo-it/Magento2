@@ -6,7 +6,7 @@
                 <input type="radio"
                        name="payment[method]"
                        class="radio"
-                       data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
+                       data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()">
                 <label class="label" data-bind="attr: {'for': getCode()}" >
                         <!-- ko text: getTitle() --><!-- /ko -->
                         <!-- ko if: buckaroo.subtext !== null && buckaroo.subtext.length > 0 -->
@@ -82,7 +82,7 @@
                        name="payment[method]"
                        class="radio"
                        data-bind="attr: {'id': code}, value: code, checked: $parent.currentGiftcard,
-                       event: { change:$parent.selectGiftcardMethod.bind($parent, code)}"/>
+                       event: { change:$parent.selectGiftcardMethod.bind($parent, code)}">
                 <label class="label" data-bind="attr: {'for': code}" >
                     <!-- ko text: title --><!-- /ko -->
                 </label>
@@ -119,7 +119,7 @@
                     <div class="fieldset card_front width-100">
 
                         <div class="field required width-100" >
-                            <label class="label" for="buckaroo_magento2_giftcards_cardnumber"> <span data-bind="i18n: 'Card number:'"> </span> </label>
+                            <label class="label" data-bind="attr: {'for': 'buckaroo_magento2_giftcards_cardnumber_' + code}"> <span data-bind="i18n: 'Card number:'"> </span> </label>
                             <div class="control">
                                 <input type="text"
                                        class="input-text field buckaroo_magento2_giftcards_input"
@@ -128,6 +128,7 @@
                                         valueUpdate: 'blur',
                                         value: $parent.cardNumber,
                                         attr: {
+                                            'id': 'buckaroo_magento2_giftcards_cardnumber_' + code,
                                             'data-card': code,
                                             'data-validate': JSON.stringify({ 'required': true })
                                         }">
@@ -139,7 +140,7 @@
                         <div class="magnet_stripe width-100"></div>
 
                         <div class="field required card_security width-100" >
-                            <label class="label width-65-l" for="buckaroo_magento2_giftcards_pin"> <span data-bind="i18n: 'PIN / Security code:'"> </span> </label>
+                            <label class="label width-65-l" data-bind="attr: {'for': 'buckaroo_magento2_giftcards_pin_' + code}"> <span data-bind="i18n: 'PIN / Security code:'"> </span> </label>
                             <div class="control card-info-input width-25-l">
                                 <input type="text"
                                        class="input-text field buckaroo_magento2_giftcards_input"
@@ -148,23 +149,20 @@
                                         valueUpdate: 'blur',
                                         value: $parent.pin,
                                         attr: {
+                                            'id': 'buckaroo_magento2_giftcards_pin_' + code,
                                             'data-validate': JSON.stringify({ 'required': true })
                                         }">
                             </div>
                         </div>
                     </div>
 
-                    <div class="field width-100">
-                        <span data-bind="i18n: 'Please make sure all fields are filled in correctly before proceeding.' "></span>
-                        <span class="apply-gift-card action primary" data-bind="
-                            click: $parent.applyGiftcard.bind($parent),
-                            i18n: 'Apply Gift Card'">
-                        </span>
-                    </div>
-
                     </div>
                 </fieldset>
             </form>
+
+            <div class="field width-100" style="margin-top: 15px;">
+                <span data-bind="i18n: 'Please make sure all fields are filled in correctly before proceeding.' "></span>
+            </div>
 
             <div class="checkout-agreements-block">
                 <!-- ko foreach: $parents[1].getRegion('before-place-order') -->
@@ -172,7 +170,24 @@
                 <!--/ko-->
             </div>
 
-             <!-- ko if: $parent.alreadyFullPayed() -->
+            <!-- ko if: !$parent.alreadyFullPayed() -->
+            <div class="actions-toolbar">
+                <div class="primary">
+                    <button class="action primary checkout"
+                            type="submit"
+                            data-bind="
+                            click: $parent.applyGiftcard.bind($parent),
+                            attr: {title: $t('Apply Gift Card')},
+                            enable: ($parent.getCode() == $parent.isChecked() && $parent.currentGiftcard() == code)
+                            "
+                            disabled>
+                        <span data-bind="i18n: 'Apply Gift Card'"></span>
+                    </button>
+                </div>
+            </div>
+            <!--/ko-->
+
+            <!-- ko if: $parent.alreadyFullPayed() -->
             <div class="actions-toolbar">
                 <div class="primary">
                     <button class="action primary checkout"

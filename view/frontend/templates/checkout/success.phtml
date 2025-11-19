@@ -18,6 +18,53 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 ?>
+<?php /** @var $block \Buckaroo\Magento2\Block\Checkout\Success */ ?>
+<?php if ($block->isTransferPayment()): ?>
+    <?php $details = $block->getTransferDetails(); ?>
+    <?php if (!empty($details)): ?>
+        <div class="buckaroo-transfer-instructions">
+            <?php
+            $amountText = '';
+            if (!empty($details['transfer_amount'])) {
+                $amountText = $block->formatPrice((float)$details['transfer_amount']);
+            }
+            ?>
+            <br>
+            <p><?php echo __('Thank you for your order. You have chosen to pay by transfer. To complete your order, please transfer the outstanding amount, %1, using the details below.', $amountText); ?></p>
+            <br>
+            <dl class="buckaroo-transfer-details">
+                <?php if (!empty($details['transfer_amount'])): ?>
+                    <div class="buckaroo-transfer-row">
+                        <p><strong><?php echo __('Amount'); ?>:</strong> <?php echo $block->escapeHtml($block->formatPrice((float)$details['transfer_amount'])); ?></p>
+                    </div>
+                <?php endif; ?>
+                <?php if (!empty($details['transfer_paymentreference'])): ?>
+                    <div class="buckaroo-transfer-row">
+                        <p><strong><?php echo __('Payment reference'); ?>:</strong> <?php echo $block->escapeHtml($details['transfer_paymentreference']); ?></p>
+                    </div>
+                <?php endif; ?>
+                <?php if (!empty($details['transfer_accountholdername'])): ?>
+                    <div class="buckaroo-transfer-row">
+                        <p><strong><?php echo __('Accountholder'); ?>:</strong> <?php echo $block->escapeHtml($details['transfer_accountholdername']); ?></p>
+                    </div>
+                <?php endif; ?>
+                <?php if (!empty($details['transfer_iban'])): ?>
+                    <div class="buckaroo-transfer-row">
+                        <p><strong><?php echo __('IBAN'); ?>:</strong> <?php echo $block->escapeHtml($details['transfer_iban']); ?></p>
+                    </div>
+                <?php endif; ?>
+                <?php if (!empty($details['transfer_bic'])): ?>
+                    <div class="buckaroo-transfer-row">
+                        <p><strong><?php echo __('BIC'); ?>:</strong> <?php echo $block->escapeHtml($details['transfer_bic']); ?></p>
+                    </div>
+                <?php endif; ?>
+            </dl>
+            <?php if (!empty($details['transfer_paymentreference'])): ?>
+                <p><strong><?php echo __('NB'); ?>:</strong> <?php echo __('To ensure that your payment can be processed smoothly, you must quote the payment reference %1 in the description of your transfer. This will enable faster processing of the payment.', $block->escapeHtml($details['transfer_paymentreference'])); ?></p>
+            <?php endif; ?>
+        </div>
+    <?php endif; ?>
+<?php endif; ?>
 <script type="text/x-magento-init">
 {
     "*": {

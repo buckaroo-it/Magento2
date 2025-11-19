@@ -217,13 +217,13 @@
                 <can_use_internal>1</can_use_internal>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
-                
+
                 <!-- Hosted Fields Placeholder Defaults -->
                 <placeholder_cardholder_name>John Doe</placeholder_cardholder_name>
                 <placeholder_card_number>555x xxxx xxxx xxxx</placeholder_card_number>
                 <placeholder_expiry_date>MM / YY</placeholder_expiry_date>
                 <placeholder_cvc>1234</placeholder_cvc>
-                
+
                 <!-- Hosted Fields Styling Defaults -->
                 <field_text_color>#333333</field_text_color>
                 <field_background_color>#fefefe</field_background_color>
@@ -232,7 +232,7 @@
                 <field_font_size>14px</field_font_size>
                 <field_font_family>Open Sans, Helvetica Neue, Helvetica, Arial, sans-serif</field_font_family>
                 <field_border_radius>5px</field_border_radius>
-                
+
                 <!-- Default allowed credit cards for hosted fields - all enabled by default -->
                 <allowed_issuers>Visa,MasterCard,Amex,Maestro</allowed_issuers>
             </buckaroo_magento2_creditcards>
@@ -313,6 +313,75 @@
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
             </buckaroo_magento2_belfius>
+
+            <buckaroo_magento2_bizum>
+                <active>0</active>
+                <model>BizumFacade</model>
+                <order_status>pending</order_status>
+                <title>Bizum</title>
+                <allowspecific>0</allowspecific>
+                <sort_order>151</sort_order>
+                <order_email>1</order_email>
+                <group>buckaroo_magento2</group>
+                <payment_action>order</payment_action>
+                <available_in_backend>0</available_in_backend>
+                <can_authorize>0</can_authorize>
+                <can_capture>0</can_capture>
+                <can_capture_partial>0</can_capture_partial>
+                <can_order>1</can_order>
+                <can_void>1</can_void>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_use_internal>1</can_use_internal>
+                <can_use_checkout>1</can_use_checkout>
+                <is_gateway>1</is_gateway>
+            </buckaroo_magento2_bizum>
+
+            <buckaroo_magento2_swish>
+                <active>0</active>
+                <model>SwishFacade</model>
+                <order_status>pending</order_status>
+                <title>Swish</title>
+                <allowspecific>0</allowspecific>
+                <sort_order>151</sort_order>
+                <order_email>1</order_email>
+                <group>buckaroo_magento2</group>
+                <payment_action>order</payment_action>
+                <available_in_backend>0</available_in_backend>
+                <can_authorize>0</can_authorize>
+                <can_capture>0</can_capture>
+                <can_capture_partial>0</can_capture_partial>
+                <can_order>1</can_order>
+                <can_void>1</can_void>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_use_internal>1</can_use_internal>
+                <can_use_checkout>1</can_use_checkout>
+                <is_gateway>1</is_gateway>
+            </buckaroo_magento2_swish>
+
+            <buckaroo_magento2_twint>
+                <active>0</active>
+                <model>TwintFacade</model>
+                <order_status>pending</order_status>
+                <title>Twint</title>
+                <allowspecific>0</allowspecific>
+                <sort_order>151</sort_order>
+                <order_email>1</order_email>
+                <group>buckaroo_magento2</group>
+                <payment_action>order</payment_action>
+                <available_in_backend>0</available_in_backend>
+                <can_authorize>0</can_authorize>
+                <can_capture>0</can_capture>
+                <can_capture_partial>0</can_capture_partial>
+                <can_order>1</can_order>
+                <can_void>1</can_void>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_use_internal>1</can_use_internal>
+                <can_use_checkout>1</can_use_checkout>
+                <is_gateway>1</is_gateway>
+            </buckaroo_magento2_twint>
 
             <buckaroo_magento2_blik>
                 <active>0</active>
@@ -455,8 +524,8 @@
                 <can_capture_partial>1</can_capture_partial>
                 <can_order>1</can_order>
                 <can_void>1</can_void>
-                <can_refund>0</can_refund>
-                <can_refund_partial_per_invoice>0</can_refund_partial_per_invoice>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
                 <can_use_internal>0</can_use_internal>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
@@ -923,9 +992,10 @@
                 <order_status_pending>pending_payment</order_status_pending>
                 <order_status_success>processing</order_status_success>
                 <order_status_failed>canceled</order_status_failed>
+                <cancel_on_browser_back>0</cancel_on_browser_back>
                 <create_order_before_transaction>1</create_order_before_transaction>
                 <debug_types>300,400,500,550,600</debug_types>
-                <log_handler>1</log_handler>
+                <log_handler>3</log_handler>
                 <log_handler_db_depth>10</log_handler_db_depth>
                 <log_retention>604800</log_retention>
                 <cart_keep_alive>1</cart_keep_alive>

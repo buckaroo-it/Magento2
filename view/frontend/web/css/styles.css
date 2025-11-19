@@ -150,6 +150,14 @@
     margin: 5px 0;
 }
 
+/* Hide datepicker trigger elements */
+.ui-datepicker-trigger,
+.ui-datepicker-trigger + span,
+.control.addon .ui-datepicker-trigger,
+.control.addon .ui-datepicker-trigger + span {
+    display: none !important;
+}
+
 /* ===================== Default / Overwrite Styling ============================= */
 
 .payment-method-second-col input[type="date"] {

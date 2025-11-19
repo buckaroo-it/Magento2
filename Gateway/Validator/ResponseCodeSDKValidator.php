@@ -36,21 +36,21 @@ class ResponseCodeSDKValidator extends AbstractValidator
     /**
      * @var Data $helper
      */
-    protected Data $helper;
+    protected $helper;
 
     /**
      * @var TransactionResponse
      */
-    protected TransactionResponse $transaction;
+    protected $transaction;
 
     /**
      * @var Http
      */
-    protected Http $request;
+    protected $request;
 
     /**
-     * @param Data $helper
-     * @param Http $request
+     * @param Data                   $helper
+     * @param Http                   $request
      * @param ResultInterfaceFactory $resultFactory
      */
     public function __construct(
@@ -67,13 +67,22 @@ class ResponseCodeSDKValidator extends AbstractValidator
      * Performs validation of result code
      *
      * @param array $validationSubject
-     * @return ResultInterface
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     *
      * @throws LocalizedException
+     *
+     * @return ResultInterface
      */
     public function validate(array $validationSubject): ResultInterface
     {
+        // Skip validation if refund was already completed via group transactions
+        if (isset($validationSubject['response']['group_transaction_refund_complete']) 
+            && $validationSubject['response']['group_transaction_refund_complete'] === true
+        ) {
+            return $this->createResult(true, [__('Refund completed via group transactions')]);
+        }
+
         $response = $validationSubject['response']['object'] ?? null;
 
         if (!$response instanceof TransactionResponse) {
@@ -139,6 +148,9 @@ class ResponseCodeSDKValidator extends AbstractValidator
     }
 
     /**
+     * @param array $validationSubject
+     * @param ?int  $statusCode
+     *
      * @throws LocalizedException
      */
     private function handleFailureStatusCode(array $validationSubject, ?int $statusCode): ResultInterface

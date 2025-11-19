@@ -29,7 +29,7 @@ class ArticlesDataBuilder extends AbstractDataBuilder
     /**
      * @var ArticlesHandlerFactory
      */
-    protected ArticlesHandlerFactory $articlesHandlerFactory;
+    protected $articlesHandlerFactory;
 
     public function __construct(ArticlesHandlerFactory $articlesHandlerFactory)
     {

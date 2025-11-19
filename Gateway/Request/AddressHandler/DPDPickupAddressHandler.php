@@ -34,7 +34,7 @@ class DPDPickupAddressHandler extends AbstractAddressHandler
     /**
      * @var CartRepositoryInterface
      */
-    protected CartRepositoryInterface $quoteRepository;
+    protected $quoteRepository;
 
     /**
      * @param BuckarooLoggerInterface $logger
@@ -49,10 +49,12 @@ class DPDPickupAddressHandler extends AbstractAddressHandler
     /**
      * Update shipping address by DPD Pickup point
      *
-     * @param Order $order
+     * @param Order                 $order
      * @param OrderAddressInterface $shippingAddress
-     * @return Order
+     *
      * @throws NoSuchEntityException
+     *
+     * @return Order
      *
      * @SuppressWarnings(PHPMD.UnusedLocalVariable)
      */
@@ -71,8 +73,7 @@ class DPDPickupAddressHandler extends AbstractAddressHandler
      * Set shipping address fields by DPD Parcel
      *
      * @param CartInterface $quote
-     * @param array $requestData
-     * @return void
+     * @param array         $requestData
      *
      * @SuppressWarnings(PHPMD.UnusedLocalVariable)
      */

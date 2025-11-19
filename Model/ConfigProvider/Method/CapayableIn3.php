@@ -63,6 +63,7 @@ class CapayableIn3 extends AbstractConfigProvider
      * Get Logo based on API version
      *
      * @param $storeId
+     *
      * @return string
      */
     public function getLogo($storeId = null): string
@@ -80,6 +81,7 @@ class CapayableIn3 extends AbstractConfigProvider
      * Check if API Version is V2
      *
      * @param $storeId
+     *
      * @return bool
      */
     public function isV2($storeId = null): bool

@@ -31,7 +31,7 @@ class DefaultProcessorPlugin
     /**
      * @var Creditcard
      */
-    protected Creditcard $configProviderCreditcard;
+    protected $configProviderCreditcard;
 
     /**
      * @param Creditcard $configProviderCreditcard
@@ -46,14 +46,16 @@ class DefaultProcessorPlugin
      * After Process Succeeded Push
      *
      * @param DefaultProcessor $subject
-     * @param boolean $result
-     * @param string $newStatus
-     * @param string $message
-     * @return boolean
+     * @param bool             $result
+     * @param string           $newStatus
+     * @param string           $message
      *
      * @SuppressWarnings(PHPMD.NPathComplexity)
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     *
      * @throws LocalizedException
+     *
+     * @return bool
      */
     public function afterProcessSucceededPush(
         DefaultProcessor $subject,
@@ -140,6 +142,7 @@ class DefaultProcessorPlugin
     /**
      * @param object $subject
      * @param string $name
+     *
      * @return mixed|null
      */
     private function getProtectedProperty(object $subject, string $name)
@@ -156,6 +159,3 @@ class DefaultProcessorPlugin
         return null;
     }
 }
-
-
-

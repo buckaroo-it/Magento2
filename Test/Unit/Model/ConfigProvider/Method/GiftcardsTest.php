@@ -21,8 +21,6 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
-
-
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Test\BaseTest;
@@ -59,17 +57,17 @@ class GiftcardsTest extends BaseTest
         // Mock Giftcard Collection
         $giftcardCollectionMock = $this->createMock(\Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection::class);
         $giftcardCollectionMock->method('getIterator')->willReturn(new \ArrayIterator([]));
-        
+
         // Mock Giftcard Collection Factory
         $giftcardCollectionFactoryMock = $this->createMock(\Buckaroo\Magento2\Model\ResourceModel\Giftcard\CollectionFactory::class);
         $giftcardCollectionFactoryMock->method('create')->willReturn($giftcardCollectionMock);
-        
+
         // Mock Store Manager
         $storeMock = $this->createMock(\Magento\Store\Model\Store::class);
         $storeMock->method('getBaseUrl')->willReturn('https://example.com/media/');
         $storeManagerMock = $this->createMock(\Magento\Store\Model\StoreManagerInterface::class);
         $storeManagerMock->method('getStore')->willReturn($storeMock);
-        
+
         // Mock Giftcards Source
         $giftcardsSourceMock = $this->createMock(\Buckaroo\Magento2\Model\Config\Source\Giftcards::class);
         $giftcardsSourceMock->method('toOptionArray')->willReturn([]);

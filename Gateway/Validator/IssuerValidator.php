@@ -37,23 +37,23 @@ class IssuerValidator extends AbstractValidator
     /**
      * @var Factory
      */
-    private Factory $configProvider;
+    private $configProvider;
 
     /**
      * @var HttpRequest
      */
-    protected HttpRequest $request;
+    protected $request;
 
     /**
      * @var Json
      */
-    protected Json $jsonSerializer;
+    protected $jsonSerializer;
 
     /**
      * @param ResultInterfaceFactory $resultFactory
-     * @param Factory $configProvider
-     * @param HttpRequest $request
-     * @param Json $jsonSerializer
+     * @param Factory                $configProvider
+     * @param HttpRequest            $request
+     * @param Json                   $jsonSerializer
      */
     public function __construct(
         ResultInterfaceFactory $resultFactory,
@@ -72,8 +72,10 @@ class IssuerValidator extends AbstractValidator
      * Validate issuer
      *
      * @param array $validationSubject
-     * @return ResultInterface
+     *
      * @throws LocalizedException
+     *
+     * @return ResultInterface
      */
     public function validate(array $validationSubject): ResultInterface
     {
@@ -107,6 +109,7 @@ class IssuerValidator extends AbstractValidator
      * Get config provider for specific payment method
      *
      * @param InfoInterface $paymentInfo
+     *
      * @return ConfigProviderInterface|false
      */
     protected function getConfig(InfoInterface $paymentInfo)

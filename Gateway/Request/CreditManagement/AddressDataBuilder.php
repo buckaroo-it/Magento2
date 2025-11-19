@@ -55,6 +55,7 @@ class AddressDataBuilder extends AbstractDataBuilder
      * Get address data
      *
      * @param string[]|null $street
+     *
      * @return array
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)

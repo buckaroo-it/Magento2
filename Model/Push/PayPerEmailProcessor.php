@@ -31,8 +31,11 @@ use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
+use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
 use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
+use Buckaroo\Magento2\Service\Order\Uncancel;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
+use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\TransactionInterface;
@@ -48,25 +51,28 @@ class PayPerEmailProcessor extends DefaultProcessor
     /**
      * @var PayPerEmail
      */
-    private PayPerEmail $configPayPerEmail;
+    private $configPayPerEmail;
 
     /**
      * @var bool
      */
-    private bool $isPayPerEmailB2BModePushInitial = false;
+    private $isPayPerEmailB2BModePushInitial = false;
 
     /**
-     * @param OrderRequestService $orderRequestService
-     * @param PushTransactionType $pushTransactionType
+     * @param OrderRequestService     $orderRequestService
+     * @param PushTransactionType     $pushTransactionType
      * @param BuckarooLoggerInterface $logger
-     * @param Data $helper
-     * @param TransactionInterface $transaction
+     * @param Data                    $helper
+     * @param TransactionInterface    $transaction
      * @param PaymentGroupTransaction $groupTransaction
-     * @param BuckarooStatusCode $buckarooStatusCode
-     * @param OrderStatusFactory $orderStatusFactory
-     * @param Account $configAccount
-     * @param GiftCardRefundService $giftCardRefundService
-     * @param PayPerEmail $configPayPerEmail
+     * @param BuckarooStatusCode      $buckarooStatusCode
+     * @param OrderStatusFactory      $orderStatusFactory
+     * @param Account                 $configAccount
+     * @param GiftCardRefundService   $giftCardRefundService
+     * @param Uncancel                $uncancelService
+     * @param ResourceConnection      $resourceConnection
+     * @param GiftcardCollection      $giftcardCollection
+     * @param PayPerEmail             $configPayPerEmail
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -81,6 +87,9 @@ class PayPerEmailProcessor extends DefaultProcessor
         OrderStatusFactory      $orderStatusFactory,
         Account                 $configAccount,
         GiftCardRefundService   $giftCardRefundService,
+        Uncancel                $uncancelService,
+        ResourceConnection      $resourceConnection,
+        GiftcardCollection      $giftcardCollection,
         PayPerEmail             $configPayPerEmail
     ) {
         parent::__construct(
@@ -93,17 +102,22 @@ class PayPerEmailProcessor extends DefaultProcessor
             $buckarooStatusCode,
             $orderStatusFactory,
             $configAccount,
-            $giftCardRefundService
+            $giftCardRefundService,
+            $uncancelService,
+            $resourceConnection,
+            $giftcardCollection
         );
         $this->configPayPerEmail = $configPayPerEmail;
     }
 
     /**
-     * @throws FileSystemException
-     * @throws \Exception
-     *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
+     *
+     * @param PushRequestInterface $pushRequest
+     *
+     * @throws FileSystemException
+     * @throws \Exception
      */
     public function processPush(PushRequestInterface $pushRequest): bool
     {
@@ -178,7 +192,6 @@ class PayPerEmailProcessor extends DefaultProcessor
     /**
      * Set Payment method as PayPerEmail if the push request is PayLink
      *
-     * @return void
      * @throws \Exception
      */
     private function receivePushCheckPayLink(): void
@@ -195,8 +208,9 @@ class PayPerEmailProcessor extends DefaultProcessor
     /**
      * Skip the push if the conditions are met.
      *
-     * @return bool
      * @throws \Exception
+     *
+     * @return bool
      */
     protected function skipPush(): bool
     {
@@ -238,8 +252,9 @@ class PayPerEmailProcessor extends DefaultProcessor
     /**
      * Set the payment method if the request is from Pay Per Email
      *
-     * @return bool
      * @throws \Exception
+     *
+     * @return bool
      */
     private function setPaymentMethodIfDifferent(): bool
     {
@@ -272,7 +287,6 @@ class PayPerEmailProcessor extends DefaultProcessor
     }
 
     /**
-     * @return void
      */
     protected function setOrderStatusMessage(): void
     {
@@ -331,9 +345,10 @@ class PayPerEmailProcessor extends DefaultProcessor
     }
 
     /**
-     * @return false|string|null
      * @throws BuckarooException
      * @throws LocalizedException
+     *
+     * @return false|string|null
      */
     protected function getNewStatus()
     {
@@ -400,8 +415,10 @@ class PayPerEmailProcessor extends DefaultProcessor
 
     /**
      * @param array $paymentDetails
-     * @return bool
+     *
      * @throws \Exception
+     *
+     * @return bool
      */
     protected function invoiceShouldBeSaved(array &$paymentDetails): bool
     {

@@ -29,7 +29,7 @@ class PayByBank implements OptionSourceInterface
     /**
      * @var ConfigPayByBank
      */
-    protected ConfigPayByBank $configProvider;
+    protected $configProvider;
 
     /**
      * Use the constructor to get the requested config provider.

@@ -84,6 +84,7 @@ class Klarnakp extends AbstractConfigProvider
      * Get Create Invoice After Shipment
      *
      * @param null|int|string $store
+     *
      * @return bool
      */
     public function isInvoiceCreatedAfterShipment($store = null): bool

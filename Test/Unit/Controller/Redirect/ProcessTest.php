@@ -92,6 +92,7 @@ class ProcessTest extends BaseTest
 
     /**
      * Test the path when we are unable to create a quote.
+     *
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function testExecuteUnableToCreateQuote()
@@ -104,7 +105,7 @@ class ProcessTest extends BaseTest
             'brq_transactions' => null,
             'brq_datarequest' => null
         ];
-        
+
         $response = $this->getFakeMock(ResponseInterface::class)->getMockForAbstractClass();
 
         $request = $this->getFakeMock(RequestInterface::class)->onlyMethods(['getParams'])->getMockForAbstractClass();
@@ -154,7 +155,7 @@ class ProcessTest extends BaseTest
             ->onlyMethods([
                 'loadByIncrementId', 'getState', 'canCancel',
                 'cancel', 'setStatus', 'getStore', 'getPayment', 'getId', 'save', 'getIncrementId'
-])
+        ])
             ->getMock();
         $orderMock->method('loadByIncrementId')->with(null)->willReturnSelf();
         $orderMock->method('getId')->willReturn(1);
@@ -241,6 +242,7 @@ class ProcessTest extends BaseTest
 
     /**
      * Test what happens when we are unable to cancel the order.
+     *
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function testExecuteUnableToCancelOrder()
@@ -252,7 +254,7 @@ class ProcessTest extends BaseTest
             'brq_transactions' => null,
             'brq_datarequest' => null
         ];
-        
+
         $response = $this->getFakeMock(ResponseInterface::class)->getMockForAbstractClass();
 
         $request = $this->getFakeMock(RequestInterface::class)->onlyMethods(['getParams'])->getMockForAbstractClass();
@@ -376,6 +378,7 @@ class ProcessTest extends BaseTest
 
     /**
      * Test a success status update.
+     *
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function testExecuteSuccessStatus()
@@ -385,7 +388,7 @@ class ProcessTest extends BaseTest
             'brq_invoicenumber' => null,
             'brq_statuscode' => 190,
         ];
-        
+
         $response = $this->getFakeMock(ResponseInterface::class)->getMockForAbstractClass();
 
         $request = $this->getFakeMock(RequestInterface::class)->onlyMethods(['getParams'])->getMockForAbstractClass();
@@ -424,7 +427,7 @@ class ProcessTest extends BaseTest
             ->onlyMethods([
                 'loadByIncrementId', 'canInvoice', 'getQuoteId',
                 'setStatus', 'getEmailSent', 'getStore','getPayment', 'getId', 'save', 'getIncrementId'
-])
+        ])
             ->getMock();
         $orderMock->method('loadByIncrementId')->with(null)->willReturnSelf();
         $orderMock->method('getId')->willReturn(true);

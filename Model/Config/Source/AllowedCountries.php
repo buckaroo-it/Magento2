@@ -33,22 +33,22 @@ class AllowedCountries implements OptionSourceInterface
     /**
      * @var ListsInterface
      */
-    private ListsInterface $localeLists;
+    private $localeLists;
 
     /**
      * @var ConfigProviderFactory
      */
-    private ConfigProviderFactory $configProviderMethodFactory;
+    private $configProviderMethodFactory;
 
     /**
      * @var ResolverInterface
      */
-    protected ResolverInterface $localeResolver;
+    protected $localeResolver;
 
     /**
      * @var RegionBundle
      */
-    protected RegionBundle $regionBundle;
+    protected $regionBundle;
 
     /**
      * @param ListsInterface        $localeLists
@@ -73,8 +73,9 @@ class AllowedCountries implements OptionSourceInterface
      *
      * @param string|null $method
      *
-     * @return array Format: array(array('value' => '<value>', 'label' => '<label>'), ...)
      * @throws BuckarooException
+     *
+     * @return array Format: array(array('value' => '<value>', 'label' => '<label>'), ...)
      */
     public function toOptionArray(?string $method = null): array
     {
@@ -107,10 +108,12 @@ class AllowedCountries implements OptionSourceInterface
      * $method is what is defined in system.xml (i.e. ::ideal) and is directly passed to toOptionArray for method
      * configuration exemptions.
      *
-     * @param string $method
+     * @param string     $method
      * @param array|null $params
-     * @return array
+     *
      * @throws BuckarooException
+     *
+     * @return array
      */
     public function __call(string $method, ?array $params = null)
     {

@@ -55,12 +55,11 @@ interface TransactionResponseInterface
      *
      * @return string
      */
-    public function getCode();
+    public function getCode(): string;
     /**
      * Set data
      *
      * @param array $data
-     * @return void
      */
     public function addData(array $data);
 }

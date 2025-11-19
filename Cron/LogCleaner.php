@@ -50,7 +50,7 @@ class LogCleaner
     /**
      * @var BuckarooLoggerInterface
      */
-    private BuckarooLoggerInterface $logger;
+    private $logger;
 
     /**
      * @var DirectoryList
@@ -70,13 +70,13 @@ class LogCleaner
     /**
      * Log Cleaner constructor
      *
-     * @param LogResourceModel $resource
-     * @param Account $accountConfig
-     * @param ResourceConnection $resourceConnection
+     * @param LogResourceModel        $resource
+     * @param Account                 $accountConfig
+     * @param ResourceConnection      $resourceConnection
      * @param BuckarooLoggerInterface $logger
-     * @param DirectoryList $directoryList
-     * @param File $driverFile
-     * @param IoFile $ioFile
+     * @param DirectoryList           $directoryList
+     * @param File                    $driverFile
+     * @param IoFile                  $ioFile
      */
     public function __construct(
         LogResourceModel $resource,
@@ -105,10 +105,12 @@ class LogCleaner
         $logHandlerType = (int) $this->accountConfig->getLogHandler();
 
         if ($retentionPeriod) {
-            if ($logHandlerType == LogHandler::TYPE_DB) {
+            // Clean database logs if DB or Both
+            if ($logHandlerType == LogHandler::TYPE_DB || $logHandlerType == LogHandler::TYPE_BOTH) {
                 $this->proceedDb($retentionPeriod);
             }
-            if ($logHandlerType == LogHandler::TYPE_FILES) {
+            // Clean file logs if Files or Both
+            if ($logHandlerType == LogHandler::TYPE_FILES || $logHandlerType == LogHandler::TYPE_BOTH) {
                 $this->proceedFiles($retentionPeriod);
             }
         }
@@ -119,7 +121,6 @@ class LogCleaner
      * Delete logs from data base
      *
      * @param int $retentionPeriod
-     * @return void
      */
     private function proceedDb(int $retentionPeriod)
     {
@@ -142,7 +143,7 @@ class LogCleaner
      * Delete files that contains logs
      *
      * @param int $retentionPeriod
-     * @return void
+     *
      * @throws FileSystemException
      */
     private function proceedFiles(int $retentionPeriod)
@@ -164,6 +165,7 @@ class LogCleaner
      * Get all files from log directory
      *
      * @param string $path
+     *
      * @return array
      */
     private function getAllFiles(string $path): array
