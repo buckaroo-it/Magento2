@@ -24,6 +24,7 @@ use Buckaroo\Magento2\Api\Data\PushRequestInterface;
 use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
+use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\ConfigProvider\Refund;
 use Buckaroo\Magento2\Model\ConfigProvider\Refund as RefundConfigProvider;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -179,6 +180,23 @@ class Push
                 __LINE__
             ));
             return false;
+        }
+
+        $statusCode = (int)$this->postData->getStatusCode();
+        if ($statusCode !== BuckarooStatusCode::SUCCESS) {
+            $this->logger->addError(sprintf(
+                '[PUSH_REFUND] | [Webapi] | [%s:%s] - Refund FAILED at Buckaroo | Status: %s | Message: %s | Order: %s',
+                __METHOD__,
+                __LINE__,
+                $statusCode,
+                $this->postData->getStatusMessage(),
+                $this->order->getIncrementId()
+            ));
+            throw new BuckarooException(__(
+                'Buckaroo refund failed with status %1: %2',
+                $statusCode,
+                $this->postData->getStatusMessage()
+            ));
         }
 
         $creditmemo = $this->createCreditmemo();
