@@ -166,6 +166,9 @@ class Push implements ValidatorInterface
         unset($copyData['brq_signature']);
         unset($copyData['BRQ_SIGNATURE']);
 
+        // Fix parameter names that PHP converted from spaces to underscores
+        $copyData = $this->fixParameterNamesWithSpaces($copyData);
+
         $sortableArray = $this->buckarooArraySort($copyData);
 
         $signatureString = '';
@@ -185,6 +188,46 @@ class Push implements ValidatorInterface
         );
 
         return $signature;
+    }
+
+    /**
+     * Fix parameter names where PHP converted spaces to underscores
+     *
+     * Buckaroo sends some parameters with spaces in the name (e.g., "Additional Info")
+     * but PHP's POST parsing automatically converts spaces to underscores, breaking signature validation.
+     *
+     * This method detects and fixes these known cases by converting specific underscores back to spaces.
+     *
+     * @param array $data POST data with PHP-mangled parameter names
+     * @return array Data with original parameter names restored
+     */
+    private function fixParameterNamesWithSpaces(array $data): array
+    {
+        $fixed = [];
+
+        foreach ($data as $key => $value) {
+            if (preg_match('/^brq_SERVICE_[^_]+_(.+)$/', $key, $matches)) {
+                $suffix = $matches[1];
+
+                $knownSpacedParams = [
+                    'Additional_Info' => 'Additional Info',
+                ];
+
+                if (isset($knownSpacedParams[$suffix])) {
+                    $newKey = str_replace('_' . $suffix, '_' . $knownSpacedParams[$suffix], $key);
+                    $this->logger->addDebug(sprintf(
+                        '[SIGNATURE] | Fixed parameter name: %s -> %s',
+                        $key,
+                        $newKey
+                    ));
+                    $key = $newKey;
+                }
+            }
+
+            $fixed[$key] = $value;
+        }
+
+        return $fixed;
     }
 
     /**
