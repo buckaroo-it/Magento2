@@ -249,25 +249,33 @@ class RefundGroupTransactionService
                     $refundAmount,
                     $response['object']->getStatusCode()
                 ));
+                
+                // Update amount left to refund ONLY on success
+                $this->amountLeftToRefund -= $refundAmount;
+
+                // Mark as refunded in payment info
+                $alreadyRefunded = (float)$payment->getAdditionalInformation('single_giftcard_refunded_amount');
+                $payment->setAdditionalInformation('single_giftcard_refunded_amount', $alreadyRefunded + $refundAmount);
             } else {
+                // Refund FAILED - throw exception to prevent credit memo creation
                 $errorMessage = isset($response['object'])
                     ? $response['object']->getSomeError()
                     : 'Unknown error - no response object';
+                $statusCode = isset($response['object']) ? $response['object']->getStatusCode() : 'N/A';
 
                 $this->buckarooLog->addError(sprintf(
-                    '[REFUND_SINGLE_GIFTCARD] | Refund failed | Amount: €%.2f | Status: %s | Message: %s',
+                    '[REFUND_SINGLE_GIFTCARD] | Refund FAILED at Buckaroo | Amount: €%.2f | Status: %s | Message: %s',
                     $refundAmount,
-                    isset($response['object']) ? $response['object']->getStatusCode() : 'N/A',
+                    $statusCode,
+                    $errorMessage
+                ));
+
+                throw new \Magento\Payment\Gateway\Http\ClientException(__(
+                    'Buckaroo giftcard refund failed (Status %1): %2',
+                    $statusCode,
                     $errorMessage
                 ));
             }
-
-            // Update amount left to refund
-            $this->amountLeftToRefund -= $refundAmount;
-
-            // Mark as refunded in payment info
-            $alreadyRefunded = (float)$payment->getAdditionalInformation('single_giftcard_refunded_amount');
-            $payment->setAdditionalInformation('single_giftcard_refunded_amount', $alreadyRefunded + $refundAmount);
         }
 
         // If fully refunded, mark as complete
@@ -433,29 +441,39 @@ class RefundGroupTransactionService
                     $giftCardValue,
                     $response['object']->getStatusCode()
                 ));
+
+                // Update refunded amount in database ONLY on success
+                foreach ($groupTransaction as $item) {
+                    $prevRefundAmount = $item->getData('refunded_amount');
+                    $newRefundAmount = $giftCardValue;
+
+                    if ($prevRefundAmount !== null) {
+                        $newRefundAmount += $prevRefundAmount;
+                    }
+                    $item->setData('refunded_amount', $newRefundAmount);
+                    $item->save();
+                }
             } else {
+                // Refund FAILED - throw exception to prevent credit memo creation
                 $errorMessage = isset($response['object'])
                     ? $response['object']->getSomeError()
                     : 'Unknown error - no response object';
+                $statusCode = isset($response['object']) ? $response['object']->getStatusCode() : 'N/A';
 
                 $this->buckarooLog->addError(sprintf(
-                    '[REFUND_GROUP_TRANSACTION] | Refund failed | Service: %s | Amount: €%.2f | Status: %s | Message: %s',
+                    '[REFUND_GROUP_TRANSACTION] | Refund FAILED at Buckaroo | Service: %s | Amount: €%.2f | Status: %s | Message: %s',
                     $transaction[1],
                     $giftCardValue,
-                    isset($response['object']) ? $response['object']->getStatusCode() : 'N/A',
+                    $statusCode,
                     $errorMessage
                 ));
-            }
 
-            foreach ($groupTransaction as $item) {
-                $prevRefundAmount = $item->getData('refunded_amount');
-                $newRefundAmount = $giftCardValue;
-
-                if ($prevRefundAmount !== null) {
-                    $newRefundAmount += $prevRefundAmount;
-                }
-                $item->setData('refunded_amount', $newRefundAmount);
-                $item->save();
+                throw new \Magento\Payment\Gateway\Http\ClientException(__(
+                    'Buckaroo giftcard refund failed for %1 (Status %2): %3',
+                    $transaction[1],
+                    $statusCode,
+                    $errorMessage
+                ));
             }
         }
     }
