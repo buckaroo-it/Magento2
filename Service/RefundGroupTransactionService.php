@@ -212,6 +212,29 @@ class RefundGroupTransactionService
             $request['amountCredit'] = $refundAmount;
             $request['originalTransactionKey'] = $transactionId;
 
+            // Add customer email and lastname for giftcard refunds (Buckaroo SDK requirement)
+            $paymentDO = SubjectReader::readPayment($buildSubject);
+            $order = $paymentDO->getOrder()->getOrder();
+            $billingAddress = $order->getBillingAddress();
+
+            if ($billingAddress) {
+                $request['email'] = $order->getCustomerEmail();
+                $request['lastname'] = $billingAddress->getLastname();
+
+                $this->buckarooLog->addDebug(sprintf(
+                    '[REFUND_SINGLE_GIFTCARD] | Processing refund | Service: %s | Amount: €%.2f | Transaction: %s | Customer: %s',
+                    $servicecode,
+                    $refundAmount,
+                    $transactionId,
+                    $order->getCustomerEmail()
+                ));
+            } else {
+                $this->buckarooLog->addWarning(sprintf(
+                    '[REFUND_SINGLE_GIFTCARD] | Missing billing address for order %s - customer details not added to refund request',
+                    $order->getIncrementId()
+                ));
+            }
+
             $transferO = $this->transferFactory->create($request);
             $response = $this->clientInterface->placeRequest($transferO);
 
@@ -219,11 +242,25 @@ class RefundGroupTransactionService
                 $this->handler->handle($buildSubject, $response);
             }
 
-            $this->buckarooLog->addDebug(sprintf(
-                '[SINGLE_GIFTCARD_REFUND] | Refund response | Amount: %s | Response: %s',
-                $refundAmount,
-                var_export($response, true)
-            ));
+            // Use SDK methods to check response status
+            if (isset($response['object']) && $response['object']->isSuccess()) {
+                $this->buckarooLog->addDebug(sprintf(
+                    '[REFUND_SINGLE_GIFTCARD] | Refund successful | Amount: €%.2f | Status: %s',
+                    $refundAmount,
+                    $response['object']->getStatusCode()
+                ));
+            } else {
+                $errorMessage = isset($response['object'])
+                    ? $response['object']->getSomeError()
+                    : 'Unknown error - no response object';
+
+                $this->buckarooLog->addError(sprintf(
+                    '[REFUND_SINGLE_GIFTCARD] | Refund failed | Amount: €%.2f | Status: %s | Message: %s',
+                    $refundAmount,
+                    isset($response['object']) ? $response['object']->getStatusCode() : 'N/A',
+                    $errorMessage
+                ));
+            }
 
             // Update amount left to refund
             $this->amountLeftToRefund -= $refundAmount;
@@ -256,8 +293,6 @@ class RefundGroupTransactionService
      */
     public function refundGroupTransactions(array &$buildSubject)
     {
-        $this->buckarooLog->addDebug(__METHOD__ . '|1|');
-
         $paymentDO = SubjectReader::readPayment($buildSubject);
         $this->amountLeftToRefund = (float)SubjectReader::readAmount($buildSubject);
         $originalRefundAmount = $this->amountLeftToRefund;
@@ -265,6 +300,13 @@ class RefundGroupTransactionService
         $order = $paymentDO->getOrder()->getOrder();
         $payment = $paymentDO->getPayment();
         $this->totalOrder = (float)$order->getBaseGrandTotal();
+
+        $this->buckarooLog->addDebug(sprintf(
+            '[REFUND] | Processing refund for order %s | Amount: €%.2f | Payment method: %s',
+            $order->getIncrementId(),
+            $this->amountLeftToRefund,
+            $payment->getMethod()
+        ));
 
         // Handle single giftcard payment (not in group_transaction table)
         if ($this->isSingleGiftcardPayment($payment)) {
@@ -337,23 +379,40 @@ class RefundGroupTransactionService
 
         $groupTransaction = $this->paymentGroupTransaction->getGroupTransactionByTrxId($transaction[0]);
 
-        $this->buckarooLog->addDebug(__METHOD__ . '|10|' . var_export(
-            [$giftCardValue, $this->amountLeftToRefund],
-            true
-        ));
-
         if ($giftCardValue > 0 && $this->amountLeftToRefund > 0) {
             if ($this->amountLeftToRefund < $giftCardValue) {
                 $giftCardValue = $this->amountLeftToRefund;
             }
             $this->amountLeftToRefund = $this->amountLeftToRefund - $giftCardValue;
-            $this->buckarooLog->addDebug(__METHOD__ . '|15|' . var_export([$this->amountLeftToRefund], true));
 
             $request = $this->requestDataBuilder->build($buildSubject);
             $request['payment_method'] = $transaction[1];
             $request['name'] = $transaction[1];
             $request['amountCredit'] = $giftCardValue;
             $request['originalTransactionKey'] = $transaction[0];
+
+            // Add customer email and lastname for giftcard refunds (Buckaroo SDK requirement)
+            $paymentDO = SubjectReader::readPayment($buildSubject);
+            $order = $paymentDO->getOrder()->getOrder();
+            $billingAddress = $order->getBillingAddress();
+
+            if ($billingAddress) {
+                $request['email'] = $order->getCustomerEmail();
+                $request['lastname'] = $billingAddress->getLastname();
+
+                $this->buckarooLog->addDebug(sprintf(
+                    '[REFUND_GROUP_TRANSACTION] | Processing refund | Service: %s | Amount: €%.2f | Transaction: %s | Customer: %s',
+                    $transaction[1],
+                    $giftCardValue,
+                    $transaction[0],
+                    $order->getCustomerEmail()
+                ));
+            } else {
+                $this->buckarooLog->addWarning(sprintf(
+                    '[REFUND_GROUP_TRANSACTION] | Missing billing address for order %s - customer details not added to refund request',
+                    $order->getIncrementId()
+                ));
+            }
 
             $transferO = $this->transferFactory->create($request);
 
@@ -366,7 +425,27 @@ class RefundGroupTransactionService
                 );
             }
 
-            $this->buckarooLog->addDebug(__METHOD__ . '|16| ' . var_export($response, true));
+            // Use SDK methods to check response status
+            if (isset($response['object']) && $response['object']->isSuccess()) {
+                $this->buckarooLog->addDebug(sprintf(
+                    '[REFUND_GROUP_TRANSACTION] | Refund successful | Service: %s | Amount: €%.2f | Status: %s',
+                    $transaction[1],
+                    $giftCardValue,
+                    $response['object']->getStatusCode()
+                ));
+            } else {
+                $errorMessage = isset($response['object'])
+                    ? $response['object']->getSomeError()
+                    : 'Unknown error - no response object';
+
+                $this->buckarooLog->addError(sprintf(
+                    '[REFUND_GROUP_TRANSACTION] | Refund failed | Service: %s | Amount: €%.2f | Status: %s | Message: %s',
+                    $transaction[1],
+                    $giftCardValue,
+                    isset($response['object']) ? $response['object']->getStatusCode() : 'N/A',
+                    $errorMessage
+                ));
+            }
 
             foreach ($groupTransaction as $item) {
                 $prevRefundAmount = $item->getData('refunded_amount');
