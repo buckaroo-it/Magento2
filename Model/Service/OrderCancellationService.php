@@ -148,6 +148,12 @@ class OrderCancellationService
             $connection = $this->resourceConnection->getConnection();
             $table = $this->resourceConnection->getTableName('inventory_reservation');
 
+            // Check if inventory_reservation table exists (MSI must be enabled)
+            if (!$connection->isTableExists($table)) {
+                $this->logger->addDebug('[STOCK_CHECK] Inventory reservation table does not exist (MSI disabled), assuming stock was reserved');
+                return true;
+            }
+
             $select = $connection->select()
                 ->from($table, ['cnt' => new \Zend_Db_Expr('COUNT(*)')])
                 ->where('metadata LIKE ?', '%"object_id":"' . $order->getIncrementId() . '"%')
