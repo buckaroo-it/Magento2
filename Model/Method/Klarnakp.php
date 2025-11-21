@@ -694,6 +694,18 @@ class Klarnakp extends AbstractMethod
     }
 
     /**
+     * Normalize prices to 2 decimals to avoid issues with values
+     * that have more precision (e.g. reward points, gift cards).
+     *
+     * @param float|int|string $amount
+     * @return float
+     */
+    private function formatAmount($amount): float
+    {
+        return (float)number_format((float)$amount, 2, '.', '');
+    }
+
+    /**
      * @param $payment
      *
      * @return array
@@ -794,6 +806,8 @@ class Klarnakp extends AbstractMethod
             return $article;
         }
 
+        $articlePrice = $this->formatAmount($discount);
+
         $article = [
             [
                 '_' => 3,
@@ -802,7 +816,7 @@ class Klarnakp extends AbstractMethod
                 'Name' => 'ArticleNumber',
             ],
             [
-                '_' => $discount,
+                '_' => $articlePrice,
                 'Group' => 'Article',
                 'GroupID' => $group,
                 'Name' => 'ArticlePrice',
@@ -837,7 +851,7 @@ class Klarnakp extends AbstractMethod
      * @param       $group
     *
      * @return array
-    */
+     */
     public function getRewardLine($quote, $group)
     {
         try {
@@ -849,6 +863,8 @@ class Klarnakp extends AbstractMethod
 
             $this->logger2->addDebug(__METHOD__ . '|Reward points discount found: ' . $discount);
 
+            $articlePrice = $this->formatAmount(-$discount);
+
             $article = [
                 [
                     '_' => 4,
@@ -857,7 +873,7 @@ class Klarnakp extends AbstractMethod
                     'Name' => 'ArticleNumber',
                 ],
                 [
-                    '_' => -$discount,
+                    '_' => $articlePrice,
                     'Group' => 'Article',
                     'GroupID' => $group,
                     'Name' => 'ArticlePrice',
@@ -911,6 +927,8 @@ class Klarnakp extends AbstractMethod
 
             $this->logger2->addDebug(__METHOD__ . '|Gift card discount found: ' . $discount);
 
+            $articlePrice = $this->formatAmount(-$discount);
+
             $article = [
                 [
                     '_' => 5,
@@ -919,7 +937,7 @@ class Klarnakp extends AbstractMethod
                     'Name' => 'ArticleNumber',
                 ],
                 [
-                    '_' => -$discount,
+                    '_' => $articlePrice,
                     'Group' => 'Article',
                     'GroupID' => $group,
                     'Name' => 'ArticlePrice',
@@ -983,6 +1001,8 @@ class Klarnakp extends AbstractMethod
         $taxClassId = $this->taxConfig->getShippingTaxClass();
         $percent = $this->taxCalculation->getRate($request->setProductClassId($taxClassId));
 
+        $shippingAmount = $this->formatAmount($shippingAmount);
+
         $shippingCostsArticle = [
             [
                 '_' => 2,
@@ -1033,6 +1053,9 @@ class Klarnakp extends AbstractMethod
         $articleUnitPrice,
         $articleVat = ''
     ) {
+        // Ensure ArticlePrice is always formatted to 2 decimals
+        $articleUnitPrice = $this->formatAmount($articleUnitPrice);
+
         $article = [
             [
                 '_'       => $articleDescription,
