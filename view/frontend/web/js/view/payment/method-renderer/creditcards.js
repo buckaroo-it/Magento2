@@ -232,6 +232,7 @@ define(
                         fontWeight: 400,
                         fontFamily: getStyleValue(configuredStyling.fontFamily, 'Open Sans, Helvetica Neue, Helvetica, Arial, sans-serif'),
                         textAlign: 'left',
+                        textTransform: 'none',
                         background: getStyleValue(configuredStyling.backgroundColor, '#fefefe'),
                         color: getStyleValue(configuredStyling.textColor, '#333333'),
                         placeholderColor: getStyleValue(configuredStyling.placeholderColor, '#888888'),
