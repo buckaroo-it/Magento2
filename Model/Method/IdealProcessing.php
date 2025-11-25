@@ -22,6 +22,7 @@
 namespace Buckaroo\Magento2\Model\Method;
 
 use Magento\Framework\DataObject;
+use Magento\Quote\Api\Data\CartInterface;
 
 class IdealProcessing extends AbstractMethod
 {
@@ -132,15 +133,13 @@ class IdealProcessing extends AbstractMethod
         return $this->buckarooPaymentMethodCode;
     }
 
-    public function isAvailable(?\Magento\Quote\Api\Data\CartInterface $quote = null)
+    public function isAvailable(?CartInterface $quote = null)
     {
-        $orderId = $quote ? $quote->getReservedOrderId() : null;
+        if (!parent::isAvailable($quote)) {
+            return false;
+        }
 
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-
-        $paymentGroupTransaction = $objectManager->get(\Buckaroo\Magento2\Helper\PaymentGroupTransaction::class);
-
-        if ($paymentGroupTransaction->getAlreadyPaid($orderId) > 0) {
+        if ($this->isOrderPartiallyPaid($quote)) {
             return false;
         }
 

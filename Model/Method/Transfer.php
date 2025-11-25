@@ -21,6 +21,7 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
+use Magento\Quote\Api\Data\CartInterface;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
@@ -315,15 +316,13 @@ class Transfer extends AbstractMethod
         return 'transfer';
     }
 
-    public function isAvailable(?\Magento\Quote\Api\Data\CartInterface $quote = null)
+    public function isAvailable(?CartInterface $quote = null)
     {
-        $orderId = $quote ? $quote->getReservedOrderId() : null;
+        if (!parent::isAvailable($quote)) {
+            return false;
+        }
 
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-
-        $paymentGroupTransaction = $objectManager->get(\Buckaroo\Magento2\Helper\PaymentGroupTransaction::class);
-
-        if ($paymentGroupTransaction->getAlreadyPaid($orderId) > 0) {
+        if ($this->isOrderPartiallyPaid($quote)) {
             return false;
         }
 

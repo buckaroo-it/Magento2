@@ -22,6 +22,7 @@
 namespace Buckaroo\Magento2\Model\Method\Capayable;
 
 use Buckaroo\Magento2\Model\Method\Capayable;
+use Magento\Quote\Api\Data\CartInterface;
 
 class Installments extends Capayable
 {
@@ -56,15 +57,13 @@ class Installments extends Capayable
         return $services;
     }
 
-    public function isAvailable(?\Magento\Quote\Api\Data\CartInterface $quote = null)
+    public function isAvailable(?CartInterface $quote = null)
     {
-        $orderId = $quote ? $quote->getReservedOrderId() : null;
+        if (!parent::isAvailable($quote)) {
+            return false;
+        }
 
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-
-        $paymentGroupTransaction = $objectManager->get(\Buckaroo\Magento2\Helper\PaymentGroupTransaction::class);
-
-        if ($paymentGroupTransaction->getAlreadyPaid($orderId) > 0) {
+        if ($this->isOrderPartiallyPaid($quote)) {
             return false;
         }
 

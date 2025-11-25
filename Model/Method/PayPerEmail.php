@@ -26,6 +26,7 @@ use Magento\Tax\Model\Config;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
 use Magento\Quote\Model\Quote\AddressFactory;
 use Buckaroo\Magento2\Logging\Log as BuckarooLog;
+use Magento\Quote\Api\Data\CartInterface;
 
 class PayPerEmail extends AbstractMethod
 {
@@ -158,37 +159,28 @@ class PayPerEmail extends AbstractMethod
     }
 
     /**
-     * @param  \Magento\Quote\Api\Data\CartInterface|null $quote
+     * @param CartInterface|null $quote
      * @return bool
      */
-    public function isAvailable(?\Magento\Quote\Api\Data\CartInterface $quote = null)
+    public function isAvailable(?CartInterface $quote = null)
     {
-        $areaCode = $this->_appState->getAreaCode();
-
-        /** @var \Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail $ppeConfig */
+        // Check area restrictions for PayPerEmail
         $ppeConfig = $this->configProviderMethodFactory->get('payperemail');
-
-        if (!$ppeConfig->isVisibleForAreaCode($areaCode)) {
+        if (!$ppeConfig->isVisibleForAreaCode($this->_appState->getAreaCode())) {
             return false;
         }
 
-        /**
-         * Check if payment group transaction is already paid
-         */
-        $orderId = $quote ? $quote->getReservedOrderId() : null;
-        if ($orderId) {
-            $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-            $paymentGroupTransaction = $objectManager->get(\Buckaroo\Magento2\Helper\PaymentGroupTransaction::class);
-
-            if ($paymentGroupTransaction->getAlreadyPaid($orderId) > 0) {
-                return false;
-            }
+        // Apply default Buckaroo availability checks
+        if (!parent::isAvailable($quote)) {
+            return false;
         }
 
-        /**
-         * Return the regular isAvailable result
-         */
-        return parent::isAvailable($quote);
+        // Block method when the order already has a partial payment
+        if ($this->isOrderPartiallyPaid($quote)) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
