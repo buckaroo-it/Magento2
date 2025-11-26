@@ -39,47 +39,36 @@ class Applepay extends AbstractMethod
     protected $_code                    = self::PAYMENT_METHOD_CODE;
 
     /**
-     * {@inheritdoc}
+     * Additional data keys
+     */
+    private const TRANSACTION_DATA_KEY = 'applepayTransaction';
+    private const BILLING_CONTACT_KEY = 'billingContact';
+
+    /**
+     * Assign payment data
+     *
+     * @param \Magento\Framework\DataObject $data
+     * @return $this
+     * @throws Exception
      */
     public function assignData(\Magento\Framework\DataObject $data)
     {
         parent::assignData($data);
         $data = $this->assignDataConvertToArray($data);
 
-        /**
-         * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay $applePayConfig
-         */
-        $applePayConfig = $this->configProviderMethodFactory->get($this->_code);
-        $integrationMode = $applePayConfig->getIntegrationMode();
-
-        if (isset($data['additional_data']['applepayTransaction'])) {
-            $transactionData = $data['additional_data']['applepayTransaction'];
-
+        if (isset($data['additional_data'][self::TRANSACTION_DATA_KEY])) {
+            $transactionData = $data['additional_data'][self::TRANSACTION_DATA_KEY];
             $this->validateApplePayTransactionData($transactionData);
 
             $applepayEncoded = base64_encode($transactionData);
-            $this->getInfoInstance()->setAdditionalInformation('applepayTransaction', $applepayEncoded);
-
-            $this->logger2->addDebug(sprintf(
-                '[Apple Pay] Transaction data assigned for payment. Length: %d characters',
-                strlen($transactionData)
-            ));
-        } else {
-            if ($integrationMode) {
-                $this->logger2->addError('[Apple Pay SDK Mode] Missing applepayTransaction data in payment assignment - preventing order creation');
-
-                throw new Exception(
-                    __('Apple Pay payment failed. No transaction data was received from your device. Please try again or use a different payment method.')
-                );
-            } else {
-                $this->logger2->addDebug('[Apple Pay Redirect Mode] No transaction data in payment assignment - this is expected for redirect mode');
-            }
+            $this->getInfoInstance()->setAdditionalInformation(self::TRANSACTION_DATA_KEY, $applepayEncoded);
         }
 
-        if (!empty($data['additional_data']['billingContact'])) {
+        // Handle billing contact
+        if (!empty($data['additional_data'][self::BILLING_CONTACT_KEY])) {
             $this->getInfoInstance()->setAdditionalInformation(
-                'billingContact',
-                $data['additional_data']['billingContact']
+                self::BILLING_CONTACT_KEY,
+                $data['additional_data'][self::BILLING_CONTACT_KEY]
             );
         }
 
@@ -164,28 +153,27 @@ class Applepay extends AbstractMethod
         $integrationMode = $applePayConfig->getIntegrationMode();
 
         if ($integrationMode) {
-            $applepayTransactionData = $payment->getAdditionalInformation('applepayTransaction');
+            $applepayTransactionData = $payment->getAdditionalInformation(self::TRANSACTION_DATA_KEY);
 
-            if (empty($applepayTransactionData)) {
-                $this->logger2->addError(sprintf(
-                    '[Apple Pay SDK Mode] Missing PaymentData for order %s - Client-side transaction processing failed',
+            if (!empty($applepayTransactionData)) {
+                // SDK mode with transaction data - use it
+                $this->logger2->addDebug(sprintf(
+                    '[Apple Pay SDK Mode] Using transaction data for order %s',
                     $payment->getOrder()->getIncrementId()
                 ));
 
-                throw new Exception(
-                    __('Apple Pay payment processing failed. The transaction data from your device could not be processed. Please try again or use a different payment method.')
-                );
+                $requestParameters = [
+                    [
+                        '_'    => $applepayTransactionData,
+                        'Name' => 'PaymentData',
+                    ],
+                ];
+            } else {
+                $requestParameters = [];
             }
 
-            $requestParameters = [
-                [
-                    '_'    => $applepayTransactionData,
-                    'Name' => 'PaymentData',
-                ],
-            ];
-
-            $billingContact = $payment->getAdditionalInformation('billingContact') ?
-                json_decode($payment->getAdditionalInformation('billingContact')) : null;
+            $billingContact = $payment->getAdditionalInformation(self::BILLING_CONTACT_KEY) ?
+                json_decode($payment->getAdditionalInformation(self::BILLING_CONTACT_KEY)) : null;
             if ($billingContact && !empty($billingContact->givenName) && !empty($billingContact->familyName)) {
                 $requestParameters[] = [
                     '_'    => $billingContact->givenName . ' ' . $billingContact->familyName,

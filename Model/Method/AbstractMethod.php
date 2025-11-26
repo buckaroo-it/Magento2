@@ -163,9 +163,11 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     public $closeCancelTransaction = true;
 
     /**
-     * @var bool|string
+     * Redirect URL after order placement
+     *
+     * @var string|null
      */
-    public $orderPlaceRedirectUrl = true;
+    public $orderPlaceRedirectUrl = null;
 
     /**
      * @var bool
@@ -756,11 +758,14 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
 
     /**
-     * @return bool|string
+     * Get redirect URL after order placement
+     *
+     * @return string|null
      */
-    public function getOrderPlaceRedirectUrl()
+    public function getOrderPlaceRedirectUrl(): ?string
     {
-        return $this->orderPlaceRedirectUrl;
+        // Ensure we always return string or null
+        return is_string($this->orderPlaceRedirectUrl) ? $this->orderPlaceRedirectUrl : null;
     }
 
     /**
