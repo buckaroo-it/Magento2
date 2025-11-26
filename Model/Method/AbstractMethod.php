@@ -547,6 +547,24 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         return parent::isAvailable($quote);
     }
 
+    protected function isOrderPartiallyPaid(?CartInterface $quote = null): bool
+    {
+        if ($quote === null) {
+            return false;
+        }
+
+        $orderId = $quote->getReservedOrderId();
+        if (!$orderId) {
+            return false;
+        }
+
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        /** @var \Buckaroo\Magento2\Helper\PaymentGroupTransaction $paymentGroupTransaction */
+        $paymentGroupTransaction = $objectManager->get(\Buckaroo\Magento2\Helper\PaymentGroupTransaction::class);
+
+        return $paymentGroupTransaction->getAlreadyPaid($orderId) > 0;
+    }
+
     /**
      * Check if this payment method is limited by IP.
      *
