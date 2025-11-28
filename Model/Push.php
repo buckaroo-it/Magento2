@@ -1131,37 +1131,85 @@ class Push implements PushInterface
 
     private function updateCm3InvoiceStatus()
     {
-        $isPaid     = filter_var(strtolower($this->postData['brq_ispaid']), FILTER_VALIDATE_BOOLEAN);
+        // Core flags
+        $isPaid     = filter_var(strtolower($this->postData['brq_ispaid'] ?? ''), FILTER_VALIDATE_BOOLEAN);
         $canInvoice = ($this->order->canInvoice() && !$this->order->hasInvoices());
-        $store      = $this->order->getStore();
 
-        $amount        = (float) ($this->postData['brq_amountdebit']);
-        $amount        = $this->order->getBaseCurrency()->formatTxt($amount);
+        // Amounts
+        $debitFloat  = (float)($this->postData['brq_amountdebit'] ?? 0);
+        $creditFloat = (float)($this->postData['brq_amountcreditnotes'] ?? 0);
+        $debitCents  = (int)round($debitFloat * 100);
+        $creditCents = (int)round($creditFloat * 100);
+
+        // Detect explicit credit note events from CM3
+        $event = strtolower((string)($this->postData['brq_event'] ?? ''));
+        $src   = strtolower((string)($this->postData['brq_eventparameters_triggersource'] ?? ''));
+        $isCreditNoteEvent = ($event === 'createdcreditnote' || $src === 'creditnotefromgateway');
+        $zeroNet = ($debitCents > 0 && $debitCents === $creditCents);
+
+        // Default status message
+        $amountTxt = $this->order->getBaseCurrency()->formatTxt($debitFloat);
+
         $statusMessage = 'Payment push status : Creditmanagement invoice with a total amount of '
-            . $amount . ' has been paid';
+            . $amountTxt . ' has been paid';
 
         if (!$isPaid && !$canInvoice) {
+            // Invoice already created on Magento side + CM3 reports not paid
             $statusMessage = 'Payment push status : Creditmanagement invoice has been (partially) refunded';
-        }
-
-        if (!$isPaid && $canInvoice) {
+        } elseif (!$isPaid && $canInvoice) {
+            // CM3 invoice still open, Magento has not invoiced yet
             $statusMessage = 'Payment push status : Waiting for consumer';
         }
 
-        if ($isPaid && $canInvoice) {
-            $originalKey                        = AbstractMethod::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY;
-            $this->postData['brq_transactions'] = $this->order->getPayment()->getAdditionalInformation($originalKey);
-            $this->postData['brq_amount']       = $this->postData['brq_amountdebit'];
+        //More accurate refund/credit note message
+        if ($isCreditNoteEvent) {
+            if ($debitCents > 0 && $creditCents > 0 && $creditCents < $debitCents) {
+                // Partial CM3 refund
+                $openCents = max($debitCents - $creditCents, 0);
+                $statusMessage = sprintf(
+                    'Payment push status: Creditmanagement invoice partially refunded (debit=%s, creditNotes=%s, open=%s)',
+                    number_format($debitFloat, 2, '.', ''),
+                    number_format($creditFloat, 2, '.', ''),
+                    number_format($openCents / 100, 2, '.', '')
+                );
+            } elseif ($zeroNet) {
+                // Fully refunded in CM3
+                $statusMessage = sprintf(
+                    'Payment push status: Creditmanagement invoice fully refunded (debit=%s, creditNotes=%s)',
+                    number_format($debitFloat, 2, '.', ''),
+                    number_format($creditFloat, 2, '.', '')
+                );
+            } else {
+                // Credit note event that does not match the known patterns
+                $statusMessage = sprintf(
+                    'Payment push status: Credit note created (debit=%s, creditNotes=%s)',
+                    number_format($debitFloat, 2, '.', ''),
+                    number_format($creditFloat, 2, '.', '')
+                );
+            }
+        }
+
+        // No Magento invoice when CM3 reports credit notes.
+        if ($isPaid && $canInvoice && $creditCents === 0 && $debitCents > 0) {
+            $originalKey = AbstractMethod::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY;
+
+            $this->postData['brq_transactions'] =
+                $this->order->getPayment()->getAdditionalInformation($originalKey);
+            $this->postData['brq_amount'] = $this->postData['brq_amountdebit'];
+
+            $this->logging->addDebug(__METHOD__ . '|This can be invoiced CM3 (no creditNotes present)');
 
             if (!$this->saveInvoice()) {
                 return false;
             }
         }
 
+        // Always add the status message to the order history, state remains unchanged
         $this->updateOrderStatus($this->order->getState(), $this->order->getStatus(), $statusMessage);
 
         return true;
     }
+
 
     private function sendCm3ConfirmationMail()
     {
