@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Ui\Renderer;
 
 use Magento\Framework\Escaper;
@@ -34,7 +36,7 @@ class NotificationRenderer
     private $assetRepository;
 
     /**
-     * @param Escaper $escaper
+     * @param Escaper         $escaper
      * @param AssetRepository $assetRepository
      */
     public function __construct(
@@ -48,7 +50,7 @@ class NotificationRenderer
     /**
      * Returns the HTML for notification's title to the ui component
      *
-     * @param array $page
+     * @param  array  $page
      * @return string
      */
     public function getNotificationTitle(array $page)
@@ -70,7 +72,7 @@ class NotificationRenderer
     /**
      * Returns the HTML for the content in the notification ui component
      *
-     * @param array $page
+     * @param  array  $page
      * @return string
      */
     public function getNotificationContent(array $page)
@@ -85,7 +87,7 @@ class NotificationRenderer
     /**
      * Builds the HTML for the main content in the notification ui component
      *
-     * @param array $mainContent
+     * @param  array  $mainContent
      * @return string
      */
     private function buildMainContent(array $mainContent)
@@ -99,7 +101,7 @@ class NotificationRenderer
     /**
      * Builds the HTML for the main text areas in the notification ui component
      *
-     * @param array $contentAreas
+     * @param  array  $contentAreas
      * @return string
      */
     private function buildContentTextAreas(array $contentAreas)
@@ -122,7 +124,7 @@ class NotificationRenderer
     /**
      * Builds the HTML for the bullet list content in the notification ui component
      *
-     * @param array $lists
+     * @param  array  $lists
      * @return string
      */
     private function buildLists(array $lists)
@@ -143,7 +145,7 @@ class NotificationRenderer
     /**
      * Builds the HTML for the highlighted sub heads for the overview page in the notification ui component
      *
-     * @param array $subHeadings
+     * @param  array  $subHeadings
      * @return string
      */
     private function buildSubHeadings(array $subHeadings)
@@ -174,7 +176,7 @@ class NotificationRenderer
     /**
      * Builds the HTML for the footer content in the notification ui component
      *
-     * @param array $footer
+     * @param  array  $footer
      * @return string
      */
     private function buildFooter(array $footer)
@@ -190,7 +192,7 @@ class NotificationRenderer
      * Searches a given string for a URL, formats it to an HTML anchor tag, and returns the original string in the
      * correct HTML format.
      *
-     * @param string $content
+     * @param  string $content
      * @return string
      */
     private function formatContentWithLinks($content)

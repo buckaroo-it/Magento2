@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,9 +18,11 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Refund;
 
 use Buckaroo\Magento2\Helper\Data;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Sales\Api\CreditmemoManagementInterface;
 use Magento\Sales\Model\Order\CreditmemoFactory;
 use Magento\Sales\Model\Order\Email\Sender\CreditmemoSender;
@@ -29,7 +32,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\Refund;
 
 class Push
 {
-    const TAX_CALCULATION_SHIPPING_INCLUDES_TAX = 'tax/calculation/shipping_includes_tax';
+    public const TAX_CALCULATION_SHIPPING_INCLUDES_TAX = 'tax/calculation/shipping_includes_tax';
 
     public $postData;
 
@@ -41,7 +44,7 @@ class Push
     public $order;
 
     /**
-     * @var  CreditmemoFactory $creditmemoFactory
+     * @var CreditmemoFactory $creditmemoFactory
      */
     public $creditmemoFactory;
 
@@ -71,11 +74,13 @@ class Push
     protected $scopeConfig;
 
     /**
-     * @param CreditmemoFactory             $creditmemoFactory
-     * @param CreditmemoManagementInterface $creditmemoManagement
-     * @param CreditmemoSender              $creditEmailSender
-     * @param Refund                        $configRefund
-     * @param Log                           $logging
+     * @param CreditmemoFactory                                  $creditmemoFactory
+     * @param CreditmemoManagementInterface                      $creditmemoManagement
+     * @param CreditmemoSender                                   $creditEmailSender
+     * @param Refund                                             $configRefund
+     * @param Log                                                $logging
+     * @param Data                                               $helper
+     * @param ScopeConfigInterface $scopeConfig
      */
     public function __construct(
         CreditmemoFactory $creditmemoFactory,
@@ -84,7 +89,7 @@ class Push
         Refund $configRefund,
         Data $helper,
         Log $logging,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
+        ScopeConfigInterface $scopeConfig
     ) {
         $this->creditmemoFactory     = $creditmemoFactory;
         $this->creditmemoManagement  = $creditmemoManagement;
@@ -101,10 +106,10 @@ class Push
      *
      * @param array $postData
      * @param bool  $signatureValidation
-     * @param $order
+     * @param       $order
      *
+     * @throws Exception
      * @return bool
-     * @throws \Buckaroo\Magento2\Exception
      */
     public function receiveRefundPush($postData, $signatureValidation, $order)
     {
@@ -131,7 +136,7 @@ class Push
             $debugMessage .= print_r(
                 [
                     'signature'      => $signatureValidation,
-                    'canOrderCredit' => $this->order->canCreditmemo()
+                    'canOrderCredit' => $this->order->canCreditmemo(),
                 ],
                 true
             );
@@ -221,8 +226,8 @@ class Push
     /**
      * @param $creditData
      *
-     * @return \Magento\Sales\Model\Order\Creditmemo
      * @throws \Magento\Framework\Exception\LocalizedException
+     * @return \Magento\Sales\Model\Order\Creditmemo
      */
     public function initCreditmemo($creditData)
     {
@@ -260,7 +265,7 @@ class Push
         $data = [
             'do_offline'   => '0',
             'do_refund'    => '0',
-            'comment_text' => ' '
+            'comment_text' => ' ',
         ];
 
         $totalAmountToRefund = $this->totalAmountToRefund();
@@ -275,7 +280,7 @@ class Push
         if ($pendingRefund) {
             $transactionKey = $this->postData['brq_transactions'];
             $currentPendingRefund = $pendingRefund[$transactionKey] ?? null;
-            if(is_array($currentPendingRefund)) {
+            if (is_array($currentPendingRefund)) {
                 $data['shipping_amount']     = $currentPendingRefund['shipping_amount'];
                 $data['adjustment_negative'] = $currentPendingRefund['adjustment_negative'];
                 $data['adjustment_positive'] = $currentPendingRefund['adjustment_positive'];
@@ -294,7 +299,7 @@ class Push
             $data['adjustment_positive'] = $adjustment;
             $data['items']               = $this->getCreditmemoDataItems();
             $data['qtys']                = $this->setCreditQtys($data['items']);
-        }  else {
+        } else {
             $this->logging->addDebug('With this refund of '. $this->creditAmount.' the grand total will be refunded.');
             $data['shipping_amount']     = $this->caluclateShippingCostToRefund();
             $data['adjustment_negative'] = $this->getTotalCreditAdjustments();
@@ -389,7 +394,7 @@ class Push
             - $this->order->getBaseTotalRefunded();
 
         $this->logging->addDebug(__METHOD__.'|5|'.var_export([
-                $this->totalAmountToRefund(),  $this->order->getBaseGrandTotal(), $remainderToRefund
+                $this->totalAmountToRefund(),  $this->order->getBaseGrandTotal(), $remainderToRefund,
             ], true));
 
         if ($this->totalAmountToRefund() == $this->order->getBaseGrandTotal()) {

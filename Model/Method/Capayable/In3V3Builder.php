@@ -29,7 +29,7 @@ class In3V3Builder
 {
     /** @var AddressFormatter */
     public $addressFormatter;
-    
+
     public function __construct(
         AddressFormatter $addressFormatter
     ) {
@@ -38,7 +38,8 @@ class In3V3Builder
 
 
 
-    public function build($payment) {
+    public function build($payment)
+    {
         return [
             'Name'   => 'In3',
             'Action' => 'Pay',
@@ -47,19 +48,18 @@ class In3V3Builder
                 $this->getBillingCustomer(
                     $payment->getOrder()->getBillingAddress(),
                     $this->getBirthDate($payment),
-                    $this->getPhone($payment->getOrder()->getBillingAddress() ,$payment)
+                    $this->getPhone($payment->getOrder()->getBillingAddress(), $payment)
                 ),
                 $this->getShippingAddress($payment->getOrder()->getShippingAddress())
-            )
+            ),
         ];
     }
 
     /**
      * Get formated shipping address
      *
-     * @param Address $billingAddress
-     *
-     * @return void
+     * @param Address $shippingAddress
+     * @return array
      */
     protected function getShippingAddress(Address $shippingAddress): array
     {
@@ -79,7 +79,7 @@ class In3V3Builder
             $data[] = $this->row($streetData['number_addition'], 'StreetNumberSuffix', 'ShippingCustomer', $i);
         }
 
-        if(strlen((string)$shippingAddress->getRegion())) {
+        if (strlen((string)$shippingAddress->getRegion())) {
             $data[] = $this->row($shippingAddress->getRegion(), 'Region', 'ShippingCustomer', $i);
         }
 
@@ -90,22 +90,22 @@ class In3V3Builder
      * Get formated billing customer
      *
      * @param Address $billingAddress
-     *
-     * @return void
+     * @param string $birthDate
+     * @param string $phone
+     * @return array
      */
     protected function getBillingCustomer(
         Address $billingAddress,
         string $birthDate,
         string $phone
-    ): array
-    {
+    ): array {
         $i = 2;
 
         $streetData = $this->addressFormatter->formatStreet($billingAddress->getStreet());
 
         $customerNumber = "guest";
 
-        if($billingAddress->getEntityId() !== null) {
+        if ($billingAddress->getEntityId() !== null) {
             $customerNumber = $billingAddress->getEntityId();
         }
         $data = [
@@ -117,7 +117,7 @@ class In3V3Builder
             $this->row($phone, 'Phone', 'BillingCustomer', $i),
             $this->row($billingAddress->getEmail(), 'Email', 'BillingCustomer', $i),
             $this->row("B2C", 'Category', 'BillingCustomer', $i),
-            
+
             $this->row($streetData['street'], 'Street', 'BillingCustomer', $i),
             $this->row($streetData['house_number'], 'StreetNumber', 'BillingCustomer', $i),
             $this->row($billingAddress->getPostcode(), 'PostalCode', 'BillingCustomer', $i),
@@ -129,7 +129,7 @@ class In3V3Builder
             $data[] = $this->row($streetData['number_addition'], 'StreetNumberSuffix', 'BillingCustomer', $i);
         }
 
-        if(strlen((string)$billingAddress->getRegion())) {
+        if (strlen((string)$billingAddress->getRegion())) {
             $data[] = $this->row($billingAddress->getRegion(), 'Region', 'BillingCustomer', $i);
         }
 
@@ -154,10 +154,10 @@ class In3V3Builder
             if (empty($item) || $item->getParentItem() !== null) {
                 continue;
             }
-           
+
             $productData[] = [
                 'id' => $item->getSku(),
-                'description'=> $item->getName(),
+                'description' => $item->getName(),
                 'qty' => $item->getQtyOrdered(),
                 'price' => floor($item->getBasePriceInclTax() * 100) / 100,
                 'vat' =>  $item->getTaxPercent(),
@@ -173,7 +173,8 @@ class In3V3Builder
         return $productData;
     }
 
-    protected function getArticles($payment) {
+    protected function getArticles($payment)
+    {
         $order = $payment->getOrder();
         $products = $this->getProducts($order->getAllItems());
 
@@ -201,19 +202,19 @@ class In3V3Builder
         $formated = [];
 
         foreach ($articles as $i => $article) {
-             $formated = array_merge($formated, [
-                $this->row($article['id'], 'Identifier', 'Article', $i+3),
-                $this->row($article['description'], 'Description', 'Article', $i+3),
-                $this->row($article['qty'], 'Quantity', 'Article', $i+3),
-                $this->row($article['price'], 'GrossUnitPrice', 'Article', $i+3),
-                $this->row($article['vat'], 'VatPercentage', 'Article', $i+3)
-             ]);
+            $formated = array_merge($formated, [
+               $this->row($article['id'], 'Identifier', 'Article', $i + 3),
+               $this->row($article['description'], 'Description', 'Article', $i + 3),
+               $this->row($article['qty'], 'Quantity', 'Article', $i + 3),
+               $this->row($article['price'], 'GrossUnitPrice', 'Article', $i + 3),
+               $this->row($article['vat'], 'VatPercentage', 'Article', $i + 3),
+            ]);
         }
         return $formated;
     }
 
-     /**
-     * @param $payment
+    /**
+     * @param       $payment
      * @param array $articles
      *
      * @return array|null
@@ -222,20 +223,20 @@ class In3V3Builder
     {
         $total = array_sum(
             array_map(function ($article) {
-                return round((float)$article['price'],2) * (int)$article['qty'] ;
+                return round((float)$article['price'], 2) * (int)$article['qty'] ;
             }, $articles)
         );
         $orderAmount = $payment->getData('amount_ordered');
 
-        $amount = round($orderAmount, 2) - round($total,2);
+        $amount = round($orderAmount, 2) - round($total, 2);
 
-        if(abs($amount) < 0.01) {
+        if (abs($amount) < 0.01) {
             return null;
         }
 
         return [
             'id' => 'rounding_errors',
-            'description'=> 'Rounding Errors',
+            'description' => 'Rounding Errors',
             'qty' => 1,
             'price' => $amount,
             'vat' => 0,
@@ -249,7 +250,7 @@ class In3V3Builder
      */
     protected function getDiscountLine($order)
     {
-        $discount = abs((double)$order->getDiscountAmount());
+        $discount = abs((float)$order->getDiscountAmount());
 
         if ($discount <= 0) {
             return [];
@@ -259,7 +260,7 @@ class In3V3Builder
 
         return [[
             'id' => 'discount',
-            'description'=> 'Discount Errors',
+            'description' => 'Discount Errors',
             'qty' => 1,
             'price' => $discount,
             'vat' => 0,
@@ -273,17 +274,17 @@ class In3V3Builder
      */
     protected function getFeeLine($order)
     {
-        $fee = (double)$order->getBuckarooFee();
+        $fee = (float)$order->getBuckarooFee();
 
         if ($fee <= 0) {
             return [];
         }
 
-        $feeTax = (double)$order->getBuckarooFeeTaxAmount();
+        $feeTax = (float)$order->getBuckarooFeeTaxAmount();
         $feeInclTax = round($fee + $feeTax, 2);
         return [[
             'id' => 'fee',
-            'description'=> 'Payment Fee',
+            'description' => 'Payment Fee',
             'qty' => 1,
             'price' => $feeInclTax,
             'vat' => 0,
@@ -304,7 +305,7 @@ class In3V3Builder
 
         return [[
             'id' => 'shipping',
-            'description'=> 'Shipping',
+            'description' => 'Shipping',
             'qty' => 1,
             'price' => $shippingAmount,
             'vat' => 0,
@@ -314,18 +315,19 @@ class In3V3Builder
     /**
      * Get phone
      *
-     * @param Address $address
+     * @param Address                             $address
      * @param OrderPaymentInterface|InfoInterface $payment
      *
      * @return string
      */
-    private function getPhone(Address $address, $payment) {
+    private function getPhone(Address $address, $payment)
+    {
         $phone = $address->getTelephone();
 
         if ($payment->getAdditionalInformation('customer_telephone') !== null) {
             $phone = $payment->getAdditionalInformation('customer_telephone');
         }
-        
+
         $phoneData = $this->addressFormatter->formatTelephone(
             $phone,
             $address->getCountryId()
@@ -341,9 +343,10 @@ class In3V3Builder
      *
      * @return string|null
      */
-    private function getBirthDate($payment) {
+    private function getBirthDate($payment)
+    {
         $birthDate = $payment->getAdditionalInformation('customer_DoB');
-        if(!is_string($birthDate)) {
+        if (!is_string($birthDate)) {
             return null;
         }
 
@@ -365,18 +368,16 @@ class In3V3Builder
     /**
      * Get row
      *
-     * @param mixed $value
-     * @param string $name
+     * @param mixed           $value
+     * @param string          $name
      * @param string|int|null $groupType
      * @param string|int|null $groupId
-     *
-     * @return void
      */
     private function row($value, $name, $groupType = null, $groupId = null)
     {
         $row = [
             '_' => $value,
-            'Name' => $name
+            'Name' => $name,
         ];
 
         if ($groupType !== null) {

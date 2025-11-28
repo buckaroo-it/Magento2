@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -38,8 +39,6 @@ class Giftcard extends \Magento\Framework\Model\ResourceModel\Db\VersionControl\
 
     /**
      * Model Initialization
-     *
-     * @return void
      */
     protected function _construct()
     {

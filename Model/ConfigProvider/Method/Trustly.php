@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -22,21 +23,21 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 class Trustly extends AbstractConfigProvider
 {
-    const XPATH_TRUSTLY_PAYMENT_FEE           = 'payment/buckaroo_magento2_trustly/payment_fee';
-    const XPATH_TRUSTLY_ACTIVE                = 'payment/buckaroo_magento2_trustly/active';
-    const XPATH_TRUSTLY_SUBTEXT               = 'payment/buckaroo_magento2_trustly/subtext';
-    const XPATH_TRUSTLY_SUBTEXT_STYLE         = 'payment/buckaroo_magento2_trustly/subtext_style';
-    const XPATH_TRUSTLY_SUBTEXT_COLOR         = 'payment/buckaroo_magento2_trustly/subtext_color';
-    const XPATH_TRUSTLY_ACTIVE_STATUS         = 'payment/buckaroo_magento2_trustly/active_status';
-    const XPATH_TRUSTLY_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_trustly/order_status_success';
-    const XPATH_TRUSTLY_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_trustly/order_status_failed';
-    const XPATH_TRUSTLY_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_trustly/available_in_backend';
+    public const XPATH_TRUSTLY_PAYMENT_FEE           = 'payment/buckaroo_magento2_trustly/payment_fee';
+    public const XPATH_TRUSTLY_ACTIVE                = 'payment/buckaroo_magento2_trustly/active';
+    public const XPATH_TRUSTLY_SUBTEXT               = 'payment/buckaroo_magento2_trustly/subtext';
+    public const XPATH_TRUSTLY_SUBTEXT_STYLE         = 'payment/buckaroo_magento2_trustly/subtext_style';
+    public const XPATH_TRUSTLY_SUBTEXT_COLOR         = 'payment/buckaroo_magento2_trustly/subtext_color';
+    public const XPATH_TRUSTLY_ACTIVE_STATUS         = 'payment/buckaroo_magento2_trustly/active_status';
+    public const XPATH_TRUSTLY_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_trustly/order_status_success';
+    public const XPATH_TRUSTLY_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_trustly/order_status_failed';
+    public const XPATH_TRUSTLY_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_trustly/available_in_backend';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_trustly/allowed_currencies';
+    public const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_trustly/allowed_currencies';
 
-    const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_trustly/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_trustly/specificcountry';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_trustly/specificcustomergroup';
+    public const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_trustly/allowspecific';
+    public const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_trustly/specificcountry';
+    public const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_trustly/specificcustomergroup';
 
     protected $allowedCountries = [
         'DE',
@@ -48,7 +49,7 @@ class Trustly extends AbstractConfigProvider
         'NO',
         'PL',
         'SE',
-        'GB'
+        'GB',
     ];
 
     /**

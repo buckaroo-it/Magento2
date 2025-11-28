@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,7 +18,11 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Service\Sales\Quote;
+
+use Buckaroo\Magento2\Logging\Log;
+use Magento\Checkout\Model\Cart;
 
 class Recreate
 {
@@ -29,7 +34,8 @@ class Recreate
     protected $logger;
 
     /**
-     * @param Cart                    $cart
+     * @param Cart $cart
+     * @param Log $logger
      */
     public function __construct(
         \Magento\Checkout\Model\Cart $cart,
@@ -40,8 +46,8 @@ class Recreate
     }
 
     /**
-     * @param $quote
-     * @param array $response
+     * @param              $quote
+     * @param  array       $response
      * @return false|mixed
      */
     public function recreate($quote, $response = [])

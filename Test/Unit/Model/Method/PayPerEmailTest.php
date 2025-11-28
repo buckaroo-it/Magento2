@@ -42,14 +42,14 @@ class PayPerEmailTest extends BaseTest
     {
         return [
             'no data' => [
-                []
+                [],
             ],
             'with skip validation data' => [
                 [
                     'additional_data' => [
                         'buckaroo_skip_validation' => '1',
-                    ]
-                ]
+                    ],
+                ],
             ],
             'with form data' => [
                 [
@@ -58,8 +58,8 @@ class PayPerEmailTest extends BaseTest
                         'customer_billingFirstName' => 'Buckaroo',
                         'customer_billingLastName' => 'TEST',
                         'customer_email' => '07/10/1990',
-                    ]
-                ]
+                    ],
+                ],
             ],
         ];
     }
@@ -115,11 +115,11 @@ class PayPerEmailTest extends BaseTest
         $instance = $this->getInstance([
             'configProviderMethodFactory' => $factoryMock,
             'transactionBuilderFactory' => $transactionBuilderMock,
-            'serviceParameters' => $serviceParametersMock
+            'serviceParameters' => $serviceParametersMock,
         ]);
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $result = $instance->getOrderTransactionBuilder($infoInstanceMock);
         $this->assertInstanceOf(Order::class, $result);
 
@@ -154,7 +154,7 @@ class PayPerEmailTest extends BaseTest
         $infoInstanceMock->expects($this->exactly(4))->method('getAdditionalInformation');
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $instance = $this->getInstance(['configProviderMethodFactory' => $factoryMock]);
         $result = $this->invokeArgs('getPayperemailService', [$infoInstanceMock], $instance);
 
@@ -178,7 +178,7 @@ class PayPerEmailTest extends BaseTest
         return [
             'no service' => [
                 [],
-                null
+                null,
             ],
             'no invoicekey' => [
                 [
@@ -186,11 +186,11 @@ class PayPerEmailTest extends BaseTest
                         'Name' => 'CreditManagement3',
                         'ResponseParameter' => (Object)[
                             'Name' => 'ResponseName',
-                            '_' => 'abc'
-                        ]
-                    ]
+                            '_' => 'abc',
+                        ],
+                    ],
                 ],
-                null
+                null,
             ],
             'incorrect service' => [
                 [
@@ -198,11 +198,11 @@ class PayPerEmailTest extends BaseTest
                         'Name' => 'PayPerEmail',
                         'ResponseParameter' => (Object)[
                             'Name' => 'InvoiceKey',
-                            '_' => 'def'
-                        ]
-                    ]
+                            '_' => 'def',
+                        ],
+                    ],
                 ],
-                null
+                null,
             ],
             'has invoicekey' => [
                 [
@@ -210,11 +210,11 @@ class PayPerEmailTest extends BaseTest
                         'Name' => 'CreditManagement3',
                         'ResponseParameter' => (Object)[
                             'Name' => 'InvoiceKey',
-                            '_' => 'ghi'
-                        ]
-                    ]
+                            '_' => 'ghi',
+                        ],
+                    ],
                 ],
-                'ghi'
+                'ghi',
             ],
         ];
     }
@@ -232,9 +232,9 @@ class PayPerEmailTest extends BaseTest
         $respone = [
             0 => (Object)[
                 'Services' => (Object)[
-                    'Service' => $service
-                ]
-            ]
+                    'Service' => $service,
+                ],
+            ],
         ];
 
         $instance = $this->getInstance();
@@ -250,64 +250,64 @@ class PayPerEmailTest extends BaseTest
             'object, has invoiceKey' => [
                 (Object)[
                     'Name' => 'InvoiceKey',
-                    '_' => 'key123'
+                    '_' => 'key123',
                 ],
-                'key123'
+                'key123',
             ],
             'object, no invoiceKey' => [
                 (Object)[
                     'Name' => 'Debtor',
-                    '_' => 'Buckaroo'
+                    '_' => 'Buckaroo',
                 ],
-                ''
+                '',
             ],
             'array with one item, has invoiceKey' => [
                 [
                     (Object)[
                         'Name' => 'InvoiceKey',
-                        '_' => 'invoice456'
-                    ]
+                        '_' => 'invoice456',
+                    ],
                 ],
-                'invoice456'
+                'invoice456',
             ],
             'array with one item, no invoiceKey' => [
                 [
                     (Object)[
                         'Name' => 'Debtor',
-                        '_' => 'Buckaroo'
-                    ]
+                        '_' => 'Buckaroo',
+                    ],
                 ],
-                ''
+                '',
             ],
             'array with multiple items, has invoiceKey' => [
                 [
                     (Object)[
                         'Name' => 'Status',
-                        '_' => 'Paid'
+                        '_' => 'Paid',
                     ],
                     (Object)[
                         'Name' => 'InvoiceKey',
-                        '_' => 'order789'
+                        '_' => 'order789',
                     ],
                     (Object)[
                         'Name' => 'Debtor',
-                        '_' => 'Buckaroo'
+                        '_' => 'Buckaroo',
                     ],
                 ],
-                'order789'
+                'order789',
             ],
             'array with multiple items, no invoiceKey' => [
                 [
                     (Object)[
                         'Name' => 'Status',
-                        '_' => 'Paid'
+                        '_' => 'Paid',
                     ],
                     (Object)[
                         'Name' => 'Debtor',
-                        '_' => 'Buckaroo'
+                        '_' => 'Buckaroo',
                     ],
                 ],
-                ''
+                '',
             ],
         ];
     }
@@ -384,7 +384,7 @@ class PayPerEmailTest extends BaseTest
 
         $instance = $this->getInstance([
             'serviceParameters' => $serviceParametersMock,
-            'transactionBuilderFactory' => $transactionBuilderMock
+            'transactionBuilderFactory' => $transactionBuilderMock,
         ]);
 
         $result = $instance->getVoidTransactionBuilder($infoInstanceMock);
@@ -411,7 +411,7 @@ class PayPerEmailTest extends BaseTest
             ->willReturn($configMock);
 
         $instance = $this->getInstance([
-            'configProviderMethodFactory' => $configFactoryMock
+            'configProviderMethodFactory' => $configFactoryMock,
         ]);
 
         $result = $instance->isAvailable();

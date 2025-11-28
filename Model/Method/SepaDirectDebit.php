@@ -1,4 +1,5 @@
 <?php
+
 // @codingStandardsIgnoreFile
 /**
  * NOTICE OF LICENSE
@@ -21,6 +22,7 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
+use Magento\Quote\Api\Data\CartInterface;
 use Magento\Sales\Model\Order\Payment;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
@@ -33,7 +35,7 @@ class SepaDirectDebit extends AbstractMethod
     /**
      * Payment Code
      */
-    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_sepadirectdebit';
+    public const PAYMENT_METHOD_CODE = 'buckaroo_magento2_sepadirectdebit';
 
     /**
      * @var string
@@ -77,18 +79,18 @@ class SepaDirectDebit extends AbstractMethod
         SoftwareData $softwareData,
         AddressFactory $addressFactory,
         \Magento\Framework\Event\ManagerInterface $eventManager,
-        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
-        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
-        \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
-        \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory = null,
-        \Buckaroo\Magento2\Model\ValidatorFactory $validatorFactory = null,
-        \Magento\Framework\Message\ManagerInterface $messageManager = null,
-        \Buckaroo\Magento2\Helper\Data $helper = null,
-        \Magento\Framework\App\RequestInterface $request = null,
-        \Buckaroo\Magento2\Model\RefundFieldsFactory $refundFieldsFactory = null,
-        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory = null,
-        \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
-        \Magento\Framework\Pricing\Helper\Data $priceHelper = null,
+        ?\Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
+        ?\Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
+        ?\Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
+        ?\Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory = null,
+        ?\Buckaroo\Magento2\Model\ValidatorFactory $validatorFactory = null,
+        ?\Magento\Framework\Message\ManagerInterface $messageManager = null,
+        ?\Buckaroo\Magento2\Helper\Data $helper = null,
+        ?\Magento\Framework\App\RequestInterface $request = null,
+        ?\Buckaroo\Magento2\Model\RefundFieldsFactory $refundFieldsFactory = null,
+        ?\Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory = null,
+        ?\Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
+        ?\Magento\Framework\Pricing\Helper\Data $priceHelper = null,
         array $data = []
     ) {
         parent::__construct(
@@ -171,7 +173,7 @@ class SepaDirectDebit extends AbstractMethod
 
         $filterParameter = [
             ['Name' => 'AllowedServices'],
-            ['Name' => 'Gender', 'Group' => 'Person']
+            ['Name' => 'Gender', 'Group' => 'Person'],
         ];
 
         $cmService = $this->serviceParameters->getCreateCombinedInvoice($payment, 'sepadirectdebit', $filterParameter);
@@ -327,7 +329,8 @@ class SepaDirectDebit extends AbstractMethod
     /**
      * {@inheritdoc}
      */
-    public function validateAdditionalData() {
+    public function validateAdditionalData()
+    {
 
         $paymentInfo = $this->getInfoInstance();
 
@@ -370,15 +373,13 @@ class SepaDirectDebit extends AbstractMethod
         return $this->buckarooPaymentMethodCode;
     }
 
-    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
+    public function isAvailable(?CartInterface $quote = null)
     {
-        $orderId = $quote ? $quote->getReservedOrderId() : null;
+        if (!parent::isAvailable($quote)) {
+            return false;
+        }
 
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-
-        $paymentGroupTransaction = $objectManager->get(\Buckaroo\Magento2\Helper\PaymentGroupTransaction::class);
-
-        if ($paymentGroupTransaction->getAlreadyPaid($orderId) > 0) {
+        if ($this->isOrderPartiallyPaid($quote)) {
             return false;
         }
 

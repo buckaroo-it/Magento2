@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,12 +18,13 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Method;
 
 class MBWay extends AbstractMethod
 {
     /** Payment Code*/
-    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_mbway';
+    public const PAYMENT_METHOD_CODE = 'buckaroo_magento2_mbway';
 
     /** @var string */
     public $buckarooPaymentMethodCode = 'mbway';
@@ -40,7 +42,7 @@ class MBWay extends AbstractMethod
         $services = [
             'Name' => 'MBWay',
             'Action' => $this->getPayRemainder($payment, $transactionBuilder),
-            'Version' => 0
+            'Version' => 0,
         ];
 
         $transactionBuilder->setOrder($payment->getOrder())

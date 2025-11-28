@@ -70,7 +70,7 @@ class BuckarooFeeTest extends \Buckaroo\Magento2\Test\BaseTest
         $instance = $this->getInstance([
             'configProviderBuckarooFee' => $configProviderFeeMock,
             'configProviderMethodFactory' => $configProviderFactoryMock,
-            'catalogHelper' => $catalogHelper
+            'catalogHelper' => $catalogHelper,
         ]);
 
         $result = $instance->getBaseFee($paymentMethodMock, $quoteMock, $totalMock);
@@ -159,7 +159,7 @@ class BuckarooFeeTest extends \Buckaroo\Magento2\Test\BaseTest
 
 
         $instance = $this->getInstance([
-            'configProviderMethodFactory' => $configProviderFactoryMock
+            'configProviderMethodFactory' => $configProviderFactoryMock,
         ]);
         $result = $instance->getBaseFee($paymentMethodMock, $quoteMock);
 
@@ -178,7 +178,7 @@ class BuckarooFeeTest extends \Buckaroo\Magento2\Test\BaseTest
                 'subtotal',
                 'getBaseSubtotal',
                 45.0000,
-                4.5000
+                4.5000,
             ],
             [
                 'buckaroo_magento2_ideal',
@@ -186,7 +186,7 @@ class BuckarooFeeTest extends \Buckaroo\Magento2\Test\BaseTest
                 'subtotal_incl_tax',
                 'getBaseSubtotalTotalInclTax',
                 45.0000,
-                4.0500
+                4.0500,
             ],
         ];
     }
@@ -228,7 +228,7 @@ class BuckarooFeeTest extends \Buckaroo\Magento2\Test\BaseTest
         $configProviderFactoryMock->expects($this->once())->method('getPaymentFee')->willReturn($fee);
 
         $instance = $this->getInstance([
-            'configProviderMethodFactory' => $configProviderFactoryMock
+            'configProviderMethodFactory' => $configProviderFactoryMock,
         ]);
         $result = $instance->getBaseFee($paymentMethodMock, $quoteMock);
 
@@ -268,7 +268,7 @@ class BuckarooFeeTest extends \Buckaroo\Magento2\Test\BaseTest
         $totalMock = $this->getFakeMock(Total::class)
             ->setMethods([
                 'getBuckarooFee', 'getBaseBuckarooFee', 'getBuckarooFeeInclTax',
-                'getBaseBuckarooFeeInclTax', 'getBuckarooFeeTaxAmount', 'getBuckarooFeeBaseTaxAmount'
+                'getBaseBuckarooFeeInclTax', 'getBuckarooFeeTaxAmount', 'getBuckarooFeeBaseTaxAmount',
             ])
             ->getMock();
         $totalMock->expects($this->once())->method('getBuckarooFee')->willReturn($expectedBuckarooFee);
@@ -333,11 +333,11 @@ class BuckarooFeeTest extends \Buckaroo\Magento2\Test\BaseTest
     {
         return [
             [
-                false
+                false,
             ],
             [
-                'check_mo'
-            ]
+                'check_mo',
+            ],
         ];
     }
 
@@ -383,7 +383,7 @@ class BuckarooFeeTest extends \Buckaroo\Magento2\Test\BaseTest
         $instance = $this->getInstance([
             'configProviderBuckarooFee' => $configProviderFeeMock,
             'configProviderMethodFactory' => $configProviderFactoryMock,
-            'catalogHelper' => $catalogHelperMock
+            'catalogHelper' => $catalogHelperMock,
         ]);
 
         $result = $instance->collect($quoteMock, $shippingAssignmentMock, $totalMock);
@@ -469,7 +469,7 @@ class BuckarooFeeTest extends \Buckaroo\Magento2\Test\BaseTest
         $totalMock = $this->getFakeMock(Total::class)
             ->setMethods([
                 'setBuckarooFee', 'setBaseBuckarooFee', 'getBaseGrandTotal',
-                'getGrandTotal', 'setBaseGrandTotal', 'setGrandTotal'
+                'getGrandTotal', 'setBaseGrandTotal', 'setGrandTotal',
             ])
             ->getMock();
         //$totalMock->expects($this->exactly(2))->method('setBuckarooFee')->withConsecutive([0], [$fee]);

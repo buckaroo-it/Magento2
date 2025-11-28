@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -28,8 +29,6 @@ interface QuoteBuilderInterface
      * Set form data
      *
      * @param string $formData
-     *
-     * @return void
      */
     public function setFormData(string $formData);
 

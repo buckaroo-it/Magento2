@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Config\Source;
 
 use Magento\Framework\Api\SearchCriteriaBuilder;
@@ -57,7 +59,7 @@ class Certificates implements ArrayInterface
         if (count($certificateData) <= 0) {
             $options[] = [
                 'value' => '',
-                'label' => __('You have not yet uploaded any certificate files')
+                'label' => __('You have not yet uploaded any certificate files'),
             ];
 
             return $options;
@@ -69,7 +71,7 @@ class Certificates implements ArrayInterface
         foreach ($certificateData as $model) {
             $options[] = [
                 'value' => $model->getEntityId(),
-                'label' => $model->getName() . ' (' . $model->getCreatedAt() . ')'
+                'label' => $model->getName() . ' (' . $model->getCreatedAt() . ')',
             ];
         }
 

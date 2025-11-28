@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Ui\DataProvider\Modifier;
 
 use Magento\Framework\App\CacheInterface;
@@ -48,10 +50,10 @@ class Notifications implements ModifierInterface
     private $renderer;
 
     /**
-     * @param CacheInterface $cacheStorage
-     * @param ReadFactory $readFactory
-     * @param Reader $moduleReader
-     * @param SerializerInterface $serializer
+     * @param CacheInterface       $cacheStorage
+     * @param ReadFactory          $readFactory
+     * @param Reader               $moduleReader
+     * @param SerializerInterface  $serializer
      * @param NotificationRenderer $render
      */
     public function __construct(
@@ -103,7 +105,7 @@ class Notifications implements ModifierInterface
      *
      * @param array $meta
      * @param array $page
-     * @param bool $isLastPage
+     * @param bool  $isLastPage
      *
      * @return array
      */
@@ -111,12 +113,12 @@ class Notifications implements ModifierInterface
     {
         $meta['notification_modal_' . $page['name']]['arguments']['data']['config'] = [
             'isTemplate' => false,
-            'componentType' => \Magento\Ui\Component\Modal::NAME
+            'componentType' => \Magento\Ui\Component\Modal::NAME,
         ];
 
         $meta['notification_modal_' . $page['name']]['children']['notification_fieldset']['children']
         ['notification_text']['arguments']['data']['config'] = [
-            'text' => $this->renderer->getNotificationContent($page)
+            'text' => $this->renderer->getNotificationContent($page),
         ];
 
         if ($isLastPage) {
@@ -128,21 +130,21 @@ class Notifications implements ModifierInterface
                         'actions' => [
                             [
                                 'targetName' => '${ $.name }',
-                                'actionName' => 'closeReleaseNotes'
-                            ]
+                                'actionName' => 'closeReleaseNotes',
+                            ],
                         ],
-                        'class' => 'release-notification-button-next'
-                    ]
+                        'class' => 'release-notification-button-next',
+                    ],
                 ],
             ];
 
             $meta['notification_modal_' . $page['name']]['children']['notification_fieldset']['children']
             ['notification_buttons']['children']['notification_button_next']['arguments']['data']['config'] = [
-                'buttonClasses' => 'hide-release-notification'
+                'buttonClasses' => 'hide-release-notification',
             ];
         } else {
             $meta['notification_modal_' . $page['name']]['arguments']['data']['config']['options'] = [
-                'title' => $this->renderer->getNotificationTitle($page)
+                'title' => $this->renderer->getNotificationTitle($page),
             ];
         }
 
@@ -152,13 +154,13 @@ class Notifications implements ModifierInterface
     /**
      * Sets the modal to not display if no content is available.
      *
-     * @param array $meta
+     * @param  array $meta
      * @return array
      */
     private function hideNotification(array $meta)
     {
         $meta['notification_modal_1']['arguments']['data']['config']['options'] = [
-            'autoOpen' => false
+            'autoOpen' => false,
         ];
 
         return $meta;
@@ -168,7 +170,6 @@ class Notifications implements ModifierInterface
      * Returns the json data
      *
      * @return array
-     * @throws FileSystemException
      */
     private function getNotificationContent()
     {

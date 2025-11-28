@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -64,10 +65,10 @@ class Edit extends \Magento\Backend\Block\Widget\Form\Container
                     'mage-init' => [
                         'button' => [
                             'event' => 'saveAndContinueEdit',
-                            'target' => '#edit_form'
-                        ]
-                    ]
-                ]
+                            'target' => '#edit_form',
+                        ],
+                    ],
+                ],
             ]
         );
     }

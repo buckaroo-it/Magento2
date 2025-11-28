@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -20,12 +21,21 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
-use Magento\Tax\Model\Config;
+use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
+use Magento\Framework\App\ObjectManager;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Payment\Model\InfoInterface;
+use Magento\Quote\Api\Data\CartInterface;
+use Magento\Quote\Model\Quote;
+use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Model\Order\Creditmemo;
+use Magento\Sales\Model\Order\Invoice;
+use Magento\Sales\Model\Order\Item;
 use Magento\Tax\Model\Calculation;
 use Magento\Framework\Phrase;
 use Magento\Catalog\Model\Product\Type;
 use Magento\Store\Model\ScopeInterface;
-use Magento\Quote\Model\Quote\AddressFactory;
 use Magento\Sales\Api\Data\OrderAddressInterface;
 
 class Billink extends AbstractMethod
@@ -33,27 +43,27 @@ class Billink extends AbstractMethod
     /**
      * Payment Code
      */
-    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_billink';
+    public const PAYMENT_METHOD_CODE = 'buckaroo_magento2_billink';
 
     /**
      * Max articles that can be handled by billink
      */
-    const BILLINK_MAX_ARTICLE_COUNT = 99;
+    public const BILLINK_MAX_ARTICLE_COUNT = 99;
 
     /**
      * Business methods that will be used in afterpay.
      */
-    const BUSINESS_METHOD_B2C = 1;
-    const BUSINESS_METHOD_B2B = 2;
-    const BUSINESS_METHOD = 'payment/buckaroo_magento2_billink/business';
+    public const BUSINESS_METHOD_B2C = 1;
+    public const BUSINESS_METHOD_B2B = 2;
+    public const BUSINESS_METHOD = 'payment/buckaroo_magento2_billink/business';
 
     /**
      * Check if the tax calculation includes tax.
      */
-    const TAX_CALCULATION_INCLUDES_TAX = 'tax/calculation/price_includes_tax';
-    const TAX_CALCULATION_SHIPPING_INCLUDES_TAX = 'tax/calculation/shipping_includes_tax';
+    public const TAX_CALCULATION_INCLUDES_TAX = 'tax/calculation/price_includes_tax';
+    public const TAX_CALCULATION_SHIPPING_INCLUDES_TAX = 'tax/calculation/shipping_includes_tax';
 
-    const BILLINK_PAYMENT_METHOD_NAME = 'Billink';
+    public const BILLINK_PAYMENT_METHOD_NAME = 'Billink';
 
     /**
      * @var string
@@ -107,12 +117,12 @@ class Billink extends AbstractMethod
 
         $additionalData = $data['additional_data'];
 
-//        if (isset($additionalData['customer_billingName'])) {
-//            $this->getInfoInstance()->setAdditionalInformation(
-//                'customer_billingName',
-//                $additionalData['customer_billingName']
-//            );
-//        }
+        //        if (isset($additionalData['customer_billingName'])) {
+        //            $this->getInfoInstance()->setAdditionalInformation(
+        //                'customer_billingName',
+        //                $additionalData['customer_billingName']
+        //            );
+        //        }
 
         if (isset($additionalData['customer_gender'])) {
             $this->getInfoInstance()->setAdditionalInformation('customer_gender', $additionalData['customer_gender']);
@@ -153,7 +163,7 @@ class Billink extends AbstractMethod
      *
      * @return Phrase
      */
-    public function getDiscountOn() :Phrase
+    public function getDiscountOn(): Phrase
     {
         return __('Discount on');
     }
@@ -173,7 +183,7 @@ class Billink extends AbstractMethod
     }
 
     /**
-     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     * @param OrderPaymentInterface|InfoInterface $payment
      *
      * @return bool|string
      */
@@ -277,7 +287,7 @@ class Billink extends AbstractMethod
      * @param $payment
      *
      * @return array
-     * @throws \Buckaroo\Magento2\Exception
+     * @throws Exception|LocalizedException
      */
     public function getRequestArticlesData($payment)
     {
@@ -296,7 +306,7 @@ class Billink extends AbstractMethod
         $count    = 1;
         $bundleProductQty = 0;
 
-        /** @var \Magento\Sales\Model\Order\Item $item */
+        /** @var Item $item */
         foreach ($cartData as $item) {
 
             if (empty($item)
@@ -339,7 +349,7 @@ class Billink extends AbstractMethod
                     $this->getDiscountOn() . ' ' . $item->getName(),
                     $item->getSku(),
                     1,
-                    number_format(($item->getDiscountAmount()*-1), 2),
+                    number_format(($item->getDiscountAmount() * -1), 2),
                     $item->getTaxPercent() ?: 0
                 );
                 // @codingStandardsIgnoreStart
@@ -366,16 +376,29 @@ class Billink extends AbstractMethod
 
         if (!empty($shippingCosts)) {
             $articles = array_merge($articles, $shippingCosts);
+            $count++;
+        }
+
+        $reward = $this->getRewardLine($quote, $count);
+
+        if (!empty($reward)) {
+            $articles = array_merge($articles, $reward);
+            $count++;
+        }
+
+        $giftCard = $this->getGiftCardLine($quote, $count);
+
+        if (!empty($giftCard)) {
+            $articles = array_merge($articles, $giftCard);
         }
 
         return $articles;
     }
 
     /**
-     * @param \Magento\Sales\Model\Order\Invoice $invoice
+     * @param Invoice $invoice
      *
      * @return array
-     * @throws \Buckaroo\Magento2\Exception
      */
     public function getInvoiceArticleData($invoice)
     {
@@ -388,7 +411,7 @@ class Billink extends AbstractMethod
         $articles = [];
         $count    = 1;
 
-        /** @var \Magento\Sales\Model\Order\Invoice\Item $item */
+        /** @var Invoice\Item $item */
         foreach ($invoice->getAllItems() as $item) {
             if (empty($item) || $item->getRowTotalInclTax() == 0) {
                 continue;
@@ -415,7 +438,7 @@ class Billink extends AbstractMethod
                     $this->getDiscountOn() . ' ' . $item->getName(),
                     $item->getSku(),
                     1,
-                    number_format(($item->getDiscountAmount()*-1), 2),
+                    number_format(($item->getDiscountAmount() * -1), 2),
                     $item->getOrderItem()->getTaxPercent() ?: 0
                 );
                 // @codingStandardsIgnoreStart
@@ -439,12 +462,12 @@ class Billink extends AbstractMethod
     /**
      * @param $payment
      *
+     * @throws Exception
      * @return array
-     * @throws \Buckaroo\Magento2\Exception
      */
     public function getCreditmemoArticleData($payment)
     {
-        /** @var \Magento\Sales\Model\Order\Creditmemo $creditmemo */
+        /** @var Creditmemo $creditmemo */
         $creditmemo = $payment->getCreditmemo();
         $includesTax = $this->_scopeConfig->getValue(
             static::TAX_CALCULATION_INCLUDES_TAX,
@@ -455,7 +478,6 @@ class Billink extends AbstractMethod
         $count = 1;
         $itemsTotalAmount = 0;
 
-        /** @var \Magento\Sales\Model\Order\Creditmemo\Item $item */
         foreach ($creditmemo->getAllItems() as $item) {
             if (empty($item) || $item->getRowTotalInclTax() == 0) {
                 continue;
@@ -526,6 +548,82 @@ class Billink extends AbstractMethod
     }
 
     /**
+     * Get the reward cost lines
+     *
+     * @param Quote $quote
+     * @param       $group
+     *
+     * @return array
+     */
+    public function getRewardLine($quote, $group)
+    {
+        try {
+            $discount = (float)$quote->getRewardCurrencyAmount();
+
+            if ($discount <= 0) {
+                return [];
+            }
+
+            $this->logger2->addDebug(__METHOD__ . '|Reward points discount found: ' . $discount);
+
+            $article = $this->getArticleArrayLine(
+                $group,
+                'Discount Reward Points',
+                'reward-points',
+                1,
+                -$discount,
+                0
+            );
+
+            return $article;
+        } catch (\Error $e) {
+            $this->logger2->addDebug(__METHOD__ . '|getRewardCurrencyAmount method not available - Adobe Commerce reward points may not be installed');
+            return [];
+        } catch (\Exception $e) {
+            $this->logger2->addError(__METHOD__ . '|Error getting reward points amount: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Get the gift card discount line
+     *
+     * @param Quote $quote
+     * @param       $group
+     *
+     * @return array
+     */
+    public function getGiftCardLine($quote, $group)
+    {
+        try {
+            $discount = (float)$quote->getGiftCardsAmount();
+
+            if ($discount <= 0) {
+                return [];
+            }
+
+            $this->logger2->addDebug(__METHOD__ . '|Gift card discount found: ' . $discount);
+
+            $article = $this->getArticleArrayLine(
+                $group,
+                'Discount Gift Card',
+                'gift-card',
+                1,
+                -$discount,
+                0
+            );
+
+            return $article;
+        } catch (\Error $e) {
+            $this->logger2->addDebug(__METHOD__ . '|getGiftCardsAmount method not available - Adobe Commerce gift cards may not be installed');
+            return [];
+        } catch (\Exception $e) {
+            $this->logger2->addError(__METHOD__ . '|Error getting gift card amount: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
      * @param $latestKey
      * @param $articleDescription
      * @param $articleId
@@ -573,14 +671,14 @@ class Billink extends AbstractMethod
                 'Name'    => 'VatPercentage',
                 'GroupID' => $latestKey,
                 'Group' => 'Article',
-            ]
+            ],
         ];
 
         return $article;
     }
 
     /**
-     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     * @param OrderPaymentInterface|InfoInterface $payment
      *
      * @return string|null
      */
@@ -588,7 +686,7 @@ class Billink extends AbstractMethod
     {
         $birth = $payment->getAdditionalInformation('customer_DoB');
 
-        if(!is_string($birth) || strlen(trim($birth)) === 0) {
+        if (!is_string($birth) || strlen(trim($birth)) === 0) {
             return null;
         }
 
@@ -597,21 +695,21 @@ class Billink extends AbstractMethod
             strtotime(str_replace('/', '-', $birth))
         );
 
-        if($birthDayStamp === false) {
+        if ($birthDayStamp === false) {
             return null;
         }
         return $birthDayStamp;
     }
 
     /**
-     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     * @param OrderPaymentInterface|InfoInterface $payment
      *
      * @return array
      */
     public function getRequestBillingData($payment)
     {
         /**
-         * @var \Magento\Sales\Api\Data\OrderAddressInterface $billingAddress
+         * @var OrderAddressInterface $billingAddress
          */
         $order = $payment->getOrder();
         $billingAddress = $order->getBillingAddress();
@@ -787,15 +885,16 @@ class Billink extends AbstractMethod
     }
 
     /**
-     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     * @param OrderPaymentInterface|InfoInterface $payment
      *
      * @return array
+     * @throws LocalizedException
      */
     public function getRequestShippingData($payment)
     {
         $order = $payment->getOrder();
         /**
-         * @var \Magento\Sales\Api\Data\OrderAddressInterface $shippingAddress
+         * @var OrderAddressInterface $shippingAddress
          */
         $shippingAddress = $this->getShippingAddress($payment);
 
@@ -900,7 +999,7 @@ class Billink extends AbstractMethod
         return number_format($price, 4, '.', '');
     }
 
-    protected function isAvailableBasedOnAmount(\Magento\Quote\Api\Data\CartInterface $quote = null)
+    protected function isAvailableBasedOnAmount(?CartInterface $quote = null)
     {
         if ($quote && $quote->getId()) {
             $storeId = $quote->getStoreId();
@@ -913,7 +1012,7 @@ class Billink extends AbstractMethod
             }
 
             /**
-             * @var \Magento\Quote\Model\Quote $quote
+             * @var Quote $quote
              */
             $total = $quote->getGrandTotal();
 
@@ -934,15 +1033,13 @@ class Billink extends AbstractMethod
         return true;
     }
 
-    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
+    public function isAvailable(?CartInterface $quote = null)
     {
-        $orderId = $quote ? $quote->getReservedOrderId() : null;
+        if (!parent::isAvailable($quote)) {
+            return false;
+        }
 
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-
-        $paymentGroupTransaction = $objectManager->get(\Buckaroo\Magento2\Helper\PaymentGroupTransaction::class);
-
-        if ($paymentGroupTransaction->getAlreadyPaid($orderId) > 0) {
+        if ($this->isOrderPartiallyPaid($quote)) {
             return false;
         }
 

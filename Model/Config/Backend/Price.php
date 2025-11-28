@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Config\Backend;
 
 class Price extends \Magento\Framework\App\Config\Value
@@ -24,8 +26,8 @@ class Price extends \Magento\Framework\App\Config\Value
     /**
      * Validate that the number is a valid price.
      *
-     * @return $this
      * @throws \Magento\Framework\Exception\LocalizedException
+     * @return $this
      */
     public function save()
     {

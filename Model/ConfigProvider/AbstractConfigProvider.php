@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,9 +18,10 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\ConfigProvider;
 
-use \Magento\Checkout\Model\ConfigProviderInterface;
+use Magento\Checkout\Model\ConfigProviderInterface;
 
 abstract class AbstractConfigProvider implements ConfigProviderInterface
 {
@@ -49,9 +51,9 @@ abstract class AbstractConfigProvider implements ConfigProviderInterface
      * @param string $method
      * @param mixed  $params
      *
-     * @return mixed|null
      *
      * @throws \InvalidArgumentException
+     * @return mixed|null
      */
     public function __call($method, $params)
     {

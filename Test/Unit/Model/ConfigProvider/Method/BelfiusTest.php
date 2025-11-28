@@ -41,16 +41,17 @@ class BelfiusTest extends BaseTest
                             'belfius' => [
                                 'paymentFeeLabel' => 'Belfius Fee',
                                 'allowedCurrencies' => ['EUR'],
-                            ]
-                        ]
-                    ]
-                ]
-            ]
+                            ],
+                        ],
+                    ],
+                ],
+            ],
         ];
     }
 
     /**
-     * @param $expected
+     * @param       $expected
+     * @param mixed $active
      *
      * @covers ::getConfig
      * @dataProvider getConfigProvider
@@ -83,35 +84,35 @@ class BelfiusTest extends BaseTest
         return [
             'null value' => [
                 null,
-                false
+                false,
             ],
             'false value' => [
                 false,
-                false
+                false,
             ],
             'empty int value' => [
                 0,
-                false
+                false,
             ],
             'empty float value' => [
                 0.00,
-                false
+                false,
             ],
             'empty string value' => [
                 '',
-                false
+                false,
             ],
             'int value' => [
                 1,
-                1
+                1,
             ],
             'float value' => [
                 2.34,
-                2.34
+                2.34,
             ],
             'string value' => [
                 '5.67',
-                5.67
+                5.67,
             ],
         ];
     }

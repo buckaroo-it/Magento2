@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -65,10 +66,10 @@ class QuoteBuilder implements QuoteBuilderInterface
     protected $quote;
 
     /**
-     * @param QuoteFactory $quoteFactory
+     * @param QuoteFactory               $quoteFactory
      * @param ProductRepositoryInterface $productRepository
-     * @param DataObjectFactory $dataObjectFactory
-     * @param CustomerSession $customer
+     * @param DataObjectFactory          $dataObjectFactory
+     * @param CustomerSession            $customer
      */
     public function __construct(
         QuoteFactory $quoteFactory,
@@ -103,8 +104,6 @@ class QuoteBuilder implements QuoteBuilderInterface
 
     /**
      * Add user to quote
-     *
-     * @return void
      */
     protected function setUser()
     {
@@ -123,7 +122,6 @@ class QuoteBuilder implements QuoteBuilderInterface
     /**
      * Add product to quote
      *
-     * @return void
      * @throws AddProductException
      * @throws LocalizedException
      */

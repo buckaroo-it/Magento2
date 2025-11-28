@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -29,7 +30,7 @@ class CheckoutManagement
     /**
      * @var PaymentGroupTransaction
      */
-    private PaymentGroupTransaction $paymentGroupTransaction;
+    private $paymentGroupTransaction;
 
     /**
      * @var \Magento\Checkout\Model\Session
@@ -37,7 +38,7 @@ class CheckoutManagement
     private $checkoutSession;
 
     /**
-     * @param PaymentGroupTransaction $paymentGroupTransaction
+     * @param PaymentGroupTransaction         $paymentGroupTransaction
      * @param \Magento\Checkout\Model\Session $checkoutSession
      */
     public function __construct(
@@ -51,18 +52,18 @@ class CheckoutManagement
     /**
      * Block updating the item qty when group transaction order already started
      *
-     * @param \Mageplaza\Osc\Model\CheckoutManagement $subject
-     * @param int $cartId
-     * @param int $itemId
-     * @param int|float $itemQty
-     * @return array
+     * @param  \Mageplaza\Osc\Model\CheckoutManagement $subject
+     * @param  int                                     $cartId
+     * @param  int                                     $itemId
+     * @param  int|float                               $itemQty
      * @throws CouldNotSaveException
+     * @return array
      */
     public function beforeUpdateItemQty(
         \Mageplaza\Osc\Model\CheckoutManagement $subject,
         int $cartId,
         int $itemId,
-                                                $itemQty
+        $itemQty
     ) {
         if ($this->getAlreadyPaid($this->checkoutSession->getQuote()) > 0) {
             throw new CouldNotSaveException(__('Action is blocked, please finish current order'));
@@ -74,11 +75,11 @@ class CheckoutManagement
     /**
      * Block remove the item qty when group transaction order already started
      *
-     * @param \Mageplaza\Osc\Model\CheckoutManagement $subject
-     * @param int $cartId
-     * @param int $itemId
-     * @return array
+     * @param  \Mageplaza\Osc\Model\CheckoutManagement $subject
+     * @param  int                                     $cartId
+     * @param  int                                     $itemId
      * @throws CouldNotSaveException
+     * @return array
      */
     public function beforeRemoveItemById(
         \Mageplaza\Osc\Model\CheckoutManagement $subject,
@@ -95,7 +96,7 @@ class CheckoutManagement
     /**
      * Get quote already paid amount
      *
-     * @param Quote $quote
+     * @param  Quote $quote
      * @return float
      */
     private function getAlreadyPaid(Quote $quote): float

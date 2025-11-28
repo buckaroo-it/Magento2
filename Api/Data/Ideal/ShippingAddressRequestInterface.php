@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,8 +18,8 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace Buckaroo\Magento2\Api\Data\Ideal;
 
+namespace Buckaroo\Magento2\Api\Data\Ideal;
 
 interface ShippingAddressRequestInterface
 {
@@ -26,8 +27,6 @@ interface ShippingAddressRequestInterface
      * Set city
      *
      * @param string $city
-     *
-     * @return void
      */
     public function setCity(string $city);
 
@@ -35,8 +34,6 @@ interface ShippingAddressRequestInterface
      * Set country code
      *
      * @param string $country_code
-     *
-     * @return void
      */
     public function setCountryCode(string $country_code);
 
@@ -44,8 +41,6 @@ interface ShippingAddressRequestInterface
      * Set postal code
      *
      * @param string $postal_code
-     *
-     * @return void
      */
     public function setPostalCode(string $postal_code);
 
@@ -53,8 +48,6 @@ interface ShippingAddressRequestInterface
      * Set telephone
      *
      * @param string|null $telephone
-     *
-     * @return void
      */
     public function setTelephone(string $telephone);
 
@@ -62,8 +55,6 @@ interface ShippingAddressRequestInterface
      * Set telephone
      *
      * @param string|null $firstname
-     *
-     * @return void
      */
     public function setFirstname(string $firstname);
 
@@ -71,8 +62,6 @@ interface ShippingAddressRequestInterface
      * Set telephone
      *
      * @param string|null $lastname
-     *
-     * @return void
      */
     public function setLastname(string $lastname);
 
@@ -80,8 +69,6 @@ interface ShippingAddressRequestInterface
      * Set telephone
      *
      * @param string|null $email
-     *
-     * @return void
      */
     public function setEmail(string $email);
 
@@ -89,8 +76,6 @@ interface ShippingAddressRequestInterface
      * Set telephone
      *
      * @param string|null $street
-     *
-     * @return void
      */
     public function setStreet(string $street);
     /**

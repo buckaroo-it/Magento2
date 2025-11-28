@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -72,7 +73,7 @@ class Order
     /**
      * @var Log
      */
-    protected Log $logger;
+    protected $logger;
 
     /**
      * @var ResourceConnection
@@ -82,18 +83,24 @@ class Order
     /**
      * @var Factory
      */
-    private Factory $configProviderFactory;
+    private $configProviderFactory;
 
     /**
-     * @param Account $accountConfig
-     * @param MethodFactory $configProviderMethodFactory
-     * @param Factory $configProviderFactory
+     * @var OrderCancellationService
+     */
+    private $orderCancellationService;
+
+    /**
+     * @param Account                  $accountConfig
+     * @param MethodFactory            $configProviderMethodFactory
+     * @param Factory                  $configProviderFactory
      * @param StoreRepositoryInterface $storeRepository
-     * @param CollectionFactory $orderFactory
-     * @param OrderStatusFactory $orderStatusFactory
-     * @param Data $helper
-     * @param Log $logger
-     * @param ResourceConnection $resourceConnection
+     * @param CollectionFactory        $orderFactory
+     * @param OrderStatusFactory       $orderStatusFactory
+     * @param Data                     $helper
+     * @param Log                      $logger
+     * @param ResourceConnection       $resourceConnection
+     * @param OrderCancellationService $orderCancellationService
      */
     public function __construct(
         Account $accountConfig,
@@ -104,7 +111,8 @@ class Order
         OrderStatusFactory $orderStatusFactory,
         Data $helper,
         Log $logger,
-        ResourceConnection $resourceConnection
+        ResourceConnection $resourceConnection,
+        OrderCancellationService $orderCancellationService
     ) {
         $this->accountConfig = $accountConfig;
         $this->configProviderMethodFactory = $configProviderMethodFactory;
@@ -115,13 +123,14 @@ class Order
         $this->helper = $helper;
         $this->logger = $logger;
         $this->resourceConnection = $resourceConnection;
+        $this->orderCancellationService = $orderCancellationService;
     }
 
     /**
      * Cancel expired transfer orders for all stores.
      *
-     * @return $this
      * @throws BuckarooException
+     * @return $this
      */
     public function cancelExpiredTransferOrders()
     {
@@ -136,8 +145,7 @@ class Order
     /**
      * Cancel expired transfer orders for the specified store.
      *
-     * @param StoreInterface $store
-     * @return void
+     * @param  StoreInterface    $store
      * @throws BuckarooException
      */
     protected function cancelExpiredTransferOrdersPerStore(StoreInterface $store)
@@ -199,8 +207,8 @@ class Order
     /**
      * Cancel expired Pay Per Email orders for all stores.
      *
-     * @return $this
      * @throws BuckarooException|LocalizedException
+     * @return $this
      */
     public function cancelExpiredPPEOrders(): Order
     {
@@ -215,8 +223,7 @@ class Order
     /**
      * Cancel expired Pay Per Email orders for the specified store.
      *
-     * @param StoreInterface $store
-     * @return void
+     * @param  StoreInterface                       $store
      * @throws BuckarooException|LocalizedException
      */
     protected function cancelExpiredPPEOrdersPerStore(StoreInterface $store)
@@ -280,12 +287,12 @@ class Order
     /**
      * Cancel the given order with the specified status code.
      *
-     * @param \Magento\Sales\Model\Order $order
-     * @param int|null $statusCode
-     * @param string $statusMessage
-     * @return bool
+     * @param  \Magento\Sales\Model\Order $order
+     * @param  int|null                   $statusCode
+     * @param  string                     $statusMessage
      * @throws LocalizedException
      * @throws \Exception
+     * @return bool
      */
     public function cancel(\Magento\Sales\Model\Order $order, ?int $statusCode, string $statusMessage = '')
     {
@@ -323,7 +330,7 @@ class Order
                 $methodInstanceClass::$requestOnVoid = false;
             }
 
-            $order->cancel();
+            $this->orderCancellationService->cancelOrder($order, $statusMessage, true);
 
             $failedStatus = $this->orderStatusFactory->get($statusCode, $order);
 
@@ -350,8 +357,7 @@ class Order
     /**
      * Cancel the order and clean up its status history if it is a Klarna order.
      *
-     * @param \Magento\Sales\Model\Order $order
-     * @return void
+     * @param  \Magento\Sales\Model\Order $order
      * @throws \Exception
      */
     protected function cancelAndCleanupOrder(\Magento\Sales\Model\Order $order): void
@@ -369,5 +375,4 @@ class Order
         $order->addCommentToStatusHistory('The request was canceled.', false, false);
         $order->save();
     }
-
 }

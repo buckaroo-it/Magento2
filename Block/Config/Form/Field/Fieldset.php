@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Block\Config\Form\Field;
 
 use Magento\Config\Block\System\Config\Form\Fieldset as MagentoFieldset;
@@ -27,7 +29,6 @@ class Fieldset extends MagentoFieldset
 {
     /**
      * {@inheritdoc}
-     *
      */
     // @codingStandardsIgnoreLine
     protected function _getFrontendClass($element)
@@ -79,7 +80,7 @@ class Fieldset extends MagentoFieldset
     {
         $scopeValues = [
             'scope' => ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            'scopevalue' => null
+            'scopevalue' => null,
         ];
 
         $store = $this->getRequest()->getParam('store');

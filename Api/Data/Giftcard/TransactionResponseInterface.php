@@ -58,8 +58,6 @@ interface TransactionResponseInterface
      * Set data
      *
      * @param array $data
-     *
-     * @return void
      */
     public function addData(array $data);
 }

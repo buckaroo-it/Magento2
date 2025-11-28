@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Controller\Applepay;
 
 use Buckaroo\Magento2\Logging\Log;
@@ -31,12 +33,12 @@ class UpdateShippingMethods extends AbstractApplepay
     /**
      * @var CheckoutSession
      */
-    private CheckoutSession $checkoutSession;
+    private $checkoutSession;
 
     /**
      * @var QuoteRepository
      */
-    private QuoteRepository $quoteRepository;
+    private $quoteRepository;
 
     /**
      * @param JsonFactory      $resultJsonFactory
@@ -94,7 +96,7 @@ class UpdateShippingMethods extends AbstractApplepay
 
                     $data = [
                         'shipping_methods' => ['code' => $shippingMethodCode],
-                        'totals'           => $totals
+                        'totals'           => $totals,
                     ];
                 }
             } catch (\Exception $exception) {

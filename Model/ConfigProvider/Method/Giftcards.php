@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Buckaroo\Magento2\Helper\PaymentFee;
@@ -27,25 +29,25 @@ use Magento\Store\Model\StoreManagerInterface;
 
 class Giftcards extends AbstractConfigProvider
 {
-    const XPATH_GIFTCARDS_PAYMENT_FEE          = 'payment/buckaroo_magento2_giftcards/payment_fee';
-    const XPATH_GIFTCARDS_ACTIVE               = 'payment/buckaroo_magento2_giftcards/active';
-    const XPATH_GIFTCARDS_SUBTEXT              = 'payment/buckaroo_magento2_giftcards/subtext';
-    const XPATH_GIFTCARDS_SUBTEXT_STYLE        = 'payment/buckaroo_magento2_giftcards/subtext_style';
-    const XPATH_GIFTCARDS_SUBTEXT_COLOR        = 'payment/buckaroo_magento2_giftcards/subtext_color';
-    const XPATH_GIFTCARDS_ACTIVE_STATUS        = 'payment/buckaroo_magento2_giftcards/active_status';
-    const XPATH_GIFTCARDS_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_giftcards/order_status_success';
-    const XPATH_GIFTCARDS_ORDER_STATUS_FAILED  = 'payment/buckaroo_magento2_giftcards/order_status_failed';
-    const XPATH_GIFTCARDS_ORDER_EMAIL          = 'payment/buckaroo_magento2_giftcards/order_email';
-    const XPATH_GIFTCARDS_AVAILABLE_IN_BACKEND = 'payment/buckaroo_magento2_giftcards/available_in_backend';
-    const XPATH_GIFTCARDS_ALLOWED_GIFTCARDS    = 'payment/buckaroo_magento2_giftcards/allowed_giftcards';
-    const XPATH_GIFTCARDS_GROUP_GIFTCARDS      = 'payment/buckaroo_magento2_giftcards/group_giftcards';
-    const XPATH_GIFTCARDS_SORT                 = 'payment/buckaroo_magento2_giftcards/sorted_giftcards';
+    public const XPATH_GIFTCARDS_PAYMENT_FEE          = 'payment/buckaroo_magento2_giftcards/payment_fee';
+    public const XPATH_GIFTCARDS_ACTIVE               = 'payment/buckaroo_magento2_giftcards/active';
+    public const XPATH_GIFTCARDS_SUBTEXT              = 'payment/buckaroo_magento2_giftcards/subtext';
+    public const XPATH_GIFTCARDS_SUBTEXT_STYLE        = 'payment/buckaroo_magento2_giftcards/subtext_style';
+    public const XPATH_GIFTCARDS_SUBTEXT_COLOR        = 'payment/buckaroo_magento2_giftcards/subtext_color';
+    public const XPATH_GIFTCARDS_ACTIVE_STATUS        = 'payment/buckaroo_magento2_giftcards/active_status';
+    public const XPATH_GIFTCARDS_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_giftcards/order_status_success';
+    public const XPATH_GIFTCARDS_ORDER_STATUS_FAILED  = 'payment/buckaroo_magento2_giftcards/order_status_failed';
+    public const XPATH_GIFTCARDS_ORDER_EMAIL          = 'payment/buckaroo_magento2_giftcards/order_email';
+    public const XPATH_GIFTCARDS_AVAILABLE_IN_BACKEND = 'payment/buckaroo_magento2_giftcards/available_in_backend';
+    public const XPATH_GIFTCARDS_ALLOWED_GIFTCARDS    = 'payment/buckaroo_magento2_giftcards/allowed_giftcards';
+    public const XPATH_GIFTCARDS_GROUP_GIFTCARDS      = 'payment/buckaroo_magento2_giftcards/group_giftcards';
+    public const XPATH_GIFTCARDS_SORT                 = 'payment/buckaroo_magento2_giftcards/sorted_giftcards';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_giftcards/allowed_currencies';
+    public const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_giftcards/allowed_currencies';
 
-    const XPATH_ALLOW_SPECIFIC   = 'payment/buckaroo_magento2_giftcards/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY = 'payment/buckaroo_magento2_giftcards/specificcountry';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP = 'payment/buckaroo_magento2_giftcards/specificcustomergroup';
+    public const XPATH_ALLOW_SPECIFIC   = 'payment/buckaroo_magento2_giftcards/allowspecific';
+    public const XPATH_SPECIFIC_COUNTRY = 'payment/buckaroo_magento2_giftcards/specificcountry';
+    public const XPATH_SPECIFIC_CUSTOMER_GROUP = 'payment/buckaroo_magento2_giftcards/specificcustomergroup';
 
     /**
      * @var array
@@ -100,7 +102,7 @@ class Giftcards extends AbstractConfigProvider
         $tableName     = $resource->getTableName('buckaroo_magento2_giftcard');
         $result        = $connection->fetchAll("SELECT * FROM " . $tableName);
         foreach ($result as $item) {
-            $item['sort'] = isset($sorted_array[$item['label']]) ? $sorted_array[$item['label']] : '99';
+            $item['sort'] = $sorted_array[$item['label']] ?? '99';
             $allGiftCards[$item['servicecode']] = $item;
         }
 
@@ -115,15 +117,15 @@ class Giftcards extends AbstractConfigProvider
 
         foreach (explode(',', (string)$availableCards) as $key => $value) {
             $logo = $this->getLogo($value);
-            if(isset($allGiftCards[$value]['logo'])) {
+            if (isset($allGiftCards[$value]['logo'])) {
                 $logo = $url . $allGiftCards[$value]['logo'];
             }
 
             $cards[] = [
                 'code'  => $value,
-                'title' => isset($allGiftCards[$value]['label']) ? $allGiftCards[$value]['label'] : '',
+                'title' => $allGiftCards[$value]['label'] ?? '',
                 'logo'  => $logo,
-                'sort'  => isset($allGiftCards[$value]['sort']) ? $allGiftCards[$value]['sort'] : '99',
+                'sort'  => $allGiftCards[$value]['sort'] ?? '99',
             ];
         }
 
@@ -145,7 +147,7 @@ class Giftcards extends AbstractConfigProvider
                         'subtext_style'   => $this->getSubtextStyle(),
                         'subtext_color'   => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'isTestMode' => $this->isTestMode()
+                        'isTestMode' => $this->isTestMode(),
                     ],
                 ],
             ],
@@ -190,13 +192,13 @@ class Giftcards extends AbstractConfigProvider
             "nationaleentertainmentcard" => "nationaleentertainmentcard",
             "podiumcadeaukaart" => "podiumcadeaukaart",
             "sportfitcadeau" => "sport-fitcadeau",
-            "vvvgiftcard" => "vvvgiftcard"
+            "vvvgiftcard" => "vvvgiftcard",
         ];
 
-        if(isset($mappings[$code])) {
+        if (isset($mappings[$code])) {
             return  $this->getImageUrl("giftcards/{$mappings[$code]}", "svg");
         }
 
-        return $this->getImageUrl("svg/giftcards","svg");
+        return $this->getImageUrl("svg/giftcards", "svg");
     }
 }

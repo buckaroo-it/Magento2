@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -20,32 +21,42 @@
 
 namespace Buckaroo\Magento2\Setup;
 
+use Buckaroo\Magento2\Model\ResourceModel\Certificate\Collection;
 use Magento\Eav\Model\Config;
+use Magento\Framework\Encryption\Encryptor;
+use Magento\Framework\Registry;
+use Magento\Quote\Setup\QuoteSetupFactory;
+use Magento\Sales\Setup\SalesSetupFactory;
 use Magento\Store\Model\Store;
-use Magento\Eav\Setup\EavSetup;
 use Magento\Customer\Model\Customer;
-
 use Magento\Eav\Setup\EavSetupFactory;
 use Buckaroo\Magento2\Model\Method\PayByBank;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 
+/**
+ * @codingStandardsIgnoreFile
+ */
+
+/**
+ * @SuppressWarnings(PHPMD.ObsoleteUpgradeDataScript)
+ */
 // phpcs:ignore Magento2.Legacy.InstallUpgrade.ObsoleteUpgradeDataScript
 class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
 {
     /**
-     * @var \Magento\Sales\Setup\SalesSetupFactory
+     * @var SalesSetupFactory
      */
     protected $salesSetupFactory;
 
     /**
-     * @var \Magento\Quote\Setup\QuoteSetupFactory
+     * @var QuoteSetupFactory
      */
     protected $quoteSetupFactory;
 
     /**
-     * @var \Buckaroo\Magento2\Model\ResourceModel\Certificate\Collection
+     * @var Collection
      */
     protected $certificateCollection;
 
@@ -55,7 +66,7 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
     protected $giftcardCollection;
 
     /**
-     * @var \Magento\Framework\Encryption\Encryptor
+     * @var Encryptor
      */
     protected $encryptor;
 
@@ -67,52 +78,52 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
     protected $giftcardArray = [
         [
             'value' => 'boekenbon',
-            'label' => 'Boekenbon'
+            'label' => 'Boekenbon',
         ],
         [
             'value' => 'boekencadeau',
-            'label' => 'Boekencadeau'
+            'label' => 'Boekencadeau',
         ],
         [
             'value' => 'cadeaukaartgiftcard',
-            'label' => 'Cadeaukaart / Giftcard'
+            'label' => 'Cadeaukaart / Giftcard',
         ],
         [
             'value' => 'nationalekadobon',
-            'label' => 'De nationale kadobon'
+            'label' => 'De nationale kadobon',
         ],
         [
             'value' => 'fashionucadeaukaart',
-            'label' => 'Fashion Giftcard'
+            'label' => 'Fashion Giftcard',
         ],
         [
             'value' => 'fietsbon',
-            'label' => 'Fietsbon'
+            'label' => 'Fietsbon',
         ],
         [
             'value' => 'fijncadeau',
-            'label' => 'Fijn Cadeau'
+            'label' => 'Fijn Cadeau',
         ],
         [
             'value' => 'gezondheidsbon',
-            'label' => 'Gezondheidsbon'
+            'label' => 'Gezondheidsbon',
         ],
         [
             'value' => 'golfbon',
-            'label' => 'Golfbon'
+            'label' => 'Golfbon',
         ],
         [
             'value' => 'nationaletuinbon',
-            'label' => 'Nationale Tuinbon'
+            'label' => 'Nationale Tuinbon',
         ],
         [
             'value' => 'vvvgiftcard',
-            'label' => 'VVV Giftcard'
+            'label' => 'VVV Giftcard',
         ],
         [
             'value' => 'webshopgiftcard',
-            'label' => 'Webshop Giftcard'
-        ]
+            'label' => 'Webshop Giftcard',
+        ],
     ];
 
     /**
@@ -415,22 +426,25 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
 
     private $eavSetupFactory;
 
-    private Config $eavConfig;
+    private $eavConfig;
 
     /**
-     * @param \Magento\Sales\Setup\SalesSetupFactory $salesSetupFactory
-     * @param \Magento\Quote\Setup\QuoteSetupFactory $quoteSetupFactory
-     * @param \Buckaroo\Magento2\Model\ResourceModel\Certificate\Collection $certificateCollection
-     * @param \Magento\Framework\Encryption\Encryptor $encryptor
-     * @param \Magento\Framework\Registry $registry
+     * @param SalesSetupFactory                        $salesSetupFactory
+     * @param QuoteSetupFactory                        $quoteSetupFactory
+     * @param Collection $certificateCollection
+     * @param Encryptor                       $encryptor
+     * @param Registry                                   $registry
+     * @param \Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection    $giftcardCollection
+     * @param EavSetupFactory                                               $eavSetupFactory
+     * @param Config                                                        $eavConfig
      */
     public function __construct(
-        \Magento\Sales\Setup\SalesSetupFactory $salesSetupFactory,
-        \Magento\Quote\Setup\QuoteSetupFactory $quoteSetupFactory,
+        SalesSetupFactory $salesSetupFactory,
+        QuoteSetupFactory $quoteSetupFactory,
         \Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection $giftcardCollection,
-        \Buckaroo\Magento2\Model\ResourceModel\Certificate\Collection $certificateCollection,
-        \Magento\Framework\Encryption\Encryptor $encryptor,
-        \Magento\Framework\Registry $registry,
+        Collection $certificateCollection,
+        Encryptor $encryptor,
+        Registry $registry,
         EavSetupFactory $eavSetupFactory,
         Config $eavConfig
     ) {
@@ -1448,7 +1462,7 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
             $setup->getConnection()->update(
                 $setup->getTable('buckaroo_magento2_giftcard'),
                 [
-                    'is_partial_refundable' => 1
+                    'is_partial_refundable' => 1,
                 ],
                 $setup->getConnection()->quoteInto('servicecode = ?', $giftcard)
             );
@@ -1499,7 +1513,7 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
                 'user_defined' => false,
                 'position'     => 999,
                 'system'       => 0,
-                'global'       => \Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_STORE
+                'global'       => \Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_STORE,
             ]
         );
 

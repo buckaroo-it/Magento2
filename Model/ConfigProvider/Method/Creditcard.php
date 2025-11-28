@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -31,100 +32,100 @@ class Creditcard extends AbstractConfigProvider
     /**#@+
      * Creditcard service codes.
      */
-    const CREDITCARD_SERVICE_CODE_MASTERCARD    = 'mastercard';
-    const CREDITCARD_SERVICE_CODE_VISA          = 'visa';
-    const CREDITCARD_SERVICE_CODE_AMEX          = 'amex';
-    const CREDITCARD_SERVICE_CODE_MAESTRO       = 'maestro';
-    const CREDITCARD_SERVICE_CODE_VPAY          = 'vpay';
-    const CREDITCARD_SERVICE_CODE_VISAELECTRON  = 'visaelectron';
-    const CREDITCARD_SERVICE_CODE_CARTEBLEUE    = 'cartebleuevisa';
-    const CREDITCARD_SERVICE_CODE_CARTEBANCAIRE = 'cartebancaire';
-    const CREDITCARD_SERVICE_CODE_DANKORT       = 'dankort';
-    const CREDITCARD_SERVICE_CODE_NEXI          = 'nexi';
-    const CREDITCARD_SERVICE_CODE_POSTEPAY      = 'postepay';
+    public const CREDITCARD_SERVICE_CODE_MASTERCARD    = 'mastercard';
+    public const CREDITCARD_SERVICE_CODE_VISA          = 'visa';
+    public const CREDITCARD_SERVICE_CODE_AMEX          = 'amex';
+    public const CREDITCARD_SERVICE_CODE_MAESTRO       = 'maestro';
+    public const CREDITCARD_SERVICE_CODE_VPAY          = 'vpay';
+    public const CREDITCARD_SERVICE_CODE_VISAELECTRON  = 'visaelectron';
+    public const CREDITCARD_SERVICE_CODE_CARTEBLEUE    = 'cartebleuevisa';
+    public const CREDITCARD_SERVICE_CODE_CARTEBANCAIRE = 'cartebancaire';
+    public const CREDITCARD_SERVICE_CODE_DANKORT       = 'dankort';
+    public const CREDITCARD_SERVICE_CODE_NEXI          = 'nexi';
+    public const CREDITCARD_SERVICE_CODE_POSTEPAY      = 'postepay';
     /**#@-*/
 
-    const XPATH_CREDITCARD_PAYMENT_FEE          = 'payment/buckaroo_magento2_creditcard/payment_fee';
-    const XPATH_CREDITCARD_ACTIVE               = 'payment/buckaroo_magento2_creditcard/active';
-    const XPATH_CREDITCARD_SUBTEXT              = 'payment/buckaroo_magento2_creditcard/subtext';
-    const XPATH_CREDITCARD_SUBTEXT_STYLE        = 'payment/buckaroo_magento2_creditcard/subtext_style';
-    const XPATH_CREDITCARD_SUBTEXT_COLOR        = 'payment/buckaroo_magento2_creditcard/subtext_color';
-    const XPATH_CREDITCARD_ACTIVE_STATUS        = 'payment/buckaroo_magento2_creditcard/active_status';
-    const XPATH_CREDITCARD_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_creditcard/order_status_success';
-    const XPATH_CREDITCARD_ORDER_STATUS_FAILED  = 'payment/buckaroo_magento2_creditcard/order_status_failed';
-    const XPATH_CREDITCARD_ALLOWED_CREDITCARDS  = 'payment/buckaroo_magento2_creditcard/allowed_issuers';
+    public const XPATH_CREDITCARD_PAYMENT_FEE          = 'payment/buckaroo_magento2_creditcard/payment_fee';
+    public const XPATH_CREDITCARD_ACTIVE               = 'payment/buckaroo_magento2_creditcard/active';
+    public const XPATH_CREDITCARD_SUBTEXT              = 'payment/buckaroo_magento2_creditcard/subtext';
+    public const XPATH_CREDITCARD_SUBTEXT_STYLE        = 'payment/buckaroo_magento2_creditcard/subtext_style';
+    public const XPATH_CREDITCARD_SUBTEXT_COLOR        = 'payment/buckaroo_magento2_creditcard/subtext_color';
+    public const XPATH_CREDITCARD_ACTIVE_STATUS        = 'payment/buckaroo_magento2_creditcard/active_status';
+    public const XPATH_CREDITCARD_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_creditcard/order_status_success';
+    public const XPATH_CREDITCARD_ORDER_STATUS_FAILED  = 'payment/buckaroo_magento2_creditcard/order_status_failed';
+    public const XPATH_CREDITCARD_ALLOWED_CREDITCARDS  = 'payment/buckaroo_magento2_creditcard/allowed_issuers';
 
-    const XPATH_CREDITCARD_MASTERCARD_UNSECURE_HOLD = 'payment/buckaroo_magento2_creditcard/mastercard_unsecure_hold';
-    const XPATH_CREDITCARD_VISA_UNSECURE_HOLD       = 'payment/buckaroo_magento2_creditcard/visa_unsecure_hold';
-    const XPATH_CREDITCARD_MAESTRO_UNSECURE_HOLD    = 'payment/buckaroo_magento2_creditcard/maestro_unsecure_hold';
+    public const XPATH_CREDITCARD_MASTERCARD_UNSECURE_HOLD = 'payment/buckaroo_magento2_creditcard/mastercard_unsecure_hold';
+    public const XPATH_CREDITCARD_VISA_UNSECURE_HOLD       = 'payment/buckaroo_magento2_creditcard/visa_unsecure_hold';
+    public const XPATH_CREDITCARD_MAESTRO_UNSECURE_HOLD    = 'payment/buckaroo_magento2_creditcard/maestro_unsecure_hold';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_creditcard/allowed_currencies';
+    public const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_creditcard/allowed_currencies';
 
-    const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_creditcard/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_creditcard/specificcountry';
-    const XPATH_SORTED_ISSUERS                  = 'payment/buckaroo_magento2_creditcard/sorted_issuers';
-    const XPATH_SELECTION_TYPE                  = 'buckaroo_magento2/account/selection_type';
-    const XPATH_PAYMENT_FLOW                    = 'payment/buckaroo_magento2_creditcard/payment_action';
-    const DEFAULT_SORT_VALUE                    = '99';
+    public const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_creditcard/allowspecific';
+    public const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_creditcard/specificcountry';
+    public const XPATH_SORTED_ISSUERS                  = 'payment/buckaroo_magento2_creditcard/sorted_issuers';
+    public const XPATH_SELECTION_TYPE                  = 'buckaroo_magento2/account/selection_type';
+    public const XPATH_PAYMENT_FLOW                    = 'payment/buckaroo_magento2_creditcard/payment_action';
+    public const DEFAULT_SORT_VALUE                    = '99';
 
-    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_creditcard/specificcustomergroup';
-    const XPATH_CREDITCARD_GROUP_CREDITCARD     = 'payment/buckaroo_magento2_creditcard/group_creditcards';
+    public const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_creditcard/specificcustomergroup';
+    public const XPATH_CREDITCARD_GROUP_CREDITCARD     = 'payment/buckaroo_magento2_creditcard/group_creditcards';
 
     protected $issuers = [
         [
             'name' => 'American Express',
             'code' => self::CREDITCARD_SERVICE_CODE_AMEX,
-            'sort' => 0
+            'sort' => 0,
         ],
         [
             'name' => 'Carte Bancaire',
             'code' => self::CREDITCARD_SERVICE_CODE_CARTEBANCAIRE,
-            'sort' => 0
+            'sort' => 0,
         ],
         [
             'name' => 'Carte Bleue',
             'code' => self::CREDITCARD_SERVICE_CODE_CARTEBLEUE,
-            'sort' => 0
+            'sort' => 0,
         ],
         [
             'name' => 'Dankort',
             'code' => self::CREDITCARD_SERVICE_CODE_DANKORT,
-            'sort' => 0
+            'sort' => 0,
         ],
         [
             'name' => 'Maestro',
             'code' => self::CREDITCARD_SERVICE_CODE_MAESTRO,
-            'sort' => 0
+            'sort' => 0,
         ],
         [
             'name' => 'MasterCard',
             'code' => self::CREDITCARD_SERVICE_CODE_MASTERCARD,
-            'sort' => 0
+            'sort' => 0,
         ],
         [
             'name' => 'Nexi',
             'code' => self::CREDITCARD_SERVICE_CODE_NEXI,
-            'sort' => 0
+            'sort' => 0,
         ],
         [
             'name' => 'PostePay',
             'code' => self::CREDITCARD_SERVICE_CODE_POSTEPAY,
-            'sort' => 0
+            'sort' => 0,
         ],
         [
             'name' => 'VISA',
             'code' => self::CREDITCARD_SERVICE_CODE_VISA,
-            'sort' => 0
+            'sort' => 0,
         ],
         [
             'name' => 'VISA Electron',
             'code' => self::CREDITCARD_SERVICE_CODE_VISAELECTRON,
-            'sort' => 0
+            'sort' => 0,
         ],
         [
             'name' => 'VPay',
             'code' => self::CREDITCARD_SERVICE_CODE_VPAY,
-            'sort' => 0
+            'sort' => 0,
         ],
     ];
 
@@ -136,7 +137,7 @@ class Creditcard extends AbstractConfigProvider
     public function formatIssuers()
     {
         $sorted = $this->getSortedIssuers();
-        $sorted = $sorted ? explode(',',$sorted) : [];
+        $sorted = $sorted ? explode(',', $sorted) : [];
 
         if (!empty($sorted)) {
             $sortedPosition = 1;
@@ -146,8 +147,7 @@ class Creditcard extends AbstractConfigProvider
         }
 
         foreach ($this->getIssuers() as $item) {
-            $item['sort'] = isset($sorted_array[$item['code']]) ?
-                $sorted_array[$item['code']] : self::DEFAULT_SORT_VALUE;
+            $item['sort'] = $sorted_array[$item['code']] ?? self::DEFAULT_SORT_VALUE;
             $item['img'] = $this->getImageUrl($item['code']);
             $allCreditcard[$item['code']] = $item;
         }
@@ -227,9 +227,9 @@ class Creditcard extends AbstractConfigProvider
     /**
      * @param string $cardType
      *
-     * @return string
      *
      * @throws \InvalidArgumentException
+     * @return string
      */
     public function getCardName($cardType)
     {
@@ -247,9 +247,9 @@ class Creditcard extends AbstractConfigProvider
     /**
      * @param string $cardType
      *
-     * @return string
      *
      * @throws \InvalidArgumentException
+     * @return string
      */
     public function getCardCode($cardType)
     {
@@ -275,7 +275,7 @@ class Creditcard extends AbstractConfigProvider
     }
 
     /**
-     * @param $storeId
+     * @param          $storeId
      * @return ?string
      */
     public function getSortedIssuers($storeId = null): ?string
@@ -297,7 +297,7 @@ class Creditcard extends AbstractConfigProvider
      */
     public function getImageUrl($imgName, string $extension = 'png')
     {
-        if($imgName === 'cartebleuevisa') {
+        if ($imgName === 'cartebleuevisa') {
             $imgName = 'cartebleue';
         }
 
@@ -324,7 +324,7 @@ class Creditcard extends AbstractConfigProvider
     /**
      * Credit cards are displayed separately in the checkout.
      *
-     * @param $storeId
+     * @param         $storeId
      * @return string
      */
     public function isGroupCreditcards($storeId = null): string

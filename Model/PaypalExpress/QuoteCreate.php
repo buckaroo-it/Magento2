@@ -21,6 +21,7 @@
 
 namespace Buckaroo\Magento2\Model\PaypalExpress;
 
+use Magento\Framework\Exception\InputException;
 use Magento\Quote\Model\Quote;
 use Buckaroo\Magento2\Logging\Log;
 use Magento\Quote\Model\Quote\Address;
@@ -31,13 +32,11 @@ use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Session as CustomerSession;
 use Buckaroo\Magento2\Api\PaypalExpressQuoteCreateInterface;
-use Buckaroo\Magento2\Model\PaypalExpress\QuoteBuilderInterfaceFactory;
 use Buckaroo\Magento2\Api\Data\PaypalExpress\ShippingAddressRequestInterface;
 use Buckaroo\Magento2\Api\Data\QuoteCreateResponseInterfaceFactory;
 
 class QuoteCreate implements PaypalExpressQuoteCreateInterface
 {
-
     /**
      * @var \Buckaroo\Magento2\Api\Data\QuoteCreateResponseInterfaceFactory
      */
@@ -106,7 +105,7 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
     public function execute(
         ShippingAddressRequestInterface $shipping_address,
         string $page,
-        string $form_data = null
+        ?string $form_data = null
     ) {
         if ($page === 'product' && is_string($form_data)) {
             $this->quote = $this->createQuote($form_data);
@@ -130,12 +129,11 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
     /**
      * Calculate quote totals, set store id required for quote masking,
      * set customer email required for order validation
-     * @return void
      */
     protected function calculateQuoteTotals()
     {
-        $this->quote->setStoreId($this->quote->getStore()->getId());   
-        
+        $this->quote->setStoreId($this->quote->getStore()->getId());
+
         if ($this->quote->getCustomerEmail() === null) {
             $this->quote->setCustomerEmail('no-reply@example.com');
         }
@@ -169,14 +167,13 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
         $this->quoteRepository->save($this->quote);
         $this->addFirstShippingMethod($address);
     }
-    
+
     /**
      * Add first found shipping method to the shipping address &
      * recalculate shipping totals
      *
      * @param Address $address
-     *
-     * @return void
+     * @throws InputException
      */
     protected function addFirstShippingMethod(Address $address)
     {
@@ -185,7 +182,7 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
                 $this->quote->getId(),
                 $this->quote->getShippingAddress()
             );
-    
+
             if (count($shippingMethods)) {
                 $shippingMethod = array_shift($shippingMethods);
                 $address->setShippingMethod($shippingMethod->getCarrierCode(). '_' .$shippingMethod->getMethodCode());
@@ -199,8 +196,6 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
      * Fill any fields missing from the addresses
      *
      * @param ShippingAddressRequestInterface $shipping_address
-     *
-     * @return void
      */
     protected function maybeFillAnyMissingAddressFields(ShippingAddressRequestInterface $shipping_address)
     {
@@ -209,10 +204,8 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
     }
 
     /**
-     * If we didn't find any default shipping address we fill the empty fields 
+     * If we didn't find any default shipping address we fill the empty fields
      * required for quote validation
-     *
-     * @return void
      */
     protected function maybeFillShippingAddressFields()
     {
@@ -226,12 +219,10 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
     }
 
     /**
-     * If we didn't find any default billing address we fill the empty fields 
+     * If we didn't find any default billing address we fill the empty fields
      * required for quote validation
      *
      * @param ShippingAddressRequestInterface $shipping_address
-     *
-     * @return void
      */
     protected function maybeFillBillingAddressFields(ShippingAddressRequestInterface $shipping_address)
     {

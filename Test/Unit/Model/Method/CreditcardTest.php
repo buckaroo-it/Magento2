@@ -41,7 +41,7 @@ class CreditcardTest extends \Buckaroo\Magento2\Test\BaseTest
         $data->setBuckarooSkipValidation(0);
         $data->setAdditionalData([
             'buckaroo_skip_validation' => 1,
-            'card_type' => 'maestro'
+            'card_type' => 'maestro',
         ]);
 
         $infoInstanceMock = $this->getFakeMock(InfoInterface::class)

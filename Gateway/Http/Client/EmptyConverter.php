@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,20 +18,19 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Gateway\Http\Client;
 
 use Magento\Payment\Gateway\Http\ConverterInterface;
 
 class EmptyConverter implements ConverterInterface
 {
-
     /**
      * Converts gateway response to ENV structure
      *
      * @param mixed $response
      *
      * @return array
-     * @throws \Magento\Payment\Gateway\Http\ConverterException
      */
     public function convert($response)
     {

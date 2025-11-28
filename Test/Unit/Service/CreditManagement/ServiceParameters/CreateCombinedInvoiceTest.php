@@ -69,7 +69,7 @@ class CreateCombinedInvoiceTest extends BaseTest
         $possibleParameters = [
             'Code', 'Email', 'Mobile', 'InvoiceAmount', 'InvoiceAmountVAT', 'InvoiceDate', 'DueDate',
             'SchemeKey', 'MaxStepIndex', 'AllowedServices', 'AllowedServicesAfterDueDate', 'Culture',
-            'FirstName', 'LastName', 'Gender', 'Street', 'HouseNumber', 'Zipcode', 'City', 'Country'
+            'FirstName', 'LastName', 'Gender', 'Street', 'HouseNumber', 'Zipcode', 'City', 'Country',
         ];
 
         foreach ($result['RequestParameter'] as $array) {
@@ -88,7 +88,7 @@ class CreateCombinedInvoiceTest extends BaseTest
                     'street'          => 'Kabelweg',
                     'house_number'    => '',
                     'number_addition' => '',
-                ]
+                ],
             ],
             'with house number' => [
                 'Kabelweg 37',
@@ -96,7 +96,7 @@ class CreateCombinedInvoiceTest extends BaseTest
                     'street'          => 'Kabelweg',
                     'house_number'    => '37',
                     'number_addition' => '',
-                ]
+                ],
             ],
             'with house number addition' => [
                 'Kabelweg 37A',
@@ -104,7 +104,7 @@ class CreateCombinedInvoiceTest extends BaseTest
                     'street'          => 'Kabelweg',
                     'house_number'    => '37',
                     'number_addition' => 'A',
-                ]
+                ],
             ],
             'as array' => [
                 ['Kabel', 'Weg 37'],
@@ -112,7 +112,7 @@ class CreateCombinedInvoiceTest extends BaseTest
                     'street'          => 'Kabel Weg',
                     'house_number'    => '37',
                     'number_addition' => '',
-                ]
+                ],
             ],
         ];
     }

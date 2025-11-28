@@ -18,12 +18,13 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Api;
 
 interface PushInterface
 {
     /**
-     * @return boolean
+     * @return bool
      *
      * @api
      */

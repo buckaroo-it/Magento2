@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -21,13 +22,14 @@
 namespace Buckaroo\Magento2\Model\Method;
 
 use Magento\Framework\DataObject;
+use Magento\Quote\Api\Data\CartInterface;
 
 class IdealProcessing extends AbstractMethod
 {
     /**
      * Payment Code
      */
-    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_idealprocessing';
+    public const PAYMENT_METHOD_CODE = 'buckaroo_magento2_idealprocessing';
 
     /**
      * @var string
@@ -67,7 +69,7 @@ class IdealProcessing extends AbstractMethod
             'Name'             => 'idealprocessing',
             'Action'           => $this->getPayRemainder($payment, $transactionBuilder),
             'Version'          => 2,
-            'RequestParameter' => []
+            'RequestParameter' => [],
         ];
 
         $transactionBuilder->setOrder($payment->getOrder())
@@ -80,7 +82,6 @@ class IdealProcessing extends AbstractMethod
     }
 
     /**
-     * @return null
      */
     protected function getRefundTransactionBuilderVersion()
     {
@@ -117,7 +118,8 @@ class IdealProcessing extends AbstractMethod
      *
      * {@inheritdoc}
      */
-    public function validateAdditionalData() {
+    public function validateAdditionalData()
+    {
         return $this;
     }
 
@@ -131,15 +133,13 @@ class IdealProcessing extends AbstractMethod
         return $this->buckarooPaymentMethodCode;
     }
 
-    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
+    public function isAvailable(?CartInterface $quote = null)
     {
-        $orderId = $quote ? $quote->getReservedOrderId() : null;
+        if (!parent::isAvailable($quote)) {
+            return false;
+        }
 
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-
-        $paymentGroupTransaction = $objectManager->get(\Buckaroo\Magento2\Helper\PaymentGroupTransaction::class);
-
-        if ($paymentGroupTransaction->getAlreadyPaid($orderId) > 0) {
+        if ($this->isOrderPartiallyPaid($quote)) {
             return false;
         }
 

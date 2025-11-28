@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -35,59 +36,59 @@ class Creditcards extends AbstractConfigProvider
     /**#@+
      * Creditcard service codes.
      */
-    const CREDITCARD_SERVICE_CODE_MASTERCARD    = 'MasterCard';
-    const CREDITCARD_SERVICE_CODE_VISA          = 'Visa';
-    const CREDITCARD_SERVICE_CODE_AMEX          = 'Amex';
-    const CREDITCARD_SERVICE_CODE_MAESTRO       = 'Maestro';
+    public const CREDITCARD_SERVICE_CODE_MASTERCARD    = 'MasterCard';
+    public const CREDITCARD_SERVICE_CODE_VISA          = 'Visa';
+    public const CREDITCARD_SERVICE_CODE_AMEX          = 'Amex';
+    public const CREDITCARD_SERVICE_CODE_MAESTRO       = 'Maestro';
 
-    const XPATH_CREDITCARDS_PAYMENT_FEE = 'payment/buckaroo_magento2_creditcards/payment_fee';
-    const XPATH_CREDITCARDS_PAYMENT_FEE_LABEL = 'payment/buckaroo_magento2_creditcards/payment_fee_label';
-    const XPATH_CREDITCARDS_ACTIVE = 'payment/buckaroo_magento2_creditcards/active';
-    const XPATH_CREDITCARDS_SUBTEXT                = 'payment/buckaroo_magento2_creditcards/subtext';
-    const XPATH_CREDITCARDS_SUBTEXT_STYLE          = 'payment/buckaroo_magento2_creditcards/subtext_style';
-    const XPATH_CREDITCARDS_SUBTEXT_COLOR          = 'payment/buckaroo_magento2_creditcards/subtext_color';
-    const XPATH_CREDITCARDS_ACTIVE_STATUS = 'payment/buckaroo_magento2_creditcards/active_status';
-    const XPATH_CREDITCARDS_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_creditcards/order_status_success';
-    const XPATH_CREDITCARDS_ORDER_STATUS_FAILED = 'payment/buckaroo_magento2_creditcards/order_status_failed';
-    const XPATH_CREDITCARDS_AVAILABLE_IN_BACKEND = 'payment/buckaroo_magento2_creditcards/available_in_backend';
-    const XPATH_CREDITCARDS_SELLERS_PROTECTION = 'payment/buckaroo_magento2_creditcards/sellers_protection';
-    const XPATH_CREDITCARDS_SELLERS_PROTECTION_ELIGIBLE = 'payment/'.
-    'buckaroo_magento2_creditcards/sellers_protection_eligible';
-    const XPATH_CREDITCARDS_SELLERS_PROTECTION_INELIGIBLE = 'payment/'.
-    'buckaroo_magento2_creditcards/sellers_protection_ineligible';
-    const XPATH_CREDITCARDS_SELLERS_PROTECTION_ITEMNOTRECEIVED_ELIGIBLE = 'payment/'.
-    'buckaroo_magento2_creditcards/sellers_protection_itemnotreceived_eligible';
-    const XPATH_CREDITCARDS_SELLERS_PROTECTION_UNAUTHORIZEDPAYMENT_ELIGIBLE = 'payment/'.
-    'buckaroo_magento2_creditcards/sellers_protection_unauthorizedpayment_eligible';
-    const XPATH_CREDITCARDS_ALLOWED_ISSUERS = 'payment/buckaroo_magento2_creditcards/allowed_issuers';
-    const XPATH_CREDITCARDS_HOSTED_FIELDS_CLIENT_ID = 'payment/buckaroo_magento2_creditcards/hosted_fields_client_id';
-    const XPATH_CREDITCARDS_HOSTED_FIELDS_CLIENT_SECRET = 'payment/buckaroo_magento2_creditcards/hosted_fields_client_secret';
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_creditcards/allowed_currencies';
-    const XPATH_ALLOW_SPECIFIC = 'payment/buckaroo_magento2_creditcards/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY = 'payment/buckaroo_magento2_creditcards/specificcountry';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP = 'payment/buckaroo_magento2_creditcards/specificcustomergroup';
+    public const XPATH_CREDITCARDS_PAYMENT_FEE = 'payment/buckaroo_magento2_creditcards/payment_fee';
+    public const XPATH_CREDITCARDS_PAYMENT_FEE_LABEL = 'payment/buckaroo_magento2_creditcards/payment_fee_label';
+    public const XPATH_CREDITCARDS_ACTIVE = 'payment/buckaroo_magento2_creditcards/active';
+    public const XPATH_CREDITCARDS_SUBTEXT                = 'payment/buckaroo_magento2_creditcards/subtext';
+    public const XPATH_CREDITCARDS_SUBTEXT_STYLE          = 'payment/buckaroo_magento2_creditcards/subtext_style';
+    public const XPATH_CREDITCARDS_SUBTEXT_COLOR          = 'payment/buckaroo_magento2_creditcards/subtext_color';
+    public const XPATH_CREDITCARDS_ACTIVE_STATUS = 'payment/buckaroo_magento2_creditcards/active_status';
+    public const XPATH_CREDITCARDS_ORDER_STATUS_SUCCESS = 'payment/buckaroo_magento2_creditcards/order_status_success';
+    public const XPATH_CREDITCARDS_ORDER_STATUS_FAILED = 'payment/buckaroo_magento2_creditcards/order_status_failed';
+    public const XPATH_CREDITCARDS_AVAILABLE_IN_BACKEND = 'payment/buckaroo_magento2_creditcards/available_in_backend';
+    public const XPATH_CREDITCARDS_SELLERS_PROTECTION = 'payment/buckaroo_magento2_creditcards/sellers_protection';
+    public const XPATH_CREDITCARDS_SELLERS_PROTECTION_ELIGIBLE = 'payment/'.
+        'buckaroo_magento2_creditcards/sellers_protection_eligible';
+    public const XPATH_CREDITCARDS_SELLERS_PROTECTION_INELIGIBLE = 'payment/'.
+        'buckaroo_magento2_creditcards/sellers_protection_ineligible';
+    public const XPATH_CREDITCARDS_SELLERS_PROTECTION_ITEMNOTRECEIVED_ELIGIBLE = 'payment/'.
+        'buckaroo_magento2_creditcards/sellers_protection_itemnotreceived_eligible';
+    public const XPATH_CREDITCARDS_SELLERS_PROTECTION_UNAUTHORIZEDPAYMENT_ELIGIBLE = 'payment/'.
+        'buckaroo_magento2_creditcards/sellers_protection_unauthorizedpayment_eligible';
+    public const XPATH_CREDITCARDS_ALLOWED_ISSUERS = 'payment/buckaroo_magento2_creditcards/allowed_issuers';
+    public const XPATH_CREDITCARDS_HOSTED_FIELDS_CLIENT_ID = 'payment/buckaroo_magento2_creditcards/hosted_fields_client_id';
+    public const XPATH_CREDITCARDS_HOSTED_FIELDS_CLIENT_SECRET = 'payment/buckaroo_magento2_creditcards/hosted_fields_client_secret';
+    public const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_creditcards/allowed_currencies';
+    public const XPATH_ALLOW_SPECIFIC = 'payment/buckaroo_magento2_creditcards/allowspecific';
+    public const XPATH_SPECIFIC_COUNTRY = 'payment/buckaroo_magento2_creditcards/specificcountry';
+    public const XPATH_SPECIFIC_CUSTOMER_GROUP = 'payment/buckaroo_magento2_creditcards/specificcustomergroup';
 
     protected $issuers = [
         [
             'name' => 'American Express',
             'code' => self::CREDITCARD_SERVICE_CODE_AMEX,
-            'sort' => 0
+            'sort' => 0,
         ],
         [
             'name' => 'Maestro',
             'code' => self::CREDITCARD_SERVICE_CODE_MAESTRO,
-            'sort' => 0
+            'sort' => 0,
         ],
         [
             'name' => 'MasterCard',
             'code' => self::CREDITCARD_SERVICE_CODE_MASTERCARD,
-            'sort' => 0
+            'sort' => 0,
         ],
         [
             'name' => 'VISA',
             'code' => self::CREDITCARD_SERVICE_CODE_VISA,
-            'sort' => 0
-        ]
+            'sort' => 0,
+        ],
     ];
 
     /**
@@ -110,7 +111,7 @@ class Creditcards extends AbstractConfigProvider
                         'creditcards' => $issuers,
                         'defaultCardImage' => $this->getImageUrl('svg/creditcards', 'svg'),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
-                        'isTestMode' => $this->isTestMode()
+                        'isTestMode' => $this->isTestMode(),
                     ],
                 ],
             ],

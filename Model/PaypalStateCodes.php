@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -22,7 +23,6 @@ namespace Buckaroo\Magento2\Model;
 
 class PaypalStateCodes
 {
-
     /**
      * Contains all state codes and the relevant full names for the countries paypal supports (or requires) state codes
      * for.
@@ -573,7 +573,7 @@ class PaypalStateCodes
      * Returns array of values based on country & state codes, or everything if only country code given
      *
      * @param string $countryCode
-     * @param null $stateCode
+     * @param null   $stateCode
      *
      * @return bool|array
      */

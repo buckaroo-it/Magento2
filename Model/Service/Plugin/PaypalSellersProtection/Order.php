@@ -37,7 +37,8 @@ class Order
     private $paypalStateCodes;
 
     /**
-     * @param Paypal $configProviderPaypal
+     * @param Paypal           $configProviderPaypal
+     * @param PaypalStateCodes $paypalStateCodes
      */
     public function __construct(
         Paypal $configProviderPaypal,
@@ -60,7 +61,7 @@ class Order
         $sellersProtectionActive = (bool) $this->configProviderPaypal->getSellersProtection();
 
         $payment = $paymentMethod->payment;
-        $isPaypalExpress = $payment->getAdditionalInformation('express_order_id')!== null;
+        $isPaypalExpress = $payment->getAdditionalInformation('express_order_id') !== null;
         if (!$sellersProtectionActive || $isPaypalExpress) {
             return $result;
         }
@@ -99,7 +100,7 @@ class Order
                 'Action'           => 'ExtraInfo',
                 'Version'          => 1,
                 'RequestParameter' => $extraInfoRequestParameter,
-            ]
+            ],
         ];
 
         $result->setServices($services);

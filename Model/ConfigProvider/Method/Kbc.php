@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,26 +18,27 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 class Kbc extends AbstractConfigProvider
 {
-    const XPATH_KBC_PAYMENT_FEE           = 'payment/buckaroo_magento2_kbc/payment_fee';
-    const XPATH_KBC_ACTIVE                = 'payment/buckaroo_magento2_kbc/active';
-    const XPATH_KBC_SUBTEXT               = 'payment/buckaroo_magento2_kbc/subtext';
-    const XPATH_KBC_SUBTEXT_STYLE         = 'payment/buckaroo_magento2_kbc/subtext_style';
-    const XPATH_KBC_SUBTEXT_COLOR         = 'payment/buckaroo_magento2_kbc/subtext_color';
-    const XPATH_KBC_ACTIVE_STATUS         = 'payment/buckaroo_magento2_kbc/active_status';
-    const XPATH_KBC_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_kbc/order_status_success';
-    const XPATH_KBC_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_kbc/order_status_failed';
-    const XPATH_KBC_ORDER_EMAIL           = 'payment/buckaroo_magento2_kbc/order_email';
-    const XPATH_KBC_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_kbc/available_in_backend';
+    public const XPATH_KBC_PAYMENT_FEE           = 'payment/buckaroo_magento2_kbc/payment_fee';
+    public const XPATH_KBC_ACTIVE                = 'payment/buckaroo_magento2_kbc/active';
+    public const XPATH_KBC_SUBTEXT               = 'payment/buckaroo_magento2_kbc/subtext';
+    public const XPATH_KBC_SUBTEXT_STYLE         = 'payment/buckaroo_magento2_kbc/subtext_style';
+    public const XPATH_KBC_SUBTEXT_COLOR         = 'payment/buckaroo_magento2_kbc/subtext_color';
+    public const XPATH_KBC_ACTIVE_STATUS         = 'payment/buckaroo_magento2_kbc/active_status';
+    public const XPATH_KBC_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_kbc/order_status_success';
+    public const XPATH_KBC_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_kbc/order_status_failed';
+    public const XPATH_KBC_ORDER_EMAIL           = 'payment/buckaroo_magento2_kbc/order_email';
+    public const XPATH_KBC_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_kbc/available_in_backend';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_kbc/allowed_currencies';
+    public const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_kbc/allowed_currencies';
 
-    const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_kbc/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_kbc/specificcountry';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_kbc/specificcustomergroup';
+    public const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_kbc/allowspecific';
+    public const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_kbc/specificcountry';
+    public const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_kbc/specificcustomergroup';
 
     /**
      * @return array
@@ -61,9 +63,9 @@ class Kbc extends AbstractConfigProvider
                         'subtext_style'   => $this->getSubtextStyle(),
                         'subtext_color'   => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
-                    ]
-                ]
-            ]
+                    ],
+                ],
+            ],
         ];
     }
 

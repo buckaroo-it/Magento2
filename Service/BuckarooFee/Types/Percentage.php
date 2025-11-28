@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -39,7 +40,7 @@ class Percentage
 
     /**
      * @param ResultFactory $resultFactory
-     * @param TaxCalculate $taxCalculate
+     * @param TaxCalculate  $taxCalculate
      */
     public function __construct(ResultFactory $resultFactory, TaxCalculate $taxCalculate)
     {
@@ -48,7 +49,8 @@ class Percentage
     }
 
 
-    public function calculate(CartInterface $cart, Total $total, $percentage){
+    public function calculate(CartInterface $cart, Total $total, $percentage)
+    {
         $percentage = (float) rtrim($percentage, '%');
         if ($percentage <= 0) {
             return null;

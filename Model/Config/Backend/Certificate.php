@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Config\Backend;
 
 use Magento\Framework\App\Cache\TypeListInterface;
@@ -48,18 +50,20 @@ class Certificate extends \Magento\Framework\App\Config\Value
     /** @var CertificateRepositoryInterface */
     protected $certificateRepository;
     protected $file;
+
     /**
-     * @param Context                                   $context
-     * @param Registry                                  $registry
-     * @param ScopeConfigInterface                      $config
-     * @param TypeListInterface                         $cacheTypeList
-     * @param ReadFactory                               $readFactory
-     * @param WriterInterface                           $writer
-     * @param CertificateFactory                        $certificateFactory
-     * @param CertificateRepositoryInterface            $certificateRepository
-     * @param AbstractResource                          $resource
-     * @param AbstractDb                                $resourceCollection
-     * @param array                                     $data
+     * @param Context $context
+     * @param Registry $registry
+     * @param ScopeConfigInterface $config
+     * @param TypeListInterface $cacheTypeList
+     * @param ReadFactory $readFactory
+     * @param WriterInterface $writer
+     * @param CertificateFactory $certificateFactory
+     * @param CertificateRepositoryInterface $certificateRepository
+     * @param File $file
+     * @param AbstractResource|null $resource
+     * @param AbstractDb|null $resourceCollection
+     * @param array $data
      */
     public function __construct(
         Context $context,
@@ -70,9 +74,9 @@ class Certificate extends \Magento\Framework\App\Config\Value
         WriterInterface $writer,
         CertificateFactory $certificateFactory,
         CertificateRepositoryInterface $certificateRepository,
-        AbstractResource $resource = null,
-        AbstractDb $resourceCollection = null,
         File $file,
+        ?AbstractResource $resource = null,
+        ?AbstractDb $resourceCollection = null,
         array $data = []
     ) {
         parent::__construct($context, $registry, $config, $cacheTypeList, $resource, $resourceCollection, $data);
@@ -87,8 +91,8 @@ class Certificate extends \Magento\Framework\App\Config\Value
     /**
      * Save the certificate
      *
-     * @return $this
      * @throws \Exception
+     * @return $this
      */
     public function save()
     {
@@ -148,7 +152,7 @@ class Certificate extends \Magento\Framework\App\Config\Value
     /**
      * Check if extension is valid
      *
-     * @param String $filename Name of uplpaded file
+     * @param string $filename Name of uploaded file
      *
      * @return bool
      */

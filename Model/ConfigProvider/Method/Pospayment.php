@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,33 +18,34 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 class Pospayment extends AbstractConfigProvider
 {
-    const XPATH_POSPAYMENT_PAYMENT_FEE           = 'payment/buckaroo_magento2_pospayment/payment_fee';
-    const XPATH_POSPAYMENT_ACTIVE                = 'payment/buckaroo_magento2_pospayment/active';
-    const XPATH_POSPAYMENT_SUBTEXT               = 'payment/buckaroo_magento2_pospayment/subtext';
-    const XPATH_POSPAYMENT_SUBTEXT_STYLE         = 'payment/buckaroo_magento2_pospayment/subtext_style';
-    const XPATH_POSPAYMENT_SUBTEXT_COLOR         = 'payment/buckaroo_magento2_pospayment/subtext_color';
-    const XPATH_POSPAYMENT_ACTIVE_STATUS         = 'payment/buckaroo_magento2_pospayment/active_status';
-    const XPATH_POSPAYMENT_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_pospayment/order_status_success';
-    const XPATH_POSPAYMENT_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_pospayment/order_status_failed';
-    const XPATH_POSPAYMENT_ORDER_EMAIL           = 'payment/buckaroo_magento2_pospayment/order_email';
-    const XPATH_POSPAYMENT_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_pospayment/available_in_backend';
-    const XPATH_POSPAYMENT_OTHER_PAYMENT_METHODS = 'payment/buckaroo_magento2_pospayment/other_payment_methods';
+    public const XPATH_POSPAYMENT_PAYMENT_FEE           = 'payment/buckaroo_magento2_pospayment/payment_fee';
+    public const XPATH_POSPAYMENT_ACTIVE                = 'payment/buckaroo_magento2_pospayment/active';
+    public const XPATH_POSPAYMENT_SUBTEXT               = 'payment/buckaroo_magento2_pospayment/subtext';
+    public const XPATH_POSPAYMENT_SUBTEXT_STYLE         = 'payment/buckaroo_magento2_pospayment/subtext_style';
+    public const XPATH_POSPAYMENT_SUBTEXT_COLOR         = 'payment/buckaroo_magento2_pospayment/subtext_color';
+    public const XPATH_POSPAYMENT_ACTIVE_STATUS         = 'payment/buckaroo_magento2_pospayment/active_status';
+    public const XPATH_POSPAYMENT_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_pospayment/order_status_success';
+    public const XPATH_POSPAYMENT_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_pospayment/order_status_failed';
+    public const XPATH_POSPAYMENT_ORDER_EMAIL           = 'payment/buckaroo_magento2_pospayment/order_email';
+    public const XPATH_POSPAYMENT_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_pospayment/available_in_backend';
+    public const XPATH_POSPAYMENT_OTHER_PAYMENT_METHODS = 'payment/buckaroo_magento2_pospayment/other_payment_methods';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_pospayment/allowed_currencies';
+    public const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_pospayment/allowed_currencies';
 
-    const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_pospayment/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_pospayment/specificcountry';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_pospayment/specificcustomergroup';
+    public const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_pospayment/allowspecific';
+    public const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_pospayment/specificcountry';
+    public const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_pospayment/specificcustomergroup';
 
     /**
      * @var array
      */
     protected $allowedCurrencies = [
-        'EUR'
+        'EUR',
     ];
 
     /**
@@ -69,9 +71,9 @@ class Pospayment extends AbstractConfigProvider
                         'subtext_style'   => $this->getSubtextStyle(),
                         'subtext_color'   => $this->getSubtextColor(),
                         'allowedCurrencies' => $this->getAllowedCurrencies(),
-                    ]
-                ]
-            ]
+                    ],
+                ],
+            ],
         ];
     }
 

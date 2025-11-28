@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -31,21 +32,21 @@ class Add
     /**
      * @var Log
      */
-    private Log $logger;
+    private $logger;
 
     /**
      * @var QuoteService
      */
-    private QuoteService $quoteService;
+    private $quoteService;
 
     /**
      * @var ApplePayFormatData
      */
-    private ApplePayFormatData $applePayFormatData;
+    private $applePayFormatData;
 
     /**
-     * @param Log $logger
-     * @param QuoteService $quoteService
+     * @param Log                $logger
+     * @param QuoteService       $quoteService
      * @param ApplePayFormatData $applePayFormatData
      */
     public function __construct(
@@ -61,7 +62,7 @@ class Add
     /**
      * Add Product to Cart on Apple Pay
      *
-     * @param array $request
+     * @param  array       $request
      * @return array|false
      */
     public function process(array $request)
@@ -124,7 +125,7 @@ class Add
 
             return [
                 'shipping_methods' => $shippingMethodsResult,
-                'totals'           => $totals
+                'totals'           => $totals,
             ];
         } catch (\Exception $exception) {
             $this->logger->addError(sprintf(

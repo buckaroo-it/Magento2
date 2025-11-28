@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,13 +18,15 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Block\Config\Form\Field;
 
-use \Magento\Config\Block\System\Config\Form\Field;
+use Magento\Config\Block\System\Config\Form\Field;
 
 class ColorPicker extends Field
 {
-    protected function _getElementHtml(\Magento\Framework\Data\Form\Element\AbstractElement $element) {
+    protected function _getElementHtml(\Magento\Framework\Data\Form\Element\AbstractElement $element)
+    {
         $element->setData('type', 'color');
         return $element->getElementHtml();
     }

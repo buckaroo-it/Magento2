@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Service\Formatter\Address;
 
 use Buckaroo\Magento2\Logging\Log;
@@ -42,7 +44,7 @@ class PhoneFormatter
         'AT' => '0043',
     ];
 
-    private Log $logger;
+    private $logger;
 
     public function __construct(Log $logger)
     {
@@ -52,8 +54,8 @@ class PhoneFormatter
     /**
      * Formats a phone number for a given country.
      *
-     * @param string|null $phoneNumber
-     * @param string $country
+     * @param  string|null $phoneNumber
+     * @param  string      $country
      * @return array
      */
     public function format(?string $phoneNumber, string $country): array
@@ -98,7 +100,7 @@ class PhoneFormatter
     /**
      * Removes all non-numeric characters from the phone number.
      *
-     * @param string $phoneNumber
+     * @param  string $phoneNumber
      * @return string
      */
     private function cleanPhoneNumber(string $phoneNumber): string
@@ -109,8 +111,8 @@ class PhoneFormatter
     /**
      * Formats the phone number based on the country rules.
      *
-     * @param string $phoneNumber
-     * @param string $country
+     * @param  string $phoneNumber
+     * @param  string $country
      * @return string
      */
     private function formatPhoneNumber(string $phoneNumber, string $country): string
@@ -134,8 +136,8 @@ class PhoneFormatter
     /**
      * Checks if the phone number is mobile based on country rules.
      *
-     * @param string $phoneNumber
-     * @param string $country
+     * @param  string $phoneNumber
+     * @param  string $country
      * @return bool
      */
     private function isMobileNumber(string $phoneNumber, string $country): bool
@@ -151,8 +153,8 @@ class PhoneFormatter
     /**
      * Corrects invalid notations in the phone number.
      *
-     * @param string $phoneNumber
-     * @param string $country
+     * @param  string $phoneNumber
+     * @param  string $country
      * @return string
      */
     private function applyInvalidNotationCorrection(string $phoneNumber, string $country): string
@@ -168,9 +170,9 @@ class PhoneFormatter
     /**
      * Replaces invalid notation with a valid prefix.
      *
-     * @param string $phoneNumber
-     * @param string $invalidPrefix
-     * @param string $country
+     * @param  string $phoneNumber
+     * @param  string $invalidPrefix
+     * @param  string $country
      * @return string
      */
     private function replaceInvalidNotation(string $phoneNumber, string $invalidPrefix, string $country): string

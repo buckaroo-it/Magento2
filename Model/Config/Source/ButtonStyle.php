@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Config\Source;
 
 class ButtonStyle implements \Magento\Framework\Option\ArrayInterface
@@ -31,7 +33,7 @@ class ButtonStyle implements \Magento\Framework\Option\ArrayInterface
         return [
             ['value' => 'white', 'label' => __('White')],
             ['value' => 'black', 'label' => __('Black')],
-            ['value' => 'white-outline', 'label' => __('White outline')]
+            ['value' => 'white-outline', 'label' => __('White outline')],
         ];
     }
 
@@ -45,7 +47,7 @@ class ButtonStyle implements \Magento\Framework\Option\ArrayInterface
         return [
             'white' => __('White'),
             'black' => __('Black'),
-            'white-outline' => __('White outline')
+            'white-outline' => __('White outline'),
         ];
     }
 }

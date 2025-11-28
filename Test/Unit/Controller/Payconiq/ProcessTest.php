@@ -65,7 +65,7 @@ class ProcessTest extends BaseTest
             'brq_invoicenumber' => null,
             'brq_statuscode' => null,
             'brq_transactions' => null,
-            'brq_datarequest' => null
+            'brq_datarequest' => null,
         ];
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
@@ -148,19 +148,19 @@ class ProcessTest extends BaseTest
         return [
             'empty value' => [
                 '',
-                false
+                false,
             ],
             'null value' => [
                 null,
-                false
+                false,
             ],
             'string value' => [
                 'abc123def',
-                'abc123def'
+                'abc123def',
             ],
             'int value' => [
                 456987,
-                456987
+                456987,
             ],
         ];
     }
@@ -196,28 +196,28 @@ class ProcessTest extends BaseTest
                 [],
                 0,
                 0,
-                'existing transaction'
+                'existing transaction',
             ],
             'has transaction, new items' => [
                 'existing transaction',
                 ['fake item', 'new item'],
                 0,
                 0,
-                'existing transaction'
+                'existing transaction',
             ],
             'no transaction, no new items' => [
                 null,
                 [],
                 0,
                 1,
-                null
+                null,
             ],
             'no transaction, new items' => [
                 null,
                 ['some item', 'more items'],
                 1,
                 1,
-                'some item'
+                'some item',
             ],
         ];
     }
@@ -261,7 +261,7 @@ class ProcessTest extends BaseTest
         $instance = $this->getInstance([
             'context' => $contextMock,
             'searchCriteriaBuilder' => $searchCriteriaBuildMock,
-            'transactionRepository' => $trxRepoMock
+            'transactionRepository' => $trxRepoMock,
         ]);
 
         $this->setProperty('transaction', $transaction, $instance);
@@ -282,12 +282,12 @@ class ProcessTest extends BaseTest
         return [
             'key exists' => [
                 'abc123',
-                1
+                1,
             ],
             'no key exists' => [
                 '',
-                0
-            ]
+                0,
+            ],
         ];
     }
 
@@ -324,7 +324,7 @@ class ProcessTest extends BaseTest
         $instance = $this->getInstance([
             'context' => $contextMock,
             'searchCriteriaBuilder' => $searchCriteriaBuildMock,
-            'transactionRepository' => $trxRepoMock
+            'transactionRepository' => $trxRepoMock,
         ]);
 
         try {

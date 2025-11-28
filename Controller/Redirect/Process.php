@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -110,7 +111,7 @@ class Process extends Action
     protected $checkoutSession;
 
     /**
-     * @var  CustomerSession
+     * @var CustomerSession
      */
     public $customerSession;
     protected $customerRepository;
@@ -131,29 +132,29 @@ class Process extends Action
     /**
      * @var LockManagerWrapper
      */
-    protected LockManagerWrapper $lockManager;
+    protected $lockManager;
 
     /**
-     * @param Context $context
-     * @param Data $helper
-     * @param Cart $cart
-     * @param Order $order
-     * @param Quote $quote
-     * @param TransactionInterface $transaction
-     * @param Log $logger
-     * @param Factory $configProviderFactory
-     * @param OrderSender $orderSender
-     * @param OrderStatusFactory $orderStatusFactory
-     * @param Session $checkoutSession
-     * @param CustomerSession $customerSession
-     * @param CustomerRepositoryInterface $customerRepository
-     * @param SessionFactory $sessionFactory
-     * @param Customer $customerModel
-     * @param CustomerFactory $customerFactory
-     * @param OrderService $orderService
-     * @param ManagerInterface $eventManager
-     * @param Recreate $quoteRecreate
-     * @param LockManagerWrapper $lockManager
+     * @param  Context                     $context
+     * @param  Data                        $helper
+     * @param  Cart                        $cart
+     * @param  Order                       $order
+     * @param  Quote                       $quote
+     * @param  TransactionInterface        $transaction
+     * @param  Log                         $logger
+     * @param  Factory                     $configProviderFactory
+     * @param  OrderSender                 $orderSender
+     * @param  OrderStatusFactory          $orderStatusFactory
+     * @param  Session                     $checkoutSession
+     * @param  CustomerSession             $customerSession
+     * @param  CustomerRepositoryInterface $customerRepository
+     * @param  SessionFactory              $sessionFactory
+     * @param  Customer                    $customerModel
+     * @param  CustomerFactory             $customerFactory
+     * @param  OrderService                $orderService
+     * @param  ManagerInterface            $eventManager
+     * @param  Recreate                    $quoteRecreate
+     * @param  LockManagerWrapper          $lockManager
      * @throws Exception
      */
     public function __construct(
@@ -177,8 +178,7 @@ class Process extends Action
         ManagerInterface            $eventManager,
         Recreate                    $quoteRecreate,
         LockManagerWrapper          $lockManager
-    )
-    {
+    ) {
         parent::__construct($context);
         $this->helper = $helper;
         $this->cart = $cart;
@@ -217,8 +217,8 @@ class Process extends Action
     /**
      * Process action
      *
-     * @return ResponseInterface
      * @throws \Exception
+     * @return ResponseInterface
      */
     public function execute()
     {
@@ -364,7 +364,8 @@ class Process extends Action
                  * @noinspection PhpUndefinedMethodInspection
                  */
                 if (!$this->order->getEmailSent()
-                    && ($this->accountConfig->getOrderConfirmationEmail($store) === "1"
+                    && (
+                        $this->accountConfig->getOrderConfirmationEmail($store) === "1"
                         || $paymentMethod->getConfigData('order_email', $store) === "1"
                     )
                 ) {
@@ -443,7 +444,7 @@ class Process extends Action
      * Handle final response
      *
      * @param string $path
-     * @param array $arguments
+     * @param array  $arguments
      *
      * @return ResponseInterface
      */
@@ -467,8 +468,6 @@ class Process extends Action
      * Add error message to be displayed to the user
      *
      * @param string $message
-     *
-     * @return void
      */
     public function addErrorMessage(string $message)
     {
@@ -479,8 +478,6 @@ class Process extends Action
      * Add success message to be displayed to the user
      *
      * @param string $message
-     *
-     * @return void
      */
     public function addSuccessMessage(string $message)
     {
@@ -492,7 +489,6 @@ class Process extends Action
      *
      * @param OrderPaymentInterface $payment
      *
-     * @return void
      * @throws \Exception
      */
     protected function setPaymentOutOfTransit(OrderPaymentInterface $payment)
@@ -503,9 +499,9 @@ class Process extends Action
     }
 
     /**
-     * @param $statusCode
-     * @return ResponseInterface
+     * @param                     $statusCode
      * @throws LocalizedException
+     * @return ResponseInterface
      */
     protected function handleFailed($statusCode)
     {
@@ -515,6 +511,22 @@ class Process extends Action
 
         $this->removeCoupon();
         $this->removeAmastyGiftcardOnFailed();
+
+        // Detect browser back button scenario
+        $isBrowserBack = ($statusCode === $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER'));
+
+        // Check configuration for browser back behavior
+        $store = $this->order->getStore();
+        $shouldCancelOnBrowserBack = (bool) $this->accountConfig->getCancelOnBrowserBack($store);
+
+        $this->logger->addDebug(sprintf(
+            '%s - Handle Failed Check | Order: %s | statusCode: %s | isBrowserBack: %s | shouldCancelOnBrowserBack: %s',
+            __METHOD__,
+            $this->order->getIncrementId(),
+            $statusCode,
+            var_export($isBrowserBack, true),
+            var_export($shouldCancelOnBrowserBack, true)
+        ));
 
         if (!$this->getSkipHandleFailedRecreate()) {
             if (!$this->quoteRecreate->recreate($this->quote, $this->response)) {
@@ -534,7 +546,7 @@ class Process extends Action
             $this->helper->getStatusCode('BUCKAROO_MAGENTO2_ORDER_FAILED') => 'Unfortunately an error occurred while processing your payment. Please try again. If this error persists, please choose a different payment method.',
             $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_FAILED') => 'Unfortunately an error occurred while processing your payment. Please try again. If this error persists, please choose a different payment method.',
             $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_REJECTED') => 'Unfortunately an error occurred while processing your payment. Please try again. If this error persists, please choose a different payment method.',
-            $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER') => 'According to our system, you have canceled the payment. If this is not the case, please contact us.'
+            $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_CANCELLED_BY_USER') => 'Payment cancelled. You can try again using the same or a different payment method.',
         ];
 
         $this->addErrorMessage(__($statusCodeAddErrorMessage[$statusCode] ?? 'An error occurred while processing your payment.'));
@@ -544,12 +556,45 @@ class Process extends Action
             return $this->redirectFailure();
         }
 
-        // Cancel the order and log an error if it fails
-        if (!$this->cancelOrder($statusCode, $statusCodeAddErrorMessage[$statusCode])) {
-            $this->logger->addError('Could not cancel the order.');
+        // For browser back button, check configuration
+        if ($isBrowserBack && !$shouldCancelOnBrowserBack) {
+            $this->logger->addDebug(sprintf(
+                '%s - Browser Back Button Detected - Order left in pending state (config: cancel_on_browser_back = disabled). Quote recreated for retry. Order: %s',
+                __METHOD__,
+                $this->order->getIncrementId()
+            ));
+
+            // Add a status history comment to track this
+            $this->order->addCommentToStatusHistory(
+                __('Customer returned using browser back button. Order left pending for push notification.'),
+                false,
+                false
+            );
+            $this->order->save();
+
+        } else {
+            // For actual failures OR if config says to cancel on browser back, cancel the order as before
+            if ($isBrowserBack) {
+                $this->logger->addDebug(sprintf(
+                    '%s - Browser Back Button Detected - Order will be canceled (config: cancel_on_browser_back = enabled). Order: %s',
+                    __METHOD__,
+                    $this->order->getIncrementId()
+                ));
+            }
+
+            if (!$this->cancelOrder($statusCode, $statusCodeAddErrorMessage[$statusCode])) {
+                $this->logger->addError('Could not cancel the order.');
+            }
         }
 
-        $this->logger->addDebug(__METHOD__ . '|8|');
+        $this->logger->addDebug(sprintf(
+            '%s - Redirect Failure | Order: %s | isBrowserBack: %s | shouldCancelOnBrowserBack: %s',
+            __METHOD__,
+            $this->order->getIncrementId(),
+            var_export($isBrowserBack, true),
+            var_export($shouldCancelOnBrowserBack, true)
+        ));
+
         return $this->redirectFailure();
     }
 
@@ -595,7 +640,7 @@ class Process extends Action
 
     /**
      * @return Order\Payment
-     * @throws NoSuchEntityException
+     * @throws NoSuchEntityException|LocalizedException
      */
     private function getOrderByTransactionKey()
     {
@@ -622,10 +667,10 @@ class Process extends Action
     /**
      * If possible, cancel the order
      *
-     * @param $statusCode
-     * @param $statusMessage
-     * @return bool
+     * @param                     $statusCode
+     * @param                     $statusMessage
      * @throws LocalizedException
+     * @return bool
      */
     protected function cancelOrder($statusCode, $statusMessage): bool
     {
@@ -755,8 +800,8 @@ class Process extends Action
     }
 
     /**
-     * @param $name
-     * @param $value
+     * @param       $name
+     * @param       $value
      * @return bool
      */
     private function hasPostData($name, $value)
@@ -808,8 +853,6 @@ class Process extends Action
 
     /**
      * Remove coupon from failed order if magento enterprise
-     *
-     * @return void
      */
     protected function removeCoupon()
     {
@@ -834,8 +877,6 @@ class Process extends Action
 
     /**
      * Remove amasty giftcard from failed order
-     *
-     * @return void
      */
     protected function removeAmastyGiftcardOnFailed()
     {
@@ -866,13 +907,13 @@ class Process extends Action
     /**
      * Is the invoice for the current order is created after shipment
      *
-     * @param OrderPaymentInterface $payment
+     * @param  OrderPaymentInterface $payment
      * @return bool
      */
     private function isInvoiceCreatedAfterShipment(OrderPaymentInterface $payment): bool
     {
         return $payment->getAdditionalInformation(
-                InvoiceHandlingOptions::INVOICE_HANDLING
-            ) == InvoiceHandlingOptions::SHIPMENT;
+            InvoiceHandlingOptions::INVOICE_HANDLING
+        ) == InvoiceHandlingOptions::SHIPMENT;
     }
 }

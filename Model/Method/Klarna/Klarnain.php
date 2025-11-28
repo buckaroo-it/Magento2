@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Method\Klarna;
 
 use Buckaroo\Magento2\Model\Method\Klarna;
@@ -24,9 +26,9 @@ use Buckaroo\Magento2\Model\Method\Klarna;
 class Klarnain extends Klarna
 {
     /** Payment Code */
-    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_klarnain';
+    public const PAYMENT_METHOD_CODE = 'buckaroo_magento2_klarnain';
 
-    const KLARNA_ORDER_SERVICE_ACTION = 'PayInInstallments';
+    public const KLARNA_ORDER_SERVICE_ACTION = 'PayInInstallments';
 
     /** @var string */
     public $buckarooPaymentMethodCode = 'klarnain';

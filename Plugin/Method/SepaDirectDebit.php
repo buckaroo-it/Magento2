@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -24,7 +25,7 @@ class SepaDirectDebit
 {
     /**
      * @param \Buckaroo\Magento2\Model\Method\SepaDirectDebit $payment
-     * @param array|\StdCLass                            $response
+     * @param array|\StdCLass                                 $response
      *
      * @return $this
      */

@@ -26,12 +26,12 @@ interface IdealQuoteCreateInterface
     /**
      * Get order breakdown after shipping is applied
      *
-     * @param string $page
-     * @param string|null $order_data
+     * @param  string                                                   $page
+     * @param  string|null                                              $order_data
      * @return \Buckaroo\Magento2\Api\Data\QuoteCreateResponseInterface
      */
     public function execute(
         string $page,
-        string $order_data = null
+        ?string $order_data = null
     );
 }

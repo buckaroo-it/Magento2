@@ -103,7 +103,7 @@ class CertificateTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $instance = $this->getInstance([
             'readFactory' => $readFactoryMock,
-            'certificateFactory' => $certificateFactoryMock
+            'certificateFactory' => $certificateFactoryMock,
         ]);
 
         $instance->setData(

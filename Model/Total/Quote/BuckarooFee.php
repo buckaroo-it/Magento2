@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -50,9 +51,10 @@ class BuckarooFee extends AbstractTotal
     protected $logger;
 
     /**
-     * @param PriceCurrencyInterface $priceCurrency
+     * @param PriceCurrencyInterface  $priceCurrency
      * @param PaymentGroupTransaction $groupTransaction
-     * @param Calculate $calculate
+     * @param Calculate               $calculate
+     * @param LoggerInterface         $logger
      */
     public function __construct(
         PriceCurrencyInterface $priceCurrency,
@@ -71,9 +73,9 @@ class BuckarooFee extends AbstractTotal
     /**
      * Collect grand total address amount
      *
-     * @param Quote $quote
+     * @param Quote                       $quote
      * @param ShippingAssignmentInterface $shippingAssignment
-     * @param Total $total
+     * @param Total                       $total
      *
      * @return $this
      */
@@ -106,7 +108,7 @@ class BuckarooFee extends AbstractTotal
 
         $result = $this->calculate->calculatePaymentFee($quote, $total);
 
-        if ($result === null || $result->getAmount() < 0.01){
+        if ($result === null || $result->getAmount() < 0.01) {
             return $this;
         }
         $amount = $this->priceCurrency->convert($result->getRoundedAmount());

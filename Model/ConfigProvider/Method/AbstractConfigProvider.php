@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -33,19 +35,21 @@ use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
  * @method int    getActive()
  */
 // @codingStandardsIgnoreStart
-abstract class AbstractConfigProvider extends BaseAbstractConfigProvider implements CheckoutConfigProvider, ConfigProviderInterface
-// @codingStandardsIgnoreEnd
+abstract class AbstractConfigProvider extends BaseAbstractConfigProvider implements
+    CheckoutConfigProvider,
+    ConfigProviderInterface
+    // @codingStandardsIgnoreEnd
 {
     /**
      * This xpath should be overridden in child classes.
      */
-    const XPATH_ALLOWED_CURRENCIES = '';
+    public const XPATH_ALLOWED_CURRENCIES = '';
 
     /**
      * This xpath should be overridden in child classes.
      */
-    const XPATH_ALLOW_SPECIFIC    = '';
-    const XPATH_SPECIFIC_COUNTRY    = '';
+    public const XPATH_ALLOW_SPECIFIC    = '';
+    public const XPATH_SPECIFIC_COUNTRY    = '';
 
     /**
      * The asset repository to generate the correct url to our assets.
@@ -63,74 +67,74 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
         [
             'name' => 'ING',
             'code' => 'INGBNL2A',
-            'imgName' => 'ing'
+            'imgName' => 'ing',
         ],
         [
             'name' => 'ABN AMRO',
             'code' => 'ABNANL2A',
-            'imgName' => 'abnamro'
+            'imgName' => 'abnamro',
         ],
         [
             'name' => 'Rabobank',
             'code' => 'RABONL2U',
-            'imgName' => 'rabobank'
+            'imgName' => 'rabobank',
         ],
         [
             'name' => 'Knab Bank',
             'code' => 'KNABNL2H',
-            'imgName' => 'knab'
+            'imgName' => 'knab',
         ],
         [
             'name' => 'Bunq Bank',
             'code' => 'BUNQNL2A',
-            'imgName' => 'bunq'
+            'imgName' => 'bunq',
         ],
         [
             'name' => 'SNS Bank',
             'code' => 'SNSBNL2A',
-            'imgName' => 'sns'
+            'imgName' => 'sns',
         ],
         [
             'name' => 'RegioBank',
             'code' => 'RBRBNL21',
-            'imgName' => 'regiobank'
+            'imgName' => 'regiobank',
         ],
         [
             'name' => 'ASN Bank',
             'code' => 'ASNBNL21',
-            'imgName' => 'asnbank'
+            'imgName' => 'asnbank',
         ],
         [
             'name' => 'Triodos Bank',
             'code' => 'TRIONL2U',
-            'imgName' => 'triodos'
+            'imgName' => 'triodos',
         ],
         [
             'name' => 'Van Lanschot Kempen',
             'code' => 'FVLBNL22',
-            'imgName' => 'vanlanschot'
+            'imgName' => 'vanlanschot',
         ],
         [
             'name' => 'Revolut',
             'code' => 'REVOLT21',
-            'imgName' => 'revolut'
+            'imgName' => 'revolut',
         ],
 
         [
             'name' => 'N26',
             'code' => 'NTSBDEB1',
-            'imgName' => 'n26'
+            'imgName' => 'n26',
         ],
         [
             'name' => 'Nationale Nederlanden',
             'code' => 'NNBANL2G',
-            'imgName' => 'nn'
+            'imgName' => 'nn',
         ],
         [
             'name' => 'Yoursafe',
             'code' => 'BITSNL2A',
-            'imgName' => 'yoursafe'
-        ]
+            'imgName' => 'yoursafe',
+        ],
     ];
 
     /**
@@ -196,19 +200,21 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
 
         $codeToIssuerMap = [];
         foreach ($issuers as &$issuer) {
-            if(isset($issuer['imgName'])) {
+            if (isset($issuer['imgName'])) {
                 $issuer['img'] = $this->getImageUrl($issuer['imgName']);
             }
             $codeToIssuerMap[$issuer['code']] = $issuer;
         }
 
-        if(method_exists($this, 'getSortedIssuers')) {
+        if (method_exists($this, 'getSortedIssuers')) {
             $sortedCodes = $this->getSortedIssuers() ?? '';
-            $sortedCodes = $sortedCodes ? explode(',',$sortedCodes) : [];
-            if(!empty($sortedCodes)) {
+            $sortedCodes = $sortedCodes ? explode(',', $sortedCodes) : [];
+            if (!empty($sortedCodes)) {
                 $sortedIssuers = [];
                 foreach ($sortedCodes as $code) {
-                    if (isset($codeToIssuerMap[$code])) {
+                    // Skip empty or invalid codes
+                    $code = trim($code);
+                    if (!empty($code) && $code !== '__EMPTY__' && isset($codeToIssuerMap[$code])) {
                         $sortedIssuers[] = $codeToIssuerMap[$code];
                     }
                 }
@@ -223,7 +229,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
 
     public function getCreditcardLogo(string $code): string
     {
-        if($code === 'cartebleuevisa') {
+        if ($code === 'cartebleuevisa') {
             $code = 'cartebleue';
         }
 
@@ -348,10 +354,9 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     }
 
     /**
-     *
      * @param string $configKey
      *
-     * @return boolean
+     * @return bool
      */
     protected function canShowFinancialWarning(string $configKey): bool
     {
@@ -380,7 +385,8 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     /**
      * Is test mode
      *
-     * @return boolean
+     * @param  null|mixed $store
+     * @return bool
      */
     protected function isTestMode($store = null): bool
     {

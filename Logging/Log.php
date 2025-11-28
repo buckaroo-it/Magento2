@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,14 +18,14 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Logging;
 
 use Monolog\Logger;
 use Monolog\Handler\HandlerInterface;
-use Buckaroo\Magento2\Logging\InternalLogger;
 use Buckaroo\Magento2\Model\ConfigProvider\DebugConfiguration;
 
-class Log 
+class Log
 {
     /** @var DebugConfiguration */
     private $debugConfiguration;
@@ -38,18 +39,16 @@ class Log
     private static $processUid = 0;
 
     /**
-     * @var \Buckaroo\Magento2\Logging\InternalLogger
+     * @var InternalLogger
      */
     private $logger;
 
     /**
      * Log constructor.
      *
-     * @param string             $name
      * @param DebugConfiguration $debugConfiguration
-     * @param Mail               $mail
-     * @param HandlerInterface[] $handlers
-     * @param callable[]         $processors
+     * @param Mail $mail
+     * @param InternalLogger $logger
      */
     public function __construct(
         DebugConfiguration $debugConfiguration,
@@ -59,7 +58,6 @@ class Log
         $this->debugConfiguration = $debugConfiguration;
         $this->mail = $mail;
         $this->logger = $logger;
-
     }
 
     /**
@@ -92,7 +90,7 @@ class Log
     }
 
     /**
-     * @param string $message
+     * @param  string $message
      * @return bool
      */
     public function addDebug(string $message): bool

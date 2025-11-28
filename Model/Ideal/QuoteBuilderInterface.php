@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,17 +18,15 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Ideal;
 
 interface QuoteBuilderInterface
 {
-
     /**
      * Set form data
      *
      * @param string $formData
-     *
-     * @return void
      */
     public function setFormData(string $formData);
 

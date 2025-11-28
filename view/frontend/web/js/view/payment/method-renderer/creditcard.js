@@ -74,6 +74,20 @@ define(
                      * check if selected
                      */
                     var self = this;
+                    this.creditcardIssuer = ko.observable();
+
+                    this.creditcardIssuer.subscribe(function (value) {
+                        if (value) {
+                            self.selectedCard(value);
+                        } else {
+                            self.selectedCard(null);
+                        }
+                    });
+
+                    /**
+                     * observe radio buttons
+                     * check if selected
+                     */
                     this.setSelectedCard = function (value) {
                         self.selectedCard(value);
                         return true;
@@ -96,12 +110,6 @@ define(
                     });
 
                     return this;
-                },
-
-                setSelectedBankDropDown: function () {
-                    var el = document.getElementById("buckaroo_magento2_creditcard_issuer");
-                    this.selectedCard(el.options[el.selectedIndex].value);
-                    return true;
                 },
 
                 /**
@@ -138,7 +146,7 @@ define(
                 },
 
                 isCheckedCreditCardPaymentMethod: function (code) {
-                    return ((this.creditcardIssuer !== undefined) && this.creditcardIssuer == code);
+                    return this.creditcardIssuer && this.creditcardIssuer() === code;
                 },
 
                 selectCreditCardPaymentMethod: function (code) {
@@ -161,14 +169,15 @@ define(
 
                 getData: function () {
                     var selectedCardCode = null;
+
                     if (this.selectedCard()) {
-                        selectedCardCode = typeof this.selectedCard() === 'object' ?
-                            this.selectedCard().code :
-                            this.selectedCard();
+                        selectedCardCode = typeof this.selectedCard() === 'object'
+                            ? this.selectedCard().code
+                            : this.selectedCard();
                     }
 
-                    if (this.creditcardIssuer) {
-                        selectedCardCode = this.creditcardIssuer;
+                    if (this.creditcardIssuer && this.creditcardIssuer()) {
+                        selectedCardCode = this.creditcardIssuer();
                     }
 
                     return {

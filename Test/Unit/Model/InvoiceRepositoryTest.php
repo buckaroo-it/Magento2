@@ -45,7 +45,7 @@ class InvoiceRepositoryTest extends BaseTest
     {
         return [
             'successful save' => [true],
-            'failed save' => [false]
+            'failed save' => [false],
         ];
     }
 
@@ -79,7 +79,7 @@ class InvoiceRepositoryTest extends BaseTest
     {
         return [
             'non-existing invoice' => [null],
-            'existing invoice' => [123]
+            'existing invoice' => [123],
         ];
     }
 
@@ -125,7 +125,7 @@ class InvoiceRepositoryTest extends BaseTest
 
         $instance = $this->getInstance([
             'invoiceCollectionFactory' => $invoiceCollectionFactoryMock,
-            'searchResultsFactory' => $searchResultsMock
+            'searchResultsFactory' => $searchResultsMock,
         ]);
         $result = $instance->getList($searchCriteria);
 
@@ -139,7 +139,7 @@ class InvoiceRepositoryTest extends BaseTest
     {
         return [
             'successful delete' => [true],
-            'failed delete' => [false]
+            'failed delete' => [false],
         ];
     }
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Config\Backend;
 
 /**
@@ -27,8 +29,8 @@ class PaymentFee extends \Magento\Framework\App\Config\Value
     /**
      * Test that the value is a number and is positive.
      *
-     * @return $this
      * @throws \Magento\Framework\Exception\LocalizedException
+     * @return $this
      */
     public function save()
     {

@@ -35,20 +35,20 @@ class EditTest extends \Buckaroo\Magento2\Test\BaseTest
                 'id' => 45,
                 'label' => 'Card Label',
                 'expectedArgument' => 'Card Label',
-                'expectedText' => "Edit Giftcard '%s'"
+                'expectedText' => "Edit Giftcard '%s'",
             ],
             [
                 'id' => null,
                 'label' => 'No ID',
                 'expectedArgument' => 'Will not validate this',
-                'expectedText' => 'Add Giftcard'
+                'expectedText' => 'Add Giftcard',
             ],
             [
                 'id' => null,
                 'label' => null,
                 'expectedArgument' => null,
-                'expectedText' => 'Add Giftcard'
-            ]
+                'expectedText' => 'Add Giftcard',
+            ],
         ];
     }
 

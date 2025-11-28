@@ -71,19 +71,19 @@ class PayPerEmailTest extends BaseTest
         return [
             'null value' => [
                 null,
-                0
+                0,
             ],
             'empty value' => [
                 '',
-                0
+                0,
             ],
             'no fee' => [
                 0.00,
-                0
+                0,
             ],
             'with fee' => [
                 1.23,
-                1.23
+                1.23,
             ],
         ];
     }
@@ -116,11 +116,11 @@ class PayPerEmailTest extends BaseTest
         return [
             'yes selected' => [
                 '1',
-                true
+                true,
             ],
             'no selected' => [
                 '0',
-                false
+                false,
             ],
         ];
     }

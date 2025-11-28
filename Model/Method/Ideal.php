@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -20,12 +21,15 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
+use Magento\Payment\Model\InfoInterface;
+use Magento\Sales\Api\Data\OrderPaymentInterface;
+
 class Ideal extends AbstractMethod
 {
     /**
      * Payment Code
      */
-    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_ideal';
+    public const PAYMENT_METHOD_CODE = 'buckaroo_magento2_ideal';
 
     /**
      * @var string
@@ -66,7 +70,7 @@ class Ideal extends AbstractMethod
         if ($this->isFastCheckout($payment)) {
             $services = [
                 'Name'             => 'ideal',
-                'Action'           => $this->getPayRemainder($payment, $transactionBuilder,'PayFastCheckout'),
+                'Action'           => $this->getPayRemainder($payment, $transactionBuilder, 'PayFastCheckout'),
                 'Version'          => 2,
                 'RequestParameter' => $this->getIdealFastCheckoutOrderRequestParameters($payment),
             ];
@@ -101,7 +105,7 @@ class Ideal extends AbstractMethod
      * Get request parameters for iDEAL Fast Checkout order.
      * Remains unchanged.
      *
-     * @param $payment
+     * @param        $payment
      * @return array
      */
     private function getIdealFastCheckoutOrderRequestParameters($payment): array
@@ -119,7 +123,6 @@ class Ideal extends AbstractMethod
     }
 
     /**
-     * @return null
      */
     protected function getRefundTransactionBuilderVersion()
     {
@@ -153,7 +156,7 @@ class Ideal extends AbstractMethod
     /**
      * Check if the order request parameters indicate a fast checkout.
      *
-     * @param $payment
+     * @param       $payment
      * @return bool
      */
     private function isFastCheckout($payment): bool
@@ -168,11 +171,11 @@ class Ideal extends AbstractMethod
      * Validate additional data.
      * Removed issuer validation for standard iDEAL.
      *
-     * @param $payment
+     * @param                                                  $payment
      * @return $this
-     * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function validateAdditionalData($payment) {
+    public function validateAdditionalData($payment)
+    {
 
         if ($this->isFastCheckout($payment)) {
             return $this;
@@ -182,7 +185,7 @@ class Ideal extends AbstractMethod
     }
 
     /**
-     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     * @param OrderPaymentInterface|InfoInterface $payment
      *
      * @return bool|string
      */

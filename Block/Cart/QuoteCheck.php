@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -20,7 +21,8 @@
 
 namespace Buckaroo\Magento2\Block\Cart;
 
-use \Magento\Framework\Message\ManagerInterface;
+use Magento\Checkout\Model\Cart;
+use Magento\Framework\Message\ManagerInterface;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Magento\Quote\Model\Quote;
 
@@ -45,6 +47,8 @@ class QuoteCheck
      * Plugin constructor.
      *
      * @param \Magento\Checkout\Model\Session $checkoutSession
+     * @param PaymentGroupTransaction         $groupTransaction
+     * @param ManagerInterface                $messageManager
      */
     public function __construct(
         \Magento\Checkout\Model\Session $checkoutSession,
@@ -57,9 +61,11 @@ class QuoteCheck
     }
 
     /**
-     * @param \Magento\Checkout\Model\Cart $subject
-     * @param $data
+     * @param Cart $subject
+     * @param mixed $productInfo
+     * @param null|mixed $requestInfo
      * @return array
+     * @throws \Exception
      */
 
     public function beforeAddProduct(
@@ -75,10 +81,10 @@ class QuoteCheck
     /**
      * Check if allowed function AddProductsByIds
      *
-     * @param \Magento\Checkout\Model\Cart $subject
-     * @param array $productIds
-     * @return array
+     * @param  \Magento\Checkout\Model\Cart $subject
+     * @param  array                        $productIds
      * @throws \Exception
+     * @return array
      */
     public function beforeAddProductsByIds(\Magento\Checkout\Model\Cart $subject, $productIds)
     {
@@ -90,10 +96,10 @@ class QuoteCheck
     /**
      * Check if allowed function UpdateItems
      *
-     * @param \Magento\Checkout\Model\Cart $subject
-     * @param array $data
-     * @return array
+     * @param  \Magento\Checkout\Model\Cart $subject
+     * @param  array                        $data
      * @throws \Exception
+     * @return array
      */
     public function beforeUpdateItems(\Magento\Checkout\Model\Cart $subject, $data)
     {
@@ -105,11 +111,11 @@ class QuoteCheck
     /**
      * Check if allowed function UpdateItem
      *
-     * @param \Magento\Checkout\Model\Cart $subject
-     * @param int|array|\Magento\Framework\DataObject $requestInfo
-     * @param null|array|\Magento\Framework\DataObject $updatingParams
-     * @return array
+     * @param  \Magento\Checkout\Model\Cart             $subject
+     * @param  int|array|\Magento\Framework\DataObject  $requestInfo
+     * @param  null|array|\Magento\Framework\DataObject $updatingParams
      * @throws \Exception
+     * @return array
      */
     public function beforeUpdateItem(
         \Magento\Checkout\Model\Cart $subject,
@@ -124,9 +130,9 @@ class QuoteCheck
     /**
      * Check if allowed function
      *
-     * @param \Magento\Checkout\Model\Cart $subject
-     * @param int $itemId
-     * @return int
+     * @param  \Magento\Checkout\Model\Cart $subject
+     * @param  int                          $itemId
+     * @return int[]
      * @throws \Exception
      */
     public function beforeRemoveItem(\Magento\Checkout\Model\Cart $subject, $itemId)
@@ -139,10 +145,11 @@ class QuoteCheck
     /**
      * Blocks method if start group transaction
      *
+     * @param  mixed      $subject
      * @throws \Exception
      */
     public function allowedMethod($subject)
-    {   
+    {
         if ($this->getAlreadyPaid($subject->getQuote()) > 0) {
             //phpcs:ignore:Magento2.Exceptions.DirectThrow
             throw new \Exception('Action is blocked, please finish current order');
@@ -152,7 +159,7 @@ class QuoteCheck
     /**
      * Get quote already payed amount
      *
-     * @param Magento\Quote\Model\Quote $quote
+     * @param Quote $quote
      *
      * @return float
      */

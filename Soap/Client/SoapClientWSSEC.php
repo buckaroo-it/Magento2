@@ -1,4 +1,5 @@
 <?php
+
 /**
 # The MIT License
 
@@ -22,6 +23,7 @@ THE SOFTWARE.
  */
 
 // @codingStandardsIgnoreFile
+
 namespace Buckaroo\Magento2\Soap\Client;
 
 if (version_compare(PHP_VERSION, '8', '<')) {
@@ -29,9 +31,9 @@ if (version_compare(PHP_VERSION, '8', '<')) {
     {
         private $pemdata = null;
 
-        public function __soapCall ($function_name, $arguments, $options = null, $input_headers = null, &$output_headers = null)
+        public function __soapCall($function_name, $arguments, $options = null, $input_headers = null, &$output_headers = null)
         {
-            $result = [parent::__soapCall($function_name,$arguments,$options,$input_headers,$output_headers)];
+            $result = [parent::__soapCall($function_name, $arguments, $options, $input_headers, $output_headers)];
             $result['request_xml'] = $this->__getLastRequest();
             $result['response_xml'] = $this->__getLastResponse();
             return $result;
@@ -42,7 +44,7 @@ if (version_compare(PHP_VERSION, '8', '<')) {
             // buckaroo requires all numbers to have period notation, otherwise
             // an internal error will occur on the server.
             $locale = setlocale(LC_NUMERIC, '0');
-            setlocale(LC_NUMERIC, array('en_US', 'en_US.UTF-8'));
+            setlocale(LC_NUMERIC, ['en_US', 'en_US.UTF-8']);
             $ret = parent::__call($name, $args);
             setlocale(LC_NUMERIC, $locale);
             return $ret;
@@ -132,9 +134,10 @@ if (version_compare(PHP_VERSION, '8', '<')) {
             $sigNodeSet = $sigQueryNodeset->item(0);
 
             //Create keyinfo element and Add public key to KeyIdentifier element
-            $KeyTypeNode = $domDocument->createElementNS("http://www.w3.org/2000/09/xmldsig#","KeyInfo");
+            $KeyTypeNode = $domDocument->createElementNS("http://www.w3.org/2000/09/xmldsig#", "KeyInfo");
             $SecurityTokenReference = $domDocument->createElementNS(
-                'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd','SecurityTokenReference'
+                'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd',
+                'SecurityTokenReference'
             );
             $KeyIdentifier = $domDocument->createElement("KeyIdentifier");
 
@@ -167,13 +170,15 @@ if (version_compare(PHP_VERSION, '8', '<')) {
         }
 
         //Calculate digest value (sha1 hash)
-        private function CalculateDigestValue($input) {
+        private function CalculateDigestValue($input)
+        {
             $digValueControl = base64_encode(pack("H*", sha1($input)));
 
             return $digValueControl;
         }
 
-        private function sha1_thumbprint($fullcert) {
+        private function sha1_thumbprint($fullcert)
+        {
             // First, strip out only the right section
             openssl_x509_export($fullcert, $pem);
 
@@ -181,20 +186,20 @@ if (version_compare(PHP_VERSION, '8', '<')) {
             $pem = preg_replace('/\-+BEGIN CERTIFICATE\-+/', '', $pem);
             $pem = preg_replace('/\-+END CERTIFICATE\-+/', '', $pem);
             $pem = trim($pem);
-            $pem = str_replace(array("\n\r","\n","\r"), '', $pem);
+            $pem = str_replace(["\n\r","\n","\r"], '', $pem);
             $bin = base64_decode($pem);
             return sha1($bin);
         }
     }
 
-    } else {
+} else {
     class SoapClientWSSEC extends \SoapClient
     {
         private $pemdata = null;
 
-        public function __soapCall (string $function_name, array $arguments, array $options = null, $input_headers = null, &$output_headers = null): mixed
+        public function __soapCall(string $function_name, array $arguments, ?array $options = null, $input_headers = null, &$output_headers = null): mixed
         {
-            $result = [parent::__soapCall($function_name,$arguments,$options,$input_headers,$output_headers)];
+            $result = [parent::__soapCall($function_name, $arguments, $options, $input_headers, $output_headers)];
             $result['request_xml'] = $this->__getLastRequest();
             $result['response_xml'] = $this->__getLastResponse();
             return $result;
@@ -205,7 +210,7 @@ if (version_compare(PHP_VERSION, '8', '<')) {
             // buckaroo requires all numbers to have period notation, otherwise
             // an internal error will occur on the server.
             $locale = setlocale(LC_NUMERIC, '0');
-            setlocale(LC_NUMERIC, array('en_US', 'en_US.UTF-8'));
+            setlocale(LC_NUMERIC, ['en_US', 'en_US.UTF-8']);
             $ret = parent::__call($name, $args);
             setlocale(LC_NUMERIC, $locale);
             return $ret;
@@ -295,9 +300,10 @@ if (version_compare(PHP_VERSION, '8', '<')) {
             $sigNodeSet = $sigQueryNodeset->item(0);
 
             //Create keyinfo element and Add public key to KeyIdentifier element
-            $KeyTypeNode = $domDocument->createElementNS("http://www.w3.org/2000/09/xmldsig#","KeyInfo");
+            $KeyTypeNode = $domDocument->createElementNS("http://www.w3.org/2000/09/xmldsig#", "KeyInfo");
             $SecurityTokenReference = $domDocument->createElementNS(
-                'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd','SecurityTokenReference'
+                'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd',
+                'SecurityTokenReference'
             );
             $KeyIdentifier = $domDocument->createElement("KeyIdentifier");
 
@@ -330,13 +336,15 @@ if (version_compare(PHP_VERSION, '8', '<')) {
         }
 
         //Calculate digest value (sha1 hash)
-        private function CalculateDigestValue($input) {
+        private function CalculateDigestValue($input)
+        {
             $digValueControl = base64_encode(pack("H*", sha1($input)));
 
             return $digValueControl;
         }
 
-        private function sha1_thumbprint($fullcert) {
+        private function sha1_thumbprint($fullcert)
+        {
             // First, strip out only the right section
             openssl_x509_export($fullcert, $pem);
 
@@ -344,7 +352,7 @@ if (version_compare(PHP_VERSION, '8', '<')) {
             $pem = preg_replace('/\-+BEGIN CERTIFICATE\-+/', '', $pem);
             $pem = preg_replace('/\-+END CERTIFICATE\-+/', '', $pem);
             $pem = trim($pem);
-            $pem = str_replace(array("\n\r","\n","\r"), '', $pem);
+            $pem = str_replace(["\n\r","\n","\r"], '', $pem);
             $bin = base64_decode($pem);
             return sha1($bin);
         }

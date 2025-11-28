@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -20,8 +21,27 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
+use Buckaroo\Magento2\Gateway\GatewayInterface;
+use Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory;
+use Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory;
+use Buckaroo\Magento2\Model\RefundFieldsFactory;
+use Buckaroo\Magento2\Model\ValidatorFactory;
+use Magento\Framework\Api\AttributeValueFactory;
+use Magento\Framework\Api\ExtensionAttributesFactory;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\RequestInterface;
+use Magento\Framework\Data\Collection\AbstractDb;
+use Magento\Framework\Event\ManagerInterface;
+use Magento\Framework\Model\Context;
+use Magento\Framework\Model\ResourceModel\AbstractResource;
+use Magento\Framework\ObjectManagerInterface;
+use Magento\Framework\Registry;
+use Magento\Payment\Helper\Data;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Framework\Phrase;
+use Magento\Payment\Model\Method\Logger;
+use Magento\Quote\Model\QuoteFactory;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Buckaroo\Magento2\Service\Formatter\AddressFormatter;
@@ -30,33 +50,33 @@ use Buckaroo\Magento2\Logging\Log as BuckarooLog;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
 use Magento\Checkout\Model\Cart;
-use Zend_Locale;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Quote\Model\Quote\AddressFactory;
+use Magento\Quote\Api\Data\CartInterface;
 
 class Klarnakp extends AbstractMethod
 {
     /**
      * Payment Code
      */
-    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_klarnakp';
+    public const PAYMENT_METHOD_CODE = 'buckaroo_magento2_klarnakp';
 
     /**
      * Check if the tax calculation includes tax.
      */
-    const TAX_CALCULATION_INCLUDES_TAX = 'tax/calculation/price_includes_tax';
-    const TAX_CALCULATION_SHIPPING_INCLUDES_TAX = 'tax/calculation/shipping_includes_tax';
+    public const TAX_CALCULATION_INCLUDES_TAX = 'tax/calculation/price_includes_tax';
+    public const TAX_CALCULATION_SHIPPING_INCLUDES_TAX = 'tax/calculation/shipping_includes_tax';
 
     /** Klarnakp Article Types */
-    const KLARNAKP_ARTICLE_TYPE_GENERAL = 'General';
-    const KLARNAKP_ARTICLE_TYPE_HANDLINGFEE = 'HandlingFee';
-    const KLARNAKP_ARTICLE_TYPE_SHIPMENTFEE = 'ShipmentFee';
+    public const KLARNAKP_ARTICLE_TYPE_GENERAL = 'General';
+    public const KLARNAKP_ARTICLE_TYPE_HANDLINGFEE = 'HandlingFee';
+    public const KLARNAKP_ARTICLE_TYPE_SHIPMENTFEE = 'ShipmentFee';
 
     /**
      * Business methods that will be used in klarna.
      */
-    const BUSINESS_METHOD_B2C = 1;
-    const BUSINESS_METHOD_B2B = 2;
+    public const BUSINESS_METHOD_B2C = 1;
+    public const BUSINESS_METHOD_B2B = 2;
 
     /**
      * @var string
@@ -107,32 +127,36 @@ class Klarnakp extends AbstractMethod
     private $context;
 
     /**
-     * @param \Magento\Framework\ObjectManagerInterface $objectManager
-     * @param \Magento\Framework\Model\Context $context
-     * @param \Magento\Framework\Registry $registry
-     * @param \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory
-     * @param \Magento\Framework\Api\AttributeValueFactory $customAttributeFactory
-     * @param \Magento\Payment\Helper\Data $paymentData
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
-     * @param \Magento\Payment\Model\Method\Logger $logger
+     * @param ObjectManagerInterface $objectManager
+     * @param Context $context
+     * @param Registry $registry
+     * @param ExtensionAttributesFactory $extensionFactory
+     * @param AttributeValueFactory $customAttributeFactory
+     * @param Data $paymentData
+     * @param ScopeConfigInterface $scopeConfig
+     * @param Logger $logger
      * @param \Magento\Developer\Helper\Data $developmentHelper
-     * @param SoftwareData $softwareData
-     * @param Config $taxConfig
-     * @param Calculation $taxCalculation
      * @param Cart $cart
      * @param AddressFormatter $addressFormatter
-     * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
-     * @param \Magento\Framework\Data\Collection\AbstractDb $resourceCollection
-     * @param \Buckaroo\Magento2\Gateway\GatewayInterface $gateway
-     * @param \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory
-     * @param \Buckaroo\Magento2\Model\ValidatorFactory $validatorFactory
-     * @param \Buckaroo\Magento2\Helper\Data $helper
-     * @param \Magento\Quote\Model\QuoteFactory $quoteFactory
-     * @param \Magento\Framework\App\RequestInterface $request
-     * @param \Buckaroo\Magento2\Model\RefundFieldsFactory $refundFieldsFactory
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory
-     * @param \Magento\Framework\Pricing\Helper\Data $priceHelper
+     * @param QuoteFactory $quoteFactory
+     * @param Config $taxConfig
+     * @param Calculation $taxCalculation
+     * @param BuckarooFee $configProviderBuckarooFee
+     * @param BuckarooLog $buckarooLog
+     * @param SoftwareData $softwareData
+     * @param AddressFactory $addressFactory
+     * @param ManagerInterface $eventManager
+     * @param AbstractResource|null $resource
+     * @param AbstractDb|null $resourceCollection
+     * @param GatewayInterface|null $gateway
+     * @param TransactionBuilderFactory|null $transactionBuilderFactory
+     * @param ValidatorFactory|null $validatorFactory
+     * @param \Buckaroo\Magento2\Helper\Data|null $helper
+     * @param RequestInterface|null $request
+     * @param RefundFieldsFactory|null $refundFieldsFactory
+     * @param Factory|null $configProviderFactory
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory|null $configProviderMethodFactory
+     * @param \Magento\Framework\Pricing\Helper\Data|null $priceHelper
      * @param array $data
      */
     public function __construct(
@@ -155,17 +179,17 @@ class Klarnakp extends AbstractMethod
         SoftwareData $softwareData,
         AddressFactory $addressFactory,
         \Magento\Framework\Event\ManagerInterface $eventManager,
-        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
-        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
-        \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
-        \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory = null,
-        \Buckaroo\Magento2\Model\ValidatorFactory $validatorFactory = null,
-        \Buckaroo\Magento2\Helper\Data $helper = null,
-        \Magento\Framework\App\RequestInterface $request = null,
-        \Buckaroo\Magento2\Model\RefundFieldsFactory $refundFieldsFactory = null,
-        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory = null,
-        \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
-        \Magento\Framework\Pricing\Helper\Data $priceHelper = null,
+        ?\Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
+        ?\Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
+        ?\Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
+        ?\Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory = null,
+        ?\Buckaroo\Magento2\Model\ValidatorFactory $validatorFactory = null,
+        ?\Buckaroo\Magento2\Helper\Data $helper = null,
+        ?\Magento\Framework\App\RequestInterface $request = null,
+        ?\Buckaroo\Magento2\Model\RefundFieldsFactory $refundFieldsFactory = null,
+        ?\Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory = null,
+        ?\Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
+        ?\Magento\Framework\Pricing\Helper\Data $priceHelper = null,
         array $data = []
     ) {
         parent::__construct(
@@ -325,8 +349,8 @@ class Klarnakp extends AbstractMethod
     /**
      * @param OrderPaymentInterface|InfoInterface $payment
      *
-     * @return \Buckaroo\Magento2\Gateway\Http\TransactionBuilderInterface|bool
      * @throws \Buckaroo\Magento2\Exception
+     * @return \Buckaroo\Magento2\Gateway\Http\TransactionBuilderInterface|bool
      */
     public function getVoidTransactionBuilder($payment)
     {
@@ -422,8 +446,8 @@ class Klarnakp extends AbstractMethod
     }
 
     /**
-     * @param $invoice
-     * @param $payment
+     * @param        $invoice
+     * @param        $payment
      * @return array
      */
     public function getPayRequestData($invoice, $payment)
@@ -507,11 +531,24 @@ class Klarnakp extends AbstractMethod
     {
         $order = $payment->getOrder();
 
+        $reservationNumber = $order->getBuckarooReservationNumber();
+
+        if (empty($reservationNumber)) {
+            $this->logger2->addError(__METHOD__ . '|Reservation number not found for order: ' . $order->getIncrementId());
+
+            // Try to reload the order and check again
+            $reloadedOrder = $order->load($order->getId());
+            $reloadedReservationNumber = $reloadedOrder->getBuckarooReservationNumber();
+            if (empty($reloadedReservationNumber)) {
+                $this->logger2->addError(__METHOD__ . '|Reservation number still missing after reload - Order: ' . $order->getIncrementId());
+            }
+        }
+
         $reservationr = [
             [
-                '_'    => $order->getBuckarooReservationNumber(),
+                '_'    => $reservationNumber,
                 'Name' => 'ReservationNumber',
-            ]
+            ],
         ];
 
         return $reservationr;
@@ -542,11 +579,17 @@ class Klarnakp extends AbstractMethod
     {
         $order = $payment->getOrder();
 
+        $reservationNumber = $order->getBuckarooReservationNumber();
+
+        if (empty($reservationNumber)) {
+            $this->logger2->addError(__METHOD__ . '|Reservation number not found for order: ' . $order->getIncrementId());
+        }
+
         $additionalinformation = [
             [
-                '_' => $order->getBuckarooReservationNumber(),
+                '_' => $reservationNumber,
                 'Name' => 'ReservationNumber',
-            ]
+            ],
         ];
 
         return $additionalinformation;
@@ -624,7 +667,7 @@ class Klarnakp extends AbstractMethod
             [
                 '_' => $billingAddress->getCountryId(),
                 'Name' => 'OperatingCountry',
-            ]
+            ],
         ];
 
         if (!empty($streetFormat['house_number'])) {
@@ -649,6 +692,18 @@ class Klarnakp extends AbstractMethod
         }
 
         return $billingData;
+    }
+
+    /**
+     * Normalize prices to 2 decimals to avoid issues with values
+     * that have more precision (e.g. reward points, gift cards).
+     *
+     * @param float|int|string $amount
+     * @return float
+     */
+    private function formatAmount($amount): float
+    {
+        return (float)number_format((float)$amount, 2, '.', '');
     }
 
     /**
@@ -723,6 +778,13 @@ class Klarnakp extends AbstractMethod
 
         if (!empty($reward)) {
             $articles = array_merge($articles, $reward);
+            $count++;
+        }
+
+        $giftCard = $this->getGiftCardLine($quote, $count);
+
+        if (!empty($giftCard)) {
+            $articles = array_merge($articles, $giftCard);
         }
 
         return $articles;
@@ -732,7 +794,7 @@ class Klarnakp extends AbstractMethod
      * Get the discount cost lines
      *
      * @param OrderPaymentInterface|InfoInterface $payment
-     * @param $group
+     * @param                                     $group
      *
      * @return array
      */
@@ -745,6 +807,8 @@ class Klarnakp extends AbstractMethod
             return $article;
         }
 
+        $articlePrice = $this->formatAmount($discount);
+
         $article = [
             [
                 '_' => 3,
@@ -753,7 +817,7 @@ class Klarnakp extends AbstractMethod
                 'Name' => 'ArticleNumber',
             ],
             [
-                '_' => $discount,
+                '_' => $articlePrice,
                 'Group' => 'Article',
                 'GroupID' => $group,
                 'Name' => 'ArticlePrice',
@@ -781,57 +845,132 @@ class Klarnakp extends AbstractMethod
         return $article;
     }
 
-     /**
-     * Get the reward cost lines
-     *
+    /**
+    * Get the reward cost lines
+    *
      * @param Quote $quote
-     * @param $group
-     *
+     * @param       $group
+    *
      * @return array
      */
     public function getRewardLine($quote, $group)
     {
-        $article = [];
-        $discount = (float)$quote->getRewardCurrencyAmount();
+        try {
+            $discount = (float)$quote->getRewardCurrencyAmount();
 
-        if ($discount <= 0) {
+            if ($discount <= 0) {
+                return [];
+            }
+
+            $this->logger2->addDebug(__METHOD__ . '|Reward points discount found: ' . $discount);
+
+            $articlePrice = $this->formatAmount(-$discount);
+
+            $article = [
+                [
+                    '_' => 4,
+                    'Group' => 'Article',
+                    'GroupID' => $group,
+                    'Name' => 'ArticleNumber',
+                ],
+                [
+                    '_' => $articlePrice,
+                    'Group' => 'Article',
+                    'GroupID' => $group,
+                    'Name' => 'ArticlePrice',
+                ],
+                [
+                    '_' => 1,
+                    'Group' => 'Article',
+                    'GroupID' => $group,
+                    'Name' => 'ArticleQuantity',
+                ],
+                [
+                    '_' => 'Discount Reward Points',
+                    'Group' => 'Article',
+                    'GroupID' => $group,
+                    'Name' => 'ArticleTitle',
+                ],
+                [
+                    '_' => 0,
+                    'Group' => 'Article',
+                    'GroupID' => $group,
+                    'Name' => 'ArticleVat',
+                ],
+            ];
+
             return $article;
+        } catch (\Error $e) {
+            $this->logger2->addDebug(__METHOD__ . '|getRewardCurrencyAmount method not available - Adobe Commerce reward points may not be installed');
+            return [];
+        } catch (\Exception $e) {
+            $this->logger2->addError(__METHOD__ . '|Error getting reward points amount: ' . $e->getMessage());
+            return [];
         }
+    }
 
-        $article = [
-            [
-                '_' => 4,
-                'Group' => 'Article',
-                'GroupID' => $group,
-                'Name' => 'ArticleNumber',
-            ],
-            [
-                '_' => -$discount,
-                'Group' => 'Article',
-                'GroupID' => $group,
-                'Name' => 'ArticlePrice',
-            ],
-            [
-                '_' => 1,
-                'Group' => 'Article',
-                'GroupID' => $group,
-                'Name' => 'ArticleQuantity',
-            ],
-            [
-                '_' => 'Discount Reward Points',
-                'Group' => 'Article',
-                'GroupID' => $group,
-                'Name' => 'ArticleTitle',
-            ],
-            [
-                '_' => 0,
-                'Group' => 'Article',
-                'GroupID' => $group,
-                'Name' => 'ArticleVat',
-            ],
-        ];
+    /**
+     * Get the gift card discount line
+     *
+     * @param Quote $quote
+     * @param       $group
+     *
+     * @return array
+     */
+    public function getGiftCardLine($quote, $group)
+    {
+        try {
+            $discount = (float)$quote->getGiftCardsAmount();
 
-        return $article;
+            if ($discount <= 0) {
+                return [];
+            }
+
+            $this->logger2->addDebug(__METHOD__ . '|Gift card discount found: ' . $discount);
+
+            $articlePrice = $this->formatAmount(-$discount);
+
+            $article = [
+                [
+                    '_' => 5,
+                    'Group' => 'Article',
+                    'GroupID' => $group,
+                    'Name' => 'ArticleNumber',
+                ],
+                [
+                    '_' => $articlePrice,
+                    'Group' => 'Article',
+                    'GroupID' => $group,
+                    'Name' => 'ArticlePrice',
+                ],
+                [
+                    '_' => 1,
+                    'Group' => 'Article',
+                    'GroupID' => $group,
+                    'Name' => 'ArticleQuantity',
+                ],
+                [
+                    '_' => 'Discount Gift Card',
+                    'Group' => 'Article',
+                    'GroupID' => $group,
+                    'Name' => 'ArticleTitle',
+                ],
+                [
+                    '_' => 0,
+                    'Group' => 'Article',
+                    'GroupID' => $group,
+                    'Name' => 'ArticleVat',
+                ],
+            ];
+
+            return $article;
+        } catch (\Error $e) {
+            $this->logger2->addDebug(__METHOD__ . '|getGiftCardsAmount method not available - Adobe Commerce gift cards may not be installed');
+            return [];
+        } catch (\Exception $e) {
+            $this->logger2->addError(__METHOD__ . '|Error getting gift card amount: ' . $e->getMessage());
+            return [];
+        }
     }
 
     /**
@@ -839,15 +978,15 @@ class Klarnakp extends AbstractMethod
      *
      * @return Phrase
      */
-    public function getShippingFee() : Phrase
+    public function getShippingFee(): Phrase
     {
         return __('Shipping fee');
     }
 
     /**
-     * @param OrderInterface $order
-     * @param $group
-     * @param int $itemsTotalAmount
+     * @param  OrderInterface $order
+     * @param                 $group
+     * @param  int            $itemsTotalAmount
      * @return array
      */
     protected function getShippingCostsLine($order, $group, &$itemsTotalAmount = 0)
@@ -862,6 +1001,8 @@ class Klarnakp extends AbstractMethod
         $request = $this->taxCalculation->getRateRequest(null, null, null);
         $taxClassId = $this->taxConfig->getShippingTaxClass();
         $percent = $this->taxCalculation->getRate($request->setProductClassId($taxClassId));
+
+        $shippingAmount = $this->formatAmount($shippingAmount);
 
         $shippingCostsArticle = [
             [
@@ -899,7 +1040,7 @@ class Klarnakp extends AbstractMethod
                 'Group' => 'Article',
                 'GroupID' => $group,
                 'Name' => 'ArticleType',
-            ]
+            ],
         ];
 
         return $shippingCostsArticle;
@@ -913,6 +1054,9 @@ class Klarnakp extends AbstractMethod
         $articleUnitPrice,
         $articleVat = ''
     ) {
+        // Ensure ArticlePrice is always formatted to 2 decimals
+        $articleUnitPrice = $this->formatAmount($articleUnitPrice);
+
         $article = [
             [
                 '_'       => $articleDescription,
@@ -949,7 +1093,7 @@ class Klarnakp extends AbstractMethod
                 'Group' => 'Article',
                 'GroupID' => $latestKey,
                 'Name' => 'ArticleType',
-            ]
+            ],
         ];
 
         return $article;
@@ -957,7 +1101,7 @@ class Klarnakp extends AbstractMethod
 
 
     /**
-     * @param $data
+     * @param         $data
      * @return string
      */
     private function getTaxPercent($data)
@@ -986,15 +1130,13 @@ class Klarnakp extends AbstractMethod
         return $this->buckarooPaymentMethodCode;
     }
 
-    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
+    public function isAvailable(?CartInterface $quote = null)
     {
-        $orderId = $quote ? $quote->getReservedOrderId() : null;
+        if (!parent::isAvailable($quote)) {
+            return false;
+        }
 
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-
-        $paymentGroupTransaction = $objectManager->get(\Buckaroo\Magento2\Helper\PaymentGroupTransaction::class);
-
-        if ($paymentGroupTransaction->getAlreadyPaid($orderId) > 0) {
+        if ($this->isOrderPartiallyPaid($quote)) {
             return false;
         }
 

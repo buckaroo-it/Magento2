@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Ideal;
 
 use Buckaroo\Magento2\Api\Data\QuoteCreateResponseInterface;
@@ -34,7 +36,6 @@ use Magento\Customer\Api\AddressRepositoryInterface;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Session as CustomerSession;
 use Buckaroo\Magento2\Api\IdealQuoteCreateInterface;
-use Buckaroo\Magento2\Model\Ideal\QuoteBuilderInterfaceFactory;
 use Buckaroo\Magento2\Api\Data\QuoteCreateResponseInterfaceFactory;
 use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
@@ -81,12 +82,12 @@ class QuoteCreate implements IdealQuoteCreateInterface
     /**
      * Execute quote creation and address handling
      *
-     * @param string $page
-     * @param string|null $form_data
-     * @return QuoteCreateResponseInterface
+     * @param  string                       $page
+     * @param  string|null                  $form_data
      * @throws IdealException
+     * @return QuoteCreateResponseInterface
      */
-    public function execute(string $page, string $form_data = null)
+    public function execute(string $page, ?string $form_data = null)
     {
         try {
             if ($page === 'product' && is_string($form_data)) {
@@ -131,9 +132,9 @@ class QuoteCreate implements IdealQuoteCreateInterface
     /**
      * Get a customer's address by address ID
      *
-     * @param int|null $addressId
-     * @return AddressInterface|null
+     * @param  int|null              $addressId
      * @throws LocalizedException
+     * @return AddressInterface|null
      */
     protected function getAddress($addressId)
     {
@@ -152,10 +153,9 @@ class QuoteCreate implements IdealQuoteCreateInterface
     /**
      * Set the shipping and billing addresses for the quote
      *
-     * @param AddressInterface|null $shippingAddressData
-     * @param AddressInterface|null $billingAddressData
-     * @param CustomerInterface $customer
-     * @return void
+     * @param  AddressInterface|null $shippingAddressData
+     * @param  AddressInterface|null $billingAddressData
+     * @param  CustomerInterface     $customer
      * @throws InputException
      */
     protected function setAddresses($shippingAddressData, $billingAddressData, $customer)
@@ -199,7 +199,6 @@ class QuoteCreate implements IdealQuoteCreateInterface
     /**
      * Set default shipping and billing addresses for a guest
      *
-     * @return void
      * @throws InputException
      */
     protected function setDefaultShippingAddress()
@@ -221,7 +220,6 @@ class QuoteCreate implements IdealQuoteCreateInterface
      * Set placeholder values for the address if no customer information is available
      *
      * @param Address $address
-     * @return void
      */
     protected function setPlaceholderAddress(Address $address)
     {
@@ -237,8 +235,6 @@ class QuoteCreate implements IdealQuoteCreateInterface
 
     /**
      * Calculate quote totals and set store id and email if needed
-     *
-     * @return void
      */
     protected function calculateQuoteTotals()
     {
@@ -255,8 +251,7 @@ class QuoteCreate implements IdealQuoteCreateInterface
     /**
      * Add the first found shipping method to the shipping address
      *
-     * @param Address $address
-     * @return void
+     * @param  Address        $address
      * @throws InputException
      */
     protected function addFirstShippingMethod(Address $address)
@@ -291,9 +286,9 @@ class QuoteCreate implements IdealQuoteCreateInterface
     /**
      * Create a new quote if on the product page
      *
-     * @param string $form_data
-     * @return Quote
+     * @param  string         $form_data
      * @throws IdealException
+     * @return Quote
      */
     protected function createQuote(string $form_data)
     {

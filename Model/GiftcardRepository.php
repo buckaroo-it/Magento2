@@ -134,7 +134,7 @@ class GiftcardRepository implements GiftcardRepositoryInterface
     }
 
     /**
-     * @param SearchCriteria $searchCriteria
+     * @param SearchCriteria     $searchCriteria
      * @param GiftcardCollection $collection
      */
     private function handleSortOrders($searchCriteria, $collection)
@@ -155,7 +155,7 @@ class GiftcardRepository implements GiftcardRepositoryInterface
     }
 
     /**
-     * @param SearchCriteria $searchCriteria
+     * @param SearchCriteria     $searchCriteria
      * @param GiftcardCollection $collection
      *
      * @return array
@@ -198,7 +198,7 @@ class GiftcardRepository implements GiftcardRepositoryInterface
     }
 
     /**
-     * @param string $serviceCode
+     * @param  string            $serviceCode
      * @return GiftcardInterface
      */
     public function getByServiceCode(string $serviceCode)

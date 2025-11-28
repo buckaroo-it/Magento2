@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -43,8 +44,6 @@ class Collection extends \Magento\Sales\Model\ResourceModel\Collection\AbstractC
 
     /**
      * Model initialization
-     *
-     * @return void
      */
     protected function _construct()
     {

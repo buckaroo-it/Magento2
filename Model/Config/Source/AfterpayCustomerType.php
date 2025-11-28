@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -36,7 +37,7 @@ class AfterpayCustomerType implements \Magento\Framework\Data\OptionSourceInterf
         return [
             ['value' => self::CUSTOMER_TYPE_BOTH, 'label' => __('Both')],
             ['value' => self::CUSTOMER_TYPE_B2C, 'label' => __('B2C (Business-to-consumer)')],
-            ['value' => self::CUSTOMER_TYPE_B2B, 'label' => __('B2B ((Business-to-Business)')]
+            ['value' => self::CUSTOMER_TYPE_B2B, 'label' => __('B2B ((Business-to-Business)')],
         ];
     }
 }

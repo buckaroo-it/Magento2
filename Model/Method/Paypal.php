@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -25,7 +26,7 @@ class Paypal extends AbstractMethod
     /**
      * Payment Code
      */
-    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_paypal';
+    public const PAYMENT_METHOD_CODE = 'buckaroo_magento2_paypal';
 
     /**
      * @var string
@@ -67,7 +68,7 @@ class Paypal extends AbstractMethod
         if ($expressOrderId !== null) {
             $services['RequestParameter'][] = [
                 "Name" => "PayPalOrderId",
-                "_" => $expressOrderId
+                "_" => $expressOrderId,
             ];
             $payment->setAdditionalInformation('skip_push', 1);
         }

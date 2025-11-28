@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,9 +18,9 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Block\Checkout\Mrcash;
 
 class Pay extends \Buckaroo\Magento2\Block\Checkout\Payconiq\Pay
 {
-
 }

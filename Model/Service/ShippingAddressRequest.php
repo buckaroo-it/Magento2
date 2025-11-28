@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -22,29 +23,29 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Model\Service;
 
 use Buckaroo\Magento2\Api\Data\ExpressMethods\ShippingAddressRequestInterface;
-use Buckaroo\Magento2\Exception;
+use Magento\Framework\Exception\LocalizedException;
 
 class ShippingAddressRequest implements ShippingAddressRequestInterface
 {
     /**
      * @var string
      */
-    protected string $city;
+    protected $city;
 
     /**
      * @var string
      */
-    protected string $countryCode;
+    protected $countryCode;
 
     /**
      * @var string
      */
-    protected string $postalCode;
+    protected $postalCode;
 
     /**
      * @var string
      */
-    protected string $state;
+    protected $state;
 
     /**
      * @inheritdoc
@@ -57,7 +58,7 @@ class ShippingAddressRequest implements ShippingAddressRequestInterface
     /**
      * @inheritdoc
      *
-     * @throws Exception
+     * @throws LocalizedException
      */
     public function setCity(string $city)
     {
@@ -68,16 +69,15 @@ class ShippingAddressRequest implements ShippingAddressRequestInterface
     /**
      * Validate required fields
      *
-     * @param mixed $value
+     * @param mixed  $value
      * @param string $name
      *
-     * @return void
-     * @throws Exception
+     * @throws LocalizedException
      */
     protected function validateRequired($value, string $name)
     {
         if (strlen(trim($value)) === 0) {
-            throw new Exception(__("Parameter `{$name}` is required"));
+            throw new LocalizedException(__("Parameter `{$name}` is required"));
         }
     }
 

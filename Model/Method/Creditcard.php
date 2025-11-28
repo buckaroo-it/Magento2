@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -25,7 +26,7 @@ class Creditcard extends AbstractMethod
     /**
      * Payment Code
      */
-    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_creditcard';
+    public const PAYMENT_METHOD_CODE = 'buckaroo_magento2_creditcard';
 
     /**
      * @var string
@@ -94,35 +95,26 @@ class Creditcard extends AbstractMethod
     /**
      * {@inheritdoc}
      */
-    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
+    public function isAvailable(?\Magento\Quote\Api\Data\CartInterface $quote = null)
     {
-        /**
-         * If there are no credit cards chosen, we can't be available
-         */
-        /**
-         * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard $ccConfig
-         */
+        // Check allowed creditcards
+        /** @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard $ccConfig */
         $ccConfig = $this->configProviderMethodFactory->get('creditcard');
-        if (null === $ccConfig->getAllowedCreditcards()) {
+        if ($ccConfig->getAllowedCreditcards() === null) {
             return false;
         }
 
-        /**
-         * Check if payment group transaction is already paid
-         */
-        $orderId = $quote ? $quote->getReservedOrderId() : null;
-        if ($orderId) {
-            $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-            $paymentGroupTransaction = $objectManager->get(\Buckaroo\Magento2\Helper\PaymentGroupTransaction::class);
-
-            if ($paymentGroupTransaction->getAlreadyPaid($orderId) > 0) {
-                return false;
-            }
+        // Let all generic checks run (amount, IP, currency, spam, etc.)
+        if (!parent::isAvailable($quote)) {
+            return false;
         }
-        /**
-         * Return the regular isAvailable result
-         */
-        return parent::isAvailable($quote);
+
+        // Block if order already has a (partial) payment
+        if ($this->isOrderPartiallyPaid($quote)) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -217,6 +209,4 @@ class Creditcard extends AbstractMethod
     {
         return $payment->getAdditionalInformation('card_type');
     }
-
-
 }

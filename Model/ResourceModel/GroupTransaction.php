@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -38,8 +39,6 @@ class GroupTransaction extends \Magento\Framework\Model\ResourceModel\Db\Version
 
     /**
      * Model Initialization
-     *
-     * @return void
      */
     protected function _construct()
     {

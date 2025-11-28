@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -20,6 +21,8 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
+use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee;
 use Magento\Developer\Helper\Data as DeveloperHelperData;
 use Magento\Framework\Api\AttributeValueFactory;
 use Magento\Framework\Api\ExtensionAttributesFactory;
@@ -37,6 +40,8 @@ use Magento\Framework\Registry;
 use Magento\Payment\Helper\Data as PaymentHelperData;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Payment\Model\Method\Logger;
+use Magento\Quote\Api\Data\CartInterface;
+use Magento\Quote\Model\QuoteFactory;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order\Address;
@@ -62,9 +67,9 @@ class Capayable extends AbstractMethod
     public const V2_NAME = 'In3';
 
     /** Payment Code */
-    const PAYMENT_METHOD_CODE = '';
+    public const PAYMENT_METHOD_CODE = '';
 
-    const CAPAYABLE_ORDER_SERVICE_ACTION = '';
+    public const CAPAYABLE_ORDER_SERVICE_ACTION = '';
 
     /** @var string */
     public $buckarooPaymentMethodCode = '';
@@ -84,6 +89,39 @@ class Capayable extends AbstractMethod
 
     protected $v3Builder;
 
+    /**
+     * @param ObjectManagerInterface $objectManager
+     * @param Context $context
+     * @param Registry $registry
+     * @param ExtensionAttributesFactory $extensionFactory
+     * @param AttributeValueFactory $customAttributeFactory
+     * @param PaymentHelperData $paymentData
+     * @param ScopeConfigInterface $scopeConfig
+     * @param Logger $logger
+     * @param DeveloperHelperData $developmentHelper
+     * @param AddressFormatter $addressFormatter
+     * @param QuoteFactory $quoteFactory
+     * @param Config $taxConfig
+     * @param Calculation $taxCalculation
+     * @param BuckarooFee $configProviderBuckarooFee
+     * @param BuckarooLog $buckarooLog
+     * @param SoftwareData $softwareData
+     * @param AddressFactory $addressFactory
+     * @param EventManager $eventManager
+     * @param In3V3Builder $v3Builder
+     * @param AbstractResource|null $resource
+     * @param AbstractDb|null $resourceCollection
+     * @param GatewayInterface|null $gateway
+     * @param TransactionBuilderFactory|null $transactionBuilderFactory
+     * @param ValidatorFactory|null $validatorFactory
+     * @param BuckarooHelperData|null $helper
+     * @param RequestInterface|null $request
+     * @param RefundFieldsFactory|null $refundFieldsFactory
+     * @param ConfigProviderFactory|null $configProviderFactory
+     * @param ConfigProviderMethodFactory|null $configProviderMethodFactory
+     * @param PricingHelperData|null $priceHelper
+     * @param array $data
+     */
     public function __construct(
         ObjectManagerInterface $objectManager,
         Context $context,
@@ -95,26 +133,26 @@ class Capayable extends AbstractMethod
         Logger $logger,
         DeveloperHelperData $developmentHelper,
         AddressFormatter $addressFormatter,
-        \Magento\Quote\Model\QuoteFactory $quoteFactory,
+        QuoteFactory $quoteFactory,
         Config $taxConfig,
         Calculation $taxCalculation,
-        \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
+        BuckarooFee $configProviderBuckarooFee,
         BuckarooLog $buckarooLog,
         SoftwareData $softwareData,
         AddressFactory $addressFactory,
         EventManager $eventManager,
         In3V3Builder $v3Builder,
-        AbstractResource $resource = null,
-        AbstractDb $resourceCollection = null,
-        GatewayInterface $gateway = null,
-        TransactionBuilderFactory $transactionBuilderFactory = null,
-        ValidatorFactory $validatorFactory = null,
-        BuckarooHelperData $helper = null,
-        RequestInterface $request = null,
-        RefundFieldsFactory $refundFieldsFactory = null,
-        ConfigProviderFactory $configProviderFactory = null,
-        ConfigProviderMethodFactory $configProviderMethodFactory = null,
-        PricingHelperData $priceHelper = null,
+        ?AbstractResource $resource = null,
+        ?AbstractDb $resourceCollection = null,
+        ?GatewayInterface $gateway = null,
+        ?TransactionBuilderFactory $transactionBuilderFactory = null,
+        ?ValidatorFactory $validatorFactory = null,
+        ?BuckarooHelperData $helper = null,
+        ?RequestInterface $request = null,
+        ?RefundFieldsFactory $refundFieldsFactory = null,
+        ?ConfigProviderFactory $configProviderFactory = null,
+        ?ConfigProviderMethodFactory $configProviderMethodFactory = null,
+        ?PricingHelperData $priceHelper = null,
         array $data = []
     ) {
         parent::__construct(
@@ -210,7 +248,7 @@ class Capayable extends AbstractMethod
     {
         $row = [
             '_' => $value,
-            'Name' => $name
+            'Name' => $name,
         ];
 
         if ($groupType !== null) {
@@ -243,7 +281,7 @@ class Capayable extends AbstractMethod
      * @param OrderPaymentInterface|InfoInterface $payment
      *
      * @return array
-     * @throws \Buckaroo\Magento2\Exception
+     * @throws Exception|\Exception
      */
     public function getCapayableService($payment)
     {
@@ -261,21 +299,22 @@ class Capayable extends AbstractMethod
         $services = [
             'Name'             => 'capayable',
             'Action'           => static::CAPAYABLE_ORDER_SERVICE_ACTION,
-            'RequestParameter' => $requestParameter
+            'RequestParameter' => $requestParameter,
         ];
 
         return $services;
     }
 
-    protected function isV2() {
+    protected function isV2()
+    {
         return $this->configProviderMethodFactory->get('capayablein3')->isV2();
     }
 
     /**
      * @param OrderPaymentInterface|InfoInterface $payment
      *
-     * @return array
      * @throws \Exception
+     * @return array
      */
     private function getCustomerData($payment)
     {
@@ -297,7 +336,7 @@ class Capayable extends AbstractMethod
             $this->getRequestParameterRow('Debtor', 'CustomerType'),
             $this->getRequestParameterRow($now->format('Y-m-d'), 'InvoiceDate'),
             $this->getRequestParameterRow($phoneData['clean'], 'Phone', 'Phone'),
-            $this->getRequestParameterRow($billingAddress->getEmail(), 'Email', 'Email')
+            $this->getRequestParameterRow($billingAddress->getEmail(), 'Email', 'Email'),
         ];
 
         $customerData = array_merge($customerData, $this->getPersonGroupData($payment));
@@ -320,7 +359,7 @@ class Capayable extends AbstractMethod
             $this->getRequestParameterRow($this->getInitials($billingAddress->getFirstname()), 'Initials', 'Person'),
             $this->getRequestParameterRow($billingAddress->getLastname(), 'LastName', 'Person'),
             $this->getRequestParameterRow('nl-NL', 'Culture', 'Person'),
-            $this->getRequestParameterRow($payment->getAdditionalInformation('customer_DoB'), 'BirthDate', 'Person')
+            $this->getRequestParameterRow($payment->getAdditionalInformation('customer_DoB'), 'BirthDate', 'Person'),
         ];
 
         return $personGroupData;
@@ -340,7 +379,7 @@ class Capayable extends AbstractMethod
             $this->getRequestParameterRow($streetData['house_number'], 'HouseNumber', 'Address'),
             $this->getRequestParameterRow($billingAddress->getPostcode(), 'ZipCode', 'Address'),
             $this->getRequestParameterRow($billingAddress->getCity(), 'City', 'Address'),
-            $this->getRequestParameterRow($billingAddress->getCountryId(), 'Country', 'Address')
+            $this->getRequestParameterRow($billingAddress->getCountryId(), 'Country', 'Address'),
         ];
 
         if (strlen($streetData['number_addition']) > 0) {
@@ -420,7 +459,7 @@ class Capayable extends AbstractMethod
      *
      * @return Phrase
      */
-    public function getDiscount() : Phrase
+    public function getDiscount(): Phrase
     {
         return __('Discount');
     }
@@ -434,10 +473,10 @@ class Capayable extends AbstractMethod
     private function getDiscountLine($order, $groupId)
     {
         $discountLineData = [];
-        $discount = abs((double)$order->getDiscountAmount());
+        $discount = abs((float)$order->getDiscountAmount());
 
         if ($this->softwareData->getProductMetaData()->getEdition() == 'Enterprise') {
-            $discount += abs((double)$order->getCustomerBalanceAmount());
+            $discount += abs((float)$order->getCustomerBalanceAmount());
         }
 
         if ($discount <= 0) {
@@ -460,13 +499,13 @@ class Capayable extends AbstractMethod
     private function getFeeLine($order, $groupId)
     {
         $feeLineData = [];
-        $fee = (double)$order->getBuckarooFee();
+        $fee = (float)$order->getBuckarooFee();
 
         if ($fee <= 0) {
             return $feeLineData;
         }
 
-        $feeTax = (double)$order->getBuckarooFeeTaxAmount();
+        $feeTax = (float)$order->getBuckarooFeeTaxAmount();
         $feeInclTax = round($fee + $feeTax, 2);
         $feeLineData[] = $this->getRequestParameterRow('Betaaltoeslag', 'Name', 'SubtotalLine', $groupId);
         $feeLineData[] = $this->getRequestParameterRow($feeInclTax, 'Value', 'SubtotalLine', $groupId);
@@ -477,6 +516,7 @@ class Capayable extends AbstractMethod
     /**
      * @param OrderInterface $order
      * @param int            $groupId
+     * @param mixed          $itemsTotalAmount
      *
      * @return array
      */
@@ -563,15 +603,13 @@ class Capayable extends AbstractMethod
         return '';
     }
 
-    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
+    public function isAvailable(?CartInterface $quote = null)
     {
-        $orderId = $quote ? $quote->getReservedOrderId() : null;
+        if (!parent::isAvailable($quote)) {
+            return false;
+        }
 
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-
-        $paymentGroupTransaction = $objectManager->get(\Buckaroo\Magento2\Helper\PaymentGroupTransaction::class);
-
-        if ($paymentGroupTransaction->getAlreadyPaid($orderId) > 0) {
+        if ($this->isOrderPartiallyPaid($quote)) {
             return false;
         }
 

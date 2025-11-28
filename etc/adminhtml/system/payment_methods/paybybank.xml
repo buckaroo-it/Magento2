@@ -79,7 +79,7 @@
             <field id="sorted_issuers" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Sort PayByBank Banks</label>
                 <frontend_model>Buckaroo\Magento2\Block\Adminhtml\Form\Field\SortIssuers</frontend_model>
-                <comment><![CDATA[Select sort order PayByBank Issuers.]]></comment>
+                <comment><![CDATA[Drag and drop to sort the selected PayByBank Issuers.]]></comment>
                 <config_path>payment/buckaroo_magento2_paybybank/sorted_issuers</config_path>
             </field>
 
@@ -160,6 +160,7 @@
                 <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 <config_path>payment/buckaroo_magento2_paybybank/limit_by_ip</config_path>
             </field>
+
 
             <field id="specificcustomergroup" translate="label" type="multiselect" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Allow customer groups</label>

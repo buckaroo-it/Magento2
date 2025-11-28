@@ -502,3 +502,7 @@
 "Card Number:","Número de tarjeta:"
 "Expiry Date:","Fecha de vencimiento:"
 "CVC:","CVC:"
+"Cancel Order on Browser Back Button","Cancel Order on Browser Back Button"
+"Payment cancelled. You can try again using the same or a different payment method.","Payment cancelled. You can try again using the same or a different payment method."
+"Customer returned using browser back button. Order left pending for push notification.","Customer returned using browser back button. Order left pending for push notification."
+"Order reactivated: Payment completed after cancellation (Push notification received). Transaction ID: ""%1""","Order reactivated: Payment completed after cancellation (Push notification received). Transaction ID: ""%1"""

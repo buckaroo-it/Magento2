@@ -30,33 +30,33 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
  */
 class Paypal extends AbstractConfigProvider
 {
-    const XPATH_PAYPAL_PAYMENT_FEE                      = 'payment/buckaroo_magento2_paypal/payment_fee';
-    const XPATH_PAYPAL_ACTIVE                           = 'payment/buckaroo_magento2_paypal/active';
-    const XPATH_PAYPAL_SUBTEXT                          = 'payment/buckaroo_magento2_paypal/subtext';
-    const XPATH_PAYPAL_SUBTEXT_STYLE                    = 'payment/buckaroo_magento2_paypal/subtext_style';
-    const XPATH_PAYPAL_SUBTEXT_COLOR                    = 'payment/buckaroo_magento2_paypal/subtext_color';
-    const XPATH_PAYPAL_ACTIVE_STATUS                    = 'payment/buckaroo_magento2_paypal/active_status';
-    const XPATH_PAYPAL_ORDER_STATUS_SUCCESS             = 'payment/buckaroo_magento2_paypal/order_status_success';
-    const XPATH_PAYPAL_ORDER_STATUS_FAILED              = 'payment/buckaroo_magento2_paypal/order_status_failed';
-    const XPATH_PAYPAL_AVAILABLE_IN_BACKEND             = 'payment/buckaroo_magento2_paypal/available_in_backend';
-    const XPATH_PAYPAL_SELLERS_PROTECTION               = 'payment/buckaroo_magento2_paypal/sellers_protection';
-    const XPATH_PAYPAL_SELLERS_PROTECTION_ELIGIBLE      = 'payment/' .
+    public const XPATH_PAYPAL_PAYMENT_FEE                      = 'payment/buckaroo_magento2_paypal/payment_fee';
+    public const XPATH_PAYPAL_ACTIVE                           = 'payment/buckaroo_magento2_paypal/active';
+    public const XPATH_PAYPAL_SUBTEXT                          = 'payment/buckaroo_magento2_paypal/subtext';
+    public const XPATH_PAYPAL_SUBTEXT_STYLE                    = 'payment/buckaroo_magento2_paypal/subtext_style';
+    public const XPATH_PAYPAL_SUBTEXT_COLOR                    = 'payment/buckaroo_magento2_paypal/subtext_color';
+    public const XPATH_PAYPAL_ACTIVE_STATUS                    = 'payment/buckaroo_magento2_paypal/active_status';
+    public const XPATH_PAYPAL_ORDER_STATUS_SUCCESS             = 'payment/buckaroo_magento2_paypal/order_status_success';
+    public const XPATH_PAYPAL_ORDER_STATUS_FAILED              = 'payment/buckaroo_magento2_paypal/order_status_failed';
+    public const XPATH_PAYPAL_AVAILABLE_IN_BACKEND             = 'payment/buckaroo_magento2_paypal/available_in_backend';
+    public const XPATH_PAYPAL_SELLERS_PROTECTION               = 'payment/buckaroo_magento2_paypal/sellers_protection';
+    public const XPATH_PAYPAL_SELLERS_PROTECTION_ELIGIBLE      = 'payment/' .
         'buckaroo_magento2_paypal/sellers_protection_eligible';
-    const XPATH_PAYPAL_SELLERS_PROTECTION_INELIGIBLE    = 'payment/' .
+    public const XPATH_PAYPAL_SELLERS_PROTECTION_INELIGIBLE    = 'payment/' .
         'buckaroo_magento2_paypal/sellers_protection_ineligible';
-    const XPATH_PAYPAL_SELLERS_PROTECTION_ITEMNOTRECEIVED_ELIGIBLE = 'payment/' .
+    public const XPATH_PAYPAL_SELLERS_PROTECTION_ITEMNOTRECEIVED_ELIGIBLE = 'payment/' .
         'buckaroo_magento2_paypal/sellers_protection_itemnotreceived_eligible';
-    const XPATH_PAYPAL_SELLERS_PROTECTION_UNAUTHORIZEDPAYMENT_ELIGIBLE = 'payment/' .
+    public const XPATH_PAYPAL_SELLERS_PROTECTION_UNAUTHORIZEDPAYMENT_ELIGIBLE = 'payment/' .
         'buckaroo_magento2_paypal/sellers_protection_unauthorizedpayment_eligible';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_paypal/allowed_currencies';
+    public const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_paypal/allowed_currencies';
 
-    const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_paypal/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_paypal/specificcountry';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_paypal/specificcustomergroup';
+    public const XPATH_ALLOW_SPECIFIC                  = 'payment/buckaroo_magento2_paypal/allowspecific';
+    public const XPATH_SPECIFIC_COUNTRY                = 'payment/buckaroo_magento2_paypal/specificcountry';
+    public const XPATH_SPECIFIC_CUSTOMER_GROUP         = 'payment/buckaroo_magento2_paypal/specificcustomergroup';
 
-    const XPATH_PAYPAL_EXPRESS_BUTTONS          = 'payment/buckaroo_magento2_paypal/available_buttons';
-    const XPATH_PAYPAL_EXPRESS_MERCHANT_ID          = 'payment/buckaroo_magento2_paypal/express_merchant_id';
+    public const XPATH_PAYPAL_EXPRESS_BUTTONS          = 'payment/buckaroo_magento2_paypal/available_buttons';
+    public const XPATH_PAYPAL_EXPRESS_MERCHANT_ID          = 'payment/buckaroo_magento2_paypal/express_merchant_id';
 
     /**
      * @return array|void
@@ -106,9 +106,10 @@ class Paypal extends AbstractConfigProvider
     /**
      * Test if express button is enabled for the $page
      *
-     * @param string $page
+     * @param string     $page
+     * @param null|mixed $store
      *
-     * @return boolean
+     * @return bool
      */
     public function canShowButtonForPage($page, $store = null)
     {

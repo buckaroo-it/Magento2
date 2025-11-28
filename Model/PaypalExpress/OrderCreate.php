@@ -33,8 +33,6 @@ use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Buckaroo\Magento2\Api\PaypalExpressOrderCreateInterface;
-use Buckaroo\Magento2\Model\PaypalExpress\PaypalExpressException;
-use Buckaroo\Magento2\Model\PaypalExpress\OrderUpdateFactory;
 use Buckaroo\Magento2\Api\Data\PaypalExpress\OrderCreateResponseInterfaceFactory;
 
 class OrderCreate implements PaypalExpressOrderCreateInterface
@@ -104,11 +102,11 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
         $this->orderUpdateFactory = $orderUpdateFactory;
         $this->logger = $logger;
     }
-    
+
     /** @inheritDoc */
     public function execute(
         string $paypal_order_id,
-        string $cart_id = null
+        ?string $cart_id = null
     ) {
         try {
             $orderId = $this->createOrder($paypal_order_id, $cart_id);
@@ -135,7 +133,7 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
         string $paypal_order_id,
         string $cart_id
     ) {
-        
+
         $quote = $this->getQuote($cart_id);
         $quote->getPayment()->setAdditionalInformation('express_order_id', $paypal_order_id);
         $quote->reserveOrderId();
@@ -149,10 +147,10 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
         return $order->getIncrementId();
     }
 
-     /**
+    /**
      * Make sure addresses will be saved without validation errors
      *
-     * @return void
+     * @param Quote $quote
      */
     private function ignoreAddressValidation(Quote $quote)
     {
@@ -173,7 +171,6 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
      *
      * @param CartInterface $quote
      *
-     * @return void
      * @throws \Buckaroo\Magento2\Model\PaypalExpress\PaypalExpressException
      */
     protected function checkQuoteBelongsToLoggedUser(CartInterface $quote)
@@ -186,9 +183,7 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
     /**
      * Update session with last order
      *
-     * @param  \Magento\Sales\Api\Data\OrderInterface $order
-     *
-     * @return void
+     * @param \Magento\Sales\Api\Data\OrderInterface $order
      */
     protected function setLastOrderToSession(OrderInterface $order)
     {

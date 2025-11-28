@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -20,6 +21,14 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
+use Buckaroo\Magento2\Exception;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Payment\Model\InfoInterface;
+use Magento\Quote\Model\Quote;
+use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Model\Order\Creditmemo;
+use Magento\Sales\Model\Order\Invoice;
+use Magento\Sales\Model\Order\Invoice\Item;
 use Magento\Sales\Model\Order\Payment;
 use Magento\Framework\Phrase;
 use Magento\Catalog\Model\Product\Type;
@@ -31,20 +40,20 @@ class Afterpay20 extends AbstractMethod
     /**
      * Payment Code
      */
-    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_afterpay20';
+    public const PAYMENT_METHOD_CODE = 'buckaroo_magento2_afterpay20';
 
     /**
      * Max articles that can be handled by afterpay
      */
-    const AFTERPAY_MAX_ARTICLE_COUNT = 99;
+    public const AFTERPAY_MAX_ARTICLE_COUNT = 99;
 
     /**
      * Check if the tax calculation includes tax.
      */
-    const TAX_CALCULATION_INCLUDES_TAX = 'tax/calculation/price_includes_tax';
-    const TAX_CALCULATION_SHIPPING_INCLUDES_TAX = 'tax/calculation/shipping_includes_tax';
+    public const TAX_CALCULATION_INCLUDES_TAX = 'tax/calculation/price_includes_tax';
+    public const TAX_CALCULATION_SHIPPING_INCLUDES_TAX = 'tax/calculation/shipping_includes_tax';
 
-    const AFTERPAY_PAYMENT_METHOD_NAME = 'afterpay';
+    public const AFTERPAY_PAYMENT_METHOD_NAME = 'afterpay';
 
     /**
      * @var string
@@ -104,7 +113,7 @@ class Afterpay20 extends AbstractMethod
      *
      * @return Phrase
      */
-    public function getDiscount() : Phrase
+    public function getDiscount(): Phrase
     {
         return __('Discount');
     }
@@ -114,7 +123,7 @@ class Afterpay20 extends AbstractMethod
      *
      * @return Phrase
      */
-    public function getDiscountOn() :Phrase
+    public function getDiscountOn(): Phrase
     {
         return __('Discount on');
     }
@@ -134,7 +143,7 @@ class Afterpay20 extends AbstractMethod
     }
 
     /**
-     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     * @param OrderPaymentInterface|InfoInterface $payment
      *
      * @return bool|string
      */
@@ -242,7 +251,7 @@ class Afterpay20 extends AbstractMethod
      * @param $payment
      *
      * @return array
-     * @throws \Buckaroo\Magento2\Exception
+     * @throws Exception|LocalizedException
      */
     public function getRequestArticlesData($payment)
     {
@@ -295,7 +304,7 @@ class Afterpay20 extends AbstractMethod
                 $count,
                 $item->getName(),
                 $item->getSku(),
-                $bundleProductQty ? (int) ($bundleProductQty * $item->getQty()): $item->getQty(),
+                $bundleProductQty ? (int) ($bundleProductQty * $item->getQty()) : $item->getQty(),
                 $this->calculateProductPrice($item, $includesTax),
                 $item->getTaxPercent()
             );
@@ -331,16 +340,105 @@ class Afterpay20 extends AbstractMethod
 
         if (!empty($discountline)) {
             $articles = array_merge($articles, $discountline);
+            $count++;
+        }
+
+        $reward = $this->getRewardLine($quote, $count);
+
+        if (!empty($reward)) {
+            $articles = array_merge($articles, $reward);
+            $count++;
+        }
+
+        $giftCard = $this->getGiftCardLine($quote, $count);
+
+        if (!empty($giftCard)) {
+            $articles = array_merge($articles, $giftCard);
         }
 
         return $articles;
     }
 
     /**
-     * @param \Magento\Sales\Model\Order\Invoice $invoice
+     * Get the reward cost lines
+     *
+     * @param Quote $quote
+     * @param       $group
      *
      * @return array
-     * @throws \Buckaroo\Magento2\Exception
+     */
+    public function getRewardLine($quote, $group)
+    {
+        try {
+            $discount = (float)$quote->getRewardCurrencyAmount();
+
+            if ($discount <= 0) {
+                return [];
+            }
+
+            $this->logger2->addDebug(__METHOD__ . '|Reward points discount found: ' . $discount);
+
+            $article = $this->getArticleArrayLine(
+                $group,
+                'Discount Reward Points',
+                'reward-points',
+                1,
+                -$discount,
+                0
+            );
+
+            return $article;
+        } catch (\Error $e) {
+            $this->logger2->addDebug(__METHOD__ . '|getRewardCurrencyAmount method not available - Adobe Commerce reward points may not be installed');
+            return [];
+        } catch (\Exception $e) {
+            $this->logger2->addError(__METHOD__ . '|Error getting reward points amount: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Get the gift card discount line
+     *
+     * @param Quote $quote
+     * @param       $group
+     *
+     * @return array
+     */
+    public function getGiftCardLine($quote, $group)
+    {
+        try {
+            $discount = (float)$quote->getGiftCardsAmount();
+
+            if ($discount <= 0) {
+                return [];
+            }
+
+            $this->logger2->addDebug(__METHOD__ . '|Gift card discount found: ' . $discount);
+
+            $article = $this->getArticleArrayLine(
+                $group,
+                'Discount Gift Card',
+                'gift-card',
+                1,
+                -$discount,
+                0
+            );
+
+            return $article;
+        } catch (\Error $e) {
+            $this->logger2->addDebug(__METHOD__ . '|getGiftCardsAmount method not available - Adobe Commerce gift cards may not be installed');
+            return [];
+        } catch (\Exception $e) {
+            $this->logger2->addError(__METHOD__ . '|Error getting gift card amount: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * @param Invoice $invoice
+     *
+     * @return array
      */
     public function getInvoiceArticleData($invoice)
     {
@@ -353,7 +451,7 @@ class Afterpay20 extends AbstractMethod
         $articles = [];
         $count    = 1;
 
-        /** @var \Magento\Sales\Model\Order\Invoice\Item $item */
+        /** @var Item $item */
         foreach ($invoice->getAllItems() as $item) {
             if (empty($item) || $item->getRowTotalInclTax() == 0) {
                 continue;
@@ -380,7 +478,7 @@ class Afterpay20 extends AbstractMethod
                     $this->getDiscountOn() . ' ' . (int) $item->getQty() . ' x ' . $item->getName(),
                     $item->getSku(),
                     1,
-                    number_format(($item->getDiscountAmount()*-1), 2),
+                    number_format(($item->getDiscountAmount() * -1), 2),
                     0
                 );
                 // @codingStandardsIgnoreStart
@@ -404,8 +502,8 @@ class Afterpay20 extends AbstractMethod
     /**
      * @param $payment
      *
+     * @throws Exception
      * @return array
-     * @throws \Buckaroo\Magento2\Exception
      */
     public function getCreditmemoArticleData($payment)
     {
@@ -413,7 +511,7 @@ class Afterpay20 extends AbstractMethod
             return $this->getCreditmemoArticleDataPayRemainder($payment);
         }
 
-        /** @var \Magento\Sales\Model\Order\Creditmemo $creditmemo */
+        /** @var Creditmemo $creditmemo */
         $creditmemo = $payment->getCreditmemo();
         $includesTax = $this->_scopeConfig->getValue(
             static::TAX_CALCULATION_INCLUDES_TAX,
@@ -424,7 +522,6 @@ class Afterpay20 extends AbstractMethod
         $count = 1;
         $itemsTotalAmount = 0;
 
-        /** @var \Magento\Sales\Model\Order\Creditmemo\Item $item */
         foreach ($creditmemo->getAllItems() as $item) {
             if (empty($item) || $item->getRowTotalInclTax() == 0) {
                 continue;
@@ -498,7 +595,7 @@ class Afterpay20 extends AbstractMethod
      * Get the discount cost lines
      *
      * @param (int)                                                                              $latestKey
-     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     * @param OrderPaymentInterface|InfoInterface $payment
      *
      * @return array
      */
@@ -571,16 +668,17 @@ class Afterpay20 extends AbstractMethod
                 'Name'    => 'VatPercentage',
                 'GroupID' => $latestKey,
                 'Group' => 'Article',
-            ]
+            ],
         ];
 
         return $article;
     }
 
     /**
-     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     * @param OrderPaymentInterface|InfoInterface $payment
      *
      * @return array
+     * @throws Exception
      */
     public function getRequestBillingData($payment)
     {
@@ -598,8 +696,7 @@ class Afterpay20 extends AbstractMethod
         $telephone = (empty($telephone) ? $billingAddress->getTelephone() : $telephone);
         $category = 'Person';
 
-        if (
-            $this->isCustomerB2B($order->getStoreId()) &&
+        if ($this->isCustomerB2B($order->getStoreId()) &&
             $billingAddress->getCountryId() === 'NL' &&
             !$this->isCompanyEmpty($billingAddress->getCompany())
         ) {
@@ -699,8 +796,7 @@ class Afterpay20 extends AbstractMethod
             ];
         }
 
-        if (
-            (
+        if ((
                 $billingAddress->getCountryId() == 'NL' &&
                 $this->isCustomerB2C($billingAddress->getCompany(), $order->getStoreId())
             ) ||
@@ -714,12 +810,11 @@ class Afterpay20 extends AbstractMethod
             ];
         }
 
-        if (
-            $this->isCustomerB2B($order->getStoreId()) &&
+        if ($this->isCustomerB2B($order->getStoreId()) &&
             $billingAddress->getCountryId() === 'NL' &&
             !$this->isCompanyEmpty($billingAddress->getCompany())
         ) {
-            $billingData = array_merge($billingData,[
+            $billingData = array_merge($billingData, [
                 [
                     '_'    => $billingAddress->getCompany(),
                     'Name' => 'CompanyName',
@@ -731,7 +826,7 @@ class Afterpay20 extends AbstractMethod
                     'Name' => 'IdentificationNumber',
                     'Group' => 'BillingCustomer',
                     'GroupID' => '',
-                ]
+                ],
             ]);
         }
 
@@ -739,7 +834,7 @@ class Afterpay20 extends AbstractMethod
     }
 
     /**
-     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     * @param OrderPaymentInterface|InfoInterface $payment
      *
      * @return array
      */
@@ -762,8 +857,7 @@ class Afterpay20 extends AbstractMethod
         $this->validateHouseNumber($streetFormat['house_number'], $shippingAddress->getCountryId());
         $category = 'Person';
 
-        if (
-            $this->isCustomerB2B($order->getStoreId()) &&
+        if ($this->isCustomerB2B($order->getStoreId()) &&
             $shippingAddress->getCountryId() === 'NL' &&
             !$this->isCompanyEmpty($shippingAddress->getCompany())
         ) {
@@ -833,12 +927,11 @@ class Afterpay20 extends AbstractMethod
             ];
         }
 
-        if (
-            $this->isCustomerB2B($order->getStoreId()) &&
+        if ($this->isCustomerB2B($order->getStoreId()) &&
             $shippingAddress->getCountryId() === 'NL' &&
             !$this->isCompanyEmpty($shippingAddress->getCompany())
         ) {
-            $shippingData = array_merge($shippingData,[
+            $shippingData = array_merge($shippingData, [
                 [
                     '_'    => $shippingAddress->getCompany(),
                     'Name' => 'CompanyName',
@@ -850,11 +943,11 @@ class Afterpay20 extends AbstractMethod
                     'Name' => 'IdentificationNumber',
                     'Group' => 'ShippingCustomer',
                     'GroupID' => '',
-                ]
+                ],
             ]);
         }
 
-    
+
         return $shippingData;
     }
 
@@ -867,25 +960,25 @@ class Afterpay20 extends AbstractMethod
     {
         return $this->getFailureMessageFromMethodCommon($transactionResponse);
     }
-    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
+    public function isAvailable(?\Magento\Quote\Api\Data\CartInterface $quote = null)
     {
-        return parent::isAvailable($quote) &&  $this->isAvailableB2B($quote);
+        return parent::isAvailable($quote) && $this->isAvailableB2B($quote);
     }
     /**
      * Check to see if payment is available when b2b enabled
      *
      * @param \Magento\Quote\Api\Data\CartInterface $quote
      *
-     * @return boolean
+     * @return bool
      */
     public function isAvailableB2B(\Magento\Quote\Api\Data\CartInterface $quote)
     {
         $storeId = $quote->getStoreId();
         $b2bMin = $this->getConfigData('min_amount_b2b', $storeId);
         $b2bMax = $this->getConfigData('max_amount_b2b', $storeId);
-       /**
-         * @var \Magento\Quote\Model\Quote $quote
-         */
+        /**
+           * @var Quote $quote
+          */
         $total = $quote->getGrandTotal();
 
         //skip if b2c
@@ -894,10 +987,9 @@ class Afterpay20 extends AbstractMethod
         }
 
         //b2b available ony to NL
-        if (
-            $quote->getBillingAddress()->getCountryId() !== 'NL' ||
+        if ($quote->getBillingAddress()->getCountryId() !== 'NL' ||
             $quote->getShippingAddress()->getCountryId() !== 'NL'
-            ) {
+        ) {
             return true;
         }
 
@@ -924,19 +1016,20 @@ class Afterpay20 extends AbstractMethod
     {
         $customerType = $this->getConfigData('customer_type', $storeId);
 
-        return $customerType ===  AfterpayCustomerType::CUSTOMER_TYPE_B2C || 
+        return $customerType ===  AfterpayCustomerType::CUSTOMER_TYPE_B2C ||
         (
             $customerType !== AfterpayCustomerType::CUSTOMER_TYPE_B2B &&
             $this->isCompanyEmpty($company)
         );
     }
-     /**
+    /**
      * Validate that we received a company.
      *
+     * @throws LocalizedException
      * @return $this
-     * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function validateAdditionalData() {
+    public function validateAdditionalData()
+    {
 
         $paymentInfo = $this->getInfoInstance();
 
@@ -947,7 +1040,7 @@ class Afterpay20 extends AbstractMethod
             $billingCompany = $paymentInfo->getOrder()->getBillingAddress()->getCompany();
             $shippingAddress = $paymentInfo->getOrder()->getShippingAddress();
         } else {
-            $storeId = $paymentInfo->getQuote() !== null? $paymentInfo->getQuote()->getStoreId(): null;
+            $storeId = $paymentInfo->getQuote() !== null ? $paymentInfo->getQuote()->getStoreId() : null;
             $billingCompany = $paymentInfo->getQuote()->getBillingAddress()->getCompany();
             $shippingAddress = $paymentInfo->getQuote()->getShippingAddress();
         }
@@ -956,8 +1049,7 @@ class Afterpay20 extends AbstractMethod
             $shippingCompany = $shippingAddress->getCompany();
         }
 
-        if (
-            $this->isOnlyCustomerB2B($storeId) && 
+        if ($this->isOnlyCustomerB2B($storeId) &&
             (
                 $this->isCompanyEmpty($billingCompany) &&
                 $this->isCompanyEmpty($shippingCompany)
@@ -975,14 +1067,14 @@ class Afterpay20 extends AbstractMethod
      *
      * @param string $company
      *
-     * @return boolean
+     * @return bool
      */
-    public function isCompanyEmpty(string $company = null)
+    public function isCompanyEmpty(?string $company = null)
     {
         if (null === $company) {
             return true;
         }
-        
+
         return strlen(trim($company)) === 0;
     }
 
@@ -990,8 +1082,10 @@ class Afterpay20 extends AbstractMethod
      * @param $response
      *
      * @return string
+     * @throws LocalizedException
      */
-    protected function getFailureMessage($response) {
+    protected function getFailureMessage($response)
+    {
         if (empty($response[0])) {
             return parent::getFailureMessage($response);
         }
@@ -1003,11 +1097,10 @@ class Afterpay20 extends AbstractMethod
         }
 
         $message = $transactionResponse->Services->Service->ResponseParameter->_;
-        if (
-            $responseCode === 690 &&
+        if ($responseCode === 690 &&
             strpos($message, "deliveryCustomer.address.countryCode") !== false
         ) {
-             return "Pay rejected: It is not allowed to specify another country for the invoice and delivery address for Afterpay transactions.";
+            return "Pay rejected: It is not allowed to specify another country for the invoice and delivery address for Afterpay transactions.";
         }
         return parent::getFailureMessage($response);
     }
@@ -1017,9 +1110,9 @@ class Afterpay20 extends AbstractMethod
         if ($country !== "DE") {
             return;
         }
-        
+
         if (!is_string($street) || empty(trim($street))) {
-            throw new \Buckaroo\Magento2\Exception(
+            throw new Exception(
                 new \Magento\Framework\Phrase(
                     'A valid address is required, cannot find street number'
                 )

@@ -21,6 +21,9 @@
 
 namespace Buckaroo\Magento2\Model;
 
+use Buckaroo\Magento2\Exception;
+use LogicException;
+
 class ValidatorFactory
 {
     /**
@@ -51,12 +54,12 @@ class ValidatorFactory
      * @param string $validatorType
      *
      * @return ValidatorInterface
-     * @throws \LogicException|\Buckaroo\Magento2\Exception
+     * @throws LogicException|Exception
      */
     public function get($validatorType)
     {
         if (empty($this->validators)) {
-            throw new \LogicException('Validator adapter is not set.');
+            throw new LogicException('Validator adapter is not set.');
         }
         foreach ($this->validators as $validatorMetaData) {
             $validatorMetaDataType = $validatorMetaData['type'];
@@ -67,7 +70,7 @@ class ValidatorFactory
         }
 
         if (!isset($validatorClass) || empty($validatorClass)) {
-            throw new \Buckaroo\Magento2\Exception(
+            throw new Exception(
                 new \Magento\Framework\Phrase(
                     'Unknown validator type requested: %1.',
                     [$validatorType]
@@ -77,7 +80,7 @@ class ValidatorFactory
 
         $validator = $this->objectManager->get($validatorClass);
         if (!$validator instanceof ValidatorInterface) {
-            throw new \LogicException(
+            throw new LogicException(
                 'The transaction builder must implement "Buckaroo\Magento2\Model\ValidatorInterface".'
             );
         }

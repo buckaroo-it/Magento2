@@ -33,41 +33,41 @@ class AfterExpiryTest extends BaseTest
     {
         return [
             [
-                ['value' => 'amex',               'label' => 'American Express']
+                ['value' => 'amex',               'label' => 'American Express'],
             ],
             [
-                ['value' => 'eps',                'label' => 'EPS']
+                ['value' => 'eps',                'label' => 'EPS'],
             ],
             [
-                ['value' => 'giftcard',           'label' => 'Giftcards']
+                ['value' => 'giftcard',           'label' => 'Giftcards'],
             ],
             [
-                ['value' => 'ideal',              'label' => 'iDEAL']
+                ['value' => 'ideal',              'label' => 'iDEAL'],
             ],
             [
-                ['value' => 'idealprocessing',    'label' => 'iDEAL Processing']
+                ['value' => 'idealprocessing',    'label' => 'iDEAL Processing'],
             ],
             [
-                ['value' => 'mastercard',         'label' => 'Mastercard']
+                ['value' => 'mastercard',         'label' => 'Mastercard'],
             ],
             [
-                ['value' => 'paypal',             'label' => 'PayPal']
+                ['value' => 'paypal',             'label' => 'PayPal'],
             ],
             [
-                ['value' => 'transfer',           'label' => 'Bank Transfer']
+                ['value' => 'transfer',           'label' => 'Bank Transfer'],
             ],
             [
-                ['value' => 'visa',               'label' => 'Visa']
+                ['value' => 'visa',               'label' => 'Visa'],
             ],
             [
-                ['value' => 'maestro',            'label' => 'Maestro']
+                ['value' => 'maestro',            'label' => 'Maestro'],
             ],
             [
-                ['value' => 'visaelectron',       'label' => 'Visa Electron']
+                ['value' => 'visaelectron',       'label' => 'Visa Electron'],
             ],
             [
-                ['value' => 'vpay',               'label' => 'V PAY']
-            ]
+                ['value' => 'vpay',               'label' => 'V PAY'],
+            ],
         ];
     }
 

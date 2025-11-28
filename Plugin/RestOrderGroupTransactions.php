@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,18 +18,19 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Plugin;
 
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Buckaroo\Magento2\Api\Data\BuckarooRestOrderDataInterfaceFactory;
 
-
 class RestOrderGroupTransactions
 {
     private $dataFactory;
 
-    public function __construct(BuckarooRestOrderDataInterfaceFactory $dataFactory) {
+    public function __construct(BuckarooRestOrderDataInterfaceFactory $dataFactory)
+    {
         $this->dataFactory = $dataFactory;
     }
     public function afterGet(
@@ -38,16 +40,17 @@ class RestOrderGroupTransactions
 
         if ($this->isBuckaroo($entity)) {
             $ourCustomData = $this->dataFactory->create(["orderIncrementId" => $entity->getIncrementId()]);
-    
+
             $extensionAttributes = $entity->getExtensionAttributes(); /** get current extension attributes from entity **/
-    
+
             $extensionAttributes->setBuckaroo($ourCustomData);
             $entity->setExtensionAttributes($extensionAttributes);
         }
 
         return $entity;
     }
-    private function isBuckaroo(OrderInterface $entity) {
+    private function isBuckaroo(OrderInterface $entity)
+    {
         return strpos($entity->getPayment()->getMethod(), "buckaroo_magento2_") !== false;
     }
 }

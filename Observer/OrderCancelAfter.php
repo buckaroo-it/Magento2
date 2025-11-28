@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -26,6 +27,9 @@ use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Encryption\Encryptor;
+use Magento\Framework\Event\Observer;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Model\Order;
 
 class OrderCancelAfter implements \Magento\Framework\Event\ObserverInterface
 {
@@ -62,15 +66,15 @@ class OrderCancelAfter implements \Magento\Framework\Event\ObserverInterface
     }
 
     /**
-     * @param \Magento\Framework\Event\Observer $observer
-     * @return void
+     * @param Observer $observer
+     * @throws LocalizedException
      */
-    public function execute(\Magento\Framework\Event\Observer $observer)
+    public function execute(Observer $observer)
     {
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
-        /* @var $order \Magento\Sales\Model\Order */
+        /* @var $order Order */
         $order = $observer->getEvent()->getOrder();
         /**
          * @noinspection PhpUndefinedMethodInspection
