@@ -356,6 +356,28 @@ a.bk-plugin-zone {
     border: 1px solid #adadad;
 }
 
+
+/* ==================== Second Chance Info Block  ==================== */
+#row_buckaroo_magento2_second_chance_second_chance_info td.label {
+    display: none;
+}
+
+#row_buckaroo_magento2_second_chance_second_chance_info td.value {
+    width: 100% !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+.buckaroo-second-chance-info {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+    float: left;
+    clear: both;
+    margin-left: 0;
+    margin-right: 0;
+}
+
 /* Apple Pay button wrapper for admin */
 #applepay-button-wrapper > apple-pay-button {
     display: inline;
