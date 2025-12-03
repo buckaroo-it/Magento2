@@ -40,9 +40,10 @@ define(
                     return this;
                 },
 
-                validateField: function () {
-                    var el = document.getElementById("buckaroo_magento2_creditcard_issuer");
-                    this.selectedCard(el.options[el.selectedIndex].value);
+                validateField: function (data, event) {
+                    if (event && event.target && event.target.tagName === 'SELECT') {
+                        this.selectedCard(event.target.value);
+                    }
                     return true;
                 },
 
