@@ -141,5 +141,8 @@
         <method name="buckaroo_magento2_blik">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
+        <method name="buckaroo_magento2_wero">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
     </methods>
 </payment>
