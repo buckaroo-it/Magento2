@@ -108,6 +108,7 @@ define(
             ).done(
                 function (response) {
                     let jsonResponse = $.parseJSON(response);
+                    
                     if (typeof jsonResponse === 'object' && typeof jsonResponse.limitReachedMessage === 'string') {
                         alert({
                             title: $t('Error'),
@@ -154,7 +155,10 @@ define(
                     } else if (redirectOnSuccess) {
                         window.location.replace(url.build('checkout/onepage/success/'));
                     }
-                    window.checkoutConfig.payment.buckaroo.response = response;
+                    
+                    // Store parsed JSON response (not the string)
+                    window.checkoutConfig.payment.buckaroo.response = jsonResponse;
+                    
                     fullScreenLoader.stopLoader();
                 }
             ).fail(
