@@ -156,8 +156,7 @@ define(
                         window.location.replace(url.build('checkout/onepage/success/'));
                     }
 
-                    // Store parsed JSON response (not the string)
-                    window.checkoutConfig.payment.buckaroo.response = jsonResponse;
+                    window.checkoutConfig.payment.buckaroo.response = response;
 
                     fullScreenLoader.stopLoader();
                 }
