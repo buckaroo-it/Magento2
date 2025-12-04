@@ -295,7 +295,7 @@ class BuckarooAdapter
         if ($accountMode == 1) {
             $clientMode = Config::LIVE_MODE;
 
-            if ($paymentMethod && !$skipActiveCheck) {
+            if ($paymentMethod) {
                 /** @var  AbstractConfigProvider $configProviderPaymentMethod */
                 $configProviderPaymentMethod = $this->configProviderFactory->get($paymentMethod);
                 $isActivePaymentMethod = $configProviderPaymentMethod->getActive($storeId);
