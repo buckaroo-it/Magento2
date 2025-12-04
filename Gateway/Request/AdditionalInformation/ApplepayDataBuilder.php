@@ -48,9 +48,9 @@ class ApplepayDataBuilder implements BuilderInterface
      *
      * @param PaymentDataObjectInterface $paymentDO
      *
-     * @return string|null
+     * @return string Empty string if billing contact is not available
      */
-    protected function getCustomerCardName(PaymentDataObjectInterface $paymentDO): ?string
+    protected function getCustomerCardName(PaymentDataObjectInterface $paymentDO): string
     {
         $billingContact = \json_decode(
             stripslashes((string)$paymentDO->getPayment()->getAdditionalInformation('billingContact'))
@@ -63,6 +63,7 @@ class ApplepayDataBuilder implements BuilderInterface
             return $billingContact->givenName . ' ' . $billingContact->familyName;
         }
 
-        return null;
+        // Return empty string instead of null to satisfy SDK strict typing
+        return '';
     }
 }
