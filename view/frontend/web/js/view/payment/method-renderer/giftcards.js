@@ -56,7 +56,7 @@ define(
 
         function checkPayments()
         {
-            var p = ["billink","klarnakp","capayableinstallments","transfer","sepadirectdebit","capayablein3","creditcard","mrcash","payperemail"];
+            var p = ["billink","klarnakp","capayableinstallments","transfer","sepadirectdebit","capayablein3","creditcard","mrcash","payperemail", "bancontact"];
             p.forEach(function (item) {
                 $('.buckaroo_magento2_' + item).remove();
             });
@@ -229,6 +229,7 @@ define(
                                         class: 'action primary accept',
                                         click: function () {
                                             this.closeModal(true);
+                                            window.location.reload();
                                         }
                                     }]
                                 });
@@ -259,7 +260,7 @@ define(
                 },
 
                 /**
-                 * Determine if grouped giftcards should show (Redirect mode) 
+                 * Determine if grouped giftcards should show (Redirect mode)
                  * @returns {boolean} True for redirect mode, false for inline mode
                  */
                 shouldShowGrouped: function() {
