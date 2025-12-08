@@ -579,6 +579,7 @@
                 <item name="based_on_currency" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AvailableBasedOnCurrencyValidator</item>
                 <item name="based_on_customer_group" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AvailableBasedOnCustomerGroupValidator</item>
                 <item name="based_on_pos_settings" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AvailableBasedOnPOSValidator</item>
+                <item name="based_on_giftcard_partial_payment" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AvailableBasedOnGiftcardPartialPaymentValidator</item>
                 <item name="spam_limit" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\SpamLimitValidator</item>
             </argument>
             <argument name="chainBreakingValidators" xsi:type="array">
@@ -590,6 +591,7 @@
                 <item name="based_on_currency" xsi:type="string">based_on_currency</item>
                 <item name="based_on_customer_group" xsi:type="string">based_on_customer_group</item>
                 <item name="based_on_pos_settings" xsi:type="string">based_on_pos_settings</item>
+                <item name="based_on_giftcard_partial_payment" xsi:type="string">based_on_giftcard_partial_payment</item>
                 <item name="spam_limit" xsi:type="string">spam_limit</item>
             </argument>
         </arguments>
