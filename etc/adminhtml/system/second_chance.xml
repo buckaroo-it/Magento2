@@ -23,6 +23,8 @@
 
     <group id="second_chance" translate="label comment" type="text" sortOrder="500" showInDefault="1" showInWebsite="1" showInStore="1">
         <label>Second Chance</label>
+        <fieldset_css>buckaroo_magento2-section</fieldset_css>
+        <attribute type="expanded">0</attribute>
 
         <field id="second_chance_info" translate="label" type="text" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="1">
             <label></label>

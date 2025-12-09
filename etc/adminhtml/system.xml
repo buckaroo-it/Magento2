@@ -25,46 +25,33 @@
             <label>Buckaroo</label>
         </tab>
 
-        <section id="buckaroo_magento2" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+        <section id="buckaroo_magento2" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="0">
             <label>General information</label>
             <tab>buckaroo_module</tab>
             <resource>Buckaroo_Magento2::configuration</resource>
             <include path="Buckaroo_Magento2::system/support.xml"/>
         </section>
 
-        <section id="buckaroo_magento2_settings" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+        <section id="buckaroo_magento2_settings" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="0">
             <label>Settings</label>
             <tab>buckaroo_module</tab>
             <resource>Buckaroo_Magento2::configuration</resource>
             <include path="Buckaroo_Magento2::system/account.xml"/>
         </section>
 
-        <section id="buckaroo_magento2_payment_methods" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+        <section id="buckaroo_magento2_payment_methods" translate="label" type="text" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="0">
             <label>Payment methods</label>
             <tab>buckaroo_module</tab>
             <resource>Buckaroo_Magento2::configuration</resource>
             <include path="Buckaroo_Magento2::system/payment_methods_page.xml"/>
         </section>
 
-        <section id="buckaroo_magento2_verification_methods" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Verification methods</label>
-            <tab>buckaroo_module</tab>
-            <resource>Buckaroo_Magento2::configuration</resource>
-            <include path="Buckaroo_Magento2::system/verification_methods.xml"/>
-        </section>
 
-        <section id="buckaroo_magento2_second_chance" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Second Chance</label>
+        <section id="buckaroo_magento2_additional_features" translate="label" type="text" sortOrder="4" showInDefault="1" showInWebsite="1" showInStore="0">
+            <label>Additional Features</label>
             <tab>buckaroo_module</tab>
             <resource>Buckaroo_Magento2::configuration</resource>
-            <include path="Buckaroo_Magento2::system/second_chance.xml"/>
-        </section>
-
-        <section id="buckaroo_magento2_analytics" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Google Analytics</label>
-            <tab>buckaroo_module</tab>
-            <resource>Buckaroo_Magento2::configuration</resource>
-            <include path="Buckaroo_Magento2::system/analytics.xml"/>
+            <include path="Buckaroo_Magento2::system/additional_features.xml"/>
         </section>
 
         <section id="payment">
