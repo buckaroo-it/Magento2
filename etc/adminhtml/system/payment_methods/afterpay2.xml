@@ -40,34 +40,50 @@
         </field>
 
         <field id="title" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Frontend label</label>
-            <comment><![CDATA[Determines the frontend label shown.]]></comment>
+            <label>Title</label>
+            <comment><![CDATA[The payment method name shown during checkout. If empty, the default title is used.]]></comment>
             <config_path>payment/buckaroo_magento2_afterpay2/title</config_path>
         </field>
 
+        <field id="display_subtext" translate="label comment" type="select" sortOrder="24" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Display subtext</label>
+            <comment><![CDATA[Enable or disable subtext display during checkout.]]></comment>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <config_path>payment/buckaroo_magento2_afterpay2/display_subtext</config_path>
+        </field>
+
         <field id="subtext" translate="label comment" type="text" sortOrder="25" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Frontend subtext</label>
+            <label>Subtext content</label>
             <comment><![CDATA[This controls the description which the user sees during checkout.]]></comment>
             <config_path>payment/buckaroo_magento2_afterpay2/subtext</config_path>
+            <depends>
+                <field id="display_subtext">1</field>
+            </depends>
         </field>
 
         <field id="subtext_style" translate="label comment" type="select" sortOrder="26" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Frontend subtext style</label>
+            <label>Subtext style</label>
             <comment><![CDATA[Choose a font style for the subtext.]]></comment>
             <source_model>Buckaroo\Magento2\Model\Config\Source\SubtextStyle</source_model>
             <config_path>payment/buckaroo_magento2_afterpay2/subtext_style</config_path>
+            <depends>
+                <field id="display_subtext">1</field>
+            </depends>
         </field>
 
         <field id="subtext_color" translate="label comment" sortOrder="27" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Frontend subtext color</label>
+            <label>Subtext color</label>
             <comment><![CDATA[Choose a font color for the subtext.]]></comment>
             <config_path>payment/buckaroo_magento2_afterpay2/subtext_color</config_path>
             <frontend_model>Buckaroo\Magento2\Block\Config\Form\Field\ColorPicker</frontend_model>
+            <depends>
+                <field id="display_subtext">1</field>
+            </depends>
         </field>
 
 
         <field id="sort_order" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Frontend sort order</label>
+            <label>Sort order</label>
             <comment><![CDATA[Determines the sorting of payment methods.]]></comment>
             <config_path>payment/buckaroo_magento2_afterpay2/sort_order</config_path>
         </field>
@@ -179,7 +195,7 @@
             <group id="buckaroo_magento2_visibility" translate="label" type="text" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Method visibility</label>
                 <field id="min_amount" translate="label comment tooltip" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Min order amount (in Base Currency)</label>
+                    <label>Min order amount</label>
                     <comment><![CDATA[Minimum order amount allowed.]]></comment>
                     <tooltip>The payment method shows only for orders with an order amount greater than the minimum amount.</tooltip>
                     <config_path>payment/buckaroo_magento2_afterpay2/min_amount</config_path>
@@ -187,7 +203,7 @@
                 </field>
 
                 <field id="max_amount" translate="label comment tooltip" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Max order amount (in Base Currency)</label>
+                    <label>Max order amount</label>
                     <comment><![CDATA[Maximum order amount allowed.]]></comment>
                     <tooltip>The payment method shows only for orders with an order amount smaller than the maximum amount.</tooltip>
                     <config_path>payment/buckaroo_magento2_afterpay2/max_amount</config_path>
@@ -208,8 +224,8 @@
                     <config_path>payment/buckaroo_magento2_afterpay2/specificcustomergroupb2b</config_path>
                 </field>
 
-                <field id="allowspecific" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Payment from applicable countries</label>
+                <field id="allowspecific" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Allowed countries</label>
                     <source_model>Buckaroo\Magento2\Model\Config\Source\AllOrSpecificCountries</source_model>
                     <config_path>payment/buckaroo_magento2_afterpay2/allowspecific</config_path>
                 </field>
