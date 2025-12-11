@@ -155,11 +155,9 @@ class In3V3Builder
                 continue;
             }
 
-            // Use Magento's native way to calculate price with discount
-            // getBasePriceInclTax() returns price WITHOUT discount
             // Subtract discount per unit to get the final discounted price
             $itemPrice = floor($item->getBasePriceInclTax() * 100) / 100;
-            
+
             if ($item->getDiscountAmount() > 0) {
                 $discountPerUnit = $item->getDiscountAmount() / $item->getQtyOrdered();
                 $itemPrice = $itemPrice - $discountPerUnit;
@@ -186,11 +184,9 @@ class In3V3Builder
     protected function getArticles($payment)
     {
         $order = $payment->getOrder();
-        
-        // Get products with discount already applied per item (Magento's native way)
+
         $products = $this->getProducts($order->getAllItems());
 
-        // Do NOT add separate discount line for In3 - discount is already applied to products
         $costs = array_merge(
             $this->getFeeLine($order),
             $this->getShippingCostsLine($order)
