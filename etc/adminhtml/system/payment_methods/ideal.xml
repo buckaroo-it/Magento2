@@ -32,41 +32,50 @@
             <config_path>payment/buckaroo_magento2_ideal/active</config_path>
         </field>
 
-        <field id="gateway_settings" translate="label comment" type="select" sortOrder="12" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Gateway Settings</label>
-            <comment><![CDATA[Choose whether you have a subscription for iDEAL Collecting (default) or a iDEAL Processing subscription directly to your bank.]]></comment>
-            <source_model>Buckaroo\Magento2\Model\Config\Source\IdealGatewayOptions</source_model>
-            <config_path>payment/buckaroo_magento2_ideal/gateway_settings</config_path>
-        </field>
-
         <field id="title" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Frontend label</label>
-            <comment><![CDATA[Determines the frontend label shown.]]></comment>
+            <label>Title</label>
+            <comment><![CDATA[The payment method name shown during checkout. If empty, the default title is used.]]></comment>
             <config_path>payment/buckaroo_magento2_ideal/title</config_path>
         </field>
 
+        <field id="display_subtext" translate="label comment" type="select" sortOrder="24" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Display subtext</label>
+            <comment><![CDATA[Enable or disable subtext display during checkout.]]></comment>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <config_path>payment/buckaroo_magento2_ideal/display_subtext</config_path>
+        </field>
+
         <field id="subtext" translate="label comment" type="text" sortOrder="25" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Frontend subtext</label>
+            <label>Subtext content</label>
             <comment><![CDATA[This controls the description which the user sees during checkout.]]></comment>
             <config_path>payment/buckaroo_magento2_ideal/subtext</config_path>
+            <depends>
+                <field id="display_subtext">1</field>
+            </depends>
         </field>
 
         <field id="subtext_style" translate="label comment" type="select" sortOrder="26" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Frontend subtext style</label>
+            <label>Subtext style</label>
             <comment><![CDATA[Choose a font style for the subtext.]]></comment>
             <source_model>Buckaroo\Magento2\Model\Config\Source\SubtextStyle</source_model>
             <config_path>payment/buckaroo_magento2_ideal/subtext_style</config_path>
+            <depends>
+                <field id="display_subtext">1</field>
+            </depends>
         </field>
 
         <field id="subtext_color" translate="label comment" sortOrder="27" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Frontend subtext color</label>
+            <label>Subtext color</label>
             <comment><![CDATA[Choose a font color for the subtext.]]></comment>
             <config_path>payment/buckaroo_magento2_ideal/subtext_color</config_path>
             <frontend_model>Buckaroo\Magento2\Block\Config\Form\Field\ColorPicker</frontend_model>
+            <depends>
+                <field id="display_subtext">1</field>
+            </depends>
         </field>
 
         <field id="sort_order" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Frontend sort order</label>
+            <label>Sort order</label>
             <comment><![CDATA[Determines the sorting of payment methods.]]></comment>
             <config_path>payment/buckaroo_magento2_ideal/sort_order</config_path>
         </field>
@@ -75,30 +84,42 @@
             <label>iDEAL Fast Checkout Configuration</label>
 
             <field id="ideal_fast_checkout" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>iDEAL Fast Checkout</label>
-                <comment><![CDATA[Enable or disable the iDEAL Fast Checkout button.]]></comment>
-                <source_model>Magento\Config\Model\Config\Source\Enabledisable</source_model>
+                <label>Enable iDEAL Fast Checkout</label>
+                <comment><![CDATA[Enables iDEAL Fast Checkout. When enabled, a fast checkout button will be shown to customers.]]></comment>
+                <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 <config_path>payment/buckaroo_magento2_ideal/ideal_fast_checkout</config_path>
             </field>
 
             <field id="available_buttons" translate="label comment" type="multiselect" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>iDEAL Fast Checkout logo visibility</label>
-                <comment><![CDATA[Select where you want the button to be visible. Multiple options can be selected at the same time.]]></comment>
+                <label>Button location</label>
+                <comment><![CDATA[Selects the storefront locations where the iDEAL Fast Checkout button should appear (product page, cart page, or both).]]></comment>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\AvailableButtons</source_model>
                 <config_path>payment/buckaroo_magento2_ideal/available_buttons</config_path>
                 <can_be_empty>1</can_be_empty>
             </field>
 
             <field id="ideal_logo_colors" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>iDEAL Fast Checkout logo scheme</label>
-                <comment><![CDATA[Select the iDEAL fast checkout button (text) color.]]></comment>
+                <label>Button color</label>
+                <comment><![CDATA[Defines the color style of the iDEAL Fast Checkout button. Choose a color that fits your storefront design.]]></comment>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\LogoColors</source_model>
                 <config_path>payment/buckaroo_magento2_ideal/ideal_logo_colors</config_path>
+            </field>
+
+            <field id="ideal_logo_colors_preview" translate="label" sortOrder="31" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Button preview</label>
+                <frontend_model>Buckaroo\Magento2\Block\Config\Form\Field\IdealButton</frontend_model>
             </field>
         </group>
 
         <group id="buckaroo_magento2_advanced" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Advanced Configuration</label>
+
+            <field id="gateway_settings" translate="label comment" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Gateway Settings</label>
+                <comment><![CDATA[Choose whether you have a subscription for iDEAL Collecting (default) or a iDEAL Processing subscription directly to your bank.]]></comment>
+                <source_model>Buckaroo\Magento2\Model\Config\Source\IdealGatewayOptions</source_model>
+                <config_path>payment/buckaroo_magento2_ideal/gateway_settings</config_path>
+            </field>
 
             <field id="order_email" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Send order confirmation email</label>

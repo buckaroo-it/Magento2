@@ -1,0 +1,42 @@
+<?php
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+
+/** @var \Buckaroo\Magento2\Block\Config\Form\Field\IdealButton $block */
+/** @var \Magento\Framework\Escaper $escaper */
+?>
+<div id="ideal-button-preview-wrapper" style="padding: 15px; background-color: #f5f5f5; border: 1px solid #ddd; border-radius: 4px; display: inline-block;">
+    <img id="ideal-button-preview-image"
+         src="<?= $escaper->escapeUrl($block->getLogoUrl($block->getLogoColor())); ?>"
+         alt="iDEAL Fast Checkout Logo"
+         style="max-width: 200px; height: auto; display: block;" />
+</div>
+<script type="text/x-magento-init">
+{
+    "#ideal-button-preview-wrapper": {
+        "Buckaroo_Magento2/js/view/adminhtml/ideal_button": {
+            "logoColor": "<?= $escaper->escapeJs($block->getLogoColor()); ?>",
+            "logoColorElement": "<?= $escaper->escapeJs($block->getLogoColorElement()); ?>",
+            "lightLogoUrl": "<?= $escaper->escapeUrl($block->getLogoUrl('Light')); ?>",
+            "darkLogoUrl": "<?= $escaper->escapeUrl($block->getLogoUrl('Dark')); ?>"
+        }
+    }
+}
+</script>
+
