@@ -137,7 +137,7 @@ class In3V3Builder
     }
 
     /**
-     * Get formated order product lines
+     * Get formated order product lines with discount applied using Magento's native approach
      *
      * @param array $orderItems
      *
@@ -155,11 +155,21 @@ class In3V3Builder
                 continue;
             }
 
+            // Use Magento's native way to calculate price with discount
+            // getBasePriceInclTax() returns price WITHOUT discount
+            // Subtract discount per unit to get the final discounted price
+            $itemPrice = floor($item->getBasePriceInclTax() * 100) / 100;
+            
+            if ($item->getDiscountAmount() > 0) {
+                $discountPerUnit = $item->getDiscountAmount() / $item->getQtyOrdered();
+                $itemPrice = $itemPrice - $discountPerUnit;
+            }
+
             $productData[] = [
                 'id' => $item->getSku(),
                 'description' => $item->getName(),
                 'qty' => $item->getQtyOrdered(),
-                'price' => floor($item->getBasePriceInclTax() * 100) / 100,
+                'price' => $itemPrice,
                 'vat' =>  $item->getTaxPercent(),
             ];
 
@@ -176,10 +186,12 @@ class In3V3Builder
     protected function getArticles($payment)
     {
         $order = $payment->getOrder();
+        
+        // Get products with discount already applied per item (Magento's native way)
         $products = $this->getProducts($order->getAllItems());
 
+        // Do NOT add separate discount line for In3 - discount is already applied to products
         $costs = array_merge(
-            $this->getDiscountLine($order),
             $this->getFeeLine($order),
             $this->getShippingCostsLine($order)
         );
@@ -241,30 +253,6 @@ class In3V3Builder
             'price' => $amount,
             'vat' => 0,
         ];
-    }
-
-    /**
-     * @param OrderInterface $order
-     *
-     * @return array
-     */
-    protected function getDiscountLine($order)
-    {
-        $discount = abs((float)$order->getDiscountAmount());
-
-        if ($discount <= 0) {
-            return [];
-        }
-
-        $discount = (-1 * round($discount, 2));
-
-        return [[
-            'id' => 'discount',
-            'description' => 'Discount Errors',
-            'qty' => 1,
-            'price' => $discount,
-            'vat' => 0,
-        ]];
     }
 
     /**
