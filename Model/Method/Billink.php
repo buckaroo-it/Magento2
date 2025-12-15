@@ -80,17 +80,17 @@ class Billink extends AbstractMethod
     /**
      * @var bool
      */
-    protected $_canAuthorize            = true;
+    protected $_canAuthorize            = false;
 
     /**
      * @var bool
      */
-    protected $_canCapture              = true;
+    protected $_canCapture              = false;
 
     /**
      * @var bool
      */
-    protected $_canCapturePartial       = true;
+    protected $_canCapturePartial       = false;
 
     /**
      * @var bool
@@ -176,10 +176,7 @@ class Billink extends AbstractMethod
      */
     public function canCapture()
     {
-        if ($this->getConfigData('payment_action') == 'order') {
-            return false;
-        }
-        return $this->_canCapture;
+        return false;
     }
 
     /**
@@ -224,23 +221,7 @@ class Billink extends AbstractMethod
      */
     public function getAuthorizeTransactionBuilder($payment)
     {
-        $transactionBuilder = $this->transactionBuilderFactory->get('order');
-
-        $services = [
-            'Name'             => $this->getPaymentMethodName($payment),
-            'Action'           => 'Authorize',
-            'RequestParameter' => $this->getPaymentRequestParameters($payment),
-        ];
-
-        $transactionBuilder->setOrder($payment->getOrder())->setServices($services)->setMethod('TransactionRequest');
-
-        /**
-         * Buckaroo Push is send before Response, for correct flow we skip the first push
-         * @todo when buckaroo changes the push / response order this can be removed
-         */
-        $payment->setAdditionalInformation('skip_push', 1);
-
-        return $transactionBuilder;
+        return false;
     }
 
     /**
@@ -249,26 +230,18 @@ class Billink extends AbstractMethod
     public function getVoidTransactionBuilder($payment)
     {
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
-
-        $services = [
-            'Name'   => $this->getPaymentMethodName($payment),
-            'Action' => 'CancelAuthorize',
-        ];
-
         $originalTrxKey = $payment->getAdditionalInformation(self::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY);
+        $parentTrxKey = $payment->getParentTransactionId();
+
+        if ($parentTrxKey && strlen($parentTrxKey) > 0 && $parentTrxKey != $originalTrxKey) {
+            $originalTrxKey = $parentTrxKey;
+        }
 
         $transactionBuilder->setOrder($payment->getOrder())
             ->setAmount(0)
             ->setType('void')
-            ->setServices($services)
-            ->setMethod('TransactionRequest')
+            ->setMethod('CancelTransaction')
             ->setOriginalTransactionKey($originalTrxKey);
-
-        $parentTrxKey = $payment->getParentTransactionId();
-
-        if ($parentTrxKey && strlen($parentTrxKey) > 0 && $parentTrxKey != $originalTrxKey) {
-            $transactionBuilder->setOriginalTransactionKey($parentTrxKey);
-        }
 
         return $transactionBuilder;
     }

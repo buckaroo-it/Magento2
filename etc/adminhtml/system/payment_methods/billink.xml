@@ -94,13 +94,6 @@
                 <config_path>payment/buckaroo_magento2_billink/order_email</config_path>
             </field>
 
-<!--             <field id="payment_flow" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Payment flow</label>
-                <comment><![CDATA[Whether to use separate authorize and capture calls or to use a combined 'pay' call.]]></comment>
-                <config_path>payment/buckaroo_magento2_billink/payment_action</config_path>
-                <source_model>Buckaroo\Magento2\Model\Config\Source\PaymentFlow</source_model>
-            </field> -->
-
             <field id="payment_fee" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Payment fee</label>
                 <comment><![CDATA[The above amount is calculated based on de Tax settings in Buckaroo > General configuration and account information > Buckaroo Payment Fee Tax Class.]]></comment>
