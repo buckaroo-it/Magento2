@@ -142,7 +142,8 @@ define(
 
                 afterPlaceOrder: function () {
                     var response = window.checkoutConfig.payment.buckaroo.response;
-                    if (response.RequiredAction !== undefined && response.RequiredAction.RedirectURL !== undefined) {
+
+                    if (response && response.RequiredAction !== undefined && response.RequiredAction.RedirectURL !== undefined) {
                         window.location.replace(response.RequiredAction.RedirectURL);
                     }
                 },
