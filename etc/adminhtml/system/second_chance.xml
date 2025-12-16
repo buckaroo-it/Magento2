@@ -24,6 +24,12 @@
     <group id="second_chance" translate="label comment" type="text" sortOrder="500" showInDefault="1" showInWebsite="1" showInStore="1">
         <label>Second Chance</label>
 
+        <field id="second_chance_info" translate="label" type="text" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label></label>
+            <frontend_model>Buckaroo\Magento2\Block\Adminhtml\System\Config\SecondChanceInfo</frontend_model>
+            <comment></comment>
+        </field>
+
         <field id="enable_second_chance" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Second Chance enabled</label>
             <comment><![CDATA[Enables or disables Second Chance mode]]></comment>

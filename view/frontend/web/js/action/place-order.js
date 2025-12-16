@@ -108,6 +108,7 @@ define(
             ).done(
                 function (response) {
                     let jsonResponse = $.parseJSON(response);
+
                     if (typeof jsonResponse === 'object' && typeof jsonResponse.limitReachedMessage === 'string') {
                         alert({
                             title: $t('Error'),
@@ -151,10 +152,18 @@ define(
                             jQuery('button[title*="Place Order"]').prop('disabled', true);
                             jQuery('button.place-order').prop('disabled', true);
                         }, 100);
-                    } else if (redirectOnSuccess) {
-                        window.location.replace(url.build('checkout/onepage/success/'));
+                    } else {
+                        // Set the response based on Buckaroo's response structure
+                        if (jsonResponse.buckaroo_response) {
+                            window.checkoutConfig.payment.buckaroo.response = jsonResponse.buckaroo_response;
+                        } else {
+                            window.checkoutConfig.payment.buckaroo.response = jsonResponse;
+                        }
+
+                        if (redirectOnSuccess) {
+                            window.location.replace(url.build('checkout/onepage/success/'));
+                        }
                     }
-                    window.checkoutConfig.payment.buckaroo.response = response;
                     fullScreenLoader.stopLoader();
                 }
             ).fail(

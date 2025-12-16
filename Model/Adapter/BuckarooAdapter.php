@@ -149,7 +149,13 @@ class BuckarooAdapter
             ));
         }
 
-        $this->setClientSdk($method, $orderStoreId);
+        $skipActiveCheck =
+            $action === 'refund'
+            || $action === 'capture'
+            || $this->isCreditManagementOfType($data, BuilderComposite::TYPE_REFUND)
+            || $this->isCreditManagementOfType($data, BuilderComposite::TYPE_VOID);
+
+        $this->setClientSdk($method, $orderStoreId, $skipActiveCheck);
         $payment = $this->buckaroo->method($this->getMethodName($method));
 
         try {
@@ -188,10 +194,11 @@ class BuckarooAdapter
      *
      * @param string   $paymentMethod
      * @param int|null $orderStoreId  Store ID from the order (for refund/capture operations)
+     * @param bool     $skipActiveCheck
      *
      * @throws \Exception
      */
-    private function setClientSdk($paymentMethod = '', ?int $orderStoreId = null): void
+    private function setClientSdk($paymentMethod = '', ?int $orderStoreId = null, bool $skipActiveCheck = false): void
     {
         /** @var Account $configProviderAccount */
         $configProviderAccount = $this->configProviderFactory->get('account');
@@ -209,7 +216,7 @@ class BuckarooAdapter
         }
 
         $accountMode = $configProviderAccount->getActive($storeId);
-        $clientMode = $this->getClientMode($accountMode, $storeId, $paymentMethod);
+        $clientMode = $this->getClientMode($accountMode, $storeId, $paymentMethod, $skipActiveCheck);
 
         $this->buckaroo = new BuckarooClient(new DefaultConfig(
             $this->encryptor->decrypt($configProviderAccount->getMerchantKey($storeId)),
@@ -271,12 +278,13 @@ class BuckarooAdapter
      * @param int|string $accountMode
      * @param int|string $storeId
      * @param string     $paymentMethod
+     * @param bool       $skipActiveCheck
      *
      * @throws Exception
      *
      * @return string
      */
-    private function getClientMode($accountMode, $storeId, string $paymentMethod = ''): string
+    private function getClientMode($accountMode, $storeId, string $paymentMethod = '', bool $skipActiveCheck = false): string
     {
         $clientMode = Config::TEST_MODE;
 

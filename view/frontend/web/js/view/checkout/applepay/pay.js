@@ -73,31 +73,51 @@ define(
                         if (applePaySupported) {
                             this.generateApplepayOptions();
                             this.payment = new BuckarooSdk.ApplePay.ApplePayPayment('#apple-pay-wrapper', this.applepayOptions);
+                            
+                            // IMPORTANT: Wrap beginPayment BEFORE showPayButton() so the button's click handler uses our wrapped version
+                            if (this.payMode === 'product') {
+                                var self = this;
+                                
+                                // Store the original beginPayment method
+                                var originalBeginPayment = this.payment.beginPayment.bind(this.payment);
+                                
+                                // Replace with validation wrapper
+                                this.payment.beginPayment = function(event) {
+                                    // Validate product BEFORE opening Apple Pay sheet
+                                    if (!self.validateProductForExpressCheckout()) {
+                                        if (event && event.preventDefault) {
+                                            event.preventDefault();
+                                            event.stopPropagation();
+                                        }
+                                        return Promise.reject(new Error('Product validation failed'));
+                                    }
+
+                                    // Validate Magento form
+                                    var dataForm = $('#product_addtocart_form');
+                                    if (dataForm.length) {
+                                        dataForm.validation('isValid');
+                                        
+                                        // Check for validation errors
+                                        if ($('.mage-error:visible').length > 0) {
+                                            self.displayErrorMessage('Please fix the errors on the page before proceeding.');
+                                            if (event && event.preventDefault) {
+                                                event.preventDefault();
+                                                event.stopPropagation();
+                                            }
+                                            return Promise.reject(new Error('Form validation failed'));
+                                        }
+                                    }
+                                    
+                                    // All validations passed - call original beginPayment
+                                    return originalBeginPayment(event);
+                                };
+                            }
+                            
+                            // NOW show the button (it will use our wrapped beginPayment method)
                             this.payment.showPayButton(
                                 window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.buttonStyle || 'black',
                                 'buy'
                             );
-
-                            if (this.payMode === 'product') {
-                                var self = this;
-                                this.payment.button.off("click");
-                                this.payment.button.on("click", function (e) {
-                                    e.preventDefault();
-
-                                    // Validate product before proceeding
-                                    if (!self.validateProductForExpressCheckout()) {
-                                        return false;
-                                    }
-
-                                    var dataForm = $('#product_addtocart_form');
-                                    dataForm.validation('isValid');
-                                    setTimeout(function () {
-                                        if ($('.mage-error:visible').length === 0) {
-                                            self.payment.beginPayment(e);
-                                        }
-                                    }, 100);
-                                });
-                            }
                         }
                     }.bind(this))
                     .catch(function (error) {
@@ -113,15 +133,12 @@ define(
             },
 
             canShowApplePay: function () {
-                console.log('[Apple Pay Component] Starting canShowApplePay check...');
                 return BuckarooSdk.ApplePay.checkApplePaySupport(window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.guid)
                     .then(function (applePaySupported) {
-                        console.log('[Apple Pay Component] Support check result:', applePaySupported);
                         this.canShowMethod(applePaySupported);
                         return applePaySupported;
                     }.bind(this))
                     .catch(function (error) {
-                        console.error('[Apple Pay Component] Support check error:', error);
                         this.canShowMethod(false);
                         return false;
                     }.bind(this));
@@ -519,6 +536,138 @@ define(
                 if (window.buckarooDebug) {
                     console.log(msg, params);
                 }
+            },
+
+            /**
+             * Validate product before allowing express checkout
+             * @returns {boolean}
+             */
+            validateProductForExpressCheckout: function () {
+                var form = $('#product_addtocart_form');
+                if (!form.length) {
+                    this.displayErrorMessage('Unable to find product form.');
+                    return false;
+                }
+
+                var productId = $('[name="product"]', form).val();
+                var qty = $('[name="qty"]', form).val() || 1;
+
+                if (!productId) {
+                    this.displayErrorMessage('Unable to identify product.');
+                    return false;
+                }
+
+                // Check if configurable product has all required options selected
+                var missingOptions = [];
+
+                // Check swatch attributes (color/size swatches)
+                if ($('div.swatch-attribute').length > 0) {
+                    $('div.swatch-attribute').each(function() {
+                        var attributeId = $(this).attr('attribute-id') || $(this).attr('data-attribute-id');
+                        var optionSelected = $(this).attr('option-selected') || $(this).attr('data-option-selected');
+                        var label = $(this).find('.swatch-attribute-label').text().replace('*', '').trim();
+
+                        if (!optionSelected && attributeId) {
+                            missingOptions.push(label || 'Option');
+                        }
+                    });
+                }
+
+                // Check dropdown configurable options (select dropdowns)
+                $('select[name*="super_attribute"]').each(function() {
+                    var selectValue = $(this).val();
+                    var fieldElement = $(this).closest('.field');
+                    var label = fieldElement.find('label span').text().trim();
+
+                    if (!selectValue || selectValue === '') {
+                        missingOptions.push(label || 'Dropdown Option');
+                    }
+                });
+
+                if (missingOptions.length > 0) {
+                    this.displayErrorMessage('Please select: ' + missingOptions.join(', '));
+                    return false;
+                }
+
+                // Check for required custom options
+                var hasRequiredOptions = false;
+                $('.product-options-wrapper .field.required').each(function() {
+                    var input = $(this).find('input, select, textarea');
+                    var value = input.val();
+
+                    if (!value || value === '') {
+                        hasRequiredOptions = true;
+                        return false;
+                    }
+                });
+
+                if (hasRequiredOptions) {
+                    this.displayErrorMessage('This product has required options. Please make your selections before proceeding.');
+                    return false;
+                }
+
+                // Validate quantity
+                if (qty < 1) {
+                    this.displayErrorMessage('Please enter a valid quantity.');
+                    return false;
+                }
+
+                return true;
+            },
+
+            /**
+             * Display error message to user
+             * @param {string|object} message - Error message or AJAX error object
+             */
+            displayErrorMessage: function (message) {
+                if (typeof message === "object") {
+                    if (message.responseJSON && message.responseJSON.message) {
+                        message = $.mage.__(message.responseJSON.message);
+                    } else {
+                        message = $.mage.__("Cannot create payment");
+                    }
+                }
+
+                // Try multiple locations for message container
+                var messageContainer = $('.page.messages');
+                
+                // If page.messages doesn't exist, try product page specific containers
+                if (!messageContainer.length) {
+                    messageContainer = $('.product-info-main');
+                }
+                
+                // If still not found, try to find or create a container at the top of the page
+                if (!messageContainer.length) {
+                    messageContainer = $('body');
+                }
+
+                // Remove any existing error messages first
+                messageContainer.find('.buckaroo-applepay-error').remove();
+
+                // Create and show error message
+                var errorDiv = $('<div class="message message-error error buckaroo-applepay-error" style="margin: 10px 0; padding: 10px; background: #fff0f0; border: 1px solid #ff0000; color: #cc0000;"><div>' + message + '</div></div>');
+                
+                if (messageContainer.is('body')) {
+                    // If appending to body, position it fixed at the top
+                    errorDiv.css({
+                        'position': 'fixed',
+                        'top': '0',
+                        'left': '0',
+                        'right': '0',
+                        'z-index': '10000',
+                        'margin': '0',
+                        'border-radius': '0'
+                    });
+                }
+                
+                errorDiv.prependTo(messageContainer).show();
+
+                // Auto-hide after 5 seconds
+                setTimeout(function () {
+                    errorDiv.fadeOut(500, function() {
+                        $(this).remove();
+                    });
+                }, 5000);
             }
         };
     }

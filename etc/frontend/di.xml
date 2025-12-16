@@ -37,6 +37,7 @@
                 <item name="buckaroo_config_provider_bizum" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Bizum</item>
                 <item name="buckaroo_config_provider_swish" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Swish</item>
                 <item name="buckaroo_config_provider_twint" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Twint</item>
+                <item name="buckaroo_config_provider_wero" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Wero</item>
                 <item name="buckaroo_config_provider_afterpay" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay</item>
                 <item name="buckaroo_config_provider_afterpay2" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay2</item>
                 <item name="buckaroo_config_provider_payperemail" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail</item>

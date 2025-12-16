@@ -383,6 +383,29 @@
                 <is_gateway>1</is_gateway>
             </buckaroo_magento2_twint>
 
+            <buckaroo_magento2_wero>
+                <active>0</active>
+                <model>WeroFacade</model>
+                <order_status>pending</order_status>
+                <title>Wero</title>
+                <allowspecific>0</allowspecific>
+                <sort_order>151</sort_order>
+                <order_email>1</order_email>
+                <group>buckaroo_magento2</group>
+                <payment_action>order</payment_action>
+                <available_in_backend>0</available_in_backend>
+                <can_authorize>1</can_authorize>
+                <can_capture>1</can_capture>
+                <can_capture_partial>1</can_capture_partial>
+                <can_order>1</can_order>
+                <can_void>1</can_void>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_use_internal>1</can_use_internal>
+                <can_use_checkout>1</can_use_checkout>
+                <is_gateway>1</is_gateway>
+            </buckaroo_magento2_wero>
+
             <buckaroo_magento2_blik>
                 <active>0</active>
                 <model>BlikFacade</model>
@@ -715,9 +738,9 @@
                 <can_capture_partial>1</can_capture_partial>
                 <financial_warning>1</financial_warning>
                 <available_in_backend>0</available_in_backend>
-                <can_authorize>1</can_authorize>
-                <can_capture>1</can_capture>
-                <can_capture_partial>1</can_capture_partial>
+                <can_authorize>0</can_authorize>
+                <can_capture>0</can_capture>
+                <can_capture_partial>0</can_capture_partial>
                 <can_order>1</can_order>
                 <can_void>1</can_void>
                 <can_cancel>1</can_cancel>

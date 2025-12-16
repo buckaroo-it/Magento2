@@ -37,6 +37,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards;
 use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Transfer;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Wero;
 use Buckaroo\Magento2\Model\GroupTransaction;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
@@ -1243,7 +1244,8 @@ class DefaultProcessor implements PushProcessorInterface
             Afterpay2::CODE,
             Afterpay20::CODE,
             Creditcard::CODE,
-            Klarnakp::CODE
+            Klarnakp::CODE,
+            Wero::CODE
         ];
 
         if (in_array($this->payment->getMethod(), $authPpaymentMethods)

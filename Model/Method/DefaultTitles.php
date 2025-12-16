@@ -55,7 +55,8 @@ class DefaultTitles
         'p24'              => 'Przelewy24',
         'trustly'          => 'Trustly',
         'pospayment'       => 'PosPay',
-        'paybybank'        => 'PayByBank'
+        'paybybank'        => 'PayByBank',
+        'wero'             => 'Wero'
     ];
 
     public static function get(string $paymentCode): string

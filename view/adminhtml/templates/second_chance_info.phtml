@@ -1,0 +1,40 @@
+<?php
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+/** @var \Buckaroo\Magento2\Block\Adminhtml\System\Config\SecondChanceInfo $block */
+// @codingStandardsIgnoreFile
+?>
+<div class="buckaroo-second-chance-info" style="margin-bottom: 20px;">
+    <div style="margin-bottom: 10px;">
+        <strong><?= $block->escapeHtml(__('About Second Chance')); ?></strong>
+    </div>
+    <div style="margin-bottom: 15px;">
+        <?= $block->escapeHtml(__('The Second Chance feature allows merchants to automatically send reminder emails to consumers who initiated but did not complete their order or payment. These reminders are sent directly from the Magento store, using your own store\'s email domain and templates. This ensures full brand consistency and significantly improves conversion rates.')); ?>
+    </div>
+    <div style="margin-bottom: 10px;">
+        <strong><?= $block->escapeHtml(__('The functionality is completely white-labelled, meaning:')); ?></strong>
+    </div>
+    <ul style="margin-left: 20px; margin-bottom: 10px;">
+        <li><?= $block->escapeHtml(__('Emails are sent from your own domain and mail servers in Magento.')); ?></li>
+        <li><?= $block->escapeHtml(__('Templates follow your corporate identity and email design from default Magento e-mail templates.')); ?></li>
+        <li><?= $block->escapeHtml(__('Stock availability can optionally be taken into account before sending reminders.')); ?></li>
+        <li><?= $block->escapeHtml(__('First and second reminders can use a different template.')); ?></li>
+    </ul>
+</div>
+

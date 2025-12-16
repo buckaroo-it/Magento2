@@ -221,7 +221,7 @@ class Applepay extends Template
      *
      * @return Product|null
      */
-    private function getProduct()
+    public function getProduct()
     {
         if ($this->product === null && $this->registry) {
             $this->product = $this->registry->registry('product');
