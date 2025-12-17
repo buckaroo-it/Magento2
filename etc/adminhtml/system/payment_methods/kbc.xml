@@ -25,7 +25,7 @@
 
         <field id="active" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Enable KBC</label>
-            <comment><![CDATA[Enable or disable this payment method.]]></comment>
+            <comment><![CDATA[Control the availability of this payment method.]]></comment>
             <source_model>Buckaroo\Magento2\Model\Config\Source\Enablemode</source_model>
             <config_path>payment/buckaroo_magento2_kbc/active</config_path>
         </field>

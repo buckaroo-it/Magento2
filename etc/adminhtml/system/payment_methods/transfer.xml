@@ -27,7 +27,7 @@
 
         <field id="active" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Enable Bank Transfer</label>
-            <comment><![CDATA[Enable or disable this payment method.]]></comment>
+            <comment><![CDATA[Control the availability of this payment method.]]></comment>
             <source_model>Buckaroo\Magento2\Model\Config\Source\Enablemode</source_model>
             <config_path>payment/buckaroo_magento2_transfer/active</config_path>
         </field>
@@ -94,7 +94,7 @@
 
             <field id="due_date" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Due date (in days)</label>
-                <comment><![CDATA[The amount of days after the order date in which the customer has to complete the payment. After this period order will be cancelled. You can add this due date in the template of the Transfer email.]]></comment>
+                <comment><![CDATA[The number of days after the order date shown as a reference due date in the bank transfer email template in Buckaroo Plaza. Late payments cannot be rejected.]]></comment>
                 <config_path>payment/buckaroo_magento2_transfer/due_date</config_path>
                 <backend_model>Buckaroo\Magento2\Model\Config\Backend\Number</backend_model>
             </field>

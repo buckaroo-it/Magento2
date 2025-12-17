@@ -25,7 +25,7 @@
 
         <field id="active" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Enable Apple Pay</label>
-            <comment><![CDATA[Enable or disable this payment method.]]></comment>
+            <comment><![CDATA[Control the availability of this payment method.]]></comment>
             <source_model>Buckaroo\Magento2\Model\Config\Source\Enablemode</source_model>
             <config_path>payment/buckaroo_magento2_applepay/active</config_path>
         </field>
@@ -82,14 +82,26 @@
         <group id="buckaroo_magento2_default" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Method specific configuration</label>
 
-            <field id="merchant_guid" translate="label comment tooltip" type="text" sortOrder="36" showInDefault="1" showInWebsite="1" showInStore="1">
+            <field id="integration_mode" translate="label comment tooltip" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Apple Pay Checkout Type</label>
+                <comment><![CDATA[This setting controls how customers experience Apple Pay at checkout.]]></comment>
+                <tooltip>Select Inline to embed Apple Pay directly within the Magento checkout. Select Redirect to send customers to Buckaroo's secure Hosted Payment Page. Note: When using the Redirect option, Apple Pay can only be offered in the checkout (not in other areas like the mini-cart or product page).</tooltip>
+                <source_model>Buckaroo\Magento2\Model\Config\Source\InlineOrRedirect</source_model>
+                <config_path>payment/buckaroo_magento2_applepay/integration_mode</config_path>
+                <can_be_empty>1</can_be_empty>
+            </field>
+
+            <field id="merchant_guid" translate="label comment tooltip" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>(Merchant) guid</label>
                 <comment><![CDATA[Enter your Buckaroo merchant guid.]]></comment>
                 <tooltip>The (Merchant) Guid can be retrieved in Buckaroo Plaza under My Buckaroo > General > Guid.</tooltip>
                 <config_path>payment/buckaroo_magento2_applepay/merchant_guid</config_path>
+                <depends>
+                    <field id="integration_mode">0</field>
+                </depends>
             </field>
 
-            <field id="available_buttons" translate="label comment" type="multiselect" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+            <field id="available_buttons" translate="label comment" type="multiselect" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Enable or Disable Apple Pay buttons</label>
                 <comment><![CDATA[Select which buttons you want to be active.]]></comment>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\AvailableButtons</source_model>
@@ -100,32 +112,32 @@
                 </depends>
             </field>
 
-            <field id="button_style" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+            <field id="button_style" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Button Style</label>
                 <comment><![CDATA[What type of button you want to show.]]></comment>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\ButtonStyle</source_model>
                 <config_path>payment/buckaroo_magento2_applepay/button_style</config_path>
+                <depends>
+                    <field id="integration_mode">0</field>
+                </depends>
             </field>
 
-            <field id="button_style_preview" translate="label comment" sortOrder="25" showInDefault="1" showInWebsite="1" showInStore="1">
+            <field id="button_style_preview" translate="label comment" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Button Style Preview</label>
                 <frontend_model>Buckaroo\Magento2\Block\Config\Form\Field\ApplepayButton</frontend_model>
+                <depends>
+                    <field id="integration_mode">0</field>
+                </depends>
             </field>
 
-            <field id="integration_mode" translate="label comment tooltip" type="select" sortOrder="28" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Apple Pay Checkout Type</label>
-                <comment><![CDATA[This setting controls how customers experience Apple Pay at checkout.]]></comment>
-                <tooltip>Select Inline to embed Apple Pay directly within the Magento checkout. Select Redirect to send customers to Buckaroo's secure Hosted Payment Page. Note: When using the Redirect option, Apple Pay can only be offered in the checkout (not in other areas like the mini-cart or product page).</tooltip>
-                <source_model>Buckaroo\Magento2\Model\Config\Source\InlineOrRedirect</source_model>
-                <config_path>payment/buckaroo_magento2_applepay/integration_mode</config_path>
-                <can_be_empty>1</can_be_empty>
-            </field>
-
-            <field id="dont_ask_billing_info_in_checkout" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+            <field id="dont_ask_billing_info_in_checkout" translate="label comment" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Do Not Ask for Billing Info in Checkout</label>
                 <comment><![CDATA[In Apple Pay's popup billing info will not be requested. CustomerCardName will not be passed to gateway in such case.]]></comment>
                 <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 <config_path>payment/buckaroo_magento2_applepay/dont_ask_billing_info_in_checkout</config_path>
+                <depends>
+                    <field id="integration_mode">0</field>
+                </depends>
             </field>
         </group>
 
