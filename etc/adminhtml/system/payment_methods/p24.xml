@@ -74,7 +74,6 @@
             </depends>
         </field>
 
-
         <field id="sort_order" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Sort Order</label>
             <comment><![CDATA[Determines the sorting of payment methods.]]></comment>

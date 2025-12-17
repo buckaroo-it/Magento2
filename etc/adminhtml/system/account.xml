@@ -35,16 +35,14 @@
 
         <field id="merchant_key" translate="label comment tooltip" type="obscure" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Store Key</label>
-            <comment><![CDATA[Enter your Buckaroo store key.]]></comment>
-            <tooltip>The Store key can be retrieved in the Buckaroo Plaza under Settings > Websites. For support contact Buckaroo.</tooltip>
+            <comment><![CDATA[Enter your Buckaroo store key. The store key can be found <a href="https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys" target="_blank">here</a>.]]></comment>
             <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
             <config_path>buckaroo_magento2/account/merchant_key</config_path>
         </field>
 
         <field id="secret_key" translate="label comment tooltip" type="obscure" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Secret Key</label>
-            <comment><![CDATA[Enter your Buckaroo Secret Key.]]></comment>
-            <tooltip>The Secret Key can be retrieved in the Buckaroo Plaza under Settings > Secret Key. For support contact Buckaroo.</tooltip>
+            <comment><![CDATA[Enter your Buckaroo secret key. The secret key can be found <a href="https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys" target="_blank">here</a>.]]></comment>
             <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
             <config_path>buckaroo_magento2/account/secret_key</config_path>
         </field>
@@ -74,7 +72,7 @@
 
         <field id="buckaroo_fee_tax_class" translate="label tooltip" type="select" sortOrder="47" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Buckaroo Payment Fee Tax Class</label>
-            <!--            <comment>This sets whether buckaroo payment fee amounts entered from Magento Admin include tax.</comment>-->
+            <comment>Tax class used to calculate VAT on Buckaroo payment service fees.</comment>
             <source_model>\Magento\Tax\Model\TaxClass\Source\Product</source_model>
             <config_path>buckaroo_magento2/account/buckaroo_fee_tax_class</config_path>
         </field>

@@ -129,7 +129,7 @@
                 <label>Method Visibility</label>
 
                 <field id="min_amount" translate="label comment tooltip" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Min order amount (in Base Currency)</label>
+                    <label>Min Order Amount</label>
                     <comment><![CDATA[Minimum order amount allowed.]]></comment>
                     <tooltip>The payment method shows only for orders with an order amount greater than the minimum amount.</tooltip>
                     <config_path>payment/buckaroo_magento2_multibanco/min_amount</config_path>
@@ -137,7 +137,7 @@
                 </field>
 
                 <field id="max_amount" translate="label comment tooltip" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Max order amount (in Base Currency)</label>
+                    <label>Max Order Amount</label>
                     <comment><![CDATA[Maximum order amount allowed.]]></comment>
                     <tooltip>The payment method shows only for orders with an order amount smaller than the maximum amount.</tooltip>
                     <config_path>payment/buckaroo_magento2_multibanco/max_amount</config_path>
