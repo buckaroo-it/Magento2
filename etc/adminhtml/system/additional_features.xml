@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 /**
  * NOTICE OF LICENSE
@@ -21,8 +21,11 @@
  -->
 <include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
 
-    <group id="second_chance" translate="label comment" type="text" sortOrder="500" showInDefault="1" showInWebsite="1" showInStore="1">
+    <!-- Second Chance -->
+    <group id="second_chance" translate="label comment" type="text" sortOrder="400" showInDefault="1" showInWebsite="1" showInStore="1">
         <label>Second Chance</label>
+        <fieldset_css>buckaroo_magento2-section</fieldset_css>
+        <attribute type="expanded">0</attribute>
 
         <field id="second_chance_info" translate="label" type="text" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="1">
             <label></label>
@@ -118,16 +121,32 @@
                 <field id="enable_second_chance">1</field>
             </depends>
         </field>
+    </group>
 
-        <field id="multiple_emails_send" translate="label comment" type="select" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Multiple emails send per once</label>
-            <comment><![CDATA[If user got multiple second chance tries, send all of them]]></comment>
+    <!-- Google Analytics -->
+    <group id="analytics" translate="label comment" type="text" sortOrder="500" showInDefault="1" showInWebsite="1" showInStore="1">
+        <label>GA Tracking Options</label>
+        <fieldset_css>buckaroo_magento2-section</fieldset_css>
+        <attribute type="expanded">0</attribute>
+
+        <field id="enable_ga_client_id_tracking" type="select" sortOrder="10" showInWebsite="1" showInStore="1" showInDefault="1" translate="label">
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-            <config_path>buckaroo_magento2/second_chance/multiple_emails_send</config_path>
+            <label>Enable GA Client ID tracking</label>
+            <tooltip>More details on how to use the module can be found on our github repo: https://github.com/buckaroo-it/Magento2_Analytics</tooltip>
+            <config_path>buckaroo_magento2/analytics/enable_ga_client_id_tracking</config_path>
+        </field>
+
+        <field id="cookie_param_pair" translate="label" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Cookie/Param pair</label>
+            <frontend_model>Buckaroo\Magento2\Block\Adminhtml\Form\Field\CookieParamRows</frontend_model>
+            <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
+            <comment><![CDATA[Add here new pair if you want specific value from cookie to be sent on the success page as url param.]]></comment>
+            <config_path>buckaroo_magento2/analytics/cookie_param_pair</config_path>
             <depends>
-                <field id="enable_second_chance">1</field>
+                <field id="enable_ga_client_id_tracking">1</field>
             </depends>
         </field>
     </group>
 
 </include>
+
