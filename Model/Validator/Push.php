@@ -157,7 +157,7 @@ class Push implements ValidatorInterface
         }, ARRAY_FILTER_USE_KEY);
 
         $data = array_map(function ($value, $key) {
-            return $key . '=' . html_entity_decode($value);
+            return $key . '=' . $this->decodePushValue($key, $value);
         }, $data, array_keys($data));
 
 
@@ -167,5 +167,73 @@ class Push implements ValidatorInterface
         $signature = SHA1($signatureString);
 
         return $signature;
+    }
+
+    /**
+     * Decode push value according to field type
+     *
+     * This method handles value decoding for signature calculation.
+     * Different fields require different decoding strategies to match
+     * how Buckaroo calculates the signature on their side.
+     *
+     * Fields in the whitelist are NOT decoded (kept as-is after PHP's POST decode).
+     * Other fields are URL-decoded only (NOT HTML-decoded).
+     *
+     * @param string $brqKey   The parameter key (e.g., 'brq_service_paypal_address_line_1')
+     * @param string $brqValue The parameter value
+     *
+     * @return string The decoded value
+     */
+    protected function decodePushValue($brqKey, $brqValue)
+    {
+        $brqValue = (string) $brqValue;
+
+        $noDecodeFields = [
+            'brq_customer_name',
+            'brq_service_ideal_consumername',
+            'brq_service_transfer_consumername',
+            'brq_service_payconiq_payconiqandroidurl',
+            'brq_service_payconiq_payconiqiosurl',
+            'brq_service_payconiq_payconiqurl',
+            'brq_service_payconiq_qrurl',
+            'brq_service_masterpass_customerphonenumber',
+            'brq_service_masterpass_shippingrecipientphonenumber',
+            // PayPal fields - keep HTML entities intact
+            'brq_service_paypal_payeremail',
+            'brq_service_paypal_payerfirstname',
+            'brq_service_paypal_payerlastname',
+            'brq_service_paypal_customername',
+            // Date/time fields
+            'brq_invoicedate',
+            'brq_duedate',
+            'brq_previousstepdatetime',
+            'brq_eventdatetime',
+            // Transfer fields
+            'brq_service_transfer_accountholdername',
+            'brq_service_transfer_customeraccountname',
+            // Customer billing fields
+            'cust_customerbillingfirstname',
+            'cust_customerbillinglastname',
+            'cust_customerbillingemail',
+            'cust_customerbillingstreet',
+            'cust_customerbillingtelephone',
+            'cust_customerbillinghousenumber',
+            'cust_customerbillinghouseadditionalnumber',
+            // Customer shipping fields
+            'cust_customershippingfirstname',
+            'cust_customershippinglastname',
+            'cust_customershippingemail',
+            'cust_customershippingstreet',
+            'cust_customershippingtelephone',
+            'cust_customershippinghousenumber',
+            'cust_customershippinghouseadditionalnumber',
+        ];
+
+        // Check if this field is in the no-decode whitelist (case-insensitive)
+        if (in_array(strtolower($brqKey), $noDecodeFields)) {
+            return $brqValue;
+        }
+
+        return urldecode($brqValue);
     }
 }
