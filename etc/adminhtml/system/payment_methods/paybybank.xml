@@ -148,13 +148,22 @@
                     <config_path>payment/buckaroo_magento2_paybybank/specificcustomergroup</config_path>
                 </field>
 
-                <field id="allowspecific" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="allowed_currencies" translate="label comment tooltip" type="multiselect" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Allowed Currencies</label>
+                    <comment><![CDATA[Select payment method specific currencies.]]></comment>
+                    <tooltip>Your contract with Buckaroo must allow for the selected currencies to be used with this payment method.</tooltip>
+                    <config_path>payment/buckaroo_magento2_paybybank/allowed_currencies</config_path>
+                    <source_model>Buckaroo\Magento2\Model\Config\Source\AllowedCurrencies::paybybank</source_model>
+                    <backend_model>Buckaroo\Magento2\Model\Config\Backend\AllowedCurrencies</backend_model>
+                </field>
+
+                <field id="allowspecific" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Allowed Countries</label>
                     <source_model>Buckaroo\Magento2\Model\Config\Source\AllOrSpecificCountries</source_model>
                     <config_path>payment/buckaroo_magento2_paybybank/allowspecific</config_path>
                 </field>
 
-                <field id="specificcountry" translate="label comment" type="multiselect" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="specificcountry" translate="label comment" type="multiselect" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Payment from Specific Country</label>
                     <comment><![CDATA[Only available when set to 'specific countries'.]]></comment>
                     <source_model>Magento\Config\Model\Config\Source\Locale\Country</source_model>
@@ -162,15 +171,6 @@
                     <depends>
                         <field id="allowspecific">1</field>
                     </depends>
-                </field>
-
-                <field id="allowed_currencies" translate="label comment tooltip" type="multiselect" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Allowed Currencies</label>
-                    <comment><![CDATA[Select payment method specific currencies.]]></comment>
-                    <tooltip>Your contract with Buckaroo must allow for the selected currencies to be used with this payment method.</tooltip>
-                    <config_path>payment/buckaroo_magento2_paybybank/allowed_currencies</config_path>
-                    <source_model>Buckaroo\Magento2\Model\Config\Source\AllowedCurrencies::paybybank</source_model>
-                    <backend_model>Buckaroo\Magento2\Model\Config\Backend\AllowedCurrencies</backend_model>
                 </field>
             </group>
         </group>

@@ -184,27 +184,36 @@
                     <backend_model>Buckaroo\Magento2\Model\Config\Backend\Price</backend_model>
                 </field>
 
-                <field id="specificcustomergroup" translate="label" type="multiselect" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="specificcustomergroup" translate="label" type="multiselect" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Allow customer groups for B2C mode</label>
                     <source_model>Buckaroo\Magento2\Model\Config\Source\SpecificCustomerGroups</source_model>
                     <can_be_empty>1</can_be_empty>
                     <config_path>payment/buckaroo_magento2_billink/specificcustomergroup</config_path>
                 </field>
 
-                <field id="specificcustomergroupb2b" translate="label" type="multiselect" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="specificcustomergroupb2b" translate="label" type="multiselect" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Allow customer groups for B2B mode</label>
                     <source_model>Buckaroo\Magento2\Model\Config\Source\SpecificCustomerGroups</source_model>
                     <can_be_empty>1</can_be_empty>
                     <config_path>payment/buckaroo_magento2_billink/specificcustomergroupb2b</config_path>
                 </field>
 
-                <field id="allowspecific" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="allowed_currencies" translate="label comment tooltip" type="multiselect" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Allowed Currencies</label>
+                    <comment><![CDATA[Select payment method specific currencies.]]></comment>
+                    <tooltip>Your contract with Buckaroo must allow for the selected currencies to be used with this payment method.</tooltip>
+                    <config_path>payment/buckaroo_magento2_billink/allowed_currencies</config_path>
+                    <source_model>Buckaroo\Magento2\Model\Config\Source\AllowedCurrencies::billink</source_model>
+                    <backend_model>Buckaroo\Magento2\Model\Config\Backend\AllowedCurrencies</backend_model>
+                </field>
+
+                <field id="allowspecific" translate="label" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Allowed Countries</label>
                     <source_model>Buckaroo\Magento2\Model\Config\Source\AllOrSpecificCountries</source_model>
                     <config_path>payment/buckaroo_magento2_billink/allowspecific</config_path>
                 </field>
 
-                <field id="specificcountry" translate="label" type="multiselect" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="specificcountry" translate="label" type="multiselect" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Payment from Specific Country</label>
                     <comment><![CDATA[Only available when set to 'specific countries'.]]></comment>
                     <source_model>Magento\Directory\Model\Config\Source\Country</source_model>
@@ -215,14 +224,6 @@
                     </depends>
                 </field>
 
-                <field id="allowed_currencies" translate="label comment tooltip" type="multiselect" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Allowed Currencies</label>
-                    <comment><![CDATA[Select payment method specific currencies.]]></comment>
-                    <tooltip>Your contract with Buckaroo must allow for the selected currencies to be used with this payment method.</tooltip>
-                    <config_path>payment/buckaroo_magento2_billink/allowed_currencies</config_path>
-                    <source_model>Buckaroo\Magento2\Model\Config\Source\AllowedCurrencies::billink</source_model>
-                    <backend_model>Buckaroo\Magento2\Model\Config\Backend\AllowedCurrencies</backend_model>
-                </field>
 
                 <group id="buckaroo_magento2_spam" translate="label" type="text" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Spam Prevention</label>
