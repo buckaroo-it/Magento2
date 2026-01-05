@@ -691,7 +691,6 @@ class DefaultProcessor implements PushProcessorInterface
         // For SHIPMENT mode, mark payment as already captured
         // This ensures the shipment observer will use offline capture
         if ($invoiceHandlingMode == InvoiceHandlingOptions::SHIPMENT) {
-            $this->payment->setAdditionalInformation('buckaroo_already_captured', true);
             $this->logger->addDebug(sprintf(
                 '[%s:%s] - Order %s: Set SHIPMENT invoice handling mode',
                 __METHOD__,
@@ -1164,6 +1163,25 @@ class DefaultProcessor implements PushProcessorInterface
                 ));
 
                 $payment = $this->order->getPayment();
+
+                // Register capture notification with Magento payment system
+                $captureAmount = $amount;
+                if (!empty($this->pushRequest->getAmount())) {
+                    $captureAmount = (float)$this->pushRequest->getAmount();
+                }
+
+                $this->logger->addDebug(sprintf(
+                    '[%s:%s] - Registering capture notification for amount: %s',
+                    __METHOD__,
+                    __LINE__,
+                    $captureAmount
+                ));
+
+                // Use registerCaptureNotification to properly register the capture
+                // This ensures the payment is marked as captured and transaction is recorded
+                $payment->registerCaptureNotification($captureAmount);
+
+                // Now mark that capture has been registered so shipment observer uses offline capture
                 $payment->setAdditionalInformation('buckaroo_already_captured', true);
 
                 // Ensure the invoice handling mode is persisted so the shipment observer can detect it
