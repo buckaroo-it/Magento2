@@ -31,6 +31,7 @@ use Buckaroo\Magento2\Model\RequestPush\RequestPushFactory;
 use Buckaroo\Magento2\Model\Service\Order as OrderService;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Buckaroo\Magento2\Service\Sales\Quote\Recreate;
+use Buckaroo\Magento2\Service\SpamLimitService;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Model\ResourceModel\CustomerFactory;
@@ -85,9 +86,10 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
      * @param ManagerInterface               $eventManager
      * @param Recreate                       $quoteRecreate
      * @param RequestPushFactory             $requestPushFactory
+     * @param LockManagerWrapper             $lockManagerWrapper
+     * @param SpamLimitService               $spamLimitService
      * @param SearchCriteriaBuilder          $searchCriteriaBuilder
      * @param TransactionRepositoryInterface $transactionRepository
-     * @param LockManagerWrapper             $lockManagerWrapper
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -105,9 +107,10 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
         ManagerInterface $eventManager,
         Recreate $quoteRecreate,
         RequestPushFactory $requestPushFactory,
+        LockManagerWrapper $lockManagerWrapper,
+        SpamLimitService $spamLimitService,
         SearchCriteriaBuilder $searchCriteriaBuilder,
-        TransactionRepositoryInterface $transactionRepository,
-        LockManagerWrapper $lockManagerWrapper
+        TransactionRepositoryInterface $transactionRepository
     ) {
         parent::__construct(
             $context,
@@ -123,7 +126,8 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
             $eventManager,
             $quoteRecreate,
             $requestPushFactory,
-            $lockManagerWrapper
+            $lockManagerWrapper,
+            $spamLimitService
         );
 
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;

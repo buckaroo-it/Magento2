@@ -30,6 +30,7 @@ use Buckaroo\Magento2\Model\RequestPush\RequestPushFactory;
 use Buckaroo\Magento2\Model\Service\Order as OrderService;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Buckaroo\Magento2\Service\Sales\Quote\Recreate;
+use Buckaroo\Magento2\Service\SpamLimitService;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Model\Customer;
@@ -66,6 +67,7 @@ class IdinProcess extends Process implements HttpPostActionInterface
      * @param Recreate                    $quoteRecreate
      * @param RequestPushFactory          $requestPushFactory
      * @param LockManagerWrapper          $lockManager
+     * @param SpamLimitService            $spamLimitService
      * @param CustomerFactory             $customerFactory
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
@@ -85,6 +87,7 @@ class IdinProcess extends Process implements HttpPostActionInterface
         Recreate $quoteRecreate,
         RequestPushFactory $requestPushFactory,
         LockManagerWrapper $lockManager,
+        SpamLimitService $spamLimitService,
         CustomerFactory $customerFactory
     ) {
         parent::__construct(
@@ -101,7 +104,8 @@ class IdinProcess extends Process implements HttpPostActionInterface
             $eventManager,
             $quoteRecreate,
             $requestPushFactory,
-            $lockManager
+            $lockManager,
+            $spamLimitService
         );
 
         $this->customerResourceFactory = $customerFactory;
