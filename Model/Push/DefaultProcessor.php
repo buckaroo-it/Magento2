@@ -1318,6 +1318,41 @@ class DefaultProcessor implements PushProcessorInterface
         $store = $this->order->getStore();
         $paymentMethod = $this->payment->getMethodInstance();
 
+        // Check if order is or will be in a canceled/failed state
+        if ($this->order->isCanceled() || $this->order->getState() === Order::STATE_CANCELED) {
+            $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Skip sending order email: Order is canceled');
+            return;
+        }
+
+        // For Riverty/Afterpay payments, check if this is an authorization-only transaction
+        // These payments may be canceled by risk assessment after initial success
+        $afterpayMethods = [
+            Afterpay::CODE,   // buckaroo_magento2_afterpay
+            Afterpay2::CODE,  // buckaroo_magento2_afterpay2
+            Afterpay20::CODE  // buckaroo_magento2_afterpay20 (Riverty)
+        ];
+
+        if (in_array($paymentMethod->getCode(), $afterpayMethods)) {
+            // Check if this is a capture transaction (these are safe to send emails for)
+            $isCaptureTx = $this->pushRequest->hasPostData('transaction_type', 'C800');
+            $isCaptureMutation = $this->pushRequest->hasPostData('mutationtype', 'collecting')
+                || $this->pushRequest->hasPostData('mutationtype', 'Collecting');
+            $isCapture = $isCaptureTx || $isCaptureMutation;
+
+            if (!$isCapture) {
+                // Check if this is an authorization (not capture) transaction
+                $transactionType = $this->pushRequest->getTransactionType();
+                $isAuthorizationOnly = !empty($transactionType) && in_array($transactionType, ['I038', 'I880']);
+
+                if ($isAuthorizationOnly) {
+                    $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Skip sending order email for Riverty/Afterpay authorization-only transaction (wait for capture to avoid sending email for orders that may be canceled by risk assessment)');
+                    return;
+                }
+            } else {
+                $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Capture transaction detected for Riverty/Afterpay - will send order email if not already sent');
+            }
+        }
+
         if (!$this->order->getEmailSent()
             && ($this->configAccount->getOrderConfirmationEmail($store)
                 || $paymentMethod->getConfigData('order_email', $store)
