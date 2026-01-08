@@ -846,7 +846,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
         $statusCodeAddErrorMessage[BuckarooStatusCode::CANCELLED_BY_USER]
             = __('Payment cancelled. You can try again using the same or a different payment method.');
 
-        $this->addErrorMessage(__($statusCodeAddErrorMessage[$statusCode]));
+        $this->addErrorMessage($statusCodeAddErrorMessage[$statusCode]);
     }
 
     /**
