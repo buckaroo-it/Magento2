@@ -130,7 +130,7 @@ class SpamLimitService
         }
 
         if ($this->isSpamLimitReached($paymentMethodInstance, $storage)) {
-            throw new LimitReachException($limitReachMessage);
+            throw new LimitReachException((string)$limitReachMessage);
         }
     }
 
