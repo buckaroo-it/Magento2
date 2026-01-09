@@ -728,7 +728,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
         try {
             $paymentMethod = $this->payment->getMethodInstance();
             $this->spamLimitService->updateRateLimiterCount($paymentMethod);
-            
+
             $this->logger->addDebug(sprintf(
                 '[REDIRECT - %s] | [Controller] | [%s:%s] - Spam limiter updated for failed payment',
                 $this->payment->getMethod(),
@@ -744,7 +744,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
                 __LINE__,
                 $e->getMessage()
             ));
-            
+
             $this->spamLimitService->setMaxAttemptsFlags(
                 $this->payment,
                 $e->getMessage()
@@ -863,9 +863,19 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
             return $this->redirectOnCheckoutForFailedTransaction();
         }
 
+        // Set flag to enable quote restoration
+        $this->checkoutSession->setRestoreQuoteLastOrder($this->order->getId());
+
+        $this->logger->addDebug(sprintf(
+            '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect Failure To Checkout - Set restore quote flag',
+            $this->payment->getMethod(),
+            __METHOD__,
+            __LINE__
+        ));
+
         $url = $this->accountConfig->getFailureRedirect($store);
 
-        return $this->handleProcessedResponse($url ?? 'checkout/cart');
+        return $this->handleProcessedResponse($url ?? 'checkout');
     }
 
     /**

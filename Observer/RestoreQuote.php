@@ -25,6 +25,7 @@ use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Payconiq;
 use Buckaroo\Magento2\Model\Giftcard\Remove as GiftcardRemove;
+use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\Service\Order;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\Event\Observer;
@@ -120,24 +121,80 @@ class RestoreQuote implements ObserverInterface
             if ($this->isCartKeepAlive($lastRealOrder)) {
                 $this->prepareQuoteShippingAddress();
 
-                if ($this->isNewPendingLastOrder($lastRealOrder, $payment)
-                    || $this->canRestoreFailedFromSpam()
-                    || $this->isCanceledLastOrderWithRedirect($lastRealOrder, $payment)
-                ) {
+                $isNewPending = $this->isNewPendingLastOrder($lastRealOrder, $payment);
+                $canRestoreSpam = $this->canRestoreFailedFromSpam();
+                $isCanceledWithRedirect = $this->isCanceledLastOrderWithRedirect($lastRealOrder, $payment);
+
+                $this->logger->addDebug(sprintf(
+                    '[RESTORE_QUOTE] | [Observer] | [%s:%s] - Restore Conditions Check | ' .
+                    'order: %s | state: %s | status: %s | isNewPending: %s | canRestoreSpam: %s | isCanceledWithRedirect: %s | ' .
+                    'restoreQuoteFlag: %s | spamFailedFlag: %s',
+                    __METHOD__,
+                    __LINE__,
+                    $lastRealOrder->getIncrementId(),
+                    $lastRealOrder->getState(),
+                    $lastRealOrder->getStatus(),
+                    $isNewPending ? 'true' : 'false',
+                    $canRestoreSpam ? 'true' : 'false',
+                    $isCanceledWithRedirect ? 'true' : 'false',
+                    $this->checkoutSession->getRestoreQuoteLastOrder() ?: 'not set',
+                    $this->checkoutSession->getBuckarooFailedMaxAttempts() ? 'true' : 'false'
+                ));
+
+                if ($isNewPending || $canRestoreSpam || $isCanceledWithRedirect) {
+                    // Get quote info before restoration
+                    $lastQuoteId = $this->checkoutSession->getLastQuoteId();
+                    $lastRealOrderId = $this->checkoutSession->getLastRealOrderId();
+                    
                     $this->logger->addDebug(sprintf(
-                        '[RESTORE_QUOTE] | [Observer] | [%s:%s] - Restore Quote | ' .
-                        'lastRealOrder: %s - %s| previousOrderId: %s',
+                        '[RESTORE_QUOTE] | [Observer] | [%s:%s] - Before Restore | ' .
+                        'lastQuoteId: %s | lastRealOrderId: %s | lastOrderIncrement: %s',
                         __METHOD__,
                         __LINE__,
-                        $lastRealOrder->getIncrementId(),
-                        $lastRealOrder->getEntityId(),
-                        $previousOrderId
+                        $lastQuoteId,
+                        $lastRealOrderId,
+                        $lastRealOrder->getIncrementId()
                     ));
 
-                    $this->checkoutSession->restoreQuote();
-                    $this->checkoutSession->getQuote()->setOrigOrderId(null);
-                    $this->rollbackPartialPayment($lastRealOrder->getIncrementId(), $payment);
-                    $this->setOrderToCancel($previousOrderId);
+                    // Restore the quote
+                    $restored = $this->checkoutSession->restoreQuote();
+                    
+                    // Get restored quote info
+                    $restoredQuote = $this->checkoutSession->getQuote();
+                    $restoredQuoteId = $restoredQuote->getId();
+                    $itemCount = $restoredQuote->getItemsCount();
+                    
+                    $this->logger->addDebug(sprintf(
+                        '[RESTORE_QUOTE] | [Observer] | [%s:%s] - After Restore | ' .
+                        'restored: %s | restoredQuoteId: %s | itemCount: %s | quoteActive: %s',
+                        __METHOD__,
+                        __LINE__,
+                        $restored ? 'true' : 'false',
+                        $restoredQuoteId,
+                        $itemCount,
+                        $restoredQuote->getIsActive() ? 'true' : 'false'
+                    ));
+                    
+                    if ($restored && $restoredQuoteId) {
+                        $this->checkoutSession->getQuote()->setOrigOrderId(null);
+                        $this->rollbackPartialPayment($lastRealOrder->getIncrementId(), $payment);
+                        $this->setOrderToCancel($previousOrderId);
+                        $this->transferSpamLimitFlag($payment);
+                        
+                        $this->logger->addDebug(sprintf(
+                            '[RESTORE_QUOTE] | [Observer] | [%s:%s] - Quote Restoration Completed Successfully',
+                            __METHOD__,
+                            __LINE__
+                        ));
+                    } else {
+                        $this->logger->addError(sprintf(
+                            '[RESTORE_QUOTE] | [Observer] | [%s:%s] - Quote Restoration Failed! restored: %s, quoteId: %s',
+                            __METHOD__,
+                            __LINE__,
+                            $restored ? 'true' : 'false',
+                            $restoredQuoteId ?: 'null'
+                        ));
+                    }
                 }
             }
 
@@ -257,6 +314,44 @@ class RestoreQuote implements ObserverInterface
     }
 
     /**
+     * Transfer spam limit flag from order payment to restored quote payment
+     *
+     * @param $payment Order payment object
+     *
+     * @throws LocalizedException
+     */
+    private function transferSpamLimitFlag($payment): void
+    {
+        if (!$payment) {
+            return;
+        }
+
+        // Check if spam limit was reached on the order payment
+        $spamLimitMessage = $payment->getAdditionalInformation(
+            BuckarooAdapter::PAYMENT_ATTEMPTS_REACHED_MESSAGE
+        );
+
+        if ($spamLimitMessage) {
+            // Get the payment method code
+            $paymentMethod = $payment->getMethod();
+
+            // Mark spam limit as reached on the restored quote payment
+            $quotePayment = $this->checkoutSession->getQuote()->getPayment();
+            $quotePayment->setAdditionalInformation(
+                'buckaroo_spam_limit_reached_' . $paymentMethod,
+                true
+            );
+
+            $this->logger->addDebug(sprintf(
+                '[RESTORE_QUOTE] | [Observer] | [%s:%s] - Spam limit flag transferred for method: %s',
+                __METHOD__,
+                __LINE__,
+                $paymentMethod
+            ));
+        }
+    }
+
+    /**
      * Check if the last real order is new, pending, and uses redirect
      *
      * @param $lastRealOrder
@@ -282,8 +377,22 @@ class RestoreQuote implements ObserverInterface
      */
     private function isCanceledLastOrderWithRedirect($lastRealOrder, $payment): bool
     {
-        return $this->checkoutSession->getRestoreQuoteLastOrder()
-            && $lastRealOrder->getData('state') === 'canceled'
-            && $payment->getMethodInstance()->usesRedirect;
+        try {
+            // Check if payment method is a Buckaroo redirect payment
+            $paymentMethod = $payment->getMethod();
+            $isBuckarooRedirect = strpos($paymentMethod, 'buckaroo_magento2') !== false;
+            
+            return $this->checkoutSession->getRestoreQuoteLastOrder()
+                && $lastRealOrder->getData('state') === 'canceled'
+                && $isBuckarooRedirect;
+        } catch (\Exception $e) {
+            $this->logger->addError(sprintf(
+                '[RESTORE_QUOTE] | [Observer] | [%s:%s] - Error checking isCanceledLastOrderWithRedirect: %s',
+                __METHOD__,
+                __LINE__,
+                $e->getMessage()
+            ));
+            return false;
+        }
     }
 }
