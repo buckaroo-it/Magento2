@@ -69,10 +69,8 @@ class PreventEmailOnOrderPlace implements ObserverInterface
 
         try {
             // For ALL Buckaroo payments, prevent immediate email
-            // Emails will be sent after successful payment via push notification
 
             $order->setCanSendNewEmailFlag(false);
-            $order->setEmailSent(true);
 
             $this->logger->addDebug(sprintf(
                 '[PREVENT_EMAIL] | [Observer] | [%s:%s] - Prevented immediate email for Buckaroo payment | order: %s | method: %s | state: %s',
