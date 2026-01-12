@@ -713,11 +713,119 @@ class DefaultProcessor implements PushProcessorInterface
         $methodSpecificConfig = $this->payment->getMethodInstance()->getConfigData('create_invoice_after_shipment');
 
         if ($methodSpecificConfig !== null && $methodSpecificConfig !== '') {
-            return ($methodSpecificConfig == 1) ? InvoiceHandlingOptions::SHIPMENT : null;
+            // If explicitly set to Yes (1): use SHIPMENT mode
+            // If explicitly set to No (0): use PAYMENT mode (create invoice immediately)
+            return ($methodSpecificConfig == 1) 
+                ? InvoiceHandlingOptions::SHIPMENT 
+                : InvoiceHandlingOptions::PAYMENT;
         }
 
-        // Fall back to general account config
+        // Fall back to general account config if method-specific setting not configured
         return $this->configAccount->getInvoiceHandling();
+    }
+
+    /**
+     * Handle capture with deferred invoicing (SHIPMENT mode)
+     * Records capture without creating invoice - invoice will be created on shipment
+     *
+     * @param float $amount
+     * @param string $message
+     * @param string $newStatus
+     * @return bool
+     * @throws LocalizedException
+     */
+    private function handleCaptureWithDeferredInvoicing(float $amount, string $message, string $newStatus): bool
+    {
+        $this->logger->addDebug(sprintf(
+            '[%s:%s] - CAPTURE detected but invoice handling is SHIPMENT mode - skipping invoice creation',
+            __METHOD__,
+            __LINE__
+        ));
+
+        $payment = $this->order->getPayment();
+
+        $captureAmount = $amount;
+        if (!empty($this->pushRequest->getAmount())) {
+            $captureAmount = (float)$this->pushRequest->getAmount();
+        }
+
+        $this->recordCaptureWithoutInvoice($payment, $captureAmount);
+
+        $description = 'Capture status : <strong>' . $message . '</strong><br/>'
+            . 'Total amount of ' . $this->order->getBaseCurrency()->formatTxt($amount)
+            . ' has been captured. Invoice will be created on shipment.';
+
+        $this->orderRequestService->updateOrderStatus(
+            Order::STATE_PROCESSING,
+            $newStatus,
+            $description,
+            false,
+            $this->dontSaveOrderUponSuccessPush
+        );
+
+        return true;
+    }
+
+    /**
+     * Record capture transaction without creating invoice
+     * Sets all necessary payment fields for deferred invoice creation
+     *
+     * @param OrderPayment $payment
+     * @param float $captureAmount
+     * @return void
+     * @throws LocalizedException
+     */
+    private function recordCaptureWithoutInvoice(OrderPayment $payment, float $captureAmount): void
+    {
+        $this->logger->addDebug(sprintf(
+            '[%s:%s] - Recording capture amount without creating invoice (SHIPMENT mode): %s',
+            __METHOD__,
+            __LINE__,
+            $captureAmount
+        ));
+
+        // Set transaction ID for the capture
+        $transactionKey = $this->pushRequest->getTransactionKey();
+        if ($transactionKey) {
+            $payment->setTransactionId($transactionKey . '-capture');
+        }
+
+        // These fields are required for Magento to allow invoice creation later
+        $payment->setBaseAmountPaidOnline($captureAmount);
+        $payment->setBaseAmountPaid($payment->getBaseAmountPaid() + $captureAmount);
+        $payment->setAmountPaid($payment->getAmountPaid() + $this->order->formatPriceTxt($captureAmount));
+
+        // Add capture transaction without invoice (null = no invoice will be created)
+        // This is the recommended approach for deferred invoice creation
+        $transaction = $payment->addTransaction(
+            Transaction::TYPE_CAPTURE,
+            null,
+            true
+        );
+
+        // Set transaction flags following Magento payment processing pattern
+        // For authorize/capture methods (Klarna), keeping transaction open is critical
+        $payment->setIsTransactionClosed(0); // Keep open for invoice creation on shipment
+        $payment->setShouldCloseParentTransaction(false); // Don't close parent auth transaction yet
+
+        $this->logger->addDebug(sprintf(
+            '[%s:%s] - Capture transaction created without invoice: %s | BaseAmountPaid: %s',
+            __METHOD__,
+            __LINE__,
+            $transactionKey,
+            $payment->getBaseAmountPaid()
+        ));
+
+        // Mark that capture has been registered so shipment observer uses offline capture
+        $payment->setAdditionalInformation('buckaroo_already_captured', true);
+
+        // Ensure the invoice handling mode is persisted so the shipment observer can detect it
+        $payment->setAdditionalInformation(
+            InvoiceHandlingOptions::INVOICE_HANDLING,
+            InvoiceHandlingOptions::SHIPMENT
+        );
+
+        $payment->save();
     }
 
     /**
@@ -725,6 +833,7 @@ class DefaultProcessor implements PushProcessorInterface
      * Allows manual "Capture Online" option in admin
      *
      * @return void
+     * @throws LocalizedException
      */
     private function registerAuthorizationForReactivation(): void
     {
@@ -1143,65 +1252,12 @@ class DefaultProcessor implements PushProcessorInterface
                 InvoiceHandlingOptions::INVOICE_HANDLING
             );
 
-            // If not set (e.g., order was canceled before authorization completed),
-            // check method-specific config directly
             if ($invoiceHandlingMode === null || $invoiceHandlingMode === '') {
-                $methodSpecificConfig = $this->payment->getMethodInstance()->getConfigData('create_invoice_after_shipment');
-                if ($methodSpecificConfig !== null && $methodSpecificConfig !== '') {
-                    $invoiceHandlingMode = ($methodSpecificConfig == 1) ? InvoiceHandlingOptions::SHIPMENT : null;
-                } else {
-                    // Fall back to general account config
-                    $invoiceHandlingMode = $this->configAccount->getInvoiceHandling();
-                }
+                $invoiceHandlingMode = $this->detectInvoiceHandlingMode();
             }
 
             if ($invoiceHandlingMode == InvoiceHandlingOptions::SHIPMENT) {
-                $this->logger->addDebug(sprintf(
-                    '[%s:%s] - CAPTURE detected but invoice handling is SHIPMENT mode - skipping invoice creation',
-                    __METHOD__,
-                    __LINE__
-                ));
-
-                $payment = $this->order->getPayment();
-
-                // Register capture notification with Magento payment system
-                $captureAmount = $amount;
-                if (!empty($this->pushRequest->getAmount())) {
-                    $captureAmount = (float)$this->pushRequest->getAmount();
-                }
-
-                $this->logger->addDebug(sprintf(
-                    '[%s:%s] - Registering capture notification for amount: %s',
-                    __METHOD__,
-                    __LINE__,
-                    $captureAmount
-                ));
-
-                // Use registerCaptureNotification to properly register the capture
-                // This ensures the payment is marked as captured and transaction is recorded
-                $payment->registerCaptureNotification($captureAmount);
-
-                // Now mark that capture has been registered so shipment observer uses offline capture
-                $payment->setAdditionalInformation('buckaroo_already_captured', true);
-
-                // Ensure the invoice handling mode is persisted so the shipment observer can detect it
-                $payment->setAdditionalInformation(
-                    InvoiceHandlingOptions::INVOICE_HANDLING,
-                    InvoiceHandlingOptions::SHIPMENT
-                );
-                $payment->save();
-
-                $description = 'Capture status : <strong>' . $message . '</strong><br/>'
-                    . 'Total amount of ' . $this->order->getBaseCurrency()->formatTxt($amount) . ' has been captured. Invoice will be created on shipment.';
-
-                $this->orderRequestService->updateOrderStatus(
-                    Order::STATE_PROCESSING,
-                    $newStatus,
-                    $description,
-                    false,
-                    $this->dontSaveOrderUponSuccessPush
-                );
-                return true;
+                return $this->handleCaptureWithDeferredInvoicing($amount, $message, $newStatus);
             }
 
             $description = 'Capture status : <strong>' . $message . '</strong><br/>'
@@ -1415,19 +1471,8 @@ class DefaultProcessor implements PushProcessorInterface
 
         $this->addTransactionData();
 
-        // Check method-specific config first, fall back to general config
-        // Method-specific config key: create_invoice_after_shipment (only exists for Klarna & Afterpay)
-        // If "Yes" (value=1), invoice should be created after shipment (SHIPMENT mode)
-        $methodSpecificConfig = $this->payment->getMethodInstance()->getConfigData('create_invoice_after_shipment');
-        $useShipmentMode = false;
-
-        if ($methodSpecificConfig !== null && $methodSpecificConfig !== '') {
-            // Method has specific config value - use it (1 = Yes = SHIPMENT mode, 0 = No = immediate)
-            $useShipmentMode = ($methodSpecificConfig == 1);
-        } else {
-            // No method-specific config or not set - use general account config
-            $useShipmentMode = ($this->configAccount->getInvoiceHandling() == InvoiceHandlingOptions::SHIPMENT);
-        }
+        $invoiceHandlingMode = $this->detectInvoiceHandlingMode();
+        $useShipmentMode = ($invoiceHandlingMode == InvoiceHandlingOptions::SHIPMENT);
 
         if ($useShipmentMode) {
             // In shipment mode, record the payment as authorized but don't capture yet
