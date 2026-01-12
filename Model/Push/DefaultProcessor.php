@@ -792,8 +792,18 @@ class DefaultProcessor implements PushProcessorInterface
 
         // These fields are required for Magento to allow invoice creation later
         $payment->setBaseAmountPaidOnline($captureAmount);
-        $payment->setBaseAmountPaid($payment->getBaseAmountPaid() + $captureAmount);
-        $payment->setAmountPaid($payment->getAmountPaid() + $this->order->formatPriceTxt($captureAmount));
+        
+        // Calculate amounts - handle null values from first payment
+        $baseAmountPaid = (float)$payment->getBaseAmountPaid() ?: 0;
+        $amountPaid = (float)$payment->getAmountPaid() ?: 0;
+        
+        // Convert base amount to order currency
+        $orderAmount = $this->order->getBaseToOrderRate() 
+            ? $captureAmount * $this->order->getBaseToOrderRate()
+            : $captureAmount;
+        
+        $payment->setBaseAmountPaid($baseAmountPaid + $captureAmount);
+        $payment->setAmountPaid($amountPaid + $orderAmount);
 
         // Add capture transaction without invoice (null = no invoice will be created)
         // This is the recommended approach for deferred invoice creation
