@@ -691,7 +691,6 @@ class DefaultProcessor implements PushProcessorInterface
         // For SHIPMENT mode, mark payment as already captured
         // This ensures the shipment observer will use offline capture
         if ($invoiceHandlingMode == InvoiceHandlingOptions::SHIPMENT) {
-            $this->payment->setAdditionalInformation('buckaroo_already_captured', true);
             $this->logger->addDebug(sprintf(
                 '[%s:%s] - Order %s: Set SHIPMENT invoice handling mode',
                 __METHOD__,
@@ -714,11 +713,129 @@ class DefaultProcessor implements PushProcessorInterface
         $methodSpecificConfig = $this->payment->getMethodInstance()->getConfigData('create_invoice_after_shipment');
 
         if ($methodSpecificConfig !== null && $methodSpecificConfig !== '') {
-            return ($methodSpecificConfig == 1) ? InvoiceHandlingOptions::SHIPMENT : null;
+            // If explicitly set to Yes (1): use SHIPMENT mode
+            // If explicitly set to No (0): use PAYMENT mode (create invoice immediately)
+            return ($methodSpecificConfig == 1) 
+                ? InvoiceHandlingOptions::SHIPMENT 
+                : InvoiceHandlingOptions::PAYMENT;
         }
 
-        // Fall back to general account config
+        // Fall back to general account config if method-specific setting not configured
         return $this->configAccount->getInvoiceHandling();
+    }
+
+    /**
+     * Handle capture with deferred invoicing (SHIPMENT mode)
+     * Records capture without creating invoice - invoice will be created on shipment
+     *
+     * @param float $amount
+     * @param string $message
+     * @param string $newStatus
+     * @return bool
+     * @throws LocalizedException
+     */
+    private function handleCaptureWithDeferredInvoicing(float $amount, string $message, string $newStatus): bool
+    {
+        $this->logger->addDebug(sprintf(
+            '[%s:%s] - CAPTURE detected but invoice handling is SHIPMENT mode - skipping invoice creation',
+            __METHOD__,
+            __LINE__
+        ));
+
+        $payment = $this->order->getPayment();
+
+        $captureAmount = $amount;
+        if (!empty($this->pushRequest->getAmount())) {
+            $captureAmount = (float)$this->pushRequest->getAmount();
+        }
+
+        $this->recordCaptureWithoutInvoice($payment, $captureAmount);
+
+        $description = 'Capture status : <strong>' . $message . '</strong><br/>'
+            . 'Total amount of ' . $this->order->getBaseCurrency()->formatTxt($amount)
+            . ' has been captured. Invoice will be created on shipment.';
+
+        $this->orderRequestService->updateOrderStatus(
+            Order::STATE_PROCESSING,
+            $newStatus,
+            $description,
+            false,
+            $this->dontSaveOrderUponSuccessPush
+        );
+
+        return true;
+    }
+
+    /**
+     * Record capture transaction without creating invoice
+     * Sets all necessary payment fields for deferred invoice creation
+     *
+     * @param OrderPayment $payment
+     * @param float $captureAmount
+     * @return void
+     * @throws LocalizedException
+     */
+    private function recordCaptureWithoutInvoice(OrderPayment $payment, float $captureAmount): void
+    {
+        $this->logger->addDebug(sprintf(
+            '[%s:%s] - Recording capture amount without creating invoice (SHIPMENT mode): %s',
+            __METHOD__,
+            __LINE__,
+            $captureAmount
+        ));
+
+        // Set transaction ID for the capture
+        $transactionKey = $this->pushRequest->getTransactionKey();
+        if ($transactionKey) {
+            $payment->setTransactionId($transactionKey . '-capture');
+        }
+
+        // These fields are required for Magento to allow invoice creation later
+        $payment->setBaseAmountPaidOnline($captureAmount);
+        
+        // Calculate amounts - handle null values from first payment
+        $baseAmountPaid = (float)$payment->getBaseAmountPaid() ?: 0;
+        $amountPaid = (float)$payment->getAmountPaid() ?: 0;
+        
+        // Convert base amount to order currency
+        $orderAmount = $this->order->getBaseToOrderRate() 
+            ? $captureAmount * $this->order->getBaseToOrderRate()
+            : $captureAmount;
+        
+        $payment->setBaseAmountPaid($baseAmountPaid + $captureAmount);
+        $payment->setAmountPaid($amountPaid + $orderAmount);
+
+        // Add capture transaction without invoice (null = no invoice will be created)
+        // This is the recommended approach for deferred invoice creation
+        $transaction = $payment->addTransaction(
+            Transaction::TYPE_CAPTURE,
+            null,
+            true
+        );
+
+        // Set transaction flags following Magento payment processing pattern
+        // For authorize/capture methods (Klarna), keeping transaction open is critical
+        $payment->setIsTransactionClosed(0); // Keep open for invoice creation on shipment
+        $payment->setShouldCloseParentTransaction(false); // Don't close parent auth transaction yet
+
+        $this->logger->addDebug(sprintf(
+            '[%s:%s] - Capture transaction created without invoice: %s | BaseAmountPaid: %s',
+            __METHOD__,
+            __LINE__,
+            $transactionKey,
+            $payment->getBaseAmountPaid()
+        ));
+
+        // Mark that capture has been registered so shipment observer uses offline capture
+        $payment->setAdditionalInformation('buckaroo_already_captured', true);
+
+        // Ensure the invoice handling mode is persisted so the shipment observer can detect it
+        $payment->setAdditionalInformation(
+            InvoiceHandlingOptions::INVOICE_HANDLING,
+            InvoiceHandlingOptions::SHIPMENT
+        );
+
+        $payment->save();
     }
 
     /**
@@ -726,6 +843,7 @@ class DefaultProcessor implements PushProcessorInterface
      * Allows manual "Capture Online" option in admin
      *
      * @return void
+     * @throws LocalizedException
      */
     private function registerAuthorizationForReactivation(): void
     {
@@ -1144,46 +1262,12 @@ class DefaultProcessor implements PushProcessorInterface
                 InvoiceHandlingOptions::INVOICE_HANDLING
             );
 
-            // If not set (e.g., order was canceled before authorization completed),
-            // check method-specific config directly
             if ($invoiceHandlingMode === null || $invoiceHandlingMode === '') {
-                $methodSpecificConfig = $this->payment->getMethodInstance()->getConfigData('create_invoice_after_shipment');
-                if ($methodSpecificConfig !== null && $methodSpecificConfig !== '') {
-                    $invoiceHandlingMode = ($methodSpecificConfig == 1) ? InvoiceHandlingOptions::SHIPMENT : null;
-                } else {
-                    // Fall back to general account config
-                    $invoiceHandlingMode = $this->configAccount->getInvoiceHandling();
-                }
+                $invoiceHandlingMode = $this->detectInvoiceHandlingMode();
             }
 
             if ($invoiceHandlingMode == InvoiceHandlingOptions::SHIPMENT) {
-                $this->logger->addDebug(sprintf(
-                    '[%s:%s] - CAPTURE detected but invoice handling is SHIPMENT mode - skipping invoice creation',
-                    __METHOD__,
-                    __LINE__
-                ));
-
-                $payment = $this->order->getPayment();
-                $payment->setAdditionalInformation('buckaroo_already_captured', true);
-
-                // Ensure the invoice handling mode is persisted so the shipment observer can detect it
-                $payment->setAdditionalInformation(
-                    InvoiceHandlingOptions::INVOICE_HANDLING,
-                    InvoiceHandlingOptions::SHIPMENT
-                );
-                $payment->save();
-
-                $description = 'Capture status : <strong>' . $message . '</strong><br/>'
-                    . 'Total amount of ' . $this->order->getBaseCurrency()->formatTxt($amount) . ' has been captured. Invoice will be created on shipment.';
-
-                $this->orderRequestService->updateOrderStatus(
-                    Order::STATE_PROCESSING,
-                    $newStatus,
-                    $description,
-                    false,
-                    $this->dontSaveOrderUponSuccessPush
-                );
-                return true;
+                return $this->handleCaptureWithDeferredInvoicing($amount, $message, $newStatus);
             }
 
             $description = 'Capture status : <strong>' . $message . '</strong><br/>'
@@ -1300,6 +1384,41 @@ class DefaultProcessor implements PushProcessorInterface
         $store = $this->order->getStore();
         $paymentMethod = $this->payment->getMethodInstance();
 
+        // Check if order is or will be in a canceled/failed state
+        if ($this->order->isCanceled() || $this->order->getState() === Order::STATE_CANCELED) {
+            $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Skip sending order email: Order is canceled');
+            return;
+        }
+
+        // For Riverty/Afterpay payments, check if this is an authorization-only transaction
+        // These payments may be canceled by risk assessment after initial success
+        $afterpayMethods = [
+            Afterpay::CODE,   // buckaroo_magento2_afterpay
+            Afterpay2::CODE,  // buckaroo_magento2_afterpay2
+            Afterpay20::CODE  // buckaroo_magento2_afterpay20 (Riverty)
+        ];
+
+        if (in_array($paymentMethod->getCode(), $afterpayMethods)) {
+            // Check if this is a capture transaction (these are safe to send emails for)
+            $isCaptureTx = $this->pushRequest->hasPostData('transaction_type', 'C800');
+            $isCaptureMutation = $this->pushRequest->hasPostData('mutationtype', 'collecting')
+                || $this->pushRequest->hasPostData('mutationtype', 'Collecting');
+            $isCapture = $isCaptureTx || $isCaptureMutation;
+
+            if (!$isCapture) {
+                // Check if this is an authorization (not capture) transaction
+                $transactionType = $this->pushRequest->getTransactionType();
+                $isAuthorizationOnly = !empty($transactionType) && in_array($transactionType, ['I038', 'I880']);
+
+                if ($isAuthorizationOnly) {
+                    $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Skip sending order email for Riverty/Afterpay authorization-only transaction (wait for capture to avoid sending email for orders that may be canceled by risk assessment)');
+                    return;
+                }
+            } else {
+                $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Capture transaction detected for Riverty/Afterpay - will send order email if not already sent');
+            }
+        }
+
         if (!$this->order->getEmailSent()
             && ($this->configAccount->getOrderConfirmationEmail($store)
                 || $paymentMethod->getConfigData('order_email', $store)
@@ -1362,19 +1481,8 @@ class DefaultProcessor implements PushProcessorInterface
 
         $this->addTransactionData();
 
-        // Check method-specific config first, fall back to general config
-        // Method-specific config key: create_invoice_after_shipment (only exists for Klarna & Afterpay)
-        // If "Yes" (value=1), invoice should be created after shipment (SHIPMENT mode)
-        $methodSpecificConfig = $this->payment->getMethodInstance()->getConfigData('create_invoice_after_shipment');
-        $useShipmentMode = false;
-
-        if ($methodSpecificConfig !== null && $methodSpecificConfig !== '') {
-            // Method has specific config value - use it (1 = Yes = SHIPMENT mode, 0 = No = immediate)
-            $useShipmentMode = ($methodSpecificConfig == 1);
-        } else {
-            // No method-specific config or not set - use general account config
-            $useShipmentMode = ($this->configAccount->getInvoiceHandling() == InvoiceHandlingOptions::SHIPMENT);
-        }
+        $invoiceHandlingMode = $this->detectInvoiceHandlingMode();
+        $useShipmentMode = ($invoiceHandlingMode == InvoiceHandlingOptions::SHIPMENT);
 
         if ($useShipmentMode) {
             // In shipment mode, record the payment as authorized but don't capture yet

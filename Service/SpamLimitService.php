@@ -130,7 +130,7 @@ class SpamLimitService
         }
 
         if ($this->isSpamLimitReached($paymentMethodInstance, $storage)) {
-            throw new LimitReachException($limitReachMessage);
+            throw new LimitReachException((string)$limitReachMessage);
         }
     }
 
@@ -156,14 +156,44 @@ class SpamLimitService
         $limit = (int)$limit;
 
         $method = $paymentMethodInstance->getCode();
-        $quoteId = $this->getQuote()->getId();
-
-        $attempts = 0;
-        if (isset($storage[$quoteId][$method])) {
-            $attempts = $storage[$quoteId][$method];
+        
+        try {
+            $quote = $this->getQuote();
+            
+            // Check if spam limit was reached and stored on quote payment (persists across quote restoration)
+            if ($quote && $quote->getPayment()) {
+                $spamLimitReached = $quote->getPayment()
+                    ->getAdditionalInformation('buckaroo_spam_limit_reached_' . $method);
+                if ($spamLimitReached === true) {
+                    return true;
+                }
+            }
+            
+            // Check session storage (for current quote)
+            $quoteId = $quote ? $quote->getId() : null;
+            if ($quoteId && isset($storage[$quoteId][$method])) {
+                $attempts = $storage[$quoteId][$method];
+                return $attempts >= $limit;
+            }
+            
+            // Check if there's a cancelled order ID (quote was restored after spam limit)
+            if ($quote && $quote->getPayment()) {
+                $cancelledOrderId = $quote->getPayment()
+                    ->getAdditionalInformation('buckaroo_cancel_order_id');
+                if ($cancelledOrderId) {
+                    // Look up attempts from the original quote ID that created this order
+                    foreach ($storage as $origQuoteId => $methods) {
+                        if (isset($methods[$method]) && $methods[$method] >= $limit) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            // If we can't get quote, default to session storage check
         }
 
-        return $attempts >= $limit;
+        return false;
     }
 
     /**
@@ -189,6 +219,6 @@ class SpamLimitService
     {
         $this->checkoutSession->setRestoreQuoteLastOrder($payment->getOrder()->getId());
         $this->checkoutSession->setBuckarooFailedMaxAttempts(true);
-        $payment->getPayment()->setAdditionalInformation(BuckarooAdapter::PAYMENT_ATTEMPTS_REACHED_MESSAGE, $message);
+        $payment->setAdditionalInformation(BuckarooAdapter::PAYMENT_ATTEMPTS_REACHED_MESSAGE, $message);
     }
 }

@@ -286,9 +286,10 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
      */
     protected function getReturnUrl(): string
     {
-        return $this->urlBuilder
-                ->setScope($this->store->getId())
-                ->getRouteUrl('buckaroo/redirect/process') . '?form_key=' . $this->formKey->getFormKey();
+        return $this->urlBuilder->getRouteUrl(
+            'buckaroo/redirect/process',
+            ['_scope' => $this->store->getId()]
+        ) . '?form_key=' . $this->formKey->getFormKey();
     }
 
     /**

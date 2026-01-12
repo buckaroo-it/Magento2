@@ -32,6 +32,7 @@ use Magento\Quote\Model\ResourceModel\Quote\Address as QuoteAddressResource;
 use Buckaroo\Magento2\Logging\Log;
 use Magento\Sales\Model\Order;
 use Magento\Store\Model\StoreManagerInterface;
+use Magento\Payment\Helper\Data as PaymentHelper;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -74,6 +75,11 @@ class Recreate
     protected $storeManager;
 
     /**
+     * @var PaymentHelper
+     */
+    protected $paymentHelper;
+
+    /**
      * Constructor
      *
      * @param CartRepositoryInterface $cartRepository
@@ -83,6 +89,7 @@ class Recreate
      * @param ManagerInterface        $messageManager
      * @param Log                     $logger
      * @param StoreManagerInterface   $storeManager
+     * @param PaymentHelper           $paymentHelper
      */
     public function __construct(
         CartRepositoryInterface $cartRepository,
@@ -91,7 +98,8 @@ class Recreate
         ProductFactory $productFactory,
         ManagerInterface $messageManager,
         Log $logger,
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
+        PaymentHelper $paymentHelper
     ) {
         $this->cartRepository       = $cartRepository;
         $this->checkoutSession      = $checkoutSession;
@@ -100,6 +108,7 @@ class Recreate
         $this->messageManager       = $messageManager;
         $this->logger               = $logger;
         $this->storeManager         = $storeManager;
+        $this->paymentHelper        = $paymentHelper;
     }
 
     /**
@@ -296,9 +305,24 @@ class Recreate
                     ->setFax($orderShippingAddress->getFax())
                     ->setEmail($order->getCustomerEmail());
 
-                // Set shipping method
-                $shippingAddress->setShippingMethod($order->getShippingMethod());
-                $shippingAddress->setCollectShippingRates(true);
+                // Set shipping method - critical for totals collection
+                if ($order->getShippingMethod()) {
+                    $shippingAddress->setShippingMethod($order->getShippingMethod());
+                    $shippingAddress->setCollectShippingRates(true);
+
+                    // Copy shipping amounts to prevent calculation errors
+                    $shippingAddress->setShippingAmount($order->getShippingAmount());
+                    $shippingAddress->setBaseShippingAmount($order->getBaseShippingAmount());
+
+                    $this->logger->addDebug('Second Chance: Shipping method set', [
+                        'method' => $order->getShippingMethod(),
+                        'amount' => $order->getShippingAmount()
+                    ]);
+                } else {
+                    $this->logger->addWarning('Second Chance: No shipping method on original order', [
+                        'order_id' => $order->getIncrementId()
+                    ]);
+                }
             }
 
             // Save quote first before setting payment method
@@ -312,10 +336,34 @@ class Recreate
             try {
                 $quote->collectTotals();
             } catch (\Exception $e) {
-                $this->logger->addError('Error collecting totals, proceeding without payment method: ' . $e->getMessage());
-                // If payment method causes issues, remove it and try again
-                $quote->getPayment()->setMethod(null);
-                $quote->collectTotals();
+                $this->logger->addError('Error collecting totals during Second Chance quote recreation', [
+                    'error' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'order_id' => $order->getIncrementId(),
+                    'quote_id' => $quote->getId(),
+                    'payment_method' => $quote->getPayment()->getMethod(),
+                    'has_billing_address' => $quote->getBillingAddress() ? $quote->getBillingAddress()->getCountryId() : 'no',
+                    'has_shipping_address' => $quote->getShippingAddress() ? $quote->getShippingAddress()->getCountryId() : 'no',
+                    'shipping_method' => $quote->getShippingAddress() ? $quote->getShippingAddress()->getShippingMethod() : 'no'
+                ]);
+
+                try {
+                    $paymentMethod = $quote->getPayment()->getMethod();
+                    $quote->getPayment()->setMethod(null);
+                    $quote->collectTotals();
+                    // Restore payment method after successful collection
+                    $quote->getPayment()->setMethod($paymentMethod);
+                    $this->logger->addDebug('Successfully collected totals after temporarily removing payment method', [
+                        'order_id' => $order->getIncrementId(),
+                        'restored_payment_method' => $paymentMethod
+                    ]);
+                } catch (\Exception $e2) {
+                    $this->logger->addError('Failed to collect totals even without payment method', [
+                        'error' => $e2->getMessage(),
+                        'order_id' => $order->getIncrementId()
+                    ]);
+                }
             }
             $quote->save();
 
@@ -347,24 +395,78 @@ class Recreate
         // Copy payment method if available
         if ($oldQuote->getPayment() && $oldQuote->getPayment()->getMethod()) {
             try {
-                $payment = $quote->getPayment();
-                $payment->setMethod($oldQuote->getPayment()->getMethod());
-                $payment->setQuote($quote);
+                $oldPaymentMethod = $oldQuote->getPayment()->getMethod();
 
-                // Copy additional payment data
-                $additionalData = $oldQuote->getPayment()->getAdditionalInformation();
-                if ($additionalData) {
-                    foreach ($additionalData as $key => $value) {
-                        $payment->setAdditionalInformation($key, $value);
+                $isAvailable = $this->isPaymentMethodAvailable($oldPaymentMethod, $quote);
+
+                if ($isAvailable) {
+                    $payment = $quote->getPayment();
+                    $payment->setMethod($oldPaymentMethod);
+                    $payment->setQuote($quote);
+
+                    // Copy additional payment data
+                    $additionalData = $oldQuote->getPayment()->getAdditionalInformation();
+                    if ($additionalData) {
+                        foreach ($additionalData as $key => $value) {
+                            $payment->setAdditionalInformation($key, $value);
+                        }
                     }
+
+                    $this->logger->addDebug('Second Chance: Payment method copied successfully', [
+                        'method' => $oldPaymentMethod,
+                        'additional_data_keys' => $additionalData ? array_keys($additionalData) : []
+                    ]);
+                } else {
+                    $this->logger->addWarning('Second Chance: Payment method not available for this quote', [
+                        'method' => $oldPaymentMethod,
+                        'quote_id' => $quote->getId(),
+                        'billing_country' => $quote->getBillingAddress() ? $quote->getBillingAddress()->getCountryId() : 'none',
+                        'subtotal' => $quote->getSubtotal()
+                    ]);
                 }
             } catch (\Exception $e) {
-                $this->logger->addError('Error copying payment method: ' . $e->getMessage());
+                $this->logger->addError('Second Chance: Error copying payment method', [
+                    'error' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'attempted_method' => $oldQuote->getPayment()->getMethod()
+                ]);
             }
+        } else {
+            $this->logger->addWarning('Second Chance: No payment method on original quote to copy', [
+                'old_quote_id' => $oldQuote->getId(),
+                'new_quote_id' => $quote->getId()
+            ]);
         }
 
         // Set payment flag if needed
         $this->setPaymentFromFlag($quote, $oldQuote);
+    }
+
+    /**
+     * Check if payment method is available for the given quote
+     *
+     * @param string $methodCode
+     * @param Quote  $quote
+     *
+     * @return bool
+     */
+    private function isPaymentMethodAvailable($methodCode, $quote)
+    {
+        try {
+            $methodInstance = $this->paymentHelper->getMethodInstance($methodCode);
+            if (!$methodInstance) {
+                return false;
+            }
+
+            return $methodInstance->isAvailable($quote);
+        } catch (\Exception $e) {
+            $this->logger->addError('Second Chance: Error checking payment method availability', [
+                'method' => $methodCode,
+                'error' => $e->getMessage()
+            ]);
+            return false;
+        }
     }
 
     /**
@@ -377,10 +479,24 @@ class Recreate
     {
         try {
             if ($oldQuote->getPayment() && $oldQuote->getPayment()->getMethod()) {
-                $quote->getPayment()->setMethod($oldQuote->getPayment()->getMethod());
+                $oldMethod = $oldQuote->getPayment()->getMethod();
+                $currentMethod = $quote->getPayment()->getMethod();
+
+                // Only set if not already set
+                if (!$currentMethod || $currentMethod !== $oldMethod) {
+                    $quote->getPayment()->setMethod($oldMethod);
+                    $this->logger->addDebug('Second Chance: Payment method set from flag', [
+                        'old_method' => $oldMethod,
+                        'current_method' => $currentMethod
+                    ]);
+                }
             }
         } catch (\Exception $e) {
-            $this->logger->addError('Error setting payment from flag: ' . $e->getMessage());
+            $this->logger->addError('Second Chance: Error setting payment from flag', [
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ]);
         }
     }
 }
