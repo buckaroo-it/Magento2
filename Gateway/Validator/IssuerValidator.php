@@ -81,8 +81,8 @@ class IssuerValidator extends AbstractValidator
     {
         $payment = $validationSubject['payment'];
         // Handle both PaymentDataObjectInterface and InfoInterface
-        $paymentInfo = $payment instanceof \Magento\Payment\Gateway\Data\PaymentDataObjectInterface 
-            ? $payment->getPayment() 
+        $paymentInfo = $payment instanceof \Magento\Payment\Gateway\Data\PaymentDataObjectInterface
+            ? $payment->getPayment()
             : $payment;
         $config = $this->getConfig($paymentInfo);
 
