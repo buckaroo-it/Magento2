@@ -5,9 +5,16 @@
     
     <!-- Include Magento2 coding standard -->
     <rule ref="Magento2">
-        <!-- Exclude line length checks - we allow longer lines for readability -->
-        <exclude name="Generic.Files.LineLength.TooLong"/>
+        <!-- Override line length to 250 characters (default is 120) -->
         <exclude name="Generic.Files.LineLength"/>
+    </rule>
+    
+    <!-- Set custom line length limit -->
+    <rule ref="Generic.Files.LineLength">
+        <properties>
+            <property name="lineLimit" value="250"/>
+            <property name="absoluteLineLimit" value="300"/>
+        </properties>
     </rule>
     
     <!-- Exclude specific paths from checks -->
