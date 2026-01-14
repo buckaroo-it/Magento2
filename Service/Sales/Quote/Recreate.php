@@ -454,6 +454,24 @@ class Recreate
     private function isPaymentMethodAvailable($methodCode, $quote)
     {
         try {
+            // Ensure quote has required data for availability check
+            if (!$quote->getBillingAddress() || !$quote->getBillingAddress()->getCountryId()) {
+                $this->logger->addDebug('Second Chance: Cannot check payment method - missing billing address', [
+                    'method' => $methodCode,
+                    'quote_id' => $quote->getId()
+                ]);
+                return false;
+            }
+
+            // Ensure store context is set
+            if (!$quote->getStoreId()) {
+                $this->logger->addDebug('Second Chance: Cannot check payment method - missing store ID', [
+                    'method' => $methodCode,
+                    'quote_id' => $quote->getId()
+                ]);
+                return false;
+            }
+
             $methodInstance = $this->paymentHelper->getMethodInstance($methodCode);
             if (!$methodInstance) {
                 return false;

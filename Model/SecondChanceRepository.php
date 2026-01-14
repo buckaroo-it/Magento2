@@ -483,16 +483,14 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
             // Apply the reserved order ID with suffix to the new quote
             if ($newOrderId && $quote && $quote->getId()) {
                 $quote->setReservedOrderId($newOrderId);
-                $quote->save();
 
-                // CRITICAL: Force this quote to be THE quote for checkout
-                // Clear any old quote from session and explicitly set this one
                 $this->checkoutSession->clearQuote();
                 $this->checkoutSession->clearStorage();
                 $this->checkoutSession->replaceQuote($quote);
                 $this->checkoutSession->setQuoteId($quote->getId());
 
-                $this->logging->addDebug('Second Chance: Quote recreated with order ID: ' . $newOrderId);
+                // Save quote after session is set to ensure proper context
+                $quote->save();
             }
         }
 
