@@ -332,6 +332,7 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
      * @param string $expectedTemplate
      *
      * @dataProvider sendMailProvider
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function testSendMail($step, $expectedTemplate)
     {

@@ -21,7 +21,7 @@
 -->
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
-         bootstrap="Test/bootstrap.php"
+         bootstrap="Test/Bootstrap.php"
          cacheDirectory=".phpunit.cache"
          colors="true"
          executionOrder="depends,defects"
