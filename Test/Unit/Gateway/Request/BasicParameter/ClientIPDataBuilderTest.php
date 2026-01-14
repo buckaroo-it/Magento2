@@ -94,14 +94,22 @@ class ClientIPDataBuilderTest extends AbstractDataBuilderTest
 
     public static function getBuildDataProvider(): array
     {
+        // Fallback to integer values if SDK class isn't loaded (CI environment)
+        $ipv4 = defined('Buckaroo\Resources\Constants\IPProtocolVersion::IPV4') 
+            ? IPProtocolVersion::IPV4 
+            : 0;
+        $ipv6 = defined('Buckaroo\Resources\Constants\IPProtocolVersion::IPV6') 
+            ? IPProtocolVersion::IPV6 
+            : 1;
+
         return [
             [
                 'expectedAddress' => '192.168.1.1',
-                'expectedType'    => IPProtocolVersion::IPV4
+                'expectedType'    => $ipv4
             ],
             [
                 'expectedAddress' => '2001:0db8:85a3:0000:0000:8a2e:0370:7334',
-                'expectedType'    => IPProtocolVersion::IPV6
+                'expectedType'    => $ipv6
             ],
         ];
     }

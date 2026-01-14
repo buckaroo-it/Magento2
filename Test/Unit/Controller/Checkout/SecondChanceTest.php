@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Test\Unit\Controller\Checkout;
 use Buckaroo\Magento2\Controller\Checkout\SecondChance;
 use Buckaroo\Magento2\Model\SecondChanceRepository;
 use Buckaroo\Magento2\Logging\Log;
+use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\App\ResponseInterface;
@@ -48,12 +49,16 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
     /** @var ManagerInterface|\PHPUnit\Framework\MockObject\MockObject */
     private $messageManager;
 
+    /** @var CheckoutSession|\PHPUnit\Framework\MockObject\MockObject */
+    private $checkoutSession;
+
     public function setUp(): void
     {
         parent::setUp();
 
         $this->logger = $this->getFakeMock(Log::class)->getMock();
         $this->secondChanceRepository = $this->getFakeMock(SecondChanceRepository::class)->getMock();
+        $this->checkoutSession = $this->getFakeMock(CheckoutSession::class)->getMock();
         $this->context = $this->getFakeMock(Context::class)->getMock();
         $this->request = $this->getFakeMock(RequestInterface::class)->getMock();
         $this->messageManager = $this->getFakeMock(ManagerInterface::class)->getMock();
@@ -97,13 +102,14 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
             ->setConstructorArgs([
                 $this->context,
                 $this->logger,
-                $this->secondChanceRepository
+                $this->secondChanceRepository,
+                $this->checkoutSession
             ])
             ->onlyMethods(['handleRedirect'])
             ->getMock();
 
         $instance->method('handleRedirect')
-            ->with('checkout', ['_fragment' => 'payment'])
+            ->with('checkout/cart', [])
             ->willReturn($redirectMock);
 
         $result = $instance->execute();
@@ -132,14 +138,15 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
             ->setConstructorArgs([
                 $this->context,
                 $this->logger,
-                $this->secondChanceRepository
+                $this->secondChanceRepository,
+                $this->checkoutSession
             ])
             ->onlyMethods(['handleRedirect'])
             ->getMock();
 
         $redirectMock = $this->getFakeMock(Redirect::class)->getMock();
         $instance->method('handleRedirect')
-            ->with('checkout', ['_fragment' => 'payment'])
+            ->with('checkout/cart', [])
             ->willReturn($redirectMock);
 
         $result = $instance->execute();
@@ -162,14 +169,15 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
             ->setConstructorArgs([
                 $this->context,
                 $this->logger,
-                $this->secondChanceRepository
+                $this->secondChanceRepository,
+                $this->checkoutSession
             ])
             ->onlyMethods(['handleRedirect'])
             ->getMock();
 
         $redirectMock = $this->getFakeMock(Redirect::class)->getMock();
         $instance->method('handleRedirect')
-            ->with('checkout', ['_fragment' => 'payment'])
+            ->with('checkout/cart', [])
             ->willReturn($redirectMock);
 
         $result = $instance->execute();
@@ -192,14 +200,15 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
             ->setConstructorArgs([
                 $this->context,
                 $this->logger,
-                $this->secondChanceRepository
+                $this->secondChanceRepository,
+                $this->checkoutSession
             ])
             ->onlyMethods(['handleRedirect'])
             ->getMock();
 
         $redirectMock = $this->getFakeMock(Redirect::class)->getMock();
         $instance->method('handleRedirect')
-            ->with('checkout', ['_fragment' => 'payment'])
+            ->with('checkout/cart', [])
             ->willReturn($redirectMock);
 
         $result = $instance->execute();
@@ -230,7 +239,8 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
             ->setConstructorArgs([
                 $this->context,
                 $this->logger,
-                $this->secondChanceRepository
+                $this->secondChanceRepository,
+                $this->checkoutSession
             ])
             ->onlyMethods(['_redirect'])
             ->getMock();

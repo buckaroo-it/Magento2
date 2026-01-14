@@ -69,6 +69,11 @@ jobs:
           mkdir -p m248/app/code/Buckaroo/Magento2/
           rsync -r --exclude='m248' ./ m248/app/code/Buckaroo/Magento2/
 
+      - name: Install module dependencies
+        working-directory: m248/app/code/Buckaroo/Magento2
+        run: |
+          composer install --no-interaction --prefer-dist
+
       - name: Run PHPCS against changed files (PR) or whole module (push)
         run: |
           if [ -f files_changed ]; then
