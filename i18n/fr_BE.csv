@@ -286,6 +286,7 @@
 "Yes, I accept the terms and condition for the use of Afterpay.","Oui, j'accepte les termes et conditions d'utilisation d'Afterpay."
 "Accept terms of use","Accepter les conditions d'utilisation"
 "(DD/MM/YYYY)","(JJ/MM/AAAA)"
+"DD/MM/YYYY or DD-MM-YYYY","JJ/MM/AAAA"
 "Any comments about this Beta release? <a target=\"_blank\" href=\"%s\"> Please let us know! </a>","Des commentaires sur cette version bêta? <a target=\"_blank\" href=\"%s\"> S'il vous plaît laissez-nous savoir!</a>"
 "Buckaroo version","Version Buckaroo"
 "The transaction will be processed using %s.","La transaction sera traitée en utilisant %s."
