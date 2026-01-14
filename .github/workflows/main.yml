@@ -89,4 +89,4 @@ jobs:
         run: |
           bin/magento module:enable --all
           bin/magento setup:di:compile
-          vendor/phpunit/phpunit/phpunit -c app/code/Buckaroo/Magento2/phpunit.xml app/code/Buckaroo/Magento2
+          cd app/code/Buckaroo/Magento2 && ../../../../vendor/phpunit/phpunit/phpunit
