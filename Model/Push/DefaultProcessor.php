@@ -715,8 +715,8 @@ class DefaultProcessor implements PushProcessorInterface
         if ($methodSpecificConfig !== null && $methodSpecificConfig !== '') {
             // If explicitly set to Yes (1): use SHIPMENT mode
             // If explicitly set to No (0): use PAYMENT mode (create invoice immediately)
-            return ($methodSpecificConfig == 1) 
-                ? InvoiceHandlingOptions::SHIPMENT 
+            return ($methodSpecificConfig == 1)
+                ? InvoiceHandlingOptions::SHIPMENT
                 : InvoiceHandlingOptions::PAYMENT;
         }
 
@@ -792,16 +792,16 @@ class DefaultProcessor implements PushProcessorInterface
 
         // These fields are required for Magento to allow invoice creation later
         $payment->setBaseAmountPaidOnline($captureAmount);
-        
+
         // Calculate amounts - handle null values from first payment
         $baseAmountPaid = (float)$payment->getBaseAmountPaid() ?: 0;
         $amountPaid = (float)$payment->getAmountPaid() ?: 0;
-        
+
         // Convert base amount to order currency
-        $orderAmount = $this->order->getBaseToOrderRate() 
+        $orderAmount = $this->order->getBaseToOrderRate()
             ? $captureAmount * $this->order->getBaseToOrderRate()
             : $captureAmount;
-        
+
         $payment->setBaseAmountPaid($baseAmountPaid + $captureAmount);
         $payment->setAmountPaid($amountPaid + $orderAmount);
 
@@ -1667,8 +1667,27 @@ class DefaultProcessor implements PushProcessorInterface
                 $payment->save();
             }
 
+            // Check if we should skip void request (no successful transaction to void)
+            // This prevents "Gateway rejected the transaction" error when canceling failed payments
+            $methodInstance = $payment->getMethodInstance();
+            $methodInstanceClass = get_class($methodInstance);
+            $shouldSkipVoid = $this->shouldSkipVoidForFailedPush($payment);
+
+            $originalRequestOnVoid = null;
+            if ($shouldSkipVoid) {
+                $originalRequestOnVoid = $methodInstanceClass::$requestOnVoid;
+                $methodInstanceClass::$requestOnVoid = false;
+            }
+
             try {
-                $this->order->cancel()->save();
+                try {
+                    $this->order->cancel()->save();
+                } finally {
+                    // Restore the original flag value to avoid side effects
+                    if ($originalRequestOnVoid !== null) {
+                        $methodInstanceClass::$requestOnVoid = $originalRequestOnVoid;
+                    }
+                }
 
                 if (!$this->isMagentoGiftCardRefundActive()) {
                     $this->giftCardRefundService->refund($this->order);
@@ -2095,5 +2114,34 @@ class DefaultProcessor implements PushProcessorInterface
 
         // Also check for buckaroovoucher
         return $foundGiftcard !== null || $transactionMethod === 'buckaroovoucher';
+    }
+
+    /**
+     * Determine if void request should be skipped for failed push processing
+     *
+     * @param \Magento\Sales\Model\Order\Payment $payment
+     * @return bool
+     */
+    private function shouldSkipVoidForFailedPush($payment): bool
+    {
+        // Skip void if there's no transaction key
+        // Transaction key is only set when a successful transaction is created
+        // If it's missing, there's no transaction to void at the gateway
+        $transactionKey = $payment->getAdditionalInformation(
+            \Buckaroo\Magento2\Gateway\Response\TransactionIdHandler::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY
+        );
+
+        if (empty($transactionKey)) {
+            $this->logger->addDebug(sprintf(
+                '[%s:%s] - Skipping void request for failed push: no transaction key found. '
+                . 'Order: %s. This typically means the payment failed or was rejected before a transaction was created.',
+                __METHOD__,
+                __LINE__,
+                $this->order->getIncrementId()
+            ));
+            return true;
+        }
+
+        return false;
     }
 }
