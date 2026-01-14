@@ -563,7 +563,6 @@ class DefaultProcessor implements PushProcessorInterface
 
     /**
      * Reactivate a canceled order when receiving success push
-     * Handles uncanceling, invoice handling setup, and authorization transaction
      *
      * @return bool
      * @throws LocalizedException
@@ -661,7 +660,6 @@ class DefaultProcessor implements PushProcessorInterface
 
     /**
      * Setup invoice handling flags for reactivated orders
-     * Detects if order should use SHIPMENT mode and sets appropriate flags
      *
      * @return void
      * @throws LocalizedException
@@ -699,7 +697,6 @@ class DefaultProcessor implements PushProcessorInterface
 
     /**
      * Detect invoice handling mode from configuration
-     * Checks method-specific config first, then falls back to general config
      *
      * @return int|string|null
      * @throws LocalizedException
@@ -723,7 +720,6 @@ class DefaultProcessor implements PushProcessorInterface
 
     /**
      * Handle capture with deferred invoicing (SHIPMENT mode)
-     * Records capture without creating invoice - invoice will be created on shipment
      *
      * @param float $amount
      * @param string $message
@@ -765,7 +761,6 @@ class DefaultProcessor implements PushProcessorInterface
 
     /**
      * Record capture transaction without creating invoice
-     * Sets all necessary payment fields for deferred invoice creation
      *
      * @param OrderPayment $payment
      * @param float $captureAmount
@@ -1005,7 +1000,6 @@ class DefaultProcessor implements PushProcessorInterface
 
     /**
      * Check if required data is present for group transaction
-     * Only for MIXED/PARTIAL payments (not single giftcards)
      *
      * @return bool
      */
@@ -1138,9 +1132,10 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * @throws LocalizedException
+     * Get the new order status based on the push request status code
      *
-     * @return false|string|null
+     * @return string
+     * @throws LocalizedException
      */
     protected function getNewStatus()
     {
@@ -1310,6 +1305,11 @@ class DefaultProcessor implements PushProcessorInterface
         }
     }
 
+    /**
+     * Set Buckaroo reservation number for Klarna payments
+     *
+     * @return bool
+     */
     protected function setBuckarooReservationNumber(): bool
     {
         return false;
@@ -1374,14 +1374,10 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * Can create invoice on push
-     *
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     *
-     * @throws LocalizedException
+     * Determines if the invoice can be pushed based on the payment action and invoice handling mode.
      *
      * @return bool
+     * @throws LocalizedException
      */
     protected function canPushInvoice(): bool
     {
@@ -1397,17 +1393,11 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * Creates and saves the invoice and adds for each invoice the buckaroo transaction keys
-     * Only when the order can be invoiced and has not been invoiced before.
+     * Saves the invoice for the order if applicable.
      *
-     * @throws BuckarooException
      * @throws LocalizedException
-     * @throws Exception
      *
-     * @return bool
-     *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     * @SuppressWarnings(PHPMD.NPathComplexity)
+     * @return bool True if the invoice was saved, false otherwise.
      */
     protected function saveInvoice(): bool
     {
@@ -1776,6 +1766,15 @@ class DefaultProcessor implements PushProcessorInterface
         return $brqOrderId;
     }
 
+    /**
+     * Get payment details for successful push
+     *
+     * @param string $message
+     *
+     * @return array
+     *
+     * @throws LocalizedException
+     */
     protected function getPaymentDetails($message)
     {
         // Set amount
@@ -1822,11 +1821,11 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
+     * Determine if the invoice should be saved based on payment details.
+     *
      * @param array $paymentDetails
      *
      * @return bool
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     protected function invoiceShouldBeSaved(array &$paymentDetails): bool
     {
@@ -1834,6 +1833,8 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
+     * Get transfer details for pending payment
+     *
      * @return array
      */
     protected function getTransferDetails(): array
@@ -1842,6 +1843,8 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
+     * Determine if pending push can be processed
+     *
      * @return bool
      */
     protected function canProcessPendingPush(): bool
@@ -1900,7 +1903,6 @@ class DefaultProcessor implements PushProcessorInterface
 
     /**
      * Check if Magento's native gift card refund observers will be triggered
-     * Prevents duplicate refunds by checking if redirect setting triggers Magento observers
      *
      * @return bool
      */
@@ -1950,9 +1952,7 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * Store single giftcard payment information in payment additional_information
-     * This is for single full giftcard payments (not mixed/partial payments)
-     * Used by refund system to identify and refund giftcard correctly
+     * Store single giftcard payment information temporarily
      *
      * @return void
      */
