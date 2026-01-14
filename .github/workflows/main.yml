@@ -67,12 +67,13 @@ jobs:
       - name: Copy module into Magento
         run: |
           mkdir -p m248/app/code/Buckaroo/Magento2/
-          rsync -r --exclude='m248' ./ m248/app/code/Buckaroo/Magento2/
+          rsync -r --exclude='m248' --exclude='vendor' ./ m248/app/code/Buckaroo/Magento2/
 
-      - name: Install module dependencies
-        working-directory: m248/app/code/Buckaroo/Magento2
+      - name: Install Buckaroo SDK at Magento level
+        working-directory: m248
         run: |
-          composer install --no-interaction --prefer-dist
+          composer require buckaroo/sdk:^1.20.0 --no-update
+          composer update buckaroo/sdk --no-interaction --prefer-dist
 
       - name: Run PHPCS against changed files (PR) or whole module (push)
         run: |
@@ -88,4 +89,4 @@ jobs:
         run: |
           bin/magento module:enable --all
           bin/magento setup:di:compile
-          vendor/phpunit/phpunit/phpunit -c dev/tests/unit/phpunit.xml.dist app/code/Buckaroo/Magento2
+          vendor/phpunit/phpunit/phpunit -c app/code/Buckaroo/Magento2/phpunit.xml app/code/Buckaroo/Magento2

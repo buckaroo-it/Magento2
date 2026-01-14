@@ -79,7 +79,11 @@ class IssuerValidator extends AbstractValidator
      */
     public function validate(array $validationSubject): ResultInterface
     {
-        $paymentInfo = $validationSubject['payment'];
+        $payment = $validationSubject['payment'];
+        // Handle both PaymentDataObjectInterface and InfoInterface
+        $paymentInfo = $payment instanceof \Magento\Payment\Gateway\Data\PaymentDataObjectInterface 
+            ? $payment->getPayment() 
+            : $payment;
         $config = $this->getConfig($paymentInfo);
 
         if (method_exists($config, 'canShowIssuers') && !$config->canShowIssuers()) {
