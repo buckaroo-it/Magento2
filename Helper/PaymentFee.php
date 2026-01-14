@@ -160,11 +160,12 @@ class PaymentFee extends AbstractHelper
     }
 
     /**
-     * Add "already paid" totals for giftcards or vouchers if applicable.
+     * Add already paid totals to the totals array.
      *
      * @param DataObject $dataObject
-     * @param array      &$totals
+     * @param array      $totals
      *
+     * @return void
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
@@ -356,16 +357,18 @@ class PaymentFee extends AbstractHelper
     }
 
     /**
-     * Add a total entry into the provided totals array.
+     * Add a total entry to the totals array.
      *
-     * @param array  &$totals
-     * @param string $code
-     * @param float  $value
-     * @param float  $baseValue
-     * @param string $label
-     * @param string $blockName
-     * @param string $transactionId
-     * @param array  $extraInfo
+     * @param array       $totals
+     * @param string      $code
+     * @param float       $value
+     * @param float       $baseValue
+     * @param string      $label
+     * @param string|bool $blockName
+     * @param string|bool $transactionId
+     * @param array       $extraInfo
+     *
+     * @return void
      */
     protected function addTotalToTotals(
         array &$totals,

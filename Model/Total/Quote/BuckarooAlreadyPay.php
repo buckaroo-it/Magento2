@@ -122,6 +122,7 @@ class BuckarooAlreadyPay extends AbstractTotal
             } catch (\Exception $e) {
                 // Silently ignore errors when fetching group transaction info
                 // This prevents breaking checkout if data is unavailable
+                unset($e);
             }
         }
 
