@@ -166,6 +166,8 @@ class PaymentFee extends AbstractHelper
      * @param array      &$totals
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function addAlreadyPayedTotals($dataObject, array &$totals)
     {

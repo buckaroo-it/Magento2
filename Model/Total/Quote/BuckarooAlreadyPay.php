@@ -73,6 +73,7 @@ class BuckarooAlreadyPay extends AbstractTotal
      * @return array
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function fetch(Quote $quote, Total $total)
     {

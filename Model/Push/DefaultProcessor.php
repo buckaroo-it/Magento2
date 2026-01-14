@@ -60,6 +60,7 @@ use Buckaroo\Magento2\Model\Transaction\Status\Response;
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ * @SuppressWarnings(PHPMD.TooManyFields)
  */
 class DefaultProcessor implements PushProcessorInterface
 {
@@ -1319,6 +1320,7 @@ class DefaultProcessor implements PushProcessorInterface
      * Send Order email if was not sent
      *
      * @throws LocalizedException
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     protected function sendOrderEmail(): void
     {
@@ -1398,6 +1400,8 @@ class DefaultProcessor implements PushProcessorInterface
      * @throws LocalizedException
      *
      * @return bool True if the invoice was saved, false otherwise.
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     protected function saveInvoice(): bool
     {
@@ -1542,6 +1546,8 @@ class DefaultProcessor implements PushProcessorInterface
      * @return bool
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function processFailedPush(string $newStatus, string $message): bool
     {
@@ -1584,9 +1590,7 @@ class DefaultProcessor implements PushProcessorInterface
             // Add a clear cancellation message to order history before canceling
             $this->order->addCommentToStatusHistory('Payment failed. Canceling order due to payment failure: ' . $message);
 
-            // BUCKM2-78: Never automatically cancelauthorize via push for afterpay
             // setting parameter which will cause to stop the cancel process on
-            // Buckaroo/Model/Method/BuckarooAdapter.php:880
             $methods = [
                 'buckaroo_magento2_afterpay',
                 'buckaroo_magento2_afterpay2',
@@ -1826,6 +1830,7 @@ class DefaultProcessor implements PushProcessorInterface
      * @param array $paymentDetails
      *
      * @return bool
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     protected function invoiceShouldBeSaved(array &$paymentDetails): bool
     {
@@ -1994,6 +1999,7 @@ class DefaultProcessor implements PushProcessorInterface
 
     /**
      * Apply and save pending single giftcard payment information
+     *
      * This method is called at multiple points in the push flow depending on payment type
      *
      * @param string $context Context description for logging (e.g., 'inline', 'redirect', 'capture')

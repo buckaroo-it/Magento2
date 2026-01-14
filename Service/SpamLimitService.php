@@ -140,6 +140,8 @@ class SpamLimitService
      * @param MethodInterface $paymentMethodInstance
      * @param array $storage
      * @return bool
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     public function isSpamLimitReached(MethodInterface $paymentMethodInstance, array $storage): bool
     {
@@ -155,10 +157,10 @@ class SpamLimitService
         $limit = (int)$limit;
 
         $method = $paymentMethodInstance->getCode();
-        
+
         try {
             $quote = $this->getQuote();
-            
+
             // Check if spam limit was reached and stored on quote payment (persists across quote restoration)
             if ($quote && $quote->getPayment()) {
                 $spamLimitReached = $quote->getPayment()
@@ -167,14 +169,14 @@ class SpamLimitService
                     return true;
                 }
             }
-            
+
             // Check session storage (for current quote)
             $quoteId = $quote ? $quote->getId() : null;
             if ($quoteId && isset($storage[$quoteId][$method])) {
                 $attempts = $storage[$quoteId][$method];
                 return $attempts >= $limit;
             }
-            
+
             // Check if there's a cancelled order ID (quote was restored after spam limit)
             if ($quote && $quote->getPayment()) {
                 $cancelledOrderId = $quote->getPayment()

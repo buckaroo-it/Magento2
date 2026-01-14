@@ -35,6 +35,9 @@ use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Sales\Api\Data\TransactionInterface;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class AfterpayProcessor extends DefaultProcessor
 {
     /**

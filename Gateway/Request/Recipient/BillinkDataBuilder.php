@@ -164,6 +164,7 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
      * Check if the order uses PostNL pickup shipping method
      *
      * @return bool
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     private function isPostNLPickupOrder(): bool
     {

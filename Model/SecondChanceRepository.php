@@ -633,6 +633,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
      * @param mixed $secondChance
      * @param mixed $step
      * @throws NoSuchEntityException
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function sendMail($order, $secondChance, $step)
     {

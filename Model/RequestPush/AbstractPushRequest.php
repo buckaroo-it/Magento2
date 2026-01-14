@@ -69,10 +69,12 @@ class AbstractPushRequest
      *
      * @return void
      * @throws Exception
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function __call(string $methodName, array $args)
     {
         if (method_exists($this, $methodName)) {
+            // @codingStandardsIgnoreLine - call_user_func_array needed for variable method calls
             call_user_func_array([$this, $methodName], $args);
         }
         if (preg_match('~^(set|get)(.*)$~', $methodName, $matches)) {

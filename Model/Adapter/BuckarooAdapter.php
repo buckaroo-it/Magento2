@@ -203,9 +203,9 @@ class BuckarooAdapter
      * Set Client SDK base on account configuration and payment method configuration
      *
      * @param string    $paymentMethod
-     * @param int|null  $orderStoreId Store ID from the order (for refund/capture operations)
+     * @param int|null  $orderStoreId                Store ID from the order (for refund/capture operations)
      * @param bool      $skipActiveCheck
-     * @param bool|null $originalTransactionWasTest Whether original transaction was in test mode
+     * @param bool|null $originalTransactionWasTest  Whether original transaction was in test mode
      * @throws \Exception
      * @return void
      */
@@ -292,13 +292,14 @@ class BuckarooAdapter
      *
      * @param int|string $accountMode
      * @param int|string $storeId
-     * @param string $paymentMethod
-     * @param bool $skipActiveCheck Skip the payment method active check. Used for post-transaction operations
-     * @param bool|null  $originalTransactionWasTest Whether the original transaction was in test mode (from payment additional_information)
+     * @param string     $paymentMethod
+     * @param bool       $skipActiveCheck              Skip the payment method active check. Used for post-transaction operations
+     * @param bool|null  $originalTransactionWasTest   Whether the original transaction was in test mode (from payment additional_information)
      *
      * @throws Exception
      *
      * @return string
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     private function getClientMode(
         $accountMode,
