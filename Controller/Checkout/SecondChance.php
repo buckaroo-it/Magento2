@@ -75,10 +75,10 @@ class SecondChance extends Action
         if ($token = $this->getRequest()->getParam('token')) {
             try {
                 $secondChance = $this->secondChanceRepository->getSecondChanceByToken($token);
-                
+
                 // Verify quote was properly set in session
                 $quote = $this->checkoutSession->getQuote();
-                
+
                 if (!$quote || !$quote->getId()) {
                     $this->logger->addError('SecondChance: No quote in session after restoration', [
                         'token' => substr($token, 0, 8) . '...',
@@ -87,19 +87,7 @@ class SecondChance extends Action
                     $this->messageManager->addErrorMessage(__('Unable to restore your cart. Please try again or contact support.'));
                     return $this->handleRedirect('checkout/cart');
                 }
-                
-                // Log quote details for debugging
-                $this->logger->addDebug('SecondChance: Quote restored successfully', [
-                    'quote_id' => $quote->getId(),
-                    'order_id' => $secondChance->getOrderId(),
-                    'reserved_order_id' => $quote->getReservedOrderId(),
-                    'items_count' => $quote->getItemsCount(),
-                    'payment_method' => $quote->getPayment()->getMethod(),
-                    'has_billing' => $quote->getBillingAddress() ? $quote->getBillingAddress()->getCountryId() : 'no',
-                    'has_shipping' => $quote->getShippingAddress() ? $quote->getShippingAddress()->getCountryId() : 'no',
-                    'shipping_method' => $quote->getShippingAddress() ? $quote->getShippingAddress()->getShippingMethod() : 'no'
-                ]);
-                
+
                 $this->messageManager->addSuccessMessage(__('Your cart has been restored. You can now complete your purchase.'));
             } catch (Exception $e) {
                 $this->logger->addError('SecondChance token error', [
@@ -117,7 +105,7 @@ class SecondChance extends Action
             return $this->handleRedirect('checkout/cart');
         }
 
-        return $this->handleRedirect('checkout', ['_fragment' => 'payment']);
+        return $this->handleRedirect('checkout');
     }
 
     public function handleRedirect($path, $arguments = [])
