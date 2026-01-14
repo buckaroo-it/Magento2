@@ -55,3 +55,4 @@
 "Templates follow your corporate identity and email design from default Magento e-mail templates.","Templates follow your corporate identity and email design from default Magento e-mail templates."
 "Stock availability can optionally be taken into account before sending reminders.","Stock availability can optionally be taken into account before sending reminders."
 "First and second reminders can use a different template.","First and second reminders can use a different template."
+"DD/MM/YYYY or DD-MM-YYYY","DD/MM/YYYY"

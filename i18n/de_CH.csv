@@ -286,6 +286,7 @@
 "The general Terms and Conditions for the Riverty payment method apply. The privacy policy of Riverty can be found here.","Es gelten die allgemeinen Geschäftsbedingungen für die Zahlungsmethode Riverty. Die Datenschutzbestimmungen von Riverty findest Du hier."
 "Accept terms of use","Akzeptieren Sie die Allgemeinen Geschäftsbedingungen"
 "(DD/MM/YYYY)","(DD/MM/JJJJ)"
+"DD/MM/YYYY or DD-MM-YYYY","DD-MM-JJJJ"
 "Any comments about this Beta release? <a target=\"_blank\" href=\"%s\"> Please let us know! </a>","Irgendwelche Kommentare zu dieser Beta-Version? <a target=\"_blank\" href=\"%s\"> Lass uns wissen! </a>"
 "Buckaroo version","Buckaroo-Version"
 "The transaction will be processed using %s.","Die Zahlung wird bearbeitet mit %s."
