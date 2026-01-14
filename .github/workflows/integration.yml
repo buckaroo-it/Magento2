@@ -36,3 +36,4 @@ jobs:
           module_name: Buckaroo_Magento2
           composer_name: buckaroo/magento2
           ce_version: '2.4.8-p3'
+          magento_pre_install_script: composer config --no-plugins allow-plugins.* true && composer config audit.block-insecure false

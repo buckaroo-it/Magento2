@@ -182,7 +182,7 @@ class SpamLimitService
                     ->getAdditionalInformation('buckaroo_cancel_order_id');
                 if ($cancelledOrderId) {
                     // Look up attempts from the original quote ID that created this order
-                    foreach ($storage as $origQuoteId => $methods) {
+                    foreach ($storage as $methods) {
                         if (isset($methods[$method]) && $methods[$method] >= $limit) {
                             return true;
                         }

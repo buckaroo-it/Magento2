@@ -97,4 +97,3 @@ class AvailableBasedOnGiftcardPartialPaymentValidator extends AbstractValidator
         return $this->createResult($isValid);
     }
 }
-

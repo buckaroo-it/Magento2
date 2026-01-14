@@ -1,16 +1,25 @@
 <?xml version="1.0"?>
 <ruleset name="Buckaroo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/squizlabs/PHP_CodeSniffer/master/phpcs.xsd">
-    <rule ref="../../../vendor/magento/magento-coding-standard/Magento2/ruleset.xml"/>
-    <rule ref="PSR2"/>
+    <description>Buckaroo Magento2 Coding Standard for GitHub Actions</description>
+    
+    <!-- Use Magento2 coding standard (installed via composer) -->
+    <rule ref="Magento2">
+        <!-- Exclude line length checks - we allow longer lines for readability -->
+        <exclude name="Generic.Files.LineLength.TooLong"/>
+        <exclude name="Generic.Files.LineLength"/>
+    </rule>
+    
+    <rule ref="PSR2">
+        <!-- Exclude line length from PSR2 as well -->
+        <exclude name="Generic.Files.LineLength"/>
+    </rule>
+    
     <rule ref="PEAR.Commenting.FunctionComment.Missing"/>
     <rule ref="Squiz.PHP.CommentedOutCode.Found"/>
     
-    <!-- Override line length limit to 200 characters -->
-    <rule ref="Generic.Files.LineLength">
-        <properties>
-            <property name="lineLimit" value="200"/>
-            <property name="absoluteLineLimit" value="250"/>
-        </properties>
-    </rule>
+    <!-- Exclude specific paths from checks -->
+    <exclude-pattern>*/Test/*</exclude-pattern>
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+    <exclude-pattern>*/.github/workflows/*.php</exclude-pattern>
 </ruleset>

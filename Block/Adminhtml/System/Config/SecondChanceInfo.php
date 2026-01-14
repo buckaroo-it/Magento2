@@ -73,4 +73,3 @@ class SecondChanceInfo extends Field
         return $this->_toHtml();
     }
 }
-

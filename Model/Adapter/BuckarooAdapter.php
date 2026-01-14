@@ -214,8 +214,7 @@ class BuckarooAdapter
         ?int $orderStoreId = null,
         bool $skipActiveCheck = false,
         ?bool $originalTransactionWasTest = null
-    ): void
-    {
+    ): void {
         /** @var Account $configProviderAccount */
         $configProviderAccount = $this->configProviderFactory->get('account');
 
@@ -308,8 +307,7 @@ class BuckarooAdapter
         string $paymentMethod = '',
         bool $skipActiveCheck = false,
         ?bool $originalTransactionWasTest = null
-    ): string
-    {
+    ): string {
         $clientMode = Config::TEST_MODE;
 
         if ($accountMode == 0) {

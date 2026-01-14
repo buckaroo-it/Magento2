@@ -807,7 +807,7 @@ class DefaultProcessor implements PushProcessorInterface
 
         // Add capture transaction without invoice (null = no invoice will be created)
         // This is the recommended approach for deferred invoice creation
-        $transaction = $payment->addTransaction(
+        $payment->addTransaction(
             Transaction::TYPE_CAPTURE,
             null,
             true
@@ -836,67 +836,6 @@ class DefaultProcessor implements PushProcessorInterface
         );
 
         $payment->save();
-    }
-
-    /**
-     * Register authorization transaction for reactivated order
-     * Allows manual "Capture Online" option in admin
-     *
-     * @return void
-     * @throws LocalizedException
-     */
-    private function registerAuthorizationForReactivation(): void
-    {
-        // Get transaction key from push data (already determined in reactivateCanceledOrder)
-        $transactionKey = $this->pushRequest->getTransactions();
-
-        // If no brq_transactions, try brq_datarequest (used for Klarna/Afterpay authorization)
-        if (!$transactionKey || strlen($transactionKey) === 0) {
-            $transactionKey = $this->pushRequest->getDatarequest();
-        }
-
-        $this->logger->addDebug(sprintf(
-            '[%s:%s] - Register authorization | Transaction key: %s | Source: %s',
-            __METHOD__,
-            __LINE__,
-            $transactionKey ?? 'NULL',
-            $this->pushRequest->getTransactions() ? 'brq_transactions' : 'brq_datarequest'
-        ));
-
-        if (!$transactionKey || strlen($transactionKey) === 0) {
-            $this->logger->addDebug(sprintf(
-                '[%s:%s] - No transaction key found in push data, skipping authorization registration',
-                __METHOD__,
-                __LINE__
-            ));
-            return;
-        }
-
-        $baseGrandTotal = $this->order->getBaseGrandTotal();
-
-        $newTransactionId = $transactionKey . '-reauth';
-
-        $this->payment->setTransactionId($newTransactionId);
-        $this->payment->setCurrencyCode($this->order->getBaseCurrencyCode());
-        $this->payment->setIsTransactionClosed(false);
-        $this->payment->registerAuthorizationNotification($baseGrandTotal);
-
-        // CRITICAL: Ensure the transaction ID stays as the reauth one after registerAuthorizationNotification
-        // Magento might reset it, so we set it again along with LastTransId
-        $this->payment->setTransactionId($newTransactionId);
-        $this->payment->setLastTransId($newTransactionId);
-
-        // Store the reauth transaction ID so addTransactionData() uses it as parent for captures
-        $this->payment->setAdditionalInformation('buckaroo_reauth_transaction_id', $newTransactionId);
-
-        // Verify canCapture works
-        $canCapture = $this->payment->canCapture();
-        $this->logger->addDebug(sprintf(
-            '[%s:%s] - Authorization setup complete - CanCapture: %s',
-            __METHOD__,
-            __LINE__,
-            $canCapture ? 'YES' : 'NO'
-        ));
     }
 
     /**
