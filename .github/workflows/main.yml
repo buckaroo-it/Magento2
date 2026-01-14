@@ -73,9 +73,9 @@ jobs:
         run: |
           if [ -f files_changed ]; then
             cat files_changed | grep '"filename"' | sed 's/\"filename\"\: \"//' | sed 's/\",//' \
-              | xargs -r ./m248/vendor/bin/phpcs --standard=Magento2
+              | xargs -r ./m248/vendor/bin/phpcs --standard=m248/app/code/Buckaroo/Magento2/phpcs.xml
           else
-            ./m248/vendor/bin/phpcs --standard=Magento2 m248/app/code/Buckaroo/Magento2
+            ./m248/vendor/bin/phpcs --standard=m248/app/code/Buckaroo/Magento2/phpcs.xml m248/app/code/Buckaroo/Magento2
           fi
 
       - name: Compile and run unit tests

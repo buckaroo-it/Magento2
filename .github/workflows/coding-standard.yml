@@ -25,6 +25,7 @@ jobs:
       
       - name: Install PHPCS and Magento Coding Standard
         run: |
+          composer global config --no-plugins allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
           composer global require squizlabs/php_codesniffer:^3.7
           composer global require magento/magento-coding-standard
           ~/.composer/vendor/bin/phpcs --config-set installed_paths ~/.composer/vendor/magento/magento-coding-standard
