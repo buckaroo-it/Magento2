@@ -65,9 +65,10 @@ class AbstractPushRequest
      * Generate functions for getters and setters
      *
      * @param string $methodName
-     * @param array  $args
+     * @param array $args
      *
-     * @throws \Exception
+     * @return void
+     * @throws Exception
      */
     public function __call(string $methodName, array $args)
     {

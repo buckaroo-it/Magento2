@@ -47,6 +47,7 @@ class CapayableIn3Handler extends AbstractArticlesHandler
 
     /**
      * Override to apply discount proportionally to products instead of separate line
+     *
      * In3 API doesn't accept negative GrossUnitPrice values
      *
      * @param Order $order

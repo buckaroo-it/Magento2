@@ -137,9 +137,8 @@ class SpamLimitService
     /**
      * Check if the spam limit is reached
      *
-     * @param array           $storage
      * @param MethodInterface $paymentMethodInstance
-     *
+     * @param array $storage
      * @return bool
      */
     public function isSpamLimitReached(MethodInterface $paymentMethodInstance, array $storage): bool

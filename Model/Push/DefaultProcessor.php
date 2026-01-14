@@ -47,7 +47,6 @@ use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Exception;
 use Magento\Framework\App\ObjectManager;
 use Magento\Framework\App\ResourceConnection;
-use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
 use Magento\Sales\Api\Data\TransactionInterface;
@@ -164,20 +163,21 @@ class DefaultProcessor implements PushProcessorInterface
     private $pendingSingleGiftcardInfo = null;
 
     /**
-     * @param OrderRequestService     $orderRequestService
-     * @param PushTransactionType     $pushTransactionType
+     * Constructor
+     *
+     * @param OrderRequestService $orderRequestService
+     * @param PushTransactionType $pushTransactionType
      * @param BuckarooLoggerInterface $logger
-     * @param Data                    $helper
-     * @param TransactionInterface    $transaction
+     * @param Data $helper
+     * @param TransactionInterface $transaction
      * @param PaymentGroupTransaction $groupTransaction
-     * @param BuckarooStatusCode      $buckarooStatusCode
-     * @param OrderStatusFactory      $orderStatusFactory
-     * @param Account                 $configAccount
-     * @param GiftCardRefundService   $giftCardRefundService
-     * @param Uncancel                $uncancelService
+     * @param BuckarooStatusCode $buckarooStatusCode
+     * @param OrderStatusFactory $orderStatusFactory
+     * @param Account $configAccount
+     * @param GiftCardRefundService $giftCardRefundService
+     * @param Uncancel $uncancelService
      * @param ResourceConnection $resourceConnection
      * @param GiftcardCollection $giftcardCollection
-     *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -212,8 +212,9 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * @param PushRequestInterface $pushRequest
+     * Process push notification from payment provider
      *
+     * @param PushRequestInterface $pushRequest
      * @return bool
      * @throws BuckarooException
      * @throws LocalizedException
@@ -278,9 +279,11 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * @param PushRequestInterface $pushRequest
+     * Initialize fields from push request
      *
+     * @param PushRequestInterface $pushRequest
      * @throws Exception
+     * @return void
      */
     protected function initializeFields(PushRequestInterface $pushRequest): void
     {
@@ -313,6 +316,8 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
+     * Check if Klarna capture should be skipped
+     *
      * @return bool
      */
     protected function skipKlarnaCapture(): bool
@@ -332,9 +337,7 @@ class DefaultProcessor implements PushProcessorInterface
      * Check if it is needed to handle the push message based on postdata
      *
      * @throws Exception
-     *
      * @return bool
-     *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     protected function skipSpecificTypesOfRequsts(): bool
@@ -351,11 +354,9 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * Buckaroo Push is send before Response, for correct flow we skip the first push
-     * for some payment methods
+     * Buckaroo Push is send before Response, for correct flow we skip the first push for some payment methods
      *
      * @throws LocalizedException
-     *
      * @return bool
      */
     protected function skipFirstPush(): bool
@@ -436,9 +437,8 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * Check if transaction was already processed based on transaction statuses from payment additional information
      *
+     * @param int $receivedStatusCode
      * @param string $trxId
-     * @param int    $receivedStatusCode
-     *
      * @return bool
      */
     private function isDuplicateTransaction($receivedStatusCode, string $trxId): bool
@@ -486,10 +486,10 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * It updates the BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES payment additional information
-     * with the current received tx status.
+     * Update received transaction statuses
      *
      * @throws LocalizedException
+     * @return void
      */
     protected function setReceivedTransactionStatuses(): void
     {
@@ -509,10 +509,7 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * Checks if the order can be updated by checking its state.
-     * If order is canceled and receives success push, reactivates it.
-     *
-     * Following Magento core's approach (Order::canInvoice, etc.) which checks state only.
+     * Checks if the order can be updated by checking its state
      *
      * @return bool
      * @throws LocalizedException
@@ -877,6 +874,10 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
+     * Set order status message from push request
+     *
+     * @return void
+     * @throws LocalizedException
      */
     protected function setOrderStatusMessage(): void
     {
@@ -1033,8 +1034,9 @@ class DefaultProcessor implements PushProcessorInterface
         return $existingTransaction && $existingTransaction->getEntityId();
     }
 
-
     /**
+     * Check if this is a group transaction part
+     *
      * @return true
      */
     protected function canProcessPostData()
