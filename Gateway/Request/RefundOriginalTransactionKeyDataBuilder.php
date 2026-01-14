@@ -57,7 +57,9 @@ class RefundOriginalTransactionKeyDataBuilder implements BuilderInterface
     protected function getRefundTransactionPartialSupport(InfoInterface $payment)
     {
         $creditmemo = $payment->getCreditmemo();
-        if ($payment->getMethodInstance()->canRefundPartialPerInvoice() && $creditmemo) {
+
+        $methodInstance = $payment->getMethodInstance();
+        if ($methodInstance && $methodInstance->canRefundPartialPerInvoice() && $creditmemo) {
             return $payment->getParentTransactionId();
         }
 
