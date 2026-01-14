@@ -23,14 +23,15 @@ jobs:
           php-version: '8.2'
           coverage: none
       
-      - name: Install dependencies
+      - name: Install PHPCS and Magento Coding Standard
         run: |
-          composer install --no-interaction --prefer-dist --optimize-autoloader
-        working-directory: ${{ github.workspace }}
+          composer global require squizlabs/php_codesniffer:^3.7
+          composer global require magento/magento-coding-standard
+          ~/.composer/vendor/bin/phpcs --config-set installed_paths ~/.composer/vendor/magento/magento-coding-standard
       
       - name: Run PHPCS with custom rules
         run: |
-          vendor/bin/phpcs --standard=phpcs.xml --colors -p .
+          ~/.composer/vendor/bin/phpcs --standard=phpcs.xml --colors -p .
         continue-on-error: true
         working-directory: ${{ github.workspace }}
 
