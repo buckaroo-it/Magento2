@@ -149,7 +149,7 @@ class RestoreQuote implements ObserverInterface
                     // Get quote info before restoration
                     $lastQuoteId = $this->checkoutSession->getLastQuoteId();
                     $lastRealOrderId = $this->checkoutSession->getLastRealOrderId();
-                    
+
                     $this->logger->addDebug(sprintf(
                         '[RESTORE_QUOTE] | [Observer] | [%s:%s] - Before Restore | ' .
                         'lastQuoteId: %s | lastRealOrderId: %s | lastOrderIncrement: %s',
@@ -162,12 +162,12 @@ class RestoreQuote implements ObserverInterface
 
                     // Restore the quote
                     $restored = $this->checkoutSession->restoreQuote();
-                    
+
                     // Get restored quote info
                     $restoredQuote = $this->checkoutSession->getQuote();
                     $restoredQuoteId = $restoredQuote->getId();
                     $itemCount = $restoredQuote->getItemsCount();
-                    
+
                     $this->logger->addDebug(sprintf(
                         '[RESTORE_QUOTE] | [Observer] | [%s:%s] - After Restore | ' .
                         'restored: %s | restoredQuoteId: %s | itemCount: %s | quoteActive: %s',
@@ -178,13 +178,13 @@ class RestoreQuote implements ObserverInterface
                         $itemCount,
                         $restoredQuote->getIsActive() ? 'true' : 'false'
                     ));
-                    
+
                     if ($restored && $restoredQuoteId) {
                         $this->checkoutSession->getQuote()->setOrigOrderId(null);
                         $this->rollbackPartialPayment($lastRealOrder->getIncrementId(), $payment);
                         $this->setOrderToCancel($previousOrderId);
                         $this->transferSpamLimitFlag($payment);
-                        
+
                         $this->logger->addDebug(sprintf(
                             '[RESTORE_QUOTE] | [Observer] | [%s:%s] - Quote Restoration Completed Successfully',
                             __METHOD__,
@@ -218,7 +218,7 @@ class RestoreQuote implements ObserverInterface
     /**
      * Validate payment method for restore quote logic
      *
-     * @param $payment
+     * @param \Magento\Sales\Model\Order\Payment $payment
      *
      * @return bool
      */
@@ -232,7 +232,7 @@ class RestoreQuote implements ObserverInterface
     /**
      * Check if cart keep alive is enabled for the order's store
      *
-     * @param $lastRealOrder
+     * @param \Magento\Sales\Model\Order $lastRealOrder
      *
      * @return bool
      */
@@ -282,8 +282,8 @@ class RestoreQuote implements ObserverInterface
     /**
      * Rollback Partial Payment
      *
-     * @param string $incrementId
-     * @param        $payment
+     * @param string                             $incrementId
+     * @param \Magento\Sales\Model\Order\Payment $payment
      */
     public function rollbackPartialPayment(string $incrementId, $payment): void
     {
@@ -320,7 +320,7 @@ class RestoreQuote implements ObserverInterface
     /**
      * Transfer spam limit flag from order payment to restored quote payment
      *
-     * @param $payment Order payment object
+     * @param \Magento\Sales\Model\Order\Payment $payment Order payment object
      *
      * @throws LocalizedException
      */
@@ -358,10 +358,11 @@ class RestoreQuote implements ObserverInterface
     /**
      * Check if the last real order is new, pending, and uses redirect
      *
-     * @param $lastRealOrder
-     * @param $payment
+     * @param \Magento\Sales\Model\Order $lastRealOrder
+     * @param \Magento\Sales\Model\Order\Payment $payment
      *
      * @return bool
+     * @throws LocalizedException
      */
     private function isNewPendingLastOrder($lastRealOrder, $payment): bool
     {
@@ -374,8 +375,8 @@ class RestoreQuote implements ObserverInterface
     /**
      * Check if the last real order is canceled and uses redirect
      *
-     * @param $lastRealOrder
-     * @param $payment
+     * @param \Magento\Sales\Model\Order         $lastRealOrder
+     * @param \Magento\Sales\Model\Order\Payment $payment
      *
      * @return bool
      */
@@ -385,7 +386,7 @@ class RestoreQuote implements ObserverInterface
             // Check if payment method is a Buckaroo redirect payment
             $paymentMethod = $payment->getMethod();
             $isBuckarooRedirect = strpos($paymentMethod, 'buckaroo_magento2') !== false;
-            
+
             return $this->checkoutSession->getRestoreQuoteLastOrder()
                 && $lastRealOrder->getData('state') === 'canceled'
                 && $isBuckarooRedirect;

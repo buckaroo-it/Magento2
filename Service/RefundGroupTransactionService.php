@@ -125,6 +125,7 @@ class RefundGroupTransactionService
 
     /**
      * Check if an order has group transactions (giftcards/vouchers/mixed payments)
+     *
      * OR is a single giftcard payment (stored in payment additional_information)
      *
      * @param string $orderIncrementId Order increment ID

@@ -192,6 +192,7 @@ class SpamLimitService
             }
         } catch (\Exception $e) {
             // If we can't get quote, default to session storage check
+            unset($e);
         }
 
         return false;

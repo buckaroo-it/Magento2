@@ -47,9 +47,9 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
 
     /**
      * @param Data                 $helper
-     * @param string               $addressType
      * @param ScopeConfigInterface $scopeConfig
-     * @param AddressFactory      $addressFactory
+     * @param AddressFactory       $addressFactory
+     * @param string               $addressType
      */
     public function __construct(Data $helper, ScopeConfigInterface $scopeConfig, AddressFactory $addressFactory, string $addressType = 'billing')
     {

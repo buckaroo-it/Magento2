@@ -57,8 +57,8 @@ class AfterpayProcessor extends DefaultProcessor
      * @param Account                 $configAccount
      * @param GiftCardRefundService   $giftCardRefundService
      * @param Uncancel                $uncancelService
-     * @param ResourceConnection $resourceConnection
-     * @param GiftcardCollection $giftcardCollection
+     * @param ResourceConnection      $resourceConnection
+     * @param GiftcardCollection      $giftcardCollection
      * @param Afterpay20              $afterpayConfig
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
@@ -98,6 +98,8 @@ class AfterpayProcessor extends DefaultProcessor
     }
 
     /**
+     * Determine if the invoice should be saved for Afterpay payments
+     *
      * @param array $paymentDetails
      *
      * @throws \Exception
