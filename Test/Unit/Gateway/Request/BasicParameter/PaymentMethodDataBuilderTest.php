@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Test\Unit\Gateway\Request\BasicParameter;
 
 use Buckaroo\Magento2\Gateway\Request\BasicParameter\PaymentMethodDataBuilder;
+use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Test\Unit\Gateway\Request\AbstractDataBuilderTest;
 
 class PaymentMethodDataBuilderTest extends AbstractDataBuilderTest
@@ -32,13 +33,19 @@ class PaymentMethodDataBuilderTest extends AbstractDataBuilderTest
     private $paymentMethodDataBuilder;
 
     /**
+     * @var PaymentGroupTransaction|\PHPUnit\Framework\MockObject\MockObject
+     */
+    private $paymentGroupTransaction;
+
+    /**
      * @inheritdoc
      */
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->paymentMethodDataBuilder = new PaymentMethodDataBuilder();
+        $this->paymentGroupTransaction = $this->createMock(PaymentGroupTransaction::class);
+        $this->paymentMethodDataBuilder = new PaymentMethodDataBuilder($this->paymentGroupTransaction);
     }
 
     /**

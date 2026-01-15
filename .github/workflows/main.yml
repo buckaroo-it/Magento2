@@ -67,15 +67,21 @@ jobs:
       - name: Copy module into Magento
         run: |
           mkdir -p m248/app/code/Buckaroo/Magento2/
-          rsync -r --exclude='m248' ./ m248/app/code/Buckaroo/Magento2/
+          rsync -r --exclude='m248' --exclude='vendor' ./ m248/app/code/Buckaroo/Magento2/
+
+      - name: Install Buckaroo SDK at Magento level
+        working-directory: m248
+        run: |
+          composer require buckaroo/sdk:^1.20.0 --no-update
+          composer update buckaroo/sdk --no-interaction --prefer-dist
 
       - name: Run PHPCS against changed files (PR) or whole module (push)
         run: |
           if [ -f files_changed ]; then
             cat files_changed | grep '"filename"' | sed 's/\"filename\"\: \"//' | sed 's/\",//' \
-              | xargs -r ./m248/vendor/bin/phpcs --standard=Magento2
+              | xargs -r ./m248/vendor/bin/phpcs --standard=m248/app/code/Buckaroo/Magento2/phpcs.xml
           else
-            ./m248/vendor/bin/phpcs --standard=Magento2 m248/app/code/Buckaroo/Magento2
+            ./m248/vendor/bin/phpcs --standard=m248/app/code/Buckaroo/Magento2/phpcs.xml m248/app/code/Buckaroo/Magento2
           fi
 
       - name: Compile and run unit tests
@@ -83,4 +89,4 @@ jobs:
         run: |
           bin/magento module:enable --all
           bin/magento setup:di:compile
-          vendor/phpunit/phpunit/phpunit -c dev/tests/unit/phpunit.xml.dist app/code/Buckaroo/Magento2
+          cd app/code/Buckaroo/Magento2 && ../../../../vendor/phpunit/phpunit/phpunit

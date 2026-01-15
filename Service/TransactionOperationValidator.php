@@ -39,7 +39,7 @@ class TransactionOperationValidator
      *
      * @var array
      */
-    private array $postTransactionActions;
+    private $postTransactionActions;
 
     /**
      * @param array $postTransactionActions Configurable list of actions via di.xml

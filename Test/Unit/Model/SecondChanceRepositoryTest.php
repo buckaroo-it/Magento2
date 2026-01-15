@@ -332,6 +332,7 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
      * @param string $expectedTemplate
      *
      * @dataProvider sendMailProvider
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function testSendMail($step, $expectedTemplate)
     {
@@ -351,11 +352,21 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
         $order->expects($this->any())->method('getPayment')->willReturn($payment);
 
         $secondChance->method('getToken')->willReturn('test_token');
+        $secondChance->method('getOrderId')->willReturn('000000001');
+        $secondChance->method('getLastOrderId')->willReturn('000000001-1'); // Simulate stored last order ID
+
+        $order->method('getQuoteId')->willReturn(123);
+
+        // Mock quoteFactory for setAvailableIncrementId
+        $quote = $this->getFakeMock(\Magento\Quote\Model\Quote::class, true);
+        $quote->method('load')->willReturnSelf();
+        $quote->method('getId')->willReturn(null); // No quote found
+        $quoteFactory = $this->getFakeMock(\Magento\Quote\Model\QuoteFactory::class)->getMock();
+        $quoteFactory->method('create')->willReturn($quote);
 
         $store->method('getUrl')
             ->with('buckaroo/checkout/secondchance', [
                 'token' => 'test_token',
-                '_scope' => 1,
                 '_scope_to_url' => true
             ])
             ->willReturn('http://example.com/nl/buckaroo/checkout/secondchance?token=test_token');
@@ -411,6 +422,19 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->logging->method('addDebug')
             ->willReturn(true);
 
+        // Mock orderFactory to return a loadable order
+        $baseOrder = $this->getFakeMock(Order::class, true);
+        $baseOrder->method('loadByIncrementId')->willReturnSelf();
+        $baseOrder->method('getId')->willReturn(null); // No base order found, use original order
+        $orderFactory = $this->getFakeMock(\Magento\Sales\Model\OrderFactory::class)->getMock();
+        $orderFactory->method('create')->willReturn($baseOrder);
+
+        // Mock storeManager to return the store
+        $storeManager = $this->getFakeMock(\Magento\Store\Model\StoreManagerInterface::class)->getMock();
+        $storeManager->method('getStore')->willReturn($store);
+
+        $order->method('getStoreId')->willReturn(1);
+
         $instance = $this->getInstance([
             'configProvider' => $this->configProvider,
             'transportBuilder' => $this->transportBuilder,
@@ -418,6 +442,9 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
             'logging' => $this->logging,
             'addressRenderer' => $addressRenderer,
             'paymentHelper' => $paymentHelper,
+            'orderFactory' => $orderFactory,
+            'storeManager' => $storeManager,
+            'quoteFactory' => $quoteFactory,
         ]);
 
         $this->invokeArgs('sendMail', [$order, $secondChance, $step], $instance);

@@ -47,6 +47,7 @@ class CapayableIn3Handler extends AbstractArticlesHandler
 
     /**
      * Override to apply discount proportionally to products instead of separate line
+     *
      * In3 API doesn't accept negative GrossUnitPrice values
      *
      * @param Order $order
@@ -65,11 +66,8 @@ class CapayableIn3Handler extends AbstractArticlesHandler
             return ['articles' => [0 => $this->getRequestArticlesDataPayRemainder()]];
         }
 
-        // Get discount amount to distribute across products
-        $discountAmount = abs((float)$order->getDiscountAmount());
-
         // Get items with discount applied proportionally
-        $articles['articles'] = $this->getItemsLinesWithDiscount($discountAmount);
+        $articles['articles'] = $this->getItemsLinesWithDiscount();
 
         $serviceLine = $this->getServiceCostLine($this->getOrder());
         if (!empty($serviceLine)) {
@@ -93,11 +91,10 @@ class CapayableIn3Handler extends AbstractArticlesHandler
     /**
      * Get items lines with discount applied using Magento's native discount calculation
      *
-     * @param float $totalDiscount
      * @return array
      * @throws LocalizedException
      */
-    protected function getItemsLinesWithDiscount(float $totalDiscount): array
+    protected function getItemsLinesWithDiscount(): array
     {
         $articles = [];
         $count = 1;

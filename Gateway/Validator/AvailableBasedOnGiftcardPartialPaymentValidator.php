@@ -64,9 +64,9 @@ class AvailableBasedOnGiftcardPartialPaymentValidator extends AbstractValidator
     }
 
     /**
+     * Validate payment availability based on giftcard partial payment
      *
      * @param array $validationSubject
-     *
      * @return ResultInterface
      */
     public function validate(array $validationSubject): ResultInterface
@@ -97,4 +97,3 @@ class AvailableBasedOnGiftcardPartialPaymentValidator extends AbstractValidator
         return $this->createResult($isValid);
     }
 }
-
