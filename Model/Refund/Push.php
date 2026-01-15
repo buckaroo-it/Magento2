@@ -28,12 +28,14 @@ use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\ConfigProvider\Refund;
 use Buckaroo\Magento2\Model\ConfigProvider\Refund as RefundConfigProvider;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\DB\Transaction;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\CreditmemoManagementInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Creditmemo;
 use Magento\Sales\Model\Order\CreditmemoFactory;
 use Magento\Sales\Model\Order\Email\Sender\CreditmemoSender;
+use Magento\Sales\Model\Service\InvoiceService;
 use Magento\Store\Model\ScopeInterface;
 
 /**
@@ -41,7 +43,7 @@ use Magento\Store\Model\ScopeInterface;
  */
 class Push
 {
-    const TAX_CALCULATION_SHIPPING_INCLUDES_TAX = 'tax/calculation/shipping_includes_tax';
+    public const TAX_CALCULATION_SHIPPING_INCLUDES_TAX = 'tax/calculation/shipping_includes_tax';
 
     /**
      * @var \Buckaroo\Magento2\Api\Data\PushRequestInterface
@@ -94,6 +96,16 @@ class Push
     private $creditmemoManagement;
 
     /**
+     * @var InvoiceService
+     */
+    private $invoiceService;
+
+    /**
+     * @var Transaction
+     */
+    private $transaction;
+
+    /**
      * @param CreditmemoFactory             $creditmemoFactory
      * @param CreditmemoManagementInterface $creditmemoManagement
      * @param CreditmemoSender              $creditEmailSender
@@ -101,6 +113,8 @@ class Push
      * @param Data                          $helper
      * @param BuckarooLoggerInterface       $logger
      * @param ScopeConfigInterface          $scopeConfig
+     * @param InvoiceService                $invoiceService
+     * @param Transaction                   $transaction
      */
     public function __construct(
         CreditmemoFactory $creditmemoFactory,
@@ -109,7 +123,9 @@ class Push
         Refund $configRefund,
         Data $helper,
         BuckarooLoggerInterface $logger,
-        ScopeConfigInterface $scopeConfig
+        ScopeConfigInterface $scopeConfig,
+        InvoiceService $invoiceService,
+        Transaction $transaction
     ) {
         $this->creditmemoFactory = $creditmemoFactory;
         $this->creditmemoManagement = $creditmemoManagement;
@@ -118,19 +134,20 @@ class Push
         $this->logger = $logger;
         $this->configRefund = $configRefund;
         $this->scopeConfig = $scopeConfig;
+        $this->invoiceService = $invoiceService;
+        $this->transaction = $transaction;
     }
 
     /**
      * This is called when a refund is made in Buckaroo Plaza.
+     *
      * This Function will result in a creditmemo being created for the order in question.
      *
      * @param PushRequestInterface $postData
-     * @param bool                 $signatureValidation
-     * @param                      $order
-     *
-     * @throws BuckarooException
-     *
+     * @param bool $signatureValidation
+     * @param Order $order
      * @return bool
+     * @throws BuckarooException|LocalizedException
      */
     public function receiveRefundPush(PushRequestInterface $postData, bool $signatureValidation, $order): bool
     {
@@ -144,6 +161,34 @@ class Push
             $this->order->getId()
         ));
 
+        $this->validateRefundConfiguration();
+        $this->validateRefundRequest($signatureValidation);
+
+        if ($this->isAlreadyRefunded()) {
+            return false;
+        }
+
+        $this->validateRefundStatus();
+
+        $creditmemo = $this->createCreditmemo();
+
+        $this->logger->addDebug(sprintf(
+            '[PUSH_REFUND] | [Webapi] | [%s:%s] - Order successful refunded | creditmemo: %s',
+            __METHOD__,
+            __LINE__,
+            $creditmemo ? 'success' : 'false'
+        ));
+
+        return $creditmemo;
+    }
+
+    /**
+     * Validate refund configuration
+     *
+     * @throws BuckarooException
+     */
+    private function validateRefundConfiguration(): void
+    {
         if (!$this->configRefund->getAllowPush()) {
             $this->logger->addDebug(sprintf(
                 '[PUSH_REFUND] | [Webapi] | [%s:%s] - Refund order failed - ' .
@@ -154,34 +199,87 @@ class Push
             ));
             throw new BuckarooException(__('Buckaroo refund is disabled'));
         }
+    }
 
-        if (!$signatureValidation && !$this->order->canCreditmemo()) {
+    /**
+     * Validate refund request
+     *
+     * @param bool $signatureValidation
+     * @throws BuckarooException
+     */
+    private function validateRefundRequest(bool $signatureValidation): void
+    {
+        $canRefund = $this->canOrderBeRefunded();
+
+        if (!$signatureValidation && !$canRefund) {
+            $payment = $this->order->getPayment();
+            $baseAmountPaid = $payment ? $payment->getBaseAmountPaid() : 0;
+            
             $this->logger->addDebug(sprintf(
                 '[PUSH_REFUND] | [Webapi] | [%s:%s] - Refund order failed - validation incorrect | signature: %s',
                 __METHOD__,
                 __LINE__,
                 var_export([
                     'signature'      => $signatureValidation,
-                    'canOrderCredit' => $this->order->canCreditmemo()
+                    'canOrderCredit' => $this->order->canCreditmemo(),
+                    'baseAmountPaid' => $baseAmountPaid,
+                    'baseTotalRefunded' => $this->order->getBaseTotalRefunded()
                 ], true)
             ));
             throw new BuckarooException(__('Buckaroo refund push validation failed'));
         }
+    }
 
+    /**
+     * Check if order can be refunded
+     *
+     * @return bool
+     */
+    private function canOrderBeRefunded(): bool
+    {
+        if ($this->order->canCreditmemo()) {
+            return true;
+        }
+
+        // Check if this is a captured order without invoice (deferred invoice mode)
+        $payment = $this->order->getPayment();
+        $isCaptured = $payment && $payment->getBaseAmountPaid() > 0;
+
+        return $isCaptured && ($this->order->getBaseTotalRefunded() < $payment->getBaseAmountPaid());
+    }
+
+    /**
+     * Check if transaction is already refunded
+     *
+     * @return bool
+     */
+    private function isAlreadyRefunded(): bool
+    {
         $creditmemoCollection = $this->order->getCreditmemosCollection();
         $creditmemosByTransactionId = $creditmemoCollection->getItemsByColumnValue(
             'transaction_id',
             $this->postData->getTransactions()
         );
+
         if (count($creditmemosByTransactionId) > 0) {
             $this->logger->addDebug(sprintf(
                 '[PUSH_REFUND] | [Webapi] | [%s:%s] - The transaction has already been refunded',
                 __METHOD__,
                 __LINE__
             ));
-            return false;
+            return true;
         }
 
+        return false;
+    }
+
+    /**
+     * Validate refund status from Buckaroo
+     *
+     * @throws BuckarooException
+     */
+    private function validateRefundStatus(): void
+    {
         $statusCode = (int)$this->postData->getStatusCode();
         if ($statusCode !== BuckarooStatusCode::SUCCESS) {
             $this->logger->addError(sprintf(
@@ -198,17 +296,6 @@ class Push
                 $this->postData->getStatusMessage()
             ));
         }
-
-        $creditmemo = $this->createCreditmemo();
-
-        $this->logger->addDebug(sprintf(
-            '[PUSH_REFUND] | [Webapi] | [%s:%s] - Order successful refunded | creditmemo: %s',
-            __METHOD__,
-            __LINE__,
-            $creditmemo ? 'success' : 'false'
-        ));
-
-        return $creditmemo;
     }
 
     /**
@@ -224,40 +311,15 @@ class Push
         $creditmemo = $this->initCreditmemo($creditData);
 
         try {
-            if ($creditmemo) {
-                if ($this->postData->hasAdditionalInformation('service_action_from_magento', 'capture')
-                    && !empty($this->postData->getTransactionMethod())
-                    && ($this->postData->getTransactionMethod() == 'afterpay')
-                    && !empty($this->postData->getTransactionType())
-                    && ($this->postData->getTransactionType() == 'C041')
-                ) {
-                    $creditmemo->setBaseGrandTotal($this->totalAmountToRefund());
-                    $creditmemo->setGrandTotal($this->totalAmountToRefund());
-                }
-                if (!$creditmemo->isValidGrandTotal()) {
-                    $this->logger->addDebug(sprintf(
-                        '[PUSH_REFUND] | [Webapi] | [%s:%s] - The credit memo\'s total must be positive',
-                        __METHOD__,
-                        __LINE__
-                    ));
-                    throw new LocalizedException(
-                        __('The credit memo\'s total must be positive.')
-                    );
-                }
-                $creditmemo->setTransactionId($this->postData->getTransactions());
-
-                $this->creditmemoManagement->refund(
-                    $creditmemo,
-                    (bool)$creditData['do_offline'],
-                    !empty($creditData['order_email'])
-                );
-                $this->creditEmailSender->send($creditmemo);
-                return true;
-            } else {
-                throw new BuckarooException(
-                    __('Failed to create the creditmemo')
-                );
+            if (!$creditmemo) {
+                throw new BuckarooException(__('Failed to create the creditmemo'));
             }
+
+            $this->applyRivertyRefundAdjustments($creditmemo);
+            $this->validateCreditmemo($creditmemo);
+            $this->processRefund($creditmemo, $creditData);
+
+            return true;
         } catch (LocalizedException $e) {
             $this->logger->addError(sprintf(
                 '[PUSH_REFUND] | [Webapi] | [%s:%s] - Buckaroo failed to create the credit memo\'s | [ERROR]: %s',
@@ -267,6 +329,81 @@ class Push
             ));
         }
         return false;
+    }
+
+    /**
+     * Apply Riverty-specific refund adjustments
+     *
+     * @param Creditmemo $creditmemo
+     */
+    private function applyRivertyRefundAdjustments(Creditmemo $creditmemo): void
+    {
+        $isRivertyRefund = $this->isRivertyRefund();
+        $hasNoInvoice = !$this->order->hasInvoices();
+
+        if ($isRivertyRefund && ($hasNoInvoice || $this->postData->hasAdditionalInformation('service_action_from_magento', 'capture'))) {
+            $refundAmount = $this->totalAmountToRefund();
+            $creditmemo->setBaseGrandTotal($refundAmount);
+            $creditmemo->setGrandTotal($refundAmount);
+
+            $this->logger->addDebug(sprintf(
+                '[PUSH_REFUND] | [Webapi] | [%s:%s] - Explicitly set credit memo grand total for Riverty deferred invoice: %s',
+                __METHOD__,
+                __LINE__,
+                $refundAmount
+            ));
+        }
+    }
+
+    /**
+     * Check if this is a Riverty refund
+     *
+     * @return bool
+     */
+    private function isRivertyRefund(): bool
+    {
+        return !empty($this->postData->getTransactionMethod())
+            && ($this->postData->getTransactionMethod() == 'afterpay')
+            && !empty($this->postData->getTransactionType())
+            && ($this->postData->getTransactionType() == 'C041');
+    }
+
+    /**
+     * Validate creditmemo
+     *
+     * @param Creditmemo $creditmemo
+     * @throws LocalizedException
+     */
+    private function validateCreditmemo(Creditmemo $creditmemo): void
+    {
+        if (!$creditmemo->isValidGrandTotal()) {
+            $this->logger->addDebug(sprintf(
+                '[PUSH_REFUND] | [Webapi] | [%s:%s] - The credit memo\'s total must be positive',
+                __METHOD__,
+                __LINE__
+            ));
+            throw new LocalizedException(__('The credit memo\'s total must be positive.'));
+        }
+    }
+
+    /**
+     * Process the refund
+     *
+     * @param Creditmemo $creditmemo
+     * @param array $creditData
+     * @throws \Exception
+     */
+    private function processRefund(Creditmemo $creditmemo, array $creditData): void
+    {
+        $creditmemo->setTransactionId($this->postData->getTransactions());
+
+        $this->creditmemoManagement->refund(
+            $creditmemo,
+            (bool)$creditData['do_offline'],
+            !empty($creditData['order_email'])
+        );
+
+        $this->creditEmailSender->send($creditmemo);
     }
 
     /**
@@ -363,25 +500,77 @@ class Push
     public function getCreditmemoDataItems(): array
     {
         $items = [];
-        $qty = 0;
 
-        $refundedItems = $this->order->getPayment()->getAdditionalInformation(RefundConfigProvider::ADDITIONAL_INFO_PENDING_REFUND_ITEMS);
+        $refundedItems = $this->order->getPayment()->getAdditionalInformation(
+            RefundConfigProvider::ADDITIONAL_INFO_PENDING_REFUND_ITEMS
+        );
 
         if ($refundedItems) {
-            $items = $refundedItems;
-        } else {
-            foreach ($this->order->getAllItems() as $orderItem) {
-                if (!array_key_exists($orderItem->getId(), $items)) {
-                    if ($this->helper->areEqualAmounts($this->creditAmount, $this->order->getBaseGrandTotal())) {
-                        $qty = $orderItem->getQtyInvoiced() - $orderItem->getQtyRefunded();
-                    }
+            return $refundedItems;
+        }
 
-                    $items[$orderItem->getId()] = ['qty' => (int)$qty];
-                }
+        foreach ($this->order->getAllItems() as $orderItem) {
+            if (array_key_exists($orderItem->getId(), $items)) {
+                continue;
             }
+
+            $qty = $this->calculateItemRefundQuantity($orderItem);
+            $items[$orderItem->getId()] = ['qty' => (int)$qty];
         }
 
         return $items;
+    }
+
+    /**
+     * Calculate refund quantity for order item
+     *
+     * @param Order\Item $orderItem
+     * @return float
+     */
+    private function calculateItemRefundQuantity(Order\Item $orderItem): float
+    {
+        $qty = 0;
+
+        if (!$this->helper->areEqualAmounts($this->creditAmount, $this->order->getBaseGrandTotal())) {
+            return $qty;
+        }
+
+        // Check if item has been invoiced
+        if ($orderItem->getQtyInvoiced() > 0) {
+            // Standard flow: refund based on invoiced quantity
+            return $orderItem->getQtyInvoiced() - $orderItem->getQtyRefunded();
+        }
+
+        // Deferred invoice flow (e.g., Riverty/Afterpay with SHIPMENT mode)
+        return $this->calculateDeferredInvoiceQuantity($orderItem);
+    }
+
+    /**
+     * Calculate refund quantity for deferred invoice mode
+     *
+     * @param Order\Item $orderItem
+     * @return float
+     */
+    private function calculateDeferredInvoiceQuantity(Order\Item $orderItem): float
+    {
+        $payment = $this->order->getPayment();
+        $isCaptured = $payment && $payment->getBaseAmountPaid() > 0;
+
+        if (!$isCaptured) {
+            return 0;
+        }
+
+        $qty = $orderItem->getQtyOrdered() - $orderItem->getQtyRefunded();
+        
+        $this->logger->addDebug(sprintf(
+            '[PUSH_REFUND] | [Webapi] | [%s:%s] - Deferred invoice mode detected - using ordered qty for item %s: %s',
+            __METHOD__,
+            __LINE__,
+            $orderItem->getSku(),
+            $qty
+        ));
+
+        return $qty;
     }
 
     /**
@@ -485,6 +674,66 @@ class Push
     }
 
     /**
+     * Create invoice for order without invoice (deferred invoice mode)
+     *
+     * @throws LocalizedException
+     * @return void
+     */
+    private function createInvoiceForOrder()
+    {
+        try {
+            if ($this->order->hasInvoices()) {
+                $this->logger->addDebug(sprintf(
+                    '[PUSH_REFUND] | [Webapi] | [%s:%s] - Order already has invoices, skipping invoice creation',
+                    __METHOD__,
+                    __LINE__
+                ));
+                return;
+            }
+
+            // Create invoice for all items using InvoiceService
+            $invoice = $this->invoiceService->prepareInvoice($this->order);
+
+            if (!$invoice || !$invoice->getTotalQty()) {
+                throw new LocalizedException(__('Cannot create an invoice without products.'));
+            }
+
+            // Register invoice as captured offline (since payment was already captured in Buckaroo)
+            // Use CAPTURE_OFFLINE to register the invoiced amount without actually capturing payment again
+            $invoice->setRequestedCaptureCase(Order\Invoice::CAPTURE_OFFLINE);
+            $invoice->register();
+
+            // Save invoice and order in a transaction
+            $invoice->getOrder()->setIsInProcess(true);
+
+            $this->transaction
+                ->addObject($invoice)
+                ->addObject($invoice->getOrder())
+                ->save();
+
+            $this->logger->addDebug(sprintf(
+                '[PUSH_REFUND] | [Webapi] | [%s:%s] - Invoice created successfully for order %s | Invoice ID: %s | Grand Total: %s',
+                __METHOD__,
+                __LINE__,
+                $this->order->getIncrementId(),
+                $invoice->getIncrementId(),
+                $invoice->getGrandTotal()
+            ));
+        } catch (\Exception $e) {
+            $this->logger->addError(sprintf(
+                '[PUSH_REFUND] | [Webapi] | [%s:%s] - Failed to create invoice for order %s | Error: %s',
+                __METHOD__,
+                __LINE__,
+                $this->order->getIncrementId(),
+                $e->getMessage()
+            ));
+            throw new LocalizedException(
+                __('Cannot create invoice for refund: %1', $e->getMessage())
+            );
+        }
+    }
+
+    /**
      * Create credit memo by order and refund data
      *
      * @param array $creditData
@@ -496,7 +745,40 @@ class Push
     public function initCreditmemo(array $creditData)
     {
         try {
+            // Check if order has no invoices (deferred invoice mode)
+            $hasNoInvoice = !$this->order->hasInvoices();
+
+            if ($hasNoInvoice) {
+                $this->logger->addDebug(sprintf(
+                    '[PUSH_REFUND] | [Webapi] | [%s:%s] - Order has no invoice - creating invoice first for deferred invoice mode',
+                    __METHOD__,
+                    __LINE__
+                ));
+
+                // For Riverty/Afterpay with deferred invoicing, we need to create an invoice first
+                // before we can create a credit memo
+                $this->createInvoiceForOrder();
+            }
+
             $creditmemo = $this->creditmemoFactory->createByOrder($this->order, $creditData);
+
+            if (!$creditmemo) {
+                $this->logger->addError(sprintf(
+                    '[PUSH_REFUND] | [Webapi] | [%s:%s] - Failed to create credit memo from order',
+                    __METHOD__,
+                    __LINE__
+                ));
+                return false;
+            }
+
+            $this->logger->addDebug(sprintf(
+                '[PUSH_REFUND] | [Webapi] | [%s:%s] - Credit memo created | Items count: %s | Grand Total: %s | Base Grand Total: %s',
+                __METHOD__,
+                __LINE__,
+                count($creditmemo->getAllItems()),
+                $creditmemo->getGrandTotal(),
+                $creditmemo->getBaseGrandTotal()
+            ));
 
             // Respect Magento's auto-return configuration instead of hardcoding to false
             $autoReturn = $this->scopeConfig->isSetFlag(
