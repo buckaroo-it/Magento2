@@ -25,6 +25,7 @@ use Buckaroo\Magento2\Gateway\Command\SkipCommandInterface;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Gateway\Response\TransactionIdHandler;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
+use Magento\Sales\Model\Order;
 
 /**
  * Skip cancel/void command if there's no valid transaction to cancel
@@ -60,19 +61,18 @@ class CancelVoidSkip implements SkipCommandInterface
     {
         $paymentDO = SubjectReader::readPayment($commandSubject);
         $payment = $paymentDO->getPayment();
+        $order = $payment->getOrder();
 
-        // Check if there's a transaction key - this is set only for successful transactions
+        // Check if there's a transaction key
         $transactionKey = $payment->getAdditionalInformation(
             TransactionIdHandler::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY
         );
 
-        // Skip if no transaction key exists (no successful transaction to void)
+        // Skip if no transaction key exists
         if (empty($transactionKey)) {
-            $order = $payment->getOrder();
             $this->logger->addDebug(sprintf(
                 '[SKIP_VOID - %s] | [CancelVoidSkip] | [%s:%s] - Skipping cancel/void command: '
-                . 'No transaction key found. Order: %s. '
-                . 'This typically means the payment was rejected or failed before a transaction was created.',
+                . 'No transaction key found. Order: %s.',
                 $payment->getMethod(),
                 __METHOD__,
                 __LINE__,
@@ -82,7 +82,20 @@ class CancelVoidSkip implements SkipCommandInterface
             return true;
         }
 
-        // Transaction key exists, proceed with cancel/void
+        if ($order && $order->getState() === Order::STATE_NEW) {
+            $this->logger->addDebug(sprintf(
+                '[SKIP_VOID - %s] | [CancelVoidSkip] | [%s:%s] - Skipping cancel/void command: '
+                . 'Order in NEW state (payment failed). Order: %s.',
+                $payment->getMethod(),
+                __METHOD__,
+                __LINE__,
+                $order->getIncrementId()
+            ));
+
+            return true;
+        }
+
         return false;
     }
+
 }
