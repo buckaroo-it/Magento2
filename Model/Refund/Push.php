@@ -43,7 +43,7 @@ use Magento\Store\Model\ScopeInterface;
  */
 class Push
 {
-    const TAX_CALCULATION_SHIPPING_INCLUDES_TAX = 'tax/calculation/shipping_includes_tax';
+    public const TAX_CALCULATION_SHIPPING_INCLUDES_TAX = 'tax/calculation/shipping_includes_tax';
 
     /**
      * @var \Buckaroo\Magento2\Api\Data\PushRequestInterface
@@ -140,15 +140,14 @@ class Push
 
     /**
      * This is called when a refund is made in Buckaroo Plaza.
+     *
      * This Function will result in a creditmemo being created for the order in question.
      *
      * @param PushRequestInterface $postData
-     * @param bool                 $signatureValidation
-     * @param                      $order
-     *
+     * @param bool $signatureValidation
+     * @param Order $order
      * @return bool
      * @throws BuckarooException|LocalizedException
-     *
      */
     public function receiveRefundPush(PushRequestInterface $postData, bool $signatureValidation, $order): bool
     {
@@ -214,6 +213,8 @@ class Push
 
         if (!$signatureValidation && !$canRefund) {
             $payment = $this->order->getPayment();
+            $baseAmountPaid = $payment ? $payment->getBaseAmountPaid() : 0;
+            
             $this->logger->addDebug(sprintf(
                 '[PUSH_REFUND] | [Webapi] | [%s:%s] - Refund order failed - validation incorrect | signature: %s',
                 __METHOD__,
@@ -221,7 +222,7 @@ class Push
                 var_export([
                     'signature'      => $signatureValidation,
                     'canOrderCredit' => $this->order->canCreditmemo(),
-                    'baseAmountPaid' => $payment ? $payment->getBaseAmountPaid() : 0,
+                    'baseAmountPaid' => $baseAmountPaid,
                     'baseTotalRefunded' => $this->order->getBaseTotalRefunded()
                 ], true)
             ));
@@ -499,45 +500,77 @@ class Push
     public function getCreditmemoDataItems(): array
     {
         $items = [];
-        $qty = 0;
 
-        $refundedItems = $this->order->getPayment()->getAdditionalInformation(RefundConfigProvider::ADDITIONAL_INFO_PENDING_REFUND_ITEMS);
+        $refundedItems = $this->order->getPayment()->getAdditionalInformation(
+            RefundConfigProvider::ADDITIONAL_INFO_PENDING_REFUND_ITEMS
+        );
 
         if ($refundedItems) {
-            $items = $refundedItems;
-        } else {
-            foreach ($this->order->getAllItems() as $orderItem) {
-                if (!array_key_exists($orderItem->getId(), $items)) {
-                    if ($this->helper->areEqualAmounts($this->creditAmount, $this->order->getBaseGrandTotal())) {
-                        // Check if item has been invoiced
-                        if ($orderItem->getQtyInvoiced() > 0) {
-                            // Standard flow: refund based on invoiced quantity
-                            $qty = $orderItem->getQtyInvoiced() - $orderItem->getQtyRefunded();
-                        } else {
-                            // Deferred invoice flow (e.g., Riverty/Afterpay with SHIPMENT mode):
-                            // If no invoice exists yet but the order was captured, allow refund based on ordered qty
-                            $payment = $this->order->getPayment();
-                            $isCaptured = $payment && $payment->getBaseAmountPaid() > 0;
+            return $refundedItems;
+        }
 
-                            if ($isCaptured) {
-                                $qty = $orderItem->getQtyOrdered() - $orderItem->getQtyRefunded();
-                                $this->logger->addDebug(sprintf(
-                                    '[PUSH_REFUND] | [Webapi] | [%s:%s] - Deferred invoice mode detected - using ordered qty for item %s: %s',
-                                    __METHOD__,
-                                    __LINE__,
-                                    $orderItem->getSku(),
-                                    $qty
-                                ));
-                            }
-                        }
-                    }
-
-                    $items[$orderItem->getId()] = ['qty' => (int)$qty];
-                }
+        foreach ($this->order->getAllItems() as $orderItem) {
+            if (array_key_exists($orderItem->getId(), $items)) {
+                continue;
             }
+
+            $qty = $this->calculateItemRefundQuantity($orderItem);
+            $items[$orderItem->getId()] = ['qty' => (int)$qty];
         }
 
         return $items;
+    }
+
+    /**
+     * Calculate refund quantity for order item
+     *
+     * @param Order\Item $orderItem
+     * @return float
+     */
+    private function calculateItemRefundQuantity(Order\Item $orderItem): float
+    {
+        $qty = 0;
+
+        if (!$this->helper->areEqualAmounts($this->creditAmount, $this->order->getBaseGrandTotal())) {
+            return $qty;
+        }
+
+        // Check if item has been invoiced
+        if ($orderItem->getQtyInvoiced() > 0) {
+            // Standard flow: refund based on invoiced quantity
+            return $orderItem->getQtyInvoiced() - $orderItem->getQtyRefunded();
+        }
+
+        // Deferred invoice flow (e.g., Riverty/Afterpay with SHIPMENT mode)
+        return $this->calculateDeferredInvoiceQuantity($orderItem);
+    }
+
+    /**
+     * Calculate refund quantity for deferred invoice mode
+     *
+     * @param Order\Item $orderItem
+     * @return float
+     */
+    private function calculateDeferredInvoiceQuantity(Order\Item $orderItem): float
+    {
+        $payment = $this->order->getPayment();
+        $isCaptured = $payment && $payment->getBaseAmountPaid() > 0;
+
+        if (!$isCaptured) {
+            return 0;
+        }
+
+        $qty = $orderItem->getQtyOrdered() - $orderItem->getQtyRefunded();
+        
+        $this->logger->addDebug(sprintf(
+            '[PUSH_REFUND] | [Webapi] | [%s:%s] - Deferred invoice mode detected - using ordered qty for item %s: %s',
+            __METHOD__,
+            __LINE__,
+            $orderItem->getSku(),
+            $qty
+        ));
+
+        return $qty;
     }
 
     /**
