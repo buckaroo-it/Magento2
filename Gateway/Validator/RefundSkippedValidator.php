@@ -39,11 +39,11 @@ class RefundSkippedValidator extends AbstractValidator
     public function validate(array $validationSubject): ResultInterface
     {
         // If refund was fully handled by group transactions (giftcards/vouchers), mark as valid/successful
-        if (isset($validationSubject['response']['group_transaction_refund_complete']) 
+        if (isset($validationSubject['response']['group_transaction_refund_complete'])
             && $validationSubject['response']['group_transaction_refund_complete'] === true
         ) {
             return $this->createResult(
-                true, 
+                true,
                 [__('Refund completed via group transactions (giftcards/vouchers)')]
             );
         }
@@ -52,4 +52,3 @@ class RefundSkippedValidator extends AbstractValidator
         return $this->createResult(true);
     }
 }
-

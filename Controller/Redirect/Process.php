@@ -57,6 +57,7 @@ use Magento\Sales\Model\Order;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.TooManyFields)
  */
 class Process extends Action implements HttpPostActionInterface, HttpGetActionInterface
 {
@@ -370,7 +371,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
      *  - Sets the last quote and order.
      *  - Returns a successful redirect response.
      *
-     * @param $statusCode
+     * @param int|string $statusCode
      *
      * @throws Exception
      *
@@ -558,7 +559,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
      *  - Sets the last quote and order.
      *  - Returns a successful redirect response.
      *
-     * @param $statusCode
+     * @param int|string $statusCode
      *
      * @throws LocalizedException
      * @throws Exception
@@ -673,6 +674,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
      *
      * @return ResponseInterface
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     protected function handleFailed($statusCode): ResponseInterface
     {
@@ -840,8 +842,11 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
     public function addErrorMessageByStatus(int $statusCode): void
     {
         $statusCodeAddErrorMessage = [];
+        // phpcs:ignore Magento2.Translation.ConstantUsage -- Using constant for consistency
         $statusCodeAddErrorMessage[BuckarooStatusCode::ORDER_FAILED] = __(self::GENERAL_ERROR_MESSAGE);
+        // phpcs:ignore Magento2.Translation.ConstantUsage -- Using constant for consistency
         $statusCodeAddErrorMessage[BuckarooStatusCode::FAILED] = __(self::GENERAL_ERROR_MESSAGE);
+        // phpcs:ignore Magento2.Translation.ConstantUsage -- Using constant for consistency
         $statusCodeAddErrorMessage[BuckarooStatusCode::REJECTED] = __(self::GENERAL_ERROR_MESSAGE);
         $statusCodeAddErrorMessage[BuckarooStatusCode::CANCELLED_BY_USER]
             = __('Payment cancelled. You can try again using the same or a different payment method.');

@@ -47,7 +47,6 @@ use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Exception;
 use Magento\Framework\App\ObjectManager;
 use Magento\Framework\App\ResourceConnection;
-use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
 use Magento\Sales\Api\Data\TransactionInterface;
@@ -61,6 +60,7 @@ use Buckaroo\Magento2\Model\Transaction\Status\Response;
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ * @SuppressWarnings(PHPMD.TooManyFields)
  */
 class DefaultProcessor implements PushProcessorInterface
 {
@@ -164,20 +164,21 @@ class DefaultProcessor implements PushProcessorInterface
     private $pendingSingleGiftcardInfo = null;
 
     /**
-     * @param OrderRequestService     $orderRequestService
-     * @param PushTransactionType     $pushTransactionType
+     * Constructor
+     *
+     * @param OrderRequestService $orderRequestService
+     * @param PushTransactionType $pushTransactionType
      * @param BuckarooLoggerInterface $logger
-     * @param Data                    $helper
-     * @param TransactionInterface    $transaction
+     * @param Data $helper
+     * @param TransactionInterface $transaction
      * @param PaymentGroupTransaction $groupTransaction
-     * @param BuckarooStatusCode      $buckarooStatusCode
-     * @param OrderStatusFactory      $orderStatusFactory
-     * @param Account                 $configAccount
-     * @param GiftCardRefundService   $giftCardRefundService
-     * @param Uncancel                $uncancelService
+     * @param BuckarooStatusCode $buckarooStatusCode
+     * @param OrderStatusFactory $orderStatusFactory
+     * @param Account $configAccount
+     * @param GiftCardRefundService $giftCardRefundService
+     * @param Uncancel $uncancelService
      * @param ResourceConnection $resourceConnection
      * @param GiftcardCollection $giftcardCollection
-     *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -212,8 +213,9 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * @param PushRequestInterface $pushRequest
+     * Process push notification from payment provider
      *
+     * @param PushRequestInterface $pushRequest
      * @return bool
      * @throws BuckarooException
      * @throws LocalizedException
@@ -278,9 +280,11 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * @param PushRequestInterface $pushRequest
+     * Initialize fields from push request
      *
+     * @param PushRequestInterface $pushRequest
      * @throws Exception
+     * @return void
      */
     protected function initializeFields(PushRequestInterface $pushRequest): void
     {
@@ -313,6 +317,8 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
+     * Check if Klarna capture should be skipped
+     *
      * @return bool
      */
     protected function skipKlarnaCapture(): bool
@@ -332,9 +338,7 @@ class DefaultProcessor implements PushProcessorInterface
      * Check if it is needed to handle the push message based on postdata
      *
      * @throws Exception
-     *
      * @return bool
-     *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     protected function skipSpecificTypesOfRequsts(): bool
@@ -351,11 +355,9 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * Buckaroo Push is send before Response, for correct flow we skip the first push
-     * for some payment methods
+     * Buckaroo Push is send before Response, for correct flow we skip the first push for some payment methods
      *
      * @throws LocalizedException
-     *
      * @return bool
      */
     protected function skipFirstPush(): bool
@@ -436,9 +438,8 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * Check if transaction was already processed based on transaction statuses from payment additional information
      *
+     * @param int $receivedStatusCode
      * @param string $trxId
-     * @param int    $receivedStatusCode
-     *
      * @return bool
      */
     private function isDuplicateTransaction($receivedStatusCode, string $trxId): bool
@@ -486,10 +487,10 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * It updates the BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES payment additional information
-     * with the current received tx status.
+     * Update received transaction statuses
      *
      * @throws LocalizedException
+     * @return void
      */
     protected function setReceivedTransactionStatuses(): void
     {
@@ -509,10 +510,7 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * Checks if the order can be updated by checking its state.
-     * If order is canceled and receives success push, reactivates it.
-     *
-     * Following Magento core's approach (Order::canInvoice, etc.) which checks state only.
+     * Checks if the order can be updated by checking its state
      *
      * @return bool
      * @throws LocalizedException
@@ -566,7 +564,6 @@ class DefaultProcessor implements PushProcessorInterface
 
     /**
      * Reactivate a canceled order when receiving success push
-     * Handles uncanceling, invoice handling setup, and authorization transaction
      *
      * @return bool
      * @throws LocalizedException
@@ -664,7 +661,6 @@ class DefaultProcessor implements PushProcessorInterface
 
     /**
      * Setup invoice handling flags for reactivated orders
-     * Detects if order should use SHIPMENT mode and sets appropriate flags
      *
      * @return void
      * @throws LocalizedException
@@ -702,7 +698,6 @@ class DefaultProcessor implements PushProcessorInterface
 
     /**
      * Detect invoice handling mode from configuration
-     * Checks method-specific config first, then falls back to general config
      *
      * @return int|string|null
      * @throws LocalizedException
@@ -726,7 +721,6 @@ class DefaultProcessor implements PushProcessorInterface
 
     /**
      * Handle capture with deferred invoicing (SHIPMENT mode)
-     * Records capture without creating invoice - invoice will be created on shipment
      *
      * @param float $amount
      * @param string $message
@@ -768,7 +762,6 @@ class DefaultProcessor implements PushProcessorInterface
 
     /**
      * Record capture transaction without creating invoice
-     * Sets all necessary payment fields for deferred invoice creation
      *
      * @param OrderPayment $payment
      * @param float $captureAmount
@@ -807,7 +800,7 @@ class DefaultProcessor implements PushProcessorInterface
 
         // Add capture transaction without invoice (null = no invoice will be created)
         // This is the recommended approach for deferred invoice creation
-        $transaction = $payment->addTransaction(
+        $payment->addTransaction(
             Transaction::TYPE_CAPTURE,
             null,
             true
@@ -836,67 +829,6 @@ class DefaultProcessor implements PushProcessorInterface
         );
 
         $payment->save();
-    }
-
-    /**
-     * Register authorization transaction for reactivated order
-     * Allows manual "Capture Online" option in admin
-     *
-     * @return void
-     * @throws LocalizedException
-     */
-    private function registerAuthorizationForReactivation(): void
-    {
-        // Get transaction key from push data (already determined in reactivateCanceledOrder)
-        $transactionKey = $this->pushRequest->getTransactions();
-
-        // If no brq_transactions, try brq_datarequest (used for Klarna/Afterpay authorization)
-        if (!$transactionKey || strlen($transactionKey) === 0) {
-            $transactionKey = $this->pushRequest->getDatarequest();
-        }
-
-        $this->logger->addDebug(sprintf(
-            '[%s:%s] - Register authorization | Transaction key: %s | Source: %s',
-            __METHOD__,
-            __LINE__,
-            $transactionKey ?? 'NULL',
-            $this->pushRequest->getTransactions() ? 'brq_transactions' : 'brq_datarequest'
-        ));
-
-        if (!$transactionKey || strlen($transactionKey) === 0) {
-            $this->logger->addDebug(sprintf(
-                '[%s:%s] - No transaction key found in push data, skipping authorization registration',
-                __METHOD__,
-                __LINE__
-            ));
-            return;
-        }
-
-        $baseGrandTotal = $this->order->getBaseGrandTotal();
-
-        $newTransactionId = $transactionKey . '-reauth';
-
-        $this->payment->setTransactionId($newTransactionId);
-        $this->payment->setCurrencyCode($this->order->getBaseCurrencyCode());
-        $this->payment->setIsTransactionClosed(false);
-        $this->payment->registerAuthorizationNotification($baseGrandTotal);
-
-        // CRITICAL: Ensure the transaction ID stays as the reauth one after registerAuthorizationNotification
-        // Magento might reset it, so we set it again along with LastTransId
-        $this->payment->setTransactionId($newTransactionId);
-        $this->payment->setLastTransId($newTransactionId);
-
-        // Store the reauth transaction ID so addTransactionData() uses it as parent for captures
-        $this->payment->setAdditionalInformation('buckaroo_reauth_transaction_id', $newTransactionId);
-
-        // Verify canCapture works
-        $canCapture = $this->payment->canCapture();
-        $this->logger->addDebug(sprintf(
-            '[%s:%s] - Authorization setup complete - CanCapture: %s',
-            __METHOD__,
-            __LINE__,
-            $canCapture ? 'YES' : 'NO'
-        ));
     }
 
     /**
@@ -938,6 +870,10 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
+     * Set order status message from push request
+     *
+     * @return void
+     * @throws LocalizedException
      */
     protected function setOrderStatusMessage(): void
     {
@@ -1065,7 +1001,6 @@ class DefaultProcessor implements PushProcessorInterface
 
     /**
      * Check if required data is present for group transaction
-     * Only for MIXED/PARTIAL payments (not single giftcards)
      *
      * @return bool
      */
@@ -1094,8 +1029,9 @@ class DefaultProcessor implements PushProcessorInterface
         return $existingTransaction && $existingTransaction->getEntityId();
     }
 
-
     /**
+     * Check if this is a group transaction part
+     *
      * @return true
      */
     protected function canProcessPostData()
@@ -1197,9 +1133,10 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * @throws LocalizedException
+     * Get the new order status based on the push request status code
      *
-     * @return false|string|null
+     * @return string
+     * @throws LocalizedException
      */
     protected function getNewStatus()
     {
@@ -1369,6 +1306,11 @@ class DefaultProcessor implements PushProcessorInterface
         }
     }
 
+    /**
+     * Set Buckaroo reservation number for Klarna payments
+     *
+     * @return bool
+     */
     protected function setBuckarooReservationNumber(): bool
     {
         return false;
@@ -1378,6 +1320,7 @@ class DefaultProcessor implements PushProcessorInterface
      * Send Order email if was not sent
      *
      * @throws LocalizedException
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     protected function sendOrderEmail(): void
     {
@@ -1433,14 +1376,10 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * Can create invoice on push
-     *
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     *
-     * @throws LocalizedException
+     * Determines if the invoice can be pushed based on the payment action and invoice handling mode.
      *
      * @return bool
+     * @throws LocalizedException
      */
     protected function canPushInvoice(): bool
     {
@@ -1456,15 +1395,11 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * Creates and saves the invoice and adds for each invoice the buckaroo transaction keys
-     * Only when the order can be invoiced and has not been invoiced before.
+     * Saves the invoice for the order if applicable.
      *
-     * @throws BuckarooException
      * @throws LocalizedException
-     * @throws Exception
      *
-     * @return bool
-     *
+     * @return bool True if the invoice was saved, false otherwise.
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
      */
@@ -1611,6 +1546,8 @@ class DefaultProcessor implements PushProcessorInterface
      * @return bool
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function processFailedPush(string $newStatus, string $message): bool
     {
@@ -1653,9 +1590,7 @@ class DefaultProcessor implements PushProcessorInterface
             // Add a clear cancellation message to order history before canceling
             $this->order->addCommentToStatusHistory('Payment failed. Canceling order due to payment failure: ' . $message);
 
-            // BUCKM2-78: Never automatically cancelauthorize via push for afterpay
             // setting parameter which will cause to stop the cancel process on
-            // Buckaroo/Model/Method/BuckarooAdapter.php:880
             $methods = [
                 'buckaroo_magento2_afterpay',
                 'buckaroo_magento2_afterpay2',
@@ -1835,6 +1770,15 @@ class DefaultProcessor implements PushProcessorInterface
         return $brqOrderId;
     }
 
+    /**
+     * Get payment details for successful push
+     *
+     * @param string $message
+     *
+     * @return array
+     *
+     * @throws LocalizedException
+     */
     protected function getPaymentDetails($message)
     {
         // Set amount
@@ -1881,10 +1825,11 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
+     * Determine if the invoice should be saved based on payment details.
+     *
      * @param array $paymentDetails
      *
      * @return bool
-     *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     protected function invoiceShouldBeSaved(array &$paymentDetails): bool
@@ -1893,6 +1838,8 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
+     * Get transfer details for pending payment
+     *
      * @return array
      */
     protected function getTransferDetails(): array
@@ -1901,6 +1848,8 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
+     * Determine if pending push can be processed
+     *
      * @return bool
      */
     protected function canProcessPendingPush(): bool
@@ -1959,7 +1908,6 @@ class DefaultProcessor implements PushProcessorInterface
 
     /**
      * Check if Magento's native gift card refund observers will be triggered
-     * Prevents duplicate refunds by checking if redirect setting triggers Magento observers
      *
      * @return bool
      */
@@ -2009,9 +1957,7 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * Store single giftcard payment information in payment additional_information
-     * This is for single full giftcard payments (not mixed/partial payments)
-     * Used by refund system to identify and refund giftcard correctly
+     * Store single giftcard payment information temporarily
      *
      * @return void
      */
@@ -2053,6 +1999,7 @@ class DefaultProcessor implements PushProcessorInterface
 
     /**
      * Apply and save pending single giftcard payment information
+     *
      * This method is called at multiple points in the push flow depending on payment type
      *
      * @param string $context Context description for logging (e.g., 'inline', 'redirect', 'capture')

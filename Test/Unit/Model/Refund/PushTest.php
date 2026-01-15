@@ -81,7 +81,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
             true,
             true,
             true,
-            ['getTransactions', 'getAdditionalInformation', 'getTransactionMethod', 'getTransactionType', 'getAmountCredit', 'hasAdditionalInformation', 'getCurrency']
+            ['getTransactions', 'getAdditionalInformation', 'getTransactionMethod', 'getTransactionType', 'getAmountCredit', 'hasAdditionalInformation', 'getCurrency', 'getStatusCode', 'getStatusMessage']
         );
 
         $postDataMock->method('getTransactions')->willReturn('trans123');
@@ -91,6 +91,8 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
         $postDataMock->method('getTransactionMethod')->willReturn('afterpay');
         $postDataMock->method('getTransactionType')->willReturn('C041');
         $postDataMock->method('getAmountCredit')->willReturn(100.0);
+        $postDataMock->method('getStatusCode')->willReturn('190'); // BuckarooStatusCode::SUCCESS
+        $postDataMock->method('getStatusMessage')->willReturn('Success');
 
         $orderMock = $this->getFakeMock(Order::class)->getMock();
         $orderMock->method('getId')->willReturn(1);
