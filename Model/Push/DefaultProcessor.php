@@ -252,6 +252,24 @@ class DefaultProcessor implements PushProcessorInterface
             $this->savePartGroupTransaction();
             $this->saveNewGroupTransactionIfNeeded();
             $this->addGiftcardPartialPaymentToPaymentInformation();
+
+            $statusKey = $this->pushTransactionType->getStatusKey();
+            if (in_array($statusKey, $this->buckarooStatusCode->getFailedStatuses())) {
+                $this->logger->addDebug(sprintf(
+                    '[%s:%s] - Failed push with RelatedtransactionPartialpayment detected - ' .
+                    'processing failure to cancel order | Order: %s | Status: %s',
+                    __METHOD__,
+                    __LINE__,
+                    $this->order->getIncrementId(),
+                    $statusKey
+                ));
+                $this->processPushByStatus();
+                if (!$this->dontSaveOrderUponSuccessPush) {
+                    $this->order->save();
+                }
+                return true;
+            }
+
             $this->order->save();
             return true;
         }

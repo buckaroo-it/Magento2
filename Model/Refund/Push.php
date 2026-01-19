@@ -214,7 +214,7 @@ class Push
         if (!$signatureValidation && !$canRefund) {
             $payment = $this->order->getPayment();
             $baseAmountPaid = $payment ? $payment->getBaseAmountPaid() : 0;
-            
+
             $this->logger->addDebug(sprintf(
                 '[PUSH_REFUND] | [Webapi] | [%s:%s] - Refund order failed - validation incorrect | signature: %s',
                 __METHOD__,
@@ -561,7 +561,7 @@ class Push
         }
 
         $qty = $orderItem->getQtyOrdered() - $orderItem->getQtyRefunded();
-        
+
         $this->logger->addDebug(sprintf(
             '[PUSH_REFUND] | [Webapi] | [%s:%s] - Deferred invoice mode detected - using ordered qty for item %s: %s',
             __METHOD__,
@@ -745,6 +745,16 @@ class Push
     public function initCreditmemo(array $creditData)
     {
         try {
+            if ($this->order->getState() === Order::STATE_CANCELED) {
+                $this->logger->addDebug(sprintf(
+                    '[PUSH_REFUND] | [Webapi] | [%s:%s] - Order is cancelled, skipping invoice/creditmemo creation | Order: %s',
+                    __METHOD__,
+                    __LINE__,
+                    $this->order->getIncrementId()
+                ));
+                return false;
+            }
+
             // Check if order has no invoices (deferred invoice mode)
             $hasNoInvoice = !$this->order->hasInvoices();
 
