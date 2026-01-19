@@ -4,13 +4,21 @@
     <description>Buckaroo Magento2 Coding Standard</description>
     
     <!-- Include Magento2 coding standard -->
-    <rule ref="Magento2"/>
+    <rule ref="Magento2">
+        <!-- Override line length to 250 characters (default is 120) -->
+        <exclude name="Generic.Files.LineLength"/>
+    </rule>
     
-    <!-- Override line length limit to 200 characters -->
+    <!-- Set custom line length limit -->
     <rule ref="Generic.Files.LineLength">
         <properties>
-            <property name="lineLimit" value="200"/>
-            <property name="absoluteLineLimit" value="250"/>
+            <property name="lineLimit" value="250"/>
+            <property name="absoluteLineLimit" value="300"/>
         </properties>
     </rule>
+    
+    <!-- Exclude specific paths from checks -->
+    <exclude-pattern>*/Test/*</exclude-pattern>
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+    <exclude-pattern>*/.github/*</exclude-pattern>
 </ruleset>

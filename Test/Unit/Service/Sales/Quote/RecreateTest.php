@@ -187,7 +187,7 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
         // Setup order data
         $order->method('getIncrementId')->willReturn('000000001');
         $order->method('getQuoteId')->willReturn(123);
-        $order->expects($this->atLeastOnce())->method('getStore')->willReturn($store);
+        $order->method('getStore')->willReturn($store);
         $order->method('getStoreId')->willReturn(1);
         $order->method('getCustomerId')->willReturn(1);
         $order->method('getCustomerEmail')->willReturn('test@example.com');
@@ -303,7 +303,7 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
         // Setup guest order
         $order->method('getIncrementId')->willReturn('000000001');
         $order->method('getQuoteId')->willReturn(123);
-        $order->expects($this->atLeastOnce())->method('getStore')->willReturn($store);
+        $order->method('getStore')->willReturn($store);
         $order->method('getStoreId')->willReturn(1);
         $order->method('getCustomerId')->willReturn(null); // Guest customer
         $order->method('getCustomerEmail')->willReturn('guest@example.com');

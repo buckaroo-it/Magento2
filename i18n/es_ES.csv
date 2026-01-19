@@ -294,6 +294,7 @@
 "Yes, I accept the terms and condition for the use of Riverty.","Sí, acepto los términos y condiciones de uso de Riverty."
 "Accept terms of use","Aceptar los términos de uso"
 "(DD/MM/YYYY)","(DD/MM/AAAA)"
+"DD/MM/YYYY or DD-MM-YYYY","DD/MM/AAAA"
 "Any comments about this Beta release? <a target=\"_blank\" href=\"%s\"> Please let us know! </a>","Quiere comentarnos algo acerca de esta versión beta? <a target=\"_blank\" href=\"%s\"> ¡Cuéntenoslo! </a>"
 "Buckaroo version","Versión de Buckaroo"
 "The transaction will be processed using %s.","La transacción se procesará con %s."

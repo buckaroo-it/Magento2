@@ -50,7 +50,8 @@ class AbstractPushRequest
         $argc = count($args);
         if ($argc < $min || $argc > $max) {
             throw new Exception(
-                __('Method %1 needs minimaly %2 and maximaly %3 arguments. %4 arguments given.',
+                __(
+                    'Method %1 needs minimaly %2 and maximaly %3 arguments. %4 arguments given.',
                     $methodName,
                     $min,
                     $max,
@@ -64,13 +65,16 @@ class AbstractPushRequest
      * Generate functions for getters and setters
      *
      * @param string $methodName
-     * @param array  $args
+     * @param array $args
      *
-     * @throws \Exception
+     * @return void
+     * @throws Exception
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function __call(string $methodName, array $args)
     {
         if (method_exists($this, $methodName)) {
+            // @codingStandardsIgnoreLine - call_user_func_array needed for variable method calls
             call_user_func_array([$this, $methodName], $args);
         }
         if (preg_match('~^(set|get)(.*)$~', $methodName, $matches)) {

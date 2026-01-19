@@ -130,7 +130,7 @@ class GiftcardTotals extends Template
         $firstTransaction = reset($rawDetailsInfo);
         $transactionMethod = $firstTransaction['brq_transaction_method'] ?? null;
 
-        return !empty($transactionMethod);
+        return $transactionMethod !== null && $transactionMethod !== '';
     }
 
     /**
@@ -179,4 +179,3 @@ class GiftcardTotals extends Template
         ];
     }
 }
-

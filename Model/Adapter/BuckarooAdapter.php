@@ -26,6 +26,7 @@ use Buckaroo\Config\Config;
 use Buckaroo\Config\DefaultConfig;
 use Buckaroo\Handlers\Reply\ReplyHandler;
 use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Observer\AddInTestModeMessage;
 use Magento\Framework\Phrase;
 use Buckaroo\Magento2\Gateway\Request\CreditManagement\BuilderComposite;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
@@ -34,6 +35,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderFactory;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Buckaroo\Magento2\Service\Software\Data;
+use Buckaroo\Magento2\Service\TransactionOperationValidator;
 use Buckaroo\PaymentMethods\CreditManagement\CreditManagement;
 use Buckaroo\Transaction\Response\TransactionResponse;
 use Magento\Framework\App\ProductMetadataInterface;
@@ -87,13 +89,19 @@ class BuckarooAdapter
     private $storeManager;
 
     /**
-     * @param ConfigProviderFactory    $configProviderFactory
-     * @param Encryptor                $encryptor
-     * @param BuckarooLoggerInterface  $logger
-     * @param ProductMetadataInterface $productMetadata
-     * @param Resolver                 $localeResolver
-     * @param StoreManagerInterface    $storeManager
-     * @param array|null               $mapPaymentMethods
+     * @var TransactionOperationValidator
+     */
+    private $transactionOperationValidator;
+
+    /**
+     * @param ConfigProviderFactory         $configProviderFactory
+     * @param Encryptor                     $encryptor
+     * @param BuckarooLoggerInterface       $logger
+     * @param ProductMetadataInterface      $productMetadata
+     * @param Resolver                      $localeResolver
+     * @param StoreManagerInterface         $storeManager
+     * @param TransactionOperationValidator $transactionOperationValidator
+     * @param array|null                    $mapPaymentMethods
      */
     public function __construct(
         ConfigProviderFactory $configProviderFactory,
@@ -102,6 +110,7 @@ class BuckarooAdapter
         ProductMetadataInterface $productMetadata,
         Resolver $localeResolver,
         StoreManagerInterface $storeManager,
+        TransactionOperationValidator $transactionOperationValidator,
         ?array $mapPaymentMethods = null
     ) {
         $this->mapPaymentMethods = $mapPaymentMethods;
@@ -111,6 +120,7 @@ class BuckarooAdapter
         $this->productMetadata = $productMetadata;
         $this->localeResolver = $localeResolver;
         $this->storeManager = $storeManager;
+        $this->transactionOperationValidator = $transactionOperationValidator;
     }
 
     /**
@@ -149,13 +159,13 @@ class BuckarooAdapter
             ));
         }
 
-        $skipActiveCheck =
-            $action === 'refund'
-            || $action === 'capture'
-            || $this->isCreditManagementOfType($data, BuilderComposite::TYPE_REFUND)
-            || $this->isCreditManagementOfType($data, BuilderComposite::TYPE_VOID);
+        // Determine if this is a post-transaction operation that should skip active payment method check
+        $skipActiveCheck = $this->transactionOperationValidator->shouldSkipActiveCheck($action, $data);
 
-        $this->setClientSdk($method, $orderStoreId, $skipActiveCheck);
+        // Extract original transaction mode if available (for post-transaction operations)
+        $originalTransactionWasTest = $data[AddInTestModeMessage::PAYMENT_IN_TEST_MODE] ?? null;
+
+        $this->setClientSdk($method, $orderStoreId, $skipActiveCheck, $originalTransactionWasTest);
         $payment = $this->buckaroo->method($this->getMethodName($method));
 
         try {
@@ -192,14 +202,19 @@ class BuckarooAdapter
     /**
      * Set Client SDK base on account configuration and payment method configuration
      *
-     * @param string   $paymentMethod
-     * @param int|null $orderStoreId  Store ID from the order (for refund/capture operations)
-     * @param bool     $skipActiveCheck
-     *
+     * @param string    $paymentMethod
+     * @param int|null  $orderStoreId                Store ID from the order (for refund/capture operations)
+     * @param bool      $skipActiveCheck
+     * @param bool|null $originalTransactionWasTest  Whether original transaction was in test mode
      * @throws \Exception
+     * @return void
      */
-    private function setClientSdk($paymentMethod = '', ?int $orderStoreId = null, bool $skipActiveCheck = false): void
-    {
+    private function setClientSdk(
+        $paymentMethod = '',
+        ?int $orderStoreId = null,
+        bool $skipActiveCheck = false,
+        ?bool $originalTransactionWasTest = null
+    ): void {
         /** @var Account $configProviderAccount */
         $configProviderAccount = $this->configProviderFactory->get('account');
 
@@ -216,7 +231,7 @@ class BuckarooAdapter
         }
 
         $accountMode = $configProviderAccount->getActive($storeId);
-        $clientMode = $this->getClientMode($accountMode, $storeId, $paymentMethod, $skipActiveCheck);
+        $clientMode = $this->getClientMode($accountMode, $storeId, $paymentMethod, $skipActiveCheck, $originalTransactionWasTest);
 
         $this->buckaroo = new BuckarooClient(new DefaultConfig(
             $this->encryptor->decrypt($configProviderAccount->getMerchantKey($storeId)),
@@ -278,14 +293,21 @@ class BuckarooAdapter
      * @param int|string $accountMode
      * @param int|string $storeId
      * @param string     $paymentMethod
-     * @param bool       $skipActiveCheck
+     * @param bool       $skipActiveCheck              Skip the payment method active check. Used for post-transaction operations
+     * @param bool|null  $originalTransactionWasTest   Whether the original transaction was in test mode (from payment additional_information)
      *
      * @throws Exception
      *
      * @return string
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
-    private function getClientMode($accountMode, $storeId, string $paymentMethod = '', bool $skipActiveCheck = false): string
-    {
+    private function getClientMode(
+        $accountMode,
+        $storeId,
+        string $paymentMethod = '',
+        bool $skipActiveCheck = false,
+        ?bool $originalTransactionWasTest = null
+    ): string {
         $clientMode = Config::TEST_MODE;
 
         if ($accountMode == 0) {
@@ -295,11 +317,29 @@ class BuckarooAdapter
         if ($accountMode == 1) {
             $clientMode = Config::LIVE_MODE;
 
+            // For post-transaction operations, use stored transaction mode if available
+            if ($skipActiveCheck && $originalTransactionWasTest !== null) {
+                $clientMode = $originalTransactionWasTest ? Config::TEST_MODE : Config::LIVE_MODE;
+
+                $this->logger->addDebug(sprintf(
+                    '[SDK] | [Adapter] | [%s:%s] - Post-transaction operation: Using stored transaction mode "%s" for %s in store ID: %s',
+                    __METHOD__,
+                    __LINE__,
+                    $clientMode,
+                    $paymentMethod,
+                    $storeId
+                ));
+
+                return $clientMode;
+            }
+
             if ($paymentMethod) {
                 /** @var  AbstractConfigProvider $configProviderPaymentMethod */
                 $configProviderPaymentMethod = $this->configProviderFactory->get($paymentMethod);
                 $isActivePaymentMethod = $configProviderPaymentMethod->getActive($storeId);
-                if ($isActivePaymentMethod == Enablemode::ENABLE_OFF) {
+
+                // Only validate if payment method is active when NOT skipping active check
+                if (!$skipActiveCheck && $isActivePaymentMethod == Enablemode::ENABLE_OFF) {
                     $this->logger->addError(sprintf(
                         '[SDK] | [Adapter] | [%s:%s] - Payment method %s is not active in store ID: %s. ' .
                         'Ensure payment method is enabled in the store where the order was placed.',
@@ -315,6 +355,8 @@ class BuckarooAdapter
                     ));
                 }
 
+                // Check and preserve TEST mode setting from current configuration
+                // This handles cases where stored mode is not available (old orders)
                 if ($isActivePaymentMethod == Enablemode::ENABLE_TEST) {
                     $clientMode = Config::TEST_MODE;
                 }

@@ -77,7 +77,7 @@ class ResponseCodeSDKValidator extends AbstractValidator
     public function validate(array $validationSubject): ResultInterface
     {
         // Skip validation if refund was already completed via group transactions
-        if (isset($validationSubject['response']['group_transaction_refund_complete']) 
+        if (isset($validationSubject['response']['group_transaction_refund_complete'])
             && $validationSubject['response']['group_transaction_refund_complete'] === true
         ) {
             return $this->createResult(true, [__('Refund completed via group transactions')]);
@@ -123,6 +123,12 @@ class ResponseCodeSDKValidator extends AbstractValidator
         return $statusCode;
     }
 
+    /**
+     * Check if status code indicates success
+     *
+     * @param int $statusCode
+     * @return bool
+     */
     private function isSuccessStatusCode(int $statusCode): bool
     {
         return in_array($statusCode, [
@@ -134,6 +140,12 @@ class ResponseCodeSDKValidator extends AbstractValidator
         ]);
     }
 
+    /**
+     * Check if status code indicates failure
+     *
+     * @param int $statusCode
+     * @return bool
+     */
     private function isFailedStatusCode(int $statusCode): bool
     {
         return in_array($statusCode, [
@@ -148,10 +160,12 @@ class ResponseCodeSDKValidator extends AbstractValidator
     }
 
     /**
+     * Handle failure status code and create error result
+     *
      * @param array $validationSubject
      * @param ?int  $statusCode
-     *
      * @throws LocalizedException
+     * @return ResultInterface
      */
     private function handleFailureStatusCode(array $validationSubject, ?int $statusCode): ResultInterface
     {
@@ -182,6 +196,8 @@ class ResponseCodeSDKValidator extends AbstractValidator
     }
 
     /**
+     * Get failure message for fraud cases
+     *
      * @return string|null
      */
     public function getFailureMessageOnFraud(): ?string

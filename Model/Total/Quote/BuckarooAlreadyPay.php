@@ -73,6 +73,7 @@ class BuckarooAlreadyPay extends AbstractTotal
      * @return array
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function fetch(Quote $quote, Total $total)
     {
@@ -119,6 +120,9 @@ class BuckarooAlreadyPay extends AbstractTotal
                     }
                 }
             } catch (\Exception $e) {
+                // Silently ignore errors when fetching group transaction info
+                // This prevents breaking checkout if data is unavailable
+                unset($e);
             }
         }
 

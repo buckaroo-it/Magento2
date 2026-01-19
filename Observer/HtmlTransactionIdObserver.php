@@ -69,6 +69,7 @@ class HtmlTransactionIdObserver implements ObserverInterface
 
         if ($this->checkPaymentType->isBuckarooPayment($order->getPayment()) && $txnId !== false) {
             $txtType = $transaction->getTxnType();
+            $paymentMethod = $order->getPayment()->getMethod();
 
             // Handle void transactions by checking parent transaction type
             if ($transaction->getTxnType() === TransactionInterface::TYPE_VOID) {
@@ -80,8 +81,11 @@ class HtmlTransactionIdObserver implements ObserverInterface
                 }
             }
 
-            // Use different URLs based on transaction type
-            if ($txtType == 'authorization') {
+            if ($txtType == TransactionInterface::TYPE_REFUND && $this->isOfflineRefund($transaction->getTxnId())) {
+                return;
+            }
+
+            if ($txtType == 'authorization' && $this->isKlarnaPayment($paymentMethod)) {
                 $transaction->setData(
                     'html_txn_id',
                     sprintf(
@@ -93,7 +97,6 @@ class HtmlTransactionIdObserver implements ObserverInterface
                 return;
             }
 
-            // Default URL for non-authorization transactions
             $transaction->setData(
                 'html_txn_id',
                 sprintf(
@@ -103,5 +106,33 @@ class HtmlTransactionIdObserver implements ObserverInterface
                 )
             );
         }
+    }
+
+    /**
+     * Check if the payment method is a Klarna payment
+     *
+     * @param string $paymentMethod
+     * @return bool
+     */
+    private function isKlarnaPayment(string $paymentMethod): bool
+    {
+        $klarnaPaymentMethods = [
+            'buckaroo_magento2_klarna',
+            'buckaroo_magento2_klarnakp',
+            'buckaroo_magento2_klarnain'
+        ];
+
+        return in_array($paymentMethod, $klarnaPaymentMethods);
+    }
+
+    /**
+     * Check if this is an offline refund (reusing parent transaction ID)
+     *
+     * @param string $transactionId
+     * @return bool
+     */
+    private function isOfflineRefund(string $transactionId): bool
+    {
+        return preg_match('/-(?:capture|auth|authorization|void)$/', $transactionId) === 1;
     }
 }
