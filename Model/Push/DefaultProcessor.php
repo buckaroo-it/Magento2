@@ -249,29 +249,7 @@ class DefaultProcessor implements PushProcessorInterface
         $this->setOrderStatusMessage();
 
         if ($this->isGroupTransactionPart() || $this->pushRequest->getRelatedtransactionPartialpayment()) {
-            $this->savePartGroupTransaction();
-            $this->saveNewGroupTransactionIfNeeded();
-            $this->addGiftcardPartialPaymentToPaymentInformation();
-
-            $statusKey = $this->pushTransactionType->getStatusKey();
-            if (in_array($statusKey, $this->buckarooStatusCode->getFailedStatuses())) {
-                $this->logger->addDebug(sprintf(
-                    '[%s:%s] - Failed push with RelatedtransactionPartialpayment detected - ' .
-                    'processing failure to cancel order | Order: %s | Status: %s',
-                    __METHOD__,
-                    __LINE__,
-                    $this->order->getIncrementId(),
-                    $statusKey
-                ));
-                $this->processPushByStatus();
-                if (!$this->dontSaveOrderUponSuccessPush) {
-                    $this->order->save();
-                }
-                return true;
-            }
-
-            $this->order->save();
-            return true;
+            return $this->handlePartialPaymentPush();
         }
 
         if ($this->giftcardPartialPayment()) {
@@ -2108,5 +2086,38 @@ class DefaultProcessor implements PushProcessorInterface
         }
 
         return false;
+    }
+
+    /**
+     * Handle partial payment push notifications
+     *
+     * @return bool
+     * @throws LocalizedException
+     */
+    private function handlePartialPaymentPush(): bool
+    {
+        $this->savePartGroupTransaction();
+        $this->saveNewGroupTransactionIfNeeded();
+        $this->addGiftcardPartialPaymentToPaymentInformation();
+
+        $statusKey = $this->pushTransactionType->getStatusKey();
+        if (in_array($statusKey, $this->buckarooStatusCode->getFailedStatuses())) {
+            $this->logger->addDebug(sprintf(
+                '[%s:%s] - Failed push with RelatedtransactionPartialpayment detected - ' .
+                'processing failure to cancel order | Order: %s | Status: %s',
+                __METHOD__,
+                __LINE__,
+                $this->order->getIncrementId(),
+                $statusKey
+            ));
+            $this->processPushByStatus();
+            if (!$this->dontSaveOrderUponSuccessPush) {
+                $this->order->save();
+            }
+            return true;
+        }
+
+        $this->order->save();
+        return true;
     }
 }
