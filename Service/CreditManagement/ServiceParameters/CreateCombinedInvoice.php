@@ -27,6 +27,7 @@ use Magento\Sales\Model\Order;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 use Buckaroo\Magento2\Model\Method\PayPerEmail;
+use Buckaroo\Magento2\Service\Culture\CultureCodeMapper;
 
 class CreateCombinedInvoice
 {
@@ -36,9 +37,15 @@ class CreateCombinedInvoice
     /** @var Factory */
     private $configProviderMethodFactory;
 
-    public function __construct(Factory $configProviderMethodFactory)
-    {
+    /** @var CultureCodeMapper */
+    private $cultureCodeMapper;
+
+    public function __construct(
+        Factory $configProviderMethodFactory,
+        CultureCodeMapper $cultureCodeMapper
+    ) {
         $this->configProviderMethodFactory = $configProviderMethodFactory;
+        $this->cultureCodeMapper = $cultureCodeMapper;
     }
 
     /**
@@ -105,7 +112,7 @@ class CreateCombinedInvoice
         $addressParameters = $this->getAddressCmParameters($order->getBillingAddress());
         $requestParameters = array_merge($requestParameters, $addressParameters);
 
-        $companyParameters = $this->getCompanyCmParameters($order->getBillingAddress());
+        $companyParameters = $this->getCompanyCmParameters($order->getBillingAddress(), $order);
         $requestParameters = array_merge($requestParameters, $companyParameters);
 
         return $requestParameters;
@@ -229,7 +236,7 @@ class CreateCombinedInvoice
 
         $personParameters = [
             [
-                '_'    => strtolower($order->getBillingAddress()->getCountryId()),
+                '_'    => $this->cultureCodeMapper->getCultureCodeByOrder($order),
                 'Name' => 'Culture',
                 'Group' => 'Person',
             ],
@@ -306,10 +313,11 @@ class CreateCombinedInvoice
 
     /**
      * @param \Magento\Sales\Api\Data\OrderAddressInterface $billingAddress
+     * @param Order $order
      *
      * @return array
      */
-    private function getCompanyCmParameters($billingAddress)
+    private function getCompanyCmParameters($billingAddress, $order)
     {
         $requestParameters = [];
         $company = $billingAddress->getCompany();
@@ -320,7 +328,7 @@ class CreateCombinedInvoice
 
         $requestParameters = [
             [
-                '_' => strtolower($billingAddress->getCountryId()),
+                '_' => $this->cultureCodeMapper->getCultureCodeByOrder($order),
                 'Name' => 'Culture',
                 'Group' => 'Company',
             ],
