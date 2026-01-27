@@ -70,9 +70,11 @@ class HtmlTransactionIdObserver implements ObserverInterface
         if ($this->checkPaymentType->isBuckarooPayment($order->getPayment()) && $txnId !== false) {
             $txtType = $transaction->getTxnType();
             $paymentMethod = $order->getPayment()->getMethod();
+            $isVoidTransaction = false;
 
             // Handle void transactions by checking parent transaction type
             if ($transaction->getTxnType() === TransactionInterface::TYPE_VOID) {
+                $isVoidTransaction = true;
                 if ($transaction->getParentId()) {
                     $parentTransaction = $this->transactionRepository->get($transaction->getParentId());
                     if ($parentTransaction) {
@@ -85,16 +87,18 @@ class HtmlTransactionIdObserver implements ObserverInterface
                 return;
             }
 
-            if ($txtType == 'authorization' && $this->isKlarnaPayment($paymentMethod)) {
-                $transaction->setData(
-                    'html_txn_id',
-                    sprintf(
-                        '<a href="https://plaza.buckaroo.nl/Transaction/DataRequest/Details/%s" target="_blank">%s</a>',
-                        $txnId,
-                        $transaction->getTxnId()
-                    )
-                );
-                return;
+            if ($this->isKlarnaPayment($paymentMethod)) {
+                if ($txtType == 'authorization' || $isVoidTransaction) {
+                    $transaction->setData(
+                        'html_txn_id',
+                        sprintf(
+                            '<a href="https://plaza.buckaroo.nl/Transaction/DataRequest/Details/%s" target="_blank">%s</a>',
+                            $txnId,
+                            $transaction->getTxnId()
+                        )
+                    );
+                    return;
+                }
             }
 
             $transaction->setData(

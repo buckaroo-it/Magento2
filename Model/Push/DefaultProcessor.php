@@ -537,6 +537,16 @@ class DefaultProcessor implements PushProcessorInterface
             if ($this->shouldReactivateCanceledOrder()) {
                 return $this->reactivateCanceledOrder();
             }
+
+            $this->logger->addDebug(sprintf(
+                '[%s:%s] - Order is canceled and will NOT be reactivated | Order: %s | StatusCode: %s | Transaction: %s',
+                __METHOD__,
+                __LINE__,
+                $this->order->getIncrementId(),
+                $this->pushRequest->getStatusCode(),
+                $this->pushRequest->getTransactions()
+            ));
+
             return false;
         }
 
@@ -551,11 +561,101 @@ class DefaultProcessor implements PushProcessorInterface
      */
     private function shouldReactivateCanceledOrder(): bool
     {
-        return ($this->order->getState() === Order::STATE_CANCELED)
-            && ($this->order->getStatus() === Order::STATE_CANCELED)
-            && ($this->pushTransactionType->getStatusKey() === 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')
-            && $this->pushRequest->getRelatedtransactionPartialpayment() == null
-            && !$this->payment->getAdditionalInformation('buckaroo_order_reactivated');
+        if (($this->order->getState() !== Order::STATE_CANCELED)
+            || ($this->order->getStatus() !== Order::STATE_CANCELED)
+            || ($this->pushTransactionType->getStatusKey() !== 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')
+            || $this->pushRequest->getRelatedtransactionPartialpayment() != null
+            || $this->payment->getAdditionalInformation('buckaroo_order_reactivated')
+        ) {
+            return false;
+        }
+
+        if ($this->isCancellationPush()) {
+            $this->logger->addDebug(sprintf(
+                '[%s:%s] - Skipping order reactivation: This is a cancellation push. Order: %s',
+                __METHOD__,
+                __LINE__,
+                $this->order->getIncrementId()
+            ));
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if the current push is for a cancellation action
+     *
+     * @return bool
+     */
+    private function isCancellationPush(): bool
+    {
+        $serviceAction = $this->pushTransactionType->getServiceAction();
+        $transactionType = $this->pushRequest->getTransactionType();
+        $amountCredit = $this->pushRequest->getAmountCredit();
+
+        // Get current transaction ID - try both transactions and datarequest fields
+        $currentTransactionId = $this->pushRequest->getTransactions();
+        if (!$currentTransactionId) {
+            $currentTransactionId = $this->pushRequest->getDatarequest();
+        }
+
+        // Check if service action is cancellation
+        if (in_array($serviceAction, ['cancel_authorize', 'cancelauthorize', 'cancelreservation'])) {
+            return true;
+        }
+
+        // Check if additional information indicates cancellation
+        if ($this->pushRequest->hasAdditionalInformation('service_action_from_magento', ['cancelauthorize', 'cancelreservation'])) {
+            return true;
+        }
+
+        // Check transaction type for cancel authorize (I014)
+        if ($transactionType === PushTransactionType::BUCK_PUSH_CANCEL_AUTHORIZE_TYPE) {
+            return true;
+        }
+
+        // Check if there's an amount credit (typically indicates refund/cancellation)
+        // AND the transaction is NOT a refund (refunds are handled separately)
+        if (!empty($amountCredit) && $serviceAction !== 'refund') {
+            return true;
+        }
+
+        if ($this->order->getState() === Order::STATE_CANCELED) {
+            $initiatedByMagento = $this->pushRequest->getAdditionalInformation('initiated_by_magento');
+
+            if (!$initiatedByMagento || $initiatedByMagento != '1') {
+                $this->logger->addDebug(sprintf(
+                    '[%s:%s] - Detected external push on canceled order (not initiated by Magento) - ' .
+                    'likely a Plaza cancellation. Order: %s | TransactionID: %s',
+                    __METHOD__,
+                    __LINE__,
+                    $this->order->getIncrementId(),
+                    $currentTransactionId ?? 'null'
+                ));
+                return true;
+            }
+
+            $originalTransactionKey = $this->payment->getAdditionalInformation(
+                BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY
+            );
+
+            if ($originalTransactionKey && $currentTransactionId &&
+                $originalTransactionKey !== $currentTransactionId) {
+                $this->logger->addDebug(sprintf(
+                    '[%s:%s] - Detected cancellation: Different transaction ID on canceled order. ' .
+                    'Order: %s | Original: %s | Current: %s',
+                    __METHOD__,
+                    __LINE__,
+                    $this->order->getIncrementId(),
+                    $originalTransactionKey,
+                    $currentTransactionId
+                ));
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
