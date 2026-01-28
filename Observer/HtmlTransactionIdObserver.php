@@ -149,7 +149,7 @@ class HtmlTransactionIdObserver implements ObserverInterface
      */
     private function shouldSkipOfflineRefund(string $txtType, Transaction $transaction): bool
     {
-        return $txtType == TransactionInterface::TYPE_REFUND 
+        return $txtType == TransactionInterface::TYPE_REFUND
             && $this->isOfflineRefund($transaction->getTxnId());
     }
 
@@ -190,7 +190,7 @@ class HtmlTransactionIdObserver implements ObserverInterface
         string $txtType,
         bool $isVoidTransaction
     ): bool {
-        return $this->isKlarnaPayment($paymentMethod) 
+        return $this->isKlarnaPayment($paymentMethod)
             && ($txtType == 'authorization' || $isVoidTransaction);
     }
 
