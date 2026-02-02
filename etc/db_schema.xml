@@ -35,4 +35,15 @@
                 <column name="servicecode"/>
             </index>
         </table>
+
+    <table name="buckaroo_magento2_certificate" resource="default" engine="innodb" comment="Buckaroo Certificate">
+        <column name="entity_id" xsi:type="int" unsigned="true" nullable="false" identity="true" comment="Entity ID"/>
+        <column name="certificate" xsi:type="text" nullable="false" comment="Certificate"/>
+        <column name="name" xsi:type="varchar" length="255" nullable="false" comment="Name"/>
+        <column name="created_at" xsi:type="timestamp" nullable="true" comment="Created At"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="entity_id"/>
+        </constraint>
+    </table>
+
 </schema>
