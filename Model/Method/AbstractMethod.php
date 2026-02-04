@@ -2056,6 +2056,28 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
                         'Version' => 1,
                     ];
 
+                    if ($payment->getMethod() === \Buckaroo\Magento2\Model\Method\Giftcards::PAYMENT_METHOD_CODE) {
+                        $order = $payment->getOrder();
+                        $customerEmail = $order->getCustomerEmail();
+                        if (empty($customerEmail) && $order->getBillingAddress()) {
+                            $customerEmail = $order->getBillingAddress()->getEmail();
+                        }
+                        $customerLastname = '';
+                        if ($order->getBillingAddress()) {
+                            $customerLastname = $order->getBillingAddress()->getLastname() ?? '';
+                        }
+                        $requestParams = [];
+                        if (!empty($customerEmail)) {
+                            $requestParams[] = ['Name' => 'Email', '_' => $customerEmail];
+                        }
+                        if ($customerLastname !== '') {
+                            $requestParams[] = ['Name' => 'LastName', '_' => $customerLastname];
+                        }
+                        if (!empty($requestParams)) {
+                            $services['RequestParameter'] = $requestParams;
+                        }
+                    }
+
                     $transactionBuilder->setOrder($payment->getOrder())
                         ->setServices($services)
                         ->setMethod('TransactionRequest')
