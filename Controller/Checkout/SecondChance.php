@@ -105,7 +105,10 @@ class SecondChance extends Action
             return $this->handleRedirect('checkout/cart');
         }
 
-        return $this->handleRedirect('checkout');
+        return $this->handleRedirect('checkout', [
+            '_query'    => $this->getRequest()->getQuery()->toArray(),
+            '_fragment' => 'payment',
+        ]);
     }
 
     public function handleRedirect($path, $arguments = [])
