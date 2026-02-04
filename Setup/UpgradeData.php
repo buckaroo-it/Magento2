@@ -607,6 +607,16 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
             );
         }
 
+
+        if (version_compare($context->getVersion(), '1.56.0', '<')) {
+            // Update buckaroo_magento2_ideal title to 'IDEAL | Wero'
+            $setup->getConnection()->update(
+                $setup->getTable('core_config_data'),
+                ['value' => 'iDEAL | Wero'],
+                ['path = ?' => 'payment/buckaroo_magento2_ideal/title']
+            );
+        }
+
         $this->setCustomerIDIN($setup);
 
         $this->setCustomerIsEighteenOrOlder($setup);
@@ -1456,7 +1466,7 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
      */
     protected function giftcardPartialRefund(ModuleDataSetupInterface $setup)
     {
-        $giftcardsForPartialRefund = [ 'fashioncheque' ];
+        $giftcardsForPartialRefund = [ 'fashioncheque', 'boekenbon', 'vvvgiftcard' ];
 
         foreach ($giftcardsForPartialRefund as $giftcard) {
             $setup->getConnection()->update(

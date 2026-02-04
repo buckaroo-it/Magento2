@@ -73,7 +73,7 @@ class PayPerEmail implements \Magento\Framework\Option\ArrayInterface
             ],
             [
                 'value' => 'ideal',
-                'label' => __('iDEAL'),
+                'label' => __('iDEAL | Wero'),
                 'code' => 'buckaroo_magento2_ideal',
             ],
             [
