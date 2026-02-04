@@ -1466,7 +1466,7 @@ class UpgradeData implements \Magento\Framework\Setup\UpgradeDataInterface
      */
     protected function giftcardPartialRefund(ModuleDataSetupInterface $setup)
     {
-        $giftcardsForPartialRefund = [ 'fashioncheque', 'boekenbon', 'vvvgiftcard' ];
+        $giftcardsForPartialRefund = [ 'fashioncheque' ];
 
         foreach ($giftcardsForPartialRefund as $giftcard) {
             $setup->getConnection()->update(
