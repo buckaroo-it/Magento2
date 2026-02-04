@@ -49,11 +49,20 @@ define(
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_ideal'
                 },
                 redirectAfterPlaceOrder: false,
+                title: window.checkoutConfig.payment.buckaroo.ideal.title,
+                logo: window.checkoutConfig.payment.buckaroo.ideal.logo,
                 paymentFeeLabel: window.checkoutConfig.payment.buckaroo.ideal.paymentFeeLabel,
                 subtext: window.checkoutConfig.payment.buckaroo.ideal.subtext,
                 subTextStyle: checkoutCommon.getSubtextStyle('ideal'),
                 currencyCode: window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode: window.checkoutConfig.quoteData.base_currency_code,
+
+                /**
+                 * @override
+                 */
+                getTitle: function () {
+                    return this.title || this._super();
+                },
 
                 /**
                  * @override

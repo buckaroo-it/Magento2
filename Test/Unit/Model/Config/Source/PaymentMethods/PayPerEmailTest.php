@@ -45,7 +45,7 @@ class PayPerEmailTest extends BaseTest
                 ['value' => 'giftcard',           'label' => 'Giftcards'],
             ],
             [
-                ['value' => 'ideal',              'label' => 'iDEAL'],
+                ['value' => 'ideal',              'label' => 'iDEAL | Wero'],
             ],
             [
                 ['value' => 'idealprocessing',    'label' => 'iDEAL Processing'],

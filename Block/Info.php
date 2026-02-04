@@ -123,6 +123,7 @@ class Info extends \Magento\Payment\Block\Info
             "transfer" => "svg/sepa-credittransfer.svg",
             "paybybank" => "paybybank.gif",
             "knaken" => "svg/gosettle.svg",
+            "ideal" => "svg/ideal-wero.svg",
         ];
 
         $name = "svg/{$method}.svg";

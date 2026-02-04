@@ -460,7 +460,7 @@ class Data extends AbstractHelper
             ['value' => 'emandate',       'label' => __('Digital Debit Authorization')],
             ['value' => 'eps',       'label' => __('EPS')],
             ['value' => 'giftcards',       'label' => __('Giftcards')],
-            ['value' => 'ideal',       'label' => __('iDEAL')],
+            ['value' => 'ideal',       'label' => __('iDEAL | Wero')],
             ['value' => 'idealprocessing',       'label' => __('iDEAL Processing')],
             ['value' => 'kbc',       'label' => __('KBC')],
             ['value' => 'klarna',       'label' => __('Klarna Pay later (pay)')],

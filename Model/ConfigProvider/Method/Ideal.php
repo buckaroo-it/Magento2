@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 class Ideal extends AbstractConfigProvider
 {
+    public const XPATH_IDEAL_TITLE                 = 'payment/buckaroo_magento2_ideal/title';
     public const XPATH_IDEAL_PAYMENT_FEE           = 'payment/buckaroo_magento2_ideal/payment_fee';
     public const XPATH_IDEAL_ACTIVE                = 'payment/buckaroo_magento2_ideal/active';
     public const XPATH_IDEAL_SUBTEXT               = 'payment/buckaroo_magento2_ideal/subtext';
@@ -72,6 +73,8 @@ class Ideal extends AbstractConfigProvider
             'payment' => [
                 'buckaroo' => [
                     'ideal' => [
+                        'title'             => (string) $this->getConfigFromXpath(self::XPATH_IDEAL_TITLE, $storeId) ?: 'iDEAL | Wero',
+                        'logo'              => 'ideal-wero.svg',
                         'paymentFeeLabel'   => $paymentFeeLabel,
                         'subtext'           => $this->getSubtext($storeId),
                         'subtext_style'     => $this->getSubtextStyle($storeId),
