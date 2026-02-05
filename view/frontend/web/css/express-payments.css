@@ -39,6 +39,75 @@
     cursor: pointer;
 }
 
+/* Google Pay Button Container */
+#google-pay-wrapper {
+    width: 100%;
+    max-width: 350px;
+    margin: 10px 0;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+/* Google Pay Button Element - ensure it fills container */
+#google-pay-wrapper > div,
+#google-pay-wrapper button {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+/* CRITICAL: Override Magento's generic button:hover which uses background: shorthand
+   that resets background-repeat/position/size, causing SVG to tile in Safari */
+#google-pay-wrapper .gpay-button:hover,
+#google-pay-wrapper .gpay-button:focus,
+#google-pay-wrapper .gpay-button:focus-visible {
+    background-color: #000 !important;           /* Keep black background */
+    background-repeat: no-repeat !important;     /* Prevent tiling */
+    background-position: center center !important;
+    background-size: contain !important;
+    background-origin: content-box !important;
+    border: 0 !important;                        /* No border on hover */
+    outline: 1px solid #757575 !important;       /* Keep outline */
+}
+
+/* Safari-specific fixes for Google Pay button rendering issues */
+@supports (-webkit-appearance: none) {
+    #google-pay-wrapper button,
+    #google-pay-wrapper > div {
+        /* Force GPU rendering but prevent artifacts */
+        -webkit-transform: translateZ(0) scale(1);
+        transform: translateZ(0) scale(1);
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+        /* Prevent text duplication by clipping overflow */
+        overflow: hidden !important;
+        /* Create new stacking context */
+        isolation: isolate;
+        /* Force clean text rendering */
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Prevent hover effects from causing duplication in Safari */
+    #google-pay-wrapper button:hover,
+    #google-pay-wrapper > div:hover {
+        /* Disable transform on hover to prevent Safari bug */
+        -webkit-transform: none !important;
+        transform: none !important;
+        /* Force repaint with subtle opacity (invisible to user) */
+        opacity: 0.9999;
+        /* Ensure overflow is still hidden */
+        overflow: hidden !important;
+    }
+
+    /* Also fix for focus state */
+    #google-pay-wrapper button:focus,
+    #google-pay-wrapper > div:focus {
+        -webkit-transform: none !important;
+        transform: none !important;
+        overflow: hidden !important;
+    }
+}
+
 /* Hide Apple Pay wrapper in checkout payment method selection - use Place Order button instead */
 .buckaroo_magento2_applepay.payment-method #apple-pay-wrapper {
     display: none !important;
@@ -56,9 +125,20 @@
 /* Express Payment Component Containers - Cursor Pointer */
 #apple-pay-catalog-product-view-component,
 #apple-pay-catalog-cart-view-component,
+#google-pay-catalog-product-view-component,
+#google-pay-catalog-cart-view-component,
 #paypal-express-button-component,
 #fast-checkout-ideal-btn-component {
     cursor: pointer;
+}
+
+/* Google Pay Component Container */
+#google-pay-catalog-product-view-component,
+#google-pay-catalog-cart-view-component {
+    width: 100%;
+    max-width: 350px;
+    margin: 10px 0;
+    box-sizing: border-box;
 }
 
 /* PayPal Express Cart Container */

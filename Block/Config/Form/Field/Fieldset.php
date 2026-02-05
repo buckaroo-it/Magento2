@@ -118,11 +118,13 @@ class Fieldset extends MagentoFieldset
         $scopeValues = $this->getScopeValue();
 
         $group = $element->getData('group');
-        return $this->_scopeConfig->getValue(
+        $value = $this->_scopeConfig->getValue(
             $group['children']['active']['config_path'],
             $scopeValues['scope'],
             $scopeValues['scopevalue']
         );
+
+        return (string) $value;
     }
 
     /**

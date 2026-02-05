@@ -1,0 +1,65 @@
+<?php
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+
+/** @var string $block */
+
+if ($block->canShowButton('Product') && !$block->isIdinVerificationRequired()): ?>
+    <div id="google-pay-catalog-product-view-component" data-bind="scope:'buckarooGooglepayProduct'">
+        <!-- ko template: getTemplate() --><!-- /ko -->
+
+        <script>
+            // Set up window.checkoutConfig before component loads (required for Magento core modules)
+            (function() {
+                var config = <?= /* @noEscape */ ($block->getGooglepayConfig()); ?>;
+
+                if (typeof window.checkoutConfig === 'undefined') {
+                    window.checkoutConfig = config;
+                    window.isCustomerLoggedIn = config.isCustomerLoggedIn || false;
+
+                    if (typeof window.checkoutConfig.totalsData === 'undefined') {
+                        window.checkoutConfig.totalsData = {};
+                    }
+                } else {
+                    // Merge Google Pay config
+                    if (!window.checkoutConfig.payment) window.checkoutConfig.payment = {};
+                    if (!window.checkoutConfig.payment.buckaroo) window.checkoutConfig.payment.buckaroo = {};
+
+                    window.checkoutConfig.payment.buckaroo.buckaroo_magento2_googlepay =
+                        config.payment.buckaroo.buckaroo_magento2_googlepay;
+                }
+            })();
+        </script>
+
+        <script type="text/x-magento-init">
+            {
+                "#google-pay-catalog-product-view-component": {
+                    "Magento_Ui/js/core/app": {
+                        "components": {
+                            "buckarooGooglepayProduct": {
+                                "component": "buckaroo/googlepay/catalog-product-view",
+                                "template": "Buckaroo_Magento2/catalog/product/view/googlepay"
+                            }
+                        }
+                    }
+                }
+            }
+        </script>
+    </div>
+<?php endif; ?>

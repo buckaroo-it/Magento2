@@ -41,8 +41,7 @@ define(
                 redirectAfterPlaceOrder: false,
 
                 afterPlaceOrder: function () {
-                    var response = window.checkoutConfig.payment.buckaroo.response;
-                    response = $.parseJSON(response);
+                    var response = window.checkoutConfig.payment.buckaroo.responseData;
                     if (response.RequiredAction !== undefined && response.RequiredAction.RedirectURL !== undefined) {
                         var formKey = $.mage.cookies.get('form_key');
                         window.history.pushState(

@@ -30,7 +30,8 @@ define([
             buttonShape: '',
             buttonColorElement: '',
             buttonShapeElement: '',
-            hasRendered: false
+            hasRendered: false,
+            element: null
         },
 
         /**
@@ -47,7 +48,7 @@ define([
          */
         initPayPal: function () {
             var self = this;
-            
+
             if (!window.paypal) {
                 this.requirePayPal(function() {
                     self.renderButton();
@@ -78,10 +79,25 @@ define([
         renderButton: function () {
             var self = this;
             const paypalSDK = window.paypal;
-            
+
+            // Get the container element - in Magento UI Component, element might be selector or jQuery object
+            var container = this.element;
+
+            // If element is not set or empty, try to find the container
+            if (!container) {
+                container = '#paypal-button-container';
+            }
+
+            // Check if element exists in DOM before rendering
+            var $container = $(container);
+            if (!$container.length) {
+                console.warn('[Buckaroo PayPal] Button container element not found:', container);
+                return;
+            }
+
             if (this.hasRendered) {
                 paypalSDK.Buttons().close();
-                $(this.element).empty();
+                $container.empty();
             }
 
             paypalSDK.Buttons({
@@ -93,8 +109,10 @@ define([
                     color: this.buttonColor,
                     shape: this.buttonShape === '1' ? 'pill' : 'rect'
                 }
-            }).render(this.element).then(function () {
+            }).render(container).then(function () {
                 self.hasRendered = true;
+            }).catch(function (error) {
+                console.warn('[Buckaroo PayPal] Failed to render button:', error.message);
             });
         },
 
@@ -119,4 +137,4 @@ define([
             });
         }
     });
-}); 
+});

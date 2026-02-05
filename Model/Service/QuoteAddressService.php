@@ -66,13 +66,14 @@ class QuoteAddressService
      *
      * @param ShippingAddressRequestInterface $shippingAddress
      * @param Quote                           $cart
+     * @param bool                            $fillMissingFields Whether to fill missing fields with dummy data (default: false)
      *
      * @throws LocalizedException
      * @throws NoSuchEntityException
      *
      * @return Quote
      */
-    public function addAddressToQuote(ShippingAddressRequestInterface $shippingAddress, Quote $cart): Quote
+    public function addAddressToQuote(ShippingAddressRequestInterface $shippingAddress, Quote $cart, bool $fillMissingFields = false): Quote
     {
         if ($this->customerSession->isLoggedIn()) {
             $customer = $this->customerRepository->getById($this->customerSession->getCustomerId());
@@ -86,7 +87,10 @@ class QuoteAddressService
         $address->setRegion($shippingAddress->getState());
 
         // Fill any missing fields on both shipping and billing addresses.
-        $this->maybeFillAnyMissingAddressFields($shippingAddress, $cart);
+        // Skip for Google Pay as it always provides complete address data.
+        if ($fillMissingFields) {
+            $this->maybeFillAnyMissingAddressFields($shippingAddress, $cart);
+        }
 
         $this->quoteRepository->save($cart);
 

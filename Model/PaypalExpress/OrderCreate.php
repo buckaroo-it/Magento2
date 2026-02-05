@@ -142,14 +142,95 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
         $quote->getPayment()->setAdditionalInformation('express_order_id', $paypal_order_id);
         $quote->reserveOrderId();
 
+        // Set minimal required fields to pass Magento validation
+        // These will be immediately replaced with real PayPal data after order placement
+        $this->ensureRequiredAddressFields($quote);
+
         $this->ignoreAddressValidation($quote);
+        $this->quoteRepository->save($quote);  // Save quote after setting ignore validation flags
+
         $this->checkQuoteBelongsToLoggedUser($quote);
+        
+        $this->logger->addDebug('[PayPal Express OrderCreate] Placing order with pending address values...');
         $orderId = $this->quoteManagement->placeOrder($quote->getId());
+        $this->logger->addDebug('[PayPal Express OrderCreate] Order placed successfully with ID: ' . $orderId);
 
         $order = $this->orderRepository->get($orderId);
+        
+        $this->logger->addDebug('[PayPal Express OrderCreate] Updating order with real PayPal data...');
         $this->updateOrder($order);
+        $this->logger->addDebug('[PayPal Express OrderCreate] Order updated with real PayPal data');
+        
         $this->setLastOrderToSession($order);
         return $order->getIncrementId();
+    }
+
+    /**
+     * Ensure required address fields are set with minimal values to pass Magento validation
+     * These will be immediately replaced with real PayPal data in updateOrder()
+     *
+     * @param Quote $quote
+     */
+    private function ensureRequiredAddressFields(Quote $quote)
+    {
+        $shippingAddress = $quote->getShippingAddress();
+        $billingAddress = $quote->getBillingAddress();
+
+        // Set required fields if empty - these are pending values that will be updated immediately
+        if (!$shippingAddress->getFirstname()) {
+            $shippingAddress->setFirstname('PayPal');
+        }
+        if (!$shippingAddress->getLastname()) {
+            $shippingAddress->setLastname('Customer');
+        }
+        if (!$shippingAddress->getStreet() || empty($shippingAddress->getStreet()[0])) {
+            $shippingAddress->setStreet(['Pending']);
+        }
+        if (!$shippingAddress->getTelephone()) {
+            $shippingAddress->setTelephone('000-000-0000');
+        }
+        if (!$shippingAddress->getEmail()) {
+            $shippingAddress->setEmail('pending@paypal.customer');
+        }
+
+        // Set billing address required fields
+        if (!$billingAddress->getFirstname()) {
+            $billingAddress->setFirstname('PayPal');
+        }
+        if (!$billingAddress->getLastname()) {
+            $billingAddress->setLastname('Customer');
+        }
+        if (!$billingAddress->getStreet() || empty($billingAddress->getStreet()[0])) {
+            $billingAddress->setStreet(['Pending']);
+        }
+        if (!$billingAddress->getTelephone()) {
+            $billingAddress->setTelephone('000-000-0000');
+        }
+        if (!$billingAddress->getEmail()) {
+            $billingAddress->setEmail('pending@paypal.customer');
+        }
+        
+        // Copy address fields from shipping to billing if missing
+        if (!$billingAddress->getCity() && $shippingAddress->getCity()) {
+            $billingAddress->setCity($shippingAddress->getCity());
+        }
+        if (!$billingAddress->getPostcode() && $shippingAddress->getPostcode()) {
+            $billingAddress->setPostcode($shippingAddress->getPostcode());
+        }
+        if (!$billingAddress->getCountryId() && $shippingAddress->getCountryId()) {
+            $billingAddress->setCountryId($shippingAddress->getCountryId());
+        }
+        if (!$billingAddress->getRegionId() && $shippingAddress->getRegionId()) {
+            $billingAddress->setRegionId($shippingAddress->getRegionId());
+        }
+        if (!$billingAddress->getRegion() && $shippingAddress->getRegion()) {
+            $billingAddress->setRegion($shippingAddress->getRegion());
+        }
+
+        // Set customer email if not set
+        if (!$quote->getCustomerEmail()) {
+            $quote->setCustomerEmail('pending@paypal.customer');
+        }
     }
 
     /**
@@ -169,6 +250,7 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
         $orderUpdateService->updateAddress($order->getShippingAddress());
         $orderUpdateService->updateAddress($order->getBillingAddress());
         $orderUpdateService->updateEmail($order);
+        $orderUpdateService->updateCustomerName($order);
         $this->orderRepository->save($order);
     }
     /**
