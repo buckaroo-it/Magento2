@@ -206,8 +206,7 @@ class QuoteService
     }
 
     /**
-     * Calculate quote totals, set store id required for quote masking,
-     * set customer email required for order validation
+     * Calculate quote totals and set store id required for quote masking
      *
      * @return Quote
      */
@@ -284,11 +283,12 @@ class QuoteService
     /**
      * Add Address To Cart
      *
-     * @param $shippingAddressRequest
+     * @param mixed $shippingAddressRequest
      * @param bool $fillMissingFields Whether to fill missing fields with dummy data (default: false)
      *
      * @throws NoSuchEntityException
      * @throws LocalizedException
+     * @return void
      */
     public function addAddressToQuote($shippingAddressRequest, bool $fillMissingFields = false)
     {

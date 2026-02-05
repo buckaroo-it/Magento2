@@ -91,6 +91,19 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
      */
     protected $productValidationService;
 
+    /**
+     * Constructor
+     *
+     * @param QuoteCreateResponseInterfaceFactory $responseFactory
+     * @param QuoteBuilderInterfaceFactory $quoteBuilderInterfaceFactory
+     * @param CustomerSession $customerSession
+     * @param CustomerRepositoryInterface $customerRepository
+     * @param CheckoutSession $checkoutSession
+     * @param QuoteRepository $quoteRepository
+     * @param ShipmentEstimationInterface $shipmentEstimation
+     * @param Log $logger
+     * @param ProductValidationService $productValidationService
+     */
     public function __construct(
         QuoteCreateResponseInterfaceFactory $responseFactory,
         QuoteBuilderInterfaceFactory $quoteBuilderInterfaceFactory,
@@ -113,7 +126,9 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
         $this->productValidationService = $productValidationService;
     }
 
-    /** @inheritDoc */
+    /**
+     * @inheritDoc
+     */
     public function execute(
         ShippingAddressRequestInterface $shipping_address,
         string $page,
@@ -138,7 +153,8 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
     }
 
     /**
-     * Calculate quote totals, set store id required for quote masking,
+     * Calculate quote totals and set store id required for quote masking
+     *
      * @return void
      */
     protected function calculateQuoteTotals()
@@ -177,11 +193,11 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
     }
 
     /**
-     * Add the first found shipping method to the shipping address &
-     * recalculate shipping totals
+     * Add the first found shipping method to the shipping address and recalculate shipping totals
      *
      * @param Address $address
      * @throws InputException
+     * @return void
      */
     protected function addFirstShippingMethod(Address $address)
     {

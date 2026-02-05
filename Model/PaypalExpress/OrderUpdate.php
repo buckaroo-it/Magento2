@@ -57,6 +57,7 @@ class OrderUpdate
 
     /**
      * Alternative method to get PayPal data from push notification
+     *
      * This handles the case where PayPal data comes through push notifications
      *
      * @return array|null
@@ -258,6 +259,14 @@ class OrderUpdate
         // Don't set any default value - leave field empty
     }
 
+    /**
+     * Update address field with PayPal response data
+     *
+     * @param mixed $address
+     * @param string $addressField
+     * @param string $responseField
+     * @return void
+     */
     protected function updateItem($address, $addressField, $responseField)
     {
         if ($this->valueExists($responseField)) {
@@ -367,6 +376,7 @@ class OrderUpdate
 
     /**
      * Sanitize city name to meet Magento validation requirements
+     *
      * Only allows A-Z, a-z, 0-9, -, ', spaces
      *
      * @param string $cityName
@@ -398,6 +408,12 @@ class OrderUpdate
         return $sanitized;
     }
 
+    /**
+     * Check if value exists in response address info
+     *
+     * @param string $key
+     * @return bool
+     */
     private function valueExists($key): bool
     {
         return isset($this->responseAddressInfo[$key]) && is_string($this->responseAddressInfo[$key]);
@@ -467,12 +483,15 @@ class OrderUpdate
         if (in_array($telephone, $placeholderPhones)) {
             return true;
         }
-        
+
         return false;
     }
 
     /**
+     * Update order email with PayPal data
+     *
      * @param OrderInterface $order
+     * @return void
      */
     public function updateEmail(OrderInterface $order)
     {
@@ -483,8 +502,9 @@ class OrderUpdate
 
     /**
      * Update order customer name with real PayPal data
-     * 
+     *
      * @param OrderInterface $order
+     * @return void
      */
     public function updateCustomerName(OrderInterface $order)
     {

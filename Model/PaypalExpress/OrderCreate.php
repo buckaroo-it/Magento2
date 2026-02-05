@@ -85,6 +85,19 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
      */
     protected $logger;
 
+    /**
+     * Constructor
+     *
+     * @param OrderCreateResponseInterfaceFactory $responseFactory
+     * @param CartManagementInterface $quoteManagement
+     * @param MaskedQuoteIdToQuoteId $maskedQuoteIdToQuoteId
+     * @param CustomerSession $customerSession
+     * @param CheckoutSession $checkoutSession
+     * @param CartRepositoryInterface $quoteRepository
+     * @param OrderRepositoryInterface $orderRepository
+     * @param OrderUpdateFactory $orderUpdateFactory
+     * @param Log $logger
+     */
     public function __construct(
         OrderCreateResponseInterfaceFactory $responseFactory,
         CartManagementInterface $quoteManagement,
@@ -107,7 +120,9 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
         $this->logger = $logger;
     }
 
-    /** @inheritDoc */
+    /**
+     * @inheritDoc
+     */
     public function execute(
         string $paypal_order_id,
         ?string $cart_id = null
@@ -167,6 +182,7 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
 
     /**
      * Ensure required address fields are set with minimal values to pass Magento validation
+     *
      * These will be immediately replaced with real PayPal data in updateOrder()
      *
      * @param Quote $quote
@@ -244,6 +260,12 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
         $quote->getShippingAddress()->setShouldIgnoreValidation(true);
     }
 
+    /**
+     * Update order with real PayPal data
+     *
+     * @param OrderInterface $order
+     * @return void
+     */
     protected function updateOrder(OrderInterface $order)
     {
         $orderUpdateService = $this->orderUpdateFactory->create();
@@ -253,6 +275,7 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
         $orderUpdateService->updateCustomerName($order);
         $this->orderRepository->save($order);
     }
+
     /**
      * Check if quote belongs to the current logged in user
      *

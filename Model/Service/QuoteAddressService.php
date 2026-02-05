@@ -34,10 +34,29 @@ use Magento\Quote\Model\ShippingAddressManagementInterface;
 
 class QuoteAddressService
 {
+    /**
+     * @var CustomerSession
+     */
     private $customerSession;
+
+    /**
+     * @var QuoteRepository
+     */
     private $quoteRepository;
+
+    /**
+     * @var CustomerRepositoryInterface
+     */
     private $customerRepository;
+
+    /**
+     * @var BuckarooLoggerInterface
+     */
     private $logger;
+
+    /**
+     * @var ShippingAddressManagementInterface
+     */
     private $shippingAddressManagement;
 
     /**
