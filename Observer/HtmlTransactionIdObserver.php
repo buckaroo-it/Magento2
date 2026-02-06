@@ -68,98 +68,167 @@ class HtmlTransactionIdObserver implements ObserverInterface
             return;
         }
 
-        $txnId = $this->getBaseTransactionId($transaction);
-        $txtType = $this->getEffectiveTransactionType($transaction);
+        $txnId = $this->extractTransactionId($transaction);
+        $txtType = $transaction->getTxnType();
         $paymentMethod = $order->getPayment()->getMethod();
+        $isVoidTransaction = false;
 
-        if ($this->shouldSkipTransaction($txtType, $transaction)) {
+        // Handle void transactions by checking parent transaction type
+        if ($this->isVoidTransaction($transaction)) {
+            $isVoidTransaction = true;
+            $txtType = $this->getParentTransactionType($transaction) ?? $txtType;
+        }
+
+        if ($this->shouldSkipOfflineRefund($txtType, $transaction)) {
             return;
         }
 
-        $htmlLink = $this->buildTransactionLink($txtType, $paymentMethod, $txnId, $transaction->getTxnId());
-        $transaction->setData('html_txn_id', $htmlLink);
+        $this->setTransactionHtmlLink($transaction, $paymentMethod, $txtType, $isVoidTransaction, $txnId);
     }
 
     /**
-     * Check if the transaction should be processed
+     * Check if transaction should be processed
      *
      * @param Transaction $transaction
-     * @param mixed $order
+     * @param \Magento\Sales\Model\Order $order
      * @return bool
      */
-    private function shouldProcessTransaction($transaction, $order): bool
+    private function shouldProcessTransaction(Transaction $transaction, $order): bool
     {
-        $txnId = $this->getBaseTransactionId($transaction);
+        $txnIdArray = explode("-", $transaction->getTxnId());
+        $txnId = reset($txnIdArray);
+
         return $this->checkPaymentType->isBuckarooPayment($order->getPayment()) && $txnId !== false;
     }
 
     /**
-     * Get base transaction ID without a suffix
+     * Extract transaction ID from transaction
      *
      * @param Transaction $transaction
-     * @return string|false
+     * @return string
      */
-    private function getBaseTransactionId($transaction)
+    private function extractTransactionId(Transaction $transaction): string
     {
         $txnIdArray = explode("-", $transaction->getTxnId());
         return reset($txnIdArray);
     }
 
     /**
-     * Get effective transaction type (handles void transactions)
+     * Check if transaction is a void transaction
      *
      * @param Transaction $transaction
-     * @return string
+     * @return bool
      */
-    private function getEffectiveTransactionType($transaction): string
+    private function isVoidTransaction(Transaction $transaction): bool
     {
-        $txtType = $transaction->getTxnType();
-
-        if ($transaction->getTxnType() === TransactionInterface::TYPE_VOID && $transaction->getParentId()) {
-            $parentTransaction = $this->transactionRepository->get($transaction->getParentId());
-            if ($parentTransaction) {
-                $txtType = $parentTransaction->getTxnType();
-            }
-        }
-
-        return $txtType;
+        return $transaction->getTxnType() === TransactionInterface::TYPE_VOID;
     }
 
     /**
-     * Check if transaction should be skipped
+     * Get parent transaction type
+     *
+     * @param Transaction $transaction
+     * @return string|null
+     */
+    private function getParentTransactionType(Transaction $transaction): ?string
+    {
+        if (!$transaction->getParentId()) {
+            return null;
+        }
+
+        $parentTransaction = $this->transactionRepository->get($transaction->getParentId());
+        return $parentTransaction ? $parentTransaction->getTxnType() : null;
+    }
+
+    /**
+     * Check if offline refund should be skipped
      *
      * @param string $txtType
      * @param Transaction $transaction
      * @return bool
      */
-    private function shouldSkipTransaction(string $txtType, $transaction): bool
+    private function shouldSkipOfflineRefund(string $txtType, Transaction $transaction): bool
     {
-        return $txtType == TransactionInterface::TYPE_REFUND && $this->isOfflineRefund($transaction->getTxnId());
+        return $txtType == TransactionInterface::TYPE_REFUND
+            && $this->isOfflineRefund($transaction->getTxnId());
     }
 
     /**
-     * Build HTML transaction link
+     * Set HTML transaction link
      *
-     * @param string $txtType
+     * @param Transaction $transaction
      * @param string $paymentMethod
+     * @param string $txtType
+     * @param bool $isVoidTransaction
      * @param string $txnId
-     * @param string $fullTxnId
-     * @return string
+     * @return void
      */
-    private function buildTransactionLink(string $txtType, string $paymentMethod, string $txnId, string $fullTxnId): string
+    private function setTransactionHtmlLink(
+        Transaction $transaction,
+        string $paymentMethod,
+        string $txtType,
+        bool $isVoidTransaction,
+        string $txnId
+    ): void {
+        if ($this->shouldUseDataRequestUrl($paymentMethod, $txtType, $isVoidTransaction)) {
+            $this->setDataRequestUrl($transaction, $txnId);
+        } else {
+            $this->setTransactionDetailsUrl($transaction, $txnId);
+        }
+    }
+
+    /**
+     * Check if DataRequest URL should be used
+     *
+     * @param string $paymentMethod
+     * @param string $txtType
+     * @param bool $isVoidTransaction
+     * @return bool
+     */
+    private function shouldUseDataRequestUrl(
+        string $paymentMethod,
+        string $txtType,
+        bool $isVoidTransaction
+    ): bool {
+        return $this->isKlarnaPayment($paymentMethod)
+            && ($txtType == 'authorization' || $isVoidTransaction);
+    }
+
+    /**
+     * Set DataRequest URL for transaction
+     *
+     * @param Transaction $transaction
+     * @param string $txnId
+     * @return void
+     */
+    private function setDataRequestUrl(Transaction $transaction, string $txnId): void
     {
-        if ($txtType == 'authorization' && $this->isKlarnaPayment($paymentMethod)) {
-            return sprintf(
+        $transaction->setData(
+            'html_txn_id',
+            sprintf(
                 '<a href="https://plaza.buckaroo.nl/Transaction/DataRequest/Details/%s" target="_blank">%s</a>',
                 $txnId,
-                $fullTxnId
-            );
-        }
+                $transaction->getTxnId()
+            )
+        );
+    }
 
-        return sprintf(
-            '<a href="https://plaza.buckaroo.nl/Transaction/Transactions/Details?transactionKey=%s" target="_blank">%s</a>',
-            $txnId,
-            $fullTxnId
+    /**
+     * Set Transaction Details URL for transaction
+     *
+     * @param Transaction $transaction
+     * @param string $txnId
+     * @return void
+     */
+    private function setTransactionDetailsUrl(Transaction $transaction, string $txnId): void
+    {
+        $transaction->setData(
+            'html_txn_id',
+            sprintf(
+                '<a href="https://plaza.buckaroo.nl/Transaction/Transactions/Details?transactionKey=%s" target="_blank">%s</a>',
+                $txnId,
+                $transaction->getTxnId()
+            )
         );
     }
 
