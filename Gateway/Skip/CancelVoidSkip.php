@@ -25,10 +25,11 @@ use Buckaroo\Magento2\Gateway\Command\SkipCommandInterface;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Gateway\Response\TransactionIdHandler;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
+use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Model\Order;
 
 /**
- * Skip cancel/void command if there's no valid transaction to cancel
+ * Skip the cancel / void command if there's no valid transaction to cancel
  *
  * This prevents attempting to void/cancel payments at the gateway when:
  * - The initial transaction failed or was rejected
@@ -52,7 +53,7 @@ class CancelVoidSkip implements SkipCommandInterface
     }
 
     /**
-     * Check if cancel/void command should be skipped
+     * Check if the cancel / void command should be skipped
      *
      * @param array $commandSubject
      * @return bool
@@ -92,6 +93,50 @@ class CancelVoidSkip implements SkipCommandInterface
                 $order->getIncrementId()
             ));
 
+            return true;
+        }
+
+        // Skip if this is a failed authorization that cannot be voided at the gateway
+        // This is common for Klarna/Afterpay orders where authorization failed after initial success
+        if ($this->isFailedAuthorization($payment, $order)) {
+            $this->logger->addDebug(sprintf(
+                '[SKIP_VOID - %s] | [CancelVoidSkip] | [%s:%s] - Skipping cancel/void command: '
+                . 'Failed authorization detected. Order: %s. Payment failed after authorization, '
+                . 'no valid transaction to void at gateway.',
+                $payment->getMethod(),
+                __METHOD__,
+                __LINE__,
+                $order ? $order->getIncrementId() : 'N/A'
+            ));
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if a payment has a failed authorization flag
+     *
+     * This indicates the payment was initially authorized but then failed
+     * (e.g., fraud check, risk assessment, or gateway rejection after initial success)
+     *
+     * @param InfoInterface $payment
+     * @param Order|null $order
+     * @return bool
+     */
+    private function isFailedAuthorization($payment, $order): bool
+    {
+        // Check for explicit failed authorization flag
+        // This flag is set by DefaultProcessor::processFailedPush for Klarna/Afterpay methods
+        $failedAuthorize = $payment->getAdditionalInformation('buckaroo_failed_authorize');
+        if ($failedAuthorize == 1) {
+            return true;
+        }
+
+        // For orders in the pending_payment state after having a transaction key,
+        // this typically indicates authorization failed after initial success
+        if ($order && $order->getState() === Order::STATE_PENDING_PAYMENT) {
             return true;
         }
 
