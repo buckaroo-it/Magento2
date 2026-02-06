@@ -257,6 +257,9 @@ class SaveOrderProcessor
     }
 
     /**
+     * Handle response and prepare redirect or success data
+     *
+     * @return array
      * @throws Exception
      */
     private function handleResponse(): array
@@ -278,8 +281,9 @@ class SaveOrderProcessor
     }
 
     /**
-     * @param string $incrementId
+     * Prepare redirect to success page
      *
+     * @param string $incrementId
      * @return array
      * @throws Exception
      */

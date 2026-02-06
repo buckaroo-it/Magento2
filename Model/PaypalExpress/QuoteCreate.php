@@ -239,6 +239,7 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
         try {
             // Parse form data to get product ID and options
             $data = [];
+            // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
             parse_str($form_data, $data);
 
             $productId = $data['product'] ?? null;
