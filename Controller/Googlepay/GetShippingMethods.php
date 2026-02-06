@@ -72,102 +72,134 @@ class GetShippingMethods extends AbstractGooglepay
             var_export($postValues, true)
         ));
 
-        $data = [];
-        $errorMessage = false;
-
-        // Support both 'wallet' (legacy) and 'address' (inline) formats
         $addressData = $postValues['wallet'] ?? $postValues['address'] ?? null;
 
-        if (!empty($postValues) && $addressData) {
-            try {
-                // Get or create cart
-                $cartHash = $postValues['id'] ?? null;
-
-                // Decode address if it's a JSON string (do this FIRST)
-                if (is_string($addressData)) {
-                    $addressData = json_decode($addressData, true);
-                }
-
-                // If no cart exists yet (product page flow), create temporary quote with product
-                if (!$cartHash && isset($postValues['product'])) {
-                    $this->logger->addDebug('[GooglePay] No cart hash, creating temporary quote with product');
-                    $productData = is_string($postValues['product'])
-                        ? json_decode($postValues['product'], true)
-                        : $postValues['product'];
-
-                    // Create quote with product via Add service
-                    $addPayload = [
-                        'product' => $productData,
-                        'wallet' => $addressData  // Already decoded as array
-                    ];
-
-                    // Use Add service to create quote
-                    $addService = \Magento\Framework\App\ObjectManager::getInstance()
-                        ->get(\Buckaroo\Magento2\Service\Googlepay\Add::class);
-                    $result = $addService->process($addPayload);
-
-                    if (isset($result['error']) && $result['error']) {
-                        $errorMessage = $result['error'];
-                        $this->logger->addDebug('[GooglePay] Error creating quote: ' . $errorMessage);
-                        return $this->commonResponse([], $errorMessage);
-                    }
-
-                    // Quote is now in session, get it
-                    $this->quoteService->getQuote();
-                } else {
-                    $this->quoteService->getQuote($cartHash);
-                }
-
-                // Process shipping address from Google Pay data
-                $shippingAddressRequest = $this->googlepayFormatData->getShippingAddressObject($addressData);
-
-                $this->quoteService->addAddressToQuote($shippingAddressRequest);
-
-                //Set Payment Method
-                $this->quoteService->setPaymentMethod(Googlepay::CODE);
-
-                // Retrieve shipping methods.
-                $shippingMethodsResult = [];
-                if (!$this->quoteService->getQuote()->getIsVirtual()) {
-                    $shippingMethods = $this->quoteService->getAvailableShippingMethods();
-                    $this->logger->addDebug('[GooglePay] Available shipping methods count: ' . count($shippingMethods));
-
-                    if (empty($shippingMethods)) {
-                        $errorMessage = __(
-                            'Google Pay payment failed, because no shipping methods were found for the selected address. ' .
-                            'Please select a different shipping address within the pop-up or within your Google Pay Wallet.'
-                        );
-                    } else {
-                        // Set default shipping method using the first method.
-                        $firstMethod = reset($shippingMethods);
-                        $this->quoteService->setShippingMethod($firstMethod['method_code']);
-                        $shippingMethodsResult = $shippingMethods;
-                    }
-                }
-
-                // Recalculate totals.
-                $this->quoteService->calculateQuoteTotals();
-
-                // Gather totals.
-                $totals = $this->quoteService->gatherTotals();
-
-                $data = [
-                    'shipping_methods' => $shippingMethodsResult,
-                    'totals'           => $totals
-                ];
-            } catch (NoSuchEntityException | LocalizedException $exception) {
-                $this->logger->addDebug(sprintf(
-                    '[GooglePay] | [Controller] | [%s:%s] - Get Shipping Methods | ERROR: %s',
-                    __METHOD__,
-                    __LINE__,
-                    $exception->getMessage()
-                ));
-                $errorMessage = __('Get shipping methods failed');
-            }
-        } else {
-            $errorMessage = __('Details from Wallet GooglePay are not received.');
+        if (empty($postValues) || !$addressData) {
+            return $this->commonResponse([], __('Details from Wallet GooglePay are not received.'));
         }
 
-        return $this->commonResponse($data, $errorMessage);
+        try {
+            $addressData = $this->decodeAddressData($addressData);
+            $this->initializeQuote($postValues, $addressData);
+
+            $shippingAddressRequest = $this->googlepayFormatData->getShippingAddressObject($addressData);
+            $this->quoteService->addAddressToQuote($shippingAddressRequest);
+            $this->quoteService->setPaymentMethod(Googlepay::CODE);
+
+            $shippingMethodsResult = $this->getShippingMethodsForQuote();
+            $totals = $this->calculateAndGatherTotals();
+
+            $data = [
+                'shipping_methods' => $shippingMethodsResult,
+                'totals'           => $totals
+            ];
+
+            return $this->commonResponse($data, false);
+        } catch (NoSuchEntityException | LocalizedException $exception) {
+            $this->logger->addDebug(sprintf(
+                '[GooglePay] | [Controller] | [%s:%s] - Get Shipping Methods | ERROR: %s',
+                __METHOD__,
+                __LINE__,
+                $exception->getMessage()
+            ));
+            return $this->commonResponse([], __('Get shipping methods failed'));
+        }
+    }
+
+    /**
+     * Decode address data if it's a JSON string
+     *
+     * @param mixed $addressData
+     * @return array
+     */
+    private function decodeAddressData($addressData)
+    {
+        return is_string($addressData) ? json_decode($addressData, true) : $addressData;
+    }
+
+    /**
+     * Initialize quote (get existing or create new)
+     *
+     * @param array $postValues
+     * @param array $addressData
+     * @return void
+     * @throws \Exception
+     */
+    private function initializeQuote(array $postValues, array $addressData)
+    {
+        $cartHash = $postValues['id'] ?? null;
+
+        if (!$cartHash && isset($postValues['product'])) {
+            $this->createQuoteWithProduct($postValues['product'], $addressData);
+            $this->quoteService->getQuote();
+        } else {
+            $this->quoteService->getQuote($cartHash);
+        }
+    }
+
+    /**
+     * Create quote with product for product page flow
+     *
+     * @param mixed $productData
+     * @param array $addressData
+     * @return void
+     * @throws \Exception
+     */
+    private function createQuoteWithProduct($productData, array $addressData)
+    {
+        $this->logger->addDebug('[GooglePay] No cart hash, creating temporary quote with product');
+
+        $productData = is_string($productData) ? json_decode($productData, true) : $productData;
+        $addPayload = [
+            'product' => $productData,
+            'wallet' => $addressData
+        ];
+
+        $addService = \Magento\Framework\App\ObjectManager::getInstance()
+            ->get(\Buckaroo\Magento2\Service\Googlepay\Add::class);
+        $result = $addService->process($addPayload);
+
+        if (isset($result['error']) && $result['error']) {
+            $this->logger->addDebug('[GooglePay] Error creating quote: ' . $result['error']);
+            throw new \Exception($result['error']);
+        }
+    }
+
+    /**
+     * Get shipping methods for the current quote
+     *
+     * @return array
+     */
+    private function getShippingMethodsForQuote()
+    {
+        if ($this->quoteService->getQuote()->getIsVirtual()) {
+            return [];
+        }
+
+        $shippingMethods = $this->quoteService->getAvailableShippingMethods();
+        $this->logger->addDebug('[GooglePay] Available shipping methods count: ' . count($shippingMethods));
+
+        if (empty($shippingMethods)) {
+            throw new LocalizedException(__(
+                'Google Pay payment failed, because no shipping methods were found for the selected address. ' .
+                'Please select a different shipping address within the pop-up or within your Google Pay Wallet.'
+            ));
+        }
+
+        $firstMethod = reset($shippingMethods);
+        $this->quoteService->setShippingMethod($firstMethod['method_code']);
+
+        return $shippingMethods;
+    }
+
+    /**
+     * Calculate quote totals and gather them
+     *
+     * @return array
+     */
+    private function calculateAndGatherTotals()
+    {
+        $this->quoteService->calculateQuoteTotals();
+        return $this->quoteService->gatherTotals();
     }
 }

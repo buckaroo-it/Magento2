@@ -189,63 +189,58 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
      */
     private function ensureRequiredAddressFields(Quote $quote)
     {
-        $shippingAddress = $quote->getShippingAddress();
-        $billingAddress = $quote->getBillingAddress();
-
-        // Set required fields if empty - these are pending values that will be updated immediately
-        if (!$shippingAddress->getFirstname()) {
-            $shippingAddress->setFirstname('PayPal');
-        }
-        if (!$shippingAddress->getLastname()) {
-            $shippingAddress->setLastname('Customer');
-        }
-        if (!$shippingAddress->getStreet() || empty($shippingAddress->getStreet()[0])) {
-            $shippingAddress->setStreet(['Pending']);
-        }
-        if (!$shippingAddress->getTelephone()) {
-            $shippingAddress->setTelephone('000-000-0000');
-        }
-        if (!$shippingAddress->getEmail()) {
-            $shippingAddress->setEmail('pending@paypal.customer');
-        }
-
-        // Set billing address required fields
-        if (!$billingAddress->getFirstname()) {
-            $billingAddress->setFirstname('PayPal');
-        }
-        if (!$billingAddress->getLastname()) {
-            $billingAddress->setLastname('Customer');
-        }
-        if (!$billingAddress->getStreet() || empty($billingAddress->getStreet()[0])) {
-            $billingAddress->setStreet(['Pending']);
-        }
-        if (!$billingAddress->getTelephone()) {
-            $billingAddress->setTelephone('000-000-0000');
-        }
-        if (!$billingAddress->getEmail()) {
-            $billingAddress->setEmail('pending@paypal.customer');
-        }
+        $this->setPendingFieldsOnAddress($quote->getShippingAddress());
+        $this->setPendingFieldsOnAddress($quote->getBillingAddress());
+        $this->copyAddressFieldsToBilling($quote->getShippingAddress(), $quote->getBillingAddress());
         
-        // Copy address fields from shipping to billing if missing
-        if (!$billingAddress->getCity() && $shippingAddress->getCity()) {
-            $billingAddress->setCity($shippingAddress->getCity());
-        }
-        if (!$billingAddress->getPostcode() && $shippingAddress->getPostcode()) {
-            $billingAddress->setPostcode($shippingAddress->getPostcode());
-        }
-        if (!$billingAddress->getCountryId() && $shippingAddress->getCountryId()) {
-            $billingAddress->setCountryId($shippingAddress->getCountryId());
-        }
-        if (!$billingAddress->getRegionId() && $shippingAddress->getRegionId()) {
-            $billingAddress->setRegionId($shippingAddress->getRegionId());
-        }
-        if (!$billingAddress->getRegion() && $shippingAddress->getRegion()) {
-            $billingAddress->setRegion($shippingAddress->getRegion());
-        }
-
-        // Set customer email if not set
         if (!$quote->getCustomerEmail()) {
             $quote->setCustomerEmail('pending@paypal.customer');
+        }
+    }
+
+    /**
+     * Set pending values for required address fields
+     *
+     * @param \Magento\Quote\Model\Quote\Address $address
+     * @return void
+     */
+    private function setPendingFieldsOnAddress($address)
+    {
+        if (!$address->getFirstname()) {
+            $address->setFirstname('PayPal');
+        }
+        if (!$address->getLastname()) {
+            $address->setLastname('Customer');
+        }
+        if (!$address->getStreet() || empty($address->getStreet()[0])) {
+            $address->setStreet(['Pending']);
+        }
+        if (!$address->getTelephone()) {
+            $address->setTelephone('000-000-0000');
+        }
+        if (!$address->getEmail()) {
+            $address->setEmail('pending@paypal.customer');
+        }
+    }
+
+    /**
+     * Copy address fields from shipping to billing address
+     *
+     * @param \Magento\Quote\Model\Quote\Address $shippingAddress
+     * @param \Magento\Quote\Model\Quote\Address $billingAddress
+     * @return void
+     */
+    private function copyAddressFieldsToBilling($shippingAddress, $billingAddress)
+    {
+        $fieldsToCopy = ['City', 'Postcode', 'CountryId', 'RegionId', 'Region'];
+        
+        foreach ($fieldsToCopy as $field) {
+            $getter = 'get' . $field;
+            $setter = 'set' . $field;
+            
+            if (!$billingAddress->$getter() && $shippingAddress->$getter()) {
+                $billingAddress->$setter($shippingAddress->$getter());
+            }
         }
     }
 
