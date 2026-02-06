@@ -75,7 +75,6 @@ class GooglepayConditionalDataBuilder implements BuilderInterface
 
         $this->logger->info('GooglePay Conditional Builder - Integration Mode', [
             'integrationMode' => $integrationMode,
-            'integrationModeType' => gettype($integrationMode),
             'isInline' => ($integrationMode === '0' || $integrationMode === 0),
             'isRedirect' => !($integrationMode === '0' || $integrationMode === 0)
         ]);

@@ -24,6 +24,7 @@ use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Model\QuoteRepository;
 
 class UpdateShippingMethods extends AbstractGooglepay
@@ -78,7 +79,7 @@ class UpdateShippingMethods extends AbstractGooglepay
                     $shippingAddress->setCollectShippingRates(true);
                     $shippingMethodCode = $postValues['wallet']['identifier'] ?? null;
                     if (!$shippingMethodCode) {
-                        throw new \Exception("Shipping method identifier is missing.");
+                        throw new LocalizedException(__("Shipping method identifier is missing."));
                     }
                     $shippingAddress->setShippingMethod($shippingMethodCode);
 

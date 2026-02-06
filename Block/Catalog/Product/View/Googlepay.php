@@ -90,10 +90,10 @@ class Googlepay extends Template
     }
 
     /**
-     * @param $page
+     * Check if Google Pay is enabled for the specified page
      *
+     * @param string $page
      * @throws NoSuchEntityException
-     *
      * @return bool
      */
     public function canShowButton($page): bool

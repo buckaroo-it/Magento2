@@ -223,8 +223,9 @@ class Fieldset extends MagentoFieldset
     }
 
     /**
-     * @param AbstractElement $element
+     * Get tab image and link for the element
      *
+     * @param AbstractElement $element
      * @return string
      */
     private function getTabImgAndLink($element)

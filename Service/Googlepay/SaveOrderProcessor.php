@@ -45,6 +45,20 @@ class SaveOrderProcessor
     private $order;
     /** @var BuckarooLoggerInterface */
     private $logger;
+
+    /**
+     * Constructor
+     *
+     * @param QuoteManagement $quoteManagement
+     * @param CustomerSession $customerSession
+     * @param DataObjectFactory $objectFactory
+     * @param BuckarooResponseDataInterface $buckarooResponseData
+     * @param CheckoutSession $checkoutSession
+     * @param ConfigProviderFactory $configProviderFactory
+     * @param QuoteAddressService $quoteAddressService
+     * @param Order $order
+     * @param BuckarooLoggerInterface $logger
+     */
     public function __construct(
         QuoteManagement             $quoteManagement,
         CustomerSession             $customerSession,
@@ -68,83 +82,128 @@ class SaveOrderProcessor
     }
 
     /**
-     * Entry‑point called by the controller
-     * @param array $payload
+     * Entry point called by the controller
      *
+     * @param array $payload
      * @return array
      * @throws Exception
-     * @throws ExpressMethodsException
      * @throws LocalizedException
-     * @throws NoSuchEntityException
+     * @throws NoSuchEntityException|ExpressMethodsException
      */
     public function place(array $payload): array
     {
         $quote = $this->checkoutSession->getQuote();
+        $payload = $this->decodePayloadData($payload);
 
-        // Decode JSON strings if needed
+        if (!$this->setQuoteAddresses($quote, $payload)) {
+            return [];
+        }
+
+        $this->setQuoteShippingMethod($quote, $payload);
+        $this->submitQuote($quote, $payload['extra'], $payload['payment']);
+
+        return $this->handleResponse();
+    }
+
+    /**
+     * Decode JSON strings in the payload
+     *
+     * @param array $payload
+     * @return array
+     */
+    private function decodePayloadData(array $payload): array
+    {
         if (isset($payload['payment']) && is_string($payload['payment'])) {
             $payload['payment'] = json_decode($payload['payment'], true);
         }
         if (isset($payload['extra']) && is_string($payload['extra'])) {
             $payload['extra'] = json_decode($payload['extra'], true);
         }
+        return $payload;
+    }
 
-        /* 1.Addresses */
+    /**
+     * Set shipping and billing addresses on quote
+     *
+     * @param Quote $quote
+     * @param array $payload
+     * @return bool
+     * @throws ExpressMethodsException
+     */
+    private function setQuoteAddresses(Quote $quote, array $payload): bool
+    {
         if (!$quote->getIsVirtual()) {
-            if (! $this->quoteAddressService->setShippingAddress(
+            if (!$this->quoteAddressService->setShippingAddress(
                 $quote,
                 $payload['payment']['shippingContact'] ?? []
             )) {
                 $this->logger->addError('[GooglePay SaveOrderProcessor] Failed to set shipping address');
-                return [];
+                return false;
             }
         }
 
-        if (! $this->quoteAddressService->setBillingAddress(
+        if (!$this->quoteAddressService->setBillingAddress(
             $quote,
             $payload['payment']['billingContact'] ?? [],
             $payload['payment']['shippingContact']['phoneNumber'] ?? null
         )) {
             $this->logger->addError('[GooglePay SaveOrderProcessor] Failed to set billing address');
-            return [];
+            return false;
         }
 
-        /* 2.Shipping method (if any)  */
+        return true;
+    }
+
+    /**
+     * Set a shipping method on quote
+     *
+     * @param Quote $quote
+     * @param array $payload
+     * @return void
+     */
+    private function setQuoteShippingMethod(Quote $quote, array $payload)
+    {
         if (!empty($payload['extra']['shippingMethod']['identifier'])) {
             $quote->getShippingAddress()
                 ->setShippingMethod($payload['extra']['shippingMethod']['identifier']);
             $this->logger->addDebug('[GooglePay SaveOrderProcessor] Shipping method set from payload: ' . $payload['extra']['shippingMethod']['identifier']);
         } else {
-            // Auto-select the first available shipping method for product page express checkout
-            $this->logger->addDebug('[GooglePay SaveOrderProcessor] No shipping method in payload, auto-selecting...');
-            $shippingAddress = $quote->getShippingAddress();
-            $shippingAddress->setCollectShippingRates(true)->collectShippingRates();
-            $shippingRates = $shippingAddress->getAllShippingRates();
-
-            if (!empty($shippingRates)) {
-                $firstRate = reset($shippingRates);
-                $shippingMethodCode = $firstRate->getCode();
-                $shippingAddress->setShippingMethod($shippingMethodCode);
-                $this->logger->addDebug('[GooglePay SaveOrderProcessor] Auto-selected shipping method: ' . $shippingMethodCode);
-            } else {
-                $this->logger->addError('[GooglePay SaveOrderProcessor] No shipping methods available!');
-            }
+            $this->autoSelectFirstShippingMethod($quote);
         }
-
-        /* 3.Submit the quote */
-        $this->submitQuote($quote, $payload['extra'], $payload['payment']);
-
-        /* 4.Convert the Buckaroo SDK response into JSON for the FE  */
-        return $this->handleResponse();
     }
 
     /**
+     * Auto-select the first available shipping method
+     *
+     * @param Quote $quote
+     * @return void
+     */
+    private function autoSelectFirstShippingMethod(Quote $quote)
+    {
+        $this->logger->addDebug('[GooglePay SaveOrderProcessor] No shipping method in payload, auto-selecting...');
+        $shippingAddress = $quote->getShippingAddress();
+        $shippingAddress->setCollectShippingRates(true)->collectShippingRates();
+        $shippingRates = $shippingAddress->getAllShippingRates();
+
+        if (!empty($shippingRates)) {
+            $firstRate = reset($shippingRates);
+            $shippingMethodCode = $firstRate->getCode();
+            $shippingAddress->setShippingMethod($shippingMethodCode);
+            $this->logger->addDebug('[GooglePay SaveOrderProcessor] Auto-selected shipping method: ' . $shippingMethodCode);
+        } else {
+            $this->logger->addError('[GooglePay SaveOrderProcessor] No shipping methods available!');
+        }
+    }
+
+    /**
+     * Submit quote and create order
+     *
      * @param Quote $quote
      * @param array $extra
      * @param array $payment
-     *
      * @throws Exception
      * @throws LocalizedException
+     * @return void
      */
     private function submitQuote(Quote $quote, array $extra, array $payment): void
     {
@@ -161,7 +220,7 @@ class SaveOrderProcessor
                 ->setCustomerGroupId(Group::NOT_LOGGED_IN_ID);
         }
 
-        /* Payment + invoice handling */
+        // Payment + invoice handling
         $paymentInstance = $quote->getPayment()->setMethod(Googlepay::CODE);
         $invoiceCfg      = $this->configProviderFactory
             ->get('account')

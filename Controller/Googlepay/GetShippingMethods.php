@@ -161,7 +161,7 @@ class GetShippingMethods extends AbstractGooglepay
 
         if (isset($result['error']) && $result['error']) {
             $this->logger->addDebug('[GooglePay] Error creating quote: ' . $result['error']);
-            throw new \Exception($result['error']);
+            throw new LocalizedException(__($result['error']));
         }
     }
 

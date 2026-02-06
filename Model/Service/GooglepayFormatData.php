@@ -97,7 +97,8 @@ class GooglepayFormatData implements FormatFormDataInterface
 
         $shippingAddressRequest->setPostalCode($addressData['postalCode'] ?? '');
         $shippingAddressRequest->setCity($addressData['locality'] ?? '');
-        $shippingAddressRequest->setState(isset($addressData['administrativeArea']) && $addressData['administrativeArea']
+        $shippingAddressRequest->setState(
+            isset($addressData['administrativeArea']) && $addressData['administrativeArea']
             ? $addressData['administrativeArea'] : ''
         );
 

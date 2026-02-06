@@ -35,6 +35,14 @@ class SaveOrder extends AbstractGooglepay
      */
     private $processor;
 
+    /**
+     * Constructor
+     *
+     * @param JsonFactory $resultJsonFactory
+     * @param RequestInterface $request
+     * @param BuckarooLoggerInterface $logger
+     * @param SaveOrderProcessor $processor
+     */
     public function __construct(
         JsonFactory            $resultJsonFactory,
         RequestInterface       $request,
@@ -46,8 +54,11 @@ class SaveOrder extends AbstractGooglepay
     }
 
     /**
+     * Execute save order action
+     *
      * @throws ExpressMethodsException
      * @throws LocalizedException
+     * @return Json
      */
     public function execute(): Json
     {

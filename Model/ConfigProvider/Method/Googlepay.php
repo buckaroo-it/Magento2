@@ -127,6 +127,8 @@ class Googlepay extends AbstractConfigProvider
     }
 
     /**
+     * Get available buttons configuration
+     *
      * @return array
      */
     public function getAvailableButtons(): array
@@ -167,6 +169,8 @@ class Googlepay extends AbstractConfigProvider
     }
 
     /**
+     * Get base allowed currencies
+     *
      * @return array
      */
     public function getBaseAllowedCurrencies(): array
@@ -239,6 +243,9 @@ class Googlepay extends AbstractConfigProvider
     }
 
     /**
+     * Check if Google Pay is enabled
+     *
+     * @return bool
      * @throws NoSuchEntityException
      */
     public function isGooglepayEnabled()
