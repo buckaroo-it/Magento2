@@ -183,12 +183,21 @@ define([
     displayErrorMessage(message) {
       if (typeof message === "object") {
         if (message.responseJSON && message.responseJSON.message) {
-          message = $t(message.responseJSON.message);
+          message = message.responseJSON.message;
+        } else if (message.responseText) {
+          try {
+            const parsed = JSON.parse(message.responseText);
+            message = parsed.message || $t("Cannot create payment");
+          } catch (e) {
+            message = $t("Cannot create payment");
+          }
         } else {
           message = $t("Cannot create payment");
         }
-
       }
+
+      message = $t(message);
+
       customerData.set('messages', {
         messages: [{
           type: 'error',
