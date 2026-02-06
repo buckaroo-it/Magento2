@@ -230,17 +230,14 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
      * Create quote if in product page
      *
      * @param string $form_data
-     *
      * @return Quote
      * @throws PaypalExpressException
+     * @SuppressWarnings(PHPMD.ErrorControlOperator)
      */
     protected function createQuote(string $form_data)
     {
         try {
-            // Parse form data to get product ID and options
-            $data = [];
-            // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
-            parse_str($form_data, $data);
+            $data = $this->parseFormData($form_data);
 
             $productId = $data['product'] ?? null;
             $qty = $data['qty'] ?? 1;
@@ -268,5 +265,22 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
             $this->logger->addDebug(__METHOD__ . $th->getMessage());
             throw new PaypalExpressException(__("Failed to create quote"), 1, $th);
         }
+    }
+
+    /**
+     * Parse URL-encoded form data into array
+     *
+     * Safe usage of parse_str with output parameter to avoid global scope pollution
+     *
+     * @param string $formData
+     * @return array
+     */
+    private function parseFormData(string $formData): array
+    {
+        $data = [];
+        // @codingStandardsIgnoreStart
+        parse_str($formData, $data);
+        // @codingStandardsIgnoreEnd
+        return $data;
     }
 }
