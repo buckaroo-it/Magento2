@@ -1043,6 +1043,16 @@
                 <second_chance_email>1</second_chance_email>
                 <second_chance_email2>1</second_chance_email2>
                 <multiple_emails_send>1</multiple_emails_send>
+                <!-- External Email Provider Configuration -->
+                <external_email_enabled>0</external_email_enabled>
+                <external_email_provider>External Email Provider</external_email_provider>
+                <external_email_method>smtp</external_email_method>
+                <external_email_smtp_port>587</external_email_smtp_port>
+                <external_email_smtp_encryption>tls</external_email_smtp_encryption>
+                <external_email_api_auth_type>bearer</external_email_api_auth_type>
+                <external_email_retry_enabled>1</external_email_retry_enabled>
+                <external_email_retry_attempts>3</external_email_retry_attempts>
+                <external_email_fallback_enabled>1</external_email_fallback_enabled>
             </second_chance>
             <analytics>
                 <enable_ga_client_id_tracking>0</enable_ga_client_id_tracking>
