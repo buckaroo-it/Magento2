@@ -87,8 +87,7 @@ define(
                 },
 
                 afterPlaceOrder: function () {
-                    var response = window.checkoutConfig.payment.buckaroo.response;
-                    response = $.parseJSON(response);
+                    var response = window.checkoutConfig.payment.buckaroo.responseData;
                     checkoutCommon.redirectHandle(response);
                 },
 
