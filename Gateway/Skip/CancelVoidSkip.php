@@ -142,5 +142,4 @@ class CancelVoidSkip implements SkipCommandInterface
 
         return false;
     }
-
 }
