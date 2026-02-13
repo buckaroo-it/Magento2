@@ -22,13 +22,26 @@ define([
   "mage/url",
   "Magento_Customer/js/customer-data",
   'mage/translate',
+  'Buckaroo_Magento2/js/view/express-payment/product-price-mixin',
   'BuckarooSdk'
-], function ($, ko, urlBuilder, customerData, $t) {
+], function ($, ko, urlBuilder, customerData, $t, productPriceMixin) {
   "use strict";
 
-  return {
+  return $.extend({}, productPriceMixin, {
     setConfig(config, page) {
       this.page = page;
+
+      // Set test mode for Buckaroo SDK
+      if (config.isTestMode !== undefined && typeof BuckarooSdk !== 'undefined' && BuckarooSdk.Base && BuckarooSdk.Base.setTestMode) {
+        BuckarooSdk.Base.setTestMode(config.isTestMode);
+      }
+
+      // Initialize product price watchers for product page
+      if (this.page === 'product') {
+        this.initProductPriceWatchers();
+      }
+
+      // For cart page, subscribe to quote totals updates
       if (this.page === 'cart') {
         const self = this;
         require(["Magento_Checkout/js/model/quote"], function (quote) {
@@ -39,13 +52,24 @@ define([
         })
       }
 
+      // Get product price for product page using mixin
+      let productPrice = null;
+      if (this.page === 'product') {
+        productPrice = this.getProductTotalPrice();
+        if (!productPrice || productPrice <= 0) {
+          console.error('[PayPal Express] Cannot initialize - product price not available');
+          this.displayErrorMessage('Unable to initialize PayPal Express: Product price not available. Please refresh the page and try again.');
+          return;
+        }
+      }
+
       this.options = Object.assign(
         {
           containerSelector: ".buckaroo-paypal-express",
           buckarooWebsiteKey: "",
           paypalMerchantId: "",
           currency: "EUR",
-          amount: 0.1,
+          amount: productPrice,
           createPaymentHandler: this.createPaymentHandler.bind(this),
           onShippingChangeHandler: this.onShippingChangeHandler.bind(this),
           onSuccessCallback: this.onSuccessCallback.bind(this),
@@ -61,6 +85,7 @@ define([
     result: null,
     paypalInitialized: false,
     cart_id: null,
+    page: null,
 
     /**
      * Api events
@@ -78,15 +103,45 @@ define([
         shipping.then(
           (response) => {
             if (!response.message) {
-              this.options.amount = response.value;
               this.cart_id = response.cart_id;
-              actions.order.patch([
+
+              // Get amounts from response breakdown
+              const newTotal = parseFloat(response.value);
+              const baseAmount = response.breakdown && response.breakdown.item_total
+                ? parseFloat(response.breakdown.item_total.value)
+                : newTotal;
+              const shippingCost = response.breakdown && response.breakdown.shipping
+                ? parseFloat(response.breakdown.shipping.value)
+                : 0;
+
+              // Update the PayPal order with correct breakdown
+              return actions.order.patch([
                 {
-                  op: "replace",
+                  op: 'replace',
                   path: "/purchase_units/@reference_id=='default'/amount",
-                  value: response,
-                },
-              ]).then((resp) => resolve(resp), (err) => reject(err));
+                  value: {
+                    currency_code: this.options.currency,
+                    value: newTotal.toFixed(2),
+                    breakdown: {
+                      item_total: {
+                        currency_code: this.options.currency,
+                        value: baseAmount.toFixed(2)
+                      },
+                      shipping: {
+                        currency_code: this.options.currency,
+                        value: shippingCost.toFixed(2)
+                      }
+                    }
+                  }
+                }
+              ]).then(() => {
+                this.options.amount = newTotal;
+                resolve();
+              }).catch((error) => {
+                // Order patch failed (may not be supported), continue with the flow
+                this.options.amount = newTotal;
+                resolve();
+              });
             } else {
               reject(response.message);
             }
@@ -95,16 +150,17 @@ define([
             reject($t("Cannot create payment"));
           }
         );
-
-      })
-
+      });
     },
-    createPaymentHandler(data) {
-      return this.createTransaction(data.orderID);
+    createPaymentHandler(orderID) {
+      return this.createTransaction(orderID).catch((error) => {
+        console.error('[PayPal Express] Payment creation failed:', error);
+        throw error;
+      });
     },
     onSuccessCallback() {
       if (this.result.message) {
-        this.displayErrorMessage(message);
+        this.displayErrorMessage(this.result.message);
       } else {
         if (this.result.cart_id && this.result.cart_id.length) {
           window.location.replace(urlBuilder.build('checkout/onepage/success/'));
@@ -115,8 +171,13 @@ define([
     },
 
     onErrorCallback(reason) {
-        // custom error behavior
         this.displayErrorMessage(reason);
+
+        if (this.page !== 'product' && this.page !== 'cart') {
+          setTimeout(() => {
+            window.location.replace(urlBuilder.build('checkout/cart/'));
+          }, 3000);
+        }
     },
     onInitCallback() {
     },
@@ -139,25 +200,25 @@ define([
      */
     createTransaction(orderId) {
         const cart_id = this.cart_id;
+
         return new Promise((resolve, reject) => {
-            $.post(urlBuilder.build("rest/V1/buckaroo/paypal-express/order/create"),
-                {
-                    paypal_order_id: orderId,
-                    cart_id
-                }).then(
-                    (response) => {
-                        this.result = response;
-                        resolve(response);
-                    },
-                    (reason) => reject(reason)
-                );
+            $.post(urlBuilder.build("rest/V1/buckaroo/paypal-express/order/create"), {
+                paypal_order_id: orderId,
+                cart_id: cart_id
+            }).then(
+                (response) => {
+                    this.result = response;
+                    resolve(response);
+                },
+                (reason) => reject(reason)
+            );
         });
     },
 
     /**
-     * Set shipping on cart and return new total
+     * Create/update quote with shipping address and get cart_id
      * @param {Object} data
-     * @returns
+     * @returns Promise
      */
     setShipping(data) {
       return $.post(urlBuilder.build("rest/V1/buckaroo/paypal-express/quote/create"), {
@@ -166,6 +227,7 @@ define([
         page: this.page,
       });
     },
+
     /**
      * Get form data for product page to create cart
      * @returns
@@ -181,6 +243,8 @@ define([
      * @param {string} message
      */
     displayErrorMessage(message) {
+      let errorText = message;
+
       if (typeof message === "object") {
         if (message.responseJSON && message.responseJSON.message) {
           message = message.responseJSON.message;
@@ -192,19 +256,20 @@ define([
             message = $t("Cannot create payment");
           }
         } else {
-          message = $t("Cannot create payment");
+          errorText = $t("Cannot create payment");
         }
       }
 
       message = $t(message);
-
       customerData.set('messages', {
         messages: [{
           type: 'error',
-          text: message
+          text: errorText
         }]
       });
 
+      customerData.invalidate(['messages']);
+      customerData.reload(['messages'], true);
     },
 
     /**
@@ -276,10 +341,12 @@ define([
 
       if (!isValid) {
         // Show error message using Magento's messaging system
-        this.displayErrorMessage(errorMessage);
-
-        // Also display inline error near PayPal button
-        this.displayInlineError(errorMessage);
+        customerData.set('messages', {
+          messages: [{
+            type: 'error',
+            text: errorMessage
+          }]
+        });
 
         return {
           isValid: false,
@@ -287,44 +354,7 @@ define([
         };
       }
 
-      this.clearInlineError();
       return true;
-    },
-
-    /**
-     * Display inline error message near PayPal button
-     * @param {string} message
-     */
-    displayInlineError(message) {
-      // Remove any existing error
-      var existingError = document.querySelector("#paypal-validation-error");
-      if (existingError) {
-        existingError.remove();
-      }
-
-      // Create error message
-      var errorDiv = document.createElement("div");
-      errorDiv.id = "paypal-validation-error";
-      errorDiv.style.cssText = "background: #fff5f5; border: 1px solid #e02b27; color: #e02b27; padding: 12px; margin: 10px 0; border-radius: 4px; font-size: 14px; font-weight: bold; position: relative; z-index: 9999;";
-      errorDiv.textContent = message;
-
-      // Insert error near PayPal button
-      var paypalContainer = document.querySelector(".buckaroo-paypal-express") ||
-                          document.querySelector("[id*=\"paypal\"]") ||
-                          document.querySelector("#product_addtocart_form");
-      if (paypalContainer) {
-        paypalContainer.insertBefore(errorDiv, paypalContainer.firstChild);
-      }
-    },
-
-    /**
-     * Clear inline error message
-     */
-    clearInlineError() {
-      var existingError = document.querySelector("#paypal-validation-error");
-      if (existingError) {
-        existingError.remove();
-      }
     }
-  };
+  });
 });

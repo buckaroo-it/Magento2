@@ -57,6 +57,7 @@ class OrderUpdate
 
     /**
      * Alternative method to get PayPal data from push notification
+     *
      * This handles the case where PayPal data comes through push notifications
      *
      * @return array|null
@@ -182,8 +183,9 @@ class OrderUpdate
      */
     public function updateAddress($address)
     {
-        // Skip update if address is already properly filled (not "unknown")
-        if ($address->getFirstname() !== 'unknown' && $address->getFirstname() !== 'Guest') {
+        // Check if address needs updating (has placeholder/temporary values)
+        $needsUpdate = $this->addressNeedsUpdate($address);
+        if (!$needsUpdate) {
             return $address;
         }
 
@@ -257,6 +259,14 @@ class OrderUpdate
         // Don't set any default value - leave field empty
     }
 
+    /**
+     * Update address field with PayPal response data
+     *
+     * @param mixed $address
+     * @param string $addressField
+     * @param string $responseField
+     * @return void
+     */
     protected function updateItem($address, $addressField, $responseField)
     {
         if ($this->valueExists($responseField)) {
@@ -366,6 +376,7 @@ class OrderUpdate
 
     /**
      * Sanitize city name to meet Magento validation requirements
+     *
      * Only allows A-Z, a-z, 0-9, -, ', spaces
      *
      * @param string $cityName
@@ -397,18 +408,117 @@ class OrderUpdate
         return $sanitized;
     }
 
+    /**
+     * Check if value exists in response address info
+     *
+     * @param string $key
+     * @return bool
+     */
     private function valueExists($key): bool
     {
         return isset($this->responseAddressInfo[$key]) && is_string($this->responseAddressInfo[$key]);
     }
 
     /**
+     * Check if address has placeholder/temporary values that need updating
+     *
+     * @param mixed $address
+     *
+     * @return bool
+     */
+    private function addressNeedsUpdate($address): bool
+    {
+        // Check for placeholder/temporary values
+        $firstname = $address->getFirstname();
+        $lastname = $address->getLastname();
+        $street = $address->getStreet();
+        $email = $address->getEmail();
+        $telephone = $address->getTelephone();
+        
+        $placeholderValues = [
+            'unknown',
+            'Guest',
+            'pending@paypal.express',
+            'pending@paypal.customer',
+            'Pending PayPal Address',
+            'no-reply@example.com',
+            'PayPal',
+            'Customer'
+        ];
+        
+        $placeholderPhones = [
+            '000-000-0000',
+            'N/A'
+        ];
+        
+        $placeholderStreets = [
+            'Pending',
+            'Pending PayPal Address'
+        ];
+        
+        // Check firstname
+        if (in_array($firstname, $placeholderValues)) {
+            return true;
+        }
+        
+        // Check lastname
+        if (in_array($lastname, $placeholderValues)) {
+            return true;
+        }
+        
+        // Check street for placeholder
+        if (is_array($street) && !empty($street)) {
+            $streetValue = $street[0] ?? '';
+            if (in_array($streetValue, $placeholderStreets)) {
+                return true;
+            }
+        }
+        
+        // Check email for placeholder
+        if (in_array($email, $placeholderValues)) {
+            return true;
+        }
+        
+        // Check telephone for placeholder
+        if (in_array($telephone, $placeholderPhones)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Update order email with PayPal data
+     *
      * @param OrderInterface $order
+     * @return void
      */
     public function updateEmail(OrderInterface $order)
     {
         if ($this->valueExists('payerEmail')) {
             $order->setCustomerEmail($this->responseAddressInfo['payerEmail']);
-        };
+        }
+    }
+
+    /**
+     * Update order customer name with real PayPal data
+     *
+     * @param OrderInterface $order
+     * @return void
+     */
+    public function updateCustomerName(OrderInterface $order)
+    {
+        $firstname = $this->valueExists('payerFirstname') ? $this->responseAddressInfo['payerFirstname'] : null;
+        $lastname = $this->valueExists('payerLastname') ? $this->responseAddressInfo['payerLastname'] : null;
+
+        if ($firstname && $lastname) {
+            $fullName = $firstname . ' ' . $lastname;
+            $order->setCustomerFirstname($firstname);
+            $order->setCustomerLastname($lastname);
+            $order->setCustomerName($fullName);
+        } elseif ($firstname) {
+            $order->setCustomerFirstname($firstname);
+            $order->setCustomerName($firstname);
+        }
     }
 }

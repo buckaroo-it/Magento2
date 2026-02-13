@@ -410,11 +410,7 @@ define(
              * After order placement, handle the redirect.
              */
             afterPlaceOrder: function () {
-                var response = window.checkoutConfig.payment.buckaroo.response;
-
-                if (typeof response === 'string') {
-                    response = JSON.parse(response);
-                }
+                var response = window.checkoutConfig.payment.buckaroo.responseData;
 
                 checkoutCommon.redirectHandle(response);
             },

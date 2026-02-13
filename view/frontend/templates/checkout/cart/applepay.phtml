@@ -24,10 +24,23 @@ if ($block->canShowButton('Cart')): ?>
         <!-- ko template: getTemplate() --><!-- /ko -->
 
         <script>
-            if ('undefined' === typeof window.checkoutConfig) {
-                window.checkoutConfig = <?= /* @noEscape */ $block->getCheckoutConfig(); ?>;
-                window.isCustomerLoggedIn = window.checkoutConfig.isCustomerLoggedIn;
-            }
+            // Set up window.checkoutConfig before component loads (required for Magento core modules)
+            (function() {
+                var config = <?= /* @noEscape */ $block->getCheckoutConfig(); ?>;
+
+                if (typeof window.checkoutConfig === 'undefined') {
+                    window.checkoutConfig = config;
+                    window.isCustomerLoggedIn = config.isCustomerLoggedIn || false;
+                } else {
+                    // Merge Apple Pay config
+                    if (config.payment && config.payment.buckaroo) {
+                        if (!window.checkoutConfig.payment) window.checkoutConfig.payment = {};
+                        if (!window.checkoutConfig.payment.buckaroo) window.checkoutConfig.payment.buckaroo = {};
+
+                        Object.assign(window.checkoutConfig.payment.buckaroo, config.payment.buckaroo);
+                    }
+                }
+            })();
         </script>
 
         <script type="text/x-magento-init">
@@ -37,7 +50,7 @@ if ($block->canShowButton('Cart')): ?>
                         "components": {
                             "buckarooApplepayCart": {
                                 "component": "buckaroo/applepay/catalog-cart-view",
-                                "template":"Buckaroo_Magento2/checkout/cart/applepay"
+                                "template": "Buckaroo_Magento2/checkout/cart/applepay"
                             }
                         }
                     }

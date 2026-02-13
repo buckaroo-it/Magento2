@@ -52,6 +52,7 @@
                 <item name="buckaroo_config_provider_afterpay20" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20</item>
                 <item name="buckaroo_config_provider_billink" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Billink</item>
                 <item name="buckaroo_config_provider_applepay" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay</item>
+                <item name="buckaroo_config_provider_googlepay" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Googlepay</item>
                 <item name="buckaroo_config_provider_capayablein3" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\CapayableIn3</item>
                 <item name="buckaroo_config_provider_capayablepostpay" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\CapayablePostpay</item>
                 <item name="buckaroo_config_provider_alipay" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Alipay</item>

@@ -109,6 +109,12 @@ define(
                 function (response) {
                     let jsonResponse = $.parseJSON(response);
 
+                    // Store BOTH versions for backward compatibility:
+                    // - response: raw JSON string (for payment methods that parse it themselves)
+                    // - responseData: parsed object (for payment methods that need parsed data)
+                    window.checkoutConfig.payment.buckaroo.response = response;
+                    window.checkoutConfig.payment.buckaroo.responseData = jsonResponse;
+
                     if (typeof jsonResponse === 'object' && typeof jsonResponse.limitReachedMessage === 'string') {
                         alert({
                             title: $t('Error'),
@@ -152,11 +158,13 @@ define(
                             jQuery('button[title*="Place Order"]').prop('disabled', true);
                             jQuery('button.place-order').prop('disabled', true);
                         }, 100);
+                    } else if (jsonResponse && jsonResponse.RequiredAction && jsonResponse.RequiredAction.RedirectURL) {
+                        // Buckaroo requires redirect (e.g., 3DS authentication)
+                        fullScreenLoader.stopLoader();
+                        window.location.replace(jsonResponse.RequiredAction.RedirectURL);
                     } else if (redirectOnSuccess) {
                         window.location.replace(url.build('checkout/onepage/success/'));
                     }
-
-                    window.checkoutConfig.payment.buckaroo.response = response;
 
                     fullScreenLoader.stopLoader();
                 }
