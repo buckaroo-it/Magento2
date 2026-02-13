@@ -246,22 +246,21 @@ define([
       let errorText = message;
 
       if (typeof message === "object") {
-        if (message.message) {
-          errorText = message.message;
-        } else if (message.responseJSON && message.responseJSON.message) {
-          errorText = message.responseJSON.message;
+        if (message.responseJSON && message.responseJSON.message) {
+          message = message.responseJSON.message;
         } else if (message.responseText) {
           try {
             const parsed = JSON.parse(message.responseText);
-            errorText = parsed.message || $t("Cannot create payment");
+            message = parsed.message || $t("Cannot create payment");
           } catch (e) {
-            errorText = $t("Cannot create payment");
+            message = $t("Cannot create payment");
           }
         } else {
           errorText = $t("Cannot create payment");
         }
       }
 
+      message = $t(message);
       customerData.set('messages', {
         messages: [{
           type: 'error',
