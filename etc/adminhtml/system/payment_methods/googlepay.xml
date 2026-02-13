@@ -67,10 +67,17 @@
             <label>Method specific configuration</label>
 
             <field id="merchant_guid" translate="label comment tooltip" type="text" sortOrder="36" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>(Merchant) guid</label>
-                <comment><![CDATA[Enter your Buckaroo merchant guid.]]></comment>
-                <tooltip>The (Merchant) Guid can be retrieved in Buckaroo Plaza under My Buckaroo > General > Guid.</tooltip>
+                <label>Gateway Merchant ID</label>
+                <comment><![CDATA[Enter your Buckaroo GatewayMerchantID for Google Pay.]]></comment>
+                <tooltip>The GatewayMerchantID can be found in Buckaroo Plaza under Services > Google Pay.</tooltip>
                 <config_path>payment/buckaroo_magento2_googlepay/merchant_guid</config_path>
+            </field>
+
+            <field id="google_merchant_id" translate="label comment tooltip" type="text" sortOrder="37" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Google Pay Merchant ID</label>
+                <comment><![CDATA[Enter your Google Pay Merchant ID (e.g. BCR2DN4TXXXXXXXX). Required for production/live mode.]]></comment>
+                <tooltip>Your Google Pay Merchant ID can be found in the Google Pay Business Console at https://pay.google.com/business/console. This is different from your Buckaroo merchant GUID and is required for Google Pay to work in production.</tooltip>
+                <config_path>payment/buckaroo_magento2_googlepay/google_merchant_id</config_path>
             </field>
 
             <field id="available_buttons" translate="label comment" type="multiselect" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">

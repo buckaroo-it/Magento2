@@ -42,6 +42,7 @@ class Googlepay extends AbstractConfigProvider
     public const XPATH_GOOGLEPAY_INTEGRATION_MODE                  = 'integration_mode';
     public const XPATH_GOOGLEPAY_DONT_ASK_BILLING_INFO_IN_CHECKOUT = 'dont_ask_billing_info_in_checkout';
     public const XPATH_ACCOUNT_MERCHANT_GUID                       = 'merchant_guid';
+    public const XPATH_GOOGLE_MERCHANT_ID                          = 'google_merchant_id';
 
     /**
      * @var array
@@ -103,7 +104,7 @@ class Googlepay extends AbstractConfigProvider
             'countryCode'                  => $this->getDefaultCountry(),
             'guid'                         => $this->getMerchantGuid(),
             'gatewayMerchantId'            => $this->getMerchantGuid(),
-            'merchantId'                   => $this->getMerchantGuid(),
+            'merchantId'                   => $this->getGoogleMerchantId(),
             'availableButtons'             => $this->getAvailableButtons(),
             'buttonStyle'                  => $this->getButtonStyle(),
             'dontAskBillingInfoInCheckout' => (int)$this->getDontAskBillingInfoInCheckout(),
@@ -124,6 +125,18 @@ class Googlepay extends AbstractConfigProvider
     public function getMerchantGuid($store = null)
     {
         return $this->getMethodConfigValue(self::XPATH_ACCOUNT_MERCHANT_GUID, $store);
+    }
+
+    /**
+     * Get Google Pay Merchant ID
+     *
+     * @param null|int|string $store
+     *
+     * @return mixed
+     */
+    public function getGoogleMerchantId($store = null)
+    {
+        return $this->getMethodConfigValue(self::XPATH_GOOGLE_MERCHANT_ID, $store);
     }
 
     /**
