@@ -206,8 +206,7 @@ class QuoteService
     }
 
     /**
-     * Calculate quote totals, set store id required for quote masking,
-     * set customer email required for order validation
+     * Calculate quote totals and set store id required for quote masking
      *
      * @return Quote
      */
@@ -215,9 +214,10 @@ class QuoteService
     {
         $this->quote->setStoreId($this->quote->getStore()->getId());
 
-        if ($this->quote->getCustomerEmail() === null) {
-            $this->quote->setCustomerEmail('no-reply@example.com');
-        }
+        // Don't set dummy email anymore - let the quote remain in its natural state
+        // The email will be set when we have real customer data (from payment authorization or checkout)
+        // This prevents the quote from being polluted with dummy data when user cancels payment
+        
         $this->quote
             ->setTotalsCollectedFlag(false)
             ->collectTotals();
@@ -283,14 +283,16 @@ class QuoteService
     /**
      * Add Address To Cart
      *
-     * @param $shippingAddressRequest
+     * @param mixed $shippingAddressRequest
+     * @param bool $fillMissingFields Whether to fill missing fields with dummy data (default: false)
      *
      * @throws NoSuchEntityException
      * @throws LocalizedException
+     * @return void
      */
-    public function addAddressToQuote($shippingAddressRequest)
+    public function addAddressToQuote($shippingAddressRequest, bool $fillMissingFields = false)
     {
-        $this->quote = $this->quoteAddressService->addAddressToQuote($shippingAddressRequest, $this->quote);
+        $this->quote = $this->quoteAddressService->addAddressToQuote($shippingAddressRequest, $this->quote, $fillMissingFields);
     }
 
     /**

@@ -105,6 +105,9 @@
         <method name="buckaroo_magento2_applepay">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
+        <method name="buckaroo_magento2_googlepay">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
         <method name="buckaroo_magento2_capayablein3">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
