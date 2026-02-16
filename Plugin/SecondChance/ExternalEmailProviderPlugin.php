@@ -27,6 +27,10 @@ use Buckaroo\Magento2\Service\EmailProvider\EmailSender;
 use Buckaroo\Magento2\Logging\Log;
 use Magento\Framework\Mail\Template\TransportBuilder;
 use Magento\Sales\Model\Order;
+use Magento\Framework\Mail\TemplateInterface;
+use Magento\Framework\Mail\Template\FactoryInterface as TemplateFactory;
+use Magento\Sales\Model\Order\Address\Renderer as AddressRenderer;
+use Magento\Payment\Helper\Data as PaymentHelper;
 
 /**
  * Plugin to intercept second-chance email sending and route through external email provider
@@ -59,24 +63,48 @@ class ExternalEmailProviderPlugin
     protected $transportBuilder;
 
     /**
+     * @var TemplateFactory
+     */
+    protected $templateFactory;
+
+    /**
+     * @var AddressRenderer
+     */
+    protected $addressRenderer;
+
+    /**
+     * @var PaymentHelper
+     */
+    protected $paymentHelper;
+
+    /**
      * @param ExternalEmailConfig $externalEmailConfig
      * @param SecondChanceConfig  $secondChanceConfig
      * @param EmailSender         $emailSender
      * @param Log                 $logger
      * @param TransportBuilder    $transportBuilder
+     * @param TemplateFactory     $templateFactory
+     * @param AddressRenderer     $addressRenderer
+     * @param PaymentHelper       $paymentHelper
      */
     public function __construct(
         ExternalEmailConfig $externalEmailConfig,
         SecondChanceConfig $secondChanceConfig,
         EmailSender $emailSender,
         Log $logger,
-        TransportBuilder $transportBuilder
+        TransportBuilder $transportBuilder,
+        TemplateFactory $templateFactory,
+        AddressRenderer $addressRenderer,
+        PaymentHelper $paymentHelper
     ) {
         $this->externalEmailConfig = $externalEmailConfig;
         $this->secondChanceConfig = $secondChanceConfig;
         $this->emailSender = $emailSender;
         $this->logger = $logger;
         $this->transportBuilder = $transportBuilder;
+        $this->templateFactory = $templateFactory;
+        $this->addressRenderer = $addressRenderer;
+        $this->paymentHelper = $paymentHelper;
     }
 
     /**
@@ -102,61 +130,58 @@ class ExternalEmailProviderPlugin
 
         // Check if external email provider is enabled for this store
         if (!$this->externalEmailConfig->isEnabled($storeId)) {
-            $this->logger->addDebug('External email provider disabled, using default Magento mail');
             return $proceed($order, $secondChance, $step);
         }
 
         $providerName = $this->externalEmailConfig->getProviderName($storeId);
 
         try {
-            $this->logger->addDebug("External email provider ({$providerName}) enabled, intercepting second-chance email", [
-                'order_id' => $order->getIncrementId(),
-                'step' => $step
-            ]);
-
-            // Prepare email data by extracting from what would be sent
+            // Prepare email data
             $emailData = $this->prepareEmailData($order, $secondChance, $step);
 
             // Send via external email provider
             $result = $this->emailSender->send($emailData, $storeId);
 
             if ($result['success']) {
-                $this->logger->addDebug("Second-chance email sent successfully via {$providerName}", [
+                // Success - log and return
+                $this->logger->addInfo("Second-chance email sent via {$providerName}", [
                     'order_id' => $order->getIncrementId(),
-                    'step' => $step,
-                    'message_id' => $result['message_id'] ?? 'N/A'
+                    'step' => $step
                 ]);
-                return; // Success - don't call original method
-            } else {
-                // External provider failed
-                $this->logger->addError("{$providerName} failed to send email", [
-                    'order_id' => $order->getIncrementId(),
-                    'error' => $result['error'] ?? 'Unknown error'
-                ]);
-
-                // Check if fallback is enabled
-                if ($this->externalEmailConfig->isFallbackEnabled($storeId)) {
-                    $this->logger->addDebug('Falling back to Magento mail system');
-                    return $proceed($order, $secondChance, $step);
-                } else {
-                    throw new \Exception("{$providerName} failed and fallback is disabled: " . 
-                                       ($result['error'] ?? 'Unknown error'));
-                }
+                return;
             }
 
-        } catch (\Exception $e) {
-            $this->logger->addError('Error in external email provider plugin', [
-                'error' => $e->getMessage(),
-                'order_id' => $order->getIncrementId()
+            // External provider failed
+            $this->logger->addError("{$providerName} failed to send email", [
+                'order_id' => $order->getIncrementId(),
+                'error' => $result['error'] ?? 'Unknown error'
             ]);
 
             // Check if fallback is enabled
             if ($this->externalEmailConfig->isFallbackEnabled($storeId)) {
-                $this->logger->addDebug('Exception occurred, falling back to Magento mail');
+                $this->logger->addInfo("Fallback: Using Magento mail for order {$order->getIncrementId()}");
                 return $proceed($order, $secondChance, $step);
-            } else {
-                throw $e;
             }
+
+            throw new \Exception("{$providerName} failed and fallback is disabled: " . 
+                               ($result['error'] ?? 'Unknown error'));
+
+        
+
+        } catch (\Exception $e) {
+            // Log error
+            $this->logger->addError('External email provider error: ' . $e->getMessage(), [
+                'order_id' => $order->getIncrementId(),
+                'step' => $step
+            ]);
+
+            // Check if fallback is enabled
+            if ($this->externalEmailConfig->isFallbackEnabled($storeId)) {
+                $this->logger->addInfo("Fallback: Using Magento mail after exception for order {$order->getIncrementId()}");
+                return $proceed($order, $secondChance, $step);
+            }
+
+            throw $e;
         }
     }
 
@@ -172,95 +197,112 @@ class ExternalEmailProviderPlugin
      */
     protected function prepareEmailData($order, $secondChance, $step): array
     {
-        $storeId = $order->getStoreId();
-        $store = $order->getStore();
+        try {
+            $storeId = $order->getStoreId();
+            $store = $order->getStore();
 
-        // Get sender info
-        $senderName = $this->secondChanceConfig->getSecondChanceSenderName($storeId);
-        $senderEmail = $this->secondChanceConfig->getSecondChanceSenderEmail($storeId);
+            // Get sender info
+            $senderName = $this->secondChanceConfig->getSecondChanceSenderName($storeId);
+            $senderEmail = $this->secondChanceConfig->getSecondChanceSenderEmail($storeId);
 
-        // Get checkout URL
-        $checkoutUrl = $store->getUrl('buckaroo/checkout/secondchance', [
-            'token' => $secondChance->getToken(),
-            '_scope_to_url' => true
-        ]);
-
-        // Get template ID
-        $templateId = $this->secondChanceConfig->getSecondChanceEmailTemplate($step, $storeId);
-
-        // Build template variables (same as original sendMail)
-        $templateVars = [
-            'order' => $order,
-            'order_id' => $order->getId(),
-            'checkout_url' => $checkoutUrl,
-            'store' => $store,
-            'customer_name' => $order->getCustomerName(),
-            'customer_email' => $order->getCustomerEmail(),
-            'step' => $step,
-            'secondChanceToken' => $secondChance->getToken(),
-        ];
-
-        // Use TransportBuilder to render the template to HTML
-        $this->transportBuilder
-            ->setTemplateIdentifier($templateId)
-            ->setTemplateOptions([
-                'area' => \Magento\Framework\App\Area::AREA_FRONTEND,
-                'store' => $storeId,
-            ])
-            ->setTemplateVars($templateVars)
-            ->setFrom([
-                'name' => $senderName,
-                'email' => $senderEmail,
+            // Get checkout URL
+            $checkoutUrl = $store->getUrl('buckaroo/checkout/secondchance', [
+                'token' => $secondChance->getToken(),
+                '_scope_to_url' => true
             ]);
 
-        // Get the message to extract rendered content
-        $transport = $this->transportBuilder->getTransport();
-        $message = $transport->getMessage();
-        $bodyHtml = $this->extractHtmlFromMessage($message);
-        $subject = $message->getSubject();
+            // Get template ID
+            $templateId = $this->secondChanceConfig->getSecondChanceEmailTemplate($step, $storeId);
 
-        return [
-            'to_email' => $order->getCustomerEmail(),
-            'to_name' => $order->getCustomerName(),
-            'from_email' => $senderEmail,
-            'from_name' => $senderName,
-            'subject' => $subject,
-            'body_html' => $bodyHtml,
-        ];
+            // Get expected order ID from second chance record
+            $baseOrderId = preg_replace('/(-\d+)+$/', '', $secondChance->getOrderId());
+            $expectedOrderId = $secondChance->getLastOrderId();
+            if (!$expectedOrderId) {
+                $suffix = ($step == 1) ? '-1' : '-2';
+                $expectedOrderId = $baseOrderId . $suffix;
+            }
+
+            // Build template variables (matching original sendMail exactly)
+            $templateVars = [
+                'order' => $order,
+                'order_id' => $order->getId(),
+                'base_order_id' => $baseOrderId,
+                'expected_order_id' => $expectedOrderId,
+                'billing' => $order->getBillingAddress(),
+                'formattedBillingAddress' => $this->getFormattedAddress($order->getBillingAddress()),
+                'formattedShippingAddress' => $this->getFormattedAddress($order->getShippingAddress()),
+                'billing_address' => $this->getFormattedAddress($order->getBillingAddress()),
+                'shipping_address' => $this->getFormattedAddress($order->getShippingAddress()),
+                'payment_html' => $this->getPaymentHtml($order),
+                'checkout_url' => $checkoutUrl,
+                'store' => $store,
+                'created_at_formatted' => $order->getCreatedAtFormatted(2),
+                'secondChanceToken' => $secondChance->getToken(),
+                'customer_name' => $order->getCustomerName(),
+                'customer_email' => $order->getCustomerEmail(),
+                'order_data' => [
+                    'customer_name' => $order->getCustomerName(),
+                    'is_not_virtual' => $order->getIsNotVirtual(),
+                    'email_customer_note' => $order->getEmailCustomerNote(),
+                    'frontend_status_label' => $order->getFrontendStatusLabel()
+                ],
+                'step' => $step
+            ];
+
+            // Render template
+            $template = $this->templateFactory->get($templateId);
+            $template->setVars($templateVars);
+            $template->setOptions([
+                'area' => \Magento\Framework\App\Area::AREA_FRONTEND,
+                'store' => $storeId,
+            ]);
+
+            $bodyHtml = $template->processTemplate();
+            $subject = $template->getSubject();
+
+            return [
+                'to_email' => $order->getCustomerEmail(),
+                'to_name' => $order->getCustomerName(),
+                'from_email' => $senderEmail,
+                'from_name' => $senderName,
+                'subject' => $subject,
+                'body_html' => $bodyHtml,
+            ];
+        } catch (\Exception $e) {
+            $this->logger->addError("Failed to prepare email data: " . $e->getMessage());
+            throw $e;
+        }
     }
 
     /**
-     * Extract HTML content from message
+     * Get formatted address HTML
      *
-     * @param mixed $message
+     * @param \Magento\Sales\Model\Order\Address|null $address
      *
      * @return string
      */
-    protected function extractHtmlFromMessage($message): string
+    protected function getFormattedAddress($address): string
+    {
+        if ($address) {
+            return $this->addressRenderer->format($address, 'html');
+        }
+        return '';
+    }
+
+    /**
+     * Get payment method HTML
+     *
+     * @param Order $order
+     *
+     * @return string
+     */
+    protected function getPaymentHtml($order): string
     {
         try {
-            $body = $message->getBody();
-
-            if ($body instanceof \Laminas\Mime\Message) {
-                $parts = $body->getParts();
-                foreach ($parts as $part) {
-                    if ($part->type === 'text/html') {
-                        return $part->getRawContent();
-                    }
-                }
-                if (!empty($parts)) {
-                    return $parts[0]->getRawContent();
-                }
-            }
-
-            if (is_string($body)) {
-                return $body;
-            }
-
-            return (string) $body;
-
+            $payment = $order->getPayment();
+            return $this->paymentHelper->getInfoBlockHtml($payment, $order->getStoreId());
         } catch (\Exception $e) {
-            $this->logger->addError('Failed to extract HTML from message: ' . $e->getMessage());
+            $this->logger->addError('Error getting payment HTML: ' . $e->getMessage());
             return '';
         }
     }

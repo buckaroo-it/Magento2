@@ -78,13 +78,6 @@ class EmailSender
         $lastException = null;
         $providerName = $this->config->getProviderName($storeId);
 
-        $this->logger->addDebug("External Email Provider ({$providerName}): Starting send process", [
-            'to' => $emailData['to_email'],
-            'subject' => $emailData['subject'],
-            'max_attempts' => $maxAttempts,
-            'store_id' => $storeId
-        ]);
-
         // Try sending with retries
         while ($attempt < $maxAttempts) {
             $attempt++;
@@ -94,7 +87,9 @@ class EmailSender
                 $result = $transport->send($emailData, $storeId);
 
                 // Success - log and return
-                $this->logSuccess($emailData, $result, $attempt, $storeId);
+                if ($attempt > 1) {
+                    $this->logger->addInfo("Email sent via {$providerName} after {$attempt} attempts");
+                }
 
                 return array_merge($result, [
                     'attempts' => $attempt,
@@ -105,25 +100,15 @@ class EmailSender
             } catch (\Exception $e) {
                 $lastException = $e;
 
-                $this->logger->addError("External Email Provider ({$providerName}): Send attempt failed", [
-                    'attempt' => $attempt,
-                    'max_attempts' => $maxAttempts,
-                    'error' => $e->getMessage(),
-                    'to' => $emailData['to_email']
-                ]);
+                if ($attempt == $maxAttempts) {
+                    $this->logger->addError("{$providerName} send failed after {$maxAttempts} attempts: " . $e->getMessage());
+                }
 
-                // If not last attempt, wait before retry
                 if ($attempt < $maxAttempts) {
-                    // Exponential backoff: 1s, 2s, 4s, etc.
-                    $waitTime = pow(2, $attempt - 1);
-                    $this->logger->addDebug("Waiting {$waitTime}s before retry");
-                    sleep($waitTime);
+                    sleep(pow(2, $attempt - 1)); // 1s, 2s, 4s, etc.
                 }
             }
         }
-
-        // All attempts failed - log failure
-        $this->logFailure($emailData, $lastException, $maxAttempts, $storeId);
 
         return [
             'success' => false,
@@ -160,47 +145,4 @@ class EmailSender
         }
     }
 
-    /**
-     * Log successful send
-     *
-     * @param array $emailData
-     * @param array $result
-     * @param int $attempt
-     * @param int|null $storeId
-     */
-    protected function logSuccess(array $emailData, array $result, int $attempt, $storeId): void
-    {
-        $providerName = $this->config->getProviderName($storeId);
-        
-        $this->logger->addDebug("External Email Provider ({$providerName}): Email sent successfully", [
-            'to' => $emailData['to_email'],
-            'subject' => $emailData['subject'],
-            'message_id' => $result['message_id'] ?? 'N/A',
-            'method' => $this->config->getMethod($storeId),
-            'attempts' => $attempt,
-            'store_id' => $storeId
-        ]);
-    }
-
-    /**
-     * Log failed send
-     *
-     * @param array $emailData
-     * @param \Exception|null $exception
-     * @param int $attempts
-     * @param int|null $storeId
-     */
-    protected function logFailure(array $emailData, $exception, int $attempts, $storeId): void
-    {
-        $providerName = $this->config->getProviderName($storeId);
-        
-        $this->logger->addError("External Email Provider ({$providerName}): Failed to send email after all retries", [
-            'to' => $emailData['to_email'],
-            'subject' => $emailData['subject'],
-            'attempts' => $attempts,
-            'method' => $this->config->getMethod($storeId),
-            'error' => $exception ? $exception->getMessage() : 'Unknown error',
-            'store_id' => $storeId
-        ]);
-    }
 }

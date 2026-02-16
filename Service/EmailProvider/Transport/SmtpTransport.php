@@ -63,13 +63,6 @@ class SmtpTransport implements TransportInterface
     public function send(array $emailData, $storeId = null): array
     {
         try {
-            $providerName = $this->config->getProviderName($storeId);
-            
-            $this->logger->addDebug("External Email Provider ({$providerName}) SMTP: Preparing to send email", [
-                'to' => $emailData['to_email'],
-                'subject' => $emailData['subject']
-            ]);
-
             // Create Laminas Mail message
             $message = new Message();
             $message->setEncoding('UTF-8');
@@ -135,38 +128,22 @@ class SmtpTransport implements TransportInterface
                 ]);
             }
 
-            $this->logger->addDebug("External Email Provider ({$providerName}): SMTP connection details", [
-                'host' => $host,
-                'port' => $port,
-                'encryption' => $encryption,
-                'has_auth' => !empty($username)
-            ]);
-
             // Create transport and send
             $transport = new LaminasSmtp($options);
             $transport->send($message);
 
-            $this->logger->addDebug("External Email Provider ({$providerName}): Email sent successfully via SMTP", [
-                'to' => $emailData['to_email']
-            ]);
-
+            $providerName = $this->config->getProviderName($storeId);
             return [
                 'success' => true,
-                'message' => "Email sent successfully via {$providerName} SMTP",
+                'message' => "Email sent via {$providerName} SMTP",
                 'message_id' => $message->getHeaders()->get('Message-ID') ? 
                               $message->getHeaders()->get('Message-ID')->getFieldValue() : null,
             ];
 
         } catch (\Exception $e) {
             $providerName = $this->config->getProviderName($storeId) ?? 'External Provider';
-            $errorMsg = "External Email Provider ({$providerName}) SMTP error: " . $e->getMessage();
-            
-            $this->logger->addError($errorMsg, [
-                'exception' => get_class($e),
-                'file' => $e->getFile(),
-                'line' => $e->getLine()
-            ]);
-
+            $errorMsg = "{$providerName} SMTP error: " . $e->getMessage();
+            $this->logger->addError($errorMsg);
             throw new MailException(__($errorMsg), $e);
         }
     }

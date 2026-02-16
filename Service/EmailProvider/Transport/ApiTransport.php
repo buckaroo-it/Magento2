@@ -91,12 +91,6 @@ class ApiTransport implements TransportInterface
                 throw new \Exception('API key/token is not configured');
             }
 
-            $this->logger->addDebug("External Email Provider ({$providerName}) API: Preparing to send email", [
-                'to' => $emailData['to_email'],
-                'subject' => $emailData['subject'],
-                'endpoint' => $apiEndpoint
-            ]);
-
             // Prepare API request data (generic structure that works for most providers)
             $fromEmail = $this->config->getFromEmail($storeId) ?: $emailData['from_email'];
             $fromName = $this->config->getFromName($storeId) ?: $emailData['from_name'];
@@ -155,22 +149,11 @@ class ApiTransport implements TransportInterface
 
             $jsonPayload = $this->json->serialize($requestData);
 
-            $this->logger->addDebug("External Email Provider ({$providerName}) API: Sending request", [
-                'endpoint' => $apiEndpoint,
-                'payload_size' => strlen($jsonPayload),
-                'auth_type' => $authType
-            ]);
-
             // Send request
             $this->curl->post($apiEndpoint, $jsonPayload);
 
             $statusCode = $this->curl->getStatus();
             $response = $this->curl->getBody();
-
-            $this->logger->addDebug("External Email Provider ({$providerName}) API: Response received", [
-                'status_code' => $statusCode,
-                'response' => substr($response, 0, 500) // Log first 500 chars
-            ]);
 
             // Parse response
             if ($statusCode >= 200 && $statusCode < 300) {
@@ -179,12 +162,11 @@ class ApiTransport implements TransportInterface
                     $responseData = $this->json->unserialize($response);
                 } catch (\Exception $e) {
                     // Some APIs return non-JSON success responses
-                    $this->logger->addDebug("API response is not JSON, treating as success");
                 }
 
                 return [
                     'success' => true,
-                    'message' => "Email sent successfully via {$providerName} API",
+                    'message' => "Email sent via {$providerName} API",
                     'message_id' => $responseData['id'] ?? $responseData['message_id'] ?? null,
                     'response' => $responseData,
                 ];
@@ -206,14 +188,8 @@ class ApiTransport implements TransportInterface
 
         } catch (\Exception $e) {
             $providerName = $this->config->getProviderName($storeId) ?? 'External Provider';
-            $errorMsg = "External Email Provider ({$providerName}) API error: " . $e->getMessage();
-            
-            $this->logger->addError($errorMsg, [
-                'exception' => get_class($e),
-                'file' => $e->getFile(),
-                'line' => $e->getLine()
-            ]);
-
+            $errorMsg = "{$providerName} API error: " . $e->getMessage();
+            $this->logger->addError($errorMsg);
             throw new MailException(__($errorMsg), $e);
         }
     }
