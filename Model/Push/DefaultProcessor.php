@@ -2288,6 +2288,18 @@ class DefaultProcessor implements PushProcessorInterface
             return true;
         }
 
+          if ($payment->getAdditionalInformation('buckaroo_failed_authorize')) {
+            $this->logger->addDebug(sprintf(
+                '[%s:%s] - Skipping void request for failed push: authorization was marked as failed. '
+                . 'Order: %s, Method: %s.',
+                __METHOD__,
+                __LINE__,
+                $this->order->getIncrementId(),
+                $payment->getMethodInstance()->getCode()
+            ));
+            return true;
+        }
+
         return false;
     }
 

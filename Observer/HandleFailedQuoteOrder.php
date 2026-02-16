@@ -83,10 +83,16 @@ class HandleFailedQuoteOrder implements ObserverInterface
         /* @var $order Order */
         $order = $observer->getEvent()->getOrder();
 
+        if (!$order->getId()) {
+            $this->logger->addDebug(sprintf(
+                '[CANCEL_ORDER] | [Observer] | [%s:%s] - Order has no ID (not persisted), skipping cancellation.',
+                __METHOD__,
+                __LINE__
+            ));
+            return;
+        }
+
         if ($order->canCancel()) {
-            // BUCKM2-78: Never automatically cancelauthorize via push for afterpay
-            // setting parameter which will cause to stop the cancel process on
-            // Buckaroo/Model/Method/BuckarooAdapter.php:880
             $payment = $order->getPayment();
             if (in_array(
                 $payment->getMethodInstance()->getCode(),

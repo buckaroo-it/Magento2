@@ -90,10 +90,8 @@ class SecondChance extends Action
 
                 $this->messageManager->addSuccessMessage(__('Your cart has been restored. You can now complete your purchase.'));
             } catch (Exception $e) {
-                $this->logger->addError('SecondChance token error', [
+                $this->logger->addWarning('SecondChance: invalid or expired token', [
                     'error' => $e->getMessage(),
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine(),
                     'token' => $token ? substr($token, 0, 8) . '...' : 'none'
                 ]);
                 $this->messageManager->addErrorMessage(__('Invalid or expired link. Please try again.'));
