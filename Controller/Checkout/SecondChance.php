@@ -109,6 +109,13 @@ class SecondChance extends Action
         ]);
     }
 
+    /**
+     * Handle redirect to specified path with arguments
+     *
+     * @param string $path
+     * @param array $arguments
+     * @return \Magento\Framework\Controller\Result\Redirect
+     */
     public function handleRedirect($path, $arguments = [])
     {
         return $this->_redirect($path, $arguments);

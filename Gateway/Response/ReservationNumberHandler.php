@@ -101,9 +101,9 @@ class ReservationNumberHandler implements HandlerInterface
                     $reservationNumber
                 ));
             } elseif ($this->isPendingStatus((int)$statusCode)) {
-                 $this->logger->addDebug(sprintf(
+                $this->logger->addDebug(sprintf(
                     '[KLARNA_KP] | [%s:%s] - Pending status %s for order %s, '
-                    . 'reservation number expected after customer completes redirect flow.',
+                        . 'reservation number expected after customer completes redirect flow.',
                     __METHOD__,
                     __LINE__,
                     $statusCode,
@@ -124,8 +124,7 @@ class ReservationNumberHandler implements HandlerInterface
     }
 
     /**
-     * Check if the status code indicates a pending/redirect state where the
-     * reservation number is not yet available.
+     * Check if the status code indicates a pending/redirect state where the reservation number is not yet available.
      *
      * @param int $statusCode
      * @return bool

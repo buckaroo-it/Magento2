@@ -84,7 +84,7 @@ class RequestPushFactory
                 );
             }
         } catch (\Exception $exception) {
-              $this->logger->addDebug(sprintf(
+            $this->logger->addDebug(sprintf(
                 '[PUSH] | [Factory] | [%s:%s] - Not a JSON request, falling back to HTTP Post handler | Info: %s',
                 __METHOD__,
                 __LINE__,

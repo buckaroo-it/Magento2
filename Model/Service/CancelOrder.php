@@ -52,7 +52,7 @@ class CancelOrder
             $payment = $paymentDO->getPayment();
             $orderId = $payment->getAdditionalInformation('buckaroo_cancel_order_id');
 
-            if (is_null($orderId)) {
+            if ($orderId === null) {
                 return;
             }
 
