@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Gateway\Response;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
+use Buckaroo\Magento2\Model\Transaction\Status\Response;
 use Buckaroo\Transaction\Response\TransactionResponse;
 use Magento\Payment\Gateway\Response\HandlerInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
@@ -75,12 +76,15 @@ class ReservationNumberHandler implements HandlerInterface
             }
 
             $serviceParameters = $transactionResponse->getServiceParameters();
+            $statusCode = $transactionResponse->getStatusCode();
 
             $this->logger->addDebug(sprintf(
-                '[KLARNA_KP] | [%s:%s] - Processing authorization response for order %s | serviceParameters: %s',
+                '[KLARNA_KP] | [%s:%s] - Processing authorization response for order %s | '
+                . 'statusCode: %s | serviceParameters: %s',
                 __METHOD__,
                 __LINE__,
                 $order->getIncrementId(),
+                $statusCode,
                 json_encode($serviceParameters)
             ));
 
@@ -96,16 +100,43 @@ class ReservationNumberHandler implements HandlerInterface
                     $order->getIncrementId(),
                     $reservationNumber
                 ));
+            } elseif ($this->isPendingStatus((int)$statusCode)) {
+                $this->logger->addDebug(sprintf(
+                    '[KLARNA_KP] | [%s:%s] - Pending status %s for order %s, '
+                        . 'reservation number expected after customer completes redirect flow.',
+                    __METHOD__,
+                    __LINE__,
+                    $statusCode,
+                    $order->getIncrementId()
+                ));
             } else {
                 $this->logger->addError(sprintf(
                     '[KLARNA_KP] | [%s:%s] - WARNING: No reservation number in response for order %s! ' .
-                    'Available service parameters: %s',
+                    'Status: %s | Available service parameters: %s',
                     __METHOD__,
                     __LINE__,
                     $order->getIncrementId(),
+                    $statusCode,
                     json_encode(array_keys($serviceParameters))
                 ));
             }
         }
+    }
+
+    /**
+     * Check if the status code indicates a pending/redirect state where the reservation number is not yet available.
+     *
+     * @param int $statusCode
+     * @return bool
+     */
+    private function isPendingStatus(int $statusCode): bool
+    {
+        return in_array($statusCode, [
+            Response::STATUSCODE_WAITING_ON_USER_INPUT,  // 790
+            Response::STATUSCODE_PENDING_PROCESSING,     // 791
+            Response::STATUSCODE_WAITING_ON_CONSUMER,    // 792
+            Response::STATUSCODE_PAYMENT_ON_HOLD,        // 793
+            Response::STATUSCODE_PENDING_APPROVAL,       // 794
+        ]);
     }
 }

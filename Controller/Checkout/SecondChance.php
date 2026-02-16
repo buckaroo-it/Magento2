@@ -90,10 +90,8 @@ class SecondChance extends Action
 
                 $this->messageManager->addSuccessMessage(__('Your cart has been restored. You can now complete your purchase.'));
             } catch (Exception $e) {
-                $this->logger->addError('SecondChance token error', [
+                $this->logger->addWarning('SecondChance: invalid or expired token', [
                     'error' => $e->getMessage(),
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine(),
                     'token' => $token ? substr($token, 0, 8) . '...' : 'none'
                 ]);
                 $this->messageManager->addErrorMessage(__('Invalid or expired link. Please try again.'));
@@ -111,6 +109,13 @@ class SecondChance extends Action
         ]);
     }
 
+    /**
+     * Handle redirect to specified path with arguments
+     *
+     * @param string $path
+     * @param array $arguments
+     * @return \Magento\Framework\Controller\Result\Redirect
+     */
     public function handleRedirect($path, $arguments = [])
     {
         return $this->_redirect($path, $arguments);
