@@ -61,8 +61,7 @@ jobs:
 
       - name: Create Magento 2.4.8-p3 project
         run: |
-          composer config audit.block-insecure false
-          composer create-project --repository-url=https://repo.magento.com/ \
+          COMPOSER_AUDIT_BLOCK_INSECURE=false composer create-project --repository-url=https://repo.magento.com/ \
             magento/project-community-edition=2.4.8-p3 m248 \
             --ignore-platform-req=php+
 
