@@ -63,88 +63,151 @@ class SmtpTransport implements TransportInterface
     public function send(array $emailData, $storeId = null): array
     {
         try {
-            // Create Laminas Mail message
-            $message = new Message();
-            $message->setEncoding('UTF-8');
+            $message = $this->createMessage($emailData, $storeId);
+            $options = $this->createSmtpOptions($storeId);
 
-            // Set sender
-            $fromEmail = $this->config->getFromEmail($storeId) ?: $emailData['from_email'];
-            $fromName = $this->config->getFromName($storeId) ?: $emailData['from_name'];
-            $message->setFrom($fromEmail, $fromName);
-
-            // Set recipient
-            $message->addTo($emailData['to_email'], $emailData['to_name'] ?? '');
-
-            // Set reply-to if configured
-            $replyTo = $this->config->getReplyTo($storeId);
-            if ($replyTo) {
-                $message->setReplyTo($replyTo);
-            }
-
-            // Set subject and body
-            $message->setSubject($emailData['subject']);
-            
-            // Create multipart message for HTML with text fallback
-            $html = new \Laminas\Mime\Part($emailData['body_html']);
-            $html->type = 'text/html';
-            $html->charset = 'UTF-8';
-            $html->encoding = \Laminas\Mime\Mime::ENCODING_QUOTEDPRINTABLE;
-
-            $mimeMessage = new \Laminas\Mime\Message();
-            $mimeMessage->setParts([$html]);
-
-            $message->setBody($mimeMessage);
-
-            // Configure SMTP options
-            $host = $this->config->getSmtpHost($storeId);
-            $port = $this->config->getSmtpPort($storeId);
-            $encryption = $this->config->getSmtpEncryption($storeId);
-            $username = $this->config->getSmtpUsername($storeId);
-            $password = $this->config->getSmtpPassword($storeId);
-
-            if (empty($host)) {
-                throw new \InvalidArgumentException('SMTP host is not configured');
-            }
-
-            $options = new SmtpOptions([
-                'host' => $host,
-                'port' => $port,
-            ]);
-
-            // Set encryption if not 'none'
-            if ($encryption && $encryption !== 'none') {
-                $options->setConnectionClass('login');
-                $options->setConnectionConfig([
-                    'ssl' => $encryption,
-                    'username' => $username,
-                    'password' => $password,
-                ]);
-            } elseif ($username) {
-                // No encryption but has username
-                $options->setConnectionClass('login');
-                $options->setConnectionConfig([
-                    'username' => $username,
-                    'password' => $password,
-                ]);
-            }
-
-            // Create transport and send
             $transport = new LaminasSmtp($options);
             $transport->send($message);
 
-            $providerName = $this->config->getProviderName($storeId);
-            return [
-                'success' => true,
-                'message' => "Email sent via {$providerName} SMTP",
-                'message_id' => $message->getHeaders()->get('Message-ID') ?
-                              $message->getHeaders()->get('Message-ID')->getFieldValue() : null,
-            ];
-
+            return $this->buildSuccessResponse($message, $storeId);
         } catch (\Exception $e) {
-            $providerName = $this->config->getProviderName($storeId) ?? 'External Provider';
-            $errorMsg = "{$providerName} SMTP error: " . $e->getMessage();
-            $this->logger->addError($errorMsg);
-            throw new MailException(__($errorMsg), $e);
+            return $this->handleException($e, $storeId);
         }
+    }
+
+    /**
+     * Create an email message
+     *
+     * @param array $emailData
+     * @param int|null $storeId
+     * @return Message
+     */
+    private function createMessage(array $emailData, $storeId): Message
+    {
+        $message = new Message();
+        $message->setEncoding('UTF-8');
+
+        $fromEmail = $this->config->getFromEmail($storeId) ?: $emailData['from_email'];
+        $fromName = $this->config->getFromName($storeId) ?: $emailData['from_name'];
+        $message->setFrom($fromEmail, $fromName);
+
+        $message->addTo($emailData['to_email'], $emailData['to_name'] ?? '');
+
+        $replyTo = $this->config->getReplyTo($storeId);
+        if ($replyTo) {
+            $message->setReplyTo($replyTo);
+        }
+
+        $message->setSubject($emailData['subject']);
+        $message->setBody($this->createMessageBody($emailData['body_html']));
+
+        return $message;
+    }
+
+    /**
+     * Create message body
+     *
+     * @param string $htmlContent
+     * @return \Laminas\Mime\Message
+     */
+    private function createMessageBody($htmlContent): \Laminas\Mime\Message
+    {
+        $html = new \Laminas\Mime\Part($htmlContent);
+        $html->type = 'text/html';
+        $html->charset = 'UTF-8';
+        $html->encoding = \Laminas\Mime\Mime::ENCODING_QUOTEDPRINTABLE;
+
+        $mimeMessage = new \Laminas\Mime\Message();
+        $mimeMessage->setParts([$html]);
+
+        return $mimeMessage;
+    }
+
+    /**
+     * Create SMTP options
+     *
+     * @param int|null $storeId
+     * @return SmtpOptions
+     * @throws \InvalidArgumentException
+     */
+    private function createSmtpOptions($storeId): SmtpOptions
+    {
+        $host = $this->config->getSmtpHost($storeId);
+        if (empty($host)) {
+            throw new \InvalidArgumentException('SMTP host is not configured');
+        }
+
+        $options = new SmtpOptions([
+            'host' => $host,
+            'port' => $this->config->getSmtpPort($storeId),
+        ]);
+
+        $this->configureAuthentication($options, $storeId);
+
+        return $options;
+    }
+
+    /**
+     * Configure SMTP authentication
+     *
+     * @param SmtpOptions $options
+     * @param int|null $storeId
+     */
+    private function configureAuthentication(SmtpOptions $options, $storeId): void
+    {
+        $encryption = $this->config->getSmtpEncryption($storeId);
+        $username = $this->config->getSmtpUsername($storeId);
+        $password = $this->config->getSmtpPassword($storeId);
+
+        if ($encryption && $encryption !== 'none') {
+            $options->setConnectionClass('login');
+            $options->setConnectionConfig([
+                'ssl' => $encryption,
+                'username' => $username,
+                'password' => $password,
+            ]);
+        } elseif ($username) {
+            $options->setConnectionClass('login');
+            $options->setConnectionConfig([
+                'username' => $username,
+                'password' => $password,
+            ]);
+        }
+    }
+
+    /**
+     * Build success response
+     *
+     * @param Message $message
+     * @param int|null $storeId
+     * @return array
+     */
+    private function buildSuccessResponse(Message $message, $storeId): array
+    {
+        $providerName = $this->config->getProviderName($storeId);
+        $messageId = $message->getHeaders()->get('Message-ID') ?
+                     $message->getHeaders()->get('Message-ID')->getFieldValue() : null;
+
+        return [
+            'success' => true,
+            'message' => "Email sent via {$providerName} SMTP",
+            'message_id' => $messageId,
+        ];
+    }
+
+    /**
+     * Handle exception and wrap in MailException
+     *
+     * @param \Exception $e
+     * @param int|null $storeId
+     * @throws MailException
+     * @return never
+     */
+    private function handleException(\Exception $e, $storeId)
+    {
+        $providerName = $this->config->getProviderName($storeId) ?? 'External Provider';
+        $errorMsg = "{$providerName} SMTP error: " . $e->getMessage();
+        $this->logger->addError($errorMsg);
+        throw new MailException(__($errorMsg), $e);
     }
 }

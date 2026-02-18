@@ -118,6 +118,7 @@ class ExternalEmailProviderPlugin
      *
      * @return void
      * @throws \Exception
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function aroundSendMail(
         SecondChanceRepository $subject,
