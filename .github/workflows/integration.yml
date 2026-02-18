@@ -31,10 +31,13 @@ jobs:
       - name: M2 Integration Tests with Magento 2.4.8-p3 (PHP 8.3)
         uses: extdn/github-actions-m2/magento-integration-tests/8.3@master
         env:
-          COMPOSER_PLATFORM_CHECK: false
+          COMPOSER_IGNORE_PLATFORM_REQ: php+
         with:
           module_name: Buckaroo_Magento2
           composer_name: buckaroo/magento2
           magento_version: '2.4.8-p3'
-          magento_pre_install_script: composer config --no-plugins allow-plugins.* true && composer config --json --merge audit.ignore '["PKSA-y2cr-5h3j-g3ys"]' && composer config platform.php 8.1.0
+          magento_pre_install_script: |
+            composer config --no-plugins allow-plugins.* true
+            composer config audit.abandoned ignore
+            composer config --json audit.ignore '["PKSA-y2cr-5h3j-g3ys"]'
           composer_version: 2
