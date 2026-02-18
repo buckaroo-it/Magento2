@@ -26,31 +26,31 @@ use Magento\Framework\Encryption\EncryptorInterface;
 
 class ExternalEmailProvider
 {
-    const XPATH_ENABLED = 'buckaroo_magento2/second_chance/external_email_enabled';
-    const XPATH_METHOD = 'buckaroo_magento2/second_chance/external_email_method';
-    const XPATH_PROVIDER_NAME = 'buckaroo_magento2/second_chance/external_email_provider';
-    
+    public const XPATH_ENABLED = 'buckaroo_magento2/second_chance/external_email_enabled';
+    public const XPATH_METHOD = 'buckaroo_magento2/second_chance/external_email_method';
+    public const XPATH_PROVIDER_NAME = 'buckaroo_magento2/second_chance/external_email_provider';
+
     // SMTP Configuration
-    const XPATH_SMTP_HOST = 'buckaroo_magento2/second_chance/external_email_smtp_host';
-    const XPATH_SMTP_PORT = 'buckaroo_magento2/second_chance/external_email_smtp_port';
-    const XPATH_SMTP_ENCRYPTION = 'buckaroo_magento2/second_chance/external_email_smtp_encryption';
-    const XPATH_SMTP_USERNAME = 'buckaroo_magento2/second_chance/external_email_smtp_username';
-    const XPATH_SMTP_PASSWORD = 'buckaroo_magento2/second_chance/external_email_smtp_password';
-    
+    public const XPATH_SMTP_HOST = 'buckaroo_magento2/second_chance/external_email_smtp_host';
+    public const XPATH_SMTP_PORT = 'buckaroo_magento2/second_chance/external_email_smtp_port';
+    public const XPATH_SMTP_ENCRYPTION = 'buckaroo_magento2/second_chance/external_email_smtp_encryption';
+    public const XPATH_SMTP_USERNAME = 'buckaroo_magento2/second_chance/external_email_smtp_username';
+    public const XPATH_SMTP_PASSWORD = 'buckaroo_magento2/second_chance/external_email_smtp_password';
+
     // API Configuration
-    const XPATH_API_ENDPOINT = 'buckaroo_magento2/second_chance/external_email_api_endpoint';
-    const XPATH_API_KEY = 'buckaroo_magento2/second_chance/external_email_api_key';
-    const XPATH_API_AUTH_TYPE = 'buckaroo_magento2/second_chance/external_email_api_auth_type';
-    
+    public const XPATH_API_ENDPOINT = 'buckaroo_magento2/second_chance/external_email_api_endpoint';
+    public const XPATH_API_KEY = 'buckaroo_magento2/second_chance/external_email_api_key';
+    public const XPATH_API_AUTH_TYPE = 'buckaroo_magento2/second_chance/external_email_api_auth_type';
+
     // Email Settings
-    const XPATH_FROM_EMAIL = 'buckaroo_magento2/second_chance/external_email_from_email';
-    const XPATH_FROM_NAME = 'buckaroo_magento2/second_chance/external_email_from_name';
-    const XPATH_REPLY_TO = 'buckaroo_magento2/second_chance/external_email_reply_to';
-    
+    public const XPATH_FROM_EMAIL = 'buckaroo_magento2/second_chance/external_email_from_email';
+    public const XPATH_FROM_NAME = 'buckaroo_magento2/second_chance/external_email_from_name';
+    public const XPATH_REPLY_TO = 'buckaroo_magento2/second_chance/external_email_reply_to';
+
     // Error Handling
-    const XPATH_RETRY_ENABLED = 'buckaroo_magento2/second_chance/external_email_retry_enabled';
-    const XPATH_RETRY_ATTEMPTS = 'buckaroo_magento2/second_chance/external_email_retry_attempts';
-    const XPATH_FALLBACK_ENABLED = 'buckaroo_magento2/second_chance/external_email_fallback_enabled';
+    public const XPATH_RETRY_ENABLED = 'buckaroo_magento2/second_chance/external_email_retry_enabled';
+    public const XPATH_RETRY_ATTEMPTS = 'buckaroo_magento2/second_chance/external_email_retry_attempts';
+    public const XPATH_FALLBACK_ENABLED = 'buckaroo_magento2/second_chance/external_email_fallback_enabled';
 
     /**
      * @var ScopeConfigInterface

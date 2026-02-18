@@ -103,7 +103,7 @@ class SmtpTransport implements TransportInterface
             $password = $this->config->getSmtpPassword($storeId);
 
             if (empty($host)) {
-                throw new \Exception('SMTP host is not configured');
+                throw new \InvalidArgumentException('SMTP host is not configured');
             }
 
             $options = new SmtpOptions([
@@ -136,7 +136,7 @@ class SmtpTransport implements TransportInterface
             return [
                 'success' => true,
                 'message' => "Email sent via {$providerName} SMTP",
-                'message_id' => $message->getHeaders()->get('Message-ID') ? 
+                'message_id' => $message->getHeaders()->get('Message-ID') ?
                               $message->getHeaders()->get('Message-ID')->getFieldValue() : null,
             ];
 

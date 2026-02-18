@@ -163,11 +163,9 @@ class ExternalEmailProviderPlugin
                 return $proceed($order, $secondChance, $step);
             }
 
-            throw new \Exception("{$providerName} failed and fallback is disabled: " . 
+            $this->logger->addError("{$providerName} failed and fallback is disabled: " .
                                ($result['error'] ?? 'Unknown error'));
-
-        
-
+            return $proceed($order, $secondChance, $step);
         } catch (\Exception $e) {
             // Log error
             $this->logger->addError('External email provider error: ' . $e->getMessage(), [

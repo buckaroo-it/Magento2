@@ -84,11 +84,11 @@ class ApiTransport implements TransportInterface
             $providerName = $this->config->getProviderName($storeId);
 
             if (empty($apiEndpoint)) {
-                throw new \Exception('API endpoint is not configured');
+                throw new \InvalidArgumentException('API endpoint is not configured');
             }
 
             if (empty($apiKey)) {
-                throw new \Exception('API key/token is not configured');
+                throw new \InvalidArgumentException('API key/token is not configured');
             }
 
             // Prepare API request data (generic structure that works for most providers)
@@ -162,6 +162,7 @@ class ApiTransport implements TransportInterface
                     $responseData = $this->json->unserialize($response);
                 } catch (\Exception $e) {
                     // Some APIs return non-JSON success responses
+                    $this->logger->addDebug('Non-JSON API response: ' . $e->getMessage());
                 }
 
                 return [
@@ -175,15 +176,15 @@ class ApiTransport implements TransportInterface
                 $errorMessage = "API error (HTTP {$statusCode})";
                 try {
                     $errorData = $this->json->unserialize($response);
-                    $errorMessage = $errorData['error'] 
-                                 ?? $errorData['message'] 
-                                 ?? $errorData['errors'][0] 
+                    $errorMessage = $errorData['error']
+                                 ?? $errorData['message']
+                                 ?? $errorData['errors'][0]
                                  ?? $errorMessage;
                 } catch (\Exception $e) {
                     $errorMessage .= ': ' . substr($response, 0, 200);
                 }
 
-                throw new \Exception($errorMessage);
+                throw new \RuntimeException($errorMessage);
             }
 
         } catch (\Exception $e) {

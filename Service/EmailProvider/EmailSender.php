@@ -105,7 +105,7 @@ class EmailSender
                 }
 
                 if ($attempt < $maxAttempts) {
-                    sleep(pow(2, $attempt - 1)); // 1s, 2s, 4s, etc.
+                    usleep(pow(2, $attempt - 1) * 1000000); // 1s, 2s, 4s, etc.
                 }
             }
         }
@@ -144,5 +144,4 @@ class EmailSender
             throw new \InvalidArgumentException("Invalid sender email: {$emailData['from_email']}");
         }
     }
-
 }
