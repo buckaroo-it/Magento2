@@ -92,14 +92,14 @@
             <label>Method specific configuration</label>
 
             <field id="payment_method" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Riverty payment method</label>
+                <label>Riverty Payment Method</label>
                 <comment><![CDATA[Select which paymethod must be used at Riverty.]]></comment>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\AfterpayPaymentMethods</source_model>
                 <config_path>payment/buckaroo_magento2_afterpay/payment_method</config_path>
             </field>
 
             <field id="business" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Riverty payment method</label>
+                <label>Riverty Payment Method</label>
                 <comment><![CDATA[Select which paymethod must be used at Riverty.]]></comment>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\Business</source_model>
                 <config_path>payment/buckaroo_magento2_afterpay/business</config_path>
