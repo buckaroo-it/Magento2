@@ -22,7 +22,7 @@
 <include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
     <!-- Afterpay Payment method group -->
     <group id="buckaroo_magento2_afterpay" translate="label" type="text" sortOrder="240" showInDefault="1" showInWebsite="1" showInStore="1">
-        <label>Riverty (legacy gateway 1)</label>
+        <label>Riverty (Legacy Gateway 1)</label>
         <frontend_model>Buckaroo\Magento2\Block\Config\Form\Field\Fieldset</frontend_model>
 
         <field id="active" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -109,35 +109,35 @@
             </field>
 
             <field id="high_tax" translate="label comment" type="multiselect" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>High VAT tax classes</label>
+                <label>High VAT Tax Classes</label>
                 <comment><![CDATA[Select which tax classes count as 'high' VAT.]]></comment>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\TaxClass\Product</source_model>
                 <config_path>payment/buckaroo_magento2_afterpay/high_tax</config_path>
             </field>
 
             <field id="middle_tax" translate="label comment" type="multiselect" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Middle VAT tax classes</label>
+                <label>Middle VAT Tax Classes</label>
                 <comment><![CDATA[Select which tax classes count as 'middle' VAT.]]></comment>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\TaxClass\Product</source_model>
                 <config_path>payment/buckaroo_magento2_afterpay/middle_tax</config_path>
             </field>
 
             <field id="low_tax" translate="label comment" type="multiselect" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Low VAT tax classes</label>
+                <label>Low VAT Tax Classes</label>
                 <comment><![CDATA[Select which tax classes count as 'low' VAT.]]></comment>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\TaxClass\Product</source_model>
                 <config_path>payment/buckaroo_magento2_afterpay/low_tax</config_path>
             </field>
 
             <field id="zero_tax" translate="label comment" type="multiselect" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Zero VAT tax classes</label>
+                <label>Zero VAT Tax Classes</label>
                 <comment><![CDATA[Select which tax classes count as 'zero' VAT.]]></comment>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\TaxClass\Product</source_model>
                 <config_path>payment/buckaroo_magento2_afterpay/zero_tax</config_path>
             </field>
 
             <field id="no_tax" translate="label comment" type="multiselect" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>No VAT tax classes</label>
+                <label>No VAT Tax Classes</label>
                 <comment><![CDATA[Select which tax classes count as 'no' VAT.]]></comment>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\TaxClass\Product</source_model>
                 <config_path>payment/buckaroo_magento2_afterpay/no_tax</config_path>
@@ -209,14 +209,14 @@
                 </field>
 
                 <field id="specificcustomergroup" translate="label" type="multiselect" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Allow customer groups for B2C mode</label>
+                    <label>Allow Customer Groups For B2C Mode</label>
                     <source_model>Buckaroo\Magento2\Model\Config\Source\SpecificCustomerGroups</source_model>
                     <can_be_empty>1</can_be_empty>
                     <config_path>payment/buckaroo_magento2_afterpay/specificcustomergroup</config_path>
                 </field>
 
                 <field id="specificcustomergroupb2b" translate="label" type="multiselect" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Allow customer groups for B2B mode</label>
+                    <label>Allow Customer Groups For B2B Mode</label>
                     <source_model>Buckaroo\Magento2\Model\Config\Source\SpecificCustomerGroups</source_model>
                     <can_be_empty>1</can_be_empty>
                     <config_path>payment/buckaroo_magento2_afterpay/specificcustomergroupb2b</config_path>
@@ -252,21 +252,21 @@
                 <label>Spam Prevention</label>
 
                 <field id="spam_prevention" translate="label comment" type="select" sortOrder="150" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Spam prevention</label>
+                    <label>Spam Prevention</label>
                     <comment><![CDATA[Enabling this feature adds the option to hide this payment method after a certain number of failed attempts.]]></comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <config_path>payment/buckaroo_magento2_afterpay/spam_prevention</config_path>
                 </field>
 
                 <field id="spam_attempts" translate="label comment" type="text" sortOrder="160" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Number of attempts</label>
+                    <label>Number of Attempts</label>
                     <comment><![CDATA[When this number is exceeded, the payment method will be hidden. Minimum 1, maximum 10.]]></comment>
                     <config_path>payment/buckaroo_magento2_afterpay/spam_attempts</config_path>
                     <validate>validate-not-negative-number</validate>
                 </field>
 
                 <field id="spam_message" translate="label comment" type="text" sortOrder="160" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Consumer notification</label>
+                    <label>Consumer Notification</label>
                     <comment><![CDATA[This message is shown when the payment method is hidden. Maximum 280 characters.]]></comment>
                     <config_path>payment/buckaroo_magento2_afterpay/spam_message</config_path>
                 </field>

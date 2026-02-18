@@ -129,7 +129,7 @@
             <group id="buckaroo_magento2_status" translate="label comment" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Adjust Default Order Statuses</label>
                 <field id="order_status_new" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>New status</label>
+                    <label>New Status</label>
                     <comment><![CDATA[This status will be given to new orders.]]></comment>
                     <source_model>Buckaroo\Magento2\Model\Config\Source\StatusesNew</source_model>
                     <config_path>buckaroo_magento2/account/order_status_new</config_path>
@@ -175,7 +175,7 @@
             <group id="buckaroo_magento2_redirects" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Redirect After Payment Attempt</label>
                     <field id="success_redirect" translate="label comment" type="text" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Redirect url after 'Success'</label>
+                    <label>Redirect Url After 'Success'</label>
                     <comment><![CDATA[Redirect after successful payments.]]></comment>
                     <config_path>buckaroo_magento2/account/success_redirect</config_path>
                 </field>

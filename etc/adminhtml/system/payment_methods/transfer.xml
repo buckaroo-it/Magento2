@@ -93,7 +93,7 @@
             </field>
 
             <field id="due_date" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Due date (in days)</label>
+                <label>Due Date (in Days)</label>
                 <comment><![CDATA[The number of days after the order date shown as a reference due date in the bank transfer email template in Buckaroo Plaza. Late payments cannot be rejected.]]></comment>
                 <config_path>payment/buckaroo_magento2_transfer/due_date</config_path>
                 <backend_model>Buckaroo\Magento2\Model\Config\Backend\Number</backend_model>

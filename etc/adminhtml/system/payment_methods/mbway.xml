@@ -170,7 +170,7 @@
                 </field>
 
                 <field id="limit_by_ip" translate="label comment tooltip" type="select" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Display only for selected IPs</label>
+                    <label>Display Only for Selected IPs</label>
                     <comment><![CDATA[Show method only to Magento set IPs.]]></comment>
                     <tooltip>Magento developer client restrictions.</tooltip>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>

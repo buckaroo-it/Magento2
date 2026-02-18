@@ -185,14 +185,14 @@
                 </field>
 
                 <field id="specificcustomergroup" translate="label" type="multiselect" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Allow customer groups for B2C mode</label>
+                    <label>Allow Customer Groups for B2C Mode</label>
                     <source_model>Buckaroo\Magento2\Model\Config\Source\SpecificCustomerGroups</source_model>
                     <can_be_empty>1</can_be_empty>
                     <config_path>payment/buckaroo_magento2_billink/specificcustomergroup</config_path>
                 </field>
 
                 <field id="specificcustomergroupb2b" translate="label" type="multiselect" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Allow customer groups for B2B mode</label>
+                    <label>Allow Customer Groups for B2B Mode</label>
                     <source_model>Buckaroo\Magento2\Model\Config\Source\SpecificCustomerGroups</source_model>
                     <can_be_empty>1</can_be_empty>
                     <config_path>payment/buckaroo_magento2_billink/specificcustomergroupb2b</config_path>
@@ -228,21 +228,21 @@
                 <group id="buckaroo_magento2_spam" translate="label" type="text" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Spam Prevention</label>
                     <field id="spam_prevention" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Spam prevention</label>
+                        <label>Spam Prevention</label>
                         <comment><![CDATA[Enabling this feature adds the option to hide this payment method after a certain number of failed attempts.]]></comment>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/buckaroo_magento2_billink/spam_prevention</config_path>
                     </field>
 
                     <field id="spam_attempts" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Number of attempts</label>
+                        <label>Number of Attempts</label>
                         <comment><![CDATA[When this number is exceeded, the payment method will be hidden. Minimum 1, maximum 10.]]></comment>
                         <config_path>payment/buckaroo_magento2_billink/spam_attempts</config_path>
                         <validate>validate-not-negative-number</validate>
                     </field>
 
                     <field id="spam_message" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Consumer notification</label>
+                        <label>Consumer Notification</label>
                         <comment><![CDATA[This message is shown when the payment method is hidden. Maximum 280 characters.]]></comment>
                         <config_path>payment/buckaroo_magento2_billink/spam_message</config_path>
                     </field>

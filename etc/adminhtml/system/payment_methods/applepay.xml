@@ -92,7 +92,7 @@
             </field>
 
             <field id="merchant_guid" translate="label comment tooltip" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>(Merchant) guid</label>
+                <label>(Merchant) Guid</label>
                 <comment><![CDATA[Enter your Buckaroo merchant guid.]]></comment>
                 <tooltip>The (Merchant) Guid can be retrieved in Buckaroo Plaza under My Buckaroo > General > Guid.</tooltip>
                 <config_path>payment/buckaroo_magento2_applepay/merchant_guid</config_path>
@@ -102,7 +102,7 @@
             </field>
 
             <field id="available_buttons" translate="label comment" type="multiselect" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Enable or Disable Apple Pay buttons</label>
+                <label>Enable or Disable Apple Pay Buttons</label>
                 <comment><![CDATA[Select which buttons you want to be active.]]></comment>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\AvailableButtons</source_model>
                 <config_path>payment/buckaroo_magento2_applepay/available_buttons</config_path>
