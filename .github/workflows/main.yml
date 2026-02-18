@@ -64,6 +64,7 @@ jobs:
           composer create-project --repository-url=https://repo.magento.com/ \
             magento/project-community-edition=2.4.8-p3 m248 \
             --no-install --ignore-platform-req=php+
+          cp auth.json m248/
           cd m248
           composer config --no-plugins allow-plugins.* true
           composer require firebase/php-jwt:^7.0 --no-update
