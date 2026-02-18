@@ -61,9 +61,13 @@ jobs:
 
       - name: Create Magento 2.4.8-p3 project
         run: |
-          COMPOSER_AUDIT_BLOCK_INSECURE=false composer create-project --repository-url=https://repo.magento.com/ \
+          composer create-project --repository-url=https://repo.magento.com/ \
             magento/project-community-edition=2.4.8-p3 m248 \
-            --ignore-platform-req=php+
+            --no-install --ignore-platform-req=php+
+          cd m248
+          composer config --no-plugins allow-plugins.* true
+          composer require firebase/php-jwt:^7.0 --no-update
+          composer install --ignore-platform-req=php+
 
       - name: Copy module into Magento
         run: |
