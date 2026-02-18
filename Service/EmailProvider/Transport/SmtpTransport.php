@@ -22,10 +22,11 @@ namespace Buckaroo\Magento2\Service\EmailProvider\Transport;
 
 use Buckaroo\Magento2\Model\ConfigProvider\ExternalEmailProvider as EmailProviderConfig;
 use Buckaroo\Magento2\Logging\Log;
-use Laminas\Mail\Message;
-use Laminas\Mail\Transport\Smtp as LaminasSmtp;
-use Laminas\Mail\Transport\SmtpOptions;
 use Magento\Framework\Exception\MailException;
+use Symfony\Component\Mailer\Mailer;
+use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport;
+use Symfony\Component\Mime\Email;
+use Symfony\Component\Mime\Address;
 
 class SmtpTransport implements TransportInterface
 {
@@ -52,141 +53,116 @@ class SmtpTransport implements TransportInterface
     }
 
     /**
-     * Send email via SMTP
+     * Send email via SMTP using Symfony Mailer
      *
      * @param array $emailData
      * @param int|null $storeId
      *
      * @return array
-     * @throws MailException
+     * @throws MailException|\Symfony\Component\Mailer\Exception\TransportExceptionInterface
      */
     public function send(array $emailData, $storeId = null): array
     {
         try {
-            $message = $this->createMessage($emailData, $storeId);
-            $options = $this->createSmtpOptions($storeId);
+            $transport = $this->createTransport($storeId);
+            $email = $this->createEmail($emailData, $storeId);
 
-            $transport = new LaminasSmtp($options);
-            $transport->send($message);
+            $mailer = new Mailer($transport);
+            $sentMessage = $mailer->send($email);
 
-            return $this->buildSuccessResponse($message, $storeId);
+            return $this->buildSuccessResponse($sentMessage, $storeId);
         } catch (\Exception $e) {
             return $this->handleException($e, $storeId);
         }
     }
 
     /**
-     * Create an email message
-     *
-     * @param array $emailData
-     * @param int|null $storeId
-     * @return Message
-     */
-    private function createMessage(array $emailData, $storeId): Message
-    {
-        $message = new Message();
-        $message->setEncoding('UTF-8');
-
-        $fromEmail = $this->config->getFromEmail($storeId) ?: $emailData['from_email'];
-        $fromName = $this->config->getFromName($storeId) ?: $emailData['from_name'];
-        $message->setFrom($fromEmail, $fromName);
-
-        $message->addTo($emailData['to_email'], $emailData['to_name'] ?? '');
-
-        $replyTo = $this->config->getReplyTo($storeId);
-        if ($replyTo) {
-            $message->setReplyTo($replyTo);
-        }
-
-        $message->setSubject($emailData['subject']);
-        $message->setBody($this->createMessageBody($emailData['body_html']));
-
-        return $message;
-    }
-
-    /**
-     * Create message body
-     *
-     * @param string $htmlContent
-     * @return \Laminas\Mime\Message
-     */
-    private function createMessageBody($htmlContent): \Laminas\Mime\Message
-    {
-        $html = new \Laminas\Mime\Part($htmlContent);
-        $html->type = 'text/html';
-        $html->charset = 'UTF-8';
-        $html->encoding = \Laminas\Mime\Mime::ENCODING_QUOTEDPRINTABLE;
-
-        $mimeMessage = new \Laminas\Mime\Message();
-        $mimeMessage->setParts([$html]);
-
-        return $mimeMessage;
-    }
-
-    /**
-     * Create SMTP options
+     * Create Symfony SMTP transport
      *
      * @param int|null $storeId
-     * @return SmtpOptions
+     * @return EsmtpTransport
      * @throws \InvalidArgumentException
      */
-    private function createSmtpOptions($storeId): SmtpOptions
+    private function createTransport($storeId): EsmtpTransport
     {
         $host = $this->config->getSmtpHost($storeId);
+        $port = $this->config->getSmtpPort($storeId);
+        $encryption = $this->config->getSmtpEncryption($storeId);
+
         if (empty($host)) {
             throw new \InvalidArgumentException('SMTP host is not configured');
         }
 
-        $options = new SmtpOptions([
-            'host' => $host,
-            'port' => $this->config->getSmtpPort($storeId),
-        ]);
+        // Create transport with encryption if specified
+        $secure = null;
+        if ($encryption && $encryption !== 'none') {
+            $secure = ($encryption === 'ssl') ? true : false; // true for SSL, false for TLS
+        }
 
-        $this->configureAuthentication($options, $storeId);
+        $transport = new EsmtpTransport($host, $port, $secure);
 
-        return $options;
-    }
-
-    /**
-     * Configure SMTP authentication
-     *
-     * @param SmtpOptions $options
-     * @param int|null $storeId
-     */
-    private function configureAuthentication(SmtpOptions $options, $storeId): void
-    {
-        $encryption = $this->config->getSmtpEncryption($storeId);
+        // Set authentication if configured
         $username = $this->config->getSmtpUsername($storeId);
         $password = $this->config->getSmtpPassword($storeId);
 
-        if ($encryption && $encryption !== 'none') {
-            $options->setConnectionClass('login');
-            $options->setConnectionConfig([
-                'ssl' => $encryption,
-                'username' => $username,
-                'password' => $password,
-            ]);
-        } elseif ($username) {
-            $options->setConnectionClass('login');
-            $options->setConnectionConfig([
-                'username' => $username,
-                'password' => $password,
-            ]);
+        if ($username) {
+            $transport->setUsername($username);
+            $transport->setPassword($password);
         }
+
+        return $transport;
+    }
+
+    /**
+     * Create a Symfony Email message
+     *
+     * @param array $emailData
+     * @param int|null $storeId
+     * @return Email
+     */
+    private function createEmail(array $emailData, $storeId): Email
+    {
+        $email = new Email();
+
+        // Set from address
+        $fromEmail = $this->config->getFromEmail($storeId) ?: $emailData['from_email'];
+        $fromName = $this->config->getFromName($storeId) ?: $emailData['from_name'];
+        $email->from(new Address($fromEmail, $fromName));
+
+        // Set recipient
+        $toName = $emailData['to_name'] ?? '';
+        $email->to(new Address($emailData['to_email'], $toName));
+
+        // Set reply-to if configured
+        $replyTo = $this->config->getReplyTo($storeId);
+        if ($replyTo) {
+            $email->replyTo($replyTo);
+        }
+
+        // Set subject and body
+        $email->subject($emailData['subject']);
+        $email->html($emailData['body_html']);
+
+        // Add text version if provided
+        if (!empty($emailData['body_text'])) {
+            $email->text($emailData['body_text']);
+        }
+
+        return $email;
     }
 
     /**
      * Build success response
      *
-     * @param Message $message
+     * @param mixed $sentMessage
      * @param int|null $storeId
      * @return array
      */
-    private function buildSuccessResponse(Message $message, $storeId): array
+    private function buildSuccessResponse($sentMessage, $storeId): array
     {
-        $providerName = $this->config->getProviderName($storeId);
-        $messageId = $message->getHeaders()->get('Message-ID') ?
-                     $message->getHeaders()->get('Message-ID')->getFieldValue() : null;
+        $providerName = $this->config->getProviderName($storeId) ?? 'SMTP Provider';
+        $messageId = method_exists($sentMessage, 'getMessageId') ?
+                     $sentMessage->getMessageId() : null;
 
         return [
             'success' => true,

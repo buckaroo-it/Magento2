@@ -23,7 +23,6 @@
         "magento/module-tax": "^100.4",
         "magento/module-ui": "^101.2",
         "laminas/laminas-validator": "^2.64",
-        "laminas/laminas-mail": "^2.16",
         "buckaroo/sdk": "^1.22.1",
         "monolog/monolog": "^2.9 || ^3.0",
         "psr/log": "^2.0 || ^3.0",
