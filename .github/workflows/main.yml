@@ -16,10 +16,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Setup PHP 8.4
+      - name: Setup PHP 8.3
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.4'
+          php-version: '8.3'
           tools: composer:v2, phpunit, phpcs
           coverage: none
 
@@ -34,9 +34,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/${{ env.namespace }}-source/vendor
-          key: ${{ runner.os }}-php84-${{ hashFiles('**/composer.lock') }}
+          key: ${{ runner.os }}-php83-${{ hashFiles('**/composer.lock') }}
           restore-keys: |
-            ${{ runner.os }}-php84-
+            ${{ runner.os }}-php83-
 
       - name: Prepare auth for Magento repo
         run: |
@@ -62,7 +62,14 @@ jobs:
       - name: Create Magento 2.4.8-p3 project
         run: |
           composer create-project --repository-url=https://repo.magento.com/ \
-            magento/project-community-edition=2.4.8-p3 m248
+            magento/project-community-edition=2.4.8-p3 m248 \
+            --no-install
+          cp auth.json m248/
+          cd m248
+          composer config --no-plugins allow-plugins.* true
+          composer config audit.abandoned ignore
+          composer config --json --merge audit.ignore '["PKSA-y2cr-5h3j-g3ys"]'
+          composer install
 
       - name: Copy module into Magento
         run: |

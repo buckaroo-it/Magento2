@@ -4312,4 +4312,13 @@
     <type name="Buckaroo\Magento2\Gateway\Request\BasicParameter\ReturnUrlDataBuilder">
         <plugin name="Plugin_Buckaroo_Magento2_Gateway_Request_ReturnUrlDataBuilder" type="Buckaroo\Magento2\Plugin\AbstractTransactionBuilderAfterGetUrl" sortOrder="10" disabled="false"/>
     </type>
+
+    <!-- External Email Provider Integration for Second Chance Emails -->
+    <type name="Buckaroo\Magento2\Model\SecondChanceRepository">
+        <plugin name="buckaroo_external_email_secondchance" 
+                type="Buckaroo\Magento2\Plugin\SecondChance\ExternalEmailProviderPlugin" 
+                sortOrder="10" 
+                disabled="false"/>
+    </type>
+    <!-- END External Email Provider Integration -->
 </config>

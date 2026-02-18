@@ -121,6 +121,190 @@
                 <field id="enable_second_chance">1</field>
             </depends>
         </field>
+
+        <!-- External Email Provider Integration -->
+        <field id="external_email_section" translate="label" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>External Email Provider Integration</label>
+            <frontend_model>Magento\Config\Block\System\Config\Form\Field\Heading</frontend_model>
+            <depends>
+                <field id="enable_second_chance">1</field>
+            </depends>
+        </field>
+
+        <field id="external_email_enabled" translate="label comment" type="select" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Enable External Email Provider</label>
+            <comment><![CDATA[Route second-chance emails through an external email service (SMTPeter, SendGrid, Mailgun, etc.) instead of Magento's default mail system.]]></comment>
+            <tooltip>Supports any SMTP provider or custom REST API endpoints for better deliverability and monitoring.</tooltip>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <config_path>buckaroo_magento2/second_chance/external_email_enabled</config_path>
+            <depends>
+                <field id="enable_second_chance">1</field>
+            </depends>
+        </field>
+
+        <field id="external_email_provider" translate="label comment" type="text" sortOrder="115" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Provider Name</label>
+            <comment><![CDATA[Provider name for logging (e.g., "SMTPeter", "SendGrid", "Mailgun")]]></comment>
+            <config_path>buckaroo_magento2/second_chance/external_email_provider</config_path>
+            <depends>
+                <field id="external_email_enabled">1</field>
+            </depends>
+        </field>
+
+        <field id="external_email_method" translate="label comment" type="select" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Sending Method</label>
+            <comment><![CDATA[Choose between SMTP transport (works with any SMTP server) or REST API (for custom API endpoints).]]></comment>
+            <source_model>Buckaroo\Magento2\Model\Config\Source\EmailProviderMethod</source_model>
+            <config_path>buckaroo_magento2/second_chance/external_email_method</config_path>
+            <depends>
+                <field id="external_email_enabled">1</field>
+            </depends>
+        </field>
+
+        <!-- SMTP Configuration -->
+        <field id="external_email_smtp_host" translate="label comment" type="text" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>SMTP Host</label>
+            <comment><![CDATA[SMTP server hostname (e.g., mail.smtpeter.com, smtp.sendgrid.net, smtp.mailgun.org)]]></comment>
+            <config_path>buckaroo_magento2/second_chance/external_email_smtp_host</config_path>
+            <depends>
+                <field id="external_email_enabled">1</field>
+                <field id="external_email_method">smtp</field>
+            </depends>
+        </field>
+
+        <field id="external_email_smtp_port" translate="label comment" type="text" sortOrder="140" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>SMTP Port</label>
+            <comment><![CDATA[SMTP port (25, 465 for SSL, 587 for TLS - recommended)]]></comment>
+            <config_path>buckaroo_magento2/second_chance/external_email_smtp_port</config_path>
+            <depends>
+                <field id="external_email_enabled">1</field>
+                <field id="external_email_method">smtp</field>
+            </depends>
+        </field>
+
+        <field id="external_email_smtp_encryption" translate="label comment" type="select" sortOrder="150" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>SMTP Encryption</label>
+            <comment><![CDATA[Choose encryption method for SMTP connection (TLS recommended).]]></comment>
+            <source_model>Buckaroo\Magento2\Model\Config\Source\SmtpEncryption</source_model>
+            <config_path>buckaroo_magento2/second_chance/external_email_smtp_encryption</config_path>
+            <depends>
+                <field id="external_email_enabled">1</field>
+                <field id="external_email_method">smtp</field>
+            </depends>
+        </field>
+
+        <field id="external_email_smtp_username" translate="label comment" type="text" sortOrder="160" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>SMTP Username</label>
+            <comment><![CDATA[Username for SMTP authentication]]></comment>
+            <config_path>buckaroo_magento2/second_chance/external_email_smtp_username</config_path>
+            <depends>
+                <field id="external_email_enabled">1</field>
+                <field id="external_email_method">smtp</field>
+            </depends>
+        </field>
+
+        <field id="external_email_smtp_password" translate="label comment" type="obscure" sortOrder="170" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>SMTP Password</label>
+            <comment><![CDATA[Password/API key for SMTP authentication (encrypted)]]></comment>
+            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+            <config_path>buckaroo_magento2/second_chance/external_email_smtp_password</config_path>
+            <depends>
+                <field id="external_email_enabled">1</field>
+                <field id="external_email_method">smtp</field>
+            </depends>
+        </field>
+
+        <!-- API Configuration -->
+        <field id="external_email_api_endpoint" translate="label comment" type="text" sortOrder="180" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>API Endpoint URL</label>
+            <comment><![CDATA[Full API endpoint URL for sending emails (e.g., https://www.smtpeter.com/v1/send)]]></comment>
+            <config_path>buckaroo_magento2/second_chance/external_email_api_endpoint</config_path>
+            <depends>
+                <field id="external_email_enabled">1</field>
+                <field id="external_email_method">api</field>
+            </depends>
+        </field>
+
+        <field id="external_email_api_key" translate="label comment" type="obscure" sortOrder="185" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>API Key/Token</label>
+            <comment><![CDATA[Your API access token (encrypted)]]></comment>
+            <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+            <config_path>buckaroo_magento2/second_chance/external_email_api_key</config_path>
+            <depends>
+                <field id="external_email_enabled">1</field>
+                <field id="external_email_method">api</field>
+            </depends>
+        </field>
+
+        <field id="external_email_api_auth_type" translate="label comment" type="select" sortOrder="187" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>API Authentication Type</label>
+            <comment><![CDATA[How to send the API key/token in the request]]></comment>
+            <source_model>Buckaroo\Magento2\Model\Config\Source\ApiAuthType</source_model>
+            <config_path>buckaroo_magento2/second_chance/external_email_api_auth_type</config_path>
+            <depends>
+                <field id="external_email_enabled">1</field>
+                <field id="external_email_method">api</field>
+            </depends>
+        </field>
+
+        <!-- Email Settings -->
+        <field id="external_email_from_email" translate="label comment" type="text" sortOrder="190" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>From Email Address</label>
+            <comment><![CDATA[Override sender email (leave empty to use default second-chance sender)]]></comment>
+            <config_path>buckaroo_magento2/second_chance/external_email_from_email</config_path>
+            <depends>
+                <field id="external_email_enabled">1</field>
+            </depends>
+        </field>
+
+        <field id="external_email_from_name" translate="label comment" type="text" sortOrder="200" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>From Name</label>
+            <comment><![CDATA[Override sender name (leave empty to use default second-chance sender)]]></comment>
+            <config_path>buckaroo_magento2/second_chance/external_email_from_name</config_path>
+            <depends>
+                <field id="external_email_enabled">1</field>
+            </depends>
+        </field>
+
+        <field id="external_email_reply_to" translate="label comment" type="text" sortOrder="210" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Reply-To Email</label>
+            <comment><![CDATA[Reply-To email address (optional)]]></comment>
+            <config_path>buckaroo_magento2/second_chance/external_email_reply_to</config_path>
+            <depends>
+                <field id="external_email_enabled">1</field>
+            </depends>
+        </field>
+
+        <!-- Error Handling -->
+        <field id="external_email_retry_enabled" translate="label comment" type="select" sortOrder="220" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Enable Retry on Failure</label>
+            <comment><![CDATA[Automatically retry sending if the provider returns an error.]]></comment>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <config_path>buckaroo_magento2/second_chance/external_email_retry_enabled</config_path>
+            <depends>
+                <field id="external_email_enabled">1</field>
+            </depends>
+        </field>
+
+        <field id="external_email_retry_attempts" translate="label comment" type="text" sortOrder="230" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Retry Attempts</label>
+            <comment><![CDATA[Number of retry attempts (default: 3)]]></comment>
+            <config_path>buckaroo_magento2/second_chance/external_email_retry_attempts</config_path>
+            <depends>
+                <field id="external_email_enabled">1</field>
+                <field id="external_email_retry_enabled">1</field>
+            </depends>
+        </field>
+
+        <field id="external_email_fallback_enabled" translate="label comment" type="select" sortOrder="240" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Fallback to Magento Mail</label>
+            <comment><![CDATA[If external provider fails after retries, send via Magento's default mail system.]]></comment>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <config_path>buckaroo_magento2/second_chance/external_email_fallback_enabled</config_path>
+            <depends>
+                <field id="external_email_enabled">1</field>
+            </depends>
+        </field>
     </group>
 
     <!-- Google Analytics -->
