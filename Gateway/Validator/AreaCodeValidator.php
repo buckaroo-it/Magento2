@@ -29,49 +29,47 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderFactory;
 
 class AreaCodeValidator extends AbstractValidator
 {
-    /**
-     * @var State
-     */
-    private $state;
+    private State $state;
+    private ConfigProviderFactory $configProviderFactory;
 
-    /**
-     * @param ResultInterfaceFactory $resultFactory
-     * @param State                  $state
-     */
     public function __construct(
         ResultInterfaceFactory $resultFactory,
-        State $state
+        State $state,
+        ConfigProviderFactory $configProviderFactory
     ) {
         $this->state = $state;
+        $this->configProviderFactory = $configProviderFactory;
         parent::__construct($resultFactory);
     }
 
-    /**
-     * Validate Area Code Value
-     *
-     * @param array $validationSubject
-     *
-     * @throws Exception
-     * @throws LocalizedException
-     *
-     * @return ResultInterface
-     */
     public function validate(array $validationSubject): ResultInterface
     {
         $isValid = true;
+        $method = SubjectReader::readPaymentMethodInstance($validationSubject);
 
-        $paymentMethodInstance = SubjectReader::readPaymentMethodInstance($validationSubject);
+        try {
+            $areaCode = $this->state->getAreaCode();
+        } catch (\Exception $e) {
+            // If area code cannot be determined, do not block (or choose your desired default)
+            return $this->createResult(true);
+        }
 
-        $isAvailableInBackend = $paymentMethodInstance->getConfigData('available_in_backend');
-        $areaCode = $this->state->getAreaCode();
-        if (Area::AREA_ADMINHTML === $areaCode
-            && $isAvailableInBackend !== null
-            && $isAvailableInBackend == 0
-        ) {
+        // Existing admin toggle
+        $isAvailableInBackend = $method->getConfigData('available_in_backend');
+        if ($areaCode === Area::AREA_ADMINHTML && $isAvailableInBackend !== null && (int)$isAvailableInBackend === 0) {
             $isValid = false;
+        }
+
+        // PayPerEmail front/back/both toggle
+        if ($isValid && $method->getCode() === 'buckaroo_magento2_payperemail') {
+            $cp = $this->configProviderFactory->get('payperemail');
+            if (method_exists($cp, 'isVisibleForAreaCode') && !$cp->isVisibleForAreaCode($areaCode)) {
+                $isValid = false;
+            }
         }
 
         return $this->createResult($isValid);
