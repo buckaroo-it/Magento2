@@ -38,6 +38,9 @@ use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollect
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class RefundGroupTransactionService
 {
     /**
@@ -122,6 +125,7 @@ class RefundGroupTransactionService
 
     /**
      * Check if an order has group transactions (giftcards/vouchers/mixed payments)
+     *
      * OR is a single giftcard payment (stored in payment additional_information)
      *
      * @param string $orderIncrementId Order increment ID
@@ -177,6 +181,8 @@ class RefundGroupTransactionService
      * @param Payment $payment
      * @return float Amount left to refund (should be 0 after refunding full giftcard amount)
      * @throws ConverterException|LocalizedException|ClientException
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     private function refundSingleGiftcard(array $buildSubject, $payment): float
     {
@@ -298,6 +304,7 @@ class RefundGroupTransactionService
      * @return int|mixed|string
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     public function refundGroupTransactions(array &$buildSubject)
     {
@@ -379,6 +386,7 @@ class RefundGroupTransactionService
      *
      * @throws ClientException
      * @throws ConverterException
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function createRefundGroupRequest($buildSubject, $transaction, $giftCardValue)
     {

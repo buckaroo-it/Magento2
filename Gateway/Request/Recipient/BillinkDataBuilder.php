@@ -47,9 +47,9 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
 
     /**
      * @param Data                 $helper
-     * @param string               $addressType
      * @param ScopeConfigInterface $scopeConfig
-     * @param AddressFactory      $addressFactory
+     * @param AddressFactory       $addressFactory
+     * @param string               $addressType
      */
     public function __construct(Data $helper, ScopeConfigInterface $scopeConfig, AddressFactory $addressFactory, string $addressType = 'billing')
     {
@@ -164,6 +164,7 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
      * Check if the order uses PostNL pickup shipping method
      *
      * @return bool
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     private function isPostNLPickupOrder(): bool
     {

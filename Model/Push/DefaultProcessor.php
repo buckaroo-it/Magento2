@@ -47,7 +47,6 @@ use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Exception;
 use Magento\Framework\App\ObjectManager;
 use Magento\Framework\App\ResourceConnection;
-use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
 use Magento\Sales\Api\Data\TransactionInterface;
@@ -61,6 +60,7 @@ use Buckaroo\Magento2\Model\Transaction\Status\Response;
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ * @SuppressWarnings(PHPMD.TooManyFields)
  */
 class DefaultProcessor implements PushProcessorInterface
 {
@@ -164,20 +164,21 @@ class DefaultProcessor implements PushProcessorInterface
     private $pendingSingleGiftcardInfo = null;
 
     /**
-     * @param OrderRequestService     $orderRequestService
-     * @param PushTransactionType     $pushTransactionType
+     * Constructor
+     *
+     * @param OrderRequestService $orderRequestService
+     * @param PushTransactionType $pushTransactionType
      * @param BuckarooLoggerInterface $logger
-     * @param Data                    $helper
-     * @param TransactionInterface    $transaction
+     * @param Data $helper
+     * @param TransactionInterface $transaction
      * @param PaymentGroupTransaction $groupTransaction
-     * @param BuckarooStatusCode      $buckarooStatusCode
-     * @param OrderStatusFactory      $orderStatusFactory
-     * @param Account                 $configAccount
-     * @param GiftCardRefundService   $giftCardRefundService
-     * @param Uncancel                $uncancelService
+     * @param BuckarooStatusCode $buckarooStatusCode
+     * @param OrderStatusFactory $orderStatusFactory
+     * @param Account $configAccount
+     * @param GiftCardRefundService $giftCardRefundService
+     * @param Uncancel $uncancelService
      * @param ResourceConnection $resourceConnection
      * @param GiftcardCollection $giftcardCollection
-     *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -212,8 +213,9 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * @param PushRequestInterface $pushRequest
+     * Process push notification from payment provider
      *
+     * @param PushRequestInterface $pushRequest
      * @return bool
      * @throws BuckarooException
      * @throws LocalizedException
@@ -247,11 +249,7 @@ class DefaultProcessor implements PushProcessorInterface
         $this->setOrderStatusMessage();
 
         if ($this->isGroupTransactionPart() || $this->pushRequest->getRelatedtransactionPartialpayment()) {
-            $this->savePartGroupTransaction();
-            $this->saveNewGroupTransactionIfNeeded();
-            $this->addGiftcardPartialPaymentToPaymentInformation();
-            $this->order->save();
-            return true;
+            return $this->handlePartialPaymentPush();
         }
 
         if ($this->giftcardPartialPayment()) {
@@ -278,9 +276,11 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * @param PushRequestInterface $pushRequest
+     * Initialize fields from push request
      *
+     * @param PushRequestInterface $pushRequest
      * @throws Exception
+     * @return void
      */
     protected function initializeFields(PushRequestInterface $pushRequest): void
     {
@@ -313,6 +313,8 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
+     * Check if Klarna capture should be skipped
+     *
      * @return bool
      */
     protected function skipKlarnaCapture(): bool
@@ -332,9 +334,7 @@ class DefaultProcessor implements PushProcessorInterface
      * Check if it is needed to handle the push message based on postdata
      *
      * @throws Exception
-     *
      * @return bool
-     *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     protected function skipSpecificTypesOfRequsts(): bool
@@ -351,11 +351,9 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * Buckaroo Push is send before Response, for correct flow we skip the first push
-     * for some payment methods
+     * Buckaroo Push is send before Response, for correct flow we skip the first push for some payment methods
      *
      * @throws LocalizedException
-     *
      * @return bool
      */
     protected function skipFirstPush(): bool
@@ -436,9 +434,8 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * Check if transaction was already processed based on transaction statuses from payment additional information
      *
+     * @param int $receivedStatusCode
      * @param string $trxId
-     * @param int    $receivedStatusCode
-     *
      * @return bool
      */
     private function isDuplicateTransaction($receivedStatusCode, string $trxId): bool
@@ -486,10 +483,10 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * It updates the BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES payment additional information
-     * with the current received tx status.
+     * Update received transaction statuses
      *
      * @throws LocalizedException
+     * @return void
      */
     protected function setReceivedTransactionStatuses(): void
     {
@@ -509,10 +506,7 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * Checks if the order can be updated by checking its state.
-     * If order is canceled and receives success push, reactivates it.
-     *
-     * Following Magento core's approach (Order::canInvoice, etc.) which checks state only.
+     * Checks if the order can be updated by checking its state
      *
      * @return bool
      * @throws LocalizedException
@@ -543,6 +537,16 @@ class DefaultProcessor implements PushProcessorInterface
             if ($this->shouldReactivateCanceledOrder()) {
                 return $this->reactivateCanceledOrder();
             }
+
+            $this->logger->addDebug(sprintf(
+                '[%s:%s] - Order is canceled and will NOT be reactivated | Order: %s | StatusCode: %s | Transaction: %s',
+                __METHOD__,
+                __LINE__,
+                $this->order->getIncrementId(),
+                $this->pushRequest->getStatusCode(),
+                $this->pushRequest->getTransactions()
+            ));
+
             return false;
         }
 
@@ -557,16 +561,208 @@ class DefaultProcessor implements PushProcessorInterface
      */
     private function shouldReactivateCanceledOrder(): bool
     {
-        return ($this->order->getState() === Order::STATE_CANCELED)
-            && ($this->order->getStatus() === Order::STATE_CANCELED)
-            && ($this->pushTransactionType->getStatusKey() === 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')
-            && $this->pushRequest->getRelatedtransactionPartialpayment() == null
-            && !$this->payment->getAdditionalInformation('buckaroo_order_reactivated');
+        if (($this->order->getState() !== Order::STATE_CANCELED)
+            || ($this->order->getStatus() !== Order::STATE_CANCELED)
+            || ($this->pushTransactionType->getStatusKey() !== 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')
+            || $this->pushRequest->getRelatedtransactionPartialpayment() != null
+            || $this->payment->getAdditionalInformation('buckaroo_order_reactivated')
+        ) {
+            return false;
+        }
+
+        if ($this->isCancellationPush()) {
+            $this->logger->addDebug(sprintf(
+                '[%s:%s] - Skipping order reactivation: This is a cancellation push. Order: %s',
+                __METHOD__,
+                __LINE__,
+                $this->order->getIncrementId()
+            ));
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if the current push is for a cancellation action
+     *
+     * @return bool
+     */
+    private function isCancellationPush(): bool
+    {
+        if ($this->isCancellationServiceAction()) {
+            return true;
+        }
+
+        if ($this->isCancellationTransactionType()) {
+            return true;
+        }
+
+        if ($this->hasAmountCreditWithoutRefund()) {
+            return true;
+        }
+
+        if ($this->isCanceledOrderWithExternalPush()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if service action indicates cancellation
+     *
+     * @return bool
+     */
+    private function isCancellationServiceAction(): bool
+    {
+        $serviceAction = $this->pushTransactionType->getServiceAction();
+
+        if (in_array($serviceAction, ['cancel_authorize', 'cancelauthorize', 'cancelreservation'])) {
+            return true;
+        }
+
+        if ($this->pushRequest->hasAdditionalInformation('service_action_from_magento', ['cancelauthorize', 'cancelreservation'])) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if transaction type indicates cancellation
+     *
+     * @return bool
+     */
+    private function isCancellationTransactionType(): bool
+    {
+        $transactionType = $this->pushRequest->getTransactionType();
+        return $transactionType === PushTransactionType::BUCK_PUSH_CANCEL_AUTHORIZE_TYPE;
+    }
+
+    /**
+     * Check if there's an amount credit without it being a refund
+     *
+     * @return bool
+     */
+    private function hasAmountCreditWithoutRefund(): bool
+    {
+        $amountCredit = $this->pushRequest->getAmountCredit();
+        $serviceAction = $this->pushTransactionType->getServiceAction();
+
+        return !empty($amountCredit) && $serviceAction !== 'refund';
+    }
+
+    /**
+     * Check if canceled order has an external push or different transaction ID
+     *
+     * @return bool
+     */
+    private function isCanceledOrderWithExternalPush(): bool
+    {
+        if ($this->order->getState() !== Order::STATE_CANCELED) {
+            return false;
+        }
+
+        $currentTransactionId = $this->getCurrentTransactionId();
+
+        if ($this->isExternalPushOnCanceledOrder()) {
+            $this->logExternalPushDetection($currentTransactionId);
+            return true;
+        }
+
+        if ($this->hasDifferentTransactionId($currentTransactionId)) {
+            $this->logDifferentTransactionId($currentTransactionId);
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Get current transaction ID from push request
+     *
+     * @return string|null
+     */
+    private function getCurrentTransactionId(): ?string
+    {
+        $currentTransactionId = $this->pushRequest->getTransactions();
+        if (!$currentTransactionId) {
+            $currentTransactionId = $this->pushRequest->getDatarequest();
+        }
+        return $currentTransactionId;
+    }
+
+    /**
+     * Check if push is external (not initiated by Magento)
+     *
+     * @return bool
+     */
+    private function isExternalPushOnCanceledOrder(): bool
+    {
+        $initiatedByMagento = $this->pushRequest->getAdditionalInformation('initiated_by_magento');
+        return !$initiatedByMagento || $initiatedByMagento != '1';
+    }
+
+    /**
+     * Check if current transaction ID differs from original
+     *
+     * @param string|null $currentTransactionId
+     * @return bool
+     */
+    private function hasDifferentTransactionId(?string $currentTransactionId): bool
+    {
+        $originalTransactionKey = $this->payment->getAdditionalInformation(
+            BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY
+        );
+
+        return $originalTransactionKey && $currentTransactionId &&
+               $originalTransactionKey !== $currentTransactionId;
+    }
+
+    /**
+     * Log external push detection
+     *
+     * @param string|null $currentTransactionId
+     * @return void
+     */
+    private function logExternalPushDetection(?string $currentTransactionId): void
+    {
+        $this->logger->addDebug(sprintf(
+            '[%s:%s] - Detected external push on canceled order (not initiated by Magento) - ' .
+            'likely a Plaza cancellation. Order: %s | TransactionID: %s',
+            __METHOD__,
+            __LINE__,
+            $this->order->getIncrementId(),
+            $currentTransactionId ?? 'null'
+        ));
+    }
+
+    /**
+     * Log different transaction ID detection
+     *
+     * @param string|null $currentTransactionId
+     * @return void
+     */
+    private function logDifferentTransactionId(?string $currentTransactionId): void
+    {
+        $originalTransactionKey = $this->payment->getAdditionalInformation(
+            BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY
+        );
+
+        $this->logger->addDebug(sprintf(
+            '[%s:%s] - Detected cancellation: Different transaction ID on canceled order. ' .
+            'Order: %s | Original: %s | Current: %s',
+            __METHOD__,
+            __LINE__,
+            $this->order->getIncrementId(),
+            $originalTransactionKey,
+            $currentTransactionId
+        ));
     }
 
     /**
      * Reactivate a canceled order when receiving success push
-     * Handles uncanceling, invoice handling setup, and authorization transaction
      *
      * @return bool
      * @throws LocalizedException
@@ -664,7 +860,6 @@ class DefaultProcessor implements PushProcessorInterface
 
     /**
      * Setup invoice handling flags for reactivated orders
-     * Detects if order should use SHIPMENT mode and sets appropriate flags
      *
      * @return void
      * @throws LocalizedException
@@ -691,7 +886,6 @@ class DefaultProcessor implements PushProcessorInterface
         // For SHIPMENT mode, mark payment as already captured
         // This ensures the shipment observer will use offline capture
         if ($invoiceHandlingMode == InvoiceHandlingOptions::SHIPMENT) {
-            $this->payment->setAdditionalInformation('buckaroo_already_captured', true);
             $this->logger->addDebug(sprintf(
                 '[%s:%s] - Order %s: Set SHIPMENT invoice handling mode',
                 __METHOD__,
@@ -703,7 +897,6 @@ class DefaultProcessor implements PushProcessorInterface
 
     /**
      * Detect invoice handling mode from configuration
-     * Checks method-specific config first, then falls back to general config
      *
      * @return int|string|null
      * @throws LocalizedException
@@ -714,71 +907,127 @@ class DefaultProcessor implements PushProcessorInterface
         $methodSpecificConfig = $this->payment->getMethodInstance()->getConfigData('create_invoice_after_shipment');
 
         if ($methodSpecificConfig !== null && $methodSpecificConfig !== '') {
-            return ($methodSpecificConfig == 1) ? InvoiceHandlingOptions::SHIPMENT : null;
+            // If explicitly set to Yes (1): use SHIPMENT mode
+            // If explicitly set to No (0): use PAYMENT mode (create invoice immediately)
+            return ($methodSpecificConfig == 1)
+                ? InvoiceHandlingOptions::SHIPMENT
+                : InvoiceHandlingOptions::PAYMENT;
         }
 
-        // Fall back to general account config
+        // Fall back to general account config if method-specific setting not configured
         return $this->configAccount->getInvoiceHandling();
     }
 
     /**
-     * Register authorization transaction for reactivated order
-     * Allows manual "Capture Online" option in admin
+     * Handle capture with deferred invoicing (SHIPMENT mode)
      *
-     * @return void
+     * @param float $amount
+     * @param string $message
+     * @param string $newStatus
+     * @return bool
+     * @throws LocalizedException
      */
-    private function registerAuthorizationForReactivation(): void
+    private function handleCaptureWithDeferredInvoicing(float $amount, string $message, string $newStatus): bool
     {
-        // Get transaction key from push data (already determined in reactivateCanceledOrder)
-        $transactionKey = $this->pushRequest->getTransactions();
-
-        // If no brq_transactions, try brq_datarequest (used for Klarna/Afterpay authorization)
-        if (!$transactionKey || strlen($transactionKey) === 0) {
-            $transactionKey = $this->pushRequest->getDatarequest();
-        }
-
         $this->logger->addDebug(sprintf(
-            '[%s:%s] - Register authorization | Transaction key: %s | Source: %s',
+            '[%s:%s] - CAPTURE detected but invoice handling is SHIPMENT mode - skipping invoice creation',
             __METHOD__,
-            __LINE__,
-            $transactionKey ?? 'NULL',
-            $this->pushRequest->getTransactions() ? 'brq_transactions' : 'brq_datarequest'
+            __LINE__
         ));
 
-        if (!$transactionKey || strlen($transactionKey) === 0) {
-            $this->logger->addDebug(sprintf(
-                '[%s:%s] - No transaction key found in push data, skipping authorization registration',
-                __METHOD__,
-                __LINE__
-            ));
-            return;
+        $payment = $this->order->getPayment();
+
+        $captureAmount = $amount;
+        if (!empty($this->pushRequest->getAmount())) {
+            $captureAmount = (float)$this->pushRequest->getAmount();
         }
 
-        $baseGrandTotal = $this->order->getBaseGrandTotal();
+        $this->recordCaptureWithoutInvoice($payment, $captureAmount);
 
-        $newTransactionId = $transactionKey . '-reauth';
+        $description = 'Capture status : <strong>' . $message . '</strong><br/>'
+            . 'Total amount of ' . $this->order->getBaseCurrency()->formatTxt($amount)
+            . ' has been captured. Invoice will be created on shipment.';
 
-        $this->payment->setTransactionId($newTransactionId);
-        $this->payment->setCurrencyCode($this->order->getBaseCurrencyCode());
-        $this->payment->setIsTransactionClosed(false);
-        $this->payment->registerAuthorizationNotification($baseGrandTotal);
+        $this->orderRequestService->updateOrderStatus(
+            Order::STATE_PROCESSING,
+            $newStatus,
+            $description,
+            false,
+            $this->dontSaveOrderUponSuccessPush
+        );
 
-        // CRITICAL: Ensure the transaction ID stays as the reauth one after registerAuthorizationNotification
-        // Magento might reset it, so we set it again along with LastTransId
-        $this->payment->setTransactionId($newTransactionId);
-        $this->payment->setLastTransId($newTransactionId);
+        return true;
+    }
 
-        // Store the reauth transaction ID so addTransactionData() uses it as parent for captures
-        $this->payment->setAdditionalInformation('buckaroo_reauth_transaction_id', $newTransactionId);
-
-        // Verify canCapture works
-        $canCapture = $this->payment->canCapture();
+    /**
+     * Record capture transaction without creating invoice
+     *
+     * @param OrderPayment $payment
+     * @param float $captureAmount
+     * @return void
+     * @throws LocalizedException
+     */
+    private function recordCaptureWithoutInvoice(OrderPayment $payment, float $captureAmount): void
+    {
         $this->logger->addDebug(sprintf(
-            '[%s:%s] - Authorization setup complete - CanCapture: %s',
+            '[%s:%s] - Recording capture amount without creating invoice (SHIPMENT mode): %s',
             __METHOD__,
             __LINE__,
-            $canCapture ? 'YES' : 'NO'
+            $captureAmount
         ));
+
+        // Set transaction ID for the capture
+        $transactionKey = $this->pushRequest->getTransactionKey();
+        if ($transactionKey) {
+            $payment->setTransactionId($transactionKey . '-capture');
+        }
+
+        // These fields are required for Magento to allow invoice creation later
+        $payment->setBaseAmountPaidOnline($captureAmount);
+
+        // Calculate amounts - handle null values from first payment
+        $baseAmountPaid = (float)$payment->getBaseAmountPaid() ?: 0;
+        $amountPaid = (float)$payment->getAmountPaid() ?: 0;
+
+        // Convert base amount to order currency
+        $orderAmount = $this->order->getBaseToOrderRate()
+            ? $captureAmount * $this->order->getBaseToOrderRate()
+            : $captureAmount;
+
+        $payment->setBaseAmountPaid($baseAmountPaid + $captureAmount);
+        $payment->setAmountPaid($amountPaid + $orderAmount);
+
+        // Add capture transaction without invoice (null = no invoice will be created)
+        // This is the recommended approach for deferred invoice creation
+        $payment->addTransaction(
+            Transaction::TYPE_CAPTURE,
+            null,
+            true
+        );
+
+        // Set transaction flags following Magento payment processing pattern
+        // For authorize/capture methods (Klarna), keeping transaction open is critical
+        $payment->setIsTransactionClosed(0); // Keep open for invoice creation on shipment
+        $payment->setShouldCloseParentTransaction(false); // Don't close parent auth transaction yet
+
+        $this->logger->addDebug(sprintf(
+            '[%s:%s] - Capture transaction created without invoice: %s | BaseAmountPaid: %s',
+            __METHOD__,
+            __LINE__,
+            $transactionKey,
+            $payment->getBaseAmountPaid()
+        ));
+
+        // Mark that capture has been registered so shipment observer uses offline capture
+        $payment->setAdditionalInformation('buckaroo_already_captured', true);
+
+        // Ensure the invoice handling mode is persisted so the shipment observer can detect it
+        $payment->setAdditionalInformation(
+            InvoiceHandlingOptions::INVOICE_HANDLING,
+            InvoiceHandlingOptions::SHIPMENT
+        );
+
+        $payment->save();
     }
 
     /**
@@ -820,6 +1069,10 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
+     * Set order status message from push request
+     *
+     * @return void
+     * @throws LocalizedException
      */
     protected function setOrderStatusMessage(): void
     {
@@ -947,7 +1200,6 @@ class DefaultProcessor implements PushProcessorInterface
 
     /**
      * Check if required data is present for group transaction
-     * Only for MIXED/PARTIAL payments (not single giftcards)
      *
      * @return bool
      */
@@ -976,8 +1228,9 @@ class DefaultProcessor implements PushProcessorInterface
         return $existingTransaction && $existingTransaction->getEntityId();
     }
 
-
     /**
+     * Check if this is a group transaction part
+     *
      * @return true
      */
     protected function canProcessPostData()
@@ -1079,9 +1332,10 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * @throws LocalizedException
+     * Get the new order status based on the push request status code
      *
-     * @return false|string|null
+     * @return string
+     * @throws LocalizedException
      */
     protected function getNewStatus()
     {
@@ -1144,46 +1398,12 @@ class DefaultProcessor implements PushProcessorInterface
                 InvoiceHandlingOptions::INVOICE_HANDLING
             );
 
-            // If not set (e.g., order was canceled before authorization completed),
-            // check method-specific config directly
             if ($invoiceHandlingMode === null || $invoiceHandlingMode === '') {
-                $methodSpecificConfig = $this->payment->getMethodInstance()->getConfigData('create_invoice_after_shipment');
-                if ($methodSpecificConfig !== null && $methodSpecificConfig !== '') {
-                    $invoiceHandlingMode = ($methodSpecificConfig == 1) ? InvoiceHandlingOptions::SHIPMENT : null;
-                } else {
-                    // Fall back to general account config
-                    $invoiceHandlingMode = $this->configAccount->getInvoiceHandling();
-                }
+                $invoiceHandlingMode = $this->detectInvoiceHandlingMode();
             }
 
             if ($invoiceHandlingMode == InvoiceHandlingOptions::SHIPMENT) {
-                $this->logger->addDebug(sprintf(
-                    '[%s:%s] - CAPTURE detected but invoice handling is SHIPMENT mode - skipping invoice creation',
-                    __METHOD__,
-                    __LINE__
-                ));
-
-                $payment = $this->order->getPayment();
-                $payment->setAdditionalInformation('buckaroo_already_captured', true);
-
-                // Ensure the invoice handling mode is persisted so the shipment observer can detect it
-                $payment->setAdditionalInformation(
-                    InvoiceHandlingOptions::INVOICE_HANDLING,
-                    InvoiceHandlingOptions::SHIPMENT
-                );
-                $payment->save();
-
-                $description = 'Capture status : <strong>' . $message . '</strong><br/>'
-                    . 'Total amount of ' . $this->order->getBaseCurrency()->formatTxt($amount) . ' has been captured. Invoice will be created on shipment.';
-
-                $this->orderRequestService->updateOrderStatus(
-                    Order::STATE_PROCESSING,
-                    $newStatus,
-                    $description,
-                    false,
-                    $this->dontSaveOrderUponSuccessPush
-                );
-                return true;
+                return $this->handleCaptureWithDeferredInvoicing($amount, $message, $newStatus);
             }
 
             $description = 'Capture status : <strong>' . $message . '</strong><br/>'
@@ -1285,6 +1505,11 @@ class DefaultProcessor implements PushProcessorInterface
         }
     }
 
+    /**
+     * Set Buckaroo reservation number for Klarna payments
+     *
+     * @return bool
+     */
     protected function setBuckarooReservationNumber(): bool
     {
         return false;
@@ -1294,11 +1519,47 @@ class DefaultProcessor implements PushProcessorInterface
      * Send Order email if was not sent
      *
      * @throws LocalizedException
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     protected function sendOrderEmail(): void
     {
         $store = $this->order->getStore();
         $paymentMethod = $this->payment->getMethodInstance();
+
+        // Check if order is or will be in a canceled/failed state
+        if ($this->order->isCanceled() || $this->order->getState() === Order::STATE_CANCELED) {
+            $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Skip sending order email: Order is canceled');
+            return;
+        }
+
+        // For Riverty/Afterpay payments, check if this is an authorization-only transaction
+        // These payments may be canceled by risk assessment after initial success
+        $afterpayMethods = [
+            Afterpay::CODE,   // buckaroo_magento2_afterpay
+            Afterpay2::CODE,  // buckaroo_magento2_afterpay2
+            Afterpay20::CODE  // buckaroo_magento2_afterpay20 (Riverty)
+        ];
+
+        if (in_array($paymentMethod->getCode(), $afterpayMethods)) {
+            // Check if this is a capture transaction (these are safe to send emails for)
+            $isCaptureTx = $this->pushRequest->hasPostData('transaction_type', 'C800');
+            $isCaptureMutation = $this->pushRequest->hasPostData('mutationtype', 'collecting')
+                || $this->pushRequest->hasPostData('mutationtype', 'Collecting');
+            $isCapture = $isCaptureTx || $isCaptureMutation;
+
+            if (!$isCapture) {
+                // Check if this is an authorization (not capture) transaction
+                $transactionType = $this->pushRequest->getTransactionType();
+                $isAuthorizationOnly = !empty($transactionType) && in_array($transactionType, ['I038', 'I880']);
+
+                if ($isAuthorizationOnly) {
+                    $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Skip sending order email for Riverty/Afterpay authorization-only transaction (wait for capture to avoid sending email for orders that may be canceled by risk assessment)');
+                    return;
+                }
+            } else {
+                $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Capture transaction detected for Riverty/Afterpay - will send order email if not already sent');
+            }
+        }
 
         if (!$this->order->getEmailSent()
             && ($this->configAccount->getOrderConfirmationEmail($store)
@@ -1314,14 +1575,10 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * Can create invoice on push
-     *
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     *
-     * @throws LocalizedException
+     * Determines if the invoice can be pushed based on the payment action and invoice handling mode.
      *
      * @return bool
+     * @throws LocalizedException
      */
     protected function canPushInvoice(): bool
     {
@@ -1337,15 +1594,11 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * Creates and saves the invoice and adds for each invoice the buckaroo transaction keys
-     * Only when the order can be invoiced and has not been invoiced before.
+     * Saves the invoice for the order if applicable.
      *
-     * @throws BuckarooException
      * @throws LocalizedException
-     * @throws Exception
      *
-     * @return bool
-     *
+     * @return bool True if the invoice was saved, false otherwise.
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
      */
@@ -1362,19 +1615,8 @@ class DefaultProcessor implements PushProcessorInterface
 
         $this->addTransactionData();
 
-        // Check method-specific config first, fall back to general config
-        // Method-specific config key: create_invoice_after_shipment (only exists for Klarna & Afterpay)
-        // If "Yes" (value=1), invoice should be created after shipment (SHIPMENT mode)
-        $methodSpecificConfig = $this->payment->getMethodInstance()->getConfigData('create_invoice_after_shipment');
-        $useShipmentMode = false;
-
-        if ($methodSpecificConfig !== null && $methodSpecificConfig !== '') {
-            // Method has specific config value - use it (1 = Yes = SHIPMENT mode, 0 = No = immediate)
-            $useShipmentMode = ($methodSpecificConfig == 1);
-        } else {
-            // No method-specific config or not set - use general account config
-            $useShipmentMode = ($this->configAccount->getInvoiceHandling() == InvoiceHandlingOptions::SHIPMENT);
-        }
+        $invoiceHandlingMode = $this->detectInvoiceHandlingMode();
+        $useShipmentMode = ($invoiceHandlingMode == InvoiceHandlingOptions::SHIPMENT);
 
         if ($useShipmentMode) {
             // In shipment mode, record the payment as authorized but don't capture yet
@@ -1503,6 +1745,8 @@ class DefaultProcessor implements PushProcessorInterface
      * @return bool
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function processFailedPush(string $newStatus, string $message): bool
     {
@@ -1545,9 +1789,7 @@ class DefaultProcessor implements PushProcessorInterface
             // Add a clear cancellation message to order history before canceling
             $this->order->addCommentToStatusHistory('Payment failed. Canceling order due to payment failure: ' . $message);
 
-            // BUCKM2-78: Never automatically cancelauthorize via push for afterpay
             // setting parameter which will cause to stop the cancel process on
-            // Buckaroo/Model/Method/BuckarooAdapter.php:880
             $methods = [
                 'buckaroo_magento2_afterpay',
                 'buckaroo_magento2_afterpay2',
@@ -1559,8 +1801,27 @@ class DefaultProcessor implements PushProcessorInterface
                 $payment->save();
             }
 
+            // Check if we should skip void request (no successful transaction to void)
+            // This prevents "Gateway rejected the transaction" error when canceling failed payments
+            $methodInstance = $payment->getMethodInstance();
+            $methodInstanceClass = get_class($methodInstance);
+            $shouldSkipVoid = $this->shouldSkipVoidForFailedPush($payment);
+
+            $originalRequestOnVoid = null;
+            if ($shouldSkipVoid) {
+                $originalRequestOnVoid = $methodInstanceClass::$requestOnVoid;
+                $methodInstanceClass::$requestOnVoid = false;
+            }
+
             try {
-                $this->order->cancel()->save();
+                try {
+                    $this->order->cancel()->save();
+                } finally {
+                    // Restore the original flag value to avoid side effects
+                    if ($originalRequestOnVoid !== null) {
+                        $methodInstanceClass::$requestOnVoid = $originalRequestOnVoid;
+                    }
+                }
 
                 if (!$this->isMagentoGiftCardRefundActive()) {
                     $this->giftCardRefundService->refund($this->order);
@@ -1708,6 +1969,15 @@ class DefaultProcessor implements PushProcessorInterface
         return $brqOrderId;
     }
 
+    /**
+     * Get payment details for successful push
+     *
+     * @param string $message
+     *
+     * @return array
+     *
+     * @throws LocalizedException
+     */
     protected function getPaymentDetails($message)
     {
         // Set amount
@@ -1754,10 +2024,11 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
+     * Determine if the invoice should be saved based on payment details.
+     *
      * @param array $paymentDetails
      *
      * @return bool
-     *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     protected function invoiceShouldBeSaved(array &$paymentDetails): bool
@@ -1766,6 +2037,8 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
+     * Get transfer details for pending payment
+     *
      * @return array
      */
     protected function getTransferDetails(): array
@@ -1774,6 +2047,8 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
+     * Determine if pending push can be processed
+     *
      * @return bool
      */
     protected function canProcessPendingPush(): bool
@@ -1832,7 +2107,6 @@ class DefaultProcessor implements PushProcessorInterface
 
     /**
      * Check if Magento's native gift card refund observers will be triggered
-     * Prevents duplicate refunds by checking if redirect setting triggers Magento observers
      *
      * @return bool
      */
@@ -1882,9 +2156,7 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * Store single giftcard payment information in payment additional_information
-     * This is for single full giftcard payments (not mixed/partial payments)
-     * Used by refund system to identify and refund giftcard correctly
+     * Store single giftcard payment information temporarily
      *
      * @return void
      */
@@ -1926,6 +2198,7 @@ class DefaultProcessor implements PushProcessorInterface
 
     /**
      * Apply and save pending single giftcard payment information
+     *
      * This method is called at multiple points in the push flow depending on payment type
      *
      * @param string $context Context description for logging (e.g., 'inline', 'redirect', 'capture')
@@ -1987,5 +2260,79 @@ class DefaultProcessor implements PushProcessorInterface
 
         // Also check for buckaroovoucher
         return $foundGiftcard !== null || $transactionMethod === 'buckaroovoucher';
+    }
+
+    /**
+     * Determine if void request should be skipped for failed push processing
+     *
+     * @param \Magento\Sales\Model\Order\Payment $payment
+     * @return bool
+     */
+    private function shouldSkipVoidForFailedPush($payment): bool
+    {
+        // Skip void if there's no transaction key
+        // Transaction key is only set when a successful transaction is created
+        // If it's missing, there's no transaction to void at the gateway
+        $transactionKey = $payment->getAdditionalInformation(
+            \Buckaroo\Magento2\Gateway\Response\TransactionIdHandler::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY
+        );
+
+        if (empty($transactionKey)) {
+            $this->logger->addDebug(sprintf(
+                '[%s:%s] - Skipping void request for failed push: no transaction key found. '
+                . 'Order: %s. This typically means the payment failed or was rejected before a transaction was created.',
+                __METHOD__,
+                __LINE__,
+                $this->order->getIncrementId()
+            ));
+            return true;
+        }
+
+        if ($payment->getAdditionalInformation('buckaroo_failed_authorize')) {
+            $this->logger->addDebug(sprintf(
+                '[%s:%s] - Skipping void request for failed push: authorization was marked as failed. '
+                . 'Order: %s, Method: %s.',
+                __METHOD__,
+                __LINE__,
+                $this->order->getIncrementId(),
+                $payment->getMethodInstance()->getCode()
+            ));
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Handle partial payment push notifications
+     *
+     * @return bool
+     * @throws LocalizedException
+     */
+    private function handlePartialPaymentPush(): bool
+    {
+        $this->savePartGroupTransaction();
+        $this->saveNewGroupTransactionIfNeeded();
+        $this->addGiftcardPartialPaymentToPaymentInformation();
+
+        $statusKey = $this->pushTransactionType->getStatusKey();
+        if (in_array($statusKey, $this->buckarooStatusCode->getFailedStatuses())) {
+            $this->logger->addDebug(sprintf(
+                '[%s:%s] - Failed push with RelatedtransactionPartialpayment detected - ' .
+                'processing failure to cancel order | Order: %s | Status: %s',
+                __METHOD__,
+                __LINE__,
+                $this->order->getIncrementId(),
+                $statusKey
+            ));
+            $this->processPushByStatus();
+            if (!$this->dontSaveOrderUponSuccessPush) {
+                $this->order->save();
+            }
+            return true;
+        }
+
+        $this->order->save();
+        return true;
     }
 }

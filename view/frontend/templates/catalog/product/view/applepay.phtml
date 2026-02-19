@@ -25,13 +25,26 @@ if ($block->canShowButton('Product') && !$block->isIdinVerificationRequired()): 
         <!-- ko template: getTemplate() --><!-- /ko -->
 
         <script>
-            if ('undefined' === typeof window.checkoutConfig) {
-                window.checkoutConfig = <?= /* @noEscape */ ($block->getApplepayConfig()); ?>;
-                window.isCustomerLoggedIn = window.checkoutConfig.isCustomerLoggedIn;
-                if ('undefined' === typeof window.checkoutConfig.totalsData) {
-                    window.checkoutConfig.totalsData = {};
+            // Set up window.checkoutConfig before component loads (required for Magento core modules)
+            (function() {
+                var config = <?= /* @noEscape */ ($block->getApplepayConfig()); ?>;
+
+                if (typeof window.checkoutConfig === 'undefined') {
+                    window.checkoutConfig = config;
+                    window.isCustomerLoggedIn = config.isCustomerLoggedIn || false;
+
+                    if (typeof window.checkoutConfig.totalsData === 'undefined') {
+                        window.checkoutConfig.totalsData = {};
+                    }
+                } else {
+                    // Merge Apple Pay config
+                    if (!window.checkoutConfig.payment) window.checkoutConfig.payment = {};
+                    if (!window.checkoutConfig.payment.buckaroo) window.checkoutConfig.payment.buckaroo = {};
+
+                    window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay =
+                        config.payment.buckaroo.buckaroo_magento2_applepay;
                 }
-            }
+            })();
         </script>
 
         <script type="text/x-magento-init">

@@ -137,11 +137,16 @@ class ProcessTest extends BaseTest
         $cartMock->method('setQuote')->willReturnSelf();
         $cartMock->method('save')->willReturn(true);
 
+        // Create a proper payment method instance mock
+        $methodInstanceMock = $this->createMock(\Magento\Payment\Model\MethodInterface::class);
+        $methodInstanceMock->method('getCode')->willReturn('buckaroo_magento2_payconiq');
+
         $payment = $this->getFakeMock(Payment::class)
             ->addMethods(['canProcessPostData'])
-            ->onlyMethods(['getMethodInstance'])
+            ->onlyMethods(['getMethodInstance', 'getMethod'])
             ->getMock();
-        $payment->method('getMethodInstance')->willReturnSelf();
+        $payment->method('getMethodInstance')->willReturn($methodInstanceMock);
+        $payment->method('getMethod')->willReturn('buckaroo_magento2_payconiq');
         $payment->method('canProcessPostData')->with($payment, $params)->willReturn(true);
 
         $orderMock = $this->getFakeMock(Order::class)

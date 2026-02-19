@@ -39,7 +39,7 @@ class PaymentInTransitHandler implements HandlerInterface
     public function handle(array $handlingSubject, array $response)
     {
         // Skip if refund was already completed via group transactions
-        if (isset($response['group_transaction_refund_complete']) 
+        if (isset($response['group_transaction_refund_complete'])
             && $response['group_transaction_refund_complete'] === true
         ) {
             return;

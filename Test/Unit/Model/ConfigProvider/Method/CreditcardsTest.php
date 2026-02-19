@@ -84,12 +84,19 @@ class CreditcardsTest extends BaseTest
         $allowedCurrenciesMock = $this->getFakeMock(AllowedCurrencies::class)->getMock();
         $logoServiceMock = $this->getFakeMock(LogoService::class)->getMock();
 
+        // Mock storeManager and store
+        $storeMock = $this->getFakeMock(\Magento\Store\Model\Store::class)->getMock();
+        $storeMock->method('getId')->willReturn(1);
+        $storeManagerMock = $this->getFakeMock(\Magento\Store\Model\StoreManagerInterface::class)->getMock();
+        $storeManagerMock->method('getStore')->willReturn($storeMock);
+
         $instance = $this->getInstance([
             'assetRepo' => $assetRepoMock,
             'scopeConfig' => $scopeConfigMock,
             'allowedCurrencies' => $allowedCurrenciesMock,
             'paymentFeeHelper' => $paymentFeeMock,
-            'logoService' => $logoServiceMock
+            'logoService' => $logoServiceMock,
+            'storeManager' => $storeManagerMock
         ]);
 
         $result = $instance->getConfig();

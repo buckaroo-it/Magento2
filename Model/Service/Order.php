@@ -21,6 +21,7 @@
 namespace Buckaroo\Magento2\Model\Service;
 
 use Buckaroo\Magento2\Exception as BuckarooException;
+use Buckaroo\Magento2\Gateway\Response\TransactionIdHandler;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory as MethodFactory;
@@ -323,12 +324,29 @@ class Order
         }
 
         if ($order->canCancel() || $paymentMethodName == 'payperemail') {
-            if ($paymentMethodName == 'klarnakp') {
-                $methodInstanceClass = get_class($order->getPayment()->getMethodInstance());
+            $payment = $order->getPayment();
+            $methodInstance = $payment->getMethodInstance();
+            $methodInstanceClass = get_class($methodInstance);
+
+            // Determine if we should skip the void request to the gateway
+            // This is a defensive measure for direct adapter calls not going through gateway commands
+            $shouldSkipVoid = $this->shouldSkipVoidRequest($payment, $paymentMethodName);
+
+            // Temporarily set flag if void should be skipped
+            $originalRequestOnVoid = null;
+            if ($shouldSkipVoid) {
+                $originalRequestOnVoid = $methodInstanceClass::$requestOnVoid;
                 $methodInstanceClass::$requestOnVoid = false;
             }
 
-            $order->cancel();
+            try {
+                $order->cancel();
+            } finally {
+                // Restore the original flag value to avoid side effects
+                if ($originalRequestOnVoid !== null) {
+                    $methodInstanceClass::$requestOnVoid = $originalRequestOnVoid;
+                }
+            }
 
             $failedStatus = $this->orderStatusFactory->get($statusCode, $order);
 
@@ -348,6 +366,47 @@ class Order
                 $order->addCommentToStatusHistory($statusMessage, $failedStatus, false);
             }
             $order->save();
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Determine if void request should be skipped for this payment
+     *
+     * @param \Magento\Sales\Model\Order\Payment $payment
+     * @param string $paymentMethodName
+     * @return bool
+     */
+    private function shouldSkipVoidRequest($payment, string $paymentMethodName): bool
+    {
+        // Always skip void for Klarna KP (legacy behavior)
+        if ($paymentMethodName === 'klarnakp') {
+            $this->logger->addDebug(sprintf(
+                '[CANCEL_ORDER - %s] | [Service] | [%s:%s] - Skipping void request for Klarna KP',
+                $paymentMethodName,
+                __METHOD__,
+                __LINE__
+            ));
+            return true;
+        }
+
+        // Skip void if there's no transaction key
+        // Transaction key is only set when a successful transaction is created
+        // If it's missing, there's no transaction to void at the gateway
+        $transactionKey = $payment->getAdditionalInformation(
+            TransactionIdHandler::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY
+        );
+
+        if (empty($transactionKey)) {
+            $this->logger->addDebug(sprintf(
+                '[CANCEL_ORDER - %s] | [Service] | [%s:%s] - Skipping void request: no transaction key found. '
+                . 'This typically means the payment failed or was rejected before a transaction was created.',
+                $paymentMethodName,
+                __METHOD__,
+                __LINE__
+            ));
             return true;
         }
 

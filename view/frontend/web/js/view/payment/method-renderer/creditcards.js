@@ -396,7 +396,9 @@ define(
                     $.when(placeOrder)
                         .fail(async (jqXHR) => {
                             this.isPlaceOrderActionAllowed(true);
-                            await this.resetHostedFields($.mage.__("Payment failed. Please try again."));
+                            // Error is already displayed by errorProcessor.process() in place-order.js
+                            // Just reset the hosted fields without showing an additional error message
+                            await this.resetHostedFields();
                         })
                         .done(this.afterPlaceOrder.bind(this));
                     return true;
@@ -408,11 +410,7 @@ define(
              * After order placement, handle the redirect.
              */
             afterPlaceOrder: function () {
-                var response = window.checkoutConfig.payment.buckaroo.response;
-
-                if (typeof response === 'string') {
-                    response = JSON.parse(response);
-                }
+                var response = window.checkoutConfig.payment.buckaroo.responseData;
 
                 checkoutCommon.redirectHandle(response);
             },

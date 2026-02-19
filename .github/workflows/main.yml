@@ -16,10 +16,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Setup PHP 8.4
+      - name: Setup PHP 8.3
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.4'
+          php-version: '8.3'
           tools: composer:v2, phpunit, phpcs
           coverage: none
 
@@ -34,9 +34,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/${{ env.namespace }}-source/vendor
-          key: ${{ runner.os }}-php84-${{ hashFiles('**/composer.lock') }}
+          key: ${{ runner.os }}-php83-${{ hashFiles('**/composer.lock') }}
           restore-keys: |
-            ${{ runner.os }}-php84-
+            ${{ runner.os }}-php83-
 
       - name: Prepare auth for Magento repo
         run: |
@@ -62,20 +62,33 @@ jobs:
       - name: Create Magento 2.4.8-p3 project
         run: |
           composer create-project --repository-url=https://repo.magento.com/ \
-            magento/project-community-edition=2.4.8-p3 m248
+            magento/project-community-edition=2.4.8-p3 m248 \
+            --no-install
+          cp auth.json m248/
+          cd m248
+          composer config --no-plugins allow-plugins.* true
+          composer config audit.abandoned ignore
+          composer config --json --merge audit.ignore '["PKSA-y2cr-5h3j-g3ys"]'
+          composer install
 
       - name: Copy module into Magento
         run: |
           mkdir -p m248/app/code/Buckaroo/Magento2/
-          rsync -r --exclude='m248' ./ m248/app/code/Buckaroo/Magento2/
+          rsync -r --exclude='m248' --exclude='vendor' ./ m248/app/code/Buckaroo/Magento2/
+
+      - name: Install Buckaroo SDK at Magento level
+        working-directory: m248
+        run: |
+          composer require buckaroo/sdk:^1.20.0 --no-update
+          composer update buckaroo/sdk --no-interaction --prefer-dist
 
       - name: Run PHPCS against changed files (PR) or whole module (push)
         run: |
           if [ -f files_changed ]; then
             cat files_changed | grep '"filename"' | sed 's/\"filename\"\: \"//' | sed 's/\",//' \
-              | xargs -r ./m248/vendor/bin/phpcs --standard=Magento2
+              | xargs -r ./m248/vendor/bin/phpcs --standard=m248/app/code/Buckaroo/Magento2/phpcs.xml
           else
-            ./m248/vendor/bin/phpcs --standard=Magento2 m248/app/code/Buckaroo/Magento2
+            ./m248/vendor/bin/phpcs --standard=m248/app/code/Buckaroo/Magento2/phpcs.xml m248/app/code/Buckaroo/Magento2
           fi
 
       - name: Compile and run unit tests
@@ -83,4 +96,4 @@ jobs:
         run: |
           bin/magento module:enable --all
           bin/magento setup:di:compile
-          vendor/phpunit/phpunit/phpunit -c dev/tests/unit/phpunit.xml.dist app/code/Buckaroo/Magento2
+          cd app/code/Buckaroo/Magento2 && ../../../../vendor/phpunit/phpunit/phpunit

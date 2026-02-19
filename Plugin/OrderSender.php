@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Plugin;
 
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
+use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender as MagentoOrderSender;
 
@@ -69,6 +70,34 @@ class OrderSender
         $methodInstance = $payment->getMethodInstance();
 
         if (isset($methodInstance->usesRedirect) && $methodInstance->usesRedirect) {
+            if (in_array($order->getState(), [Order::STATE_CANCELED, Order::STATE_CLOSED])) {
+                $this->logger->addDebug(sprintf(
+                    '[SEND_MAIL] | [Plugin] | [%s:%s] - Prevent order email for cancelled/closed order | order: %s | state: %s | method: %s',
+                    __METHOD__,
+                    __LINE__,
+                    $order->getId(),
+                    $order->getState(),
+                    $payment->getMethod()
+                ));
+                return true;
+            }
+
+            // Check if spam limit was reached - never send email
+            $spamLimitReached = $payment->getAdditionalInformation(
+                BuckarooAdapter::PAYMENT_ATTEMPTS_REACHED_MESSAGE
+            );
+
+            if ($spamLimitReached) {
+                $this->logger->addDebug(sprintf(
+                    '[SEND_MAIL] | [Plugin] | [%s:%s] - Prevent order email - spam limit reached | order: %s | method: %s',
+                    __METHOD__,
+                    __LINE__,
+                    $order->getId(),
+                    $payment->getMethod()
+                ));
+                return true;
+            }
+
             $isOrderSuccessful = in_array($order->getState(), [
                 Order::STATE_PROCESSING,
                 Order::STATE_COMPLETE

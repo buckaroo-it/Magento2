@@ -76,12 +76,16 @@ class AmountCreditDataBuilderTest extends AbstractDataBuilderTest
         $this->orderMock->method('getBaseGrandTotal')->willReturn($amount);
         $this->orderMock->method('getOrderCurrencyCode')->willReturn('USD');
         $this->orderMock->method('getBaseToOrderRate')->willReturn(1.0);
+        $this->orderMock->method('getIncrementId')->willReturn('000000001');
 
         $buildSubject = [
             'payment' => $this->getPaymentDOMock(),
             'amount'  => $amount
         ];
 
+        // Enable group transaction logic when amounts differ
+        $hasGroupTransactions = ($amount !== $amountLeftToRefund);
+        $this->refundGroupServiceMock->method('hasGroupTransactions')->willReturn($hasGroupTransactions);
         $this->refundGroupServiceMock->method('getAmountLeftToRefund')->willReturn($amountLeftToRefund);
 
         $result = $this->amountCreditDataBuilder->build($buildSubject);

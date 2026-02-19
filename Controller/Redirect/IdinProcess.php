@@ -21,6 +21,8 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Controller\Redirect;
 
+use Buckaroo\Magento2\Service\SpamLimitService;
+use Buckaroo\Magento2\Model\Method\LimitReachException;
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Account as AccountConfig;
@@ -51,6 +53,10 @@ class IdinProcess extends Process implements HttpPostActionInterface
      */
     private $customerResourceFactory;
 
+    /**
+     * @var SpamLimitService
+     */
+    protected $spamLimitService;
     /**
      * @param Context                     $context
      * @param BuckarooLoggerInterface     $logger
@@ -85,6 +91,7 @@ class IdinProcess extends Process implements HttpPostActionInterface
         Recreate $quoteRecreate,
         RequestPushFactory $requestPushFactory,
         LockManagerWrapper $lockManager,
+        SpamLimitService $spamLimitService,
         CustomerFactory $customerFactory
     ) {
         parent::__construct(
@@ -101,7 +108,8 @@ class IdinProcess extends Process implements HttpPostActionInterface
             $eventManager,
             $quoteRecreate,
             $requestPushFactory,
-            $lockManager
+            $lockManager,
+            $spamLimitService
         );
 
         $this->customerResourceFactory = $customerFactory;

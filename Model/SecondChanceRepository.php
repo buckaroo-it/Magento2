@@ -35,6 +35,7 @@ use Magento\Framework\Api\ExtensionAttribute\JoinProcessorInterface;
 use Magento\Framework\Api\SearchCriteria\CollectionProcessorInterface;
 use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Reflection\DataObjectProcessor;
 use Magento\Sales\Api\Data\OrderInterface;
@@ -51,32 +52,139 @@ use Buckaroo\Magento2\Service\Sales\Quote\Recreate as QuoteRecreateService;
  */
 class SecondChanceRepository implements SecondChanceRepositoryInterface
 {
+    /**
+     * @var SecondChanceFactory
+     */
     protected $secondChanceFactory;
+
+    /**
+     * @var ResourceSecondChance
+     */
     protected $resource;
+
+    /**
+     * @var SecondChanceSearchResultsInterfaceFactory
+     */
     protected $searchResultsFactory;
+
+    /**
+     * @var ExtensibleDataObjectConverter
+     */
     protected $extensibleDataObjectConverter;
+
+    /**
+     * @var SecondChanceCollectionFactory
+     */
     protected $secondChanceCollectionFactory;
+
+    /**
+     * @var StoreManagerInterface
+     */
     private $storeManager;
+
+    /**
+     * @var SecondChanceInterfaceFactory
+     */
     protected $dataSecondChanceFactory;
+
+    /**
+     * @var DataObjectHelper
+     */
     protected $dataObjectHelper;
+
+    /**
+     * @var DataObjectProcessor
+     */
     protected $dataObjectProcessor;
+
+    /**
+     * @var JoinProcessorInterface
+     */
     protected $extensionAttributesJoinProcessor;
+
+    /**
+     * @var CollectionProcessorInterface
+     */
     private $collectionProcessor;
+
+    /**
+     * @var \Buckaroo\Magento2\Logging\Log
+     */
     protected $logging;
+
+    /**
+     * @var \Buckaroo\Magento2\Model\ConfigProvider\SecondChance
+     */
     protected $configProvider;
+
+    /**
+     * @var \Magento\Framework\Stdlib\DateTime\DateTime
+     */
     protected $dateTime;
+
+    /**
+     * @var \Magento\Framework\Math\Random
+     */
     protected $mathRandom;
+
+    /**
+     * @var \Magento\Sales\Model\OrderFactory
+     */
     protected $orderFactory;
+
+    /**
+     * @var \Magento\Customer\Model\AddressFactory
+     */
     protected $addressFactory;
+
+    /**
+     * @var \Magento\CatalogInventory\Api\StockRegistryInterface
+     */
     protected $stockRegistry;
+
+    /**
+     * @var \Magento\Framework\Translate\Inline\StateInterface
+     */
     protected $inlineTranslation;
+
+    /**
+     * @var \Magento\Framework\Mail\Template\TransportBuilder
+     */
     protected $transportBuilder;
+
+    /**
+     * @var \Magento\Sales\Model\Order\Address\Renderer
+     */
     protected $addressRenderer;
+
+    /**
+     * @var \Magento\Payment\Helper\Data
+     */
     protected $paymentHelper;
+
+    /**
+     * @var \Magento\Sales\Model\Order\Email\Container\ShipmentIdentity
+     */
     protected $identityContainer;
+
+    /**
+     * @var QuoteRecreateService
+     */
     protected $quoteRecreate;
+
+    /**
+     * @var \Magento\Checkout\Model\Session
+     */
     protected $checkoutSession;
+
+    /**
+     * @var \Magento\Quote\Model\QuoteFactory
+     */
     protected $quoteFactory;
+
+    /**
+     * @var \Magento\SalesSequence\Model\Manager
+     */
     protected $orderIncrementIdChecker;
 
     /**
@@ -167,7 +275,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function save(SecondChanceInterface $secondChance)
     {
@@ -193,7 +301,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function get($secondChanceId)
     {
@@ -206,7 +314,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getByOrderId(string $orderId): SecondChanceInterface
     {
@@ -219,7 +327,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getList(\Magento\Framework\Api\SearchCriteriaInterface $criteria)
     {
@@ -242,7 +350,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function delete(SecondChanceInterface $secondChance)
     {
@@ -265,7 +373,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function deleteById($secondChanceId)
     {
@@ -276,6 +384,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
      * Delete SecondChance by order ID
      *
      * @param mixed $orderId
+     * @throws LocalizedException
      */
     public function deleteByOrderId($orderId)
     {
@@ -373,7 +482,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
                     return $existingRecord;
                 }
             } catch (NoSuchEntityException $e) {
-                // No existing record, create a new one
+                $this->logging->addDebug('No existing SecondChance record found for base order: ' . $baseOrderId . ' - creating new record');
             }
 
             $token = $this->mathRandom->getRandomString(32);
@@ -483,16 +592,14 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
             // Apply the reserved order ID with suffix to the new quote
             if ($newOrderId && $quote && $quote->getId()) {
                 $quote->setReservedOrderId($newOrderId);
-                $quote->save();
 
-                // CRITICAL: Force this quote to be THE quote for checkout
-                // Clear any old quote from session and explicitly set this one
                 $this->checkoutSession->clearQuote();
                 $this->checkoutSession->clearStorage();
                 $this->checkoutSession->replaceQuote($quote);
                 $this->checkoutSession->setQuoteId($quote->getId());
 
-                $this->logging->addDebug('Second Chance: Quote recreated with order ID: ' . $newOrderId);
+                // Save quote after session is set to ensure proper context
+                $quote->save();
             }
         }
 
@@ -635,6 +742,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
      * @param mixed $secondChance
      * @param mixed $step
      * @throws NoSuchEntityException
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function sendMail($order, $secondChance, $step)
     {

@@ -26,6 +26,7 @@ use Exception;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\ResponseInterface;
+use Magento\Checkout\Model\Session as CheckoutSession;
 
 class SecondChance extends Action
 {
@@ -40,18 +41,26 @@ class SecondChance extends Action
     protected $secondChanceRepository;
 
     /**
+     * @var CheckoutSession
+     */
+    protected $checkoutSession;
+
+    /**
      * @param Context                $context
      * @param Log                    $logger
      * @param SecondChanceRepository $secondChanceRepository
+     * @param CheckoutSession        $checkoutSession
      */
     public function __construct(
         Context $context,
         Log $logger,
-        SecondChanceRepository $secondChanceRepository
+        SecondChanceRepository $secondChanceRepository,
+        CheckoutSession $checkoutSession
     ) {
         parent::__construct($context);
         $this->logger                 = $logger;
         $this->secondChanceRepository = $secondChanceRepository;
+        $this->checkoutSession        = $checkoutSession;
     }
 
     /**
@@ -65,19 +74,48 @@ class SecondChance extends Action
     {
         if ($token = $this->getRequest()->getParam('token')) {
             try {
-                $this->secondChanceRepository->getSecondChanceByToken($token);
+                $secondChance = $this->secondChanceRepository->getSecondChanceByToken($token);
+
+                // Verify quote was properly set in session
+                $quote = $this->checkoutSession->getQuote();
+
+                if (!$quote || !$quote->getId()) {
+                    $this->logger->addError('SecondChance: No quote in session after restoration', [
+                        'token' => substr($token, 0, 8) . '...',
+                        'order_id' => $secondChance->getOrderId()
+                    ]);
+                    $this->messageManager->addErrorMessage(__('Unable to restore your cart. Please try again or contact support.'));
+                    return $this->handleRedirect('checkout/cart');
+                }
+
                 $this->messageManager->addSuccessMessage(__('Your cart has been restored. You can now complete your purchase.'));
             } catch (Exception $e) {
-                $this->logger->addError('SecondChance token error: ' . $e->getMessage());
+                $this->logger->addWarning('SecondChance: invalid or expired token', [
+                    'error' => $e->getMessage(),
+                    'token' => $token ? substr($token, 0, 8) . '...' : 'none'
+                ]);
                 $this->messageManager->addErrorMessage(__('Invalid or expired link. Please try again.'));
+                return $this->handleRedirect('checkout/cart');
             }
         } else {
+            $this->logger->addWarning('SecondChance: No token provided');
             $this->messageManager->addErrorMessage(__('Invalid link. Please try again.'));
+            return $this->handleRedirect('checkout/cart');
         }
 
-        return $this->handleRedirect('checkout', ['_fragment' => 'payment']);
+        return $this->handleRedirect('checkout', [
+            '_query'    => $this->getRequest()->getQuery()->toArray(),
+            '_fragment' => 'payment',
+        ]);
     }
 
+    /**
+     * Handle redirect to specified path with arguments
+     *
+     * @param string $path
+     * @param array $arguments
+     * @return \Magento\Framework\Controller\Result\Redirect
+     */
     public function handleRedirect($path, $arguments = [])
     {
         return $this->_redirect($path, $arguments);

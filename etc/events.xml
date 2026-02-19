@@ -20,6 +20,9 @@
  */
  -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <event name="sales_order_place_after">
+        <observer name="buckaroo_magento2_prevent_email_on_order_place" instance="Buckaroo\Magento2\Observer\PreventEmailOnOrderPlace" />
+    </event>
     <event name="sales_order_payment_place_end">
         <observer name="buckaroo_magento2_update_order_status" instance="Buckaroo\Magento2\Observer\UpdateOrderStatus" />
         <observer name="buckaroo_magento2_send_order_confirmation" instance="Buckaroo\Magento2\Observer\SendOrderConfirmation" />

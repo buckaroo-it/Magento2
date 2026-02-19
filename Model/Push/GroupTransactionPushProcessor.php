@@ -152,6 +152,17 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
             return true;
         }
 
+        if ($this->shouldSkipSuccessfulPartialPayment()) {
+            $this->logger->addDebug(sprintf(
+                '[GROUP_TRANSACTION] | [%s:%s] - Skipping successful partial payment push - ' .
+                'main transaction failed or order cancelled | Order: %s',
+                __METHOD__,
+                __LINE__,
+                $this->order->getIncrementId()
+            ));
+            return true;
+        }
+
         return $this->defaultProcessor->processPush($pushRequest);
     }
 
@@ -333,5 +344,62 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
                 $this->groupTransaction->updateGroupTransaction($item2);
             }
         }
+    }
+
+    /**
+     * Check if the main/related group transaction has failed
+     *
+     * This is used when a partial payment SUCCESS push arrives to verify
+     * if the overall transaction (remaining payment) has already failed.
+     *
+     * @return bool
+     */
+    private function isRelatedTransactionFailed(): bool
+    {
+        $relatedTransactionKey = $this->pushRequest->getRelatedtransactionPartialpayment();
+        if (empty($relatedTransactionKey)) {
+            return false;
+        }
+
+        $groupTransaction = $this->groupTransaction->getGroupTransactionByTrxId($relatedTransactionKey);
+        if ($groupTransaction && $groupTransaction->getEntityId()) {
+            $status = (int)$groupTransaction->getData('status');
+
+            return in_array($status, [
+                BuckarooStatusCode::FAILED,
+                BuckarooStatusCode::VALIDATION_FAILURE,
+                BuckarooStatusCode::TECHNICAL_ERROR,
+                BuckarooStatusCode::CANCELLED_BY_USER,
+                BuckarooStatusCode::CANCELLED_BY_MERCHANT,
+                BuckarooStatusCode::REJECTED
+            ]);
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if we should skip processing a successful partial payment
+     *
+     * Returns true if:
+     * - Order is already canceled, OR
+     * - The related main transaction has failed
+     *
+     * This prevents partial payment success pushes from incorrectly setting
+     * a canceled order back to Processing status.
+     *
+     * @return bool
+     */
+    private function shouldSkipSuccessfulPartialPayment(): bool
+    {
+        if (!$this->pushRequest->hasPostData('statuscode', BuckarooStatusCode::SUCCESS)) {
+            return false;
+        }
+
+        if ($this->order->getState() === Order::STATE_CANCELED) {
+            return true;
+        }
+
+        return $this->isRelatedTransactionFailed();
     }
 }

@@ -33,6 +33,8 @@ use Buckaroo\Magento2\Model\RequestPush\RequestPushFactory;
 use Buckaroo\Magento2\Model\Service\Order as OrderService;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Buckaroo\Magento2\Service\Sales\Quote\Recreate;
+use Buckaroo\Magento2\Service\SpamLimitService;
+use Buckaroo\Magento2\Model\Method\LimitReachException;
 use Exception;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Api\CustomerRepositoryInterface;
@@ -55,6 +57,7 @@ use Magento\Sales\Model\Order;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.TooManyFields)
  */
 class Process extends Action implements HttpPostActionInterface, HttpGetActionInterface
 {
@@ -137,6 +140,11 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
     protected $lockManager;
 
     /**
+     * @var SpamLimitService
+     */
+    protected $spamLimitService;
+
+    /**
      * @param Context                     $context
      * @param BuckarooLoggerInterface     $logger
      * @param Quote                       $quote
@@ -151,6 +159,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
      * @param Recreate                    $quoteRecreate
      * @param RequestPushFactory          $requestPushFactory
      * @param LockManagerWrapper          $lockManager
+     * @param SpamLimitService            $spamLimitService
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -168,7 +177,8 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
         ManagerInterface $eventManager,
         Recreate $quoteRecreate,
         RequestPushFactory $requestPushFactory,
-        LockManagerWrapper $lockManager
+        LockManagerWrapper $lockManager,
+        SpamLimitService $spamLimitService
     ) {
         parent::__construct($context);
         $this->logger = $logger;
@@ -183,6 +193,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
         $this->quoteRecreate = $quoteRecreate;
         $this->quote = $quote;
         $this->lockManager = $lockManager;
+        $this->spamLimitService = $spamLimitService;
 
         // @codingStandardsIgnoreStart
         if (interface_exists("\Magento\Framework\App\CsrfAwareActionInterface")) {
@@ -360,7 +371,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
      *  - Sets the last quote and order.
      *  - Returns a successful redirect response.
      *
-     * @param $statusCode
+     * @param int|string $statusCode
      *
      * @throws Exception
      *
@@ -548,7 +559,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
      *  - Sets the last quote and order.
      *  - Returns a successful redirect response.
      *
-     * @param $statusCode
+     * @param int|string $statusCode
      *
      * @throws LocalizedException
      * @throws Exception
@@ -663,6 +674,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
      *
      * @return ResponseInterface
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     protected function handleFailed($statusCode): ResponseInterface
     {
@@ -711,6 +723,46 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
          * 3) Redirect back to checkout with error message
          */
         $this->addErrorMessageByStatus($statusCode);
+
+        // Update spam limiter for failed/canceled payments (redirect-based payments)
+        // This ensures spam prevention works for payments that fail AFTER successful API call
+        // (e.g., Riverty risk assessment decline, user cancellation at payment provider)
+        try {
+            $paymentMethod = $this->payment->getMethodInstance();
+            $this->spamLimitService->updateRateLimiterCount($paymentMethod);
+
+            $this->logger->addDebug(sprintf(
+                '[REDIRECT - %s] | [Controller] | [%s:%s] - Spam limiter updated for failed payment',
+                $this->payment->getMethod(),
+                __METHOD__,
+                __LINE__
+            ));
+        } catch (LimitReachException $e) {
+            // Limit reached - prevent further attempts
+            $this->logger->addDebug(sprintf(
+                '[REDIRECT - %s] | [Controller] | [%s:%s] - Spam limit reached: %s',
+                $this->payment->getMethod(),
+                __METHOD__,
+                __LINE__,
+                $e->getMessage()
+            ));
+
+            $this->spamLimitService->setMaxAttemptsFlags(
+                $this->payment,
+                $e->getMessage()
+            );
+            $this->addErrorMessage($e->getMessage());
+            // Continue to redirect - error message will be shown
+        } catch (\Exception $e) {
+            // Log but don't block the flow if spam service fails
+            $this->logger->addError(sprintf(
+                '[REDIRECT - %s] | [Controller] | [%s:%s] - Spam limiter error: %s',
+                $this->payment->getMethod(),
+                __METHOD__,
+                __LINE__,
+                $e->getMessage()
+            ));
+        }
 
         //skip cancel order for PPE
         if (!empty($this->redirectRequest->getAdditionalInformation('frompayperemail'))) {
@@ -790,13 +842,16 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
     public function addErrorMessageByStatus(int $statusCode): void
     {
         $statusCodeAddErrorMessage = [];
+        // phpcs:ignore Magento2.Translation.ConstantUsage -- Using constant for consistency
         $statusCodeAddErrorMessage[BuckarooStatusCode::ORDER_FAILED] = __(self::GENERAL_ERROR_MESSAGE);
+        // phpcs:ignore Magento2.Translation.ConstantUsage -- Using constant for consistency
         $statusCodeAddErrorMessage[BuckarooStatusCode::FAILED] = __(self::GENERAL_ERROR_MESSAGE);
+        // phpcs:ignore Magento2.Translation.ConstantUsage -- Using constant for consistency
         $statusCodeAddErrorMessage[BuckarooStatusCode::REJECTED] = __(self::GENERAL_ERROR_MESSAGE);
         $statusCodeAddErrorMessage[BuckarooStatusCode::CANCELLED_BY_USER]
             = __('Payment cancelled. You can try again using the same or a different payment method.');
 
-        $this->addErrorMessage(__($statusCodeAddErrorMessage[$statusCode]));
+        $this->addErrorMessage($statusCodeAddErrorMessage[$statusCode]);
     }
 
     /**
@@ -813,9 +868,19 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
             return $this->redirectOnCheckoutForFailedTransaction();
         }
 
+        // Set flag to enable quote restoration
+        $this->checkoutSession->setRestoreQuoteLastOrder($this->order->getId());
+
+        $this->logger->addDebug(sprintf(
+            '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect Failure To Checkout - Set restore quote flag',
+            $this->payment->getMethod(),
+            __METHOD__,
+            __LINE__
+        ));
+
         $url = $this->accountConfig->getFailureRedirect($store);
 
-        return $this->handleProcessedResponse($url ?? 'checkout/cart');
+        return $this->handleProcessedResponse($url ?? 'checkout');
     }
 
     /**

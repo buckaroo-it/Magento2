@@ -10,23 +10,38 @@
     * Release Notes
     * - v1.8.2 (22-12-2022): Updated WebsocketUrl
  */
-var BuckarooSdk;
-(function (BuckarooSdk) {
-    var $ = jQuery;
-    var Base;
-    (function (Base) {
-        Base.checkoutUrl = "https://checkout.buckaroo.nl";
-        Base.applePaySessionUrl = "https://applepay.buckaroo.io";
-        Base.clickToPayEndpointUrl = "https://clicktopay-externalapi.prod-pci.buckaroo.io/";
-        Base.tokenApiEndpointUrl = "https://auth.buckaroo.io/";
-        Base.websocketUrl = "wss://websocketservice-externalapi.prod.buckaroo.io/";
-        var initiate = function () {
-            // insert css file into html head
-            document.head.insertAdjacentHTML("beforeend", "<link href=\"" + Base.checkoutUrl + "/api/buckaroosdk/css\" rel=\"stylesheet\">");
-            // disable cache on GET requests
-            $.ajaxSetup({ cache: true });
-        };
-        Base.setupWebSocket = function (url, onMessageEvent) {
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
+    var BuckarooSdk;
+    (function (BuckarooSdk) {
+        var $ = jQuery;
+        var Base;
+        (function (Base) {
+            Base.checkoutUrl = "https://checkout.buckaroo.nl";
+            Base.applePaySessionUrl = "https://applepay.buckaroo.io";
+            Base.clickToPayEndpointUrl = "https://clicktopay-externalapi.prod-pci.buckaroo.io/";
+            Base.tokenApiEndpointUrl = "https://auth.buckaroo.io/";
+            Base.websocketUrl = "wss://websocketservice-externalapi.prod.buckaroo.io/";
+            Base.setTestMode = function (isTestMode) {
+                if (isTestMode) {
+                    Base.checkoutUrl = "https://testcheckout.buckaroo.nl";
+                } else {
+                    Base.checkoutUrl = "https://checkout.buckaroo.nl";
+                }
+            };
+            var initiate = function () {
+                // insert css file into html head
+                document.head.insertAdjacentHTML("beforeend", "<link href=\"" + Base.checkoutUrl + "/api/buckaroosdk/css\" rel=\"stylesheet\">");
+                // disable cache on GET requests
+                $.ajaxSetup({ cache: true });
+            };
+            Base.setupWebSocket = function (url, onMessageEvent) {
             var socket = new WebSocket(url);
             socket.onclose = function (e) {
                 setTimeout(function () {
@@ -52,7 +67,7 @@ var BuckarooSdk;
         Resources.finishAuth = "Rond de autorisatie af op uw mobiele apparaat";
         Resources.idealQrDescription = "Scan onderstaande code via uw bank app of de iDEAL QR app.";
         Resources.payconiqApp = "Payconiq app";
-        Resources.payconiqDescription = 'Scan onderstaande code met de <a href="{0}" target="_blank">{1}</a>. <br>Deze QR-code is 20 minuten geldig.'; // using ' in stead of ", because this description contains a html tag
+        Resources.payconiqDescription = 'Scan onderstaande code met de <a href="{0}" target="_blank">{1}</a>. <br/>Deze QR-code is 20 minuten geldig.'; // using ' in stead of ", because this description contains a html tag
         Resources.payconiqLink = "https://www.payconiq.nl/";
         Resources.redirect = "U wordt binnen 5 seconden doorgestuurd...";
         Resources.scanCodeText = "Scan de QR-code";
@@ -243,7 +258,7 @@ var BuckarooSdk;
                         });
                     },
                     onApprove: function (data) {
-                        return options.createPaymentHandler(data).then(function () {
+                        return options.createPaymentHandler(data.orderID).then(function () {
                             options.onSuccessCallback();
                         }, function (reason) {
                             if (options.onErrorCallback !== undefined)
@@ -454,6 +469,7 @@ var BuckarooSdk;
             Base.setupWebSocket(url, function (event) {
                 // get response object from event
                 var responseObj = JSON.parse(event.data);
+                var testButtons = "\n<div id=\"inputTypeButtons\">\n\t<p>" + Resources.testSelectInputTypeDescription + ":</p>\n\t<div class=\"qr-input-group\">\n\t\t<button type=\"button\" id=\"qrInputTypeButton\" class=\"qr-blue-button test-button\">QR-Code</button>\n\t\t<button type=\"button\" id=\"urlInputTypeButton\" class=\"qr-blue-button test-button\">URL-Intent</button>\n\t</div>\n</div>\n";
                 // remove any progress classes
                 if (useSeparatedView) {
                     $(qrCodeContainer).find("#qrProgress").removeClass(progressClasses);
@@ -465,20 +481,38 @@ var BuckarooSdk;
                     case "WAITING":
                         if (useSeparatedView) {
                             $(qrCodeContainer).find("#qrProgress").addClass("waiting");
+                            $(".back-to-cart").css("visibility", "visible");
+                            $(qrCodeContainer).find("#qrTestFlow").append(testButtons);
+                            $(qrCodeContainer).find("#qrInputTypeButton").click(function () {
+                                sendTestInputTypeData("QrCode", transactionKey);
+                            });
+                            $(qrCodeContainer).find("#urlInputTypeButton").click(function () {
+                                sendTestInputTypeData("UrlIntent", transactionKey);
+                            });
                         }
                         else {
                             $("#qrProgress").addClass("waiting");
                             $("#close-qr-popup").show();
+                            $(".back-to-cart").css("visibility", "visible");
+                            $(qrCodeContainer).find("#qrTestFlow").append(testButtons);
+                            $(qrCodeContainer).find("#qrInputTypeButton").click(function () {
+                                sendTestInputTypeData("QrCode", transactionKey);
+                            });
+                            $(qrCodeContainer).find("#urlInputTypeButton").click(function () {
+                                sendTestInputTypeData("UrlIntent", transactionKey);
+                            });
                         }
                         callbackHandler(responseObj.status, []);
                         break;
                     case "PROCESSING":
                         if (useSeparatedView) {
                             $(qrCodeContainer).find("#qrProgress").addClass("scanned");
+                            $(".back-to-cart").css("visibility", "hidden");
                         }
                         else {
                             $("#qrProgress").addClass("scanned");
                             $("#close-qr-popup").show();
+                            $(".back-to-cart").css("visibility", "hidden");
                         }
                         callbackHandler(responseObj.status, []);
                         break;
@@ -886,12 +920,12 @@ var BuckarooSdk;
                     .then(function (accept) { return accept.unifiedPayments(false); })
                     .then(function (up) { return up.show({ containers: { paymentSelection: buttonWrapper, paymentScreen: paymentScreenWrapper } }); })
                     .then(function (transientToken) {
-                    var clickToPayPayment = { transientToken: transientToken, identifier: identifier };
-                    processPaymentCallback(clickToPayPayment);
-                })
+                        var clickToPayPayment = { transientToken: transientToken, identifier: identifier };
+                        processPaymentCallback(clickToPayPayment);
+                    })
                     .catch(function (error) {
-                    throw Error("ClickToPay Unified Checkout threw an error. " + error.reason + ": " + error.message);
-                });
+                        throw Error("ClickToPay Unified Checkout threw an error. " + error.reason + ": " + error.message);
+                    });
             });
             script.onerror = function () {
                 console.error("ClickToPay: Failed to load script: " + scriptUrl);
@@ -933,15 +967,15 @@ var BuckarooSdk;
                         body: JSON.stringify(_this.options),
                     })
                         .then(function (response) {
-                        if (!response.ok) {
-                            throw new Error("ClickToPay: Generation of capture context failed! " + response.statusText);
-                        }
-                        return response.json();
-                    })
+                            if (!response.ok) {
+                                throw new Error("ClickToPay: Generation of capture context failed! " + response.statusText);
+                            }
+                            return response.json();
+                        })
                         .then(function (captureContextResponse) { return captureContextResponse; })
                         .catch(function (error) {
-                        throw new Error("ClickToPay: Generation of capture context failed! " + error);
-                    });
+                            throw new Error("ClickToPay: Generation of capture context failed! " + error);
+                        });
                 };
                 this.validate(buttonWrapper, paymentScreenWrapper, options);
                 this.options = options;
@@ -992,20 +1026,358 @@ var BuckarooSdk;
                 body: params,
             })
                 .then(function (response) {
-                if (!response.ok)
-                    throw new Error("Access Token retrieval has failed: " + response.statusText);
-                return response.json();
-            })
+                    if (!response.ok)
+                        throw new Error("Access Token retrieval has failed: " + response.statusText);
+                    return response.json();
+                })
                 .then(function (tokenRes) {
-                var accessToken = tokenRes.access_token;
-                if (!accessToken)
-                    throw new Error("Access token is missing in the response!");
-                return accessToken;
-            })
+                    var accessToken = tokenRes.access_token;
+                    if (!accessToken)
+                        throw new Error("Access token is missing in the response!");
+                    return accessToken;
+                })
                 .catch(function (error) {
-                throw new Error("Access Token retrieval has failed: " + error);
-            });
+                    throw new Error("Access Token retrieval has failed: " + error);
+                });
         }
         TokenApi.getAccessToken = getAccessToken;
     })(TokenApi = BuckarooSdk.TokenApi || (BuckarooSdk.TokenApi = {}));
+    var GooglePay;
+    (function (GooglePay) {
+        var GooglePayPayment = /** @class */ (function () {
+            function GooglePayPayment(options) {
+                this.googlePayVersion = 2;
+                this.googleClient = null;
+                this.options = this.validateOptions(options);
+            }
+            GooglePayPayment.prototype.validateOptions = function (options) {
+                if (!options.onGooglePayLoadError)
+                    throw "GooglePay: onGooglePayLoadError must be set.";
+                if (!options.totalPriceStatus)
+                    throw "GooglePay: totalPriceStatus is not set.";
+                if (!options.totalPrice)
+                    throw "GooglePay: totalPrice is not set.";
+                if (!options.currencyCode)
+                    throw "GooglePay: currencyCode is not set.";
+                if (!options.countryCode)
+                    throw "GooglePay: countryCode is not set.";
+                if (!options.merchantName)
+                    throw "GooglePay: merchantName is not set.";
+                if (!options.merchantId)
+                    throw "GooglePay: merchantId is not set.";
+                if (!options.gatewayMerchantId)
+                    throw "GooglePay: gatewayMerchantId is not set.";
+                // Set default values for optional properties if not provided
+                options.environment = options.environment || 'TEST';
+                options.allowedCardNetworks = options.allowedCardNetworks || ['MASTERCARD', 'VISA'];
+                options.allowedCardAuthMethods = options.allowedCardAuthMethods || ['PAN_ONLY', 'CRYPTOGRAM_3DS'];
+                options.buttonColor = this.getButtonColor(options.buttonColor);
+                options.buttonType = this.getButtonType(options.buttonType);
+                options.buttonRadius = this.getButtonRadius(options.buttonRadius);
+                options.buttonLocale = this.getButtonLocale(options.buttonLocale);
+                options.buttonSizeMode = options.buttonSizeMode || 'static';
+                options.buttonContainerId = options.buttonContainerId || 'google-pay-button-container';
+                return options;
+            };
+            GooglePayPayment.prototype.initiate = function () {
+                var _this = this;
+                var e = document.createElement("script");
+                e.src = 'https://pay.google.com/gp/p/js/pay.js';
+                e.async = true;
+                e.addEventListener('load', function () { return _this.onGooglePayLoaded(); });
+                document.getElementsByTagName("head")[0].appendChild(e);
+            };
+            GooglePayPayment.prototype.getGooglePaymentsClient = function () {
+                if (this.googleClient === null) {
+                    var config = {
+                        environment: this.options.environment,
+                        paymentDataCallbacks: this.options.onPaymentDataChanged ? {
+                                onPaymentAuthorized: this.onPaymentAuthorized.bind(this),
+                                onPaymentDataChanged: this.onPaymentDataChanged.bind(this),
+                            }
+                            : {
+                                onPaymentAuthorized: this.onPaymentAuthorized.bind(this),
+                            },
+                    };
+                    this.googleClient = new google.payments.api.PaymentsClient(config);
+                }
+                return this.googleClient;
+            };
+            Object.defineProperty(GooglePayPayment.prototype, "baseCardPaymentMethod", {
+                get: function () {
+                    return {
+                        type: 'CARD',
+                        parameters: {
+                            allowedAuthMethods: this.options.allowedCardAuthMethods,
+                            allowedCardNetworks: this.options.allowedCardNetworks,
+                        },
+                    };
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(GooglePayPayment.prototype, "cardPaymentMethod", {
+                get: function () {
+                    return __assign({}, this.baseCardPaymentMethod, { tokenizationSpecification: this.getTokenizationSpecification(this.options.gatewayMerchantId) });
+                },
+                enumerable: true,
+                configurable: true
+            });
+            GooglePayPayment.prototype.getBaseRequest = function () {
+                var callbackIntents = [];
+                callbackIntents.push('PAYMENT_AUTHORIZATION');
+                if (this.options.shippingAddressRequired)
+                    callbackIntents.push('SHIPPING_ADDRESS');
+                if (this.options.shippingOptionRequired)
+                    callbackIntents.push('SHIPPING_OPTION');
+
+                var baseRequest = {
+                    apiVersion: this.googlePayVersion,
+                    apiVersionMinor: 0,
+                    allowedPaymentMethods: [this.cardPaymentMethod],
+                    transactionInfo: {
+                        totalPriceStatus: this.options.totalPriceStatus,
+                        totalPrice: this.options.totalPrice,
+                        currencyCode: this.options.currencyCode,
+                        countryCode: this.options.countryCode,
+                    },
+                    merchantInfo: {
+                        merchantName: this.options.merchantName,
+                        merchantId: this.options.merchantId,
+                        merchantOrigin: this.options.merchantOrigin
+                    },
+                    callbackIntents: callbackIntents
+                };
+
+                // Only include shipping properties if they're actually required
+                if (this.options.shippingAddressRequired) {
+                    baseRequest.shippingAddressRequired = true;
+                    if (this.options.shippingAddressParameters) {
+                        baseRequest.shippingAddressParameters = this.options.shippingAddressParameters;
+                    }
+                }
+                if (this.options.shippingOptionRequired) {
+                    baseRequest.shippingOptionRequired = true;
+                    if (this.options.shippingOptionParameters) {
+                        baseRequest.shippingOptionParameters = this.options.shippingOptionParameters;
+                    }
+                }
+
+                // Include email if requested
+                if (this.options.emailRequired) {
+                    baseRequest.emailRequired = true;
+                }
+
+                return baseRequest;
+            };
+            GooglePayPayment.prototype.getIsReadyToPayRequest = function () {
+                return {
+                    apiVersion: this.googlePayVersion,
+                    apiVersionMinor: 0,
+                    allowedPaymentMethods: [this.cardPaymentMethod]
+                };
+            };
+            GooglePayPayment.prototype.getTokenizationSpecification = function (gatewayMerchantId) {
+                return {
+                    type: 'PAYMENT_GATEWAY',
+                    parameters: {
+                        gateway: 'buckaroo',
+                        gatewayMerchantId: gatewayMerchantId,
+                    },
+                };
+            };
+            GooglePayPayment.prototype.onPaymentAuthorized = function (paymentData) {
+                var _this = this;
+                return new Promise(function (resolve) {
+                    if (!_this.options.processPayment) {
+                        resolve({
+                            transactionState: 'ERROR',
+                            error: {
+                                intent: 'PAYMENT_AUTHORIZATION',
+                                message: 'Payment processing function is not defined.',
+                                reason: 'OTHER_ERROR',
+                            },
+                        });
+                        return;
+                    }
+                    _this.options.processPayment(paymentData)
+                        .then(function (processPaymentResult) {
+                            if (processPaymentResult.success) {
+                                resolve({ transactionState: 'SUCCESS' });
+                            }
+                            else {
+                                resolve({
+                                    transactionState: 'ERROR',
+                                    error: {
+                                        intent: 'PAYMENT_AUTHORIZATION',
+                                        message: processPaymentResult.errorMessage || 'Payment was not successful. Please contact the merchant.',
+                                        reason: processPaymentResult.errorReason || 'OTHER_ERROR',
+                                    },
+                                });
+                            }
+                        })
+                        .catch(function (error) {
+                            // Handle any unexpected errors
+                            resolve({
+                                transactionState: 'ERROR',
+                                error: {
+                                    intent: 'PAYMENT_AUTHORIZATION',
+                                    message: error.message || 'Payment was not successful. Please contact the merchant.',
+                                    reason: 'OTHER_ERROR',
+                                },
+                            });
+                        });
+                });
+            };
+            GooglePayPayment.prototype.onPaymentDataChanged = function (intermediatePaymentData) {
+                var _this = this;
+                return new Promise(function (resolve) {
+                    if (!_this.options.onPaymentDataChanged) {
+                        resolve({
+                            transactionState: 'ERROR',
+                            error: {
+                                intent: 'PAYMENT_AUTHORIZATION',
+                                message: 'OnPaymentDataChanged function is not defined.',
+                                reason: 'OTHER_ERROR',
+                            },
+                        });
+                        return;
+                    }
+                    _this.options.onPaymentDataChanged(intermediatePaymentData).then(function (paymentDataRequestUpdate) {
+                        resolve(paymentDataRequestUpdate);
+                    });
+                });
+            };
+            GooglePayPayment.prototype.onGooglePayLoaded = function () {
+                var _this = this;
+                var isReadyToPayRequest = this.getIsReadyToPayRequest();
+                var paymentsClient = this.getGooglePaymentsClient();
+                paymentsClient.isReadyToPay(isReadyToPayRequest)
+                    .then(function (response) {
+                        if (response.result) {
+                            _this.addGooglePayButton();
+                        }
+                    })
+                    .catch(function (err) {
+                        if (_this.options.onGooglePayLoadError) {
+                            _this.options.onGooglePayLoadError(err);
+                        }
+                    });
+            };
+            GooglePayPayment.prototype.addGooglePayButton = function () {
+                var _this = this;
+                var paymentsClient = this.getGooglePaymentsClient();
+
+                var button = paymentsClient.createButton({
+                    buttonColor: this.options.buttonColor || 'default',
+                    buttonType: this.options.buttonType || 'buy',
+                    buttonRadius: this.options.buttonRadius || 4,
+                    buttonLocale: this.options.buttonLocale || 'en',
+                    buttonSizeMode: this.options.buttonSizeMode || 'static',
+                    onClick: this.onGooglePaymentButtonClicked.bind(this),
+                    allowedPaymentMethods: [this.baseCardPaymentMethod],
+                });
+
+                // Add validation handler if callback is provided
+                if (_this.options.onValidationCallback !== undefined) {
+                    button.addEventListener('click', function(event) {
+                        try {
+                            var validationResult = _this.options.onValidationCallback();
+
+                            if (validationResult === false || (validationResult && validationResult.isValid === false)) {
+                                // Stop the event from reaching Google Pay's handler
+                                event.preventDefault();
+                                event.stopPropagation();
+                                event.stopImmediatePropagation();
+                                return false;
+                            }
+                        } catch (error) {
+                            console.error('[GooglePay SDK] Validation error');
+                            event.preventDefault();
+                            event.stopPropagation();
+                            event.stopImmediatePropagation();
+                            return false;
+                        }
+
+                        // Validation passed - call the normal handler
+                        var paymentDataRequest = _this.getBaseRequest();
+                        var paymentsClient = _this.getGooglePaymentsClient();
+                        paymentsClient.loadPaymentData(paymentDataRequest)
+                            .catch(function(err) {
+                                if (err && err.statusCode === 'DEVELOPER_ERROR') {
+                                    console.error('[GooglePay] DEVELOPER_ERROR: Check merchantId, request format, and shipping parameters');
+                                } else if (err && err.statusCode === 'MERCHANT_ACCOUNT_ERROR') {
+                                    console.error('[GooglePay] MERCHANT_ACCOUNT_ERROR: Check merchant configuration in Google Pay Business Console');
+                                }
+                            });
+                    }, true); // Use capture phase to intercept BEFORE Google's handler
+                }
+
+                var container = null;
+                // Handle both string IDs and direct HTMLElement references
+                if (typeof this.options.buttonContainerId === 'string') {
+                    container = document.getElementById(this.options.buttonContainerId);
+                }
+                else if (this.options.buttonContainerId instanceof HTMLElement) {
+                    container = this.options.buttonContainerId;
+                }
+                // Check if the container exists before appending the button
+                if (container) {
+                    container.appendChild(button);
+                }
+                else {
+                    if (this.options.onGooglePayLoadError) {
+                        this.options.onGooglePayLoadError("Container element with ID '" + this.options.buttonContainerId + "' not found");
+                    }
+                }
+            };
+            GooglePayPayment.prototype.getButtonType = function (type) {
+                var buttonTypes = ['plain', 'book', 'buy', 'checkout', 'donate', 'order', 'subscribe', 'pay'];
+                return buttonTypes.indexOf(type || '') !== -1 ? type || 'pay' : 'pay';
+            };
+            GooglePayPayment.prototype.getButtonColor = function (color) {
+                var buttonColors = ['white', 'black', 'default'];
+                return buttonColors.indexOf(color || '') !== -1 ? color || 'default' : 'default';
+            };
+            GooglePayPayment.prototype.getButtonRadius = function (radius) {
+                if (radius && (radius > 100 || radius < 0))
+                    return 4;
+                else
+                    return radius;
+            };
+            GooglePayPayment.prototype.getButtonLocale = function (locale) {
+                var buttonLocales = ['en', 'de', 'nl', 'fr', 'it', 'es'];
+                return buttonLocales.indexOf(locale || '') !== -1 ? locale || 'en' : 'en';
+            };
+            GooglePayPayment.prototype.onGooglePaymentButtonClicked = function () {
+                // Validate before opening Google Pay popup (same as PayPal Express)
+                if (this.options.onValidationCallback !== undefined) {
+                    try {
+                        var validationResult = this.options.onValidationCallback();
+
+                        if (validationResult === false || (validationResult && validationResult.isValid === false)) {
+                            console.error('[GooglePay SDK] Validation failed');
+                            return;
+                        }
+                    } catch (error) {
+                        console.error('[GooglePay SDK] Validation error');
+                        return;
+                    }
+                }
+
+                var paymentDataRequest = this.getBaseRequest();
+                var paymentsClient = this.getGooglePaymentsClient();
+                paymentsClient.loadPaymentData(paymentDataRequest)
+                    .catch(function(err) {
+                        if (err && err.statusCode === 'DEVELOPER_ERROR') {
+                            console.error('[GooglePay] DEVELOPER_ERROR: Check merchantId, request format, and shipping parameters');
+                        } else if (err && err.statusCode === 'MERCHANT_ACCOUNT_ERROR') {
+                            console.error('[GooglePay] MERCHANT_ACCOUNT_ERROR: Check merchant configuration in Google Pay Business Console');
+                        }
+                    });
+            };
+            return GooglePayPayment;
+        }());
+        GooglePay.GooglePayPayment = GooglePayPayment;
+    })(GooglePay = BuckarooSdk.GooglePay || (BuckarooSdk.GooglePay = {}));
 })(BuckarooSdk || (BuckarooSdk = {}));

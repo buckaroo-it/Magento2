@@ -21,6 +21,8 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Controller\Payconiq;
 
+use Buckaroo\Magento2\Service\SpamLimitService;
+use Buckaroo\Magento2\Model\Method\LimitReachException;
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\LockManagerWrapper;
@@ -51,6 +53,11 @@ use Magento\Sales\Model\Order\Payment\Transaction;
  */
 class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
 {
+    /**
+     * @var SpamLimitService
+     */
+    protected $spamLimitService;
+
     /**
      * @var null|Transaction
      */
@@ -86,6 +93,7 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
      * @param Recreate                       $quoteRecreate
      * @param RequestPushFactory             $requestPushFactory
      * @param SearchCriteriaBuilder          $searchCriteriaBuilder
+     * @param SpamLimitService               $spamLimitService
      * @param TransactionRepositoryInterface $transactionRepository
      * @param LockManagerWrapper             $lockManagerWrapper
      *
@@ -107,7 +115,8 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
         RequestPushFactory $requestPushFactory,
         SearchCriteriaBuilder $searchCriteriaBuilder,
         TransactionRepositoryInterface $transactionRepository,
-        LockManagerWrapper $lockManagerWrapper
+        LockManagerWrapper $lockManagerWrapper,
+        SpamLimitService $spamLimitService
     ) {
         parent::__construct(
             $context,
@@ -123,7 +132,8 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
             $eventManager,
             $quoteRecreate,
             $requestPushFactory,
-            $lockManagerWrapper
+            $lockManagerWrapper,
+            $spamLimitService
         );
 
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;

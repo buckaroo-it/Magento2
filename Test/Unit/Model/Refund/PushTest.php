@@ -10,11 +10,13 @@ use Buckaroo\Magento2\Model\ConfigProvider\Refund;
 use Buckaroo\Magento2\Model\Refund\Push;
 use Buckaroo\Magento2\Helper\Data;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\DB\Transaction;
 use Magento\Sales\Api\CreditmemoManagementInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Creditmemo;
 use Magento\Sales\Model\Order\CreditmemoFactory;
 use Magento\Sales\Model\Order\Email\Sender\CreditmemoSender;
+use Magento\Sales\Model\Service\InvoiceService;
 use PHPUnit\Framework\MockObject\MockObject;
 use Magento\Framework\Exception\LocalizedException;
 
@@ -46,6 +48,12 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
     /** @var MockObject|ScopeConfigInterface */
     private $scopeConfigMock;
 
+    /** @var MockObject|InvoiceService */
+    private $invoiceServiceMock;
+
+    /** @var MockObject|Transaction */
+    private $transactionMock;
+
     public function setUp(): void
     {
         parent::setUp();
@@ -57,6 +65,8 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->helperMock = $this->getFakeMock(Data::class)->getMock();
         $this->loggerMock = $this->getFakeMock(BuckarooLoggerInterface::class)->getMock();
         $this->scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)->getMock();
+        $this->invoiceServiceMock = $this->getFakeMock(InvoiceService::class)->getMock();
+        $this->transactionMock = $this->getFakeMock(Transaction::class)->getMock();
     }
 
     public function getInstance(array $args = []): Push
@@ -69,6 +79,8 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
             'helper' => $this->helperMock,
             'logger' => $this->loggerMock,
             'scopeConfig' => $this->scopeConfigMock,
+            'invoiceService' => $this->invoiceServiceMock,
+            'transaction' => $this->transactionMock,
         ] + $args);
     }
 
@@ -81,7 +93,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
             true,
             true,
             true,
-            ['getTransactions', 'getAdditionalInformation', 'getTransactionMethod', 'getTransactionType', 'getAmountCredit', 'hasAdditionalInformation', 'getCurrency']
+            ['getTransactions', 'getAdditionalInformation', 'getTransactionMethod', 'getTransactionType', 'getAmountCredit', 'hasAdditionalInformation', 'getCurrency', 'getStatusCode', 'getStatusMessage']
         );
 
         $postDataMock->method('getTransactions')->willReturn('trans123');
@@ -91,6 +103,8 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
         $postDataMock->method('getTransactionMethod')->willReturn('afterpay');
         $postDataMock->method('getTransactionType')->willReturn('C041');
         $postDataMock->method('getAmountCredit')->willReturn(100.0);
+        $postDataMock->method('getStatusCode')->willReturn('190'); // BuckarooStatusCode::SUCCESS
+        $postDataMock->method('getStatusMessage')->willReturn('Success');
 
         $orderMock = $this->getFakeMock(Order::class)->getMock();
         $orderMock->method('getId')->willReturn(1);
@@ -106,6 +120,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
         $orderMock->method('getBaseCurrencyCode')->willReturn('EUR');
         $orderMock->method('getBaseToOrderRate')->willReturn(1.0);
         $orderMock->method('getAllItems')->willReturn([]);
+        $orderMock->method('hasInvoices')->willReturn(true); // Order already has an invoice
 
         $paymentMock = $this->getFakeMock(\Magento\Sales\Model\Order\Payment::class)->getMock();
         $paymentMock->method('getAdditionalInformation')->willReturn([]);
@@ -230,7 +245,9 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
             $this->configRefundMock,
             $this->helperMock,
             $this->loggerMock,
-            $this->scopeConfigMock
+            $this->scopeConfigMock,
+            $this->invoiceServiceMock,
+            $this->transactionMock
         ];
 
         $instance = $this->getMockBuilder($this->instanceClass)

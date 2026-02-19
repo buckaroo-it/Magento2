@@ -26,6 +26,7 @@ class ApplepayTest extends BaseTest
     }
 
     /**
+     * @dataProvider configProvider
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      *
      * @param bool $active
