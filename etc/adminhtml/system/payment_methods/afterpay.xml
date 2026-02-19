@@ -89,7 +89,7 @@
         </field>
 
         <group id="buckaroo_magento2_default" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Method specific configuration</label>
+            <label>Method Specific Configuration</label>
 
             <field id="payment_method" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Riverty Payment Method</label>
@@ -209,14 +209,14 @@
                 </field>
 
                 <field id="specificcustomergroup" translate="label" type="multiselect" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Allow Customer Groups For B2C Mode</label>
+                    <label>Allow Customer Groups for B2C Mode</label>
                     <source_model>Buckaroo\Magento2\Model\Config\Source\SpecificCustomerGroups</source_model>
                     <can_be_empty>1</can_be_empty>
                     <config_path>payment/buckaroo_magento2_afterpay/specificcustomergroup</config_path>
                 </field>
 
                 <field id="specificcustomergroupb2b" translate="label" type="multiselect" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Allow Customer Groups For B2B Mode</label>
+                    <label>Allow Customer Groups for B2B Mode</label>
                     <source_model>Buckaroo\Magento2\Model\Config\Source\SpecificCustomerGroups</source_model>
                     <can_be_empty>1</can_be_empty>
                     <config_path>payment/buckaroo_magento2_afterpay/specificcustomergroupb2b</config_path>

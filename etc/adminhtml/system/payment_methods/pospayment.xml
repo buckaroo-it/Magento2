@@ -80,7 +80,7 @@
         </field>
 
          <group id="buckaroo_magento2_default" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Method specific configuration</label>
+            <label>Method Specific Configuration</label>
 
             <field id="user_agent" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Unique User-Agent</label>
@@ -89,7 +89,7 @@
             </field>
 
             <field id="other_payment_methods" translate="label comment tooltip" type="multiselect" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Show other active payment methods</label>
+                <label>Show Other Active Payment Methods</label>
                 <comment><![CDATA[By default in case of active Point of Sale all other payment methods will be explicitly hidden.]]></comment>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\PaymentMethods\Pos</source_model>
                 <config_path>payment/buckaroo_magento2_pospayment/other_payment_methods</config_path>

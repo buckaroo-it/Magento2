@@ -160,16 +160,16 @@
             </field>
 
             <group id="buckaroo_magento2_seller_protection" translate="label" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Seller protection</label>
+                <label>Seller Protection</label>
                 <field id="sellers_protection" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Seller protection enabled</label>
+                    <label>Seller Protection Enabled</label>
                     <comment><![CDATA[WARNING: Paypal Seller Protection requires additional configuration. Please consult Buckaroo for more information.]]></comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <config_path>payment/buckaroo_magento2_paypal/sellers_protection</config_path>
                 </field>
 
                 <field id="sellers_protection_eligible" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Seller protection eligible</label>
+                    <label>Seller Protection Eligible</label>
                     <comment><![CDATA[Seller protection for unauthorized payment and item not received.]]></comment>
                     <source_model>Buckaroo\Magento2\Model\Config\Source\StatusesSuccess</source_model>
                     <config_path>payment/buckaroo_magento2_paypal/sellers_protection_eligible</config_path>
@@ -179,7 +179,7 @@
                 </field>
 
                 <field id="sellers_protection_itemnotreceived_eligible" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Seller protection item not received</label>
+                    <label>Seller Protection Item Not Received</label>
                     <comment><![CDATA[Seller protection for item not received.]]></comment>
                     <source_model>Buckaroo\Magento2\Model\Config\Source\StatusesSuccess</source_model>
                     <config_path>payment/buckaroo_magento2_paypal/sellers_protection_itemnotreceived_eligible</config_path>
@@ -189,7 +189,7 @@
                 </field>
 
                 <field id="sellers_protection_unauthorizedpayment_eligible" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Seller protection unauthorized payment</label>
+                    <label>Seller Protection Unauthorized Payment</label>
                     <comment><![CDATA[Seller protection for unauthorized payment.]]></comment>
                     <source_model>Buckaroo\Magento2\Model\Config\Source\StatusesSuccess</source_model>
                     <config_path>payment/buckaroo_magento2_paypal/sellers_protection_unauthorizedpayment_eligible</config_path>
@@ -199,7 +199,7 @@
                 </field>
 
                 <field id="sellers_protection_ineligible" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Seller protection ineligible</label>
+                    <label>Seller Protection Ineligible</label>
                     <comment><![CDATA[Merchant is not protected by Seller Protection.]]></comment>
                     <source_model>Buckaroo\Magento2\Model\Config\Source\StatusesSuccess</source_model>
                     <config_path>payment/buckaroo_magento2_paypal/sellers_protection_ineligible</config_path>

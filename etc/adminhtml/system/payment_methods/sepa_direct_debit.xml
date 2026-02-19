@@ -22,11 +22,11 @@
 <include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
     <!-- SEPA direct debit Payment method group -->
     <group id="buckaroo_magento2_sepadirectdebit" translate="label" type="text" sortOrder="270" showInDefault="1" showInWebsite="1" showInStore="1">
-        <label>SEPA direct debit</label>
+        <label>SEPA Direct Debit</label>
         <frontend_model>Buckaroo\Magento2\Block\Config\Form\Field\Fieldset</frontend_model>
 
         <field id="active" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Enable SEPA direct debit</label>
+            <label>Enable SEPA Direct Debit</label>
             <comment><![CDATA[Control the availability of this payment method.]]></comment>
             <source_model>Buckaroo\Magento2\Model\Config\Source\Enablemode</source_model>
             <config_path>payment/buckaroo_magento2_sepadirectdebit/active</config_path>
@@ -111,7 +111,7 @@
             </field>
 
             <field id="cm3_due_date" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Credit Management Due date</label>
+                <label>Credit Management Due Date</label>
                 <comment><![CDATA[The amount of days after the order date, after which the Credit Management scheme will start.]]></comment>
                 <config_path>payment/buckaroo_magento2_sepadirectdebit/cm3_due_date</config_path>
                 <validate>required-entry</validate>
@@ -121,7 +121,7 @@
             </field>
 
             <field id="payment_method_after_expiry" translate="label comment" type="multiselect" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Credit Management payment methods</label>
+                <label>Credit Management Payment Methods</label>
                 <comment><![CDATA[Select which payment methods can be used at Sepa.]]></comment>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\PaymentMethods\AfterExpiry</source_model>
                 <config_path>payment/buckaroo_magento2_sepadirectdebit/payment_method_after_expiry</config_path>

@@ -85,21 +85,21 @@
             <label>Method specific configuration</label>
 
             <field id="visible_front_back" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Visible in</label>
+                <label>Visible In</label>
                 <comment><![CDATA[Select where the this payment method will be available.]]></comment>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\VisibleFrontBack</source_model>
                 <config_path>payment/buckaroo_magento2_payperemail/visible_front_back</config_path>
             </field>
 
             <field id="payment_method" translate="label comment" type="multiselect" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>PayPerEmail payment methods</label>
+                <label>PayPerEmail Payment Methods</label>
                 <comment><![CDATA[Select which payment methods can be used at PayPerEmail.]]></comment>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\PaymentMethods\PayPerEmail</source_model>
                 <config_path>payment/buckaroo_magento2_payperemail/payment_method</config_path>
             </field>
 
             <field id="enable_b2b" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>B2B mode enabled</label>
+                <label>B2B Mode Enabled</label>
                 <comment><![CDATA[Set this option to "Yes" to enable the B2B mode. B2B mode will set orders directly into "processing" without the need to receive a payment first. This can be used for B2B orders to let companies pay in invoice.]]></comment>
                 <tooltip>Set this option to "Yes" to enable the B2B mode. B2B mode will set orders directly into "processing" without the need to receive a payment first. This can be used for B2B orders to let companies pay in invoice.</tooltip>
                 <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -107,7 +107,7 @@
             </field>
 
             <field id="send_mail" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Send payment email</label>
+                <label>Send Payment Email</label>
                 <comment><![CDATA[Buckaroo sends an email to the customer with the payment procedures.]]></comment>
                 <tooltip>Set to 'No' leaves the customer uninformed on the payment obligations.</tooltip>
                 <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -115,7 +115,7 @@
             </field>
 
             <field id="cron_cancel_ppe" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Auto cancelling enabled</label>
+                <label>Auto Cancelling Enabled</label>
                 <comment><![CDATA[Enables or disables auto cancelling by cron]]></comment>
                 <tooltip>Set to 'Yes' will enable auto cancelling by cron.</tooltip>
                 <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -123,14 +123,14 @@
             </field>
 
             <field id="payperemail_expire_days" translate="label comment" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Due date (in days)</label>
+                <label>Due Date (in Days)</label>
                 <comment><![CDATA[The expiration date for the paylink.]]></comment>
                 <config_path>payment/buckaroo_magento2_payperemail/expire_days</config_path>
                 <backend_model>Buckaroo\Magento2\Model\Config\Backend\ExpireDays</backend_model>
             </field>
 
             <field id="cancel_ppe" translate="label comment" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Cancel PPE link</label>
+                <label>Cancel PPE Link</label>
                 <comment><![CDATA[Cancel PPE link after order is cancel in Magento]]></comment>
                 <tooltip>Set to 'Yes' will enable Cancel PPE link.</tooltip>
                 <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -178,7 +178,7 @@
                 </field>
 
                 <field id="payment_method_after_expiry" translate="label comment" type="multiselect" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Credit Management payment methods</label>
+                    <label>Credit Management Payment Methods</label>
                     <comment><![CDATA[Select which payment methods can be used after the payment due date.]]></comment>
                     <source_model>Buckaroo\Magento2\Model\Config\Source\PaymentMethods\AfterExpiry</source_model>
                     <config_path>payment/buckaroo_magento2_payperemail/payment_method_after_expiry</config_path>
@@ -255,14 +255,14 @@
                 </field>
 
                 <field id="specificcustomergroup" translate="label" type="multiselect" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Allow customer groups for B2C mode</label>
+                    <label>Allow Customer Groups for B2C Mode</label>
                     <source_model>Buckaroo\Magento2\Model\Config\Source\SpecificCustomerGroups</source_model>
                     <can_be_empty>1</can_be_empty>
                     <config_path>payment/buckaroo_magento2_payperemail/specificcustomergroup</config_path>
                 </field>
 
                 <field id="specificcustomergroupb2b" translate="label" type="multiselect" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Allow customer groups for B2B mode</label>
+                    <label>Allow Customer Groups for B2B Mode</label>
                     <source_model>Buckaroo\Magento2\Model\Config\Source\SpecificCustomerGroups</source_model>
                     <can_be_empty>1</can_be_empty>
                     <config_path>payment/buckaroo_magento2_payperemail/specificcustomergroupb2b</config_path>
