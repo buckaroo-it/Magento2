@@ -62,6 +62,8 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     public const TITLE         = 'title';
     public const FINANCIAL_WARNING = 'financial_warning';
 
+    public const CUSTOMER_ADDITIONAL_INFO = 'customer_additional_info';
+
     /**
      * The asset repository to generate the correct url to our assets.
      *
@@ -550,5 +552,17 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     public function getLogo():string
     {
         return $this->logoService->getPayment(str_replace("buckaroo_magento2_", "", static::CODE));
+    }
+
+    /**
+     * Get per-method customer additional info configuration.
+     *
+     * @param null|int|string $store
+     *
+     * @return string|null
+     */
+    public function getCustomerAdditionalInfo($store = null): ?string
+    {
+        return $this->getMethodConfigValue(static::CUSTOMER_ADDITIONAL_INFO, $store);
     }
 }
