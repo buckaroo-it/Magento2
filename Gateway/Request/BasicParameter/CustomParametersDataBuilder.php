@@ -24,9 +24,11 @@ namespace Buckaroo\Magento2\Gateway\Request\BasicParameter;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Magento\Directory\Model\CountryFactory;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Sales\Api\Data\OrderAddressInterface;
 use Magento\Sales\Model\Order;
+use Magento\Store\Model\ScopeInterface;
 
 class CustomParametersDataBuilder implements BuilderInterface
 {
@@ -41,17 +43,25 @@ class CustomParametersDataBuilder implements BuilderInterface
     private $countryFactory;
 
     /**
+     * @var ScopeConfigInterface
+     */
+    private $scopeConfig;
+
+    /**
      * Constructor
      *
-     * @param Account        $configProviderAccount
-     * @param CountryFactory $countryFactory
+     * @param Account              $configProviderAccount
+     * @param CountryFactory       $countryFactory
+     * @param ScopeConfigInterface $scopeConfig
      */
     public function __construct(
         Account $configProviderAccount,
-        CountryFactory $countryFactory
+        CountryFactory $countryFactory,
+        ScopeConfigInterface $scopeConfig
     ) {
         $this->configProviderAccount = $configProviderAccount;
         $this->countryFactory = $countryFactory;
+        $this->scopeConfig = $scopeConfig;
     }
 
     /**
@@ -66,7 +76,7 @@ class CustomParametersDataBuilder implements BuilderInterface
 
         $store = $order->getStore();
 
-        $customParametersKey = $this->configProviderAccount->getCustomerAdditionalInfo($store);
+        $customParametersKey = $this->resolveCustomerAdditionalInfo($order, $store);
 
         if (!empty($customParametersKey)) {
             $billingData = $order->getBillingAddress();
@@ -82,6 +92,31 @@ class CustomParametersDataBuilder implements BuilderInterface
         }
 
         return [];
+    }
+
+    /**
+     * Resolve customer additional info: per-method config takes priority, falls back to global account config.
+     *
+     * @param Order $order
+     * @param mixed $store
+     *
+     * @return string|null
+     */
+    private function resolveCustomerAdditionalInfo(Order $order, $store): ?string
+    {
+        $methodCode = $order->getPayment()->getMethod();
+
+        $perMethodValue = $this->scopeConfig->getValue(
+            'payment/' . $methodCode . '/customer_additional_info',
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+
+        if ($perMethodValue !== null && $perMethodValue !== '') {
+            return $perMethodValue;
+        }
+
+        return $this->configProviderAccount->getCustomerAdditionalInfo($store);
     }
 
     /**
@@ -115,9 +150,11 @@ class CustomParametersDataBuilder implements BuilderInterface
     }
 
     /**
-     * @param $customerParameters
-     * @param $addressData
-     * @param $type
+     * Get custom parameters from billing and shipping address
+     *
+     * @param array                      $customerParameters
+     * @param OrderAddressInterface|null $addressData
+     * @param string                     $type
      *
      * @return array
      */
@@ -170,8 +207,8 @@ class CustomParametersDataBuilder implements BuilderInterface
     /**
      * Format custom parameters
      *
-     * @param $customParameters
-     * @param $address
+     * @param array  $customParameters
+     * @param string $address
      *
      * @return array
      */
@@ -192,9 +229,9 @@ class CustomParametersDataBuilder implements BuilderInterface
     /**
      * Format Parameter Label
      *
-     * @param $parameterKey
+     * @param string $parameterKey
      *
-     * @return array|string|string[]
+     * @return string
      */
     public function getCustomParameterLabel($parameterKey)
     {
@@ -204,9 +241,9 @@ class CustomParametersDataBuilder implements BuilderInterface
     /**
      * Format Parameter Value
      *
-     * @param $parameterKey
+     * @param string $parameterKey
      *
-     * @return array|string|string[]|null
+     * @return string|null
      */
     public function getCustomParameterValue($parameterKey)
     {
@@ -216,7 +253,7 @@ class CustomParametersDataBuilder implements BuilderInterface
     /**
      * Get country name from country id
      *
-     * @param $data
+     * @param OrderAddressInterface $data
      *
      * @return string
      */
@@ -264,7 +301,7 @@ class CustomParametersDataBuilder implements BuilderInterface
     /**
      * Format street address
      *
-     * @param $street
+     * @param string $street
      *
      * @return array
      */
