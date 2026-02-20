@@ -150,9 +150,11 @@ class CustomParametersDataBuilder implements BuilderInterface
     }
 
     /**
-     * @param $customerParameters
-     * @param $addressData
-     * @param $type
+     * Get custom parameters from billing and shipping address
+     *
+     * @param array                      $customerParameters
+     * @param OrderAddressInterface|null $addressData
+     * @param string                     $type
      *
      * @return array
      */
@@ -205,8 +207,8 @@ class CustomParametersDataBuilder implements BuilderInterface
     /**
      * Format custom parameters
      *
-     * @param $customParameters
-     * @param $address
+     * @param array  $customParameters
+     * @param string $address
      *
      * @return array
      */
@@ -227,9 +229,9 @@ class CustomParametersDataBuilder implements BuilderInterface
     /**
      * Format Parameter Label
      *
-     * @param $parameterKey
+     * @param string $parameterKey
      *
-     * @return array|string|string[]
+     * @return string
      */
     public function getCustomParameterLabel($parameterKey)
     {
@@ -239,9 +241,9 @@ class CustomParametersDataBuilder implements BuilderInterface
     /**
      * Format Parameter Value
      *
-     * @param $parameterKey
+     * @param string $parameterKey
      *
-     * @return array|string|string[]|null
+     * @return string|null
      */
     public function getCustomParameterValue($parameterKey)
     {
@@ -251,7 +253,7 @@ class CustomParametersDataBuilder implements BuilderInterface
     /**
      * Get country name from country id
      *
-     * @param $data
+     * @param OrderAddressInterface $data
      *
      * @return string
      */
@@ -299,7 +301,7 @@ class CustomParametersDataBuilder implements BuilderInterface
     /**
      * Format street address
      *
-     * @param $street
+     * @param string $street
      *
      * @return array
      */

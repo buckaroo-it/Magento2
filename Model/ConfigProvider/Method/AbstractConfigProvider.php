@@ -96,7 +96,11 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      */
     protected $logoService;
 
+    /**
+     * @var array
+     */
     protected $issuers = [];
+
     /**
      * @param Repository           $assetRepo
      * @param ScopeConfigInterface $scopeConfig
@@ -166,6 +170,13 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
         return $issuers;
     }
 
+    /**
+     * Get creditcard logo
+     *
+     * @param string $code
+     *
+     * @return string
+     */
     public function getCreditcardLogo(string $code): string
     {
         return $this->logoService->getCreditcard($code);
@@ -516,11 +527,23 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
         return $issuersPrepared;
     }
 
+    /**
+     * Get config
+     *
+     * @return array
+     */
     public function getConfig(): array
     {
         return $this->fullConfig();
     }
 
+    /**
+     * Get full config
+     *
+     * @param array $additonal
+     *
+     * @return array
+     */
     protected function fullConfig(array $additonal = []): array
     {
 
@@ -549,6 +572,11 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
         ];
     }
 
+    /**
+     * Get logo
+     *
+     * @return string
+     */
     public function getLogo():string
     {
         return $this->logoService->getPayment(str_replace("buckaroo_magento2_", "", static::CODE));

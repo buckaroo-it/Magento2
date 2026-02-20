@@ -3,6 +3,7 @@
 namespace Buckaroo\Magento2\Test\Unit\Gateway\Validator;
 
 use Buckaroo\Magento2\Gateway\Validator\AreaCodeValidator;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderFactory;
 use Magento\Framework\App\Area;
 use Magento\Framework\App\State;
 use Magento\Payment\Gateway\Validator\ResultInterface;
@@ -24,6 +25,11 @@ class AreaCodeValidatorTest extends TestCase
     private $state;
 
     /**
+     * @var ConfigProviderFactory|MockObject
+     */
+    private $configProviderFactory;
+
+    /**
      * @var AreaCodeValidator
      */
     private $validator;
@@ -37,9 +43,12 @@ class AreaCodeValidatorTest extends TestCase
 
         $this->state = $this->createMock(State::class);
 
+        $this->configProviderFactory = $this->createMock(ConfigProviderFactory::class);
+
         $this->validator = new AreaCodeValidator(
             $this->resultFactory,
-            $this->state
+            $this->state,
+            $this->configProviderFactory
         );
     }
 
