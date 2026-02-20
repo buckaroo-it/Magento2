@@ -40,16 +40,8 @@ class TransactionType
     public const PAY_WITH_TOKEN = 'payWithToken';
     public const AUTHORIZE_WITH_TOKEN = 'authorizeWithToken';
 
+    public const PAY_FAST_CHECKOUT = 'payFastCheckout';
+
     public const PAY_REMAINDER = 'payRemainder';
     public const PAY_REMAINDER_ENCRYPTED = 'payRemainderEncrypted';
-
-    /**
-     * Get Pay Remainder Service Actions
-     *
-     * @return string[]
-     */
-    public static function getPayRemainderActions(): array
-    {
-        return [self::PAY_REMAINDER, self::PAY_REMAINDER_ENCRYPTED];
-    }
 }

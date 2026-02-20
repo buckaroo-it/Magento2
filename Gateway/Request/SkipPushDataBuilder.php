@@ -54,7 +54,7 @@ class SkipPushDataBuilder implements BuilderInterface
 
         $serviceAction = $this->payReminderService->getServiceAction($orderId);
 
-        if (!in_array($serviceAction, TransactionType::getPayRemainderActions())) {
+        if (!in_array($serviceAction, [TransactionType::PAY_REMAINDER, TransactionType::PAY_REMAINDER_ENCRYPTED], true)) {
             $payment->setAdditionalInformation(self::BUCKAROO_SKIP_PUSH_KEY, 1);
             $paymentDO->getOrder()->getOrder()->save();
         }

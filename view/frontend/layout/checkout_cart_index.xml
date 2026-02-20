@@ -26,14 +26,10 @@
     <body>
 
         <referenceContainer name="checkout.cart.shortcut.buttons">
-            <block class="Buckaroo\Magento2\Block\Catalog\Product\View\PaypalExpress"
-                   name="buckaroo.paypal.express.cart.button"
-                   template="Buckaroo_Magento2::checkout/cart/paypal-express.phtml"
-                   after="-"/>
             <block class="Buckaroo\Magento2\Block\Catalog\Product\View\Applepay"
                    name="buckaroo_magento2.checkout.cart.applepay"
                    template="Buckaroo_Magento2::checkout/cart/applepay.phtml"
-                   after="buckaroo.paypal.express.cart.button"/>
+                   after="-"/>
             <block class="Buckaroo\Magento2\Block\Catalog\Product\View\Googlepay"
                    name="buckaroo_magento2.checkout.cart.googlepay"
                    template="Buckaroo_Magento2::checkout/cart/googlepay.phtml"
@@ -42,6 +38,10 @@
                    name="buckaroo_magento2.checkout.cart.ideal.fast.checkout"
                    template="Buckaroo_Magento2::checkout/cart/ideal-fast-checkout.phtml"
                    after="buckaroo_magento2.checkout.cart.googlepay"/>
+            <block class="Buckaroo\Magento2\Block\Catalog\Product\View\PaypalExpress"
+                   name="buckaroo.paypal.express.cart.button"
+                   template="Buckaroo_Magento2::checkout/cart/paypal-express.phtml"
+                   after="buckaroo_magento2.checkout.cart.ideal.fast.checkout"/>
         </referenceContainer>
 
         <referenceBlock name="checkout.cart.order.actions">
