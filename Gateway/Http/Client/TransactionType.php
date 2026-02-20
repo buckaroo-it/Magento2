@@ -44,15 +44,4 @@ class TransactionType
 
     public const PAY_REMAINDER = 'payRemainder';
     public const PAY_REMAINDER_ENCRYPTED = 'payRemainderEncrypted';
-
-    /**
-     * Get Pay Remainder Service Actions
-     *
-     * @return string[]
-     * @SuppressWarnings(PHPMD.StaticAccess)
-     */
-    public static function getPayRemainderActions(): array
-    {
-        return [self::PAY_REMAINDER, self::PAY_REMAINDER_ENCRYPTED];
-    }
 }
