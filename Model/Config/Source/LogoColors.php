@@ -22,16 +22,29 @@ namespace Buckaroo\Magento2\Model\Config\Source;
 
 class LogoColors implements \Magento\Framework\Option\ArrayInterface
 {
-    const DARK_OPTION = 'Dark';
-    const LIGHT_OPTION = 'Light';
+    /**
+     * Magenta / with border — for light or white backgrounds.
+     * Maps to: snel-bestellen-reg-magenta.svg (Reg_Magenta_Border)
+     */
+    const MAGENTA_OPTION = 'Magenta';
+
+    /**
+     * White / no border — for dark or colored backgrounds.
+     * Maps to: snel-bestellen-reg-white.svg (Reg_No_Border)
+     */
+    const WHITE_OPTION = 'White';
+
+    /** @deprecated Use MAGENTA_OPTION */
+    const LIGHT_OPTION = self::MAGENTA_OPTION;
+
+    /** @deprecated Use WHITE_OPTION */
+    const DARK_OPTION = self::WHITE_OPTION;
 
     public function toOptionArray()
     {
-        $options = [];
-
-        $options[] = ['value' => self::DARK_OPTION, 'label' => __('Dark')];
-        $options[] = ['value' => self::LIGHT_OPTION, 'label' => __('Light')];
-
-        return $options;
+        return [
+            ['value' => self::MAGENTA_OPTION, 'label' => __('Magenta / With Border (for light backgrounds)')],
+            ['value' => self::WHITE_OPTION,   'label' => __('White / No Border (for dark backgrounds)')],
+        ];
     }
 }

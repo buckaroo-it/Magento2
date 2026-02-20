@@ -40,6 +40,8 @@ class TransactionType
     public const PAY_WITH_TOKEN = 'payWithToken';
     public const AUTHORIZE_WITH_TOKEN = 'authorizeWithToken';
 
+    public const PAY_FAST_CHECKOUT = 'payFastCheckout';
+
     public const PAY_REMAINDER = 'payRemainder';
     public const PAY_REMAINDER_ENCRYPTED = 'payRemainderEncrypted';
 

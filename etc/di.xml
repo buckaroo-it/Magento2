@@ -1333,6 +1333,7 @@
     <virtualType name="IdealOrderCommand" type="BuckarooRemainderOrderCommand">
         <arguments>
             <argument name="requestBuilder" xsi:type="object">IdealOrderRequest</argument>
+            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionIdealPayOrFastCheckout</argument>
         </arguments>
     </virtualType>
     <!-- iDEAL Order Command - Request Builder -->

@@ -90,8 +90,8 @@
             </field>
 
             <field id="ideal_logo_colors" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>iDEAL Fast Checkout logo scheme</label>
-                <comment><![CDATA[Select the iDEAL fast checkout button (text) color.]]></comment>
+                <label>iDEAL Fast Checkout button color</label>
+                <comment><![CDATA[Choose the button color per the official iDEAL branding guidelines. "Magenta / With Border" for light or white store backgrounds. "White / No Border" for dark or colored store backgrounds. Each variant includes proper hover, pressed, and focused states.]]></comment>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\LogoColors</source_model>
                 <config_path>payment/buckaroo_magento2_ideal/ideal_logo_colors</config_path>
             </field>

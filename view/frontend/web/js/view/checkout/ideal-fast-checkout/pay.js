@@ -10,26 +10,20 @@ define([
 
     return Component.extend({
         page: null,
+        buttonVariant: 'Magenta',
         paymentData: null,
 
         initialize: function (config) {
             this._super();
 
             this.page = config.page;
+            this.buttonVariant = config.buttonVariant || 'Magenta';
             this.paymentData = config.paymentData;
 
-            var customerDataObject = customerData.get('customer');
-            customerDataObject.subscribe(function (updatedCustomer) {
-            }.bind(this));
-
-
-            $(document).on('click', '#fast-checkout-ideal-btn', function() {
-                this.onCheckout();
-            }.bind(this));
+            return this;
         },
 
         onCheckout: function () {
-            // Validate product for express checkout if on product page
             if (this.page === 'product' && !this.validateProductForExpressCheckout()) {
                 return false;
             }
@@ -179,10 +173,8 @@ define([
                 return false;
             }
 
-            // Check if configurable product has all required options selected
             var missingOptions = [];
 
-            // Check swatch attributes (color/size swatches)
             if ($('div.swatch-attribute').length > 0) {
                 $('div.swatch-attribute').each(function() {
                     var attributeId = $(this).attr('attribute-id') || $(this).attr('data-attribute-id');
@@ -195,7 +187,6 @@ define([
                 });
             }
 
-            // Check dropdown configurable options (select dropdowns)
             $('select[name*="super_attribute"]').each(function() {
                 var selectValue = $(this).val();
                 var fieldElement = $(this).closest('.field');
@@ -211,7 +202,6 @@ define([
                 return false;
             }
 
-            // Check for required custom options
             var hasRequiredOptions = false;
             $('.product-options-wrapper .field.required').each(function() {
                 var input = $(this).find('input, select, textarea');
@@ -228,7 +218,6 @@ define([
                 return false;
             }
 
-            // Validate quantity
             if (qty < 1) {
                 this.displayErrorMessage('Please enter a valid quantity.');
                 return false;
