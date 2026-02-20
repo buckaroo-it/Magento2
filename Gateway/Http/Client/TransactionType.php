@@ -49,6 +49,7 @@ class TransactionType
      * Get Pay Remainder Service Actions
      *
      * @return string[]
+     * @SuppressWarnings(PHPMD.StaticAccess)
      */
     public static function getPayRemainderActions(): array
     {

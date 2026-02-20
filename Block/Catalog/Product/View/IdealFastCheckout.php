@@ -48,7 +48,15 @@ class IdealFastCheckout extends Template
      * @var Ideal
      */
     protected $idealConfig;
+
+    /**
+     * @var Ideal
+     */
     protected $ideal;
+
+    /**
+     * @var Repository
+     */
     protected $assetRepo;
 
     /**
@@ -61,6 +69,17 @@ class IdealFastCheckout extends Template
      */
     private $product;
 
+    /**
+     * Constructor
+     *
+     * @param Context $context
+     * @param Account $configProviderAccount
+     * @param Encryptor $encryptor
+     * @param Ideal $idealConfig
+     * @param Repository $assetRepo
+     * @param Registry|null $registry
+     * @param array $data
+     */
     public function __construct(
         Context $context,
         Account $configProviderAccount,

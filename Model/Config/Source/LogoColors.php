@@ -26,20 +26,19 @@ class LogoColors implements \Magento\Framework\Option\ArrayInterface
      * Magenta / with border — for light or white backgrounds.
      * Maps to: snel-bestellen-reg-magenta.svg (Reg_Magenta_Border)
      */
-    const MAGENTA_OPTION = 'Magenta';
+    public const MAGENTA_OPTION = 'Magenta';
 
     /**
      * White / no border — for dark or colored backgrounds.
      * Maps to: snel-bestellen-reg-white.svg (Reg_No_Border)
      */
-    const WHITE_OPTION = 'White';
+    public const WHITE_OPTION = 'White';
 
-    /** @deprecated Use MAGENTA_OPTION */
-    const LIGHT_OPTION = self::MAGENTA_OPTION;
-
-    /** @deprecated Use WHITE_OPTION */
-    const DARK_OPTION = self::WHITE_OPTION;
-
+    /**
+     * Return available logo color options as array
+     *
+     * @return array
+     */
     public function toOptionArray()
     {
         return [
