@@ -75,8 +75,8 @@
 
             <field id="google_merchant_id" translate="label comment tooltip" type="text" sortOrder="37" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Google Pay Merchant ID</label>
-                <comment><![CDATA[Enter your Google Pay Merchant ID (e.g. BCR2DN4TXXXXXXXX). Required for production/live mode.]]></comment>
-                <tooltip>Your Google Pay Merchant ID can be found in the Google Pay Business Console at https://pay.google.com/business/console. This is different from your Buckaroo merchant GUID and is required for Google Pay to work in production.</tooltip>
+                <comment><![CDATA[Enter your Google Pay Merchant ID (e.g. BCR2DN4TXXXXXXXX). Find it in the <a href="https://pay.google.com/business/console" target="_blank">Google Pay Business Console</a>.]]></comment>
+                <tooltip>This is different from your Buckaroo Gateway Merchant ID and is required for Google Pay to work.</tooltip>
                 <config_path>payment/buckaroo_magento2_googlepay/google_merchant_id</config_path>
             </field>
 

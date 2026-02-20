@@ -336,10 +336,16 @@ define(
                     }
                     currencyCode = config.currency || 'EUR';
                 } else {
-                    // Checkout mode - use quote data
-                    var quoteData = window.checkoutConfig.quoteData || {};
-                    grandTotal = parseFloat(quoteData.grand_total) || 1.00;
-                    currencyCode = quoteData.quote_currency_code || config.currency || 'EUR';
+                    // Checkout mode - use remaining amount when giftcard/voucher partially paid
+                    var remainingSegment = totals.getSegment('remaining_amount');
+                    if (remainingSegment && parseFloat(remainingSegment.value) > 0) {
+                        grandTotal = parseFloat(remainingSegment.value);
+                    } else {
+                        var quoteData = window.checkoutConfig.quoteData || {};
+                        grandTotal = parseFloat(quoteData.grand_total) || 1.00;
+                    }
+                    var checkoutQuoteData = window.checkoutConfig.quoteData || {};
+                    currencyCode = checkoutQuoteData.quote_currency_code || config.currency || 'EUR';
                 }
 
                 // Determine button container based on mode

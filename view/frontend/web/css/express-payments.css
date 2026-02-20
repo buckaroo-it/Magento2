@@ -7,7 +7,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 10px 0;
+    margin: 0;
     width: 100%;
     max-width: 350px;
     box-sizing: border-box;
@@ -25,7 +25,7 @@
 .buckaroo-paypal-express {
     width: 100%;
     max-width: 350px;
-    margin: 10px 0;
+    margin: 0;
     box-sizing: border-box;
     cursor: pointer;
 }
@@ -34,7 +34,7 @@
 #apple-pay-wrapper {
     width: 100%;
     max-width: 350px;
-    margin: 10px 0;
+    margin: 0;
     box-sizing: border-box;
     cursor: pointer;
 }
@@ -43,7 +43,7 @@
 #google-pay-wrapper {
     width: 100%;
     max-width: 350px;
-    margin: 10px 0;
+    margin: 0;
     box-sizing: border-box;
     cursor: pointer;
 }
@@ -122,7 +122,7 @@
     cursor: pointer;
 }
 
-/* Express Payment Component Containers - Cursor Pointer */
+/* Express Payment Component Containers - shared spacing & cursor */
 #apple-pay-catalog-product-view-component,
 #apple-pay-catalog-cart-view-component,
 #google-pay-catalog-product-view-component,
@@ -130,6 +130,14 @@
 #paypal-express-button-component,
 #fast-checkout-ideal-btn-component {
     cursor: pointer;
+    margin-bottom: 8px;
+}
+
+/* Extra vertical padding on non-Apple-Pay buttons to match Apple Pay .actions height */
+#google-pay-wrapper,
+#paypal-express-wrapper,
+#fast-checkout-ideal-btn {
+    padding: 5px 0;
 }
 
 /* Google Pay Component Container */
@@ -137,7 +145,7 @@
 #google-pay-catalog-cart-view-component {
     width: 100%;
     max-width: 350px;
-    margin: 10px 0;
+    margin: 0;
     box-sizing: border-box;
 }
 
@@ -152,22 +160,39 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    gap: 8px;
 }
 
 .buckaroo-box-to-cart .fieldset {
     width: 100%;
     max-width: 350px;
+    margin: 0;
+    padding: 0;
 }
 
 .buckaroo-box-to-cart .actions {
+    display: flex;
+    align-items: stretch;
     width: 100%;
+    margin: 0;
+    padding: 0;
+    line-height: 0;
+    font-size: 0;
+}
+
+/* Remove default box-tocart margins when used inside express button stack */
+.buckaroo-box-to-cart .box-tocart {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    max-width: 350px;
 }
 
 /* PayPal Express button component container */
 #paypal-express-button-component {
     width: 100%;
     max-width: 350px;
-    margin: 10px 0;
+    margin: 0;
     box-sizing: border-box;
 }
 
@@ -178,7 +203,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    margin: 10px 0;
+    margin: 0;
     border-radius: 5px;
     max-width: 500px;
     height: 55px;
