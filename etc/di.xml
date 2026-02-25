@@ -150,6 +150,10 @@
         </arguments>
     </type>
 
+    <type name="Magento\Sales\Model\Order\Email\Sender\OrderSender">
+        <plugin name="buckaroo_magento2_defer_order_confirmation_email" type="Buckaroo\Magento2\Plugin\OrderSenderPlugin" sortOrder="10"/>
+    </type>
+
     <type name="Magento\Sales\Model\Order\Payment\State\OrderCommand">
         <plugin name="buckaroo_magento2_plugin_commandInterface" type="Buckaroo\Magento2\Plugin\CommandInterface" />
     </type>

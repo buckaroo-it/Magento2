@@ -87,10 +87,21 @@ class SendOrderConfirmation implements \Magento\Framework\Event\ObserverInterfac
         $createOrderBeforeTransaction = $this->accountConfig->getCreateOrderBeforeTransaction($order->getStore());
 
         /**
+         * For redirect methods, defer order confirmation email until payment
+         * is confirmed (Push or return to Process). This prevents the email being sent
+         * when the customer is only redirected to the payment page.
          * @noinspection PhpUndefinedFieldInspection
          */
-        if (!$methodInstance->usesRedirect
-            && !$order->getEmailSent()
+        if (!empty($methodInstance->usesRedirect)) {
+            $payment->setAdditionalInformation('buckaroo_defer_order_confirmation_email', true);
+            $order->save();
+            return;
+        }
+
+        /**
+         * @noinspection PhpUndefinedFieldInspection
+         */
+        if (!$order->getEmailSent()
             && $sendOrderConfirmationEmail
             && $order->getIncrementId()
             && !$createOrderBeforeTransaction

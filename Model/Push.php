@@ -1226,6 +1226,7 @@ class Push implements PushInterface
             || $paymentMethod->getConfigData('order_email', $store);
 
         if (!$this->order->getEmailSent() && $cm3StatusCode == 10 && $configOrderMail) {
+//            $this->order->getPayment()->unsAdditionalInformation('buckaroo_defer_order_confirmation_email');
             $this->orderSender->send($this->order);
         }
     }
@@ -2018,6 +2019,7 @@ class Push implements PushInterface
             )
         ) {
             $this->logging->addDebug(__METHOD__ . '|sendemail|');
+            $payment->unsAdditionalInformation('buckaroo_defer_order_confirmation_email');
             $this->orderSender->send($this->order);
         }
 

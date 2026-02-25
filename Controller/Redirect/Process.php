@@ -379,6 +379,7 @@ class Process extends Action
                     )) {
                         if ($statusCode == $this->helper->getStatusCode('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')) {
                             $this->logger->addDebug(__METHOD__ . '|sendemail| |1|');
+                            $this->order->getPayment()->unsAdditionalInformation('buckaroo_defer_order_confirmation_email');
                             $this->orderSender->send($this->order, true);
                         }
                     }
