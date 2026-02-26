@@ -57,7 +57,9 @@ jobs:
           url="https://api.github.com/repos/${{ github.repository }}/pulls/$pull_number/files"
           echo "$url"
           curl -sS "$url" > files_changed
-          cat files_changed | grep '"filename"' | sed 's/\"filename\"\: \"//' | sed 's/\",//' | xargs -r ls -la
+          cat files_changed | grep '"filename"' | sed 's/\"filename\"\: \"//' | sed 's/\",//' | while IFS= read -r f; do
+            if [ -e "$f" ]; then ls -la "$f"; else echo "DELETED: $f"; fi
+          done
 
       - name: Create Magento 2.4.8-p3 project
         run: |

@@ -58,6 +58,7 @@ use Magento\Sales\Model\Order;
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @SuppressWarnings(PHPMD.TooManyFields)
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
 class Process extends Action implements HttpPostActionInterface, HttpGetActionInterface
 {
