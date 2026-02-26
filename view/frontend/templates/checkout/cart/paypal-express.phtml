@@ -20,14 +20,10 @@
 
 /** @var string $block */
 if ($block->canShowCartButton() && !$block->isIdinVerificationRequired()): ?>
-    <div class="box-tocart">
-        <div class="fieldset">
-            <div class="actions">
-                <div id="paypal-express-wrapper"></div>
-            </div>
-        </div>
+    <div id="paypal-express-cart-component">
+        <div id="paypal-express-wrapper"></div>
+        <div class="buckaroo-paypal-express"></div>
     </div>
-    <div class="buckaroo-paypal-express"></div>
 
     <script type="text/x-magento-init">
     {

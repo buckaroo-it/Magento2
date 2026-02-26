@@ -24,9 +24,7 @@
 if ($block->canShowButton('Product') && !$block->isIdinVerificationRequired()): ?>
 
     <div id="fast-checkout-ideal-btn-component" data-bind="scope: 'fastCheckoutIdeal'">
-        <button id="fast-checkout-ideal-btn" type="button">
-            <img src="<?= $escaper->escapeUrl($block->getLogo()) ?>" alt="<?= $escaper->escapeHtmlAttr(__('Ideal Fast Checkout')) ?>"/>
-        </button>
+        <!-- ko template: getTemplate() --><!-- /ko -->
     </div>
 
     <script type="text/x-magento-init">
@@ -37,8 +35,9 @@ if ($block->canShowButton('Product') && !$block->isIdinVerificationRequired()): 
                         "fastCheckoutIdeal": {
                             "component":"buckaroo/ideal-fast-checkout/pay",
                             "template":"Buckaroo_Magento2/catalog/product/view/ideal-fast-checkout",
-                            "config": {
+                                "config": {
                                 "page": "product",
+                                "buttonVariant": "<?= $escaper->escapeHtmlAttr($block->getButtonVariant()) ?>",
                                 "paymentData": {
                                     "method": "buckaroo_magento2_ideal",
                                     "additional_data": {

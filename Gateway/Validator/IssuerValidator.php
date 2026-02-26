@@ -98,6 +98,10 @@ class IssuerValidator extends AbstractValidator
             }
         }
 
+        if ($chosenIssuer === 'fastcheckout') {
+            return $this->createResult(true);
+        }
+
         foreach ($config->getIssuers() as $issuer) {
             if ($issuer['code'] == $chosenIssuer) {
                 return $this->createResult(true);

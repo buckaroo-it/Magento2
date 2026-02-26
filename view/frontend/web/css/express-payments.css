@@ -1,105 +1,133 @@
-/* Express Payment Buttons - Consistent Width Styling */
-#fast-checkout-ideal-btn {
-    height: 45px;
-    padding: 0;
-    border: none;
-    background: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 10px 0;
-    width: 100%;
-    max-width: 350px;
-    box-sizing: border-box;
-    cursor: pointer;
+
+:root {
+    --bk-express-btn-height: 40px;
+    --bk-express-btn-gap: 8px;
 }
 
-#fast-checkout-ideal-btn img {
-    max-height: 100%;
-    max-width: 100%;
+
+.product-info-main .box-tocart {
+    margin-bottom: 16px;
+}
+
+
+#apple-pay-catalog-product-view-component,
+#apple-pay-catalog-cart-view-component,
+#google-pay-catalog-product-view-component,
+#google-pay-catalog-cart-view-component,
+#paypal-express-button-component,
+#paypal-express-cart-component,
+#fast-checkout-ideal-btn-component {
     display: block;
-    margin: auto;
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 0;
+    margin-bottom: var(--bk-express-btn-gap);
 }
 
-/* PayPal Express Button Container */
+
+@media (min-width: 768px) {
+    .product-info-main #apple-pay-catalog-product-view-component,
+    .product-info-main #google-pay-catalog-product-view-component,
+    .product-info-main #paypal-express-button-component,
+    .product-info-main #fast-checkout-ideal-btn-component {
+        width: 49%;
+        margin-right: 1%;
+    }
+}
+
+#apple-pay-wrapper,
+#google-pay-wrapper,
+#fast-checkout-ideal-btn-component .actions {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+
+#paypal-express-wrapper:empty {
+    display: none;
+}
+
 .buckaroo-paypal-express {
-    width: 100%;
-    max-width: 350px;
-    margin: 10px 0;
-    box-sizing: border-box;
-    cursor: pointer;
-}
-
-/* Apple Pay Button Container */
-#apple-pay-wrapper {
-    width: 100%;
-    max-width: 350px;
-    margin: 10px 0;
-    box-sizing: border-box;
-    cursor: pointer;
-}
-
-/* Google Pay Button Container */
-#google-pay-wrapper {
-    width: 100%;
-    max-width: 350px;
-    margin: 10px 0;
-    box-sizing: border-box;
-    cursor: pointer;
-}
-
-/* Google Pay Button Element - ensure it fills container */
-#google-pay-wrapper > div,
-#google-pay-wrapper button {
+    display: block !important;
     width: 100% !important;
     max-width: 100% !important;
+    box-sizing: border-box !important;
 }
 
-/* CRITICAL: Override Magento's generic button:hover which uses background: shorthand
-   that resets background-repeat/position/size, causing SVG to tile in Safari */
+#apple-pay-wrapper > apple-pay-button,
+#google-pay-wrapper > div,
+#google-pay-wrapper button,
+.buckaroo-paypal-express > div,
+.buckaroo-paypal-express button,
+.buckaroo-paypal-express iframe,
+#fast-checkout-ideal-btn {
+    display: block;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+
+.buckaroo-paypal-express .paypal-buttons {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    height: 100% !important;
+}
+
+.buckaroo-paypal-express .paypal-buttons iframe {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+#apple-pay-wrapper > apple-pay-button {
+    height: var(--bk-express-btn-height) !important;
+    -apple-pay-button-style: black;
+    -apple-pay-button-type: buy;
+    cursor: pointer;
+}
+
+.buckaroo_magento2_applepay.payment-method #apple-pay-wrapper {
+    display: none !important;
+}
+
+/* ── Google Pay ─────────────────────────────────────────────────────────── */
+
 #google-pay-wrapper .gpay-button:hover,
 #google-pay-wrapper .gpay-button:focus,
 #google-pay-wrapper .gpay-button:focus-visible {
-    background-color: #000 !important;           /* Keep black background */
-    background-repeat: no-repeat !important;     /* Prevent tiling */
+    background-color: #000 !important;
+    background-repeat: no-repeat !important;
     background-position: center center !important;
     background-size: contain !important;
     background-origin: content-box !important;
-    border: 0 !important;                        /* No border on hover */
-    outline: 1px solid #757575 !important;       /* Keep outline */
+    border: 0 !important;
+    outline: 1px solid #757575 !important;
 }
 
-/* Safari-specific fixes for Google Pay button rendering issues */
 @supports (-webkit-appearance: none) {
     #google-pay-wrapper button,
     #google-pay-wrapper > div {
-        /* Force GPU rendering but prevent artifacts */
         -webkit-transform: translateZ(0) scale(1);
         transform: translateZ(0) scale(1);
         -webkit-backface-visibility: hidden;
         backface-visibility: hidden;
-        /* Prevent text duplication by clipping overflow */
         overflow: hidden !important;
-        /* Create new stacking context */
         isolation: isolate;
-        /* Force clean text rendering */
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
     }
 
-    /* Prevent hover effects from causing duplication in Safari */
     #google-pay-wrapper button:hover,
     #google-pay-wrapper > div:hover {
-        /* Disable transform on hover to prevent Safari bug */
         -webkit-transform: none !important;
         transform: none !important;
-        /* Force repaint with subtle opacity (invisible to user) */
         opacity: 0.9999;
-        /* Ensure overflow is still hidden */
         overflow: hidden !important;
     }
 
-    /* Also fix for focus state */
     #google-pay-wrapper button:focus,
     #google-pay-wrapper > div:focus {
         -webkit-transform: none !important;
@@ -108,77 +136,84 @@
     }
 }
 
-/* Hide Apple Pay wrapper in checkout payment method selection - use Place Order button instead */
-.buckaroo_magento2_applepay.payment-method #apple-pay-wrapper {
-    display: none !important;
-}
 
-/* Apple Pay Button Styling */
-#apple-pay-wrapper > apple-pay-button {
-    width: 100% !important;
-    height: 45px !important;
-    -apple-pay-button-style: black;
-    -apple-pay-button-type: buy;
-    cursor: pointer;
-}
-
-/* Express Payment Component Containers - Cursor Pointer */
-#apple-pay-catalog-product-view-component,
-#apple-pay-catalog-cart-view-component,
-#google-pay-catalog-product-view-component,
-#google-pay-catalog-cart-view-component,
-#paypal-express-button-component,
-#fast-checkout-ideal-btn-component {
-    cursor: pointer;
-}
-
-/* Google Pay Component Container */
-#google-pay-catalog-product-view-component,
-#google-pay-catalog-cart-view-component {
+#fast-checkout-ideal-btn {
+    aspect-ratio: 225 / 42;
     width: 100%;
-    max-width: 350px;
-    margin: 10px 0;
-    box-sizing: border-box;
-}
-
-/* PayPal Express Cart Container */
-.buckaroo-paypal-express .box-tocart {
+    height: auto;
+    padding: 0;
+    border: none;
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-position: center;
     cursor: pointer;
 }
 
-/* Ensure all payment button containers have consistent centering */
+#fast-checkout-ideal-btn[data-variant="Magenta"] {
+    background-image: url('../images/ideal/snel-bestellen-reg-magenta.svg');
+}
+#fast-checkout-ideal-btn[data-variant="Magenta"]:hover,
+#fast-checkout-ideal-btn[data-variant="Magenta"]:active {
+    background-image: url('../images/ideal/snel-bestellen-pressed-magenta.svg');
+}
+#fast-checkout-ideal-btn[data-variant="Magenta"]:focus {
+    background-image: url('../images/ideal/snel-bestellen-focused-magenta.svg');
+    outline: none;
+}
+
+#fast-checkout-ideal-btn[data-variant="White"] {
+    background-image: url('../images/ideal/snel-bestellen-reg-white.svg');
+}
+#fast-checkout-ideal-btn[data-variant="White"]:hover,
+#fast-checkout-ideal-btn[data-variant="White"]:active {
+    background-image: url('../images/ideal/snel-bestellen-pressed-white.svg');
+}
+#fast-checkout-ideal-btn[data-variant="White"]:focus {
+    background-image: url('../images/ideal/snel-bestellen-pressed-white.svg');
+    outline: none;
+}
+
+/* ── Shared layout helpers ──────────────────────────────────────────────── */
+
 .buckaroo-box-to-cart {
     text-align: center;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
+    gap: var(--bk-express-btn-gap);
 }
 
 .buckaroo-box-to-cart .fieldset {
     width: 100%;
-    max-width: 350px;
+    margin: 0;
+    padding: 0;
 }
 
 .buckaroo-box-to-cart .actions {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    line-height: 0;
+    font-size: 0;
+}
+
+.buckaroo-box-to-cart .box-tocart {
+    margin: 0;
+    padding: 0;
     width: 100%;
 }
 
-/* PayPal Express button component container */
-#paypal-express-button-component {
-    width: 100%;
-    max-width: 350px;
-    margin: 10px 0;
-    box-sizing: border-box;
-}
-
-/* iDIN product page styles */
+/* ── iDIN product page ──────────────────────────────────────────────────── */
 #buckaroo_idin_product {
     background: #d4eded;
     padding: 8px 12px;
     display: flex;
     align-items: center;
     gap: 12px;
-    margin: 10px 0;
+    margin: 0;
     border-radius: 5px;
     max-width: 500px;
     height: 55px;
