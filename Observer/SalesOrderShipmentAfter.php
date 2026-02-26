@@ -142,6 +142,16 @@ class SalesOrderShipmentAfter implements ObserverInterface
             return;
         }
 
+        $klarnaConfig = $this->configProviderFactory->get('klarna');
+        if (($paymentMethodCode == 'buckaroo_magento2_klarna')
+            && $klarnaConfig->isInvoiceCreatedAfterShipment()
+        ) {
+            if (!$this->order->hasInvoices()) {
+                $this->createInvoice(true);
+            }
+            return;
+        }
+
         $afterpayConfig = $this->configProviderFactory->get('afterpay20');
         if (($paymentMethodCode == 'buckaroo_magento2_afterpay20')
             && $afterpayConfig->isInvoiceCreatedAfterShipment()

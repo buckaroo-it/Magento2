@@ -23,7 +23,6 @@ namespace Buckaroo\Magento2\Gateway\Request\Address;
 
 use Buckaroo\Magento2\Gateway\Request\AddressHandlerPool;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarna;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnain;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order\Address;
@@ -55,8 +54,7 @@ class ShippingAddressDataBuilder extends AbstractAddressDataBuilder
     {
         if ($this->isAddressDataDifferent($this->getPayment()) ||
             $this->getOrder()->getShippingAddress() === null ||
-            $this->getPayment()->getMethod() === Klarna::CODE ||
-            $this->getPayment()->getMethod() === Klarnain::CODE
+            $this->getPayment()->getMethod() === Klarna::CODE
         ) {
             return $this->addressHandlerPool->getShippingAddress($this->getOrder());
         } else {

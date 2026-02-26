@@ -73,6 +73,7 @@
 
     <table name="sales_order">
         <column xsi:type="text" name="buckaroo_reservation_number" nullable="true" comment="Buckaroo Reservation Number"/>
+        <column xsi:type="text" name="buckaroo_datarequest_key" nullable="true" comment="Buckaroo DataRequest Key for Klarna MOR"/>
         <column xsi:type="text" name="buckaroo_identification_number" nullable="true" comment="Buckaroo Identification Number"/>
         <column xsi:type="text" name="buckaroo_push_data" nullable="true" comment="Buckaroo Push Data"/>
         <column xsi:type="decimal" name="buckaroo_fee_base_tax_amount_invoiced" nullable="true" precision="12" scale="4" comment="Buckaroo Fee Base Tax Amount Invoiced"/>

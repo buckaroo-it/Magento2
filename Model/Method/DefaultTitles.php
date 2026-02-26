@@ -46,7 +46,6 @@ class DefaultTitles
         'kbc'              => 'KBC',
         'klarna'           => 'Klarna: Pay Later',
         'klarnakp'         => 'Klarna: Pay later (authorize/capture)',
-        'klarnain'         => 'Klarna: Slice it',
         'applepay'         => 'Apple Pay',
         'capayablein3'     => 'In3',
         'capayablepostpay' => 'In3',

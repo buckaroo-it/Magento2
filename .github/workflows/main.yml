@@ -57,7 +57,9 @@ jobs:
           url="https://api.github.com/repos/${{ github.repository }}/pulls/$pull_number/files"
           echo "$url"
           curl -sS "$url" > files_changed
-          cat files_changed | grep '"filename"' | sed 's/\"filename\"\: \"//' | sed 's/\",//' | xargs -r ls -la
+          cat files_changed | grep '"filename"' | sed 's/\"filename\"\: \"//' | sed 's/\",//' | while IFS= read -r f; do
+            if [ -e "$f" ]; then ls -la "$f"; else echo "DELETED: $f"; fi
+          done
 
       - name: Create Magento 2.4.8-p3 project
         run: |
@@ -85,8 +87,10 @@ jobs:
       - name: Run PHPCS against changed files (PR) or whole module (push)
         run: |
           if [ -f files_changed ]; then
-            cat files_changed | grep '"filename"' | sed 's/\"filename\"\: \"//' | sed 's/\",//' \
-              | xargs -r ./m248/vendor/bin/phpcs --standard=m248/app/code/Buckaroo/Magento2/phpcs.xml
+            existing_files=$(cat files_changed | grep '"filename"' | sed 's/\"filename\"\: \"//' | sed 's/\",//' | while IFS= read -r f; do [ -e "$f" ] && echo "$f"; done)
+            if [ -n "$existing_files" ]; then
+              echo "$existing_files" | xargs -r ./m248/vendor/bin/phpcs --standard=m248/app/code/Buckaroo/Magento2/phpcs.xml
+            fi
           else
             ./m248/vendor/bin/phpcs --standard=m248/app/code/Buckaroo/Magento2/phpcs.xml m248/app/code/Buckaroo/Magento2
           fi

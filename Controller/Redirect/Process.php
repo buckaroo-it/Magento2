@@ -58,6 +58,7 @@ use Magento\Sales\Model\Order;
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @SuppressWarnings(PHPMD.TooManyFields)
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
 class Process extends Action implements HttpPostActionInterface, HttpGetActionInterface
 {
@@ -404,6 +405,25 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
     {
         $paymentMethod = $this->payment->getMethodInstance();
         $store = $this->order->getStore();
+
+        // Save Klarna MOR DataRequest key from redirect (brq_datarequest)
+        $klarnaMorDataRequestKey = $this->redirectRequest->getDatarequest();
+        if (!empty($klarnaMorDataRequestKey)
+            && $this->payment->getMethod() === 'buckaroo_magento2_klarna'
+            && empty($this->order->getBuckarooDatarequestKey())
+        ) {
+            $this->order->setBuckarooDatarequestKey($klarnaMorDataRequestKey);
+            $this->payment->setAdditionalInformation('buckaroo_datarequest_key', $klarnaMorDataRequestKey);
+            $this->order->save();
+
+            $this->logger->addDebug(sprintf(
+                '[KLARNA_MOR] | [REDIRECT] | [%s:%s] - Saved DataRequest key for order %s: %s',
+                __METHOD__,
+                __LINE__,
+                $this->order->getIncrementId(),
+                $klarnaMorDataRequestKey
+            ));
+        }
 
         $isKlarnaKpReserve = ($this->redirectRequest->hasPostData('primary_service', 'KlarnaKp')
             && $this->redirectRequest->hasAdditionalInformation('service_action_from_magento', 'reserve')

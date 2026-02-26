@@ -605,18 +605,20 @@
                 <active>0</active>
                 <model>KlarnaFacade</model>
                 <order_status>pending</order_status>
-                <title>Klarna: Pay later</title>
+                <title>Klarna</title>
                 <sort_oder>220</sort_oder>
                 <order_email>1</order_email>
                 <group>buckaroo_magento2</group>
-                <payment_action>order</payment_action>
+                <payment_action>authorize</payment_action>
                 <financial_warning>1</financial_warning>
+                <create_invoice_after_shipment>0</create_invoice_after_shipment>
                 <available_in_backend>0</available_in_backend>
-                <can_authorize>0</can_authorize>
-                <can_capture>0</can_capture>
-                <can_capture_partial>0</can_capture_partial>
-                <can_order>1</can_order>
+                <can_authorize>1</can_authorize>
+                <can_capture>1</can_capture>
+                <can_capture_partial>1</can_capture_partial>
+                <can_order>0</can_order>
                 <can_void>1</can_void>
+                <can_cancel>1</can_cancel>
                 <can_refund>1</can_refund>
                 <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
                 <can_use_internal>1</can_use_internal>
@@ -647,29 +649,6 @@
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
             </buckaroo_magento2_klarnakp>
-
-            <buckaroo_magento2_klarnain>
-                <active>0</active>
-                <model>KlarnaInFacade</model>
-                <order_status>pending</order_status>
-                <title>Klarna: Slice it</title>
-                <sort_oder>220</sort_oder>
-                <order_email>1</order_email>
-                <group>buckaroo_magento2</group>
-                <payment_action>order</payment_action>
-                <financial_warning>1</financial_warning>
-                <available_in_backend>0</available_in_backend>
-                <can_authorize>1</can_authorize>
-                <can_capture>1</can_capture>
-                <can_capture_partial>1</can_capture_partial>
-                <can_order>1</can_order>
-                <can_void>1</can_void>
-                <can_refund>1</can_refund>
-                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
-                <can_use_internal>1</can_use_internal>
-                <can_use_checkout>1</can_use_checkout>
-                <is_gateway>1</is_gateway>
-            </buckaroo_magento2_klarnain>
 
             <buckaroo_magento2_afterpay20>
                 <active>0</active>

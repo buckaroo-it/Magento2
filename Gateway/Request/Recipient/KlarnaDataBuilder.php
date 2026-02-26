@@ -29,11 +29,12 @@ class KlarnaDataBuilder extends AbstractRecipientDataBuilder
     protected function buildData(): array
     {
         return [
-            'category' => $this->getCategory(),
-            'gender' => $this->getGender(),
-            'firstName' => $this->getFirstname(),
-            'lastName' => $this->getLastName(),
-            'birthDate' => $this->getBirthDate()
+            'recipient' => [
+                'gender'    => $this->getGender(),
+                'firstName' => $this->getFirstname(),
+                'lastName'  => $this->getLastName(),
+                'birthDate' => $this->getBirthDate(),
+            ],
         ];
     }
 
