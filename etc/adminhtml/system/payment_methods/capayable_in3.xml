@@ -32,7 +32,7 @@
 
         <field id="api_version" translate="label comment tooltip" type="select" sortOrder="11" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Api Version</label>
-            <comment><![CDATA[Chose the api version for this payment method.]]></comment>
+            <comment><![CDATA[Choose the api version for this payment method.]]></comment>
             <config_path>payment/buckaroo_magento2_capayablein3/api_version</config_path>
             <source_model>Buckaroo\Magento2\Model\Config\Source\In3ApiVersions</source_model>
         </field>

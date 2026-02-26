@@ -82,7 +82,7 @@
         </field>
 
         <group id="buckaroo_magento2_default" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Method specific configuration</label>
+            <label>Method Specific Configuration</label>
             <field id="customer_type" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Billink customer type</label>
                 <comment><![CDATA[This setting determines whether you accept Billink payments for B2C, B2B or both customer types. When B2B is selected, this method is only shown when a company name is entered in the checkout process.]]></comment>

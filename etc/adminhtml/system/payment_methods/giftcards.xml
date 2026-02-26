@@ -81,7 +81,7 @@
         </field>
 
         <group id="buckaroo_magento2_default" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Method specific configuration</label>
+            <label>Method Specific Configuration</label>
 
             <field id="allowed_giftcards" translate="label comment" type="multiselect" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Allowed Giftcards</label>
