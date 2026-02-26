@@ -26,7 +26,8 @@ use Buckaroo\Magento2\Exception;
 class Klarna extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_klarna';
-    public const XPATH_KLARNA_PAYMENT_FEE            = 'payment/buckaroo_magento2_klarna/payment_fee';
+    public const XPATH_KLARNA_PAYMENT_FEE                = 'payment/buckaroo_magento2_klarna/payment_fee';
+    public const XPATH_KLARNA_CREATE_INVOICE_BY_SHIP     = 'create_invoice_after_shipment';
 
     /**
      * @var array
@@ -84,11 +85,6 @@ class Klarna extends AbstractConfigProvider
      *
      * @return float
      */
-    /**
-     * @param null|int $storeId
-     *
-     * @return float
-     */
     public function getPaymentFee($storeId = null)
     {
         $paymentFee = $this->scopeConfig->getValue(
@@ -98,5 +94,20 @@ class Klarna extends AbstractConfigProvider
         );
 
         return $paymentFee ?: 0;
+    }
+
+    /**
+     * Get Create Invoice After Shipment
+     *
+     * @param null|int|string $store
+     *
+     * @return bool
+     */
+    public function isInvoiceCreatedAfterShipment($store = null): bool
+    {
+        return (bool)$this->getMethodConfigValue(
+            self::XPATH_KLARNA_CREATE_INVOICE_BY_SHIP,
+            $store
+        );
     }
 }

@@ -157,11 +157,6 @@ define(
                 config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_klarna}
             },
             {
-                type: 'buckaroo_magento2_klarnain',
-                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/klarna',
-                config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_klarnain}
-            },
-            {
                 type: 'buckaroo_magento2_klarnakp',
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/klarnakp',
                 config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_klarnakp}

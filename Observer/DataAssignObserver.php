@@ -106,7 +106,6 @@ class DataAssignObserver extends AbstractDataAssignObserver
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20::CODE,
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Klarna::CODE,
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp::CODE,
-        \Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnain::CODE,
     ];
 
     /**

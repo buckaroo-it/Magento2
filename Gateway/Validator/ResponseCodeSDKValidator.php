@@ -172,7 +172,10 @@ class ResponseCodeSDKValidator extends AbstractValidator
         $payment = SubjectReader::readPayment($validationSubject)->getPayment();
         $methodInstanceClass = $payment->getMethodInstance();
 
-        if ($methodInstanceClass->getCode() == 'buckaroo_magento2_klarnakp') {
+        if (in_array($methodInstanceClass->getCode(), [
+            'buckaroo_magento2_klarnakp',
+            'buckaroo_magento2_klarna',
+        ])) {
             $methodInstanceClass::$requestOnVoid = false;
         }
 
