@@ -68,8 +68,8 @@ class DataRequestKeyDataBuilder extends AbstractDataBuilder
             }
 
             $this->logger->addWarning(sprintf(
-                '[KLARNA_MOR] DataRequest key for order %s was found in payment additional information but not in order. '
-                . 'This indicates a data sync issue. Using value: %s',
+                '[KLARNA_MOR] DataRequest key for order %s was found in payment additional '
+                . 'information but not in order. This indicates a data sync issue. Using value: %s',
                 $order->getIncrementId(),
                 $dataRequestKey
             ));
