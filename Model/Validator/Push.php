@@ -179,7 +179,7 @@ class Push implements ValidatorInterface
         $signatureString = '';
 
         foreach ($sortableArray as $brqKey => $value) {
-            $value = $this->decodePushValue($brqKey, $value);
+            $value = html_entity_decode($value);
 
             $signatureString .= $brqKey . '=' . $value;
         }
@@ -233,19 +233,6 @@ class Push implements ValidatorInterface
         }
 
         return $fixed;
-    }
-
-    /**
-     * Decode push value
-     *
-     * @param string $brqKey
-     * @param string $brqValue
-     *
-     * @return string
-     */
-    private function decodePushValue(string $brqKey, string $brqValue): string
-    {
-        return html_entity_decode($brqValue);
     }
 
     /**
