@@ -119,6 +119,20 @@ class CancelOrder
             return true;
         }
 
+        // Klarna MOR: skip void if the DataRequest key is missing (customer did not complete redirect)
+        if ($methodCode === 'buckaroo_magento2_klarna'
+            && empty($order->getBuckarooDatarequestKey())
+            && empty($payment->getAdditionalInformation('buckaroo_datarequest_key'))
+        ) {
+            $this->logger->addDebug(sprintf(
+                '%s - Skipping void for pending Klarna MOR order %s: no DataRequest key '
+                . '(customer did not complete redirect authorization).',
+                __METHOD__,
+                $order->getIncrementId()
+            ));
+            return true;
+        }
+
         // Afterpay: skip void if the authorization was marked as failed
         if (in_array($methodCode, ['buckaroo_magento2_afterpay', 'buckaroo_magento2_afterpay2'])
             && $payment->getAdditionalInformation('buckaroo_failed_authorize')

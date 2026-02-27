@@ -29,7 +29,5 @@
 
         <include path="Buckaroo_Magento2::system/payment_methods/klarnakp.xml"/>
 
-        <include path="Buckaroo_Magento2::system/payment_methods/klarnain.xml"/>
-
     </group>
 </include>

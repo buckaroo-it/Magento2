@@ -243,7 +243,6 @@ class HtmlTransactionIdObserver implements ObserverInterface
         $klarnaPaymentMethods = [
             'buckaroo_magento2_klarna',
             'buckaroo_magento2_klarnakp',
-            'buckaroo_magento2_klarnain'
         ];
 
         return in_array($paymentMethod, $klarnaPaymentMethods);

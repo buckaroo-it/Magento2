@@ -44,4 +44,7 @@ class TransactionType
 
     public const PAY_REMAINDER = 'payRemainder';
     public const PAY_REMAINDER_ENCRYPTED = 'payRemainderEncrypted';
+
+    public const UPDATE_RESERVE = 'updateReserve';
+    public const EXTEND_RESERVE = 'extendReserve';
 }

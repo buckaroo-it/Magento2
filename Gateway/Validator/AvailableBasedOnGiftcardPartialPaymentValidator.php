@@ -35,6 +35,7 @@ class AvailableBasedOnGiftcardPartialPaymentValidator extends AbstractValidator
      */
     private const UNSUPPORTED_PAYMENT_METHODS = [
         'billink',
+        'klarna',
         'klarnakp',
         'capayableinstallments',
         'transfer',
