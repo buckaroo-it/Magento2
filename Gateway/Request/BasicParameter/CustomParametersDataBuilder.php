@@ -112,7 +112,7 @@ class CustomParametersDataBuilder implements BuilderInterface
             $store
         );
 
-        if ($perMethodValue !== null && $perMethodValue !== '') {
+        if ($perMethodValue !== null) {
             return $perMethodValue;
         }
 
