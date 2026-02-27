@@ -34,7 +34,7 @@
         </field>
 
         <field id="enable_second_chance" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Second Chance enabled</label>
+            <label>Second Chance Enabled</label>
             <comment><![CDATA[Enables or disables Second Chance mode]]></comment>
             <tooltip>Set to 'Yes' will enable Second Chance mode.</tooltip>
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -42,7 +42,7 @@
         </field>
 
         <field id="second_chance_email" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Second Chance 1 email enabled</label>
+            <label>Second Chance 1 Email Enabled</label>
             <comment><![CDATA[Enables or disables Second Chance 1 email]]></comment>
             <tooltip>Set to 'Yes' will enable Second Chance 1 email.</tooltip>
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -53,7 +53,7 @@
         </field>
 
         <field id="buckaroo_second_chance" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
-            <label>Second chance Template</label>
+            <label>Second Chance Template</label>
             <comment>Email template chosen based on theme fallback when 'Default' option is selected.</comment>
             <config_path>buckaroo_magento2/second_chance/second_chance_template</config_path>
             <source_model>Buckaroo\Magento2\Model\Config\Source\Email\Template</source_model>
@@ -63,7 +63,7 @@
         </field>
 
         <field id="second_chance_timing" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Due hours (between 0 and 24hr)</label>
+            <label>Due Hours (Between 0 And 24hr)</label>
             <comment><![CDATA[Timing for this second-chance email .]]></comment>
             <config_path>buckaroo_magento2/second_chance/second_chance_timing</config_path>
             <backend_model>Buckaroo\Magento2\Model\Config\Backend\SecondChance</backend_model>
@@ -73,7 +73,7 @@
         </field>
 
         <field id="second_chance_email2" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Second Chance 2 email enabled</label>
+            <label>Second Chance 2 Email Enabled</label>
             <comment><![CDATA[Enables or disables Second Chance 2 email]]></comment>
             <tooltip>Set to 'Yes' will enable Second Chance 2 email.</tooltip>
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -84,7 +84,7 @@
         </field>
 
         <field id="buckaroo_second_chance2" translate="label comment" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
-            <label>Second chance second e-mail Template</label>
+            <label>Second Chance Second E-mail Template</label>
             <comment>Second email template chosen based on theme fallback when 'Default' option is selected.</comment>
             <config_path>buckaroo_magento2/second_chance/second_chance_template2</config_path>
             <source_model>Buckaroo\Magento2\Model\Config\Source\Email\Template</source_model>
@@ -94,7 +94,7 @@
         </field>
 
         <field id="second_chance_timing2" translate="label comment" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Due hours (between 0 and 72hr)</label>
+            <label>Due Hours (Between 0 And 72hr)</label>
             <comment><![CDATA[Timing for sender after the first one second-chance email.]]></comment>
             <config_path>buckaroo_magento2/second_chance/second_chance_timing2</config_path>
             <backend_model>Buckaroo\Magento2\Model\Config\Backend\SecondChance</backend_model>
@@ -114,7 +114,7 @@
         </field>
 
         <field id="second_chance_prune_days" translate="label comment" type="text" sortOrder="90" showInDefault="1" showInStore="1">
-            <label>Prune older second chance entries (days)</label>
+            <label>Prune Older Second Chance Entries (Days)</label>
             <comment><![CDATA[Timing in days, 0 to disable this.]]></comment>
             <config_path>buckaroo_magento2/second_chance/prune_days</config_path>
             <depends>

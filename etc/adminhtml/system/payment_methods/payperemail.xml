@@ -27,63 +27,79 @@
 
         <field id="active" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Enable PayPerEmail</label>
-            <comment><![CDATA[Enable or disable this payment method.]]></comment>
+            <comment><![CDATA[Control the availability of this payment method.]]></comment>
             <source_model>Buckaroo\Magento2\Model\Config\Source\Enablemode</source_model>
             <config_path>payment/buckaroo_magento2_payperemail/active</config_path>
         </field>
 
         <field id="title" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Frontend label</label>
-            <comment><![CDATA[Determines the frontend label shown.]]></comment>
+            <label>Title</label>
+            <comment><![CDATA[The payment method name shown during checkout. If empty, the default title is used.]]></comment>
             <config_path>payment/buckaroo_magento2_payperemail/title</config_path>
         </field>
 
+        <field id="display_subtext" translate="label comment" type="select" sortOrder="24" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Display Subtext</label>
+            <comment><![CDATA[Enable or disable subtext display during checkout.]]></comment>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <config_path>payment/buckaroo_magento2_payperemail/display_subtext</config_path>
+        </field>
+
         <field id="subtext" translate="label comment" type="text" sortOrder="25" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Frontend subtext</label>
+            <label>Subtext Content</label>
             <comment><![CDATA[This controls the description which the user sees during checkout.]]></comment>
             <config_path>payment/buckaroo_magento2_payperemail/subtext</config_path>
+            <depends>
+                <field id="display_subtext">1</field>
+            </depends>
         </field>
 
         <field id="subtext_style" translate="label comment" type="select" sortOrder="26" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Frontend subtext style</label>
+            <label>Subtext Style</label>
             <comment><![CDATA[Choose a font style for the subtext.]]></comment>
             <source_model>Buckaroo\Magento2\Model\Config\Source\SubtextStyle</source_model>
             <config_path>payment/buckaroo_magento2_payperemail/subtext_style</config_path>
+            <depends>
+                <field id="display_subtext">1</field>
+            </depends>
         </field>
 
         <field id="subtext_color" translate="label comment" sortOrder="27" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Frontend subtext color</label>
+            <label>Subtext Color</label>
             <comment><![CDATA[Choose a font color for the subtext.]]></comment>
             <config_path>payment/buckaroo_magento2_payperemail/subtext_color</config_path>
             <frontend_model>Buckaroo\Magento2\Block\Config\Form\Field\ColorPicker</frontend_model>
+            <depends>
+                <field id="display_subtext">1</field>
+            </depends>
         </field>
 
 
         <field id="sort_order" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Frontend sort order</label>
+            <label>Sort Order</label>
             <comment><![CDATA[Determines the sorting of payment methods.]]></comment>
             <config_path>payment/buckaroo_magento2_payperemail/sort_order</config_path>
         </field>
 
         <group id="buckaroo_magento2_default" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Method specific configuration</label>
+            <label>Method Specific Configuration</label>
 
             <field id="visible_front_back" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Visible in</label>
+                <label>Visible In</label>
                 <comment><![CDATA[Select where the this payment method will be available.]]></comment>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\VisibleFrontBack</source_model>
                 <config_path>payment/buckaroo_magento2_payperemail/visible_front_back</config_path>
             </field>
 
             <field id="payment_method" translate="label comment" type="multiselect" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>PayPerEmail payment methods</label>
+                <label>PayPerEmail Payment Methods</label>
                 <comment><![CDATA[Select which payment methods can be used at PayPerEmail.]]></comment>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\PaymentMethods\PayPerEmail</source_model>
                 <config_path>payment/buckaroo_magento2_payperemail/payment_method</config_path>
             </field>
 
             <field id="enable_b2b" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>B2B mode enabled</label>
+                <label>B2B Mode Enabled</label>
                 <comment><![CDATA[Set this option to "Yes" to enable the B2B mode. B2B mode will set orders directly into "processing" without the need to receive a payment first. This can be used for B2B orders to let companies pay in invoice.]]></comment>
                 <tooltip>Set this option to "Yes" to enable the B2B mode. B2B mode will set orders directly into "processing" without the need to receive a payment first. This can be used for B2B orders to let companies pay in invoice.</tooltip>
                 <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -91,7 +107,7 @@
             </field>
 
             <field id="send_mail" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Send payment email</label>
+                <label>Send Payment Email</label>
                 <comment><![CDATA[Buckaroo sends an email to the customer with the payment procedures.]]></comment>
                 <tooltip>Set to 'No' leaves the customer uninformed on the payment obligations.</tooltip>
                 <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -99,7 +115,7 @@
             </field>
 
             <field id="cron_cancel_ppe" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Auto cancelling enabled</label>
+                <label>Auto Cancelling Enabled</label>
                 <comment><![CDATA[Enables or disables auto cancelling by cron]]></comment>
                 <tooltip>Set to 'Yes' will enable auto cancelling by cron.</tooltip>
                 <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -107,14 +123,14 @@
             </field>
 
             <field id="payperemail_expire_days" translate="label comment" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Due date (in days)</label>
+                <label>Due Date (in Days)</label>
                 <comment><![CDATA[The expiration date for the paylink.]]></comment>
                 <config_path>payment/buckaroo_magento2_payperemail/expire_days</config_path>
                 <backend_model>Buckaroo\Magento2\Model\Config\Backend\ExpireDays</backend_model>
             </field>
 
             <field id="cancel_ppe" translate="label comment" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Cancel PPE link</label>
+                <label>Cancel PPE Link</label>
                 <comment><![CDATA[Cancel PPE link after order is cancel in Magento]]></comment>
                 <tooltip>Set to 'Yes' will enable Cancel PPE link.</tooltip>
                 <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -162,7 +178,7 @@
                 </field>
 
                 <field id="payment_method_after_expiry" translate="label comment" type="multiselect" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Credit Management payment methods</label>
+                    <label>Credit Management Payment Methods</label>
                     <comment><![CDATA[Select which payment methods can be used after the payment due date.]]></comment>
                     <source_model>Buckaroo\Magento2\Model\Config\Source\PaymentMethods\AfterExpiry</source_model>
                     <config_path>payment/buckaroo_magento2_payperemail/payment_method_after_expiry</config_path>
@@ -177,28 +193,28 @@
             <label>Advanced Configuration</label>
 
             <field id="order_email" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Send order confirmation email</label>
+                <label>Send Order Confirmation Email</label>
                 <comment><![CDATA[Enable to send an order confirmation email to the customer when the creating of the order is successful. Specific for this payment method.]]></comment>
                 <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 <config_path>payment/buckaroo_magento2_payperemail/order_email</config_path>
             </field>
 
             <field id="payment_fee" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Payment fee</label>
+                <label>Payment Fee</label>
                 <comment><![CDATA[The above amount is calculated based on de Tax settings in Buckaroo > Settings > Buckaroo Payment Fee Tax Class.]]></comment>
                 <config_path>payment/buckaroo_magento2_payperemail/payment_fee</config_path>
                 <backend_model>Buckaroo\Magento2\Model\Config\Backend\PaymentFee</backend_model>
             </field>
 
             <field id="active_status" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Method specific status enabled</label>
+                <label>Method Specific Status Enabled</label>
                 <comment><![CDATA[Enable or disable specific status.]]></comment>
                 <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 <config_path>payment/buckaroo_magento2_payperemail/active_status</config_path>
             </field>
 
             <field id="order_status_success" translate="label comment tooltip" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Method specific success status</label>
+                <label>Method Specific Success Status</label>
                 <comment><![CDATA[Leave empty to use default 'success' status.]]></comment>
                 <tooltip>To make a new status available it needs to be assigned to the correct state. See Magento documentation about state and status.</tooltip>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\StatusesSuccess</source_model>
@@ -209,7 +225,7 @@
             </field>
 
             <field id="order_status_failed" translate="label comment tooltip" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Method specific failed status</label>
+                <label>Method Specific Failed Status</label>
                 <comment><![CDATA[Leave empty to use default 'failed' status.]]></comment>
                 <tooltip>To make a new status available it needs to be assigned to the correct state. See Magento documentation about state and status.</tooltip>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\StatusesFailed</source_model>
@@ -220,10 +236,10 @@
             </field>
 
             <group id="buckaroo_magento2_visibility" translate="label" type="text" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Method visibility</label>
+                <label>Method Visibility</label>
 
                 <field id="min_amount" translate="label comment tooltip" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Min order amount (in Base Currency)</label>
+                    <label>Min Order Amount</label>
                     <comment><![CDATA[Minimum order amount allowed.]]></comment>
                     <tooltip>The payment method shows only for orders with an order amount greater than the minimum amount.</tooltip>
                     <config_path>payment/buckaroo_magento2_payperemail/min_amount</config_path>
@@ -231,7 +247,7 @@
                 </field>
 
                 <field id="max_amount" translate="label comment tooltip" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Max order amount (in Base Currency)</label>
+                    <label>Max Order Amount</label>
                     <comment><![CDATA[Maximum order amount allowed.]]></comment>
                     <tooltip>The payment method shows only for orders with an order amount smaller than the maximum amount.</tooltip>
                     <config_path>payment/buckaroo_magento2_payperemail/max_amount</config_path>
@@ -239,26 +255,35 @@
                 </field>
 
                 <field id="specificcustomergroup" translate="label" type="multiselect" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Allow customer groups for B2C mode</label>
+                    <label>Allow Customer Groups for B2C Mode</label>
                     <source_model>Buckaroo\Magento2\Model\Config\Source\SpecificCustomerGroups</source_model>
                     <can_be_empty>1</can_be_empty>
                     <config_path>payment/buckaroo_magento2_payperemail/specificcustomergroup</config_path>
                 </field>
 
                 <field id="specificcustomergroupb2b" translate="label" type="multiselect" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Allow customer groups for B2B mode</label>
+                    <label>Allow Customer Groups for B2B Mode</label>
                     <source_model>Buckaroo\Magento2\Model\Config\Source\SpecificCustomerGroups</source_model>
                     <can_be_empty>1</can_be_empty>
                     <config_path>payment/buckaroo_magento2_payperemail/specificcustomergroupb2b</config_path>
                 </field>
 
-                <field id="allowspecific" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Payment from applicable countries</label>
+                <field id="allowed_currencies" translate="label comment tooltip" type="multiselect" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Allowed Currencies</label>
+                    <comment><![CDATA[Select payment method specific currencies.]]></comment>
+                    <tooltip>Your contract with Buckaroo must allow for the selected currencies to be used with this payment method.</tooltip>
+                    <config_path>payment/buckaroo_magento2_payperemail/allowed_currencies</config_path>
+                    <source_model>Buckaroo\Magento2\Model\Config\Source\AllowedCurrencies::payperemail</source_model>
+                    <backend_model>Buckaroo\Magento2\Model\Config\Backend\AllowedCurrencies</backend_model>
+                </field>
+
+                <field id="allowspecific" translate="label" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Allowed Countries</label>
                     <source_model>Buckaroo\Magento2\Model\Config\Source\AllOrSpecificCountries</source_model>
                     <config_path>payment/buckaroo_magento2_payperemail/allowspecific</config_path>
                 </field>
 
-                <field id="specificcountry" translate="label" type="multiselect" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="specificcountry" translate="label" type="multiselect" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Payment from Specific Country</label>
                     <comment><![CDATA[Only available when set to 'specific countries'.]]></comment>
                     <source_model>Magento\Directory\Model\Config\Source\Country</source_model>
@@ -267,15 +292,6 @@
                     <depends>
                         <field id="allowspecific">1</field>
                     </depends>
-                </field>
-
-                <field id="allowed_currencies" translate="label comment tooltip" type="multiselect" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Allowed currencies</label>
-                    <comment><![CDATA[Select payment method specific currencies.]]></comment>
-                    <tooltip>Your contract with Buckaroo must allow for the selected currencies to be used with this payment method.</tooltip>
-                    <config_path>payment/buckaroo_magento2_payperemail/allowed_currencies</config_path>
-                    <source_model>Buckaroo\Magento2\Model\Config\Source\AllowedCurrencies::payperemail</source_model>
-                    <backend_model>Buckaroo\Magento2\Model\Config\Backend\AllowedCurrencies</backend_model>
                 </field>
             </group>
         
