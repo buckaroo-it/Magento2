@@ -129,12 +129,6 @@ class CommandInterface
             }
         }
 
-        // Skip update for Apple Pay
-        if (preg_match('/applepay/', $methodInstance->getCode())) {
-            $this->logging->addDebug(__METHOD__ . '|ApplePay detected, skipping update.');
-            return;
-        }
-
         // Update order state only if it is not already the target state.
         if ($order->getState() !== $targetState) {
             $this->logging->addDebug(__METHOD__ . '|Updating order state from ' . $order->getState() . ' to ' . $targetState);
