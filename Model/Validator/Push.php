@@ -179,8 +179,6 @@ class Push implements ValidatorInterface
         $signatureString = '';
 
         foreach ($sortableArray as $brqKey => $value) {
-            $value = html_entity_decode($value);
-
             $signatureString .= $brqKey . '=' . $value;
         }
 
