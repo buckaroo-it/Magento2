@@ -28,7 +28,6 @@ class CapayableIn3 extends AbstractConfigProvider
     public const DEFAULT_NAME = 'In3';
     public const V2_NAME = 'In3';
 
-    const XPATH_CAPAYABLEIN3_API_VERSION  = 'api_version';
     const XPATH_CAPAYABLEIN3_PAYMENT_LOGO = 'payment_logo';
 
     /**
@@ -60,7 +59,7 @@ class CapayableIn3 extends AbstractConfigProvider
     }
 
     /**
-     * Get Logo based on API version
+     * Get Logo for In3 (V3 API only)
      *
      * @param $storeId
      *
@@ -68,25 +67,17 @@ class CapayableIn3 extends AbstractConfigProvider
      */
     public function getLogo($storeId = null): string
     {
-        $logo = 'in3.svg';
-
-        if ($this->isV2($storeId)) {
-            $logo = 'in3.svg';
-        }
-
-        return $this->logoService->getLogoUrl("images/svg/".$logo);
+        return $this->logoService->getLogoUrl("images/svg/in3.svg");
     }
 
     /**
      * Check if API Version is V2
      *
-     * @param $storeId
-     *
      * @return bool
      */
-    public function isV2($storeId = null): bool
+    public function isV2(): bool
     {
-        return $this->getMethodConfigValue(self::XPATH_CAPAYABLEIN3_API_VERSION, $storeId) === 'V2';
+        return false;
     }
 
     /**
