@@ -73,11 +73,9 @@ class CapayableIn3 extends AbstractConfigProvider
     /**
      * Check if API Version is V2
      *
-     * @param $storeId
-     *
      * @return bool
      */
-    public function isV2($storeId = null): bool
+    public function isV2(): bool
     {
         return false;
     }
