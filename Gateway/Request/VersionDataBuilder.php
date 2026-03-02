@@ -3,6 +3,7 @@
 namespace Buckaroo\Magento2\Gateway\Request;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\CapayableIn3;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 
 class VersionDataBuilder implements BuilderInterface
@@ -22,6 +23,10 @@ class VersionDataBuilder implements BuilderInterface
     {
         $paymentDO = SubjectReader::readPayment($buildSubject);
         $payment = $paymentDO->getPayment();
+
+        if ($payment->getMethodInstance()->getCode() === CapayableIn3::CODE) {
+            return $this->v1->build($buildSubject);
+        }
 
         $apiVersion = $payment->getMethodInstance()->getConfigData('api_version');
 
