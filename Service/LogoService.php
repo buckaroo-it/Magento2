@@ -98,6 +98,21 @@ class LogoService
         return $this->assetRepo->getUrl("Buckaroo_Magento2::images/{$name}");
     }
 
+    /**
+     * Get Bank Transfer payment method logo URL by config option.
+     *
+     * @param string $option One of TransferPaymentMethodLogo::OPTION_* constants
+     * @return string
+     */
+    public function getTransferLogo(string $option): string
+    {
+        $path = $option === \Buckaroo\Magento2\Model\Config\Source\TransferPaymentMethodLogo::OPTION_SEPA_CREDIT_TRANSFER
+            ? 'images/svg/sepa-directdebit.svg'
+            : 'images/svg/sepa-credittransfer.svg';
+
+        return $this->assetRepo->getUrl("Buckaroo_Magento2::{$path}");
+    }
+
     public function getLogoUrl(string $path): string
     {
         return $this->assetRepo->getUrl("Buckaroo_Magento2::{$path}");

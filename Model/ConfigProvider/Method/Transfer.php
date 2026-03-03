@@ -21,11 +21,13 @@
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Model\Config\Source\TransferPaymentMethodLogo;
 
 class Transfer extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_transfer';
 
+    public const XPATH_TRANSFER_PAYMENT_METHOD_LOGO = 'payment_method_logo';
     public const XPATH_TRANSFER_DUE_DATE = 'due_date';
 
     public const XPATH_TRANSFER_ACTIVE_STATUS_CM3           = 'active_status_cm3';
@@ -49,6 +51,31 @@ class Transfer extends AbstractConfigProvider
         return $this->fullConfig([
             'sendEmail' => $this->hasOrderEmail(),
         ]);
+    }
+
+    /**
+     * @inheritdoc
+     * Return logo URL based on Payment Method Logo config (generic vs SEPA Credit Transfer).
+     */
+    public function getLogo(): string
+    {
+        $option = $this->getMethodConfigValue(self::XPATH_TRANSFER_PAYMENT_METHOD_LOGO);
+        if ($option === null || $option === '') {
+            $option = TransferPaymentMethodLogo::OPTION_GENERIC_BANK_LOGO;
+        }
+        return $this->logoService->getTransferLogo($option);
+    }
+
+    /**
+     * Get Payment Method Logo config value (generic_bank_logo or sepa_credit_transfer).
+     *
+     * @param null|int|string $store
+     * @return string
+     */
+    public function getPaymentMethodLogo($store = null): string
+    {
+        $value = $this->getMethodConfigValue(self::XPATH_TRANSFER_PAYMENT_METHOD_LOGO, $store);
+        return $value !== null && $value !== '' ? (string) $value : TransferPaymentMethodLogo::OPTION_GENERIC_BANK_LOGO;
     }
 
     /**
