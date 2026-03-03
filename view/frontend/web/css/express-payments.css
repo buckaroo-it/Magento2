@@ -35,6 +35,10 @@
     }
 }
 
+#apple-pay-wrapper{
+    margin-bottom: 14px;
+}
+
 #apple-pay-wrapper,
 #google-pay-wrapper,
 #fast-checkout-ideal-btn-component .actions {
