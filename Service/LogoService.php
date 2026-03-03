@@ -70,7 +70,7 @@ class LogoService
             "creditcard"       => "svg/creditcards.svg",
             "creditcards"      => "svg/creditcards.svg",
             "giftcards"        => "svg/giftcards.svg",
-            "ideal"            => "svg/ideal.svg",
+            "ideal"            => "svg/ideal-wero.svg",
             "klarnakp"         => "svg/klarna.svg",
             "mrcash"           => "svg/bancontact.svg",
             "p24"              => "svg/przelewy24.svg",
