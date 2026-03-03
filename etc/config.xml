@@ -1019,6 +1019,9 @@
                 <second_chance_email>1</second_chance_email>
                 <second_chance_email2>1</second_chance_email2>
                 <multiple_emails_send>1</multiple_emails_send>
+                <!-- Streak de-duplication -->
+                <streak_enabled>0</streak_enabled>
+                <streak_minutes>30</streak_minutes>
                 <!-- External Email Provider Configuration -->
                 <external_email_enabled>0</external_email_enabled>
                 <external_email_provider>External Email Provider</external_email_provider>

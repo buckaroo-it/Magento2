@@ -685,6 +685,13 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
                     continue;
                 }
 
+                // Streak check: for step 1 only, skip this record if a newer attempt
+                // from the same customer exists within the configured streak window.
+                // The newest record in the streak will be the one that gets the email.
+                if ($step == 1 && $this->isStreakSuppressed($item, $store)) {
+                    continue;
+                }
+
                 // Validate order email is not a placeholder before sending
                 $orderEmail = $order->getCustomerEmail();
                 if ($this->isPlaceholderEmail($orderEmail)) {
@@ -954,6 +961,56 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         $collection->addFieldToFilter('status', ['in' => ['completed', 'clicked']]);
 
         return $collection->getSize() == 0;
+    }
+
+    /**
+     * Determine whether a pending step-1 record is part of a streak and should be suppressed in favor of a newer attempt by the same customer.
+     *
+     * @param \Buckaroo\Magento2\Model\SecondChance $item
+     * @param mixed                                 $store
+     *
+     * @return bool  true = this record should be skipped (suppressed)
+     */
+    private function isStreakSuppressed($item, $store): bool
+    {
+        if (!$this->configProvider->isStreakEnabled($store)) {
+            return false;
+        }
+
+        $customerEmail = $item->getCustomerEmail();
+        if (empty($customerEmail) || $this->isPlaceholderEmail($customerEmail)) {
+            return false;
+        }
+
+        $streakSeconds = $this->configProvider->getStreakMinutes($store) * 60;
+        $createdAt     = strtotime($item->getCreatedAt());
+
+        // Find any other pending record from the same e-mail that is *newer* than
+        // the current record and was created within the streak window.
+        $collection = $this->secondChanceCollectionFactory->create();
+        $collection->addFieldToFilter('customer_email', $customerEmail);
+        $collection->addFieldToFilter('status', 'pending');
+        $collection->addFieldToFilter('entity_id', ['neq' => $item->getId()]);
+        // Only look at records created after this one
+        $collection->addFieldToFilter(
+            'created_at',
+            ['gt' => $item->getCreatedAt()]
+        );
+        // Only within the streak window
+        $streakCutoff = date('Y-m-d H:i:s', $createdAt + $streakSeconds);
+        $collection->addFieldToFilter('created_at', ['lteq' => $streakCutoff]);
+        $collection->setPageSize(1);
+
+        if ($collection->getSize() > 0) {
+            $this->logging->addDebug(
+                'SecondChance streak suppressed for email ' . $customerEmail .
+                ' (order ' . $item->getOrderId() . '): a newer attempt exists within the streak window.'
+            );
+            $this->setFinalStatus($item, 'streak_suppressed');
+            return true;
+        }
+
+        return false;
     }
 
     /**
