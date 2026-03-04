@@ -122,6 +122,54 @@
             </depends>
         </field>
 
+        <!-- Paid-order check: suppress reminder when customer already completed a purchase -->
+        <field id="second_chance_paid_order_section" translate="label" sortOrder="91" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Paid Order Validation</label>
+            <frontend_model>Magento\Config\Block\System\Config\Form\Field\Heading</frontend_model>
+            <depends>
+                <field id="enable_second_chance">1</field>
+            </depends>
+        </field>
+
+        <field id="second_chance_paid_order_check" translate="label comment" type="select" sortOrder="92" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Skip Reminder If Customer Already Paid</label>
+            <comment><![CDATA[Before sending any reminder, the system checks whether the customer (identified by e-mail) has already placed and paid a new order after abandoning the cart. If a paid order is found, the reminder is suppressed. This prevents contacting customers who have already completed their purchase through a different path.]]></comment>
+            <tooltip>Paid order states that are checked: Processing and Complete.</tooltip>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <config_path>buckaroo_magento2/second_chance/paid_order_check</config_path>
+            <depends>
+                <field id="enable_second_chance">1</field>
+            </depends>
+        </field>
+
+        <field id="second_chance_streak_section" translate="label" sortOrder="95" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Email Streak (De-duplication)</label>
+            <frontend_model>Magento\Config\Block\System\Config\Form\Field\Heading</frontend_model>
+            <depends>
+                <field id="enable_second_chance">1</field>
+            </depends>
+        </field>
+
+        <field id="second_chance_streak_enabled" translate="label comment" type="select" sortOrder="96" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Enable Streak Mode</label>
+            <comment><![CDATA[When enabled, customers who made multiple cart attempts within the streak window will receive only one reminder — for their most recent attempt. Earlier attempts in the same streak are silently skipped.]]></comment>
+            <tooltip>Use this to prevent the same customer from receiving duplicate abandoned-cart emails when they tried to check out multiple times within a short period.</tooltip>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <config_path>buckaroo_magento2/second_chance/streak_enabled</config_path>
+            <depends>
+                <field id="enable_second_chance">1</field>
+            </depends>
+        </field>
+
+        <field id="second_chance_streak_minutes" translate="label comment" type="text" sortOrder="97" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Streak Window (Minutes)</label>
+            <comment><![CDATA[If the same customer (identified by e-mail) has two cart attempts within this many minutes of each other, they are considered part of the same streak. Only the latest attempt in the streak receives the reminder. Example: set to 60 to group all attempts made within an hour.]]></comment>
+            <config_path>buckaroo_magento2/second_chance/streak_minutes</config_path>
+            <depends>
+                <field id="second_chance_streak_enabled">1</field>
+            </depends>
+        </field>
+
         <!-- External Email Provider Integration -->
         <field id="external_email_section" translate="label" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>External Email Provider Integration</label>
