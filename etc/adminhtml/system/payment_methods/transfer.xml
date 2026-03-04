@@ -84,6 +84,18 @@
         <group id="buckaroo_magento2_default" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Method Specific Configuration</label>
 
+            <field id="payment_method_logo" translate="label comment" type="select" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Payment Method Logo</label>
+                <comment><![CDATA[Select the logo displayed for the Bank Transfer payment method. The Generic Bank Logo is recommended for stores selling internationally. The SEPA Credit Transfer Logo is recommended for stores selling in Europe. This setting affects visual display only.]]></comment>
+                <source_model>Buckaroo\Magento2\Model\Config\Source\TransferPaymentMethodLogo</source_model>
+                <config_path>payment/buckaroo_magento2_transfer/payment_method_logo</config_path>
+            </field>
+
+            <field id="payment_method_logo_preview" translate="label" sortOrder="6" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Logo Preview</label>
+                <frontend_model>Buckaroo\Magento2\Block\Config\Form\Field\TransferLogoPreview</frontend_model>
+            </field>
+
             <field id="order_email" translate="label comment tooltip" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Send Payment Instruction Email</label>
                 <comment><![CDATA[Buckaroo sends an email to the customer with the payment procedures.]]></comment>
