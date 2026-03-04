@@ -692,6 +692,10 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
                     continue;
                 }
 
+                if ($this->hasPaidOrderSinceAbandonment($item, $store)) {
+                    continue;
+                }
+
                 // Validate order email is not a placeholder before sending
                 $orderEmail = $order->getCustomerEmail();
                 if ($this->isPlaceholderEmail($orderEmail)) {
@@ -961,6 +965,44 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         $collection->addFieldToFilter('status', ['in' => ['completed', 'clicked']]);
 
         return $collection->getSize() == 0;
+    }
+
+    /**
+     * Check whether the customer has already placed a paid order after the cart was abandoned
+     *
+     * @param \Buckaroo\Magento2\Model\SecondChance $item
+     * @param mixed $store
+     *
+     * @return bool  true = reminder should be skipped
+     * @throws LocalizedException
+     */
+    private function hasPaidOrderSinceAbandonment($item, $store): bool
+    {
+        if (!$this->configProvider->isPaidOrderCheckEnabled($store)) {
+            return false;
+        }
+
+        $customerEmail = $item->getCustomerEmail();
+        if (empty($customerEmail) || $this->isPlaceholderEmail($customerEmail)) {
+            return false;
+        }
+
+        $paidOrders = $this->orderFactory->create()->getCollection()
+            ->addFieldToFilter('customer_email', $customerEmail)
+            ->addFieldToFilter('state', ['in' => ['processing', 'complete']])
+            ->addFieldToFilter('created_at', ['gt' => $item->getCreatedAt()])
+            ->setPageSize(1);
+
+        if ($paidOrders->getSize() > 0) {
+            $this->logging->addDebug(
+                'SecondChance suppressed — customer already paid (email: ' . $customerEmail .
+                ', order: ' . $item->getOrderId() . ')'
+            );
+            $this->setFinalStatus($item, 'customer_paid');
+            return true;
+        }
+
+        return false;
     }
 
     /**

@@ -122,6 +122,26 @@
             </depends>
         </field>
 
+        <!-- Paid-order check: suppress reminder when customer already completed a purchase -->
+        <field id="second_chance_paid_order_section" translate="label" sortOrder="91" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Paid Order Validation</label>
+            <frontend_model>Magento\Config\Block\System\Config\Form\Field\Heading</frontend_model>
+            <depends>
+                <field id="enable_second_chance">1</field>
+            </depends>
+        </field>
+
+        <field id="second_chance_paid_order_check" translate="label comment" type="select" sortOrder="92" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Skip Reminder If Customer Already Paid</label>
+            <comment><![CDATA[Before sending any reminder, the system checks whether the customer (identified by e-mail) has already placed and paid a new order after abandoning the cart. If a paid order is found, the reminder is suppressed. This prevents contacting customers who have already completed their purchase through a different path.]]></comment>
+            <tooltip>Paid order states that are checked: Processing and Complete.</tooltip>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+            <config_path>buckaroo_magento2/second_chance/paid_order_check</config_path>
+            <depends>
+                <field id="enable_second_chance">1</field>
+            </depends>
+        </field>
+
         <field id="second_chance_streak_section" translate="label" sortOrder="95" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Email Streak (De-duplication)</label>
             <frontend_model>Magento\Config\Block\System\Config\Form\Field\Heading</frontend_model>

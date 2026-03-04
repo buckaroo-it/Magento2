@@ -37,6 +37,7 @@ class SecondChance
     const XPATH_MULTIPLE_EMAILS_SEND = 'buckaroo_magento2/second_chance/multiple_emails_send';
     const XPATH_STREAK_ENABLED = 'buckaroo_magento2/second_chance/streak_enabled';
     const XPATH_STREAK_MINUTES = 'buckaroo_magento2/second_chance/streak_minutes';
+    const XPATH_PAID_ORDER_CHECK = 'buckaroo_magento2/second_chance/paid_order_check';
 
     /**
      * @var ScopeConfigInterface
@@ -330,6 +331,22 @@ class SecondChance
             $store
         );
         return max(1, $minutes);
+    }
+
+    /**
+     * Check whether the paid-order validation is enabled.
+     *
+     * @param \Magento\Store\Api\Data\StoreInterface|int|null $store
+     *
+     * @return bool
+     */
+    public function isPaidOrderCheckEnabled($store = null): bool
+    {
+        return (bool) $this->scopeConfig->getValue(
+            self::XPATH_PAID_ORDER_CHECK,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
     }
 
     /**
