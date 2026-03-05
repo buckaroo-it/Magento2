@@ -570,6 +570,16 @@ class DefaultProcessor implements PushProcessorInterface
             return false;
         }
 
+        if ($this->payment->getAdditionalInformation('buckaroo_manually_canceled')) {
+            $this->logger->addDebug(sprintf(
+                '[%s:%s] - Skipping order reactivation: Order was manually canceled by merchant. Order: %s',
+                __METHOD__,
+                __LINE__,
+                $this->order->getIncrementId()
+            ));
+            return false;
+        }
+
         if ($this->isCancellationPush()) {
             $this->logger->addDebug(sprintf(
                 '[%s:%s] - Skipping order reactivation: This is a cancellation push. Order: %s',
@@ -1259,7 +1269,7 @@ class DefaultProcessor implements PushProcessorInterface
             return false;
         }
 
-        if (!$this->pushTransactionType->getTransactionType() == PushTransactionType::BUCK_PUSH_GROUPTRANSACTION_TYPE) {
+        if ($this->pushTransactionType->getTransactionType() != PushTransactionType::BUCK_PUSH_GROUPTRANSACTION_TYPE) {
             $this->payment->setAdditionalInformation(
                 BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY,
                 $this->pushRequest->getRelatedtransactionPartialpayment()
@@ -1757,9 +1767,7 @@ class DefaultProcessor implements PushProcessorInterface
             var_export($newStatus, true)
         ));
 
-        if (($this->order->getState() === Order::STATE_PROCESSING)
-            && ($this->order->getStatus() === Order::STATE_PROCESSING)
-        ) {
+        if ($this->order->getState() === Order::STATE_PROCESSING) {
             $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Do not update to failed if we had a success');
             return false;
         }
