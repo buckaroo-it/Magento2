@@ -464,13 +464,13 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     }
 
     /**
-     * Get display subtext
+     * Is subtext displayed
      *
      * @param null|int|Store $store
      *
      * @return bool
      */
-    public function getDisplaySubtext($store = null): bool
+    public function isSubtextDisplayed($store = null): bool
     {
         return (bool)$this->getMethodConfigValue(static::DISPLAY_SUBTEXT, $store);
     }
@@ -572,7 +572,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
                             'paymentFeeLabel'   => $this->getBuckarooPaymentFeeLabel(),
                             'title'             => $this->getTitle(),
                             'subtext'           => $this->getSubtext(),
-                            'display_subtext'   => $this->getDisplaySubtext(),
+                            'display_subtext'   => $this->isSubtextDisplayed(),
                             'subtext_style'     => $this->getSubtextStyle(),
                             'subtext_color'     => $this->getSubtextColor(),
                             'allowedCurrencies' => $this->getAllowedCurrencies(),
