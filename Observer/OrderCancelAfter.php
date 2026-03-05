@@ -28,7 +28,9 @@ use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
 use Exception;
+use Magento\Framework\App\Area;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\State as AppState;
 use Magento\Framework\Encryption\Encryptor;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
@@ -68,12 +70,18 @@ class OrderCancelAfter implements ObserverInterface
     protected $logger;
 
     /**
+     * @var AppState
+     */
+    private $appState;
+
+    /**
      * @param ScopeConfigInterface    $scopeConfig
      * @param Json                    $client
      * @param Encryptor               $encryptor
      * @param Account                 $configProviderAccount
      * @param PayPerEmail             $configProviderPPE
      * @param BuckarooLoggerInterface $logger
+     * @param AppState                $appState
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
@@ -81,7 +89,8 @@ class OrderCancelAfter implements ObserverInterface
         Encryptor $encryptor,
         Account $configProviderAccount,
         PayPerEmail $configProviderPPE,
-        BuckarooLoggerInterface $logger
+        BuckarooLoggerInterface $logger,
+        AppState $appState
     ) {
         $this->scopeConfig           = $scopeConfig;
         $this->client                = $client;
@@ -89,10 +98,13 @@ class OrderCancelAfter implements ObserverInterface
         $this->configProviderAccount = $configProviderAccount;
         $this->configProviderPPE     = $configProviderPPE;
         $this->logger                = $logger;
+        $this->appState              = $appState;
     }
 
     /**
-     * Do cancel request to payment engine for Pay Per Email payment method after order cancel
+     * Do cancel the request to the payment engine for Pay Per Email payment method after order cancel.
+     * Also marks merchant-initiated (admin panel) cancellations so that a subsequent successful
+     * Buckaroo push does not incorrectly reactivate a deliberately canceled order.
      *
      * @param Observer $observer
      *
@@ -104,6 +116,9 @@ class OrderCancelAfter implements ObserverInterface
         $order = $observer->getEvent()->getOrder();
         $payment = $order->getPayment();
         $originalKey = $payment->getAdditionalInformation(BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY);
+
+        $this->markManualCancellationIfApplicable($payment, $order);
+
         $cancelPPE = $this->configProviderPPE->getCancelPpe();
 
         if ($cancelPPE && $payment->getMethod() == PayPerEmail::CODE) {
@@ -126,6 +141,45 @@ class OrderCancelAfter implements ObserverInterface
                 ));
             }
         }
+    }
+
+    /**
+     * When a merchant manually cancels an order through the Magento admin panel (area = adminhtml),
+     * a persistent flag is stored on the payment so that any later successful Buckaroo push cannot
+     * reactivate the order. Cancellations triggered by push processors, services, or cron jobs run
+     * in webapi_rest / frontend / crontab areas and are therefore excluded from this guard.
+     *
+     * @param \Magento\Sales\Model\Order\Payment $payment
+     * @param Order $order
+     * @return void
+     * @throws LocalizedException
+     */
+    private function markManualCancellationIfApplicable($payment, Order $order): void
+    {
+        if (!$payment->getMethod() || strpos($payment->getMethod(), 'buckaroo_') !== 0) {
+            return;
+        }
+
+        try {
+            $areaCode = $this->appState->getAreaCode();
+        } catch (\Magento\Framework\Exception\LocalizedException $e) {
+            return;
+        }
+
+        if ($areaCode !== Area::AREA_ADMINHTML) {
+            return;
+        }
+
+        $this->logger->addDebug(sprintf(
+            '[CANCEL_ORDER] | [Observer] | [%s:%s] - Order %s canceled by merchant via admin panel. ' .
+            'Setting buckaroo_manually_canceled to prevent push-based reactivation.',
+            __METHOD__,
+            __LINE__,
+            $order->getIncrementId()
+        ));
+
+        $payment->setAdditionalInformation('buckaroo_manually_canceled', true);
+        $payment->save();
     }
 
     /**
