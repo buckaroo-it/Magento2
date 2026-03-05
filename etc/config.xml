@@ -435,6 +435,7 @@
                 <model>AfterpayOldFacade</model>
                 <order_status>pending</order_status>
                 <title>Riverty</title>
+                <subtext>Buy now, pay in 14 days</subtext>
                 <allowspecific>0</allowspecific>
                 <sort_order>150</sort_order>
                 <order_email>1</order_email>
@@ -461,6 +462,7 @@
                 <model>AfterpayOldFacade2</model>
                 <order_status>pending</order_status>
                 <title>Riverty 2</title>
+                <subtext>Buy now, pay in 14 days</subtext>
                 <allowspecific>0</allowspecific>
                 <sort_order>160</sort_order>
                 <order_email>1</order_email>
@@ -607,6 +609,7 @@
                 <model>KlarnaFacade</model>
                 <order_status>pending</order_status>
                 <title>Klarna</title>
+                <subtext>Pay later</subtext>
                 <sort_oder>220</sort_oder>
                 <order_email>1</order_email>
                 <group>buckaroo_magento2</group>
@@ -631,7 +634,8 @@
                 <active>0</active>
                 <model>KlarnaKpFacade</model>
                 <order_status>pending</order_status>
-                <title>Klarna: Pay later</title>
+                <title>Klarna</title>
+                <subtext>Pay later</subtext>
                 <sort_oder>220</sort_oder>
                 <order_email>1</order_email>
                 <group>buckaroo_magento2</group>
@@ -656,6 +660,7 @@
                 <model>AfterpayFacade</model>
                 <order_status>pending</order_status>
                 <title>Riverty</title>
+                <subtext>Buy now, pay in 14 days</subtext>
                 <allowspecific>0</allowspecific>
                 <sort_order>240</sort_order>
                 <order_email>1</order_email>
@@ -683,6 +688,7 @@
                 <model>BillinkFacade</model>
                 <order_status>pending</order_status>
                 <title>Billink</title>
+                <subtext>Pay afterwards</subtext>
                 <allowspecific>0</allowspecific>
                 <sort_order>240</sort_order>
                 <order_email>1</order_email>
@@ -753,6 +759,7 @@
                 <model>CapayableFacade</model>
                 <order_status>pending</order_status>
                 <title>In3</title>
+                <subtext>Pay in 3 installments, 0% interest</subtext>
                 <allowspecific>0</allowspecific>
                 <sort_order>250</sort_order>
                 <order_email>1</order_email>

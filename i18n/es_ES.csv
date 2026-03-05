@@ -621,3 +621,7 @@
 "If external provider fails after retries, send via Magento's default mail system.","Si falla, enviar vía Magento."
 "Cancel Order on Browser Back Button","Cancelar Pedido Al Retroceder Navegador"
 "If disabled, orders will stay in pending state when customer uses browser back button, allowing retry. Buckaroo push notification will handle final cancellation if needed.","Si está desactivado, los pedidos permanecerán pendientes cuando el cliente use el botón retroceder, permitiendo reintentar. La notificación push de Buckaroo manejará la cancelación final si es necesario."
+"Pay afterwards","Pagar más tarde"
+"Buy now, pay in 14 days","Pagar en un plazo de 14 días"
+"Pay in 3 installments, 0% interest","Pagar en 3 cuotas, 0 % de interés"
+"Pay later","Pagar más tarde"

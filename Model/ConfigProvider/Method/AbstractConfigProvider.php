@@ -56,10 +56,11 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     public const SPECIFIC_CUSTOMER_GROUP     = 'specificcustomergroup';
     public const SPECIFIC_CUSTOMER_GROUP_B2B = 'specificcustomergroupb2b';
 
-    public const SUBTEXT       = 'subtext';
-    public const SUBTEXT_STYLE = 'subtext_style';
-    public const SUBTEXT_COLOR = 'subtext_color';
-    public const TITLE         = 'title';
+    public const SUBTEXT         = 'subtext';
+    public const DISPLAY_SUBTEXT = 'display_subtext';
+    public const SUBTEXT_STYLE   = 'subtext_style';
+    public const SUBTEXT_COLOR   = 'subtext_color';
+    public const TITLE           = 'title';
     public const FINANCIAL_WARNING = 'financial_warning';
 
     public const CUSTOMER_ADDITIONAL_INFO = 'customer_additional_info';
@@ -463,6 +464,18 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     }
 
     /**
+     * Get display subtext
+     *
+     * @param null|int|Store $store
+     *
+     * @return bool
+     */
+    public function getDisplaySubtext($store = null): bool
+    {
+        return (bool)$this->getMethodConfigValue(static::DISPLAY_SUBTEXT, $store);
+    }
+
+    /**
      * Get subtext style
      *
      * @param null|int|Store $store
@@ -559,6 +572,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
                             'paymentFeeLabel'   => $this->getBuckarooPaymentFeeLabel(),
                             'title'             => $this->getTitle(),
                             'subtext'           => $this->getSubtext(),
+                            'display_subtext'   => $this->getDisplaySubtext(),
                             'subtext_style'     => $this->getSubtextStyle(),
                             'subtext_color'     => $this->getSubtextColor(),
                             'allowedCurrencies' => $this->getAllowedCurrencies(),
