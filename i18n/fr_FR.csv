@@ -633,3 +633,7 @@ Magento Community Edition version""","Version de l'édition communautaire de Mag
 "If external provider fails after retries, send via Magento's default mail system.","Si le fournisseur externe échoue, envoyer via Magento."
 "Cancel Order on Browser Back Button","Annuler Commande Sur Bouton Retour"
 "If disabled, orders will stay in pending state when customer uses browser back button, allowing retry. Buckaroo push notification will handle final cancellation if needed.","Si désactivé, les commandes resteront en attente lorsque le client utilise le bouton retour, permettant de réessayer. La notification push Buckaroo gérera l'annulation finale si nécessaire."
+"Pay afterwards","Payer plus tard"
+"Buy now, pay in 14 days","Payer sous 14 jours"
+"Pay in 3 installments, 0% interest","Payer en 3 fois, 0 % d’intérêt"
+"Pay later","Payer plus tard"

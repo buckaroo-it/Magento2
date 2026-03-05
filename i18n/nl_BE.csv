@@ -634,3 +634,7 @@
 "If external provider fails after retries, send via Magento's default mail system.","Bij fout via Magento verzenden."
 "Cancel Order on Browser Back Button","Annuleer Bestelling Bij Terugknop"
 "If disabled, orders will stay in pending state when customer uses browser back button, allowing retry. Buckaroo push notification will handle final cancellation if needed.","Indien uitgeschakeld blijven bestellingen in afwachting bij terugknop, opnieuw proberen mogelijk. Buckaroo push notificatie handelt annulering af indien nodig."
+"Pay afterwards","Achteraf betalen"
+"Buy now, pay in 14 days","Achteraf betalen binnen 14 dagen"
+"Pay in 3 installments, 0% interest","In 3 delen betalen, 0% rente"
+"Pay later","Achteraf betalen"
