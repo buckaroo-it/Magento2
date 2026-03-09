@@ -147,9 +147,8 @@ class PushTransactionType
             $this->creditManagement = $this->pushType === self::BUCK_PUSH_TYPE_INVOICE;
             $this->magentoServiceAction = $this->pushRequest->getAdditionalInformation('service_action_from_magento');
             $this->serviceAction = $this->getServiceAction();
-            $this->isFromPayPerEmail = (bool)$this->pushRequest->getAdditionalInformation('frompayperemail')
-                ?? (bool)$this->pushRequest->getAdditionalInformation('frompayperemail')
-                ?? false;
+            $this->isFromPayPerEmail = !empty($this->pushRequest->getAdditionalInformation('frompayperemail'))
+                || $this->pushRequest->getAdditionalInformation('service_action_from_magento') === 'frompayperemail';
 
             $this->isSet = true;
         }

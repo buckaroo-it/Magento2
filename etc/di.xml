@@ -3216,7 +3216,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="order" xsi:type="string">PayPerEmailOrderCommand</item>
                 <item name="paylink" xsi:type="string">PayLinkCommand</item>
-                <item name="refund" xsi:type="string">BuckarooRefundWithCreditManagementCommand</item>
+                <item name="refund" xsi:type="string">BuckarooRefundCommand</item>
             </argument>
         </arguments>
     </virtualType>
@@ -4400,9 +4400,9 @@
 
     <!-- External Email Provider Integration for Second Chance Emails -->
     <type name="Buckaroo\Magento2\Model\SecondChanceRepository">
-        <plugin name="buckaroo_external_email_secondchance" 
-                type="Buckaroo\Magento2\Plugin\SecondChance\ExternalEmailProviderPlugin" 
-                sortOrder="10" 
+        <plugin name="buckaroo_external_email_secondchance"
+                type="Buckaroo\Magento2\Plugin\SecondChance\ExternalEmailProviderPlugin"
+                sortOrder="10"
                 disabled="false"/>
     </type>
     <!-- END External Email Provider Integration -->

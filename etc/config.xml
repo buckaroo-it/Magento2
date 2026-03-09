@@ -510,6 +510,7 @@
                 <can_use_internal>1</can_use_internal>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
+                <paymentInfoKeys>isPayPerEmail,buckaroo_payperemail_actual_transaction_key,buckaroo_actual_payment_method,buckaroo_actual_payment_transaction_key</paymentInfoKeys>
             </buckaroo_magento2_payperemail>
 
             <buckaroo_magento2_eps>
