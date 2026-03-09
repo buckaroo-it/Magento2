@@ -56,6 +56,14 @@ class PaymentMethodDataBuilder implements BuilderInterface
         $method = $payment->getMethodInstance()->getCode() ?? 'buckaroo_magento2_ideal';
         $providerType = str_replace('buckaroo_magento2_', '', $method);
 
+        // PayPerEmail: get actual payment method from additional_information
+        if ($providerType === 'payperemail') {
+            $actualMethod = $payment->getAdditionalInformation(BuckarooAdapter::BUCKAROO_ACTUAL_PAYMENT_METHOD);
+            if (!empty($actualMethod) && is_string($actualMethod)) {
+                $providerType = strtolower(trim($actualMethod));
+            }
+        }
+
         // Edge case: If method is "giftcards" but no group transactions exist,
         // it means the user selected giftcard but paid 100% with another method (e.g., iDEAL)
         // Get the actual payment method from transaction details
@@ -63,11 +71,11 @@ class PaymentMethodDataBuilder implements BuilderInterface
             $groupTransactionAmount = $this->paymentGroupTransaction->getGroupTransactionAmount(
                 $order->getOrderIncrementId()
             );
-            
+
             // No group transactions = no giftcards were actually used
             if ($groupTransactionAmount <= 0) {
                 $rawDetailsInfo = $payment->getAdditionalInformation('raw_details_info');
-                
+
                 if (is_array($rawDetailsInfo) && !empty($rawDetailsInfo)) {
                     $firstTransaction = reset($rawDetailsInfo);
                     if (isset($firstTransaction['brq_transaction_method'])) {

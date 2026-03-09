@@ -259,31 +259,69 @@ class PayPerEmailProcessor extends DefaultProcessor
     private function setPaymentMethodIfDifferent(): bool
     {
         $status = $this->pushTransactionType->getStatusKey();
-        if (!empty($this->pushRequest->getTransactionMethod())
-            && $status == 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'
-            && $this->pushRequest->getTransactionMethod() != 'payperemail') {
-            $transactionMethod = strtolower($this->pushRequest->getTransactionMethod());
-            $this->payment->setAdditionalInformation('isPayPerEmail', $transactionMethod);
+        if ($status !== 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS') {
+            return false;
+        }
 
-            $options = new \Buckaroo\Magento2\Model\Config\Source\PaymentMethods\PayPerEmail();
-            foreach ($options->toOptionArray() as $item) {
-                if (($item['value'] == $transactionMethod) && isset($item['code'])) {
-                    $this->payment->setMethod($item['code']);
-                    $this->payment->setAdditionalInformation(
-                        BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY,
-                        $this->getTransactionKey()
-                    );
-                    if ($item['code'] == 'buckaroo_magento2_creditcards') {
-                        $this->payment->setAdditionalInformation('card_type', $transactionMethod);
-                    }
-                }
-            }
-            $this->payment->save();
-            $this->order->save();
+        $transactionKey = $this->getTransactionKey();
+        $payPerEmailKey = $this->payment->getAdditionalInformation(BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY);
+        $isPayPerEmailOrder = $this->payment->getMethod() === 'buckaroo_magento2_payperemail'
+            || $this->payment->getAdditionalInformation('isPayPerEmail') !== null;
+
+        $transactionMethod = $this->pushRequest->getTransactionMethod();
+        if (!empty($transactionMethod) && strtolower( $transactionMethod) !== 'payperemail') {
+            $transactionMethod = strtolower($transactionMethod);
+            $this->saveActualPaymentMethodAndKeyForRefund($transactionKey, $transactionMethod);
             return true;
         }
 
+        if ($isPayPerEmailOrder && !empty($transactionKey) && $transactionKey !== $payPerEmailKey) {
+            $transactionMethod = $this->deriveActualPaymentMethodFromPush();
+            if ($transactionMethod !== null) {
+                $this->saveActualPaymentMethodAndKeyForRefund($transactionKey, $transactionMethod);
+                return true;
+            }
+        }
+
         return false;
+    }
+
+    private function saveActualPaymentMethodAndKeyForRefund(string $transactionKey, string $transactionMethod): void
+    {
+        $this->payment->setAdditionalInformation(
+            BuckarooAdapter::BUCKAROO_ACTUAL_PAYMENT_METHOD,
+            $transactionMethod
+        );
+        $this->payment->setAdditionalInformation(
+            BuckarooAdapter::BUCKAROO_ACTUAL_PAYMENT_TRANSACTION_KEY,
+            $transactionKey
+        );
+        $this->payment->save();
+        $this->order->save();
+    }
+
+    private function deriveActualPaymentMethodFromPush(): ?string
+    {
+        if (method_exists($this->pushRequest, 'getPrimaryService')) {
+            $primary = $this->pushRequest->getPrimaryService();
+            if (!empty($primary) && strtolower((string) $primary) !== 'payperemail') {
+                return strtolower((string) $primary);
+            }
+        }
+        if (method_exists($this->pushRequest, 'getData')) {
+            $data = $this->pushRequest->getData();
+            if (is_array($data)) {
+                foreach (array_keys($data) as $key) {
+                    if (preg_match('/^brq_service_([a-z0-9]+)_/i', (string) $key, $m)) {
+                        $service = strtolower($m[1]);
+                        if ($service !== 'payperemail' && $service !== 'paylink') {
+                            return $service;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     /**
