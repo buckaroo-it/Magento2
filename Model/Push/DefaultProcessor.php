@@ -344,6 +344,20 @@ class DefaultProcessor implements PushProcessorInterface
             && $this->pushRequest->hasAdditionalInformation('service_action_from_magento', $types)
             && empty($this->pushRequest->getRelatedtransactionRefund())
         ) {
+            if ($this->pushRequest->hasAdditionalInformation('service_action_from_magento', 'capture')
+                && !$this->order->hasInvoices()
+                && !$this->order->getPayment()->getAdditionalInformation('buckaroo_already_captured')
+            ) {
+                $this->logger->addDebug(sprintf(
+                    '[%s:%s] - Not skipping Magento-initiated capture push for order %s: '
+                    . 'no invoice exists (synchronous capture may have failed)',
+                    __METHOD__,
+                    __LINE__,
+                    $this->order->getIncrementId()
+                ));
+                return false;
+            }
+
             return true;
         }
 

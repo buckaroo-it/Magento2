@@ -27,9 +27,6 @@ use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
-use Exception;
-use Magento\Framework\App\Area;
-use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\State as AppState;
 use Magento\Framework\Encryption\Encryptor;
 use Magento\Framework\Event\Observer;
@@ -39,11 +36,6 @@ use Magento\Sales\Model\Order;
 
 class OrderCancelAfter implements ObserverInterface
 {
-    /**
-     * @var ScopeConfigInterface
-     */
-    protected $scopeConfig;
-
     /**
      * @var Json
      */
@@ -75,7 +67,6 @@ class OrderCancelAfter implements ObserverInterface
     private $appState;
 
     /**
-     * @param ScopeConfigInterface    $scopeConfig
      * @param Json                    $client
      * @param Encryptor               $encryptor
      * @param Account                 $configProviderAccount
@@ -84,7 +75,6 @@ class OrderCancelAfter implements ObserverInterface
      * @param AppState                $appState
      */
     public function __construct(
-        ScopeConfigInterface $scopeConfig,
         Json $client,
         Encryptor $encryptor,
         Account $configProviderAccount,
@@ -92,7 +82,6 @@ class OrderCancelAfter implements ObserverInterface
         BuckarooLoggerInterface $logger,
         AppState $appState
     ) {
-        $this->scopeConfig           = $scopeConfig;
         $this->client                = $client;
         $this->encryptor             = $encryptor;
         $this->configProviderAccount = $configProviderAccount;
@@ -132,7 +121,7 @@ class OrderCancelAfter implements ObserverInterface
                     $order->getId()
                 ));
                 $this->sendCancelResponse($originalKey, $order->getStoreId());
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 $this->logger->addError(sprintf(
                     '[CANCEL_ORDER - PayPerEmail] | [Observer] | [%s:%s] - Send Cancel Request for PPE | [ERROR]: %s',
                     __METHOD__,
@@ -166,7 +155,7 @@ class OrderCancelAfter implements ObserverInterface
             return;
         }
 
-        if ($areaCode !== Area::AREA_ADMINHTML) {
+        if ($areaCode !== 'adminhtml') {
             return;
         }
 
@@ -186,7 +175,7 @@ class OrderCancelAfter implements ObserverInterface
      * @param mixed      $key
      * @param null|mixed $storeId
      *
-     * @throws Exception
+     * @throws \Exception
      */
     private function sendCancelResponse($key, $storeId = null)
     {

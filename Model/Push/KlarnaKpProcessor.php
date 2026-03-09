@@ -111,7 +111,31 @@ class KlarnaKpProcessor extends DefaultProcessor
             && $this->pushRequest->hasAdditionalInformation('service_action_from_magento', 'pay')
             && !empty($this->pushRequest->getServiceKlarnakpCaptureid())
         ) {
-            return true;
+            $hasInvoices = $this->order->hasInvoices();
+            $alreadyCaptured = (bool)$this->order->getPayment()
+                ->getAdditionalInformation('buckaroo_already_captured');
+
+            if ($hasInvoices || $alreadyCaptured) {
+                $this->logger->addDebug(sprintf(
+                    '[KLARNA_KP] | [%s:%s] - Skipping capture push for order %s: '
+                    . 'capture already processed (hasInvoices: %s, alreadyCaptured: %s)',
+                    __METHOD__,
+                    __LINE__,
+                    $this->order->getIncrementId(),
+                    $hasInvoices ? 'YES' : 'NO',
+                    $alreadyCaptured ? 'YES' : 'NO'
+                ));
+                return true;
+            }
+
+            $this->logger->addDebug(sprintf(
+                '[KLARNA_KP] | [%s:%s] - Not skipping capture push for order %s: '
+                . 'no invoice and not marked as captured (synchronous capture may have failed)',
+                __METHOD__,
+                __LINE__,
+                $this->order->getIncrementId()
+            ));
+            return false;
         }
 
         return parent::skipPush();
