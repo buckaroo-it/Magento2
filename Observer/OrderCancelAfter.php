@@ -27,7 +27,6 @@ use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
-use Magento\Framework\App\Area;
 use Magento\Framework\App\State as AppState;
 use Magento\Framework\Encryption\Encryptor;
 use Magento\Framework\Event\Observer;
@@ -156,7 +155,7 @@ class OrderCancelAfter implements ObserverInterface
             return;
         }
 
-        if ($areaCode !== Area::AREA_ADMINHTML) {
+        if ($areaCode !== 'adminhtml') {
             return;
         }
 
