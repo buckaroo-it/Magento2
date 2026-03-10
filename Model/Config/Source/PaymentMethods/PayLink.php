@@ -41,7 +41,7 @@ class PayLink implements OptionSourceInterface
             ['value' => 'dankort',                'label' => __('Dankort')],
             ['value' => 'eps',                    'label' => __('EPS')],
             ['value' => 'giftcard',               'label' => __('Giftcards')],
-            ['value' => 'ideal',                  'label' => __('iDEAL')],
+            ['value' => 'ideal',                  'label' => __('iDEAL | Wero')],
             ['value' => 'maestro',                'label' => __('Maestro')],
             ['value' => 'mastercard',             'label' => __('Mastercard')],
             ['value' => 'paypal',                 'label' => __('PayPal')],

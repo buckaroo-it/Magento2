@@ -77,7 +77,7 @@ class PayPerEmail implements OptionSourceInterface
             ],
             [
                 'value' => 'ideal',
-                'label' => __('iDEAL'),
+                'label' => __('iDEAL | Wero'),
                 'code'  => 'buckaroo_magento2_ideal'
             ],
             [
