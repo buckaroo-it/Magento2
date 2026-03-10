@@ -308,19 +308,31 @@ class PayPerEmailProcessor extends DefaultProcessor
                 return strtolower((string) $primary);
             }
         }
-        if (method_exists($this->pushRequest, 'getData')) {
-            $data = $this->pushRequest->getData();
-            if (is_array($data)) {
-                foreach (array_keys($data) as $key) {
-                    if (preg_match('/^brq_service_([a-z0-9]+)_/i', (string) $key, $m)) {
-                        $service = strtolower($m[1]);
-                        if ($service !== 'payperemail' && $service !== 'paylink') {
-                            return $service;
-                        }
-                    }
+
+        return $this->findServiceInPushData();
+    }
+
+    private function findServiceInPushData(): ?string
+    {
+        if (!method_exists($this->pushRequest, 'getData')) {
+            return null;
+        }
+
+        $data = $this->pushRequest->getData();
+
+        if (!is_array($data)) {
+            return null;
+        }
+
+        foreach (array_keys($data) as $key) {
+            if (preg_match('/^brq_service_([a-z0-9]+)_/i', (string) $key, $m)) {
+                $service = strtolower($m[1]);
+                if ($service !== 'payperemail' && $service !== 'paylink') {
+                    return $service;
                 }
             }
         }
+
         return null;
     }
 
