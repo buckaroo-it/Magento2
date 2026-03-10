@@ -158,6 +158,18 @@ class PayPerEmailProcessor extends DefaultProcessor
                 '[PUSH - PayPerEmail] | [Webapi] | [' . __METHOD__ . ':' . __LINE__ . '] - Order can not receive updates'
             );
             $this->orderRequestService->setOrderNotificationNote(__('The order has already been processed.'));
+
+            $finalStates = [
+                Order::STATE_CANCELED,
+                Order::STATE_COMPLETE,
+                Order::STATE_CLOSED,
+                Order::STATE_HOLDED,
+            ];
+
+            if (in_array($this->order->getState(), $finalStates)) {
+                return true;
+            }
+
             throw new BuckarooException(
                 __('Signature from push is correct but the order can not receive updates')
             );
