@@ -231,16 +231,6 @@ class SalesOrderShipmentAfter implements ObserverInterface
                 ));
                 $invoice->setRequestedCaptureCase(Invoice::CAPTURE_OFFLINE);
 
-                // Add capture transaction comment
-                $transactionId = $payment->getLastTransId();
-                if ($transactionId) {
-                    $captureMessage = __(
-                        'Captured amount of %1 offline. Transaction ID: "%2"',
-                        $this->order->getBaseCurrency()->formatTxt($invoice->getBaseGrandTotal()),
-                        $transactionId
-                    );
-                    $payment->addTransactionCommentsToOrder($transactionId, $captureMessage);
-                }
             } else {
                 $invoice->setRequestedCaptureCase(Invoice::CAPTURE_ONLINE);
             }
