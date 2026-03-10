@@ -110,7 +110,9 @@ class PushProcessorsFactory
         $paymentMethod = strtolower($pushTransactionType->getPaymentMethod());
         $pushProcessorClass = $this->pushProcessors[$paymentMethod] ?? $pushProcessorClass;
 
-        if ($pushTransactionType->isFromPayPerEmail()) {
+        if ($pushTransactionType->isFromPayPerEmail()
+            && $pushTransactionType->getServiceAction() !== 'refund'
+        ) {
             return $this->pushProcessors['payperemail'];
         }
 
