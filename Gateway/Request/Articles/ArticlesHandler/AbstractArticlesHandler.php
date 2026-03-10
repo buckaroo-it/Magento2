@@ -337,7 +337,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             $article = $this->getArticleArrayLine(
                 $item->getName(),
                 $this->getIdentifier($item),
-                $bundleProductQty ?: $item->getQty(),
+                $item->getTotalQty(),
                 $this->calculateProductPrice($item),
                 $this->getItemTax($item)
             );
@@ -433,7 +433,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         if (!$includesTax
             && $productItem->getDiscountAmount() >= 0.01) {
             $productPrice = $productItem->getPrice()
-                + $productItem->getTaxAmount() / $productItem->getQty();
+                + $productItem->getTaxAmount() / $productItem->getTotalQty();
         }
 
         if ($productItem->getWeeeTaxAppliedAmount() > 0) {

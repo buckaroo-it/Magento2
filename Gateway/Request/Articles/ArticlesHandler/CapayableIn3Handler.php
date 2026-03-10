@@ -115,7 +115,7 @@ class CapayableIn3Handler extends AbstractArticlesHandler
                 continue;
             }
 
-            $itemQty = $bundleProductQty ?: $item->getQty();
+            $itemQty = $item->getTotalQty();
 
             $itemPrice = $this->calculateProductPrice($item);
 

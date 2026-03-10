@@ -152,7 +152,7 @@ class BillinkHandler extends AbstractArticlesHandler
             $article = $this->getArticleArrayLine(
                 $item->getName(),
                 $this->getIdentifier($item),
-                $bundleProductQty ?: $item->getQty(),
+                $item->getTotalQty(),
                 $this->calculateProductPrice($item),
                 $this->getItemTax($item)
             );
