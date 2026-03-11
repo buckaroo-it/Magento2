@@ -188,6 +188,8 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             $articles = array_merge_recursive($articles, $additionalLines);
         }
 
+        $articles = $this->reconcileArticlesWithGrandTotal($articles, (float)$order->getGrandTotal());
+
         return $articles;
     }
 
@@ -495,6 +497,14 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
 
         if ($this->order->getDiscountAmount() < 0) {
             $discount -= abs((double)$this->order->getDiscountAmount());
+
+            $includesTax = (bool)$this->scopeConfig->getValue(
+                static::TAX_CALCULATION_INCLUDES_TAX,
+                ScopeInterface::SCOPE_STORE
+            );
+            if ($includesTax) {
+                $discount -= abs((double)$this->order->getDiscountTaxCompensationAmount());
+            }
         }
 
         if ($edition == 'Enterprise' && $this->order->getCustomerBalanceAmount() > 0) {
@@ -683,6 +693,8 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             $articles = array_merge_recursive($articles, $shippingCosts);
         }
 
+        $articles = $this->reconcileArticlesWithGrandTotal($articles, (float)$currentInvoice->getGrandTotal());
+
         return $articles;
     }
 
@@ -697,6 +709,10 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     {
         $articles = [];
         $count = 1;
+        $includesTax = (bool)$this->scopeConfig->getValue(
+            static::TAX_CALCULATION_INCLUDES_TAX,
+            ScopeInterface::SCOPE_STORE
+        );
 
         /** @var Invoice\Item $item */
         foreach ($invoice->getAllItems() as $item) {
@@ -716,11 +732,15 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
 
             if ($item->getDiscountAmount() > 0) {
                 $count++;
+                $discountAmount = (float)$item->getDiscountAmount();
+                if ($includesTax) {
+                    $discountAmount += abs((float)($item->getDiscountTaxCompensationAmount() ?? 0));
+                }
                 $article = $this->getArticleArrayLine(
                     $this->getDiscountDescription($item),
                     $item->getSku(),
                     1,
-                    number_format(($item->getDiscountAmount() * -1), 2),
+                    number_format(-$discountAmount, 2),
                     0
                 );
                 $articles[] = $article;
@@ -868,6 +888,54 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             'quantity' => $articleQuantity,
             'price' => $articleUnitPrice
         ];
+    }
+
+
+    /**
+     * Safety net: if the assembled article lines do not sum exactly to the grand total
+     * (rounding, unusual discount types, partial invoices), add a zero-VAT adjustment
+     * line to close the gap and prevent Klarna/AfterPay AmountDebit validation errors.
+     *
+     * @param array $articles
+     * @param float $grandTotal
+     *
+     * @return array
+     */
+    protected function reconcileArticlesWithGrandTotal(array $articles, float $grandTotal): array
+    {
+        $articleSum = 0.0;
+        foreach ($articles['articles'] as $article) {
+            if (!is_array($article)) {
+                continue;
+            }
+            $articleSum += (float)($article['price'] ?? 0) * (float)($article['quantity'] ?? 1);
+        }
+
+        $diff = round($grandTotal - $articleSum, 2);
+
+        if (abs($diff) <= 0.01) {
+            return $articles;
+        }
+
+        $this->buckarooLog->addDebug(sprintf(
+            '[%s] Article sum mismatch: grandTotal=%.2f, articleSum=%.2f, diff=%.2f. Adding reconciliation line.',
+            __METHOD__,
+            $grandTotal,
+            $articleSum,
+            $diff
+        ));
+
+        $reconciliationLine = $this->getArticleArrayLine(
+            'Adjustment',
+            1,
+            1,
+            $diff,
+            0
+        );
+
+        $articles['articles'][] = $reconciliationLine;
+
+        return $articles;
     }
 
     /**
