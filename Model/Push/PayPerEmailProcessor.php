@@ -59,6 +59,11 @@ class PayPerEmailProcessor extends DefaultProcessor
     private $isPayPerEmailB2BModePushInitial = false;
 
     /**
+     * @var bool|null
+     */
+    private $isPayPerEmailB2BModePush = null;
+
+    /**
      * @param OrderRequestService     $orderRequestService
      * @param PushTransactionType     $pushTransactionType
      * @param BuckarooLoggerInterface $logger
@@ -376,23 +381,22 @@ class PayPerEmailProcessor extends DefaultProcessor
      */
     public function isPayPerEmailB2BModePush(): bool
     {
-        if (!isset($this->isPayPerEmailB2BModePushInitial)) {
-            if (!empty($this->pushRequest->getAdditionalInformation('frompayperemail'))
+        if ($this->isPayPerEmailB2BModePush === null) {
+            $this->isPayPerEmailB2BModePush = !empty($this->pushRequest->getAdditionalInformation('frompayperemail'))
                 && !empty($this->pushRequest->getTransactionMethod())
                 && ($this->pushRequest->getTransactionMethod() == 'payperemail')
-                && $this->configPayPerEmail->isEnabledB2B()) {
+                && $this->configPayPerEmail->isEnabledB2B();
+
+            if ($this->isPayPerEmailB2BModePush) {
                 $this->logger->addDebug(sprintf(
                     '[PUSH - PayPerEmail] | [Webapi] | [%s:%s] - The transaction is PayPerEmail B2B',
                     __METHOD__,
                     __LINE__
                 ));
-                $this->isPayPerEmailB2BModePushInitial = true;
             }
-        } else {
-            $this->isPayPerEmailB2BModePushInitial = false;
         }
 
-        return $this->isPayPerEmailB2BModePushInitial;
+        return $this->isPayPerEmailB2BModePush;
     }
 
     /**
@@ -402,8 +406,10 @@ class PayPerEmailProcessor extends DefaultProcessor
      */
     public function isPayPerEmailB2BModePushInitial(): bool
     {
-        return $this->isPayPerEmailB2BModePush()
+        $this->isPayPerEmailB2BModePushInitial = $this->isPayPerEmailB2BModePush()
             && ($this->pushTransactionType->getStatusKey() == 'BUCKAROO_MAGENTO2_STATUSCODE_WAITING_ON_CONSUMER');
+
+        return $this->isPayPerEmailB2BModePushInitial;
     }
 
     /**
@@ -510,6 +516,30 @@ class PayPerEmailProcessor extends DefaultProcessor
      */
     protected function canProcessPendingPush(): bool
     {
+        if ($this->isAlreadyFinalizedPayPerEmailOrder()) {
+            $this->logger->addDebug(sprintf(
+                '[PUSH - PayPerEmail] | [Webapi] | [%s:%s] - Skip stale pending push for finalized order | order: %s | state: %s | totalPaid: %s | hasInvoices: %s',
+                __METHOD__,
+                __LINE__,
+                $this->order->getIncrementId(),
+                $this->order->getState(),
+                (string)$this->order->getTotalPaid(),
+                $this->order->hasInvoices() ? 'true' : 'false'
+            ));
+            return false;
+        }
+
         return true;
+    }
+
+    private function isAlreadyFinalizedPayPerEmailOrder(): bool
+    {
+        return in_array($this->order->getState(), [
+            Order::STATE_PROCESSING,
+            Order::STATE_COMPLETE,
+            Order::STATE_CLOSED,
+        ], true)
+            || (float)$this->order->getTotalPaid() > 0.0001
+            || $this->order->hasInvoices();
     }
 }
