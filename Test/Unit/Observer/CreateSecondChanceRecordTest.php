@@ -52,6 +52,9 @@ class CreateSecondChanceRecordTest extends \Buckaroo\Magento2\Test\BaseTest
             'valid buckaroo order canceled' => [
                 124, 'canceled', 'buckaroo_magento2_paypal', true,  false, 1, 1
             ],
+            'transfer payment is excluded' => [
+                129, 'pending_payment', 'buckaroo_magento2_transfer', true, false, 0, 0
+            ],
             'order with non-buckaroo payment method' => [
                 125, 'pending_payment', 'checkmo', true,  false, 0, 0
             ],

@@ -20,6 +20,7 @@
 
 namespace Buckaroo\Magento2\Observer;
 
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Transfer;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\LocalizedException;
@@ -108,6 +109,10 @@ class CreateSecondChanceRecord implements ObserverInterface
 
         $payment = $order->getPayment();
         if (!$payment || strpos($payment->getMethod(), 'buckaroo') === false) {
+            return false;
+        }
+
+        if ($payment->getMethod() === Transfer::CODE) {
             return false;
         }
 
