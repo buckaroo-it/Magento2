@@ -181,7 +181,7 @@
                 <config_path>payment/buckaroo_magento2_knaken/specificcustomergroup</config_path>
             </field>
         
-            <field id="customer_additional_info" translate="label comment" type="multiselect" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
+            <field id="customer_additional_info" translate="label comment" type="multiselect" sortOrder="140" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Add customer data to request</label>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\CustomerAdditionalInfo</source_model>
                 <comment><![CDATA[Override the global custom parameters for this payment method. When set, only the selected fields will be included in the transaction request. Leave empty to use the global setting.]]></comment>
