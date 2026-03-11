@@ -3,27 +3,9 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Test\Unit\Model\Push;
 
-use Buckaroo\Magento2\Helper\Data;
-use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
-use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
-use Buckaroo\Magento2\Model\BuckarooStatusCode;
-use Buckaroo\Magento2\Model\ConfigProvider\Account;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
-use Buckaroo\Magento2\Model\OrderStatusFactory;
-use Buckaroo\Magento2\Model\Push\PayPerEmailProcessor;
-use Buckaroo\Magento2\Model\Push\PushTransactionType;
-use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
-use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
-use Buckaroo\Magento2\Service\Order\Uncancel;
-use Buckaroo\Magento2\Service\Push\OrderRequestService;
-use Buckaroo\Magento2\Test\BaseTest;
-use Magento\Framework\App\ResourceConnection;
-use Magento\Sales\Api\Data\TransactionInterface;
-use Magento\Sales\Model\Order;
-
-class PayPerEmailProcessorTest extends BaseTest
+class PayPerEmailProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
 {
-    protected $instanceClass = PayPerEmailProcessor::class;
+    protected $instanceClass = 'Buckaroo\Magento2\Model\Push\PayPerEmailProcessor';
 
     private $orderRequestServiceMock;
     private $pushTransactionTypeMock;
@@ -44,23 +26,23 @@ class PayPerEmailProcessorTest extends BaseTest
     {
         parent::setUp();
 
-        $this->orderRequestServiceMock = $this->getFakeMock(OrderRequestService::class)->getMock();
-        $this->pushTransactionTypeMock = $this->getFakeMock(PushTransactionType::class)->getMock();
-        $this->loggerMock = $this->getFakeMock(BuckarooLoggerInterface::class)->getMock();
-        $this->helperMock = $this->getFakeMock(Data::class)->getMock();
-        $this->transactionMock = $this->getFakeMock(TransactionInterface::class)->getMock();
-        $this->groupTransactionMock = $this->getFakeMock(PaymentGroupTransaction::class)->getMock();
-        $this->buckarooStatusCodeMock = $this->getFakeMock(BuckarooStatusCode::class)->getMock();
-        $this->orderStatusFactoryMock = $this->getFakeMock(OrderStatusFactory::class)->getMock();
-        $this->configAccountMock = $this->getFakeMock(Account::class)->getMock();
-        $this->giftCardRefundServiceMock = $this->getFakeMock(GiftCardRefundService::class)->getMock();
-        $this->uncancelServiceMock = $this->getFakeMock(Uncancel::class)->getMock();
-        $this->resourceConnectionMock = $this->getFakeMock(ResourceConnection::class)->getMock();
-        $this->giftcardCollectionMock = $this->getFakeMock(GiftcardCollection::class)->getMock();
-        $this->configPayPerEmailMock = $this->getFakeMock(PayPerEmail::class)->getMock();
+        $this->orderRequestServiceMock = $this->getFakeMock('Buckaroo\Magento2\Service\Push\OrderRequestService')->getMock();
+        $this->pushTransactionTypeMock = $this->getFakeMock('Buckaroo\Magento2\Model\Push\PushTransactionType')->getMock();
+        $this->loggerMock = $this->getFakeMock('Buckaroo\Magento2\Logging\BuckarooLoggerInterface')->getMock();
+        $this->helperMock = $this->getFakeMock('Buckaroo\Magento2\Helper\Data')->getMock();
+        $this->transactionMock = $this->getFakeMock('Magento\Sales\Api\Data\TransactionInterface')->getMock();
+        $this->groupTransactionMock = $this->getFakeMock('Buckaroo\Magento2\Helper\PaymentGroupTransaction')->getMock();
+        $this->buckarooStatusCodeMock = $this->getFakeMock('Buckaroo\Magento2\Model\BuckarooStatusCode')->getMock();
+        $this->orderStatusFactoryMock = $this->getFakeMock('Buckaroo\Magento2\Model\OrderStatusFactory')->getMock();
+        $this->configAccountMock = $this->getFakeMock('Buckaroo\Magento2\Model\ConfigProvider\Account')->getMock();
+        $this->giftCardRefundServiceMock = $this->getFakeMock('Buckaroo\Magento2\Model\Service\GiftCardRefundService')->getMock();
+        $this->uncancelServiceMock = $this->getFakeMock('Buckaroo\Magento2\Service\Order\Uncancel')->getMock();
+        $this->resourceConnectionMock = $this->getFakeMock('Magento\Framework\App\ResourceConnection')->getMock();
+        $this->giftcardCollectionMock = $this->getFakeMock('Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection')->getMock();
+        $this->configPayPerEmailMock = $this->getFakeMock('Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail')->getMock();
     }
 
-    public function getInstance(array $args = []): PayPerEmailProcessor
+    public function getInstance(array $args = [])
     {
         return parent::getInstance([
             'orderRequestService' => $this->orderRequestServiceMock,
@@ -84,10 +66,10 @@ class PayPerEmailProcessorTest extends BaseTest
     {
         $instance = $this->getInstance();
 
-        $orderMock = $this->getFakeMock(Order::class)->getMock();
-        $pushRequestMock = $this->getFakeMock(\Buckaroo\Magento2\Api\Data\PushRequestInterface::class)->getMock();
+        $orderMock = $this->getFakeMock('Magento\Sales\Model\Order')->getMock();
+        $pushRequestMock = $this->getFakeMock('Buckaroo\Magento2\Api\Data\PushRequestInterface')->getMock();
 
-        $pushRequestMock->method('getStatusCode')->willReturn((string)BuckarooStatusCode::WAITING_ON_CONSUMER);
+        $pushRequestMock->method('getStatusCode')->willReturn('792');
         $pushRequestMock->method('getTransactionMethod')->willReturn('payperemail');
         $pushRequestMock->method('getAdditionalInformation')->willReturnMap([
             ['frompayperemail', '1'],
@@ -95,7 +77,7 @@ class PayPerEmailProcessorTest extends BaseTest
 
         $this->orderStatusFactoryMock->expects($this->once())
             ->method('get')
-            ->with(BuckarooStatusCode::WAITING_ON_CONSUMER, $orderMock)
+            ->with(792, $orderMock)
             ->willReturn('pending_payment');
 
         $this->configPayPerEmailMock->expects($this->once())
@@ -123,9 +105,9 @@ class PayPerEmailProcessorTest extends BaseTest
     {
         $instance = $this->getInstance();
 
-        $orderMock = $this->getFakeMock(Order::class)->getMock();
+        $orderMock = $this->getFakeMock('Magento\Sales\Model\Order')->getMock();
         $orderMock->method('getIncrementId')->willReturn('100000001');
-        $orderMock->method('getState')->willReturn(Order::STATE_PROCESSING);
+        $orderMock->method('getState')->willReturn('processing');
         $orderMock->method('getTotalPaid')->willReturn(100.0);
         $orderMock->method('hasInvoices')->willReturn(true);
 
@@ -138,8 +120,8 @@ class PayPerEmailProcessorTest extends BaseTest
     {
         $instance = $this->getInstance();
 
-        $orderMock = $this->getFakeMock(Order::class)->getMock();
-        $orderMock->method('getState')->willReturn(Order::STATE_PENDING_PAYMENT);
+        $orderMock = $this->getFakeMock('Magento\Sales\Model\Order')->getMock();
+        $orderMock->method('getState')->willReturn('pending_payment');
         $orderMock->method('getTotalPaid')->willReturn(0.0);
         $orderMock->method('hasInvoices')->willReturn(false);
 
