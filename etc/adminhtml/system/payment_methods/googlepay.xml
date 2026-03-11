@@ -158,6 +158,15 @@
                     <field id="active_status">1</field>
                 </depends>
             </field>
+
+            <field id="customer_additional_info" translate="label comment" type="multiselect" sortOrder="45" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Add customer data to request</label>
+                <source_model>Buckaroo\Magento2\Model\Config\Source\CustomerAdditionalInfo</source_model>
+                <comment><![CDATA[Override the global custom parameters for this payment method. When set, only the selected fields will be included in the transaction request. Leave empty to use the global setting.]]></comment>
+                <config_path>payment/buckaroo_magento2_googlepay/customer_additional_info</config_path>
+                <can_be_empty>1</can_be_empty>
+            </field>
+
             <group id="buckaroo_magento2_visibility" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Method Visibility</label>
 
@@ -193,14 +202,6 @@
                     <backend_model>Buckaroo\Magento2\Model\Config\Backend\AllowedCurrencies</backend_model>
                 </field>
             </group>
-        
-            <field id="customer_additional_info" translate="label comment" type="multiselect" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Add customer data to request</label>
-                <source_model>Buckaroo\Magento2\Model\Config\Source\CustomerAdditionalInfo</source_model>
-                <comment><![CDATA[Override the global custom parameters for this payment method. When set, only the selected fields will be included in the transaction request. Leave empty to use the global setting.]]></comment>
-                <config_path>payment/buckaroo_magento2_googlepay/customer_additional_info</config_path>
-                <can_be_empty>1</can_be_empty>
-            </field>
         </group>
     </group>
 </include>
