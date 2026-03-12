@@ -36,8 +36,6 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
                 }
             };
             var initiate = function () {
-                // insert css file into html head
-                document.head.insertAdjacentHTML("beforeend", "<link href=\"" + Base.checkoutUrl + "/api/buckaroosdk/css\" rel=\"stylesheet\">");
                 // disable cache on GET requests
                 $.ajaxSetup({ cache: true });
             };

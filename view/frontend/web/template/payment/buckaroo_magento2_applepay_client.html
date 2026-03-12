@@ -64,7 +64,9 @@
 
         <div class="actions-toolbar" data-bind="visible: canShowPaymentMethod()">
             <div class="primary">
-                <div id="apple-pay-wrapper" data-bind="afterRender: showPayButton"></div>
+                <div id="apple-pay-wrapper" data-bind="afterRender: showPayButton">
+                    <apple-pay-button id="buckaroo-apple-pay-button" type="checkout" style="display:none;width:100%;"></apple-pay-button>
+                </div>
             </div>
         </div>
 

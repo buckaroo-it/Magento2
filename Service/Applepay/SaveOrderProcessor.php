@@ -99,10 +99,22 @@ class SaveOrderProcessor
             return [];
         }
 
-        /* 2.Shipping method (if any)  */
-        if (!empty($payload['extra']['shippingMethod']['identifier'])) {
-            $quote->getShippingAddress()
-                ->setShippingMethod($payload['extra']['shippingMethod']['identifier']);
+        /* 2.Shipping method */
+        if (!$quote->getIsVirtual()) {
+            $shippingAddress = $quote->getShippingAddress();
+            $shippingAddress->setCollectShippingRates(true)->collectShippingRates();
+
+            if (!empty($payload['extra']['shippingMethod']['identifier'])) {
+                $shippingAddress->setShippingMethod($payload['extra']['shippingMethod']['identifier']);
+            } elseif (!$shippingAddress->getShippingMethod()) {
+                $rates = $shippingAddress->getAllShippingRates();
+                if (!empty($rates)) {
+                    $firstRate = reset($rates);
+                    $shippingAddress->setShippingMethod(
+                        $firstRate->getCarrier() . '_' . $firstRate->getMethod()
+                    );
+                }
+            }
         }
 
         /* 3.Submit the quote */
