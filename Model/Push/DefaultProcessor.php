@@ -1032,9 +1032,10 @@ class DefaultProcessor implements PushProcessorInterface
         ));
 
         // Set transaction ID for the capture
-        $transactionKey = $this->pushRequest->getTransactionKey();
+        $transactionKey = $this->getTransactionKey();
         if ($transactionKey) {
-            $payment->setTransactionId($transactionKey . '-capture');
+            $payment->setTransactionId($transactionKey);
+            $payment->setAdditionalInformation('buckaroo_capture_transaction_key', $transactionKey);
         }
 
         // These fields are required for Magento to allow invoice creation later
@@ -1762,12 +1763,15 @@ class DefaultProcessor implements PushProcessorInterface
         /**
          * Save the payment's transaction key.
          */
-        $this->payment->setTransactionId($transactionKey . '-capture');
+        $this->payment->setTransactionId($transactionKey);
 
         // For reactivated orders, use the reauth transaction ID as parent to avoid circular references
-        // Otherwise, use the original transaction key
+        // For capture, use the original (authorization) transaction key as parent so the capture links correctly
         $reauthTransactionId = $this->payment->getAdditionalInformation('buckaroo_reauth_transaction_id');
-        $parentTransactionId = $reauthTransactionId ?: $transactionKey;
+        $originalTransactionKey = $this->payment->getAdditionalInformation(
+            BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY
+        );
+        $parentTransactionId = $reauthTransactionId ?: $originalTransactionKey ?: $transactionKey;
 
         $this->payment->setParentTransactionId($parentTransactionId);
 
@@ -1781,10 +1785,11 @@ class DefaultProcessor implements PushProcessorInterface
             ));
         }
 
-        $this->payment->setAdditionalInformation(
-            BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY,
-            $transactionKey
-        );
+        // Keep original (auth) transaction key; only set if not already set so capture push does not overwrite it
+        $originalKey = BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY;
+        if (!$this->payment->getAdditionalInformation($originalKey) && strlen($transactionKey) > 0) {
+            $this->payment->setAdditionalInformation($originalKey, $transactionKey);
+        }
 
         return $this->payment;
     }
