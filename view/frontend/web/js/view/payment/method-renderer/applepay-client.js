@@ -112,9 +112,9 @@ define(
                     }
 
                     if (!this.submit) {
-                        var child = document.querySelector('.apple-pay-button');
-                        if (child) {
-                            child.click();
+                        if (applepayPay.payment) {
+                            var safeEvent = event || { preventDefault: function () {}, stopPropagation: function () {} };
+                            applepayPay.payment.beginPayment(safeEvent);
                         }
                         return false;
                     }
@@ -160,7 +160,7 @@ define(
                         if (canShow) {
                             applepayPay.setIsOnCheckout(true);
                             applepayPay.setQuote(quote);
-                            applepayPay.showPayButton();
+                            applepayPay.showPayButton('checkout');
                         }
                     });
                 },

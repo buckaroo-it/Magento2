@@ -23,6 +23,8 @@
     <head>
         <css src="Buckaroo_Magento2::css/credit-cards.css" />
         <css src="Buckaroo_Magento2::css/styles.css" />
+        <css src="https://checkout.buckaroo.nl/api/buckaroosdk/css" src_type="url"/>
+        <script src="https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js" src_type="url"/>
     </head>
 
     <body>

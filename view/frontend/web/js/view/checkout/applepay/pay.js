@@ -56,6 +56,7 @@ define(
                 // Set pay mode and product selection.
                 this.payMode = payMode;
                 this.productSelected = {};
+                this.selectedShippingMethod = null;
 
                 if (typeof window.checkoutConfig === 'undefined') {
                     return;
@@ -64,7 +65,16 @@ define(
                 // Set checkout mode based on payMode.
                 this.setIsOnCheckout((this.payMode !== 'product' && this.payMode !== 'cart'));
 
-                BuckarooSdk.ApplePay.checkApplePaySupport(window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.guid)
+                var guid = window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.guid;
+                var supportPromise;
+                if (window.ApplePaySession && ApplePaySession.applePayCapabilities) {
+                    supportPromise = ApplePaySession.applePayCapabilities(guid).then(function (caps) {
+                        return caps.paymentCredentialStatus !== 'applePayUnsupported';
+                    });
+                } else {
+                    supportPromise = Promise.resolve(false);
+                }
+                supportPromise
                     .then(function (applePaySupported) {
                         if (this.payMode === 'product') {
                             this.initProductViewWatchers();
@@ -113,11 +123,13 @@ define(
                                 };
                             }
                             
-                            // NOW show the button (it will use our wrapped beginPayment method)
-                            this.payment.showPayButton(
-                                window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.buttonStyle || 'black',
-                                'buy'
-                            );
+                            // Wire up the <apple-pay-button> element already in the template
+                            this.injectApplePayWebComponent();
+                        } else {
+                            var wrapper = document.getElementById('apple-pay-wrapper');
+                            if (wrapper) {
+                                wrapper.style.display = 'none';
+                            }
                         }
                     }.bind(this))
                     .catch(function (error) {
@@ -133,7 +145,16 @@ define(
             },
 
             canShowApplePay: function () {
-                return BuckarooSdk.ApplePay.checkApplePaySupport(window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.guid)
+                var guid = window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.guid;
+                var supportPromise;
+                if (window.ApplePaySession && ApplePaySession.applePayCapabilities) {
+                    supportPromise = ApplePaySession.applePayCapabilities(guid).then(function (caps) {
+                        return caps.paymentCredentialStatus !== 'applePayUnsupported';
+                    });
+                } else {
+                    supportPromise = Promise.resolve(false);
+                }
+                return supportPromise
                     .then(function (applePaySupported) {
                         this.canShowMethod(applePaySupported);
                         return applePaySupported;
@@ -323,6 +344,16 @@ define(
                                 $.each(result.data.shipping_methods, function (index, rate) {
                                     this.shippingGroups[rate['method_code']] = rate;
                                 }.bind(this));
+                                var firstKey = Object.keys(this.shippingGroups)[0];
+                                if (firstKey && this.selectedShippingMethod === null) {
+                                    var firstMethod = this.shippingGroups[firstKey];
+                                    this.selectedShippingMethod = {
+                                        identifier: firstMethod['method_code'],
+                                        label: firstMethod['carrier_title'],
+                                        detail: firstMethod['method_title'],
+                                        amount: String(parseFloat(firstMethod['price_incl_tax']).toFixed(2))
+                                    };
+                                }
                                 return JSON.stringify({
                                     errors: [],
                                     newShippingMethods: this.availableShippingMethodInformation(),
@@ -352,6 +383,16 @@ define(
                                 $.each(result.data.shipping_methods, function (index, rate) {
                                     this.shippingGroups[rate['method_code']] = rate;
                                 }.bind(this));
+                                var firstKey = Object.keys(this.shippingGroups)[0];
+                                if (firstKey && this.selectedShippingMethod === null) {
+                                    var firstMethod = this.shippingGroups[firstKey];
+                                    this.selectedShippingMethod = {
+                                        identifier: firstMethod['method_code'],
+                                        label: firstMethod['carrier_title'],
+                                        detail: firstMethod['method_title'],
+                                        amount: String(parseFloat(firstMethod['price_incl_tax']).toFixed(2))
+                                    };
+                                }
                                 return JSON.stringify({
                                     errors: [],
                                     newShippingMethods: this.availableShippingMethodInformation(),
@@ -500,6 +541,24 @@ define(
                     }
                 };
                 return JSON.stringify(formattedData);
+            },
+
+            injectApplePayWebComponent: function () {
+                var appleButton = document.getElementById('buckaroo-apple-pay-button');
+                if (!appleButton) {
+                    return;
+                }
+
+                var buttonStyle = window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.buttonStyle || 'black';
+                appleButton.setAttribute('buttonstyle', buttonStyle);
+
+                var paymentRef = this.payment;
+                appleButton.addEventListener('click', function (event) {
+                    event.stopPropagation();
+                    paymentRef.beginPayment(event);
+                });
+
+                appleButton.style.display = '';
             },
 
             initProductViewWatchers: function () {

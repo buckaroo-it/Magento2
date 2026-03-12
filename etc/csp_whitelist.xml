@@ -27,6 +27,7 @@
                 <value id="paypal-frame" type="host">https://www.paypal.com</value>
                 <value id="paypal-sandbox-frame" type="host">https://www.sandbox.paypal.com</value>
                 <value id="googlepay-frame" type="host">https://pay.google.com</value>
+                <value id="applepay-frame" type="host">https://applepay.cdn-apple.com</value>
             </values>
         </policy>
         <policy id="img-src">
@@ -37,6 +38,7 @@
                 <value id="paypal-img" type="host">https://www.paypalobjects.com</value>
                 <value id="googlepay-img" type="host">https://pay.google.com</value>
                 <value id="googlepay-developers-img" type="host">https://developers.google.com</value>
+                <value id="applepay-img" type="host">https://applepay.cdn-apple.com</value>
             </values>
         </policy>
         <policy id="font-src">
@@ -54,6 +56,7 @@
                 <value id="buckaroo-hostedfields-alpha-connect" type="host">https://hostedfields-externalapi.alpha.buckaroo.aws</value>
                 <value id="buckaroo-hostedfields-connect" type="host">https://hostedfields-externalapi.prod-pci.buckaroo.io</value>
                 <value id="applepay-buckaroo" type="host">https://applepay.buckaroo.io</value>
+                <value id="applepay-smp" type="host">https://smp-paymentservices.apple.com</value>
                 <value id="paypal" type="host">https://www.paypal.com</value>
                 <value id="paypal-sandbox" type="host">https://www.sandbox.paypal.com</value>
                 <value id="googlepay-connect" type="host">https://pay.google.com</value>
