@@ -1750,13 +1750,9 @@ class DefaultProcessor implements PushProcessorInterface
         $postData = $data ?: $this->pushRequest->getData();
         $rawInfo = $this->helper->getTransactionAdditionalInfo($postData);
 
-        $this->payment->setTransactionAdditionalInfo(
-            Transaction::RAW_DETAILS,
-            $rawInfo
-        );
+        $this->payment->setTransactionAdditionalInfo(Transaction::RAW_DETAILS, $rawInfo);
 
-        $rawDetails = $this->payment->getAdditionalInformation(Transaction::RAW_DETAILS);
-        $rawDetails = $rawDetails ?: [];
+        $rawDetails = $this->payment->getAdditionalInformation(Transaction::RAW_DETAILS) ?: [];
         $rawDetails[$transactionKey] = $rawInfo;
         $this->payment->setAdditionalInformation(Transaction::RAW_DETAILS, $rawDetails);
 
@@ -1764,16 +1760,27 @@ class DefaultProcessor implements PushProcessorInterface
          * Save the payment's transaction key.
          */
         $this->payment->setTransactionId($transactionKey);
+        $this->payment->setParentTransactionId($this->resolveParentTransactionId($transactionKey));
+        $this->preserveOriginalTransactionKey($transactionKey);
 
-        // For reactivated orders, use the reauth transaction ID as parent to avoid circular references
-        // For capture, use the original (authorization) transaction key as parent so the capture links correctly
+        return $this->payment;
+    }
+
+    /**
+     * Determines the parent transaction ID for the payment.
+     *
+     * @param string $transactionKey
+     *
+     * @return string
+     */
+    private function resolveParentTransactionId(string $transactionKey): string
+    {
         $reauthTransactionId = $this->payment->getAdditionalInformation('buckaroo_reauth_transaction_id');
         $originalTransactionKey = $this->payment->getAdditionalInformation(
             BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY
         );
-        $parentTransactionId = $reauthTransactionId ?: $originalTransactionKey ?: $transactionKey;
 
-        $this->payment->setParentTransactionId($parentTransactionId);
+        $parentTransactionId = $reauthTransactionId ?: $originalTransactionKey ?: $transactionKey;
 
         if ($reauthTransactionId) {
             $this->logger->addDebug(sprintf(
@@ -1785,13 +1792,25 @@ class DefaultProcessor implements PushProcessorInterface
             ));
         }
 
-        // Keep original (auth) transaction key; only set if not already set so capture push does not overwrite it
+        return $parentTransactionId;
+    }
+
+    /**
+     * Preserves the original (authorization) transaction key on the payment.
+     *
+     * Only sets the key if it has not been recorded yet, so a capture push cannot overwrite it.
+     *
+     * @param string $transactionKey
+     *
+     * @return void
+     * @throws LocalizedException
+     */
+    private function preserveOriginalTransactionKey(string $transactionKey): void
+    {
         $originalKey = BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY;
         if (!$this->payment->getAdditionalInformation($originalKey) && strlen($transactionKey) > 0) {
             $this->payment->setAdditionalInformation($originalKey, $transactionKey);
         }
-
-        return $this->payment;
     }
 
     /**
