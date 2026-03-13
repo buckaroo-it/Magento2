@@ -434,8 +434,9 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
 
         if (!$includesTax
             && $productItem->getDiscountAmount() >= 0.01) {
+            $totalQty = (float)$productItem->getTotalQty() ?: (float)$productItem->getQty() ?: 1.0;
             $productPrice = $productItem->getPrice()
-                + $productItem->getTaxAmount() / $productItem->getTotalQty();
+                + $productItem->getTaxAmount() / $totalQty;
         }
 
         if ($productItem->getWeeeTaxAppliedAmount() > 0) {
