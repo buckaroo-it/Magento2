@@ -496,16 +496,14 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
             ], true)
         ));
 
-        if (!$this->checkoutSession->getLastSuccessQuoteId() && $this->order->getQuoteId()) {
+        if ($this->order->getQuoteId()) {
             $this->checkoutSession->setLastSuccessQuoteId($this->order->getQuoteId());
-        }
-        if (!$this->checkoutSession->getLastQuoteId() && $this->order->getQuoteId()) {
             $this->checkoutSession->setLastQuoteId($this->order->getQuoteId());
         }
-        if (!$this->checkoutSession->getLastOrderId() && $this->order->getId()) {
+        if ($this->order->getId()) {
             $this->checkoutSession->setLastOrderId($this->order->getId());
         }
-        if (!$this->checkoutSession->getLastRealOrderId() && $this->order->getIncrementId()) {
+        if ($this->order->getIncrementId()) {
             $this->checkoutSession->setLastRealOrderId($this->order->getIncrementId());
         }
     }
