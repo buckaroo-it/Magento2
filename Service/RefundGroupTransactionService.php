@@ -645,35 +645,56 @@ class RefundGroupTransactionService
         float $amount,
         string $originalTransactionKey
     ): void {
-        try {
-            if (!$originalTransactionKey) {
-                $this->buckarooLog->addDebug(
-                    __METHOD__ . ' | No transaction key provided for method: ' . $paymentMethod
-                );
-                return;
-            }
+        if (!$originalTransactionKey) {
+            $this->buckarooLog->addDebug(sprintf(
+                '[REFUND_REMAINING] | No transaction key provided for method: %s',
+                $paymentMethod
+            ));
+            return;
+        }
 
-            // Build refund request with the correct payment method and transaction key
-            $request = $this->requestDataBuilder->build($buildSubject);
-            $request['payment_method'] = $paymentMethod;
-            $request['name'] = $paymentMethod;
-            $request['amountCredit'] = $amount;
-            $request['originalTransactionKey'] = $originalTransactionKey;
+        // Build refund request with the correct payment method and transaction key
+        $request = $this->requestDataBuilder->build($buildSubject);
+        $request['payment_method'] = $paymentMethod;
+        $request['name'] = $paymentMethod;
+        $request['amountCredit'] = $amount;
+        $request['originalTransactionKey'] = $originalTransactionKey;
 
-            $transferO = $this->transferFactory->create($request);
-            $response = $this->clientInterface->placeRequest($transferO);
+        $transferO = $this->transferFactory->create($request);
+        $response = $this->clientInterface->placeRequest($transferO);
 
-            if ($this->handler) {
-                $this->handler->handle($buildSubject, $response);
-            }
+        if ($this->handler) {
+            $this->handler->handle($buildSubject, $response);
+        }
 
-            $this->buckarooLog->addDebug(
-                __METHOD__ . ' | Refunded ' . $amount . ' via ' . $paymentMethod . ' (Key: ' . $originalTransactionKey . ')'
-            );
+        if (isset($response['object']) && $response['object']->isSuccess()) {
+            $this->buckarooLog->addDebug(sprintf(
+                '[REFUND_REMAINING] | Refund successful | Method: %s | Amount: €%.2f | Status: %s',
+                $paymentMethod,
+                $amount,
+                $response['object']->getStatusCode()
+            ));
+        } else {
+            // Refund FAILED — throw exception to prevent credit memo creation
+            $errorMessage = isset($response['object'])
+                ? $response['object']->getSomeError()
+                : 'Unknown error - no response object';
+            $statusCode = isset($response['object']) ? $response['object']->getStatusCode() : 'N/A';
 
-        } catch (\Exception $e) {
-            $this->buckarooLog->addDebug(__METHOD__ . ' | ERROR: ' . $e->getMessage());
-            throw $e;
+            $this->buckarooLog->addError(sprintf(
+                '[REFUND_REMAINING] | Refund FAILED at Buckaroo | Method: %s | Amount: €%.2f | Status: %s | Message: %s',
+                $paymentMethod,
+                $amount,
+                $statusCode,
+                $errorMessage
+            ));
+
+            throw new \Magento\Payment\Gateway\Http\ClientException(__(
+                'Buckaroo refund failed for %1 (Status %2): %3',
+                $paymentMethod,
+                $statusCode,
+                $errorMessage
+            ));
         }
     }
 }
