@@ -330,9 +330,16 @@ class RefundGroupTransactionService
 
         $requestParams = $this->request->getParams();
         if (!empty($requestParams['creditmemo']['buckaroo_already_paid'])) {
+            // Admin backend flow: giftcard amounts are explicitly specified in the creditmemo form
             foreach ($requestParams['creditmemo']['buckaroo_already_paid'] as $transaction => $giftCardValue) {
                 $this->createRefundGroupRequest($buildSubject, $transaction, $giftCardValue);
             }
+        } else {
+            // API / headless flow (e.g. Returnless): no form params are present.
+            // Automatically refund giftcard group transactions proportionally so that
+            // the remaining amount passed to the primary payment method never exceeds
+            // what was actually charged on that method.
+            $this->refundGiftcardTransactionsAutomatically($buildSubject, $order);
         }
 
         if ($this->amountLeftToRefund >= 0.01 && $originalRefundAmount > $this->amountLeftToRefund) {
@@ -507,6 +514,69 @@ class RefundGroupTransactionService
     }
 
     /**
+     * Automatically refund giftcard group transactions for API/headless flows.
+     *
+     * When a refund is triggered via the REST API (e.g. Returnless), the
+     * creditmemo form POST params are not available. This method reads the
+     * group_transaction table directly, identifies giftcard transactions and
+     * refunds each one proportionally so that only the remainder is sent to
+     * the primary payment method (e.g. iDEAL).
+     *
+     * Example: order paid €10 VVV giftcard + €22 iDEAL = €32 total.
+     * Full refund of €32 via API → refund €10 on VVV first → €22 left → refund €22 on iDEAL.
+     *
+     * @param array $buildSubject
+     * @param Order $order
+     * @return void
+     * @throws ClientException
+     * @throws ConverterException
+     */
+    private function refundGiftcardTransactionsAutomatically(array $buildSubject, Order $order): void
+    {
+        $groupTransactions = $this->paymentGroupTransaction->getAnyGroupTransactionItems($order->getIncrementId());
+
+        foreach ($groupTransactions as $transaction) {
+            $servicecode = $transaction->getData('servicecode');
+
+            if (!$this->isGiftcardService($servicecode)) {
+                // Skip non-giftcard transactions; they are handled by the primary refund flow
+                continue;
+            }
+
+            if ($this->amountLeftToRefund < 0.01) {
+                break;
+            }
+
+            $availableOnTransaction = (float)$transaction->getData('amount')
+                - (float)$transaction->getData('refunded_amount');
+
+            if ($availableOnTransaction < 0.01) {
+                continue;
+            }
+
+            // Refund as much as needed from this giftcard, capped at what was charged on it
+            $refundAmount = min($this->amountLeftToRefund, $availableOnTransaction);
+
+            $this->buckarooLog->addDebug(sprintf(
+                '[REFUND_AUTO_GIFTCARD] | Automatically refunding giftcard | Service: %s | Amount: €%.2f | Transaction: %s',
+                $servicecode,
+                $refundAmount,
+                $transaction->getData('transaction_id')
+            ));
+
+            // Build the transaction key string in the same format used by createRefundGroupRequest:
+            // transactionId|servicecode|amount
+            $transactionKey = implode('|', [
+                $transaction->getData('transaction_id'),
+                $servicecode,
+                $transaction->getData('amount'),
+            ]);
+
+            $this->createRefundGroupRequest($buildSubject, $transactionKey, $refundAmount);
+        }
+    }
+
+    /**
      * Get the non-giftcard payment transaction from group_transaction table
      *
      * For mixed payments (giftcard + another method), multiple group transactions exist.
@@ -575,35 +645,56 @@ class RefundGroupTransactionService
         float $amount,
         string $originalTransactionKey
     ): void {
-        try {
-            if (!$originalTransactionKey) {
-                $this->buckarooLog->addDebug(
-                    __METHOD__ . ' | No transaction key provided for method: ' . $paymentMethod
-                );
-                return;
-            }
+        if (!$originalTransactionKey) {
+            $this->buckarooLog->addDebug(sprintf(
+                '[REFUND_REMAINING] | No transaction key provided for method: %s',
+                $paymentMethod
+            ));
+            return;
+        }
 
-            // Build refund request with the correct payment method and transaction key
-            $request = $this->requestDataBuilder->build($buildSubject);
-            $request['payment_method'] = $paymentMethod;
-            $request['name'] = $paymentMethod;
-            $request['amountCredit'] = $amount;
-            $request['originalTransactionKey'] = $originalTransactionKey;
+        // Build refund request with the correct payment method and transaction key
+        $request = $this->requestDataBuilder->build($buildSubject);
+        $request['payment_method'] = $paymentMethod;
+        $request['name'] = $paymentMethod;
+        $request['amountCredit'] = $amount;
+        $request['originalTransactionKey'] = $originalTransactionKey;
 
-            $transferO = $this->transferFactory->create($request);
-            $response = $this->clientInterface->placeRequest($transferO);
+        $transferO = $this->transferFactory->create($request);
+        $response = $this->clientInterface->placeRequest($transferO);
 
-            if ($this->handler) {
-                $this->handler->handle($buildSubject, $response);
-            }
+        if ($this->handler) {
+            $this->handler->handle($buildSubject, $response);
+        }
 
-            $this->buckarooLog->addDebug(
-                __METHOD__ . ' | Refunded ' . $amount . ' via ' . $paymentMethod . ' (Key: ' . $originalTransactionKey . ')'
-            );
+        if (isset($response['object']) && $response['object']->isSuccess()) {
+            $this->buckarooLog->addDebug(sprintf(
+                '[REFUND_REMAINING] | Refund successful | Method: %s | Amount: €%.2f | Status: %s',
+                $paymentMethod,
+                $amount,
+                $response['object']->getStatusCode()
+            ));
+        } else {
+            // Refund FAILED — throw exception to prevent credit memo creation
+            $errorMessage = isset($response['object'])
+                ? $response['object']->getSomeError()
+                : 'Unknown error - no response object';
+            $statusCode = isset($response['object']) ? $response['object']->getStatusCode() : 'N/A';
 
-        } catch (\Exception $e) {
-            $this->buckarooLog->addDebug(__METHOD__ . ' | ERROR: ' . $e->getMessage());
-            throw $e;
+            $this->buckarooLog->addError(sprintf(
+                '[REFUND_REMAINING] | Refund FAILED at Buckaroo | Method: %s | Amount: €%.2f | Status: %s | Message: %s',
+                $paymentMethod,
+                $amount,
+                $statusCode,
+                $errorMessage
+            ));
+
+            throw new \Magento\Payment\Gateway\Http\ClientException(__(
+                'Buckaroo refund failed for %1 (Status %2): %3',
+                $paymentMethod,
+                $statusCode,
+                $errorMessage
+            ));
         }
     }
 }
