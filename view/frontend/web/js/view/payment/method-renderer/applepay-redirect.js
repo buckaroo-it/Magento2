@@ -63,8 +63,8 @@ define(
                 initObservable: function () {
                     this._super();
 
-                    // Initialize Apple Pay availability check for redirect mode
-                    applepayPay.canShowApplePay();
+                    // Initialize Apple Pay availability check for redirect mode.
+                    applepayPay.canShowApplePayRedirect();
 
                     return this;
                 },

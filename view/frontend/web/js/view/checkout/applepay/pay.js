@@ -165,6 +165,19 @@ define(
                     }.bind(this));
             },
 
+            /**
+             * Check Apple Pay availability for redirect mode.
+             * Redirect mode does not require merchant domain verification — Buckaroo hosts
+             * the Apple Pay session on their own verified domain. We only need to confirm
+             * that the browser/device supports Apple Pay via canMakePayments(), which works
+             * without domain registration.
+             */
+            canShowApplePayRedirect: function () {
+                var supported = !!(window.ApplePaySession && ApplePaySession.canMakePayments());
+                this.canShowMethod(supported);
+                return supported;
+            },
+
             setQuote: function (newQuote) {
                 this.quote = newQuote;
             },
