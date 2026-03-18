@@ -452,7 +452,7 @@ class SetupModuleDataPatch implements DataPatchInterface
      */
     public static function getVersion()
     {
-        return '2.3.1';
+        return '2.4.0';
     }
 
     /**
