@@ -22,9 +22,9 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
 <!--    PREFERENCES-->
     <!-- Interfaces -->
-    <preference for="Buckaroo\Magento2\Api\GiftcardRepositoryInterface" type="Buckaroo\Magento2\Model\GiftcardRepository"/>
-    <preference for="Buckaroo\Magento2\Api\GroupTransactionRepositoryInterface" type="Buckaroo\Magento2\Model\GroupTransactionRepository"/>
-    <preference for="Buckaroo\Magento2\Api\LogRepositoryInterface" type="Buckaroo\Magento2\Model\LogRepository"/>
+    <preference for="Buckaroo\Magento2\Api\GiftcardRepositoryInterface" type="Buckaroo\Magento2\Repository\GiftcardRepository"/>
+    <preference for="Buckaroo\Magento2\Api\GroupTransactionRepositoryInterface" type="Buckaroo\Magento2\Repository\GroupTransactionRepository"/>
+    <preference for="Buckaroo\Magento2\Api\LogRepositoryInterface" type="Buckaroo\Magento2\Repository\LogRepository"/>
     <preference for="Buckaroo\Magento2\Api\Data\LogInterface" type="Buckaroo\Magento2\Model\Data\Log"/>
     <preference for="Buckaroo\Magento2\Api\Data\LogSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
     <preference for="Buckaroo\Magento2\Api\Data\AnalyticsInterface" type="Buckaroo\Magento2\Model\Analytics\Data\Analytics"/>
@@ -46,35 +46,39 @@
     <preference for="Magento\Ui\Model\Export\ConvertToCsv" type="Buckaroo\Magento2\Model\Export\ConvertToCsv" />
 
     <!-- Giftcard rest api -->
-    <preference for="Buckaroo\Magento2\Model\Voucher\ApplyVoucherRequestInterface" type="Buckaroo\Magento2\Model\Voucher\ApplyVoucherRequest"/>
-    <preference for="Buckaroo\Magento2\Model\Giftcard\Request\GiftcardInterface" type="Buckaroo\Magento2\Model\Giftcard\Request\Giftcard"/>
-    <preference for="Buckaroo\Magento2\Api\ApplyVoucherInterface" type="Buckaroo\Magento2\Model\Voucher\ApplyVoucher"/>
-    <preference for="Buckaroo\Magento2\Api\PayWithGiftcardInterface" type="Buckaroo\Magento2\Model\Giftcard\Api\Pay"/>
-    <preference for="Buckaroo\Magento2\Api\GiftcardTransactionInterface" type="Buckaroo\Magento2\Model\Giftcard\Api\GetTransactions"/>
-    <preference for="Buckaroo\Magento2\Api\Data\Giftcard\PayResponseSetInterface" type="Buckaroo\Magento2\Model\Giftcard\Api\PayResponse"/>
-    <preference for="Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterface" type="Buckaroo\Magento2\Model\Giftcard\Api\TransactionResponse"/>
-    <preference for="Buckaroo\Magento2\Api\Data\Giftcard\GetTransactionsResponseInterface" type="Buckaroo\Magento2\Model\Giftcard\Api\GetTransactionsResponse"/>
-    <preference for="Buckaroo\Magento2\Api\Data\Giftcard\PayRequestInterface" type="Buckaroo\Magento2\Model\Giftcard\Api\PayRequest"/>
+    <preference for="Buckaroo\Magento2\Service\Voucher\ApplyVoucherRequestInterface" type="Buckaroo\Magento2\Service\Voucher\ApplyVoucherRequest"/>
+    <preference for="Buckaroo\Magento2\Service\Voucher\ApplyVoucherRequestInterface" type="Buckaroo\Magento2\Service\Voucher\ApplyVoucherRequest"/>
+    <preference for="Buckaroo\Magento2\Service\Giftcard\Request\GiftcardInterface" type="Buckaroo\Magento2\Service\Giftcard\Request\Giftcard"/>
+    <preference for="Buckaroo\Magento2\Service\Giftcard\Request\GiftcardInterface" type="Buckaroo\Magento2\Service\Giftcard\Request\Giftcard"/>
+    <preference for="Buckaroo\Magento2\Api\ApplyVoucherInterface" type="Buckaroo\Magento2\Service\Voucher\ApplyVoucher"/>
+    <preference for="Buckaroo\Magento2\Api\PayWithGiftcardInterface" type="Buckaroo\Magento2\Service\Giftcard\Api\Pay"/>
+    <preference for="Buckaroo\Magento2\Api\GiftcardTransactionInterface" type="Buckaroo\Magento2\Service\Giftcard\Api\GetTransactions"/>
+    <preference for="Buckaroo\Magento2\Api\Data\Giftcard\PayResponseSetInterface" type="Buckaroo\Magento2\Service\Giftcard\Api\PayResponse"/>
+    <preference for="Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterface" type="Buckaroo\Magento2\Service\Giftcard\Api\TransactionResponse"/>
+    <preference for="Buckaroo\Magento2\Api\Data\Giftcard\GetTransactionsResponseInterface" type="Buckaroo\Magento2\Service\Giftcard\Api\GetTransactionsResponse"/>
+    <preference for="Buckaroo\Magento2\Api\Data\Giftcard\PayRequestInterface" type="Buckaroo\Magento2\Service\Giftcard\Api\PayRequest"/>
     <!-- END Giftcard rest api -->
 
     <!-- Express payment methods: Apple Pay, PayPal Express, Ideal Fast Checkout -->
-    <preference for="Buckaroo\Magento2\Api\Data\BreakdownItemInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Response\BreakdownItem" />
-    <preference for="Buckaroo\Magento2\Api\Data\TotalBreakdownInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Response\TotalBreakdown" />
-    <preference for="Buckaroo\Magento2\Api\Data\PaypalExpress\QuoteCreateResponseInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Response\QuoteCreate" />
+    <preference for="Buckaroo\Magento2\Api\Data\BreakdownItemInterface" type="Buckaroo\Magento2\Service\PaypalExpress\Response\BreakdownItem" />
+    <preference for="Buckaroo\Magento2\Api\Data\TotalBreakdownInterface" type="Buckaroo\Magento2\Service\PaypalExpress\Response\TotalBreakdown" />
+    <preference for="Buckaroo\Magento2\Api\Data\PaypalExpress\QuoteCreateResponseInterface" type="Buckaroo\Magento2\Service\PaypalExpress\Response\QuoteCreate" />
 
     <preference for="Buckaroo\Magento2\Model\Service\QuoteBuilderInterface" type="Buckaroo\Magento2\Model\Service\QuoteBuilder" />
     <!-- Paypal-Express -->
-    <preference for="Buckaroo\Magento2\Model\PaypalExpress\QuoteBuilderInterface" type="Buckaroo\Magento2\Model\PaypalExpress\QuoteBuilder" />
-    <preference for="Buckaroo\Magento2\Api\PaypalExpressQuoteCreateInterface" type="Buckaroo\Magento2\Model\PaypalExpress\QuoteCreate" />
-    <preference for="Buckaroo\Magento2\Api\Data\ExpressMethods\ShippingAddressRequestInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Request\ShippingAddress" />
-    <preference for="Buckaroo\Magento2\Api\PaypalExpressOrderCreateInterface" type="Buckaroo\Magento2\Model\PaypalExpress\OrderCreate" />
-    <preference for="Buckaroo\Magento2\Api\Data\PaypalExpress\OrderCreateResponseInterface" type="Buckaroo\Magento2\Model\PaypalExpress\Response\OrderCreate" />
+    <preference for="Buckaroo\Magento2\Service\PaypalExpress\QuoteBuilderInterface" type="Buckaroo\Magento2\Service\PaypalExpress\QuoteBuilder" />
+    <preference for="Buckaroo\Magento2\Service\PaypalExpress\QuoteBuilderInterface" type="Buckaroo\Magento2\Service\PaypalExpress\QuoteBuilder" />
+    <preference for="Buckaroo\Magento2\Api\PaypalExpressQuoteCreateInterface" type="Buckaroo\Magento2\Service\PaypalExpress\QuoteCreate" />
+    <preference for="Buckaroo\Magento2\Api\Data\ExpressMethods\ShippingAddressRequestInterface" type="Buckaroo\Magento2\Service\PaypalExpress\Request\ShippingAddress" />
+    <preference for="Buckaroo\Magento2\Api\PaypalExpressOrderCreateInterface" type="Buckaroo\Magento2\Service\PaypalExpress\OrderCreate" />
+    <preference for="Buckaroo\Magento2\Api\Data\PaypalExpress\OrderCreateResponseInterface" type="Buckaroo\Magento2\Service\PaypalExpress\Response\OrderCreate" />
 
     <!-- Ideal-Fast-Checkout -->
-    <preference for="Buckaroo\Magento2\Model\Ideal\QuoteBuilderInterface" type="Buckaroo\Magento2\Model\Ideal\QuoteBuilder" />
-    <preference for="Buckaroo\Magento2\Api\IdealQuoteCreateInterface" type="Buckaroo\Magento2\Model\Ideal\QuoteCreate" />
-    <preference for="Buckaroo\Magento2\Api\Data\Ideal\ShippingAddressRequestInterface" type="Buckaroo\Magento2\Model\Ideal\Request\ShippingAddress" />
-    <preference for="Buckaroo\Magento2\Api\Data\Ideal\QuoteCreateResponseInterface" type="Buckaroo\Magento2\Model\Ideal\Response\QuoteCreate" />
+    <preference for="Buckaroo\Magento2\Service\Ideal\QuoteBuilderInterface" type="Buckaroo\Magento2\Service\Ideal\QuoteBuilder" />
+    <preference for="Buckaroo\Magento2\Service\Ideal\QuoteBuilderInterface" type="Buckaroo\Magento2\Service\Ideal\QuoteBuilder" />
+    <preference for="Buckaroo\Magento2\Api\IdealQuoteCreateInterface" type="Buckaroo\Magento2\Service\Ideal\QuoteCreate" />
+    <preference for="Buckaroo\Magento2\Api\Data\Ideal\ShippingAddressRequestInterface" type="Buckaroo\Magento2\Service\Ideal\Request\ShippingAddress" />
+    <preference for="Buckaroo\Magento2\Api\Data\Ideal\QuoteCreateResponseInterface" type="Buckaroo\Magento2\Service\Ideal\Response\QuoteCreate" />
     <!-- End Ideal-Fast-Checkout -->
     <!-- END Paypal-Express -->
 <!--    END PREFERENCES-->
@@ -862,7 +866,7 @@
             <argument name="logger" xsi:type="object">Psr\Log\LoggerInterface</argument>
             <argument name="spamLimitService" xsi:type="object">Buckaroo\Magento2\Service\SpamLimitService</argument>
             <argument name="cancelOrder" xsi:type="object">Buckaroo\Magento2\Model\Service\CancelOrder</argument>
-            <argument name="lockManager" xsi:type="object">Buckaroo\Magento2\Model\LockManagerWrapper</argument>
+            <argument name="lockManager" xsi:type="object">Buckaroo\Magento2\Service\LockManagerWrapper</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
             <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
@@ -876,7 +880,7 @@
             <argument name="logger" xsi:type="object">Psr\Log\LoggerInterface</argument>
             <argument name="spamLimitService" xsi:type="object">Buckaroo\Magento2\Service\SpamLimitService</argument>
             <argument name="cancelOrder" xsi:type="object">Buckaroo\Magento2\Model\Service\CancelOrder</argument>
-            <argument name="lockManager" xsi:type="object">Buckaroo\Magento2\Model\LockManagerWrapper</argument>
+            <argument name="lockManager" xsi:type="object">Buckaroo\Magento2\Service\LockManagerWrapper</argument>
             <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
             <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
@@ -978,7 +982,7 @@
             <argument name="logger" xsi:type="object">Psr\Log\LoggerInterface</argument>
             <argument name="spamLimitService" xsi:type="object">Buckaroo\Magento2\Service\SpamLimitService</argument>
             <argument name="cancelOrder" xsi:type="object">Buckaroo\Magento2\Model\Service\CancelOrder</argument>
-            <argument name="lockManager" xsi:type="object">Buckaroo\Magento2\Model\LockManagerWrapper</argument>
+            <argument name="lockManager" xsi:type="object">Buckaroo\Magento2\Service\LockManagerWrapper</argument>
             <argument name="handler" xsi:type="object">CaptureResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
             <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
@@ -1030,7 +1034,7 @@
             <argument name="logger" xsi:type="object">Psr\Log\LoggerInterface</argument>
             <argument name="spamLimitService" xsi:type="object">Buckaroo\Magento2\Service\SpamLimitService</argument>
             <argument name="cancelOrder" xsi:type="object">Buckaroo\Magento2\Model\Service\CancelOrder</argument>
-            <argument name="lockManager" xsi:type="object">Buckaroo\Magento2\Model\LockManagerWrapper</argument>
+            <argument name="lockManager" xsi:type="object">Buckaroo\Magento2\Service\LockManagerWrapper</argument>
             <argument name="handler" xsi:type="object">RefundResponseHandler</argument>
             <argument name="validator" xsi:type="object">RefundValidator</argument>
             <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
@@ -1135,7 +1139,7 @@
             <argument name="logger" xsi:type="object">Psr\Log\LoggerInterface</argument>
             <argument name="spamLimitService" xsi:type="object">Buckaroo\Magento2\Service\SpamLimitService</argument>
             <argument name="cancelOrder" xsi:type="object">Buckaroo\Magento2\Model\Service\CancelOrder</argument>
-            <argument name="lockManager" xsi:type="object">Buckaroo\Magento2\Model\LockManagerWrapper</argument>
+            <argument name="lockManager" xsi:type="object">Buckaroo\Magento2\Service\LockManagerWrapper</argument>
             <argument name="handler" xsi:type="object">CancelResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
             <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
@@ -3044,7 +3048,7 @@
 
 
     <!-- Payment Method: Giftcards -->
-    <type name="Buckaroo\Magento2\Model\Giftcard\Request\Giftcard">
+    <type name="Buckaroo\Magento2\Service\Giftcard\Request\Giftcard">
         <arguments>
             <argument name="clientInterface" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRemainder</argument>
         </arguments>
@@ -3164,7 +3168,7 @@
         </arguments>
     </virtualType>
 
-    <type name="Buckaroo\Magento2\Model\Giftcard\Remove">
+    <type name="Buckaroo\Magento2\Service\Giftcard\Remove">
         <arguments>
             <argument name="removeCommand" xsi:type="object">GiftcardsRemoveCommand</argument>
         </arguments>
@@ -3422,7 +3426,7 @@
     </virtualType>
     <!-- END Voucher Value handlers infrastructure -->
 
-   <type name="Buckaroo\Magento2\Model\Voucher\ApplyVoucherRequest">
+   <type name="Buckaroo\Magento2\Service\Voucher\ApplyVoucherRequest">
         <arguments>
             <argument name="clientInterface" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRemainder</argument>
         </arguments>
@@ -4385,7 +4389,8 @@
     <!-- SecondChance API and Repository Configuration -->
     <preference for="Buckaroo\Magento2\Api\Data\SecondChanceInterface" type="Buckaroo\Magento2\Model\Data\SecondChance"/>
     <preference for="Buckaroo\Magento2\Api\Data\SecondChanceSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
-    <preference for="Buckaroo\Magento2\Api\SecondChanceRepositoryInterface" type="Buckaroo\Magento2\Model\SecondChanceRepository"/>
+    <preference for="Buckaroo\Magento2\Api\SecondChanceRepositoryInterface" type="Buckaroo\Magento2\Repository\SecondChanceRepository"/>
+
 
 
     <!-- Gift Card Refund Service - Adobe Commerce -->
@@ -4403,7 +4408,7 @@
     </type>
 
     <!-- External Email Provider Integration for Second Chance Emails -->
-    <type name="Buckaroo\Magento2\Model\SecondChanceRepository">
+    <type name="Buckaroo\Magento2\Repository\SecondChanceRepository">
         <plugin name="buckaroo_external_email_secondchance"
                 type="Buckaroo\Magento2\Plugin\SecondChance\ExternalEmailProviderPlugin"
                 sortOrder="10"

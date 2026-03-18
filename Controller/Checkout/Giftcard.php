@@ -21,9 +21,9 @@
 namespace Buckaroo\Magento2\Controller\Checkout;
 
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
-use Buckaroo\Magento2\Model\Giftcard\Api\ApiException;
-use Buckaroo\Magento2\Model\Giftcard\Request\GiftcardInterface;
-use Buckaroo\Magento2\Model\Giftcard\Response\Giftcard as GiftcardResponse;
+use Buckaroo\Magento2\Service\Giftcard\Api\ApiException;
+use Buckaroo\Magento2\Service\Giftcard\Request\GiftcardInterface;
+use Buckaroo\Magento2\Service\Giftcard\Response\Giftcard as GiftcardResponse;
 use Buckaroo\Transaction\Response\TransactionResponse;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Action\Action;

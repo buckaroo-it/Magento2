@@ -21,7 +21,7 @@
 namespace Buckaroo\Magento2\Controller\Checkout;
 
 use Buckaroo\Magento2\Logging\Log;
-use Buckaroo\Magento2\Model\SecondChanceRepository;
+use Buckaroo\Magento2\Repository\SecondChanceRepository;
 use Exception;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;

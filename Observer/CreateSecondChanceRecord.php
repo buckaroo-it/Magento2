@@ -29,7 +29,7 @@ use Magento\Sales\Model\Order;
 class CreateSecondChanceRecord implements ObserverInterface
 {
     /**
-     * @var \Buckaroo\Magento2\Model\SecondChanceRepository
+     * @var \Buckaroo\Magento2\Repository\SecondChanceRepository
      */
     protected $secondChanceRepository;
 
@@ -44,12 +44,12 @@ class CreateSecondChanceRecord implements ObserverInterface
     protected $logging;
 
     /**
-     * @param \Buckaroo\Magento2\Model\SecondChanceRepository      $secondChanceRepository
+     * @param \Buckaroo\Magento2\Repository\SecondChanceRepository      $secondChanceRepository
      * @param \Buckaroo\Magento2\Model\ConfigProvider\SecondChance $configProvider
      * @param \Buckaroo\Magento2\Logging\Log                       $logging
      */
     public function __construct(
-        \Buckaroo\Magento2\Model\SecondChanceRepository $secondChanceRepository,
+        \Buckaroo\Magento2\Repository\SecondChanceRepository $secondChanceRepository,
         \Buckaroo\Magento2\Model\ConfigProvider\SecondChance $configProvider,
         \Buckaroo\Magento2\Logging\Log $logging
     ) {

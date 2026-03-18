@@ -31,7 +31,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Eps;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
-use Buckaroo\Magento2\Model\LockManagerWrapper;
+use Buckaroo\Magento2\Service\LockManagerWrapper;
 use Magento\Payment\Model\MethodInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;

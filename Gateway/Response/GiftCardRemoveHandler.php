@@ -22,9 +22,9 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Gateway\Response;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
-use Buckaroo\Magento2\Model\Giftcard\RemoveException;
+use Buckaroo\Magento2\Service\Giftcard\RemoveException;
 use Buckaroo\Magento2\Model\GroupTransaction;
-use Buckaroo\Magento2\Model\GroupTransactionRepository;
+use Buckaroo\Magento2\Repository\GroupTransactionRepository;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Message\ManagerInterface as MessageManager;
 use Magento\Payment\Gateway\Response\HandlerInterface;

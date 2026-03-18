@@ -20,7 +20,7 @@
 namespace Buckaroo\Magento2\Cron;
 
 use Buckaroo\Magento2\Logging\Log;
-use Buckaroo\Magento2\Model\SecondChanceRepository;
+use Buckaroo\Magento2\Repository\SecondChanceRepository;
 use Magento\Store\Api\StoreRepositoryInterface;
 
 class SecondChancePrune

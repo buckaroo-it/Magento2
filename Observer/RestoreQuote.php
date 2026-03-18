@@ -24,7 +24,7 @@ use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Payconiq;
-use Buckaroo\Magento2\Model\Giftcard\Remove as GiftcardRemove;
+use Buckaroo\Magento2\Service\Giftcard\Remove as GiftcardRemove;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\Service\Order;
 use Magento\Checkout\Model\Session;

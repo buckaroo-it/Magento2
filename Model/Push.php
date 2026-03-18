@@ -27,7 +27,8 @@ use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\Push\PushProcessorsFactory;
 use Buckaroo\Magento2\Model\Push\PushTransactionType;
-use Buckaroo\Magento2\Model\RequestPush\RequestPushFactory;
+use Buckaroo\Magento2\Service\LockManagerWrapper;
+use Buckaroo\Magento2\Service\Push\RequestPush\RequestPushFactory;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 
 class Push implements PushInterface

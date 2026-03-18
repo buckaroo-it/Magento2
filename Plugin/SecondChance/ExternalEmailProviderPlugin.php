@@ -20,7 +20,7 @@
 
 namespace Buckaroo\Magento2\Plugin\SecondChance;
 
-use Buckaroo\Magento2\Model\SecondChanceRepository;
+use Buckaroo\Magento2\Repository\SecondChanceRepository;
 use Buckaroo\Magento2\Model\ConfigProvider\ExternalEmailProvider as ExternalEmailConfig;
 use Buckaroo\Magento2\Model\ConfigProvider\SecondChance as SecondChanceConfig;
 use Buckaroo\Magento2\Service\EmailProvider\EmailSender;

@@ -21,7 +21,7 @@
 namespace Buckaroo\Magento2\Block\Adminhtml\Giftcard\Edit;
 
 use Buckaroo\Magento2\Model\Data\BuckarooGiftcardDataInterface;
-use Buckaroo\Magento2\Model\Giftcard\Request\Giftcard;
+use Buckaroo\Magento2\Service\Giftcard\Request\Giftcard;
 use Magento\Backend\Block\Template\Context;
 use Magento\Backend\Block\Widget\Form\Generic;
 use Magento\Framework\Data\FormFactory;

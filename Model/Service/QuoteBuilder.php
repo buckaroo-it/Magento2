@@ -20,7 +20,7 @@
 
 namespace Buckaroo\Magento2\Model\Service;
 
-use Buckaroo\Magento2\Model\PaypalExpress\PaypalExpressException;
+use Buckaroo\Magento2\Service\PaypalExpress\PaypalExpressException;
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Checkout\Model\Type\Onepage;
 use Magento\Customer\Model\Group;

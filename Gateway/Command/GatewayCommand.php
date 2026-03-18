@@ -23,7 +23,7 @@ namespace Buckaroo\Magento2\Gateway\Command;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRemainder;
-use Buckaroo\Magento2\Model\LockManagerWrapper;
+use Buckaroo\Magento2\Service\LockManagerWrapper;
 use Buckaroo\Magento2\Model\Method\LimitReachException;
 use Buckaroo\Magento2\Model\Service\CancelOrder;
 use Buckaroo\Magento2\Service\SpamLimitService;
