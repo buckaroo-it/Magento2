@@ -24,11 +24,9 @@ namespace Buckaroo\Magento2\Service\Push;
 use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Api\Data\PushRequestInterface;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
-use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Phrase;
 use Magento\Sales\Api\Data\TransactionInterface;
-use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
@@ -69,24 +67,18 @@ class OrderRequestService
     protected $resourceConnection;
 
     /**
-     * @var OrderRepositoryInterface
+     * @var KlarnaKpOrderService
      */
-    private $orderRepository;
+    private $klarnaKpOrderService;
 
     /**
-     * @var SearchCriteriaBuilder
-     */
-    private $searchCriteriaBuilder;
-
-    /**
-     * @param Order                    $order
-     * @param BuckarooLoggerInterface  $logger
-     * @param TransactionInterface     $transaction
-     * @param OrderSender              $orderSender
-     * @param InvoiceSender            $invoiceSender
-     * @param ResourceConnection       $resourceConnection
-     * @param OrderRepositoryInterface $orderRepository
-     * @param SearchCriteriaBuilder    $searchCriteriaBuilder
+     * @param Order                   $order
+     * @param BuckarooLoggerInterface $logger
+     * @param TransactionInterface    $transaction
+     * @param OrderSender             $orderSender
+     * @param InvoiceSender           $invoiceSender
+     * @param ResourceConnection      $resourceConnection
+     * @param KlarnaKpOrderService    $klarnaKpOrderService
      */
     public function __construct(
         Order $order,
@@ -95,8 +87,7 @@ class OrderRequestService
         OrderSender $orderSender,
         InvoiceSender $invoiceSender,
         ResourceConnection $resourceConnection,
-        OrderRepositoryInterface $orderRepository,
-        SearchCriteriaBuilder $searchCriteriaBuilder
+        KlarnaKpOrderService $klarnaKpOrderService
     ) {
         $this->order = $order;
         $this->logger = $logger;
@@ -104,8 +95,7 @@ class OrderRequestService
         $this->orderSender = $orderSender;
         $this->invoiceSender = $invoiceSender;
         $this->resourceConnection = $resourceConnection;
-        $this->orderRepository = $orderRepository;
-        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->klarnaKpOrderService = $klarnaKpOrderService;
     }
 
     /**
@@ -207,27 +197,13 @@ class OrderRequestService
             return null;
         }
 
-        $searchCriteria = $this->searchCriteriaBuilder
-            ->addFilter('buckaroo_reservation_number', $reservationNumber)
-            ->setPageSize(1)
-            ->create();
+        $order = $this->klarnaKpOrderService->getOrderByReservationNumber($reservationNumber);
 
-        $orders = $this->orderRepository->getList($searchCriteria)->getItems();
-
-        if (empty($orders)) {
-            $this->logger->addDebug(sprintf(
-                '[ORDER] | [Service] | [%s:%s] - No order found by Klarna reservation number: %s',
-                __METHOD__,
-                __LINE__,
-                $reservationNumber
-            ));
-            return null;
+        if ($order !== null) {
+            $this->order = $order;
         }
 
-        /** @var Order $order */
-        $order = reset($orders);
-        $this->order = $order;
-        return $this->order;
+        return $order;
     }
 
     /**
