@@ -25,7 +25,6 @@ use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Api\Data\PushRequestInterface;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\Framework\App\ResourceConnection;
-use Magento\Framework\Phrase;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
@@ -235,7 +234,7 @@ class OrderRequestService
     /**
      * Try to add a notification note to the order comments.
      *
-     * @param Phrase|string $message
+     * @param \Magento\Framework\Phrase|string $message
      */
     public function setOrderNotificationNote($message): void
     {
