@@ -99,6 +99,70 @@ class KlarnaKpProcessor extends DefaultProcessor
     }
 
     /**
+     * Process the push according to the response status.
+     * For KlarnaKp, detect Plaza-originated cancel reservation pushes that arrive as statuscode 190.
+     *
+     * @throws \Exception
+     *
+     * @return bool
+     */
+    protected function processPushByStatus(): bool
+    {
+        if ($this->isPlazaCancelReservationPush()) {
+            return $this->processPlazaCancelReservation();
+        }
+
+        return parent::processPushByStatus();
+    }
+
+    /**
+     * Detect a cancel-reservation push sent by Buckaroo Plaza for KlarnaKp.
+     *
+     * @return bool
+     */
+    private function isPlazaCancelReservationPush(): bool
+    {
+        return (int)$this->pushRequest->getStatusCode() === 190
+            && !$this->pushRequest->hasAdditionalInformation('initiated_by_magento', 1)
+            && empty($this->pushRequest->getInvoiceNumber())
+            && $this->order->getState() === Order::STATE_PROCESSING;
+    }
+
+    /**
+     * Cancel the Magento order when a Plaza cancel reservation push is detected.
+     *
+     * @throws \Exception
+     *
+     * @return bool
+     */
+    private function processPlazaCancelReservation(): bool
+    {
+        $this->logger->addDebug(sprintf(
+            '[KLARNA_KP] | [%s:%s] - Detected Plaza cancel reservation push for order %s. Cancelling order.',
+            __METHOD__,
+            __LINE__,
+            $this->order->getIncrementId()
+        ));
+
+        $newStatus = $this->orderStatusFactory->get(
+            BuckarooStatusCode::CANCELLED_BY_MERCHANT,
+            $this->order
+        );
+
+        if ($this->order->canCancel()) {
+            $this->order->cancel()->save();
+        }
+
+        $this->orderRequestService->updateOrderStatus(
+            Order::STATE_CANCELED,
+            $newStatus,
+            'Order cancelled via Buckaroo Plaza (KlarnaKp reservation released).'
+        );
+
+        return true;
+    }
+
+    /**
      * Skip the push if the conditions are met.
      *
      * @throws \Exception
