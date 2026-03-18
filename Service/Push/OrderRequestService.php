@@ -234,7 +234,7 @@ class OrderRequestService
     /**
      * Try to add a notification note to the order comments.
      *
-     * @param \Magento\Framework\Phrase|string $message
+     * @param string $message
      */
     public function setOrderNotificationNote($message): void
     {
