@@ -27,16 +27,13 @@ use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\Order;
-use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
-use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Magento\Sales\Model\Order\Invoice;
-use Magento\Sales\Model\Order\Payment as OrderPayment;
 use Magento\Sales\Model\Order\Payment\Transaction;
 
 class OrderRequestService
 {
     /**
-     * @var Order|OrderPayment $order
+     * @var Order $order
      */
     public $order = null;
 
@@ -51,14 +48,9 @@ class OrderRequestService
     private $transaction;
 
     /**
-     * @var OrderSender
+     * @var OrderEmailService
      */
-    private $orderSender;
-
-    /**
-     * @var InvoiceSender
-     */
-    private $invoiceSender;
+    private $orderEmailService;
 
     /**
      * @var ResourceConnection
@@ -74,8 +66,7 @@ class OrderRequestService
      * @param Order                   $order
      * @param BuckarooLoggerInterface $logger
      * @param TransactionInterface    $transaction
-     * @param OrderSender             $orderSender
-     * @param InvoiceSender           $invoiceSender
+     * @param OrderEmailService       $orderEmailService
      * @param ResourceConnection      $resourceConnection
      * @param KlarnaKpOrderService    $klarnaKpOrderService
      */
@@ -83,16 +74,14 @@ class OrderRequestService
         Order $order,
         BuckarooLoggerInterface $logger,
         TransactionInterface $transaction,
-        OrderSender $orderSender,
-        InvoiceSender $invoiceSender,
+        OrderEmailService $orderEmailService,
         ResourceConnection $resourceConnection,
         KlarnaKpOrderService $klarnaKpOrderService
     ) {
         $this->order = $order;
         $this->logger = $logger;
         $this->transaction = $transaction;
-        $this->orderSender = $orderSender;
-        $this->invoiceSender = $invoiceSender;
+        $this->orderEmailService = $orderEmailService;
         $this->resourceConnection = $resourceConnection;
         $this->klarnaKpOrderService = $klarnaKpOrderService;
     }
@@ -104,7 +93,7 @@ class OrderRequestService
      *
      * @throws \Exception
      *
-     * @return Order|OrderPayment
+     * @return Order
      */
     public function getOrderByRequest(?PushRequestInterface $pushRequest = null)
     {
@@ -159,7 +148,7 @@ class OrderRequestService
      *
      * @throws \Exception
      *
-     * @return OrderPayment|Order
+     * @return Order
      */
     protected function getOrderByTransactionKey($pushRequest)
     {
@@ -326,7 +315,7 @@ class OrderRequestService
      */
     public function sendOrderEmail(Order $order, bool $forceSyncMode = false): bool
     {
-        return $this->orderSender->send($order, $forceSyncMode);
+        return $this->orderEmailService->sendOrderEmail($order, $forceSyncMode);
     }
 
     /**
@@ -341,7 +330,7 @@ class OrderRequestService
      */
     public function sendInvoiceEmail(Invoice $invoice, bool $forceSyncMode = false): bool
     {
-        return $this->invoiceSender->send($invoice, $forceSyncMode);
+        return $this->orderEmailService->sendInvoiceEmail($invoice, $forceSyncMode);
     }
 
     public function updateTotalOnOrder($order)
