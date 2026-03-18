@@ -46,7 +46,8 @@ class SepaDirectDebitTest extends BaseTest
                                 'subtext_style' => null,
                                 'subtext_color' => null,
                                 'isTestMode' => true,
-                                'logo' => ''
+                                'logo' => '',
+                                'display_subtext' => false
                             ]
                         ]
                     ]
