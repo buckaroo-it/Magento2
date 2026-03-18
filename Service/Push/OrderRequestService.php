@@ -24,9 +24,11 @@ namespace Buckaroo\Magento2\Service\Push;
 use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Api\Data\PushRequestInterface;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
+use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Phrase;
 use Magento\Sales\Api\Data\TransactionInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
@@ -67,12 +69,24 @@ class OrderRequestService
     protected $resourceConnection;
 
     /**
-     * @param Order                   $order
-     * @param BuckarooLoggerInterface $logger
-     * @param TransactionInterface    $transaction
-     * @param OrderSender             $orderSender
-     * @param InvoiceSender           $invoiceSender
-     * @param ResourceConnection      $resourceConnection
+     * @var OrderRepositoryInterface
+     */
+    private $orderRepository;
+
+    /**
+     * @var SearchCriteriaBuilder
+     */
+    private $searchCriteriaBuilder;
+
+    /**
+     * @param Order                    $order
+     * @param BuckarooLoggerInterface  $logger
+     * @param TransactionInterface     $transaction
+     * @param OrderSender              $orderSender
+     * @param InvoiceSender            $invoiceSender
+     * @param ResourceConnection       $resourceConnection
+     * @param OrderRepositoryInterface $orderRepository
+     * @param SearchCriteriaBuilder    $searchCriteriaBuilder
      */
     public function __construct(
         Order $order,
@@ -80,7 +94,9 @@ class OrderRequestService
         TransactionInterface $transaction,
         OrderSender $orderSender,
         InvoiceSender $invoiceSender,
-        ResourceConnection $resourceConnection
+        ResourceConnection $resourceConnection,
+        OrderRepositoryInterface $orderRepository,
+        SearchCriteriaBuilder $searchCriteriaBuilder
     ) {
         $this->order = $order;
         $this->logger = $logger;
@@ -88,6 +104,8 @@ class OrderRequestService
         $this->orderSender = $orderSender;
         $this->invoiceSender = $invoiceSender;
         $this->resourceConnection = $resourceConnection;
+        $this->orderRepository = $orderRepository;
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
     }
 
     /**
@@ -161,11 +179,55 @@ class OrderRequestService
         $this->transaction->load($trxId, 'txn_id');
         $order = $this->transaction->getOrder();
 
-        if (!$order) {
+        if (!$order || !$order->getId()) {
+            $order = $this->getOrderByKlarnaReservationNumber($pushRequest);
+        }
+
+        if (!$order || !$order->getId()) {
             throw new BuckarooException(__('There was no order found by transaction Id'));
         }
 
         return $order;
+    }
+
+    /**
+     * Try to find the order by the Klarna KP reservation number when no transaction record exists.
+     * This covers cancel pushes sent directly from Buckaroo plaza where brq_transactions is absent
+     * but brq_SERVICE_klarnakp_ReservationNumber is present.
+     *
+     * @param $pushRequest
+     *
+     * @return Order|null
+     */
+    protected function getOrderByKlarnaReservationNumber($pushRequest): ?Order
+    {
+        $reservationNumber = $pushRequest->getServiceKlarnakpReservationnumber(); // @phpstan-ignore-line
+
+        if (empty($reservationNumber)) {
+            return null;
+        }
+
+        $searchCriteria = $this->searchCriteriaBuilder
+            ->addFilter('buckaroo_reservation_number', $reservationNumber)
+            ->setPageSize(1)
+            ->create();
+
+        $orders = $this->orderRepository->getList($searchCriteria)->getItems();
+
+        if (empty($orders)) {
+            $this->logger->addDebug(sprintf(
+                '[ORDER] | [Service] | [%s:%s] - No order found by Klarna reservation number: %s',
+                __METHOD__,
+                __LINE__,
+                $reservationNumber
+            ));
+            return null;
+        }
+
+        /** @var Order $order */
+        $order = reset($orders);
+        $this->order = $order;
+        return $this->order;
     }
 
     /**
