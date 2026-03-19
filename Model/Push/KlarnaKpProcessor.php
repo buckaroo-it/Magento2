@@ -27,6 +27,7 @@ use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp;
+use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
 use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
@@ -122,10 +123,24 @@ class KlarnaKpProcessor extends DefaultProcessor
      */
     private function isPlazaCancelReservationPush(): bool
     {
-        return (int)$this->pushRequest->getStatusCode() === 190
-            && !$this->pushRequest->hasAdditionalInformation('initiated_by_magento', 1)
-            && empty($this->pushRequest->getInvoiceNumber())
-            && $this->order->getState() === Order::STATE_PROCESSING;
+        if ((int)$this->pushRequest->getStatusCode() !== 190
+            || $this->pushRequest->hasAdditionalInformation('initiated_by_magento', 1)
+            || !empty($this->pushRequest->getInvoiceNumber())
+            || $this->order->getState() !== Order::STATE_PROCESSING
+        ) {
+            return false;
+        }
+
+        $incomingTrx = $this->pushRequest->getDatarequest();
+        if (empty($incomingTrx)) {
+            return false;
+        }
+
+        $knownTransactions = (array)$this->payment->getAdditionalInformation(
+            BuckarooAdapter::BUCKAROO_ALL_TRANSACTIONS
+        );
+
+        return !array_key_exists($incomingTrx, $knownTransactions);
     }
 
     /**
@@ -150,7 +165,21 @@ class KlarnaKpProcessor extends DefaultProcessor
         );
 
         if ($this->order->canCancel()) {
-            $this->order->cancel()->save();
+            $payment = $this->order->getPayment();
+
+            $payment->setAdditionalInformation('buckaroo_failed_authorize', 1);
+            $payment->save();
+
+            $methodInstance = $payment->getMethodInstance();
+            $methodInstanceClass = get_class($methodInstance);
+            $originalRequestOnVoid = $methodInstanceClass::$requestOnVoid;
+            $methodInstanceClass::$requestOnVoid = false;
+
+            try {
+                $this->order->cancel()->save();
+            } finally {
+                $methodInstanceClass::$requestOnVoid = $originalRequestOnVoid;
+            }
         }
 
         $this->orderRequestService->updateOrderStatus(
