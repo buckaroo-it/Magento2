@@ -80,20 +80,14 @@ class SecondChance extends Action
                 $quote = $this->checkoutSession->getQuote();
 
                 if (!$quote || !$quote->getId()) {
-                    $this->logger->addError('SecondChance: No quote in session after restoration', [
-                        'token' => substr($token, 0, 8) . '...',
-                        'order_id' => $secondChance->getOrderId()
-                    ]);
+                    $this->logger->addError('SecondChance: No quote in session after restoration');
                     $this->messageManager->addErrorMessage(__('Unable to restore your cart. Please try again or contact support.'));
                     return $this->handleRedirect('checkout/cart');
                 }
 
                 $this->messageManager->addSuccessMessage(__('Your cart has been restored. You can now complete your purchase.'));
             } catch (Exception $e) {
-                $this->logger->addWarning('SecondChance: invalid or expired token', [
-                    'error' => $e->getMessage(),
-                    'token' => $token ? substr($token, 0, 8) . '...' : 'none'
-                ]);
+                $this->logger->addWarning('SecondChance: invalid or expired token');
                 $this->messageManager->addErrorMessage(__('Invalid or expired link. Please try again.'));
                 return $this->handleRedirect('checkout/cart');
             }
