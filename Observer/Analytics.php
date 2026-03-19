@@ -51,7 +51,7 @@ class Analytics implements ObserverInterface
                 $quote_id = $quote->getEntityId();
             }
         } catch (\Exception $e) {
-            $this->log->error($e);
+            $this->log->addError($e->getMessage());
         }
 
         if (isset($quote_id)) {
@@ -64,7 +64,7 @@ class Analytics implements ObserverInterface
             try {
                 $this->analyticsRepository->save($this->analyticsModel);
             } catch (\Exception $e) {
-                $this->log->error($e);
+                $this->log->addError($e->getMessage());
             }
         }
     }

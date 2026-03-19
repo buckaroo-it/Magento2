@@ -130,7 +130,7 @@ class LogCleaner
                 ['time <= date_sub(now(),interval ' . $retentionPeriod . ' second)']
             );
         } catch (\Exception $e) {
-            $this->logger->error(sprintf(
+            $this->logger->addError(sprintf(
                 '[LOGGING] | [CRON] | [%s:%s] - Delete logs from data base. Proceed DB error. | [ERROR]: %s',
                 __METHOD__,
                 __LINE__,

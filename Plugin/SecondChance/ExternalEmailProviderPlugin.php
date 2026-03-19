@@ -145,22 +145,16 @@ class ExternalEmailProviderPlugin
 
             if ($result['success']) {
                 // Success - log and return
-                $this->logger->addInfo("Second-chance email sent via {$providerName}", [
-                    'order_id' => $order->getIncrementId(),
-                    'step' => $step
-                ]);
+                $this->logger->addDebug("Second-chance email sent via {$providerName}");
                 return;
             }
 
             // External provider failed
-            $this->logger->addError("{$providerName} failed to send email", [
-                'order_id' => $order->getIncrementId(),
-                'error' => $result['error'] ?? 'Unknown error'
-            ]);
+            $this->logger->addError("{$providerName} failed to send email");
 
             // Check if fallback is enabled
             if ($this->externalEmailConfig->isFallbackEnabled($storeId)) {
-                $this->logger->addInfo("Fallback: Using Magento mail for order {$order->getIncrementId()}");
+                $this->logger->addDebug("Fallback: Using Magento mail for order {$order->getIncrementId()}");
                 return $proceed($order, $secondChance, $step);
             }
 
@@ -169,14 +163,11 @@ class ExternalEmailProviderPlugin
             return $proceed($order, $secondChance, $step);
         } catch (\Exception $e) {
             // Log error
-            $this->logger->addError('External email provider error: ' . $e->getMessage(), [
-                'order_id' => $order->getIncrementId(),
-                'step' => $step
-            ]);
+            $this->logger->addError('External email provider error: ' . $e->getMessage());
 
             // Check if fallback is enabled
             if ($this->externalEmailConfig->isFallbackEnabled($storeId)) {
-                $this->logger->addInfo("Fallback: Using Magento mail after exception for order {$order->getIncrementId()}");
+                $this->logger->addDebug("Fallback: Using Magento mail after exception for order {$order->getIncrementId()}");
                 return $proceed($order, $secondChance, $step);
             }
 

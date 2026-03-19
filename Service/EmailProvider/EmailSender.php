@@ -88,7 +88,7 @@ class EmailSender
 
                 // Success - log and return
                 if ($attempt > 1) {
-                    $this->logger->addInfo("Email sent via {$providerName} after {$attempt} attempts");
+                    $this->logger->addDebug("Email sent via {$providerName} after {$attempt} attempts");
                 }
 
                 return array_merge($result, [
