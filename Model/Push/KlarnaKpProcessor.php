@@ -182,10 +182,19 @@ class KlarnaKpProcessor extends DefaultProcessor
             }
         }
 
+        $cancelTrxId = $this->pushRequest->getDatarequest();
+        $description = sprintf(
+            'Order cancelled via Buckaroo Plaza (KlarnaKp reservation released).'
+            . ' Cancel transaction: <a href="https://plaza.buckaroo.nl/Transaction/DataRequest/Details/%s"'
+            . ' target="_blank">%s</a>.',
+            $cancelTrxId,
+            $cancelTrxId
+        );
+
         $this->orderRequestService->updateOrderStatus(
             Order::STATE_CANCELED,
             $newStatus,
-            'Order cancelled via Buckaroo Plaza (KlarnaKp reservation released).'
+            $description
         );
 
         return true;
