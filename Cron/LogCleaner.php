@@ -175,7 +175,7 @@ class LogCleaner
             $path  = $this->directoryList->getPath('var') . $path;
             $paths = $this->driverFile->readDirectory($path);
         } catch (FileSystemException $e) {
-            $this->logger->error(sprintf(
+            $this->logger->addError(sprintf(
                 '[LOGGING] | [CRON] | [%s:%s] - Get all files from log directory. | [ERROR]: %s',
                 __METHOD__,
                 __LINE__,
