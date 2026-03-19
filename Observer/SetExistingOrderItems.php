@@ -70,7 +70,7 @@ class SetExistingOrderItems implements ObserverInterface
                     $orderItems = $this->getOrderItemsByOrderId($order->getId());
                     $order->setItems($orderItems);
                 } catch (\Exception $e) {
-                    $this->logger->critical($e->getMessage());
+                    $this->logger->addError($e->getMessage());
                 }
             }
         }
