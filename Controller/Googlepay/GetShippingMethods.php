@@ -22,6 +22,7 @@ namespace Buckaroo\Magento2\Controller\Googlepay;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\Service\GooglepayFormatData;
 use Buckaroo\Magento2\Model\Service\QuoteService;
+use Buckaroo\Magento2\Service\Googlepay\Add;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Exception\LocalizedException;
@@ -41,22 +42,30 @@ class GetShippingMethods extends AbstractGooglepay
     private $googlepayFormatData;
 
     /**
+     * @var Add
+     */
+    private $addService;
+
+    /**
      * @param JsonFactory             $resultJsonFactory
      * @param RequestInterface        $request
      * @param BuckarooLoggerInterface $logger
      * @param QuoteService            $quoteService
      * @param GooglepayFormatData     $googlepayFormatData
+     * @param Add                     $addService
      */
     public function __construct(
         JsonFactory $resultJsonFactory,
         RequestInterface $request,
         BuckarooLoggerInterface $logger,
         QuoteService $quoteService,
-        GooglepayFormatData $googlepayFormatData
+        GooglepayFormatData $googlepayFormatData,
+        Add $addService
     ) {
         parent::__construct($resultJsonFactory, $request, $logger);
         $this->quoteService         = $quoteService;
         $this->googlepayFormatData  = $googlepayFormatData;
+        $this->addService           = $addService;
     }
 
     /**
@@ -155,9 +164,7 @@ class GetShippingMethods extends AbstractGooglepay
             'wallet' => $addressData
         ];
 
-        $addService = \Magento\Framework\App\ObjectManager::getInstance()
-            ->get(\Buckaroo\Magento2\Service\Googlepay\Add::class);
-        $result = $addService->process($addPayload);
+        $result = $this->addService->process($addPayload);
 
         if (isset($result['error']) && $result['error']) {
             $this->logger->addDebug('[GooglePay] Error creating quote: ' . $result['error']);

@@ -236,7 +236,7 @@ class OrderRequestService
                 '[ORDER] | [Service] | [%s:%s] - Set Order Notification Note Failed | [ERROR]: %s',
                 __METHOD__,
                 __LINE__,
-                $e->getLogMessage()
+                $e->getMessage()
             ));
         }
     }
@@ -342,7 +342,7 @@ class OrderRequestService
                 $connection->getTableName('sales_order'),
                 [
                     'total_due'       => $order->getTotalDue(),
-                    'base_total_due'  => $order->getTotalDue(),
+                    'base_total_due'  => $order->getBaseTotalDue(),
                     'total_paid'      => $order->getTotalPaid(),
                     'base_total_paid' => $order->getBaseTotalPaid(),
                 ],

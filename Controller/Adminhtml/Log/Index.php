@@ -29,6 +29,14 @@ use Magento\Framework\Controller\ResultInterface;
 class Index extends Action implements HttpGetActionInterface
 {
     /**
+     * @inheritdoc
+     */
+    protected function _isAllowed(): bool
+    {
+        return $this->_authorization->isAllowed('Buckaroo_Magento2::Log_view');
+    }
+
+    /**
      * Index action
      *
      * @return ResultInterface
