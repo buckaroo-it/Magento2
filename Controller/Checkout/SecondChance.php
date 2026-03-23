@@ -74,7 +74,6 @@ class SecondChance extends Action
     {
         if ($token = $this->getRequest()->getParam('token')) {
             try {
-                $secondChance = $this->secondChanceRepository->getSecondChanceByToken($token);
 
                 // Verify quote was properly set in session
                 $quote = $this->checkoutSession->getQuote();
