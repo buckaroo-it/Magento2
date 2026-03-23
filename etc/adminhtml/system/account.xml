@@ -81,7 +81,7 @@
         <field id="buckaroo_fee_tax_class" translate="label tooltip" type="select" sortOrder="47" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Buckaroo Payment Fee Tax Class</label>
             <!--            <comment>This sets whether buckaroo payment fee amounts entered from Magento Admin include tax.</comment>-->
-            <source_model>\Magento\Tax\Model\TaxClass\Source\Product</source_model>
+            <source_model>Magento\Tax\Model\TaxClass\Source\Product</source_model>
             <config_path>buckaroo_magento2/account/buckaroo_fee_tax_class</config_path>
         </field>
     </group>

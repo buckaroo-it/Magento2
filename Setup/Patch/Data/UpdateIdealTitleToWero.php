@@ -8,15 +8,24 @@ use Magento\Framework\Setup\Patch\DataPatchInterface;
 
 class UpdateIdealTitleToWero implements DataPatchInterface
 {
+    /**
+     * @var ModuleDataSetupInterface
+     */
     private $moduleDataSetup;
 
+    /**
+     * @param ModuleDataSetupInterface $moduleDataSetup
+     */
     public function __construct(
         ModuleDataSetupInterface $moduleDataSetup
     ) {
         $this->moduleDataSetup = $moduleDataSetup;
     }
 
-    public function apply(): void
+    /**
+     * @inheritdoc
+     */
+    public function apply()
     {
         $this->moduleDataSetup->startSetup();
         $connection = $this->moduleDataSetup->getConnection();
@@ -39,16 +48,23 @@ class UpdateIdealTitleToWero implements DataPatchInterface
         }
 
         $this->moduleDataSetup->endSetup();
+
+        return $this;
     }
 
+    /**
+     * @inheritdoc
+     */
     public static function getDependencies(): array
     {
         return [];
     }
 
+    /**
+     * @inheritdoc
+     */
     public function getAliases(): array
     {
         return [];
     }
 }
-

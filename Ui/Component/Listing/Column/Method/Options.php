@@ -35,15 +35,18 @@ class Options extends Column
      */
     protected $resourceConnection;
 
+    /**
+     * @var OrderCollectionFactory
+     */
     protected $orderCollectionFactory;
 
     /**
      * @param ContextInterface       $context
+     * @param OrderCollectionFactory $orderCollectionFactory
      * @param UiComponentFactory     $uiComponentFactory
      * @param ResourceConnection     $resourceConnection
      * @param array                  $components
      * @param array                  $data
-     * @param OrderCollectionFactory $orderCollectionFactory
      */
     public function __construct(
         ContextInterface $context,
@@ -82,6 +85,13 @@ class Options extends Column
         return $dataSource;
     }
 
+    /**
+     * Load grouped transaction codes for the listed orders.
+     *
+     * @param array $incrementIds
+     *
+     * @return array
+     */
     private function getGroupTransactionData(array $incrementIds): array
     {
         $db = $this->resourceConnection->getConnection();
@@ -120,6 +130,13 @@ class Options extends Column
         return $additionalOptions;
     }
 
+    /**
+     * Load pay-per-email methods for the listed orders.
+     *
+     * @param array $incrementIds
+     *
+     * @return array
+     */
     private function getPayPerEmailData(array $incrementIds): array
     {
         $orderCollection = $this->orderCollectionFactory->create();
@@ -145,6 +162,14 @@ class Options extends Column
         return $additionalOptions;
     }
 
+    /**
+     * Merge derived payment method values into the UI data source.
+     *
+     * @param array $dataSource
+     * @param array $additionalOptions
+     *
+     * @return array
+     */
     private function updateDataSourceItems(array $dataSource, array $additionalOptions): array
     {
         if (!empty($additionalOptions)) {

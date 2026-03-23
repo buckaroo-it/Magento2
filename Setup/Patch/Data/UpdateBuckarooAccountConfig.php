@@ -41,9 +41,9 @@ class UpdateBuckarooAccountConfig implements DataPatchInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
-    public function apply(): void
+    public function apply()
     {
         $this->moduleDataSetup->startSetup();
 
@@ -77,10 +77,12 @@ class UpdateBuckarooAccountConfig implements DataPatchInterface
         }
 
         $this->moduleDataSetup->endSetup();
+
+        return $this;
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public static function getDependencies(): array
     {
@@ -88,7 +90,7 @@ class UpdateBuckarooAccountConfig implements DataPatchInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getAliases(): array
     {

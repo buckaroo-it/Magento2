@@ -286,7 +286,7 @@ class PayPerEmailProcessor extends DefaultProcessor
             || $this->payment->getAdditionalInformation('isPayPerEmail') !== null;
 
         $transactionMethod = $this->pushRequest->getTransactionMethod();
-        if (!empty($transactionMethod) && strtolower( $transactionMethod) !== 'payperemail') {
+        if (!empty($transactionMethod) && strtolower($transactionMethod) !== 'payperemail') {
             $transactionMethod = strtolower($transactionMethod);
             $this->saveActualPaymentMethodAndKeyForRefund($transactionKey, $transactionMethod);
             return true;

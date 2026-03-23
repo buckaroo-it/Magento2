@@ -25,6 +25,7 @@ use Magento\Backend\App\Action;
 use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Controller\ResultInterface;
+use Magento\Framework\View\Result\Page;
 
 class Index extends Action implements HttpGetActionInterface
 {
@@ -43,8 +44,9 @@ class Index extends Action implements HttpGetActionInterface
      */
     public function execute(): ResultInterface
     {
+        /** @var Page $resultPage */
         $resultPage = $this->resultFactory->create(ResultFactory::TYPE_PAGE);
-        $resultPage->getConfig()->getTitle()->prepend(__("Log"));
+        $resultPage->getConfig()->getTitle()->prepend((string)__("Log"));
         return $resultPage;
     }
 }

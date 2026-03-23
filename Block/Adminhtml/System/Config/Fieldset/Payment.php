@@ -20,6 +20,7 @@
 
 namespace Buckaroo\Magento2\Block\Adminhtml\System\Config\Fieldset;
 
+use Magento\Backend\Block\Template;
 use Magento\Backend\Block\Context;
 use Magento\Backend\Model\Auth\Session;
 use Magento\Config\Block\System\Config\Form\Fieldset;
@@ -32,6 +33,8 @@ use Magento\Framework\View\Helper\Js;
  */
 class Payment extends Fieldset
 {
+    private const HEADER_TEMPLATE = 'Buckaroo_Magento2::system/config/fieldset/payment_header.phtml';
+
     /**
      * @var Config
      */
@@ -56,6 +59,8 @@ class Payment extends Fieldset
     }
 
     /**
+     * Render the payment fieldset header HTML.
+     *
      * @param AbstractElement $element
      *
      * @return string
@@ -64,53 +69,40 @@ class Payment extends Fieldset
      */
     protected function _getHeaderTitleHtml($element)
     {
-        $html = '<div class="config-heading" >';
-
-        $groupConfig = $element->getGroup();
-
-        $disabledAttributeString = $this->isPaymentEnabled($element) ? '' : ' disabled="disabled"';
-        $disabledClassString = $this->isPaymentEnabled($element) ? '' : ' disabled';
-        $htmlId = $element->getHtmlId();
-        $html .= '<div class="button-container"><button type="button"' .
-            $disabledAttributeString .
-            ' class="button action-configure' .
-            $disabledClassString .
-            '" id="' .
-            $htmlId .
-            '-head" onclick="buckarooToggleSolution.call(this, \'' .
-            $htmlId .
-            "', '" .
-            $this->getUrl(
-                'adminhtml/*/state'
-            ) . '\'); return false;"><span class="state-closed">' . __(
-                'Configure'
-            ) . '</span><span class="state-opened">' . __(
-                'Close'
-            ) . '</span></button>';
-
-        if (!empty($groupConfig['more_url'])) {
-            $html .= '<a class="link-more" href="' . $groupConfig['more_url'] . '" target="_blank">'
-                . __('Learn More') . '</a>';
-        }
-        if (!empty($groupConfig['demo_url'])) {
-            $html .= '<a class="link-demo" href="' . $groupConfig['demo_url'] . '" target="_blank">'
-                . __('View Demo') . '</a>';
-        }
-
-        $html .= '</div>';
-        $html .= '<div class="heading"><strong>' . $element->getLegend() . '</strong>';
-
-        if ($element->getComment()) {
-            $html .= '<span class="heading-intro">' . $element->getComment() . '</span>';
-        }
-        $html .= '<div class="config-alt"></div>';
-        $html .= '</div></div>';
-
-        return $html;
+        return $this->renderHeaderTitleTemplate($element);
     }
 
     /**
-     * Check whether current payment method is enabled
+     * Render the payment fieldset header through a template block.
+     *
+     * @param AbstractElement $element
+     *
+     * @return string
+     */
+    private function renderHeaderTitleTemplate(AbstractElement $element): string
+    {
+        $groupConfig = $element->getGroup();
+        $isEnabled = $this->isPaymentEnabled($element);
+        $templateBlock = $this->getLayout()->createBlock(Template::class);
+
+        return $templateBlock
+            ->setTemplate(self::HEADER_TEMPLATE)
+            ->setData(
+                [
+                    'comment' => $element->getComment(),
+                    'demo_url' => $groupConfig['demo_url'] ?? '',
+                    'html_id' => $element->getHtmlId(),
+                    'is_enabled' => $isEnabled,
+                    'legend' => $element->getLegend(),
+                    'more_url' => $groupConfig['more_url'] ?? '',
+                    'toggle_url' => $this->getUrl('adminhtml/*/state'),
+                ]
+            )
+            ->toHtml();
+    }
+
+    /**
+     * Check whether the current payment method is enabled
      *
      * @param AbstractElement $element
      *
@@ -124,6 +116,8 @@ class Payment extends Fieldset
     }
 
     /**
+     * Return the fieldset header comment HTML.
+     *
      * @param AbstractElement $element
      *
      * @return string
@@ -136,6 +130,8 @@ class Payment extends Fieldset
     }
 
     /**
+     * Determine the initial collapse state.
+     *
      * @param AbstractElement $element
      *
      * @return false
@@ -148,6 +144,8 @@ class Payment extends Fieldset
     }
 
     /**
+     * Return the extra JavaScript needed for the fieldset behavior.
+     *
      * @param AbstractElement $element
      *
      * @return string
@@ -179,6 +177,8 @@ class Payment extends Fieldset
     }
 
     /**
+     * Return the frontend CSS class for the fieldset.
+     *
      * @param AbstractElement $element
      *
      * @return string

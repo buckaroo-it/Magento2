@@ -25,8 +25,9 @@ use Buckaroo\Magento2\Model\SecondChanceRepository;
 use Exception;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
-use Magento\Framework\App\ResponseInterface;
 use Magento\Checkout\Model\Session as CheckoutSession;
+use Magento\Framework\Controller\Result\Redirect;
+use Magento\Framework\Controller\ResultFactory;
 
 class SecondChance extends Action
 {
@@ -68,17 +69,18 @@ class SecondChance extends Action
      *
      * @throws Exception
      *
-     * @return ResponseInterface
+     * @return Redirect
      */
-    public function execute()
+    public function execute(): Redirect
     {
         if ($token = $this->getRequest()->getParam('token')) {
             try {
+                $this->secondChanceRepository->getSecondChanceByToken($token);
 
                 // Verify quote was properly set in session
                 $quote = $this->checkoutSession->getQuote();
 
-                if (!$quote || !$quote->getId()) {
+                if (!$quote->getId()) {
                     $this->logger->addError('SecondChance: No quote in session after restoration');
                     $this->messageManager->addErrorMessage(__('Unable to restore your cart. Please try again or contact support.'));
                     return $this->handleRedirect('checkout/cart');
@@ -96,8 +98,11 @@ class SecondChance extends Action
             return $this->handleRedirect('checkout/cart');
         }
 
+        $queryParams = $this->getRequest()->getParams();
+        unset($queryParams['token']);
+
         return $this->handleRedirect('checkout', [
-            '_query'    => $this->getRequest()->getQuery()->toArray(),
+            '_query'    => $queryParams,
             '_fragment' => 'payment',
         ]);
     }
@@ -107,10 +112,12 @@ class SecondChance extends Action
      *
      * @param string $path
      * @param array $arguments
-     * @return \Magento\Framework\Controller\Result\Redirect
+     * @return Redirect
      */
-    public function handleRedirect($path, $arguments = [])
+    public function handleRedirect($path, $arguments = []): Redirect
     {
-        return $this->_redirect($path, $arguments);
+        /** @var Redirect $resultRedirect */
+        $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
+        return $resultRedirect->setPath($path, $arguments);
     }
 }

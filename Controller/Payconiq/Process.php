@@ -22,7 +22,6 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Controller\Payconiq;
 
 use Buckaroo\Magento2\Service\SpamLimitService;
-use Buckaroo\Magento2\Model\Method\LimitReachException;
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\LockManagerWrapper;
@@ -35,17 +34,16 @@ use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Buckaroo\Magento2\Service\Sales\Quote\Recreate;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Api\CustomerRepositoryInterface;
-use Magento\Customer\Model\ResourceModel\CustomerFactory;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\App\Action\Context;
-use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Event\ManagerInterface;
 use Magento\Quote\Model\Quote;
-use Magento\Sales\Api\Data\TransactionInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Api\Data\TransactionSearchResultInterface;
 use Magento\Sales\Api\TransactionRepositoryInterface;
+use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment\Transaction;
 
 /**
@@ -74,6 +72,11 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
     protected $transactionRepository;
 
     /**
+     * @var OrderRepositoryInterface
+     */
+    private $orderRepository;
+
+    /**
      * @var LockManagerWrapper
      */
     protected $lockManager;
@@ -93,9 +96,10 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
      * @param Recreate                       $quoteRecreate
      * @param RequestPushFactory             $requestPushFactory
      * @param SearchCriteriaBuilder          $searchCriteriaBuilder
-     * @param SpamLimitService               $spamLimitService
+     * @param OrderRepositoryInterface       $orderRepository
      * @param TransactionRepositoryInterface $transactionRepository
      * @param LockManagerWrapper             $lockManagerWrapper
+     * @param SpamLimitService               $spamLimitService
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -114,6 +118,7 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
         Recreate $quoteRecreate,
         RequestPushFactory $requestPushFactory,
         SearchCriteriaBuilder $searchCriteriaBuilder,
+        OrderRepositoryInterface $orderRepository,
         TransactionRepositoryInterface $transactionRepository,
         LockManagerWrapper $lockManagerWrapper,
         SpamLimitService $spamLimitService
@@ -137,6 +142,7 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
         );
 
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->orderRepository = $orderRepository;
         $this->transactionRepository = $transactionRepository;
     }
 
@@ -154,7 +160,17 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
         }
 
         $transaction = $this->getTransaction();
-        $this->order = $transaction->getOrder();
+        $orderId = (int)$transaction->getOrderId();
+        if ($orderId <= 0) {
+            throw new Exception(__('There was no order found for transaction Id'));
+        }
+
+        $order = $this->orderRepository->get($orderId);
+        if (!$order instanceof Order) {
+            throw new Exception(__('There was no order found for transaction Id'));
+        }
+
+        $this->order = $order;
         $this->payment = $this->order->getPayment();
 
         if ($this->customerSession->getCustomerId() != $this->order->getCustomerId()) {
@@ -211,11 +227,11 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
      *
      * @throws Exception
      *
-     * @return TransactionInterface|Transaction|null
+     * @return Transaction
      */
-    protected function getTransaction()
+    protected function getTransaction(): Transaction
     {
-        if ($this->transaction != null) {
+        if ($this->transaction !== null) {
             return $this->transaction;
         }
 
@@ -226,7 +242,12 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
         }
 
         $items = $list->getItems();
-        $this->transaction = array_shift($items);
+        $transaction = array_shift($items);
+        if (!$transaction instanceof Transaction) {
+            throw new Exception(__('There was no transaction found by transaction Id'));
+        }
+
+        $this->transaction = $transaction;
 
         return $this->transaction;
     }

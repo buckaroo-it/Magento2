@@ -27,8 +27,8 @@ use Magento\Framework\UrlInterface;
 
 class ModuleConflictDetector
 {
-    const OLD_MODULE_NAME = 'Buckaroo_Magento2SecondChance';
-    const CONFIG_PATH_MIGRATION_COMPLETED = 'buckaroo_magento2/second_chance/migration_completed';
+    public const OLD_MODULE_NAME = 'Buckaroo_Magento2SecondChance';
+    public const CONFIG_PATH_MIGRATION_COMPLETED = 'buckaroo_magento2/second_chance/migration_completed';
 
     /**
      * @var ModuleManager

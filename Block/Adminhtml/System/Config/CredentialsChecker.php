@@ -54,7 +54,12 @@ class CredentialsChecker extends Field
      */
     public function getHtml()
     {
-        return $this->getLayout()->createBlock(Button::class)->setData([
+        $button = $this->getLayout()->createBlock(Button::class);
+        if (!$button instanceof Button) {
+            return '';
+        }
+
+        return $button->setData([
             'id' => 'buckaroo_magento2_credentials_checker_button',
             'label' => __('Test Credentials')
         ])->toHtml();

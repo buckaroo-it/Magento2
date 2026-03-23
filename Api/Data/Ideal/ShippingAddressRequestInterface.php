@@ -73,7 +73,7 @@ interface ShippingAddressRequestInterface
     /**
      * Set telephone
      *
-     * @param string|null $street
+     * @param string $street
      */
     public function setStreet(string $street);
     /**

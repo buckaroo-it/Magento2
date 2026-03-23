@@ -26,23 +26,31 @@ use Magento\Framework\Webapi\Rest\Request\DeserializerInterface;
 class XWwwFormUrlencoded implements DeserializerInterface
 {
     /**
-     * Parse Request body into array of params.
+     * Parse request body into an array of params.
      *
      * @param string $encodedBody Posted content from request.
      *
      * @throws \InvalidArgumentException
      *
-     * @return string
+     * @return array<string, mixed>|null
      */
     public function deserialize($encodedBody)
     {
         if (!is_string($encodedBody)) {
             throw new \InvalidArgumentException(
                 //phpcs:ignore:Magento2.Functions.DiscouragedFunction
-                __("'%s' data type is invalid. String is expected.", gettype($encodedBody))
+                (string) __('%1 data type is invalid. String is expected.', gettype($encodedBody))
             );
         }
 
-        return $encodedBody;
+        if ($encodedBody === '') {
+            return [];
+        }
+
+        $parsedBody = [];
+        // phpcs:ignore Magento2.Functions.DiscouragedFunction
+        parse_str($encodedBody, $parsedBody);
+
+        return $parsedBody;
     }
 }

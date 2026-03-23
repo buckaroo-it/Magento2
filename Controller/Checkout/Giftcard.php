@@ -30,7 +30,7 @@ use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\App\Action\HttpPostActionInterface;
-use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
@@ -84,9 +84,9 @@ class Giftcard extends Action implements HttpPostActionInterface, HttpGetActionI
      *
      * @throws \Exception
      *
-     * @return ResponseInterface
+     * @return Json
      */
-    public function execute()
+    public function execute(): Json
     {
         if ($this->getRequest()->getParam('cardNumber') === null) {
             return $this->displayError(__('A card number is required'));
@@ -131,11 +131,13 @@ class Giftcard extends Action implements HttpPostActionInterface, HttpGetActionI
      *
      * @param Phrase|string $message
      *
-     * @return mixed
+     * @return Json
      */
-    protected function displayError($message)
+    protected function displayError($message): Json
     {
-        return $this->resultFactory->create(ResultFactory::TYPE_JSON)->setData([
+        /** @var Json $result */
+        $result = $this->resultFactory->create(ResultFactory::TYPE_JSON);
+        return $result->setData([
             "error" => $message
         ]);
     }
@@ -148,9 +150,9 @@ class Giftcard extends Action implements HttpPostActionInterface, HttpGetActionI
      *
      * @throws ApiException|LocalizedException
      *
-     * @return mixed
+     * @return Json
      */
-    protected function getGiftcardResponse(Quote $quote, TransactionResponse $response)
+    protected function getGiftcardResponse(Quote $quote, TransactionResponse $response): Json
     {
         $this->giftcardResponse->set($response, $quote);
 
@@ -179,7 +181,9 @@ class Giftcard extends Action implements HttpPostActionInterface, HttpGetActionI
             );
         }
 
-        return $this->resultFactory->create(ResultFactory::TYPE_JSON)->setData([
+        /** @var Json $result */
+        $result = $this->resultFactory->create(ResultFactory::TYPE_JSON);
+        return $result->setData([
             'RemainderAmount' => $remainingAmount,
             'alreadyPaid' => $this->giftcardResponse->getAlreadyPaid(),
             'PayRemainingAmountButton' => $buttonMessage,

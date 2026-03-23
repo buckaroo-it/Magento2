@@ -62,7 +62,7 @@
         "phpmd/phpmd": "^2.15",
         "phpstan/phpstan": "^1.10",
         "phpunit/phpunit": "^9.5 || ^10.5",
-        "magento/magento-coding-standard": "^38"
+        "magento/magento-coding-standard": "^40"
     },
     "repositories": {
         "magento": {
