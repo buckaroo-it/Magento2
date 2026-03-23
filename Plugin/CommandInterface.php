@@ -283,11 +283,6 @@ class CommandInterface
             return true;
         }
 
-        // Skip setting the status here for Apple Pay
-        if ($paymentCode == Applepay::CODE) {
-            return true;
-        }
-
         return false;
     }
 }
