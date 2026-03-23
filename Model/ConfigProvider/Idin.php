@@ -357,7 +357,7 @@ class Idin extends AbstractConfigProvider
     /**
      * Get active status for idin method
      *
-     * @param null $store
+     * @param mixed $store
      *
      * @throws NoSuchEntityException
      *

@@ -22,7 +22,6 @@ namespace Buckaroo\Magento2\Model\Order;
 
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\Framework\Serialize\Serializer\Json;
-use Magento\Framework\Unserialize\Unserialize;
 use Magento\Sales\Model\Convert\Order as ConvertOrder;
 use Magento\Sales\Model\Convert\OrderFactory;
 use Magento\Sales\Model\Order;
@@ -47,13 +46,6 @@ class CreditmemoFactory extends MagentoCreditmemoFactory
      * @var Config
      */
     protected $taxConfig;
-
-    /**
-     * @var Unserialize
-     *
-     * @deprecated 101.0.0
-     */
-    protected $unserialize;
 
     /**
      * @var BuckarooLoggerInterface

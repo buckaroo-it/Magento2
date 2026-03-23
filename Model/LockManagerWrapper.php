@@ -33,7 +33,7 @@ class LockManagerWrapper
     /**
      * Lock prefix for uniqueness.
      */
-    const LOCK_PREFIX = 'buckaroo_lock_';
+    public const LOCK_PREFIX = 'buckaroo_lock_';
 
     /**
      * Constructor.

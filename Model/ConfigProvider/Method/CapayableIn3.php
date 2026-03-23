@@ -28,7 +28,7 @@ class CapayableIn3 extends AbstractConfigProvider
     public const DEFAULT_NAME = 'In3';
     public const V2_NAME = 'In3';
 
-    const XPATH_CAPAYABLEIN3_PAYMENT_LOGO = 'payment_logo';
+    public const XPATH_CAPAYABLEIN3_PAYMENT_LOGO = 'payment_logo';
 
     /**
      * @var array
@@ -61,7 +61,7 @@ class CapayableIn3 extends AbstractConfigProvider
     /**
      * Get Logo for In3 (V3 API only)
      *
-     * @param $storeId
+     * @param int|null $storeId
      *
      * @return string
      */
@@ -81,7 +81,9 @@ class CapayableIn3 extends AbstractConfigProvider
     }
 
     /**
-     * @param null|int $storeId
+     * Get the configured payment fee.
+     *
+     * @param int|null $storeId
      *
      * @return float
      */

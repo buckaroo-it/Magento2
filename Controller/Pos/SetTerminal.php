@@ -28,7 +28,8 @@ use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Action\HttpGetActionInterface;
-use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\Controller\Result\Redirect;
+use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Stdlib\Cookie\CookieMetadataFactory;
 use Magento\Framework\Stdlib\CookieManagerInterface;
 use Magento\Store\Model\StoreManagerInterface;
@@ -96,9 +97,9 @@ class SetTerminal extends Action implements HttpGetActionInterface
      *
      * @throws Exception
      *
-     * @return ResponseInterface
+     * @return Redirect
      */
-    public function execute()
+    public function execute(): Redirect
     {
         $params = $this->getRequest()->getParams();
         $this->logger->addDebug(sprintf(
@@ -120,7 +121,8 @@ class SetTerminal extends Action implements HttpGetActionInterface
             );
         }
 
-        $redirectUrl = $this->storemanager->getStore()->getBaseUrl();
-        return $this->_redirect($redirectUrl);
+        /** @var Redirect $resultRedirect */
+        $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
+        return $resultRedirect->setPath('');
     }
 }

@@ -38,9 +38,9 @@ class Ideal extends AbstractConfigProvider
     public const XPATH_IDEAL_PAYMENT_FEE           = 'payment/buckaroo_magento2_ideal/payment_fee';
 
     // Ideal Fast Checkout
-    const XPATH_IDEAL_FAST_CHECKOUT_ENABLE = 'payment/buckaroo_magento2_ideal/ideal_fast_checkout';
-    const XPATH_IDEAL_FAST_CHECKOUT_BUTTONS = 'payment/buckaroo_magento2_ideal/available_buttons';
-    const XPATH_IDEAL_FAST_CHECKOUT_LOGO = 'payment/buckaroo_magento2_ideal/ideal_logo_colors';
+    public const XPATH_IDEAL_FAST_CHECKOUT_ENABLE = 'payment/buckaroo_magento2_ideal/ideal_fast_checkout';
+    public const XPATH_IDEAL_FAST_CHECKOUT_BUTTONS = 'payment/buckaroo_magento2_ideal/available_buttons';
+    public const XPATH_IDEAL_FAST_CHECKOUT_LOGO = 'payment/buckaroo_magento2_ideal/ideal_logo_colors';
     /**
      * @var IssuersService
      */
@@ -93,6 +93,7 @@ class Ideal extends AbstractConfigProvider
 
     /**
      * Selection type radio checkbox or drop down
+     *
      * This method might be obsolete now for frontend config, keep if used elsewhere.
      *
      * @param null|int|string $store
@@ -106,6 +107,7 @@ class Ideal extends AbstractConfigProvider
 
     /**
      * Get gateway setting ideal/idealprocessing
+     *
      * Remains unchanged.
      *
      * @param null|int|string $storeId
@@ -120,6 +122,7 @@ class Ideal extends AbstractConfigProvider
 
     /**
      * Generate the url to the desired asset.
+     *
      * Remains unchanged.
      *
      * @param string $imgName
@@ -134,6 +137,7 @@ class Ideal extends AbstractConfigProvider
 
     /**
      * Get all issuers formatted for admin or potentially other uses.
+     *
      * Remains unchanged for now, although its primary use (via formatIssuers in getConfig) is removed.
      *
      * @return array
@@ -152,6 +156,7 @@ class Ideal extends AbstractConfigProvider
 
     /**
      * Retrieve the list of issuers from the service.
+     *
      * Remains unchanged for now.
      *
      * @return array
@@ -165,7 +170,9 @@ class Ideal extends AbstractConfigProvider
     }
 
     /**
-     * @param null|int $storeId
+     * Get the configured iDEAL payment fee.
+     *
+     * @param int|null $storeId
      *
      * @return float
      */
@@ -180,6 +187,14 @@ class Ideal extends AbstractConfigProvider
         return $paymentFee ?: 0;
     }
 
+    /**
+     * Check whether an express button should be shown on the given page.
+     *
+     * @param string $page
+     * @param int|string|null $store
+     *
+     * @return bool
+     */
     public function canShowButtonForPage($page, $store = null)
     {
         $buttons = $this->getExpressButtons($store);
@@ -191,21 +206,47 @@ class Ideal extends AbstractConfigProvider
         return in_array($page, $pages);
     }
 
+    /**
+     * Return the configured express checkout button pages.
+     *
+     * @param int|string|null $store
+     *
+     * @return mixed
+     */
     public function getExpressButtons($store = null)
     {
         return $this->getConfigFromXpath(self::XPATH_IDEAL_FAST_CHECKOUT_BUTTONS, $store);
     }
 
+    /**
+     * Check whether iDEAL fast checkout is enabled.
+     *
+     * @param int|string|null $store
+     *
+     * @return mixed
+     */
     public function isFastCheckoutEnabled($store = null)
     {
         return $this->getConfigFromXpath(self::XPATH_IDEAL_FAST_CHECKOUT_ENABLE, $store);
     }
 
+    /**
+     * Check whether the iDEAL payment method is enabled.
+     *
+     * @return bool
+     */
     public function isIDealEnabled()
     {
         return $this->getActive();
     }
 
+    /**
+     * Return the configured fast checkout logo color.
+     *
+     * @param int|string|null $store
+     *
+     * @return mixed
+     */
     public function getLogoColor($store = null)
     {
         return $this->getConfigFromXpath(self::XPATH_IDEAL_FAST_CHECKOUT_LOGO, $store);

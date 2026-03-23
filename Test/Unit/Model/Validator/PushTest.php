@@ -26,6 +26,9 @@ use Buckaroo\Magento2\Test\BaseTest;
 
 class PushTest extends BaseTest
 {
+    /**
+     * @var string
+     */
     protected $instanceClass = Push::class;
 
     public function testValidate()
@@ -34,5 +37,4 @@ class PushTest extends BaseTest
         $result = $instance->validate(null);
         $this->assertTrue($result);
     }
-
 }

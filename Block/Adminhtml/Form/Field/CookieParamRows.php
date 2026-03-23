@@ -7,6 +7,9 @@ use Magento\Framework\Data\Form\Element\AbstractElement;
 
 class CookieParamRows extends AbstractFieldArray
 {
+    /**
+     * Prepare the cookie mapping rows.
+     */
     protected function _prepareToRender()
     {
         $this->addColumn('cookie', [
@@ -27,11 +30,17 @@ class CookieParamRows extends AbstractFieldArray
         $this->_addButtonLabel = __('Add');
     }
 
+    /**
+     * Seed default rows when the config value is empty.
+     *
+     * @param AbstractElement $element
+     * @return string
+     */
     protected function _getElementHtml(AbstractElement $element)
     {
         $value = $element->getValue();
 
-        if (empty($value) || $value === null || $value === '') {
+        if (empty($value)) {
             $defaultValue = [
                 [
                     'cookie' => '_ga',

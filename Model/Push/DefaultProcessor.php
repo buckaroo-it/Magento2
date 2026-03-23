@@ -45,7 +45,6 @@ use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
 use Buckaroo\Magento2\Service\Order\Uncancel;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Exception;
-use Magento\Framework\App\ObjectManager;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
@@ -2226,10 +2225,7 @@ class DefaultProcessor implements PushProcessorInterface
      */
     private function isFailureRedirectToCheckoutEnabled(): bool
     {
-        $accountConfig = ObjectManager::getInstance()
-            ->get('Buckaroo\Magento2\Model\ConfigProvider\Account');
-
-        return (bool) $accountConfig->getFailureRedirectToCheckout($this->order->getStore());
+        return (bool) $this->configAccount->getFailureRedirectToCheckout($this->order->getStore());
     }
 
     /**

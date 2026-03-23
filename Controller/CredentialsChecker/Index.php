@@ -156,7 +156,9 @@ class Index extends Action implements HttpPostActionInterface
      */
     private function doResponse(array $response): Json
     {
-        $this->_actionFlag->set('', self::FLAG_NO_POST_DISPATCH, true);
-        return $this->resultFactory->create(ResultFactory::TYPE_JSON)->setData($response);
+        $this->_actionFlag->set('', self::FLAG_NO_POST_DISPATCH, '1');
+        /** @var Json $result */
+        $result = $this->resultFactory->create(ResultFactory::TYPE_JSON);
+        return $result->setData($response);
     }
 }

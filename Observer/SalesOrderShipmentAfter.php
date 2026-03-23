@@ -22,7 +22,6 @@ namespace Buckaroo\Magento2\Observer;
 
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\Config\Source\InvoiceHandlingOptions;
-use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderFactory;
 use Buckaroo\Magento2\Model\Service\CreateInvoice;
 use Magento\Framework\App\RequestInterface;
@@ -35,7 +34,6 @@ use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Shipment;
-use Magento\Sales\Model\ResourceModel\Order\Invoice\CollectionFactory;
 use Magento\Sales\Model\Service\InvoiceService;
 
 /**

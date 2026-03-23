@@ -20,8 +20,6 @@
 
 namespace Buckaroo\Magento2\Controller\Mrcash;
 
-use Magento\Framework\App\Action\HttpPostActionInterface;
-
 class Process extends \Buckaroo\Magento2\Controller\Payconiq\Process
 {
 }

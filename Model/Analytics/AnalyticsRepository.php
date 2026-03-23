@@ -23,26 +23,59 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class AnalyticsRepository implements AnalyticsRepositoryInterface
 {
-
+    /**
+     * @var AnalyticsFactory
+     */
     protected $analyticsFactory;
 
+    /**
+     * @var ResourceAnalytics
+     */
     protected $resource;
 
+    /**
+     * @var AnalyticsSearchResultsInterfaceFactory
+     */
     protected $searchResultsFactory;
 
+    /**
+     * @var ExtensibleDataObjectConverter
+     */
     protected $extensibleDataObjectConverter;
+
+    /**
+     * @var AnalyticsCollectionFactory
+     */
     protected $analyticsCollectionFactory;
 
+    /**
+     * @var StoreManagerInterface
+     */
     private $storeManager;
 
+    /**
+     * @var AnalyticsInterfaceFactory
+     */
     protected $dataAnalyticsFactory;
 
+    /**
+     * @var DataObjectHelper
+     */
     protected $dataObjectHelper;
 
+    /**
+     * @var DataObjectProcessor
+     */
     protected $dataObjectProcessor;
 
+    /**
+     * @var JoinProcessorInterface
+     */
     protected $extensionAttributesJoinProcessor;
 
+    /**
+     * @var CollectionProcessorInterface
+     */
     private $collectionProcessor;
 
     /**
@@ -87,16 +120,17 @@ class AnalyticsRepository implements AnalyticsRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Save analytics data.
+     *
+     * @param \Buckaroo\Magento2\Api\Data\AnalyticsInterface $analytics
+     *
+     * @return \Buckaroo\Magento2\Api\Data\AnalyticsInterface
+     *
+     * @throws CouldNotSaveException
      */
     public function save(
         \Buckaroo\Magento2\Api\Data\AnalyticsInterface $analytics
     ) {
-        /* if (empty($analytics->getStoreId())) {
-            $storeId = $this->storeManager->getStore()->getId();
-            $analytics->setStoreId($storeId);
-        } */
-
         $analyticsData = $this->extensibleDataObjectConverter->toNestedArray(
             $analytics,
             [],
@@ -117,7 +151,13 @@ class AnalyticsRepository implements AnalyticsRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Retrieve analytics data by entity ID.
+     *
+     * @param int $analyticsId
+     *
+     * @return \Buckaroo\Magento2\Api\Data\AnalyticsInterface
+     *
+     * @throws NoSuchEntityException
      */
     public function get($analyticsId)
     {
@@ -129,6 +169,15 @@ class AnalyticsRepository implements AnalyticsRepositoryInterface
         return $analytics->getDataModel();
     }
 
+    /**
+     * Retrieve analytics data by quote ID.
+     *
+     * @param int $quoteId
+     *
+     * @return \Buckaroo\Magento2\Api\Data\AnalyticsInterface
+     *
+     * @throws NoSuchEntityException
+     */
     public function getByQuoteId($quoteId)
     {
         $analytics = $this->analyticsFactory->create();
@@ -140,7 +189,11 @@ class AnalyticsRepository implements AnalyticsRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Retrieve analytics data matching the given criteria.
+     *
+     * @param \Magento\Framework\Api\SearchCriteriaInterface $criteria
+     *
+     * @return \Buckaroo\Magento2\Api\Data\AnalyticsSearchResultsInterface
      */
     public function getList(
         \Magento\Framework\Api\SearchCriteriaInterface $criteria
@@ -168,7 +221,13 @@ class AnalyticsRepository implements AnalyticsRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Delete analytics data.
+     *
+     * @param \Buckaroo\Magento2\Api\Data\AnalyticsInterface $analytics
+     *
+     * @return bool
+     *
+     * @throws CouldNotDeleteException
      */
     public function delete(
         \Buckaroo\Magento2\Api\Data\AnalyticsInterface $analytics
@@ -187,7 +246,14 @@ class AnalyticsRepository implements AnalyticsRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Delete analytics data by entity ID.
+     *
+     * @param int $analyticsId
+     *
+     * @return bool
+     *
+     * @throws CouldNotDeleteException
+     * @throws NoSuchEntityException
      */
     public function deleteById($analyticsId)
     {

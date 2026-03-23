@@ -25,12 +25,17 @@ use Magento\Framework\Data\OptionSourceInterface;
 
 class PaypalButtonStyle implements OptionSourceInterface
 {
-    const COLOR_DEFAULT = 'gold';
-    const COLOR_BLUE = 'blue';
-    const COLOR_SILVER = 'silver';
-    const COLOR_WHITE = 'white';
-    const COLOR_BLACK = 'black';
+    public const COLOR_DEFAULT = 'gold';
+    public const COLOR_BLUE = 'blue';
+    public const COLOR_SILVER = 'silver';
+    public const COLOR_WHITE = 'white';
+    public const COLOR_BLACK = 'black';
 
+    /**
+     * Return the supported PayPal button colors.
+     *
+     * @return array
+     */
     public function toOptionArray(): array
     {
         return [

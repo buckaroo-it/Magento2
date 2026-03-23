@@ -27,9 +27,20 @@ use Magento\Framework\Module\Dir\Reader as ModuleDirReader;
 
 class UpdatePaymentMethodTitles implements DataPatchInterface
 {
+    /**
+     * @var ModuleDataSetupInterface
+     */
     private $setup;
+
+    /**
+     * @var ModuleDirReader
+     */
     private $moduleDirReader;
 
+    /**
+     * @param ModuleDataSetupInterface $setup
+     * @param ModuleDirReader          $moduleDirReader
+     */
     public function __construct(
         ModuleDataSetupInterface $setup,
         ModuleDirReader $moduleDirReader
@@ -38,7 +49,10 @@ class UpdatePaymentMethodTitles implements DataPatchInterface
         $this->moduleDirReader = $moduleDirReader;
     }
 
-    public function apply(): void
+    /**
+     * @inheritdoc
+     */
+    public function apply()
     {
         $this->setup->startSetup();
         $connection = $this->setup->getConnection();
@@ -72,13 +86,21 @@ class UpdatePaymentMethodTitles implements DataPatchInterface
         }
 
         $this->setup->endSetup();
+
+        return $this;
     }
 
+    /**
+     * @inheritdoc
+     */
     public static function getDependencies(): array
     {
         return [];
     }
 
+    /**
+     * @inheritdoc
+     */
     public function getAliases(): array
     {
         return [];

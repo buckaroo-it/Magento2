@@ -23,7 +23,6 @@ namespace Buckaroo\Magento2\Block\Adminhtml\Giftcard;
 use Buckaroo\Magento2\Model\Data\BuckarooGiftcardDataInterface;
 use Magento\Backend\Block\Widget\Context;
 use Magento\Backend\Block\Widget\Form\Container;
-use Magento\Framework\Phrase;
 
 class Edit extends Container
 {
@@ -49,18 +48,18 @@ class Edit extends Container
     /**
      * Get header text
      *
-     * @return Phrase
+     * @return string
      */
-    public function getHeaderText()
+    public function getHeaderText(): string
     {
-        $giftcard = $this->buckarooGiftcardData->getGiftcardModel() ?? null;
+        $giftcard = $this->buckarooGiftcardData->getGiftcardModel();
 
-        if ($giftcard && $giftcard->getId()) {
+        if ($giftcard->getId()) {
             $giftcardTitle = $this->escapeHtml($giftcard->getLabel());
-            return __("Edit Giftcard '%s'", $giftcardTitle);
-        } else {
-            return __('Add Giftcard');
+            return (string) __("Edit Giftcard '%s'", $giftcardTitle);
         }
+
+        return (string) __('Add Giftcard');
     }
 
     /**

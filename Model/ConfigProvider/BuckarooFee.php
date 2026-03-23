@@ -25,12 +25,12 @@ class BuckarooFee extends AbstractConfigProvider
     /**
      * Buckaroo fee tax class
      */
-    const XPATH_ACCOUNT_BUCKAROO_FEE_TAX_CLASS           = 'buckaroo_magento2/account/buckaroo_fee_tax_class';
+    public const XPATH_ACCOUNT_BUCKAROO_FEE_TAX_CLASS           = 'buckaroo_magento2/account/buckaroo_fee_tax_class';
 
     /**
      * Retrieve the tax class for Buckaroo fee
      *
-     * @param null $store
+     * @param mixed $store
      *
      * @return int|string
      */
@@ -42,7 +42,7 @@ class BuckarooFee extends AbstractConfigProvider
     /**
      * Retrieve associated array of checkout configuration
      *
-     * @param null $store
+     * @param mixed $store
      *
      * @return array
      */

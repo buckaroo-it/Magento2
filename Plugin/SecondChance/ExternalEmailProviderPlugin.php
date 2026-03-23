@@ -27,7 +27,6 @@ use Buckaroo\Magento2\Service\EmailProvider\EmailSender;
 use Buckaroo\Magento2\Logging\Log;
 use Magento\Framework\Mail\Template\TransportBuilder;
 use Magento\Sales\Model\Order;
-use Magento\Framework\Mail\TemplateInterface;
 use Magento\Framework\Mail\Template\FactoryInterface as TemplateFactory;
 use Magento\Sales\Model\Order\Address\Renderer as AddressRenderer;
 use Magento\Payment\Helper\Data as PaymentHelper;

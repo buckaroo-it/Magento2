@@ -128,6 +128,8 @@ class Idin extends Action implements HttpPostActionInterface
      */
     protected function json(array $data): Json
     {
-        return $this->resultFactory->create(ResultFactory::TYPE_JSON)->setData($data);
+        /** @var Json $result */
+        $result = $this->resultFactory->create(ResultFactory::TYPE_JSON);
+        return $result->setData($data);
     }
 }
