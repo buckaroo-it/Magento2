@@ -44,6 +44,14 @@ use Magento\Sales\Model\Order\Payment;
 class RefundGroupTransactionService
 {
     /**
+     * Non-Intersolve giftcard brands that reject email/lastname in refund requests.
+     */
+    private const NON_INTERSOLVE_BRANDS = [
+        'fashioncheque',
+        'customgiftcard',
+    ];
+
+    /**
      * @var float
      */
     private $amountLeftToRefund = 0.0;
@@ -218,28 +226,7 @@ class RefundGroupTransactionService
             $request['amountCredit'] = $refundAmount;
             $request['originalTransactionKey'] = $transactionId;
 
-            // Add customer email and lastname for giftcard refunds (Buckaroo SDK requirement)
-            $paymentDO = SubjectReader::readPayment($buildSubject);
-            $order = $paymentDO->getOrder()->getOrder();
-            $billingAddress = $order->getBillingAddress();
-
-            if ($billingAddress) {
-                $request['email'] = $order->getCustomerEmail();
-                $request['lastname'] = $billingAddress->getLastname();
-
-                $this->buckarooLog->addDebug(sprintf(
-                    '[REFUND_SINGLE_GIFTCARD] | Processing refund | Service: %s | Amount: €%.2f | Transaction: %s | Customer: %s',
-                    $servicecode,
-                    $refundAmount,
-                    $transactionId,
-                    $order->getCustomerEmail()
-                ));
-            } else {
-                $this->buckarooLog->addWarning(sprintf(
-                    '[REFUND_SINGLE_GIFTCARD] | Missing billing address for order %s - customer details not added to refund request',
-                    $order->getIncrementId()
-                ));
-            }
+            $this->addGiftcardCustomerDetails($request, $buildSubject, (string)$servicecode, 'REFUND_SINGLE_GIFTCARD');
 
             $transferO = $this->transferFactory->create($request);
             $response = $this->clientInterface->placeRequest($transferO);
@@ -414,28 +401,7 @@ class RefundGroupTransactionService
             $request['amountCredit'] = $giftCardValue;
             $request['originalTransactionKey'] = $transaction[0];
 
-            // Add customer email and lastname for giftcard refunds (Buckaroo SDK requirement)
-            $paymentDO = SubjectReader::readPayment($buildSubject);
-            $order = $paymentDO->getOrder()->getOrder();
-            $billingAddress = $order->getBillingAddress();
-
-            if ($billingAddress) {
-                $request['email'] = $order->getCustomerEmail();
-                $request['lastname'] = $billingAddress->getLastname();
-
-                $this->buckarooLog->addDebug(sprintf(
-                    '[REFUND_GROUP_TRANSACTION] | Processing refund | Service: %s | Amount: €%.2f | Transaction: %s | Customer: %s',
-                    $transaction[1],
-                    $giftCardValue,
-                    $transaction[0],
-                    $order->getCustomerEmail()
-                ));
-            } else {
-                $this->buckarooLog->addWarning(sprintf(
-                    '[REFUND_GROUP_TRANSACTION] | Missing billing address for order %s - customer details not added to refund request',
-                    $order->getIncrementId()
-                ));
-            }
+            $this->addGiftcardCustomerDetails($request, $buildSubject, (string)$transaction[1], 'REFUND_GROUP_TRANSACTION');
 
             $transferO = $this->transferFactory->create($request);
 
@@ -697,4 +663,52 @@ class RefundGroupTransactionService
             ));
         }
     }
+
+    /**
+     * Add customer details only for giftcard brands that accept these fields on refund.
+     *
+     * @param array  $request
+     * @param array  $buildSubject
+     * @param string $servicecode
+     * @param string $logContext
+     */
+    private function addGiftcardCustomerDetails(
+        array &$request,
+        array $buildSubject,
+        string $servicecode,
+        string $logContext
+    ): void {
+        if (in_array(strtolower($servicecode), self::NON_INTERSOLVE_BRANDS, true)) {
+            $this->buckarooLog->addDebug(sprintf(
+                '[%s] | Skipping customer details for non-Intersolve giftcard brand: %s',
+                $logContext,
+                $servicecode
+            ));
+            return;
+        }
+
+        $paymentDO = SubjectReader::readPayment($buildSubject);
+        $order = $paymentDO->getOrder()->getOrder();
+        $billingAddress = $order->getBillingAddress();
+
+        if ($billingAddress) {
+            $request['email'] = $order->getCustomerEmail();
+            $request['lastname'] = $billingAddress->getLastname();
+
+            $this->buckarooLog->addDebug(sprintf(
+                '[%s] | Processing refund | Service: %s | Customer: %s',
+                $logContext,
+                $servicecode,
+                $order->getCustomerEmail()
+            ));
+            return;
+        }
+
+        $this->buckarooLog->addWarning(sprintf(
+            '[%s] | Missing billing address for order %s - customer details not added to refund request',
+            $logContext,
+            $order->getIncrementId()
+        ));
+    }
+
 }
