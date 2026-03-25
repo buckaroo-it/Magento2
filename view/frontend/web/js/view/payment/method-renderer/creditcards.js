@@ -244,6 +244,8 @@ define(
                         return (value && value.trim() !== '') ? value : defaultValue;
                     };
 
+                    const borderColor = getStyleValue(configuredStyling.borderColor, '');
+
                     const styling = {
                         fontSize: getStyleValue(configuredStyling.fontSize, "14px"),
                         fontStyle: "normal",
@@ -258,9 +260,12 @@ define(
                         padding: '8px 10px',
                         boxShadow: 'none',
                         transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
-                        border: '1px solid ' + getStyleValue(configuredStyling.borderColor, '#d6d6d6'),
                         cardLogoStyling: cardLogoStyling
                     };
+
+                    if (borderColor) {
+                        styling.border = '1px solid ' + borderColor;
+                    }
 
 
 
