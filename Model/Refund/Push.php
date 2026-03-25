@@ -310,6 +310,15 @@ class Push
         $creditData = $this->getCreditmemoData();
         $creditmemo = $this->initCreditmemo($creditData);
 
+        if (!$this->order->canCreditmemo()) {
+            $this->logger->addWarning(sprintf(
+                '[PUSH_REFUND] | [Webapi] | [%s:%s] - Order is already fully refunded, skipping credit memo creation',
+                __METHOD__,
+                __LINE__
+            ));
+            return true;
+        }
+
         try {
             if (!$creditmemo) {
                 throw new BuckarooException(__('Failed to create the creditmemo'));
@@ -327,8 +336,8 @@ class Push
                 __LINE__,
                 $e->getLogMessage()
             ));
+            throw $e;
         }
-        return false;
     }
 
     /**

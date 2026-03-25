@@ -251,6 +251,7 @@ class Giftcard implements GiftcardInterface
             $body['originalTransactionKey'] = $originalTransactionKey;
         }
         $body['payment_method'] = 'giftcards';
+        $body['orderStoreId'] = (int)$this->quote->getStoreId();
 
         return $body;
     }
