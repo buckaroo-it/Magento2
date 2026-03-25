@@ -163,9 +163,9 @@
 
             <field id="field_border_color" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Border Color</label>
-                <comment><![CDATA[Border color for hosted fields.]]></comment>
+                <comment><![CDATA[Border color for hosted fields. Use "Use no border" to remove the border entirely.]]></comment>
                 <config_path>payment/buckaroo_magento2_creditcards/field_border_color</config_path>
-                <frontend_model>Buckaroo\Magento2\Block\Config\Form\Field\ColorPicker</frontend_model>
+                <frontend_model>Buckaroo\Magento2\Block\Config\Form\Field\OptionalColorPicker</frontend_model>
             </field>
 
             <field id="field_placeholder_color" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
