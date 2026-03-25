@@ -404,7 +404,15 @@ class Push
      */
     private function processRefund(Creditmemo $creditmemo, array $creditData): void
     {
-        $creditmemo->setTransactionId($this->postData->getTransactions());
+        $refundTransactionId = $this->postData->getTransactions();
+        $creditmemo->setTransactionId($refundTransactionId);
+
+        // Make the Plaza transaction id available when Magento adds the order history note.
+        // The admin note can omit Transaction ID for "online" refunds, so we store it on the payment.
+        $payment = $this->order->getPayment();
+        if ($payment) {
+            $payment->setAdditionalInformation('buckaroo_refund_transaction_key', $refundTransactionId);
+        }
 
         $this->creditmemoManagement->refund(
             $creditmemo,

@@ -20,7 +20,7 @@ class OrderStatusHistoryCommentPluginTest extends BaseTest
             'checkPaymentType' => $this->getCheckPaymentTypeMock(true),
         ])->beforeAddStatusHistoryComment($orderMock, $comment, 'closed');
 
-        $this->assertSame(['We refunded $59.00 offline.', 'closed'], $result);
+        $this->assertSame(['We refunded $59.00 online. Transaction ID: "A7BDD18D052843098E3461FE3EDA423B-capture"', 'closed'], $result);
     }
 
     public function testOnlineRefundCommentIsLeftUntouched(): void
