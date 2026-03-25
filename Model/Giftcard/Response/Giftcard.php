@@ -127,10 +127,8 @@ class Giftcard
         $this->response = $response;
         $this->buckarooResponseData->setResponse($response);
 
-        if ($this->response->isSuccess()) {
-            $this->saveGroupTransaction();
-        } else {
-            $this->saveGroupTransaction();
+        $this->saveGroupTransaction();
+        if (!$this->response->isSuccess() && $this->getExistingOrder() !== null) {
             $this->createOrderFromQuote();
         }
     }

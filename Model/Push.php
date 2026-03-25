@@ -96,7 +96,20 @@ class Push implements PushInterface
     public function receivePush(): bool
     {
         // Load Order
-        $order = $this->orderRequestService->getOrderByRequest($this->pushRequest);
+        try {
+            $order = $this->orderRequestService->getOrderByRequest($this->pushRequest);
+        } catch (BuckarooException $e) {
+            if (!empty($this->pushRequest->getRelatedtransactionPartialpayment())) {
+                $this->logger->addDebug(sprintf(
+                    '[PUSH] | [%s:%s] - Failed pre-order partial payment push, no order found — acknowledging: %s',
+                    __METHOD__,
+                    __LINE__,
+                    $e->getMessage()
+                ));
+                return true;
+            }
+            throw $e;
+        }
 
         $orderIncrementID = $order->getIncrementId();
         $this->logger->addDebug(__METHOD__ . '|Lock Name| - ' . var_export($orderIncrementID, true));
