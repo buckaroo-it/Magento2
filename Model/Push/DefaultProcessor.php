@@ -2377,7 +2377,16 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * Handle partial payment push notifications
+     * Handle partial payment push notifications.
+     *
+     * A partial payment push represents a single leg of a group transaction (e.g. one
+     * giftcard in a mixed payment). Order cancellation must NEVER happen here even when
+     * the sub-transaction fails or is cancelled — because:
+     *
+     * 1. The customer may retry the failed partial payment.
+     * 2. Buckaroo always sends a separate push on the main group-transaction key when the
+     *    overall transaction is definitively failed or cancelled. That push is handled by
+     *    GroupTransactionPushProcessor, which is responsible for cancelling the order.
      *
      * @return bool
      * @throws LocalizedException
@@ -2389,20 +2398,22 @@ class DefaultProcessor implements PushProcessorInterface
         $this->addGiftcardPartialPaymentToPaymentInformation();
 
         $statusKey = $this->pushTransactionType->getStatusKey();
+
         if (in_array($statusKey, $this->buckarooStatusCode->getFailedStatuses())) {
             $this->logger->addDebug(sprintf(
-                '[%s:%s] - Failed push with RelatedtransactionPartialpayment detected - ' .
-                'processing failure to cancel order | Order: %s | Status: %s',
+                '[%s:%s] - Partial payment failed or cancelled — skipping order cancellation, '
+                . 'waiting for main group transaction push | Order: %s | Status: %s',
                 __METHOD__,
                 __LINE__,
                 $this->order->getIncrementId(),
                 $statusKey
             ));
-            $this->processPushByStatus();
-            if (!$this->dontSaveOrderUponSuccessPush) {
-                $this->order->save();
-            }
-            return true;
+
+            $this->order->addCommentToStatusHistory(__(
+                'A partial payment was cancelled or failed (%1). '
+                . 'Waiting for the final group transaction status.',
+                $this->pushTransactionType->getStatusMessage()
+            ));
         }
 
         $this->order->save();
