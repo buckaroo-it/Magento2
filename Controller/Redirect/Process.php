@@ -226,7 +226,17 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
         ));
 
         if (count($this->redirectRequest->getData()) === 0 || empty($this->redirectRequest->getStatusCode())) {
-            return $this->handleProcessedResponse('/');
+            $this->logger->addDebug(sprintf(
+                '[REDIRECT] | [Controller] | [%s:%s] - Empty redirect request (3DS or provider redirect with no payment data) — restoring cart and showing error',
+                __METHOD__,
+                __LINE__
+            ));
+            $this->messageManager->addErrorMessage(__(self::GENERAL_ERROR_MESSAGE));
+            $lastOrder = $this->checkoutSession->getLastRealOrder();
+            if ($lastOrder && $lastOrder->getQuoteId()) {
+                $this->quoteRecreate->recreateById((int)$lastOrder->getQuoteId());
+            }
+            return $this->handleProcessedResponse('checkout/cart');
         }
 
         $this->order = $this->orderRequestService->getOrderByRequest($this->redirectRequest);
