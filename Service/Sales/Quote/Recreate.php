@@ -160,6 +160,16 @@ class Recreate
             $this->logger->addDebug(__METHOD__ . '|5|');
             try {
                 $quote = $this->quoteFactory->create();
+                if ($oldQuote->getCustomerId()) {
+                    $quote->setCustomerId($oldQuote->getCustomerId());
+                    $quote->setCustomerEmail($oldQuote->getCustomerEmail());
+                    $quote->setCustomerFirstname($oldQuote->getCustomerFirstname());
+                    $quote->setCustomerLastname($oldQuote->getCustomerLastname());
+                    $quote->setCustomerIsGuest(false);
+                } else {
+                    $quote->setCustomerIsGuest(true);
+                    $quote->setCustomerEmail($oldQuote->getCustomerEmail());
+                }
                 $quote->merge($oldQuote);
                 $quote->save();
 
