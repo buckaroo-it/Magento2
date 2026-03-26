@@ -82,11 +82,6 @@ define(
                 config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_paypal}
             },
             {
-                type: 'buckaroo_magento2_payconiq',
-                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/payconiq',
-                config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_payconiq}
-            },
-            {
                 type: 'buckaroo_magento2_creditcard',
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/creditcard',
                 config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_creditcard}

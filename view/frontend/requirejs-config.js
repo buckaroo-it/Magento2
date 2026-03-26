@@ -38,7 +38,6 @@ var config = {
             "buckaroo/googlepay/catalog-product-view": "Buckaroo_Magento2/js/view/checkout/googlepay/catalog-product-view",
             "buckaroo/googlepay/pay": "Buckaroo_Magento2/js/view/checkout/googlepay/pay",
             "buckaroo/googlepay/handlers/order-handler": "Buckaroo_Magento2/js/view/checkout/googlepay/handlers/order-handler",
-            "buckaroo/payconiq/pay": "Buckaroo_Magento2/js/view/checkout/payconiq/pay",
             "buckaroo/mrcash/pay": "Buckaroo_Magento2/js/view/checkout/mrcash/pay",
             "BuckarooClientSideEncryption": "//static.buckaroo.nl/script/ClientSideEncryption001.js",
             "BuckarooHostedFieldsSdkAlpha": "//hostedfields-externalapi.alpha.buckaroo.aws/v1/sdk",

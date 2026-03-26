@@ -17,9 +17,261 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Controller\Mrcash;
 
-class Process extends \Buckaroo\Magento2\Controller\Payconiq\Process
+use Buckaroo\Magento2\Service\SpamLimitService;
+use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
+use Buckaroo\Magento2\Model\LockManagerWrapper;
+use Buckaroo\Magento2\Model\BuckarooStatusCode;
+use Buckaroo\Magento2\Model\ConfigProvider\Account as AccountConfig;
+use Buckaroo\Magento2\Model\OrderStatusFactory;
+use Buckaroo\Magento2\Model\RequestPush\RequestPushFactory;
+use Buckaroo\Magento2\Model\Service\Order as OrderService;
+use Buckaroo\Magento2\Service\Push\OrderRequestService;
+use Buckaroo\Magento2\Service\Sales\Quote\Recreate;
+use Magento\Checkout\Model\Session as CheckoutSession;
+use Magento\Customer\Api\CustomerRepositoryInterface;
+use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\Event\ManagerInterface;
+use Magento\Quote\Model\Quote;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Api\Data\TransactionSearchResultInterface;
+use Magento\Sales\Api\TransactionRepositoryInterface;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Payment\Transaction;
+
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
+class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
 {
+    /**
+     * @var SpamLimitService
+     */
+    protected $spamLimitService;
+
+    /**
+     * @var null|Transaction
+     */
+    protected $transaction = null;
+
+    /**
+     * @var SearchCriteriaBuilder
+     */
+    protected $searchCriteriaBuilder;
+
+    /**
+     * @var TransactionRepositoryInterface
+     */
+    protected $transactionRepository;
+
+    /**
+     * @var OrderRepositoryInterface
+     */
+    private $orderRepository;
+
+    /**
+     * @var LockManagerWrapper
+     */
+    protected $lockManager;
+
+    /**
+     * @param Context                        $context
+     * @param BuckarooLoggerInterface        $logger
+     * @param Quote                          $quote
+     * @param AccountConfig                  $accountConfig
+     * @param OrderRequestService            $orderRequestService
+     * @param OrderStatusFactory             $orderStatusFactory
+     * @param CheckoutSession                $checkoutSession
+     * @param CustomerSession                $customerSession
+     * @param CustomerRepositoryInterface    $customerRepository
+     * @param OrderService                   $orderService
+     * @param ManagerInterface               $eventManager
+     * @param Recreate                       $quoteRecreate
+     * @param RequestPushFactory             $requestPushFactory
+     * @param SearchCriteriaBuilder          $searchCriteriaBuilder
+     * @param OrderRepositoryInterface       $orderRepository
+     * @param TransactionRepositoryInterface $transactionRepository
+     * @param LockManagerWrapper             $lockManagerWrapper
+     * @param SpamLimitService               $spamLimitService
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
+     */
+    public function __construct(
+        Context $context,
+        BuckarooLoggerInterface $logger,
+        Quote $quote,
+        AccountConfig $accountConfig,
+        OrderRequestService $orderRequestService,
+        OrderStatusFactory $orderStatusFactory,
+        CheckoutSession $checkoutSession,
+        CustomerSession $customerSession,
+        CustomerRepositoryInterface $customerRepository,
+        OrderService $orderService,
+        ManagerInterface $eventManager,
+        Recreate $quoteRecreate,
+        RequestPushFactory $requestPushFactory,
+        SearchCriteriaBuilder $searchCriteriaBuilder,
+        OrderRepositoryInterface $orderRepository,
+        TransactionRepositoryInterface $transactionRepository,
+        LockManagerWrapper $lockManagerWrapper,
+        SpamLimitService $spamLimitService
+    ) {
+        parent::__construct(
+            $context,
+            $logger,
+            $quote,
+            $accountConfig,
+            $orderRequestService,
+            $orderStatusFactory,
+            $checkoutSession,
+            $customerSession,
+            $customerRepository,
+            $orderService,
+            $eventManager,
+            $quoteRecreate,
+            $requestPushFactory,
+            $lockManagerWrapper,
+            $spamLimitService
+        );
+
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->orderRepository = $orderRepository;
+        $this->transactionRepository = $transactionRepository;
+    }
+
+    /**
+     * Redirect Process Mrcash
+     *
+     * @throws Exception
+     *
+     * @return ResponseInterface
+     */
+    public function execute()
+    {
+        if (!$this->getTransactionKey()) {
+            return $this->_redirect('defaultNoRoute');
+        }
+
+        $transaction = $this->getTransaction();
+        $orderId = (int)$transaction->getOrderId();
+        if ($orderId <= 0) {
+            throw new Exception(__('There was no order found for transaction Id'));
+        }
+
+        $order = $this->orderRepository->get($orderId);
+        if (!$order instanceof Order) {
+            throw new Exception(__('There was no order found for transaction Id'));
+        }
+
+        $this->order = $order;
+        $this->payment = $this->order->getPayment();
+
+        if ($this->customerSession->getCustomerId() != $this->order->getCustomerId()) {
+            $errorMessage = 'Customer is different then the customer that start Mrcash process request.';
+            $this->logger->addError(sprintf(
+                '[REDIRECT - Mrcash] | [Controller] | [%s:%s] - %s - customerSessionid: %s != customerOrderId: %s',
+                __METHOD__,
+                __LINE__,
+                $errorMessage,
+                var_export($this->customerSession->getCustomerId(), true),
+                var_export($this->order->getCustomerId(), true)
+            ));
+            $this->messageManager->addErrorMessage($errorMessage);
+            return $this->handleProcessedResponse(
+                'checkout',
+                [
+                    '_fragment' => 'payment',
+                    '_query'    => ['bk_e' => 1]
+                ]
+            );
+        }
+        $this->quote->load($this->order->getQuoteId());
+
+        try {
+            return $this->handleFailed(BuckarooStatusCode::CANCELLED_BY_USER);
+        } catch (\Exception $exception) {
+            $this->logger->addError(sprintf(
+                '[REDIRECT - Mrcash] | [Controller] | [%s:%s] - handleFailed exception: %s',
+                __METHOD__,
+                __LINE__,
+                $exception->getMessage()
+            ));
+            $this->messageManager->addErrorMessage(__(self::GENERAL_ERROR_MESSAGE));
+            return $this->handleProcessedResponse('checkout/cart');
+        }
+    }
+
+    /**
+     * Get transaction key
+     *
+     * @return bool|mixed
+     */
+    protected function getTransactionKey()
+    {
+        $transactionKey = $this->getRequest()->getParam('transaction_key');
+        $transactionKey = preg_replace('/[^\w]/', '', $transactionKey);
+
+        if (empty($transactionKey) || strlen($transactionKey) <= 0) {
+            return false;
+        }
+
+        return $transactionKey;
+    }
+
+    /**
+     * Get transaction object
+     *
+     * @throws Exception
+     *
+     * @return Transaction
+     */
+    protected function getTransaction(): Transaction
+    {
+        if ($this->transaction !== null) {
+            return $this->transaction;
+        }
+
+        $list = $this->getList();
+
+        if ($list->getTotalCount() <= 0) {
+            throw new Exception(__('There was no transaction found by transaction Id'));
+        }
+
+        $items = $list->getItems();
+        $transaction = array_shift($items);
+        if (!$transaction instanceof Transaction) {
+            throw new Exception(__('There was no transaction found by transaction Id'));
+        }
+
+        $this->transaction = $transaction;
+
+        return $this->transaction;
+    }
+
+    /**
+     * Get the transaction list
+     *
+     * @throws Exception
+     *
+     * @return TransactionSearchResultInterface
+     */
+    protected function getList(): TransactionSearchResultInterface
+    {
+        $transactionKey = $this->getTransactionKey();
+
+        if (!$transactionKey) {
+            throw new Exception(__('There was no transaction found by transaction Id'));
+        }
+
+        $searchCriteria = $this->searchCriteriaBuilder->addFilter('txn_id', $transactionKey);
+        $searchCriteria->setPageSize(1);
+        return $this->transactionRepository->getList($searchCriteria->create());
+    }
 }

@@ -483,25 +483,6 @@
     opacity: 1;
 }
 
-
-/* ======================= Payconiq ======================== */
-#buckaroo_magento2_payconiq_container {
-    position: relative;
-    text-align: center;
-    z-index: 150;
-}
-
-#buckaroo_magento2_payconiq_container #buckaroo_magento2_payconiq_items {
-    display: inline-block;
-    max-width: 310px;
-    text-align: right;
-}
-
-#buckaroo_magento2_payconiq_container #buckaroo_magento2_payconiq_cancel {
-    min-height: 32px;
-}
-
-
 /* ======================= Klarna ======================== */
 .buckaroo_magento2_klarna .payment-method-second-col input:disabled,
 .buckaroo_magento2_klarnakp .payment-method-second-col input:disabled {
@@ -586,17 +567,6 @@
 
 #buckaroo_magento2_mrcash_qr {
     text-align: center;
-}
-
-#buckaroo_magento2_payconiq_container #buckaroo_magento2_mrcash_items {
-    display: inline-block;
-    max-width: 500px;
-}
-
-#buckaroo_magento2_payconiq_container #buckaroo_magento2_mrcash_cancel {
-    min-height: 32px;
-    margin-top: 20px;
-    float: right;
 }
 
 #buckaroo_magento2_afterpay_DoB-error,

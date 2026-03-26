@@ -344,7 +344,6 @@ class Data extends AbstractHelper
             ['value' => 'klarnakp',       'label' => __('Klarna Pay later (authorize/capture)')],
             ['value' => 'mrcash',       'label' => __('Bancontact')],
             ['value' => 'p24',       'label' => __('Przelewy24')],
-            ['value' => 'payconiq',       'label' => __('Payconiq')],
             ['value' => 'paylink',       'label' => __('PayLink')],
             ['value' => 'paypal',       'label' => __('Paypal')],
             ['value' => 'payperemail',       'label' => __('PayPerEmail')],

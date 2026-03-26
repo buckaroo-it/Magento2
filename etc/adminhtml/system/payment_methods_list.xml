@@ -44,8 +44,6 @@
 
         <include path="Buckaroo_Magento2::system/payment_methods/giftcards.xml"/>
 
-        <include path="Buckaroo_Magento2::system/payment_methods/payconiq.xml"/>
-
         <include path="Buckaroo_Magento2::system/payment_methods/kbc.xml"/>
 
         <include path="Buckaroo_Magento2::system/payment_methods/billink.xml"/>
