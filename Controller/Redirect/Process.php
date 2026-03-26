@@ -61,7 +61,7 @@ use Magento\Sales\Model\Order;
  */
 class Process extends Action implements HttpPostActionInterface, HttpGetActionInterface
 {
-    private const GENERAL_ERROR_MESSAGE = 'Unfortunately an error occurred while processing your payment. ' .
+    protected const GENERAL_ERROR_MESSAGE = 'Unfortunately an error occurred while processing your payment. ' .
     'Please try again. If this error persists, please choose a different payment method.';
 
     /**
@@ -247,7 +247,15 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
 
         if (!$lockAcquired) {
             $this->logger->addError(__METHOD__ . '|lock not acquired|');
-            return $this->handleProcessedResponse('/');
+            $statusCode = (int)$this->redirectRequest->getStatusCode();
+            if ($statusCode === BuckarooStatusCode::SUCCESS) {
+                return $this->handleProcessedResponse('checkout/onepage/success');
+            }
+            $this->messageManager->addErrorMessage(__(self::GENERAL_ERROR_MESSAGE));
+            if ($this->order->getQuoteId()) {
+                $this->quoteRecreate->recreateById((int)$this->order->getQuoteId());
+            }
+            return $this->handleProcessedResponse('checkout/cart');
         }
 
         try {
@@ -266,7 +274,10 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
             $this->checkoutSession->setRestoreQuoteLastOrder(false);
 
             if ($this->skipWaitingOnConsumerForProcessingOrder()) {
-                return $this->handleProcessedResponse('/');
+                if ($this->order->getState() === Order::STATE_PROCESSING) {
+                    return $this->redirectSuccess();
+                }
+                return $this->handleProcessedResponse('checkout/cart');
             }
 
             $this->logger->addDebug(sprintf(
