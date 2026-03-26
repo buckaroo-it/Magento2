@@ -42,7 +42,6 @@ class Toolbar
         'buckaroo_magento2_ideal',
         'buckaroo_magento2_mrcash',
         'buckaroo_magento2_paypal',
-        'buckaroo_magento2_payconiq',
         'buckaroo_magento2_sepadirectdebit',
         'buckaroo_magento2_belfius',
         'buckaroo_magento2_transfer',

@@ -20,8 +20,36 @@
 
 namespace Buckaroo\Magento2\Block\Checkout\Mrcash;
 
-use Buckaroo\Magento2\Block\Checkout\Payconiq\Pay as PayconiqPay;
+use Magento\Framework\View\Element\Template;
 
-class Payconiq extends PayconiqPay
+class Pay extends Template
 {
+    /**
+     * @var array
+     */
+    protected $response;
+
+    /**
+     * @inheritdoc
+     */
+    public function _construct()
+    {
+        parent::_construct();
+        $this->response = $this->getRequest()->getParams();
+    }
+
+    /**
+     * Get transaction key
+     *
+     * @return string
+     */
+    public function getTransactionKey()
+    {
+        $transactionKey = $this->response['Key'] ?? '';
+        if ($transactionKey === null) {
+            $transactionKey = '';
+        }
+        $transactionKey = preg_replace('/[^0-9]/', '', $transactionKey);
+        return $transactionKey;
+    }
 }

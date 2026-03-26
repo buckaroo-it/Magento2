@@ -23,7 +23,6 @@ namespace Buckaroo\Magento2\Observer;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Payconiq;
 use Buckaroo\Magento2\Model\Giftcard\Remove as GiftcardRemove;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\Service\Order;
@@ -225,8 +224,7 @@ class RestoreQuote implements ObserverInterface
     private function isValidPayment($payment): bool
     {
         return $this->shouldSkipFurtherEventHandling()
-            || strpos($payment->getMethod(), 'buckaroo_magento2') === false
-            || in_array($payment->getMethod(), [Payconiq::CODE]);
+            || strpos($payment->getMethod(), 'buckaroo_magento2') === false;
     }
 
     /**

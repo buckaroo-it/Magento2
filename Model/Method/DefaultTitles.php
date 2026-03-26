@@ -36,7 +36,6 @@ class DefaultTitles
         'ideal'            => 'iDEAL',
         'mrcash'           => 'Bancontact',
         'paypal'           => 'PayPal',
-        'payconiq'         => 'Payconiq',
         'sepadirectdebit'  => 'SEPA Direct Debit',
         'belfius'          => 'Belfius',
         'bizum'            => 'Bizum',
