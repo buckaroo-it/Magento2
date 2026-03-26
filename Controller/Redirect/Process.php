@@ -226,17 +226,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
         ));
 
         if (count($this->redirectRequest->getData()) === 0 || empty($this->redirectRequest->getStatusCode())) {
-            $this->logger->addDebug(sprintf(
-                '[REDIRECT] | [Controller] | [%s:%s] - Empty redirect request (3DS or provider redirect with no payment data) — restoring cart and showing error',
-                __METHOD__,
-                __LINE__
-            ));
-            $this->messageManager->addErrorMessage(__(self::GENERAL_ERROR_MESSAGE));
-            $lastOrder = $this->checkoutSession->getLastRealOrder();
-            if ($lastOrder && $lastOrder->getQuoteId()) {
-                $this->quoteRecreate->recreateById((int)$lastOrder->getQuoteId());
-            }
-            return $this->handleProcessedResponse('checkout/cart');
+            return $this->handleEmptyRedirectRequest();
         }
 
         $this->order = $this->orderRequestService->getOrderByRequest($this->redirectRequest);
@@ -246,16 +236,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
         $lockAcquired = $this->lockManager->lockOrder($orderIncrementID, 5);
 
         if (!$lockAcquired) {
-            $this->logger->addError(__METHOD__ . '|lock not acquired|');
-            $statusCode = (int)$this->redirectRequest->getStatusCode();
-            if ($statusCode === BuckarooStatusCode::SUCCESS) {
-                return $this->handleProcessedResponse('checkout/onepage/success');
-            }
-            $this->messageManager->addErrorMessage(__(self::GENERAL_ERROR_MESSAGE));
-            if ($this->order->getQuoteId()) {
-                $this->quoteRecreate->recreateById((int)$this->order->getQuoteId());
-            }
-            return $this->handleProcessedResponse('checkout/cart');
+            return $this->handleLockNotAcquired();
         }
 
         try {
@@ -297,6 +278,45 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
         }
 
         return $this->processRedirectByStatus($statusCode);
+    }
+
+    /**
+     * Handle redirect with no payment data (e.g. 3DS failure or provider redirect with empty response)
+     *
+     * @return ResponseInterface
+     */
+    protected function handleEmptyRedirectRequest(): ResponseInterface
+    {
+        $this->logger->addDebug(sprintf(
+            '[REDIRECT] | [Controller] | [%s:%s] - Empty redirect request (3DS or provider redirect with no payment data) — restoring cart and showing error',
+            __METHOD__,
+            __LINE__
+        ));
+        $this->messageManager->addErrorMessage(__(self::GENERAL_ERROR_MESSAGE));
+        $lastOrder = $this->checkoutSession->getLastRealOrder();
+        if ($lastOrder && $lastOrder->getQuoteId()) {
+            $this->quoteRecreate->recreateById((int)$lastOrder->getQuoteId());
+        }
+        return $this->handleProcessedResponse('checkout/cart');
+    }
+
+    /**
+     * Handle redirect when order lock could not be acquired (push is still processing)
+     *
+     * @return ResponseInterface
+     */
+    protected function handleLockNotAcquired(): ResponseInterface
+    {
+        $this->logger->addError(__METHOD__ . '|lock not acquired|');
+        $statusCode = (int)$this->redirectRequest->getStatusCode();
+        if ($statusCode === BuckarooStatusCode::SUCCESS) {
+            return $this->handleProcessedResponse('checkout/onepage/success');
+        }
+        $this->messageManager->addErrorMessage(__(self::GENERAL_ERROR_MESSAGE));
+        if ($this->order->getQuoteId()) {
+            $this->quoteRecreate->recreateById((int)$this->order->getQuoteId());
+        }
+        return $this->handleProcessedResponse('checkout/cart');
     }
 
     /**
