@@ -104,6 +104,13 @@
                 <div class="field oauth-token-error mage-error" data-bind="text: oauthTokenError, visible: oauthTokenError"></div>
                 <div class="field payment-error mage-error" data-bind="text: paymentError, visible: paymentError"></div>
             </div>
+
+            <div class="checkout-agreements-block">
+                <!-- ko foreach: $parent.getRegion('before-place-order') -->
+                <!-- ko template: getTemplate() --><!-- /ko -->
+                <!--/ko-->
+            </div>
+
             <div class="actions-toolbar creditcards">
                 <div class="primary">
                     <button id="buckaroo-pay" class="action primary checkout" data-bind="click: onPayClick, attr: { disabled: isPayButtonDisabled }">
