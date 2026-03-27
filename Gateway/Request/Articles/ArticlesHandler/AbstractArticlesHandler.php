@@ -694,7 +694,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             $articles = array_merge_recursive($articles, $shippingCosts);
         }
 
-        $articles = $this->reconcileArticlesWithGrandTotal($articles, (float)$currentInvoice->getGrandTotal());
+        $articles = $this->reconcileArticlesWithGrandTotal($articles, (float)$currentInvoice->getGrandTotal(), (float)$currentInvoice->getTaxAmount());
 
         return $articles;
     }
@@ -894,15 +894,16 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
 
     /**
      * Safety net: if the assembled article lines do not sum exactly to the grand total
-     * (rounding, unusual discount types, partial invoices), add a zero-VAT adjustment
-     * line to close the gap and prevent Klarna/AfterPay AmountDebit validation errors.
+     * (rounding, unusual discount types, third-party fees), add an adjustment line to
+     * close the gap and prevent Klarna/AfterPay AmountDebit validation errors.
      *
      * @param array $articles
      * @param float $grandTotal
+     * @param float|null $totalTaxAmount Tax amount for the context (order or invoice); falls back to order tax if null.
      *
      * @return array
      */
-    protected function reconcileArticlesWithGrandTotal(array $articles, float $grandTotal): array
+    protected function reconcileArticlesWithGrandTotal(array $articles, float $grandTotal, ?float $totalTaxAmount = null): array
     {
         $articleSum = 0.0;
         foreach ($articles['articles'] as $article) {
@@ -918,25 +919,63 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             return $articles;
         }
 
+        $contextTax = $totalTaxAmount ?? (float)$this->getOrder()->getTaxAmount();
+        $vatRate = $this->calculateResidualVatRate($articles, $diff, $contextTax);
+
         $this->buckarooLog->addDebug(sprintf(
-            '[%s] Article sum mismatch: grandTotal=%.2f, articleSum=%.2f, diff=%.2f. Adding reconciliation line.',
+            '[%s] Article sum mismatch: grandTotal=%.2f, articleSum=%.2f, diff=%.2f, vatRate=%.4f. Adding reconciliation line.',
             __METHOD__,
             $grandTotal,
             $articleSum,
-            $diff
+            $diff,
+            $vatRate
         ));
 
         $reconciliationLine = $this->getArticleArrayLine(
-            'Adjustment',
-            1,
+            (string)__('Extra Fees'),
+            'extra-fees',
             1,
             $diff,
-            0
+            $vatRate
         );
 
         $articles['articles'][] = $reconciliationLine;
 
         return $articles;
+    }
+
+    /**
+     * Derive the VAT rate for the residual (unaccounted) amount.
+     *
+     * @param array $articles        Already-built article lines
+     * @param float $diff            Residual amount (incl. VAT) not yet in article lines
+     * @param float $totalTaxAmount  Total tax for the current context (order or invoice)
+     * @return float
+     */
+    private function calculateResidualVatRate(array $articles, float $diff, float $totalTaxAmount): float
+    {
+        try {
+            $knownTax = 0.0;
+            foreach ($articles['articles'] as $article) {
+                if (!is_array($article) || empty($article['vatPercentage'])) {
+                    continue;
+                }
+                $lineTotal = (float)($article['price'] ?? 0) * (float)($article['quantity'] ?? 1);
+                $vatRate   = (float)$article['vatPercentage'];
+                $knownTax += $lineTotal - ($lineTotal / (1 + $vatRate / 100));
+            }
+
+            $residualTax     = $totalTaxAmount - $knownTax;
+            $residualExclTax = $diff - $residualTax;
+
+            if ($residualExclTax > 0.01 && $residualTax >= 0) {
+                return round($residualTax / $residualExclTax * 100, 4);
+            }
+        } catch (\Exception $e) {
+            $this->buckarooLog->addDebug(sprintf('[%s] Could not derive residual VAT rate: %s', __METHOD__, $e->getMessage()));
+        }
+
+        return 0.0;
     }
 
     /**
