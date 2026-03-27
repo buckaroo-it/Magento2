@@ -31,6 +31,9 @@
     <!-- ko if: (getCode() == isChecked()) -->
     <div class="payment-method-content"
          data-bind="afterRender: initCreditCardFields">
+        <!-- ko foreach: getRegion('messages') -->
+        <!-- ko template: getTemplate() --><!-- /ko -->
+        <!--/ko-->
         <div class="payment-method-billing-address">
             <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
             <!-- ko template: getTemplate() --><!-- /ko -->

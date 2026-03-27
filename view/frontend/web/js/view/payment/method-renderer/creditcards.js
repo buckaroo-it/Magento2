@@ -401,8 +401,6 @@ define(
                     $.when(placeOrder)
                         .fail(async (jqXHR) => {
                             this.isPlaceOrderActionAllowed(true);
-                            // Error is already displayed by errorProcessor.process() in place-order.js
-                            // Just reset the hosted fields without showing an additional error message
                             await this.resetHostedFields();
                         })
                         .done(this.afterPlaceOrder.bind(this));
