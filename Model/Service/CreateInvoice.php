@@ -241,8 +241,8 @@ class CreateInvoice
         /**
          * Save the payment's transaction key.
          */
-        $payment->setTransactionId($transactionKey . '-capture');
-
+        $captureTransactionKey = $payment->getAdditionalInformation('buckaroo_capture_transaction_key');
+        $payment->setTransactionId($captureTransactionKey ?: $transactionKey . '-capture');
         $payment->setParentTransactionId($transactionKey);
         $payment->setAdditionalInformation(
             BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY,

@@ -101,7 +101,14 @@ class TransferProcessor extends DefaultProcessor
 
             $this->orderRequestService->saveAndReloadOrder();
 
-            $this->orderRequestService->updateTotalOnOrder($this->order);
+            if (!$this->orderRequestService->updateTotalOnOrder($this->order)) {
+                $this->logger->addError(sprintf(
+                    '[TRANSFER] | [%s:%s] - Failed to update order totals in DB | order: %s',
+                    __METHOD__,
+                    __LINE__,
+                    $this->order->getIncrementId()
+                ));
+            }
         }
 
         return $saveInvoice;

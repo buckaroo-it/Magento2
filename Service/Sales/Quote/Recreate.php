@@ -160,6 +160,16 @@ class Recreate
             $this->logger->addDebug(__METHOD__ . '|5|');
             try {
                 $quote = $this->quoteFactory->create();
+                if ($oldQuote->getCustomerId()) {
+                    $quote->setCustomerId($oldQuote->getCustomerId());
+                    $quote->setCustomerEmail($oldQuote->getCustomerEmail());
+                    $quote->setCustomerFirstname($oldQuote->getCustomerFirstname());
+                    $quote->setCustomerLastname($oldQuote->getCustomerLastname());
+                    $quote->setCustomerIsGuest(false);
+                } else {
+                    $quote->setCustomerIsGuest(true);
+                    $quote->setCustomerEmail($oldQuote->getCustomerEmail());
+                }
                 $quote->merge($oldQuote);
                 $quote->save();
 
@@ -320,9 +330,7 @@ class Recreate
                         'amount' => $order->getShippingAmount()
                     ]);
                 } else {
-                    $this->logger->addWarning('Second Chance: No shipping method on original order', [
-                        'order_id' => $order->getIncrementId()
-                    ]);
+                    $this->logger->addWarning('Second Chance: No shipping method on original order');
                 }
             }
 
@@ -337,17 +345,7 @@ class Recreate
             try {
                 $quote->collectTotals();
             } catch (\Exception $e) {
-                $this->logger->addError('Error collecting totals during Second Chance quote recreation', [
-                    'error' => $e->getMessage(),
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine(),
-                    'order_id' => $order->getIncrementId(),
-                    'quote_id' => $quote->getId(),
-                    'payment_method' => $quote->getPayment()->getMethod(),
-                    'has_billing_address' => $quote->getBillingAddress() ? $quote->getBillingAddress()->getCountryId() : 'no',
-                    'has_shipping_address' => $quote->getShippingAddress() ? $quote->getShippingAddress()->getCountryId() : 'no',
-                    'shipping_method' => $quote->getShippingAddress() ? $quote->getShippingAddress()->getShippingMethod() : 'no'
-                ]);
+                $this->logger->addError('Error collecting totals during Second Chance quote recreation');
 
                 try {
                     $paymentMethod = $quote->getPayment()->getMethod();
@@ -360,10 +358,7 @@ class Recreate
                         'restored_payment_method' => $paymentMethod
                     ]);
                 } catch (\Exception $e2) {
-                    $this->logger->addError('Failed to collect totals even without payment method', [
-                        'error' => $e2->getMessage(),
-                        'order_id' => $order->getIncrementId()
-                    ]);
+                    $this->logger->addError('Failed to collect totals even without payment method');
                 }
             }
             $quote->save();
@@ -418,26 +413,13 @@ class Recreate
                         'additional_data_keys' => $additionalData ? array_keys($additionalData) : []
                     ]);
                 } else {
-                    $this->logger->addWarning('Second Chance: Payment method not available for this quote', [
-                        'method' => $oldPaymentMethod,
-                        'quote_id' => $quote->getId(),
-                        'billing_country' => $quote->getBillingAddress() ? $quote->getBillingAddress()->getCountryId() : 'none',
-                        'subtotal' => $quote->getSubtotal()
-                    ]);
+                    $this->logger->addWarning('Second Chance: Payment method not available for this quote');
                 }
             } catch (\Exception $e) {
-                $this->logger->addError('Second Chance: Error copying payment method', [
-                    'error' => $e->getMessage(),
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine(),
-                    'attempted_method' => $oldQuote->getPayment()->getMethod()
-                ]);
+                $this->logger->addError('Second Chance: Error copying payment method');
             }
         } else {
-            $this->logger->addWarning('Second Chance: No payment method on original quote to copy', [
-                'old_quote_id' => $oldQuote->getId(),
-                'new_quote_id' => $quote->getId()
-            ]);
+            $this->logger->addWarning('Second Chance: No payment method on original quote to copy');
         }
 
         // Set payment flag if needed
@@ -480,10 +462,7 @@ class Recreate
 
             return $methodInstance->isAvailable($quote);
         } catch (\Exception $e) {
-            $this->logger->addError('Second Chance: Error checking payment method availability', [
-                'method' => $methodCode,
-                'error' => $e->getMessage()
-            ]);
+            $this->logger->addError('Second Chance: Error checking payment method availability');
             return false;
         }
     }
@@ -511,11 +490,7 @@ class Recreate
                 }
             }
         } catch (\Exception $e) {
-            $this->logger->addError('Second Chance: Error setting payment from flag', [
-                'error' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine()
-            ]);
+            $this->logger->addError('Second Chance: Error setting payment from flag');
         }
     }
 }

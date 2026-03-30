@@ -29,7 +29,7 @@ namespace Buckaroo\Magento2\Model\Method;
  *
  * This replaces the need for individual payment method classes and provides
  * a centralized solution for enabling partial refunds across all remainder
- * payment methods (MBWay, Belfius, Blik, EPS, KBC, Payconiq, Voucher,
+ * payment methods (MBWay, Belfius, Blik, EPS, KBC, Voucher,
  * Multibanco, Knaken, etc.).
  */
 class BuckarooRemainderAdapter extends BuckarooAdapter

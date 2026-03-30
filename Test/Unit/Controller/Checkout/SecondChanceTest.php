@@ -26,9 +26,9 @@ use Buckaroo\Magento2\Logging\Log;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\RequestInterface;
-use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\Controller\Result\Redirect;
+use Magento\Framework\Controller\ResultFactory;
 
 class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
 {
@@ -81,20 +81,14 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
             ->with($token)
             ->willReturn($secondChance);
 
+        $quoteMock = $this->createMock(\Magento\Quote\Model\Quote::class);
+        $quoteMock->method('getId')->willReturn(123);
+        $this->checkoutSession->method('getQuote')->willReturn($quoteMock);
+
+        $this->request->method('getParams')->willReturn(['token' => $token]);
+
         $this->messageManager->method('addSuccessMessage')
             ->with(__('Your cart has been restored. You can now complete your purchase.'));
-
-        // Add redirectFactory mock for Action controllers
-        $redirectMock = $this->createMock(\Magento\Framework\Controller\Result\Redirect::class);
-        $redirectFactoryMock = $this->createMock(\Magento\Framework\Controller\Result\RedirectFactory::class);
-        $redirectFactoryMock->method('create')->willReturn($redirectMock);
-
-        $instance = $this->getInstance([
-            'redirectFactory' => $redirectFactoryMock,
-            'context' => $this->context,
-            'logger' => $this->logger,
-            'secondChanceRepository' => $this->secondChanceRepository,
-        ]);
 
         // Mock the redirect response
         $redirectMock = $this->getFakeMock(Redirect::class)->getMock();
@@ -109,7 +103,7 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
             ->getMock();
 
         $instance->method('handleRedirect')
-            ->with('checkout/cart', [])
+            ->with('checkout', ['_query' => [], '_fragment' => 'payment'])
             ->willReturn($redirectMock);
 
         $result = $instance->execute();
@@ -220,34 +214,26 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
         $path = 'checkout';
         $arguments = ['_fragment' => 'payment'];
 
-        $redirectMock = $this->getFakeMock(\Magento\Framework\Controller\Result\RedirectFactory::class)->getMock();
-
-        // Add redirectFactory mock for Action controllers
         $redirectMock = $this->createMock(\Magento\Framework\Controller\Result\Redirect::class);
-        $redirectFactoryMock = $this->createMock(\Magento\Framework\Controller\Result\RedirectFactory::class);
-        $redirectFactoryMock->method('create')->willReturn($redirectMock);
-
-        $instance = $this->getInstance([
-            'redirectFactory' => $redirectFactoryMock,
-            'context' => $this->context,
-            'logger' => $this->logger,
-            'secondChanceRepository' => $this->secondChanceRepository,
-        ]);
-
-        // Test that handleRedirect calls _redirect with correct parameters
-        $instance = $this->getMockBuilder(SecondChance::class)
-            ->setConstructorArgs([
-                $this->context,
-                $this->logger,
-                $this->secondChanceRepository,
-                $this->checkoutSession
-            ])
-            ->onlyMethods(['_redirect'])
-            ->getMock();
-
-        $instance->method('_redirect')
+        $redirectMock->expects($this->once())
+            ->method('setPath')
             ->with($path, $arguments)
+            ->willReturnSelf();
+
+        $resultFactoryMock = $this->createMock(ResultFactory::class);
+        $resultFactoryMock->expects($this->once())
+            ->method('create')
+            ->with(ResultFactory::TYPE_REDIRECT)
             ->willReturn($redirectMock);
+
+        $this->context->method('getResultFactory')->willReturn($resultFactoryMock);
+
+        $instance = new SecondChance(
+            $this->context,
+            $this->logger,
+            $this->secondChanceRepository,
+            $this->checkoutSession
+        );
 
         $result = $instance->handleRedirect($path, $arguments);
         $this->assertEquals($redirectMock, $result);

@@ -56,11 +56,14 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     public const SPECIFIC_CUSTOMER_GROUP     = 'specificcustomergroup';
     public const SPECIFIC_CUSTOMER_GROUP_B2B = 'specificcustomergroupb2b';
 
-    public const SUBTEXT       = 'subtext';
-    public const SUBTEXT_STYLE = 'subtext_style';
-    public const SUBTEXT_COLOR = 'subtext_color';
-    public const TITLE         = 'title';
+    public const SUBTEXT         = 'subtext';
+    public const DISPLAY_SUBTEXT = 'display_subtext';
+    public const SUBTEXT_STYLE   = 'subtext_style';
+    public const SUBTEXT_COLOR   = 'subtext_color';
+    public const TITLE           = 'title';
     public const FINANCIAL_WARNING = 'financial_warning';
+
+    public const CUSTOMER_ADDITIONAL_INFO = 'customer_additional_info';
 
     /**
      * The asset repository to generate the correct url to our assets.
@@ -94,7 +97,11 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      */
     protected $logoService;
 
+    /**
+     * @var array
+     */
     protected $issuers = [];
+
     /**
      * @param Repository           $assetRepo
      * @param ScopeConfigInterface $scopeConfig
@@ -164,6 +171,13 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
         return $issuers;
     }
 
+    /**
+     * Get creditcard logo
+     *
+     * @param string $code
+     *
+     * @return string
+     */
     public function getCreditcardLogo(string $code): string
     {
         return $this->logoService->getCreditcard($code);
@@ -450,6 +464,18 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     }
 
     /**
+     * Is subtext displayed
+     *
+     * @param null|int|Store $store
+     *
+     * @return bool
+     */
+    public function isSubtextDisplayed($store = null): bool
+    {
+        return (bool)$this->getMethodConfigValue(static::DISPLAY_SUBTEXT, $store);
+    }
+
+    /**
      * Get subtext style
      *
      * @param null|int|Store $store
@@ -514,11 +540,23 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
         return $issuersPrepared;
     }
 
+    /**
+     * Get config
+     *
+     * @return array
+     */
     public function getConfig(): array
     {
         return $this->fullConfig();
     }
 
+    /**
+     * Get full config
+     *
+     * @param array $additonal
+     *
+     * @return array
+     */
     protected function fullConfig(array $additonal = []): array
     {
 
@@ -534,6 +572,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
                             'paymentFeeLabel'   => $this->getBuckarooPaymentFeeLabel(),
                             'title'             => $this->getTitle(),
                             'subtext'           => $this->getSubtext(),
+                            'display_subtext'   => $this->isSubtextDisplayed(),
                             'subtext_style'     => $this->getSubtextStyle(),
                             'subtext_color'     => $this->getSubtextColor(),
                             'allowedCurrencies' => $this->getAllowedCurrencies(),
@@ -547,8 +586,25 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
         ];
     }
 
+    /**
+     * Get logo
+     *
+     * @return string
+     */
     public function getLogo():string
     {
         return $this->logoService->getPayment(str_replace("buckaroo_magento2_", "", static::CODE));
+    }
+
+    /**
+     * Get per-method customer additional info configuration.
+     *
+     * @param null|int|string $store
+     *
+     * @return string|null
+     */
+    public function getCustomerAdditionalInfo($store = null): ?string
+    {
+        return $this->getMethodConfigValue(static::CUSTOMER_ADDITIONAL_INFO, $store);
     }
 }

@@ -34,7 +34,10 @@ var config = {
             "buckaroo/applepay/billing-handler": "Buckaroo_Magento2/js/view/checkout/applepay/handlers/billing-handler",
             "buckaroo/applepay/shipping-handler": "Buckaroo_Magento2/js/view/checkout/applepay/handlers/shipping-handler",
             "buckaroo/applepay/order-handler": "Buckaroo_Magento2/js/view/checkout/applepay/handlers/order-handler",
-            "buckaroo/payconiq/pay": "Buckaroo_Magento2/js/view/checkout/payconiq/pay",
+            "buckaroo/googlepay/catalog-cart-view": "Buckaroo_Magento2/js/view/checkout/googlepay/catalog-cart-view",
+            "buckaroo/googlepay/catalog-product-view": "Buckaroo_Magento2/js/view/checkout/googlepay/catalog-product-view",
+            "buckaroo/googlepay/pay": "Buckaroo_Magento2/js/view/checkout/googlepay/pay",
+            "buckaroo/googlepay/handlers/order-handler": "Buckaroo_Magento2/js/view/checkout/googlepay/handlers/order-handler",
             "buckaroo/mrcash/pay": "Buckaroo_Magento2/js/view/checkout/mrcash/pay",
             "BuckarooClientSideEncryption": "//static.buckaroo.nl/script/ClientSideEncryption001.js",
             "BuckarooHostedFieldsSdkAlpha": "//hostedfields-externalapi.alpha.buckaroo.aws/v1/sdk",
@@ -51,7 +54,8 @@ var config = {
 
     shim: {
         'BuckarooSdk': {
-            deps: ['jquery']
+            deps: ['jquery'],
+            exports: 'BuckarooSdk'
         }
     }
 };

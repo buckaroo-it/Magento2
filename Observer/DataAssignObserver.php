@@ -58,6 +58,7 @@ class DataAssignObserver extends AbstractDataAssignObserver
     public const CUSTOMER_BIC                  = 'customer_bic';
     public const CLIENT_SIDE_MODE              = 'client_side_mode';
     public const CUSTOMER_ACCOUNT_NAME         = 'customer_account_name';
+    public const GOOGLEPAYPAYMENTDATA          = 'googlepayPaymentData';
 
     /**
      * @var array
@@ -92,7 +93,8 @@ class DataAssignObserver extends AbstractDataAssignObserver
         self::GIFTCARD_METHOD,
         self::CUSTOMER_BIC,
         self::CLIENT_SIDE_MODE,
-        self::CUSTOMER_ACCOUNT_NAME
+        self::CUSTOMER_ACCOUNT_NAME,
+        self::GOOGLEPAYPAYMENTDATA
     ];
 
     /**
@@ -104,7 +106,6 @@ class DataAssignObserver extends AbstractDataAssignObserver
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20::CODE,
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Klarna::CODE,
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp::CODE,
-        \Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnain::CODE,
     ];
 
     /**

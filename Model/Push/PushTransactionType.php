@@ -125,6 +125,8 @@ class PushTransactionType
     }
 
     /**
+     * Initialize the cached push transaction state.
+     *
      * @param \Buckaroo\Magento2\Api\Data\PushRequestInterface|null $pushRequest
      * @param Order|null                                            $order
      *
@@ -147,9 +149,8 @@ class PushTransactionType
             $this->creditManagement = $this->pushType === self::BUCK_PUSH_TYPE_INVOICE;
             $this->magentoServiceAction = $this->pushRequest->getAdditionalInformation('service_action_from_magento');
             $this->serviceAction = $this->getServiceAction();
-            $this->isFromPayPerEmail = (bool)$this->pushRequest->getAdditionalInformation('frompayperemail')
-                ?? (bool)$this->pushRequest->getAdditionalInformation('frompayperemail')
-                ?? false;
+            $this->isFromPayPerEmail = !empty($this->pushRequest->getAdditionalInformation('frompayperemail'))
+                || $this->pushRequest->getAdditionalInformation('service_action_from_magento') === 'frompayperemail';
 
             $this->isSet = true;
         }
@@ -236,6 +237,8 @@ class PushTransactionType
     }
 
     /**
+     * Get the resolved Buckaroo status code.
+     *
      * @return int
      */
     public function getStatusCode(): int
@@ -244,6 +247,8 @@ class PushTransactionType
     }
 
     /**
+     * Set the resolved Buckaroo status code.
+     *
      * @param int $statusCode
      */
     public function setStatusCode(int $statusCode): void
@@ -252,6 +257,8 @@ class PushTransactionType
     }
 
     /**
+     * Get the resolved status key.
+     *
      * @return string
      */
     public function getStatusKey(): string
@@ -260,6 +267,8 @@ class PushTransactionType
     }
 
     /**
+     * Set the resolved status key.
+     *
      * @param string $statusKey
      */
     public function setStatusKey(string $statusKey): void
@@ -268,6 +277,8 @@ class PushTransactionType
     }
 
     /**
+     * Get the Buckaroo transaction type.
+     *
      * @return string|null
      */
     public function getTransactionType(): ?string
@@ -276,6 +287,8 @@ class PushTransactionType
     }
 
     /**
+     * Set the Buckaroo transaction type.
+     *
      * @param string|null $transactionType
      */
     public function setTransactionType(?string $transactionType): void
@@ -284,6 +297,8 @@ class PushTransactionType
     }
 
     /**
+     * Resolve the Magento service action for the push.
+     *
      * @return string|null
      */
     public function getServiceAction(): ?string
@@ -307,6 +322,8 @@ class PushTransactionType
     }
 
     /**
+     * Set the Magento service action for the push.
+     *
      * @param string $serviceAction
      */
     public function setServiceAction(string $serviceAction): void
@@ -315,6 +332,8 @@ class PushTransactionType
     }
 
     /**
+     * Get the resolved push type.
+     *
      * @return string
      */
     public function getPushType(): string
@@ -323,6 +342,8 @@ class PushTransactionType
     }
 
     /**
+     * Set the resolved push type.
+     *
      * @param string $pushType
      */
     public function setPushType(string $pushType): void
@@ -331,6 +352,8 @@ class PushTransactionType
     }
 
     /**
+     * Get the payment method code.
+     *
      * @return string
      */
     public function getPaymentMethod(): string
@@ -339,6 +362,8 @@ class PushTransactionType
     }
 
     /**
+     * Set the payment method code.
+     *
      * @param string $paymentMethod
      */
     public function setPaymentMethod(string $paymentMethod): void
@@ -347,6 +372,8 @@ class PushTransactionType
     }
 
     /**
+     * Get the service action received from Magento.
+     *
      * @return string
      */
     public function getMagentoServiceAction(): string
@@ -355,6 +382,8 @@ class PushTransactionType
     }
 
     /**
+     * Set the service action received from Magento.
+     *
      * @param string $magentoServiceAction
      */
     public function setMagentoServiceAction(string $magentoServiceAction): void
@@ -363,6 +392,8 @@ class PushTransactionType
     }
 
     /**
+     * Get the human-readable status message.
+     *
      * @return string
      */
     public function getStatusMessage(): string
@@ -371,6 +402,8 @@ class PushTransactionType
     }
 
     /**
+     * Set the human-readable status message.
+     *
      * @param string $statusMessage
      */
     public function setStatusMessage(string $statusMessage): void
@@ -379,6 +412,8 @@ class PushTransactionType
     }
 
     /**
+     * Get the Buckaroo status code resolver.
+     *
      * @return BuckarooStatusCode
      */
     public function getBuckarooStatusCode(): BuckarooStatusCode
@@ -387,6 +422,8 @@ class PushTransactionType
     }
 
     /**
+     * Set the Buckaroo status code resolver.
+     *
      * @param BuckarooStatusCode $buckarooStatusCode
      */
     public function setBuckarooStatusCode(BuckarooStatusCode $buckarooStatusCode): void
@@ -395,6 +432,8 @@ class PushTransactionType
     }
 
     /**
+     * Check whether this push belongs to a group transaction.
+     *
      * @return bool
      */
     public function isGroupTransaction(): bool
@@ -403,6 +442,8 @@ class PushTransactionType
     }
 
     /**
+     * Mark whether this push belongs to a group transaction.
+     *
      * @param bool $groupTransaction
      */
     public function setGroupTransaction(bool $groupTransaction): void
@@ -411,6 +452,8 @@ class PushTransactionType
     }
 
     /**
+     * Check whether this push belongs to credit management.
+     *
      * @return bool
      */
     public function isCreditManagment(): bool
@@ -419,6 +462,8 @@ class PushTransactionType
     }
 
     /**
+     * Mark whether this push belongs to credit management.
+     *
      * @param bool $creditManagement
      */
     public function setCreditManagment(bool $creditManagement): void
@@ -427,6 +472,8 @@ class PushTransactionType
     }
 
     /**
+     * Get the Magento order attached to the push.
+     *
      * @return Order
      */
     public function getOrder(): Order
@@ -435,6 +482,8 @@ class PushTransactionType
     }
 
     /**
+     * Set the Magento order attached to the push.
+     *
      * @param Order $order
      */
     public function setOrder(Order $order): void
@@ -443,6 +492,8 @@ class PushTransactionType
     }
 
     /**
+     * Check whether the push originated from pay-per-email.
+     *
      * @return bool
      */
     public function isFromPayPerEmail(): bool
@@ -451,8 +502,9 @@ class PushTransactionType
     }
 
     /**
-     * @param Order $order
-     * @param bool  $isFromPayPerEmail
+     * Mark whether the push originated from pay-per-email.
+     *
+     * @param bool $isFromPayPerEmail
      */
     public function setIsFromPayPerEmail(bool $isFromPayPerEmail): void
     {

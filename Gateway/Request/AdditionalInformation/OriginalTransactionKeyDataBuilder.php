@@ -22,11 +22,13 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Gateway\Request\AdditionalInformation;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
+use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 
 class OriginalTransactionKeyDataBuilder implements BuilderInterface
 {
-    const BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY = 'buckaroo_original_transaction_key';
+    public const BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY = 'buckaroo_original_transaction_key';
 
     /**
      * @inheritdoc
@@ -36,6 +38,13 @@ class OriginalTransactionKeyDataBuilder implements BuilderInterface
         $paymentDO = SubjectReader::readPayment($buildSubject);
 
         $payment = $paymentDO->getPayment();
+
+        if ($payment->getMethod() === 'buckaroo_magento2_payperemail') {
+            $key = $payment->getAdditionalInformation(BuckarooAdapter::BUCKAROO_ACTUAL_PAYMENT_TRANSACTION_KEY);
+            if (!empty($key)) {
+                return ['originalTransactionKey' => $key];
+            }
+        }
 
         $originalTransactionKey = $payment->getAdditionalInformation(self::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY);
 

@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Gateway\Request;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
+use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Payment\Model\InfoInterface;
@@ -61,6 +62,21 @@ class RefundOriginalTransactionKeyDataBuilder implements BuilderInterface
         $methodInstance = $payment->getMethodInstance();
         if ($methodInstance && $methodInstance->canRefundPartialPerInvoice() && $creditmemo) {
             return $payment->getParentTransactionId();
+        }
+
+        if ($payment->getMethod() === 'buckaroo_magento2_giftcards' && $creditmemo) {
+            $parentTransactionId = $payment->getParentTransactionId();
+            if (!empty($parentTransactionId)) {
+                return $parentTransactionId;
+            }
+        }
+
+        // PayPerEmail: get actual payment transaction key from additional_information
+        if ($payment->getMethod() === 'buckaroo_magento2_payperemail') {
+            $key = $payment->getAdditionalInformation(BuckarooAdapter::BUCKAROO_ACTUAL_PAYMENT_TRANSACTION_KEY);
+            if (!empty($key)) {
+                return $key;
+            }
         }
 
         return $payment->getAdditionalInformation(self::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY);

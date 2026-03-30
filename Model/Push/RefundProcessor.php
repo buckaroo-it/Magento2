@@ -108,7 +108,11 @@ class RefundProcessor extends DefaultProcessor
     public function processPush(PushRequestInterface $pushRequest): bool
     {
         $this->pushRequest = $pushRequest;
+
+        $this->orderRequestService->loadOrder();
+
         $this->order = $this->orderRequestService->getOrderByRequest($pushRequest);
+
         $this->payment = $this->order->getPayment();
 
         if ($this->skipPendingRefundPush($pushRequest)) {

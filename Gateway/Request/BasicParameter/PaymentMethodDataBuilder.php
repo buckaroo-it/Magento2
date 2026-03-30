@@ -56,33 +56,62 @@ class PaymentMethodDataBuilder implements BuilderInterface
         $method = $payment->getMethodInstance()->getCode() ?? 'buckaroo_magento2_ideal';
         $providerType = str_replace('buckaroo_magento2_', '', $method);
 
+        // PayPerEmail: get actual payment method from additional_information
+        if ($providerType === 'payperemail') {
+            $actualMethod = $payment->getAdditionalInformation(BuckarooAdapter::BUCKAROO_ACTUAL_PAYMENT_METHOD);
+            if (!empty($actualMethod) && is_string($actualMethod)) {
+                $providerType = strtolower(trim($actualMethod));
+            }
+        }
+
         // Edge case: If method is "giftcards" but no group transactions exist,
         // it means the user selected giftcard but paid 100% with another method (e.g., iDEAL)
-        // Get the actual payment method from transaction details
         if ($providerType === 'giftcards') {
-            $groupTransactionAmount = $this->paymentGroupTransaction->getGroupTransactionAmount(
-                $order->getOrderIncrementId()
-            );
-            
-            // No group transactions = no giftcards were actually used
-            if ($groupTransactionAmount <= 0) {
-                $rawDetailsInfo = $payment->getAdditionalInformation('raw_details_info');
-                
-                if (is_array($rawDetailsInfo) && !empty($rawDetailsInfo)) {
-                    $firstTransaction = reset($rawDetailsInfo);
-                    if (isset($firstTransaction['brq_transaction_method'])) {
-                        $actualMethod = strtolower($firstTransaction['brq_transaction_method']);
-                        // Only override if it's not a giftcard service and not empty
-                        if ($actualMethod !== 'giftcards' && !empty($actualMethod)) {
-                            $providerType = $actualMethod;
-                        }
-                    }
-                }
-            }
+            $providerType = $this->resolveGiftCardProviderType($payment, $order) ?? $providerType;
         }
 
         return [
             'payment_method' => $providerType,
         ];
+    }
+
+    /**
+     * Resolve actual provider type when the payment method is giftcards but no gift card
+     * transactions were recorded, meaning the order was paid entirely by another method.
+     *
+     * @param \Magento\Payment\Model\InfoInterface $payment
+     * @param \Magento\Payment\Gateway\Data\OrderAdapterInterface $order
+     *
+     * @return string|null
+     */
+    private function resolveGiftCardProviderType($payment, $order): ?string
+    {
+        $groupTransactionAmount = $this->paymentGroupTransaction->getGroupTransactionAmount(
+            $order->getOrderIncrementId()
+        );
+
+        if ($groupTransactionAmount > 0) {
+            return null;
+        }
+
+        $rawDetailsInfo = $payment->getAdditionalInformation('raw_details_info');
+
+        if (!is_array($rawDetailsInfo) || empty($rawDetailsInfo)) {
+            return null;
+        }
+
+        $firstTransaction = reset($rawDetailsInfo);
+
+        if (!isset($firstTransaction['brq_transaction_method'])) {
+            return null;
+        }
+
+        $actualMethod = strtolower($firstTransaction['brq_transaction_method']);
+
+        if ($actualMethod !== 'giftcards' && !empty($actualMethod)) {
+            return $actualMethod;
+        }
+
+        return null;
     }
 }

@@ -42,3 +42,11 @@
     text-align: justify;
     margin-top: 3rem;
 }
+
+#payment_form_buckaroo_magento2_payperemail .buckaroo-ppe-method-row {
+    display: none !important;
+}
+#payment_form_buckaroo_magento2_payperemail .admin__legend {
+    margin-top: 1rem;
+    margin-left: 2rem;
+}

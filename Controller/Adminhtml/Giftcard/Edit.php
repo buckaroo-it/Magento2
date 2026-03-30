@@ -91,7 +91,7 @@ class Edit extends Action implements HttpGetActionInterface
             }
         }
 
-        $data = $this->_session->getFormData(true);
+        $data = $this->_session->getFormData();
         if (!empty($data)) {
             $model->setData($data);
         }

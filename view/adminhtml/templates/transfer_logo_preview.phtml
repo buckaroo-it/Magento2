@@ -1,0 +1,46 @@
+<?php
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ *
+ * @var \Buckaroo\Magento2\Block\Config\Form\Field\TransferLogoPreview $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+?>
+<div id="transfer-logo-preview-wrapper" class="admin__field admin__field-option">
+    <div class="admin__field-control">
+        <div class="transfer-logo-preview-container" style="margin-top: 8px;">
+            <img id="transfer-logo-preview-img"
+                 src="<?= $escaper->escapeUrl($block->getCurrentPreviewLogoUrl()); ?>"
+                 alt="<?= $escaper->escapeHtmlAttr(__('Bank Transfer Logo Preview')); ?>"
+                 style="max-height: 48px; max-width: 200px; display: block;"/>
+        </div>
+    </div>
+</div>
+<script type="text/x-magento-init">
+{
+    "#transfer-logo-preview-wrapper": {
+        "Buckaroo_Magento2/js/view/adminhtml/transfer-logo-preview": {
+            "logoSelectId": "<?= $escaper->escapeJs($block->getLogoSelectElementId()); ?>",
+            "genericLogoUrl": "<?= $escaper->escapeUrl($block->getGenericLogoUrl()); ?>",
+            "sepaLogoUrl": "<?= $escaper->escapeUrl($block->getSepaLogoUrl()); ?>",
+            "optionGeneric": "<?= $escaper->escapeJs(\Buckaroo\Magento2\Model\Config\Source\TransferPaymentMethodLogo::OPTION_GENERIC_BANK_LOGO); ?>",
+            "optionSepa": "<?= $escaper->escapeJs(\Buckaroo\Magento2\Model\Config\Source\TransferPaymentMethodLogo::OPTION_SEPA_CREDIT_TRANSFER); ?>"
+        }
+    }
+}
+</script>

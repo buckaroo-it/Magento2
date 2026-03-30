@@ -26,126 +26,230 @@ use Buckaroo\Magento2\Model\Ideal\IdealException;
 
 class ShippingAddress implements ShippingAddressRequestInterface
 {
-
+    /**
+     * @var string
+     */
     protected $city;
 
+    /**
+     * @var string
+     */
     protected $country_code;
 
+    /**
+     * @var string
+     */
     protected $postal_code;
 
+    /**
+     * @var string
+     */
     protected $telephone;
 
+    /**
+     * @var string
+     */
     protected $firstname;
 
+    /**
+     * @var string
+     */
     protected $lastname;
 
+    /**
+     * @var string
+     */
     protected $email;
 
+    /**
+     * @var string
+     */
     protected $street;
 
-    /** @inheritDoc */
+    /**
+     * Set the city value.
+     *
+     * @param string $city
+     *
+     * @return void
+     */
     public function setCity(string $city)
     {
         $this->validateRequired($city, 'city');
         $this->city = $city;
     }
 
-    /** @inheritDoc */
+    /**
+     * Set the country code value.
+     *
+     * @param string $country_code
+     *
+     * @return void
+     */
     public function setCountryCode(string $country_code)
     {
         $this->validateRequired($country_code, 'country_code');
         $this->country_code = $country_code;
     }
 
-    /** @inheritDoc */
+    /**
+     * Set the postal code value.
+     *
+     * @param string $postal_code
+     *
+     * @return void
+     */
     public function setPostalCode(string $postal_code)
     {
         $this->validateRequired($postal_code, 'postal_code');
         $this->postal_code = $postal_code;
     }
 
-    /** @inheritDoc */
+    /**
+     * Set the telephone value.
+     *
+     * @param string $telephone
+     *
+     * @return void
+     */
     public function setTelephone(string $telephone)
     {
         $this->validateRequired($telephone, 'telephone');
         $this->telephone = $telephone;
     }
 
-    /** @inheritDoc */
+    /**
+     * Set the first name value.
+     *
+     * @param string $firstname
+     *
+     * @return void
+     */
     public function setFirstname(string $firstname)
     {
         $this->validateRequired($firstname, 'firstname');
         $this->firstname = $firstname;
     }
 
-    /** @inheritDoc */
+    /**
+     * Set the last name value.
+     *
+     * @param string $lastname
+     *
+     * @return void
+     */
     public function setLastname(string $lastname)
     {
         $this->validateRequired($lastname, 'lastname');
         $this->lastname = $lastname;
     }
 
-    /** @inheritDoc */
+    /**
+     * Set the email value.
+     *
+     * @param string $email
+     *
+     * @return void
+     */
     public function setEmail(string $email)
     {
         $this->validateRequired($email, 'email');
         $this->email = $email;
     }
 
-    /** @inheritDoc */
+    /**
+     * Set the street value.
+     *
+     * @param string $street
+     *
+     * @return void
+     */
     public function setStreet(string $street)
     {
         $this->validateRequired($street, 'street');
         $this->street = $street;
     }
 
-    /** @inheritDoc */
+    /**
+     * Get the city value.
+     *
+     * @return string
+     */
     public function getCity(): string
     {
         return $this->city;
     }
 
-    /** @inheritDoc */
+    /**
+     * Get the country code value.
+     *
+     * @return string
+     */
     public function getCountryCode(): string
     {
         return $this->country_code;
     }
 
-    /** @inheritDoc */
+    /**
+     * Get the postal code value.
+     *
+     * @return string
+     */
     public function getPostalCode(): string
     {
         return $this->postal_code;
     }
 
-    /** @inheritDoc */
+    /**
+     * Get the telephone value.
+     *
+     * @return string
+     */
     public function getTelephone(): string
     {
         return $this->telephone;
     }
 
-    /** @inheritDoc */
+    /**
+     * Get the first name value.
+     *
+     * @return string
+     */
     public function getFirstname(): string
     {
         return $this->firstname;
     }
 
-    /** @inheritDoc */
+    /**
+     * Get the last name value.
+     *
+     * @return string
+     */
     public function getLastname(): string
     {
         return $this->lastname;
     }
 
-    /** @inheritDoc */
+    /**
+     * Get the email value.
+     *
+     * @return string
+     */
     public function getEmail(): string
     {
         return $this->email;
     }
 
-    /** @inheritDoc */
+    /**
+     * Get the street value.
+     *
+     * @return string
+     */
     public function getStreet(): string
     {
         return $this->street;
     }
+
     /**
      * Validate required fields
      *

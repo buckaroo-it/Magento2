@@ -52,6 +52,11 @@ class BuckarooAdapter extends Adapter
     public const PAYMENT_FROM                          = 'buckaroo_payment_from';
     public const PAYMENT_ATTEMPTS_REACHED_MESSAGE      = 'buckaroo_payment_attempts_reached_message';
 
+    /** Actual payment method used for PayPerEmail orders – used for refunds */
+    public const BUCKAROO_ACTUAL_PAYMENT_METHOD = 'buckaroo_actual_payment_method';
+
+    /** Refundable transaction key for PayPerEmail orders */
+    public const BUCKAROO_ACTUAL_PAYMENT_TRANSACTION_KEY = 'buckaroo_actual_payment_transaction_key';
     /**
      * @var bool
      */

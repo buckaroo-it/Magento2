@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Controller\Adminhtml\Notification;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Action\HttpPostActionInterface;
+use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\FlagManager;
@@ -80,6 +81,8 @@ class MarkUserNotified extends Action implements HttpPostActionInterface
             ];
         }
 
-        return $this->resultFactory->create(ResultFactory::TYPE_JSON)->setData($responseContent);
+        /** @var Json $result */
+        $result = $this->resultFactory->create(ResultFactory::TYPE_JSON);
+        return $result->setData($responseContent);
     }
 }

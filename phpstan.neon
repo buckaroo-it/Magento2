@@ -1,4 +1,5 @@
 parameters:
+    level: 5
     checkExplicitMixedMissingReturn: true
     checkPhpDocMissingReturn: true
     reportUnmatchedIgnoredErrors: false

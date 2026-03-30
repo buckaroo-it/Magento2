@@ -7,6 +7,10 @@
     <rule ref="Magento2">
         <!-- Override line length to 250 characters (default is 120) -->
         <exclude name="Generic.Files.LineLength"/>
+        <!-- Avoid PHPCS 4 deprecation noise from non-PHP sniffs we do not use -->
+        <exclude name="Magento2.Less"/>
+        <exclude name="Magento2.GraphQL"/>
+        <exclude name="Squiz.CSS.NamedColours"/>
     </rule>
     
     <!-- Set custom line length limit -->

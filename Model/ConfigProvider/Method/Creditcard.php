@@ -51,7 +51,7 @@ class Creditcard extends AbstractConfigProvider
     public const XPATH_SELECTION_TYPE                 = 'selection_type';
     public const XPATH_PAYMENT_FLOW                   = 'payment_action';
     public const DEFAULT_SORT_VALUE                   = '99';
-    const XPATH_CREDITCARD_PAYMENT_FEE          = 'payment/buckaroo_magento2_creditcard/payment_fee';
+    public const XPATH_CREDITCARD_PAYMENT_FEE          = 'payment/buckaroo_magento2_creditcard/payment_fee';
 
     /** @var array[] */
     protected $issuers = [
@@ -129,6 +129,11 @@ class Creditcard extends AbstractConfigProvider
         ]);
     }
 
+    /**
+     * Return the configured credit card issuers.
+     *
+     * @return array
+     */
     public function getIssuers(): array
     {
         return $this->issuers;
@@ -266,7 +271,7 @@ class Creditcard extends AbstractConfigProvider
     /**
      * Retrieve the sorted order of the credit card types to display on the checkout page
      *
-     * @param $storeId
+     * @param int|string|null $storeId
      *
      * @return ?string
      */
@@ -325,7 +330,7 @@ class Creditcard extends AbstractConfigProvider
     /**
      * Credit cards are displayed separately in the checkout.
      *
-     * @param $storeId
+     * @param int|string|null $storeId
      *
      * @return string
      */
@@ -371,7 +376,9 @@ class Creditcard extends AbstractConfigProvider
     }
 
     /**
-     * @param null|int $storeId
+     * Get the configured credit card payment fee.
+     *
+     * @param int|null $storeId
      *
      * @return float
      */

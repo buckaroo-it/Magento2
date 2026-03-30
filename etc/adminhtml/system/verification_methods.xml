@@ -22,7 +22,7 @@
 <include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
     <!-- General settings section -->
     <group id="buckaroo_magento2_verification_method_section" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-        <label>Verification methods</label>
+        <label>Verification Methods</label>
         <fieldset_css>buckaroo_magento2-section</fieldset_css>
         <attribute type="expanded">1</attribute>
 
@@ -37,7 +37,7 @@
             </field>
 
             <field id="idin_mode" translate="label comment tooltip" type="select" sortOrder="70" showInDefault="1" showInWebsite="0" showInStore="0">
-                <label>iDIN mode</label>
+                <label>iDIN Mode</label>
                 <comment><![CDATA[iDIN can be used in different modes, based on when you want iDIN to be required as an additional verification.<br/><strong>Global Mode:</strong> Requires iDIN verification for all products.<br/><strong>Specific Products Mode:</strong> Enables iDIN for selected products via the Magento 2 catalog settings.<br/><strong>Product Categories Mode:</strong> Configures iDIN for specific product categories.]]></comment>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\Idinmode</source_model>
                 <config_path>buckaroo_magento2/account/idin_mode</config_path>
@@ -47,7 +47,7 @@
             </field>
 
             <field id="idin_category" translate="label" type="multiselect" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Select Categorys for iDIN verification</label>
+                <label>Select Categorys for iDIN Verification</label>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\Categorylist</source_model>
                 <config_path>buckaroo_magento2/account/idin_category</config_path>
                 <depends>

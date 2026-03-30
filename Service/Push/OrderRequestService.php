@@ -25,19 +25,15 @@ use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Api\Data\PushRequestInterface;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\Framework\App\ResourceConnection;
-use Magento\Framework\Phrase;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\Order;
-use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
-use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Magento\Sales\Model\Order\Invoice;
-use Magento\Sales\Model\Order\Payment as OrderPayment;
 use Magento\Sales\Model\Order\Payment\Transaction;
 
 class OrderRequestService
 {
     /**
-     * @var Order|OrderPayment $order
+     * @var Order $order
      */
     public $order = null;
 
@@ -52,14 +48,9 @@ class OrderRequestService
     private $transaction;
 
     /**
-     * @var OrderSender
+     * @var OrderEmailService
      */
-    private $orderSender;
-
-    /**
-     * @var InvoiceSender
-     */
-    private $invoiceSender;
+    private $orderEmailService;
 
     /**
      * @var ResourceConnection
@@ -67,27 +58,32 @@ class OrderRequestService
     protected $resourceConnection;
 
     /**
+     * @var KlarnaKpOrderService
+     */
+    private $klarnaKpOrderService;
+
+    /**
      * @param Order                   $order
      * @param BuckarooLoggerInterface $logger
      * @param TransactionInterface    $transaction
-     * @param OrderSender             $orderSender
-     * @param InvoiceSender           $invoiceSender
+     * @param OrderEmailService       $orderEmailService
      * @param ResourceConnection      $resourceConnection
+     * @param KlarnaKpOrderService    $klarnaKpOrderService
      */
     public function __construct(
         Order $order,
         BuckarooLoggerInterface $logger,
         TransactionInterface $transaction,
-        OrderSender $orderSender,
-        InvoiceSender $invoiceSender,
-        ResourceConnection $resourceConnection
+        OrderEmailService $orderEmailService,
+        ResourceConnection $resourceConnection,
+        KlarnaKpOrderService $klarnaKpOrderService
     ) {
         $this->order = $order;
         $this->logger = $logger;
         $this->transaction = $transaction;
-        $this->orderSender = $orderSender;
-        $this->invoiceSender = $invoiceSender;
+        $this->orderEmailService = $orderEmailService;
         $this->resourceConnection = $resourceConnection;
+        $this->klarnaKpOrderService = $klarnaKpOrderService;
     }
 
     /**
@@ -97,7 +93,7 @@ class OrderRequestService
      *
      * @throws \Exception
      *
-     * @return Order|OrderPayment
+     * @return Order
      */
     public function getOrderByRequest(?PushRequestInterface $pushRequest = null)
     {
@@ -152,7 +148,7 @@ class OrderRequestService
      *
      * @throws \Exception
      *
-     * @return OrderPayment|Order
+     * @return Order
      */
     protected function getOrderByTransactionKey($pushRequest)
     {
@@ -161,8 +157,38 @@ class OrderRequestService
         $this->transaction->load($trxId, 'txn_id');
         $order = $this->transaction->getOrder();
 
-        if (!$order) {
+        if (!$order || !$order->getId()) {
+            $order = $this->getOrderByKlarnaReservationNumber($pushRequest);
+        }
+
+        if (!$order || !$order->getId()) {
             throw new BuckarooException(__('There was no order found by transaction Id'));
+        }
+
+        return $order;
+    }
+
+    /**
+     * Try to find the order by the Klarna KP reservation number when no transaction record exists.
+     * This covers cancel pushes sent directly from Buckaroo plaza where brq_transactions is absent
+     * but brq_SERVICE_klarnakp_ReservationNumber is present.
+     *
+     * @param $pushRequest
+     *
+     * @return Order|null
+     */
+    protected function getOrderByKlarnaReservationNumber($pushRequest): ?Order
+    {
+        $reservationNumber = $pushRequest->getServiceKlarnakpReservationnumber(); // @phpstan-ignore-line
+
+        if (empty($reservationNumber)) {
+            return null;
+        }
+
+        $order = $this->klarnaKpOrderService->getOrderByReservationNumber($reservationNumber);
+
+        if ($order !== null) {
+            $this->order = $order;
         }
 
         return $order;
@@ -197,7 +223,7 @@ class OrderRequestService
     /**
      * Try to add a notification note to the order comments.
      *
-     * @param Phrase|string $message
+     * @param string $message
      */
     public function setOrderNotificationNote($message): void
     {
@@ -210,7 +236,7 @@ class OrderRequestService
                 '[ORDER] | [Service] | [%s:%s] - Set Order Notification Note Failed | [ERROR]: %s',
                 __METHOD__,
                 __LINE__,
-                $e->getLogMessage()
+                $e->getMessage()
             ));
         }
     }
@@ -289,7 +315,7 @@ class OrderRequestService
      */
     public function sendOrderEmail(Order $order, bool $forceSyncMode = false): bool
     {
-        return $this->orderSender->send($order, $forceSyncMode);
+        return $this->orderEmailService->sendOrderEmail($order, $forceSyncMode);
     }
 
     /**
@@ -304,7 +330,7 @@ class OrderRequestService
      */
     public function sendInvoiceEmail(Invoice $invoice, bool $forceSyncMode = false): bool
     {
-        return $this->invoiceSender->send($invoice, $forceSyncMode);
+        return $this->orderEmailService->sendInvoiceEmail($invoice, $forceSyncMode);
     }
 
     public function updateTotalOnOrder($order)
@@ -316,7 +342,7 @@ class OrderRequestService
                 $connection->getTableName('sales_order'),
                 [
                     'total_due'       => $order->getTotalDue(),
-                    'base_total_due'  => $order->getTotalDue(),
+                    'base_total_due'  => $order->getBaseTotalDue(),
                     'total_paid'      => $order->getTotalPaid(),
                     'base_total_paid' => $order->getBaseTotalPaid(),
                 ],

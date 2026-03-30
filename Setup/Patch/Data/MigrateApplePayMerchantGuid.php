@@ -64,12 +64,12 @@ class MigrateApplePayMerchantGuid implements DataPatchInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
-    public function apply(): void
+    public function apply()
     {
         $this->moduleDataSetup->startSetup();
 
@@ -135,7 +135,7 @@ class MigrateApplePayMerchantGuid implements DataPatchInterface
                 $migratedValue = $connection->fetchOne($oldSelect);
 
                 // If we found a value in the old location, migrate it
-                if ($migratedValue !== null && $migratedValue !== false) {
+                if ($migratedValue !== false) {
                     try {
                         // Check if record exists in new location
                         $checkSelect = $connection->select()
@@ -200,10 +200,12 @@ class MigrateApplePayMerchantGuid implements DataPatchInterface
         }
 
         $this->moduleDataSetup->endSetup();
+
+        return $this;
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public static function getDependencies(): array
     {
@@ -213,7 +215,7 @@ class MigrateApplePayMerchantGuid implements DataPatchInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getAliases(): array
     {

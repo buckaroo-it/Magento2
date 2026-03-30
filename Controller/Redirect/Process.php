@@ -38,7 +38,6 @@ use Buckaroo\Magento2\Model\Method\LimitReachException;
 use Exception;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Api\CustomerRepositoryInterface;
-use Magento\Customer\Model\ResourceModel\CustomerFactory;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
@@ -58,10 +57,11 @@ use Magento\Sales\Model\Order;
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @SuppressWarnings(PHPMD.TooManyFields)
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
 class Process extends Action implements HttpPostActionInterface, HttpGetActionInterface
 {
-    private const GENERAL_ERROR_MESSAGE = 'Unfortunately an error occurred while processing your payment. ' .
+    protected const GENERAL_ERROR_MESSAGE = 'Unfortunately an error occurred while processing your payment. ' .
     'Please try again. If this error persists, please choose a different payment method.';
 
     /**
@@ -226,7 +226,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
         ));
 
         if (count($this->redirectRequest->getData()) === 0 || empty($this->redirectRequest->getStatusCode())) {
-            return $this->handleProcessedResponse('/');
+            return $this->handleEmptyRedirectRequest();
         }
 
         $this->order = $this->orderRequestService->getOrderByRequest($this->redirectRequest);
@@ -236,8 +236,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
         $lockAcquired = $this->lockManager->lockOrder($orderIncrementID, 5);
 
         if (!$lockAcquired) {
-            $this->logger->addError(__METHOD__ . '|lock not acquired|');
-            return $this->handleProcessedResponse('/');
+            return $this->handleLockNotAcquired();
         }
 
         try {
@@ -256,7 +255,10 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
             $this->checkoutSession->setRestoreQuoteLastOrder(false);
 
             if ($this->skipWaitingOnConsumerForProcessingOrder()) {
-                return $this->handleProcessedResponse('/');
+                if ($this->order->getState() === Order::STATE_PROCESSING) {
+                    return $this->redirectSuccess();
+                }
+                return $this->handleProcessedResponse('checkout/cart');
             }
 
             $this->logger->addDebug(sprintf(
@@ -276,6 +278,45 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
         }
 
         return $this->processRedirectByStatus($statusCode);
+    }
+
+    /**
+     * Handle redirect with no payment data (e.g. 3DS failure or provider redirect with empty response)
+     *
+     * @return ResponseInterface
+     */
+    protected function handleEmptyRedirectRequest(): ResponseInterface
+    {
+        $this->logger->addDebug(sprintf(
+            '[REDIRECT] | [Controller] | [%s:%s] - Empty redirect request (3DS or provider redirect with no payment data) — restoring cart and showing error',
+            __METHOD__,
+            __LINE__
+        ));
+        $this->messageManager->addErrorMessage(__(self::GENERAL_ERROR_MESSAGE));
+        $lastOrder = $this->checkoutSession->getLastRealOrder();
+        if ($lastOrder && $lastOrder->getQuoteId()) {
+            $this->quoteRecreate->recreateById((int)$lastOrder->getQuoteId());
+        }
+        return $this->handleProcessedResponse('checkout/cart');
+    }
+
+    /**
+     * Handle redirect when order lock could not be acquired (push is still processing)
+     *
+     * @return ResponseInterface
+     */
+    protected function handleLockNotAcquired(): ResponseInterface
+    {
+        $this->logger->addError(__METHOD__ . '|lock not acquired|');
+        $statusCode = (int)$this->redirectRequest->getStatusCode();
+        if ($statusCode === BuckarooStatusCode::SUCCESS) {
+            return $this->handleProcessedResponse('checkout/onepage/success');
+        }
+        $this->messageManager->addErrorMessage(__(self::GENERAL_ERROR_MESSAGE));
+        if ($this->order->getQuoteId()) {
+            $this->quoteRecreate->recreateById((int)$this->order->getQuoteId());
+        }
+        return $this->handleProcessedResponse('checkout/cart');
     }
 
     /**
@@ -405,6 +446,25 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
         $paymentMethod = $this->payment->getMethodInstance();
         $store = $this->order->getStore();
 
+        // Save Klarna MOR DataRequest key from redirect (brq_datarequest)
+        $klarnaMorDataRequestKey = $this->redirectRequest->getDatarequest();
+        if (!empty($klarnaMorDataRequestKey)
+            && $this->payment->getMethod() === 'buckaroo_magento2_klarna'
+            && empty($this->order->getBuckarooDatarequestKey())
+        ) {
+            $this->order->setBuckarooDatarequestKey($klarnaMorDataRequestKey);
+            $this->payment->setAdditionalInformation('buckaroo_datarequest_key', $klarnaMorDataRequestKey);
+            $this->order->save();
+
+            $this->logger->addDebug(sprintf(
+                '[KLARNA_MOR] | [REDIRECT] | [%s:%s] - Saved DataRequest key for order %s: %s',
+                __METHOD__,
+                __LINE__,
+                $this->order->getIncrementId(),
+                $klarnaMorDataRequestKey
+            ));
+        }
+
         $isKlarnaKpReserve = ($this->redirectRequest->hasPostData('primary_service', 'KlarnaKp')
             && $this->redirectRequest->hasAdditionalInformation('service_action_from_magento', 'reserve')
             && !empty($this->redirectRequest->getServiceKlarnakpReservationnumber()));
@@ -476,16 +536,14 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
             ], true)
         ));
 
-        if (!$this->checkoutSession->getLastSuccessQuoteId() && $this->order->getQuoteId()) {
+        if ($this->order->getQuoteId()) {
             $this->checkoutSession->setLastSuccessQuoteId($this->order->getQuoteId());
-        }
-        if (!$this->checkoutSession->getLastQuoteId() && $this->order->getQuoteId()) {
             $this->checkoutSession->setLastQuoteId($this->order->getQuoteId());
         }
-        if (!$this->checkoutSession->getLastOrderId() && $this->order->getId()) {
+        if ($this->order->getId()) {
             $this->checkoutSession->setLastOrderId($this->order->getId());
         }
-        if (!$this->checkoutSession->getLastRealOrderId() && $this->order->getIncrementId()) {
+        if ($this->order->getIncrementId()) {
             $this->checkoutSession->setLastRealOrderId($this->order->getIncrementId());
         }
     }

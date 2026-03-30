@@ -23,8 +23,8 @@ namespace Buckaroo\Magento2\Setup\Patch\Data;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Module\Manager as ModuleManager;
+use Magento\Framework\App\Cache\Type\Config as ConfigCacheType;
 use Magento\Framework\App\Config\Storage\WriterInterface;
-use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\App\Cache\TypeListInterface;
 use Magento\Framework\App\Cache\Frontend\Pool;
 
@@ -110,9 +110,22 @@ class MigrateSecondChanceModule implements DataPatchInterface
                 'buckaroo_magento2/second_chance/migration_completed',
                 '1'
             );
+            $this->refreshConfigCaches();
 
             // Create an admin notification about the migration
             $this->createMigrationNotification();
+        }
+    }
+
+    /**
+     * Refresh config caches after persisting migrated settings.
+     */
+    private function refreshConfigCaches(): void
+    {
+        $this->cacheTypeList->cleanType(ConfigCacheType::TYPE_IDENTIFIER);
+
+        foreach ($this->cacheFrontendPool as $cacheFrontend) {
+            $cacheFrontend->getBackend()->clean();
         }
     }
 

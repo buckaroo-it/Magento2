@@ -22,7 +22,6 @@ namespace Buckaroo\Magento2\Observer;
 
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\Config\Source\InvoiceHandlingOptions;
-use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderFactory;
 use Buckaroo\Magento2\Model\Service\CreateInvoice;
 use Magento\Framework\App\RequestInterface;
@@ -35,7 +34,6 @@ use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Shipment;
-use Magento\Sales\Model\ResourceModel\Order\Invoice\CollectionFactory;
 use Magento\Sales\Model\Service\InvoiceService;
 
 /**
@@ -142,6 +140,16 @@ class SalesOrderShipmentAfter implements ObserverInterface
             return;
         }
 
+        $klarnaConfig = $this->configProviderFactory->get('klarna');
+        if (($paymentMethodCode == 'buckaroo_magento2_klarna')
+            && $klarnaConfig->isInvoiceCreatedAfterShipment()
+        ) {
+            if (!$this->order->hasInvoices()) {
+                $this->createInvoice(true);
+            }
+            return;
+        }
+
         $afterpayConfig = $this->configProviderFactory->get('afterpay20');
         if (($paymentMethodCode == 'buckaroo_magento2_afterpay20')
             && $afterpayConfig->isInvoiceCreatedAfterShipment()
@@ -221,16 +229,6 @@ class SalesOrderShipmentAfter implements ObserverInterface
                 ));
                 $invoice->setRequestedCaptureCase(Invoice::CAPTURE_OFFLINE);
 
-                // Add capture transaction comment
-                $transactionId = $payment->getLastTransId();
-                if ($transactionId) {
-                    $captureMessage = __(
-                        'Captured amount of %1 offline. Transaction ID: "%2"',
-                        $this->order->getBaseCurrency()->formatTxt($invoice->getBaseGrandTotal()),
-                        $transactionId
-                    );
-                    $payment->addTransactionCommentsToOrder($transactionId, $captureMessage);
-                }
             } else {
                 $invoice->setRequestedCaptureCase(Invoice::CAPTURE_ONLINE);
             }

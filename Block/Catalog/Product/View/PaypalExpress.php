@@ -206,7 +206,7 @@ class PaypalExpress extends Template
     }
 
     /**
-     * Get paypal express button color
+     * Check if PayPal is in test mode
      *
      * @throws NoSuchEntityException
      *
@@ -221,8 +221,6 @@ class PaypalExpress extends Template
 
     /**
      * Check if iDIN verification is required for this context (product page or cart)
-     *
-     * @throws LocalizedException
      *
      * @return bool
      */

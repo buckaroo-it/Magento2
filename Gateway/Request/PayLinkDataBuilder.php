@@ -59,7 +59,7 @@ class PayLinkDataBuilder extends AbstractDataBuilder
         $storeId = $order->getStoreId();
 
         return [
-            'merchantSendsEmail'    => false,
+            'merchantSendsEmail'    => true,
             'email'                 => $order->getCustomerEmail(),
             'paymentMethodsAllowed' => $this->getPaymentMethodsAllowed($this->payLinkConfig, $storeId),
             'attachment'            => '',

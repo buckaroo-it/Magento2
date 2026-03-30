@@ -25,9 +25,9 @@ use Magento\Framework\Data\OptionSourceInterface;
 
 class Business implements OptionSourceInterface
 {
-    const BUSINESS_B2C = 1;
-    const BUSINESS_B2B = 2;
-    const BUSINESS_BOTH = 3;
+    public const BUSINESS_B2C = 1;
+    public const BUSINESS_B2B = 2;
+    public const BUSINESS_BOTH = 3;
 
     /**
      * Options getter

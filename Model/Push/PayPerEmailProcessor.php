@@ -59,6 +59,11 @@ class PayPerEmailProcessor extends DefaultProcessor
     private $isPayPerEmailB2BModePushInitial = false;
 
     /**
+     * @var bool|null
+     */
+    private $isPayPerEmailB2BModePush = null;
+
+    /**
      * @param OrderRequestService     $orderRequestService
      * @param PushTransactionType     $pushTransactionType
      * @param BuckarooLoggerInterface $logger
@@ -158,6 +163,18 @@ class PayPerEmailProcessor extends DefaultProcessor
                 '[PUSH - PayPerEmail] | [Webapi] | [' . __METHOD__ . ':' . __LINE__ . '] - Order can not receive updates'
             );
             $this->orderRequestService->setOrderNotificationNote(__('The order has already been processed.'));
+
+            $finalStates = [
+                Order::STATE_CANCELED,
+                Order::STATE_COMPLETE,
+                Order::STATE_CLOSED,
+                Order::STATE_HOLDED,
+            ];
+
+            if (in_array($this->order->getState(), $finalStates)) {
+                return true;
+            }
+
             throw new BuckarooException(
                 __('Signature from push is correct but the order can not receive updates')
             );
@@ -259,31 +276,81 @@ class PayPerEmailProcessor extends DefaultProcessor
     private function setPaymentMethodIfDifferent(): bool
     {
         $status = $this->pushTransactionType->getStatusKey();
-        if (!empty($this->pushRequest->getTransactionMethod())
-            && $status == 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'
-            && $this->pushRequest->getTransactionMethod() != 'payperemail') {
-            $transactionMethod = strtolower($this->pushRequest->getTransactionMethod());
-            $this->payment->setAdditionalInformation('isPayPerEmail', $transactionMethod);
+        if ($status !== 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS') {
+            return false;
+        }
 
-            $options = new \Buckaroo\Magento2\Model\Config\Source\PaymentMethods\PayPerEmail();
-            foreach ($options->toOptionArray() as $item) {
-                if (($item['value'] == $transactionMethod) && isset($item['code'])) {
-                    $this->payment->setMethod($item['code']);
-                    $this->payment->setAdditionalInformation(
-                        BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY,
-                        $this->getTransactionKey()
-                    );
-                    if ($item['code'] == 'buckaroo_magento2_creditcards') {
-                        $this->payment->setAdditionalInformation('card_type', $transactionMethod);
-                    }
-                }
-            }
-            $this->payment->save();
-            $this->order->save();
+        $transactionKey = $this->getTransactionKey();
+        $payPerEmailKey = $this->payment->getAdditionalInformation(BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY);
+        $isPayPerEmailOrder = $this->payment->getMethod() === 'buckaroo_magento2_payperemail'
+            || $this->payment->getAdditionalInformation('isPayPerEmail') !== null;
+
+        $transactionMethod = $this->pushRequest->getTransactionMethod();
+        if (!empty($transactionMethod) && strtolower($transactionMethod) !== 'payperemail') {
+            $transactionMethod = strtolower($transactionMethod);
+            $this->saveActualPaymentMethodAndKeyForRefund($transactionKey, $transactionMethod);
             return true;
         }
 
+        if ($isPayPerEmailOrder && !empty($transactionKey) && $transactionKey !== $payPerEmailKey) {
+            $transactionMethod = $this->deriveActualPaymentMethodFromPush();
+            if ($transactionMethod !== null) {
+                $this->saveActualPaymentMethodAndKeyForRefund($transactionKey, $transactionMethod);
+                return true;
+            }
+        }
+
         return false;
+    }
+
+    private function saveActualPaymentMethodAndKeyForRefund(string $transactionKey, string $transactionMethod): void
+    {
+        $this->payment->setAdditionalInformation(
+            BuckarooAdapter::BUCKAROO_ACTUAL_PAYMENT_METHOD,
+            $transactionMethod
+        );
+        $this->payment->setAdditionalInformation(
+            BuckarooAdapter::BUCKAROO_ACTUAL_PAYMENT_TRANSACTION_KEY,
+            $transactionKey
+        );
+        $this->payment->save();
+        $this->order->save();
+    }
+
+    private function deriveActualPaymentMethodFromPush(): ?string
+    {
+        if (method_exists($this->pushRequest, 'getPrimaryService')) {
+            $primary = $this->pushRequest->getPrimaryService();
+            if (!empty($primary) && strtolower((string) $primary) !== 'payperemail') {
+                return strtolower((string) $primary);
+            }
+        }
+
+        return $this->findServiceInPushData();
+    }
+
+    private function findServiceInPushData(): ?string
+    {
+        if (!method_exists($this->pushRequest, 'getData')) {
+            return null;
+        }
+
+        $data = $this->pushRequest->getData();
+
+        if (!is_array($data)) {
+            return null;
+        }
+
+        foreach (array_keys($data) as $key) {
+            if (preg_match('/^brq_service_([a-z0-9]+)_/i', (string) $key, $m)) {
+                $service = strtolower($m[1]);
+                if ($service !== 'payperemail' && $service !== 'paylink') {
+                    return $service;
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -314,23 +381,22 @@ class PayPerEmailProcessor extends DefaultProcessor
      */
     public function isPayPerEmailB2BModePush(): bool
     {
-        if (!isset($this->isPayPerEmailB2BModePushInitial)) {
-            if (!empty($this->pushRequest->getAdditionalInformation('frompayperemail'))
+        if ($this->isPayPerEmailB2BModePush === null) {
+            $this->isPayPerEmailB2BModePush = !empty($this->pushRequest->getAdditionalInformation('frompayperemail'))
                 && !empty($this->pushRequest->getTransactionMethod())
                 && ($this->pushRequest->getTransactionMethod() == 'payperemail')
-                && $this->configPayPerEmail->isEnabledB2B()) {
+                && $this->configPayPerEmail->isEnabledB2B();
+
+            if ($this->isPayPerEmailB2BModePush) {
                 $this->logger->addDebug(sprintf(
                     '[PUSH - PayPerEmail] | [Webapi] | [%s:%s] - The transaction is PayPerEmail B2B',
                     __METHOD__,
                     __LINE__
                 ));
-                $this->isPayPerEmailB2BModePushInitial = true;
             }
-        } else {
-            $this->isPayPerEmailB2BModePushInitial = false;
         }
 
-        return $this->isPayPerEmailB2BModePushInitial;
+        return $this->isPayPerEmailB2BModePush;
     }
 
     /**
@@ -340,8 +406,10 @@ class PayPerEmailProcessor extends DefaultProcessor
      */
     public function isPayPerEmailB2BModePushInitial(): bool
     {
-        return $this->isPayPerEmailB2BModePush()
+        $this->isPayPerEmailB2BModePushInitial = $this->isPayPerEmailB2BModePush()
             && ($this->pushTransactionType->getStatusKey() == 'BUCKAROO_MAGENTO2_STATUSCODE_WAITING_ON_CONSUMER');
+
+        return $this->isPayPerEmailB2BModePushInitial;
     }
 
     /**
@@ -448,6 +516,30 @@ class PayPerEmailProcessor extends DefaultProcessor
      */
     protected function canProcessPendingPush(): bool
     {
+        if ($this->isAlreadyFinalizedPayPerEmailOrder()) {
+            $this->logger->addDebug(sprintf(
+                '[PUSH - PayPerEmail] | [Webapi] | [%s:%s] - Skip stale pending push for finalized order | order: %s | state: %s | totalPaid: %s | hasInvoices: %s',
+                __METHOD__,
+                __LINE__,
+                $this->order->getIncrementId(),
+                $this->order->getState(),
+                (string)$this->order->getTotalPaid(),
+                $this->order->hasInvoices() ? 'true' : 'false'
+            ));
+            return false;
+        }
+
         return true;
+    }
+
+    private function isAlreadyFinalizedPayPerEmailOrder(): bool
+    {
+        return in_array($this->order->getState(), [
+            Order::STATE_PROCESSING,
+            Order::STATE_COMPLETE,
+            Order::STATE_CLOSED,
+        ], true)
+            || (float)$this->order->getTotalPaid() > 0.0001
+            || $this->order->hasInvoices();
     }
 }

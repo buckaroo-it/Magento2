@@ -1,0 +1,41 @@
+<?php
+/**
+ * @var \Magento\Backend\Block\Template $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+
+$comment = (string) $block->getData('comment');
+$demoUrl = (string) $block->getData('demo_url');
+$htmlId = (string) $block->getData('html_id');
+$isEnabled = (bool) $block->getData('is_enabled');
+$legend = (string) $block->getData('legend');
+$moreUrl = (string) $block->getData('more_url');
+$toggleUrl = (string) $block->getData('toggle_url');
+?>
+<div class="config-heading">
+    <div class="button-container">
+        <button
+            type="button"
+            class="button action-configure<?= $isEnabled ? '' : ' disabled' ?>"
+            id="<?= $escaper->escapeHtmlAttr($htmlId) ?>-head"
+            onclick="buckarooToggleSolution.call(this, '<?= $escaper->escapeJsQuote($htmlId) ?>', '<?= $escaper->escapeJsQuote($toggleUrl) ?>'); return false;"
+            <?= $isEnabled ? '' : 'disabled="disabled"' ?>
+        >
+            <span class="state-closed"><?= $escaper->escapeHtml(__('Configure')) ?></span>
+            <span class="state-opened"><?= $escaper->escapeHtml(__('Close')) ?></span>
+        </button>
+        <?php if ($moreUrl !== ''): ?>
+            <a class="link-more" href="<?= $escaper->escapeUrl($moreUrl) ?>" target="_blank"><?= $escaper->escapeHtml(__('Learn More')) ?></a>
+        <?php endif; ?>
+        <?php if ($demoUrl !== ''): ?>
+            <a class="link-demo" href="<?= $escaper->escapeUrl($demoUrl) ?>" target="_blank"><?= $escaper->escapeHtml(__('View Demo')) ?></a>
+        <?php endif; ?>
+    </div>
+    <div class="heading">
+        <strong><?= /* @noEscape */ $legend ?></strong>
+        <?php if ($comment !== ''): ?>
+            <span class="heading-intro"><?= /* @noEscape */ $comment ?></span>
+        <?php endif; ?>
+        <div class="config-alt"></div>
+    </div>
+</div>

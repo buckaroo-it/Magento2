@@ -105,8 +105,10 @@ class QuoteCheck
         }
 
         if ($this->getAlreadyPaid($quote) > 0) {
-            //phpcs:ignore:Magento2.Exceptions.DirectThrow
-            throw new \Exception('Action is blocked, please finish current order');
+            throw new LocalizedException(
+                __('A partial payment has already been made for your order. '
+                    . 'Please go to checkout to complete your payment.')
+            );
         }
     }
 

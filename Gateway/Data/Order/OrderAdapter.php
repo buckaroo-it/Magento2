@@ -61,7 +61,7 @@ class OrderAdapter implements OrderAdapterInterface
      */
     public function getCurrencyCode(): string
     {
-        return $this->order->getBaseCurrencyCode();
+        return (string)$this->order->getBaseCurrencyCode();
     }
 
     /**
@@ -71,7 +71,7 @@ class OrderAdapter implements OrderAdapterInterface
      */
     public function getOrderIncrementId(): string
     {
-        return $this->order->getIncrementId();
+        return (string)$this->order->getIncrementId();
     }
 
     /**
@@ -81,7 +81,8 @@ class OrderAdapter implements OrderAdapterInterface
      */
     public function getCustomerId(): ?int
     {
-        return $this->order->getCustomerId();
+        $customerId = $this->order->getCustomerId();
+        return $customerId !== null ? (int)$customerId : null;
     }
 
     /**
@@ -123,7 +124,8 @@ class OrderAdapter implements OrderAdapterInterface
      */
     public function getStoreId(): ?int
     {
-        return (int)$this->order->getStoreId();
+        $storeId = $this->order->getStoreId();
+        return $storeId !== null ? (int)$storeId : null;
     }
 
     /**
@@ -143,7 +145,7 @@ class OrderAdapter implements OrderAdapterInterface
      */
     public function getGrandTotalAmount(): float
     {
-        return $this->order->getBaseGrandTotal();
+        return (float)($this->order->getBaseGrandTotal() ?? 0.0);
     }
 
     /**

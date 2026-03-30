@@ -16,10 +16,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Setup PHP 8.4
+      - name: Setup PHP 8.3
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.4'
+          php-version: '8.3'
           tools: composer:v2, phpunit, phpcs
           coverage: none
 
@@ -34,9 +34,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/${{ env.namespace }}-source/vendor
-          key: ${{ runner.os }}-php84-${{ hashFiles('**/composer.lock') }}
+          key: ${{ runner.os }}-php83-${{ hashFiles('**/composer.lock') }}
           restore-keys: |
-            ${{ runner.os }}-php84-
+            ${{ runner.os }}-php83-
 
       - name: Prepare auth for Magento repo
         run: |
@@ -57,12 +57,21 @@ jobs:
           url="https://api.github.com/repos/${{ github.repository }}/pulls/$pull_number/files"
           echo "$url"
           curl -sS "$url" > files_changed
-          cat files_changed | grep '"filename"' | sed 's/\"filename\"\: \"//' | sed 's/\",//' | xargs -r ls -la
+          cat files_changed | grep '"filename"' | sed 's/\"filename\"\: \"//' | sed 's/\",//' | while IFS= read -r f; do
+            if [ -e "$f" ]; then ls -la "$f"; else echo "DELETED: $f"; fi
+          done
 
       - name: Create Magento 2.4.8-p3 project
         run: |
           composer create-project --repository-url=https://repo.magento.com/ \
-            magento/project-community-edition=2.4.8-p3 m248
+            magento/project-community-edition=2.4.8-p3 m248 \
+            --no-install
+          cp auth.json m248/
+          cd m248
+          composer config --no-plugins allow-plugins.* true
+          composer config audit.abandoned ignore
+          composer config --json --merge audit.ignore '["PKSA-y2cr-5h3j-g3ys"]'
+          composer install
 
       - name: Copy module into Magento
         run: |
@@ -78,8 +87,10 @@ jobs:
       - name: Run PHPCS against changed files (PR) or whole module (push)
         run: |
           if [ -f files_changed ]; then
-            cat files_changed | grep '"filename"' | sed 's/\"filename\"\: \"//' | sed 's/\",//' \
-              | xargs -r ./m248/vendor/bin/phpcs --standard=m248/app/code/Buckaroo/Magento2/phpcs.xml
+            existing_files=$(cat files_changed | grep '"filename"' | sed 's/\"filename\"\: \"//' | sed 's/\",//' | while IFS= read -r f; do if [ -e "$f" ]; then echo "$f"; fi; done)
+            if [ -n "$existing_files" ]; then
+              echo "$existing_files" | xargs -r ./m248/vendor/bin/phpcs --standard=m248/app/code/Buckaroo/Magento2/phpcs.xml
+            fi
           else
             ./m248/vendor/bin/phpcs --standard=m248/app/code/Buckaroo/Magento2/phpcs.xml m248/app/code/Buckaroo/Magento2
           fi

@@ -82,11 +82,6 @@ define(
                 config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_paypal}
             },
             {
-                type: 'buckaroo_magento2_payconiq',
-                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/payconiq',
-                config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_payconiq}
-            },
-            {
                 type: 'buckaroo_magento2_creditcard',
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/creditcard',
                 config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_creditcard}
@@ -157,11 +152,6 @@ define(
                 config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_klarna}
             },
             {
-                type: 'buckaroo_magento2_klarnain',
-                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/klarna',
-                config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_klarnain}
-            },
-            {
                 type: 'buckaroo_magento2_klarnakp',
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/klarnakp',
                 config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_klarnakp}
@@ -170,6 +160,11 @@ define(
                 type: 'buckaroo_magento2_applepay',
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/applepay',
                 config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay}
+            },
+            {
+                type: 'buckaroo_magento2_googlepay',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/googlepay',
+                config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_googlepay}
             },
             {
                 type: 'buckaroo_magento2_capayablein3',

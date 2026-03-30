@@ -23,6 +23,8 @@
     <head>
         <css src="Buckaroo_Magento2::css/credit-cards.css" />
         <css src="Buckaroo_Magento2::css/styles.css" />
+        <css src="https://checkout.buckaroo.nl/api/buckaroosdk/css" src_type="url"/>
+        <script src="https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js" src_type="url"/>
     </head>
 
     <body>
@@ -108,9 +110,6 @@
                                                                         <item name="buckaroo_magento2_paypal" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
-                                                                        <item name="buckaroo_magento2_payconiq" xsi:type="array">
-                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
-                                                                        </item>
                                                                         <item name="buckaroo_magento2_creditcard" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
@@ -176,10 +175,10 @@
                                                                         <item name="buckaroo_magento2_klarnakp" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
-                                                                        <item name="buckaroo_magento2_klarnain" xsi:type="array">
+                                                                        <item name="buckaroo_magento2_applepay" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
-                                                                        <item name="buckaroo_magento2_applepay" xsi:type="array">
+                                                                        <item name="buckaroo_magento2_googlepay" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
                                                                         <item name="buckaroo_magento2_capayablein3" xsi:type="array">

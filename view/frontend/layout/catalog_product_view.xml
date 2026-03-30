@@ -22,6 +22,7 @@
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <head>
         <css src="Buckaroo_Magento2::css/express-payments.css" />
+        <script src="https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js" src_type="url"/>
     </head>
     <body>
 
@@ -29,14 +30,17 @@
             <block class="Buckaroo\Magento2\Block\Catalog\Product\View\Applepay" name="buckaroo_magento2.product.info.applepay"
                    before="product.info.extrahint" template="Buckaroo_Magento2::catalog/product/view/applepay.phtml">
             </block>
-            <block class="Buckaroo\Magento2\Block\Catalog\Product\View\PaypalExpress" name="buckaroo_magento2.product.info.paypal.express"
-                   before="product.info.extrahint" template="Buckaroo_Magento2::catalog/product/view/paypal-express.phtml">
+            <block class="Buckaroo\Magento2\Block\Catalog\Product\View\Googlepay" name="buckaroo_magento2.product.info.googlepay"
+                   after="buckaroo_magento2.product.info.applepay" template="Buckaroo_Magento2::catalog/product/view/googlepay.phtml">
             </block>
             <block class="Buckaroo\Magento2\Block\Catalog\Product\View\Idin" name="buckaroo_magento2.product.info.idin"
-                   before="product.info.extrahint" template="Buckaroo_Magento2::catalog/product/view/idin.phtml">
+                   after="buckaroo_magento2.product.info.googlepay" template="Buckaroo_Magento2::catalog/product/view/idin.phtml">
             </block>
             <block class="Buckaroo\Magento2\Block\Catalog\Product\View\IdealFastCheckout" name="buckaroo_magento2.product.info.ideal.fast.checkout"
-                   before="product.info.extrahint" template="Buckaroo_Magento2::catalog/product/view/ideal-fast-checkout.phtml">
+                   after="buckaroo_magento2.product.info.idin" template="Buckaroo_Magento2::catalog/product/view/ideal-fast-checkout.phtml">
+            </block>
+            <block class="Buckaroo\Magento2\Block\Catalog\Product\View\PaypalExpress" name="buckaroo_magento2.product.info.paypal.express"
+                   after="buckaroo_magento2.product.info.ideal.fast.checkout" template="Buckaroo_Magento2::catalog/product/view/paypal-express.phtml">
             </block>
         </referenceContainer>
     </body>

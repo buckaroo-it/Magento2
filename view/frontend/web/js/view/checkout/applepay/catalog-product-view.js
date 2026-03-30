@@ -33,10 +33,15 @@ define(
 
         return Component.extend({
             showPayButton: function () {
-                if (window.checkoutConfig.payment
-                    && window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.availableButtons
-                    && (window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.availableButtons.indexOf('Product') !== -1)
-                    && window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.integrationMode === '0'
+                if (!window.checkoutConfig || !window.checkoutConfig.payment) {
+                    return;
+                }
+
+                var apConfig = window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay;
+
+                if (apConfig && apConfig.availableButtons &&
+                    apConfig.availableButtons.indexOf('Product') !== -1 &&
+                    apConfig.integrationMode === '0'
                 ) {
                     applepayPay.setQuote(quote);
                     applepayPay.showPayButton('product');

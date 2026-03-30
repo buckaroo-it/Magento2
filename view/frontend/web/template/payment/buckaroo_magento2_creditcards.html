@@ -31,6 +31,9 @@
     <!-- ko if: (getCode() == isChecked()) -->
     <div class="payment-method-content"
          data-bind="afterRender: initCreditCardFields">
+        <!-- ko foreach: getRegion('messages') -->
+        <!-- ko template: getTemplate() --><!-- /ko -->
+        <!--/ko-->
         <div class="payment-method-billing-address">
             <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
             <!-- ko template: getTemplate() --><!-- /ko -->
@@ -44,7 +47,7 @@
                         <span data-bind="i18n: 'Cardholder Name:'"></span>
                     </label>
                     <div id="cc-name-wrapper"
-                         class="shadow h-12 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                         class="shadow h-12 appearance-none rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                     </div>
                     <div id="cc-name-error" class="mage-error"></div>
                 </div>
@@ -54,7 +57,7 @@
                         <span data-bind="i18n: 'Card Number:'"></span>
                     </label>
                     <div id="cc-number-wrapper"
-                         class="shadow h-12 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                         class="shadow h-12 appearance-none rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                     </div>
                     <div id="cc-number-error" class="mage-error"></div>
                 </div>
@@ -66,7 +69,7 @@
                                 <span data-bind="i18n: 'Expiry Date:'"></span>
                             </label>
                             <div id="cc-expiry-wrapper"
-                                 class="shadow h-12 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                 class="shadow h-12 appearance-none rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                             </div>
                             <div id="cc-expiry-error" class="mage-error"></div>
                         </div>
@@ -86,7 +89,7 @@
                                 </span>
                             </label>
                             <div id="cc-cvc-wrapper"
-                                 class="shadow h-12 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                 class="shadow h-12 appearance-none rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                             </div>
                             <div id="cc-cvc-error" class="mage-error"></div>
                         </div>
@@ -101,6 +104,13 @@
                 <div class="field oauth-token-error mage-error" data-bind="text: oauthTokenError, visible: oauthTokenError"></div>
                 <div class="field payment-error mage-error" data-bind="text: paymentError, visible: paymentError"></div>
             </div>
+
+            <div class="checkout-agreements-block">
+                <!-- ko foreach: $parent.getRegion('before-place-order') -->
+                <!-- ko template: getTemplate() --><!-- /ko -->
+                <!--/ko-->
+            </div>
+
             <div class="actions-toolbar creditcards">
                 <div class="primary">
                     <button id="buckaroo-pay" class="action primary checkout" data-bind="click: onPayClick, attr: { disabled: isPayButtonDisabled }">

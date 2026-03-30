@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Controller\CredentialsChecker;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcards;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Psr\Log\LoggerInterface;
 use Magento\Framework\Encryption\EncryptorInterface;
@@ -31,13 +32,45 @@ use Magento\Framework\HTTP\Client\Curl;
 
 class GetToken extends Action
 {
+    /**
+     * @var JsonFactory
+     */
     protected $resultJsonFactory;
+
+    /**
+     * @var LoggerInterface
+     */
     protected $logger;
+
+    /**
+     * @var Creditcards
+     */
     protected $configProviderCreditcard;
+
+    /**
+     * @var EncryptorInterface
+     */
     protected $encryptor;
+
+    /**
+     * @var \Magento\Store\Api\Data\StoreInterface
+     */
     protected $store;
+
+    /**
+     * @var Curl
+     */
     protected $curlClient;
 
+    /**
+     * @param Context $context
+     * @param JsonFactory $resultJsonFactory
+     * @param LoggerInterface $logger
+     * @param Creditcards $configProviderCreditcard
+     * @param EncryptorInterface $encryptor
+     * @param StoreManagerInterface $storeManager
+     * @param Curl $curlClient
+     */
     public function __construct(
         Context $context,
         JsonFactory $resultJsonFactory,
@@ -64,9 +97,11 @@ class GetToken extends Action
      * @param mixed $password
      * @param mixed $postData
      *
-     * @throws \Exception
+     * @return string
+     *
+     * @throws LocalizedException
      */
-    private function sendPostRequest($url, $username, $password, $postData)
+    private function sendPostRequest($url, $username, $password, $postData): string
     {
         try {
             // Set Basic Auth credentials without base64_encode()
@@ -82,10 +117,18 @@ class GetToken extends Action
             return $this->curlClient->getBody();
         } catch (\Exception $e) {
             $this->logger->error('Curl request error: ' . $e->getMessage());
-            throw new \Exception('Error occurred during cURL request: ' . $e->getMessage());
+            throw new LocalizedException(
+                __('Error occurred during cURL request: %1', $e->getMessage()),
+                $e
+            );
         }
     }
 
+    /**
+     * Retrieve the Hosted Fields client ID.
+     *
+     * @return string|null
+     */
     protected function getHostedFieldsClientId()
     {
         try {
@@ -98,6 +141,11 @@ class GetToken extends Action
         }
     }
 
+    /**
+     * Retrieve the Hosted Fields client secret.
+     *
+     * @return string|null
+     */
     protected function getHostedFieldsClientSecret()
     {
         try {
@@ -110,6 +158,11 @@ class GetToken extends Action
         }
     }
 
+    /**
+     * Retrieve the list of allowed issuers.
+     *
+     * @return array|null
+     */
     protected function getAllowedIssuers()
     {
         try {
@@ -120,6 +173,11 @@ class GetToken extends Action
         }
     }
 
+    /**
+     * Return a token payload for the hosted fields frontend.
+     *
+     * @return \Magento\Framework\Controller\Result\Json
+     */
     public function execute()
     {
         $result = $this->resultJsonFactory->create();

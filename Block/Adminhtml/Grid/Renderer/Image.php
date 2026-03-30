@@ -25,6 +25,7 @@ use Magento\Backend\Block\Widget\Grid\Column\Renderer\AbstractRenderer;
 use Magento\Framework\DataObject;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\UrlInterface;
+use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
 
 class Image extends AbstractRenderer
@@ -61,9 +62,12 @@ class Image extends AbstractRenderer
     public function render(DataObject $row)
     {
         if ($img = $row['logo']) {
-            $mediaDirectory = $this->storeManager->getStore()->getBaseUrl(
-                UrlInterface::URL_TYPE_MEDIA
-            );
+            $store = $this->storeManager->getStore();
+            if (!$store instanceof Store) {
+                return '';
+            }
+
+            $mediaDirectory = $store->getBaseUrl(UrlInterface::URL_TYPE_MEDIA);
             return '<img src="' . $mediaDirectory . $img . '" width="50" >';
         }
 

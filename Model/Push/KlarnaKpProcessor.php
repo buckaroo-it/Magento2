@@ -27,6 +27,7 @@ use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp;
+use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
 use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
@@ -99,6 +100,107 @@ class KlarnaKpProcessor extends DefaultProcessor
     }
 
     /**
+     * Process the push according to the response status.
+     * For KlarnaKp, detect Plaza-originated cancel reservation pushes that arrive as statuscode 190.
+     *
+     * @throws \Exception
+     *
+     * @return bool
+     */
+    protected function processPushByStatus(): bool
+    {
+        if ($this->isPlazaCancelReservationPush()) {
+            return $this->processPlazaCancelReservation();
+        }
+
+        return parent::processPushByStatus();
+    }
+
+    /**
+     * Detect a cancel-reservation push sent by Buckaroo Plaza for KlarnaKp.
+     *
+     * @return bool
+     */
+    private function isPlazaCancelReservationPush(): bool
+    {
+        if ((int)$this->pushRequest->getStatusCode() !== 190
+            || $this->pushRequest->hasAdditionalInformation('initiated_by_magento', 1)
+            || !empty($this->pushRequest->getInvoiceNumber())
+            || $this->order->getState() !== Order::STATE_PROCESSING
+        ) {
+            return false;
+        }
+
+        $incomingTrx = $this->pushRequest->getDatarequest();
+        if (empty($incomingTrx)) {
+            return false;
+        }
+
+        $knownTransactions = (array)$this->payment->getAdditionalInformation(
+            BuckarooAdapter::BUCKAROO_ALL_TRANSACTIONS
+        );
+
+        return !array_key_exists($incomingTrx, $knownTransactions);
+    }
+
+    /**
+     * Cancel the Magento order when a Plaza cancel reservation push is detected.
+     *
+     * @throws \Exception
+     *
+     * @return bool
+     */
+    private function processPlazaCancelReservation(): bool
+    {
+        $this->logger->addDebug(sprintf(
+            '[KLARNA_KP] | [%s:%s] - Detected Plaza cancel reservation push for order %s. Cancelling order.',
+            __METHOD__,
+            __LINE__,
+            $this->order->getIncrementId()
+        ));
+
+        $newStatus = $this->orderStatusFactory->get(
+            BuckarooStatusCode::CANCELLED_BY_MERCHANT,
+            $this->order
+        );
+
+        if ($this->order->canCancel()) {
+            $payment = $this->order->getPayment();
+
+            $payment->setAdditionalInformation('buckaroo_failed_authorize', 1);
+            $payment->save();
+
+            $methodInstance = $payment->getMethodInstance();
+            $methodInstanceClass = get_class($methodInstance);
+            $originalRequestOnVoid = $methodInstanceClass::$requestOnVoid;
+            $methodInstanceClass::$requestOnVoid = false;
+
+            try {
+                $this->order->cancel()->save();
+            } finally {
+                $methodInstanceClass::$requestOnVoid = $originalRequestOnVoid;
+            }
+        }
+
+        $cancelTrxId = htmlspecialchars((string)$this->pushRequest->getDatarequest(), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $description = sprintf(
+            'Order cancelled via Buckaroo Plaza (KlarnaKp reservation released).'
+            . ' Cancel transaction: <a href="https://plaza.buckaroo.nl/Transaction/DataRequest/Details/%s"'
+            . ' target="_blank">%s</a>.',
+            $cancelTrxId,
+            $cancelTrxId
+        );
+
+        $this->orderRequestService->updateOrderStatus(
+            Order::STATE_CANCELED,
+            $newStatus,
+            $description
+        );
+
+        return true;
+    }
+
+    /**
      * Skip the push if the conditions are met.
      *
      * @throws \Exception
@@ -111,7 +213,31 @@ class KlarnaKpProcessor extends DefaultProcessor
             && $this->pushRequest->hasAdditionalInformation('service_action_from_magento', 'pay')
             && !empty($this->pushRequest->getServiceKlarnakpCaptureid())
         ) {
-            return true;
+            $hasInvoices = $this->order->hasInvoices();
+            $alreadyCaptured = (bool)$this->order->getPayment()
+                ->getAdditionalInformation('buckaroo_already_captured');
+
+            if ($hasInvoices || $alreadyCaptured) {
+                $this->logger->addDebug(sprintf(
+                    '[KLARNA_KP] | [%s:%s] - Skipping capture push for order %s: '
+                    . 'capture already processed (hasInvoices: %s, alreadyCaptured: %s)',
+                    __METHOD__,
+                    __LINE__,
+                    $this->order->getIncrementId(),
+                    $hasInvoices ? 'YES' : 'NO',
+                    $alreadyCaptured ? 'YES' : 'NO'
+                ));
+                return true;
+            }
+
+            $this->logger->addDebug(sprintf(
+                '[KLARNA_KP] | [%s:%s] - Not skipping capture push for order %s: '
+                . 'no invoice and not marked as captured (synchronous capture may have failed)',
+                __METHOD__,
+                __LINE__,
+                $this->order->getIncrementId()
+            ));
+            return false;
         }
 
         return parent::skipPush();

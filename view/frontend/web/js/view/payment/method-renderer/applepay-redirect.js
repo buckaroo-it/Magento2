@@ -62,9 +62,9 @@ define(
                  */
                 initObservable: function () {
                     this._super();
-                    
-                    // Initialize Apple Pay availability check for redirect mode
-                    applepayPay.canShowApplePay();
+
+                    // Initialize Apple Pay availability check for redirect mode.
+                    applepayPay.canShowApplePayRedirect();
 
                     return this;
                 },
@@ -104,17 +104,7 @@ define(
                  * After place order callback
                  */
                 afterPlaceOrder: function () {
-                    var response = window.checkoutConfig.payment.buckaroo.response;
-
-                    if (typeof response === 'string') {
-                        try {
-                            response = JSON.parse(response);
-                        } catch (e) {
-                            console.error('Failed to parse Buckaroo response:', e);
-                            this.redirectToSuccess();
-                            return;
-                        }
-                    }
+                    var response = window.checkoutConfig.payment.buckaroo.responseData;
 
                     // Handle redirect if RequiredAction is present
                     if (response && response.RequiredAction !== undefined && response.RequiredAction.RedirectURL !== undefined) {

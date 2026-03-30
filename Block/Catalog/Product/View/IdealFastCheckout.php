@@ -48,7 +48,15 @@ class IdealFastCheckout extends Template
      * @var Ideal
      */
     protected $idealConfig;
+
+    /**
+     * @var Ideal
+     */
     protected $ideal;
+
+    /**
+     * @var Repository
+     */
     protected $assetRepo;
 
     /**
@@ -61,6 +69,17 @@ class IdealFastCheckout extends Template
      */
     private $product;
 
+    /**
+     * Constructor
+     *
+     * @param Context $context
+     * @param Account $configProviderAccount
+     * @param Encryptor $encryptor
+     * @param Ideal $idealConfig
+     * @param Repository $assetRepo
+     * @param Registry|null $registry
+     * @param array $data
+     */
     public function __construct(
         Context $context,
         Account $configProviderAccount,
@@ -107,29 +126,28 @@ class IdealFastCheckout extends Template
     }
 
     /**
-     * Get logo based on chosen color setting
+     * Return the button color variant name used by the KO template and CSS.
      *
      * @throws NoSuchEntityException
      *
-     * @return mixed
+     * @return string  'Magenta' or 'White'
      */
-    public function getLogo()
+    public function getButtonVariant(): string
     {
+        $stored = $this->idealConfig->getLogoColor($this->_storeManager->getStore());
 
-        $logoColor = $this->idealConfig->getLogoColor($this->_storeManager->getStore());
-
-        if ($logoColor == "Light") {
-            $name = "ideal/ideal-fast-checkout-rgb-light.png";
-        } else {
-            $name = "ideal/ideal-fast-checkout-rgb-dark.png";
+        if (in_array($stored, ['White', 'Dark'], true)) {
+            return 'White';
         }
-        return $this->assetRepo->getUrl("Buckaroo_Magento2::images/{$name}");
+
+        return 'Magenta';
     }
 
     /**
      * Get all required data
      *
      * @return array
+     * @throws NoSuchEntityException
      */
     public function getConfig()
     {

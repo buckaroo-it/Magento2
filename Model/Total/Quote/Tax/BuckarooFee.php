@@ -44,8 +44,8 @@ use Magento\Tax\Model\Sales\Total\Quote\CommonTaxCollector;
  */
 class BuckarooFee extends CommonTaxCollector
 {
-    const QUOTE_TYPE = 'buckaroo_fee_tax';
-    const CODE_QUOTE_GW = 'buckaroo_fee_tax';
+    public const QUOTE_TYPE = 'buckaroo_fee_tax';
+    public const CODE_QUOTE_GW = 'buckaroo_fee_tax';
 
     /**
      * @var PriceCurrencyInterface

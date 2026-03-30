@@ -45,7 +45,6 @@ use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
 use Buckaroo\Magento2\Service\Order\Uncancel;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Exception;
-use Magento\Framework\App\ObjectManager;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
@@ -236,12 +235,7 @@ class DefaultProcessor implements PushProcessorInterface
 
         // Check if the order can be updated
         if (!$this->canUpdateOrderStatus()) {
-            $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Order can not receive updates');
-
-            $this->orderRequestService->setOrderNotificationNote(__('The order has already been processed.'));
-            throw new BuckarooException(
-                __('Signature from push is correct but the order can not receive updates')
-            );
+            return $this->handleOrderNotUpdatable();
         }
 
         $this->setTransactionKey();
@@ -273,6 +267,42 @@ class DefaultProcessor implements PushProcessorInterface
         }
 
         return true;
+    }
+
+    /**
+     * Handle the case where the order cannot receive push updates.
+     * For orders in a final state (canceled, complete, closed, holded) the push is acknowledged
+     * with a 200 OK (return true) so Buckaroo stops retrying. For all other non-updatable states
+     * a BuckarooException is thrown, resulting in a 400 that signals an unexpected condition.
+     *
+     * @throws BuckarooException
+     */
+    private function handleOrderNotUpdatable(): bool
+    {
+        $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Order can not receive updates');
+        $this->orderRequestService->setOrderNotificationNote(__('The order has already been processed.'));
+
+        $finalStates = [
+            Order::STATE_CANCELED,
+            Order::STATE_COMPLETE,
+            Order::STATE_CLOSED,
+            Order::STATE_HOLDED,
+        ];
+
+        if (in_array($this->order->getState(), $finalStates)) {
+            $this->logger->addDebug(sprintf(
+                '[%s:%s] - Push acknowledged without action: order %s is in final state "%s"',
+                __METHOD__,
+                __LINE__,
+                $this->order->getIncrementId(),
+                $this->order->getState()
+            ));
+            return true;
+        }
+
+        throw new BuckarooException(
+            __('Signature from push is correct but the order can not receive updates')
+        );
     }
 
     /**
@@ -344,6 +374,20 @@ class DefaultProcessor implements PushProcessorInterface
             && $this->pushRequest->hasAdditionalInformation('service_action_from_magento', $types)
             && empty($this->pushRequest->getRelatedtransactionRefund())
         ) {
+            if ($this->pushRequest->hasAdditionalInformation('service_action_from_magento', 'capture')
+                && !$this->order->hasInvoices()
+                && !$this->order->getPayment()->getAdditionalInformation('buckaroo_already_captured')
+            ) {
+                $this->logger->addDebug(sprintf(
+                    '[%s:%s] - Not skipping Magento-initiated capture push for order %s: '
+                    . 'no invoice exists (synchronous capture may have failed)',
+                    __METHOD__,
+                    __LINE__,
+                    $this->order->getIncrementId()
+                ));
+                return false;
+            }
+
             return true;
         }
 
@@ -537,6 +581,16 @@ class DefaultProcessor implements PushProcessorInterface
             if ($this->shouldReactivateCanceledOrder()) {
                 return $this->reactivateCanceledOrder();
             }
+
+            $this->logger->addDebug(sprintf(
+                '[%s:%s] - Order is canceled and will NOT be reactivated | Order: %s | StatusCode: %s | Transaction: %s',
+                __METHOD__,
+                __LINE__,
+                $this->order->getIncrementId(),
+                $this->pushRequest->getStatusCode(),
+                $this->pushRequest->getTransactions()
+            ));
+
             return false;
         }
 
@@ -551,11 +605,214 @@ class DefaultProcessor implements PushProcessorInterface
      */
     private function shouldReactivateCanceledOrder(): bool
     {
-        return ($this->order->getState() === Order::STATE_CANCELED)
-            && ($this->order->getStatus() === Order::STATE_CANCELED)
-            && ($this->pushTransactionType->getStatusKey() === 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')
-            && $this->pushRequest->getRelatedtransactionPartialpayment() == null
-            && !$this->payment->getAdditionalInformation('buckaroo_order_reactivated');
+        if (($this->order->getState() !== Order::STATE_CANCELED)
+            || ($this->order->getStatus() !== Order::STATE_CANCELED)
+            || ($this->pushTransactionType->getStatusKey() !== 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')
+            || $this->pushRequest->getRelatedtransactionPartialpayment() != null
+            || $this->payment->getAdditionalInformation('buckaroo_order_reactivated')
+        ) {
+            return false;
+        }
+
+        if ($this->payment->getAdditionalInformation('buckaroo_manually_canceled')) {
+            $this->logger->addDebug(sprintf(
+                '[%s:%s] - Skipping order reactivation: Order was manually canceled by merchant. Order: %s',
+                __METHOD__,
+                __LINE__,
+                $this->order->getIncrementId()
+            ));
+            return false;
+        }
+
+        if ($this->isCancellationPush()) {
+            $this->logger->addDebug(sprintf(
+                '[%s:%s] - Skipping order reactivation: This is a cancellation push. Order: %s',
+                __METHOD__,
+                __LINE__,
+                $this->order->getIncrementId()
+            ));
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if the current push is for a cancellation action
+     *
+     * @return bool
+     */
+    private function isCancellationPush(): bool
+    {
+        if ($this->isCancellationServiceAction()) {
+            return true;
+        }
+
+        if ($this->isCancellationTransactionType()) {
+            return true;
+        }
+
+        if ($this->hasAmountCreditWithoutRefund()) {
+            return true;
+        }
+
+        if ($this->isCanceledOrderWithExternalPush()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if service action indicates cancellation
+     *
+     * @return bool
+     */
+    private function isCancellationServiceAction(): bool
+    {
+        $serviceAction = $this->pushTransactionType->getServiceAction();
+
+        if (in_array($serviceAction, ['cancel_authorize', 'cancelauthorize', 'cancelreservation'])) {
+            return true;
+        }
+
+        if ($this->pushRequest->hasAdditionalInformation('service_action_from_magento', ['cancelauthorize', 'cancelreservation'])) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if transaction type indicates cancellation
+     *
+     * @return bool
+     */
+    private function isCancellationTransactionType(): bool
+    {
+        $transactionType = $this->pushRequest->getTransactionType();
+        return $transactionType === PushTransactionType::BUCK_PUSH_CANCEL_AUTHORIZE_TYPE;
+    }
+
+    /**
+     * Check if there's an amount credit without it being a refund
+     *
+     * @return bool
+     */
+    private function hasAmountCreditWithoutRefund(): bool
+    {
+        $amountCredit = $this->pushRequest->getAmountCredit();
+        $serviceAction = $this->pushTransactionType->getServiceAction();
+
+        return !empty($amountCredit) && $serviceAction !== 'refund';
+    }
+
+    /**
+     * Check if canceled order has an external push or different transaction ID
+     *
+     * @return bool
+     */
+    private function isCanceledOrderWithExternalPush(): bool
+    {
+        if ($this->order->getState() !== Order::STATE_CANCELED) {
+            return false;
+        }
+
+        $currentTransactionId = $this->getCurrentTransactionId();
+
+        if ($this->isExternalPushOnCanceledOrder()) {
+            $this->logExternalPushDetection($currentTransactionId);
+            return true;
+        }
+
+        if ($this->hasDifferentTransactionId($currentTransactionId)) {
+            $this->logDifferentTransactionId($currentTransactionId);
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Get current transaction ID from push request
+     *
+     * @return string|null
+     */
+    private function getCurrentTransactionId(): ?string
+    {
+        $currentTransactionId = $this->pushRequest->getTransactions();
+        if (!$currentTransactionId) {
+            $currentTransactionId = $this->pushRequest->getDatarequest();
+        }
+        return $currentTransactionId;
+    }
+
+    /**
+     * Check if push is external (not initiated by Magento)
+     *
+     * @return bool
+     */
+    private function isExternalPushOnCanceledOrder(): bool
+    {
+        $initiatedByMagento = $this->pushRequest->getAdditionalInformation('initiated_by_magento');
+        return !$initiatedByMagento || $initiatedByMagento != '1';
+    }
+
+    /**
+     * Check if current transaction ID differs from original
+     *
+     * @param string|null $currentTransactionId
+     * @return bool
+     */
+    private function hasDifferentTransactionId(?string $currentTransactionId): bool
+    {
+        $originalTransactionKey = $this->payment->getAdditionalInformation(
+            BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY
+        );
+
+        return $originalTransactionKey && $currentTransactionId &&
+               $originalTransactionKey !== $currentTransactionId;
+    }
+
+    /**
+     * Log external push detection
+     *
+     * @param string|null $currentTransactionId
+     * @return void
+     */
+    private function logExternalPushDetection(?string $currentTransactionId): void
+    {
+        $this->logger->addDebug(sprintf(
+            '[%s:%s] - Detected external push on canceled order (not initiated by Magento) - ' .
+            'likely a Plaza cancellation. Order: %s | TransactionID: %s',
+            __METHOD__,
+            __LINE__,
+            $this->order->getIncrementId(),
+            $currentTransactionId ?? 'null'
+        ));
+    }
+
+    /**
+     * Log different transaction ID detection
+     *
+     * @param string|null $currentTransactionId
+     * @return void
+     */
+    private function logDifferentTransactionId(?string $currentTransactionId): void
+    {
+        $originalTransactionKey = $this->payment->getAdditionalInformation(
+            BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY
+        );
+
+        $this->logger->addDebug(sprintf(
+            '[%s:%s] - Detected cancellation: Different transaction ID on canceled order. ' .
+            'Order: %s | Original: %s | Current: %s',
+            __METHOD__,
+            __LINE__,
+            $this->order->getIncrementId(),
+            $originalTransactionKey,
+            $currentTransactionId
+        ));
     }
 
     /**
@@ -774,9 +1031,10 @@ class DefaultProcessor implements PushProcessorInterface
         ));
 
         // Set transaction ID for the capture
-        $transactionKey = $this->pushRequest->getTransactionKey();
+        $transactionKey = $this->getTransactionKey();
         if ($transactionKey) {
-            $payment->setTransactionId($transactionKey . '-capture');
+            $payment->setTransactionId($transactionKey);
+            $payment->setAdditionalInformation('buckaroo_capture_transaction_key', $transactionKey);
         }
 
         // These fields are required for Magento to allow invoice creation later
@@ -1056,7 +1314,7 @@ class DefaultProcessor implements PushProcessorInterface
             return false;
         }
 
-        if (!$this->pushTransactionType->getTransactionType() == PushTransactionType::BUCK_PUSH_GROUPTRANSACTION_TYPE) {
+        if ($this->pushTransactionType->getTransactionType() != PushTransactionType::BUCK_PUSH_GROUPTRANSACTION_TYPE) {
             $this->payment->setAdditionalInformation(
                 BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY,
                 $this->pushRequest->getRelatedtransactionPartialpayment()
@@ -1491,27 +1749,37 @@ class DefaultProcessor implements PushProcessorInterface
         $postData = $data ?: $this->pushRequest->getData();
         $rawInfo = $this->helper->getTransactionAdditionalInfo($postData);
 
-        $this->payment->setTransactionAdditionalInfo(
-            Transaction::RAW_DETAILS,
-            $rawInfo
-        );
+        $this->payment->setTransactionAdditionalInfo(Transaction::RAW_DETAILS, $rawInfo);
 
-        $rawDetails = $this->payment->getAdditionalInformation(Transaction::RAW_DETAILS);
-        $rawDetails = $rawDetails ?: [];
+        $rawDetails = $this->payment->getAdditionalInformation(Transaction::RAW_DETAILS) ?: [];
         $rawDetails[$transactionKey] = $rawInfo;
         $this->payment->setAdditionalInformation(Transaction::RAW_DETAILS, $rawDetails);
 
         /**
          * Save the payment's transaction key.
          */
-        $this->payment->setTransactionId($transactionKey . '-capture');
+        $this->payment->setTransactionId($transactionKey);
+        $this->payment->setParentTransactionId($this->resolveParentTransactionId($transactionKey));
+        $this->preserveOriginalTransactionKey($transactionKey);
 
-        // For reactivated orders, use the reauth transaction ID as parent to avoid circular references
-        // Otherwise, use the original transaction key
+        return $this->payment;
+    }
+
+    /**
+     * Determines the parent transaction ID for the payment.
+     *
+     * @param string $transactionKey
+     *
+     * @return string
+     */
+    private function resolveParentTransactionId(string $transactionKey): string
+    {
         $reauthTransactionId = $this->payment->getAdditionalInformation('buckaroo_reauth_transaction_id');
-        $parentTransactionId = $reauthTransactionId ?: $transactionKey;
+        $originalTransactionKey = $this->payment->getAdditionalInformation(
+            BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY
+        );
 
-        $this->payment->setParentTransactionId($parentTransactionId);
+        $parentTransactionId = $reauthTransactionId ?: $originalTransactionKey ?: $transactionKey;
 
         if ($reauthTransactionId) {
             $this->logger->addDebug(sprintf(
@@ -1523,12 +1791,25 @@ class DefaultProcessor implements PushProcessorInterface
             ));
         }
 
-        $this->payment->setAdditionalInformation(
-            BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY,
-            $transactionKey
-        );
+        return $parentTransactionId;
+    }
 
-        return $this->payment;
+    /**
+     * Preserves the original (authorization) transaction key on the payment.
+     *
+     * Only sets the key if it has not been recorded yet, so a capture push cannot overwrite it.
+     *
+     * @param string $transactionKey
+     *
+     * @return void
+     * @throws LocalizedException
+     */
+    private function preserveOriginalTransactionKey(string $transactionKey): void
+    {
+        $originalKey = BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY;
+        if (!$this->payment->getAdditionalInformation($originalKey) && strlen($transactionKey) > 0) {
+            $this->payment->setAdditionalInformation($originalKey, $transactionKey);
+        }
     }
 
     /**
@@ -1554,9 +1835,7 @@ class DefaultProcessor implements PushProcessorInterface
             var_export($newStatus, true)
         ));
 
-        if (($this->order->getState() === Order::STATE_PROCESSING)
-            && ($this->order->getStatus() === Order::STATE_PROCESSING)
-        ) {
+        if ($this->order->getState() === Order::STATE_PROCESSING) {
             $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Do not update to failed if we had a success');
             return false;
         }
@@ -1946,10 +2225,7 @@ class DefaultProcessor implements PushProcessorInterface
      */
     private function isFailureRedirectToCheckoutEnabled(): bool
     {
-        $accountConfig = ObjectManager::getInstance()
-            ->get('Buckaroo\Magento2\Model\ConfigProvider\Account');
-
-        return (bool) $accountConfig->getFailureRedirectToCheckout($this->order->getStore());
+        return (bool) $this->configAccount->getFailureRedirectToCheckout($this->order->getStore());
     }
 
     /**
@@ -2081,6 +2357,18 @@ class DefaultProcessor implements PushProcessorInterface
                 __METHOD__,
                 __LINE__,
                 $this->order->getIncrementId()
+            ));
+            return true;
+        }
+
+        if ($payment->getAdditionalInformation('buckaroo_failed_authorize')) {
+            $this->logger->addDebug(sprintf(
+                '[%s:%s] - Skipping void request for failed push: authorization was marked as failed. '
+                . 'Order: %s, Method: %s.',
+                __METHOD__,
+                __LINE__,
+                $this->order->getIncrementId(),
+                $payment->getMethodInstance()->getCode()
             ));
             return true;
         }

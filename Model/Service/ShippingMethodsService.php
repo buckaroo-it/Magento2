@@ -64,9 +64,10 @@ class ShippingMethodsService
         if (count($shippingMethods) > 0) {
             foreach ($shippingMethods as $shippingMethod) {
                 $shippingMethodsResult[] = [
+                    'carrier_code'   => (string)$shippingMethod->getCarrierCode(),
                     'carrier_title'  => (string)$shippingMethod->getCarrierTitle(),
                     'price_incl_tax' => round($shippingMethod->getAmount(), 2),
-                    'method_code'    => $shippingMethod->getCarrierCode() . '_' . $shippingMethod->getMethodCode(),
+                    'method_code'    => (string)$shippingMethod->getCarrierCode() . '_' . (string)$shippingMethod->getMethodCode(),
                     'method_title'   => (string)$shippingMethod->getMethodTitle(),
                 ];
             }

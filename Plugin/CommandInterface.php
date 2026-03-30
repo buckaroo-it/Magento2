@@ -27,11 +27,9 @@ use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay2;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Eps;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
-use Buckaroo\Magento2\Model\LockManagerWrapper;
 use Magento\Payment\Model\MethodInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
@@ -280,11 +278,6 @@ class CommandInterface
             && ($order->getState() === Order::STATE_PROCESSING)
             && ($order->getStatus() === Order::STATE_PROCESSING)
         ) {
-            return true;
-        }
-
-        // Skip setting the status here for Apple Pay
-        if ($paymentCode == Applepay::CODE) {
             return true;
         }
 

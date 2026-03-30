@@ -50,7 +50,7 @@ class AmountDataBuilder extends AbstractDataBuilder
 
         $serviceAction = $this->payReminderService->getServiceAction($this->getOrder()->getIncrementId());
 
-        if (in_array($serviceAction, TransactionType::getPayRemainderActions())) {
+        if (in_array($serviceAction, [TransactionType::PAY_REMAINDER, TransactionType::PAY_REMAINDER_ENCRYPTED], true)) {
             return ['amountDebit' => $this->payReminderService->getPayRemainder($this->getOrder())];
         }
 

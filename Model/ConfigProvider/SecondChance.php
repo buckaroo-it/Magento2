@@ -25,16 +25,19 @@ use Magento\Store\Model\ScopeInterface;
 
 class SecondChance
 {
-    const XPATH_SECOND_CHANCE_ENABLED = 'buckaroo_magento2/second_chance/enable_second_chance';
-    const XPATH_SECOND_CHANCE_EMAIL1_ENABLED = 'buckaroo_magento2/second_chance/second_chance_email';
-    const XPATH_SECOND_CHANCE_EMAIL2_ENABLED = 'buckaroo_magento2/second_chance/second_chance_email2';
-    const XPATH_SECOND_CHANCE_TEMPLATE1 = 'buckaroo_magento2/second_chance/second_chance_template';
-    const XPATH_SECOND_CHANCE_TEMPLATE2 = 'buckaroo_magento2/second_chance/second_chance_template2';
-    const XPATH_SECOND_CHANCE_TIMING1 = 'buckaroo_magento2/second_chance/second_chance_timing';
-    const XPATH_SECOND_CHANCE_TIMING2 = 'buckaroo_magento2/second_chance/second_chance_timing2';
-    const XPATH_NO_SEND_OUT_OF_STOCK = 'buckaroo_magento2/second_chance/no_send_second_chance';
-    const XPATH_PRUNE_DAYS = 'buckaroo_magento2/second_chance/prune_days';
-    const XPATH_MULTIPLE_EMAILS_SEND = 'buckaroo_magento2/second_chance/multiple_emails_send';
+    public const XPATH_SECOND_CHANCE_ENABLED = 'buckaroo_magento2/second_chance/enable_second_chance';
+    public const XPATH_SECOND_CHANCE_EMAIL1_ENABLED = 'buckaroo_magento2/second_chance/second_chance_email';
+    public const XPATH_SECOND_CHANCE_EMAIL2_ENABLED = 'buckaroo_magento2/second_chance/second_chance_email2';
+    public const XPATH_SECOND_CHANCE_TEMPLATE1 = 'buckaroo_magento2/second_chance/second_chance_template';
+    public const XPATH_SECOND_CHANCE_TEMPLATE2 = 'buckaroo_magento2/second_chance/second_chance_template2';
+    public const XPATH_SECOND_CHANCE_TIMING1 = 'buckaroo_magento2/second_chance/second_chance_timing';
+    public const XPATH_SECOND_CHANCE_TIMING2 = 'buckaroo_magento2/second_chance/second_chance_timing2';
+    public const XPATH_NO_SEND_OUT_OF_STOCK = 'buckaroo_magento2/second_chance/no_send_second_chance';
+    public const XPATH_PRUNE_DAYS = 'buckaroo_magento2/second_chance/prune_days';
+    public const XPATH_MULTIPLE_EMAILS_SEND = 'buckaroo_magento2/second_chance/multiple_emails_send';
+    public const XPATH_STREAK_ENABLED = 'buckaroo_magento2/second_chance/streak_enabled';
+    public const XPATH_STREAK_MINUTES = 'buckaroo_magento2/second_chance/streak_minutes';
+    public const XPATH_PAID_ORDER_CHECK = 'buckaroo_magento2/second_chance/paid_order_check';
 
     /**
      * @var ScopeConfigInterface
@@ -295,6 +298,55 @@ class SecondChance
             return $this->getFirstEmailTemplate($store);
         }
         return $this->getSecondEmailTemplate($store);
+    }
+
+    /**
+     * Check if streak de-duplication mode is enabled
+     *
+     * @param \Magento\Store\Api\Data\StoreInterface|int|null $store
+     *
+     * @return bool
+     */
+    public function isStreakEnabled($store = null): bool
+    {
+        return (bool) $this->scopeConfig->getValue(
+            self::XPATH_STREAK_ENABLED,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Get a streak window in minutes
+     *
+     * @param \Magento\Store\Api\Data\StoreInterface|int|null $store
+     *
+     * @return int
+     */
+    public function getStreakMinutes($store = null): int
+    {
+        $minutes = (int) $this->scopeConfig->getValue(
+            self::XPATH_STREAK_MINUTES,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+        return max(1, $minutes);
+    }
+
+    /**
+     * Check whether the paid-order validation is enabled.
+     *
+     * @param \Magento\Store\Api\Data\StoreInterface|int|null $store
+     *
+     * @return bool
+     */
+    public function isPaidOrderCheckEnabled($store = null): bool
+    {
+        return (bool) $this->scopeConfig->getValue(
+            self::XPATH_PAID_ORDER_CHECK,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
     }
 
     /**

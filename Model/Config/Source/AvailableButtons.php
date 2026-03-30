@@ -25,9 +25,14 @@ use Magento\Framework\Data\OptionSourceInterface;
 
 class AvailableButtons implements OptionSourceInterface
 {
-    const BUTTON_PRODUCT = 'Product';
-    const BUTTON_CART = 'Cart';
+    public const BUTTON_PRODUCT = 'Product';
+    public const BUTTON_CART = 'Cart';
 
+    /**
+     * Return the available express button placements.
+     *
+     * @return array
+     */
     public function toOptionArray(): array
     {
         $options = [];

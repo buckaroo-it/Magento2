@@ -66,7 +66,11 @@ class RequestPushFactory
     public function create(): PushRequestInterface
     {
         try {
-            if (strpos($this->request->getContentType(), 'application/json') !== false) {
+            $contentType = $this->request->getContentType();
+
+            if (!empty($contentType)
+                && strpos($contentType, 'application/json') !== false
+            ) {
                 $this->logger->addDebug(sprintf(
                     '[PUSH] | [Factory] | [%s:%s] - Create Json Request Object | request: %s',
                     __METHOD__,
@@ -80,8 +84,8 @@ class RequestPushFactory
                 );
             }
         } catch (\Exception $exception) {
-            $this->logger->addError(sprintf(
-                '[PUSH] | [Factory] | [%s:%s] - Create Json Request Object | [ERROR]: %s',
+            $this->logger->addDebug(sprintf(
+                '[PUSH] | [Factory] | [%s:%s] - Not a JSON request, falling back to HTTP Post handler | Info: %s',
                 __METHOD__,
                 __LINE__,
                 $exception->getMessage()

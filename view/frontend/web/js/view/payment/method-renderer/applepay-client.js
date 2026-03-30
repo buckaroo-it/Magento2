@@ -112,9 +112,9 @@ define(
                     }
 
                     if (!this.submit) {
-                        var child = document.querySelector('.apple-pay-button');
-                        if (child) {
-                            child.click();
+                        if (applepayPay.payment) {
+                            var safeEvent = event || { preventDefault: function () {}, stopPropagation: function () {} };
+                            applepayPay.payment.beginPayment(safeEvent);
                         }
                         return false;
                     }
@@ -141,7 +141,7 @@ define(
                 },
 
                 afterPlaceOrder: function () {
-                    var response = window.checkoutConfig.payment.buckaroo.response;
+                    var response = window.checkoutConfig.payment.buckaroo.responseData;
 
                     if (response && response.RequiredAction !== undefined && response.RequiredAction.RedirectURL !== undefined) {
                         window.location.replace(response.RequiredAction.RedirectURL);
@@ -160,7 +160,7 @@ define(
                         if (canShow) {
                             applepayPay.setIsOnCheckout(true);
                             applepayPay.setQuote(quote);
-                            applepayPay.showPayButton();
+                            applepayPay.showPayButton('checkout');
                         }
                     });
                 },

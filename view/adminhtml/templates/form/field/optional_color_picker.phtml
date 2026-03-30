@@ -1,0 +1,63 @@
+<?php
+/**
+ * @var \Buckaroo\Magento2\Block\Config\Form\Field\OptionalColorPicker $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+$fieldId = $block->escapeHtmlAttr($block->getFieldId());
+$fieldName = $block->escapeHtmlAttr($block->getFieldName());
+$fieldValue = $block->escapeHtmlAttr($block->getFieldValue());
+$pickerValue = $block->escapeHtmlAttr($block->getPickerValue());
+$emptyMarker = $escaper->escapeJs($block->getEmptyMarker());
+?>
+<div class="buckaroo-optional-color-picker" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+    <input
+        type="hidden"
+        id="<?= $fieldId ?>"
+        name="<?= $fieldName ?>"
+        value="<?= $fieldValue ?>"
+    />
+    <input
+        type="color"
+        id="<?= $fieldId ?>_picker"
+        value="<?= $pickerValue ?>"
+    />
+    <label for="<?= $fieldId ?>_empty" style="display:inline-flex;align-items:center;gap:6px;">
+        <input
+            type="checkbox"
+            id="<?= $fieldId ?>_empty"
+            <?= $block->isEmptyValue() ? 'checked="checked"' : '' ?>
+        />
+        <span><?= $block->escapeHtml(__('Use no border')) ?></span>
+    </label>
+</div>
+<script>
+require([], function () {
+    var valueInput = document.getElementById('<?= $fieldId ?>');
+    var colorInput = document.getElementById('<?= $fieldId ?>_picker');
+    var emptyInput = document.getElementById('<?= $fieldId ?>_empty');
+
+    if (!valueInput || !colorInput || !emptyInput) {
+        return;
+    }
+
+    var syncState = function () {
+        if (emptyInput.checked) {
+            valueInput.value = '<?= $emptyMarker ?>';
+            colorInput.disabled = true;
+            return;
+        }
+
+        colorInput.disabled = false;
+        valueInput.value = colorInput.value;
+    };
+
+    colorInput.addEventListener('input', function () {
+        emptyInput.checked = false;
+        syncState();
+    });
+
+    emptyInput.addEventListener('change', syncState);
+
+    syncState();
+});
+</script>
