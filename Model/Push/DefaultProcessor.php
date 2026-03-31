@@ -2381,7 +2381,7 @@ class DefaultProcessor implements PushProcessorInterface
      *
      * A partial payment push represents a single leg of a group transaction (e.g. one
      * giftcard in a mixed payment). Order cancellation must NEVER happen here even when
-     * the sub-transaction fails or is cancelled — because:
+     * the sub-transaction fails or is cancelled because:
      *
      * 1. The customer may retry the failed partial payment.
      * 2. Buckaroo always sends a separate push on the main group-transaction key when the
@@ -2401,7 +2401,7 @@ class DefaultProcessor implements PushProcessorInterface
 
         if (in_array($statusKey, $this->buckarooStatusCode->getFailedStatuses())) {
             $this->logger->addDebug(sprintf(
-                '[%s:%s] - Partial payment failed or cancelled — skipping order cancellation, '
+                '[%s:%s] - Partial payment failed or cancelled - skipping order cancellation, '
                 . 'waiting for main group transaction push | Order: %s | Status: %s',
                 __METHOD__,
                 __LINE__,
