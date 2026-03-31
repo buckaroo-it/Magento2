@@ -34,6 +34,7 @@ use Magento\Framework\View\Helper\Js;
 class Payment extends Fieldset
 {
     private const HEADER_TEMPLATE = 'Buckaroo_Magento2::system/config/fieldset/payment_header.phtml';
+    private const OVERVIEW_TEMPLATE = 'Buckaroo_Magento2::payment_methods_overview.phtml';
 
     /**
      * @var Config
@@ -89,15 +90,24 @@ class Payment extends Fieldset
             ->setTemplate(self::HEADER_TEMPLATE)
             ->setData(
                 [
-                    'comment' => $element->getComment(),
                     'demo_url' => $groupConfig['demo_url'] ?? '',
                     'html_id' => $element->getHtmlId(),
                     'is_enabled' => $isEnabled,
                     'legend' => $element->getLegend(),
+                    'legend_html' => $element->getComment(),
                     'more_url' => $groupConfig['more_url'] ?? '',
+                    'overview_html' => $this->renderOverviewTemplate(),
                     'toggle_url' => $this->getUrl('adminhtml/*/state'),
                 ]
             )
+            ->toHtml();
+    }
+
+    private function renderOverviewTemplate(): string
+    {
+        return (string) $this->getLayout()
+            ->createBlock(Template::class)
+            ->setTemplate(self::OVERVIEW_TEMPLATE)
             ->toHtml();
     }
 
