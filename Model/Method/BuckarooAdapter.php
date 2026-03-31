@@ -39,6 +39,7 @@ use Magento\Payment\Model\InfoInterface;
 use Magento\Payment\Model\Method\Adapter;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Store\Api\Data\StoreInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -220,10 +221,25 @@ class BuckarooAdapter extends Adapter
         $result = $validator->validate([
             'methodInstance' => $this,
             'country'        => $country,
-            'storeId'        => $this->getStore()
+            'storeId'        => $this->getResolvedStoreId()
         ]);
 
         return $result->isValid();
+    }
+
+    private function getResolvedStoreId(): ?int
+    {
+        $store = $this->getStore();
+
+        if ($store instanceof StoreInterface) {
+            return (int)$store->getId();
+        }
+
+        if (is_numeric($store)) {
+            return (int)$store;
+        }
+
+        return null;
     }
 
     /**
