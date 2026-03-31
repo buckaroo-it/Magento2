@@ -252,7 +252,7 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
         } elseif ($gender === '2' || $gender === 2 || $gender === 'female') {
             return 'Female';
         } else {
-            return 'Unknown';
+            return 'unknown';
         }
     }
 }
