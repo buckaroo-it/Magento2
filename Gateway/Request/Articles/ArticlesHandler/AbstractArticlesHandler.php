@@ -43,6 +43,7 @@ use Magento\Tax\Model\Config;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
 abstract class AbstractArticlesHandler implements ArticleHandlerInterface
 {

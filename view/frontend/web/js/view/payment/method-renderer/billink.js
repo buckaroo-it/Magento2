@@ -224,13 +224,15 @@ define(
                         phone = quote.billingAddress().telephone;
                     }
 
+                    let customerGender = this.showB2B() ? this.selectedGender() : 'unknown';
+
                     return {
                         "method": this.item.method,
                         "po_number": null,
                         "additional_data": {
                             "customer_billingName" : this.billingName(),
                             "customer_telephone" : phone,
-                            "customer_gender" : this.selectedGender(),
+                            "customer_gender" : customerGender,
                             "customer_chamberOfCommerce" : this.cocNumber(),
                             "customer_VATNumber" : this.vatNumber(),
                             "customer_DoB" : this.dob(),
@@ -239,21 +241,8 @@ define(
                     };
                 },
 
-                /**
-                 * Validate gender selection for Billink
-                 */
                 validate: function () {
-                    var validationResult = this._super();
-
-                    // For B2C customers, gender selection is mandatory
-                    if (!this.showB2B() && (!this.selectedGender() || this.selectedGender() === '')) {
-                        this.messageContainer.addErrorMessage({
-                            message: $.mage.__('Please select your gender to proceed with Billink payment.')
-                        });
-                        return false;
-                    }
-
-                    return validationResult;
+                    return this._super();
                 }
             }
         );
