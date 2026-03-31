@@ -1,0 +1,36 @@
+<?php
+/** @var \Buckaroo\Magento2\Block\Adminhtml\System\Config\PaymentMethodsOverview $block */
+// @codingStandardsIgnoreFile
+?>
+<div class="bk-payment-methods-overview">
+    <p class="bk-mb-5px">
+        <?= $block->escapeHtml(__('Support credit and debit cards, wallets, and popular European payment methods through a single Magento integration. Built-in Express buttons help customers complete their checkout faster and more easily.')); ?>
+    </p>
+    <p class="bk-mb-5px bk-payment-overview-title"><b><?= $block->escapeHtml(__('Features:')); ?></b></p>
+    <ul class="bk-payment-overview-features">
+        <li><?= $block->escapeHtml(__('Support for local and international payment methods.')); ?></li>
+        <li><?= $block->escapeHtml(__('Express payment buttons for PayPal Express, Apple Pay, and Google Pay.')); ?></li>
+        <li><?= $block->escapeHtml(__('Second Chance emails to recover failed or abandoned payments.')); ?></li>
+        <li><?= $block->escapeHtml(__('Seamlessly integrated into Magento\'s checkout and admin.')); ?></li>
+    </ul>
+
+    <div class="bk-payment-logo-strip" aria-label="<?= $block->escapeHtmlAttr(__('Supported payment methods')); ?>">
+        <?php foreach ([
+            ['path' => 'Buckaroo_Magento2::images/creditcards/visa.svg', 'label' => 'VISA'],
+            ['path' => 'Buckaroo_Magento2::images/creditcards/mastercard.svg', 'label' => 'Mastercard'],
+            ['path' => 'Buckaroo_Magento2::images/creditcards/amex.svg', 'label' => 'American Express'],
+            ['path' => 'Buckaroo_Magento2::images/svg/paypal.svg', 'label' => 'PayPal'],
+            ['path' => 'Buckaroo_Magento2::images/svg/ideal-wero.svg', 'label' => 'Ideal'],
+            ['path' => 'Buckaroo_Magento2::images/svg/klarna.svg', 'label' => 'Klarna'],
+            ['path' => 'Buckaroo_Magento2::images/svg/riverty.svg', 'label' => 'Riverty'],
+            ['path' => 'Buckaroo_Magento2::images/svg/applepay.svg', 'label' => 'Apple Pay'],
+            ['path' => 'Buckaroo_Magento2::images/svg/googlepay.svg', 'label' => 'Google Pay']
+        ] as $paymentLogo): ?>
+            <img
+                class="bk-payment-logo-strip-item"
+                src="<?= $block->escapeUrl($block->getViewFileUrl($paymentLogo['path'])); ?>"
+                alt="<?= $block->escapeHtmlAttr($paymentLogo['label']); ?>"
+            >
+        <?php endforeach; ?>
+    </div>
+</div>
