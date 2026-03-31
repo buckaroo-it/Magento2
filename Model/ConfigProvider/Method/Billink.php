@@ -83,8 +83,7 @@ class Billink extends AbstractConfigProvider
                 ['genderType' => 'unknown', 'genderTitle' => __('They/them')],
                 ['genderType' => 'unknown', 'genderTitle' => __('I prefer not to say')]
             ],
-            'businessMethod'    => $this->getBusiness(),
-            'showFinancialWarning' => $this->canShowFinancialWarning(),
+            'businessMethod'    => $this->getBusiness()
         ]);
     }
 

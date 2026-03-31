@@ -117,7 +117,6 @@ define(
                     cocNumber:'',
                     vatNumber: '',
                     dob:null,
-                    tos: true,
                     showPhone: false,
                     showB2B: false,
                     showFrenchTosValue: null,
@@ -126,16 +125,6 @@ define(
                 redirectAfterPlaceOrder : true,
                 dp: datePicker,
 
-                getMessageText: function () {
-                    return $.mage
-                        .__('Je moet minimaal 18+ zijn om deze dienst te gebruiken. Als je op tijd betaalt, voorkom je extra kosten en zorg je dat je in de toekomst nogmaals gebruik kunt maken van de diensten van ' +
-                            window.checkoutConfig.payment.buckaroo.buckaroo_magento2_billink.title +
-                            '. Door verder te gaan, accepteer je de <a target="_blank" href="%s">Algemene&nbsp;Voorwaarden</a> en bevestig je dat je de <a target="_blank" href="%f">Privacyverklaring</a> en <a target="_blank" href="%c">Cookieverklaring</a> hebt gelezen.')
-                        .replace('%s', 'https://www.billink.nl/gebruikersvoorwaarden')
-                        .replace('%f', 'https://www.billink.nl/privacy-statement')
-                        .replace('%c', 'https://www.billink.nl/privacy-statement')
-                },
-
                 initObservable: function () {
                     this._super().observe(
                         [
@@ -143,20 +132,10 @@ define(
                             'phone',
                             'cocNumber',
                             'vatNumber',
-                            'tos',
                             'dob',
                             'showFrenchTosValue',
                             'value'
                         ]
-                    );
-
-                    this.showFinancialWarning = ko.computed(
-                        function () {
-                            return quote.billingAddress() !== null &&
-                            quote.billingAddress().countryId == 'NL' &&
-                            this.buckaroo.showFinancialWarning
-                        },
-                        this
                     );
                     this.billingName = ko.computed(
                         function () {
@@ -235,8 +214,7 @@ define(
                             "customer_gender" : customerGender,
                             "customer_chamberOfCommerce" : this.cocNumber(),
                             "customer_VATNumber" : this.vatNumber(),
-                            "customer_DoB" : this.dob(),
-                            "termsCondition": this.tos(),
+                            "customer_DoB" : this.dob()
                         }
                     };
                 },
