@@ -40,23 +40,6 @@
                   attr: {'data-hasrequired': $t('* Required Fields')}">
                 <fieldset class="fieldset payment">
 
-                    <!-- ko if: !showB2B() -->
-                    <div class="field required">
-                        <label class="label" for="buckaroo_magento2_payperemail_genderSelect"> <span data-bind="i18n: 'Salutation:'"> </span> </label>
-                        <div class="control">
-                        <select id="buckaroo_magento2_billink_genderSelect" name="payment[buckaroo_magento2_billink][customer_gender]" class="select"
-                        data-bind="options: buckaroo.genderList,
-                            optionsText: $t('genderTitle'),
-                            optionsValue: 'genderType',
-                            optionsCaption: $t('-- Please Select Your Gender--'),
-                            value: selectedGender,
-                            event: { blur: validateField }"
-                            data-validate="{required:true}">
-                            </select>
-                        </div>
-                    </div>
-                    <!-- /ko -->
-
                     <div class="field required">
                         <label class="label" for="buckaroo_magento2_billink_BillingName"> <span data-bind="i18n: 'Billing Name:'"> </span> </label>
                         <div class="control">
