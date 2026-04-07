@@ -313,6 +313,7 @@ class PayPerEmailProcessor extends DefaultProcessor
             BuckarooAdapter::BUCKAROO_ACTUAL_PAYMENT_TRANSACTION_KEY,
             $transactionKey
         );
+        $this->payment->setMethod('buckaroo_magento2_' . $transactionMethod);
         $this->payment->save();
         $this->order->save();
     }
