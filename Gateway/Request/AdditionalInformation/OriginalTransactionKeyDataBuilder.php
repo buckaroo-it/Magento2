@@ -39,11 +39,14 @@ class OriginalTransactionKeyDataBuilder implements BuilderInterface
 
         $payment = $paymentDO->getPayment();
 
-        if ($payment->getMethod() === 'buckaroo_magento2_payperemail') {
-            $key = $payment->getAdditionalInformation(BuckarooAdapter::BUCKAROO_ACTUAL_PAYMENT_TRANSACTION_KEY);
-            if (!empty($key)) {
-                return ['originalTransactionKey' => $key];
-            }
+        // PayPerEmail: always prioritise the actual payment transaction key when available.
+        // This applies even when the payment method has already been updated from
+        // 'buckaroo_magento2_payperemail' to the method the customer actually used (e.g. iDEAL),
+        // because the refundable transaction is the one from the actual payment, not the
+        // original PayPerEmail transaction.
+        $actualTransactionKey = $payment->getAdditionalInformation(BuckarooAdapter::BUCKAROO_ACTUAL_PAYMENT_TRANSACTION_KEY);
+        if (!empty($actualTransactionKey)) {
+            return ['originalTransactionKey' => $actualTransactionKey];
         }
 
         $originalTransactionKey = $payment->getAdditionalInformation(self::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY);
