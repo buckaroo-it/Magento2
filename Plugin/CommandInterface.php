@@ -131,8 +131,9 @@ class CommandInterface
 
         //Skip update for Apple Pay only if the order is in an advanced state.
         if (preg_match('/applepay/', $methodInstance->getCode()) &&
-            in_array($order->getState(), [Order::STATE_PROCESSING, Order::STATE_COMPLETE, Order::STATE_CLOSED])) {
-            $this->logging->addDebug(__METHOD__ . '|ApplePay advanced order detected, skipping update.');
+            in_array($order->getState(), [Order::STATE_PROCESSING, Order::STATE_COMPLETE, Order::STATE_CLOSED]) &&
+            (float)$order->getPayment()->getAmountPaid() > 0) {
+            $this->logging->addDebug(__METHOD__ . '|ApplePay detected, skipping update.');
             return;
         }
 
