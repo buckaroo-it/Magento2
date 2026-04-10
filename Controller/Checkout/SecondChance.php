@@ -101,10 +101,10 @@ class SecondChance extends Action
         $queryParams = $this->getRequest()->getParams();
         unset($queryParams['token']);
 
-        return $this->handleRedirect('checkout', [
-            '_query'    => $queryParams,
-            '_fragment' => 'payment',
-        ]);
+        $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
+        $checkoutUrl = $this->_url->getUrl('checkout');
+        $queryString = $queryParams ? '?' . http_build_query($queryParams) : '';
+        return $resultRedirect->setUrl($checkoutUrl . $queryString . '#payment');
     }
 
     /**
