@@ -30,6 +30,7 @@ use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment\State\CommandInterface as MagentoCommandInterface;
 use Buckaroo\Magento2\Helper\Data;
+use Buckaroo\Magento2\Model\Method\Applepay;
 use Buckaroo\Magento2\Model\Method\PayPerEmail;
 
 class CommandInterface
@@ -129,6 +130,11 @@ class CommandInterface
             }
         }
 
+        if ($this->isApplePay($methodInstance) && $order->getState() === Order::STATE_PROCESSING) {
+            $this->logging->addDebug(__METHOD__ . '|Apple Pay in STATE_PROCESSING, skipping state reset.');
+            return;
+        }
+
         // Update order state only if it is not already the target state.
         if ($order->getState() !== $targetState) {
             $this->logging->addDebug(__METHOD__ . '|Updating order state from ' . $order->getState() . ' to ' . $targetState);
@@ -144,6 +150,15 @@ class CommandInterface
         } else {
             $this->logging->addDebug(__METHOD__ . '|Custom status detected, preserving: ' . $currentStatus);
         }
+    }
+
+    /**
+     * @param  MethodInterface $methodInstance
+     * @return bool
+     */
+    private function isApplePay(MethodInterface $methodInstance): bool
+    {
+        return $methodInstance->getCode() === Applepay::PAYMENT_METHOD_CODE;
     }
 
     /**
