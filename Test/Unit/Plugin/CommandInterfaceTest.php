@@ -93,30 +93,98 @@ class CommandInterfaceTest extends BaseTest
         return $method;
     }
 
+    /**
+     * Build an OrderPaymentInterface stub that also exposes getMethodInstance().
+     * Optionally sets the push-capture flag via getAdditionalInformation().
+     */
+    private function paymentStub(string $methodCode, bool $withPushFlag = false): OrderPaymentInterface
+    {
+        $payment = $this->getMockBuilder(OrderPaymentInterface::class)
+            ->addMethods(['getMethodInstance'])
+            ->getMockForAbstractClass();
+        $payment->method('getMethodInstance')->willReturn($this->methodStub($methodCode));
+        $payment->method('getAdditionalInformation')
+            ->with('buckaroo_push_capture_in_progress')
+            ->willReturn($withPushFlag ? true : false);
+
+        return $payment;
+    }
+
     // -----------------------------------------------------------------------
-    // Core regression tests
+    // aroundExecute: Apple Pay flag-based guard (regression tests for BP-1481)
     // -----------------------------------------------------------------------
 
     /**
-     * REGRESSION: Apple Pay in STATE_PROCESSING must NOT have state reset to STATE_NEW.
-     * Bug introduced in 1.56.2 when commit 72fa364d removed the Apple Pay guard.
+     * REGRESSION (Ticket 1): When Push.php::saveInvoice() sets the push-capture flag and
+     * calls registerCaptureNotification(), aroundExecute() must NOT reset the order state.
+     * Without this guard the order reverts to STATE_NEW/pending after a successful push,
+     * creating a spurious "Pending | Customer Notified" history entry (regression 72fa364d).
      */
-    public function testApplePayInProcessingDoesNotResetState(): void
+    public function testAroundExecuteApplePayWithFlagSkipsStateUpdate(): void
     {
         $helper = $this->createMock(Data::class);
-        $helper->method('getOrderStatusByState')->willReturn('pending');
+        $helper->expects($this->never())->method('getOrderStatusByState');
 
         $order = $this->orderWithState(Order::STATE_PROCESSING, 'processing');
         $order->expects($this->never())->method('setState');
         $order->expects($this->never())->method('setStatus');
 
+        $proceed = static function () {
+            return 'done';
+        };
+
+        $commandInterface = $this->createMock(MagentoCommandInterface::class);
         $instance = $this->buildInstance($helper);
-        $this->invokeArgs('updateOrderStateAndStatus', [$order, $this->methodStub(Applepay::PAYMENT_METHOD_CODE)], $instance);
+
+        $result = $instance->aroundExecute(
+            $commandInterface,
+            $proceed,
+            $this->paymentStub(Applepay::PAYMENT_METHOD_CODE, true),
+            100.0,
+            $order
+        );
+
+        $this->assertSame('done', $result);
     }
 
     /**
-     * Apple Pay still in STATE_NEW (checkout phase) must go through normal normalisation.
-     * The guard is conditional, NOT a blanket skip.
+     * Apple Pay at checkout (no push-capture flag) must still go through normal
+     * state normalisation. The guard is conditional, NOT a blanket skip.
+     */
+    public function testAroundExecuteApplePayWithoutFlagRunsStateUpdate(): void
+    {
+        $helper = $this->createMock(Data::class);
+        $helper->method('getOrderStatusByState')->willReturn('pending');
+
+        // Order is in STATE_PROCESSING at checkout (Apple Pay uses payment_action="order")
+        $order = $this->orderWithState(Order::STATE_PROCESSING, 'processing');
+        // No push flag → updateOrderStateAndStatus runs → setState IS called
+        $order->expects($this->once())->method('setState')->with(Order::STATE_NEW);
+
+        $proceed = static function () {
+            return 'done';
+        };
+
+        $commandInterface = $this->createMock(MagentoCommandInterface::class);
+        $instance = $this->buildInstance($helper);
+
+        $instance->aroundExecute(
+            $commandInterface,
+            $proceed,
+            $this->paymentStub(Applepay::PAYMENT_METHOD_CODE, false),
+            100.0,
+            $order
+        );
+    }
+
+    // -----------------------------------------------------------------------
+    // updateOrderStateAndStatus: direct unit tests
+    // -----------------------------------------------------------------------
+
+    /**
+     * Apple Pay in STATE_NEW (the common checkout state) must have its status
+     * normalised. setState should NOT be called (already in target state), but
+     * setStatus IS called when current status matches the default.
      */
     public function testApplePayInStateNewDoesRunUpdate(): void
     {
@@ -134,7 +202,7 @@ class CommandInterfaceTest extends BaseTest
     }
 
     // -----------------------------------------------------------------------
-    // Ensure Apple Pay guard does not bleed into other methods
+    // Ensure Apple Pay flag guard does not bleed into other methods
     // -----------------------------------------------------------------------
 
     /**
