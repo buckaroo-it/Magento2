@@ -2169,9 +2169,7 @@ class Push implements PushInterface
             $amount = ($payment->isSameCurrency()
                 && $payment->isCaptureFinal($this->order->getGrandTotal())) ?
                 $this->order->getGrandTotal() : $this->order->getBaseTotalDue();
-            $payment->setAdditionalInformation('buckaroo_push_capture_in_progress', true);
             $payment->registerCaptureNotification($amount);
-            $payment->unsAdditionalInformation('buckaroo_push_capture_in_progress');
             $payment->save();
         }
 

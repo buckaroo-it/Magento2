@@ -94,14 +94,6 @@ class CommandInterface
                         return $message;
                     }
                 }
-
-                if ($this->isApplePay($methodInstance)
-                    && $payment->getAdditionalInformation('buckaroo_push_capture_in_progress')
-                ) {
-                    $this->logging->addDebug(__METHOD__ . '|Apple Pay push capture in progress, skipping state update.');
-                    return $message;
-                }
-
                 $this->updateOrderStateAndStatus($order, $methodInstance);
             }
             return $message;
@@ -136,6 +128,11 @@ class CommandInterface
                 $this->logging->addDebug(__METHOD__ . '|Afterpay/eps condition met, skipping update.');
                 return false;
             }
+        }
+
+        if ($this->isApplePay($methodInstance) && $order->getState() === Order::STATE_PROCESSING) {
+            $this->logging->addDebug(__METHOD__ . '|Apple Pay in STATE_PROCESSING, skipping state reset.');
+            return;
         }
 
         // Update order state only if it is not already the target state.
