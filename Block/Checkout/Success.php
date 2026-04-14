@@ -113,7 +113,7 @@ class Success extends \Magento\Checkout\Block\Onepage\Success
 
         $showInstructions = $methodInstance->getConfigData('display_payment_instructions_success', $order->getStoreId());
 
-        return $showInstructions === null || $showInstructions === '' ? true : (bool)$showInstructions;
+        return $showInstructions === null || $showInstructions === '' || (bool)$showInstructions;
     }
 
     /**
