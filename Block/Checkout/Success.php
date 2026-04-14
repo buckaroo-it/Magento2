@@ -92,6 +92,31 @@ class Success extends \Magento\Checkout\Block\Onepage\Success
     }
 
     /**
+     * Check if transfer payment instructions should be shown on success page.
+     */
+    public function shouldDisplayTransferInstructions(): bool
+    {
+        $order = $this->getOrder();
+        if (!$order) {
+            return false;
+        }
+
+        $payment = $order->getPayment();
+        if (!$payment) {
+            return false;
+        }
+
+        $methodInstance = $payment->getMethodInstance();
+        if (!$methodInstance) {
+            return true;
+        }
+
+        $showInstructions = $methodInstance->getConfigData('display_payment_instructions_success', $order->getStoreId());
+
+        return $showInstructions === null || $showInstructions === '' ? true : (bool)$showInstructions;
+    }
+
+    /**
      * Return transfer details from payment additional information if available.
      *
      * @return array

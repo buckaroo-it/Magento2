@@ -625,3 +625,5 @@
 "Number of Attempts","Numero tentativi"
 "Consumer notification","Notifica cliente"
 "Extra Fees","Costi aggiuntivi"
+"Display Payment Instructions on Success Page","Mostra Istruzioni di Pagamento nella Pagina di Conferma"
+"When set to ""Yes"", bank transfer details will be displayed on the success page after the customer places an order.","Quando impostato su ""Sì"", i dettagli del bonifico bancario verranno visualizzati nella pagina di conferma dopo che il cliente ha effettuato un ordine."
