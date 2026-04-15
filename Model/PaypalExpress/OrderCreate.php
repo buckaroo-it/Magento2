@@ -20,10 +20,9 @@
 
 namespace Buckaroo\Magento2\Model\PaypalExpress;
 
-use Buckaroo\Magento2\Model\PaypalExpress\PaypalExpressException;
 use Magento\Quote\Model\Quote;
 use Buckaroo\Magento2\Logging\Log;
-use Magento\Quote\Api\Data\CartInterface;
+use Magento\Quote\Model\Quote\Address;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Quote\Api\CartManagementInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
@@ -33,7 +32,6 @@ use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Buckaroo\Magento2\Api\PaypalExpressOrderCreateInterface;
-use Buckaroo\Magento2\Model\PaypalExpress\OrderUpdateFactory;
 use Buckaroo\Magento2\Api\Data\PaypalExpress\OrderCreateResponseInterfaceFactory;
 
 /**
@@ -141,7 +139,7 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
     }
 
     /**
-     * Place order based on quote and paypal order id
+     * Place order based on quote and PayPal order id
      *
      * @param string $paypal_order_id
      * @param string $cart_id
@@ -157,25 +155,27 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
         $quote->getPayment()->setAdditionalInformation('express_order_id', $paypal_order_id);
         $quote->reserveOrderId();
 
-        // Set minimal required fields to pass Magento validation
-        // These will be immediately replaced with real PayPal data after order placement
-        $this->ensureRequiredAddressFields($quote);
-
-        $this->ignoreAddressValidation($quote);
-        $this->quoteRepository->save($quote);  // Save quote after setting ignore validation flags
-
         $this->checkQuoteBelongsToLoggedUser($quote);
-        
+
+        $this->ensureRequiredAddressFields($quote);
+        $this->ignoreAddressValidation($quote);
+        $this->quoteRepository->save($quote);
+
         $this->logger->addDebug('[PayPal Express OrderCreate] Placing order with pending address values...');
-        $orderId = $this->quoteManagement->placeOrder($quote->getId());
+        try {
+            $orderId = $this->quoteManagement->placeOrder($quote->getId());
+        } catch (\Throwable $e) {
+            $this->clearPendingAddressFields($quote);
+            throw $e;
+        }
         $this->logger->addDebug('[PayPal Express OrderCreate] Order placed successfully with ID: ' . $orderId);
 
         $order = $this->orderRepository->get($orderId);
-        
+
         $this->logger->addDebug('[PayPal Express OrderCreate] Updating order with real PayPal data...');
         $this->updateOrder($order);
         $this->logger->addDebug('[PayPal Express OrderCreate] Order updated with real PayPal data');
-        
+
         $this->setLastOrderToSession($order);
         return $order->getIncrementId();
     }
@@ -192,7 +192,7 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
         $this->setPendingFieldsOnAddress($quote->getShippingAddress());
         $this->setPendingFieldsOnAddress($quote->getBillingAddress());
         $this->copyAddressFieldsToBilling($quote->getShippingAddress(), $quote->getBillingAddress());
-        
+
         if (!$quote->getCustomerEmail()) {
             $quote->setCustomerEmail('pending@paypal.customer');
         }
@@ -201,7 +201,7 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
     /**
      * Set pending values for required address fields
      *
-     * @param \Magento\Quote\Model\Quote\Address $address
+     * @param Address $address
      * @return void
      */
     private function setPendingFieldsOnAddress($address)
@@ -226,18 +226,18 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
     /**
      * Copy address fields from shipping to billing address
      *
-     * @param \Magento\Quote\Model\Quote\Address $shippingAddress
-     * @param \Magento\Quote\Model\Quote\Address $billingAddress
+     * @param Address $shippingAddress
+     * @param Address $billingAddress
      * @return void
      */
     private function copyAddressFieldsToBilling($shippingAddress, $billingAddress)
     {
         $fieldsToCopy = ['City', 'Postcode', 'CountryId', 'RegionId', 'Region'];
-        
+
         foreach ($fieldsToCopy as $field) {
             $getter = 'get' . $field;
             $setter = 'set' . $field;
-            
+
             if (!$billingAddress->$getter() && $shippingAddress->$getter()) {
                 $billingAddress->$setter($shippingAddress->$getter());
             }
@@ -245,11 +245,56 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
     }
 
     /**
-     * Make sure addresses will be saved without validation errors
+     * Remove placeholder address fields from the quote and persist the cleanup.
+     *
+     * Called when placeOrder() fails so that the dummy values set by
+     * ensureRequiredAddressFields() do not leak into the standard checkout form.
+     *
+     * @param Quote $quote
+     * @return void
+     */
+    private function clearPendingAddressFields(Quote $quote): void
+    {
+        $pendingEmails    = ['pending@paypal.customer'];
+        $pendingNames     = ['PayPal', 'Customer'];
+        $pendingStreets   = ['Pending'];
+        $pendingPhones    = ['000-000-0000'];
+
+        foreach ([$quote->getShippingAddress(), $quote->getBillingAddress()] as $address) {
+            if (in_array($address->getFirstname(), $pendingNames, true)) {
+                $address->setFirstname('');
+            }
+            if (in_array($address->getLastname(), $pendingNames, true)) {
+                $address->setLastname('');
+            }
+            if (in_array($address->getStreet()[0] ?? '', $pendingStreets, true)) {
+                $address->setStreet([]);
+            }
+            if (in_array($address->getTelephone(), $pendingPhones, true)) {
+                $address->setTelephone('');
+            }
+            if (in_array($address->getEmail(), $pendingEmails, true)) {
+                $address->setEmail('');
+            }
+        }
+
+        if (in_array($quote->getCustomerEmail(), $pendingEmails, true)) {
+            $quote->setCustomerEmail('');
+        }
+
+        try {
+            $this->quoteRepository->save($quote);
+        } catch (\Throwable $saveException) {
+            $this->logger->addDebug(__METHOD__ . ' Failed to clear pending address fields: ' . $saveException->getMessage());
+        }
+    }
+
+    /**
+     * Make sure addresses will be saved without validation errors.
      *
      * @param Quote $quote
      */
-    private function ignoreAddressValidation(Quote $quote)
+    private function ignoreAddressValidation(Quote $quote): void
     {
         $quote->getBillingAddress()->setShouldIgnoreValidation(true);
         $quote->getShippingAddress()->setShouldIgnoreValidation(true);
@@ -272,25 +317,29 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
     }
 
     /**
-     * Check if quote belongs to the current logged in user
+     * Check if the quote belongs to the current logged-in user.
      *
-     * @param CartInterface $quote
+     * @param Quote $quote
      *
      * @throws \Buckaroo\Magento2\Model\PaypalExpress\PaypalExpressException
      */
-    protected function checkQuoteBelongsToLoggedUser(CartInterface $quote)
+    protected function checkQuoteBelongsToLoggedUser(Quote $quote): void
     {
-        if ($this->customerSession->getCustomerId() !== $quote->getCustomer()->getId()) {
+        if (!$this->customerSession->isLoggedIn()) {
+            return;
+        }
+
+        if ((int)$this->customerSession->getCustomerId() !== (int)$quote->getCustomer()->getId()) {
             throw new PaypalExpressException(__('Cannot create order for this user'));
         }
     }
 
     /**
-     * Update session with last order
+     * Update session with the last order.
      *
-     * @param \Magento\Sales\Api\Data\OrderInterface $order
+     * @param OrderInterface $order
      */
-    protected function setLastOrderToSession(OrderInterface $order)
+    protected function setLastOrderToSession(OrderInterface $order): void
     {
         $this->checkoutSession
             ->setLastQuoteId($order->getQuoteId())
@@ -299,17 +348,21 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
             ->setLastRealOrderId($order->getIncrementId())
             ->setLastOrderStatus($order->getStatus());
     }
+
     /**
-     * Get quote from masked quote/cart id
+     * Get quote from masked quote/cart id.
      *
      * @param string $cart_id
      *
      * @return Quote
+     * @throws NoSuchEntityException
      */
-    protected function getQuote($cart_id)
+    protected function getQuote(string $cart_id): Quote
     {
-        return $this->quoteRepository->get(
+        /** @var Quote $quote */
+        $quote = $this->quoteRepository->get(
             $this->maskedQuoteIdToQuoteId->execute($cart_id)
         );
+        return $quote;
     }
 }
