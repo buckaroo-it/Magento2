@@ -212,3 +212,5 @@
 "Cancel Order on Browser Back Button","Cancel Order on Browser Back Button"
 "If disabled, orders will stay in pending state when customer uses browser back button, allowing retry. Buckaroo push notification will handle final cancellation if needed.","If disabled, orders will stay in pending state when customer uses browser back button, allowing retry. Buckaroo push notification will handle final cancellation if needed."
 "Extra Fees","Extra Fees"
+"Display Payment Instructions on Success Page","Display Payment Instructions on Success Page"
+"When set to ""Yes"", bank transfer details will be displayed on the success page after the customer places an order.","When set to ""Yes"", bank transfer details will be displayed on the success page after the customer places an order."

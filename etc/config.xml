@@ -223,6 +223,7 @@
                 <sort_order>100</sort_order>
                 <order_email>1</order_email>
                 <payment_method_logo>generic_bank_logo</payment_method_logo>
+                <display_payment_instructions_success>1</display_payment_instructions_success>
                 <due_date>7</due_date>
                 <due_date_invoice>0</due_date_invoice>
                 <reminder_level>4</reminder_level>

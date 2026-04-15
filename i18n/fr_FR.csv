@@ -637,3 +637,5 @@ Magento Community Edition version""","Version de l'édition communautaire de Mag
 "Pay in 3 installments, 0% interest","Payer en 3 fois, 0 % d’intérêt"
 "Pay later","Payer plus tard"
 "Extra Fees","Frais supplémentaires"
+"Display Payment Instructions on Success Page","Afficher les Instructions de Paiement sur la Page de Confirmation"
+"When set to ""Yes"", bank transfer details will be displayed on the success page after the customer places an order.","Lorsqu’elle est définie sur ""Oui"", les coordonnées de virement bancaire seront affichées sur la page de confirmation après que le client a passé une commande."
