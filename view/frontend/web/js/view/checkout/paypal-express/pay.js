@@ -25,16 +25,29 @@ define([
   'mage/translate',
   'Buckaroo_Magento2/js/view/express-payment/product-price-mixin',
   'BuckarooSdk'
-], function ($, ko, urlBuilder, customerData, quote, $t, productPriceMixin, BuckarooSdk) {
+], function ($, ko, urlBuilder, customerData, quote, $t, productPriceMixin) {
   "use strict";
+
+  function getBuckarooSdkInstance() {
+    if (typeof window !== "undefined" && window.BuckarooSdk) {
+      return window.BuckarooSdk;
+    }
+
+    if (typeof globalThis !== "undefined" && globalThis.BuckarooSdk) {
+      return globalThis.BuckarooSdk;
+    }
+
+    return null;
+  }
 
   return $.extend({}, productPriceMixin, {
     setConfig(config, page) {
       this.page = page;
 
       // Set test mode for Buckaroo SDK
-      if (config.isTestMode !== undefined && typeof BuckarooSdk !== 'undefined' && BuckarooSdk.Base && BuckarooSdk.Base.setTestMode) {
-        BuckarooSdk.Base.setTestMode(config.isTestMode);
+      const sdk = getBuckarooSdkInstance();
+      if (config.isTestMode !== undefined && sdk && sdk.Base && sdk.Base.setTestMode) {
+        sdk.Base.setTestMode(config.isTestMode);
       }
 
       // Initialize product price watchers for product page
@@ -206,7 +219,11 @@ define([
     },
 
       init() {
-          BuckarooSdk.PayPal.initiate(this.options);
+          const sdk = getBuckarooSdkInstance();
+          if (!sdk || !sdk.PayPal || !sdk.PayPal.initiate) {
+            throw new Error("BuckarooSdk.PayPal is not available");
+          }
+          sdk.PayPal.initiate(this.options);
       },
 
     /**

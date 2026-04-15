@@ -24,8 +24,6 @@
 // ---------------------------------------------------------------------------
 // Minimal AMD stub so pay.js can be required without a full RequireJS stack
 // ---------------------------------------------------------------------------
-const registeredModules = {};
-
 global.define = function (deps, factory) {
     // Capture the factory; resolve deps from stubs below
     global.__payFactory = factory;
@@ -52,7 +50,7 @@ const priceMixinStub = {
 // Load the module under test
 require('../pay.js');
 const pay = global.__payFactory(
-    jqueryStub, koStub, urlStub, dataStub, quoteStub, translateStub, priceMixinStub, buckarooSdkStub
+    jqueryStub, koStub, urlStub, dataStub, quoteStub, translateStub, priceMixinStub
 );
 
 // ---------------------------------------------------------------------------
@@ -82,6 +80,7 @@ function makeTotals(grandTotal, currency = 'EUR') {
 // ---------------------------------------------------------------------------
 beforeEach(() => {
     quoteStub.totals = makeObservable(null);
+    global.BuckarooSdk = buckarooSdkStub;
     pay.result       = null;
     pay.cart_id      = null;
     pay.page         = null;
@@ -95,6 +94,11 @@ beforeEach(() => {
     translateStub.mockClear();
     buckarooSdkStub.Base.setTestMode.mockClear();
     buckarooSdkStub.PayPal.initiate.mockClear();
+});
+
+afterEach(() => {
+    delete global.BuckarooSdk;
+    delete global.window;
 });
 
 // ===========================================================================
@@ -331,5 +335,18 @@ describe('SDK integration', () => {
         pay.setConfig({ isTestMode: true }, 'cart');
 
         expect(buckarooSdkStub.Base.setTestMode).toHaveBeenCalledWith(true);
+    });
+
+    test('init uses the global BuckarooSdk instance', () => {
+        const globalSdk = {
+            PayPal: { initiate: jest.fn() },
+            Base: { setTestMode: jest.fn() },
+        };
+        global.window = { BuckarooSdk: globalSdk };
+
+        pay.options = { amount: '10.00', currency: 'EUR' };
+        pay.init();
+
+        expect(globalSdk.PayPal.initiate).toHaveBeenCalledWith(pay.options);
     });
 });
