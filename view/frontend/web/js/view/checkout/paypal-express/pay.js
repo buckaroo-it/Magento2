@@ -21,35 +21,38 @@ define([
   "ko",
   "mage/url",
   "Magento_Customer/js/customer-data",
+  "Magento_Checkout/js/model/quote",
   'mage/translate',
   'Buckaroo_Magento2/js/view/express-payment/product-price-mixin',
   'BuckarooSdk'
-], function ($, ko, urlBuilder, customerData, $t, productPriceMixin) {
+], function ($, ko, urlBuilder, customerData, quote, $t, productPriceMixin) {
   "use strict";
+
+  function getBuckarooSdkInstance() {
+    if (typeof window !== "undefined" && window.BuckarooSdk) {
+      return window.BuckarooSdk;
+    }
+
+    if (typeof globalThis !== "undefined" && globalThis.BuckarooSdk) {
+      return globalThis.BuckarooSdk;
+    }
+
+    return null;
+  }
 
   return $.extend({}, productPriceMixin, {
     setConfig(config, page) {
       this.page = page;
 
       // Set test mode for Buckaroo SDK
-      if (config.isTestMode !== undefined && typeof BuckarooSdk !== 'undefined' && BuckarooSdk.Base && BuckarooSdk.Base.setTestMode) {
-        BuckarooSdk.Base.setTestMode(config.isTestMode);
+      const sdk = getBuckarooSdkInstance();
+      if (config.isTestMode !== undefined && sdk && sdk.Base && sdk.Base.setTestMode) {
+        sdk.Base.setTestMode(config.isTestMode);
       }
 
       // Initialize product price watchers for product page
       if (this.page === 'product') {
         this.initProductPriceWatchers();
-      }
-
-      // For cart page, subscribe to quote totals updates
-      if (this.page === 'cart') {
-        const self = this;
-        require(["Magento_Checkout/js/model/quote"], function (quote) {
-          quote.totals.subscribe((totalData) => {
-            self.options.amount = (totalData.grand_total + totalData.tax_amount).toFixed(2);
-            self.options.currency = totalData.quote_currency_code;
-          })
-        })
       }
 
       // Get product price for product page using mixin
@@ -81,6 +84,22 @@ define([
         },
         config
       );
+
+      // For cart page, sync amount from quote totals after options exist.
+      if (this.page === 'cart') {
+        const self = this;
+        const syncFromTotals = function (totalData) {
+          if (!totalData) return;
+          const grandTotal = parseFloat(totalData.grand_total);
+          if (Number.isNaN(grandTotal)) return;
+          self.options.amount = grandTotal.toFixed(2);
+          if (totalData.quote_currency_code) {
+            self.options.currency = totalData.quote_currency_code;
+          }
+        };
+        syncFromTotals(quote.totals());
+        quote.totals.subscribe(syncFromTotals);
+      }
     },
     result: null,
     paypalInitialized: false,
@@ -105,14 +124,20 @@ define([
             if (!response.message) {
               this.cart_id = response.cart_id;
 
-              // Get amounts from response breakdown
+              // Get amounts from response breakdown.
               const newTotal = parseFloat(response.value);
-              const baseAmount = response.breakdown && response.breakdown.item_total
-                ? parseFloat(response.breakdown.item_total.value)
-                : newTotal;
-              const shippingCost = response.breakdown && response.breakdown.shipping
-                ? parseFloat(response.breakdown.shipping.value)
-                : 0;
+              if (Number.isNaN(newTotal)) {
+                reject($t("Cannot update payment totals"));
+                return;
+              }
+              const currency = this.options.currency;
+              const bd = response.breakdown || {};
+              const itemTotalRaw = bd.item_total ? parseFloat(bd.item_total.value) : newTotal;
+              const shippingRaw = bd.shipping ? parseFloat(bd.shipping.value) : 0;
+              const taxTotalRaw = bd.tax_total ? parseFloat(bd.tax_total.value) : 0;
+              const itemTotal = Number.isNaN(itemTotalRaw) ? newTotal : itemTotalRaw;
+              const shippingAmt = Number.isNaN(shippingRaw) ? 0 : shippingRaw;
+              const taxTotal = Number.isNaN(taxTotalRaw) ? 0 : taxTotalRaw;
 
               // Update the PayPal order with correct breakdown
               return actions.order.patch([
@@ -120,26 +145,30 @@ define([
                   op: 'replace',
                   path: "/purchase_units/@reference_id=='default'/amount",
                   value: {
-                    currency_code: this.options.currency,
+                    currency_code: currency,
                     value: newTotal.toFixed(2),
                     breakdown: {
                       item_total: {
-                        currency_code: this.options.currency,
-                        value: baseAmount.toFixed(2)
+                        currency_code: currency,
+                        value: itemTotal.toFixed(2)
                       },
                       shipping: {
-                        currency_code: this.options.currency,
-                        value: shippingCost.toFixed(2)
+                        currency_code: currency,
+                        value: shippingAmt.toFixed(2)
+                      },
+                      tax_total: {
+                        currency_code: currency,
+                        value: taxTotal.toFixed(2)
                       }
                     }
                   }
                 }
               ]).then(() => {
-                this.options.amount = newTotal;
+                this.options.amount = newTotal.toFixed(2);
                 resolve();
               }).catch((error) => {
                 // Order patch failed (may not be supported), continue with the flow
-                this.options.amount = newTotal;
+                this.options.amount = newTotal.toFixed(2);
                 resolve();
               });
             } else {
@@ -190,7 +219,11 @@ define([
     },
 
       init() {
-          BuckarooSdk.PayPal.initiate(this.options);
+          const sdk = getBuckarooSdkInstance();
+          if (!sdk || !sdk.PayPal || !sdk.PayPal.initiate) {
+            throw new Error("BuckarooSdk.PayPal is not available");
+          }
+          sdk.PayPal.initiate(this.options);
       },
 
     /**
@@ -229,7 +262,7 @@ define([
     },
 
     /**
-     * Get form data for product page to create cart
+     * Get form data for the product page to create a cart
      * @returns
      */
     getOrderData() {
@@ -245,22 +278,24 @@ define([
     displayErrorMessage(message) {
       let errorText = message;
 
-      if (typeof message === "object") {
+      if (typeof message === "object" && message !== null) {
         if (message.responseJSON && message.responseJSON.message) {
-          message = message.responseJSON.message;
+          errorText = message.responseJSON.message;
         } else if (message.responseText) {
           try {
             const parsed = JSON.parse(message.responseText);
-            message = parsed.message || $t("Cannot create payment");
+            errorText = parsed.message || "Cannot create payment";
           } catch (e) {
-            message = $t("Cannot create payment");
+            errorText = "Cannot create payment";
           }
         } else {
-          errorText = $t("Cannot create payment");
+          errorText = "Cannot create payment";
         }
       }
-
-      message = $t(message);
+      if (typeof errorText !== "string") {
+        errorText = "Cannot create payment";
+      }
+      errorText = $t(errorText);
       customerData.set('messages', {
         messages: [{
           type: 'error',
