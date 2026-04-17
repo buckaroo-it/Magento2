@@ -29,6 +29,7 @@ use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\Controller\ResultFactory;
+use Magento\Framework\UrlInterface;
 
 class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
 {
@@ -213,11 +214,12 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
     {
         $path = 'checkout';
         $arguments = ['_fragment' => 'payment'];
+        $baseUrl = 'https://example.com/checkout';
 
         $redirectMock = $this->createMock(\Magento\Framework\Controller\Result\Redirect::class);
         $redirectMock->expects($this->once())
-            ->method('setPath')
-            ->with($path, $arguments)
+            ->method('setUrl')
+            ->with($baseUrl . '#payment')
             ->willReturnSelf();
 
         $resultFactoryMock = $this->createMock(ResultFactory::class);
@@ -226,7 +228,13 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
             ->with(ResultFactory::TYPE_REDIRECT)
             ->willReturn($redirectMock);
 
+        $urlMock = $this->createMock(\Magento\Framework\UrlInterface::class);
+        $urlMock->method('getUrl')
+            ->with($path, [])
+            ->willReturn($baseUrl);
+
         $this->context->method('getResultFactory')->willReturn($resultFactoryMock);
+        $this->context->method('getUrl')->willReturn($urlMock);
 
         $instance = new SecondChance(
             $this->context,
