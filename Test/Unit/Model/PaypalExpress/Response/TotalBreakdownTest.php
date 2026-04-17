@@ -164,8 +164,7 @@ class TotalBreakdownTest extends BaseTest
     public function testBreakdownComponentsSumExactlyToGrandTotal(
         float $grandTotal,
         float $shipping,
-        float $tax,
-        string $expectedItemTotal
+        float $tax
     ): void {
         $breakdown = $this->makeBreakdown($grandTotal, $shipping, $tax);
 

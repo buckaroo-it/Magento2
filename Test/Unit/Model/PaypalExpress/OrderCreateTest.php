@@ -36,7 +36,6 @@ use Magento\Quote\Model\MaskedQuoteIdToQuoteId;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\Quote\Address as QuoteAddress;
 use Magento\Quote\Model\Quote\Payment as QuotePayment;
-use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 
 /**
@@ -51,6 +50,8 @@ use Magento\Sales\Api\OrderRepositoryInterface;
  *
  *  Quote — getCustomerEmail / setCustomerEmail are Magento magic __call methods
  *  (no real PHP method exists on Quote) → addMethods().
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class OrderCreateTest extends BaseTest
 {
