@@ -476,7 +476,7 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * Check if transaction was already processed based on transaction statuses from payment additional information
+     * Check if the transaction was already processed based on transaction statuses from payment additional information
      *
      * @param int $receivedStatusCode
      * @param string $trxId
@@ -498,10 +498,11 @@ class DefaultProcessor implements PushProcessorInterface
             ], true)
         ));
 
-        return $receivedTrxStatuses
-            && is_array($receivedTrxStatuses)
-            && isset($receivedTrxStatuses[$trxId])
-            && ($receivedTrxStatuses[$trxId] == $receivedStatusCode);
+        if (!$receivedTrxStatuses || !is_array($receivedTrxStatuses) || !isset($receivedTrxStatuses[$trxId])) {
+            return false;
+        }
+
+        return $receivedTrxStatuses[$trxId] == $receivedStatusCode;
     }
 
     /**
@@ -1837,6 +1838,16 @@ class DefaultProcessor implements PushProcessorInterface
 
         if ($this->order->getState() === Order::STATE_PROCESSING) {
             $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Do not update to failed if we had a success');
+            return false;
+        }
+
+        if ($this->order->hasInvoices()) {
+            $this->logger->addDebug(sprintf(
+                '[%s:%s] - Skipping failed push: order %s already has an invoice',
+                __METHOD__,
+                __LINE__,
+                $this->order->getIncrementId()
+            ));
             return false;
         }
 
