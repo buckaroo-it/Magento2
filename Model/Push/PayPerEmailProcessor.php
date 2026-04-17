@@ -283,10 +283,14 @@ class PayPerEmailProcessor extends DefaultProcessor
         $transactionKey = $this->getTransactionKey();
         $payPerEmailKey = $this->payment->getAdditionalInformation(BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY);
         $isPayPerEmailOrder = $this->payment->getMethod() === 'buckaroo_magento2_payperemail'
+            || $this->payment->getMethod() === 'buckaroo_magento2_paylink'
             || $this->payment->getAdditionalInformation('isPayPerEmail') !== null;
 
         $transactionMethod = $this->pushRequest->getTransactionMethod();
-        if (!empty($transactionMethod) && strtolower($transactionMethod) !== 'payperemail') {
+        if (!empty($transactionMethod)
+            && strtolower($transactionMethod) !== 'payperemail'
+            && strtolower($transactionMethod) !== 'paylink'
+        ) {
             $transactionMethod = strtolower($transactionMethod);
             $this->saveActualPaymentMethodAndKeyForRefund($transactionKey, $transactionMethod);
             return true;
