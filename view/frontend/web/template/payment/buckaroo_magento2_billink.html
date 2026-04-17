@@ -67,19 +67,13 @@
                                    data-bind="
                                    datepicker: {
                                         storage: dob,
-                                        options: {
-                                            beforeShow: dp.addPickerClass,
-                                            onClose: dp.removePickerClass,
-                                            changeMonth: true,
-                                            changeYear: true,
-                                            yearRange: ((new Date()).getFullYear()-120) + ':' + (new Date()).getFullYear(),
-                                            dateFormat: 'dd/MM/yy'
-                                        }
+                                        options: dp.getOptions()
                                    },
                                    valueUpdate: 'change',
                                    value: dob,
-                                   attr: { placeholder: $t('DD/MM/YYYY') }"
-                                   data-validate="{required:true, 'validate-date-au': true, validateAge: true}"
+                                   event: { input: filterDobInput },
+                                   attr: { placeholder: getDobPlaceholder() }"
+                                   data-validate="{required:true, 'validate-date-flexible': true, validateAge: true}"
                                    name="payment[buckaroo_magento2_billink][customer_DoB]">
                         </div>
                     </div>

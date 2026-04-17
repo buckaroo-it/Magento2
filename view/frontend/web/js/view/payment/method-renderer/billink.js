@@ -24,7 +24,7 @@ define(
         'buckaroo/checkout/payment/default',
         'Magento_Checkout/js/model/quote',
         'ko',
-        'buckaroo/checkout/datepicker',
+        'buckaroo/checkout/datepicker-enhanced',
         'Magento_Ui/js/lib/knockout/bindings/datepicker'
     ],
     function (
@@ -36,18 +36,42 @@ define(
     ) {
         'use strict';
 
+        $.validator.addMethod('validate-date-flexible', function (value) {
+            if (!value) return false;
+            var dateReg = /^\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{4}$/;
+            if (value.match(dateReg)) {
+                var parts = value.split(/[\/\-\.]/);
+                var day = parseInt(parts[0], 10);
+                var month = parseInt(parts[1], 10);
+                var year = parseInt(parts[2], 10);
+                if (day < 1 || day > 31 || month < 1 || month > 12 || year < 1900 || year > new Date().getFullYear()) {
+                    return false;
+                }
+                var date = new Date(year, month - 1, day);
+                return date.getDate() === day && date.getMonth() === (month - 1) && date.getFullYear() === year;
+            }
+            return false;
+        }, $.mage.__('Please use this date format: dd/mm/yyyy, dd-mm-yyyy or dd.mm.yyyy.'));
+
         $.validator.addMethod('validateAge', function (value) {
             if (value && (value.length > 0)) {
-                var dateReg = /^\d{2}[./-]\d{2}[./-]\d{4}$/;
+                var dateReg = /^\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{4}$/;
                 if (value.match(dateReg)) {
-                    var birthday = +new Date(
-                        value.substr(6, 4),
-                        value.substr(3, 2) - 1,
-                        value.substr(0, 2),
-                        0,
-                        0,
-                        0
-                    );
+                    var parts = value.split(/[\/\-\.]/);
+                    var day = parseInt(parts[0], 10);
+                    var month = parseInt(parts[1], 10);
+                    var year = parseInt(parts[2], 10);
+
+                    if (day < 1 || day > 31 || month < 1 || month > 12 || year < 1900 || year > new Date().getFullYear()) {
+                        return false;
+                    }
+
+                    var birthday = new Date(year, month - 1, day, 0, 0, 0);
+
+                    if (birthday.getDate() !== day || birthday.getMonth() !== (month - 1) || birthday.getFullYear() !== year) {
+                        return false;
+                    }
+
                     return ~~((Date.now() - birthday) / (31557600000)) >= 18;
                 }
             }
@@ -125,6 +149,17 @@ define(
                 redirectAfterPlaceOrder : true,
                 dp: datePicker,
 
+                filterDobInput: function (data, event) {
+                    var input = event.target;
+                    var filtered = input.value.replace(/[^\d\/\-\.]/g, '');
+                    if (input.value !== filtered) {
+                        var pos = input.selectionStart - (input.value.length - filtered.length);
+                        input.value = filtered;
+                        input.setSelectionRange(pos, pos);
+                    }
+                    return true;
+                },
+
                 initObservable: function () {
                     this._super().observe(
                         [
@@ -195,6 +230,22 @@ define(
                     );
 
                     return this;
+                },
+
+                getDobPlaceholder: function () {
+                    var formats = {
+                        'NL': 'DD-MM-YYYY',
+                        'BE': 'DD/MM/YYYY',
+                        'FR': 'DD/MM/YYYY',
+                        'DE': 'DD.MM.YYYY',
+                        'AT': 'DD.MM.YYYY',
+                        'IT': 'DD/MM/YYYY',
+                        'ES': 'DD/MM/YYYY',
+                        'PT': 'DD/MM/YYYY',
+                        'LU': 'DD/MM/YYYY'
+                    };
+                    var countryId = quote.billingAddress() ? quote.billingAddress().countryId : null;
+                    return formats[countryId] || 'DD/MM/YYYY';
                 },
 
                 getData: function () {
