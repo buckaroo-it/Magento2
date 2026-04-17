@@ -24,7 +24,7 @@ define(
         'buckaroo/checkout/payment/default',
         'Magento_Checkout/js/model/quote',
         'ko',
-        'buckaroo/checkout/datepicker'
+        'buckaroo/checkout/datepicker-enhanced'
     ],
     function (
         $,
@@ -34,6 +34,23 @@ define(
         datePicker
     ) {
         'use strict';
+
+        $.validator.addMethod('validate-date-flexible', function (value) {
+            if (!value) return false;
+            var dateReg = /^\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{4}$/;
+            if (value.match(dateReg)) {
+                var parts = value.split(/[\/\-\.]/);
+                var day = parseInt(parts[0], 10);
+                var month = parseInt(parts[1], 10);
+                var year = parseInt(parts[2], 10);
+                if (day < 1 || day > 31 || month < 1 || month > 12 || year < 1900 || year > new Date().getFullYear()) {
+                    return false;
+                }
+                var date = new Date(year, month - 1, day);
+                return date.getDate() === day && date.getMonth() === (month - 1) && date.getFullYear() === year;
+            }
+            return false;
+        }, $.mage.__('Please use this date format: dd/mm/yyyy, dd-mm-yyyy or dd.mm.yyyy.'));
 
         const validPhone = function (value) {
             if (quote.billingAddress() === null) {
@@ -98,6 +115,17 @@ define(
                 redirectAfterPlaceOrder: false,
                 dp: datePicker,
 
+                filterDobInput: function (data, event) {
+                    var input = event.target;
+                    var filtered = input.value.replace(/[^\d\/\-\.]/g, '');
+                    if (input.value !== filtered) {
+                        var pos = input.selectionStart - (input.value.length - filtered.length);
+                        input.value = filtered;
+                        input.setSelectionRange(pos, pos);
+                    }
+                    return true;
+                },
+
                 getMessageText: function () {
                     return $.mage
                         .__('Je moet minimaal 18+ zijn om deze dienst te gebruiken. Als je op tijd betaalt, voorkom je extra kosten en zorg je dat je in de toekomst nogmaals gebruik kunt maken van de diensten van ' +
@@ -146,6 +174,22 @@ define(
 
 
                     return this;
+                },
+
+                getDobPlaceholder: function () {
+                    var formats = {
+                        'NL': 'DD-MM-YYYY',
+                        'BE': 'DD/MM/YYYY',
+                        'FR': 'DD/MM/YYYY',
+                        'DE': 'DD.MM.YYYY',
+                        'AT': 'DD.MM.YYYY',
+                        'IT': 'DD/MM/YYYY',
+                        'ES': 'DD/MM/YYYY',
+                        'PT': 'DD/MM/YYYY',
+                        'LU': 'DD/MM/YYYY'
+                    };
+                    var countryId = quote.billingAddress() ? quote.billingAddress().countryId : null;
+                    return formats[countryId] || 'DD/MM/YYYY';
                 },
 
                 getData : function () {
