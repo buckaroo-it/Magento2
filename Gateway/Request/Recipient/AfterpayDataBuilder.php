@@ -51,7 +51,6 @@ class AfterpayDataBuilder extends AbstractRecipientDataBuilder
     {
         $data = [
             'category'             => $this->getCategory(),
-            'careOf'               => $this->getCareOf(),
             'firstName'            => $this->getFirstname(),
             'lastName'             => $this->getLastName(),
             'conversationLanguage' => $this->getConversationLanguage()
@@ -140,14 +139,6 @@ class AfterpayDataBuilder extends AbstractRecipientDataBuilder
         }
 
         return strlen(trim($company)) === 0;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function getCareOf(): string
-    {
-        return $this->getFirstname() . ' ' . $this->getLastName();
     }
 
     /**
