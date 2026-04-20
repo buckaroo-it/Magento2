@@ -189,3 +189,7 @@
 "Cancel Order on Browser Back Button","Annuler Commande Retour"
 "If disabled, orders will stay in pending state when customer uses browser back button, allowing retry. Buckaroo push notification will handle final cancellation if needed.","Si désactivé, commandes en attente, réessayer possible. Push gère annulation."
 "Extra Fees","Frais supplémentaires"
+"Gender:","Genre:"
+"Male","Homme"
+"Female","Femme"
+"Other","Autre"

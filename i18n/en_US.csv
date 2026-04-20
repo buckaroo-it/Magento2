@@ -214,3 +214,7 @@
 "Extra Fees","Extra Fees"
 "Display Payment Instructions on Success Page","Display Payment Instructions on Success Page"
 "When set to ""Yes"", bank transfer details will be displayed on the success page after the customer places an order.","When set to ""Yes"", bank transfer details will be displayed on the success page after the customer places an order."
+"Gender:","Gender:"
+"Male","Male"
+"Female","Female"
+"Other","Other"
