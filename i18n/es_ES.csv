@@ -627,3 +627,7 @@
 "Extra Fees","Cargos adicionales"
 "Display Payment Instructions on Success Page","Mostrar Instrucciones de Pago en la Página de Confirmación"
 "When set to ""Yes"", bank transfer details will be displayed on the success page after the customer places an order.","Cuando se establece en ""Sí"", los datos de transferencia bancaria se mostrarán en la página de confirmación después de que el cliente realice un pedido."
+"Gender:","Género:"
+"Male","Hombre"
+"Female","Mujer"
+"Other","Otro"

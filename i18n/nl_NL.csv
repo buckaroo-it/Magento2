@@ -866,3 +866,7 @@
 "Extra Fees","Bijkomende kosten"
 "Display Payment Instructions on Success Page","Toon Betaalinstructies op de Succespagina"
 "When set to ""Yes"", bank transfer details will be displayed on the success page after the customer places an order.","Wanneer ingesteld op ""Ja"", worden de bankoverschrijvingsgegevens weergegeven op de succespagina nadat de klant een bestelling heeft geplaatst."
+"Gender:","Geslacht:"
+"Male","Man"
+"Female","Vrouw"
+"Other","Anders"
