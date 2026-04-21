@@ -141,12 +141,6 @@ class PaypalExpress extends Template
     /**
      * Config for the cart-page PayPal Express button.
      *
-     * Extends {@see getConfig()} with the current quote grand total and currency so the
-     * JS never renders the PayPal button with a null `initialAmount`. Mirrors the Mollie
-     * Magento2 plugin's server-side seeding pattern (Block/Applepay/Shortcut/Button.php)
-     * and avoids the known race where {@see \Magento\Checkout\Model\Session} quote totals
-     * load after the button has already mounted client-side.
-     *
      * @return array
      */
     public function getCartConfig(): array
