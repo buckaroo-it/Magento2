@@ -187,7 +187,7 @@ describe('Fix B — initial amount seeded immediately from quote.totals()', () =
     });
 });
 
-describe('BTI-860 — cart page takes amount from server-rendered config', () => {
+describe('Cart page takes amount from server-rendered config', () => {
     test('server-provided amount flows through when quote.totals() is null at init', () => {
         quoteStub.totals = makeObservable(null); // totals observable empty on cart
 

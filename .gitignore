@@ -8,3 +8,5 @@ TESTING.md
 phpstan-local.neon
 composer.lock
 /view/frontend/web/js/view/checkout/paypal-express/node_modules/
+/view/frontend/web/js/view/checkout/paypal-express/package.json
+/view/frontend/web/js/view/checkout/paypal-express/package-lock.json

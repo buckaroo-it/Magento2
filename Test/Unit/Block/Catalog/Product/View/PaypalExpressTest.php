@@ -35,11 +35,6 @@ use Magento\Store\Model\StoreManagerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-/**
- * Regression coverage for BTI-860: the cart-page config must seed `amount`
- * and `currency` from the active quote so the PayPal button can never mount
- * with initialAmount=null.
- */
 class PaypalExpressTest extends TestCase
 {
     /** @var Context&MockObject */
