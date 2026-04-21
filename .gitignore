@@ -7,3 +7,4 @@ run-local-tests.sh
 TESTING.md
 phpstan-local.neon
 composer.lock
+/view/frontend/web/js/view/checkout/paypal-express/node_modules/

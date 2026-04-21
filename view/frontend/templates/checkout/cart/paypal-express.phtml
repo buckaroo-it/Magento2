@@ -29,7 +29,7 @@ if ($block->canShowCartButton() && !$block->isIdinVerificationRequired()): ?>
     {
         "#paypal-express-wrapper": {
             "Buckaroo_Magento2/js/view/checkout/cart/paypal-express": {
-                "config": <?= /* @noEscape */ json_encode($block->getConfig()); ?>,
+                "config": <?= /* @noEscape */ json_encode($block->getCartConfig()); ?>,
                 "context": "cart"
             }
         }
