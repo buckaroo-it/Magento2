@@ -757,14 +757,19 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
             var_export($shouldCancelOnBrowserBack, true)
         ));
 
-        if (!$this->getSkipHandleFailedRecreate()
-            && (!$this->quoteRecreate->recreate($this->quote))) {
-            $this->logger->addError(sprintf(
-                '[REDIRECT - %s] | [Controller] | [%s:%s] - Could not Recreate Quote on Failed ',
-                $this->payment->getMethod(),
-                __METHOD__,
-                __LINE__
-            ));
+        if (!$this->getSkipHandleFailedRecreate()) {
+            $recreatedQuote = $this->quoteRecreate->recreate($this->quote);
+
+            if (!$recreatedQuote) {
+                $this->logger->addError(sprintf(
+                    '[REDIRECT - %s] | [Controller] | [%s:%s] - Could not Recreate Quote on Failed ',
+                    $this->payment->getMethod(),
+                    __METHOD__,
+                    __LINE__
+                ));
+            } else {
+                $this->persistRecreatedQuoteInSession($recreatedQuote);
+            }
         }
 
         /*
@@ -926,8 +931,8 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
             return $this->redirectOnCheckoutForFailedTransaction();
         }
 
-        // Set flag to enable quote restoration
-        $this->checkoutSession->setRestoreQuoteLastOrder($this->order->getId());
+        // Quote is restored directly in handleFailed(), avoid stale deferred restore on a later checkout visit.
+        $this->checkoutSession->setRestoreQuoteLastOrder(false);
 
         $this->logger->addDebug(sprintf(
             '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect Failure To Checkout - Set restore quote flag',
@@ -1100,5 +1105,38 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
         return $this->payment->getAdditionalInformation(
             InvoiceHandlingOptions::INVOICE_HANDLING
         ) == InvoiceHandlingOptions::SHIPMENT;
+    }
+
+    /**
+     * Persist recreated quote and make it immediately active in checkout session.
+     *
+     * @param Quote $quote
+     */
+    private function persistRecreatedQuoteInSession(Quote $quote): void
+    {
+        try {
+            $quote->setIsActive(true);
+            $quote->collectTotals();
+            $quote->save();
+
+            $this->checkoutSession->replaceQuote($quote);
+            $this->checkoutSession->setQuoteId($quote->getId());
+
+            $this->logger->addDebug(sprintf(
+                '[REDIRECT - %s] | [Controller] | [%s:%s] - Recreated quote persisted in checkout session | quoteId: %s',
+                $this->payment->getMethod(),
+                __METHOD__,
+                __LINE__,
+                $quote->getId()
+            ));
+        } catch (Exception $e) {
+            $this->logger->addError(sprintf(
+                '[REDIRECT - %s] | [Controller] | [%s:%s] - Failed to persist recreated quote in session | [ERROR]: %s',
+                $this->payment->getMethod(),
+                __METHOD__,
+                __LINE__,
+                $e->getMessage()
+            ));
+        }
     }
 }
