@@ -187,6 +187,42 @@ describe('Fix B — initial amount seeded immediately from quote.totals()', () =
     });
 });
 
+describe('Cart page takes amount from server-rendered config', () => {
+    test('server-provided amount flows through when quote.totals() is null at init', () => {
+        quoteStub.totals = makeObservable(null); // totals observable empty on cart
+
+        pay.setConfig(
+            { buckarooWebsiteKey: 'key', paypalMerchantId: 'mid', amount: '29.98', currency: 'USD' },
+            'cart'
+        );
+
+        expect(pay.options.amount).toBe('29.98');
+        expect(pay.options.currency).toBe('USD');
+    });
+
+    test('subscription still updates amount after server-provided seed (coupon, qty change)', () => {
+        const totalsObs = makeObservable(null);
+        quoteStub.totals = totalsObs;
+
+        pay.setConfig(
+            { buckarooWebsiteKey: 'key', paypalMerchantId: 'mid', amount: '29.98' },
+            'cart'
+        );
+        expect(pay.options.amount).toBe('29.98');
+
+        totalsObs.__fire(makeTotals(42.50));
+        expect(pay.options.amount).toBe('42.50');
+    });
+
+    test('product page still aborts init when product price is unavailable', () => {
+        priceMixinStub.getProductTotalPrice.mockReturnValueOnce(null);
+
+        pay.setConfig({ buckarooWebsiteKey: 'key', paypalMerchantId: 'mid' }, 'product');
+
+        expect(pay.options.amount).toBeUndefined();
+    });
+});
+
 // ===========================================================================
 // Fix A: onShippingChangeHandler includes tax_total in PayPal order patch
 // ===========================================================================

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
@@ -24,6 +23,7 @@ namespace Buckaroo\Magento2\Block\Catalog\Product\View;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Paypal;
 use Magento\Catalog\Model\Product;
+use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\Encryption\Encryptor;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
@@ -59,12 +59,18 @@ class PaypalExpress extends Template
     private $product;
 
     /**
-     * @param Context       $context
-     * @param Account       $configProviderAccount
-     * @param Encryptor     $encryptor
-     * @param Paypal        $paypalConfig
-     * @param Registry|null $registry
-     * @param array         $data
+     * @var CheckoutSession|null
+     */
+    private $checkoutSession;
+
+    /**
+     * @param Context              $context
+     * @param Account              $configProviderAccount
+     * @param Encryptor            $encryptor
+     * @param Paypal               $paypalConfig
+     * @param Registry|null        $registry
+     * @param CheckoutSession|null $checkoutSession
+     * @param array                $data
      */
     public function __construct(
         Context $context,
@@ -72,6 +78,7 @@ class PaypalExpress extends Template
         Encryptor $encryptor,
         Paypal $paypalConfig,
         ?Registry $registry = null,
+        ?CheckoutSession $checkoutSession = null,
         array $data = []
     ) {
         parent::__construct($context, $data);
@@ -79,6 +86,7 @@ class PaypalExpress extends Template
         $this->encryptor = $encryptor;
         $this->paypalConfig = $paypalConfig;
         $this->registry = $registry;
+        $this->checkoutSession = $checkoutSession;
     }
 
     /**
@@ -97,7 +105,7 @@ class PaypalExpress extends Template
     }
 
     /**
-     * Can show PayPal Express button on cart
+     * Can show the PayPal Express button on the cart
      *
      * @throws NoSuchEntityException
      *
@@ -128,6 +136,78 @@ class PaypalExpress extends Template
             ],
             'isTestMode' => $this->isTestMode()
         ];
+    }
+
+    /**
+     * Config for the cart-page PayPal Express button.
+     *
+     * @return array
+     */
+    public function getCartConfig(): array
+    {
+        $config = $this->getConfig();
+        $grandTotal = $this->getCartGrandTotal();
+
+        if ($grandTotal !== null) {
+            $config['amount'] = number_format($grandTotal, 2, '.', '');
+        }
+
+        $quoteCurrency = $this->getCartCurrency();
+        if ($quoteCurrency !== null) {
+            $config['currency'] = $quoteCurrency;
+        }
+
+        return $config;
+    }
+
+    /**
+     * Current quote grand total, or null when no quote is available.
+     *
+     * @return float|null
+     */
+    private function getCartGrandTotal(): ?float
+    {
+        $quote = $this->getActiveQuote();
+        if ($quote === null || !$quote->getId()) {
+            return null;
+        }
+
+        $grandTotal = (float)$quote->getData('grand_total');
+        return $grandTotal > 0 ? $grandTotal : null;
+    }
+
+    /**
+     * Quote currency code when set, otherwise null (callers fall back to the store currency).
+     *
+     * @return string|null
+     */
+    private function getCartCurrency(): ?string
+    {
+        $quote = $this->getActiveQuote();
+        if ($quote === null) {
+            return null;
+        }
+
+        $currency = $quote->getData('quote_currency_code');
+        return is_string($currency) && $currency !== '' ? $currency : null;
+    }
+
+    /**
+     * Return the active checkout quote or null if it cannot be loaded.
+     *
+     * @return \Magento\Quote\Model\Quote|null
+     */
+    private function getActiveQuote()
+    {
+        if ($this->checkoutSession === null) {
+            return null;
+        }
+
+        try {
+            return $this->checkoutSession->getQuote();
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 
     /**
@@ -178,7 +258,7 @@ class PaypalExpress extends Template
     }
 
     /**
-     * Get paypal express button color
+     * Get PayPal express button color
      *
      * @throws NoSuchEntityException
      *
@@ -248,7 +328,7 @@ class PaypalExpress extends Template
     }
 
     /**
-     * Check if current product page requires iDIN (Per Product mode)
+     * Check if the current product page requires iDIN (Per Product mode)
      *
      * @return bool
      */
@@ -292,7 +372,7 @@ class PaypalExpress extends Template
     }
 
     /**
-     * Retrieve current product model (returns null if not on product page)
+     * Retrieve the current product model (returns null if not on the product page)
      *
      * @return Product|null
      */
