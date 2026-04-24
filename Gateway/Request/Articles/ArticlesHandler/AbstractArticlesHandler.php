@@ -675,11 +675,10 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
 
         $invoiceCollection = $this->getOrder()->getInvoiceCollection();
         $numberOfInvoices = $invoiceCollection->count();
-
-        /**
-         * @var Invoice $currentInvoice
-         */
-        $currentInvoice = $invoiceCollection->getLastItem();
+        $currentInvoice = $this->resolveCurrentInvoice($payment, $invoiceCollection);
+        if (!$currentInvoice) {
+            return ['articles' => []];
+        }
 
         $articles['articles'] = $this->getInvoiceItemsLines($currentInvoice);
 
@@ -698,6 +697,34 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         $articles = $this->reconcileArticlesWithGrandTotal($articles, (float)$currentInvoice->getGrandTotal(), (float)$currentInvoice->getTaxAmount());
 
         return $articles;
+    }
+
+    /**
+     * Prefer the invoice currently being captured to avoid using a stale invoice.
+     *
+     * @param InfoInterface $payment
+     * @param \Magento\Sales\Model\ResourceModel\Order\Invoice\Collection $invoiceCollection
+     * @return Invoice|null
+     */
+    private function resolveCurrentInvoice(
+        InfoInterface $payment,
+        \Magento\Sales\Model\ResourceModel\Order\Invoice\Collection $invoiceCollection
+    ): ?Invoice {
+        if (method_exists($payment, 'getCreatedInvoice')) {
+            $createdInvoice = $payment->getCreatedInvoice();
+            if ($createdInvoice instanceof Invoice && $createdInvoice->getEntityId()) {
+                return $createdInvoice;
+            }
+            if ($createdInvoice instanceof Invoice && $createdInvoice->getItemsCount() > 0) {
+                return $createdInvoice;
+            }
+        }
+
+        if ($invoiceCollection->count() > 0) {
+            return $invoiceCollection->getLastItem();
+        }
+
+        return null;
     }
 
     /**

@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Gateway\Request\Invoice;
 
 use Buckaroo\Magento2\Gateway\Request\AbstractDataBuilder;
 use Buckaroo\Magento2\Helper\Data as BuckarooHelper;
+use Magento\Sales\Model\Order\Invoice;
 
 abstract class AbstractInvoiceDataBuilder extends AbstractDataBuilder
 {
@@ -70,12 +71,9 @@ abstract class AbstractInvoiceDataBuilder extends AbstractDataBuilder
         $totalOrder = $order->getBaseGrandTotal();
         $this->numberOfInvoices = $order->getInvoiceCollection()->count();
         $this->currentInvoiceTotal = 0;
-
-        // loop through invoices to get the last one (=current invoice)
-        if ($this->numberOfInvoices) {
-            $invoiceCollection = $order->getInvoiceCollection();
-            $currentInvoice = $invoiceCollection->getLastItem();
-            $this->currentInvoiceTotal = $currentInvoice->getGrandTotal();
+        $currentInvoice = $this->resolveCurrentInvoice();
+        if ($currentInvoice) {
+            $this->currentInvoiceTotal = (float)$currentInvoice->getGrandTotal();
         }
 
         if ($this->buckarooHelper->areEqualAmounts($totalOrder, $this->currentInvoiceTotal)
@@ -88,5 +86,30 @@ abstract class AbstractInvoiceDataBuilder extends AbstractDataBuilder
         $data['numberOfInvoices'] = $this->numberOfInvoices;
 
         return $data;
+    }
+
+    /**
+     * Prefer the invoice currently being captured to avoid stale "last item" lookups.
+     *
+     * @return Invoice|null
+     */
+    private function resolveCurrentInvoice(): ?Invoice
+    {
+        $payment = $this->getPayment();
+        if (method_exists($payment, 'getCreatedInvoice')) {
+            $createdInvoice = $payment->getCreatedInvoice();
+            if ($createdInvoice instanceof Invoice && $createdInvoice->getEntityId()) {
+                return $createdInvoice;
+            }
+            if ($createdInvoice instanceof Invoice && $createdInvoice->getItemsCount() > 0) {
+                return $createdInvoice;
+            }
+        }
+
+        if ($this->numberOfInvoices > 0) {
+            return $this->getOrder()->getInvoiceCollection()->getLastItem();
+        }
+
+        return null;
     }
 }
