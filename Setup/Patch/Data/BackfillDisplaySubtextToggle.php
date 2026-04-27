@@ -138,8 +138,8 @@ class BackfillDisplaySubtextToggle implements DataPatchInterface
         }
 
         $methodCodes = [];
-        foreach ($config->default->payment->children() as $methodCode => $methodData) {
-            $methodCodes[] = (string)$methodCode;
+        foreach ($config->default->payment->children() as $methodNode) {
+            $methodCodes[] = (string)$methodNode->getName();
         }
 
         return $methodCodes;
