@@ -61,6 +61,7 @@
                 <privateInfoKeys></privateInfoKeys>
                 <paymentInfoKeys>buckaroo_original_transaction_key</paymentInfoKeys>
                 <ideal_logo_colors>Magenta</ideal_logo_colors>
+                <display_subtext>1</display_subtext>
             </buckaroo_magento2_ideal>
 
             <buckaroo_magento2_paybybank>
@@ -84,6 +85,7 @@
                 <can_use_internal>1</can_use_internal>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
+                <display_subtext>1</display_subtext>
             </buckaroo_magento2_paybybank>
 
             <buckaroo_magento2_sepadirectdebit>
@@ -110,6 +112,7 @@
                 <can_use_internal>1</can_use_internal>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
+                <display_subtext>1</display_subtext>
             </buckaroo_magento2_sepadirectdebit>
 
             <buckaroo_magento2_paypal>
@@ -140,6 +143,7 @@
                 <can_use_internal>1</can_use_internal>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
+                <display_subtext>1</display_subtext>
             </buckaroo_magento2_paypal>
 
             <buckaroo_magento2_creditcard>
@@ -171,6 +175,7 @@
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
                 <group_creditcards>1</group_creditcards>
+                <display_subtext>1</display_subtext>
             </buckaroo_magento2_creditcard>
 
             <buckaroo_magento2_creditcards>
@@ -212,6 +217,7 @@
 
                 <!-- Default allowed credit cards for hosted fields - all enabled by default -->
                 <allowed_issuers>Visa,MasterCard,Amex,Maestro</allowed_issuers>
+                <display_subtext>1</display_subtext>
             </buckaroo_magento2_creditcards>
 
             <buckaroo_magento2_transfer>
@@ -242,6 +248,7 @@
                 <can_use_internal>1</can_use_internal>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
+                <display_subtext>1</display_subtext>
             </buckaroo_magento2_transfer>
 
             <buckaroo_magento2_mrcash>
@@ -268,6 +275,7 @@
                 <can_use_internal>1</can_use_internal>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
+                <display_subtext>1</display_subtext>
             </buckaroo_magento2_mrcash>
 
             <buckaroo_magento2_belfius>
@@ -291,6 +299,7 @@
                 <can_use_internal>1</can_use_internal>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
+                <display_subtext>1</display_subtext>
             </buckaroo_magento2_belfius>
 
             <buckaroo_magento2_bizum>
@@ -314,6 +323,7 @@
                 <can_use_internal>1</can_use_internal>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
+                <display_subtext>1</display_subtext>
             </buckaroo_magento2_bizum>
 
             <buckaroo_magento2_swish>
@@ -337,6 +347,7 @@
                 <can_use_internal>1</can_use_internal>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
+                <display_subtext>1</display_subtext>
             </buckaroo_magento2_swish>
 
             <buckaroo_magento2_twint>
@@ -360,6 +371,7 @@
                 <can_use_internal>1</can_use_internal>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
+                <display_subtext>1</display_subtext>
             </buckaroo_magento2_twint>
 
             <buckaroo_magento2_wero>
@@ -383,6 +395,7 @@
                 <can_use_internal>1</can_use_internal>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
+                <display_subtext>1</display_subtext>
             </buckaroo_magento2_wero>
 
             <buckaroo_magento2_blik>
@@ -406,6 +419,7 @@
                 <can_use_internal>1</can_use_internal>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
+                <display_subtext>1</display_subtext>
             </buckaroo_magento2_blik>
 
             <buckaroo_magento2_afterpay>
@@ -433,6 +447,7 @@
                 <can_use_internal>1</can_use_internal>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
+                <display_subtext>1</display_subtext>
             </buckaroo_magento2_afterpay>
 
             <buckaroo_magento2_afterpay2>
@@ -459,6 +474,7 @@
                 <can_use_internal>1</can_use_internal>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
+                <display_subtext>1</display_subtext>
             </buckaroo_magento2_afterpay2>
 
             <buckaroo_magento2_payperemail>
@@ -489,6 +505,7 @@
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
                 <paymentInfoKeys>isPayPerEmail,buckaroo_payperemail_actual_transaction_key,buckaroo_actual_payment_method,buckaroo_actual_payment_transaction_key</paymentInfoKeys>
+                <display_subtext>1</display_subtext>
             </buckaroo_magento2_payperemail>
 
             <buckaroo_magento2_eps>
@@ -512,6 +529,7 @@
                 <can_use_internal>1</can_use_internal>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
+                <display_subtext>1</display_subtext>
             </buckaroo_magento2_eps>
 
             <buckaroo_magento2_giftcards>
@@ -534,6 +552,7 @@
                 <can_use_internal>0</can_use_internal>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
+                <display_subtext>1</display_subtext>
             </buckaroo_magento2_giftcards>
 
             <buckaroo_magento2_kbc>
@@ -557,6 +576,7 @@
                 <can_use_internal>1</can_use_internal>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
+                <display_subtext>1</display_subtext>
             </buckaroo_magento2_kbc>
 
             <buckaroo_magento2_paylink>
@@ -607,6 +627,7 @@
                 <can_use_internal>1</can_use_internal>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
+                <display_subtext>1</display_subtext>
             </buckaroo_magento2_klarna>
 
             <buckaroo_magento2_klarnakp>
@@ -632,6 +653,7 @@
                 <can_use_internal>1</can_use_internal>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
+                <display_subtext>1</display_subtext>
             </buckaroo_magento2_klarnakp>
 
             <buckaroo_magento2_afterpay20>
@@ -660,6 +682,7 @@
                 <can_use_internal>1</can_use_internal>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
+                <display_subtext>1</display_subtext>
             </buckaroo_magento2_afterpay20>
 
             <buckaroo_magento2_billink>
@@ -685,6 +708,7 @@
                 <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
                 <can_use_internal>0</can_use_internal>
                 <can_use_checkout>1</can_use_checkout>
+                <display_subtext>1</display_subtext>
             </buckaroo_magento2_billink>
 
             <buckaroo_magento2_applepay>
@@ -707,6 +731,7 @@
                 <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
                 <can_use_internal>1</can_use_internal>
                 <can_use_checkout>1</can_use_checkout>
+                <display_subtext>1</display_subtext>
             </buckaroo_magento2_applepay>
 
             <buckaroo_magento2_googlepay>
@@ -732,6 +757,10 @@
                 <can_use_checkout>1</can_use_checkout>
             </buckaroo_magento2_googlepay>
 
+            <buckaroo_magento2_capayablepostpay>
+                <display_subtext>1</display_subtext>
+            </buckaroo_magento2_capayablepostpay>
+
             <buckaroo_magento2_capayablein3>
                 <active>0</active>
                 <model>CapayableFacade</model>
@@ -753,6 +782,7 @@
                 <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
                 <can_use_internal>0</can_use_internal>
                 <can_use_checkout>1</can_use_checkout>
+                <display_subtext>1</display_subtext>
             </buckaroo_magento2_capayablein3>
 
             <buckaroo_magento2_alipay>
@@ -775,6 +805,7 @@
                 <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
                 <can_use_internal>1</can_use_internal>
                 <can_use_checkout>1</can_use_checkout>
+                <display_subtext>1</display_subtext>
             </buckaroo_magento2_alipay>
 
             <buckaroo_magento2_wechatpay>
@@ -797,6 +828,7 @@
                 <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
                 <can_use_internal>1</can_use_internal>
                 <can_use_checkout>1</can_use_checkout>
+                <display_subtext>1</display_subtext>
             </buckaroo_magento2_wechatpay>
 
             <buckaroo_magento2_p24>
@@ -819,6 +851,7 @@
                 <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
                 <can_use_internal>1</can_use_internal>
                 <can_use_checkout>1</can_use_checkout>
+                <display_subtext>1</display_subtext>
             </buckaroo_magento2_p24>
 
             <buckaroo_magento2_trustly>
@@ -841,6 +874,7 @@
                 <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
                 <can_use_internal>1</can_use_internal>
                 <can_use_checkout>1</can_use_checkout>
+                <display_subtext>1</display_subtext>
             </buckaroo_magento2_trustly>
 
             <buckaroo_magento2_pospayment>
@@ -863,6 +897,7 @@
                 <can_refund_partial_per_invoice>0</can_refund_partial_per_invoice>
                 <can_use_internal>1</can_use_internal>
                 <can_use_checkout>1</can_use_checkout>
+                <display_subtext>1</display_subtext>
             </buckaroo_magento2_pospayment>
 
             <buckaroo_magento2_voucher>
@@ -886,6 +921,7 @@
                 <can_use_internal>1</can_use_internal>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
+                <display_subtext>1</display_subtext>
             </buckaroo_magento2_voucher>
 
             <buckaroo_magento2_multibanco>
@@ -909,6 +945,7 @@
                 <can_use_internal>1</can_use_internal>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
+                <display_subtext>1</display_subtext>
             </buckaroo_magento2_multibanco>
 
             <buckaroo_magento2_mbway>
@@ -932,6 +969,7 @@
                 <can_use_internal>1</can_use_internal>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
+                <display_subtext>1</display_subtext>
             </buckaroo_magento2_mbway>
 
             <buckaroo_magento2_knaken>
@@ -955,6 +993,7 @@
                 <can_use_internal>1</can_use_internal>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
+                <display_subtext>1</display_subtext>
             </buckaroo_magento2_knaken>
         </payment>
 
