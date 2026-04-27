@@ -115,9 +115,7 @@ class BackfillDisplaySubtextToggle implements DataPatchInterface
 
     public static function getDependencies(): array
     {
-        return [
-            MigrateScopedPaymentConfigValues::class,
-        ];
+        return [];
     }
 
     public function getAliases(): array
