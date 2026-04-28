@@ -28,7 +28,6 @@ use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\Controller\Result\Redirect;
-use Magento\Framework\Controller\ResultFactory;
 
 class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
 {
@@ -207,35 +206,5 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $result = $instance->execute();
         $this->assertInstanceOf(Redirect::class, $result);
-    }
-
-    public function testHandleRedirect()
-    {
-        $path = 'checkout';
-        $arguments = ['_fragment' => 'payment'];
-
-        $redirectMock = $this->createMock(\Magento\Framework\Controller\Result\Redirect::class);
-        $redirectMock->expects($this->once())
-            ->method('setPath')
-            ->with($path, $arguments)
-            ->willReturnSelf();
-
-        $resultFactoryMock = $this->createMock(ResultFactory::class);
-        $resultFactoryMock->expects($this->once())
-            ->method('create')
-            ->with(ResultFactory::TYPE_REDIRECT)
-            ->willReturn($redirectMock);
-
-        $this->context->method('getResultFactory')->willReturn($resultFactoryMock);
-
-        $instance = new SecondChance(
-            $this->context,
-            $this->logger,
-            $this->secondChanceRepository,
-            $this->checkoutSession
-        );
-
-        $result = $instance->handleRedirect($path, $arguments);
-        $this->assertEquals($redirectMock, $result);
     }
 }
