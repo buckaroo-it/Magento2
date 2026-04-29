@@ -24,6 +24,7 @@ use Buckaroo\Magento2\Controller\Checkout\SecondChance;
 use Buckaroo\Magento2\Model\SecondChanceRepository;
 use Buckaroo\Magento2\Logging\Log;
 use Magento\Checkout\Model\Session as CheckoutSession;
+use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Message\ManagerInterface;
@@ -52,6 +53,9 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
     /** @var CheckoutSession|\PHPUnit\Framework\MockObject\MockObject */
     private $checkoutSession;
 
+    /** @var CustomerSession|\PHPUnit\Framework\MockObject\MockObject */
+    private $customerSession;
+
     public function setUp(): void
     {
         parent::setUp();
@@ -59,6 +63,7 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->logger = $this->getFakeMock(Log::class)->getMock();
         $this->secondChanceRepository = $this->getFakeMock(SecondChanceRepository::class)->getMock();
         $this->checkoutSession = $this->getFakeMock(CheckoutSession::class)->getMock();
+        $this->customerSession = $this->getFakeMock(CustomerSession::class)->getMock();
         $this->context = $this->getFakeMock(Context::class)->getMock();
         $this->request = $this->getFakeMock(RequestInterface::class)->getMock();
         $this->messageManager = $this->getFakeMock(ManagerInterface::class)->getMock();
@@ -97,7 +102,8 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
                 $this->context,
                 $this->logger,
                 $this->secondChanceRepository,
-                $this->checkoutSession
+                $this->checkoutSession,
+                $this->customerSession
             ])
             ->onlyMethods(['handleRedirect'])
             ->getMock();
@@ -133,7 +139,8 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
                 $this->context,
                 $this->logger,
                 $this->secondChanceRepository,
-                $this->checkoutSession
+                $this->checkoutSession,
+                $this->customerSession
             ])
             ->onlyMethods(['handleRedirect'])
             ->getMock();
@@ -164,7 +171,8 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
                 $this->context,
                 $this->logger,
                 $this->secondChanceRepository,
-                $this->checkoutSession
+                $this->checkoutSession,
+                $this->customerSession
             ])
             ->onlyMethods(['handleRedirect'])
             ->getMock();
@@ -195,7 +203,8 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
                 $this->context,
                 $this->logger,
                 $this->secondChanceRepository,
-                $this->checkoutSession
+                $this->checkoutSession,
+                $this->customerSession
             ])
             ->onlyMethods(['handleRedirect'])
             ->getMock();
@@ -232,7 +241,8 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
             $this->context,
             $this->logger,
             $this->secondChanceRepository,
-            $this->checkoutSession
+            $this->checkoutSession,
+            $this->customerSession
         );
 
         $result = $instance->handleRedirect($path, $arguments);
