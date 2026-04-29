@@ -26,6 +26,7 @@ use Exception;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Checkout\Model\Session as CheckoutSession;
+use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\Controller\ResultFactory;
 
@@ -47,21 +48,29 @@ class SecondChance extends Action
     protected $checkoutSession;
 
     /**
+     * @var CustomerSession
+     */
+    protected $customerSession;
+
+    /**
      * @param Context                $context
      * @param Log                    $logger
      * @param SecondChanceRepository $secondChanceRepository
      * @param CheckoutSession        $checkoutSession
+     * @param CustomerSession        $customerSession
      */
     public function __construct(
         Context $context,
         Log $logger,
         SecondChanceRepository $secondChanceRepository,
-        CheckoutSession $checkoutSession
+        CheckoutSession $checkoutSession,
+        CustomerSession $customerSession
     ) {
         parent::__construct($context);
         $this->logger                 = $logger;
         $this->secondChanceRepository = $secondChanceRepository;
         $this->checkoutSession        = $checkoutSession;
+        $this->customerSession        = $customerSession;
     }
 
     /**
@@ -84,6 +93,14 @@ class SecondChance extends Action
                     $this->logger->addError('SecondChance: No quote in session after restoration');
                     $this->messageManager->addErrorMessage(__('Unable to restore your cart. Please try again or contact support.'));
                     return $this->handleRedirect('checkout/cart');
+                }
+
+                if ($quote->getCustomerId() && !$this->customerSession->isLoggedIn()) {
+                    $targetUrl = $this->_url->getUrl('checkout', ['_fragment' => 'payment']);
+                    $this->customerSession->setBeforeAuthUrl($targetUrl);
+                    $this->customerSession->setAfterAuthUrl($targetUrl);
+                    $this->messageManager->addNoticeMessage(__('Please sign in to continue with your restored cart.'));
+                    return $this->handleRedirect('customer/account/login');
                 }
 
                 $this->messageManager->addSuccessMessage(__('Your cart has been restored. You can now complete your purchase.'));
