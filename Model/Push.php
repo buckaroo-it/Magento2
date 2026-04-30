@@ -881,7 +881,6 @@ class Push implements PushInterface
         if ($this->hasPostData('add_initiated_by_magento', 1)
             && $this->hasPostData('brq_transaction_method', ['klarnakp', 'KlarnaKp'])
             && $this->hasPostData('add_service_action_from_magento', 'pay')
-            && isset($this->postData['brq_service_klarnakp_captureid'])
         ) {
             return false;
         }
@@ -1833,8 +1832,12 @@ class Push implements PushInterface
                 )
             ) {
                 $this->logging->addDebug(__METHOD__ . '|5_1|');
-                $this->dontSaveOrderUponSuccessPush = true;
-                return true;
+                // Only skip if the invoice already exists; otherwise let the push process
+                // so the invoice can still be created when the synchronous capture failed.
+                if ($this->order->hasInvoices()) {
+                    $this->dontSaveOrderUponSuccessPush = true;
+                    return true;
+                }
             } else {
                 $this->logging->addDebug(__METHOD__ . '|6|');
 
@@ -2125,6 +2128,18 @@ class Push implements PushInterface
         $invoiceHandlingConfig = $this->configAccount->getInvoiceHandling($this->order->getStore());
 
         if ($invoiceHandlingConfig == InvoiceHandlingOptions::SHIPMENT) {
+            $isKlarnaKp = $this->hasPostData('brq_transaction_method', 'KlarnaKp')
+                || $this->hasPostData('brq_primary_service', 'KlarnaKp');
+            $autoPayKey = $this->postData['brq_service_klarnakp_autopaytransactionkey'] ?? '';
+            $captureId  = $this->postData['brq_service_klarnakp_captureid'] ?? '';
+
+            if ($isKlarnaKp && (!empty($autoPayKey) || !empty($captureId))) {
+                $payment->setAdditionalInformation('buckaroo_already_captured', true);
+                if (!empty($autoPayKey)) {
+                    $payment->setAdditionalInformation(AbstractMethod::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY, $autoPayKey);
+                }
+            }
+
             $payment->setAdditionalInformation(InvoiceHandlingOptions::INVOICE_HANDLING, $invoiceHandlingConfig);
             $payment->save();
 

@@ -192,6 +192,10 @@ class SalesOrderShipmentAfter implements ObserverInterface
         $this->logger->addDebug(__METHOD__ . '|1|' . var_export($order->getDiscountAmount(), true));
 
         try {
+            if ($order->hasInvoices()) {
+                return null;
+            }
+
             if (!$order->canInvoice()) {
                 return null;
             }
@@ -205,7 +209,12 @@ class SalesOrderShipmentAfter implements ObserverInterface
                 $message = 'Automatically invoiced shipped items.';
             }
 
-            $invoice->setRequestedCaptureCase(\Magento\Sales\Model\Order\Invoice::CAPTURE_ONLINE);
+            $wasCaptured = (bool)$order->getPayment()->getAdditionalInformation('buckaroo_already_captured');
+            $invoice->setRequestedCaptureCase(
+                $wasCaptured
+                    ? \Magento\Sales\Model\Order\Invoice::CAPTURE_OFFLINE
+                    : \Magento\Sales\Model\Order\Invoice::CAPTURE_ONLINE
+            );
             $invoice->register();
             $invoice->getOrder()->setCustomerNoteNotify(false);
             $invoice->getOrder()->setIsInProcess(true);
@@ -228,6 +237,17 @@ class SalesOrderShipmentAfter implements ObserverInterface
             $this->logger->addDebug(__METHOD__ . '|4|');
         } catch (\Exception $e) {
             $order->addStatusHistoryComment('Exception message: ' . $e->getMessage(), false);
+
+            if (!$order->hasInvoices()) {
+                foreach ($order->getAllItems() as $item) {
+                    if ($item->getQtyInvoiced() > 0) {
+                        $item->setQtyInvoiced(0);
+                    }
+                }
+                $order->setTotalInvoiced(0)->setBaseTotalInvoiced(0);
+                $order->setTotalPaid(0)->setBaseTotalPaid(0);
+                $order->setTotalDue($order->getGrandTotal())->setBaseTotalDue($order->getBaseGrandTotal());
+            }
             $order->save();
             return null;
         }
