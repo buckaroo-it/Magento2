@@ -542,6 +542,7 @@
         <arguments>
             <argument name="commands" xsi:type="array">
                 <item name="buckaroo_pushsend" xsi:type="object">Buckaroo\Magento2\Console\Command\PushSend\Proxy</item>
+                <item name="buckaroo_recover_klarna_invoices" xsi:type="object">Buckaroo\Magento2\Console\Command\RecoverKlarnaInvoices\Proxy</item>
             </argument>
         </arguments>
     </type>

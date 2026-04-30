@@ -1484,8 +1484,12 @@ class Push implements PushInterface
                 )
             ) {
                 $this->logging->addDebug(__METHOD__ . '|5_1|');
-                $this->dontSaveOrderUponSuccessPush = true;
-                return true;
+                // Only skip if the invoice already exists; otherwise let the push process
+                // so the invoice can still be created when the synchronous capture failed.
+                if ($this->order->hasInvoices()) {
+                    $this->dontSaveOrderUponSuccessPush = true;
+                    return true;
+                }
             } else {
                 $this->logging->addDebug(__METHOD__ . '|6|');
 
@@ -1717,6 +1721,15 @@ class Push implements PushInterface
         $invoiceHandlingConfig = $this->configAccount->getInvoiceHandling();
 
         if ($invoiceHandlingConfig == InvoiceHandlingOptions::SHIPMENT) {
+            // If Plaza auto-captured the Klarna reservation (not Magento-initiated),
+            // mark it so the shipment observer uses CAPTURE_OFFLINE instead of CAPTURE_ONLINE.
+            if ($this->hasPostData('brq_transaction_method', 'KlarnaKp')
+                && !$this->hasPostData('add_initiated_by_magento', 1)
+                && !empty($this->postData['brq_service_klarnakp_captureid'])
+            ) {
+                $payment->setAdditionalInformation('buckaroo_already_captured', true);
+            }
+
             $payment->setAdditionalInformation(InvoiceHandlingOptions::INVOICE_HANDLING, $invoiceHandlingConfig);
             $payment->save();
 

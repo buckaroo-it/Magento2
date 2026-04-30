@@ -190,6 +190,10 @@ class SalesOrderShipmentAfter implements ObserverInterface
         $this->logger->addDebug(__METHOD__ . '|1|' . var_export($order->getDiscountAmount(), true));
 
         try {
+            if ($order->hasInvoices()) {
+                return null;
+            }
+
             if (!$order->canInvoice()) {
                 return null;
             }
@@ -203,7 +207,13 @@ class SalesOrderShipmentAfter implements ObserverInterface
                 $message = 'Automatically invoiced shipped items.';
             }
 
-            $invoice->setRequestedCaptureCase(\Magento\Sales\Model\Order\Invoice::CAPTURE_ONLINE);
+            // Use offline capture if Plaza already captured the payment via auto-pay reservation.
+            $wasCaptured = (bool)$order->getPayment()->getAdditionalInformation('buckaroo_already_captured');
+            $invoice->setRequestedCaptureCase(
+                $wasCaptured
+                    ? \Magento\Sales\Model\Order\Invoice::CAPTURE_OFFLINE
+                    : \Magento\Sales\Model\Order\Invoice::CAPTURE_ONLINE
+            );
             $invoice->register();
             $invoice->getOrder()->setCustomerNoteNotify(false);
             $invoice->getOrder()->setIsInProcess(true);
