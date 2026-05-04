@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
+use Buckaroo\Magento2\Model\Config\Source\Enablemode;
 use Magento\Store\Model\ScopeInterface;
 
 class Paypal extends AbstractConfigProvider
@@ -149,6 +150,10 @@ class Paypal extends AbstractConfigProvider
      */
     public function canShowButtonForPage($page, $store = null)
     {
+        if (!$this->isEnabled($store)) {
+            return false;
+        }
+
         $buttons = $this->getExpressButtons($store);
         if ($buttons === null) {
             return false;
@@ -156,6 +161,18 @@ class Paypal extends AbstractConfigProvider
 
         $pages = explode(",", $buttons);
         return in_array($page, $pages);
+    }
+
+    /**
+     * Check whether PayPal payment method is enabled (Test or Live).
+     *
+     * @param null|int|string $store
+     *
+     * @return bool
+     */
+    public function isEnabled($store = null): bool
+    {
+        return (int)$this->getActive($store) !== Enablemode::ENABLE_OFF;
     }
 
     /**
