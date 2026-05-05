@@ -252,6 +252,16 @@ class PaypalExpress extends Template
      */
     protected function getMerchantId()
     {
+        if ($this->isTestMode()) {
+            $sandboxMerchantId = $this->paypalConfig->getExpressSandboxMerchantId(
+                $this->_storeManager->getStore()
+            );
+
+            if (!empty($sandboxMerchantId)) {
+                return $sandboxMerchantId;
+            }
+        }
+
         return $this->paypalConfig->getExpressMerchantId(
             $this->_storeManager->getStore()
         );
