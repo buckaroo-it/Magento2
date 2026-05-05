@@ -39,6 +39,7 @@ class Paypal extends AbstractConfigProvider
 
     public const EXPRESS_BUTTONS           = 'available_buttons';
     public const EXPRESS_MERCHANT_ID       = 'express_merchant_id';
+    public const EXPRESS_SANDBOX_MERCHANT_ID = 'express_sandbox_merchant_id';
     public const EXPRESS_BUTTON_COLOR      = 'express_button_color';
     public const EXPRESS_BUTTON_IS_ROUNDED = 'express_button_rounded';
 
@@ -112,6 +113,18 @@ class Paypal extends AbstractConfigProvider
     public function getExpressMerchantId($store = null)
     {
         return $this->getMethodConfigValue(self::EXPRESS_MERCHANT_ID, $store);
+    }
+
+    /**
+     * Get PayPal sandbox merchant ID
+     *
+     * @param null|int|string $store
+     *
+     * @return mixed
+     */
+    public function getExpressSandboxMerchantId($store = null)
+    {
+        return $this->getMethodConfigValue(self::EXPRESS_SANDBOX_MERCHANT_ID, $store);
     }
 
     /**
