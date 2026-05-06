@@ -770,7 +770,6 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         $store = $this->storeManager->getStore($order->getStoreId()); // Force frontend store object
         $checkoutUrl = $store->getUrl('buckaroo/checkout/secondchance', [
             'token' => $secondChance->getToken(),
-            '_scope_to_url' => true
         ]);
 
         // Get the expected order ID (should be pre-calculated and stored in last_order_id)
