@@ -168,7 +168,7 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
     {
         $order = $this->getFakeMock(Order::class)->getMock();
         $oldQuote = $this->getFakeMock(Quote::class, false)
-            ->onlyMethods(['load', 'getId', 'getPayment'])
+            ->onlyMethods(['load', 'getId', 'getPayment', 'setIsActive', 'save'])
             ->getMock();
         $newQuote = $this->getFakeMock(Quote::class, false)
             ->onlyMethods(['setStore', 'setStoreId', 'getBillingAddress', 'getShippingAddress', 'setIsActive', 'collectTotals', 'save', 'addProduct', 'setCustomerIsGuest', 'getPayment', 'getCustomerIsGuest'])
@@ -217,6 +217,8 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
         $oldQuote->method('load')->with(123)->willReturnSelf();
         $oldQuote->method('getId')->willReturn(123);
         $oldQuote->method('getPayment')->willReturn($oldQuotePayment);
+        $oldQuote->expects($this->once())->method('setIsActive')->with(false)->willReturnSelf();
+        $oldQuote->expects($this->once())->method('save');
 
         // Setup store manager
         $this->storeManager->method('getStore')->with(1)->willReturn($store);
@@ -318,6 +320,8 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $oldQuote->method('load')->with(123)->willReturnSelf();
         $oldQuote->method('getId')->willReturn(123);
+        $oldQuote->expects($this->once())->method('setIsActive')->with(false)->willReturnSelf();
+        $oldQuote->expects($this->once())->method('save');
 
         // Setup store manager
         $this->storeManager->method('getStore')->with(1)->willReturn($store);

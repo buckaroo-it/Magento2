@@ -367,6 +367,11 @@ class Recreate
             $this->checkoutSession->replaceQuote($quote);
             $this->checkoutSession->setQuoteId($quote->getId());
 
+            // Deactivate the original quote to prevent Magento from re-attaching it
+            // after a successful second-chance checkout for logged-in customers.
+            $oldQuote->setIsActive(false);
+            $oldQuote->save();
+
             $this->logger->addDebug('Quote recreated successfully: ' . $quote->getId());
             return $quote;
 
