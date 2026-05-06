@@ -367,7 +367,6 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
         $store->method('getUrl')
             ->with('buckaroo/checkout/secondchance', [
                 'token' => 'test_token',
-                '_scope_to_url' => true
             ])
             ->willReturn('http://example.com/nl/buckaroo/checkout/secondchance?token=test_token');
         $store->method('getId')->willReturn(1);
