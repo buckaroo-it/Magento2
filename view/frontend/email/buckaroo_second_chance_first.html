@@ -43,7 +43,7 @@
                 {{trans 'We noticed you didn\'t complete your purchase. Don\'t worry, your items are still waiting for you!' |raw}}
             </p>
             <p>
-                {{trans 'You can <a href="%checkout_url" style="color: #1979c3; text-decoration: none;">complete your order now</a> from %store_name.' store_name=$store.frontend_name checkout_url=$checkout_url |raw}}
+                {{trans 'You can <a href="%checkout_url&utm_source=magento&utm_medium=email&utm_campaign=transactional-email&utm_content=buckaroo-payment-reminder-1" style="color: #1979c3; text-decoration: none;">complete your order now</a> from %store_name.' store_name=$store.frontend_name checkout_url=$checkout_url |raw}}
             </p>
             <p>
                 {{trans 'If you have any questions about your order, feel free to contact us at <a href="mailto:%store_email" style="color: #1979c3; text-decoration: none;">%store_email</a>.' store_email=$store.getStoreEmail() |raw}}
@@ -86,7 +86,7 @@
             </table>
             
             <div style="text-align: center; margin: 30px 0;">
-                <a href="{{var checkout_url}}" style="background-color: #1979c3; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+                <a href="{{var checkout_url}}&utm_source=magento&utm_medium=email&utm_campaign=transactional-email&utm_content=buckaroo-payment-reminder-1" style="background-color: #1979c3; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
                     {{trans "Complete Your Order"}}
                 </a>
             </div>

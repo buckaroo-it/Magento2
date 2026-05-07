@@ -341,6 +341,18 @@ class Recreate
             // Additional merge for custom data (after quote is saved)
             $this->additionalMerge($oldQuote, $quote, $response);
 
+            // Restore coupon code from original order so Magento re-validates it on collectTotals
+            if ($order->getCouponCode()) {
+                $quote->setCouponCode($order->getCouponCode());
+            }
+
+            // Restore gift card data from original order (Magento_GiftCardAccount fields)
+            if ($order->getData('gift_cards')) {
+                $quote->setData('gift_cards', $order->getData('gift_cards'));
+                $quote->setData('gift_cards_amount', $order->getData('gift_cards_amount'));
+                $quote->setData('base_gift_cards_amount', $order->getData('base_gift_cards_amount'));
+            }
+
             // Collect totals after payment is properly set
             try {
                 $quote->collectTotals();

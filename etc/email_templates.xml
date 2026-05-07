@@ -22,4 +22,6 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Email:etc/email_templates.xsd">
     <template id="buckaroo_second_chance_first" label="Buckaroo Second Chance - First Email" file="buckaroo_second_chance_first.html" type="html" module="Buckaroo_Magento2" area="frontend"/>
     <template id="buckaroo_second_chance_second" label="Buckaroo Second Chance - Second Email" file="buckaroo_second_chance_second.html" type="html" module="Buckaroo_Magento2" area="frontend"/>
+    <template id="buckaroo_second_chance_first_nl" label="Buckaroo Second Chance - 1e betaalherinnering (NL)" file="buckaroo_second_chance_first_nl.html" type="html" module="Buckaroo_Magento2" area="frontend"/>
+    <template id="buckaroo_second_chance_second_nl" label="Buckaroo Second Chance - 2e betaalherinnering (NL)" file="buckaroo_second_chance_second_nl.html" type="html" module="Buckaroo_Magento2" area="frontend"/>
 </config> 
