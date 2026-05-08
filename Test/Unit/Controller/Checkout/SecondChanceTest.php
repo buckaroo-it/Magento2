@@ -24,11 +24,11 @@ use Buckaroo\Magento2\Controller\Checkout\SecondChance;
 use Buckaroo\Magento2\Model\SecondChanceRepository;
 use Buckaroo\Magento2\Logging\Log;
 use Magento\Checkout\Model\Session as CheckoutSession;
+use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\Controller\Result\Redirect;
-use Magento\Framework\Controller\ResultFactory;
 
 class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
 {
@@ -52,6 +52,9 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
     /** @var CheckoutSession|\PHPUnit\Framework\MockObject\MockObject */
     private $checkoutSession;
 
+    /** @var CustomerSession|\PHPUnit\Framework\MockObject\MockObject */
+    private $customerSession;
+
     public function setUp(): void
     {
         parent::setUp();
@@ -59,6 +62,7 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->logger = $this->getFakeMock(Log::class)->getMock();
         $this->secondChanceRepository = $this->getFakeMock(SecondChanceRepository::class)->getMock();
         $this->checkoutSession = $this->getFakeMock(CheckoutSession::class)->getMock();
+        $this->customerSession = $this->getFakeMock(CustomerSession::class)->getMock();
         $this->context = $this->getFakeMock(Context::class)->getMock();
         $this->request = $this->getFakeMock(RequestInterface::class)->getMock();
         $this->messageManager = $this->getFakeMock(ManagerInterface::class)->getMock();
@@ -67,175 +71,186 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->context->expects($this->any())->method('getMessageManager')->willReturn($this->messageManager);
     }
 
+    private function buildInstance(array $mockMethods = []): SecondChance
+    {
+        return $this->getMockBuilder(SecondChance::class)
+            ->setConstructorArgs([
+                $this->context,
+                $this->logger,
+                $this->secondChanceRepository,
+                $this->checkoutSession,
+                $this->customerSession,
+            ])
+            ->onlyMethods($mockMethods ?: ['handleRedirect'])
+            ->getMock();
+    }
+
     public function testExecuteWithValidToken()
     {
         $token = 'valid_token_123';
 
-        $this->request->method('getParam')
-            ->with('token')
-            ->willReturn($token);
+        $this->request->method('getParam')->with('token')->willReturn($token);
+        $this->request->method('getParams')->willReturn(['token' => $token]);
 
-        $secondChance = $this->getFakeMock(\Buckaroo\Magento2\Api\Data\SecondChanceInterface::class)->getMock();
-
-        $this->secondChanceRepository->method('getSecondChanceByToken')
-            ->with($token)
-            ->willReturn($secondChance);
+        $this->secondChanceRepository->method('getSecondChanceByToken')->with($token);
 
         $quoteMock = $this->createMock(\Magento\Quote\Model\Quote::class);
         $quoteMock->method('getId')->willReturn(123);
         $this->checkoutSession->method('getQuote')->willReturn($quoteMock);
 
-        $this->request->method('getParams')->willReturn(['token' => $token]);
-
-        $this->messageManager->method('addSuccessMessage')
-            ->with(__('Your cart has been restored. You can now complete your purchase.'));
-
-        // Mock the redirect response
         $redirectMock = $this->getFakeMock(Redirect::class)->getMock();
-        $instance = $this->getMockBuilder(SecondChance::class)
-            ->setConstructorArgs([
-                $this->context,
-                $this->logger,
-                $this->secondChanceRepository,
-                $this->checkoutSession
-            ])
-            ->onlyMethods(['handleRedirect'])
-            ->getMock();
 
-        $instance->method('handleRedirect')
+        $instance = $this->buildInstance();
+        $instance->expects($this->once())
+            ->method('handleRedirect')
             ->with('checkout', ['_query' => [], '_fragment' => 'payment'])
             ->willReturn($redirectMock);
 
-        $result = $instance->execute();
-        $this->assertInstanceOf(Redirect::class, $result);
+        $this->assertInstanceOf(Redirect::class, $instance->execute());
+    }
+
+    public function testExecuteForwardsOnlyUtmParams()
+    {
+        $token = 'valid_token_123';
+
+        $this->request->method('getParam')->with('token')->willReturn($token);
+        $this->request->method('getParams')->willReturn([
+            'token'        => $token,
+            '___store'     => 'nl',
+            'utm_source'   => 'magento',
+            'utm_medium'   => 'email',
+            'utm_campaign' => 'transactional-email',
+            'utm_content'  => 'buckaroo-payment-reminder-1',
+            'fbclid'       => 'tracking123',
+        ]);
+
+        $this->secondChanceRepository->method('getSecondChanceByToken')->with($token);
+
+        $quoteMock = $this->createMock(\Magento\Quote\Model\Quote::class);
+        $quoteMock->method('getId')->willReturn(123);
+        $this->checkoutSession->method('getQuote')->willReturn($quoteMock);
+
+        $redirectMock = $this->getFakeMock(Redirect::class)->getMock();
+
+        $instance = $this->buildInstance();
+        $instance->expects($this->once())
+            ->method('handleRedirect')
+            ->with('checkout', [
+                '_query' => [
+                    'utm_source'   => 'magento',
+                    'utm_medium'   => 'email',
+                    'utm_campaign' => 'transactional-email',
+                    'utm_content'  => 'buckaroo-payment-reminder-1',
+                ],
+                '_fragment' => 'payment',
+            ])
+            ->willReturn($redirectMock);
+
+        $this->assertInstanceOf(Redirect::class, $instance->execute());
     }
 
     public function testExecuteWithInvalidToken()
     {
         $token = 'invalid_token_456';
 
-        $this->request->method('getParam')
-            ->with('token')
-            ->willReturn($token);
+        $this->request->method('getParam')->with('token')->willReturn($token);
 
         $this->secondChanceRepository->method('getSecondChanceByToken')
             ->with($token)
             ->willThrowException(new \Exception('Invalid token'));
 
-        $this->logger->method('addError')
-            ->with($this->stringContains('SecondChance token error'));
+        $this->logger->expects($this->once())
+            ->method('addWarning')
+            ->with('SecondChance: invalid or expired token');
 
-        $this->messageManager->method('addErrorMessage')
+        $this->messageManager->expects($this->once())
+            ->method('addErrorMessage')
             ->with(__('Invalid or expired link. Please try again.'));
 
-        $instance = $this->getMockBuilder(SecondChance::class)
-            ->setConstructorArgs([
-                $this->context,
-                $this->logger,
-                $this->secondChanceRepository,
-                $this->checkoutSession
-            ])
-            ->onlyMethods(['handleRedirect'])
-            ->getMock();
-
         $redirectMock = $this->getFakeMock(Redirect::class)->getMock();
-        $instance->method('handleRedirect')
+
+        $instance = $this->buildInstance();
+        $instance->expects($this->once())
+            ->method('handleRedirect')
             ->with('checkout/cart', [])
             ->willReturn($redirectMock);
 
-        $result = $instance->execute();
-        $this->assertInstanceOf(Redirect::class, $result);
+        $this->assertInstanceOf(Redirect::class, $instance->execute());
     }
 
     public function testExecuteWithNoToken()
     {
-        $this->request->method('getParam')
-            ->with('token')
-            ->willReturn(null);
+        $this->request->method('getParam')->with('token')->willReturn(null);
 
-        $this->secondChanceRepository->expects($this->never())
-            ->method('getSecondChanceByToken');
+        $this->secondChanceRepository->expects($this->never())->method('getSecondChanceByToken');
 
-        $this->messageManager->method('addErrorMessage')
+        $this->logger->expects($this->once())
+            ->method('addWarning')
+            ->with('SecondChance: No token provided');
+
+        $this->messageManager->expects($this->once())
+            ->method('addErrorMessage')
             ->with(__('Invalid link. Please try again.'));
 
-        $instance = $this->getMockBuilder(SecondChance::class)
-            ->setConstructorArgs([
-                $this->context,
-                $this->logger,
-                $this->secondChanceRepository,
-                $this->checkoutSession
-            ])
-            ->onlyMethods(['handleRedirect'])
-            ->getMock();
-
         $redirectMock = $this->getFakeMock(Redirect::class)->getMock();
-        $instance->method('handleRedirect')
+
+        $instance = $this->buildInstance();
+        $instance->expects($this->once())
+            ->method('handleRedirect')
             ->with('checkout/cart', [])
             ->willReturn($redirectMock);
 
-        $result = $instance->execute();
-        $this->assertInstanceOf(Redirect::class, $result);
+        $this->assertInstanceOf(Redirect::class, $instance->execute());
     }
 
     public function testExecuteWithEmptyToken()
     {
-        $this->request->method('getParam')
-            ->with('token')
-            ->willReturn('');
+        $this->request->method('getParam')->with('token')->willReturn('');
 
-        $this->secondChanceRepository->expects($this->never())
-            ->method('getSecondChanceByToken');
+        $this->secondChanceRepository->expects($this->never())->method('getSecondChanceByToken');
 
-        $this->messageManager->method('addErrorMessage')
+        $this->messageManager->expects($this->once())
+            ->method('addErrorMessage')
             ->with(__('Invalid link. Please try again.'));
 
-        $instance = $this->getMockBuilder(SecondChance::class)
-            ->setConstructorArgs([
-                $this->context,
-                $this->logger,
-                $this->secondChanceRepository,
-                $this->checkoutSession
-            ])
-            ->onlyMethods(['handleRedirect'])
-            ->getMock();
-
         $redirectMock = $this->getFakeMock(Redirect::class)->getMock();
-        $instance->method('handleRedirect')
+
+        $instance = $this->buildInstance();
+        $instance->expects($this->once())
+            ->method('handleRedirect')
             ->with('checkout/cart', [])
             ->willReturn($redirectMock);
 
-        $result = $instance->execute();
-        $this->assertInstanceOf(Redirect::class, $result);
+        $this->assertInstanceOf(Redirect::class, $instance->execute());
     }
 
-    public function testHandleRedirect()
+    public function testExecuteWithNoQuoteAfterRestore()
     {
-        $path = 'checkout';
-        $arguments = ['_fragment' => 'payment'];
+        $token = 'valid_token_123';
 
-        $redirectMock = $this->createMock(\Magento\Framework\Controller\Result\Redirect::class);
-        $redirectMock->expects($this->once())
-            ->method('setPath')
-            ->with($path, $arguments)
-            ->willReturnSelf();
+        $this->request->method('getParam')->with('token')->willReturn($token);
+        $this->secondChanceRepository->method('getSecondChanceByToken')->with($token);
 
-        $resultFactoryMock = $this->createMock(ResultFactory::class);
-        $resultFactoryMock->expects($this->once())
-            ->method('create')
-            ->with(ResultFactory::TYPE_REDIRECT)
+        $quoteMock = $this->createMock(\Magento\Quote\Model\Quote::class);
+        $quoteMock->method('getId')->willReturn(null);
+        $this->checkoutSession->method('getQuote')->willReturn($quoteMock);
+
+        $this->logger->expects($this->once())
+            ->method('addError')
+            ->with('SecondChance: No quote in session after restoration');
+
+        $this->messageManager->expects($this->once())
+            ->method('addErrorMessage')
+            ->with(__('Unable to restore your cart. Please try again or contact support.'));
+
+        $redirectMock = $this->getFakeMock(Redirect::class)->getMock();
+
+        $instance = $this->buildInstance();
+        $instance->expects($this->once())
+            ->method('handleRedirect')
+            ->with('checkout/cart', [])
             ->willReturn($redirectMock);
 
-        $this->context->method('getResultFactory')->willReturn($resultFactoryMock);
-
-        $instance = new SecondChance(
-            $this->context,
-            $this->logger,
-            $this->secondChanceRepository,
-            $this->checkoutSession
-        );
-
-        $result = $instance->handleRedirect($path, $arguments);
-        $this->assertEquals($redirectMock, $result);
+        $this->assertInstanceOf(Redirect::class, $instance->execute());
     }
 }

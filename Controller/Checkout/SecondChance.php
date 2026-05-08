@@ -26,6 +26,7 @@ use Exception;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Checkout\Model\Session as CheckoutSession;
+use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\Controller\ResultFactory;
 
@@ -47,21 +48,29 @@ class SecondChance extends Action
     protected $checkoutSession;
 
     /**
+     * @var CustomerSession
+     */
+    protected $customerSession;
+
+    /**
      * @param Context                $context
      * @param Log                    $logger
      * @param SecondChanceRepository $secondChanceRepository
      * @param CheckoutSession        $checkoutSession
+     * @param CustomerSession        $customerSession
      */
     public function __construct(
         Context $context,
         Log $logger,
         SecondChanceRepository $secondChanceRepository,
-        CheckoutSession $checkoutSession
+        CheckoutSession $checkoutSession,
+        CustomerSession $customerSession
     ) {
         parent::__construct($context);
         $this->logger                 = $logger;
         $this->secondChanceRepository = $secondChanceRepository;
         $this->checkoutSession        = $checkoutSession;
+        $this->customerSession        = $customerSession;
     }
 
     /**
@@ -73,51 +82,69 @@ class SecondChance extends Action
      */
     public function execute(): Redirect
     {
-        if ($token = $this->getRequest()->getParam('token')) {
-            try {
-                $this->secondChanceRepository->getSecondChanceByToken($token);
+        $token = $this->getRequest()->getParam('token');
 
-                // Verify quote was properly set in session
-                $quote = $this->checkoutSession->getQuote();
-
-                if (!$quote->getId()) {
-                    $this->logger->addError('SecondChance: No quote in session after restoration');
-                    $this->messageManager->addErrorMessage(__('Unable to restore your cart. Please try again or contact support.'));
-                    return $this->handleRedirect('checkout/cart');
-                }
-
-                $this->messageManager->addSuccessMessage(__('Your cart has been restored. You can now complete your purchase.'));
-            } catch (Exception $e) {
-                $this->logger->addWarning('SecondChance: invalid or expired token');
-                $this->messageManager->addErrorMessage(__('Invalid or expired link. Please try again.'));
-                return $this->handleRedirect('checkout/cart');
-            }
-        } else {
+        if (!$token) {
             $this->logger->addWarning('SecondChance: No token provided');
             $this->messageManager->addErrorMessage(__('Invalid link. Please try again.'));
             return $this->handleRedirect('checkout/cart');
         }
 
-        $queryParams = $this->getRequest()->getParams();
-        unset($queryParams['token']);
+        try {
+            $this->secondChanceRepository->getSecondChanceByToken($token);
+        } catch (Exception $e) {
+            $this->logger->addWarning('SecondChance: invalid or expired token');
+            $this->messageManager->addErrorMessage(__('Invalid or expired link. Please try again.'));
+            return $this->handleRedirect('checkout/cart');
+        }
 
-        return $this->handleRedirect('checkout', [
-            '_query'    => $queryParams,
-            '_fragment' => 'payment',
-        ]);
+        $quote = $this->checkoutSession->getQuote();
+
+        if (!$quote->getId()) {
+            $this->logger->addError('SecondChance: No quote in session after restoration');
+            $this->messageManager->addErrorMessage(__('Unable to restore your cart. Please try again or contact support.'));
+            return $this->handleRedirect('checkout/cart');
+        }
+
+        if ($quote->getCustomerId() && !$this->customerSession->isLoggedIn()) {
+            $targetUrl = $this->_url->getUrl('checkout', ['_fragment' => 'payment']);
+            $this->customerSession->setBeforeAuthUrl($targetUrl);
+            $this->customerSession->setAfterAuthUrl($targetUrl);
+            $this->messageManager->addNoticeMessage(__('Please sign in to continue with your restored cart.'));
+            return $this->handleRedirect('customer/account/login');
+        }
+
+        $this->messageManager->addSuccessMessage(__('Your cart has been restored. You can now complete your purchase.'));
+
+        $utmParams = array_intersect_key(
+            $this->getRequest()->getParams(),
+            array_flip(['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'utm_id'])
+        );
+
+        return $this->handleRedirect('checkout', ['_query' => $utmParams, '_fragment' => 'payment']);
     }
 
     /**
-     * Handle redirect to specified path with arguments
+     * Handle redirect to a specified path with arguments
      *
      * @param string $path
      * @param array $arguments
      * @return Redirect
      */
-    public function handleRedirect($path, $arguments = []): Redirect
+    protected function handleRedirect($path, $arguments = []): Redirect
     {
         /** @var Redirect $resultRedirect */
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
-        return $resultRedirect->setPath($path, $arguments);
+
+        $fragment = isset($arguments['_fragment']) ? '#' . $arguments['_fragment'] : '';
+        $queryParams = $arguments['_query'] ?? [];
+        unset($arguments['_fragment'], $arguments['_query']);
+
+        $arguments['_nosid'] = true;
+        $url = $this->_url->getUrl($path, $arguments);
+        $separator = strpos($url, '?') === false ? '?' : '&';
+        $queryString = $queryParams ? $separator . http_build_query($queryParams) : '';
+
+        return $resultRedirect->setUrl($url . $queryString . $fragment);
     }
 }
