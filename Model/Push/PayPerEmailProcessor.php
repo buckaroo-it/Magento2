@@ -213,7 +213,8 @@ class PayPerEmailProcessor extends DefaultProcessor
      */
     private function receivePushCheckPayLink(): void
     {
-        if (!empty($this->pushRequest->getAdditionalInformation('frompaylink'))
+        if (($this->pushRequest->getAdditionalInformation('service_action_from_magento') === 'frompaylink'
+                || !empty($this->pushRequest->getAdditionalInformation('frompaylink')))
             && $this->pushTransactionType->getStatusKey() == 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'
         ) {
             $this->payment->setMethod('buckaroo_magento2_payperemail');

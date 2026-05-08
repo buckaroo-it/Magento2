@@ -151,7 +151,7 @@ class PushTransactionType
             $this->serviceAction = $this->getServiceAction();
             $this->isFromPayPerEmail = !empty($this->pushRequest->getAdditionalInformation('frompayperemail'))
                 || $this->pushRequest->getAdditionalInformation('service_action_from_magento') === 'frompayperemail'
-                || !empty($this->pushRequest->getAdditionalInformation('frompaylink'));
+                || $this->pushRequest->getAdditionalInformation('service_action_from_magento') === 'frompaylink';
 
             $this->isSet = true;
         }
