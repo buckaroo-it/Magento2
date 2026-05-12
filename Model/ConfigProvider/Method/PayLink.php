@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
+use Magento\Framework\App\Area;
 use Magento\Store\Model\ScopeInterface;
 
 class PayLink extends AbstractConfigProvider
@@ -39,11 +40,7 @@ class PayLink extends AbstractConfigProvider
      */
     public function isVisibleForAreaCode(string $areaCode): bool
     {
-        if ($areaCode == 'adminhtml') {
-            return true;
-        }
-
-        return false;
+        return $areaCode === Area::AREA_ADMINHTML;
     }
 
     /**

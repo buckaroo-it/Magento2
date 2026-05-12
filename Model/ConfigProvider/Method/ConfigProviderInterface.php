@@ -130,4 +130,14 @@ interface ConfigProviderInterface
      * @return string
      */
     public function getImageUrl($imgName);
+
+    /**
+     * Whether the payment method is visible for the given Magento area code.
+     * Returns true by default; override to restrict to adminhtml or frontend only.
+     *
+     * @param string $areaCode
+     *
+     * @return bool
+     */
+    public function isVisibleForAreaCode(string $areaCode): bool;
 }

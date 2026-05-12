@@ -21,28 +21,26 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Validator;
 
-use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as MethodConfigProviderFactory;
 use Magento\Framework\App\Area;
 use Magento\Framework\App\State;
-use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
-use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderFactory;
 
 class AreaCodeValidator extends AbstractValidator
 {
     private State $state;
-    private ConfigProviderFactory $configProviderFactory;
+    private MethodConfigProviderFactory $methodConfigProviderFactory;
 
     public function __construct(
         ResultInterfaceFactory $resultFactory,
         State $state,
-        ConfigProviderFactory $configProviderFactory
+        MethodConfigProviderFactory $methodConfigProviderFactory
     ) {
         $this->state = $state;
-        $this->configProviderFactory = $configProviderFactory;
+        $this->methodConfigProviderFactory = $methodConfigProviderFactory;
         parent::__construct($resultFactory);
     }
 
@@ -54,19 +52,18 @@ class AreaCodeValidator extends AbstractValidator
         try {
             $areaCode = $this->state->getAreaCode();
         } catch (\Exception $e) {
-            // If area code cannot be determined, do not block (or choose your desired default)
             return $this->createResult(true);
         }
 
-        // Existing admin toggle
+        // Block methods that are disabled in backend
         $isAvailableInBackend = $method->getConfigData('available_in_backend');
         if ($areaCode === Area::AREA_ADMINHTML && $isAvailableInBackend !== null && (int)$isAvailableInBackend === 0) {
             $isValid = false;
         }
 
-        // PayPerEmail front/back/both toggle
-        if ($isValid && $method->getCode() === 'buckaroo_magento2_payperemail') {
-            $cp = $this->configProviderFactory->get('payperemail');
+        // Check area-code visibility for any method that declares it (e.g. PayPerEmail, PayLink)
+        if ($isValid && $this->methodConfigProviderFactory->has($method->getCode())) {
+            $cp = $this->methodConfigProviderFactory->get($method->getCode());
             if (method_exists($cp, 'isVisibleForAreaCode') && !$cp->isVisibleForAreaCode($areaCode)) {
                 $isValid = false;
             }
