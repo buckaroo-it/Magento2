@@ -3180,7 +3180,6 @@
             <argument name="validators" xsi:type="array">
                 <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
                 <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
-                <item name="availability" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AreaCodeValidator</item>
             </argument>
         </arguments>
     </virtualType>
@@ -3228,9 +3227,21 @@
         <arguments>
             <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\PayLink::CODE</argument>
             <argument name="valueHandlerPool" xsi:type="object">PayLinkValueHandlerPool</argument>
+            <argument name="validatorPool" xsi:type="object">PayLinkValidatorPool</argument>
             <argument name="commandPool" xsi:type="object">PayLinkGatewayCommandPool</argument>
         </arguments>
     </virtualType>
+
+    <!-- PayLink validators infrastructure -->
+    <virtualType name="PayLinkValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END PayLink validators infrastructure -->
     <!-- PayLink Value handlers infrastructure -->
     <virtualType name="PayLinkValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
         <arguments>
