@@ -152,8 +152,8 @@ class TransferProcessor extends DefaultProcessor
      */
     protected function setOrderStatusMessage(): void
     {
-        if (!empty($this->pushRequest->getStatusmessage())) {
-            $this->order->addCommentToStatusHistory($this->pushRequest->getStatusmessage());
+        if (!empty($this->pushRequest->getStatusMessage())) {
+            $this->order->addCommentToStatusHistory($this->pushRequest->getStatusMessage());
         }
     }
 }

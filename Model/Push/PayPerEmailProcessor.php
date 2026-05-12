@@ -359,19 +359,19 @@ class PayPerEmailProcessor extends DefaultProcessor
      */
     protected function setOrderStatusMessage(): void
     {
-        if (!empty($this->pushRequest->getStatusmessage())) {
+        if (!empty($this->pushRequest->getStatusMessage())) {
             if ($this->order->getState() === Order::STATE_NEW
                 && empty($this->pushRequest->getAdditionalInformation('frompayperemail'))
                 && empty($this->pushRequest->getRelatedtransactionPartialpayment())
-                && $this->pushRequest->hasPostData('statuscode', BuckarooStatusCode::SUCCESS)
+                && (int)$this->pushRequest->getStatusCode() === BuckarooStatusCode::SUCCESS
             ) {
                 $this->order->setState(Order::STATE_PROCESSING);
                 $this->order->addCommentToStatusHistory(
-                    $this->pushRequest->getStatusmessage(),
+                    $this->pushRequest->getStatusMessage(),
                     $this->helper->getOrderStatusByState($this->order, Order::STATE_PROCESSING)
                 );
             } else {
-                $this->order->addCommentToStatusHistory($this->pushRequest->getStatusmessage());
+                $this->order->addCommentToStatusHistory($this->pushRequest->getStatusMessage());
             }
         }
     }

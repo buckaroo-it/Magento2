@@ -435,7 +435,7 @@ class DefaultProcessor implements PushProcessorInterface
             if (empty($this->pushRequest->getStatusCode())) {
                 return false;
             }
-            $receivedStatusCode = $this->pushRequest->getStatusCode();
+            $receivedStatusCode = (int)$this->pushRequest->getStatusCode();
         }
 
         if (!$trxId) {
@@ -1132,17 +1132,17 @@ class DefaultProcessor implements PushProcessorInterface
      */
     protected function setOrderStatusMessage(): void
     {
-        if (!empty($this->pushRequest->getStatusmessage())) {
+        if (!empty($this->pushRequest->getStatusMessage())) {
             // Refresh order state to get the most current state
             $this->order = $this->order->load($this->order->getId());
 
             if ($this->order->getState() === Order::STATE_NEW
                 && empty($this->pushRequest->getRelatedtransactionPartialpayment())
-                && $this->pushRequest->hasPostData('statuscode', BuckarooStatusCode::SUCCESS)
+                && (int)$this->pushRequest->getStatusCode() === BuckarooStatusCode::SUCCESS
             ) {
                 $this->order->setState(Order::STATE_PROCESSING);
                 $this->order->addCommentToStatusHistory(
-                    $this->pushRequest->getStatusmessage(),
+                    $this->pushRequest->getStatusMessage(),
                     $this->helper->getOrderStatusByState($this->order, Order::STATE_PROCESSING)
                 );
             } else {
@@ -1156,13 +1156,13 @@ class DefaultProcessor implements PushProcessorInterface
                     ));
                 }
                 if ((
-                        $this->pushRequest->hasPostData('statuscode', BuckarooStatusCode::PENDING_PROCESSING)
+                        (int)$this->pushRequest->getStatusCode() === BuckarooStatusCode::PENDING_PROCESSING
                         && in_array($this->order->getState(), [Order::STATE_PENDING_PAYMENT, Order::STATE_NEW], true)
                     )
                     ||
-                    !$this->pushRequest->hasPostData('statuscode', BuckarooStatusCode::PENDING_PROCESSING)
+                    (int)$this->pushRequest->getStatusCode() !== BuckarooStatusCode::PENDING_PROCESSING
                 ) {
-                    $this->order->addCommentToStatusHistory($this->pushRequest->getStatusmessage());
+                    $this->order->addCommentToStatusHistory($this->pushRequest->getStatusMessage());
                 }
             }
         }
@@ -1727,15 +1727,15 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * Adds transaction data to the order payment with the given transaction key and data.
      *
-     * @param bool $transactionKey
-     * @param bool $data
+     * @param string $transactionKey
+     * @param array  $data
      *
      * @throws LocalizedException
      * @throws Exception
      *
      * @return Payment
      */
-    public function addTransactionData(bool $transactionKey = false, bool $data = false): Payment
+    public function addTransactionData(string $transactionKey = '', array $data = []): Payment
     {
         $this->payment = $this->order->getPayment();
         $transactionKey = $transactionKey ?: $this->getTransactionKey();

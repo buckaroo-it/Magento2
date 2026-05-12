@@ -2088,7 +2088,7 @@
             </argument>
         </arguments>
     </virtualType>
-    <!-- END Wero Authorize Command -->
+    <!-- END WERO Authorize Command -->
 
     <!-- Wero Capture Command -->
     <virtualType name="WeroCaptureCommand" type="Buckaroo\Magento2\Gateway\Command\GatewayCommand">
@@ -2556,7 +2556,7 @@
     </virtualType>
     <!-- END Afterpay Value handlers infrastructure -->
 
-    <!-- Afterpay's validators infrastructure -->
+    <!-- Afterpay's validator infrastructure -->
     <virtualType name="AfterpayValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
@@ -2894,7 +2894,7 @@
     <!-- END Payment Method: Afterpay Old -->
 
     <!-- Payment Method: Apple Pay-->
-    <!-- Applepay Payment Method Facade configuration -->
+    <!-- Apple Pay Payment Method Facade configuration -->
     <virtualType name="ApplepayFacade" type="Buckaroo\Magento2\Model\Method\BuckarooAdapter">
         <arguments>
             <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay::CODE</argument>
@@ -4348,17 +4348,13 @@
 
     <type name="Buckaroo\Magento2\Controller\Applepay\SaveOrder">
         <arguments>
-            <argument name="processor" xsi:type="object">
-                Buckaroo\Magento2\Service\Applepay\SaveOrderProcessor
-            </argument>
+            <argument name="processor" xsi:type="object">Buckaroo\Magento2\Service\Applepay\SaveOrderProcessor</argument>
         </arguments>
     </type>
 
     <type name="Buckaroo\Magento2\Controller\Googlepay\SaveOrder">
         <arguments>
-            <argument name="processor" xsi:type="object">
-                Buckaroo\Magento2\Service\Googlepay\SaveOrderProcessor
-            </argument>
+            <argument name="processor" xsi:type="object">Buckaroo\Magento2\Service\Googlepay\SaveOrderProcessor</argument>
         </arguments>
     </type>
 
@@ -4375,9 +4371,6 @@
     <preference for="Buckaroo\Magento2\Api\AnalyticsRepositoryInterface" type="Buckaroo\Magento2\Model\Analytics\AnalyticsRepository"/>
     <preference for="Buckaroo\Magento2\Api\Data\AnalyticsSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
     <preference for="Buckaroo\Magento2\Controller\Redirect\Process" type="Buckaroo\Magento2\Controller\Redirect\AnalyticsProcess" />
-    <type name="Buckaroo\Magento2\Gateway\Http\TransactionBuilder\AbstractTransactionBuilder">
-        <plugin name="Plugin_Buckaroo_Magento2_Gateway_Http_TransactionBuilder_AbstractTransactionBuilder" type="Buckaroo\Magento2\Plugin\AbstractTransactionBuilderAfterGetUrl" sortOrder="10" disabled="false"/>
-    </type>
     <type name="Buckaroo\Magento2\Gateway\Request\BasicParameter\ReturnUrlDataBuilder">
         <plugin name="Plugin_Buckaroo_Magento2_Gateway_Request_ReturnUrlDataBuilder" type="Buckaroo\Magento2\Plugin\AbstractTransactionBuilderAfterGetUrl" sortOrder="10" disabled="false"/>
     </type>

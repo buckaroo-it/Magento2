@@ -58,6 +58,14 @@ class RequestPushFactory
         $this->logger = $logger;
     }
 
+    private const PII_KEYS = [
+        'brq_customer_name', 'brq_billing_firstname', 'brq_billing_lastname', 'brq_billing_email',
+        'brq_billing_street', 'brq_billing_phone', 'brq_shipping_firstname', 'brq_shipping_lastname',
+        'brq_shipping_email', 'brq_shipping_street', 'brq_shipping_phone', 'brq_card_number',
+    ];
+
+    private const PII_JSON_KEYS = ['Customer', 'Billing', 'Shipping'];
+
     /**
      * Create push request
      *
@@ -71,16 +79,17 @@ class RequestPushFactory
             if (!empty($contentType)
                 && strpos($contentType, 'application/json') !== false
             ) {
+                $requestData = $this->request->getRequestData();
                 $this->logger->addDebug(sprintf(
                     '[PUSH] | [Factory] | [%s:%s] - Create Json Request Object | request: %s',
                     __METHOD__,
                     __LINE__,
-                    var_export($this->request->getRequestData(), true)
+                    var_export($this->sanitizeJsonData($requestData), true)
                 ));
 
                 return $this->objectManager->create(
                     JsonPushRequest::class,
-                    ['requestData' => $this->request->getRequestData()]
+                    ['requestData' => $requestData]
                 );
             }
         } catch (\Exception $exception) {
@@ -92,16 +101,60 @@ class RequestPushFactory
             ));
         }
 
+        $postData = $this->request->getPostValue();
         $this->logger->addDebug(sprintf(
             '[PUSH] | [Factory] | [%s:%s] - Create HTTP Post Request Object | request: %s',
             __METHOD__,
             __LINE__,
-            var_export($this->request->getRequestData(), true)
+            var_export($this->sanitizePostData($postData), true)
         ));
 
         return $this->objectManager->create(
             HttppostPushRequest::class,
-            ['requestData' => $this->request->getPostValue()]
+            ['requestData' => $postData]
         );
+    }
+
+    /**
+     * Redact PII fields from HTTP POST push data before logging.
+     *
+     * @param array $data
+     * @return array
+     */
+    private function sanitizePostData(array $data): array
+    {
+        foreach (self::PII_KEYS as $key) {
+            if (isset($data[$key])) {
+                $data[$key] = '***REDACTED***';
+            }
+        }
+        return $data;
+    }
+
+    /**
+     * Redact PII fields from JSON push data before logging.
+     *
+     * @param array $data
+     * @return array
+     */
+    private function sanitizeJsonData(array $data): array
+    {
+        foreach (self::PII_JSON_KEYS as $key) {
+            if (isset($data[$key])) {
+                $data[$key] = '***REDACTED***';
+            }
+        }
+
+        foreach (['Transaction', 'DataRequest'] as $root) {
+            if (isset($data[$root]) && is_array($data[$root])) {
+                foreach (self::PII_JSON_KEYS as $key) {
+                    if (isset($data[$root][$key])) {
+                        $data[$root][$key] = '***REDACTED***';
+                    }
+                }
+            }
+        }
+
+        return $data;
     }
 }

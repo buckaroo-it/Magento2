@@ -57,12 +57,18 @@ class ProcessTest extends BaseTest
         $redirect = $this->getFakeMock(RedirectInterface::class)->onlyMethods(['redirect'])->getMockForAbstractClass();
         $redirect->method('redirect');
 
+        $messageManagerMock = $this->getFakeMock(ManagerInterface::class)
+            ->onlyMethods(['addErrorMessage'])
+            ->getMockForAbstractClass();
+        $messageManagerMock->method('addErrorMessage');
+
         $contextMock = $this->getFakeMock(Context::class)
-            ->onlyMethods(['getRequest', 'getRedirect', 'getResponse'])
+            ->onlyMethods(['getRequest', 'getRedirect', 'getResponse', 'getMessageManager'])
             ->getMock();
         $contextMock->method('getRequest')->willReturn($request);
         $contextMock->method('getRedirect')->willReturn($redirect);
         $contextMock->method('getResponse')->willReturn($response);
+        $contextMock->method('getMessageManager')->willReturn($messageManagerMock);
 
         // Add redirectFactory mock for Action controllers
         $redirectMock = $this->createMock(\Magento\Framework\Controller\Result\Redirect::class);
@@ -129,11 +135,12 @@ class ProcessTest extends BaseTest
         $contextMock->method('getMessageManager')->willReturn($messageManagerMock);
 
         $configProviderMock = $this->getFakeMock(Account::class)
-            ->onlyMethods(['getFailureRedirect', 'getCancelOnFailed', 'getFailureRedirectToCheckout'])
+            ->onlyMethods(['getFailureRedirect', 'getCancelOnFailed', 'getFailureRedirectToCheckout', 'getCancelOnBrowserBack'])
             ->getMock();
         $configProviderMock->method('getFailureRedirect')->willReturn('failure_url');
         $configProviderMock->method('getCancelOnFailed')->willReturn(true);
         $configProviderMock->method('getFailureRedirectToCheckout')->willReturn(false);
+        $configProviderMock->method('getCancelOnBrowserBack')->willReturn(false);
 
         $quoteRecreateMock = $this->getFakeMock(\Buckaroo\Magento2\Service\Sales\Quote\Recreate::class)->onlyMethods(['recreate'])->getMock();
 
@@ -143,9 +150,9 @@ class ProcessTest extends BaseTest
             ->addMethods(['canProcessPostData'])
             ->onlyMethods(['getMethodInstance'])
             ->getMock();
-        $methodInstance = $this->getMockBuilder(\stdClass::class)
-            ->addMethods(['getCode', 'getConfigData'])
-            ->getMock();
+        $methodInstance = $this->getFakeMock(\Magento\Payment\Model\MethodInterface::class)
+            ->onlyMethods(['getCode', 'getConfigData'])
+            ->getMockForAbstractClass();
         $methodInstance->method('getCode')->willReturn('buckaroo_magento2_other');
         $methodInstance->method('getConfigData')->willReturn('0');
         $payment->method('getMethodInstance')->willReturn($methodInstance);
@@ -277,19 +284,20 @@ class ProcessTest extends BaseTest
         $contextMock->method('getMessageManager')->willReturn($messageManagerMock);
 
         $configProviderMock = $this->getFakeMock(Account::class)
-            ->onlyMethods(['getFailureRedirect', 'getCancelOnFailed', 'getFailureRedirectToCheckout'])
+            ->onlyMethods(['getFailureRedirect', 'getCancelOnFailed', 'getFailureRedirectToCheckout', 'getCancelOnBrowserBack'])
             ->getMock();
         $configProviderMock->method('getFailureRedirect')->willReturn('failure_url');
         $configProviderMock->method('getCancelOnFailed')->willReturn(true);
         $configProviderMock->method('getFailureRedirectToCheckout')->willReturn(false);
+        $configProviderMock->method('getCancelOnBrowserBack')->willReturn(false);
 
         $payment = $this->getFakeMock(Payment::class)
             ->addMethods(['canProcessPostData'])
             ->onlyMethods(['getMethodInstance'])
             ->getMock();
-        $methodInstance2 = $this->getMockBuilder(\stdClass::class)
-            ->addMethods(['getCode', 'getConfigData'])
-            ->getMock();
+        $methodInstance2 = $this->getFakeMock(\Magento\Payment\Model\MethodInterface::class)
+            ->onlyMethods(['getCode', 'getConfigData'])
+            ->getMockForAbstractClass();
         $methodInstance2->method('getCode')->willReturn('buckaroo_magento2_other');
         $methodInstance2->method('getConfigData')->willReturn('0');
         $payment->method('getMethodInstance')->willReturn($methodInstance2);
@@ -455,11 +463,12 @@ class ProcessTest extends BaseTest
         // Mock PushRequestInterface for redirectRequest dependency
         $pushRequestMock = $this->getFakeMock(\Buckaroo\Magento2\Api\Data\PushRequestInterface::class)
             ->addMethods(['getOriginalRequest', 'getData', 'hasPostData', 'hasAdditionalInformation'])
-            ->onlyMethods(['getStatusCode'])
+            ->onlyMethods(['getStatusCode', 'getDatarequest'])
             ->getMockForAbstractClass();
         $pushRequestMock->method('getOriginalRequest')->willReturn([]);
         $pushRequestMock->method('getData')->willReturn(['test' => 'data']);
         $pushRequestMock->method('getStatusCode')->willReturn('190');
+        $pushRequestMock->method('getDatarequest')->willReturn(null);
         $pushRequestMock->method('hasPostData')->willReturn(true);
         $pushRequestMock->method('hasAdditionalInformation')->willReturn(false);
 

@@ -43,7 +43,10 @@ use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\App\Action\HttpPostActionInterface;
+use Magento\Framework\App\CsrfAwareActionInterface;
 use Magento\Framework\App\Request\Http as Http;
+use Magento\Framework\App\Request\InvalidRequestException;
+use Magento\Framework\App\RequestInterface;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Event\ManagerInterface;
 use Magento\Framework\Exception\LocalizedException;
@@ -59,7 +62,7 @@ use Magento\Sales\Model\Order;
  * @SuppressWarnings(PHPMD.TooManyFields)
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
-class Process extends Action implements HttpPostActionInterface, HttpGetActionInterface
+class Process extends Action implements HttpPostActionInterface, HttpGetActionInterface, CsrfAwareActionInterface
 {
     protected const GENERAL_ERROR_MESSAGE = 'Unfortunately an error occurred while processing your payment. ' .
     'Please try again. If this error persists, please choose a different payment method.';
@@ -195,16 +198,29 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
         $this->lockManager = $lockManager;
         $this->spamLimitService = $spamLimitService;
 
-        // @codingStandardsIgnoreStart
-        if (interface_exists("\Magento\Framework\App\CsrfAwareActionInterface")) {
-            $request = $this->getRequest();
-            if ($request instanceof Http && $request->isPost()) {
-                $request->setParam('isAjax', true);
-                $request->getHeaders()->addHeaderLine('X_REQUESTED_WITH', 'XMLHttpRequest');
-            }
-        }
-        // @codingStandardsIgnoreEnd
         $this->redirectRequest = $requestPushFactory->create();
+    }
+
+    /**
+     * Bypass Magento's form-key CSRF for this endpoint; Buckaroo signature is the CSRF equivalent.
+     *
+     * @param RequestInterface $request
+     * @return InvalidRequestException|null
+     */
+    public function createCsrfValidationException(RequestInterface $request): ?InvalidRequestException
+    {
+        return null;
+    }
+
+    /**
+     * Allow all requests through CSRF validation for Buckaroo redirect callbacks.
+     *
+     * @param RequestInterface $request
+     * @return bool|null
+     */
+    public function validateForCsrf(RequestInterface $request): ?bool
+    {
+        return true;
     }
 
     /**
@@ -227,6 +243,18 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
 
         if (count($this->redirectRequest->getData()) === 0 || empty($this->redirectRequest->getStatusCode())) {
             return $this->handleEmptyRedirectRequest();
+        }
+
+        if (!$this->redirectRequest->validate()) {
+            $this->logger->addError(sprintf(
+                '[REDIRECT] | [Controller] | [%s:%s] - Signature validation failed',
+                __METHOD__,
+                __LINE__
+            ));
+            $this->messageManager->addErrorMessage(
+                __(self::GENERAL_ERROR_MESSAGE) // phpcs:ignore Magento2.Translation.ConstantUsage
+            );
+            return $this->_redirect('/');
         }
 
         $this->order = $this->orderRequestService->getOrderByRequest($this->redirectRequest);
@@ -288,11 +316,13 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
     protected function handleEmptyRedirectRequest(): ResponseInterface
     {
         $this->logger->addDebug(sprintf(
-            '[REDIRECT] | [Controller] | [%s:%s] - Empty redirect request (3DS or provider redirect with no payment data) — restoring cart and showing error',
+            '[REDIRECT] | [Controller] | [%s:%s] - Empty redirect request (3DS/provider, no data)',
             __METHOD__,
             __LINE__
         ));
-        $this->messageManager->addErrorMessage(__(self::GENERAL_ERROR_MESSAGE));
+        $this->messageManager->addErrorMessage(
+            __(self::GENERAL_ERROR_MESSAGE) // phpcs:ignore Magento2.Translation.ConstantUsage
+        );
         $lastOrder = $this->checkoutSession->getLastRealOrder();
         if ($lastOrder && $lastOrder->getQuoteId()) {
             $this->quoteRecreate->recreateById((int)$lastOrder->getQuoteId());
@@ -312,7 +342,9 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
         if ($statusCode === BuckarooStatusCode::SUCCESS) {
             return $this->handleProcessedResponse('checkout/onepage/success');
         }
-        $this->messageManager->addErrorMessage(__(self::GENERAL_ERROR_MESSAGE));
+        $this->messageManager->addErrorMessage(
+            __(self::GENERAL_ERROR_MESSAGE) // phpcs:ignore Magento2.Translation.ConstantUsage
+        );
         if ($this->order->getQuoteId()) {
             $this->quoteRecreate->recreateById((int)$this->order->getQuoteId());
         }
@@ -360,8 +392,10 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
                 'buckaroo_magento2_transfer'
             ]
         )) {
-            $transactionKey = (string)$this->payment->getAdditionalInformation(BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY);
-            if (strpos($this->redirectRequest->getTransactions(), $transactionKey) === false) {
+            $transactionKey = (string)$this->payment->getAdditionalInformation(
+                BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY
+            );
+            if (strpos($this->redirectRequest->getTransactions() ?? '', $transactionKey) === false) {
                 return true;
             }
 
@@ -578,7 +612,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
             $url,
         ));
 
-        return $this->handleProcessedResponse($url ?? 'checkout/onepage/success');
+        return $this->handleProcessedResponse($url ?: 'checkout/onepage/success');
     }
 
     /**
@@ -748,7 +782,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
         $shouldCancelOnBrowserBack = (bool) $this->accountConfig->getCancelOnBrowserBack($store);
 
         $this->logger->addDebug(sprintf(
-            '[REDIRECT - %s] | [Controller] | [%s:%s] - Handle Failed Check | statusCode: %s | isBrowserBack: %s | shouldCancelOnBrowserBack: %s',
+            '[REDIRECT - %s] | [%s:%s] - Handle Failed Check | status: %s | browserBack: %s | cancel: %s',
             $this->payment->getMethod(),
             __METHOD__,
             __LINE__,
@@ -876,7 +910,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
         }
 
         $this->logger->addDebug(sprintf(
-            '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect Failure | isBrowserBack: %s | shouldCancelOnBrowserBack: %s',
+            '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect Failure | isBrowserBack: %s | cancel: %s',
             $this->payment->getMethod(),
             __METHOD__,
             __LINE__,
@@ -943,7 +977,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
 
         $url = $this->accountConfig->getFailureRedirect($store);
 
-        return $this->handleProcessedResponse($url ?? 'checkout');
+        return $this->handleProcessedResponse($url ?: 'checkout');
     }
 
     /**
@@ -1123,7 +1157,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
             $this->checkoutSession->setQuoteId($quote->getId());
 
             $this->logger->addDebug(sprintf(
-                '[REDIRECT - %s] | [Controller] | [%s:%s] - Recreated quote persisted in checkout session | quoteId: %s',
+                '[REDIRECT - %s] | [Controller] | [%s:%s] - Recreated quote in checkout session | quoteId: %s',
                 $this->payment->getMethod(),
                 __METHOD__,
                 __LINE__,

@@ -75,7 +75,7 @@ class AbstractPushRequest
     {
         if (method_exists($this, $methodName)) {
             // @codingStandardsIgnoreLine - call_user_func_array needed for variable method calls
-            call_user_func_array([$this, $methodName], $args);
+            return call_user_func_array([$this, $methodName], $args);
         }
         if (preg_match('~^(set|get)(.*)$~', $methodName, $matches)) {
             $property = lcfirst($matches[2]);

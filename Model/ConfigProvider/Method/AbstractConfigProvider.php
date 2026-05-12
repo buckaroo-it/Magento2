@@ -30,6 +30,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 use Magento\Checkout\Model\ConfigProviderInterface as CheckoutConfigProvider;
+use Buckaroo\Magento2\Model\Config\Source\Enablemode;
 use Buckaroo\Magento2\Model\ConfigProvider\AbstractConfigProvider as BaseAbstractConfigProvider;
 
 /**
@@ -283,7 +284,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     }
 
     /**
-     * Is payment methods used only from applicable countries
+     * Are payment methods used only from applicable countries
      *
      * @param null|int|Store $store
      *
@@ -416,7 +417,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     }
 
     /**
-     * Get Method specific status enabled
+     * Get Method-specific status enabled
      *
      * @param null|int|string $store
      *
@@ -428,7 +429,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     }
 
     /**
-     * Get Method specific success status
+     * Get Method-specific success status
      *
      * @param null|int|string $store
      *
@@ -520,11 +521,11 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      */
     protected function isTestMode($store = null): bool
     {
-        return $this->getActive($store) == "1";
+        return $this->getActive($store) == Enablemode::ENABLE_TEST;
     }
 
     /**
-     * Get all issuers not sorted
+     * Get all issuers aren't sorted
      *
      * @return array
      */

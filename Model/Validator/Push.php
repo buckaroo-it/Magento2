@@ -85,17 +85,16 @@ class Push implements ValidatorInterface
     }
 
     /**
-     * Validate push
+     * Validate push — actual validation is performed via validateSignature() through HttppostPushRequest::validate().
+     * This method exists to satisfy ValidatorInterface but must not be called directly.
      *
      * @param array|object $data
      *
      * @return bool
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function validate($data): bool
     {
-        return true;
+        throw new \LogicException('Call validateSignature() directly or use HttppostPushRequest::validate().');
     }
 
     /**
@@ -143,7 +142,7 @@ class Push implements ValidatorInterface
 
         $signature = $this->calculateSignature($originalPostData, $store);
 
-        if ($signature !== $postData['brq_signature']) {
+        if (!hash_equals($signature, (string)$postData['brq_signature'])) {
             return false;
         }
 

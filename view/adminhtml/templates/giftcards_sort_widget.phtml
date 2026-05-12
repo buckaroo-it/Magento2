@@ -21,7 +21,7 @@
 ?>
 <div class="giftcards_sort_wrapper">
     <input type="hidden" name="groups[buckaroo_magento2_payment_section][groups][buckaroo_magento2_giftcards][groups][buckaroo_magento2_default][fields][sort_giftcards][value]" id="sort_giftcards"
-           value="<?= $block->getConfigGiftCardsSort() ?>">
+           value="<?= $block->escapeHtmlAttr($block->getConfigGiftCardsSort()) ?>">
     <div id="sort_giftcards_list"></div>
 </div>
 
@@ -54,14 +54,14 @@
             let cardSortedArray = inputText.split(',');
             cardSortedArray.forEach(function (item, index) {
                 let p = document.createElement("p");
-                p.innerHTML = item;
+                p.textContent = item;
                 p.classList.add('sort_giftcards');
                 $(listSelector).append(p);
             });
         } else {
             $(selector + ' option:selected').each(function () {
                 let p = document.createElement("p");
-                p.innerHTML = $(this).text();
+                p.textContent = $(this).text();
                 p.classList.add('sort_giftcards');
                 $(listSelector).append(p);
             });
@@ -72,7 +72,7 @@
 
             $(selector + ' option:selected').each(function () {
                 let p = document.createElement("p");
-                p.innerHTML = $(this).text();
+                p.textContent = $(this).text();
                 p.classList.add('sort_giftcards');
                 $(listSelector).append(p);
             });

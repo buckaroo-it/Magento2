@@ -173,7 +173,7 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
      */
     protected function isFailedGroupTransaction(): bool
     {
-        return $this->pushRequest->hasPostData('statuscode', BuckarooStatusCode::FAILED);
+        return (int)$this->pushRequest->getStatusCode() === BuckarooStatusCode::FAILED;
     }
 
     /**
@@ -191,9 +191,9 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
      *
      * @return bool
      */
-    public function isCanceledGroupTransaction()
+    public function isCanceledGroupTransaction(): bool
     {
-        return $this->pushRequest->hasPostData('brq_statuscode', BuckarooStatusCode::CANCELLED_BY_USER);
+        return (int)$this->pushRequest->getStatusCode() === BuckarooStatusCode::CANCELLED_BY_USER;
     }
 
     /**
@@ -392,7 +392,7 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
      */
     private function shouldSkipSuccessfulPartialPayment(): bool
     {
-        if (!$this->pushRequest->hasPostData('statuscode', BuckarooStatusCode::SUCCESS)) {
+        if ((int)$this->pushRequest->getStatusCode() !== BuckarooStatusCode::SUCCESS) {
             return false;
         }
 
