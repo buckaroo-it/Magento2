@@ -4379,4 +4379,14 @@
                 disabled="false"/>
     </type>
     <!-- END External Email Provider Integration -->
+
+    <!-- CLI Commands -->
+    <type name="Magento\Framework\Console\CommandList">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="buckarooRepairTruncatedStatuses" xsi:type="object">Buckaroo\Magento2\Console\Command\RepairTruncatedTransactionStatuses</item>
+            </argument>
+        </arguments>
+    </type>
+    <!-- END CLI Commands -->
 </config>
