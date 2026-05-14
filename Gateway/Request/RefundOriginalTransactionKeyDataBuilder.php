@@ -59,6 +59,16 @@ class RefundOriginalTransactionKeyDataBuilder implements BuilderInterface
     {
         $creditmemo = $payment->getCreditmemo();
 
+        // PayPerEmail: always prioritise the actual payment transaction key when available.
+        // This applies even when the payment method has already been updated from
+        // 'buckaroo_magento2_payperemail' to the method the customer actually used (e.g. iDEAL),
+        // because the refundable transaction is the one from the actual payment, not the
+        // original PayPerEmail transaction.
+        $actualTransactionKey = $payment->getAdditionalInformation(BuckarooAdapter::BUCKAROO_ACTUAL_PAYMENT_TRANSACTION_KEY);
+        if (!empty($actualTransactionKey)) {
+            return $actualTransactionKey;
+        }
+
         $methodInstance = $payment->getMethodInstance();
         if ($methodInstance && $methodInstance->canRefundPartialPerInvoice() && $creditmemo) {
             return $payment->getParentTransactionId();
@@ -68,14 +78,6 @@ class RefundOriginalTransactionKeyDataBuilder implements BuilderInterface
             $parentTransactionId = $payment->getParentTransactionId();
             if (!empty($parentTransactionId)) {
                 return $parentTransactionId;
-            }
-        }
-
-        // PayPerEmail: get actual payment transaction key from additional_information
-        if ($payment->getMethod() === 'buckaroo_magento2_payperemail') {
-            $key = $payment->getAdditionalInformation(BuckarooAdapter::BUCKAROO_ACTUAL_PAYMENT_TRANSACTION_KEY);
-            if (!empty($key)) {
-                return $key;
             }
         }
 

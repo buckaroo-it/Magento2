@@ -92,6 +92,29 @@ h3.bk-h3 {
 .bk-installed-version {
     max-width: 450px;
 }
+.bk-payment-overview {
+    max-width: 980px;
+}
+.bk-payment-overview-title {
+    margin-top: 14px;
+}
+.bk-payment-overview-features {
+    margin: 0 0 16px 18px;
+    padding: 0;
+}
+.bk-payment-overview-features li {
+    margin-bottom: 6px;
+}
+.bk-payment-logo-strip-item {
+    height: 50px !important;
+    width: 84px !important;
+    min-width: 84px;
+    max-width: 84px !important;
+    object-fit: contain;
+    display: inline-block !important;
+    flex: 0 0 84px;
+    vertical-align: middle;
+}
 .bk-flex-basis-33 {
     flex-basis: 33.33%;
 }
@@ -192,7 +215,7 @@ a.bk-plugin-zone {
     height:60px;
     background-repeat: no-repeat;
     background-image: url(../images/buckaroo_config_logo_black.png) !important;
-    background-size: 180px;
+    background-size: 160px;
     background-position: 0 14px;
 }
 
@@ -376,6 +399,21 @@ a.bk-plugin-zone {
     clear: both;
     margin-left: 0;
     margin-right: 0;
+}
+
+#row_buckaroo_magento2_payment_section_payment_methods_overview td.label {
+    display: none;
+}
+
+#row_buckaroo_magento2_payment_section_payment_methods_overview td.value {
+    width: 100% !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+.bk-payment-methods-overview {
+    box-sizing: border-box;
+    margin-bottom: 20px;
 }
 
 /* Apple Pay button wrapper for admin */

@@ -4,12 +4,13 @@
  * @var \Magento\Framework\Escaper $escaper
  */
 
-$comment = (string) $block->getData('comment');
 $demoUrl = (string) $block->getData('demo_url');
 $htmlId = (string) $block->getData('html_id');
 $isEnabled = (bool) $block->getData('is_enabled');
 $legend = (string) $block->getData('legend');
+$legendHtml = (string) $block->getData('legend_html');
 $moreUrl = (string) $block->getData('more_url');
+$overviewHtml = (string) $block->getData('overview_html');
 $toggleUrl = (string) $block->getData('toggle_url');
 ?>
 <div class="config-heading">
@@ -33,8 +34,11 @@ $toggleUrl = (string) $block->getData('toggle_url');
     </div>
     <div class="heading">
         <strong><?= /* @noEscape */ $legend ?></strong>
-        <?php if ($comment !== ''): ?>
-            <span class="heading-intro"><?= /* @noEscape */ $comment ?></span>
+        <?php if ($overviewHtml !== ''): ?>
+            <?= /* @noEscape */ $overviewHtml ?>
+        <?php endif; ?>
+        <?php if ($legendHtml !== ''): ?>
+            <?= /* @noEscape */ $legendHtml ?>
         <?php endif; ?>
         <div class="config-alt"></div>
     </div>

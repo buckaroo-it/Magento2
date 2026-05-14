@@ -53,6 +53,14 @@ abstract class BaseTest extends TestCase
         return $this->getObject($this->instanceClass, $args);
     }
 
+    public static function setUpBeforeClass(): void
+    {
+        if (!defined('BP')) {
+            define('BP', dirname(__DIR__, 5));
+        }
+        parent::setUpBeforeClass();
+    }
+
     public function setUp(): void
     {
         ini_set('error_reporting', E_ALL);

@@ -30,6 +30,9 @@ use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\Controller\Result\Redirect;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
 {
     protected $instanceClass = SecondChance::class;

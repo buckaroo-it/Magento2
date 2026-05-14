@@ -28,11 +28,16 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
             Base.clickToPayEndpointUrl = "https://clicktopay-externalapi.prod-pci.buckaroo.io/";
             Base.tokenApiEndpointUrl = "https://auth.buckaroo.io/";
             Base.websocketUrl = "wss://websocketservice-externalapi.prod.buckaroo.io/";
+            Base.isTestMode = false;
             Base.setTestMode = function (isTestMode) {
+                Base.isTestMode = !!isTestMode;
                 if (isTestMode) {
                     Base.checkoutUrl = "https://testcheckout.buckaroo.nl";
                 } else {
                     Base.checkoutUrl = "https://checkout.buckaroo.nl";
+                }
+                if (BuckarooSdk.PayPal && BuckarooSdk.PayPal.syncClientIdsWithMode) {
+                    BuckarooSdk.PayPal.syncClientIdsWithMode();
                 }
             };
             var initiate = function () {
@@ -206,11 +211,26 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
             return PayPalOptions;
         }());
         PayPal.PayPalOptions = PayPalOptions;
-        PayPal.payPalClientId = "ATv1oKfBmc76Zzl8rAMai_OwpXIp9CsDTMzEceayY7X2Sy8t6bQT2rm7DIC7LYbfkch9m9S3R3amkeyU";
-        PayPal.payPalCollectingClientId = "ARo6emSQPfMjeY3Jc1ceOfn-2kgNJFVR2CNuKJxOWzq5HtuuSyzzvRvv2bYJFB2hRozmUaVbWLqCTSFO";
+        PayPal.testModePayPalClientId = "AfHztAEfaf3f76tNy8j_Z86w5y-fGbqbBt04PXppVFtJatje79gVSB27DwBENnyFgfhFvKzgJbegNpHv";
+        PayPal.testModePayPalCollectingClientId = "AfHztAEfaf3f76tNy8j_Z86w5y-fGbqbBt04PXppVFtJatje79gVSB27DwBENnyFgfhFvKzgJbegNpHv";
+        PayPal.livePayPalClientId = "ATv1oKfBmc76Zzl8rAMai_OwpXIp9CsDTMzEceayY7X2Sy8t6bQT2rm7DIC7LYbfkch9m9S3R3amkeyU";
+        PayPal.livePayPalCollectingClientId = "ARo6emSQPfMjeY3Jc1ceOfn-2kgNJFVR2CNuKJxOWzq5HtuuSyzzvRvv2bYJFB2hRozmUaVbWLqCTSFO";
+        PayPal.payPalClientId = PayPal.livePayPalClientId;
+        PayPal.payPalCollectingClientId = PayPal.livePayPalCollectingClientId;
         PayPal.payPalPartnerAttributionId = 'NL_BUCKAROO_PPCP';
+        PayPal.syncClientIdsWithMode = function () {
+            if (Base.isTestMode) {
+                PayPal.payPalClientId = PayPal.testModePayPalClientId;
+                PayPal.payPalCollectingClientId = PayPal.testModePayPalCollectingClientId;
+            }
+            else {
+                PayPal.payPalClientId = PayPal.livePayPalClientId;
+                PayPal.payPalCollectingClientId = PayPal.livePayPalCollectingClientId;
+            }
+        };
         var requirePayPal = function (options, callback) {
             var e = document.createElement("script");
+            PayPal.syncClientIdsWithMode();
             if (options.paypalMerchantId.substring(0, 2) === "c_") {
                 options.paypalMerchantId = options.paypalMerchantId.substring(2);
                 PayPal.payPalPartnerAttributionId = "Buckaroo_PSP_MP";
@@ -225,6 +245,9 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
             document.getElementsByTagName("head")[0].appendChild(e);
         };
         PayPal.initiate = function (options) {
+            if (options && options.isTestMode !== undefined) {
+                Base.setTestMode(options.isTestMode);
+            }
             requirePayPal(options, function () {
                 paypal.Buttons({
                     createOrder: function () {

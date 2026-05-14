@@ -244,15 +244,6 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
      */
     protected function getGender(): string
     {
-        $gender = $this->payment->getAdditionalInformation('customer_gender');
-
-        // Handle both numeric and string gender values
-        if ($gender === '1' || $gender === 1 || $gender === 'male') {
-            return 'Male';
-        } elseif ($gender === '2' || $gender === 2 || $gender === 'female') {
-            return 'Female';
-        } else {
-            return 'Unknown';
-        }
+            return 'unknown';
     }
 }

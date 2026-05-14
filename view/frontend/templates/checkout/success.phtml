@@ -19,7 +19,7 @@
  */
 ?>
 <?php /** @var $block \Buckaroo\Magento2\Block\Checkout\Success */ ?>
-<?php if ($block->isTransferPayment()): ?>
+<?php if ($block->isTransferPayment() && $block->shouldDisplayTransferInstructions()): ?>
     <?php $details = $block->getTransferDetails(); ?>
     <?php if (!empty($details)): ?>
         <div class="buckaroo-transfer-instructions">

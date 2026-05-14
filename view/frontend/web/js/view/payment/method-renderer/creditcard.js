@@ -34,9 +34,10 @@ define(
                 },
                 redirectAfterPlaceOrder: false,
                 selectedCard: null,
+                cardSelectionError: null,
 
                 initObservable: function () {
-                    this._super().observe(['selectedCard']);
+                    this._super().observe(['selectedCard', 'cardSelectionError']);
                     return this;
                 },
 
@@ -44,6 +45,29 @@ define(
                     if (event && event.target && event.target.tagName === 'SELECT') {
                         this.selectedCard(event.target.value);
                     }
+
+                    if (this.hasSelectedCard()) {
+                        this.cardSelectionError('');
+                    }
+
+                    return true;
+                },
+
+                hasSelectedCard: function () {
+                    return !!this.selectedCard();
+                },
+
+                validate: function () {
+                    if (!this._super()) {
+                        return false;
+                    }
+
+                    if (!this.hasSelectedCard()) {
+                        this.cardSelectionError($.mage.__('Please select a credit card or debit card brand/issuer.'));
+                        return false;
+                    }
+
+                    this.cardSelectionError('');
                     return true;
                 },
 

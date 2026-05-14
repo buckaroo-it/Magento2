@@ -97,4 +97,10 @@
         <plugin name="shippingMethodManagement" type="Buckaroo\Magento2\Plugin\ShippingMethodManagement"/>
     </type>
 
+    <type name="Buckaroo\Magento2\Block\Catalog\Product\View\PaypalExpress">
+        <arguments>
+            <argument name="checkoutSession" xsi:type="object">Magento\Checkout\Model\Session\Proxy</argument>
+        </arguments>
+    </type>
+
 </config>

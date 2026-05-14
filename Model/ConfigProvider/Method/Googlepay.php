@@ -109,7 +109,6 @@ class Googlepay extends AbstractConfigProvider
             'buttonStyle'                  => $this->getButtonStyle(),
             'dontAskBillingInfoInCheckout' => (int)$this->getDontAskBillingInfoInCheckout(),
             'integrationMode'              => $this->getIntegrationMode(),
-            'isTestMode'                   => $this->isTestMode(),
             'locale'                       => $this->getCultureCode(),
             'allowedCardNetworks'          => ['AMEX', 'DISCOVER', 'JCB', 'MASTERCARD', 'VISA'],
         ]);

@@ -40,37 +40,6 @@
                   attr: {'data-hasrequired': $t('* Required Fields')}">
                 <fieldset class="fieldset payment">
 
-                    <!-- ko if: !showB2B() -->
-                    <div class="field required">
-                        <label class="label" for="buckaroo_magento2_payperemail_genderSelect"> <span data-bind="i18n: 'Salutation:'"> </span> </label>
-                        <div class="control">
-                        <select id="buckaroo_magento2_billink_genderSelect" name="payment[buckaroo_magento2_billink][customer_gender]" class="select"
-                        data-bind="options: buckaroo.genderList,
-                            optionsText: $t('genderTitle'),
-                            optionsValue: 'genderType',
-                            optionsCaption: $t('-- Please Select Your Gender--'),
-                            value: selectedGender,
-                            event: { blur: validateField }"
-                            data-validate="{required:true}">
-                            </select>
-                        </div>
-                    </div>
-                    <!-- /ko -->
-
-                    <div class="field required">
-                        <label class="label" for="buckaroo_magento2_billink_BillingName"> <span data-bind="i18n: 'Billing Name:'"> </span> </label>
-                        <div class="control">
-                            <input id="buckaroo_magento2_billink_BillingName"
-                                   class="input-text field"
-                                   type="text"
-                                   data-bind="
-                                   value: billingName,
-                                   event: { blur: validateField }"
-                                   name="payment[buckaroo_magento2_billink][customer_billingName]"
-                                   disabled >
-                        </div>
-                    </div>
-
                     <!-- ko if: showPhone -->
                     <div class="field required" >
                         <label class="label" for="buckaroo_magento2_billink_Telephone"> <span data-bind="i18n: 'Telephone:'"> </span> </label>
@@ -132,7 +101,7 @@
                                    data-validate="{required:true}">
                         </div>
                     </div>
-          
+
                     <div class="field">
                         <legend class="label"> <span data-bind="i18n: 'VAT number:'"> </span> </legend>
                         <div class="control">
@@ -148,34 +117,6 @@
                     </div>
                     <!-- /ko -->
 
-                    <!-- Default -->
-                    <div class="field required">
-                        <label class="label" for="buckaroo_magento2_billink_TermsCondition"> <span data-bind="i18n: 'Terms and Conditions:'"> </span> </label>
-                        <div class="control">
-                            <input id="buckaroo_magento2_billink_TermsCondition"
-                                   class="field"
-                                   type="checkbox"
-                                   data-bind="
-                                   checked: tos,
-                                   event: { change: validateField }"
-                                   data-validate="{required:true}"
-                                   name="payment[buckaroo_magento2_billink][termsCondition]">
-                            <span>
-                                <a target="_blank"
-                                   data-bind="
-                                       i18n: 'Accept terms of use',
-                                       attr: { 'href': 'https://www.billink.nl/app/uploads/2021/05/Gebruikersvoorwaarden-Billink_V11052021.pdf' }
-                                   ">
-                                </a>
-                            </span>
-                            <div for="buckaroo_magento2_billink_TermsCondition" generated="true" class="mage-error" id="buckaroo_magento2_billink_TermsCondition-error" style="display: none;"><span data-bind="i18n: 'This is a required field.' "></span></div>
-                        </div>
-                    </div>
-
-                    <!-- ko if: showFinancialWarning  -->
-                        <div class="field" data-bind="html: getMessageText()"></div>
-                    <!-- /ko -->
-                    
                     <div class="field">
                         <span data-bind="i18n: 'Please make sure all fields are filled in correctly before proceeding.' ">  </span>
                     </div>

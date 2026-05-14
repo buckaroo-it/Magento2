@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Buckaroo\Magento2\Exception;
+use Magento\Framework\App\Area;
 
 class PayPerEmail extends AbstractConfigProvider
 {
@@ -57,9 +58,9 @@ class PayPerEmail extends AbstractConfigProvider
 
         return $this->fullConfig([
             'genderList' => [
-                ['genderType' => 1, 'genderTitle' => __('He/him')],
-                ['genderType' => 2, 'genderTitle' => __('She/her')],
-                ['genderType' => 0, 'genderTitle' => __('They/them')],
+                ['genderType' => 1, 'genderTitle' => __('Male')],
+                ['genderType' => 2, 'genderTitle' => __('Female')],
+                ['genderType' => 0, 'genderTitle' => __('Other')],
                 ['genderType' => 9, 'genderTitle' => __('I prefer not to say')]
             ],
         ]);
@@ -136,20 +137,21 @@ class PayPerEmail extends AbstractConfigProvider
      *
      * @return bool
      */
-    public function isVisibleForAreaCode($areaCode)
+    public function isVisibleForAreaCode(string $areaCode): bool
     {
         if (null === $this->getVisibleFrontBack()) {
             return false;
         }
 
-        $forFrontend = ('frontend' === $this->getVisibleFrontBack() || 'both' === $this->getVisibleFrontBack());
-        $forBackend = ('backend' === $this->getVisibleFrontBack() || 'both' === $this->getVisibleFrontBack());
+        $visibleFrontBack = $this->getVisibleFrontBack();
+        $forFrontend = ($visibleFrontBack === 'frontend' || $visibleFrontBack === 'both');
+        $forBackend  = ($visibleFrontBack === 'backend'  || $visibleFrontBack === 'both');
 
-        if (($areaCode == 'adminhtml' && !$forBackend) || ($areaCode != 'adminhtml' && !$forFrontend)) {
-            return false;
+        if ($areaCode === Area::AREA_ADMINHTML) {
+            return $forBackend;
         }
 
-        return true;
+        return $forFrontend;
     }
 
     /**

@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
+use Buckaroo\Magento2\Model\Config\Source\Enablemode;
 use Magento\Store\Model\ScopeInterface;
 
 class Paypal extends AbstractConfigProvider
@@ -38,6 +39,7 @@ class Paypal extends AbstractConfigProvider
 
     public const EXPRESS_BUTTONS           = 'available_buttons';
     public const EXPRESS_MERCHANT_ID       = 'express_merchant_id';
+    public const EXPRESS_SANDBOX_MERCHANT_ID = 'express_sandbox_merchant_id';
     public const EXPRESS_BUTTON_COLOR      = 'express_button_color';
     public const EXPRESS_BUTTON_IS_ROUNDED = 'express_button_rounded';
 
@@ -114,6 +116,18 @@ class Paypal extends AbstractConfigProvider
     }
 
     /**
+     * Get PayPal sandbox merchant ID
+     *
+     * @param null|int|string $store
+     *
+     * @return mixed
+     */
+    public function getExpressSandboxMerchantId($store = null)
+    {
+        return $this->getMethodConfigValue(self::EXPRESS_SANDBOX_MERCHANT_ID, $store);
+    }
+
+    /**
      * Get PayPal express button color
      *
      * @param null|int|string $store
@@ -149,6 +163,10 @@ class Paypal extends AbstractConfigProvider
      */
     public function canShowButtonForPage($page, $store = null)
     {
+        if (!$this->isEnabled($store)) {
+            return false;
+        }
+
         $buttons = $this->getExpressButtons($store);
         if ($buttons === null) {
             return false;
@@ -156,6 +174,18 @@ class Paypal extends AbstractConfigProvider
 
         $pages = explode(",", $buttons);
         return in_array($page, $pages);
+    }
+
+    /**
+     * Check whether PayPal payment method is enabled (Test or Live).
+     *
+     * @param null|int|string $store
+     *
+     * @return bool
+     */
+    public function isEnabled($store = null): bool
+    {
+        return (int)$this->getActive($store) !== Enablemode::ENABLE_OFF;
     }
 
     /**

@@ -26,6 +26,7 @@ use Buckaroo\Magento2\Api\Data\BreakdownItemInterfaceFactory;
 use Buckaroo\Magento2\Api\Data\TotalBreakdownInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Api\CartTotalRepositoryInterface;
+use Magento\Quote\Api\Data\TotalSegmentInterface;
 use Magento\Quote\Model\Quote;
 
 class TotalBreakdown implements TotalBreakdownInterface
@@ -46,6 +47,14 @@ class TotalBreakdown implements TotalBreakdownInterface
     protected $cartTotalRepository;
 
     /**
+     * Lazily populated cache of total segments keyed by segment code.
+     * Prevents repeated CartTotalRepository::get() calls for the same request.
+     *
+     * @var TotalSegmentInterface[]|null
+     */
+    private ?array $segmentCache = null;
+
+    /**
      * @param Quote                         $quote
      * @param BreakdownItemInterfaceFactory $breakdownItemFactory
      * @param CartTotalRepositoryInterface  $cartTotalRepository
@@ -61,16 +70,20 @@ class TotalBreakdown implements TotalBreakdownInterface
     }
 
     /**
-     * Get subtotal
+     * Get subtotal (items + any fees, excluding shipping and tax).
      *
      * @return BreakdownItemInterface
      */
     public function getItemTotal(): BreakdownItemInterface
     {
+        $grandCents    = $this->toCents($this->quote->getGrandTotal());
+        $shippingCents = $this->toCents($this->getTotalsOfType('shipping'));
+        $taxCents      = $this->toCents($this->getTotalsOfType('tax'));
+
         return $this->breakdownItemFactory->create(
             [
-                "total" => number_format($this->quote->getGrandTotal(), 2) - $this->getTotalsOfType('shipping') - $this->getTotalsOfType('tax'),
-                "currencyCode" => $this->quote->getQuoteCurrencyCode()
+                'total'        => ($grandCents - $shippingCents - $taxCents) / 100.0,
+                'currencyCode' => $this->quote->getQuoteCurrencyCode(),
             ]
         );
     }
@@ -79,13 +92,14 @@ class TotalBreakdown implements TotalBreakdownInterface
      * Get shipping price
      *
      * @return BreakdownItemInterface
+     * @throws NoSuchEntityException
      */
     public function getShipping(): BreakdownItemInterface
     {
         return $this->breakdownItemFactory->create(
             [
-                "total" => $this->getTotalsOfType('shipping'),
-                "currencyCode" => $this->quote->getQuoteCurrencyCode()
+                'total'        => $this->getTotalsOfType('shipping'),
+                'currencyCode' => $this->quote->getQuoteCurrencyCode(),
             ]
         );
     }
@@ -94,34 +108,50 @@ class TotalBreakdown implements TotalBreakdownInterface
      * Get taxes
      *
      * @return BreakdownItemInterface
+     * @throws NoSuchEntityException
      */
     public function getTaxTotal(): BreakdownItemInterface
     {
         return $this->breakdownItemFactory->create(
             [
-                "total" =>  $this->getTotalsOfType('tax'),
-                "currencyCode" => $this->quote->getQuoteCurrencyCode()
+                'total'        => $this->getTotalsOfType('tax'),
+                'currencyCode' => $this->quote->getQuoteCurrencyCode(),
             ]
         );
     }
 
     /**
-     * Get total from quote of type
+     * Get total segment value by type from a lazily loaded, cached segment map.
      *
      * @param string $type
      *
-     * @throws NoSuchEntityException
-     *
      * @return float
+     * @throws NoSuchEntityException
      */
-    protected function getTotalsOfType(string $type)
+    protected function getTotalsOfType(string $type): float
     {
-        $totals = $this->cartTotalRepository->get($this->quote->getId())->getTotalSegments();
-
-        if (!isset($totals[$type])) {
-            return 0;
+        if ($this->segmentCache === null) {
+            $this->segmentCache = $this->cartTotalRepository
+                ->get($this->quote->getId())
+                ->getTotalSegments();
         }
 
-        return round((float)$totals[$type]->getValue(), 2);
+        if (!isset($this->segmentCache[$type])) {
+            return 0.0;
+        }
+
+        return round((float)$this->segmentCache[$type]->getValue(), 2);
+    }
+
+    /**
+     * Convert a monetary float to an integer number of cents (round half-up).
+     *
+     * @param float|int|string $amount
+     *
+     * @return int
+     */
+    private function toCents($amount): int
+    {
+        return (int) round((float)$amount * 100);
     }
 }
