@@ -51,9 +51,9 @@ class TransactionResponse implements \Buckaroo\Magento2\Model\ValidatorInterface
     /**
      * @param array|object $data
      *
-     * @return boolean
      *
      * @throws \InvalidArgumentException
+     * @return bool
      */
     public function validate($data)
     {
@@ -80,7 +80,7 @@ class TransactionResponse implements \Buckaroo\Magento2\Model\ValidatorInterface
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     protected function validateSignature()
     {
@@ -144,7 +144,7 @@ class TransactionResponse implements \Buckaroo\Magento2\Model\ValidatorInterface
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     protected function validateDigest()
     {

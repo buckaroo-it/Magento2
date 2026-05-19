@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Plugin;
 
 use Magento\Sales\Api\Data\OrderExtensionFactory;
@@ -34,7 +36,7 @@ class OrderExtensionAttribute
         'buckaroo_fee_incl_tax',
         'base_buckaroo_fee_incl_tax',
         'buckaroo_push_data',
-        'buckaroo_already_paid'
+        'buckaroo_already_paid',
     ];
 
     /** @var OrderExtensionFactory */

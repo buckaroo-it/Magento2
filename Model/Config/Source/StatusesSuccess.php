@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,7 +18,10 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Config\Source;
+
+use Buckaroo\Magento2\Exception;
 
 class StatusesSuccess implements \Magento\Framework\Option\ArrayInterface
 {
@@ -36,7 +40,7 @@ class StatusesSuccess implements \Magento\Framework\Option\ArrayInterface
     /**
      * Class constructor
      *
-     * @param \Magento\Sales\Model\Order\Config          $orderConfig
+     * @param \Magento\Sales\Model\Order\Config               $orderConfig
      * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory
      */
     public function __construct(
@@ -51,6 +55,7 @@ class StatusesSuccess implements \Magento\Framework\Option\ArrayInterface
      * Options getter
      *
      * @return array
+     * @throws Exception
      */
     public function toOptionArray()
     {

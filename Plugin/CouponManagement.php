@@ -22,14 +22,14 @@
 namespace Buckaroo\Magento2\Plugin;
 
 use Magento\Quote\Api\CartRepositoryInterface;
-use \Magento\Quote\Api\CouponManagementInterface;
+use Magento\Quote\Api\CouponManagementInterface;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\CouldNotDeleteException;
+use Magento\Quote\Model\Quote;
 
 class CouponManagement
 {
-
     /**
      * @var CartRepositoryInterface
      */
@@ -70,9 +70,10 @@ class CouponManagement
         return [$cartId];
     }
 
-    private function isGroupTransaction($cartId): bool {
-         /** @var  \Magento\Quote\Model\Quote $quote */
-         $quote = $this->quoteRepository->getActive($cartId);
+    private function isGroupTransaction($cartId): bool
+    {
+        /** @var  Quote $quote */
+        $quote = $this->quoteRepository->getActive($cartId);
         return $this->groupTransaction->getAlreadyPaid($quote->getReservedOrderId()) > 0;
     }
 }

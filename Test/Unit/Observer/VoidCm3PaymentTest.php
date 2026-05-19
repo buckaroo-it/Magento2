@@ -36,7 +36,7 @@ class VoidCm3PaymentTest extends BaseTest
                 'getAuthorizationTransaction',
                 'getAdditionalInformation',
                 'getMethodInstance',
-                'createCreditNoteRequest'
+                'createCreditNoteRequest',
             ])
             ->getMock();
         $paymentMock->expects($this->once())->method('getMethod')->willReturn('fake_method');
@@ -60,7 +60,7 @@ class VoidCm3PaymentTest extends BaseTest
                 'getAuthorizationTransaction',
                 'getAdditionalInformation',
                 'getMethodInstance',
-                'createCreditNoteRequest'
+                'createCreditNoteRequest',
             ])
             ->getMock();
         $paymentMock->expects($this->once())->method('getMethod')->willReturn('buckaroo_magento2_method');
@@ -87,7 +87,7 @@ class VoidCm3PaymentTest extends BaseTest
                 'getAuthorizationTransaction',
                 'getAdditionalInformation',
                 'getMethodInstance',
-                'createCreditNoteRequest'
+                'createCreditNoteRequest',
             ])
             ->getMock();
         $paymentMock->expects($this->once())->method('getMethod')->willReturn('buckaroo_magento2_method');

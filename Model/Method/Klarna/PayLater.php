@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Method\Klarna;
 
 use Buckaroo\Magento2\Model\Method\Klarna;
@@ -24,13 +26,13 @@ use Buckaroo\Magento2\Model\Method\Klarna;
 class PayLater extends Klarna
 {
     /** Payment Code */
-    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_klarna';
+    public const PAYMENT_METHOD_CODE = 'buckaroo_magento2_klarna';
 
-    const KLARNA_ORDER_SERVICE_ACTION = 'Pay';
+    public const KLARNA_ORDER_SERVICE_ACTION = 'Pay';
 
     /** @var string */
     public $buckarooPaymentMethodCode = 'klarna';
-    
+
     /** @var string */
     // @codingStandardsIgnoreLine
     protected $_code = 'buckaroo_magento2_klarna';

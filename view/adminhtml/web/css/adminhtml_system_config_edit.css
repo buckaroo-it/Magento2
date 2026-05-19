@@ -25,7 +25,7 @@
     height: 18px;
     content: ' ';
 
-    background-image: url(../images/buckaroo_small_black.png) !important;
+    background-image: url(../images/buckaroo_small.png) !important;
     background-position :0 2px;
     background-repeat:no-repeat;
     background-size: auto 13px;
@@ -280,11 +280,11 @@
     display:inline-block;
     vertical-align: middle;
     margin: 0 20px 0 0;
-    width: 180px;
-    height:60px;
+    width:  200px;
+    height: 90px;
     background-repeat: no-repeat;
     background-image: url(../images/buckaroo_config_logo_black.png) !important;
-    background-size: 180px;
+    background-size: 200px;
     background-position: 0 14px;
 }
 

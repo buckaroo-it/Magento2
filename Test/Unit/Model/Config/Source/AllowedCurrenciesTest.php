@@ -40,15 +40,15 @@ class AllowedCurrenciesTest extends \Buckaroo\Magento2\Test\BaseTest
         $currenctBundleData = [
             'Currencies' => [
                 'USD' => [1 => 'US Dollar'],
-                'EUR' => [1 => 'Euro']
-            ]
+                'EUR' => [1 => 'Euro'],
+            ],
         ];
 
         $currencyBundleMock = $this->getFakeMock(CurrencyBundle::class)->setMethods(['get'])->getMock();
         $currencyBundleMock->expects($this->once())->method('get')->willReturn($currenctBundleData);
 
         $instance = $this->getInstance([
-            'allowedCurrenciesConfig' => $currenciesConfigMock,'currencyBundle' => $currencyBundleMock
+            'allowedCurrenciesConfig' => $currenciesConfigMock,'currencyBundle' => $currencyBundleMock,
         ]);
         $result = $instance->toOptionArray();
 
@@ -57,7 +57,7 @@ class AllowedCurrenciesTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $expectedResult = [
             ['value' => 'USD', 'label' => 'US Dollar'],
-            ['value' => 'EUR', 'label' => 'Euro']
+            ['value' => 'EUR', 'label' => 'Euro'],
         ];
 
         $this->assertEquals($expectedResult, $result);

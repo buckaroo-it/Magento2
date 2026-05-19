@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Method\Capayable;
 
 use Buckaroo\Magento2\Model\Method\Capayable;
@@ -24,9 +26,9 @@ use Buckaroo\Magento2\Model\Method\Capayable;
 class Postpay extends Capayable
 {
     /** Payment Code */
-    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_capayablepostpay';
+    public const PAYMENT_METHOD_CODE = 'buckaroo_magento2_capayablepostpay';
 
-    const CAPAYABLE_ORDER_SERVICE_ACTION = 'Pay';
+    public const CAPAYABLE_ORDER_SERVICE_ACTION = 'Pay';
 
     /** @var string */
     public $buckarooPaymentMethodCode = 'capayablepostpay';

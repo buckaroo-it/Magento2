@@ -56,26 +56,11 @@ class PaypalExpress extends Template
         $this->encryptor = $encryptor;
         $this->paypalConfig = $paypalConfig;
     }
-    public function canShowProductButton()
+    public function canShowButton($page)
     {
-        if ($this->isModuleActive()){
-            return $this->paypalConfig->canShowButtonForPage(
-                'Product',
-                $this->_storeManager->getStore()
-            );
-        }
-        return false;
-    }
-
-    public function canShowCartButton()
-    {
-        if ($this->isModuleActive()){
-            return $this->paypalConfig->canShowButtonForPage(
-                'Cart',
-                $this->_storeManager->getStore()
-            );
-        }
-        return false;
+        return $this->isModuleActive() &&
+            $this->paypalConfig->canShowButtonForPage($page, $this->_storeManager->getStore()) &&
+            $this->paypalConfig->isPayPalEnabled($this->_storeManager->getStore());
     }
 
     /**
@@ -88,6 +73,7 @@ class PaypalExpress extends Template
         $status = $this->configProviderAccount->getActive();
         return $status == 1 || $status == 2;
     }
+
     /**
      * Get all data required
      *

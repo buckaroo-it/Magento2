@@ -26,8 +26,9 @@ use Buckaroo\Magento2\Api\Data\PaypalExpress\OrderCreateResponseInterface;
 class OrderCreate implements OrderCreateResponseInterface
 {
     protected $orderId;
-    
-    public function __construct(string $orderId) {
+
+    public function __construct(string $orderId)
+    {
         $this->orderId = $orderId;
     }
     public function getCartId()

@@ -11,7 +11,7 @@
 
 <?php if ((float) $block->getSource()->getBuckarooFee()): ?>
     <tr>
-        <td class="label"><?php /* @escapeNotVerified */ echo __('Payment fee') ?></td>
+        <td class="label"><?php /* @escapeNotVerified */ echo $block->getSource()->getBuckarooFeeLabel() ?: __('Payment fee') ?></td>
         <td>
             <?php /* @escapeNotVerified */ echo $block->displayPrices($block->getSource()->getBaseBuckarooFee(), $block->getSource()->getBuckarooFee()); ?>
         </td>

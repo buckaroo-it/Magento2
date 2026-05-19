@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Service\CreditManagement\ServiceParameters;
 
 use Magento\Payment\Model\InfoInterface;
@@ -25,6 +27,7 @@ use Magento\Sales\Model\Order;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 use Buckaroo\Magento2\Model\Method\PayPerEmail;
+use Buckaroo\Magento2\Service\Culture\CultureCodeMapper;
 
 class CreateCombinedInvoice
 {
@@ -34,9 +37,15 @@ class CreateCombinedInvoice
     /** @var Factory */
     private $configProviderMethodFactory;
 
-    public function __construct(Factory $configProviderMethodFactory)
-    {
+    /** @var CultureCodeMapper */
+    private $cultureCodeMapper;
+
+    public function __construct(
+        Factory $configProviderMethodFactory,
+        CultureCodeMapper $cultureCodeMapper
+    ) {
         $this->configProviderMethodFactory = $configProviderMethodFactory;
+        $this->cultureCodeMapper = $cultureCodeMapper;
     }
 
     /**
@@ -57,7 +66,7 @@ class CreateCombinedInvoice
             'Name'             => 'CreditManagement3',
             'Action'           => 'CreateCombinedInvoice',
             'Version'          => 1,
-            'RequestParameter' => $this->getCmRequestParameters($payment)
+            'RequestParameter' => $this->getCmRequestParameters($payment),
         ];
 
         return $services;
@@ -103,7 +112,7 @@ class CreateCombinedInvoice
         $addressParameters = $this->getAddressCmParameters($order->getBillingAddress());
         $requestParameters = array_merge($requestParameters, $addressParameters);
 
-        $companyParameters = $this->getCompanyCmParameters($order->getBillingAddress());
+        $companyParameters = $this->getCompanyCmParameters($order->getBillingAddress(), $order);
         $requestParameters = array_merge($requestParameters, $companyParameters);
 
         return $requestParameters;
@@ -144,7 +153,7 @@ class CreateCombinedInvoice
             [
                 '_'    => $this->getAllowedServices($order->getPayment()),
                 'Name' => 'AllowedServices',
-            ]
+            ],
         ];
 
         if ($this->configProvider->getPaymentMethodAfterExpiry()) {
@@ -158,7 +167,7 @@ class CreateCombinedInvoice
     }
 
     /**
-     * @param OrderPaymentInterface|InfoInterface $payment
+     * @param  OrderPaymentInterface|InfoInterface $payment
      * @return string
      */
     private function getAllowedServices($payment): string
@@ -209,7 +218,7 @@ class CreateCombinedInvoice
             return $allowedServices;
         }
 
-        if(strlen($allowedServices) > 0) {
+        if (strlen($allowedServices) > 0) {
             return $allowedServices . "," . $activeGiftcardIssuers;
         }
         return $activeGiftcardIssuers;
@@ -227,7 +236,7 @@ class CreateCombinedInvoice
 
         $personParameters = [
             [
-                '_'    => strtolower($order->getBillingAddress()->getCountryId()),
+                '_'    => $this->cultureCodeMapper->getCultureCodeByOrder($order),
                 'Name' => 'Culture',
                 'Group' => 'Person',
             ],
@@ -295,7 +304,7 @@ class CreateCombinedInvoice
             $addressParameters[] = [
                 '_'    => $address['number_addition'],
                 'Name' => 'HouseNumberSuffix',
-                'Group' => 'Address'
+                'Group' => 'Address',
             ];
         }
 
@@ -304,10 +313,11 @@ class CreateCombinedInvoice
 
     /**
      * @param \Magento\Sales\Api\Data\OrderAddressInterface $billingAddress
+     * @param Order $order
      *
      * @return array
      */
-    private function getCompanyCmParameters($billingAddress)
+    private function getCompanyCmParameters($billingAddress, $order)
     {
         $requestParameters = [];
         $company = $billingAddress->getCompany();
@@ -318,15 +328,15 @@ class CreateCombinedInvoice
 
         $requestParameters = [
             [
-                '_' => strtolower($billingAddress->getCountryId()),
+                '_' => $this->cultureCodeMapper->getCultureCodeByOrder($order),
                 'Name' => 'Culture',
-                'Group' => 'Company'
+                'Group' => 'Company',
             ],
             [
                 '_' => $company,
                 'Name' => 'Name',
-                'Group' => 'Company'
-            ]
+                'Group' => 'Company',
+            ],
         ];
 
         return $requestParameters;

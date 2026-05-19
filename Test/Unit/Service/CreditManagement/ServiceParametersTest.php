@@ -39,8 +39,8 @@ class ServiceParametersTest extends BaseTest
                         ['Name' => 'name abc', 'Group' => 'group abc', '_' => 'value abc'],
                         ['Name' => 'name def', '_' => 'value def'],
                         ['Name' => 'name ghi', 'Group' => 'group ghi', '_' => 'value ghi'],
-                        ['Name' => 'name jkl', '_' => 'value jkl']
-                    ]
+                        ['Name' => 'name jkl', '_' => 'value jkl'],
+                    ],
                 ],
                 [],
                 [
@@ -48,9 +48,9 @@ class ServiceParametersTest extends BaseTest
                         ['Name' => 'name abc', 'Group' => 'group abc', '_' => 'value abc'],
                         ['Name' => 'name def', '_' => 'value def'],
                         ['Name' => 'name ghi', 'Group' => 'group ghi', '_' => 'value ghi'],
-                        ['Name' => 'name jkl', '_' => 'value jkl']
-                    ]
-                ]
+                        ['Name' => 'name jkl', '_' => 'value jkl'],
+                    ],
+                ],
             ],
             'filter only by name' => [
                 [
@@ -58,19 +58,19 @@ class ServiceParametersTest extends BaseTest
                         ['Name' => 'name abc', 'Group' => 'group abc', '_' => 'value abc'],
                         ['Name' => 'name def', '_' => 'value def'],
                         ['Name' => 'name ghi', 'Group' => 'group ghi', '_' => 'value ghi'],
-                        ['Name' => 'name jkl', '_' => 'value jkl']
-                    ]
+                        ['Name' => 'name jkl', '_' => 'value jkl'],
+                    ],
                 ],
                 [
-                    ['Name' => 'name def']
+                    ['Name' => 'name def'],
                 ],
                 [
                     'RequestParameter' => [
                         ['Name' => 'name abc', 'Group' => 'group abc', '_' => 'value abc'],
                         ['Name' => 'name ghi', 'Group' => 'group ghi', '_' => 'value ghi'],
-                        ['Name' => 'name jkl', '_' => 'value jkl']
-                    ]
-                ]
+                        ['Name' => 'name jkl', '_' => 'value jkl'],
+                    ],
+                ],
             ],
             'filter by name and group' => [
                 [
@@ -78,19 +78,19 @@ class ServiceParametersTest extends BaseTest
                         ['Name' => 'name abc', 'Group' => 'group abc', '_' => 'value abc'],
                         ['Name' => 'name def', '_' => 'value def'],
                         ['Name' => 'name ghi', 'Group' => 'group ghi', '_' => 'value ghi'],
-                        ['Name' => 'name jkl', '_' => 'value jkl']
-                    ]
+                        ['Name' => 'name jkl', '_' => 'value jkl'],
+                    ],
                 ],
                 [
-                    ['Name' => 'name abc', 'Group' => 'group abc']
+                    ['Name' => 'name abc', 'Group' => 'group abc'],
                 ],
                 [
                     'RequestParameter' => [
                         ['Name' => 'name def', '_' => 'value def'],
                         ['Name' => 'name ghi', 'Group' => 'group ghi', '_' => 'value ghi'],
-                        ['Name' => 'name jkl', '_' => 'value jkl']
-                    ]
-                ]
+                        ['Name' => 'name jkl', '_' => 'value jkl'],
+                    ],
+                ],
             ],
             'filter multiple parameters' => [
                 [
@@ -98,20 +98,20 @@ class ServiceParametersTest extends BaseTest
                         ['Name' => 'name abc', 'Group' => 'group abc', '_' => 'value abc'],
                         ['Name' => 'name def', '_' => 'value def'],
                         ['Name' => 'name ghi', 'Group' => 'group ghi', '_' => 'value ghi'],
-                        ['Name' => 'name jkl', '_' => 'value jkl']
-                    ]
+                        ['Name' => 'name jkl', '_' => 'value jkl'],
+                    ],
                 ],
                 [
                     ['Name' => 'name ghi', 'Group' => 'group ghi'],
-                    ['Name' => 'name jkl']
+                    ['Name' => 'name jkl'],
                 ],
                 [
                     'RequestParameter' => [
                         ['Name' => 'name abc', 'Group' => 'group abc', '_' => 'value abc'],
                         ['Name' => 'name def', '_' => 'value def'],
-                    ]
-                ]
-            ]
+                    ],
+                ],
+            ],
         ];
     }
 

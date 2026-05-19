@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Ideal;
 
 use Magento\Customer\Model\Group;
@@ -26,12 +28,9 @@ use Magento\Checkout\Model\Type\Onepage;
 use Magento\Framework\DataObjectFactory;
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Customer\Model\Session as CustomerSession;
-use Buckaroo\Magento2\Model\Ideal\QuoteBuilderInterface;
-use Buckaroo\Magento2\Model\Ideal\IdealException;
 
 class QuoteBuilder implements QuoteBuilderInterface
 {
-
     /**
      * @var \Magento\Quote\Model\QuoteFactory
      */
@@ -64,10 +63,10 @@ class QuoteBuilder implements QuoteBuilderInterface
     protected $quote;
 
     public function __construct(
-        QuoteFactory $quoteFactory,
+        QuoteFactory               $quoteFactory,
         ProductRepositoryInterface $productRepository,
-        DataObjectFactory $dataObjectFactory,
-        CustomerSession $customer
+        DataObjectFactory          $dataObjectFactory,
+        CustomerSession            $customer
     ) {
         $this->quoteFactory = $quoteFactory;
         $this->productRepository = $productRepository;
@@ -80,14 +79,17 @@ class QuoteBuilder implements QuoteBuilderInterface
     {
         $this->formData = $this->formatFormData($formData);
     }
+
     /**
      * Build quote from form data and session without persisting it
      *
      * @return \Magento\Quote\Model\Quote
+     * @throws IdealException
      */
     public function build()
     {
         $this->quote = $this->quoteFactory->create();
+        $this->quote->setIsCheckoutCart(true);
         $this->addProduct();
         $this->setUser();
         return $this->quote;
@@ -95,8 +97,6 @@ class QuoteBuilder implements QuoteBuilderInterface
 
     /**
      * Add user to quote
-     *
-     * @return void
      */
     protected function setUser()
     {
@@ -111,10 +111,10 @@ class QuoteBuilder implements QuoteBuilderInterface
                 ->setCustomerGroupId(Group::NOT_LOGGED_IN_ID);
         }
     }
+
     /**
      * Add product to quote
      *
-     * @return void
      * @throws IdealException
      */
     protected function addProduct()
@@ -134,7 +134,8 @@ class QuoteBuilder implements QuoteBuilderInterface
             throw new IdealException($exceptionMessage, 1);
         }
     }
-/**
+
+    /**
      * Format form data
      *
      * @param string $form_data

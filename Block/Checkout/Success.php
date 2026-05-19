@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -28,12 +29,12 @@ class Success extends \Magento\Checkout\Block\Onepage\Success
     protected $currentCustomer;
 
     /**
-     * @param Template\Context $context
-     * @param \Magento\Checkout\Model\Session $checkoutSession
-     * @param \Magento\Sales\Model\Order\Config $orderConfig
-     * @param \Magento\Framework\App\Http\Context $httpContext
+     * @param \Magento\Framework\View\Element\Template\Context $context
+     * @param \Magento\Checkout\Model\Session                  $checkoutSession
+     * @param \Magento\Sales\Model\Order\Config                $orderConfig
+     * @param \Magento\Framework\App\Http\Context              $httpContext
      * @param \Magento\Customer\Helper\Session\CurrentCustomer $currentCustomer
-     * @param array $data
+     * @param array                                            $data
      */
     public function __construct(
         \Magento\Framework\View\Element\Template\Context $context,

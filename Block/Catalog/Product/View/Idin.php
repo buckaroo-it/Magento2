@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Block\Catalog\Product\View;
 
 use Buckaroo\Magento2\Model\ConfigProvider\Account as AccountConfig;
@@ -24,7 +26,7 @@ use Magento\Checkout\Model\Cart;
 use Magento\Checkout\Model\CompositeConfigProvider;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
-use \Magento\Framework\Registry;
+use Magento\Framework\Registry;
 
 class Idin extends Template
 {
@@ -47,8 +49,9 @@ class Idin extends Template
      * @param Context                 $context
      * @param Cart                    $cart
      * @param CompositeConfigProvider $compositeConfigProvider
-     * @param AccountConfig          $idinConfigProvider
+     * @param AccountConfig           $idinConfigProvider
      * @param array                   $data
+     * @param Registry                $registry
      */
     public function __construct(
         Context $context,

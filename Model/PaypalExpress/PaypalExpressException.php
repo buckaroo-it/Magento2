@@ -21,7 +21,6 @@
 
 namespace Buckaroo\Magento2\Model\PaypalExpress;
 
-
 class PaypalExpressException extends \Exception
 {
 }

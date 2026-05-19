@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -25,7 +26,7 @@ class Voucher extends AbstractMethod
     /**
      * Payment Code
      */
-    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_voucher';
+    public const PAYMENT_METHOD_CODE = 'buckaroo_magento2_voucher';
 
     /**
      * @var string
@@ -44,13 +45,13 @@ class Voucher extends AbstractMethod
      */
     public $usesRedirect                = false;
 
- 
+
     /**
      * {@inheritdoc}
      */
     public function getOrderTransactionBuilder($payment)
     {
-       return true;
+        return true;
     }
 
     /**
@@ -84,7 +85,7 @@ class Voucher extends AbstractMethod
     {
         return false;
     }
-    
+
     /**
      * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
      *

@@ -24,8 +24,9 @@ namespace Buckaroo\Magento2\Model\Validator;
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
-use \Buckaroo\Magento2\Model\ValidatorInterface;
-use \Magento\Framework\Encryption\Encryptor;
+use Buckaroo\Magento2\Model\ValidatorInterface;
+use Exception;
+use Magento\Framework\Encryption\Encryptor;
 
 class Push implements ValidatorInterface
 {
@@ -52,14 +53,14 @@ class Push implements ValidatorInterface
         792 => 'Waiting on consumer action',
         793 => 'Payment on hold',
         890 => 'Cancelled by consumer',
-        891 => 'Cancelled by merchant'
+        891 => 'Cancelled by merchant',
     ];
 
     /**
-     * @param Data          $helper
-     * @param Account       $configProviderAccount
-     * @param Log           $logging
-     * @param Encryptor     $encryptor
+     * @param Data      $helper
+     * @param Account   $configProviderAccount
+     * @param Log       $logging
+     * @param Encryptor $encryptor
      */
     public function __construct(
         Data $helper,
@@ -113,7 +114,9 @@ class Push implements ValidatorInterface
      * Generate/calculate the signature with the buckaroo config value and check if thats equal to the signature
      * received from the push
      *
-     * @param $postData
+     * @param            $postData
+     * @param mixed      $originalPostData
+     * @param null|mixed $store
      *
      * @return bool
      */
@@ -135,9 +138,11 @@ class Push implements ValidatorInterface
     /**
      * Determines the signature using array sorting and the SHA1 hash algorithm
      *
-     * @param $postData
+     * @param            $postData
+     * @param null|mixed $store
      *
      * @return string
+     * @throws Exception
      */
     public function calculateSignature($postData, $store = null)
     {
@@ -147,12 +152,12 @@ class Push implements ValidatorInterface
             $acceptable_top_level = ['brq', 'add', 'cust', 'BRQ', 'ADD', 'CUST'];
 
             return (
-                    $key != 'brq_signature' && $key != 'BRQ_SIGNATURE') &&
+                $key != 'brq_signature' && $key != 'BRQ_SIGNATURE') &&
                 in_array(explode('_', $key)[0], $acceptable_top_level);
         }, ARRAY_FILTER_USE_KEY);
 
         $data = array_map(function ($value, $key) {
-            return $key . '=' . html_entity_decode($value);
+            return $key . '=' . $this->decodePushValue($key, $value);
         }, $data, array_keys($data));
 
 
@@ -162,5 +167,73 @@ class Push implements ValidatorInterface
         $signature = SHA1($signatureString);
 
         return $signature;
+    }
+
+    /**
+     * Decode push value according to field type
+     *
+     * This method handles value decoding for signature calculation.
+     * Different fields require different decoding strategies to match
+     * how Buckaroo calculates the signature on their side.
+     *
+     * Fields in the whitelist are NOT decoded (kept as-is after PHP's POST decode).
+     * Other fields are URL-decoded only (NOT HTML-decoded).
+     *
+     * @param string $brqKey   The parameter key (e.g., 'brq_service_paypal_address_line_1')
+     * @param string $brqValue The parameter value
+     *
+     * @return string The decoded value
+     */
+    protected function decodePushValue($brqKey, $brqValue)
+    {
+        $brqValue = (string) $brqValue;
+
+        $noDecodeFields = [
+            'brq_customer_name',
+            'brq_service_ideal_consumername',
+            'brq_service_transfer_consumername',
+            'brq_service_payconiq_payconiqandroidurl',
+            'brq_service_payconiq_payconiqiosurl',
+            'brq_service_payconiq_payconiqurl',
+            'brq_service_payconiq_qrurl',
+            'brq_service_masterpass_customerphonenumber',
+            'brq_service_masterpass_shippingrecipientphonenumber',
+            // PayPal fields - keep HTML entities intact
+            'brq_service_paypal_payeremail',
+            'brq_service_paypal_payerfirstname',
+            'brq_service_paypal_payerlastname',
+            'brq_service_paypal_customername',
+            // Date/time fields
+            'brq_invoicedate',
+            'brq_duedate',
+            'brq_previousstepdatetime',
+            'brq_eventdatetime',
+            // Transfer fields
+            'brq_service_transfer_accountholdername',
+            'brq_service_transfer_customeraccountname',
+            // Customer billing fields
+            'cust_customerbillingfirstname',
+            'cust_customerbillinglastname',
+            'cust_customerbillingemail',
+            'cust_customerbillingstreet',
+            'cust_customerbillingtelephone',
+            'cust_customerbillinghousenumber',
+            'cust_customerbillinghouseadditionalnumber',
+            // Customer shipping fields
+            'cust_customershippingfirstname',
+            'cust_customershippinglastname',
+            'cust_customershippingemail',
+            'cust_customershippingstreet',
+            'cust_customershippingtelephone',
+            'cust_customershippinghousenumber',
+            'cust_customershippinghouseadditionalnumber',
+        ];
+
+        // Check if this field is in the no-decode whitelist (case-insensitive)
+        if (in_array(strtolower($brqKey), $noDecodeFields)) {
+            return $brqValue;
+        }
+
+        return urldecode($brqValue);
     }
 }

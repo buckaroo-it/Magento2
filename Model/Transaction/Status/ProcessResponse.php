@@ -21,6 +21,7 @@
 
 namespace Buckaroo\Magento2\Model\Transaction\Status;
 
+use Buckaroo\Magento2\Model\Service\OrderCancellationService;
 use Magento\Sales\Model\Order;
 use Magento\Checkout\Model\Session;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
@@ -30,7 +31,6 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as ConfigFactory;
 
 class ProcessResponse
 {
-
     /**
      * @var \Magento\Sales\Model\Order
      */
@@ -51,51 +51,57 @@ class ProcessResponse
      */
     protected $statusFactory;
 
-     /**
+    /**
      * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory
      */
     protected $configFactory;
 
-     /**
+    /**
      * @var \Magento\Checkout\Model\Session
      */
     protected $checkoutSession;
 
     protected $paymentConfig;
 
+    /**
+     * @var OrderCancellationService
+     */
+    private $orderCancellationService;
+
     public function __construct(
         OrderStatusFactory $statusFactory,
         ConfigFactory $configFactory,
-        Session $checkoutSession
+        Session $checkoutSession,
+        OrderCancellationService $orderCancellationService
     ) {
         $this->statusFactory = $statusFactory;
         $this->configFactory = $configFactory;
         $this->checkoutSession = $checkoutSession;
+        $this->orderCancellationService = $orderCancellationService;
     }
     public function process(
         TransactionResponseInterface $response,
         Order $order
-    )
-    {
+    ) {
         $this->init($response, $order);
-        if($this->isFailed()) {
+        if ($this->isFailed()) {
             $this->handleFailed();
             return [
                 "payment_status" => "failed",
-                "status_code" => $response->getStatusCode()
+                "status_code" => $response->getStatusCode(),
             ];
         }
-        if($this->isSuccessful()) {
+        if ($this->isSuccessful()) {
             $this->handleSuccessful();
             return [
                 "payment_status" => "success",
-                "status_code" => $response->getStatusCode()
+                "status_code" => $response->getStatusCode(),
             ];
         }
         if ($this->isProcessing()) {
             return [
                 "payment_status" => "processing",
-                "status_code" => $response->getStatusCode()
+                "status_code" => $response->getStatusCode(),
             ];
         }
     }
@@ -103,22 +109,22 @@ class ProcessResponse
     /**
      * Check if request is processing
      *
-     * @return boolean
+     * @return bool
      */
     protected function isProcessing()
     {
         return $this->response->isStatusCode([
-            Response::STATUSCODE_WAITING_ON_USER_INPUT, 
-            Response::STATUSCODE_PENDING_PROCESSING,    
-            Response::STATUSCODE_WAITING_ON_CONSUMER,   
-            Response::STATUSCODE_PAYMENT_ON_HOLD,      
+            Response::STATUSCODE_WAITING_ON_USER_INPUT,
+            Response::STATUSCODE_PENDING_PROCESSING,
+            Response::STATUSCODE_WAITING_ON_CONSUMER,
+            Response::STATUSCODE_PAYMENT_ON_HOLD,
         ]);
     }
 
     /**
      * Check if request has failed
      *
-     * @return boolean
+     * @return bool
      */
     protected function isFailed()
     {
@@ -128,7 +134,7 @@ class ProcessResponse
             Response::STATUSCODE_VALIDATION_FAILURE,
             Response::STATUSCODE_CANCELLED_BY_MERCHANT,
             Response::STATUSCODE_CANCELLED_BY_USER,
-            Response::STATUSCODE_FAILED
+            Response::STATUSCODE_FAILED,
         ]);
     }
 
@@ -139,8 +145,6 @@ class ProcessResponse
 
     /**
      * Handle state when successful
-     *
-     * @return void
      */
     protected function handleSuccessful()
     {
@@ -148,8 +152,6 @@ class ProcessResponse
     }
     /**
      * Handle state when failed
-     *
-     * @return void
      */
     protected function handleFailed()
     {
@@ -160,7 +162,7 @@ class ProcessResponse
     /**
      * Restore quote on failed
      *
-     * @return boolean
+     * @return bool
      */
     protected function restoreQuote()
     {
@@ -171,8 +173,6 @@ class ProcessResponse
 
     /**
      * Update checkout session with the last order data
-     *
-     * @return void
      */
     protected function updateCheckoutSession()
     {
@@ -185,25 +185,24 @@ class ProcessResponse
     }
     /**
      * Cancel order when failed
-     *
-     * @return void
      */
     protected function cancelOrder()
     {
         if (!$this->order->isCanceled()) {
-            $this->order->cancel();
+            $this->orderCancellationService->cancelOrder($this->order, 'Transaction failed.', true);
         }
     }
+
     /**
-     * Set class properties 
+     * Set class properties
      *
-     * @return void
+     * @param TransactionResponseInterface $response
+     * @param Order                        $order
      */
     protected function init(
         TransactionResponseInterface $response,
         Order $order
-    )
-    {
+    ) {
         $this->response = $response;
         $this->order = $order;
         $this->payment = $this->order->getPayment();

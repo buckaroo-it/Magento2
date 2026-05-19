@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -19,6 +20,8 @@
  */
 
 namespace Buckaroo\Magento2\Model\ResourceModel;
+
+use Magento\Framework\Model\AbstractModel;
 
 class Certificate extends \Magento\Framework\Model\ResourceModel\Db\VersionControl\AbstractDb
 {
@@ -76,8 +79,6 @@ class Certificate extends \Magento\Framework\Model\ResourceModel\Db\VersionContr
     // @codingStandardsIgnoreStart
     /**
      * Model Initialization
-     *
-     * @return void
      */
     protected function _construct()
     {
@@ -87,7 +88,7 @@ class Certificate extends \Magento\Framework\Model\ResourceModel\Db\VersionContr
     /**
      * Perform actions before object save
      *
-     * @param \Magento\Framework\Model\AbstractModel|\Magento\Framework\DataObject $object
+     * @param AbstractModel $object
      * @return $this
      */
     protected function _beforeSave(\Magento\Framework\Model\AbstractModel $object)

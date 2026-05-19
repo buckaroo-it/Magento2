@@ -75,11 +75,11 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $instance = $this->getInstance([
             'creditmemoFactory' => $creditmemoFactoryMock,
-            'configRefund' => $configRefundMock
+            'configRefund' => $configRefundMock,
         ]);
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $result = $instance->receiveRefundPush($postData, true, $orderMock);
         $this->assertTrue($result);
     }
@@ -130,7 +130,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
         $instance->order = $orderMock;
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $result = $instance->createCreditmemo();
         $this->assertFalse($result);
     }
@@ -158,7 +158,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
         $instance->order = $orderMock;
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $result = $instance->createCreditmemo();
         $this->assertFalse($result);
     }
@@ -178,7 +178,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $postData = [
             'brq_currency' => 'EUR',
-            'brq_amount_credit' => '100'
+            'brq_amount_credit' => '100',
         ];
 
         $instance = $this->getInstance();
@@ -186,7 +186,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
         $instance->order = $orderMock;
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $result = $instance->getCreditmemoData();
 
         $this->assertEquals(0, $result['shipping_amount']);
@@ -229,7 +229,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
         $orderMock = $this->getFakeMock(Order::class)
             ->setMethods([
                 'getBaseToOrderRate', 'getBaseTotalRefunded',
-                'getBaseBuckarooFeeInvoiced', 'getBuckarooFeeBaseTaxAmountInvoiced'
+                'getBaseBuckarooFeeInvoiced', 'getBuckarooFeeBaseTaxAmountInvoiced',
             ])
             ->getMock();
         $orderMock->expects($this->once())->method('getBaseToOrderRate')->willReturn(1);
@@ -244,7 +244,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
         $result = $instance->getAdjustmentRefundData();
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $this->assertEquals(85, $result);
     }
 
@@ -265,7 +265,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
         $instance->order = $orderMock;
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $result = $instance->getCreditmemoDataItems();
         $this->assertEquals(7, $result[1]['qty']);
     }

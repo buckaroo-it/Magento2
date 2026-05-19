@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,9 +18,12 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Ideal;
 
 use Buckaroo\Magento2\Api\Data\QuoteCreateResponseInterface;
+use Magento\Customer\Api\Data\AddressInterface;
+use Magento\Framework\Exception\InputException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Model\Quote;
 use Buckaroo\Magento2\Logging\Log;
@@ -32,10 +36,10 @@ use Magento\Customer\Api\AddressRepositoryInterface;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Session as CustomerSession;
 use Buckaroo\Magento2\Api\IdealQuoteCreateInterface;
-use Buckaroo\Magento2\Model\Ideal\QuoteBuilderInterfaceFactory;
 use Buckaroo\Magento2\Api\Data\QuoteCreateResponseInterfaceFactory;
 use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Store\Model\StoreManagerInterface;
 
 class QuoteCreate implements IdealQuoteCreateInterface
 {
@@ -49,6 +53,7 @@ class QuoteCreate implements IdealQuoteCreateInterface
     protected $shipmentEstimation;
     protected $logger;
     protected $quote;
+    protected $storeManager;
 
     public function __construct(
         QuoteCreateResponseInterfaceFactory $responseFactory,
@@ -59,7 +64,8 @@ class QuoteCreate implements IdealQuoteCreateInterface
         CheckoutSession $checkoutSession,
         QuoteRepository $quoteRepository,
         ShipmentEstimationInterface $shipmentEstimation,
-        Log $logger
+        Log $logger,
+        StoreManagerInterface $storeManager
     ) {
         $this->responseFactory = $responseFactory;
         $this->quoteBuilderInterfaceFactory = $quoteBuilderInterfaceFactory;
@@ -70,17 +76,18 @@ class QuoteCreate implements IdealQuoteCreateInterface
         $this->quoteRepository = $quoteRepository;
         $this->shipmentEstimation = $shipmentEstimation;
         $this->logger = $logger;
+        $this->storeManager = $storeManager;
     }
 
     /**
      * Execute quote creation and address handling
      *
-     * @param string $page
-     * @param string|null $form_data
-     * @return QuoteCreateResponseInterface
+     * @param  string                       $page
+     * @param  string|null                  $form_data
      * @throws IdealException
+     * @return QuoteCreateResponseInterface
      */
-    public function execute(string $page, string $form_data = null)
+    public function execute(string $page, ?string $form_data = null)
     {
         try {
             if ($page === 'product' && is_string($form_data)) {
@@ -101,19 +108,33 @@ class QuoteCreate implements IdealQuoteCreateInterface
 
             $this->setPaymentMethod();
         } catch (\Throwable $th) {
+            $this->logger->debug('Error during quote creation: ' . $th->getMessage());
             throw new IdealException("Failed to create quote");
         }
 
+        $this->restoreStoreContext();
         $this->calculateQuoteTotals();
         return $this->responseFactory->create(["quote" => $this->quote]);
     }
 
     /**
+     * Restore store context for the quote
+     */
+    protected function restoreStoreContext()
+    {
+        if ($this->quote && $this->quote->getStoreId()) {
+            $this->storeManager->setCurrentStore($this->quote->getStoreId());
+        } else {
+            $this->logger->debug('Store ID not set on quote.');
+        }
+    }
+
+    /**
      * Get a customer's address by address ID
      *
-     * @param int|null $addressId
-     * @return \Magento\Customer\Api\Data\AddressInterface|null
+     * @param  int|null              $addressId
      * @throws LocalizedException
+     * @return AddressInterface|null
      */
     protected function getAddress($addressId)
     {
@@ -124,7 +145,7 @@ class QuoteCreate implements IdealQuoteCreateInterface
         try {
             return $this->addressRepository->getById($addressId);
         } catch (NoSuchEntityException $e) {
-            $this->logger->error('Address not found', ['address_id' => $addressId]);
+            $this->logger->debug('Address not found', ['address_id' => $addressId]);
             return null;
         }
     }
@@ -132,10 +153,10 @@ class QuoteCreate implements IdealQuoteCreateInterface
     /**
      * Set the shipping and billing addresses for the quote
      *
-     * @param \Magento\Customer\Api\Data\AddressInterface|null $shippingAddressData
-     * @param \Magento\Customer\Api\Data\AddressInterface|null $billingAddressData
-     * @param \Magento\Customer\Api\Data\CustomerInterface $customer
-     * @return void
+     * @param  AddressInterface|null $shippingAddressData
+     * @param  AddressInterface|null $billingAddressData
+     * @param  CustomerInterface     $customer
+     * @throws InputException
      */
     protected function setAddresses($shippingAddressData, $billingAddressData, $customer)
     {
@@ -178,7 +199,7 @@ class QuoteCreate implements IdealQuoteCreateInterface
     /**
      * Set default shipping and billing addresses for a guest
      *
-     * @return void
+     * @throws InputException
      */
     protected function setDefaultShippingAddress()
     {
@@ -198,8 +219,7 @@ class QuoteCreate implements IdealQuoteCreateInterface
     /**
      * Set placeholder values for the address if no customer information is available
      *
-     * @param \Magento\Quote\Model\Quote\Address $address
-     * @return void
+     * @param Address $address
      */
     protected function setPlaceholderAddress(Address $address)
     {
@@ -215,12 +235,10 @@ class QuoteCreate implements IdealQuoteCreateInterface
 
     /**
      * Calculate quote totals and set store id and email if needed
-     *
-     * @return void
      */
     protected function calculateQuoteTotals()
     {
-        $this->quote->setStoreId($this->quote->getStore()->getId());
+        $this->restoreStoreContext();
 
         if ($this->quote->getCustomerEmail() === null) {
             $this->quote->setCustomerEmail('no-reply@example.com');
@@ -233,8 +251,8 @@ class QuoteCreate implements IdealQuoteCreateInterface
     /**
      * Add the first found shipping method to the shipping address
      *
-     * @param Address $address
-     * @return void
+     * @param  Address        $address
+     * @throws InputException
      */
     protected function addFirstShippingMethod(Address $address)
     {
@@ -268,9 +286,9 @@ class QuoteCreate implements IdealQuoteCreateInterface
     /**
      * Create a new quote if on the product page
      *
-     * @param string $form_data
-     * @return Quote
+     * @param  string         $form_data
      * @throws IdealException
+     * @return Quote
      */
     protected function createQuote(string $form_data)
     {

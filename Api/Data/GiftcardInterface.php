@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,12 +18,13 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Api\Data;
 
 interface GiftcardInterface
 {
     /**
-     * @param string $servicecode
+     * @param  string $servicecode
      * @return $this
      */
     public function setServicecode($servicecode);
@@ -33,7 +35,7 @@ interface GiftcardInterface
     public function getServicecode();
 
     /**
-     * @param string $label
+     * @param  string $label
      * @return $this
      */
     public function setLabel($label);
@@ -47,11 +49,11 @@ interface GiftcardInterface
      * @return string|null $acquirer
      */
     public function getAcquirer();
-    
+
     /**
      * @param string|null $acquirer
      *
      * @return $this
      */
-    public function setAcquirer(string $acquirer = null);
+    public function setAcquirer(?string $acquirer = null);
 }

@@ -33,11 +33,11 @@ class AfterpayPaymentMethodsTest extends BaseTest
     {
         return [
             [
-                ['value' => 1, 'label' => 'Acceptgiro']
+                ['value' => 1, 'label' => 'Acceptgiro'],
             ],
             [
-                ['value' => 2, 'label' => 'Digiaccept']
-            ]
+                ['value' => 2, 'label' => 'Digiaccept'],
+            ],
         ];
     }
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -41,7 +42,7 @@ class Totals extends \Magento\Checkout\Block\Total\DefaultTotal
      * @param \Magento\Customer\Model\Session                  $customerSession
      * @param \Magento\Checkout\Model\Session                  $checkoutSession
      * @param \Magento\Sales\Model\Config                      $salesConfig
-     * @param \Buckaroo\Magento2\Helper\PaymentFee                  $helper
+     * @param \Buckaroo\Magento2\Helper\PaymentFee             $helper
      * @param array                                            $layoutProcessors
      * @param array                                            $data
      */

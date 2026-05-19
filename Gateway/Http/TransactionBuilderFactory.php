@@ -21,6 +21,10 @@
 
 namespace Buckaroo\Magento2\Gateway\Http;
 
+use Buckaroo\Magento2\Exception;
+use LogicException;
+use Magento\Framework\Phrase;
+
 class TransactionBuilderFactory
 {
     /**
@@ -51,12 +55,12 @@ class TransactionBuilderFactory
      * @param string $builderType
      *
      * @return TransactionBuilderInterface
-     * @throws \LogicException|\Buckaroo\Magento2\Exception
+     * @throws LogicException|Exception
      */
     public function get($builderType)
     {
         if (empty($this->transactionBuilders)) {
-            throw new \LogicException('Transaction builder adapter is not set.');
+            throw new LogicException('Transaction builder adapter is not set.');
         }
         foreach ($this->transactionBuilders as $transactionBuilderMetaData) {
             $transactionBuilderType = $transactionBuilderMetaData['type'];
@@ -67,8 +71,8 @@ class TransactionBuilderFactory
         }
 
         if (!isset($transactionBuilderClass) || empty($transactionBuilderClass)) {
-            throw new \Buckaroo\Magento2\Exception(
-                new \Magento\Framework\Phrase(
+            throw new Exception(
+                new Phrase(
                     'Unknown transaction builder type requested: %1.',
                     [$builderType]
                 )
@@ -77,7 +81,7 @@ class TransactionBuilderFactory
 
         $transactionBuilder = $this->objectManager->create($transactionBuilderClass);
         if (!$transactionBuilder instanceof TransactionBuilderInterface) {
-            throw new \LogicException(
+            throw new LogicException(
                 'The transaction builder must implement "Buckaroo\Magento2\Gateway\Http\TransactionBuilderInterface".'
             );
         }

@@ -50,7 +50,7 @@ class EditTest extends BaseTest
 
         $instance = $this->getInstance([
             'giftcardFactory' => $giftcardFactoryMock,
-            'resultPageFactory' => $resultPageFactoryMock
+            'resultPageFactory' => $resultPageFactoryMock,
         ]);
         $instance->execute();
     }

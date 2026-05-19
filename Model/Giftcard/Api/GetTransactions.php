@@ -22,7 +22,6 @@
 namespace Buckaroo\Magento2\Model\Giftcard\Api;
 
 use Buckaroo\Magento2\Api\GiftcardTransactionInterface;
-use Buckaroo\Magento2\Model\Giftcard\Api\NoQuoteException;
 use Buckaroo\Magento2\Api\Data\Giftcard\GetTransactionsResponseInterfaceFactory;
 
 class GetTransactions implements GiftcardTransactionInterface

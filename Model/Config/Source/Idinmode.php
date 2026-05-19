@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,13 +18,14 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Config\Source;
 
 class Idinmode implements \Magento\Framework\Option\ArrayInterface
 {
-    const IDINMODE_GLOBAL = 0;
-    const IDINMODE_PRODUCT = 1;
-    const IDINMODE_CATEGORY = 2;
+    public const IDINMODE_GLOBAL = 0;
+    public const IDINMODE_PRODUCT = 1;
+    public const IDINMODE_CATEGORY = 2;
 
     /**
      * Options getter

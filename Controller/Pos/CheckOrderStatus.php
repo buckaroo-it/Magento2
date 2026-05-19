@@ -1,27 +1,38 @@
 <?php
+
 // @codingStandardsIgnoreFile
- /**
-  * NOTICE OF LICENSE
-  *
-  * This source file is subject to the MIT License
-  * It is available through the world-wide-web at this URL:
-  * https://tldrlegal.com/license/mit-license
-  * If you are unable to obtain it through the world-wide-web, please send an email
-  * to support@buckaroo.nl so we can send you a copy immediately.
-  *
-  * DISCLAIMER
-  *
-  * Do not edit or add to this file if you wish to upgrade this module to newer
-  * versions in the future. If you wish to customize this module for your
-  * needs please contact support@buckaroo.nl for more information.
-  *
-  * @copyright Copyright (c) Buckaroo B.V.
-  * @license   https://tldrlegal.com/license/mit-license
-  */
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
 
 namespace Buckaroo\Magento2\Controller\Pos;
 
+use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory;
+use Exception;
+use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\Data\Form\FormKey;
+use Magento\Framework\UrlInterface;
+use Magento\Sales\Model\Order;
+use Magento\Store\Model\StoreManagerInterface;
 
 class CheckOrderStatus extends \Magento\Framework\App\Action\Action
 {
@@ -36,12 +47,12 @@ class CheckOrderStatus extends \Magento\Framework\App\Action\Action
     protected $logger;
 
     /**
-     * @var \Magento\Sales\Model\Order $order
+     * @var Order $order
      */
     protected $order;
 
     /**
-     * @var \Magento\Framework\Controller\Result\JsonFactory
+     * @var JsonFactory
      */
     protected $resultJsonFactory;
 
@@ -56,22 +67,28 @@ class CheckOrderStatus extends \Magento\Framework\App\Action\Action
     private $helper;
 
     /**
-     * @param \Magento\Framework\App\Action\Context               $context
-     * @param Log                                                 $logger
-     * @param \Magento\Sales\Model\Order                          $order
+     * @param Context            $context
+     * @param Log                                              $logger
+     * @param Order                       $order
+     * @param JsonFactory $resultJsonFactory
+     * @param Factory  $configProviderFactory
+     * @param StoreManagerInterface       $storeManager
+     * @param UrlInterface                  $urlBuilder
+     * @param FormKey             $formKey
+     * @param Data                   $helper
      *
      * @throws \Buckaroo\Magento2\Exception
      */
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
+        Context $context,
         Log $logger,
-        \Magento\Sales\Model\Order $order,
-        \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory,
-        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Framework\UrlInterface $urlBuilder,
-        \Magento\Framework\Data\Form\FormKey $formKey,
-        \Buckaroo\Magento2\Helper\Data $helper
+        Order $order,
+        JsonFactory $resultJsonFactory,
+        Factory $configProviderFactory,
+        StoreManagerInterface $storeManager,
+        UrlInterface $urlBuilder,
+        FormKey $formKey,
+        Data $helper
     ) {
         parent::__construct($context);
         $this->logger             = $logger;
@@ -87,8 +104,8 @@ class CheckOrderStatus extends \Magento\Framework\App\Action\Action
     /**
      * Process action
      *
-     * @return \Magento\Framework\App\ResponseInterface
-     * @throws \Exception
+     * @throws Exception
+     * @return ResponseInterface
      */
     public function execute()
     {

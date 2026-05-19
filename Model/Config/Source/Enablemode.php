@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Config\Source;
 
 class Enablemode implements \Magento\Framework\Option\ArrayInterface
@@ -31,7 +33,7 @@ class Enablemode implements \Magento\Framework\Option\ArrayInterface
         return [
             ['value' => 0, 'label' => __('Off')],
             ['value' => 1, 'label' => __('Test')],
-            ['value' => 2, 'label' => __('Live')]
+            ['value' => 2, 'label' => __('Live')],
         ];
     }
 
@@ -45,7 +47,7 @@ class Enablemode implements \Magento\Framework\Option\ArrayInterface
         return [
             0 => __('Off'),
             1 => __('Test'),
-            2 => __('Live')
+            2 => __('Live'),
         ];
     }
 }

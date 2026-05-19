@@ -1,4 +1,5 @@
 <?php
+
 // @codingStandardsIgnoreFile
 /**
  * NOTICE OF LICENSE
@@ -21,16 +22,15 @@
 
 namespace Buckaroo\Magento2\Plugin\Method;
 
-use \Magento\Sales\Model\Order;
+use Buckaroo\Magento2\Exception;
+use Magento\Sales\Model\Order;
 
 /**
  * Class Klarna
- *
- *
  */
 class Klarna
 {
-    const KLARNA_METHOD_NAME = 'buckaroo_magento2_klarna';
+    public const KLARNA_METHOD_NAME = 'buckaroo_magento2_klarna';
 
     /**
      * \Buckaroo\Magento2\Model\Method\Klarna
@@ -50,8 +50,8 @@ class Klarna
     /**
      * @param Order $subject
      *
+     * @throws Exception
      * @return Klarna|Order
-     * @throws \Buckaroo\Magento2\Exception
      */
     public function afterCancel(
         Order $subject

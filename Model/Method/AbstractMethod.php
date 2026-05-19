@@ -1,4 +1,5 @@
 <?php
+
 // @codingStandardsIgnoreFile
 /**
  * NOTICE OF LICENSE
@@ -21,7 +22,37 @@
 
 namespace Buckaroo\Magento2\Model\Method;
 
+use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Gateway\GatewayInterface;
+use Buckaroo\Magento2\Gateway\Http\Transaction;
+use Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory;
+use Buckaroo\Magento2\Gateway\Http\TransactionBuilderInterface;
+use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Buckaroo\Magento2\Model\ConfigProvider\Refund as RefundConfigProvider;
+use Buckaroo\Magento2\Model\RefundFieldsFactory;
+use Buckaroo\Magento2\Model\ValidatorFactory;
+use Magento\Framework\Api\AttributeValueFactory;
+use Magento\Framework\Api\ExtensionAttributesFactory;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\RequestInterface;
+use Magento\Framework\Data\Collection\AbstractDb;
+use Magento\Framework\DataObject;
+use Magento\Framework\Event\ManagerInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Model\Context;
+use Magento\Framework\Model\ResourceModel\AbstractResource;
+use Magento\Framework\ObjectManagerInterface;
+use Magento\Framework\Registry;
+use Magento\Payment\Helper\Data;
+use Magento\Payment\Model\Method\Logger;
+use Magento\Quote\Api\Data\CartInterface;
+use Magento\Quote\Model\Quote\Item;
+use Magento\Quote\Model\QuoteFactory;
+use Magento\Sales\Model\Order\Creditmemo;
+use Magento\Sales\Model\Order\Invoice;
 use Magento\Tax\Model\Config;
 use Magento\Sales\Model\Order;
 use Magento\Framework\Phrase;
@@ -36,20 +67,20 @@ use Buckaroo\Magento2\Logging\Log as BuckarooLog;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Buckaroo\Magento2\Model\Method\Klarna\Klarnain;
 use Buckaroo\Magento2\Observer\AddInTestModeMessage;
-use Buckaroo\Magento2\Model\Method\LimitReachException;
 use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
+use StdClass;
 
 abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
-    const BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY = 'buckaroo_original_transaction_key';
-    const BUCKAROO_ALL_TRANSACTIONS             = 'buckaroo_all_transactions';
-    const BUCKAROO_PAYMENT_IN_TRANSIT           = 'buckaroo_payment_in_transit';
-    const PAYMENT_FROM                          = 'buckaroo_payment_from';
-    const PAYMENT_ATTEMPTS_REACHED_MESSAGE      = 'buckaroo_payment_attempts_reached_message';
+    public const BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY = 'buckaroo_original_transaction_key';
+    public const BUCKAROO_ALL_TRANSACTIONS             = 'buckaroo_all_transactions';
+    public const BUCKAROO_PAYMENT_IN_TRANSIT           = 'buckaroo_payment_in_transit';
+    public const PAYMENT_FROM                          = 'buckaroo_payment_from';
+    public const PAYMENT_ATTEMPTS_REACHED_MESSAGE      = 'buckaroo_payment_attempts_reached_message';
     /**
      * The regex used to validate the entered BIC number
      */
-    const BIC_NUMBER_REGEX = '^([a-zA-Z]){4}([a-zA-Z]){2}([0-9a-zA-Z]){2}([0-9a-zA-Z]{3})?$^';
+    public const BIC_NUMBER_REGEX = '^([a-zA-Z]){4}([a-zA-Z]){2}([0-9a-zA-Z]){2}([0-9a-zA-Z]{3})?$^';
 
     /**
      * @var string
@@ -57,7 +88,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     public $buckarooPaymentMethodCode;
 
     /**
-     * @var \Buckaroo\Magento2\Gateway\GatewayInterface
+     * @var GatewayInterface
      */
     protected $gateway;
 
@@ -67,12 +98,12 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     protected $response;
 
     /**
-     * @var \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory
+     * @var TransactionBuilderFactory
      */
     protected $transactionBuilderFactory;
 
     /**
-     * @var \Buckaroo\Magento2\Model\ValidatorFactory
+     * @var ValidatorFactory
      */
     protected $validatorFactory;
 
@@ -92,7 +123,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     public $payment;
 
     /**
-     * @var \Buckaroo\Magento2\Model\ConfigProvider\Factory
+     * @var Factory
      */
     public $configProviderFactory;
 
@@ -102,7 +133,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     public $configProviderMethodFactory;
 
     /**
-     * @var \Buckaroo\Magento2\Model\RefundFieldsFactory
+     * @var RefundFieldsFactory
      */
     public $refundFieldsFactory;
 
@@ -132,9 +163,11 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     public $closeCancelTransaction = true;
 
     /**
-     * @var bool|string
+     * Redirect URL after order placement
+     *
+     * @var string|null
      */
-    public $orderPlaceRedirectUrl = true;
+    public $orderPlaceRedirectUrl = null;
 
     /**
      * @var bool
@@ -177,7 +210,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     protected $_infoBlockType = 'Buckaroo\Magento2\Block\Info';
 
     /**
-     * @var \Magento\Framework\ObjectManagerInterface
+     * @var ObjectManagerInterface
      */
     protected $objectManager;
 
@@ -187,7 +220,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     protected $developmentHelper;
 
     /**
-     * @var \Magento\Quote\Model\QuoteFactory
+     * @var QuoteFactory
      */
     protected $quoteFactory;
 
@@ -210,7 +243,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      */
     protected $taxConfig;
 
-    /** @var \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee */
+    /** @var BuckarooFee */
     protected $configProviderBuckarooFee;
 
     /** @var SoftwareData */
@@ -226,68 +259,71 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     protected $_code;
 
     /**
-     * @var EventManager
+     * @var ManagerInterface
      */
     private $eventManager;
 
     /**
-     * @param \Magento\Framework\ObjectManagerInterface $objectManager
-     * @param \Magento\Framework\Model\Context $context
-     * @param \Magento\Framework\Registry $registry
-     * @param \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory
-     * @param \Magento\Framework\Api\AttributeValueFactory $customAttributeFactory
-     * @param \Magento\Payment\Helper\Data $paymentData
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
-     * @param \Magento\Payment\Model\Method\Logger $logger
-     * @param \Magento\Developer\Helper\Data $developmentHelper
-     * @param \Magento\Quote\Model\QuoteFactory $quoteFactory
-     * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
-     * @param \Magento\Framework\Data\Collection\AbstractDb $resourceCollection
-     * @param \Buckaroo\Magento2\Gateway\GatewayInterface $gateway
-     * @param \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory
-     * @param \Buckaroo\Magento2\Model\ValidatorFactory $validatorFactory
-     * @param \Buckaroo\Magento2\Helper\Data $helper
-     * @param \Magento\Framework\App\RequestInterface $request
-     * @param \Buckaroo\Magento2\Model\RefundFieldsFactory $refundFieldsFactory
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory
-     * @param \Magento\Framework\Pricing\Helper\Data $priceHelper
-     * @param array $data
-     *
-     * @param GroupTransaction $groupTransaction
-     *
-     * @throws \Buckaroo\Magento2\Exception
+     * @param ObjectManagerInterface                                      $objectManager
+     * @param Context                                                     $context
+     * @param Registry                                                    $registry
+     * @param ExtensionAttributesFactory                                  $extensionFactory
+     * @param AttributeValueFactory                                       $customAttributeFactory
+     * @param Data                                                        $paymentData
+     * @param ScopeConfigInterface                                        $scopeConfig
+     * @param Logger                                                      $logger
+     * @param \Magento\Developer\Helper\Data                              $developmentHelper
+     * @param QuoteFactory                                                $quoteFactory
+     * @param Config                                                      $taxConfig
+     * @param Calculation                                                 $taxCalculation
+     * @param BuckarooFee                                                 $configProviderBuckarooFee
+     * @param BuckarooLog                                                 $buckarooLog
+     * @param SoftwareData                                                $softwareData
+     * @param AddressFactory                                              $addressFactory
+     * @param ManagerInterface                                            $eventManager
+     * @param AbstractResource|null                                       $resource
+     * @param AbstractDb|null                                             $resourceCollection
+     * @param GatewayInterface|null                                       $gateway
+     * @param TransactionBuilderFactory|null                              $transactionBuilderFactory
+     * @param ValidatorFactory|null                                       $validatorFactory
+     * @param \Buckaroo\Magento2\Helper\Data|null                         $helper
+     * @param RequestInterface|null                                       $request
+     * @param RefundFieldsFactory|null                                    $refundFieldsFactory
+     * @param Factory|null                                                $configProviderFactory
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory|null $configProviderMethodFactory
+     * @param \Magento\Framework\Pricing\Helper\Data|null                 $priceHelper
+     * @param array                                                       $data
      */
     public function __construct(
-        \Magento\Framework\ObjectManagerInterface $objectManager,
-        \Magento\Framework\Model\Context $context,
-        \Magento\Framework\Registry $registry,
-        \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory,
-        \Magento\Framework\Api\AttributeValueFactory $customAttributeFactory,
-        \Magento\Payment\Helper\Data $paymentData,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Magento\Payment\Model\Method\Logger $logger,
-        \Magento\Developer\Helper\Data $developmentHelper,
-        \Magento\Quote\Model\QuoteFactory $quoteFactory,
-        Config $taxConfig,
-        Calculation $taxCalculation,
-        \Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee $configProviderBuckarooFee,
-        BuckarooLog $buckarooLog,
-        SoftwareData $softwareData,
-        AddressFactory $addressFactory,
-        \Magento\Framework\Event\ManagerInterface $eventManager,
-        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
-        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
-        \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
-        \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory = null,
-        \Buckaroo\Magento2\Model\ValidatorFactory $validatorFactory = null,
-        \Buckaroo\Magento2\Helper\Data $helper = null,
-        \Magento\Framework\App\RequestInterface $request = null,
-        \Buckaroo\Magento2\Model\RefundFieldsFactory $refundFieldsFactory = null,
-        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory = null,
-        \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
-        \Magento\Framework\Pricing\Helper\Data $priceHelper = null,
-        array $data = []
+        ObjectManagerInterface                                   $objectManager,
+        Context                                                  $context,
+        Registry                                                   $registry,
+        ExtensionAttributesFactory                                 $extensionFactory,
+        AttributeValueFactory                                      $customAttributeFactory,
+        Data                                                       $paymentData,
+        ScopeConfigInterface                                       $scopeConfig,
+        Logger                                                     $logger,
+        \Magento\Developer\Helper\Data                             $developmentHelper,
+        QuoteFactory                                               $quoteFactory,
+        Config                                                  $taxConfig,
+        Calculation                                             $taxCalculation,
+        BuckarooFee                                             $configProviderBuckarooFee,
+        BuckarooLog                                             $buckarooLog,
+        SoftwareData                                            $softwareData,
+        AddressFactory                                          $addressFactory,
+        ManagerInterface                                        $eventManager,
+        ?AbstractResource                                       $resource = null,
+        ?AbstractDb                                             $resourceCollection = null,
+        ?GatewayInterface                                       $gateway = null,
+        ?TransactionBuilderFactory                              $transactionBuilderFactory = null,
+        ?ValidatorFactory                                       $validatorFactory = null,
+        ?\Buckaroo\Magento2\Helper\Data                         $helper = null,
+        ?RequestInterface                                       $request = null,
+        ?RefundFieldsFactory                                    $refundFieldsFactory = null,
+        ?Factory                                                $configProviderFactory = null,
+        ?\Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
+        ?\Magento\Framework\Pricing\Helper\Data                 $priceHelper = null,
+        array                                                   $data = []
     ) {
         parent::__construct(
             $context,
@@ -327,6 +363,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
     /**
      * @return bool
+     * @throws Exception
      */
     public function canRefund()
     {
@@ -347,14 +384,14 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     }
 
     /**
-     * @param \Magento\Framework\DataObject $data
+     * @param DataObject $data
      *
      * @return $this
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws LocalizedException
      */
-    public function assignData(\Magento\Framework\DataObject $data)
+    public function assignData(DataObject $data)
     {
-        if ($data instanceof \Magento\Framework\DataObject) {
+        if ($data instanceof DataObject) {
             $additionalSkip = $data->getAdditionalData();
 
             if (isset($additionalSkip[self::PAYMENT_FROM])) {
@@ -365,11 +402,11 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     }
 
     /**
-     * @param  \Magento\Framework\DataObject $data
+     * @param DataObject $data
      *
      * @return array
      */
-    public function assignDataConvertToArray(\Magento\Framework\DataObject $data)
+    public function assignDataConvertToArray(DataObject $data)
     {
         if (!is_array($data)) {
             $data = $data->convertToArray();
@@ -452,7 +489,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      *
      * @return Phrase
      */
-    public function getServiceCosts() : Phrase
+    public function getServiceCosts(): Phrase
     {
         return __('Service costs');
     }
@@ -462,7 +499,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      *
      * @return Phrase
      */
-    public function getShippingFee() : Phrase
+    public function getShippingFee(): Phrase
     {
         return __('Shipping fee');
     }
@@ -470,16 +507,16 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     /**
      * Check whether payment method can be used
      *
-     * @param  \Magento\Quote\Api\Data\CartInterface|null $quote
+     * @param  CartInterface|null $quote
      * @return bool
      */
-    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
+    public function isAvailable(?CartInterface $quote = null)
     {
         if (null == $quote) {
             return false;
         }
         /**
-         * @var \Buckaroo\Magento2\Model\ConfigProvider\Account $accountConfig
+         * @var Account $accountConfig
          */
         $accountConfig = $this->configProviderFactory->get('account');
         if ($accountConfig->getActive() == 0) {
@@ -506,23 +543,41 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             return false;
         }
 
-        if( $this->isSpamLimitActive() && $this->isSpamLimitReached($this->getPaymentAttemptsStorage())) {
+        if ($this->isSpamLimitActive() && $this->isSpamLimitReached($this->getPaymentAttemptsStorage())) {
             return false;
         }
         return parent::isAvailable($quote);
     }
 
+    protected function isOrderPartiallyPaid(?CartInterface $quote = null): bool
+    {
+        if ($quote === null) {
+            return false;
+        }
+
+        $orderId = $quote->getReservedOrderId();
+        if (!$orderId) {
+            return false;
+        }
+
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        /** @var \Buckaroo\Magento2\Helper\PaymentGroupTransaction $paymentGroupTransaction */
+        $paymentGroupTransaction = $objectManager->get(\Buckaroo\Magento2\Helper\PaymentGroupTransaction::class);
+
+        return $paymentGroupTransaction->getAlreadyPaid($orderId) > 0;
+    }
+
     /**
      * Check if this payment method is limited by IP.
      *
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Account $accountConfig
-     * @param \Magento\Quote\Api\Data\CartInterface      $quote
+     * @param Account $accountConfig
+     * @param CartInterface           $quote
      *
      * @return bool
      */
     protected function isAvailableBasedOnIp(
-        \Buckaroo\Magento2\Model\ConfigProvider\Account $accountConfig,
-        \Magento\Quote\Api\Data\CartInterface $quote = null
+        Account $accountConfig,
+        ?CartInterface $quote = null
     ) {
         $methodValue = $this->getConfigData('limit_by_ip');
         if ($accountConfig->getLimitByIp() == 1 || $methodValue == 1) {
@@ -540,11 +595,11 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     /**
      * Check if the grand total exceeds the maximum allowed total.
      *
-     * @param \Magento\Quote\Api\Data\CartInterface $quote
+     * @param CartInterface $quote
      *
      * @return bool
      */
-    protected function isAvailableBasedOnAmount(\Magento\Quote\Api\Data\CartInterface $quote = null)
+    protected function isAvailableBasedOnAmount(?CartInterface $quote = null)
     {
         $storeId = $quote->getStoreId();
         $maximum = $this->getConfigData('max_amount', $storeId);
@@ -571,11 +626,11 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     }
 
     /**
-     * @param \Magento\Quote\Api\Data\CartInterface $quote
+     * @param CartInterface|null $quote
      *
      * @return bool
      */
-    protected function isAvailableBasedOnCurrency(\Magento\Quote\Api\Data\CartInterface $quote = null)
+    protected function isAvailableBasedOnCurrency(?CartInterface $quote = null)
     {
         $allowedCurrenciesRaw = $this->getConfigData('allowed_currencies');
         $allowedCurrencies    = explode(',', (string)$allowedCurrenciesRaw);
@@ -665,7 +720,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
     /**
      * @return string
-     * @throws \Buckaroo\Magento2\Exception
+     * @throws LocalizedException
+     * @throws Exception
      */
     public function getTitle()
     {
@@ -685,6 +741,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         $paymentFee = trim($this->configProviderMethodFactory->get($this->buckarooPaymentMethodCode)->getPaymentFee());
+
         if (!$paymentFee || (float) $paymentFee < 0.01) {
             return $title;
         }
@@ -698,21 +755,27 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         return $title;
     }
 
+
+
     /**
-     * @return bool|string
+     * Get redirect URL after order placement
+     *
+     * @return string|null
      */
-    public function getOrderPlaceRedirectUrl()
+    public function getOrderPlaceRedirectUrl(): ?string
     {
-        return $this->orderPlaceRedirectUrl;
+        // Ensure we always return string or null
+        return is_string($this->orderPlaceRedirectUrl) ? $this->orderPlaceRedirectUrl : null;
     }
 
     /**
-     * @param OrderPaymentInterface|InfoInterface $payment
-     * @param float                                                       $amount
+     * @param InfoInterface $payment
+     * @param float $amount
+     *
      *
      * @return $this
-     *
-     * @throws \Buckaroo\Magento2\Exception|\LogicException|\InvalidArgumentException
+     * @throws Exception
+     * @throws LocalizedException
      */
     public function order(InfoInterface $payment, $amount)
     {
@@ -760,10 +823,33 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             $response = $this->orderTransaction($transaction);
         } catch (LimitReachException $th) {
             $this->setMaxAttemptsFlags($payment, $th->getMessage());
-           return $this;
+            return $this;
         }
 
         $this->saveTransactionData($response[0], $payment, $this->closeOrderTransaction, true);
+
+        $order = $payment->getOrder();
+        if (!empty($order) && !empty($order->getId())) {
+            try {
+                $payment->save();
+
+                $this->logger2->addDebug(sprintf(
+                    '[%s] Payment transaction persisted successfully for order: %s, transaction ID: %s',
+                    __METHOD__,
+                    $order->getIncrementId(),
+                    $payment->getTransactionId()
+                ));
+            } catch (\Exception $e) {
+                $this->logger2->addError(sprintf(
+                    '[%s] Failed to persist payment transaction - Order: %s, Transaction ID: %s, Error: %s',
+                    __METHOD__,
+                    $order->getIncrementId(),
+                    $payment->getTransactionId(),
+                    $e->getMessage()
+                ));
+                throw $e;
+            }
+        }
 
         // SET REGISTRY BUCKAROO REDIRECT
         $this->_registry->unregister('buckaroo_response');
@@ -773,7 +859,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             $this->setPaymentInTransit($payment, false);
         }
 
-        $order = $payment->getOrder();
         $this->helper->setRestoreQuoteLastOrder($order->getId());
 
         $this->eventManager->dispatch('buckaroo_order_after', ['order' => $order]);
@@ -833,6 +918,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      * @param $response
      *
      * @return string
+     * @throws LocalizedException
      */
     protected function getFailureMessage($response)
     {
@@ -846,9 +932,9 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $responseCode        = $transactionResponse->Status->Code->Code;
         $billingCountry      = $this->payment->getOrder()->getBillingAddress()->getCountryId();
 
-        if($responseCode == 491) {
+        if ($responseCode == 491) {
             $errorMessage =  $this->getFirstError($transactionResponse);
-            if(strlen(trim($errorMessage)) > 0) {
+            if (strlen(trim($errorMessage)) > 0) {
                 return $errorMessage;
             }
         }
@@ -875,7 +961,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             is_string($transactionResponse->Status->SubCode->_) &&
             strlen(trim($transactionResponse->Status->SubCode->_)) > 0
         ) {
-                $message = $transactionResponse->Status->SubCode->_;
+            $message = $transactionResponse->Status->SubCode->_;
         }
 
         $fraudMessage = $this->getFailureMessageOnFraud($transactionResponse);
@@ -887,8 +973,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     }
 
     /**
-     * @param $transactionResponse
-     * @param $errorType
+     * @param       $transactionResponse
+     * @param       $errorType
      * @return bool
      */
     public function hasError($transactionResponse, $errorType): bool
@@ -897,7 +983,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     }
 
     /**
-     * @param $transactionResponse
+     * @param         $transactionResponse
      * @return string
      */
     public function getFirstError($transactionResponse): string
@@ -917,25 +1003,26 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     public function getFailureMessageOnFraud($transactionResponse)
     {
         if (
-        isset($transactionResponse->Status->SubCode->Code) &&
-        $transactionResponse->Status->SubCode->Code == 'S103'
+            isset($transactionResponse->Status->SubCode->Code) &&
+            $transactionResponse->Status->SubCode->Code == 'S103'
         ) {
             return __('An anti-fraud rule has blocked this transaction automatically. Please contact the webshop.');
         }
     }
+
     /**
-     * @param \Buckaroo\Magento2\Gateway\Http\Transaction $transaction
+     * @param Transaction $transaction
      *
      * @return array
-     * @throws \Buckaroo\Magento2\Exception
+     * @throws Exception|LocalizedException
      */
-    public function orderTransaction(\Buckaroo\Magento2\Gateway\Http\Transaction $transaction)
+    public function orderTransaction(Transaction $transaction)
     {
         $response = $this->gateway->authorize($transaction);
 
         if (!$this->validatorFactory->get('transaction_response')->validate($response)) {
-            throw new \Buckaroo\Magento2\Exception(
-                new \Magento\Framework\Phrase(
+            throw new Exception(
+                new Phrase(
                     'The transaction response could not be verified.'
                 )
             );
@@ -945,8 +1032,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             $this->updateRateLimiterCount();
             $failureMessage = $this->getFailureMessage($response);
 
-            throw new \Buckaroo\Magento2\Exception(
-                new \Magento\Framework\Phrase($failureMessage)
+            throw new Exception(
+                new Phrase($failureMessage)
             );
         }
 
@@ -954,12 +1041,13 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     }
 
     /**
-     * @param OrderPaymentInterface|InfoInterface $payment
-     * @param float                                                       $amount
+     * @param InfoInterface $payment
+     * @param float $amount
+     *
      *
      * @return $this
-     *
-     * @throws \Buckaroo\Magento2\Exception|\LogicException|\InvalidArgumentException
+     * @throws Exception
+     * @throws LocalizedException
      */
     public function authorize(InfoInterface $payment, $amount)
     {
@@ -1002,7 +1090,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             $response = $this->authorizeTransaction($transaction);
         } catch (LimitReachException $th) {
             $this->setMaxAttemptsFlags($payment, $th->getMessage());
-           return $this;
+            return $this;
         }
 
         $this->saveTransactionData($response[0], $payment, $this->closeAuthorizeTransaction, true);
@@ -1026,18 +1114,18 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     }
 
     /**
-     * @param \Buckaroo\Magento2\Gateway\Http\Transaction $transaction
+     * @param Transaction $transaction
      *
      * @return array
-     * @throws \Buckaroo\Magento2\Exception
+     * @throws Exception|LocalizedException
      */
-    public function authorizeTransaction(\Buckaroo\Magento2\Gateway\Http\Transaction $transaction)
+    public function authorizeTransaction(Transaction $transaction)
     {
         $response = $this->gateway->authorize($transaction);
 
         if (!$this->validatorFactory->get('transaction_response')->validate($response)) {
-            throw new \Buckaroo\Magento2\Exception(
-                new \Magento\Framework\Phrase(
+            throw new Exception(
+                new Phrase(
                     'The transaction response could not be verified.'
                 )
             );
@@ -1047,8 +1135,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             $this->updateRateLimiterCount();
             $failureMessage = $this->getFailureMessage($response);
 
-            throw new \Buckaroo\Magento2\Exception(
-                new \Magento\Framework\Phrase($failureMessage)
+            throw new Exception(
+                new Phrase($failureMessage)
             );
         }
 
@@ -1056,12 +1144,13 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     }
 
     /**
-     * @param OrderPaymentInterface|InfoInterface $payment
-     * @param float                                                       $amount
+     * @param InfoInterface $payment
+     * @param float $amount
+     *
      *
      * @return $this
-     *
-     * @throws \Buckaroo\Magento2\Exception|\LogicException|\InvalidArgumentException
+     * @throws Exception
+     * @throws LocalizedException
      */
     public function capture(InfoInterface $payment, $amount)
     {
@@ -1114,28 +1203,28 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     }
 
     /**
-     * @param \Buckaroo\Magento2\Gateway\Http\Transaction $transaction
+     * @param Transaction $transaction
      *
-     * @return array|\StdClass
-     * @throws \Buckaroo\Magento2\Exception
+     * @return array|StdClass
+     * @throws Exception
      */
-    public function captureTransaction(\Buckaroo\Magento2\Gateway\Http\Transaction $transaction)
+    public function captureTransaction(Transaction $transaction)
     {
         $this->logger2->addDebug(__METHOD__ . '|1|');
 
         $response = $this->gateway->capture($transaction);
 
         if (!$this->validatorFactory->get('transaction_response')->validate($response)) {
-            throw new \Buckaroo\Magento2\Exception(
-                new \Magento\Framework\Phrase(
+            throw new Exception(
+                new Phrase(
                     'The transaction response could not be verified.'
                 )
             );
         }
 
         if (!$this->validatorFactory->get('transaction_response_status')->validate($response)) {
-            throw new \Buckaroo\Magento2\Exception(
-                new \Magento\Framework\Phrase(
+            throw new Exception(
+                new Phrase(
                     'Unfortunately the payment was unsuccessful. Please try again or choose a different payment method.'
                 )
             );
@@ -1145,12 +1234,13 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     }
 
     /**
-     * @param OrderPaymentInterface|InfoInterface $payment
-     * @param float                                                       $amount
+     * @param InfoInterface $payment
+     * @param float $amount
+     *
      *
      * @return $this
-     *
-     * @throws \Buckaroo\Magento2\Exception|\LogicException|\InvalidArgumentException
+     * @throws Exception
+     * @throws LocalizedException
      */
     public function refund(InfoInterface $payment, $amount)
     {
@@ -1221,6 +1311,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      * @param OrderPaymentInterface|InfoInterface $payment
      *
      * @return $this
+     * @throws Exception
      */
     public function createCreditNoteRequest($payment)
     {
@@ -1244,12 +1335,13 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     }
 
     /**
-     * @param \Buckaroo\Magento2\Gateway\Http\Transaction $transaction
+     * @param Transaction $transaction
+     * @param null|mixed                                  $payment
      *
-     * @return array|\StdClass
-     * @throws \Buckaroo\Magento2\Exception
+     * @return array|StdClass
+     * @throws Exception|LocalizedException
      */
-    public function refundTransaction(\Buckaroo\Magento2\Gateway\Http\Transaction $transaction, $payment = null)
+    public function refundTransaction(Transaction $transaction, $payment = null)
     {
         $response = $this->gateway->refund($transaction);
 
@@ -1288,13 +1380,14 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
                     RefundConfigProvider::ADDITIONAL_INFO_PENDING_REFUND
                 );
 
-                /** @var \Magento\Sales\Model\Order\Creditmemo $creditmemo */
-                $creditmemo = $this->_registry->registry('current_creditmemo');;
+                /** @var Creditmemo $creditmemo */
+                $creditmemo = $this->_registry->registry('current_creditmemo');
+                ;
                 $creditmemoItems = $creditmemo->getAllItems();
 
                 $orderItemsRefunded = [];
                 foreach ($creditmemoItems as $creditmemoItem) {
-                    if($creditmemoItem->getPrice() > 0) {
+                    if ($creditmemoItem->getPrice() > 0) {
                         $orderItemsRefunded[$creditmemoItem->getOrderItemId()] = ['qty' => (int)$creditmemoItem->getQty()];
                     }
                 }
@@ -1326,8 +1419,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         if (!$this->validatorFactory->get('transaction_response')->validate($response)) {
-            throw new \Buckaroo\Magento2\Exception(
-                new \Magento\Framework\Phrase(
+            throw new Exception(
+                new Phrase(
                     'The transaction response could not be verified.'
                 )
             );
@@ -1336,8 +1429,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         if (!$this->validatorFactory->get('transaction_response_status')->validate($response)) {
             $failureMessage = $this->getFailureMessage($response);
 
-            throw new \Buckaroo\Magento2\Exception(
-                new \Magento\Framework\Phrase($failureMessage)
+            throw new Exception(
+                new Phrase($failureMessage)
             );
         }
 
@@ -1345,11 +1438,11 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     }
 
     /**
-     * @param OrderPaymentInterface|InfoInterface $payment
+     * @param InfoInterface $payment
+     *
      *
      * @return $this
-     *
-     * @throws \Buckaroo\Magento2\Exception|\LogicException|\InvalidArgumentException
+     * @throws Exception
      */
     public function cancel(InfoInterface $payment)
     {
@@ -1358,11 +1451,12 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     }
 
     /**
-     * @param OrderPaymentInterface|InfoInterface $payment
+     * @param InfoInterface $payment
+     *
      *
      * @return $this
-     *
-     * @throws \Buckaroo\Magento2\Exception|\LogicException|\InvalidArgumentException
+     * @throws Exception
+     * @throws LocalizedException
      */
     public function void(InfoInterface $payment)
     {
@@ -1431,26 +1525,26 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     }
 
     /**
-     * @param \Buckaroo\Magento2\Gateway\Http\Transaction $transaction
+     * @param Transaction $transaction
      *
-     * @return array|\StdClass
-     * @throws \Buckaroo\Magento2\Exception
+     * @return array|StdClass
+     * @throws Exception
      */
-    public function voidTransaction(\Buckaroo\Magento2\Gateway\Http\Transaction $transaction)
+    public function voidTransaction(Transaction $transaction)
     {
         $response = $this->gateway->void($transaction);
 
         if (!$this->validatorFactory->get('transaction_response')->validate($response)) {
-            throw new \Buckaroo\Magento2\Exception(
-                new \Magento\Framework\Phrase(
+            throw new Exception(
+                new Phrase(
                     'The transaction response could not be verified.'
                 )
             );
         }
 
         if (!$this->validatorFactory->get('transaction_response_status')->validate($response)) {
-            throw new \Buckaroo\Magento2\Exception(
-                new \Magento\Framework\Phrase(
+            throw new Exception(
+                new Phrase(
                     'Unfortunately the payment authorization could not be voided. Please try again.'
                 )
             );
@@ -1480,7 +1574,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
     /**
      * @param OrderPaymentInterface|InfoInterface $payment
-     * @param array|\StdCLass                                             $response
+     * @param array|StdCLass                     $response
      *
      * @return $this
      */
@@ -1520,7 +1614,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
     /**
      * @param OrderPaymentInterface|InfoInterface $payment
-     * @param array|\StdCLass                                             $response
+     * @param array|StdCLass                     $response
      *
      * @return $this
      */
@@ -1531,7 +1625,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
     /**
      * @param OrderPaymentInterface|InfoInterface $payment
-     * @param array|\StdCLass                                             $response
+     * @param array|StdCLass                     $response
      *
      * @return $this
      */
@@ -1542,7 +1636,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
     /**
      * @param OrderPaymentInterface|InfoInterface $payment
-     * @param array|\StdCLass                                             $response
+     * @param array|StdCLass                     $response
      *
      * @return $this
      */
@@ -1553,7 +1647,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
     /**
      * @param OrderPaymentInterface|InfoInterface $payment
-     * @param array|\StdCLass                                             $response
+     * @param array|StdCLass                     $response
      *
      * @return $this
      */
@@ -1563,7 +1657,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     }
     /**
      * @param OrderPaymentInterface|InfoInterface $payment
-     * @param array|\StdCLass                                             $response
+     * @param array|StdCLass                     $response
      *
      * @return $this
      */
@@ -1593,16 +1687,16 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     }
 
     /**
-     * @param \StdClass $response
-     * @param OrderPaymentInterface|InfoInterface $payment
-     * @param                                                                                    $close
+     * @param StdClass $response
+     * @param InfoInterface $payment
+     * @param                                     $close
      * @param bool $saveId
      *
      * @return OrderPaymentInterface|InfoInterface
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws LocalizedException
      */
     public function saveTransactionData(
-        \StdClass $response,
+        StdClass $response,
         InfoInterface $payment,
         $close,
         $saveId = false
@@ -1674,8 +1768,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      * Set flag if user is on the payment provider page
      *
      * @param OrderPaymentInterface $payment
-     *
-     * @return void
+     * @param mixed                 $inTransit
      */
     public function setPaymentInTransit(OrderPaymentInterface $payment, $inTransit = true)
     {
@@ -1696,7 +1789,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      * @param string $paymentMethodCode
      *
      * @return array
-     * @throws \Buckaroo\Magento2\Exception
+     * @throws Exception
      */
     public function addExtraFields($paymentMethodCode)
     {
@@ -1746,6 +1839,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      * @param OrderPaymentInterface|InfoInterface $payment
      *
      * @return \Buckaroo\Magento2\Gateway\Http\TransactionBuilderInterface|bool
+     * @throws Exception
      */
     public function getCaptureTransactionBuilder($payment)
     {
@@ -1842,6 +1936,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      * @param OrderPaymentInterface|InfoInterface $payment
      *
      * @return \Buckaroo\Magento2\Gateway\Http\TransactionBuilderInterface|bool
+     * @throws Exception
      */
     public function getRefundTransactionBuilder($payment)
     {
@@ -1884,7 +1979,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
     protected function getRefundTransactionBuilderServicesAdd($payment, &$services)
     {
-        /** @var \Magento\Sales\Model\Order\Creditmemo $creditmemo */
+        /** @var Creditmemo $creditmemo */
         $creditmemo = $payment->getCreditmemo();
         $articles   = [];
 
@@ -1910,6 +2005,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
                 ->setOriginalTransactionKey($payment->getParentTransactionId());
         }
     }
+
     protected function getRefundTransactionBuilderVersion()
     {
         return 1;
@@ -1959,6 +2055,28 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
                         'Action'  => 'Refund',
                         'Version' => 1,
                     ];
+
+                    if ($payment->getMethod() === \Buckaroo\Magento2\Model\Method\Giftcards::PAYMENT_METHOD_CODE) {
+                        $order = $payment->getOrder();
+                        $customerEmail = $order->getCustomerEmail();
+                        if (empty($customerEmail) && $order->getBillingAddress()) {
+                            $customerEmail = $order->getBillingAddress()->getEmail();
+                        }
+                        $customerLastname = '';
+                        if ($order->getBillingAddress()) {
+                            $customerLastname = $order->getBillingAddress()->getLastname() ?? '';
+                        }
+                        $requestParams = [];
+                        if (!empty($customerEmail)) {
+                            $requestParams[] = ['Name' => 'Email', '_' => $customerEmail];
+                        }
+                        if ($customerLastname !== '') {
+                            $requestParams[] = ['Name' => 'LastName', '_' => $customerLastname];
+                        }
+                        if (!empty($requestParams)) {
+                            $services['RequestParameter'] = $requestParams;
+                        }
+                    }
 
                     $transactionBuilder->setOrder($payment->getOrder())
                         ->setServices($services)
@@ -2097,7 +2215,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         $article = [];
 
-        if (false !== $buckarooFeeLine && (double) $buckarooFeeLine > 0) {
+        if (false !== $buckarooFeeLine && (float) $buckarooFeeLine > 0) {
             $article = $this->getArticleArrayLine(
                 $latestKey,
                 (string)$this->getServiceCosts(),
@@ -2124,9 +2242,21 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
     protected function getTaxCategory($order)
     {
-        $request    = $this->taxCalculation->getRateRequest(null, null, null, $order->getStore());
-        $taxClassId = $this->configProviderBuckarooFee->getTaxClass($order->getStore());
-        $percent    = $this->taxCalculation->getRate($request->setProductClassId($taxClassId));
+        $shippingAddress = $order->getShippingAddress();
+        $billingAddress = $order->getBillingAddress();
+        $customerTaxClassId = $order->getCustomerTaxClassId();
+        $storeId = $order->getStoreId();
+        $taxClassId = $this->configProviderBuckarooFee->getBuckarooFeeTaxClass($order->getStore());
+
+        $request = $this->taxCalculation->getRateRequest(
+            $shippingAddress,
+            $billingAddress,
+            $customerTaxClassId,
+            $storeId
+        );
+        $request->setProductClassId($taxClassId);
+        $percent = $this->taxCalculation->getRate($request);
+
         return $percent;
     }
 
@@ -2136,31 +2266,31 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     }
 
     /**
-     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     * @param OrderPaymentInterface|InfoInterface $payment
      *
      * @return float|int
      */
     protected function getDiscountAmount($payment)
     {
-        /** @var \Magento\Sales\Model\Order $order */
+        /** @var Order $order */
         $order = $payment->getOrder();
 
         $discount = 0;
         $edition  = $this->softwareData->getProductMetaData()->getEdition();
 
         if ($order->getDiscountAmount() < 0) {
-            $discount -= abs((double) $order->getDiscountAmount());
+            $discount -= abs((float) $order->getDiscountAmount());
         }
 
         if ($edition == 'Enterprise' && $order->getCustomerBalanceAmount() > 0) {
-            $discount -= abs((double) $order->getCustomerBalanceAmount());
+            $discount -= abs((float) $order->getCustomerBalanceAmount());
         }
 
         return $discount;
     }
 
     /**
-     * @param \Magento\Quote\Model\Quote\Item $productItem
+     * @param Item $productItem
      * @param                                 $includesTax
      *
      * @return mixed
@@ -2201,9 +2331,9 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      * Method to compare two addresses from the payment.
      * Returns true if they are the same.
      *
-     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     * @param OrderPaymentInterface|InfoInterface $payment
      *
-     * @return boolean
+     * @return bool
      */
     public function isAddressDataDifferent($payment)
     {
@@ -2226,7 +2356,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      * @param array $addressOne
      * @param array $addressTwo
      *
-     * @return boolean
+     * @return bool
      */
     private function calculateAddressDataDifference($addressOne, $addressTwo)
     {
@@ -2244,7 +2374,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             'vat_id',
             'address_type',
             'extension_attributes',
-            'quote_address_id'
+            'quote_address_id',
         ]);
 
         $filteredAddressOne = array_diff_key($addressOne, $keysToExclude);
@@ -2302,6 +2432,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      * @param int $quoteId
      *
      * @return array|\Magento\Quote\Model\Quote\Address
+     * @throws LocalizedException
      */
     protected function getPostNLPakjeGemakAddressInQuote($quoteId)
     {
@@ -2486,16 +2617,14 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     /**
      * If we have already paid some value we do a pay reminder request
      *
-     * @param Payment $payment
+     * @param Payment                     $payment
      * @param TransactionBuilderInterface $transactionBuilder
-     * @param string $serviceAction
-     * @param string $newServiceAction
-     *
-     * @return void
+     * @param string                      $serviceAction
+     * @param string                      $newServiceAction
      */
     protected function getPayRemainder($payment, $transactionBuilder, $serviceAction = 'Pay', $newServiceAction = 'PayRemainder')
     {
-        /** @var \Buckaroo\Magento2\Helper\PaymentGroupTransaction */
+        /** @var PaymentGroupTransaction $paymentGroupTransaction */
         $paymentGroupTransaction = $this->objectManager->create('\Buckaroo\Magento2\Helper\PaymentGroupTransaction');
         $incrementId = $payment->getOrder()->getIncrementId();
 
@@ -2552,7 +2681,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     }
 
     /**
-     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     * @param OrderPaymentInterface|InfoInterface $payment
      *
      * @return bool|string
      */
@@ -2562,9 +2691,10 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     }
 
     /**
-     * @param \Magento\Sales\Model\Order|\Magento\Sales\Model\Order\Invoice|\Magento\Sales\Model\Order\Creditmemo $order
+     * @param Order|Invoice|Creditmemo $order
      *
-     * @param $count
+     * @param        $count
+     * @param  mixed $itemsTotalAmount
      * @return array
      */
     protected function getShippingCostsLine($order, $count, &$itemsTotalAmount = 0)
@@ -2594,7 +2724,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
                 'GroupID' => $count,
             ],
             [
-                '_'       => $this->formatShippingCostsLineVatPercentage($percent),
+                '_'       => $percent,
                 'Name'    => 'VatPercentage',
                 'Group'   => 'Article',
                 'GroupID' => $count,
@@ -2628,16 +2758,11 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         return $price;
     }
 
-    protected function formatShippingCostsLineVatPercentage($percent)
-    {
-        return $percent;
-    }
-
     /**
-     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     * @param OrderPaymentInterface|InfoInterface $payment
      *
      * @return array
-     * @throws \Buckaroo\Magento2\Exception
+     * @throws Exception|LocalizedException
      */
     public function getPaymentRequestParameters($payment)
     {
@@ -2669,7 +2794,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             $payment->getOrder()->getDhlparcelShippingServicepointId()
         ) {
             $this->updateShippingAddressByDhlParcel(
-                $payment->getOrder()->getDhlparcelShippingServicepointId(), $requestData
+                $payment->getOrder()->getDhlparcelShippingServicepointId(),
+                $requestData
             );
         }
 
@@ -2725,15 +2851,15 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         }
 
         //Add diff line
-        if (!$this->helper->areEqualAmounts($order->getGrandTotal(), $itemsTotalAmount) && !$this->payRemainder) {
+        if (abs($order->getGrandTotal() - $itemsTotalAmount) > 0.01) {
             $diff        = $order->getGrandTotal() - $itemsTotalAmount;
             $diffLine    = $this->getDiffLine($count, $diff);
             $requestData = array_merge($requestData, $diffLine);
         }
 
         return $requestData;
-
     }
+
     public function canUseForCountry($country)
     {
         if ($this->getConfigData('allowspecific') != 1) {
@@ -2749,7 +2875,9 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
             );
         }
 
-        if (empty($specificCountries)) return false;
+        if (empty($specificCountries)) {
+            return false;
+        }
         $availableCountries = explode(',', $specificCountries);
         return in_array($country, $availableCountries);
     }
@@ -2758,8 +2886,6 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      * Cancel previous order that comes from a restored quote
      *
      * @param InfoInterface $payment
-     *
-     * @return void
      */
     private function cancelPreviousPendingOrder(InfoInterface $payment)
     {
@@ -2775,17 +2901,37 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
             $order = $orderRepository->get((int)$orderId);
 
-            if($order->getState() === Order::STATE_NEW) {
-                $orderManagement = $this->objectManager->get(OrderManagementInterface::class);
-                $orderManagement->cancel($order->getEntityId());
-                $order->addCommentToStatusHistory(
-                    __('Canceled on browser back button')
-                )
-                ->setIsCustomerNotified(false)
-                ->setEntityName('invoice')
-                ->save();
-            }
+            if ($order->getState() === Order::STATE_NEW) {
+                $this->logger2->addDebug(sprintf(
+                    '[%s] Canceling previous pending order: %s (browser back scenario)',
+                    __METHOD__,
+                    $order->getIncrementId()
+                ));
 
+                try {
+                    $order->cancel()->save();
+
+                    $order->addCommentToStatusHistory(
+                        __('Canceled on browser back button - customer placed a new order.')
+                    )
+                    ->setIsCustomerNotified(false)
+                    ->save();
+
+                    $this->logger2->addDebug(sprintf(
+                        '[%s] Successfully canceled order: %s and restored stock',
+                        __METHOD__,
+                        $order->getIncrementId()
+                    ));
+                } catch (\Exception $e) {
+                    $this->logger2->addError(sprintf(
+                        '[%s] Failed to cancel order: %s - Error: %s',
+                        __METHOD__,
+                        $order->getIncrementId(),
+                        $e->getMessage()
+                    ));
+                    throw $e;
+                }
+            }
 
         } catch (\Throwable $th) {
             $this->logger2->addError(__METHOD__." ".(string)$th);
@@ -2796,7 +2942,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     /**
      * Check if config spam limit is active
      *
-     * @return boolean
+     * @return bool
      */
     private function isSpamLimitActive(): bool
     {
@@ -2805,10 +2951,9 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
     /**
      * Update session when a failed attempt is made for the quote & method
-     *
-     * @return void
      */
-    private function updateRateLimiterCount() {
+    private function updateRateLimiterCount()
+    {
 
         if (!$this->isSpamLimitActive()) {
             return;
@@ -2818,11 +2963,11 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $quoteId = $this->helper->getQuote()->getId();
         $checkoutSession = $this->helper->getCheckoutSession();
         $storage = $this->getPaymentAttemptsStorage();
-        if(!isset($storage[$quoteId])) {
+        if (!isset($storage[$quoteId])) {
             $storage[$quoteId] = [$method => 0];
         }
 
-        if(!isset($storage[$quoteId][$method])) {
+        if (!isset($storage[$quoteId][$method])) {
             $storage[$quoteId][$method] = 0;
         }
 
@@ -2839,8 +2984,7 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      *
      * @param array $storage
      *
-     * @return void
-     * @throws LimitReachException
+     * @throws LimitReachException|LocalizedException
      */
     private function checkForSpamLimitReach($storage)
     {
@@ -2848,11 +2992,11 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         $storedReachMessage = $this->getConfigData('spam_message');
 
-        if(is_string($storedReachMessage) && trim($storedReachMessage) > 0) {
+        if (is_string($storedReachMessage) && trim($storedReachMessage) > 0) {
             $limitReachMessage = $storedReachMessage;
         }
 
-        if($this->isSpamLimitReached($storage)) {
+        if ($this->isSpamLimitReached($storage)) {
             throw new LimitReachException($limitReachMessage);
         }
     }
@@ -2862,7 +3006,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
      *
      * @param array $storage
      *
-     * @return boolean
+     * @return bool
+     * @throws LocalizedException
      */
     private function isSpamLimitReached($storage)
     {
@@ -2872,16 +3017,16 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
 
         $limit = $this->getConfigData('spam_attempts');
 
-        if(!is_scalar($limit)) {
+        if (!is_scalar($limit)) {
             $limit = 10;
         }
-        $limit = intval($limit);
+        $limit = (int) $limit;
 
         $method = $this->getCode();
         $quoteId = $this->helper->getQuote()->getId();
 
         $attempts = 0;
-        if(isset($storage[$quoteId][$method])) {
+        if (isset($storage[$quoteId][$method])) {
             $attempts = $storage[$quoteId][$method];
         }
 
@@ -2898,14 +3043,14 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
         $checkoutSession = $this->helper->getCheckoutSession();
         $storage = $checkoutSession->getBuckarooRateLimiterStorage();
 
-        if($storage === null) {
+        if ($storage === null) {
             return [];
         }
 
         $storage = json_decode($storage, true);
 
 
-        if(!is_array($storage)) {
+        if (!is_array($storage)) {
             $storage = [];
         }
 
@@ -2915,10 +3060,8 @@ abstract class AbstractMethod extends \Magento\Payment\Model\Method\AbstractMeth
     /**
      * Update payment with the user message, update session in order to restore the quote
      *
-     * @param mixed $payment
+     * @param mixed  $payment
      * @param string $message
-     *
-     * @return void
      */
     private function setMaxAttemptsFlags($payment, string $message)
     {

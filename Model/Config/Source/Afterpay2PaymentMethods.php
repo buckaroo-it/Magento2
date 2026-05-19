@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -22,8 +23,8 @@ namespace Buckaroo\Magento2\Model\Config\Source;
 
 class Afterpay2PaymentMethods implements \Magento\Framework\Option\ArrayInterface
 {
-    const PAYMENT_METHOD_ACCEPTGIRO = 1;
-    const PAYMENT_METHOD_DIGIACCEPT = 2;
+    public const PAYMENT_METHOD_ACCEPTGIRO = 1;
+    public const PAYMENT_METHOD_DIGIACCEPT = 2;
 
     /**
      * Options getter

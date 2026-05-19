@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -33,7 +34,7 @@ class InvoiceHandlingOptions implements OptionSourceInterface
     {
         return [
             ['value' => self::PAYMENT, 'label' => __('Create Invoice on Payment')],
-            ['value' => self::SHIPMENT, 'label' => __('Create Invoice on Shipment')]
+            ['value' => self::SHIPMENT, 'label' => __('Create Invoice on Shipment')],
         ];
     }
 }

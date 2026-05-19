@@ -90,39 +90,28 @@ define(
 
             return true;
         };
-        $.validator.addMethod('in3phoneValidation', validPhone ,
-        $.mage.__('Phone number should be correct.')
-    );
+        $.validator.addMethod('in3phoneValidation', validPhone,
+            $.mage.__('Phone number should be correct.')
+        );
 
         return Component.extend(
             {
                 defaults: {
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_capayablein3',
-                    billingName : null,
-                    dateValidate : '',
+                    billingName: null,
+                    dateValidate: '',
                     value: '',
                     phone: null,
-                    validationState : {},
+                    validationState: {},
                 },
                 redirectAfterPlaceOrder: false,
-                paymentFeeLabel : window.checkoutConfig.payment.buckaroo.capayablein3.paymentFeeLabel,
-                subtext : window.checkoutConfig.payment.buckaroo.capayablein3.subtext,
-                subTextStyle : checkoutCommon.getSubtextStyle('capayablein3'),
-                currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
-                baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
-                logo:  window.checkoutConfig.payment.buckaroo.capayablein3.logo,
+                paymentFeeLabel: window.checkoutConfig.payment.buckaroo.capayablein3.paymentFeeLabel,
+                subtext: window.checkoutConfig.payment.buckaroo.capayablein3.subtext,
+                subTextStyle: checkoutCommon.getSubtextStyle('capayablein3'),
+                currencyCode: window.checkoutConfig.quoteData.quote_currency_code,
+                baseCurrencyCode: window.checkoutConfig.quoteData.base_currency_code,
+                logo: window.checkoutConfig.payment.buckaroo.capayablein3.logo,
                 dp: datePicker,
-
-                /**
-                 * @override
-                 */
-                initialize : function (options) {
-                    if (checkoutData.getSelectedPaymentMethod() == options.index) {
-                        window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-                    }
-
-                    return this._super(options);
-                },
 
                 initObservable: function () {
                     this._super().observe([
@@ -136,8 +125,8 @@ define(
                     this.showFinancialWarning = ko.computed(
                         function () {
                             return quote.billingAddress() !== null &&
-                            quote.billingAddress().countryId == 'NL' &&
-                            window.checkoutConfig.payment.buckaroo.capayablein3.showFinancialWarning
+                                quote.billingAddress().countryId == 'NL' &&
+                                window.checkoutConfig.payment.buckaroo.capayablein3.showFinancialWarning
                         },
                         this
                     );
@@ -145,15 +134,15 @@ define(
                     this.showPhone = ko.computed(
                         function () {
                             return quote.billingAddress() === undefined ||
-                            quote.billingAddress() === null ||
-                            validPhone(quote.billingAddress().telephone) === false
+                                quote.billingAddress() === null ||
+                                validPhone(quote.billingAddress().telephone) === false
                         },
                         this
                     );
 
                     this.billingName = ko.computed(
                         function () {
-                            if(quote.billingAddress() !== null) {
+                            if (quote.billingAddress() !== null) {
                                 return quote.billingAddress().firstname + " " + quote.billingAddress().lastname
                             }
                             return '';
@@ -166,13 +155,13 @@ define(
                     this.buttoncheck = ko.computed(
                         function () {
                             const state = this.validationState();
-                            const valid =this.getActiveFields().map((field) => {
-                                if(state[field] !== undefined) {
+                            const valid = this.getActiveFields().map((field) => {
+                                if (state[field] !== undefined) {
                                     return state[field];
                                 }
                                 return false;
                             }).reduce(
-                                function(prev, cur) {
+                                function (prev, cur) {
                                     return prev && cur
                                 },
                                 true
@@ -182,13 +171,13 @@ define(
                         this
                     );
 
-                    this.dateValidate.subscribe(function() {
+                    this.dateValidate.subscribe(function () {
                         const id = 'buckaroo_magento2_capayablein3_DoB';
                         const isValid = $(`#${id}`).valid();
                         let state = this.validationState();
                         state[id] = isValid;
                         this.validationState(state);
-                     }, this);
+                    }, this);
 
                     return this;
                 },
@@ -196,7 +185,7 @@ define(
                     let fields = [
                         'buckaroo_magento2_capayablein3_DoB',
                     ];
-                    if(this.showPhone()) {
+                    if (this.showPhone()) {
                         fields.push('buckaroo_magento2_capayablein3_Telephone');
                     }
                     return fields;
@@ -242,8 +231,6 @@ define(
                 },
 
                 selectPaymentMethod: function () {
-                    window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-
                     selectPaymentMethodAction(this.getData());
                     checkoutData.setSelectedPaymentMethod(this.item.method);
                     return true;
@@ -265,17 +252,17 @@ define(
                     return $('.' + this.getCode() + ' .payment-method-second-col form').valid();
                 },
 
-                getData : function() {
+                getData: function () {
                     let telephone = quote.billingAddress().telephone;
                     if (validPhone(this.phone())) {
                         telephone = this.phone();
                     }
                     return {
-                        "method" : this.item.method,
+                        "method": this.item.method,
                         "additional_data": {
-                            "customer_billingName" : this.billingName(),
-                            "customer_DoB" : this.dateValidate(),
-                            "customer_telephone" : telephone
+                            "customer_billingName": this.billingName(),
+                            "customer_DoB": this.dateValidate(),
+                            "customer_telephone": telephone
                         }
                     };
                 }

@@ -29,12 +29,30 @@
     <preference for="Buckaroo\Magento2\Api\PushInterface" type="Buckaroo\Magento2\Model\Push"/>
     <preference for="Buckaroo\Magento2\Api\PaymentInformationManagementInterface" type="Buckaroo\Magento2\Model\PaymentInformationManagement"/>
     <preference for="Buckaroo\Magento2\Api\GuestPaymentInformationManagementInterface" type="Buckaroo\Magento2\Model\GuestPaymentInformationManagement"/>
-    <preference for="Magento\Quote\Model\Cart\CartTotalRepository" type="Buckaroo\Magento2\Model\Cart\CartTotalRepository" />
     <preference for="Magento\Sales\Model\ResourceModel\Order\Handler\State" type="Buckaroo\Magento2\Model\ResourceModel\Order\Handler\State" />
-    <preference for="Onestepcheckout\Iosc\Plugin\GuestSaveManager" type="Buckaroo\Magento2\Plugin\GuestSaveManager" />
-    <preference for="Mageplaza\Osc\Model\CheckoutManagement" type="Buckaroo\Magento2\Plugin\CheckoutManagement" />
     <preference for="Magento\Ui\Model\Export\ConvertToCsv" type="Buckaroo\Magento2\Model\Export\ConvertToCsv" />
     <preference for="Magento\Sales\Model\Order\CreditmemoFactory" type="Buckaroo\Magento2\Model\Order\CreditmemoFactory" />
+    <preference for="Buckaroo\Magento2\Api\Data\ExpressMethods\ShippingAddressRequestInterface" type="Buckaroo\Magento2\Model\Service\ShippingAddressRequest" />
+
+    <type name="Buckaroo\Magento2\Model\Push">
+        <plugin name="buckaroo_fix_ppe_statuscode"
+                type="Buckaroo\Magento2\Plugin\FixPPEStatusCode"
+                sortOrder="1"/>
+    </type>
+
+    <type name="Magento\Sales\Api\OrderManagementInterface">
+        <plugin name="buckaroo_order_management_stock_fix"
+                type="Buckaroo\Magento2\Plugin\OrderManagement"
+                sortOrder="10"/>
+    </type>
+
+    // TODO: check those two plugins if they are working after this change
+    <type name="Onestepcheckout\Iosc\Plugin\GuestSaveManager">
+        <plugin name="buckaroo_guest_save_manager" type="Buckaroo\Magento2\Plugin\GuestSaveManager" sortOrder="10" />
+    </type>
+    <type name="Mageplaza\Osc\Model\CheckoutManagement">
+        <plugin name="buckaroo_checkout_management" type="Buckaroo\Magento2\Plugin\CheckoutManagement" sortOrder="10" />
+    </type>
 
     <!-- giftcard rest api -->
     <preference for="Buckaroo\Magento2\Model\Voucher\ApplyVoucherRequestInterface" type="Buckaroo\Magento2\Model\Voucher\ApplyVoucherRequest"/>
@@ -55,6 +73,8 @@
     <preference for="Buckaroo\Magento2\Api\Data\TotalBreakdownInterface" type="Buckaroo\Magento2\Model\Response\TotalBreakdown" />
     <preference for="Buckaroo\Magento2\Api\Data\BreakdownItemInterface" type="Buckaroo\Magento2\Model\Response\BreakdownItem" />
     <preference for="Buckaroo\Magento2\Api\Data\QuoteCreateResponseInterface" type="Buckaroo\Magento2\Model\Response\QuoteCreate" />
+
+    <preference for="Buckaroo\Magento2\Model\Service\QuoteBuilderInterface" type="Buckaroo\Magento2\Model\Service\QuoteBuilder" />
 
     <!-- paypal-express -->
     <preference for="Buckaroo\Magento2\Model\PaypalExpress\QuoteBuilderInterface" type="Buckaroo\Magento2\Model\PaypalExpress\QuoteBuilder" />
@@ -128,6 +148,10 @@
         <arguments>
             <argument name="fileSystemDriver" xsi:type="object">Magento\Framework\Filesystem\Driver\File</argument>
         </arguments>
+    </type>
+
+    <type name="Magento\Sales\Model\Order\Email\Sender\OrderSender">
+        <plugin name="buckaroo_magento2_defer_order_confirmation_email" type="Buckaroo\Magento2\Plugin\OrderSenderPlugin" sortOrder="10"/>
     </type>
 
     <type name="Magento\Sales\Model\Order\Payment\State\OrderCommand">
@@ -249,10 +273,6 @@
                     <item name="type" xsi:type="string">creditcards</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcards</item>
                 </item>
-                <item name="giropay" xsi:type="array">
-                    <item name="type" xsi:type="string">giropay</item>
-                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Giropay</item>
-                </item>
                 <item name="mrcash" xsi:type="array">
                     <item name="type" xsi:type="string">mrcash</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Mrcash</item>
@@ -269,10 +289,6 @@
                     <item name="type" xsi:type="string">sepadirectdebit</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\SepaDirectDebit</item>
                 </item>
-                <item name="sofortbanking" xsi:type="array">
-                    <item name="type" xsi:type="string">sofortbanking</item>
-                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Sofortbanking</item>
-                </item>
                 <item name="belfius" xsi:type="array">
                     <item name="type" xsi:type="string">belfius</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Belfius</item>
@@ -284,11 +300,11 @@
                 <item name="afterpay" xsi:type="array">
                     <item name="type" xsi:type="string">afterpay</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay</item>
-				</item>
+                </item>
                 <item name="afterpay2" xsi:type="array">
                     <item name="type" xsi:type="string">afterpay2</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay2</item>
-				</item>
+                </item>
                 <item name="afterpay20" xsi:type="array">
                     <item name="type" xsi:type="string">afterpay20</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20</item>
@@ -478,6 +494,12 @@
                     <item name="model" xsi:type="string">Magento\Framework\Webapi\Rest\Request\Deserializer\Xml</item>
                 </item>
             </argument>
+        </arguments>
+    </type>
+
+    <type name="Buckaroo\Magento2\Service\BuckarooFee\ResultFactory">
+        <arguments>
+            <argument name="instance" xsi:type="string">Buckaroo\Magento2\Service\BuckarooFee\Result</argument>
         </arguments>
     </type>
 

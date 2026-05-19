@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -20,6 +21,7 @@
 
 namespace Buckaroo\Magento2\Block\Info;
 
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\UrlInterface;
 use Magento\Framework\View\Asset\Repository;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
@@ -54,7 +56,7 @@ class Creditcard extends \Buckaroo\Magento2\Block\Info
         Repository $assetRepo,
         UrlInterface $baseUrl,
         array $data = [],
-        \Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard $configProvider = null
+        ?\Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard $configProvider = null
     ) {
         parent::__construct($context, $groupTransaction, $giftcardCollection, $assetRepo, $baseUrl, $data);
         $this->configProvider = $configProvider;
@@ -64,6 +66,7 @@ class Creditcard extends \Buckaroo\Magento2\Block\Info
      * Get the selected creditcard for this order.
      *
      * @return string
+     * @throws LocalizedException
      */
     public function getCardType()
     {

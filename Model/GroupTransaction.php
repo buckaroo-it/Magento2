@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model;
 
 use Magento\Framework\Model\AbstractModel;
@@ -36,8 +38,6 @@ class GroupTransaction extends AbstractModel implements GroupTransactionInterfac
 
     /**
      * Initialize resource model
-     *
-     * @return void
      */
     protected function _construct()
     {
@@ -134,7 +134,7 @@ class GroupTransaction extends AbstractModel implements GroupTransactionInterfac
     /**
      * Transaction is fully refunded
      *
-     * @return boolean
+     * @return bool
      */
     public function isFullyRefunded()
     {

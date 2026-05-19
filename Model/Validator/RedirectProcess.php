@@ -26,7 +26,7 @@ class RedirectProcess implements \Buckaroo\Magento2\Model\ValidatorInterface
     /**
      * @param array|object $data
      *
-     * @return boolean
+     * @return bool
      */
     public function validate($data)
     {

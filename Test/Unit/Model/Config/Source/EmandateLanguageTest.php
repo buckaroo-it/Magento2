@@ -30,7 +30,7 @@ class EmandateLanguageTest extends BaseTest
     {
         $expectedResult = [
             ['value' => 'nl', 'label' => 'Dutch'],
-            ['value' => 'en', 'label' => 'English']
+            ['value' => 'en', 'label' => 'English'],
         ];
 
         $instance = $this->getInstance();

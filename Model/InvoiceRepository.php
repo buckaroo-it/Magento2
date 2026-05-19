@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model;
 
 use Magento\Framework\Api\SearchCriteria;
@@ -132,7 +134,7 @@ class InvoiceRepository implements InvoiceRepositoryInterface
     }
 
     /**
-     * @param SearchCriteria $searchCriteria
+     * @param SearchCriteria    $searchCriteria
      * @param InvoiceCollection $collection
      */
     private function handleSortOrders($searchCriteria, $collection)
@@ -153,7 +155,7 @@ class InvoiceRepository implements InvoiceRepositoryInterface
     }
 
     /**
-     * @param SearchCriteria $searchCriteria
+     * @param SearchCriteria    $searchCriteria
      * @param InvoiceCollection $collection
      *
      * @return array

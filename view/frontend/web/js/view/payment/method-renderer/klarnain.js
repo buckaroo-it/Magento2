@@ -50,22 +50,20 @@ define(
                     selectedGender: null,
                 },
                 redirectAfterPlaceOrder: false,
-                paymentFeeLabel : window.checkoutConfig.payment.buckaroo.klarnain.paymentFeeLabel,
-                subtext : window.checkoutConfig.payment.buckaroo.klarnain.subtext,
-                subTextStyle : checkoutCommon.getSubtextStyle('klarnain'),
-                currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
-                baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
+                paymentFeeLabel: window.checkoutConfig.payment.buckaroo.klarnain.paymentFeeLabel,
+                subtext: window.checkoutConfig.payment.buckaroo.klarnain.subtext,
+                subTextStyle: checkoutCommon.getSubtextStyle('klarnain'),
+                currencyCode: window.checkoutConfig.quoteData.quote_currency_code,
+                baseCurrencyCode: window.checkoutConfig.quoteData.base_currency_code,
                 genderList: window.checkoutConfig.payment.buckaroo.klarnain.genderList,
-
-                /**
-                 * @override
-                 */
-                initialize : function (options) {
-                    if (checkoutData.getSelectedPaymentMethod() == options.index) {
-                        window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-                    }
-
-                    return this._super(options);
+                getMessageText: function () {
+                    return $.mage
+                        .__('Je moet minimaal 18+ zijn om deze dienst te gebruiken. Als je op tijd betaalt, voorkom je extra kosten en zorg je dat je in de toekomst nogmaals gebruik kunt maken van de diensten van Achteraf betalen via ' +
+                            this.getTitle() +
+                            '. Door verder te gaan, accepteer je de <a target="_blank" href="%s">Algemene&nbsp;Voorwaarden</a> en bevestig je dat je de <a target="_blank" href="%f">Privacyverklaring</a> en <a target="_blank" href="%c">Cookieverklaring</a> hebt gelezen.')
+                        .replace('%s', 'https://cdn.klarna.com/1.0/shared/content/legal/terms/EID/nl_nl/invoice')
+                        .replace('%f', 'https://cdn.klarna.com/1.0/shared/content/legal/terms/0/nl_nl/privacy')
+                        .replace('%c', 'https://cdn.klarna.com/1.0/shared/content/legal/terms/nl-NL/cookie_purchase');
                 },
 
                 initObservable: function () {
@@ -78,8 +76,8 @@ define(
                     this.showFinancialWarning = ko.computed(
                         function () {
                             return quote.billingAddress() !== null &&
-                            quote.billingAddress().countryId == 'NL' &&
-                            window.checkoutConfig.payment.buckaroo.klarnain.showFinancialWarning
+                                quote.billingAddress().countryId == 'NL' &&
+                                window.checkoutConfig.payment.buckaroo.klarnain.showFinancialWarning
                         },
                         this
                     );
@@ -88,8 +86,8 @@ define(
                      * Check if the required fields are filled. If so: enable place order button (true) | if not: disable place order button (false)
                      */
                     this.buttoncheck = ko.computed(
-                    function () {
-                        return this.selectedGender() != null;
+                        function () {
+                            return this.selectedGender() != null;
                         },
                         this
                     );
@@ -135,8 +133,6 @@ define(
                 },
 
                 selectPaymentMethod: function () {
-                    window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-
                     selectPaymentMethodAction(this.getData());
                     checkoutData.setSelectedPaymentMethod(this.item.method);
                     return true;
@@ -153,13 +149,13 @@ define(
 
                     return text.replace('%s', this.baseCurrencyCode);
                 },
-                
+
                 getData: function () {
                     return {
                         "method": this.item.method,
                         "po_number": null,
                         "additional_data": {
-                            "customer_gender" : this.selectedGender()
+                            "customer_gender": this.selectedGender()
                         }
                     };
                 }

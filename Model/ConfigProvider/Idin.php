@@ -21,6 +21,8 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider;
 
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Model\Quote;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Customer\Api\Data\CustomerInterface;
@@ -31,7 +33,7 @@ use Magento\Customer\Model\ResourceModel\CustomerRepository;
  */
 class Idin extends AbstractConfigProvider
 {
-    const XPATH_ACCOUNT_IDIN = 'buckaroo_magento2/account/idin';
+    public const XPATH_ACCOUNT_IDIN = 'buckaroo_magento2/account/idin';
 
     protected $issuers = [
         [
@@ -126,7 +128,7 @@ class Idin extends AbstractConfigProvider
                 'issuers' => $this->getIssuers(),
                 'active' => $idin['active'],
                 'verified' => $idin['verified'],
-                'isOscEnabled' => $osc
+                'isOscEnabled' => $osc,
             ],
         ];
     }
@@ -146,15 +148,14 @@ class Idin extends AbstractConfigProvider
     /**
      * Get idin status for customer and Quote/Cart
      *
-     * @param Quote $quote
+     * @param Quote             $quote
      * @param CustomerInterface $customer
      *
      * @return array
      */
-    public function getIdinStatus(Quote $quote, CustomerInterface $customer = null)
+    public function getIdinStatus(Quote $quote, ?CustomerInterface $customer = null)
     {
-        if (
-            !$this->checkCountry($customer) ||
+        if (!$this->checkCountry($customer) ||
             !$this->isIdinEnabled()
         ) {
             return ['active' => false, 'verified' => false];
@@ -202,9 +203,9 @@ class Idin extends AbstractConfigProvider
      *
      * @param CustomerInterface|null $customer
      *
-     * @return boolean
+     * @return bool
      */
-    protected function isCustomerVerified(CustomerInterface $customer = null)
+    protected function isCustomerVerified(?CustomerInterface $customer = null)
     {
         if ($customer === null) {
             return $this->checkoutSession->getCustomerIDINIsEighteenOrOlder() === true;
@@ -218,7 +219,7 @@ class Idin extends AbstractConfigProvider
      *
      * @param Quote $quote
      *
-     * @return boolean
+     * @return bool
      */
     public function isIdinActiveForQuote(Quote $quote)
     {
@@ -245,7 +246,8 @@ class Idin extends AbstractConfigProvider
     /**
      * Check if idin is enabled
      *
-     * @return boolean
+     * @return bool
+     * @throws NoSuchEntityException
      */
     protected function isIdinEnabled()
     {
@@ -257,7 +259,7 @@ class Idin extends AbstractConfigProvider
      *
      * @param \Magento\Catalog\Model\Product $product
      *
-     * @return boolean
+     * @return bool
      */
     protected function checkCategories($product)
     {
@@ -274,7 +276,8 @@ class Idin extends AbstractConfigProvider
      *
      * @param CustomerInterface|null $customer
      *
-     * @return boolean
+     * @return bool
+     * @throws LocalizedException
      */
     protected function checkCountry($customer)
     {

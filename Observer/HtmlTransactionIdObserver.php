@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -23,43 +24,85 @@ namespace Buckaroo\Magento2\Observer;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Api\Data\TransactionInterface;
+use Magento\Sales\Api\TransactionRepositoryInterface;
+use Magento\Sales\Model\Order\Payment\Transaction;
 
 class HtmlTransactionIdObserver implements ObserverInterface
 {
     /**
+     * @var TransactionRepositoryInterface
+     */
+    private $transactionRepository;
+
+    /**
+     * Example constructor injection if you want your own logger:
+     * (If you already have a logger property, just reuse that.)
+     * @param TransactionRepositoryInterface $transactionRepository
+     */
+    public function __construct(
+        TransactionRepositoryInterface $transactionRepository
+    ) {
+        $this->transactionRepository = $transactionRepository;
+    }
+    /**
      * Update txn_id to a link for the plaza transaction
      *
      * @param Observer $observer
-     * @return void
      */
     public function execute(Observer $observer)
     {
-        /** @var \Magento\Sales\Model\Order\Payment\Transaction $transaction */
+        /** @var Transaction $transaction */
         $transaction = $observer->getDataObject();
         $order = $transaction->getOrder();
-        $txnIdArray =explode("-",$transaction->getTxnId());
+
+        $txnIdArray = explode("-", $transaction->getTxnId());
         $txnId = reset($txnIdArray);
-       if ($this->isBuckarooPayment($order->getPayment()) && $txnId !== false) {
-            $transaction->setData('html_txn_id', 
-            sprintf(
-                '<a href="https://plaza.buckaroo.nl/Transaction/Transactions/Details?transactionKey=%s" target="_blank">%s</a>',
-                $txnId,
-                $transaction->getTxnId()
-            )
-        );
-       }
+
+        if ($this->isBuckarooPayment($order->getPayment()) && $txnId !== false) {
+            $txtType = $transaction->getTxnType();
+            if ($transaction->getTxnType() === TransactionInterface::TYPE_VOID) {
+                if ($transaction->getParentId()) {
+                    $parentTransaction = $this->transactionRepository->get($transaction->getParentId());
+                    if ($parentTransaction) {
+                        $txtType = $parentTransaction->getTxnType();
+                    }
+                }
+            }
+
+            if ($txtType == 'authorization') {
+                $transaction->setData(
+                    'html_txn_id',
+                    sprintf(
+                        '<a href="https://plaza.buckaroo.nl/Transaction/DataRequest/Details/%s" target="_blank">%s</a>',
+                        $txnId,
+                        $transaction->getTxnId()
+                    )
+                );
+                return;
+            }
+            $transaction->setData(
+                'html_txn_id',
+                sprintf(
+                    '<a href="https://plaza.buckaroo.nl/Transaction/Transactions/Details?transactionKey=%s" target="_blank">%s</a>',
+                    $txnId,
+                    $transaction->getTxnId()
+                )
+            );
+        }
     }
-     /**
+
+    /**
      * Is one of our payment methods
      *
      * @param OrderPaymentInterface|null $payment
      *
-     * @return boolean
+     * @return bool
      */
     public function isBuckarooPayment($payment)
     {
         if (!$payment instanceof OrderPaymentInterface) {
-           return false;
+            return false;
         }
         return strpos($payment->getMethod(), 'buckaroo_magento2') !== false;
     }

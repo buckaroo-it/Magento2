@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Method;
 
 use Magento\Developer\Helper\Data as DevelopmentHelper;
@@ -54,7 +56,7 @@ use Magento\Framework\Event\ManagerInterface as EventManager;
 class Emandate extends AbstractMethod
 {
     /** Payment Code */
-    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_emandate';
+    public const PAYMENT_METHOD_CODE = 'buckaroo_magento2_emandate';
 
     /** @var string */
     public $buckarooPaymentMethodCode = 'emandate';
@@ -74,7 +76,7 @@ class Emandate extends AbstractMethod
 
     /** @var EmandateConfig */
     private $emandateConfig;
-    
+
     public function __construct(
         ObjectManagerInterface $objectManager,
         Context $context,
@@ -94,17 +96,17 @@ class Emandate extends AbstractMethod
         SoftwareData $softwareData,
         AddressFactory $addressFactory,
         EventManager $eventManager,
-        AbstractResource $resource = null,
-        AbstractDb $resourceCollection = null,
-        GatewayInterface $gateway = null,
-        TransactionBuilderFactory $transactionBuilderFactory = null,
-        ValidatorFactory $validatorFactory = null,
-        HelperData $helper = null,
-        RequestInterface $request = null,
-        RefundFieldsFactory $refundFieldsFactory = null,
-        Factory $configProviderFactory = null,
-        MethodFactory $configProviderMethodFactory = null,
-        PriceHelper $priceHelper = null,
+        ?AbstractResource $resource = null,
+        ?AbstractDb $resourceCollection = null,
+        ?GatewayInterface $gateway = null,
+        ?TransactionBuilderFactory $transactionBuilderFactory = null,
+        ?ValidatorFactory $validatorFactory = null,
+        ?HelperData $helper = null,
+        ?RequestInterface $request = null,
+        ?RefundFieldsFactory $refundFieldsFactory = null,
+        ?Factory $configProviderFactory = null,
+        ?MethodFactory $configProviderMethodFactory = null,
+        ?PriceHelper $priceHelper = null,
         array $data = []
     ) {
         parent::__construct(
@@ -198,7 +200,7 @@ class Emandate extends AbstractMethod
             $this->getParameterLine('debtorreference', $billingAddress->getEmail()),
             $this->getParameterLine('sequencetype', $sequenceType),
             $this->getParameterLine('purchaseid', $order->getIncrementId()),
-            $this->getParameterLine('language', $language)
+            $this->getParameterLine('language', $language),
         ];
 
         if (!empty($reason)) {
@@ -259,13 +261,14 @@ class Emandate extends AbstractMethod
     /**
      * Validate that we received a valid issuer ID.
      *
-     * @return $this
      * @throws LocalizedException
+     * @return $this
      */
-    public function validateAdditionalData() {
+    public function validateAdditionalData()
+    {
 
         $paymentInfo = $this->getInfoInstance();
-  
+
         $availableIssuers = $this->emandateConfig->getIssuers();
         $chosenIssuer = $paymentInfo->getAdditionalInformation('issuer');
         $valid = false;
@@ -297,7 +300,7 @@ class Emandate extends AbstractMethod
 
         $fieldsToSave = [
             'MandateId', 'IsError', 'EmandateStatus', 'SignerName', 'AccountName', 'BankId',
-            'Iban', 'Reference', 'ValidationReference', 'OriginalMandateId', 'MaxAmount'
+            'Iban', 'Reference', 'ValidationReference', 'OriginalMandateId', 'MaxAmount',
         ];
 
         $filteredData = [];
@@ -331,5 +334,20 @@ class Emandate extends AbstractMethod
     public function getPaymentMethodName($payment)
     {
         return $this->buckarooPaymentMethodCode;
+    }
+
+    public function isAvailable(?\Magento\Quote\Api\Data\CartInterface $quote = null)
+    {
+        $orderId = $quote ? $quote->getReservedOrderId() : null;
+
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+
+        $paymentGroupTransaction = $objectManager->get(\Buckaroo\Magento2\Helper\PaymentGroupTransaction::class);
+
+        if ($paymentGroupTransaction->getAlreadyPaid($orderId) > 0) {
+            return false;
+        }
+
+        return true;
     }
 }

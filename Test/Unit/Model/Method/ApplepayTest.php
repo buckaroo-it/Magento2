@@ -39,7 +39,7 @@ class ApplepayTest extends BaseTest
         $data->setBuckarooSkipValidation(0);
         $data->setAdditionalData([
             'buckaroo_skip_validation' => 1,
-            'applepayTransaction' => 'Buckaroo Apple Transaction'
+            'applepayTransaction' => 'Buckaroo Apple Transaction',
         ]);
 
         $infoInstanceMock = $this->getFakeMock(InfoInterface::class)
@@ -64,7 +64,7 @@ class ApplepayTest extends BaseTest
             'Name' => 'applepay',
             'Action' => 'Pay',
             'Version' => 0,
-            'RequestParameter' => [['_' => 'abc123', 'Name' => 'PaymentData']]
+            'RequestParameter' => [['_' => 'abc123', 'Name' => 'PaymentData']],
         ];
 
         $orderMock = $this->getFakeMock(Order::class, true);

@@ -30,7 +30,7 @@ class AllOrSpecificCountriesTest extends BaseTest
     {
         $expectedOptions = [
             'All Allowed Countries',
-            'Specific Countries'
+            'Specific Countries',
         ];
 
         $instance = $this->getInstance();

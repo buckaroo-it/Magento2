@@ -46,16 +46,16 @@ class ApplepayTest extends BaseTest
                                 'storeName' => 'Buckaroo Webshop',
                                 'currency' => 'EUR',
                                 'cultureCode' => 'nl',
-                                'guid' => 'GUID12345'
-                            ]
-                        ]
-                    ]
-                ]
+                                'guid' => 'GUID12345',
+                            ],
+                        ],
+                    ],
+                ],
             ],
             'inactive' => [
                 false,
-                []
-            ]
+                [],
+            ],
         ];
     }
 
@@ -104,7 +104,7 @@ class ApplepayTest extends BaseTest
             'scopeConfig' => $scopeConfigMock,
             'storeManager' => $storeManagerMock,
             'localeResolver' => $localeResolverMock,
-            'configProvicerAccount' => $accountConfigMock
+            'configProvicerAccount' => $accountConfigMock,
         ]);
 
         $result = $instance->getConfig();

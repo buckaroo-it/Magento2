@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Block\Adminhtml\System\Config\Fieldset;
 
 /**
@@ -30,11 +32,11 @@ class Payment extends \Magento\Config\Block\System\Config\Form\Fieldset
     protected $_backendConfig;
 
     /**
-     * @param \Magento\Backend\Block\Context $context
+     * @param \Magento\Backend\Block\Context      $context
      * @param \Magento\Backend\Model\Auth\Session $authSession
-     * @param \Magento\Framework\View\Helper\Js $jsHelper
-     * @param \Magento\Config\Model\Config $backendConfig
-     * @param array $data
+     * @param \Magento\Framework\View\Helper\Js   $jsHelper
+     * @param \Magento\Config\Model\Config        $backendConfig
+     * @param array                               $data
      */
     public function __construct(
         \Magento\Backend\Block\Context $context,
@@ -48,7 +50,7 @@ class Payment extends \Magento\Config\Block\System\Config\Form\Fieldset
     }
 
     /**
-     * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
+     * @param  \Magento\Framework\Data\Form\Element\AbstractElement $element
      * @return string
      * @SuppressWarnings(PHPMD.NPathComplexity)
      */
@@ -102,7 +104,7 @@ class Payment extends \Magento\Config\Block\System\Config\Form\Fieldset
     }
 
     /**
-     * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
+     * @param  \Magento\Framework\Data\Form\Element\AbstractElement $element
      * @return string
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
@@ -112,7 +114,7 @@ class Payment extends \Magento\Config\Block\System\Config\Form\Fieldset
     }
 
     /**
-     * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
+     * @param  \Magento\Framework\Data\Form\Element\AbstractElement $element
      * @return false
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
@@ -122,7 +124,7 @@ class Payment extends \Magento\Config\Block\System\Config\Form\Fieldset
     }
 
     /**
-     * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
+     * @param  \Magento\Framework\Data\Form\Element\AbstractElement $element
      * @return string
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
@@ -151,7 +153,7 @@ class Payment extends \Magento\Config\Block\System\Config\Form\Fieldset
     }
 
     /**
-     * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
+     * @param  \Magento\Framework\Data\Form\Element\AbstractElement $element
      * @return string
      */
     protected function _getFrontendClass($element)
@@ -161,7 +163,7 @@ class Payment extends \Magento\Config\Block\System\Config\Form\Fieldset
     }
 
     /**
-     * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
+     * @param  \Magento\Framework\Data\Form\Element\AbstractElement $element
      * @return bool
      */
     protected function _isPaymentEnabled($element)

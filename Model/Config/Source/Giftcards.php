@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Config\Source;
 
 use Magento\Framework\Api\SearchCriteriaBuilder;
@@ -59,7 +61,7 @@ class Giftcards implements ArrayInterface
         if (count($giftcardData) <= 0) {
             $options[] = [
                 'value' => '',
-                'label' => __('You have not yet added any giftcards')
+                'label' => __('You have not yet added any giftcards'),
             ];
 
             return $options;
@@ -69,7 +71,7 @@ class Giftcards implements ArrayInterface
         foreach ($giftcardData as $model) {
             $options[] = [
                 'value' => $model->getServicecode(),
-                'label' => $model->getLabel()
+                'label' => $model->getLabel(),
             ];
         }
 

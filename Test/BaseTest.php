@@ -160,8 +160,8 @@ abstract class BaseTest extends TestCaseFinder
      * @param       $class
      * @param array $args
      *
-     * @return object
      * @throws \Exception
+     * @return object
      */
     protected function getObject($class, $args = [])
     {

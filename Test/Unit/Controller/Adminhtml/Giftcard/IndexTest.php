@@ -45,7 +45,7 @@ class IndexTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $instance = $this->getInstance([
             'resultPageFactory' => $resultPageFactoryMock,
-            'giftcardFactory' => $giftcardFactoryMock
+            'giftcardFactory' => $giftcardFactoryMock,
         ]);
         $instance->execute();
     }

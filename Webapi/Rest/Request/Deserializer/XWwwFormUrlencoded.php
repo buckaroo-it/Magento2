@@ -21,6 +21,8 @@
 
 namespace Buckaroo\Magento2\Webapi\Rest\Request\Deserializer;
 
+use InvalidArgumentException;
+
 class XWwwFormUrlencoded implements \Magento\Framework\Webapi\Rest\Request\DeserializerInterface
 {
     /**
@@ -28,14 +30,14 @@ class XWwwFormUrlencoded implements \Magento\Framework\Webapi\Rest\Request\Deser
      *
      * @param string $encodedBody Posted content from request.
      *
-     * @return array
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
+     * @return array
      */
     public function deserialize($encodedBody)
     {
         if (!is_string($encodedBody)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 //phpcs:ignore:Magento2.Functions.DiscouragedFunction
                 __("'%s' data type is invalid. String is expected.", gettype($encodedBody))
             );

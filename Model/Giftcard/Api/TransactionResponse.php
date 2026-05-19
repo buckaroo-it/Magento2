@@ -31,19 +31,19 @@ class TransactionResponse extends DataObject implements TransactionResponseInter
     {
         return $this->getData('transaction_id');
     }
-    
+
     /** @inheritDoc */
     public function getName()
     {
         return $this->getData('label');
     }
-    
+
     /** @inheritDoc */
     public function getAmount()
     {
         return (float)$this->getData('amount');
     }
-    
+
     /** @inheritDoc */
     public function getCurrency()
     {

@@ -1,0 +1,20 @@
+#fast-checkout-ideal-btn {
+    height: 45px;
+    padding: 0;
+    border: none;
+    background: none;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+#fast-checkout-ideal-btn img {
+    max-height: 100%;
+    max-width: 100%;
+    display: block;
+    margin: auto;
+}
+
+.buckaroo-box-to-cart{
+    text-align: center;
+}

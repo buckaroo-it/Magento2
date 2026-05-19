@@ -1,4 +1,5 @@
 <?php
+
 // @codingStandardsIgnoreFile
 /**
  * NOTICE OF LICENSE
@@ -18,18 +19,17 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Plugin\Method;
 
-use \Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order;
 
 /**
  * Class Emandate
- *
- *
  */
 class Emandate
 {
-    const EMANDATE_METHOD_NAME = 'buckaroo_magento2_emandate';
+    public const EMANDATE_METHOD_NAME = 'buckaroo_magento2_emandate';
 
     /**
      * \Buckaroo\Magento2\Model\Method\Emandate

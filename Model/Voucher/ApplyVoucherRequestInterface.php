@@ -23,8 +23,8 @@ namespace Buckaroo\Magento2\Model\Voucher;
 
 use Magento\Quote\Api\Data\CartInterface;
 
-interface ApplyVoucherRequestInterface {
-    
+interface ApplyVoucherRequestInterface
+{
     /**
      * Set voucherCode
      *
@@ -34,7 +34,7 @@ interface ApplyVoucherRequestInterface {
      */
     public function setVoucherCode(string $voucherCode);
 
-     /**
+    /**
      * Set quote
      *
      * @param CartInterface $quote

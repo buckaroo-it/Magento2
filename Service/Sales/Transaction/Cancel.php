@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,8 +18,10 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Service\Sales\Transaction;
 
+use Buckaroo\Magento2\Model\Service\OrderCancellationService;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Api\Data\TransactionInterface;
@@ -40,19 +43,25 @@ class Cancel
     /** @var OrderStatusFactory */
     private $orderStatusFactory;
 
+    /** @var OrderCancellationService */
+    private $orderCancellationService;
+
     /**
      * @param OrderStatusFactory              $orderStatusFactory
      * @param OrderPaymentRepositoryInterface $orderPaymentRepository
      * @param Account                         $account
+     * @param OrderCancellationService        $orderCancellationService
      */
     public function __construct(
         OrderStatusFactory $orderStatusFactory,
         OrderPaymentRepositoryInterface $orderPaymentRepository,
-        Account $account
+        Account $account,
+        OrderCancellationService $orderCancellationService
     ) {
         $this->orderStatusFactory = $orderStatusFactory;
         $this->orderPaymentRepository = $orderPaymentRepository;
         $this->account = $account;
+        $this->orderCancellationService = $orderCancellationService;
     }
 
     /**
@@ -94,7 +103,7 @@ class Cancel
             $payment->save();
         }
 
-        $order->cancel()->save();
+        $this->orderCancellationService->cancelOrder($order, 'Cancelled by consumer.', true);
     }
 
     /**

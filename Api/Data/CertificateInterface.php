@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,12 +18,13 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Api\Data;
 
 interface CertificateInterface
 {
     /**
-     * @param string $certificate
+     * @param  string $certificate
      * @return $this
      */
     public function setCertificate($certificate);
@@ -33,7 +35,7 @@ interface CertificateInterface
     public function getCertificate();
 
     /**
-     * @param string $name
+     * @param  string $name
      * @return $this
      */
     public function setName($name);
@@ -44,7 +46,7 @@ interface CertificateInterface
     public function getName();
 
     /**
-     * @param string $createdAt
+     * @param  string $createdAt
      * @return $this
      */
     public function setCreatedAt($createdAt);

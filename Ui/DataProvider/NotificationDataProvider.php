@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Ui\DataProvider;
 
 use Buckaroo\Magento2\Ui\DataProvider\Modifier\Notifications;
@@ -27,12 +29,12 @@ class NotificationDataProvider extends \Magento\Ui\DataProvider\AbstractDataProv
     private $modifier;
 
     /**
-     * @param string $name
-     * @param string $primaryFieldName
-     * @param string $requestFieldName
+     * @param string        $name
+     * @param string        $primaryFieldName
+     * @param string        $requestFieldName
      * @param Notifications $modifier
-     * @param array $meta
-     * @param array $data
+     * @param array         $meta
+     * @param array         $data
      */
     public function __construct(
         string $name,

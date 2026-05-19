@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Config\Source\PaymentMethods;
 
 class AfterExpiry implements \Magento\Framework\Option\ArrayInterface
@@ -30,22 +32,20 @@ class AfterExpiry implements \Magento\Framework\Option\ArrayInterface
     {
         $options = [
             ['value' => 'amex',                   'label' => __('American Express')],
-            ['value' => 'bancontactmrcash',       'label' => __('Bancontact / Mr Cash')],
+            ['value' => 'bancontactmrcash',       'label' => __('Bancontact')],
             ['value' => 'transfer',               'label' => __('Bank Transfer')],
             ['value' => 'cartebancaire',          'label' => __('Carte Bancaire')],
             ['value' => 'cartebleuevisa',         'label' => __('Carte Bleue')],
             ['value' => 'dankort',                'label' => __('Dankort')],
             ['value' => 'eps',                    'label' => __('EPS')],
             ['value' => 'giftcard',               'label' => __('Giftcards')],
-            ['value' => 'giropay',                'label' => __('Giropay')],
-            ['value' => 'ideal',                  'label' => __('iDEAL')],
+            ['value' => 'ideal',                  'label' => __('iDEAL | Wero')],
             ['value' => 'idealprocessing',        'label' => __('iDEAL Processing')],
             ['value' => 'maestro',                'label' => __('Maestro')],
             ['value' => 'mastercard',             'label' => __('Mastercard')],
             ['value' => 'nexi',                   'label' => __('Nexi')],
             ['value' => 'postepay',               'label' => __('PostePay')],
             ['value' => 'paypal',                 'label' => __('PayPal')],
-            ['value' => 'sofortueberweisung',     'label' => __('Sofort Banking')],
             ['value' => 'belfius',                'label' => __('Belfius')],
             ['value' => 'visa',                   'label' => __('Visa')],
             ['value' => 'visaelectron',           'label' => __('Visa Electron')],

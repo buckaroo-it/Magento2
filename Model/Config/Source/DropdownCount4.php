@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Config\Source;
 
 class DropdownCount4 implements \Magento\Framework\Option\ArrayInterface
@@ -32,7 +34,7 @@ class DropdownCount4 implements \Magento\Framework\Option\ArrayInterface
             ['value' => 1, 'label' => __('1')],
             ['value' => 2, 'label' => __('2')],
             ['value' => 3, 'label' => __('3')],
-            ['value' => 4, 'label' => __('4')]
+            ['value' => 4, 'label' => __('4')],
         ];
     }
 
@@ -47,7 +49,7 @@ class DropdownCount4 implements \Magento\Framework\Option\ArrayInterface
             1 => __('1'),
             2 => __('2'),
             3 => __('3'),
-            4 => __('4')
+            4 => __('4'),
         ];
     }
 }

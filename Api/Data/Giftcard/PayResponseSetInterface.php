@@ -31,8 +31,6 @@ interface PayResponseSetInterface
     /**
      * Set any other data
      * @param array $data
-     *
-     * @return void
      */
     public function setData(array $data);
 }

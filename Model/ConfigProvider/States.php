@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -20,8 +21,6 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider;
 
-use \Buckaroo\Magento2\Model\ConfigProvider;
-
 /**
  * @method mixed getOrderStateNew()
  * @method mixed getOrderStateSuccess()
@@ -31,15 +30,14 @@ use \Buckaroo\Magento2\Model\ConfigProvider;
  */
 class States extends AbstractConfigProvider
 {
-
     /**
      * XPATHs to configuration values for buckaroo_magento2_predefined
      */
-    const XPATH_STATES_ORDER_STATE_NEW          = 'buckaroo_magento2/states/order_state_new';
-    const XPATH_STATES_ORDER_STATE_SUCCESS      = 'buckaroo_magento2/states/order_state_success';
-    const XPATH_STATES_ORDER_STATE_FAILED       = 'buckaroo_magento2/states/order_state_failed';
-    const XPATH_STATES_ORDER_STATE_PENDING      = 'buckaroo_magento2/states/order_state_pending';
-    const XPATH_STATES_ORDER_STATE_INCORRECT    = 'buckaroo_magento2/states/order_state_incorrect';
+    public const XPATH_STATES_ORDER_STATE_NEW          = 'buckaroo_magento2/states/order_state_new';
+    public const XPATH_STATES_ORDER_STATE_SUCCESS      = 'buckaroo_magento2/states/order_state_success';
+    public const XPATH_STATES_ORDER_STATE_FAILED       = 'buckaroo_magento2/states/order_state_failed';
+    public const XPATH_STATES_ORDER_STATE_PENDING      = 'buckaroo_magento2/states/order_state_pending';
+    public const XPATH_STATES_ORDER_STATE_INCORRECT    = 'buckaroo_magento2/states/order_state_incorrect';
 
     /**
      * {@inheritdoc}

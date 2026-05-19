@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -25,8 +26,8 @@ class Calculation implements \Magento\Framework\Option\ArrayInterface
     /**#@+
      * Constants for calculation with or without taxes
      */
-    const DISPLAY_TYPE_EXCLUDING_TAX = 1;
-    const DISPLAY_TYPE_INCLUDING_TAX = 2;
+    public const DISPLAY_TYPE_EXCLUDING_TAX = 1;
+    public const DISPLAY_TYPE_INCLUDING_TAX = 2;
     /**#@-*/
 
     /**

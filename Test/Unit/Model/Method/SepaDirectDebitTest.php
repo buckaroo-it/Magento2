@@ -71,7 +71,7 @@ class SepaDirectDebitTest extends \Buckaroo\Magento2\Test\BaseTest
             'buckaroo_skip_validation' => 1,
             'customer_bic' => 'NL32INGB',
             'customer_iban' => '0000012345',
-            'customer_account_name' => 'Buckaroo TEST'
+            'customer_account_name' => 'Buckaroo TEST',
         ]);
 
         $infoInstanceMock = $this->getFakeMock(InfoInterface::class)
@@ -149,7 +149,7 @@ class SepaDirectDebitTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $instance = $this->getInstance([
             'transactionBuilderFactory' => $trxFactoryMock,
-            'serviceParameters' => $serviceParametersMock
+            'serviceParameters' => $serviceParametersMock,
         ]);
         $instance->setData('info_instance', $infoInterface);
 
@@ -189,7 +189,7 @@ class SepaDirectDebitTest extends \Buckaroo\Magento2\Test\BaseTest
         return [
             'no service' => [
                 [],
-                null
+                null,
             ],
             'no invoicekey' => [
                 [
@@ -197,11 +197,11 @@ class SepaDirectDebitTest extends \Buckaroo\Magento2\Test\BaseTest
                         'Name' => 'CreditManagement3',
                         'ResponseParameter' => (Object)[
                             'Name' => 'ResponseName',
-                            '_' => 'abc'
-                        ]
-                    ]
+                            '_' => 'abc',
+                        ],
+                    ],
                 ],
-                null
+                null,
             ],
             'incorrect service' => [
                 [
@@ -209,11 +209,11 @@ class SepaDirectDebitTest extends \Buckaroo\Magento2\Test\BaseTest
                         'Name' => 'PayPerEmail',
                         'ResponseParameter' => (Object)[
                             'Name' => 'InvoiceKey',
-                            '_' => 'def'
-                        ]
-                    ]
+                            '_' => 'def',
+                        ],
+                    ],
                 ],
-                null
+                null,
             ],
             'has invoicekey' => [
                 [
@@ -221,11 +221,11 @@ class SepaDirectDebitTest extends \Buckaroo\Magento2\Test\BaseTest
                         'Name' => 'CreditManagement3',
                         'ResponseParameter' => (Object)[
                             'Name' => 'InvoiceKey',
-                            '_' => 'ghi'
-                        ]
-                    ]
+                            '_' => 'ghi',
+                        ],
+                    ],
                 ],
-                'ghi'
+                'ghi',
             ],
         ];
     }
@@ -243,9 +243,9 @@ class SepaDirectDebitTest extends \Buckaroo\Magento2\Test\BaseTest
         $respone = [
             0 => (Object)[
                 'Services' => (Object)[
-                    'Service' => $service
-                ]
-            ]
+                    'Service' => $service,
+                ],
+            ],
         ];
 
         $instance = $this->getInstance();
@@ -261,64 +261,64 @@ class SepaDirectDebitTest extends \Buckaroo\Magento2\Test\BaseTest
             'object, has invoiceKey' => [
                 (Object)[
                     'Name' => 'InvoiceKey',
-                    '_' => 'key123'
+                    '_' => 'key123',
                 ],
-                'key123'
+                'key123',
             ],
             'object, no invoiceKey' => [
                 (Object)[
                     'Name' => 'Debtor',
-                    '_' => 'Buckaroo'
+                    '_' => 'Buckaroo',
                 ],
-                ''
+                '',
             ],
             'array with one item, has invoiceKey' => [
                 [
                     (Object)[
                         'Name' => 'InvoiceKey',
-                        '_' => 'invoice456'
-                    ]
+                        '_' => 'invoice456',
+                    ],
                 ],
-                'invoice456'
+                'invoice456',
             ],
             'array with one item, no invoiceKey' => [
                 [
                     (Object)[
                         'Name' => 'Debtor',
-                        '_' => 'Buckaroo'
-                    ]
+                        '_' => 'Buckaroo',
+                    ],
                 ],
-                ''
+                '',
             ],
             'array with multiple items, has invoiceKey' => [
                 [
                     (Object)[
                         'Name' => 'Status',
-                        '_' => 'Paid'
+                        '_' => 'Paid',
                     ],
                     (Object)[
                         'Name' => 'InvoiceKey',
-                        '_' => 'order789'
+                        '_' => 'order789',
                     ],
                     (Object)[
                         'Name' => 'Debtor',
-                        '_' => 'Buckaroo'
+                        '_' => 'Buckaroo',
                     ],
                 ],
-                'order789'
+                'order789',
             ],
             'array with multiple items, no invoiceKey' => [
                 [
                     (Object)[
                         'Name' => 'Status',
-                        '_' => 'Paid'
+                        '_' => 'Paid',
                     ],
                     (Object)[
                         'Name' => 'Debtor',
-                        '_' => 'Buckaroo'
+                        '_' => 'Buckaroo',
                     ],
                 ],
-                ''
+                '',
             ],
         ];
     }
@@ -389,7 +389,7 @@ class SepaDirectDebitTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $instance = $this->getInstance([
             'serviceParameters' => $serviceParametersMock,
-            'transactionBuilderFactory' => $transactionBuilderMock
+            'transactionBuilderFactory' => $transactionBuilderMock,
         ]);
 
         $result = $instance->getVoidTransactionBuilder($infoInstanceMock);
@@ -443,7 +443,7 @@ class SepaDirectDebitTest extends \Buckaroo\Magento2\Test\BaseTest
     {
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $iban = 'NL91ABNA0417164300';
 
         $infoInstanceMock = $this->getInfoInstanceMock();
@@ -495,7 +495,7 @@ class SepaDirectDebitTest extends \Buckaroo\Magento2\Test\BaseTest
     {
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $iban = 'wrong';
 
         $infoInstanceMock = $this->getInfoInstanceMock('BE');
@@ -530,7 +530,7 @@ class SepaDirectDebitTest extends \Buckaroo\Magento2\Test\BaseTest
     {
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $iban = 'wrong';
 
         $infoInstanceMock = $this->getInfoInstanceMock('BE');
@@ -567,7 +567,7 @@ class SepaDirectDebitTest extends \Buckaroo\Magento2\Test\BaseTest
     {
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $iban = 'NL91ABNA0417164300';
 
         $infoInstanceMock = $this->getInfoInstanceMock('NL', 'Magento\Sales\Model\Order\Payment');

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Plugin;
 
 use Magento\Framework\HTTP\Header;
@@ -53,7 +55,7 @@ class FixSession
         PhpCookieManager $subject,
         $name,
         $value,
-        PublicCookieMetadata $metadata = null
+        ?PublicCookieMetadata $metadata = null
     ) {
         if ($metadata && method_exists($metadata, 'getSameSite') && ($name == $this->sessionManager->getName())) {
             if ($metadata->getSameSite() != 'None') {

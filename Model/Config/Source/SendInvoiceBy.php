@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,12 +18,13 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Config\Source;
 
 class SendInvoiceBy implements \Magento\Framework\Option\ArrayInterface
 {
-    const ACTION_EMAIL = 'email';
-    const ACTION_MAIL = 'mail';
+    public const ACTION_EMAIL = 'email';
+    public const ACTION_MAIL = 'mail';
 
     /**
      * @return array
@@ -33,11 +35,11 @@ class SendInvoiceBy implements \Magento\Framework\Option\ArrayInterface
         $array = [
             [
                 'value' => self::ACTION_EMAIL,
-                'label' => 'By e-mail'
+                'label' => 'By e-mail',
             ],
             [
                 'value' => self::ACTION_MAIL,
-                'label' => 'By mail (Includes fee from Klarna)'
+                'label' => 'By mail (Includes fee from Klarna)',
             ],
         ];
 

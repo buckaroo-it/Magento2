@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,12 +18,13 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Method;
 
 class Pospayment extends AbstractMethod
 {
     /** Payment Code*/
-    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_pospayment';
+    public const PAYMENT_METHOD_CODE = 'buckaroo_magento2_pospayment';
 
     /** @var string */
     public $buckarooPaymentMethodCode = 'pospayment';
@@ -115,7 +117,7 @@ class Pospayment extends AbstractMethod
      * @param  \Magento\Quote\Api\Data\CartInterface|null $quote
      * @return bool
      */
-    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
+    public function isAvailable(?\Magento\Quote\Api\Data\CartInterface $quote = null)
     {
         if (parent::isAvailable($quote)) {
             if (!$this->getPosPaymentTerminalId()) {

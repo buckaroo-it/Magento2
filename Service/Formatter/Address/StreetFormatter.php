@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Service\Formatter\Address;
 
 class StreetFormatter
@@ -33,7 +35,7 @@ class StreetFormatter
         $format = [
             'house_number'    => '',
             'number_addition' => '',
-            'street'          => $street
+            'street'          => $street,
         ];
 
         $match = preg_match('#^(.*?)([0-9]+)(.*)#s', $street, $matches);

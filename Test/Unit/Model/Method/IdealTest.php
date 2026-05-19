@@ -43,7 +43,7 @@ class IdealTest extends \Buckaroo\Magento2\Test\BaseTest
         $data->setBuckarooSkipValidation(0);
         $data->setAdditionalData([
             'buckaroo_skip_validation' => 1,
-            'issuer' => 'ING'
+            'issuer' => 'ING',
         ]);
 
         $infoInstanceMock = $this->getFakeMock(InfoInterface::class)

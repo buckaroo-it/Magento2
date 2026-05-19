@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -20,8 +21,6 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider;
 
-use \Buckaroo\Magento2\Model\ConfigProvider;
-
 /**
  * @method string getLocationLiveWeb()
  * @method string getLocationTestWeb()
@@ -30,14 +29,13 @@ use \Buckaroo\Magento2\Model\ConfigProvider;
  */
 class Predefined extends AbstractConfigProvider
 {
-
     /**
      * XPATHs to configuration values for buckaroo_magento2_predefined
      */
-    const XPATH_PREDEFINED_LOCATION_LIVE_WEB = 'buckaroo_magento2/predefined/location_live_web';
-    const XPATH_PREDEFINED_LOCATION_TEST_WEB = 'buckaroo_magento2/predefined/location_test_web';
-    const XPATH_PREDEFINED_WSDL_LIVE_WEB     = 'buckaroo_magento2/predefined/wsdl_live_web';
-    const XPATH_PREDEFINED_WSDL_TEST_WEB     = 'buckaroo_magento2/predefined/wsdl_test_web';
+    public const XPATH_PREDEFINED_LOCATION_LIVE_WEB = 'buckaroo_magento2/predefined/location_live_web';
+    public const XPATH_PREDEFINED_LOCATION_TEST_WEB = 'buckaroo_magento2/predefined/location_test_web';
+    public const XPATH_PREDEFINED_WSDL_LIVE_WEB     = 'buckaroo_magento2/predefined/wsdl_live_web';
+    public const XPATH_PREDEFINED_WSDL_TEST_WEB     = 'buckaroo_magento2/predefined/wsdl_test_web';
 
     /**
      * {@inheritdoc}

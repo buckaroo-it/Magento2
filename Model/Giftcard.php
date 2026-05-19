@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model;
 
 use Magento\Framework\Model\AbstractModel;
@@ -36,8 +38,6 @@ class Giftcard extends AbstractModel implements GiftcardInterface
 
     /**
      * Initialize resource model
-     *
-     * @return void
      */
     protected function _construct()
     {
@@ -85,13 +85,12 @@ class Giftcard extends AbstractModel implements GiftcardInterface
      *
      * @return $this
      */
-    public function setAcquirer(string $acquirer = null)
+    public function setAcquirer(?string $acquirer = null)
     {
         return $this->setData('acquirer', $acquirer);
     }
 
     /**
-     *
      * @return string|null
      */
     public function getAcquirer()

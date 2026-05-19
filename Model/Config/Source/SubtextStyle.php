@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -36,7 +37,7 @@ class SubtextStyle implements \Magento\Framework\Data\OptionSourceInterface
         return [
             ['value' => self::REGULAR, 'label' => __('Regular')],
             ['value' => self::ITALIC, 'label' => __('Italic')],
-            ['value' => self::BOLD, 'label' => __('Bold')]
+            ['value' => self::BOLD, 'label' => __('Bold')],
         ];
     }
 }

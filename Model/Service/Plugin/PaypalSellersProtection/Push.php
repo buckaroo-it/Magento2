@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -27,11 +28,11 @@ class Push
     /**#@+
      * PayPal Seller's Protection eligibility types.
      */
-    const ELIGIBILITY_INELIGIBLE                = 'Ineligible';
-    const ELIGIBILITY_TYPE_ELIGIBLE             = 'Eligible';
-    const ELIGIBILITY_TYPE_ITEM_NOT_RECEIVED    = 'ItemNotReceivedEligible';
-    const ELIGIBILITY_TYPE_UNAUTHORIZED_PAYMENT = 'UnauthorizedPaymentEligible';
-    const ELIGIBILITY_TYPE_NONE                 = 'None';
+    public const ELIGIBILITY_INELIGIBLE                = 'Ineligible';
+    public const ELIGIBILITY_TYPE_ELIGIBLE             = 'Eligible';
+    public const ELIGIBILITY_TYPE_ITEM_NOT_RECEIVED    = 'ItemNotReceivedEligible';
+    public const ELIGIBILITY_TYPE_UNAUTHORIZED_PAYMENT = 'UnauthorizedPaymentEligible';
+    public const ELIGIBILITY_TYPE_NONE                 = 'None';
     /**#@-*/
 
     /**
@@ -50,10 +51,10 @@ class Push
 
     /**
      * @param \Buckaroo\Magento2\Model\Push $push
-     * @param boolean                  $result
+     * @param bool                          $result
      *
-     * @return bool
      * @throws \InvalidArgumentException
+     * @return bool
      */
     public function afterProcessSucceededPush(
         \Buckaroo\Magento2\Model\Push $push,
@@ -85,9 +86,8 @@ class Push
     /**
      * Proxy the handling of eligibility types.
      *
-     * @param  string|string[] $eligibilityTypes
-     * @param  \Magento\Sales\Model\Order $order
-     * @return void
+     * @param string|string[]            $eligibilityTypes
+     * @param \Magento\Sales\Model\Order $order
      */
     protected function handleEligibilityTypes($eligibilityTypes, $order)
     {
@@ -105,9 +105,8 @@ class Push
     /**
      * Handle the specified eligibility type.
      *
-     * @param  string $eligibilityType
+     * @param  string                     $eligibilityType
      * @param  \Magento\Sales\Model\Order $order
-     * @return void
      * @throws \InvalidArgumentException
      */
     protected function handleEligibilityType($eligibilityType, $order)

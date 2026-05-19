@@ -23,5 +23,4 @@ namespace Buckaroo\Magento2;
 
 class Exception extends \Magento\Framework\Exception\LocalizedException
 {
-
 }

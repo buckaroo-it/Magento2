@@ -41,16 +41,16 @@ class EpsTest extends BaseTest
                             'eps' => [
                                 'sendEmail' => '1',
                                 'paymentFeeLabel' => 'Fee',
-                                'allowedCurrencies' => ['EUR']
-                            ]
-                        ]
-                    ]
-                ]
+                                'allowedCurrencies' => ['EUR'],
+                            ],
+                        ],
+                    ],
+                ],
             ],
             'inactive' => [
                 false,
-                []
-            ]
+                [],
+            ],
         ];
     }
 
@@ -88,35 +88,35 @@ class EpsTest extends BaseTest
         return [
             'null value' => [
                 null,
-                false
+                false,
             ],
             'false value' => [
                 false,
-                false
+                false,
             ],
             'empty int value' => [
                 0,
-                false
+                false,
             ],
             'empty float value' => [
                 0.00,
-                false
+                false,
             ],
             'empty string value' => [
                 '',
-                false
+                false,
             ],
             'int value' => [
                 1,
-                1
+                1,
             ],
             'float value' => [
                 2.34,
-                2.34
+                2.34,
             ],
             'string value' => [
                 '5.67',
-                5.67
+                5.67,
             ],
         ];
     }

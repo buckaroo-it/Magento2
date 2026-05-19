@@ -55,21 +55,10 @@ define(
                     isFormValid: false
                 },
                 paymentFeeLabel: window.checkoutConfig.payment.buckaroo.voucher.paymentFeeLabel,
-                subtext : window.checkoutConfig.payment.buckaroo.voucher.subtext,
-                subTextStyle : checkoutCommon.getSubtextStyle('voucher'),
+                subtext: window.checkoutConfig.payment.buckaroo.voucher.subtext,
+                subTextStyle: checkoutCommon.getSubtextStyle('voucher'),
                 currencyCode: window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode: window.checkoutConfig.quoteData.base_currency_code,
-
-
-                /**
-                 * @override
-                 */
-                initialize: function (options) {
-                    if (checkoutData.getSelectedPaymentMethod() == options.index) {
-                        window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-                    }
-                    return this._super(options);
-                },
 
                 initObservable: function () {
                     this._super().observe(['code', 'isFormValid']);
@@ -88,8 +77,8 @@ define(
                             url: url.build(`rest/V1/buckaroo/voucher/apply`),
                             type: 'POST',
                             dataType: 'json',
-                            showLoader: true, //use for display loader 
-                            data: { voucherCode: voucherCode }
+                            showLoader: true, //use for display loader
+                            data: {voucherCode: voucherCode}
                         }).done(function (data) {
                             self.code(null);
                             if (data.remainder_amount == 0) {
@@ -104,7 +93,10 @@ define(
                                     alert({
                                         title: $t('Success'),
                                         content: $t(data.message),
-                                        actions: { always: function () { } },
+                                        actions: {
+                                            always: function () {
+                                            }
+                                        },
                                         buttons: [{
                                             text: $t(data.remaining_amount_message),
                                             class: 'action primary accept',
@@ -114,7 +106,7 @@ define(
                                         }]
                                     });
                                 }
-                                self.messageContainer.addSuccessMessage({ 'message': $t(data.message) });
+                                self.messageContainer.addSuccessMessage({'message': $t(data.message)});
                             }
                         }).fail((err) => {
                             if (err.responseJSON && err.responseJSON.message) {
@@ -128,13 +120,14 @@ define(
                     alert({
                         title: $t('Error'),
                         content: $t(message),
-                        actions: { always: function () { } }
+                        actions: {
+                            always: function () {
+                            }
+                        }
                     });
-                    self.messageContainer.addErrorMessage({ 'message': $t(message) });
+                    self.messageContainer.addErrorMessage({'message': $t(message)});
                 },
                 selectPaymentMethod: function () {
-                    window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-
                     selectPaymentMethodAction(this.getData());
                     checkoutData.setSelectedPaymentMethod(this.item.method);
                     return true;
@@ -157,11 +150,3 @@ define(
         );
     }
 );
-
-
-
-
-
-
-
-

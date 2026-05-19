@@ -33,11 +33,11 @@ class PaymentFlowTest extends BaseTest
     {
         return [
             [
-                ['value' => 'order',     'label' => 'Combined']
+                ['value' => 'order',     'label' => 'Combined'],
             ],
             [
-                ['value' => 'authorize', 'label' => 'Separate authorize and capture']
-            ]
+                ['value' => 'authorize', 'label' => 'Separate authorize and capture'],
+            ],
         ];
     }
 

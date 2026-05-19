@@ -52,25 +52,15 @@ define(
                     middleName: null,
                     lastName: null,
                     email: null,
-                    validationState : {}
+                    validationState: {}
                 },
                 redirectAfterPlaceOrder: true,
                 paymentFeeLabel: window.checkoutConfig.payment.buckaroo.payperemail.paymentFeeLabel,
-                subtext : window.checkoutConfig.payment.buckaroo.payperemail.subtext,
-                subTextStyle : checkoutCommon.getSubtextStyle('payperemail'),
+                subtext: window.checkoutConfig.payment.buckaroo.payperemail.subtext,
+                subTextStyle: checkoutCommon.getSubtextStyle('payperemail'),
                 currencyCode: window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode: window.checkoutConfig.quoteData.base_currency_code,
                 genderList: window.checkoutConfig.payment.buckaroo.payperemail.genderList,
-                /**
-                 * @override
-                 */
-                initialize: function (options) {
-                    if (checkoutData.getSelectedPaymentMethod() == options.index) {
-                        window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-                    }
-
-                    return this._super(options);
-                },
 
                 initObservable: function () {
                     this._super().observe(
@@ -84,7 +74,7 @@ define(
                         ]
                     );
                     quote.billingAddress.subscribe(function (address) {
-                        if(address !== null) {
+                        if (address !== null) {
                             this.firstName(address.firstname || '');
                             this.lastName(address.lastname || '');
                             this.middleName(address.middlename || '');
@@ -108,7 +98,7 @@ define(
                         );
                     }
 
-                    if(quote.guestEmail) {
+                    if (quote.guestEmail) {
                         this.email(quote.guestEmail);
                         this.updateState(
                             'buckaroo_magento2_payperemail_Email',
@@ -120,18 +110,18 @@ define(
                     this.buttoncheck = ko.computed(
                         function () {
                             const state = this.validationState();
-                            const valid =[
+                            const valid = [
                                 "buckaroo_magento2_payperemail_genderSelect",
                                 "buckaroo_magento2_payperemail_BillingFirstName",
                                 "buckaroo_magento2_payperemail_BillingLastName",
                                 "buckaroo_magento2_payperemail_Email"
                             ].map((field) => {
-                                if(state[field] !== undefined) {
+                                if (state[field] !== undefined) {
                                     return state[field];
                                 }
                                 return false;
                             }).reduce(
-                                function(prev, cur) {
+                                function (prev, cur) {
                                     return prev && cur
                                 },
                                 true
@@ -194,8 +184,6 @@ define(
                 },
 
                 selectPaymentMethod: function () {
-                    window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-
                     selectPaymentMethodAction(this.getData());
                     checkoutData.setSelectedPaymentMethod(this.item.method);
                     return true;

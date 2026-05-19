@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -22,8 +23,8 @@ namespace Buckaroo\Magento2\Model\Config\Source;
 
 class AvailableButtons implements \Magento\Framework\Option\ArrayInterface
 {
-    const BUTTON_PRODUCT = 'Product';
-    const BUTTON_CART = 'Cart';
+    public const BUTTON_PRODUCT = 'Product';
+    public const BUTTON_CART = 'Cart';
 
     public function toOptionArray()
     {

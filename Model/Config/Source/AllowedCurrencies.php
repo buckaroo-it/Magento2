@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,7 +18,10 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Config\Source;
+
+use Buckaroo\Magento2\Exception;
 
 class AllowedCurrencies implements \Magento\Framework\Option\ArrayInterface
 {
@@ -49,9 +53,9 @@ class AllowedCurrencies implements \Magento\Framework\Option\ArrayInterface
     /**
      * @param \Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies $allowedCurrenciesConfig
      * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory    $configProviderMethodFactory
-     * @param \Magento\Framework\Locale\Bundle\CurrencyBundle      $currencyBundle
-     * @param \Magento\Framework\Locale\ResolverInterface          $localeResolver
-     * @param \Magento\Framework\Locale\TranslatedLists            $listModels
+     * @param \Magento\Framework\Locale\Bundle\CurrencyBundle           $currencyBundle
+     * @param \Magento\Framework\Locale\ResolverInterface               $localeResolver
+     * @param \Magento\Framework\Locale\TranslatedLists                 $listModels
      */
     public function __construct(
         \Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies $allowedCurrenciesConfig,
@@ -72,8 +76,8 @@ class AllowedCurrencies implements \Magento\Framework\Option\ArrayInterface
      *
      * @param null $method
      *
-     * @return array Format: array(array('value' => '<value>', 'label' => '<label>'), ...)
      * @throws \Buckaroo\Magento2\Exception
+     * @return array                        Format: array(array('value' => '<value>', 'label' => '<label>'), ...)
      */
     public function toOptionArray($method = null)
     {
@@ -106,10 +110,11 @@ class AllowedCurrencies implements \Magento\Framework\Option\ArrayInterface
      * $method is what is defined in system.xml (i.e. ::ideal) and is directly passed to toOptionArray for method
      * configuration exemptions.
      *
-     * @param $method
-     * @param null   $params
+     * @param      $method
+     * @param null $params
      *
      * @return array
+     * @throws Exception
      */
     public function __call($method, $params = null)
     {

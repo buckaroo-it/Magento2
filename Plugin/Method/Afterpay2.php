@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -22,7 +23,7 @@ namespace Buckaroo\Magento2\Plugin\Method;
 
 class Afterpay2
 {
-    const AFTERPAY_METHOD_NAME = 'buckaroo_magento2_afterpay2';
+    public const AFTERPAY_METHOD_NAME = 'buckaroo_magento2_afterpay2';
 
     /**
      * \Buckaroo\Magento2\Model\Method\Afterpay2

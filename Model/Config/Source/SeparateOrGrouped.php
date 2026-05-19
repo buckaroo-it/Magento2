@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Config\Source;
 
 use Magento\Framework\Data\OptionSourceInterface;
@@ -33,7 +35,7 @@ class SeparateOrGrouped implements OptionSourceInterface
         return [
             [
                 'value' => 0,
-                'label' => __("Separate")
+                'label' => __("Separate"),
             ],
             [
                 'value' => 1,

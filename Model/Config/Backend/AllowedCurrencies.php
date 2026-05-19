@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Config\Backend;
 
 /**
@@ -44,7 +46,7 @@ class AllowedCurrencies extends \Magento\Framework\App\Config\Value
      * @param \Magento\Framework\Registry                                  $registry
      * @param \Magento\Framework\App\Config\ScopeConfigInterface           $config
      * @param \Magento\Framework\App\Cache\TypeListInterface               $cacheTypeList
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies         $configProvider
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies    $configProvider
      * @param \Magento\Framework\Locale\Bundle\CurrencyBundle              $currencyBundle
      * @param \Magento\Framework\Locale\ResolverInterface                  $localeResolver
      * @param \Magento\Framework\Model\ResourceModel\AbstractResource|null $resource
@@ -59,8 +61,8 @@ class AllowedCurrencies extends \Magento\Framework\App\Config\Value
         \Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies $configProvider,
         \Magento\Framework\Locale\Bundle\CurrencyBundle $currencyBundle,
         \Magento\Framework\Locale\ResolverInterface $localeResolver,
-        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
-        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
+        ?\Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
+        ?\Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
     ) {
         parent::__construct($context, $registry, $config, $cacheTypeList, $resource, $resourceCollection, $data);
@@ -73,8 +75,8 @@ class AllowedCurrencies extends \Magento\Framework\App\Config\Value
     /**
      * Check that the value contains valid currencies.
      *
-     * @return $this
      * @throws \Magento\Framework\Exception\LocalizedException
+     * @return $this
      */
     public function save()
     {

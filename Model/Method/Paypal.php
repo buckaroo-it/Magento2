@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -25,7 +26,7 @@ class Paypal extends AbstractMethod
     /**
      * Payment Code
      */
-    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_paypal';
+    public const PAYMENT_METHOD_CODE = 'buckaroo_magento2_paypal';
 
     /**
      * @var string
@@ -38,6 +39,16 @@ class Paypal extends AbstractMethod
      * @var string
      */
     protected $_code = self::PAYMENT_METHOD_CODE;
+
+    /**
+     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     *
+     * @return bool|string
+     */
+    public function getPaymentMethodName($payment)
+    {
+        return $this->buckarooPaymentMethodCode;
+    }
 
     /**
      * {@inheritdoc}
@@ -57,11 +68,11 @@ class Paypal extends AbstractMethod
         if ($expressOrderId !== null) {
             $services['RequestParameter'][] = [
                 "Name" => "PayPalOrderId",
-                "_" => $expressOrderId
+                "_" => $expressOrderId,
             ];
+            $payment->setAdditionalInformation('skip_push', 1);
         }
 
-        
         /** @noinspection PhpUndefinedMethodInspection */
         $transactionBuilder->setOrder($payment->getOrder())
                            ->setServices($services)
@@ -92,15 +103,5 @@ class Paypal extends AbstractMethod
     public function getVoidTransactionBuilder($payment)
     {
         return true;
-    }
-
-    /**
-     * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
-     *
-     * @return bool|string
-     */
-    public function getPaymentMethodName($payment)
-    {
-        return $this->buckarooPaymentMethodCode;
     }
 }

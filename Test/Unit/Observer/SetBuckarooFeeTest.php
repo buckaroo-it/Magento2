@@ -68,7 +68,7 @@ class SetBuckarooFeeTest extends BaseTest
                 'setBuckarooFeeInclTax',
                 'setBuckarooFeeTaxAmount',
                 'setBaseBuckarooFeeInclTax',
-                'setBuckarooFeeBaseTaxAmount'
+                'setBuckarooFeeBaseTaxAmount',
             ])
             ->getMock();
         $orderMock->expects($this->once())->method('setBuckarooFee')->with($buckarooFee);
@@ -86,7 +86,7 @@ class SetBuckarooFeeTest extends BaseTest
                 'getBuckarooFeeInclTax',
                 'getBuckarooFeeTaxAmount',
                 'getBaseBuckarooFeeInclTax',
-                'getBuckarooFeeBaseTaxAmount'
+                'getBuckarooFeeBaseTaxAmount',
             ])
             ->getMock();
         $quoteMock->method('getBuckarooFee')->willReturn($buckarooFee);

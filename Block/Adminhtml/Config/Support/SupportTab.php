@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -30,8 +31,7 @@ class SupportTab extends \Magento\Framework\View\Element\Template implements Ren
 
     /** @var array  */
     private $phpVersionSupport = [
-        '2.3' => ['7.3' => ['+'], '7.4' => ['+']],
-        '2.4' => ['7.4' => ['+'], '8.1' => ['+'], '8.2' => ['+']],
+        '2.4' => ['7.4' => ['+'], '8.1' => ['+'], '8.2' => ['+'], '8.3' => ['+'], '8.4' => ['+']],
     ];
 
     /**

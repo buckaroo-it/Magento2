@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -22,6 +23,8 @@ namespace Buckaroo\Magento2\Model;
 
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 
 class OrderStatusFactory
@@ -74,7 +77,7 @@ class OrderStatusFactory
 
         if ($this->configProviderMethodFactory->has($paymentMethod)) {
             /**
-             * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider $configProvider
+             * @var AbstractConfigProvider $configProvider
              */
             $configProvider = $this->configProviderMethodFactory->get($paymentMethod);
 
@@ -111,17 +114,17 @@ class OrderStatusFactory
     }
 
     /**
-     * @param int                                                               $statusCode
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface $configProvider
+     * @param $statusCode
+     * @param ConfigProviderInterface $configProvider
      *
      * @return string|false|null
      */
     public function getPaymentMethodStatus(
         $statusCode,
-        \Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface $configProvider
+        ConfigProviderInterface $configProvider
     ) {
         /**
-         * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider $configProvider
+         * @var AbstractConfigProvider $configProvider
          */
         $status = false;
 

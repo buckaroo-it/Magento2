@@ -33,16 +33,16 @@ class GiftcardTest extends \Buckaroo\Magento2\Test\BaseTest
         return [
             [
                 'servicecode' => 'shopgiftcard',
-                'expected' => 'shopgiftcard'
+                'expected' => 'shopgiftcard',
             ],
             [
                 'servicecode' => 'bookgiftcard',
-                'expected' => 'bookgiftcard'
+                'expected' => 'bookgiftcard',
             ],
             [
                 'servicecode' => 'discountcard',
-                'expected' => 'discountcard'
-            ]
+                'expected' => 'discountcard',
+            ],
         ];
     }
 
@@ -68,16 +68,16 @@ class GiftcardTest extends \Buckaroo\Magento2\Test\BaseTest
         return [
             [
                 'label' => 'Webshop Giftcard',
-                'expected' => 'Webshop Giftcard'
+                'expected' => 'Webshop Giftcard',
             ],
             [
                 'label' => 'Book Giftcard',
-                'expected' => 'Book Giftcard'
+                'expected' => 'Book Giftcard',
             ],
             [
                 'label' => 'Discount Card',
-                'expected' => 'Discount Card'
-            ]
+                'expected' => 'Discount Card',
+            ],
         ];
     }
 

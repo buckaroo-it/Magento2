@@ -103,12 +103,12 @@ class TransferTest extends \Buckaroo\Magento2\Test\BaseTest
         return [
             'Do not send mail' => [
                 '0',
-                'false'
+                'false',
             ],
             'Send mail' => [
                 '1',
-                'true'
-            ]
+                'true',
+            ],
         ];
     }
 

@@ -38,19 +38,19 @@ class EmandateTest extends BaseTest
             'different payment method' => [
                 'buckaroo_magento2_ideal',
                 true,
-                null
+                null,
 
             ],
             'emandate, can refund' => [
                 'buckaroo_magento2_emandate',
                 true,
-                true
+                true,
             ],
             'emandate, can not refund' => [
                 'buckaroo_magento2_emandate',
                 false,
-                false
-            ]
+                false,
+            ],
         ];
     }
 

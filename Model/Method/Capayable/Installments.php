@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,16 +18,18 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Method\Capayable;
 
 use Buckaroo\Magento2\Model\Method\Capayable;
+use Magento\Quote\Api\Data\CartInterface;
 
 class Installments extends Capayable
 {
     /** Payment Code */
-    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_capayablein3';
+    public const PAYMENT_METHOD_CODE = 'buckaroo_magento2_capayablein3';
 
-    const CAPAYABLE_ORDER_SERVICE_ACTION = 'PayInInstallments';
+    public const CAPAYABLE_ORDER_SERVICE_ACTION = 'PayInInstallments';
 
     /** @var string */
     public $buckarooPaymentMethodCode = 'capayablein3';
@@ -52,5 +55,18 @@ class Installments extends Capayable
         $services['RequestParameter'] = $requestParameter;
 
         return $services;
+    }
+
+    public function isAvailable(?CartInterface $quote = null)
+    {
+        if (!parent::isAvailable($quote)) {
+            return false;
+        }
+
+        if ($this->isOrderPartiallyPaid($quote)) {
+            return false;
+        }
+
+        return true;
     }
 }

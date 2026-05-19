@@ -40,29 +40,29 @@ class BuckarooFeeTest extends BaseTest
                 2,
                 3,
                 0,
-                3
+                3,
             ],
             'no fee invoiced' => [
                 5,
                 0,
                 0,
                 0,
-                0
+                0,
             ],
             'all fee refunded' => [
                 5,
                 2,
                 2,
                 0,
-                2
+                2,
             ],
             'new fee to refund' => [
                 5,
                 10,
                 2,
                 5,
-                7
-            ]
+                7,
+            ],
         ];
     }
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -104,9 +105,7 @@ class Json
      * Do a status request on transaction by transaction_id
      *
      * @param string $transaction_id
-     * @param int $mode
-     *
-     * @return void
+     * @param int    $mode
      */
     public function doStatusRequest($transaction_id, $mode)
     {
@@ -119,7 +118,7 @@ class Json
         $this->client->setOptions($options);
 
         $this->logger->addDebug(__METHOD__ . '|10|' . var_export($options, true));
-        
+
         try {
             $this->client->get($uri);
             $response = json_decode($this->client->getBody(), true);

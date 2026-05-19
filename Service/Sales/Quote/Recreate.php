@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,7 +18,11 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Service\Sales\Quote;
+
+use Buckaroo\Magento2\Logging\Log;
+use Magento\Checkout\Model\Cart;
 
 class Recreate
 {
@@ -29,7 +34,8 @@ class Recreate
     protected $logger;
 
     /**
-     * @param Cart                    $cart
+     * @param Cart $cart
+     * @param Log $logger
      */
     public function __construct(
         \Magento\Checkout\Model\Cart $cart,
@@ -40,17 +46,17 @@ class Recreate
     }
 
     /**
-     * @param $quote
-     * @param array $response
+     * @param              $quote
+     * @param  array       $response
      * @return false|mixed
      */
     public function recreate($quote, $response = [])
     {
         // @codingStandardsIgnoreStart
         try {
-            $quote->setIsActive(true);
-//            $quote->setTriggerRecollect('1');
+            $quote->setIsActive(1);
             $quote->setReservedOrderId(null);
+
             $quote->setBuckarooFee(null);
             $quote->setBaseBuckarooFee(null);
             $quote->setBuckarooFeeTaxAmount(null);
@@ -58,20 +64,19 @@ class Recreate
             $quote->setBuckarooFeeInclTax(null);
             $quote->setBaseBuckarooFeeInclTax(null);
 
-            if (isset($response['add_service_action_from_magento']) && $response['add_service_action_from_magento'] === 'payfastcheckout') {
+            if (isset($response['add_service_action_from_magento'])
+                && $response['add_service_action_from_magento'] === 'payfastcheckout'
+            ) {
                 $this->logger->addDebug(__METHOD__ . '|Handling payfastcheckout specific logic.');
 
                 $quote->setCustomerEmail(null);
 
-                // Remove existing addresses if they exist
                 if ($billingAddress = $quote->getBillingAddress()) {
                     $quote->removeAddress($billingAddress->getId());
-                    $billingAddress->addData([]); // Optionally clear address data
                 }
 
                 if ($shippingAddress = $quote->getShippingAddress()) {
                     $quote->removeAddress($shippingAddress->getId());
-                    $shippingAddress->addData([]); // Optionally clear address data
                 }
             }
 

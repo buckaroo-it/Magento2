@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -39,27 +40,27 @@ class SortIssuers extends Field
     /**
      * @var array
      */
-    protected array $configuration = [];
+    protected $configuration = [];
 
     /**
      * @var array
      */
-    protected array $issuers = [];
+    protected $issuers = [];
 
     /**
      * @var ConfigProviderFactory
      */
-    protected ConfigProviderFactory $configProviderFactory;
+    protected $configProviderFactory;
 
     /**
      * @var ?ConfigProviderInterface
      */
-    protected ?ConfigProviderInterface $configProvider = null;
+    protected $configProvider = null;
 
     /**
-     * @param Context $context
+     * @param Context               $context
      * @param ConfigProviderFactory $configProviderFactory
-     * @param array $data
+     * @param array                 $data
      */
     public function __construct(
         Context $context,
@@ -73,9 +74,9 @@ class SortIssuers extends Field
     /**
      * Return element html
      *
-     * @param AbstractElement $element
-     * @return string
+     * @param  AbstractElement $element
      * @throws Exception
+     * @return string
      */
     protected function _getElementHtml(AbstractElement $element)
     {
@@ -141,8 +142,17 @@ class SortIssuers extends Field
             $sortedIssuerCodes = $this->configProvider->getSortedIssuers();
         }
 
-        if ($sortedIssuerCodes === '') {
+        if (empty($sortedIssuerCodes)) {
             $sortedIssuerCodes = implode(',', array_column($this->getIssuers(), 'code'));
+        } else {
+            // Filter out empty codes
+            $codes = array_filter(
+                array_map('trim', explode(',', $sortedIssuerCodes)),
+                function ($code) {
+                    return !empty($code) && $code !== '__EMPTY__';
+                }
+            );
+            $sortedIssuerCodes = implode(',', $codes);
         }
 
         return $sortedIssuerCodes;

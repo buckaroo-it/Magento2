@@ -74,7 +74,7 @@ class ProcessTest extends BaseTest
             'brq_invoicenumber' => null,
             'brq_statuscode' => null,
             'brq_transactions' => null,
-            'brq_datarequest' => null
+            'brq_datarequest' => null,
         ];
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
@@ -123,7 +123,7 @@ class ProcessTest extends BaseTest
         $orderMock = $this->getFakeMock(Order::class)
             ->setMethods([
                 'loadByIncrementId', 'getId', 'getState', 'canCancel',
-                'cancel', 'setStatus', 'getStore', 'save', 'getPayment'
+                'cancel', 'setStatus', 'getStore', 'save', 'getPayment',
             ])
             ->getMock();
         $orderMock->expects($this->once())->method('loadByIncrementId')->with(null)->willReturnSelf();
@@ -157,7 +157,7 @@ class ProcessTest extends BaseTest
             'order' => $orderMock,
             'transaction' => $transactionMock,
             'helper' => $helperMock,
-            'orderStatusFactory' => $orderStatusFactoryMock
+            'orderStatusFactory' => $orderStatusFactoryMock,
         ]);
     }
 
@@ -171,7 +171,7 @@ class ProcessTest extends BaseTest
             'brq_invoicenumber' => null,
             'brq_statuscode' => null,
             'brq_transactions' => null,
-            'brq_datarequest' => null
+            'brq_datarequest' => null,
         ];
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
@@ -296,7 +296,7 @@ class ProcessTest extends BaseTest
         $orderMock = $this->getFakeMock(Order::class)
             ->setMethods([
                 'loadByIncrementId', 'getId', 'canInvoice', 'getQuoteId',
-                'setStatus', 'save', 'getEmailSent', 'getStore','getPayment'
+                'setStatus', 'save', 'getEmailSent', 'getStore','getPayment',
             ])
             ->getMock();
         $orderMock->expects($this->once())->method('loadByIncrementId')->with(null)->willReturnSelf();
@@ -322,7 +322,7 @@ class ProcessTest extends BaseTest
             'configProviderFactory' => $configProviderFactoryMock,
             'order' => $orderMock,
             'helper' => $helperMock,
-            'orderStatusFactory' => $orderStatusFactoryMock
+            'orderStatusFactory' => $orderStatusFactoryMock,
         ]);
         $instance->execute();
     }
@@ -333,28 +333,28 @@ class ProcessTest extends BaseTest
             'by invoicenumber' => [
                 'brq_invoicenumber',
                 'Buckaroo-001',
-                false
+                false,
             ],
             'by ordernumber' => [
                 'brq_ordernumber',
                 'Buckaroo-002',
-                false
+                false,
             ],
             'by transaction' => [
                 'brq_transactions',
                 'TG321',
-                true
+                true,
             ],
             'by datarequest' => [
                 'brq_datarequest',
                 'TG654',
-                true
+                true,
             ],
             'throws exception' => [
                 'brq_random_key',
                 null,
-                true
-            ]
+                true,
+            ],
         ];
     }
 

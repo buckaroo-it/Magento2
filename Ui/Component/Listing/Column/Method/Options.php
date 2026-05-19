@@ -1,11 +1,10 @@
 <?php
+
 namespace Buckaroo\Magento2\Ui\Component\Listing\Column\Method;
 
-use \Magento\Sales\Api\OrderRepositoryInterface;
-use \Magento\Framework\View\Element\UiComponent\ContextInterface;
-use \Magento\Framework\View\Element\UiComponentFactory;
-use \Magento\Ui\Component\Listing\Columns\Column;
-use \Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\Framework\View\Element\UiComponent\ContextInterface;
+use Magento\Framework\View\Element\UiComponentFactory;
+use Magento\Ui\Component\Listing\Columns\Column;
 
 class Options extends Column
 {
@@ -78,7 +77,7 @@ class Options extends Column
 
                 $additionalOptions = [];
                 while ($row = $result->fetch()) {
-                        $additionalOptions[$row['increment_id']] = $row['method'] . '-' . $row['giftcard_codes'];
+                    $additionalOptions[$row['increment_id']] = $row['method'] . '-' . $row['giftcard_codes'];
                 }
 
                 if ($additionalOptions) {

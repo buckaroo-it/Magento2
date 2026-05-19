@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,12 +18,13 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Api\Data;
 
 interface GroupTransactionInterface
 {
     /**
-     * @param string $servicecode
+     * @param  string $servicecode
      * @return $this
      */
     public function setServicecode($servicecode);

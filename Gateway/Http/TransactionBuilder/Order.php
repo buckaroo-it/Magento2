@@ -21,14 +21,9 @@
 
 namespace Buckaroo\Magento2\Gateway\Http\TransactionBuilder;
 
-use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\Data\Form\FormKey;
-use Magento\Framework\UrlInterface;
-use Magento\Framework\Encryption\Encryptor;
-use Buckaroo\Magento2\Gateway\Http\Transaction;
-use Buckaroo\Magento2\Model\ConfigProvider\Account;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
-use Buckaroo\Magento2\Service\Software\Data as SoftwareData;
+use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Model\Method\AbstractMethod;
+use Magento\Framework\Exception\LocalizedException;
 
 class Order extends AbstractTransactionBuilder
 {
@@ -36,6 +31,7 @@ class Order extends AbstractTransactionBuilder
 
     /**
      * @return array
+     * @throws Exception
      */
     public function getBody()
     {
@@ -92,11 +88,11 @@ class Order extends AbstractTransactionBuilder
             'StartRecurrent' => $this->startRecurrent,
             'PushURL' => $this->urlBuilder->getDirectUrl('rest/V1/buckaroo/push'),
             'Services' => (object)[
-                'Service' => $this->getServices()
+                'Service' => $this->getServices(),
             ],
             'AdditionalParameters' => (object)[
                 'AdditionalParameter' => $this->getAdditionalParameters(),
-            ]
+            ],
         ];
 
         if (!empty($customParametersKey)) {
@@ -261,13 +257,13 @@ class Order extends AbstractTransactionBuilder
 
     private function formatStreet($street)
     {
-//        $street = implode(' ', $street);
-//        $street = preg_split('[\s]', $street);
+        //        $street = implode(' ', $street);
+        //        $street = preg_split('[\s]', $street);
 
         $format = [
             'housenumber'    => '',
             'numberaddition' => '',
-            'street'          => $street
+            'street'          => $street,
         ];
 
         if (preg_match('#^(.*?)([0-9\-]+)(.*)#s', $street, $matches)) {
@@ -342,12 +338,12 @@ class Order extends AbstractTransactionBuilder
 
     /**
      * @return array
-     * @throws \Buckaroo\Magento2\Exception
+     * @throws Exception|LocalizedException
      */
     private function getAllowedCurrencies()
     {
         /**
-         * @var \Buckaroo\Magento2\Model\Method\AbstractMethod $methodInstance
+         * @var AbstractMethod $methodInstance
          */
         $methodInstance = $this->order->getPayment()->getMethodInstance();
         $method = $methodInstance->buckarooPaymentMethodCode ?? 'buckaroo_magento2_ideal';
@@ -370,7 +366,7 @@ class Order extends AbstractTransactionBuilder
 
     /**
      * @return $this
-     * @throws \Buckaroo\Magento2\Exception
+     * @throws Exception
      */
     private function setOrderCurrency()
     {
@@ -382,7 +378,7 @@ class Order extends AbstractTransactionBuilder
             return $this->setCurrency($this->order->getBaseCurrencyCode());
         }
 
-        throw new \Buckaroo\Magento2\Exception(
+        throw new Exception(
             __("The selected payment method does not support the selected currency or the store's base currency.")
         );
     }

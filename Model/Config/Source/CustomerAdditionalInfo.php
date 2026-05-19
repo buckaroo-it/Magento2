@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\Config\Source;
 
 class CustomerAdditionalInfo implements \Magento\Framework\Option\ArrayInterface
@@ -61,7 +63,7 @@ class CustomerAdditionalInfo implements \Magento\Framework\Option\ArrayInterface
         foreach ($this->customFields as $key => $value) {
             $options[] = [
                 'value' => $key,
-                'label' => $value
+                'label' => $value,
             ];
         }
 

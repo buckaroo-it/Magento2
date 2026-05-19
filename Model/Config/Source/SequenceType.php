@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -22,8 +23,8 @@ namespace Buckaroo\Magento2\Model\Config\Source;
 
 class SequenceType implements \Magento\Framework\Option\ArrayInterface
 {
-    const SEQUENCE_TYPE_ONEOFF = 1;
-    const SEQUENCE_TYPE_RECURRING = 0;
+    public const SEQUENCE_TYPE_ONEOFF = 1;
+    public const SEQUENCE_TYPE_RECURRING = 0;
 
     public function toOptionArray()
     {

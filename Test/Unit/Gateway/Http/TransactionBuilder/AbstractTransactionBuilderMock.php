@@ -23,7 +23,6 @@ namespace Buckaroo\Magento2\Test\Unit\Gateway\Http\TransactionBuilder;
 
 /**
  * Class AbstractTransactionBuilder. Temporary for testing only.
- *
  */
 class AbstractTransactionBuilderMock extends \Buckaroo\Magento2\Gateway\Http\TransactionBuilder\AbstractTransactionBuilder
 {

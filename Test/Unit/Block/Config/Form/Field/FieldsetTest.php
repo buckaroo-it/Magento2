@@ -39,15 +39,15 @@ class EditTest extends BaseTest
         return [
             'inactive' => [
                 '0',
-                'payment_method_inactive'
+                'payment_method_inactive',
             ],
             'test' => [
                 '1',
-                'payment_method_active payment_method_test'
+                'payment_method_active payment_method_test',
             ],
             'live' => [
                 '2',
-                'payment_method_active payment_method_live'
+                'payment_method_active payment_method_live',
             ],
         ];
     }
@@ -80,9 +80,9 @@ class EditTest extends BaseTest
         $elementGroupArray = [
             'children' => [
                 'active' => [
-                    'config_path' => 'buckaroo_magento2/config/path'
-                ]
-            ]
+                    'config_path' => 'buckaroo_magento2/config/path',
+                ],
+            ],
         ];
         $elementMock = $this->getFakeMock(AbstractElement::class)->setMethods(['getData'])->getMockForAbstractClass();
         $elementMock->expects($this->once())->method('getData')->with('group')->willReturn($elementGroupArray);
@@ -113,18 +113,18 @@ class EditTest extends BaseTest
             'on default config' => [
                 null,
                 null,
-                ['scope' => ScopeConfigInterface::SCOPE_TYPE_DEFAULT, 'scopevalue' => null]
+                ['scope' => ScopeConfigInterface::SCOPE_TYPE_DEFAULT, 'scopevalue' => null],
             ],
             'on website' => [
                 null,
                 1,
-                ['scope' => ScopeInterface::SCOPE_WEBSITE, 'scopevalue' => 1]
+                ['scope' => ScopeInterface::SCOPE_WEBSITE, 'scopevalue' => 1],
             ],
             'on store view' => [
                 2,
                 null,
-                ['scope' => ScopeInterface::SCOPE_STORE, 'scopevalue' => 2]
-            ]
+                ['scope' => ScopeInterface::SCOPE_STORE, 'scopevalue' => 2],
+            ],
         ];
     }
 

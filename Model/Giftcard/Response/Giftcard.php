@@ -21,8 +21,11 @@
 
 namespace Buckaroo\Magento2\Model\Giftcard\Response;
 
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Model\AbstractExtensibleModel;
 use Magento\Quote\Model\QuoteManagement;
 use Magento\Quote\Api\Data\CartInterface;
+use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderManagementInterface;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
@@ -75,9 +78,7 @@ class Giftcard
         OrderManagementInterface $orderManagement,
         GiftcardRemove $giftcardRemoveService,
         Log $logger
-
-        )
-    {
+    ) {
         $this->priceCurrency = $priceCurrency;
         $this->groupTransaction = $groupTransaction;
         $this->quoteManagement = $quoteManagement;
@@ -88,9 +89,8 @@ class Giftcard
     /**
      * Set raw response data
      *
-     * @param mixed $response
-     *
-     * @return void
+     * @param mixed         $response
+     * @param CartInterface $quote
      */
     public function set($response, CartInterface $quote)
     {
@@ -137,29 +137,29 @@ class Giftcard
      */
     public function getRemainderAmount()
     {
-        if (
-            !isset($this->response['RequiredAction']['PayRemainderDetails']['RemainderAmount']) ||
+        if (!isset($this->response['RequiredAction']['PayRemainderDetails']['RemainderAmount']) ||
             !is_scalar($this->response['RequiredAction']['PayRemainderDetails']['RemainderAmount'])
         ) {
             return 0;
         }
         return (float)$this->response['RequiredAction']['PayRemainderDetails']['RemainderAmount'];
     }
-     /**
+
+    /**
      * Get debit amount
      *
      * @return float
      */
     public function getAmountDebit()
     {
-        if (
-            !isset($this->response['AmountDebit']) ||
+        if (!isset($this->response['AmountDebit']) ||
             !is_scalar($this->response['AmountDebit'])
         ) {
             return 0;
         }
         return (float)$this->response['AmountDebit'];
     }
+
     /**
      * Get transaction key
      *
@@ -172,8 +172,9 @@ class Giftcard
         }
         return $this->response['RequiredAction']['PayRemainderDetails']['GroupTransaction'];
     }
+
     /**
-     * Get currency 
+     * Get currency
      *
      * @return string|null
      */
@@ -184,6 +185,7 @@ class Giftcard
         }
         return $this->response['RequiredAction']['PayRemainderDetails']['Currency'];
     }
+
     public function getErrorMessage()
     {
         if ($this->isSuccessful()) {
@@ -192,7 +194,7 @@ class Giftcard
         if (isset($this->response['Status']['SubCode']['Description'])) {
             return  $this->response['Status']['SubCode']['Description'];
         }
-        
+
         if (isset($this->response['RequestErrors']['ServiceErrors'][0]['ErrorMessage'])) {
             return $this->response['RequestErrors']['ServiceErrors'][0]['ErrorMessage'];
         }
@@ -205,15 +207,12 @@ class Giftcard
     /**
      * Cancel order for failed group transaction
      *
-     * @param string $reservedOrderId
-     *
-     * @return void
+     * @throws LocalizedException
      */
     protected function cancelOrder()
     {
         $order = $this->createOrderFromQuote();
-        if(
-            $order instanceof \Magento\Sales\Api\Data\OrderInterface &&
+        if ($order instanceof \Magento\Sales\Api\Data\OrderInterface &&
             $order->getEntityId() !== null
         ) {
             $this->orderManagement->cancel($order->getEntityId());
@@ -228,16 +227,14 @@ class Giftcard
     /**
      * Create order from quote
      *
-     * @param string $reservedOrderId
-     * @return \Magento\Framework\Model\AbstractExtensibleModel|\Magento\Sales\Api\Data\OrderInterface|object|null
-     * @throws \Exception
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @return AbstractExtensibleModel|OrderInterface|object|null
+     * @throws LocalizedException
      */
     protected function createOrderFromQuote()
     {
         //fix missing email validation
         if ($this->quote->getCustomerEmail() == null) {
-          
+
             $this->quote->setCustomerEmail(
                 $this->quote->getBillingAddress()->getEmail()
             );
@@ -251,8 +248,6 @@ class Giftcard
         $this->quote->setReservedOrderId(null);
         $this->quote->save();
         return $order;
-
-        
     }
 
     public function rollbackAllPartialPayments($order)
@@ -265,6 +260,5 @@ class Giftcard
         } catch (\Throwable $th) {
             $this->logger->addDebug(__METHOD__ . (string)$th);
         }
-       
     }
 }

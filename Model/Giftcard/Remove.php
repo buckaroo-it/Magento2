@@ -23,16 +23,16 @@ namespace Buckaroo\Magento2\Model\Giftcard;
 
 use Magento\Framework\App\RequestInterface;
 use Buckaroo\Magento2\Model\GroupTransaction;
+use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Store\Model\StoreManagerInterface;
 use Buckaroo\Magento2\Gateway\GatewayInterface;
-use Buckaroo\Magento2\Model\Giftcard\RemoveException;
 use Buckaroo\Magento2\Model\GroupTransactionRepository;
 use Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory;
 use Buckaroo\Magento2\Helper\Data as HelperData;
+use stdClass;
 
 class Remove
 {
-
     /**
      * @var \Magento\Framework\App\RequestInterface
      */
@@ -85,7 +85,6 @@ class Remove
      * @param string $transactionId
      * @param string $orderId
      *
-     * @return void
      * @throws \Exception|RemoveException
      */
     public function remove(string $transactionId, string $orderId)
@@ -120,13 +119,11 @@ class Remove
      *
      * @param stdClass $response
      * @param GroupTransaction $giftcardTransaction
-     *
-     * @return void
+     * @throws RemoveException
      */
     protected function handleRefundResponse($response, GroupTransaction $giftcardTransaction)
     {
-        if (
-            $response->Status &&
+        if ($response->Status &&
             $response->AmountCredit &&
             $response->Status->Code &&
             $response->Status->Code->Code
@@ -153,8 +150,7 @@ class Remove
      *
      * @param GroupTransaction $giftcardTransaction
      * @param float $amount
-     *
-     * @return void
+     * @throws CouldNotSaveException
      */
     protected function updateGiftcardTransactionAmount(
         GroupTransaction $giftcardTransaction,

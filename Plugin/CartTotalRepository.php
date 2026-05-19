@@ -1,10 +1,14 @@
 <?php
+
 /**
  * Copyright © 2015 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
+
 namespace Buckaroo\Magento2\Plugin;
 
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Api\Data\TotalsExtensionFactory;
 use Magento\Quote\Api\Data\TotalsInterface;
 use Magento\Quote\Model\Cart\CartTotalRepository as TotalRepository;
@@ -13,22 +17,22 @@ use Magento\Quote\Model\Quote;
 class CartTotalRepository
 {
     /**
-     * @var \Magento\Quote\Api\CartRepositoryInterface
+     * @var CartRepositoryInterface
      */
     protected $quoteRepository;
 
     /**
-     * @var \Magento\Quote\Api\Data\TotalsExtensionFactory
+     * @var TotalsExtensionFactory
      */
     protected $totalsExtensionFactory;
 
     /**
-     * @param \Magento\Quote\Api\CartRepositoryInterface     $quoteRepository
-     * @param  \Magento\Quote\Api\Data\TotalsExtensionFactory $totalsExtensionFactory
+     * @param CartRepositoryInterface     $quoteRepository
+     * @param TotalsExtensionFactory $totalsExtensionFactory
      */
     public function __construct(
-        \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
-        \Magento\Quote\Api\Data\TotalsExtensionFactory $totalsExtensionFactory
+        CartRepositoryInterface $quoteRepository,
+        TotalsExtensionFactory $totalsExtensionFactory
     ) {
         $this->quoteRepository = $quoteRepository;
         $this->totalsExtensionFactory = $totalsExtensionFactory;
@@ -36,9 +40,10 @@ class CartTotalRepository
 
     /**
      * @param TotalRepository $subject
-     * @param \Closure        $proceed
-     * @param int             $cartId
+     * @param \Closure $proceed
+     * @param int $cartId
      * @return TotalsInterface
+     * @throws NoSuchEntityException
      */
     public function aroundGet(TotalRepository $subject, \Closure $proceed, $cartId)
     {
@@ -48,7 +53,7 @@ class CartTotalRepository
         $totals = $proceed($cartId);
 
         /**
-         * @var Quote  $quote
+         * @var Quote $quote
          */
         $quote = $this->quoteRepository->getActive($cartId);
 

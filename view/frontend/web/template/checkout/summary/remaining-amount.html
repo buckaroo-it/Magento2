@@ -1,0 +1,10 @@
+<!-- ko if: isDisplayed() -->
+<tr class="grand totals remaining-amount">
+    <th class="mark" scope="row">
+        <strong data-bind="i18n: title"></strong>
+    </th>
+    <td data-bind="attr: {'data-th': title}" class="amount">
+        <strong><span class="price" data-bind="text: getValue()"></span></strong>
+    </td>
+</tr>
+<!-- /ko -->

@@ -96,7 +96,7 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
         $instance = $this->getInstance([
             'context' => $contextMock,
             'scopeConfig' => $scopeConfigMock,
-            'configProviderFactory' => $configProviderMock
+            'configProviderFactory' => $configProviderMock,
         ]);
         $result = $instance->isAvailable($quoteMock);
         $this->assertFalse($result);
@@ -128,7 +128,7 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
         $instance = $this->getInstance([
             'context' => $contextMock,
             'developmentHelper' => $developmentHelperMock,
-            'configProviderFactory' => $configProviderMock
+            'configProviderFactory' => $configProviderMock,
         ]);
         $result = $instance->isAvailable($quoteMock);
         $this->assertFalse($result);
@@ -168,7 +168,7 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
         $instance = $this->getInstance([
             'context' => $contextMock,
             'scopeConfig' => $scopeConfigMock,
-            'configProviderFactory' => $configProviderMock
+            'configProviderFactory' => $configProviderMock,
         ]);
         $result = $instance->isAvailable($quoteMock);
         $this->assertFalse($result);
@@ -208,7 +208,7 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
         $instance = $this->getInstance([
             'context' => $contextMock,
             'scopeConfig' => $scopeConfigMock,
-            'configProviderFactory' => $configProviderMock
+            'configProviderFactory' => $configProviderMock,
         ]);
         $result = $instance->isAvailable($quoteMock);
         $this->assertFalse($result);
@@ -253,7 +253,7 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
         $instance = $this->getInstance([
             'context' => $contextMock,
             'scopeConfig' => $scopeConfigMock,
-            'configProviderFactory' => $configProviderMock
+            'configProviderFactory' => $configProviderMock,
         ]);
         $result = $instance->isAvailable($quoteMock);
         $this->assertFalse($result);
@@ -303,7 +303,7 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
         $instance = $this->getInstance([
             'context' => $contextMock,
             'scopeConfig' => $scopeConfigMock,
-            'configProviderFactory' => $configProviderMock
+            'configProviderFactory' => $configProviderMock,
         ]);
         $result = $instance->isAvailable($quoteMock);
         $this->assertTrue($result);
@@ -383,8 +383,9 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
     }
 
     /**
-     * @param $method
-     * @param $canMethod
+     * @param       $method
+     * @param       $canMethod
+     * @param mixed $amount
      *
      * @dataProvider cantProcessDataProvider
      */
@@ -407,23 +408,23 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
             [
                 'order',
                 'setCanOrder',
-                0
+                0,
             ],
             [
                 'authorize',
                 'setCanAuthorize',
-                0
+                0,
             ],
             [
                 'capture',
                 'setCanCapture',
-                0
+                0,
             ],
             [
                 'refund',
                 'setCanRefund',
-                1
-            ]
+                1,
+            ],
         ];
     }
 
@@ -456,7 +457,7 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $instance = $this->getInstance([
             'configProviderMethodFactory' => $configProviderFactoryMock,
-            'scopeConfig' => $scopeConfigMock
+            'scopeConfig' => $scopeConfigMock,
         ]);
         $instance->buckarooPaymentMethodCode = $method;
 
@@ -495,7 +496,7 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
         $instance = $this->getInstance([
             'configProviderMethodFactory' => $configProviderFactoryMock,
             'priceHelper' => $priceHelperMock,
-            'scopeConfig' => $scopeConfigMock
+            'scopeConfig' => $scopeConfigMock,
         ]);
         $instance->buckarooPaymentMethodCode = $method;
 
@@ -525,11 +526,12 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
     }
 
     /**
-     * @param      $method
-     * @param      $setCanMethod
-     * @param      $methodTransactionBuilder
+     * @param $method
+     * @param $setCanMethod
+     * @param $methodTransactionBuilder
      *
-     * @param bool $canMethod
+     * @param bool  $canMethod
+     * @param mixed $amount
      *
      * @dataProvider transactionBuilderFalseTrueDataProvider
      */
@@ -609,7 +611,8 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
      * @param $setCanMethod
      * @param $methodTransactionBuilder
      *
-     * @param $canMethod
+     * @param       $canMethod
+     * @param mixed $amount
      *
      * @dataProvider transactionBuilderFalseTrueDataProvider
      */
@@ -867,7 +870,7 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $instance = $this->getInstance([
             'gateway' => $gatewayMock,
-            'validatorFactory' => $validatorFactoryMock
+            'validatorFactory' => $validatorFactoryMock,
         ]);
 
         $instance->$method($transactionMock);
@@ -930,7 +933,7 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $instance = $this->getInstance([
             'gateway' => $gatewayMock,
-            'validatorFactory' => $validatorFactoryMock
+            'validatorFactory' => $validatorFactoryMock,
         ]);
 
         $instance->$method($transactionMock);
@@ -963,7 +966,7 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $instance = $this->getInstance([
             'gateway' => $gatewayMock,
-            'validatorFactory' => $validatorFactoryMock
+            'validatorFactory' => $validatorFactoryMock,
         ]);
 
         $this->assertSame($response, $instance->$method($transactionMock));
@@ -1046,7 +1049,7 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
                 'setIsTransactionClosed',
                 'setTransactionId',
                 'setAdditionalInformation',
-                'getMethodInstance'
+                'getMethodInstance',
             ])
             ->getMock();
 
@@ -1112,10 +1115,10 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
         return [
             'with creditmemo params' => [
                 [
-                    'creditmemo' => ['code-1' => 'value-2']
+                    'creditmemo' => ['code-1' => 'value-2'],
                 ],
                 [
-                    ['code' => 'code-1']
+                    ['code' => 'code-1'],
                 ],
                 [
                     'RequestParameter' => [
@@ -1124,14 +1127,14 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
                             'Name' => 'code-1',
                         ],
                     ],
-                ]
+                ],
             ],
             'creditmemo params no value' => [
                 [
-                    'creditmemo' => ['buckaroo_code' => null]
+                    'creditmemo' => ['buckaroo_code' => null],
                 ],
                 [
-                    ['code' => 'buckaroo_code']
+                    ['code' => 'buckaroo_code'],
                 ],
                 [
                     'RequestParameter' => [
@@ -1140,40 +1143,40 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
                             'Name' => 'buckaroo_code',
                         ],
                     ],
-                ]
+                ],
             ],
             'creditmemo params no code' => [
                 [
-                    'creditmemo' => []
+                    'creditmemo' => [],
                 ],
                 [
-                    ['code' => 'buckaroo_code']
+                    ['code' => 'buckaroo_code'],
                 ],
-                []
+                [],
             ],
             'no creditmemo params' => [
                 [
-                    'transaction' => ['123qwerty456']
+                    'transaction' => ['123qwerty456'],
                 ],
                 [
-                    ['code' => 'buckaroo_code']
+                    ['code' => 'buckaroo_code'],
                 ],
-                []
+                [],
             ],
             'no params at all' => [
                 [],
                 [
-                    ['code' => 'buckaroo_code']
+                    ['code' => 'buckaroo_code'],
                 ],
-                []
+                [],
             ],
             'no extra fields' => [
                 [
-                    'creditmemo' => ['refund_code' => '123']
+                    'creditmemo' => ['refund_code' => '123'],
                 ],
                 [],
-                []
-            ]
+                [],
+            ],
         ];
     }
 
@@ -1194,7 +1197,7 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $instance = $this->getInstance([
             'refundFieldsFactory' => $refundFactoryMock,
-            'request' => $requestMock
+            'request' => $requestMock,
         ]);
 
         $refundFactoryMock->method('get')->with($instance->getCode())->willReturn($extraFields);
@@ -1236,42 +1239,42 @@ class AbstractMethodTest extends \Buckaroo\Magento2\Test\BaseTest
             'single data, empty registry' => [
                 ['some data'],
                 null,
-                ['some data']
+                ['some data'],
             ],
             'multiple data, empty registry' => [
                 ['string data', ['array data'], 12345],
                 null,
-                ['string data', ['array data'], 12345]
+                ['string data', ['array data'], 12345],
             ],
             'no data, empty registry' => [
                 [],
                 null,
-                null
+                null,
             ],
             'null data, empty registry' => [
                 [null],
                 null,
-                [null]
+                [null],
             ],
             'single data, filled registry' => [
                 ['some data'],
                 ['existing data'],
-                ['existing data', 'some data']
+                ['existing data', 'some data'],
             ],
             'multiple data, filled registry' => [
                 ['string data', ['array data'], 12345],
                 [987258, (Object)['existing array']],
-                [987258, (Object)['existing array'], 'string data', ['array data'], 12345]
+                [987258, (Object)['existing array'], 'string data', ['array data'], 12345],
             ],
             'no data, filled registry' => [
                 [],
                 [987258, 'existing data', (Object)['existing array']],
-                [987258, 'existing data', (Object)['existing array']]
+                [987258, 'existing data', (Object)['existing array']],
             ],
             'null data, filled registry' => [
                 [null],
                 ['buckaroo 123'],
-                ['buckaroo 123', null]
+                ['buckaroo 123', null],
             ],
         ];
     }

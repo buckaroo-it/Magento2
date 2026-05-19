@@ -36,10 +36,10 @@ class RoundingWarning extends \Magento\Backend\Block\Template
     /**
      * RoundingWarning constructor.
      *
-     * @param \Magento\Framework\Registry                       $registry
+     * @param \Magento\Framework\Registry                            $registry
      * @param \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderFactory
-     * @param \Magento\Backend\Block\Template\Context           $context
-     * @param array                                             $data
+     * @param \Magento\Backend\Block\Template\Context                $context
+     * @param array                                                  $data
      */
     public function __construct(
         \Magento\Framework\Registry $registry,
@@ -65,8 +65,7 @@ class RoundingWarning extends \Magento\Backend\Block\Template
 
     /**
      * @return bool
-     * @throws \LogicException
-     * @throws \Buckaroo\Magento2\Exception
+     * @throws \Buckaroo\Magento2\Exception|\Magento\Framework\Exception\LocalizedException
      */
     protected function shouldShowWarning()
     {

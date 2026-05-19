@@ -53,6 +53,11 @@ $issuers = $block->getIssuers();
         var issuers = <?php echo json_encode($issuers); ?>;
 
         function createParagraphElement(code) {
+            // Skip empty or invalid codes
+            if (!code || code.trim() === '' || code === '__EMPTY__') {
+                return;
+            }
+            
             if (!issuers[code]) {
                 console.error('Issuer not found for code:', code);
                 return;
@@ -68,18 +73,27 @@ $issuers = $block->getIssuers();
             let cardSortedArray = inputText.split(',');
             cardSortedArray.forEach(createParagraphElement);
         } else {
-            $(selector + ' option:selected').each(function () {
-                createParagraphElement($(this).val());
-            });
+            // Only use selector if it exists (for payment methods with allowed_issuers field)
+            if ($(selector).length > 0) {
+                $(selector + ' option:selected').each(function () {
+                    createParagraphElement($(this).val());
+                });
+            } else {
+                // For payment methods without allowed_issuers, show all issuers
+                Object.keys(issuers).forEach(createParagraphElement);
+            }
         }
 
-        $(selector).change(function () {
-            $(listSelector + ' p').remove();
+        // Only bind change event if selector exists
+        if ($(selector).length > 0) {
+            $(selector).change(function () {
+                $(listSelector + ' p').remove();
 
-            $(selector + ' option:selected').each(function () {
-                createParagraphElement($(this).val());
+                $(selector + ' option:selected').each(function () {
+                    createParagraphElement($(this).val());
+                });
             });
-        });
+        }
 
         function updateSortedList() {
             let codes = [];

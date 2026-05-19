@@ -40,12 +40,12 @@ class MrcashTest extends BaseTest
                         'buckaroo' => [
                             'mrcash' => [
                                 'paymentFeeLabel' => 'Fee',
-                                'allowedCurrencies' => ['EUR']
-                            ]
-                        ]
-                    ]
-                ]
-            ]
+                                'allowedCurrencies' => ['EUR'],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
         ];
     }
 
@@ -58,7 +58,7 @@ class MrcashTest extends BaseTest
     {
         $this->markTestIncomplete(
             'This test needs to be reviewed.'
-          );
+        );
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
             ->setMethods(['getValue'])
             ->getMockForAbstractClass();
@@ -83,35 +83,35 @@ class MrcashTest extends BaseTest
         return [
             'null value' => [
                 null,
-                false
+                false,
             ],
             'false value' => [
                 false,
-                false
+                false,
             ],
             'empty int value' => [
                 0,
-                false
+                false,
             ],
             'empty float value' => [
                 0.00,
-                false
+                false,
             ],
             'empty string value' => [
                 '',
-                false
+                false,
             ],
             'int value' => [
                 1,
-                1
+                1,
             ],
             'float value' => [
                 2.34,
-                2.34
+                2.34,
             ],
             'string value' => [
                 '5.67',
-                5.67
+                5.67,
             ],
         ];
     }

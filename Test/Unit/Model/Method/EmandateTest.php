@@ -42,28 +42,28 @@ class EmandateTest extends BaseTest
                 [],
                 [
                     'buckaroo_skip_validation' => null,
-                ]
+                ],
             ],
             'with skip validation data' => [
                 [
                     'additional_data' => [
                         'buckaroo_skip_validation' => '1',
-                    ]
+                    ],
                 ],
                 [
-                    'buckaroo_skip_validation' => '1'
-                ]
+                    'buckaroo_skip_validation' => '1',
+                ],
             ],
             'with form data' => [
                 [
                     'additional_data' => [
-                        'issuer' => 'INGBNL2A'
-                    ]
+                        'issuer' => 'INGBNL2A',
+                    ],
                 ],
                 [
                     'buckaroo_skip_validation' => null,
-                    'issuer' => 'INGBNL2A'
-                ]
+                    'issuer' => 'INGBNL2A',
+                ],
             ],
         ];
     }

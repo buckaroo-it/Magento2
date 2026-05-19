@@ -109,49 +109,38 @@ define(
 
             return true;
         };
-        $.validator.addMethod('phoneValidation', validPhone ,
+        $.validator.addMethod('phoneValidation', validPhone,
             $.mage.__('Phone number should be correct.')
         );
 
         return Component.extend(
             {
-                defaults                : {
-                    template : 'Buckaroo_Magento2/payment/buckaroo_magento2_billink',
+                defaults: {
+                    template: 'Buckaroo_Magento2/payment/buckaroo_magento2_billink',
                     selectedGender: null,
                     billingName: '',
                     date: '',
                     phone: '',
-                    cocNumber:'',
+                    cocNumber: '',
                     vatNumber: '',
-                    dob:null,
+                    dob: null,
                     tos: true,
                     showPhone: false,
                     showFrenchTosValue: null,
-                    validationState:{
+                    validationState: {
                         'buckaroo_magento2_billink_TermsCondition': true
                     },
                     value: ""
                 },
-                redirectAfterPlaceOrder : true,
-                paymentFeeLabel : window.checkoutConfig.payment.buckaroo.billink.paymentFeeLabel,
-                subtext : window.checkoutConfig.payment.buckaroo.billink.subtext,
-                subTextStyle : checkoutCommon.getSubtextStyle('billink'),
-                currencyCode : window.checkoutConfig.quoteData.quote_currency_code,
-                baseCurrencyCode : window.checkoutConfig.quoteData.base_currency_code,
-                currentCustomerAddressId : null,
+                redirectAfterPlaceOrder: true,
+                paymentFeeLabel: window.checkoutConfig.payment.buckaroo.billink.paymentFeeLabel,
+                subtext: window.checkoutConfig.payment.buckaroo.billink.subtext,
+                subTextStyle: checkoutCommon.getSubtextStyle('billink'),
+                currencyCode: window.checkoutConfig.quoteData.quote_currency_code,
+                baseCurrencyCode: window.checkoutConfig.quoteData.base_currency_code,
+                currentCustomerAddressId: null,
                 genderList: window.checkoutConfig.payment.buckaroo.billink.genderList,
                 dp: datePicker,
-
-                /**
-                 * @override
-                 */
-                initialize : function (options) {
-                    if (checkoutData.getSelectedPaymentMethod() == options.index) {
-                        window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-                    }
-
-                    return this._super(options);
-                },
 
                 initObservable: function () {
                     this._super().observe(
@@ -168,6 +157,14 @@ define(
                         ]
                     );
 
+                    this.isB2B = ko.computed(
+                        function () {
+                            const billingAddress = quote.billingAddress();
+                            return billingAddress && billingAddress.company;
+                        },
+                        this
+                    );
+
                     this.showFinancialWarning = ko.computed(
                         function () {
                             return quote.billingAddress() !== null &&
@@ -178,10 +175,10 @@ define(
                     );
                     this.billingName = ko.computed(
                         function () {
-                            if(this.isB2B() && quote.billingAddress() !== null) {
+                            if (this.isB2B() && quote.billingAddress() !== null) {
                                 return quote.billingAddress().company;
                             }
-                            if(quote.billingAddress() !== null) {
+                            if (quote.billingAddress() !== null) {
                                 return quote.billingAddress().firstname + " " + quote.billingAddress().lastname;
                             }
                         },
@@ -190,7 +187,7 @@ define(
 
                     this.showFrenchTos = ko.computed(
                         function () {
-                            return  quote.billingAddress() !== null && quote.billingAddress().countryId == 'BE'
+                            return quote.billingAddress() !== null && quote.billingAddress().countryId == 'BE'
                         },
                         this
                     );
@@ -205,7 +202,7 @@ define(
                         this
                     );
 
-                    this.dob.subscribe(function() {
+                    this.dob.subscribe(function () {
                         const dobId = 'buckaroo_magento2_billink_DoB';
                         const isValid = $(`#${dobId}`).valid();
                         let state = this.validationState();
@@ -217,12 +214,12 @@ define(
                         function () {
                             const state = this.validationState();
                             const valid = this.getActiveValidationFields().map((field) => {
-                                if(state[field] !== undefined) {
+                                if (state[field] !== undefined) {
                                     return state[field];
                                 }
                                 return false;
                             }).reduce(
-                                function(prev, cur) {
+                                function (prev, cur) {
                                     return prev && cur
                                 },
                                 true
@@ -245,11 +242,11 @@ define(
                     let fields = [
                         'buckaroo_magento2_billink_TermsCondition',
                     ];
-                    if(this.showPhone()) {
+                    if (this.showPhone()) {
                         fields.push('buckaroo_magento2_billink_Telephone')
                     }
 
-                    if(this.isB2B()) {
+                    if (this.isB2B()) {
                         fields.push('buckaroo_magento2_billink_chamberOfCommerce')
                     } else {
                         fields = fields.concat([
@@ -301,22 +298,15 @@ define(
                 },
 
                 selectPaymentMethod: function () {
-                    window.checkoutConfig.buckarooFee.title(this.paymentFeeLabel);
-
                     selectPaymentMethodAction(this.getData());
                     checkoutData.setSelectedPaymentMethod(this.item.method);
 
                     return true;
                 },
 
-                isB2B: function () {
-                    const billingAddress = quote.billingAddress();
-                    return billingAddress && billingAddress.company;
-                },
-
                 getData: function () {
                     let phone = this.phone();
-                    if(!this.showPhone() && quote.billingAddress() !== null) {
+                    if (!this.showPhone() && quote.billingAddress() !== null) {
                         phone = quote.billingAddress().telephone;
                     }
 

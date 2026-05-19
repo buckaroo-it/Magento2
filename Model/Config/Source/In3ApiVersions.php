@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -34,7 +35,7 @@ class In3ApiVersions implements \Magento\Framework\Data\OptionSourceInterface
     {
         return [
             ['value' => self::VERSION_3, 'label' => __('V3 (iDEAL In3)')],
-            ['value' => self::VERSION_2, 'label' => __('V2 (Capayable/In3)')]
+            ['value' => self::VERSION_2, 'label' => __('V2 (Capayable/In3)')],
         ];
     }
 }

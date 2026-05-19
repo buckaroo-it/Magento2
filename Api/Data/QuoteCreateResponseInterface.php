@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,9 +18,8 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-namespace Buckaroo\Magento2\Api\Data;
 
-use Buckaroo\Magento2\Api\Data\BreakdownItemInterface;
+namespace Buckaroo\Magento2\Api\Data;
 
 interface QuoteCreateResponseInterface extends BreakdownItemInterface
 {

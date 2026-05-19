@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -125,6 +126,7 @@ interface TransactionBuilderInterface
 
     /**
      * @param string $invoiceId
+     * @param mixed  $isCustomInvoiceId
      *
      * @return TransactionBuilderInterface
      */
@@ -155,12 +157,12 @@ interface TransactionBuilderInterface
     public function getReturnUrl();
 
     /**
-     * @return \Buckaroo\Magento2\Gateway\Http\Transaction
+     * @return Transaction
      */
     public function build();
 
     public function setAdditionalParameter($key, $value);
-    
+
     public function getAdditionalParameter($key);
 
     public function getAllAdditionalParameters();

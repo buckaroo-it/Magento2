@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Api;
 
 use Magento\Framework\Api\SearchCriteria;
@@ -29,37 +31,37 @@ use Buckaroo\Magento2\Api\Data\InvoiceInterface;
 interface InvoiceRepositoryInterface
 {
     /**
-     * @param InvoiceInterface $invoice
-     * @return InvoiceInterface
+     * @param  InvoiceInterface      $invoice
      * @throws CouldNotSaveException
+     * @return InvoiceInterface
      */
     public function save(InvoiceInterface $invoice);
 
     /**
-     * @param int|string $invoiceId
-     * @return InvoiceInterface
+     * @param  int|string            $invoiceId
      * @throws NoSuchEntityException
+     * @return InvoiceInterface
      */
     public function getById($invoiceId);
 
     /**
-     * @param SearchCriteria $searchCriteria
+     * @param  SearchCriteria         $searchCriteria
      * @return SearchResultsInterface
      */
     public function getList(SearchCriteria $searchCriteria);
 
     /**
-     * @param InvoiceInterface $invoice
-     * @return bool
+     * @param  InvoiceInterface        $invoice
      * @throws CouldNotDeleteException
+     * @return bool
      */
     public function delete(InvoiceInterface $invoice);
 
     /**
-     * @param $invoiceId
-     * @return bool
+     * @param                          $invoiceId
      * @throws CouldNotDeleteException
      * @throws NoSuchEntityException
+     * @return bool
      */
     public function deleteById($invoiceId);
 }

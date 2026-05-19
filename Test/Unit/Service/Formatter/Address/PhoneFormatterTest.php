@@ -39,8 +39,8 @@ class PhoneFormatterTest extends BaseTest
                     'orginal' => '020123456',
                     'clean' => '020123456',
                     'mobile' => false,
-                    'valid' => false
-                ]
+                    'valid' => false,
+                ],
             ],
             'valid NL phone by +31' => [
                 '+31201234567',
@@ -49,8 +49,8 @@ class PhoneFormatterTest extends BaseTest
                     'orginal' => '+31201234567',
                     'clean' => '0031201234567',
                     'mobile' => false,
-                    'valid' => true
-                ]
+                    'valid' => true,
+                ],
             ],
             'valid BE phone by 32' => [
                 '32201234567',
@@ -59,8 +59,8 @@ class PhoneFormatterTest extends BaseTest
                     'orginal' => '32201234567',
                     'clean' => '0032201234567',
                     'mobile' => false,
-                    'valid' => true
-                ]
+                    'valid' => true,
+                ],
             ],
             'valid BE phone by 0032' => [
                 '0032201234567',
@@ -69,8 +69,8 @@ class PhoneFormatterTest extends BaseTest
                     'orginal' => '0032201234567',
                     'clean' => '0032201234567',
                     'mobile' => false,
-                    'valid' => true
-                ]
+                    'valid' => true,
+                ],
             ],
             'valid NL mobile by 31' => [
                 '31612345678',
@@ -79,8 +79,8 @@ class PhoneFormatterTest extends BaseTest
                     'orginal' => '31612345678',
                     'clean' => '0031612345678',
                     'mobile' => true,
-                    'valid' => true
-                ]
+                    'valid' => true,
+                ],
             ],
             'valid NL mobile by 0031' => [
                 '0031612345678',
@@ -89,8 +89,8 @@ class PhoneFormatterTest extends BaseTest
                     'orginal' => '0031612345678',
                     'clean' => '0031612345678',
                     'mobile' => true,
-                    'valid' => true
-                ]
+                    'valid' => true,
+                ],
             ],
             'invalid BE mobile' => [
                 '+32451234567',
@@ -99,8 +99,8 @@ class PhoneFormatterTest extends BaseTest
                     'orginal' => '+32451234567',
                     'clean' => '0032451234567',
                     'mobile' => false,
-                    'valid' => true
-                ]
+                    'valid' => true,
+                ],
             ],
             'valid BE mobile by +32' => [
                 '+32461234567',
@@ -109,8 +109,8 @@ class PhoneFormatterTest extends BaseTest
                     'orginal' => '+32461234567',
                     'clean' => '0032461234567',
                     'mobile' => true,
-                    'valid' => true
-                ]
+                    'valid' => true,
+                ],
             ],
             'valid BE mobile by 32' => [
                 '32471234567',
@@ -119,8 +119,8 @@ class PhoneFormatterTest extends BaseTest
                     'orginal' => '32471234567',
                     'clean' => '0032471234567',
                     'mobile' => true,
-                    'valid' => true
-                ]
+                    'valid' => true,
+                ],
             ],
             'valid BE mobile by 0032' => [
                 '0032481234567',
@@ -129,8 +129,8 @@ class PhoneFormatterTest extends BaseTest
                     'orginal' => '0032481234567',
                     'clean' => '0032481234567',
                     'mobile' => true,
-                    'valid' => true
-                ]
+                    'valid' => true,
+                ],
             ],
         ];
     }

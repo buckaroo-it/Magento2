@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -30,31 +32,32 @@ use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 
 class Applepay extends AbstractConfigProvider
 {
-    const XPATH_APPLEPAY_ACTIVE                = 'payment/buckaroo_magento2_applepay/active';
-    const XPATH_APPLEPAY_SUBTEXT               = 'payment/buckaroo_magento2_applepay/subtext';
-    const XPATH_APPLEPAY_SUBTEXT_STYLE         = 'payment/buckaroo_magento2_applepay/subtext_style';
-    const XPATH_APPLEPAY_SUBTEXT_COLOR         = 'payment/buckaroo_magento2_applepay/subtext_color';
-    const XPATH_APPLEPAY_ACTIVE_STATUS         = 'payment/buckaroo_magento2_applepay/active_status';
-    const XPATH_APPLEPAY_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_applepay/order_status_success';
-    const XPATH_APPLEPAY_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_applepay/order_status_failed';
-    const XPATH_APPLEPAY_ORDER_EMAIL           = 'payment/buckaroo_magento2_applepay/order_email';
-    const XPATH_APPLEPAY_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_applepay/available_in_backend';
-    const XPATH_APPLEPAY_AVAILABLE_BUTTONS     = 'payment/buckaroo_magento2_applepay/available_buttons';
-    const XPATH_APPLEPAY_BUTTON_STYLE     = 'payment/buckaroo_magento2_applepay/button_style';
-    const XPATH_APPLEPAY_DONT_ASK_BILLING_INFO_IN_CHECKOUT = 'payment/'.
-        'buckaroo_magento2_applepay/dont_ask_billing_info_in_checkout';
+    public const XPATH_APPLEPAY_ACTIVE                = 'payment/buckaroo_magento2_applepay/active';
+    public const XPATH_APPLEPAY_SUBTEXT               = 'payment/buckaroo_magento2_applepay/subtext';
+    public const XPATH_APPLEPAY_SUBTEXT_STYLE         = 'payment/buckaroo_magento2_applepay/subtext_style';
+    public const XPATH_APPLEPAY_SUBTEXT_COLOR         = 'payment/buckaroo_magento2_applepay/subtext_color';
+    public const XPATH_APPLEPAY_ACTIVE_STATUS         = 'payment/buckaroo_magento2_applepay/active_status';
+    public const XPATH_APPLEPAY_ORDER_STATUS_SUCCESS  = 'payment/buckaroo_magento2_applepay/order_status_success';
+    public const XPATH_APPLEPAY_ORDER_STATUS_FAILED   = 'payment/buckaroo_magento2_applepay/order_status_failed';
+    public const XPATH_APPLEPAY_ORDER_EMAIL           = 'payment/buckaroo_magento2_applepay/order_email';
+    public const XPATH_APPLEPAY_AVAILABLE_IN_BACKEND  = 'payment/buckaroo_magento2_applepay/available_in_backend';
+    public const XPATH_APPLEPAY_AVAILABLE_BUTTONS     = 'payment/buckaroo_magento2_applepay/available_buttons';
+    public const XPATH_APPLEPAY_BUTTON_STYLE     = 'payment/buckaroo_magento2_applepay/button_style';
+    public const XPATH_APPLEPAY_INTEGRATION_MODE = 'payment/buckaroo_magento2_applepay/integration_mode';
 
-    const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_applepay/allowed_currencies';
-    const XPATH_ALLOW_SPECIFIC     = 'payment/buckaroo_magento2_applepay/allowspecific';
-    const XPATH_SPECIFIC_COUNTRY   = 'payment/buckaroo_magento2_applepay/specificcountry';
-    const XPATH_SPECIFIC_CUSTOMER_GROUP = 'payment/buckaroo_magento2_applepay/specificcustomergroup';
+    public const XPATH_APPLEPAY_DONT_ASK_BILLING_INFO_IN_CHECKOUT = 'payment/buckaroo_magento2_applepay/dont_ask_billing_info_in_checkout';
+
+    public const XPATH_ALLOWED_CURRENCIES = 'payment/buckaroo_magento2_applepay/allowed_currencies';
+    public const XPATH_ALLOW_SPECIFIC     = 'payment/buckaroo_magento2_applepay/allowspecific';
+    public const XPATH_SPECIFIC_COUNTRY   = 'payment/buckaroo_magento2_applepay/specificcountry';
+    public const XPATH_SPECIFIC_CUSTOMER_GROUP = 'payment/buckaroo_magento2_applepay/specificcustomergroup';
 
     /**
      * @var array
      */
     protected $allowedCurrencies = [
         'EUR',
-        'GBP'
+        'GBP',
     ];
 
     /** @var Account */
@@ -125,26 +128,29 @@ class Applepay extends AbstractConfigProvider
                         'dontAskBillingInfoInCheckout' => (int) $this->scopeConfig->getValue(
                             static::XPATH_APPLEPAY_DONT_ASK_BILLING_INFO_IN_CHECKOUT,
                             ScopeInterface::SCOPE_STORE
-                        )
+                        ),
+                        'integrationMode' => $this->getIntegrationMode($store),
                     ],
                 ],
             ],
         ];
     }
 
-    public function getAvailableButtons()
+
+    /**
+     * @return array
+     */
+    public function getAvailableButtons(): array
     {
-        $availableButtons = $this->scopeConfig->getValue(
+        $availableButtonsConfig = $this->scopeConfig->getValue(
             static::XPATH_APPLEPAY_AVAILABLE_BUTTONS,
             ScopeInterface::SCOPE_STORE
         );
-        if ($availableButtons) {
-            $availableButtons = explode(',', (string)$availableButtons);
-        } else {
-            $availableButtons = false;
-        }
 
-        return $availableButtons;
+        if (!$availableButtonsConfig) {
+            return [];
+        }
+        return array_map('trim', explode(',', (string)$availableButtonsConfig));
     }
 
     /**
@@ -170,4 +176,19 @@ class Applepay extends AbstractConfigProvider
         ];
     }
 
+    public function isApplePayEnabled($store = null)
+    {
+        return $this->getConfigFromXpath(self::XPATH_APPLEPAY_ACTIVE, $store);
+    }
+
+    public function getIntegrationMode($store = null): bool
+    {
+        $integrationMode = $this->getConfigFromXpath(self::XPATH_APPLEPAY_INTEGRATION_MODE, $store);
+
+        if ($integrationMode == 1) {
+            return true;
+        }
+
+        return false;
+    }
 }

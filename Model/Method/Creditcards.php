@@ -1,4 +1,5 @@
 <?php
+
 // @codingStandardsIgnoreFile
 /**
  * NOTICE OF LICENSE
@@ -32,7 +33,7 @@ class Creditcards extends AbstractMethod
     /**
      * Payment Code
      */
-    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_creditcards';
+    public const PAYMENT_METHOD_CODE = 'buckaroo_magento2_creditcards';
 
     /**
      * @var string
@@ -68,17 +69,17 @@ class Creditcards extends AbstractMethod
         SoftwareData $softwareData,
         AddressFactory $addressFactory,
         \Magento\Framework\Event\ManagerInterface $eventManager,
-        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
-        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
-        \Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
-        \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory = null,
-        \Buckaroo\Magento2\Model\ValidatorFactory $validatorFactory = null,
-        \Buckaroo\Magento2\Helper\Data $helper = null,
-        \Magento\Framework\App\RequestInterface $request = null,
-        \Buckaroo\Magento2\Model\RefundFieldsFactory $refundFieldsFactory = null,
-        \Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory = null,
-        \Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
-        \Magento\Framework\Pricing\Helper\Data $priceHelper = null,
+        ?\Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
+        ?\Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
+        ?\Buckaroo\Magento2\Gateway\GatewayInterface $gateway = null,
+        ?\Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory = null,
+        ?\Buckaroo\Magento2\Model\ValidatorFactory $validatorFactory = null,
+        ?\Buckaroo\Magento2\Helper\Data $helper = null,
+        ?\Magento\Framework\App\RequestInterface $request = null,
+        ?\Buckaroo\Magento2\Model\RefundFieldsFactory $refundFieldsFactory = null,
+        ?\Buckaroo\Magento2\Model\ConfigProvider\Factory $configProviderFactory = null,
+        ?\Buckaroo\Magento2\Model\ConfigProvider\Method\Factory $configProviderMethodFactory = null,
+        ?\Magento\Framework\Pricing\Helper\Data $priceHelper = null,
         array $data = []
     ) {
         parent::__construct(
@@ -116,6 +117,28 @@ class Creditcards extends AbstractMethod
         $this->serviceParameters = $serviceParameters;
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function isAvailable(?\Magento\Quote\Api\Data\CartInterface $quote = null)
+    {
+        /**
+         * If there are no giftcards chosen, we can't be available
+         */
+        /**
+         * @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards $ccConfig
+         */
+        $gcConfig = $this->configProviderMethodFactory->get('creditcards');
+
+        if ($gcConfig->getHostedFieldsClientId() === null || $gcConfig->getHostedFieldsClientSecret() === null) {
+            return false;
+        }
+        /**
+         * Return the regular isAvailable result
+         */
+        return parent::isAvailable($quote);
+    }
+
     public function assignData(\Magento\Framework\DataObject $data)
     {
         parent::assignData($data);
@@ -146,14 +169,14 @@ class Creditcards extends AbstractMethod
     {
         $transactionBuilder = $this->transactionBuilderFactory->get('order');
 
-        $serviceAction = $this->getPayRemainder($payment, $transactionBuilder, 'PayEncrypted', 'PayRemainderEncrypted');
+        $serviceAction = $this->getPayRemainder($payment, $transactionBuilder, 'PayWithToken', 'PayRemainderEncrypted');
 
         $services = [];
         $services[] = $this->getCreditcardsService($payment, $serviceAction);
 
         $filterParameter = [
             ['Name' => 'AllowedServices'],
-            ['Name' => 'Gender', 'Group' => 'Person']
+            ['Name' => 'Gender', 'Group' => 'Person'],
         ];
 
         $cmService = $this->serviceParameters->getCreateCombinedInvoice($payment, 'creditcards', $filterParameter);
@@ -173,9 +196,10 @@ class Creditcards extends AbstractMethod
 
     /**
      * @param \Magento\Sales\Api\Data\OrderPaymentInterface|\Magento\Payment\Model\InfoInterface $payment
+     * @param mixed                                                                              $serviceAction
      *
-     * @return array
      * @throws \Buckaroo\Magento2\Exception
+     * @return array
      */
     public function getCreditcardsService($payment, $serviceAction)
     {
@@ -192,11 +216,11 @@ class Creditcards extends AbstractMethod
         $services = [
             'Name'             => $additionalInformation['customer_creditcardcompany'],
             'Action'           => $serviceAction,
-            'Version'          => 2,
+            'Version'          => 0,
             'RequestParameter' => [
                 [
                     '_'    => $additionalInformation['customer_encrypteddata'],
-                    'Name' => 'EncryptedCardData',
+                    'Name' => 'SessionId',
                 ],
             ],
         ];

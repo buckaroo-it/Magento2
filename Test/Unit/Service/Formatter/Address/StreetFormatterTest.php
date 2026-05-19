@@ -38,7 +38,7 @@ class StreetFormatterTest extends BaseTest
                     'street'          => 'Kabelweg',
                     'house_number'    => '',
                     'number_addition' => '',
-                ]
+                ],
             ],
             'with housenumber' => [
                 ['Kabelweg 37'],
@@ -46,7 +46,7 @@ class StreetFormatterTest extends BaseTest
                     'street'          => 'Kabelweg',
                     'house_number'    => '37',
                     'number_addition' => '',
-                ]
+                ],
             ],
             'with number addition' => [
                 ['Kabelweg', '37 1'],
@@ -54,7 +54,7 @@ class StreetFormatterTest extends BaseTest
                     'street'          => 'Kabelweg',
                     'house_number'    => '37',
                     'number_addition' => '1',
-                ]
+                ],
             ],
             'with letter addition' => [
                 ['Kabelweg 37', 'A'],
@@ -62,7 +62,7 @@ class StreetFormatterTest extends BaseTest
                     'street'          => 'Kabelweg',
                     'house_number'    => '37',
                     'number_addition' => 'A',
-                ]
+                ],
             ],
         ];
     }

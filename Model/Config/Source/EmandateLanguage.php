@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -22,8 +23,8 @@ namespace Buckaroo\Magento2\Model\Config\Source;
 
 class EmandateLanguage implements \Magento\Framework\Option\ArrayInterface
 {
-    const EMANDATE_LANGUAGE_DUTCH = 'nl';
-    const EMANDATE_LANGUAGE_ENGLISH = 'en';
+    public const EMANDATE_LANGUAGE_DUTCH = 'nl';
+    public const EMANDATE_LANGUAGE_ENGLISH = 'en';
 
     public function toOptionArray()
     {

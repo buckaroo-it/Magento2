@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -42,8 +43,6 @@ class Certificate extends AbstractModel implements CertificateInterface
 
     /**
      * Initialize resource model
-     *
-     * @return void
      */
     protected function _construct()
     {
@@ -99,7 +98,7 @@ class Certificate extends AbstractModel implements CertificateInterface
     }
 
     /**
-     * @param boolean $skipEncryptionOnSave
+     * @param bool $skipEncryptionOnSave
      *
      * @return $this
      */
@@ -111,7 +110,7 @@ class Certificate extends AbstractModel implements CertificateInterface
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isSkipEncryptionOnSave()
     {

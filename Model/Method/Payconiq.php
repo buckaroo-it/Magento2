@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -25,7 +26,7 @@ class Payconiq extends AbstractMethod
     /**
      * Payment Code
      */
-    const PAYMENT_METHOD_CODE = 'buckaroo_magento2_payconiq';
+    public const PAYMENT_METHOD_CODE = 'buckaroo_magento2_payconiq';
 
     /**
      * @var string

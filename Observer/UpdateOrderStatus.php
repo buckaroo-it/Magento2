@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -20,6 +21,9 @@
 
 namespace Buckaroo\Magento2\Observer;
 
+use Magento\Framework\Event\Observer;
+use Magento\Sales\Model\Order\Payment;
+
 class UpdateOrderStatus implements \Magento\Framework\Event\ObserverInterface
 {
     /**
@@ -37,17 +41,15 @@ class UpdateOrderStatus implements \Magento\Framework\Event\ObserverInterface
     }
 
     /**
-     * @param \Magento\Framework\Event\Observer $observer
-     *
-     * @return void
+     * @param Observer $observer
      */
-    public function execute(\Magento\Framework\Event\Observer $observer)
+    public function execute(Observer $observer)
     {
         /**
          * @noinspection PhpUndefinedMethodInspection
          */
         /**
-         * @var $payment \Magento\Sales\Model\Order\Payment
+         * @var $payment Payment
          */
         $payment = $observer->getPayment();
 

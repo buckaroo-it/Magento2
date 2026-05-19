@@ -1,38 +1,53 @@
 <?php
- /**
-  * NOTICE OF LICENSE
-  *
-  * This source file is subject to the MIT License
-  * It is available through the world-wide-web at this URL:
-  * https://tldrlegal.com/license/mit-license
-  * If you are unable to obtain it through the world-wide-web, please send an email
-  * to support@buckaroo.nl so we can send you a copy immediately.
-  *
-  * DISCLAIMER
-  *
-  * Do not edit or add to this file if you wish to upgrade this module to newer
-  * versions in the future. If you wish to customize this module for your
-  * needs please contact support@buckaroo.nl for more information.
-  *
-  * @copyright Copyright (c) Buckaroo B.V.
-  * @license   https://tldrlegal.com/license/mit-license
-  */
+
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
 
 namespace Buckaroo\Magento2\Model;
 
-use Magento\Checkout\Model\GuestPaymentInformationManagement as MagentoGuestPaymentInformationManagement;
 use Buckaroo\Magento2\Api\GuestPaymentInformationManagementInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory;
 use Buckaroo\Magento2\Model\Method\AbstractMethod;
-use Magento\Framework\App\ProductMetadataInterface;
+use Buckaroo\Magento2\Logging\Log;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Quote\Api\Data\AddressInterface;
+use Magento\Quote\Api\Data\PaymentInterface;
+use Magento\Quote\Model\QuoteIdMaskFactory;
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Framework\Registry;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Checkout\Model\GuestPaymentInformationManagement as MagentoGuestPaymentInformationManagement;
 
 // @codingStandardsIgnoreStart
-class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationManagement implements GuestPaymentInformationManagementInterface
-// @codingStandardsIgnoreEnd
+class GuestPaymentInformationManagement implements
+    GuestPaymentInformationManagementInterface
+    // @codingStandardsIgnoreEnd
 {
-
+    /**
+     * @var Registry
+     */
     protected $registry = null;
-    protected $logger = null;
+
+    /**
+     * @var Log
+     */
+    protected $logging = null;
 
     /**
      * @var Factory
@@ -40,100 +55,94 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
     public $configProviderMethodFactory;
 
     /**
-     * @var \Magento\Sales\Api\OrderRepositoryInterface
+     * @var OrderRepositoryInterface
      */
     protected $orderRepository;
 
     /**
-     * @param \Magento\Quote\Api\GuestBillingAddressManagementInterface   $billingAddressManagement
-     * @param \Magento\Quote\Api\GuestPaymentMethodManagementInterface    $paymentMethodManagement
-     * @param \Magento\Quote\Api\GuestCartManagementInterface             $cartManagement
-     * @param \Magento\Checkout\Api\PaymentInformationManagementInterface $paymentInformationManagement
-     * @param \Magento\Quote\Model\QuoteIdMaskFactory                     $quoteIdMaskFactory
-     * @param \Magento\Quote\Api\CartRepositoryInterface                  $cartRepository
-     * @param \Magento\Framework\Registry                                 $registry
-     * @param \Psr\Log\LoggerInterface                                    $logger
-     * @param Factory                                                     $configProviderMethodFactory
-     * @param \Magento\Sales\Api\OrderRepositoryInterface                 $orderRepository
+     * @var MagentoGuestPaymentInformationManagement
+     */
+    protected $guestPaymentInformationManagement;
+
+    /**
+     * @var QuoteIdMaskFactory
+     */
+    private $quoteIdMaskFactory;
+
+    /**
+     * @var CartRepositoryInterface
+     */
+    private $cartRepository;
+
+    /**
+     * @param Registry                                 $registry
+     * @param Log                                      $logging
+     * @param Factory                                  $configProviderMethodFactory
+     * @param OrderRepositoryInterface                 $orderRepository
+     * @param MagentoGuestPaymentInformationManagement $guestPaymentInformationManagement
+     * @param QuoteIdMaskFactory                       $quoteIdMaskFactory
+     * @param CartRepositoryInterface                  $cartRepository
      *
      * @codeCoverageIgnore
      */
     public function __construct(
-        \Magento\Quote\Api\GuestBillingAddressManagementInterface $billingAddressManagement,
-        \Magento\Quote\Api\GuestPaymentMethodManagementInterface $paymentMethodManagement,
-        \Magento\Quote\Api\GuestCartManagementInterface $cartManagement,
-        \Magento\Checkout\Api\PaymentInformationManagementInterface $paymentInformationManagement,
-        \Magento\Quote\Model\QuoteIdMaskFactory $quoteIdMaskFactory,
-        \Magento\Quote\Api\CartRepositoryInterface $cartRepository,
-        \Magento\Framework\Registry $registry,
-        \Psr\Log\LoggerInterface $logger,
+        Registry $registry,
+        Log $logging,
         Factory $configProviderMethodFactory,
-        \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
-        ProductMetadataInterface $productMetadata
+        OrderRepositoryInterface $orderRepository,
+        MagentoGuestPaymentInformationManagement $guestPaymentInformationManagement,
+        QuoteIdMaskFactory $quoteIdMaskFactory,
+        CartRepositoryInterface $cartRepository
     ) {
-        $magentoVersion = $productMetadata->getVersion();
-        $lastParam = null;
-
-        if (version_compare($magentoVersion, '2.4.6', '>=')) {
-            $lastParam = $logger;
-        }
-
-        parent::__construct(
-            $billingAddressManagement,
-            $paymentMethodManagement,
-            $cartManagement,
-            $paymentInformationManagement,
-            $quoteIdMaskFactory,
-            $cartRepository,
-            $lastParam
-        );
-
         $this->registry = $registry;
-        $this->logger = $logger;
+        $this->logging = $logging;
         $this->configProviderMethodFactory  = $configProviderMethodFactory;
         $this->orderRepository = $orderRepository;
+        $this->guestPaymentInformationManagement = $guestPaymentInformationManagement;
+        $this->quoteIdMaskFactory = $quoteIdMaskFactory;
+        $this->cartRepository = $cartRepository;
     }
 
     /**
      * Set payment information and place order for a specified cart.
      *
-     * @param  int                                           $cartId
-     * @param  string                                        $email
-     * @param  \Magento\Quote\Api\Data\PaymentInterface      $paymentMethod
-     * @param  \Magento\Quote\Api\Data\AddressInterface|null $billingAddress
-     * @throws \Magento\Framework\Exception\CouldNotSaveException
+     * @param  int                   $cartId
+     * @param  string                $email
+     * @param  PaymentInterface      $paymentMethod
+     * @param  AddressInterface|null $billingAddress
+     * @throws LocalizedException
      * @return string
      */
     public function buckarooSavePaymentInformationAndPlaceOrder(
         $cartId,
         $email,
-        \Magento\Quote\Api\Data\PaymentInterface $paymentMethod,
-        \Magento\Quote\Api\Data\AddressInterface $billingAddress = null
+        PaymentInterface $paymentMethod,
+        ?AddressInterface $billingAddress = null
     ) {
 
         $this->checkSpecificCountry($paymentMethod, $billingAddress);
 
         $quoteIdMask = $this->quoteIdMaskFactory->create()->load($cartId, 'masked_id');
-        /** @var Quote $quote */
+
         $quote = $this->cartRepository->getActive($quoteIdMask->getQuoteId());
         $quote->reserveOrderId();
 
-        $orderId = $this->savePaymentInformationAndPlaceOrder($cartId, $email, $paymentMethod, $billingAddress);
+        $orderId = $this->guestPaymentInformationManagement->savePaymentInformationAndPlaceOrder($cartId, $email, $paymentMethod, $billingAddress);
 
-        $this->logger->debug('-[RESULT]----------------------------------------');
+        $this->logging->debug('-[RESULT]----------------------------------------');
         //phpcs:ignore:Magento2.Functions.DiscouragedFunction
-        $this->logger->debug(print_r($this->registry->registry('buckaroo_response'), true));
-        $this->logger->debug('-------------------------------------------------');
+        $this->logging->debug(print_r($this->registry->registry('buckaroo_response'), true));
+        $this->logging->debug('-------------------------------------------------');
 
         if ($this->registry && $this->registry->registry('buckaroo_response')) {
             return json_encode([
                 "buckaroo_response" => $this->registry->registry('buckaroo_response')[0],
-                "order_id" => $orderId
+                "order_id" => $orderId,
             ]);
         }
         return json_encode([
             "limitReachedMessage" => $this->getLimitReachedMessage($orderId),
-            "order_number" => $this->getOrderIncrementId($orderId)
+            "order_number" => $this->getOrderIncrementId($orderId),
         ]);
     }
     /**
@@ -146,7 +155,7 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
     private function getLimitReachedMessage($orderId)
     {
         $order = $this->orderRepository->get($orderId);
-        if($order->getEntityId() !== null && $order->getPayment() !== null) {
+        if ($order->getEntityId() !== null && $order->getPayment() !== null) {
             return $order->getPayment()->getAdditionalInformation(AbstractMethod::PAYMENT_ATTEMPTS_REACHED_MESSAGE);
         }
         return null;
@@ -159,9 +168,9 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
     }
 
     /**
-     * @param $paymentMethod
-     * @param $billingAddress
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @param                     $paymentMethod
+     * @param                     $billingAddress
+     * @throws LocalizedException
      */
     public function checkSpecificCountry($paymentMethod, $billingAddress)
     {
@@ -170,11 +179,11 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
         $configAllowSpecific = $this->configProviderMethodFactory->get($paymentMethodCode)->getAllowSpecific();
 
         if ($configAllowSpecific == 1) {
-            $countryId = ($billingAddress === null ) ? null : $billingAddress->getCountryId();
+            $countryId = ($billingAddress === null) ? null : $billingAddress->getCountryId();
             $configSpecificCountry = $this->configProviderMethodFactory->get($paymentMethodCode)->getSpecificCountry();
 
             if (!in_array($countryId, $configSpecificCountry)) {
-                throw new \Magento\Framework\Exception\LocalizedException(
+                throw new LocalizedException(
                     __('The requested Payment Method is not available for the given billing country.')
                 );
             }
@@ -182,7 +191,7 @@ class GuestPaymentInformationManagement extends MagentoGuestPaymentInformationMa
     }
 
     /**
-     * @param string $methodCode
+     * @param  string $methodCode
      * @return string
      */
     public function normalizePaymentMethodCode($methodCode = '')

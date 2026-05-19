@@ -10,7 +10,6 @@ use Magento\Quote\Api\CartRepositoryInterface;
 use Buckaroo\Magento2\Api\ApplyVoucherInterface;
 use Buckaroo\Magento2\Model\Giftcard\Api\ApiException;
 use Buckaroo\Magento2\Model\Giftcard\Api\NoQuoteException;
-use Buckaroo\Magento2\Model\Voucher\ApplyVoucherRequestInterface;
 use Buckaroo\Magento2\Api\Data\Giftcard\PayResponseSetInterfaceFactory;
 use Buckaroo\Magento2\Model\Giftcard\Response\Giftcard as GiftcardResponse;
 use Magento\Framework\Phrase;
@@ -18,8 +17,6 @@ use Magento\Framework\Webapi\Exception;
 
 class ApplyVoucher implements ApplyVoucherInterface
 {
-
-
     /**
      * @var \Magento\Quote\Model\QuoteIdMaskFactory
      */
@@ -49,12 +46,12 @@ class ApplyVoucher implements ApplyVoucherInterface
     /**
      * @var GiftcardResponse
      */
-    private GiftcardResponse $giftcardResponse;
+    private $giftcardResponse;
 
     /**
      * @var Log
      */
-    private Log $logger;
+    private $logger;
 
     public function __construct(
         ApplyVoucherRequestInterface $voucherRequest,
@@ -76,7 +73,7 @@ class ApplyVoucher implements ApplyVoucherInterface
 
     public function apply(string $voucherCode)
     {
-        
+
         try {
             $quote = $this->getQuote();
 
@@ -93,7 +90,7 @@ class ApplyVoucher implements ApplyVoucherInterface
             $this->renderException(__('Unknown buckaroo error has occurred'));
         }
     }
- 
+
     public function renderException(string $message)
     {
         throw new Exception(
@@ -109,7 +106,7 @@ class ApplyVoucher implements ApplyVoucherInterface
             $message = $this->giftcardResponse->getErrorMessage();
             $messageParts = explode(":", $message);
 
-            if(isset($messageParts[1])) {
+            if (isset($messageParts[1])) {
                 $message = $messageParts[1];
             }
             throw new ApiException($message);
@@ -119,7 +116,7 @@ class ApplyVoucher implements ApplyVoucherInterface
                 [
                     'remainderAmount' => $this->giftcardResponse->getRemainderAmount(),
                     'alreadyPaid' => $this->giftcardResponse->getAlreadyPaid($quote),
-                    'transaction' => $this->giftcardResponse->getCreatedTransaction()
+                    'transaction' => $this->giftcardResponse->getCreatedTransaction(),
                 ],
                 $this->getUserMessages()
             )
@@ -152,16 +149,16 @@ class ApplyVoucher implements ApplyVoucherInterface
         }
         return [
             'remainingAmountMessage' => $remainingAmountMessage,
-            'message' => $textMessage
+            'message' => $textMessage,
         ];
     }
+
     /**
      * Build giftcard request
      *
      * @param Quote $quote
-     * @param string $giftcardId
-     *
-     * @return VoucherRequest
+     * @param string $voucherCode
+     * @return ApplyVoucherRequestInterface
      */
     protected function build(Quote $quote, string $voucherCode)
     {
@@ -175,6 +172,7 @@ class ApplyVoucher implements ApplyVoucherInterface
      * Get quote from session
      *
      * @return Quote
+     * @throws NoQuoteException
      */
     protected function getQuote()
     {

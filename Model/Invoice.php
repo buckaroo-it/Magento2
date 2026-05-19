@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model;
 
 use Magento\Framework\Model\AbstractModel;
@@ -24,16 +26,14 @@ use Buckaroo\Magento2\Api\Data\InvoiceInterface;
 
 class Invoice extends AbstractModel implements InvoiceInterface
 {
-    const FIELD_INVOICE_TRANSACTION_ID = 'invoice_transaction_id';
-    const FIELD_INVOICE_NUMBER = 'invoice_number';
+    public const FIELD_INVOICE_TRANSACTION_ID = 'invoice_transaction_id';
+    public const FIELD_INVOICE_NUMBER = 'invoice_number';
 
     // @codingStandardsIgnoreLine
     protected $_eventPrefix = 'buckaroo_magento2_invoice';
 
     /**
      * Initialize resource model
-     *
-     * @return void
      */
     // @codingStandardsIgnoreLine
     protected function _construct()

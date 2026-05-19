@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -21,6 +22,7 @@
 namespace Buckaroo\Magento2\Model\Service\Plugin\Mpi;
 
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard;
+use Magento\Framework\Exception\LocalizedException;
 
 class Push
 {
@@ -40,9 +42,10 @@ class Push
 
     /**
      * @param \Buckaroo\Magento2\Model\Push $push
-     * @param boolean                  $result
+     * @param bool $result
      *
-     * @return boolean
+     * @return bool
+     * @throws LocalizedException
      */
     public function afterProcessSucceededPush(
         \Buckaroo\Magento2\Model\Push $push,

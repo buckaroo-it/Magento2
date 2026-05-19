@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -31,21 +32,19 @@ class PayLink implements \Magento\Framework\Option\ArrayInterface
     {
         $options = [
             ['value' => 'amex',                   'label' => __('American Express')],
-            ['value' => 'bancontactmrcash',       'label' => __('Bancontact / Mr Cash')],
+            ['value' => 'bancontactmrcash',       'label' => __('Bancontact')],
             ['value' => 'transfer',               'label' => __('Bank Transfer')],
             ['value' => 'cartebancaire',          'label' => __('Carte Bancaire')],
             ['value' => 'cartebleuevisa',         'label' => __('Carte Bleue')],
             ['value' => 'dankort',                'label' => __('Dankort')],
             ['value' => 'eps',                    'label' => __('EPS')],
             ['value' => 'giftcard',               'label' => __('Giftcards')],
-            ['value' => 'giropay',                'label' => __('Giropay')],
-            ['value' => 'ideal',                  'label' => __('iDEAL')],
+            ['value' => 'ideal',                  'label' => __('iDEAL | Wero')],
             ['value' => 'idealprocessing',        'label' => __('iDEAL Processing')],
             ['value' => 'maestro',                'label' => __('Maestro')],
             ['value' => 'mastercard',             'label' => __('Mastercard')],
             ['value' => 'paypal',                 'label' => __('PayPal')],
             ['value' => 'sepadirectdebit',        'label' => __('SEPA Direct Debit')],
-            ['value' => 'sofortueberweisung',     'label' => __('Sofort Banking')],
             ['value' => 'belfius',                'label' => __('Belfius')],
             ['value' => 'visa',                   'label' => __('Visa')],
             ['value' => 'visaelectron',           'label' => __('Visa Electron')],

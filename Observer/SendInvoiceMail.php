@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Observer;
 
 use Magento\Framework\Event\Observer;
@@ -46,6 +48,8 @@ class SendInvoiceMail implements ObserverInterface
     /**
      * @param Account       $accountConfig
      * @param InvoiceSender $invoiceSender
+     * @param Log           $logging
+     * @param Data          $helper
      */
     public function __construct(
         Account $accountConfig,

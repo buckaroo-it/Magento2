@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -21,6 +22,7 @@
 namespace Buckaroo\Magento2\Observer;
 
 use Magento\Framework\Event\Observer;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Helper\Data;
 use Buckaroo\Magento2\Helper\Data as BuckarooHelper;
 
@@ -38,8 +40,9 @@ class PaymentMethodAvailable implements \Magento\Framework\Event\ObserverInterfa
     }
 
     /**
-     * @param \Magento\Framework\Event\Observer $observer
-     * @return void
+     * @param Observer $observer
+     * @return false|void
+     * @throws LocalizedException
      */
     public function execute(Observer $observer)
     {

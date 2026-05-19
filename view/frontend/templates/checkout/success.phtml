@@ -18,13 +18,18 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 ?>
-<script>
-    window.onload = function(){
-        require(['Magento_Customer/js/customer-data'], function (customerData) {
-            var sections = ['cart'];
-            customerData.initStorage();
-            customerData.reload(sections, true);
-            customerData.invalidate(sections);
-            console.log('Reload shopping cart on success');});
+<div id="buckaroo-cart-reloader" data-bind="scope: 'buckarooCartReloader'"></div>
+
+<script type="text/x-magento-init">
+    {
+        "#buckaroo-cart-reloader": {
+            "Magento_Ui/js/core/app": {
+                "components": {
+                    "buckarooCartReloader": {
+                        "component": "Buckaroo_Magento2/js/action/cart-reload"
+                    }
+                }
+            }
+        }
     }
 </script>

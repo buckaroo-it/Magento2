@@ -50,7 +50,6 @@ class PayRequest implements PayRequestInterface
      * set giftcard number
      *
      * @param string $cardNumber
-     * @return void
      */
     public function setCardNumber(string $cardNumber)
     {
@@ -60,7 +59,6 @@ class PayRequest implements PayRequestInterface
      * Giftcard pin
      *
      * @param string $cardPin
-     * @return void
      */
     public function setCardPin(string $cardPin)
     {

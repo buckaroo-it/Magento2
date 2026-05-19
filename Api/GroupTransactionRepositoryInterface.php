@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Api;
 
 use Magento\Framework\Api\SearchCriteria;
@@ -29,37 +31,37 @@ use Buckaroo\Magento2\Api\Data\GroupTransactionInterface;
 interface GroupTransactionRepositoryInterface
 {
     /**
-     * @param GroupTransactionInterface $GroupTransaction
-     * @return GroupTransactionInterface
+     * @param  GroupTransactionInterface $GroupTransaction
      * @throws CouldNotSaveException
+     * @return GroupTransactionInterface
      */
     public function save(GroupTransactionInterface $GroupTransaction);
 
     /**
-     * @param int|string $GroupTransactionId
-     * @return GroupTransactionInterface
+     * @param  int|string                $GroupTransactionId
      * @throws NoSuchEntityException
+     * @return GroupTransactionInterface
      */
     public function getById($GroupTransactionId);
 
     /**
-     * @param SearchCriteria $searchCriteria
+     * @param  SearchCriteria         $searchCriteria
      * @return SearchResultsInterface
      */
     public function getList(SearchCriteria $searchCriteria);
 
     /**
-     * @param GroupTransactionInterface $GroupTransaction
-     * @return bool
+     * @param  GroupTransactionInterface $GroupTransaction
      * @throws CouldNotDeleteException
+     * @return bool
      */
     public function delete(GroupTransactionInterface $GroupTransaction);
 
     /**
-     * @param $GroupTransactionId
-     * @return bool
+     * @param                          $GroupTransactionId
      * @throws CouldNotDeleteException
      * @throws NoSuchEntityException
+     * @return bool
      */
     public function deleteById($GroupTransactionId);
 }

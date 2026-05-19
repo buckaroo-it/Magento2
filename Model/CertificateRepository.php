@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,6 +18,7 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 namespace Buckaroo\Magento2\Model;
 
 use Magento\Framework\Api\SearchCriteria;
@@ -138,7 +140,7 @@ class CertificateRepository implements CertificateRepositoryInterface
     }
 
     /**
-     * @param SearchCriteria $searchCriteria
+     * @param SearchCriteria        $searchCriteria
      * @param CertificateCollection $collection
      */
     private function handleSortOrders($searchCriteria, $collection)
@@ -159,7 +161,7 @@ class CertificateRepository implements CertificateRepositoryInterface
     }
 
     /**
-     * @param SearchCriteria $searchCriteria
+     * @param SearchCriteria        $searchCriteria
      * @param CertificateCollection $collection
      *
      * @return array

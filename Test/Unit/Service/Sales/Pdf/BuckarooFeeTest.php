@@ -44,8 +44,8 @@ class BuckarooFeeTest extends BaseTest
                 [[
                     'amount' => 2,
                     'label' => 'Buckaroo fee:',
-                    'font_size' => 7
-                ]]
+                    'font_size' => 7,
+                ]],
             ],
             'display excl. tax' => [
                 3,
@@ -55,8 +55,8 @@ class BuckarooFeeTest extends BaseTest
                 [[
                     'amount' => 3,
                     'label' => 'Transaction fee:',
-                    'font_size' => 7
-                ]]
+                    'font_size' => 7,
+                ]],
             ],
             'display incl. and excl. tax' => [
                 5,
@@ -67,15 +67,15 @@ class BuckarooFeeTest extends BaseTest
                     [
                         'amount' => 5,
                         'label' => 'Buckaroo transaction fee (Excl. Tax):',
-                        'font_size' => 7
+                        'font_size' => 7,
                     ],
                     [
                         'amount' => 6,
                         'label' => 'Buckaroo transaction fee (Incl. Tax):',
-                        'font_size' => 7
-                    ]
-                ]
-            ]
+                        'font_size' => 7,
+                    ],
+                ],
+            ],
         ];
     }
 

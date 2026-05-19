@@ -1,4 +1,5 @@
 <?php
+
 // phpcs:ignoreFile
 /**
  * NOTICE OF LICENSE
@@ -38,8 +39,6 @@ class InstallSchema implements \Magento\Framework\Setup\InstallSchemaInterface
      *
      * @param SchemaSetupInterface   $setup
      * @param ModuleContextInterface $context
-     *
-     * @return void
      */
     public function install(SchemaSetupInterface $setup, ModuleContextInterface $context)
     {

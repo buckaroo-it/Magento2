@@ -21,19 +21,23 @@
 
 namespace Buckaroo\Magento2\Controller\Checkout;
 
+use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Gateway\GatewayInterface;
+use Buckaroo\Magento2\Gateway\Http\TransactionBuilder\IdinBuilderInterface;
+use Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory;
 use Buckaroo\Magento2\Logging\Log;
+use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller\ResultFactory;
 
 class Idin extends \Magento\Framework\App\Action\Action
 {
-
     /**
-     * @var Buckaroo\Magento2\Gateway\Http\TransactionBuilder\IdinBuilderInterface
+     * @var IdinBuilderInterface
      */
     protected $transactionBuilder;
 
     /**
-     * @var \Buckaroo\Magento2\Gateway\GatewayInterface
+     * @var GatewayInterface
      */
     protected $gateway;
 
@@ -43,19 +47,17 @@ class Idin extends \Magento\Framework\App\Action\Action
     private $logger;
 
     /**
-     *
-     * @param \Magento\Framework\App\Action\Context $context
-     * @param \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory
-     * @param \Buckaroo\Magento2\Gateway\GatewayInterface $gateway
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\Account $configProviderAccount
-     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
-     * @param \Magento\Customer\Model\Session $customerSession
+     * @param Context $context
+     * @param TransactionBuilderFactory $transactionBuilderFactory
+     * @param GatewayInterface $gateway
+     * @param Log $logger
+     * @throws Exception
      */
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        \Buckaroo\Magento2\Gateway\Http\TransactionBuilderFactory $transactionBuilderFactory,
-        \Buckaroo\Magento2\Gateway\GatewayInterface $gateway,
-        Log $logger
+        Context                   $context,
+        TransactionBuilderFactory $transactionBuilderFactory,
+        GatewayInterface          $gateway,
+        Log                       $logger
     ) {
         parent::__construct($context);
         $this->transactionBuilder = $transactionBuilderFactory->get('idin');
@@ -105,8 +107,8 @@ class Idin extends \Magento\Framework\App\Action\Action
      *
      * @param string $issuer
      *
-     * @return mixed $response
      * @throws \Exception
+     * @return mixed      $response
      */
     protected function sendIdinRequest($issuer)
     {

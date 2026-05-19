@@ -6,6 +6,9 @@
  */
 -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="Buckaroo_Magento2::css/ideal-fast-checkout.css" />
+    </head>
     <body>
         <referenceBlock name="checkout.cart.methods">
             <block class="Buckaroo\Magento2\Block\Catalog\Product\View\Applepay" name="buckaroo_magento2.checkout.cart.applepay"
@@ -32,7 +35,7 @@
                                         <item name="buckaroo-fee-order-level" xsi:type="array">
                                             <item name="component"  xsi:type="string">Buckaroo_Magento2/js/view/checkout/cart/totals/buckaroo_fee</item>
                                             <item name="config" xsi:type="array">
-                                                <item name="title" xsi:type="string">Buckaroo Fee for Order</item>
+                                                <item name="title" xsi:type="string">Payment Fee</item>
                                                 <item name="level" xsi:type="string">order</item>
                                             </item>
                                         </item>
