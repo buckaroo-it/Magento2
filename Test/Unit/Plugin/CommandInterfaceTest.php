@@ -98,8 +98,7 @@ class CommandInterfaceTest extends BaseTest
     // -----------------------------------------------------------------------
 
     /**
-     * REGRESSION: Apple Pay in STATE_PROCESSING must NOT have state reset to STATE_NEW.
-     * Bug introduced in 1.56.2 when commit 72fa364d removed the Apple Pay guard.
+     * REGRESSION: Apple Pay in STATE_PROCESSING must NOT have a state reset to STATE_NEW.
      */
     public function testApplePayInProcessingDoesNotResetState(): void
     {
