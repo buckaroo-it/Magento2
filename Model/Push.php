@@ -2099,6 +2099,24 @@ class Push implements PushInterface
     protected function saveInvoice()
     {
         $this->logging->addDebug(__METHOD__ . '|1|');
+
+        $payment = $this->order->getPayment();
+        $invoiceHandlingConfig = $this->configAccount->getInvoiceHandling();
+
+        if ($invoiceHandlingConfig == InvoiceHandlingOptions::SHIPMENT) {
+            if (!$payment->getAdditionalInformation(InvoiceHandlingOptions::INVOICE_HANDLING)) {
+                $payment->setAdditionalInformation(InvoiceHandlingOptions::INVOICE_HANDLING, $invoiceHandlingConfig);
+                $payment->save();
+            }
+
+            if ($this->hasPostData('brq_transaction_method', 'transfer')) {
+                $this->order->setIsInProcess(true);
+                $this->order->save();
+            }
+
+            return true;
+        }
+
         if (!$this->forceInvoice) {
             if (!$this->order->canInvoice() || $this->order->hasInvoices()) {
                 $this->logging->addDebug('Order can not be invoiced');
@@ -2119,21 +2137,6 @@ class Push implements PushInterface
 
         if (!$this->isGroupTransactionInfoType()) {
             $this->addTransactionData();
-        }
-
-        $payment = $this->order->getPayment();
-        $invoiceHandlingConfig = $this->configAccount->getInvoiceHandling($this->order->getStore());
-
-        if ($invoiceHandlingConfig == InvoiceHandlingOptions::SHIPMENT) {
-            $payment->setAdditionalInformation(InvoiceHandlingOptions::INVOICE_HANDLING, $invoiceHandlingConfig);
-            $payment->save();
-
-            if ($this->hasPostData('brq_transaction_method', 'transfer')) {
-                $this->order->setIsInProcess(true);
-                $this->order->save();
-            }
-
-            return true;
         }
 
         $invoiceAmount = 0;
