@@ -177,19 +177,7 @@ define(
                 },
 
                 getDobPlaceholder: function () {
-                    var formats = {
-                        'NL': 'DD-MM-YYYY',
-                        'BE': 'DD/MM/YYYY',
-                        'FR': 'DD/MM/YYYY',
-                        'DE': 'DD.MM.YYYY',
-                        'AT': 'DD.MM.YYYY',
-                        'IT': 'DD/MM/YYYY',
-                        'ES': 'DD/MM/YYYY',
-                        'PT': 'DD/MM/YYYY',
-                        'LU': 'DD/MM/YYYY'
-                    };
-                    var countryId = quote.billingAddress() ? quote.billingAddress().countryId : null;
-                    return formats[countryId] || 'DD/MM/YYYY';
+                    return $.mage.__('DD-MM-YYYY or DD/MM/YYYY');
                 },
 
                 getData : function () {

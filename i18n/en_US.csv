@@ -218,3 +218,4 @@
 "Male","Male"
 "Female","Female"
 "Other","Other"
+"DD-MM-YYYY or DD/MM/YYYY","e.g. 01-01-1970"
