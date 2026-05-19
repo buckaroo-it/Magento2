@@ -348,7 +348,6 @@ define(
                     return false;
                 },
 
-
                 getData: function () {
                     return {
                         "method": this.item.method,

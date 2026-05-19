@@ -223,7 +223,6 @@ define(
 
 
 
-
                 getData: function () {
                     var business = this.buckaroo.businessMethod;
 
