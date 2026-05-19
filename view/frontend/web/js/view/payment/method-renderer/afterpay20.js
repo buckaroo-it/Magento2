@@ -348,6 +348,21 @@ define(
                     return false;
                 },
 
+                filterDobInput: function (data, event) {
+                    var input = event.target;
+                    var filtered = input.value.replace(/[^\d\/\-\.]/g, '');
+                    if (input.value !== filtered) {
+                        var pos = input.selectionStart - (input.value.length - filtered.length);
+                        input.value = filtered;
+                        input.setSelectionRange(pos, pos);
+                    }
+                    return true;
+                },
+
+                getDobPlaceholder: function () {
+                    return $.mage.__('DD-MM-YYYY or DD/MM/YYYY');
+                },
+
                 getData: function () {
                     return {
                         "method": this.item.method,

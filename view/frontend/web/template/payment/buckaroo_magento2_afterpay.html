@@ -72,7 +72,8 @@
                                    },
                                    valueUpdate: 'change',
                                    value: dateValidate,
-                                   attr: {placeholder: $t('DD/MM/YYYY or DD-MM-YYYY')}"
+                                   event: { input: filterDobInput },
+                                   attr: { placeholder: getDobPlaceholder() }"
                                    data-validate="{required:true, 'validate-date-flexible':true, 'validateAge': true}"
                                    name="payment[buckaroo_magento2_afterpay][customer_DoB]">
                         </div>
