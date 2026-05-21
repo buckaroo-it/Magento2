@@ -695,6 +695,11 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             $articles = array_merge_recursive($articles, $shippingCosts);
         }
 
+        $additionalLines = $this->getAdditionalLines();
+        if (!empty($additionalLines)) {
+            $articles = array_merge_recursive($articles, $additionalLines);
+        }
+
         $articles = $this->reconcileArticlesWithGrandTotal($articles, (float)$currentInvoice->getGrandTotal(), (float)$currentInvoice->getTaxAmount());
 
         return $articles;
