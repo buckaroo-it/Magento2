@@ -67,6 +67,7 @@ class KlarnaKpHandlerTest extends TestCase
     /** Staged invoice items set by buildHandler, consumed by makeOrder(). */
     private array $stagedItems = [];
     private float $stagedGrandTotal = 0.0;
+    private float $stagedOrderDiscountAmount = 0.0;
 
     protected function setUp(): void
     {
@@ -149,6 +150,108 @@ class KlarnaKpHandlerTest extends TestCase
         $this->assertNotContains(6, $identifiers, 'No gift card line expected when no gift card was applied');
     }
 
+    // ---- Discount code tests ------------------------------------------------
+
+    /**
+     * When a coupon/discount code is applied the capture must use the same global
+     * discount line (identifier = 1) that was sent during reserve.
+     * Per-item discount lines (identifier = SKU) must NOT appear — they would be
+     * unknown to Klarna and cause a capture rejection.
+     */
+    public function testCaptureWithDiscountCodeUsesGlobalDiscountLineNotPerItemLines(): void
+    {
+        // Products €20 + €10 = €30, 10% discount -€3, invoice total €27.
+        $handler = $this->buildHandler(
+            items: [
+                $this->makeItem('PROD1', 'Product 1', 20.00, itemDiscount: 2.00),
+                $this->makeItem('PROD2', 'Product 2', 10.00, itemDiscount: 1.00),
+            ],
+            invoiceGrandTotal: 27.00,
+            giftCardAmount: 0.0,
+            orderDiscountAmount: -3.00
+        );
+
+        $result = $handler->getInvoiceArticlesData(
+            $this->makeOrder(orderDiscountAmount: -3.00),
+            $this->createMock(InfoInterface::class)
+        );
+
+        $identifiers = array_column($result['articles'], 'identifier');
+
+        $this->assertContains(1, $identifiers, 'Global discount line (identifier=1) must be present — matches the reserve');
+        $this->assertSame(
+            1,
+            count(array_filter($identifiers, fn($id) => $id === 'PROD1')),
+            'PROD1 must appear exactly once (product line only, no per-item discount)'
+        );
+        $this->assertSame(
+            1,
+            count(array_filter($identifiers, fn($id) => $id === 'PROD2')),
+            'PROD2 must appear exactly once (product line only, no per-item discount)'
+        );
+        $this->assertNotContains('extra-fees', $identifiers);
+    }
+
+    /**
+     * The global discount line must carry the correct negative price (the full
+     * order-level discount amount) so the article sum equals the invoice total.
+     */
+    public function testDiscountLineHasCorrectNegativePrice(): void
+    {
+        $handler = $this->buildHandler(
+            items: [
+                $this->makeItem('PROD1', 'Product 1', 20.00, itemDiscount: 2.00),
+                $this->makeItem('PROD2', 'Product 2', 10.00, itemDiscount: 1.00),
+            ],
+            invoiceGrandTotal: 27.00,
+            giftCardAmount: 0.0,
+            orderDiscountAmount: -3.00
+        );
+
+        $result = $handler->getInvoiceArticlesData(
+            $this->makeOrder(orderDiscountAmount: -3.00),
+            $this->createMock(InfoInterface::class)
+        );
+
+        $discountLine = null;
+        foreach ($result['articles'] as $article) {
+            if (($article['identifier'] ?? null) === 1) {
+                $discountLine = $article;
+                break;
+            }
+        }
+
+        $this->assertNotNull($discountLine, 'Global discount article line must be present');
+        $this->assertEquals(-3.00, $discountLine['price'], 'Discount price must equal the negative order discount amount');
+    }
+
+    /**
+     * With a discount code the article sum (products + global discount) must equal
+     * the invoice grand total so reconcileArticlesWithGrandTotal never fires.
+     */
+    public function testCaptureWithDiscountCodeHasNoExtraFees(): void
+    {
+        $handler = $this->buildHandler(
+            items: [
+                $this->makeItem('PROD1', 'Product 1', 20.00, itemDiscount: 2.00),
+                $this->makeItem('PROD2', 'Product 2', 10.00, itemDiscount: 1.00),
+            ],
+            invoiceGrandTotal: 27.00,
+            giftCardAmount: 0.0,
+            orderDiscountAmount: -3.00
+        );
+
+        $result = $handler->getInvoiceArticlesData(
+            $this->makeOrder(orderDiscountAmount: -3.00),
+            $this->createMock(InfoInterface::class)
+        );
+
+        $identifiers = array_column($result['articles'], 'identifier');
+        $this->assertNotContains('extra-fees', $identifiers);
+    }
+
+    // ---- Gift card price test -----------------------------------------------
+
     /**
      * The gift card article line must carry the correct negative price so that
      * the article sum precisely matches the invoice grand total.
@@ -182,11 +285,16 @@ class KlarnaKpHandlerTest extends TestCase
     // Helpers
     // -------------------------------------------------------------------------
 
-    private function buildHandler(array $items, float $invoiceGrandTotal, float $giftCardAmount): KlarnaKpHandler
-    {
+    private function buildHandler(
+        array $items,
+        float $invoiceGrandTotal,
+        float $giftCardAmount,
+        float $orderDiscountAmount = 0.0
+    ): KlarnaKpHandler {
         // Stage invoice data so makeOrder() can use it.
-        $this->stagedItems      = $items;
-        $this->stagedGrandTotal = $invoiceGrandTotal;
+        $this->stagedItems             = $items;
+        $this->stagedGrandTotal        = $invoiceGrandTotal;
+        $this->stagedOrderDiscountAmount = $orderDiscountAmount;
 
         // Quote mock — getGiftCardsAmount / getRewardCurrencyAmount are Adobe Commerce methods
         // absent on CE, so they must be added via addMethods().
@@ -238,7 +346,7 @@ class KlarnaKpHandlerTest extends TestCase
         );
     }
 
-    private function makeOrder(): Order
+    private function makeOrder(float $orderDiscountAmount = 0.0): Order
     {
         // getBuckarooFeeInclTax / getBuckarooFee are Buckaroo extension attributes absent
         // from the base Invoice class, so they must be added via addMethods().
@@ -250,7 +358,7 @@ class KlarnaKpHandlerTest extends TestCase
         $invoice->method('getAllItems')->willReturn($this->stagedItems);
         $invoice->method('getGrandTotal')->willReturn($this->stagedGrandTotal);
         $invoice->method('getTaxAmount')->willReturn(0.0);
-        $invoice->method('getShippingInclTax')->willReturn(0.0); // no shipping keeps mocking minimal
+        $invoice->method('getShippingInclTax')->willReturn(0.0);
         $invoice->method('getBuckarooFeeInclTax')->willReturn(0.0);
         $invoice->method('getBuckarooFee')->willReturn(0.0);
 
@@ -258,25 +366,23 @@ class KlarnaKpHandlerTest extends TestCase
         $collection->method('count')->willReturn(1);
         $collection->method('getLastItem')->willReturn($invoice);
 
-        $order = $this->getMockBuilder(Order::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['getInvoiceCollection', 'getQuoteId'])
-            ->getMock();
+        $order = $this->createMock(Order::class);
         $order->method('getInvoiceCollection')->willReturn($collection);
         $order->method('getQuoteId')->willReturn(1);
+        $order->method('getDiscountAmount')->willReturn($orderDiscountAmount);
+        $order->method('getDiscountTaxCompensationAmount')->willReturn(0.0);
 
         return $order;
     }
 
-    private function makeItem(string $sku, string $name, float $price): Invoice\Item
+    private function makeItem(string $sku, string $name, float $price, float $itemDiscount = 0.0): Invoice\Item
     {
         $orderItem = $this->createMock(Order\Item::class);
         $orderItem->method('getTaxPercent')->willReturn(0.0);
 
-        // Use createMock so PHPUnit handles real-vs-magic method split automatically.
         $item = $this->getMockBuilder(Invoice\Item::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['getRowTotalInclTax', 'getOrderItem', 'getName', 'getSku', 'getQty', 'getDiscountAmount', 'getPriceInclTax'])
+            ->onlyMethods(['getRowTotalInclTax', 'getOrderItem', 'getName', 'getSku', 'getQty', 'getDiscountAmount', 'getPriceInclTax', 'getPrice', 'getTaxAmount'])
             ->addMethods(['hasParentItemId', 'getWeeeTaxAppliedAmount'])
             ->getMock();
 
@@ -286,8 +392,10 @@ class KlarnaKpHandlerTest extends TestCase
         $item->method('getName')->willReturn($name);
         $item->method('getSku')->willReturn($sku);
         $item->method('getQty')->willReturn(1.0);
-        $item->method('getDiscountAmount')->willReturn(0.0);
+        $item->method('getDiscountAmount')->willReturn($itemDiscount);
         $item->method('getPriceInclTax')->willReturn($price);
+        $item->method('getPrice')->willReturn($price);
+        $item->method('getTaxAmount')->willReturn(0.0);
         $item->method('getWeeeTaxAppliedAmount')->willReturn(0.0);
 
         return $item;
