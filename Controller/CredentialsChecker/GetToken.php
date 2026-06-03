@@ -21,17 +21,16 @@
 namespace Buckaroo\Magento2\Controller\CredentialsChecker;
 
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcards;
+use Buckaroo\Magento2\Service\Creditcard\HostedFieldsTokenClient;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
-use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Store\Api\Data\StoreInterface;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\Store\Model\StoreManagerInterface;
-use Magento\Framework\HTTP\Client\Curl;
 
 class GetToken extends Action
 {
@@ -61,9 +60,9 @@ class GetToken extends Action
     protected $store;
 
     /**
-     * @var Curl
+     * @var HostedFieldsTokenClient
      */
-    protected $curlClient;
+    protected $tokenClient;
 
     /**
      * @var CheckoutSession
@@ -77,7 +76,7 @@ class GetToken extends Action
      * @param Creditcards $configProviderCreditcard
      * @param EncryptorInterface $encryptor
      * @param StoreManagerInterface $storeManager
-     * @param Curl $curlClient
+     * @param HostedFieldsTokenClient $tokenClient
      * @param CheckoutSession $checkoutSession
      * @throws NoSuchEntityException
      */
@@ -88,7 +87,7 @@ class GetToken extends Action
         Creditcards $configProviderCreditcard,
         EncryptorInterface $encryptor,
         StoreManagerInterface $storeManager,
-        Curl $curlClient,
+        HostedFieldsTokenClient $tokenClient,
         CheckoutSession $checkoutSession
     ) {
         $this->resultJsonFactory = $resultJsonFactory;
@@ -96,44 +95,9 @@ class GetToken extends Action
         $this->configProviderCreditcard = $configProviderCreditcard;
         $this->encryptor = $encryptor;
         $this->store = $storeManager->getStore();
-        $this->curlClient = $curlClient;
+        $this->tokenClient = $tokenClient;
         $this->checkoutSession = $checkoutSession;
         parent::__construct($context);
-    }
-
-    /**
-     * Send a POST request using Magento's Curl client.
-     *
-     * @param mixed $url
-     * @param mixed $username
-     * @param mixed $password
-     * @param mixed $postData
-     *
-     * @return string
-     *
-     * @throws LocalizedException
-     */
-    private function sendPostRequest($url, $username, $password, $postData): string
-    {
-        try {
-            // Set Basic Auth credentials without base64_encode()
-            $this->curlClient->setCredentials($username, $password);
-
-            // Set the headers and post fields
-            $this->curlClient->addHeader("Content-Type", "application/x-www-form-urlencoded");
-
-            // Send the POST request
-            $this->curlClient->post($url, http_build_query($postData));
-
-            // Get the response body
-            return $this->curlClient->getBody();
-        } catch (\Exception $e) {
-            $this->logger->addError('Curl request error: ' . $e->getMessage());
-            throw new LocalizedException(
-                __('Error occurred during cURL request: %1', $e->getMessage()),
-                $e
-            );
-        }
     }
 
     /**
@@ -222,14 +186,10 @@ class GetToken extends Action
 
         // Try to fetch the token
         try {
-            $url = "https://auth.buckaroo.io/oauth/token";
-            $postData = [
-                'scope' => 'hostedfields:save',
-                'grant_type' => 'client_credentials'
-            ];
-
-            $response = $this->sendPostRequest($url, $hostedFieldsClientId, $hostedFieldsClientSecret, $postData);
-            $responseArray = json_decode($response, true);
+            $responseArray = $this->tokenClient->fetchToken(
+                $hostedFieldsClientId,
+                $hostedFieldsClientSecret
+            );
 
             // Check for successful response and include expires_in if available
             if (isset($responseArray['access_token'])) {

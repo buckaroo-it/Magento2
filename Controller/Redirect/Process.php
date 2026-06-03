@@ -206,6 +206,8 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
      *
      * @param RequestInterface $request
      * @return InvalidRequestException|null
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function createCsrfValidationException(RequestInterface $request): ?InvalidRequestException
     {
@@ -217,6 +219,8 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
      *
      * @param RequestInterface $request
      * @return bool|null
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function validateForCsrf(RequestInterface $request): ?bool
     {
