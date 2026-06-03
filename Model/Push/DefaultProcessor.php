@@ -1698,6 +1698,17 @@ class DefaultProcessor implements PushProcessorInterface
             return true;
         }
 
+        // For Klarna KP (two-step auth→capture) persist the capture transaction key — the same key
+        // assigned to the invoice below — so refunds target the capture instead of the authorization
+        // (buckaroo_original_transaction_key). Shipment mode stores this via recordCaptureWithoutInvoice();
+        // payment mode must store it here, otherwise the refund builder falls back to the auth key and
+        // Buckaroo rejects it ("Could not find a original transaction with key ...").
+        if ($this->payment->getMethod() === 'buckaroo_magento2_klarnakp') {
+            $this->payment->setAdditionalInformation('buckaroo_capture_transaction_key', $transactionKey);
+            $this->payment->setAdditionalInformation('buckaroo_already_captured', true);
+            $this->payment->save();
+        }
+
         /** @var Invoice $invoice */
         foreach ($this->order->getInvoiceCollection() as $invoice) {
             $invoice->setTransactionId($transactionKey)->save();
