@@ -681,7 +681,9 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
          */
         $currentInvoice = $invoiceCollection->getLastItem();
 
-        $articles['articles'] = $this->getInvoiceItemsLines($currentInvoice);
+       $discountLine = $this->getDiscountLine();
+
+        $articles['articles'] = $this->getInvoiceItemsLines($currentInvoice, empty($discountLine));
 
         if (is_array($articles) && $numberOfInvoices == 1) {
             $serviceLine = $this->getServiceCostLine($currentInvoice);
@@ -695,6 +697,15 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             $articles = array_merge_recursive($articles, $shippingCosts);
         }
 
+        if (!empty($discountLine)) {
+            $articles['articles'][] = $discountLine;
+        }
+
+        $additionalLines = $this->getAdditionalLines();
+        if (!empty($additionalLines)) {
+            $articles = array_merge_recursive($articles, $additionalLines);
+        }
+
         $articles = $this->reconcileArticlesWithGrandTotal($articles, (float)$currentInvoice->getGrandTotal(), (float)$currentInvoice->getTaxAmount());
 
         return $articles;
@@ -704,10 +715,13 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      * Get items from invoice
      *
      * @param Invoice $invoice
+     * @param bool    $includePerItemDiscounts When false, per-item discount lines are
+     *                                         omitted because a global discount line is
+     *                                         already being added by the caller.
      *
      * @return array
      */
-    protected function getInvoiceItemsLines(Invoice $invoice): array
+    protected function getInvoiceItemsLines(Invoice $invoice, bool $includePerItemDiscounts = true): array
     {
         $articles = [];
         $count = 1;
@@ -732,7 +746,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
 
             $articles[] = $article;
 
-            if ($item->getDiscountAmount() > 0) {
+            if ($includePerItemDiscounts && $item->getDiscountAmount() > 0) {
                 $count++;
                 $discountAmount = (float)$item->getDiscountAmount();
                 if ($includesTax) {
