@@ -86,11 +86,6 @@ define([
       );
 
       // For cart page, sync amount from quote totals after options exist.
-      // Loaded lazily: Magento_Checkout/js/model/quote reads window.checkoutConfig
-      // at module-eval time, which does not exist on product/cart pages and would
-      // otherwise throw and abort the whole PayPal Express component. Failing to
-      // load it must never break the button, so we keep the config-provided
-      // amount/currency as a fallback.
       if (this.page === 'cart') {
         const self = this;
         require(['Magento_Checkout/js/model/quote'], function (quote) {

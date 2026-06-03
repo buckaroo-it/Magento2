@@ -46,10 +46,7 @@ const priceMixinStub = {
     getProductTotalPrice: jest.fn().mockReturnValue(null),
     getProductTotalPriceWithShipping: jest.fn().mockReturnValue(null),
 };
-// pay.js lazy-loads the quote model on the cart page via
-// require(['Magento_Checkout/js/model/quote'], onLoad, onError) so a missing
-// window.checkoutConfig can never throw and break the button. Invoke onLoad
-// synchronously with the quote stub so the seeding assertions below still hold.
+
 const requireStub = function (deps, onLoad) {
     if (typeof onLoad === 'function') {
         onLoad(quoteStub);
