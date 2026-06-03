@@ -240,6 +240,24 @@ class KlarnaKpProcessor extends DefaultProcessor
             return false;
         }
 
+        $autoPayTransactionKey = $this->pushRequest->getServiceKlarnakpAutopaytransactionkey();
+        $alreadyCaptured = (bool)$this->order->getPayment()
+            ->getAdditionalInformation('buckaroo_already_captured');
+        if (!empty($autoPayTransactionKey)
+            && ($this->order->hasInvoices() || $alreadyCaptured)
+        ) {
+            $this->logger->addDebug(sprintf(
+                '[KLARNA_KP] | [%s:%s] - Skipping redundant AutoPay confirmation push for order %s: '
+                . 'capture already processed (hasInvoices: %s, alreadyCaptured: %s)',
+                __METHOD__,
+                __LINE__,
+                $this->order->getIncrementId(),
+                $this->order->hasInvoices() ? 'YES' : 'NO',
+                $alreadyCaptured ? 'YES' : 'NO'
+            ));
+            return true;
+        }
+
         return parent::skipPush();
     }
 
@@ -321,7 +339,7 @@ class KlarnaKpProcessor extends DefaultProcessor
         }
 
         if (!empty($this->pushRequest->getServiceKlarnakpAutopaytransactionkey())
-            && ($this->pushRequest->getStatusCode() == 190)
+            && ((int)$this->pushRequest->getStatusCode() === BuckarooStatusCode::SUCCESS)
         ) {
             return true;
         }
@@ -337,7 +355,7 @@ class KlarnaKpProcessor extends DefaultProcessor
      */
     protected function processSucceededPushAuthorization(): void
     {
-        if ($this->pushRequest->getStatusCode() == 190) {
+        if ((int)$this->pushRequest->getStatusCode() === BuckarooStatusCode::SUCCESS) {
             // For Klarna KP, we need to handle the special case where canceled orders
             // can be completed within 48 hours (as per Klarna's policy)
             $validStatesForProcessing = [
