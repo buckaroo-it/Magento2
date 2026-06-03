@@ -42,7 +42,6 @@ define([
             customerData.initStorage();
             customerData.reload(sections, true);
             customerData.invalidate(sections);
-            console.log('Reload shopping cart on success');
         }
     });
 }); 

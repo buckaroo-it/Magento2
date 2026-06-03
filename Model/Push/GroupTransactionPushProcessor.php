@@ -183,7 +183,7 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
      */
     private function isGroupTransactionInfo()
     {
-        return $this->pushRequest->getStatusCode() != BuckarooStatusCode::SUCCESS;
+        return (int)$this->pushRequest->getStatusCode() !== BuckarooStatusCode::SUCCESS;
     }
 
     /**

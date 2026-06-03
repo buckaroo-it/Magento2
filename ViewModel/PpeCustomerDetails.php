@@ -63,7 +63,7 @@ class PpeCustomerDetails implements ArgumentInterface
             '[Helper - PayPerEmail] | [Helper] | [%s:%s] - Get PPE Customer details | originalRequest: %s',
             __METHOD__,
             __LINE__,
-            var_export($this->request->getParams(), true)
+            var_export(array_keys((array)$this->request->getParams()), true)
         ));
         if (($customerId = $this->request->getParam('customer_id')) && ((int)$customerId > 0)) {
             if (!isset($this->staticCache['getPPeCustomerDetails'])

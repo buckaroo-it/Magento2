@@ -196,6 +196,7 @@ class ProcessTest extends BaseTest
         $pushRequestMock->method('getOriginalRequest')->willReturn([]);
         $pushRequestMock->method('getData')->willReturn(['test' => 'data']);
         $pushRequestMock->method('getStatusCode')->willReturn('490');
+        $pushRequestMock->method('validate')->willReturn(true);
         $pushRequestMock->method('hasPostData')->willReturn(true);
         $pushRequestMock->method('hasAdditionalInformation')->willReturn(false);
 
@@ -334,6 +335,7 @@ class ProcessTest extends BaseTest
         $pushRequestMock->method('getOriginalRequest')->willReturn([]);
         $pushRequestMock->method('getData')->willReturn(['test' => 'data']);
         $pushRequestMock->method('getStatusCode')->willReturn('490');
+        $pushRequestMock->method('validate')->willReturn(true);
         $pushRequestMock->method('hasPostData')->willReturn(true);
         $pushRequestMock->method('hasAdditionalInformation')->willReturn(false);
 
@@ -469,6 +471,7 @@ class ProcessTest extends BaseTest
         $pushRequestMock->method('getData')->willReturn(['test' => 'data']);
         $pushRequestMock->method('getStatusCode')->willReturn('190');
         $pushRequestMock->method('getDatarequest')->willReturn(null);
+        $pushRequestMock->method('validate')->willReturn(true);
         $pushRequestMock->method('hasPostData')->willReturn(true);
         $pushRequestMock->method('hasAdditionalInformation')->willReturn(false);
 

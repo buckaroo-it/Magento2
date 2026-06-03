@@ -194,7 +194,8 @@ class GetToken extends Action
     {
         $result = $this->resultJsonFactory->create();
 
-        if (!$this->checkoutSession->getQuoteId()) {
+        $requestOrigin = $this->getRequest()->getHeader('X-Requested-From');
+        if ($requestOrigin !== 'MagentoFrontend' || !$this->checkoutSession->getQuoteId()) {
             return $result->setHttpResponseCode(403)->setData([
                 'error' => true,
                 'message' => 'Unauthorized request'

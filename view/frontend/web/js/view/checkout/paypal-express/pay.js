@@ -60,7 +60,6 @@ define([
       if (this.page === 'product') {
         productPrice = this.getProductTotalPrice();
         if (!productPrice || productPrice <= 0) {
-          console.error('[PayPal Express] Cannot initialize - product price not available');
           this.displayErrorMessage('Unable to initialize PayPal Express: Product price not available. Please refresh the page and try again.');
           return;
         }
@@ -192,7 +191,6 @@ define([
     },
     createPaymentHandler(orderID) {
       return this.createTransaction(orderID).catch((error) => {
-        console.error('[PayPal Express] Payment creation failed:', error);
         throw error;
       });
     },

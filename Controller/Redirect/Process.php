@@ -238,7 +238,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
             '[REDIRECT] | [Controller] | [%s:%s] - Original Request | originalRequest: %s',
             __METHOD__,
             __LINE__,
-            var_export($this->redirectRequest->getOriginalRequest(), true)
+            var_export(array_keys((array)$this->redirectRequest->getOriginalRequest()), true)
         ));
 
         if (count($this->redirectRequest->getData()) === 0 || empty($this->redirectRequest->getStatusCode())) {

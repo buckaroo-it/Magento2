@@ -70,13 +70,11 @@ define(
                 this.payMode = payMode;
 
                 if (typeof window.checkoutConfig === 'undefined') {
-                    console.error('[GooglePay] checkoutConfig is undefined');
                     return;
                 }
 
                 var config = window.checkoutConfig.payment.buckaroo.buckaroo_magento2_googlepay;
                 if (!config) {
-                    console.error('[GooglePay] Config not found');
                     return;
                 }
 
@@ -93,21 +91,18 @@ define(
 
                 // Check if options generation failed (e.g., couldn't get product price)
                 if (!googlePayOptions) {
-                    console.error('[GooglePay pay.js] Failed to generate Google Pay options - cannot show button');
                     canShowMethod(false);
                     return;
                 }
 
                 // Prevent duplicate button renders (afterRender can fire multiple times in Knockout)
                 if (self.googlePayPayment !== null) {
-                    console.log('[GooglePay] Button already initialized, skipping');
                     return;
                 }
 
                 try {
                     // Check if BuckarooSdk is available
                     if (typeof window.BuckarooSdk === 'undefined' || !window.BuckarooSdk.GooglePay) {
-                        console.error('[GooglePay] BuckarooSdk.GooglePay is not available');
                         throw new Error('BuckarooSdk.GooglePay is not available');
                     }
 
@@ -115,17 +110,12 @@ define(
                     self.googlePayPayment = new window.BuckarooSdk.GooglePay.GooglePayPayment(googlePayOptions);
                     self.googlePayPayment.initiate();
 
-                    console.log('[GooglePay] Button initialized successfully');
                     canShowMethod(true);
                 } catch (error) {
-                    console.error('[GooglePay] Error initializing:', error);
                     canShowMethod(false);
                 }
             },
 
-            /**
-             * Get product price from the page
-             */
             /**
              * Initialize product view watchers (same as Apple Pay approach)
              * Sets up real-time tracking of product selection changes
@@ -209,7 +199,6 @@ define(
                         this.productSelected.unitPrice = unitPrice;
                     }
                 } catch (e) {
-                    console.error('[GooglePay] Error updating product price:', e);
                 }
             },
 
@@ -302,7 +291,6 @@ define(
                         return unitPrice * quantity;
                     }
                 } catch (e) {
-                    console.error('[GooglePay] Error getting product price:', e);
                 }
 
                 return null;
@@ -321,7 +309,6 @@ define(
                 if (this.payMode === 'product') {
                     grandTotal = this.getProductPriceFromPage();
                     if (grandTotal === null || grandTotal <= 0) {
-                        console.error('[GooglePay] Cannot initialize - product price not available');
                         alert('Unable to initialize Google Pay: Product price not available. Please refresh the page and try again.');
                         return null;
                     }
@@ -407,14 +394,13 @@ define(
                 if (this.payMode === 'product' || this.payMode === 'cart') {
                     options.onPaymentDataChanged = function (intermediatePaymentData) {
                         var callbackTrigger = intermediatePaymentData.callbackTrigger;
-                        console.log('[GooglePay] onPaymentDataChanged - trigger:', callbackTrigger);
 
                         // Recalculate grandTotal with current qty for product pages
                         var currentGrandTotal = grandTotal;
                         if (self.payMode === 'product') {
                             // Update price from page right before showing payment sheet
                             self.updateProductPrice();
-                            
+
                             if (self.productSelected.unitPrice && self.productSelected.qty) {
                                 currentGrandTotal = self.productSelected.unitPrice * self.productSelected.qty;
                             }
@@ -503,11 +489,9 @@ define(
                                         }
                                     };
 
-                                    console.log('[GooglePay] Returning updateObject:', JSON.stringify(updateObject));
                                     return updateObject;
                                 })
                                 .catch(function(error) {
-                                    console.error('[GooglePay] Error getting shipping methods:', error);
 
                                     // Return error to Google Pay - this will show the error to the user
                                     // and prevent them from completing the payment
@@ -535,7 +519,6 @@ define(
 
                 // Add error handler
                 options.onGooglePayLoadError = function (error) {
-                    console.error('[Buckaroo Google Pay] Load error:', error);
                     canShowMethod(false);
                 };
 
@@ -592,7 +575,6 @@ define(
                             }
                         },
                         error: function(xhr, status, error) {
-                            console.error('[GooglePay] Error fetching shipping methods:', error);
                             reject(error);
                         }
                     });
@@ -612,7 +594,6 @@ define(
                             success: true
                         });
                     } catch (error) {
-                        console.error('[GooglePay] Process payment error:', error);
                         resolve({
                             success: false,
                             errorMessage: $t('Payment processing failed. Please try again.'),

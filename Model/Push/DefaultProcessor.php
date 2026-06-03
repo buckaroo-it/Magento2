@@ -1530,7 +1530,7 @@ class DefaultProcessor implements PushProcessorInterface
                         !empty($this->pushRequest->getTransactionType())
                         && in_array($this->pushRequest->getTransactionType(), ['I038', 'I880'])
                     )
-                ) && ($this->pushRequest->getStatusCode() == 190))
+                ) && ((int)$this->pushRequest->getStatusCode() === BuckarooStatusCode::SUCCESS))
         ) {
             // Check if order is in a valid state to be updated to processing
             $validStatesForProcessing = [

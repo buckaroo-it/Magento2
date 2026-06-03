@@ -606,7 +606,6 @@ define(
             devLog: function (msg, params) {
                 //window.buckarooDebug = 1;
                 if (window.buckarooDebug) {
-                    console.log(msg, params);
                 }
             },
 

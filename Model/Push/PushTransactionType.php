@@ -228,7 +228,7 @@ class PushTransactionType
         }
 
         if ($this->pushRequest->getStatusCode() !== null
-            && ($this->pushRequest->getStatusCode() == BuckarooStatusCode::SUCCESS)
+            && ((int)$this->pushRequest->getStatusCode() === BuckarooStatusCode::SUCCESS)
             && !$statusCode
         ) {
             $statusCode = BuckarooStatusCode::SUCCESS;
