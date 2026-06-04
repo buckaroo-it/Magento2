@@ -1,13 +1,12 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
  * This source file is subject to the MIT License
  * It is available through the world-wide-web at this URL:
  * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please send an email
- * to support@buckaroo.nl so we can send you a copy immediately.
+ * If you are unable to obtain it through the world-wide-web, please email
+ * to support@buckaroo.nl, so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
@@ -18,23 +17,22 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
-namespace Buckaroo\Magento2\Test\Unit\Model\Validator;
+namespace Buckaroo\Magento2\Gateway\Request\Recipient;
 
-use Buckaroo\Magento2\Model\Validator\Push;
-use Buckaroo\Magento2\Test\BaseTest;
-
-class PushTest extends BaseTest
+class WechatpayDataBuilder extends AbstractRecipientDataBuilder
 {
     /**
-     * @var string
+     * @inheritdoc
      */
-    protected $instanceClass = Push::class;
-
-    public function testValidate()
+    protected function buildData(): array
     {
-        $instance = $this->getInstance();
-        $this->expectException(\LogicException::class);
-        $instance->validate(null);
+        return [
+            'recipient' => [
+                'firstName' => $this->getFirstname(),
+                'lastName'  => $this->getLastName(),
+            ],
+        ];
     }
 }

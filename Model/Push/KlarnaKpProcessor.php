@@ -240,25 +240,35 @@ class KlarnaKpProcessor extends DefaultProcessor
             return false;
         }
 
-        $autoPayTransactionKey = $this->pushRequest->getServiceKlarnakpAutopaytransactionkey();
-        $alreadyCaptured = (bool)$this->order->getPayment()
-            ->getAdditionalInformation('buckaroo_already_captured');
-        if (!empty($autoPayTransactionKey)
-            && ($this->order->hasInvoices() || $alreadyCaptured)
-        ) {
+        if ($this->isRedundantAutoPayConfirmationPush()) {
             $this->logger->addDebug(sprintf(
                 '[KLARNA_KP] | [%s:%s] - Skipping redundant AutoPay confirmation push for order %s: '
-                . 'capture already processed (hasInvoices: %s, alreadyCaptured: %s)',
+                . 'capture already processed',
                 __METHOD__,
                 __LINE__,
-                $this->order->getIncrementId(),
-                $this->order->hasInvoices() ? 'YES' : 'NO',
-                $alreadyCaptured ? 'YES' : 'NO'
+                $this->order->getIncrementId()
             ));
             return true;
         }
 
         return parent::skipPush();
+    }
+
+    /**
+     * Whether this is a redundant Klarna KP AutoPay-confirmation push received after the capture
+     * was already processed (invoice created in payment mode, or capture recorded in shipment mode).
+     * Such pushes only re-run the success flow and write a misleading status note, so they are skipped.
+     *
+     * @return bool
+     */
+    private function isRedundantAutoPayConfirmationPush(): bool
+    {
+        if (empty($this->pushRequest->getServiceKlarnakpAutopaytransactionkey())) {
+            return false;
+        }
+
+        return $this->order->hasInvoices()
+            || (bool)$this->order->getPayment()->getAdditionalInformation('buckaroo_already_captured');
     }
 
     /**

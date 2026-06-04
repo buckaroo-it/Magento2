@@ -78,7 +78,7 @@ class GetShippingMethods extends AbstractGooglepay
             '[GooglePay] | [Controller] | [%s:%s] - Get Shipping Methods | Request: %s',
             __METHOD__,
             __LINE__,
-            var_export($postValues, true)
+            var_export(array_keys((array)$postValues), true)
         ));
 
         $addressData = $postValues['wallet'] ?? $postValues['address'] ?? null;

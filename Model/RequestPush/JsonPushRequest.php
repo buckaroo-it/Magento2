@@ -26,7 +26,6 @@ use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Model\Validator\PushSDK as Validator;
 
 /**
- * @method getDatarequest()
  * @method getAmountCredit()
  * @method getRelatedtransactionRefund()
  * @method getInvoicekey()
@@ -208,7 +207,9 @@ class JsonPushRequest extends AbstractPushRequest implements PushRequestInterfac
      */
     public function getStatusCode(): ?string
     {
-        return (string)$this->request["Status"]["Code"]["Code"] ?? null;
+        return isset($this->request["Status"]["Code"]["Code"])
+            ? (string)$this->request["Status"]["Code"]["Code"]
+            : null;
     }
 
     /**
@@ -241,6 +242,14 @@ class JsonPushRequest extends AbstractPushRequest implements PushRequestInterfac
     public function getTransactionType(): ?string
     {
         return $this->request["TransactionType"] ?? null;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getDatarequest(): ?string
+    {
+        return $this->request['Datarequest'] ?? null;
     }
 
     /**

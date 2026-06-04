@@ -25,7 +25,6 @@ use Buckaroo\Magento2\Api\Data\PushRequestInterface;
 use Buckaroo\Magento2\Model\Validator\Push as ValidatorPush;
 
 /**
- * @method getDatarequest()
  * @method getAmountCredit()
  * @method getRelatedtransactionRefund()
  * @method getInvoicekey()
@@ -191,7 +190,8 @@ class HttppostPushRequest extends AbstractPushRequest implements PushRequestInte
      */
     public function getStatusCode(): ?string
     {
-        return (string)$this->request['brq_statuscode'] ?? null;
+        $value = $this->request['brq_statuscode'] ?? null;
+        return $value !== null ? (string)$value : null;
     }
 
     /**
@@ -232,6 +232,14 @@ class HttppostPushRequest extends AbstractPushRequest implements PushRequestInte
     public function getPaymentMethod(): ?string
     {
         return $this->request['brq_payment_method'] ?? null;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getDatarequest(): ?string
+    {
+        return $this->request['brq_datarequest'] ?? null;
     }
 
     /**

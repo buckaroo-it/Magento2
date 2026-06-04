@@ -54,15 +54,32 @@ use PHPUnit\Framework\TestCase;
  */
 class KlarnaKpHandlerTest extends TestCase
 {
-    private ScopeConfigInterface|MockObject $scopeConfig;
-    private BuckarooLoggerInterface|MockObject $logger;
-    private QuoteFactory|MockObject $quoteFactory;
-    private Calculation|MockObject $taxCalculation;
-    private TaxConfig|MockObject $taxConfig;
-    private BuckarooFee|MockObject $buckarooFee;
-    private SoftwareData|MockObject $softwareData;
-    private ConfigProviderMethodFactory|MockObject $configProviderFactory;
-    private PayReminderService|MockObject $payReminderService;
+    /** @var ScopeConfigInterface|MockObject */
+    private $scopeConfig;
+
+    /** @var BuckarooLoggerInterface|MockObject */
+    private $logger;
+
+    /** @var QuoteFactory|MockObject */
+    private $quoteFactory;
+
+    /** @var Calculation|MockObject */
+    private $taxCalculation;
+
+    /** @var TaxConfig|MockObject */
+    private $taxConfig;
+
+    /** @var BuckarooFee|MockObject */
+    private $buckarooFee;
+
+    /** @var SoftwareData|MockObject */
+    private $softwareData;
+
+    /** @var ConfigProviderMethodFactory|MockObject */
+    private $configProviderFactory;
+
+    /** @var PayReminderService|MockObject */
+    private $payReminderService;
 
     /** Staged invoice items set by buildHandler, consumed by makeOrder(). */
     private array $stagedItems = [];
@@ -87,10 +104,10 @@ class KlarnaKpHandlerTest extends TestCase
     // -------------------------------------------------------------------------
 
     /**
-     * When a gift card partially pays the order the capture request must include
+     * When a gift card partially pays the order, the capture request must include
      * the gift card discount line (identifier = 6) and must NOT include 'extra-fees'.
      *
-     * Before the fix 'extra-fees' appeared at the same position as the gift card
+     * Before the fix, 'extra-fees' appeared at the same position as the gift card
      * line during reserve, causing Klarna to reject the capture.
      */
     public function testCaptureWithGiftCardIncludesGiftCardLineAndNoExtraFees(): void
@@ -153,7 +170,7 @@ class KlarnaKpHandlerTest extends TestCase
     // ---- Discount code tests ------------------------------------------------
 
     /**
-     * When a coupon/discount code is applied the capture must use the same global
+     * When a coupon/discount code is applied, the capture must use the same global
      * discount line (identifier = 1) that was sent during reserve.
      * Per-item discount lines (identifier = SKU) must NOT appear — they would be
      * unknown to Klarna and cause a capture rejection.
