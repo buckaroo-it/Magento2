@@ -103,8 +103,6 @@ define(
                     var self = this,
                         placeOrder;
 
-                    console.log('[GooglePay Client] placeOrder called, submit:', this.submit);
-
                     if (googlepayPay.isOsc()) {
                         var validationResult = additionalValidators.validate();
                         if (!validationResult) {
@@ -113,20 +111,14 @@ define(
                     }
 
                     if (!this.submit) {
-                        console.log('[GooglePay Client] Submit is false, trying to trigger Google Pay button');
                         // Trigger Google Pay button click
                         var button = document.querySelector('#google-pay-button-container button');
-                        console.log('[GooglePay Client] Google Pay button found:', button);
                         if (button) {
-                            console.log('[GooglePay Client] Clicking Google Pay button');
                             button.click();
                         } else {
-                            console.error('[GooglePay Client] Google Pay button not found in DOM!');
                         }
                         return false;
                     }
-
-                    console.log('[GooglePay Client] Submit is true, proceeding with order placement');
 
                     this.submit = false;
 
@@ -175,12 +167,9 @@ define(
                  * Show Google Pay button
                  */
                 showPayButton: function () {
-                    console.log('[GooglePay Client] showPayButton called');
                     googlepayPay.setIsOnCheckout(true);
                     googlepayPay.setQuote(quote);
-                    console.log('[GooglePay Client] Calling googlepayPay.showPayButton()');
                     googlepayPay.showPayButton();
-                    console.log('[GooglePay Client] googlepayPay.showPayButton() completed');
                 },
 
                 /**
@@ -206,11 +195,7 @@ define(
                  */
                 getData: function () {
                     var transactionResult = googlepayPay.transactionResult();
-                    console.log('[GooglePay Client] getData - transactionResult:', transactionResult);
                     var paymentData = this.formatPaymentData(transactionResult);
-                    console.log('[GooglePay Client] getData - formatted paymentData:', paymentData);
-                    console.log('[GooglePay Client] getData - paymentData is null?', paymentData === null);
-                    console.log('[GooglePay Client] getData - paymentData is undefined?', typeof paymentData === 'undefined');
 
                     var result = {
                         "method": this.item.method,
@@ -220,7 +205,6 @@ define(
                         }
                     };
 
-                    console.log('[GooglePay Client] getData - final result:', result);
                     return result;
                 },
 
@@ -229,18 +213,12 @@ define(
                  */
                 formatPaymentData: function (paymentData) {
                     if (null === paymentData || 'undefined' === typeof paymentData || !paymentData) {
-                        if (window.console && window.console.error) {
-                            console.error('[Buckaroo Google Pay Client] formatPaymentData: Invalid payment data', paymentData);
-                        }
                         return null;
                     }
 
                     try {
                         // Extract payment token from Google Pay response
                         if (!paymentData.paymentMethodData || !paymentData.paymentMethodData.tokenizationData) {
-                            if (window.console && window.console.error) {
-                                console.error('[Buckaroo Google Pay Client] Missing tokenization data', paymentData);
-                            }
                             return null;
                         }
 
@@ -265,9 +243,6 @@ define(
                             email: paymentData.email || null
                         });
                     } catch (error) {
-                        if (window.console && window.console.error) {
-                            console.error('[Buckaroo Google Pay Client] Error formatting payment data:', error);
-                        }
                         return null;
                     }
                 }

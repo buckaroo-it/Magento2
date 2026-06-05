@@ -125,7 +125,7 @@ class SpamLimitService
 
         $storedReachMessage = $paymentMethodInstance->getConfigData('spam_message');
 
-        if (is_string($storedReachMessage) && trim($storedReachMessage) > 0) {
+        if (is_string($storedReachMessage) && strlen(trim($storedReachMessage)) > 0) {
             $limitReachMessage = $storedReachMessage;
         }
 
@@ -175,20 +175,6 @@ class SpamLimitService
             if ($quoteId && isset($storage[$quoteId][$method])) {
                 $attempts = $storage[$quoteId][$method];
                 return $attempts >= $limit;
-            }
-
-            // Check if there's a cancelled order ID (quote was restored after spam limit)
-            if ($quote && $quote->getPayment()) {
-                $cancelledOrderId = $quote->getPayment()
-                    ->getAdditionalInformation('buckaroo_cancel_order_id');
-                if ($cancelledOrderId) {
-                    // Look up attempts from the original quote ID that created this order
-                    foreach ($storage as $methods) {
-                        if (isset($methods[$method]) && $methods[$method] >= $limit) {
-                            return true;
-                        }
-                    }
-                }
             }
         } catch (\Exception $e) {
             // If we can't get quote, default to session storage check

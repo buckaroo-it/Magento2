@@ -150,7 +150,8 @@ class PushTransactionType
             $this->magentoServiceAction = $this->pushRequest->getAdditionalInformation('service_action_from_magento');
             $this->serviceAction = $this->getServiceAction();
             $this->isFromPayPerEmail = !empty($this->pushRequest->getAdditionalInformation('frompayperemail'))
-                || $this->pushRequest->getAdditionalInformation('service_action_from_magento') === 'frompayperemail';
+                || $this->pushRequest->getAdditionalInformation('service_action_from_magento') === 'frompayperemail'
+                || $this->pushRequest->getAdditionalInformation('service_action_from_magento') === 'frompaylink';
 
             $this->isSet = true;
         }
@@ -227,7 +228,7 @@ class PushTransactionType
         }
 
         if ($this->pushRequest->getStatusCode() !== null
-            && ($this->pushRequest->getStatusCode() == BuckarooStatusCode::SUCCESS)
+            && ((int)$this->pushRequest->getStatusCode() === BuckarooStatusCode::SUCCESS)
             && !$statusCode
         ) {
             $statusCode = BuckarooStatusCode::SUCCESS;

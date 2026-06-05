@@ -63,7 +63,6 @@ define([
                 paypalExpressPay.setConfig(this.config, this.context);
                 paypalExpressPay.init();
             } catch (error) {
-                console.error('PayPal Express initialization error:', error);
             }
         }
     });

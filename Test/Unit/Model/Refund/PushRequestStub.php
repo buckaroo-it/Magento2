@@ -97,6 +97,11 @@ abstract class PushRequestStub implements PushRequestInterface
         return null;
     }
 
+    public function getDatarequest(): ?string
+    {
+        return null;
+    }
+
     public function getTransactions(): ?string
     {
         return null;

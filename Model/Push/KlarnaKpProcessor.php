@@ -240,7 +240,35 @@ class KlarnaKpProcessor extends DefaultProcessor
             return false;
         }
 
+        if ($this->isRedundantAutoPayConfirmationPush()) {
+            $this->logger->addDebug(sprintf(
+                '[KLARNA_KP] | [%s:%s] - Skipping redundant AutoPay confirmation push for order %s: '
+                . 'capture already processed',
+                __METHOD__,
+                __LINE__,
+                $this->order->getIncrementId()
+            ));
+            return true;
+        }
+
         return parent::skipPush();
+    }
+
+    /**
+     * Whether this is a redundant Klarna KP AutoPay-confirmation push received after the capture
+     * was already processed (invoice created in payment mode, or capture recorded in shipment mode).
+     * Such pushes only re-run the success flow and write a misleading status note, so they are skipped.
+     *
+     * @return bool
+     */
+    private function isRedundantAutoPayConfirmationPush(): bool
+    {
+        if (empty($this->pushRequest->getServiceKlarnakpAutopaytransactionkey())) {
+            return false;
+        }
+
+        return $this->order->hasInvoices()
+            || (bool)$this->order->getPayment()->getAdditionalInformation('buckaroo_already_captured');
     }
 
     /**
@@ -321,7 +349,7 @@ class KlarnaKpProcessor extends DefaultProcessor
         }
 
         if (!empty($this->pushRequest->getServiceKlarnakpAutopaytransactionkey())
-            && ($this->pushRequest->getStatusCode() == 190)
+            && ((int)$this->pushRequest->getStatusCode() === BuckarooStatusCode::SUCCESS)
         ) {
             return true;
         }
@@ -337,7 +365,7 @@ class KlarnaKpProcessor extends DefaultProcessor
      */
     protected function processSucceededPushAuthorization(): void
     {
-        if ($this->pushRequest->getStatusCode() == 190) {
+        if ((int)$this->pushRequest->getStatusCode() === BuckarooStatusCode::SUCCESS) {
             // For Klarna KP, we need to handle the special case where canceled orders
             // can be completed within 48 hours (as per Klarna's policy)
             $validStatesForProcessing = [

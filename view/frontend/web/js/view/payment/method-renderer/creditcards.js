@@ -169,7 +169,6 @@ define(
                 try {
                     await this.getOAuthToken();
                 } catch (error) {
-                    console.error("Error during resetHostedFields:", error);
                     this.paymentError($.mage.__("An error occurred while refreshing the payment form. Please try again."));
                 } finally {
                     // Keep button disabled after reset - validation callback will enable it when form is valid
@@ -317,7 +316,6 @@ define(
 
                     this.initCvcTooltip();
                 } catch (error) {
-                    console.error("Error initializing hosted fields:", error);
                     this.paymentError($.mage.__("An error occurred while initializing the payment form. Please try again."));
                 }
             },

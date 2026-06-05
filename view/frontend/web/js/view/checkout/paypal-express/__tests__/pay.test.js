@@ -47,10 +47,16 @@ const priceMixinStub = {
     getProductTotalPriceWithShipping: jest.fn().mockReturnValue(null),
 };
 
+const requireStub = function (deps, onLoad) {
+    if (typeof onLoad === 'function') {
+        onLoad(quoteStub);
+    }
+};
+
 // Load the module under test
 require('../pay.js');
 const pay = global.__payFactory(
-    jqueryStub, koStub, urlStub, dataStub, quoteStub, translateStub, priceMixinStub
+    jqueryStub, koStub, requireStub, urlStub, dataStub, translateStub, priceMixinStub
 );
 
 // ---------------------------------------------------------------------------

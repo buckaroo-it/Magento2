@@ -91,7 +91,6 @@
             <field id="express_sandbox_merchant_id" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label> PayPal SandBox ID</label>
                 <config_path>payment/buckaroo_magento2_paypal/express_sandbox_merchant_id</config_path>
-                <backend_model>Buckaroo\Magento2\Model\Config\Backend\PaypalExpressMerchantId</backend_model>
             </field>
            <field id="available_buttons" translate="label comment" type="multiselect" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Enable or Disable Paypal Express Buttons</label>

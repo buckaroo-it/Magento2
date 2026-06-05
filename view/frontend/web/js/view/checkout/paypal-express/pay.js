@@ -19,13 +19,13 @@
 define([
   "jquery",
   "ko",
+  "require",
   "mage/url",
   "Magento_Customer/js/customer-data",
-  "Magento_Checkout/js/model/quote",
   'mage/translate',
   'Buckaroo_Magento2/js/view/express-payment/product-price-mixin',
   'BuckarooSdk'
-], function ($, ko, urlBuilder, customerData, quote, $t, productPriceMixin) {
+], function ($, ko, require, urlBuilder, customerData, $t, productPriceMixin) {
   "use strict";
 
   function getBuckarooSdkInstance() {
@@ -60,7 +60,6 @@ define([
       if (this.page === 'product') {
         productPrice = this.getProductTotalPrice();
         if (!productPrice || productPrice <= 0) {
-          console.error('[PayPal Express] Cannot initialize - product price not available');
           this.displayErrorMessage('Unable to initialize PayPal Express: Product price not available. Please refresh the page and try again.');
           return;
         }
@@ -88,17 +87,26 @@ define([
       // For cart page, sync amount from quote totals after options exist.
       if (this.page === 'cart') {
         const self = this;
-        const syncFromTotals = function (totalData) {
-          if (!totalData) return;
-          const grandTotal = parseFloat(totalData.grand_total);
-          if (Number.isNaN(grandTotal)) return;
-          self.options.amount = grandTotal.toFixed(2);
-          if (totalData.quote_currency_code) {
-            self.options.currency = totalData.quote_currency_code;
+        require(['Magento_Checkout/js/model/quote'], function (quote) {
+          const syncFromTotals = function (totalData) {
+            if (!totalData) return;
+            const grandTotal = parseFloat(totalData.grand_total);
+            if (Number.isNaN(grandTotal)) return;
+            self.options.amount = grandTotal.toFixed(2);
+            if (totalData.quote_currency_code) {
+              self.options.currency = totalData.quote_currency_code;
+            }
+          };
+          try {
+            syncFromTotals(quote.totals());
+          } catch (e) {
+            // Totals not ready yet; the subscription below will sync later.
           }
-        };
-        syncFromTotals(quote.totals());
-        quote.totals.subscribe(syncFromTotals);
+          quote.totals.subscribe(syncFromTotals);
+        }, function () {
+          // quote model unavailable on this page (no window.checkoutConfig);
+          // keep the config-provided amount/currency so the button still renders.
+        });
       }
     },
     result: null,
@@ -183,7 +191,6 @@ define([
     },
     createPaymentHandler(orderID) {
       return this.createTransaction(orderID).catch((error) => {
-        console.error('[PayPal Express] Payment creation failed:', error);
         throw error;
       });
     },

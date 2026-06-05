@@ -160,7 +160,7 @@ class PayPerEmailTest extends BaseTest
     public static function isVisibleForAreaCodeProvider()
     {
         return [
-            "visibleFrontBack is null" => [null, null, false],
+            "visibleFrontBack is null" => [null, 'frontend', false],
             "visibleFrontBack is frontend areacode adminhtml" => ['frontend', 'adminhtml', false],
             "visibleFrontBack is frontend areacode frontend"  => ['frontend', 'frontend', true],
             "visibleFrontBack is backend areacode adminhtml"  => ['backend', 'adminhtml', true],

@@ -19,10 +19,10 @@
 
 /**
  * Shared Product Price Detection Mixin for Express Payment Methods
- * 
+ *
  * This mixin provides consistent product price detection across all express payment methods
  * (Google Pay, Apple Pay, PayPal Express, etc.)
- * 
+ *
  * Usage:
  * 1. Include this mixin in your component dependencies
  * 2. Call this.getProductPriceFromPage() to get the current product price
@@ -47,7 +47,7 @@ define([
         /**
          * Initialize product view watchers
          * Sets up real-time tracking of product selection changes (quantity, options)
-         * 
+         *
          * @returns {void}
          */
         initProductPriceWatchers: function() {
@@ -78,7 +78,7 @@ define([
             $('.product-options-wrapper div').on('click', function() {
                 setTimeout(function() {
                     var selected_options = {};
-                    
+
                     // Collect selected swatch options
                     $('div.swatch-attribute').each(function(k, v) {
                         var attribute_id = $(v).attr('attribute-id') || $(v).attr('data-attribute-id');
@@ -87,7 +87,7 @@ define([
                             selected_options[attribute_id] = option_selected;
                         }
                     });
-                    
+
                     self.productSelected.selected_options = selected_options;
 
                     // Update price when options change (configurable products might have different prices)
@@ -101,7 +101,7 @@ define([
          * Uses two-level fallback for reliability:
          * 1. Magento's priceBox widget cache (most reliable)
          * 2. Parse visible price text (fallback)
-         * 
+         *
          * @returns {void}
          */
         updateProductPrice: function() {
@@ -112,7 +112,6 @@ define([
                     this.productSelected.unitPrice = unitPrice;
                 }
             } catch (e) {
-                console.error('[ExpressPayment] Error updating product price:', e);
             }
         },
 
@@ -120,32 +119,31 @@ define([
          * Method 1: Get price from Magento's priceBox widget cache
          * This is the most reliable method as it gets the actual numeric value
          * without any string parsing
-         * 
+         *
          * @returns {number|null} Price as float, or null if not found
          */
         getPriceFromWidget: function() {
             try {
                 var priceBox = $('.product-info-main .price-box[data-product-id]').first();
-                
+
                 if (!priceBox.length) {
                     return null;
                 }
 
                 var priceBoxData = priceBox.data('priceBox');
-                
+
                 if (!priceBoxData || !priceBoxData.cache || !priceBoxData.cache.displayPrices) {
                     return null;
                 }
 
                 var finalPrice = priceBoxData.cache.displayPrices.finalPrice;
-                
+
                 if (finalPrice && finalPrice.amount) {
                     return parseFloat(finalPrice.amount);
                 }
 
                 return null;
             } catch (e) {
-                console.warn('[ExpressPayment] Error getting price from widget:', e);
                 return null;
             }
         },
@@ -154,22 +152,22 @@ define([
          * Method 2: Parse price from visible text (fallback)
          * Used when widget cache is not available
          * Supports various currency formats (€12.34, $12.34, 12,34 €, etc.)
-         * 
+         *
          * @returns {number|null} Price as float, or null if not found
          */
         getPriceFromText: function() {
             try {
                 var priceElement = $('.product-info-main .price-box .price').first();
-                
+
                 if (!priceElement.length) {
                     return null;
                 }
 
                 var priceText = priceElement.text().trim();
-                
+
                 // Extract numbers, dots, and commas
                 var priceMatch = priceText.match(/[\d.,]+/);
-                
+
                 if (!priceMatch) {
                     return null;
                 }
@@ -177,7 +175,7 @@ define([
                 // Handle different decimal separators
                 // Examples: "12,34" (European) or "12.34" (US)
                 var price = priceMatch[0];
-                
+
                 // If there's a comma followed by 2 digits at the end, it's likely a decimal separator
                 if (/,\d{2}$/.test(price)) {
                     // European format: 1.234,56 → 1234.56
@@ -189,15 +187,14 @@ define([
 
                 return parseFloat(price);
             } catch (e) {
-                console.warn('[ExpressPayment] Error parsing price from text:', e);
                 return null;
             }
         },
 
         /**
-         * Get current product price from page (combines both methods)
+         * Get the current product price from the page (combines both methods)
          * Public method that should be called by payment implementations
-         * 
+         *
          * @returns {number|null} Current product price, or null if cannot be determined
          */
         getProductPriceFromPage: function() {
@@ -212,14 +209,13 @@ define([
 
                 return unitPrice && unitPrice > 0 ? unitPrice : null;
             } catch (e) {
-                console.error('[ExpressPayment] Error getting product price:', e);
                 return null;
             }
         },
 
         /**
          * Get total price (unit price * quantity)
-         * 
+         *
          * @returns {number|null} Total price, or null if cannot be determined
          */
         getProductTotalPrice: function() {
@@ -236,7 +232,7 @@ define([
         /**
          * Validate that we have a valid product price
          * Shows user-friendly error if price cannot be determined
-         * 
+         *
          * @param {string} paymentMethodName - Name of payment method for error message
          * @param {Function} errorCallback - Optional callback to show error (receives error message)
          * @returns {boolean} True if valid price exists, false otherwise
@@ -246,16 +242,14 @@ define([
 
             if (!price || price <= 0) {
                 var errorMessage = 'Unable to initialize ' + paymentMethodName + ': Product price not available. Please refresh the page and try again.';
-                
-                console.error('[ExpressPayment] ' + errorMessage);
-                
+
                 // Use custom error callback if provided, otherwise use alert
                 if (errorCallback && typeof errorCallback === 'function') {
                     errorCallback(errorMessage);
                 } else if (typeof alert !== 'undefined') {
                     alert(errorMessage);
                 }
-                
+
                 return false;
             }
 

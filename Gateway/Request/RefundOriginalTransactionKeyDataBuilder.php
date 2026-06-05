@@ -59,14 +59,14 @@ class RefundOriginalTransactionKeyDataBuilder implements BuilderInterface
     {
         $creditmemo = $payment->getCreditmemo();
 
-        // PayPerEmail: always prioritise the actual payment transaction key when available.
-        // This applies even when the payment method has already been updated from
-        // 'buckaroo_magento2_payperemail' to the method the customer actually used (e.g. iDEAL),
-        // because the refundable transaction is the one from the actual payment, not the
-        // original PayPerEmail transaction.
         $actualTransactionKey = $payment->getAdditionalInformation(BuckarooAdapter::BUCKAROO_ACTUAL_PAYMENT_TRANSACTION_KEY);
         if (!empty($actualTransactionKey)) {
             return $actualTransactionKey;
+        }
+
+        $klarnaKpCaptureKey = $this->getKlarnaKpCaptureKey($payment);
+        if ($klarnaKpCaptureKey !== null) {
+            return $klarnaKpCaptureKey;
         }
 
         $methodInstance = $payment->getMethodInstance();
@@ -82,5 +82,28 @@ class RefundOriginalTransactionKeyDataBuilder implements BuilderInterface
         }
 
         return $payment->getAdditionalInformation(self::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY);
+    }
+
+    /**
+     * Capture transaction key for a captured Klarna KP order, or null when not applicable.
+     *
+     * Klarna KP is a two-step auth→capture method; refunds must target the capture transaction,
+     * not the authorization stored in buckaroo_original_transaction_key.
+     *
+     * @param InfoInterface $payment
+     * @return string|null
+     */
+    private function getKlarnaKpCaptureKey(InfoInterface $payment): ?string
+    {
+        if ($payment->getMethod() !== 'buckaroo_magento2_klarnakp') {
+            return null;
+        }
+
+        $captureTransactionKey = $payment->getAdditionalInformation('buckaroo_capture_transaction_key');
+        if (!empty($captureTransactionKey) && $payment->getAdditionalInformation('buckaroo_already_captured')) {
+            return $captureTransactionKey;
+        }
+
+        return null;
     }
 }

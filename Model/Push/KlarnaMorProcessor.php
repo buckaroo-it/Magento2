@@ -216,7 +216,7 @@ class KlarnaMorProcessor extends DefaultProcessor
         }
 
         if (!empty($this->pushRequest->getDatarequest())
-            && ($this->pushRequest->getStatusCode() == 190)
+            && ((int)$this->pushRequest->getStatusCode() === BuckarooStatusCode::SUCCESS)
         ) {
             return true;
         }
@@ -231,7 +231,7 @@ class KlarnaMorProcessor extends DefaultProcessor
      */
     protected function processSucceededPushAuthorization(): void
     {
-        if ($this->pushRequest->getStatusCode() == 190) {
+        if ((int)$this->pushRequest->getStatusCode() === BuckarooStatusCode::SUCCESS) {
             $validStatesForProcessing = [
                 Order::STATE_NEW,
                 Order::STATE_PENDING_PAYMENT,

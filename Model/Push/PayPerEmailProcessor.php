@@ -213,7 +213,8 @@ class PayPerEmailProcessor extends DefaultProcessor
      */
     private function receivePushCheckPayLink(): void
     {
-        if (!empty($this->pushRequest->getAdditionalInformation('frompaylink'))
+        if (($this->pushRequest->getAdditionalInformation('service_action_from_magento') === 'frompaylink'
+                || !empty($this->pushRequest->getAdditionalInformation('frompaylink')))
             && $this->pushTransactionType->getStatusKey() == 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'
         ) {
             $this->payment->setMethod('buckaroo_magento2_payperemail');
@@ -358,19 +359,19 @@ class PayPerEmailProcessor extends DefaultProcessor
      */
     protected function setOrderStatusMessage(): void
     {
-        if (!empty($this->pushRequest->getStatusmessage())) {
+        if (!empty($this->pushRequest->getStatusMessage())) {
             if ($this->order->getState() === Order::STATE_NEW
                 && empty($this->pushRequest->getAdditionalInformation('frompayperemail'))
                 && empty($this->pushRequest->getRelatedtransactionPartialpayment())
-                && $this->pushRequest->hasPostData('statuscode', BuckarooStatusCode::SUCCESS)
+                && (int)$this->pushRequest->getStatusCode() === BuckarooStatusCode::SUCCESS
             ) {
                 $this->order->setState(Order::STATE_PROCESSING);
                 $this->order->addCommentToStatusHistory(
-                    $this->pushRequest->getStatusmessage(),
+                    $this->pushRequest->getStatusMessage(),
                     $this->helper->getOrderStatusByState($this->order, Order::STATE_PROCESSING)
                 );
             } else {
-                $this->order->addCommentToStatusHistory($this->pushRequest->getStatusmessage());
+                $this->order->addCommentToStatusHistory($this->pushRequest->getStatusMessage());
             }
         }
     }

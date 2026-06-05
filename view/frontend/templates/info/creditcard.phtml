@@ -29,7 +29,7 @@
     <?php echo $block->escapeHtml($block->getMethod()->getTitle()) ?>
 </div>
 
-<div class="buckaroo_magento2_payment_card_<?php echo $block->getCardCode(); ?>">
+<div class="buckaroo_magento2_payment_card_<?php echo $block->escapeHtmlAttr($block->getCardCode()); ?>">
     <?php if ($block->getInfo()->getAdditionalInformation()): ?>
         <?php if ($block->getCardType()): ?>
             <!--<br />--><?php echo $block->escapeHtml(__('Selected card: %1', $block->getCardType())); ?>

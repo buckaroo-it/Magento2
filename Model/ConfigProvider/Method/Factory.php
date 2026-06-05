@@ -98,7 +98,7 @@ class Factory
     public function has($providerType)
     {
         if (empty($this->configProviders)) {
-            throw new \LogicException('ConfigProvider adapter is not set.');
+            return false;
         }
 
         $providerType = str_replace('buckaroo_magento2_', '', $providerType);

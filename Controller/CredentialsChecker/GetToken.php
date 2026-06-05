@@ -21,14 +21,16 @@
 namespace Buckaroo\Magento2\Controller\CredentialsChecker;
 
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcards;
+use Buckaroo\Magento2\Service\Creditcard\HostedFieldsTokenClient;
+use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
-use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Controller\Result\JsonFactory;
-use Psr\Log\LoggerInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Store\Api\Data\StoreInterface;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\Store\Model\StoreManagerInterface;
-use Magento\Framework\HTTP\Client\Curl;
 
 class GetToken extends Action
 {
@@ -38,7 +40,7 @@ class GetToken extends Action
     protected $resultJsonFactory;
 
     /**
-     * @var LoggerInterface
+     * @var BuckarooLoggerInterface
      */
     protected $logger;
 
@@ -53,75 +55,49 @@ class GetToken extends Action
     protected $encryptor;
 
     /**
-     * @var \Magento\Store\Api\Data\StoreInterface
+     * @var StoreInterface
      */
     protected $store;
 
     /**
-     * @var Curl
+     * @var HostedFieldsTokenClient
      */
-    protected $curlClient;
+    protected $tokenClient;
+
+    /**
+     * @var CheckoutSession
+     */
+    protected $checkoutSession;
 
     /**
      * @param Context $context
      * @param JsonFactory $resultJsonFactory
-     * @param LoggerInterface $logger
+     * @param BuckarooLoggerInterface $logger
      * @param Creditcards $configProviderCreditcard
      * @param EncryptorInterface $encryptor
      * @param StoreManagerInterface $storeManager
-     * @param Curl $curlClient
+     * @param HostedFieldsTokenClient $tokenClient
+     * @param CheckoutSession $checkoutSession
+     * @throws NoSuchEntityException
      */
     public function __construct(
         Context $context,
         JsonFactory $resultJsonFactory,
-        LoggerInterface $logger,
+        BuckarooLoggerInterface $logger,
         Creditcards $configProviderCreditcard,
         EncryptorInterface $encryptor,
         StoreManagerInterface $storeManager,
-        Curl $curlClient
+        HostedFieldsTokenClient $tokenClient,
+        CheckoutSession $checkoutSession
     ) {
         $this->resultJsonFactory = $resultJsonFactory;
         $this->logger = $logger;
         $this->configProviderCreditcard = $configProviderCreditcard;
         $this->encryptor = $encryptor;
         $this->store = $storeManager->getStore();
-        $this->curlClient = $curlClient;
+        $this->tokenClient = $tokenClient;
+        $this->checkoutSession = $checkoutSession;
         parent::__construct($context);
-    }
-
-    /**
-     * Send POST request using Magento's Curl client.
-     *
-     * @param mixed $url
-     * @param mixed $username
-     * @param mixed $password
-     * @param mixed $postData
-     *
-     * @return string
-     *
-     * @throws LocalizedException
-     */
-    private function sendPostRequest($url, $username, $password, $postData): string
-    {
-        try {
-            // Set Basic Auth credentials without base64_encode()
-            $this->curlClient->setCredentials($username, $password);
-
-            // Set the headers and post fields
-            $this->curlClient->addHeader("Content-Type", "application/x-www-form-urlencoded");
-
-            // Send the POST request
-            $this->curlClient->post($url, http_build_query($postData));
-
-            // Get the response body
-            return $this->curlClient->getBody();
-        } catch (\Exception $e) {
-            $this->logger->error('Curl request error: ' . $e->getMessage());
-            throw new LocalizedException(
-                __('Error occurred during cURL request: %1', $e->getMessage()),
-                $e
-            );
-        }
     }
 
     /**
@@ -136,7 +112,7 @@ class GetToken extends Action
                 $this->configProviderCreditcard->getHostedFieldsClientId($this->store)
             );
         } catch (\Exception $e) {
-            $this->logger->error('Error decrypting Hosted Fields fields: ' . $e->getMessage());
+            $this->logger->addError('Error decrypting Hosted Fields fields: ' . $e->getMessage());
             return null;
         }
     }
@@ -153,7 +129,7 @@ class GetToken extends Action
                 $this->configProviderCreditcard->getHostedFieldsClientSecret($this->store)
             );
         } catch (\Exception $e) {
-            $this->logger->error('Error decrypting Hosted Fields fields: ' . $e->getMessage());
+            $this->logger->addError('Error decrypting Hosted Fields fields: ' . $e->getMessage());
             return null;
         }
     }
@@ -168,7 +144,7 @@ class GetToken extends Action
         try {
             return $this->configProviderCreditcard->getSupportedServices();
         } catch (\Exception $e) {
-            $this->logger->error('Error getting Allowed Issuers: ' . $e->getMessage());
+            $this->logger->addError('Error getting Allowed Issuers: ' . $e->getMessage());
             return null;
         }
     }
@@ -182,9 +158,8 @@ class GetToken extends Action
     {
         $result = $this->resultJsonFactory->create();
 
-        // Validate the request origin
         $requestOrigin = $this->getRequest()->getHeader('X-Requested-From');
-        if ($requestOrigin !== 'MagentoFrontend') {
+        if ($requestOrigin !== 'MagentoFrontend' || !$this->checkoutSession->getQuoteId()) {
             return $result->setHttpResponseCode(403)->setData([
                 'error' => true,
                 'message' => 'Unauthorized request'
@@ -211,14 +186,10 @@ class GetToken extends Action
 
         // Try to fetch the token
         try {
-            $url = "https://auth.buckaroo.io/oauth/token";
-            $postData = [
-                'scope' => 'hostedfields:save',
-                'grant_type' => 'client_credentials'
-            ];
-
-            $response = $this->sendPostRequest($url, $hostedFieldsClientId, $hostedFieldsClientSecret, $postData);
-            $responseArray = json_decode($response, true);
+            $responseArray = $this->tokenClient->fetchToken(
+                $hostedFieldsClientId,
+                $hostedFieldsClientSecret
+            );
 
             // Check for successful response and include expires_in if available
             if (isset($responseArray['access_token'])) {
@@ -239,7 +210,7 @@ class GetToken extends Action
             ]);
 
         } catch (\Exception $e) {
-            $this->logger->error('Error occurred while fetching token.');
+            $this->logger->addError('Error occurred while fetching token.');
             return $result->setHttpResponseCode(500)->setData([
                 'error' => true,
                 'message' => 'An error occurred while fetching the token.'

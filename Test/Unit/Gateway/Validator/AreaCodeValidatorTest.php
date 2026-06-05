@@ -3,7 +3,8 @@
 namespace Buckaroo\Magento2\Test\Unit\Gateway\Validator;
 
 use Buckaroo\Magento2\Gateway\Validator\AreaCodeValidator;
-use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderFactory;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as MethodConfigProviderFactory;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface;
 use Magento\Framework\App\Area;
 use Magento\Framework\App\State;
 use Magento\Payment\Gateway\Validator\ResultInterface;
@@ -14,24 +15,16 @@ use PHPUnit\Framework\TestCase;
 
 class AreaCodeValidatorTest extends TestCase
 {
-    /**
-     * @var ResultInterfaceFactory|MockObject
-     */
+    /** @var ResultInterfaceFactory|MockObject */
     private $resultFactory;
 
-    /**
-     * @var State|MockObject
-     */
+    /** @var State|MockObject */
     private $state;
 
-    /**
-     * @var ConfigProviderFactory|MockObject
-     */
-    private $configProviderFactory;
+    /** @var MethodConfigProviderFactory|MockObject */
+    private $methodConfigProviderFactory;
 
-    /**
-     * @var AreaCodeValidator
-     */
+    /** @var AreaCodeValidator */
     private $validator;
 
     protected function setUp(): void
@@ -43,79 +36,96 @@ class AreaCodeValidatorTest extends TestCase
 
         $this->state = $this->createMock(State::class);
 
-        $this->configProviderFactory = $this->createMock(ConfigProviderFactory::class);
+        $this->methodConfigProviderFactory = $this->createMock(MethodConfigProviderFactory::class);
 
         $this->validator = new AreaCodeValidator(
             $this->resultFactory,
             $this->state,
-            $this->configProviderFactory
+            $this->methodConfigProviderFactory
         );
     }
 
     /**
      * @dataProvider validateDataProvider
-     *
-     * @param mixed $areaCode
-     * @param mixed $configData
-     * @param mixed $expectedResult
      */
-    public function testValidate($areaCode, $configData, $expectedResult)
-    {
-        $validationSubject = [
-            'paymentMethodInstance' => $this->createMock(MethodInterface::class)
-        ];
-
-        $this->state->method('getAreaCode')
-            ->willReturn($areaCode);
-
-        $validationSubject['paymentMethodInstance']->method('getConfigData')
+    public function testValidate(
+        string $areaCode,
+        ?string $availableInBackend,
+        bool $hasProvider,
+        ?bool $isVisibleForAreaCode,
+        bool $expectedResult
+    ): void {
+        $method = $this->createMock(MethodInterface::class);
+        $method->method('getCode')->willReturn('buckaroo_magento2_testmethod');
+        $method->method('getConfigData')
             ->with('available_in_backend')
-            ->willReturn($configData);
+            ->willReturn($availableInBackend);
+
+        $this->state->method('getAreaCode')->willReturn($areaCode);
+
+        $this->methodConfigProviderFactory->method('has')->willReturn($hasProvider);
+
+        if ($hasProvider && $isVisibleForAreaCode !== null) {
+            $cp = $this->createMock(ConfigProviderInterface::class);
+            $cp->method('isVisibleForAreaCode')->willReturn($isVisibleForAreaCode);
+            $this->methodConfigProviderFactory->method('get')->willReturn($cp);
+        }
 
         $resultMock = $this->createMock(ResultInterface::class);
-
         $this->resultFactory->method('create')
             ->with(['isValid' => $expectedResult, 'failsDescription' => [], 'errorCodes' => []])
             ->willReturn($resultMock);
 
-        $result = $this->validator->validate($validationSubject);
+        $result = $this->validator->validate(['paymentMethodInstance' => $method]);
 
         $this->assertSame($resultMock, $result);
     }
 
-    public static function validateDataProvider()
+    public static function validateDataProvider(): array
     {
         return [
-            'backend with config data 0' => [
-                'areaCode' => Area::AREA_ADMINHTML,
-                'configData' => '0',
-                'expectedResult' => false
+            'admin, available_in_backend=0 → blocked' => [
+                Area::AREA_ADMINHTML, '0', false, null, false,
             ],
-            'backend with config data 1' => [
-                'areaCode' => Area::AREA_ADMINHTML,
-                'configData' => '1',
-                'expectedResult' => true
+            'admin, available_in_backend=1 → allowed' => [
+                Area::AREA_ADMINHTML, '1', false, null, true,
             ],
-            'backend without config data' => [
-                'areaCode' => Area::AREA_ADMINHTML,
-                'configData' => null,
-                'expectedResult' => true
+            'admin, no available_in_backend config → allowed' => [
+                Area::AREA_ADMINHTML, null, false, null, true,
             ],
-            'front end with config data 0' => [
-                'areaCode' => Area::AREA_FRONTEND,
-                'configData' => '0',
-                'expectedResult' => true
+            'frontend, available_in_backend=0 → allowed (flag only applies to admin)' => [
+                Area::AREA_FRONTEND, '0', false, null, true,
             ],
-            'front end with config data 1' => [
-                'areaCode' => Area::AREA_FRONTEND,
-                'configData' => '1',
-                'expectedResult' => true
+            'frontend, no provider → allowed' => [
+                Area::AREA_FRONTEND, null, false, null, true,
             ],
-            'front end without config data' => [
-                'areaCode' => Area::AREA_FRONTEND,
-                'configData' => null,
-                'expectedResult' => true
+            'frontend, provider returns visible=true → allowed' => [
+                Area::AREA_FRONTEND, null, true, true, true,
+            ],
+            'frontend, provider returns visible=false → blocked' => [
+                Area::AREA_FRONTEND, null, true, false, false,
+            ],
+            'admin, provider returns visible=true → allowed' => [
+                Area::AREA_ADMINHTML, null, true, true, true,
+            ],
+            'admin, provider returns visible=false → blocked' => [
+                Area::AREA_ADMINHTML, null, true, false, false,
             ],
         ];
+    }
+
+    public function testAreaCodeExceptionAllowsPayment(): void
+    {
+        $method = $this->createMock(MethodInterface::class);
+        $this->state->method('getAreaCode')->willThrowException(new \Exception('Area not set'));
+
+        $resultMock = $this->createMock(ResultInterface::class);
+        $this->resultFactory->method('create')
+            ->with(['isValid' => true, 'failsDescription' => [], 'errorCodes' => []])
+            ->willReturn($resultMock);
+
+        $result = $this->validator->validate(['paymentMethodInstance' => $method]);
+
+        $this->assertSame($resultMock, $result);
     }
 }
