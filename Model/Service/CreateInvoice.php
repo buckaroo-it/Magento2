@@ -27,8 +27,11 @@ use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Magento\Framework\DB\TransactionFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Registry;
+use Magento\Framework\Serialize\Serializer\Json;
+use Magento\Sales\Api\OrderStatusHistoryRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Invoice;
+use Magento\Sales\Model\Order\Shipment;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
@@ -82,6 +85,16 @@ class CreateInvoice
     protected $registry;
 
     /**
+     * @var Json
+     */
+    private $jsonSerializer;
+
+    /**
+     * @var OrderStatusHistoryRepositoryInterface
+     */
+    private $orderStatusHistoryRepository;
+
+    /**
      * @param Account                 $configAccount
      * @param Log                     $logger
      * @param PaymentGroupTransaction $groupTransaction
@@ -90,6 +103,8 @@ class CreateInvoice
      * @param TransactionFactory      $transactionFactory
      * @param Registry                $registry
      * @param Data                    $helper
+     * @param Json|null               $jsonSerializer
+     * @param OrderStatusHistoryRepositoryInterface|null $orderStatusHistoryRepository
      */
     public function __construct(
         Account $configAccount,
@@ -99,7 +114,9 @@ class CreateInvoice
         InvoiceService $invoiceService,
         TransactionFactory $transactionFactory,
         Registry $registry,
-        Data $helper
+        Data $helper,
+        Json $jsonSerializer = null,
+        OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository = null
     ) {
         $this->logger = $logger;
         $this->groupTransaction = $groupTransaction;
@@ -109,6 +126,10 @@ class CreateInvoice
         $this->helper = $helper;
         $this->transactionFactory = $transactionFactory;
         $this->registry = $registry;
+        $this->jsonSerializer = $jsonSerializer
+            ?? \Magento\Framework\App\ObjectManager::getInstance()->get(Json::class);
+        $this->orderStatusHistoryRepository = $orderStatusHistoryRepository
+            ?? \Magento\Framework\App\ObjectManager::getInstance()->get(OrderStatusHistoryRepositoryInterface::class);
     }
 
     /**
@@ -131,23 +152,28 @@ class CreateInvoice
 
         $invoiceItems = $this->prepareInvoiceItems($order, $invoiceItems);
 
-        $data['capture_case'] = 'offline';
         $invoice = $this->invoiceService->prepareInvoice($order, $invoiceItems);
 
         if (!$invoice->getTotalQty()) {
-            throw new LocalizedException(
-                __("The invoice can't be created without products. Add products and try again.")
+            // Throwing here would roll back the shipment save that triggered this observer,
+            // making the order impossible to ship at all. Skip the invoice instead.
+            $this->logger->addDebug(
+                __METHOD__ . ' - Skip invoice creation: no invoiceable items for the current shipment'
             );
+            $this->orderStatusHistoryRepository->save(
+                $order->addCommentToStatusHistory(
+                    (string)__('Skipped automatic invoice on shipment: the shipment contains no invoiceable items.')
+                )
+            );
+            return false;
         }
 
         $this->registry->register('current_invoice', $invoice);
-        if (!empty($data['capture_case'])) {
-            $invoice->setRequestedCaptureCase($data['capture_case']);
-        }
+        $invoice->setRequestedCaptureCase(Invoice::CAPTURE_OFFLINE);
 
         $invoice->register();
 
-        $invoice->getOrder()->setCustomerNoteNotify(!empty($data['send_email']));
+        $invoice->getOrder()->setCustomerNoteNotify(0);
         $invoice->getOrder()->setIsInProcess(true);
 
         $transactionSave = $this->transactionFactory->create()
@@ -156,6 +182,7 @@ class CreateInvoice
 
         $transactionSave->save();
 
+        /** @var Order\Payment $payment */
         $payment = $invoice->getOrder()->getPayment();
 
         $transactionKey = (string)$payment->getAdditionalInformation(
@@ -175,7 +202,7 @@ class CreateInvoice
                 $invoice->setState(Invoice::STATE_PAID);
             }
 
-            if (!$invoice->getEmailSent() && $this->configAccount->getInvoiceEmail($order->getStore())) {
+            if (!$invoice->getEmailSent() && $this->configAccount->getInvoiceEmail($order->getStoreId())) {
                 $this->logger->addDebug(__METHOD__ . '|4| - Send Invoice Email');
                 $this->invoiceSender->send($invoice, true);
             }
@@ -252,8 +279,159 @@ class CreateInvoice
         return $payment;
     }
 
+    /**
+     * Build the invoice qtys for the items included in a shipment.
+     *
+     * Returns an empty array when the shipment completes the shipping of the order, so the
+     * caller invoices every remaining invoiceable item, including virtual items that can
+     * never be part of a shipment.
+     *
+     * @param Shipment $shipment
+     *
+     * @return array order_item_id => qty
+     */
+    public function getQtysFromShipment(Shipment $shipment): array
+    {
+        $order = $shipment->getOrder();
+
+        if (!$order->canShip()) {
+            return [];
+        }
+
+        $qtys = [];
+        foreach ($shipment->getAllItems() as $shipmentItem) {
+            $qtys[(int)$shipmentItem->getOrderItemId()] = (float)$shipmentItem->getQty();
+        }
+
+        return $this->correctBundleParentQtys($order, $qtys);
+    }
+
+    /**
+     * Correct the qty of bundle parents that are shipped separately.
+     *
+     * Magento stores a hardcoded qty of 1 on the dummy parent shipment item of a
+     * "Ship Separately" bundle, so the real qty has to be derived from the child items.
+     *
+     * @param Order $order
+     * @param array $qtys order_item_id => qty
+     *
+     * @return array
+     */
+    private function correctBundleParentQtys(Order $order, array $qtys): array
+    {
+        foreach ($order->getAllItems() as $orderItem) {
+            if (empty($orderItem->getChildrenItems()) || !$orderItem->isShipSeparately()) {
+                continue;
+            }
+
+            $parentQty = min(
+                $this->getParentQtyFromChildren($orderItem, $qtys),
+                (float)$orderItem->getQtyToInvoice()
+            );
+
+            if ($parentQty > 0) {
+                $qtys[(int)$orderItem->getId()] = $parentQty;
+            } else {
+                unset($qtys[$orderItem->getId()]);
+            }
+        }
+
+        return $qtys;
+    }
+
     private function prepareInvoiceItems(Order $order, array $invoiceItems): array
     {
-        return empty($invoiceItems) ? $this->getInvoiceItems($order) : $invoiceItems;
+        if (empty($invoiceItems)) {
+            return $this->getInvoiceItems($order);
+        }
+
+        return $this->addMissingBundleParentQtys($order, $invoiceItems);
+    }
+
+    /**
+     * Add bundle parent qtys derived from their child items.
+     *
+     * The admin shipment form posts qtys keyed by the child order items for bundles set to
+     * "Ship Separately", while invoicing a fixed-price bundle requires the parent item qty.
+     * Core InvoiceService only propagates parent qty to children, never child to parent, so
+     * without the parent qty the bundle is silently dropped from the invoice.
+     *
+     * @param Order $order
+     * @param array $invoiceItems order_item_id => qty
+     *
+     * @return array
+     */
+    private function addMissingBundleParentQtys(Order $order, array $invoiceItems): array
+    {
+        foreach ($order->getAllItems() as $orderItem) {
+            if (empty($orderItem->getChildrenItems()) || isset($invoiceItems[$orderItem->getId()])) {
+                continue;
+            }
+
+            $parentQty = min(
+                $this->getParentQtyFromChildren($orderItem, $invoiceItems),
+                (float)$orderItem->getQtyToInvoice()
+            );
+
+            if ($parentQty > 0) {
+                $invoiceItems[$orderItem->getId()] = $parentQty;
+            }
+        }
+
+        return $invoiceItems;
+    }
+
+    /**
+     * Derive the number of invoiceable parent (bundle) units from the child qtys provided.
+     *
+     * @param Order\Item $parentItem
+     * @param array      $invoiceItems order_item_id => qty
+     *
+     * @return float
+     */
+    private function getParentQtyFromChildren(Order\Item $parentItem, array $invoiceItems): float
+    {
+        $parentQty = null;
+
+        foreach ($parentItem->getChildrenItems() as $childItem) {
+            if (!isset($invoiceItems[$childItem->getId()])) {
+                continue;
+            }
+
+            $selectionQty = $this->getBundleSelectionQty($childItem);
+            $childSets = $selectionQty > 0
+                ? floor((float)$invoiceItems[$childItem->getId()] / $selectionQty)
+                : 0.0;
+
+            $parentQty = $parentQty === null ? $childSets : min($parentQty, $childSets);
+        }
+
+        return (float)($parentQty ?? 0);
+    }
+
+    /**
+     * Get the qty of a child product included in a single bundle, defaults to 1.
+     *
+     * @param Order\Item $childItem
+     *
+     * @return float
+     */
+    private function getBundleSelectionQty(Order\Item $childItem): float
+    {
+        $productOptions = $childItem->getProductOptions();
+        $selectionAttributes = $productOptions['bundle_selection_attributes'] ?? null;
+
+        if (is_string($selectionAttributes)) {
+            try {
+                $selectionAttributes = $this->jsonSerializer->unserialize($selectionAttributes);
+            } catch (\InvalidArgumentException $e) {
+                $this->logger->addDebug(
+                    __METHOD__ . ' - Could not unserialize bundle_selection_attributes: ' . $e->getMessage()
+                );
+                return 1.0;
+            }
+        }
+
+        return isset($selectionAttributes['qty']) ? (float)$selectionAttributes['qty'] : 1.0;
     }
 }
