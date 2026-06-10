@@ -30,6 +30,7 @@ use Magento\Quote\Api\CartManagementInterface;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Quote\Model\ResourceModel\Quote\Address as QuoteAddressResource;
 use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Model\ConfigProvider\SecondChance as SecondChanceConfig;
 use Magento\Sales\Model\Order;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Payment\Helper\Data as PaymentHelper;
@@ -80,6 +81,11 @@ class Recreate
     protected $paymentHelper;
 
     /**
+     * @var SecondChanceConfig
+     */
+    protected $secondChanceConfig;
+
+    /**
      * Constructor
      *
      * @param CartRepositoryInterface $cartRepository
@@ -90,6 +96,7 @@ class Recreate
      * @param Log                     $logger
      * @param StoreManagerInterface   $storeManager
      * @param PaymentHelper           $paymentHelper
+     * @param SecondChanceConfig|null $secondChanceConfig
      */
     public function __construct(
         CartRepositoryInterface $cartRepository,
@@ -99,7 +106,8 @@ class Recreate
         ManagerInterface $messageManager,
         Log $logger,
         StoreManagerInterface $storeManager,
-        PaymentHelper $paymentHelper
+        PaymentHelper $paymentHelper,
+        SecondChanceConfig $secondChanceConfig = null
     ) {
         $this->cartRepository       = $cartRepository;
         $this->checkoutSession      = $checkoutSession;
@@ -109,10 +117,11 @@ class Recreate
         $this->logger               = $logger;
         $this->storeManager         = $storeManager;
         $this->paymentHelper        = $paymentHelper;
+        $this->secondChanceConfig   = $secondChanceConfig;
     }
 
     /**
-     * Recreate the quote by resetting necessary fields
+     * Recreate the quote by resetting the necessary fields
      *
      * @param Quote $quote
      *
@@ -346,7 +355,9 @@ class Recreate
                 $quote->setCouponCode($order->getCouponCode());
             }
 
-            // Restore gift card data from original order (Magento_GiftCardAccount fields)
+            $expectedGiftCardsAmount = (float) $order->getData('gift_cards_amount');
+
+            // Restore gift card data from original order (Magento_GiftCardAccount fields).
             if ($order->getData('gift_cards')) {
                 $quote->setData('gift_cards', $order->getData('gift_cards'));
                 $quote->setData('gift_cards_amount', $order->getData('gift_cards_amount'));
@@ -373,6 +384,28 @@ class Recreate
                     $this->logger->addError('Failed to collect totals even without payment method');
                 }
             }
+
+            // After collectTotals, check if the restored gift card amount is less than expected.
+            // A shortfall means the GiftCardAccount collector invalidated one or more cards
+            // (expired, zero balance, or already fully redeemed).
+            if ($expectedGiftCardsAmount > 0) {
+                $restoredGiftCardsAmount = (float) $quote->getData('gift_cards_amount');
+                if ($restoredGiftCardsAmount < $expectedGiftCardsAmount) {
+                    $this->logger->addWarning('Second Chance: gift card(s) could not be fully restored', [
+                        'order_id'  => $order->getIncrementId(),
+                        'expected'  => $expectedGiftCardsAmount,
+                        'restored'  => $restoredGiftCardsAmount,
+                    ]);
+
+                    if ($this->secondChanceConfig !== null) {
+                        $message = $this->secondChanceConfig->getGiftCardInvalidMessage($order->getStoreId());
+                        if (!empty($message)) {
+                            $this->messageManager->addWarningMessage(__($message));
+                        }
+                    }
+                }
+            }
+
             $quote->save();
 
             // Set in checkout session

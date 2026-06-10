@@ -142,6 +142,23 @@
             </depends>
         </field>
 
+        <field id="second_chance_gift_card_section" translate="label" sortOrder="93" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Gift Card Checkout Message</label>
+            <frontend_model>Magento\Config\Block\System\Config\Form\Field\Heading</frontend_model>
+            <depends>
+                <field id="enable_second_chance">1</field>
+            </depends>
+        </field>
+
+        <field id="second_chance_gift_card_invalid_message" translate="label comment" type="textarea" sortOrder="94" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Gift Card No Longer Valid Message</label>
+            <comment><![CDATA[Message shown to the customer at checkout when a gift card from their original order could not be re-applied (e.g., card was fully used, expired, or canceled). Leave empty to disable the message. Supports store-level translations.]]></comment>
+            <config_path>buckaroo_magento2/second_chance/gift_card_invalid_message</config_path>
+            <depends>
+                <field id="enable_second_chance">1</field>
+            </depends>
+        </field>
+
         <field id="second_chance_streak_section" translate="label" sortOrder="95" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Email Streak (De-duplication)</label>
             <frontend_model>Magento\Config\Block\System\Config\Form\Field\Heading</frontend_model>
