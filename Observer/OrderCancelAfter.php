@@ -24,9 +24,10 @@ namespace Buckaroo\Magento2\Observer;
 use Buckaroo\Magento2\Gateway\Http\Client\Json;
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
-use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
+use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
+use Buckaroo\Magento2\Model\Service\Order\CancelRemainingReservation;
 use Magento\Framework\App\State as AppState;
 use Magento\Framework\Encryption\Encryptor;
 use Magento\Framework\Event\Observer;
@@ -67,12 +68,18 @@ class OrderCancelAfter implements ObserverInterface
     private $appState;
 
     /**
-     * @param Json                    $client
-     * @param Encryptor               $encryptor
-     * @param Account                 $configProviderAccount
-     * @param PayPerEmail             $configProviderPPE
-     * @param BuckarooLoggerInterface $logger
-     * @param AppState                $appState
+     * @var CancelRemainingReservation
+     */
+    private CancelRemainingReservation $cancelRemainingReservation;
+
+    /**
+     * @param Json                       $client
+     * @param Encryptor                  $encryptor
+     * @param Account                    $configProviderAccount
+     * @param PayPerEmail                $configProviderPPE
+     * @param BuckarooLoggerInterface    $logger
+     * @param AppState                   $appState
+     * @param CancelRemainingReservation $cancelRemainingReservation
      */
     public function __construct(
         Json $client,
@@ -80,14 +87,16 @@ class OrderCancelAfter implements ObserverInterface
         Account $configProviderAccount,
         PayPerEmail $configProviderPPE,
         BuckarooLoggerInterface $logger,
-        AppState $appState
+        AppState $appState,
+        CancelRemainingReservation $cancelRemainingReservation
     ) {
-        $this->client                = $client;
-        $this->encryptor             = $encryptor;
-        $this->configProviderAccount = $configProviderAccount;
-        $this->configProviderPPE     = $configProviderPPE;
-        $this->logger                = $logger;
-        $this->appState              = $appState;
+        $this->client                       = $client;
+        $this->encryptor                    = $encryptor;
+        $this->configProviderAccount        = $configProviderAccount;
+        $this->configProviderPPE            = $configProviderPPE;
+        $this->logger                       = $logger;
+        $this->appState                     = $appState;
+        $this->cancelRemainingReservation   = $cancelRemainingReservation;
     }
 
     /**
@@ -107,6 +116,7 @@ class OrderCancelAfter implements ObserverInterface
         $originalKey = $payment->getAdditionalInformation(BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY);
 
         $this->markManualCancellationIfApplicable($payment, $order);
+        $this->cancelRemainingReservation->execute($order);
 
         $cancelPPE = $this->configProviderPPE->getCancelPpe();
 
