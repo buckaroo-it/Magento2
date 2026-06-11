@@ -49,9 +49,7 @@ class KlarnaCancelVoidSkipTest extends TestCase
 
     public function testSkipWhenKlarnaMorHasNoDataRequestKey(): void
     {
-        $orderMock = $this->createMock(Order::class);
-        $orderMock->method('getBuckarooDatarequestKey')->willReturn(null);
-        $orderMock->method('getIncrementId')->willReturn('000000123');
+        $orderMock = $this->createOrderMock();
 
         $paymentMock = $this->createMock(Payment::class);
         $paymentMock->method('getMethod')->willReturn('buckaroo_magento2_klarna');
@@ -72,9 +70,7 @@ class KlarnaCancelVoidSkipTest extends TestCase
 
     public function testDoNotSkipWhenKlarnaMorHasDataRequestKey(): void
     {
-        $orderMock = $this->createMock(Order::class);
-        $orderMock->method('getBuckarooDatarequestKey')->willReturn('datarequest-123');
-        $orderMock->method('getIncrementId')->willReturn('000000123');
+        $orderMock = $this->createOrderMock('datarequest-123');
 
         $paymentMock = $this->createMock(Payment::class);
         $paymentMock->method('getMethod')->willReturn('buckaroo_magento2_klarna');
@@ -94,9 +90,7 @@ class KlarnaCancelVoidSkipTest extends TestCase
 
     public function testSkipWhenKlarnaKpHasNoReservationNumber(): void
     {
-        $orderMock = $this->createMock(Order::class);
-        $orderMock->method('getBuckarooReservationNumber')->willReturn(null);
-        $orderMock->method('getIncrementId')->willReturn('000000123');
+        $orderMock = $this->createOrderMock();
 
         $paymentMock = $this->createMock(Payment::class);
         $paymentMock->method('getMethod')->willReturn('buckaroo_magento2_klarnakp');
@@ -113,9 +107,7 @@ class KlarnaCancelVoidSkipTest extends TestCase
 
     public function testDoNotSkipWhenKlarnaKpHasReservationNumberOnOrder(): void
     {
-        $orderMock = $this->createMock(Order::class);
-        $orderMock->method('getBuckarooReservationNumber')->willReturn('reservation-123');
-        $orderMock->method('getIncrementId')->willReturn('000000123');
+        $orderMock = $this->createOrderMock(null, 'reservation-123');
 
         $paymentMock = $this->createMock(Payment::class);
         $paymentMock->method('getMethod')->willReturn('buckaroo_magento2_klarnakp');
@@ -131,9 +123,7 @@ class KlarnaCancelVoidSkipTest extends TestCase
 
     public function testDoNotSkipWhenKlarnaKpHasReservationNumberInPaymentAdditionalInformation(): void
     {
-        $orderMock = $this->createMock(Order::class);
-        $orderMock->method('getBuckarooReservationNumber')->willReturn(null);
-        $orderMock->method('getIncrementId')->willReturn('000000123');
+        $orderMock = $this->createOrderMock();
 
         $paymentMock = $this->createMock(Payment::class);
         $paymentMock->method('getMethod')->willReturn('buckaroo_magento2_klarnakp');
@@ -152,5 +142,25 @@ class KlarnaCancelVoidSkipTest extends TestCase
         $result = $this->klarnaCancelVoidSkip->isSkip(['payment' => $paymentDOMock]);
 
         $this->assertFalse($result);
+    }
+
+    /**
+     * @param string|null $dataRequestKey
+     * @param string|null $reservationNumber
+     * @return Order|MockObject
+     */
+    private function createOrderMock(?string $dataRequestKey = null, ?string $reservationNumber = null)
+    {
+        $orderMock = $this->getMockBuilder(Order::class)
+            ->disableOriginalConstructor()
+            ->addMethods(['getBuckarooDatarequestKey', 'getBuckarooReservationNumber'])
+            ->onlyMethods(['getIncrementId'])
+            ->getMock();
+
+        $orderMock->method('getBuckarooDatarequestKey')->willReturn($dataRequestKey);
+        $orderMock->method('getBuckarooReservationNumber')->willReturn($reservationNumber);
+        $orderMock->method('getIncrementId')->willReturn('000000123');
+
+        return $orderMock;
     }
 }
