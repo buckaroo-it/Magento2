@@ -179,9 +179,8 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             $articles = array_merge_recursive($articles, $shippingCosts);
         }
 
-        $discountline = $this->getDiscountLine();
-        if (!empty($discountline)) {
-            $articles['articles'][] = $discountline;
+        foreach ($this->getDiscountLines() as $discountLine) {
+            $articles['articles'][] = $discountLine;
         }
 
         $additionalLines = $this->getAdditionalLines();
@@ -504,7 +503,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
                 static::TAX_CALCULATION_INCLUDES_TAX,
                 ScopeInterface::SCOPE_STORE
             );
-            if ($includesTax) {
+            if (!$includesTax) {
                 $discount -= abs((double)$this->order->getDiscountTaxCompensationAmount());
             }
         }
@@ -514,6 +513,32 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         }
 
         return $discount;
+    }
+
+    /**
+     * Get effective VAT rate as a weighted average of order item tax rates.
+     *
+     * @return float
+     */
+    protected function getOrderEffectiveVatRate(): float
+    {
+        $totalExclTax = 0.0;
+        $weightedTax = 0.0;
+
+        foreach ($this->order->getAllVisibleItems() as $item) {
+            $rowTotal = (float)$item->getRowTotal();
+            if ($rowTotal <= 0) {
+                continue;
+            }
+            $totalExclTax += $rowTotal;
+            $weightedTax += $rowTotal * (float)$item->getTaxPercent();
+        }
+
+        if ($totalExclTax <= 0) {
+            return 0.0;
+        }
+
+        return round($weightedTax / $totalExclTax, 2);
     }
 
     /**
@@ -641,26 +666,93 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     }
 
     /**
-     * Get the discount cost lines
+     * Get discount lines, split proportionally per VAT rate present in the order.
      *
+     * @return array
+     */
+    public function getDiscountLines(): array
+    {
+        $discount = $this->getDiscountAmount();
+
+        if ($discount >= 0) {
+            return [];
+        }
+
+        $vatGroups = $this->getOrderVatGroups();
+
+        if (count($vatGroups) <= 1) {
+            $vatRate = !empty($vatGroups) ? (float)array_key_first($vatGroups) : $this->getOrderEffectiveVatRate();
+            return [$this->getArticleArrayLine(
+                (string)$this->getDiscount(),
+                1,
+                1,
+                round($discount, 2),
+                $vatRate
+            )];
+        }
+
+        $lines = [];
+        $totalRowTotal = array_sum(array_column($vatGroups, 'rowTotal'));
+        $allocatedDiscount = 0.0;
+        $vatRates = array_keys($vatGroups);
+        $lastVatRate = end($vatRates);
+
+        foreach ($vatGroups as $vatRate => $group) {
+            if ($vatRate === $lastVatRate) {
+                $lineDiscount = round($discount - $allocatedDiscount, 2);
+            } else {
+                $lineDiscount = round($discount * ($group['rowTotal'] / $totalRowTotal), 2);
+                $allocatedDiscount += $lineDiscount;
+            }
+
+            if (abs($lineDiscount) < 0.01) {
+                continue;
+            }
+
+            $lines[] = $this->getArticleArrayLine(
+                (string)$this->getDiscount(),
+                1,
+                1,
+                $lineDiscount,
+                $vatRate
+            );
+        }
+
+        return $lines;
+    }
+
+    /**
+     * Get the discount cost line.
+     *
+     * @deprecated Use getDiscountLines() to correctly split discounts per VAT rate.
      * @return array
      */
     public function getDiscountLine(): array
     {
-        $article = [];
-        $discount = $this->getDiscountAmount();
+        $lines = $this->getDiscountLines();
+        return !empty($lines) ? $lines[0] : [];
+    }
 
-        if ($discount >= 0) {
-            return $article;
+    /**
+     * Get order items grouped by VAT rate with their combined excl-tax row totals.
+     *
+     * @return array
+     */
+    protected function getOrderVatGroups(): array
+    {
+        $groups = [];
+        foreach ($this->order->getAllVisibleItems() as $item) {
+            $rowTotal = (float)$item->getRowTotal();
+            if ($rowTotal <= 0) {
+                continue;
+            }
+            $vatRate = (float)$item->getTaxPercent();
+            if (!isset($groups[$vatRate])) {
+                $groups[$vatRate] = ['rowTotal' => 0.0];
+            }
+            $groups[$vatRate]['rowTotal'] += $rowTotal;
         }
-
-        return $this->getArticleArrayLine(
-            (string)$this->getDiscount(),
-            1,
-            1,
-            round($discount, 2),
-            0
-        );
+        return $groups;
     }
 
     /**
@@ -681,9 +773,9 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
          */
         $currentInvoice = $invoiceCollection->getLastItem();
 
-       $discountLine = $this->getDiscountLine();
+       $discountLines = $this->getDiscountLines();
 
-        $articles['articles'] = $this->getInvoiceItemsLines($currentInvoice, empty($discountLine));
+        $articles['articles'] = $this->getInvoiceItemsLines($currentInvoice, empty($discountLines));
 
         if (is_array($articles) && $numberOfInvoices == 1) {
             $serviceLine = $this->getServiceCostLine($currentInvoice);
@@ -697,7 +789,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             $articles = array_merge_recursive($articles, $shippingCosts);
         }
 
-        if (!empty($discountLine)) {
+        foreach ($discountLines as $discountLine) {
             $articles['articles'][] = $discountLine;
         }
 
@@ -749,7 +841,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             if ($includePerItemDiscounts && $item->getDiscountAmount() > 0) {
                 $count++;
                 $discountAmount = (float)$item->getDiscountAmount();
-                if ($includesTax) {
+                if (!$includesTax) {
                     $discountAmount += abs((float)($item->getDiscountTaxCompensationAmount() ?? 0));
                 }
                 $article = $this->getArticleArrayLine(
@@ -757,7 +849,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
                     $item->getSku(),
                     1,
                     number_format(-$discountAmount, 2),
-                    0
+                    $this->getItemTax($item->getOrderItem())
                 );
                 $articles[] = $article;
             }
