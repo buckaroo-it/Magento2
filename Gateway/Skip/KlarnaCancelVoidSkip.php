@@ -95,12 +95,12 @@ class KlarnaCancelVoidSkip implements SkipCommandInterface
     private function getReservationReference($order, $payment, string $methodCode): ?string
     {
         if ($methodCode === Klarna::CODE) {
-            return $order?->getBuckarooDatarequestKey()
+            return ($order !== null ? $order->getBuckarooDatarequestKey() : null)
                 ?? $payment->getAdditionalInformation('buckaroo_datarequest_key');
         }
 
         if ($methodCode === Klarnakp::CODE) {
-            return $order?->getBuckarooReservationNumber()
+            return ($order !== null ? $order->getBuckarooReservationNumber() : null)
                 ?? $payment->getAdditionalInformation('buckaroo_reservation_number');
         }
 
