@@ -41,6 +41,7 @@ use Magento\Sales\Model\Service\InvoiceService;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveParameterList)
  */
 class CreateInvoice
 {
@@ -103,7 +104,7 @@ class CreateInvoice
      * @param TransactionFactory      $transactionFactory
      * @param Registry                $registry
      * @param Data                    $helper
-     * @param Json|null               $jsonSerializer
+     * @param Json|null                                  $jsonSerializer
      * @param OrderStatusHistoryRepositoryInterface|null $orderStatusHistoryRepository
      */
     public function __construct(
@@ -115,8 +116,8 @@ class CreateInvoice
         TransactionFactory $transactionFactory,
         Registry $registry,
         Data $helper,
-        Json $jsonSerializer = null,
-        OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository = null
+        ?Json $jsonSerializer = null,
+        ?OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository = null
     ) {
         $this->logger = $logger;
         $this->groupTransaction = $groupTransaction;

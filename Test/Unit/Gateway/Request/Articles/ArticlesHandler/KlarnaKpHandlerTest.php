@@ -114,12 +114,12 @@ class KlarnaKpHandlerTest extends TestCase
     {
         // Products €20 + €14 = €34, gift card -€6, invoice total €28.
         $handler = $this->buildHandler(
-            items: [
+            [
                 $this->makeItem('PROD1', 'Product 1', 20.00),
                 $this->makeItem('PROD2', 'Product 2', 14.00),
             ],
-            invoiceGrandTotal: 28.00,
-            giftCardAmount: 6.00
+            28.00,
+            6.00
         );
 
         $result = $handler->getInvoiceArticlesData(
@@ -148,12 +148,12 @@ class KlarnaKpHandlerTest extends TestCase
     public function testCaptureWithoutGiftCardHasNoExtraFeesAndNoGiftCardLine(): void
     {
         $handler = $this->buildHandler(
-            items: [
+            [
                 $this->makeItem('PROD1', 'Product 1', 20.00),
                 $this->makeItem('PROD2', 'Product 2', 14.00),
             ],
-            invoiceGrandTotal: 34.00,
-            giftCardAmount: 0.0
+            34.00,
+            0.0
         );
 
         $result = $handler->getInvoiceArticlesData(
@@ -179,17 +179,17 @@ class KlarnaKpHandlerTest extends TestCase
     {
         // Products €20 + €10 = €30, 10% discount -€3, invoice total €27.
         $handler = $this->buildHandler(
-            items: [
-                $this->makeItem('PROD1', 'Product 1', 20.00, itemDiscount: 2.00),
-                $this->makeItem('PROD2', 'Product 2', 10.00, itemDiscount: 1.00),
+            [
+                $this->makeItem('PROD1', 'Product 1', 20.00, 2.00),
+                $this->makeItem('PROD2', 'Product 2', 10.00, 1.00),
             ],
-            invoiceGrandTotal: 27.00,
-            giftCardAmount: 0.0,
-            orderDiscountAmount: -3.00
+            27.00,
+            0.0,
+            -3.00
         );
 
         $result = $handler->getInvoiceArticlesData(
-            $this->makeOrder(orderDiscountAmount: -3.00),
+            $this->makeOrder(-3.00),
             $this->createMock(InfoInterface::class)
         );
 
@@ -216,17 +216,17 @@ class KlarnaKpHandlerTest extends TestCase
     public function testDiscountLineHasCorrectNegativePrice(): void
     {
         $handler = $this->buildHandler(
-            items: [
-                $this->makeItem('PROD1', 'Product 1', 20.00, itemDiscount: 2.00),
-                $this->makeItem('PROD2', 'Product 2', 10.00, itemDiscount: 1.00),
+            [
+                $this->makeItem('PROD1', 'Product 1', 20.00, 2.00),
+                $this->makeItem('PROD2', 'Product 2', 10.00, 1.00),
             ],
-            invoiceGrandTotal: 27.00,
-            giftCardAmount: 0.0,
-            orderDiscountAmount: -3.00
+            27.00,
+            0.0,
+            -3.00
         );
 
         $result = $handler->getInvoiceArticlesData(
-            $this->makeOrder(orderDiscountAmount: -3.00),
+            $this->makeOrder(-3.00),
             $this->createMock(InfoInterface::class)
         );
 
@@ -249,17 +249,17 @@ class KlarnaKpHandlerTest extends TestCase
     public function testCaptureWithDiscountCodeHasNoExtraFees(): void
     {
         $handler = $this->buildHandler(
-            items: [
-                $this->makeItem('PROD1', 'Product 1', 20.00, itemDiscount: 2.00),
-                $this->makeItem('PROD2', 'Product 2', 10.00, itemDiscount: 1.00),
+            [
+                $this->makeItem('PROD1', 'Product 1', 20.00, 2.00),
+                $this->makeItem('PROD2', 'Product 2', 10.00, 1.00),
             ],
-            invoiceGrandTotal: 27.00,
-            giftCardAmount: 0.0,
-            orderDiscountAmount: -3.00
+            27.00,
+            0.0,
+            -3.00
         );
 
         $result = $handler->getInvoiceArticlesData(
-            $this->makeOrder(orderDiscountAmount: -3.00),
+            $this->makeOrder(-3.00),
             $this->createMock(InfoInterface::class)
         );
 
@@ -276,9 +276,9 @@ class KlarnaKpHandlerTest extends TestCase
     public function testGiftCardLineHasCorrectNegativePrice(): void
     {
         $handler = $this->buildHandler(
-            items: [$this->makeItem('PROD1', 'Product 1', 50.00)],
-            invoiceGrandTotal: 33.99,
-            giftCardAmount: 16.01
+            [$this->makeItem('PROD1', 'Product 1', 50.00)],
+            33.99,
+            16.01
         );
 
         $result = $handler->getInvoiceArticlesData(
