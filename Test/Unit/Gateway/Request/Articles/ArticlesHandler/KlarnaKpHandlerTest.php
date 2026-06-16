@@ -51,6 +51,8 @@ use PHPUnit\Framework\TestCase;
  *
  * Fix: getInvoiceArticlesData now calls getAdditionalLines() before reconciliation,
  * mirroring the reserve path in getOrderArticlesData.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class KlarnaKpHandlerTest extends TestCase
 {
