@@ -18,12 +18,19 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 -->
-<!--@subject {{trans "Je bestelling bij %store_name staat nog open" store_name=$store.getFrontendName()}} @-->
+<!--@subject {{trans "Maak je bestelling af - %store_name" store_name=$store.getFrontendName()}} @-->
 <!--@vars {
-"var order.increment_id":"Order Id",
-"var expected_order_id":"Expected Order Id",
-"var checkout_url":"Checkout URL",
-"var customer_name":"Customer Name"
+"var formattedBillingAddress|raw":"Factuuradres",
+"var formattedShippingAddress|raw":"Verzendadres",
+"var order.increment_id":"Ordernummer",
+"var expected_order_id":"Verwacht ordernummer",
+"var order_data.email_customer_note|escape|nl2br":"Opmerking bij order",
+"layout handle=\"sales_email_order_items\" order_id=$order_id area=\"frontend\"":"Orderoverzicht",
+"var payment_html|raw":"Betalingsgegevens",
+"var checkout_url":"Betaallink",
+"var customer_name":"Klantnaam",
+"var customer_email":"E-mailadres klant",
+"var order.getShippingDescription":"Verzendmethode"
 } @-->
 
 {{template config_path="design/email/header_template"}}
@@ -31,33 +38,62 @@
 <table>
     <tr class="email-intro">
         <td>
-            <h2 class="title">Beste {{trans "%customer_name," customer_name=$order.getCustomerFirstname()}}</h2>
-            <p class="text">Leuk dat je een bestelling wilt plaatsen bij
-            {{config path="general/store_information/name"}}! Wij hebben helaas nog geen betaling ontvangen van je bestelling met ordernummer <strong>{{var order.increment_id}}</strong>.</p>
-            <p class="text"><strong>Let op:</strong> heb je ondertussen zelf een nieuwe bestelling geplaatst of de betaling van je bestelling
-            met ordernummer <strong>{{var order.increment_id}}</strong> al voldaan? Dan kun je deze email als niet verzonden beschouwen. In verband met de verwerkingstijd van betalingen kan het zijn dat deze e-mail en je betaling elkaar kruisen.</p>
-            <p class="text">Reken veilig en snel af via onderstaande button. Ontvangen we je betaling op werkdagen voor 21:00 uur en heb je gekozen voor onze snelle verzendmethode? Dan verzenden we nog dezelfde dag je bestelling.
-            Indien wij geen betaling ontvangen, wordt je bestelling automatisch geannuleerd.</p>
-            <br />
-            <table class="button" width="100%" border="0" cellspacing="0" cellpadding="0">
+            <p class="greeting">{{trans "Hallo %customer_name," customer_name=$customer_name}}</p>
+            <p>
+                {{trans 'We zagen dat je je aankoop nog niet hebt afgerond. Geen zorgen, je artikelen wachten nog op je!' |raw}}
+            </p>
+            <p>
+                {{trans 'Je kunt je bestelling nu <a href="%checkout_url&utm_source=magento&utm_medium=email&utm_campaign=transactional-email&utm_content=buckaroo-payment-reminder-1" style="color: #1979c3; text-decoration: none;">alsnog betalen</a> bij %store_name.' store_name=$store.frontend_name checkout_url=$checkout_url |raw}}
+            </p>
+            <p>
+                {{trans 'Heb je vragen over je bestelling? Neem dan contact met ons op via <a href="mailto:%store_email" style="color: #1979c3; text-decoration: none;">%store_email</a>.' store_email=$store.getStoreEmail() |raw}}
+            </p>
+        </td>
+    </tr>
+    <tr class="email-summary">
+        <td>
+            <h1>{{trans 'Jouw bestelling <span class="no-link">#%increment_id</span>' increment_id=$expected_order_id |raw}}</h1>
+            <p>{{trans 'Totaalbedrag: %order_total' order_total=$order.formatPrice($order.getGrandTotal()) |raw}}</p>
+        </td>
+    </tr>
+    <tr class="email-information">
+        <td>
+            <table class="order-details">
                 <tr>
-                    <td>
-                        <table class="inner-wrapper" border="0" cellspacing="0" cellpadding="0" align="center">
-                            <tr>
-                                <td align="center">
-                                    <a href="{{var checkout_url}}&utm_source=magento&utm_medium=email&utm_campaign=transactional-email&utm_content=buckaroo-payment-reminder-1" target="_blank" class="button primary">Klik hier om de bestelling te betalen</a>
-                                </td>
-                            </tr>
-                        </table>
+                    <td class="address-details">
+                        <h3>{{trans "Factuurgegevens"}}</h3>
+                        <p>{{var formattedBillingAddress|raw}}</p>
                     </td>
+                    {{depend order_data.is_not_virtual}}
+                    <td class="address-details">
+                        <h3>{{trans "Verzendgegevens"}}</h3>
+                        <p>{{var formattedShippingAddress|raw}}</p>
+                    </td>
+                    {{/depend}}
+                </tr>
+                <tr>
+                    <td class="method-info">
+                        <h3>{{trans "Betaalmethode"}}</h3>
+                        {{var payment_html|raw}}
+                    </td>
+                    {{depend order.shipping_description}}
+                    <td class="method-info">
+                        <h3>{{trans "Verzendmethode"}}</h3>
+                        <p>{{var order.shipping_description}}</p>
+                    </td>
+                    {{/depend}}
                 </tr>
             </table>
-            <br />
-            <p class="text"><strong>Heb je gekozen voor betaling via Belfius en deze volledig afgerond?</strong> Dan kan de verwerking van je betaling even duren. Je order is goed binnengekomen bij ons en je ontvangt binnen een aantal uur de orderbevestiging. Wanneer het bedrag van je rekening af is geschreven kun je de betaalherinnering negeren.</p>
+
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="{{var checkout_url}}&utm_source=magento&utm_medium=email&utm_campaign=transactional-email&utm_content=buckaroo-payment-reminder-1" style="background-color: #1979c3; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+                    {{trans "Bestelling betalen"}}
+                </a>
+            </div>
+
+            {{layout handle="sales_email_order_items" order_id=$order_id area="frontend"}}
         </td>
     </tr>
 </table>
-<br />
-<p class="text">Met vriendelijke groet,<br /><br />Team Klantenservice<br /><a href="{{config path="web/secure/base_url"}}?utm_source=magento&utm_medium=email&utm_campaign=transactional-email&utm_content=payment-reminder-1">{{config path="general/store_information/name"}}</a></p>
 
 {{template config_path="design/email/footer_template"}}
