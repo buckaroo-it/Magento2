@@ -107,7 +107,7 @@ class Recreate
         Log $logger,
         StoreManagerInterface $storeManager,
         PaymentHelper $paymentHelper,
-        SecondChanceConfig $secondChanceConfig = null
+        ?SecondChanceConfig $secondChanceConfig = null
     ) {
         $this->cartRepository       = $cartRepository;
         $this->checkoutSession      = $checkoutSession;
