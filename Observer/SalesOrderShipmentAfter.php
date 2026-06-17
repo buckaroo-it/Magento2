@@ -33,6 +33,7 @@ use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Api\OrderItemRepositoryInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Invoice;
@@ -87,12 +88,18 @@ class SalesOrderShipmentAfter implements ObserverInterface
     private $orderRepository;
 
     /**
-     * @param InvoiceService           $invoiceService
-     * @param TransactionFactory       $transactionFactory
-     * @param ConfigProviderFactory    $configProviderFactory
-     * @param BuckarooLoggerInterface  $logger
-     * @param CreateInvoice            $createInvoiceService
-     * @param OrderRepositoryInterface $orderRepository
+     * @var OrderItemRepositoryInterface
+     */
+    private $orderItemRepository;
+
+    /**
+     * @param InvoiceService               $invoiceService
+     * @param TransactionFactory           $transactionFactory
+     * @param ConfigProviderFactory        $configProviderFactory
+     * @param BuckarooLoggerInterface      $logger
+     * @param CreateInvoice                $createInvoiceService
+     * @param OrderRepositoryInterface     $orderRepository
+     * @param OrderItemRepositoryInterface $orderItemRepository
      */
     public function __construct(
         InvoiceService $invoiceService,
@@ -100,7 +107,8 @@ class SalesOrderShipmentAfter implements ObserverInterface
         ConfigProviderFactory $configProviderFactory,
         BuckarooLoggerInterface $logger,
         CreateInvoice $createInvoiceService,
-        OrderRepositoryInterface $orderRepository
+        OrderRepositoryInterface $orderRepository,
+        OrderItemRepositoryInterface $orderItemRepository
     ) {
         $this->invoiceService = $invoiceService;
         $this->transactionFactory = $transactionFactory;
@@ -108,6 +116,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
         $this->logger = $logger;
         $this->createInvoiceService = $createInvoiceService;
         $this->orderRepository = $orderRepository;
+        $this->orderItemRepository = $orderItemRepository;
     }
 
     /**
@@ -139,6 +148,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
             if (!$this->order->hasInvoices()) {
                 $this->createInvoice();
             }
+            $this->syncBundleTogetherChildQtyShipped();
             return;
         }
 
@@ -150,6 +160,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
             if (!$this->order->hasInvoices()) {
                 $this->createInvoice(true);
             }
+            $this->syncBundleTogetherChildQtyShipped();
             return;
         }
 
@@ -162,6 +173,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
             if (!$this->order->hasInvoices()) {
                 $this->createInvoice(true);
             }
+            $this->syncBundleTogetherChildQtyShipped();
             return;
         }
 
@@ -176,6 +188,8 @@ class SalesOrderShipmentAfter implements ObserverInterface
             } else {
                 $this->createInvoiceService->createInvoiceGeneralSetting($this->order, $this->getQtys());
             }
+
+            $this->syncBundleTogetherChildQtyShipped();
         }
     }
 
@@ -285,6 +299,56 @@ class SalesOrderShipmentAfter implements ObserverInterface
     public function getQtys(): array
     {
         return $this->createInvoiceService->getQtysFromShipment($this->shipment);
+    }
+
+    /**
+     * For "Ship Together" bundles, Magento only records qty_shipped on the parent shipment item,
+     * leaving children at qty_shipped=0. Magento's canShip() uses getSimpleQtyToShip() for bundle
+     * children (bypasses isDummy), so children with qty_shipped=0 keep canShip() returning true
+     * forever, preventing the order from reaching "complete" state.
+     *
+     * This method mirrors the parent's shipped quantity onto each child item so that
+     * getSimpleQtyToShip() returns 0 for them, allowing canShip() to return false after all
+     * items are invoiced, which lets Magento's state machine transition the order to "complete".
+     */
+    private function syncBundleTogetherChildQtyShipped(): void
+    {
+        $hasChanges = false;
+
+        foreach ($this->order->getAllItems() as $item) {
+            if ($item->getProductType() !== 'bundle' || $item->isShipSeparately()) {
+                continue;
+            }
+
+            $parentQtyShipped = (float)$item->getQtyShipped();
+            if ($parentQtyShipped <= 0) {
+                continue;
+            }
+
+            foreach ($item->getChildrenItems() as $child) {
+                if ((float)$child->getQtyShipped() >= (float)$child->getQtyOrdered()) {
+                    continue;
+                }
+                $child->setQtyShipped($child->getQtyOrdered());
+                try {
+                    $this->orderItemRepository->save($child);
+                    $hasChanges = true;
+                } catch (\Exception $e) {
+                    $this->logger->addDebug(sprintf(
+                        '[SYNC_BUNDLE_QTY] | [Observer] | [%s:%s] - Failed to save child item %s: %s',
+                        __METHOD__,
+                        __LINE__,
+                        $child->getId(),
+                        $e->getMessage()
+                    ));
+                }
+            }
+        }
+
+        if ($hasChanges) {
+            $this->order->setIsInProcess(true);
+            $this->orderRepository->save($this->order);
+        }
     }
 
     /**
